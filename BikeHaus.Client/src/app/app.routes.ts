@@ -1,0 +1,29 @@
+import { Routes } from '@angular/router';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { BicycleListComponent } from './pages/bicycles/bicycle-list.component';
+import { BicycleDetailComponent } from './pages/bicycles/bicycle-detail.component';
+import { CustomerListComponent } from './pages/customers/customer-list.component';
+import { PurchaseListComponent } from './pages/purchases/purchase-list.component';
+import { PurchaseFormComponent } from './pages/purchases/purchase-form.component';
+import { SaleListComponent } from './pages/sales/sale-list.component';
+import { SaleFormComponent } from './pages/sales/sale-form.component';
+import { ReturnListComponent } from './pages/returns/return-list.component';
+import { ReturnFormComponent } from './pages/returns/return-form.component';
+import { StatisticsComponent } from './pages/statistics/statistics.component';
+import { SettingsComponent } from './pages/settings/settings.component';
+
+export const routes: Routes = [
+  { path: '', component: DashboardComponent },
+  { path: 'bicycles', component: BicycleListComponent },
+  { path: 'bicycles/:id', component: BicycleDetailComponent },
+  { path: 'customers', component: CustomerListComponent },
+  { path: 'purchases', component: PurchaseListComponent },
+  { path: 'purchases/new', component: PurchaseFormComponent },
+  { path: 'sales', component: SaleListComponent },
+  { path: 'sales/new', component: SaleFormComponent },
+  { path: 'returns', component: ReturnListComponent },
+  { path: 'returns/new', component: ReturnFormComponent },
+  { path: 'statistics', component: StatisticsComponent },
+  { path: 'settings', component: SettingsComponent },
+  { path: '**', redirectTo: '' },
+];

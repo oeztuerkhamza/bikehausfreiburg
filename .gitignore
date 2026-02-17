@@ -1,0 +1,71 @@
+# .NET
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.user
+*.suo
+*.cache
+*.log
+*.vs/
+.vscode/
+*.userprefs
+
+# ASP.NET
+appsettings.*.local.json
+*.pfx
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+
+# Angular / Node.js
+BikeHaus.Client/node_modules/
+BikeHaus.Client/dist/
+BikeHaus.Client/.angular/
+npm-debug.log
+yarn-error.log
+.npm/
+.yarn/
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Uploads (keep folder structure but ignore files)
+BikeHaus.API/uploads/**/*
+!BikeHaus.API/uploads/.gitkeep
+!BikeHaus.API/uploads/image/.gitkeep
+!BikeHaus.API/uploads/screenshot/.gitkeep
+
+# Secrets
+*.env
+.env.*
+secrets.json
+
+# Test results
+TestResults/
+coverage/
+*.coverage
