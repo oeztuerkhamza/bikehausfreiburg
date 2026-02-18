@@ -51,6 +51,7 @@ public class BicycleService : IBicycleService
         entity.Rahmennummer = dto.Rahmennummer;
         entity.Farbe = dto.Farbe;
         entity.Reifengroesse = dto.Reifengroesse;
+        entity.StokNo = dto.StokNo;
         entity.Fahrradtyp = dto.Fahrradtyp;
         entity.Beschreibung = dto.Beschreibung;
         entity.Status = dto.Status;

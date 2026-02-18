@@ -38,6 +38,12 @@ public class PurchaseService : IPurchaseService
         return purchase?.ToDto();
     }
 
+    public async Task<PurchaseDto?> GetByBicycleIdAsync(int bicycleId)
+    {
+        var purchase = await _purchaseRepository.GetByBicycleIdAsync(bicycleId);
+        return purchase?.ToDto();
+    }
+
     public async Task<PurchaseDto> CreateAsync(PurchaseCreateDto dto)
     {
         // Create Bicycle
@@ -54,6 +60,7 @@ public class PurchaseService : IPurchaseService
             BicycleId = bicycle.Id,
             SellerId = seller.Id,
             Preis = dto.Preis,
+            VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag,
             Zahlungsart = dto.Zahlungsart,
             Kaufdatum = dto.Kaufdatum ?? DateTime.UtcNow,
             Notizen = dto.Notizen,
@@ -69,6 +76,52 @@ public class PurchaseService : IPurchaseService
         var created = await _purchaseRepository.AddAsync(purchase);
         var result = await _purchaseRepository.GetWithDetailsAsync(created.Id);
         return result!.ToDto();
+    }
+
+    public async Task<PurchaseDto> UpdateAsync(int id, PurchaseUpdateDto dto)
+    {
+        var purchase = await _purchaseRepository.GetWithDetailsAsync(id)
+            ?? throw new KeyNotFoundException($"Ankauf mit ID {id} nicht gefunden.");
+
+        // Update Bicycle
+        var bicycle = purchase.Bicycle;
+        bicycle.Marke = dto.Bicycle.Marke;
+        bicycle.Modell = dto.Bicycle.Modell;
+        bicycle.Rahmennummer = dto.Bicycle.Rahmennummer;
+        bicycle.Farbe = dto.Bicycle.Farbe;
+        bicycle.Reifengroesse = dto.Bicycle.Reifengroesse;
+        bicycle.StokNo = dto.Bicycle.StokNo;
+        bicycle.Fahrradtyp = dto.Bicycle.Fahrradtyp;
+        bicycle.Beschreibung = dto.Bicycle.Beschreibung;
+        bicycle.Status = dto.Bicycle.Status;
+        bicycle.Zustand = dto.Bicycle.Zustand;
+        bicycle.UpdatedAt = DateTime.UtcNow;
+        await _bicycleRepository.UpdateAsync(bicycle);
+
+        // Update Seller
+        var seller = purchase.Seller;
+        seller.Vorname = dto.Seller.Vorname;
+        seller.Nachname = dto.Seller.Nachname;
+        seller.Strasse = dto.Seller.Strasse;
+        seller.Hausnummer = dto.Seller.Hausnummer;
+        seller.PLZ = dto.Seller.PLZ;
+        seller.Stadt = dto.Seller.Stadt;
+        seller.Telefon = dto.Seller.Telefon;
+        seller.Email = dto.Seller.Email;
+        seller.UpdatedAt = DateTime.UtcNow;
+        await _customerRepository.UpdateAsync(seller);
+
+        // Update Purchase
+        purchase.Preis = dto.Preis;
+        purchase.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
+        purchase.Zahlungsart = dto.Zahlungsart;
+        purchase.Kaufdatum = dto.Kaufdatum;
+        purchase.Notizen = dto.Notizen;
+        purchase.UpdatedAt = DateTime.UtcNow;
+        await _purchaseRepository.UpdateAsync(purchase);
+
+        var updated = await _purchaseRepository.GetWithDetailsAsync(id);
+        return updated!.ToDto();
     }
 
     public async Task DeleteAsync(int id)

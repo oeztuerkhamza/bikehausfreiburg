@@ -20,6 +20,16 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
+    public async Task<Purchase?> GetByBicycleIdAsync(int bicycleId)
+    {
+        return await _dbSet
+            .Include(p => p.Bicycle)
+            .Include(p => p.Seller)
+            .Include(p => p.Signature)
+            .Include(p => p.Sale)
+            .FirstOrDefaultAsync(p => p.BicycleId == bicycleId);
+    }
+
     public async Task<IEnumerable<Purchase>> GetRecentPurchasesAsync(int count = 10)
     {
         return await _dbSet

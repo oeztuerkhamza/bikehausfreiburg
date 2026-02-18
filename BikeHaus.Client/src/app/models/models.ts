@@ -45,6 +45,7 @@ export interface Bicycle {
   rahmennummer: string;
   farbe: string;
   reifengroesse: string;
+  stokNo?: string;
   fahrradtyp?: string;
   beschreibung?: string;
   status: BikeStatus;
@@ -58,6 +59,7 @@ export interface BicycleCreate {
   rahmennummer: string;
   farbe: string;
   reifengroesse: string;
+  stokNo?: string;
   fahrradtyp?: string;
   beschreibung?: string;
   zustand: BikeCondition;
@@ -69,6 +71,7 @@ export interface BicycleUpdate {
   rahmennummer: string;
   farbe: string;
   reifengroesse: string;
+  stokNo?: string;
   fahrradtyp?: string;
   beschreibung?: string;
   status: BikeStatus;
@@ -134,6 +137,7 @@ export interface Purchase {
   bicycle: Bicycle;
   seller: Customer;
   preis: number;
+  verkaufspreisVorschlag?: number;
   zahlungsart: PaymentMethod;
   kaufdatum: string;
   notizen?: string;
@@ -148,6 +152,7 @@ export interface PurchaseList {
   bikeInfo: string;
   sellerName: string;
   preis: number;
+  verkaufspreisVorschlag?: number;
   zahlungsart: PaymentMethod;
   kaufdatum: string;
   hasSale: boolean;
@@ -157,10 +162,21 @@ export interface PurchaseCreate {
   bicycle: BicycleCreate;
   seller: CustomerCreate;
   preis: number;
+  verkaufspreisVorschlag?: number;
   zahlungsart: PaymentMethod;
   kaufdatum: string;
   notizen?: string;
   signature?: SignatureCreate;
+}
+
+export interface PurchaseUpdate {
+  bicycle: BicycleUpdate;
+  seller: CustomerUpdate;
+  preis: number;
+  verkaufspreisVorschlag?: number;
+  zahlungsart: PaymentMethod;
+  kaufdatum: string;
+  notizen?: string;
 }
 
 // ── Sale Accessory ──
@@ -220,6 +236,17 @@ export interface SaleCreate {
   notizen?: string;
   buyerSignature?: SignatureCreate;
   sellerSignature?: SignatureCreate;
+  accessories?: SaleAccessoryCreate[];
+}
+
+export interface SaleUpdate {
+  buyer: CustomerUpdate;
+  preis: number;
+  zahlungsart: PaymentMethod;
+  verkaufsdatum: string;
+  garantie: boolean;
+  garantieBedingungen?: string;
+  notizen?: string;
   accessories?: SaleAccessoryCreate[];
 }
 

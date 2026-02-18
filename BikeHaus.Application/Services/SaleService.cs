@@ -101,6 +101,55 @@ public class SaleService : ISaleService
         return result!.ToDto();
     }
 
+    public async Task<SaleDto> UpdateAsync(int id, SaleUpdateDto dto)
+    {
+        var sale = await _saleRepository.GetWithDetailsAsync(id)
+            ?? throw new KeyNotFoundException($"Verkauf mit ID {id} nicht gefunden.");
+
+        // Update Buyer
+        var buyer = sale.Buyer;
+        buyer.Vorname = dto.Buyer.Vorname;
+        buyer.Nachname = dto.Buyer.Nachname;
+        buyer.Strasse = dto.Buyer.Strasse;
+        buyer.Hausnummer = dto.Buyer.Hausnummer;
+        buyer.PLZ = dto.Buyer.PLZ;
+        buyer.Stadt = dto.Buyer.Stadt;
+        buyer.Telefon = dto.Buyer.Telefon;
+        buyer.Email = dto.Buyer.Email;
+        buyer.UpdatedAt = DateTime.UtcNow;
+        await _customerRepository.UpdateAsync(buyer);
+
+        // Update Sale
+        sale.Preis = dto.Preis;
+        sale.Zahlungsart = dto.Zahlungsart;
+        sale.Verkaufsdatum = dto.Verkaufsdatum;
+        sale.Garantie = dto.Garantie;
+        sale.GarantieBedingungen = dto.GarantieBedingungen;
+        sale.Notizen = dto.Notizen;
+        sale.UpdatedAt = DateTime.UtcNow;
+
+        // Update Accessories - clear and recreate
+        sale.Accessories.Clear();
+        if (dto.Accessories != null && dto.Accessories.Count > 0)
+        {
+            foreach (var accessory in dto.Accessories)
+            {
+                sale.Accessories.Add(new SaleAccessory
+                {
+                    SaleId = sale.Id,
+                    Bezeichnung = accessory.Bezeichnung,
+                    Preis = accessory.Preis,
+                    Menge = accessory.Menge
+                });
+            }
+        }
+
+        await _saleRepository.UpdateAsync(sale);
+
+        var updated = await _saleRepository.GetWithDetailsAsync(id);
+        return updated!.ToDto();
+    }
+
     public async Task DeleteAsync(int id)
     {
         var sale = await _saleRepository.GetByIdAsync(id)

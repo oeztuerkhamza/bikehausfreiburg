@@ -125,11 +125,20 @@ import { forkJoin } from 'rxjs';
                 <input [(ngModel)]="bicycle.farbe" name="bikeFarbe" required />
               </div>
               <div class="field">
-                <label>Reifengröße *</label>
+                <label>Reifengröße (Zoll) *</label>
                 <input
                   [(ngModel)]="bicycle.reifengroesse"
                   name="bikeReifen"
                   required
+                  placeholder="z.B. 28"
+                />
+              </div>
+              <div class="field">
+                <label>Stok Nr.</label>
+                <input
+                  [(ngModel)]="bicycle.stokNo"
+                  name="bikeStokNo"
+                  placeholder="optional"
                 />
               </div>
               <div class="field">
@@ -184,6 +193,16 @@ import { forkJoin } from 'rxjs';
                   [(ngModel)]="preis"
                   name="preis"
                   required
+                />
+              </div>
+              <div class="field">
+                <label>Geplanter Verkaufspreis (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  [(ngModel)]="verkaufspreisVorschlag"
+                  name="verkaufspreisVorschlag"
+                  placeholder="optional"
                 />
               </div>
               <div class="field">
@@ -424,11 +443,13 @@ export class PurchaseFormComponent implements OnInit {
     rahmennummer: '',
     farbe: '',
     reifengroesse: '',
+    stokNo: '',
     fahrradtyp: '',
     beschreibung: '',
     zustand: BikeCondition.Gebraucht,
   };
   preis = 0;
+  verkaufspreisVorschlag: number | null = null;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   kaufdatum = '';
   notizen = '';
@@ -495,6 +516,7 @@ export class PurchaseFormComponent implements OnInit {
       bicycle: this.bicycle,
       seller: this.seller,
       preis: this.preis,
+      verkaufspreisVorschlag: this.verkaufspreisVorschlag || undefined,
       zahlungsart: this.zahlungsart,
       kaufdatum: this.kaufdatum,
       notizen: this.notizen || undefined,

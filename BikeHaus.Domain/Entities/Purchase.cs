@@ -11,6 +11,7 @@ public class Purchase : BaseEntity
     public DateTime Kaufdatum { get; set; } = DateTime.UtcNow;  // Purchase Date
     public string? Notizen { get; set; }                        // Notes
     public string BelegNummer { get; set; } = string.Empty;     // Receipt Number
+    public decimal? VerkaufspreisVorschlag { get; set; }         // Planned Selling Price
 
     // Navigation Properties
     public Bicycle Bicycle { get; set; } = null!;

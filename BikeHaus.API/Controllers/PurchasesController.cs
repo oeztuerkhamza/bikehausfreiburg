@@ -33,11 +33,34 @@ public class PurchasesController : ControllerBase
         return Ok(purchase);
     }
 
+    [HttpGet("by-bicycle/{bicycleId}")]
+    public async Task<ActionResult<PurchaseDto>> GetByBicycleId(int bicycleId)
+    {
+        var purchase = await _purchaseService.GetByBicycleIdAsync(bicycleId);
+        if (purchase == null)
+            return NotFound();
+        return Ok(purchase);
+    }
+
     [HttpPost]
     public async Task<ActionResult<PurchaseDto>> Create([FromBody] PurchaseCreateDto dto)
     {
         var purchase = await _purchaseService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = purchase.Id }, purchase);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult<PurchaseDto>> Update(int id, [FromBody] PurchaseUpdateDto dto)
+    {
+        try
+        {
+            var purchase = await _purchaseService.UpdateAsync(id, dto);
+            return Ok(purchase);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
     }
 
     [HttpGet("{id}/kaufbeleg")]

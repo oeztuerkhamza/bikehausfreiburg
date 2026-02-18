@@ -8,4 +8,6 @@ public interface IShopSettingsService
     Task<ShopSettingsDto> UpdateSettingsAsync(UpdateShopSettingsDto dto);
     Task<ShopSettingsDto> UploadLogoAsync(UploadLogoDto dto);
     Task DeleteLogoAsync();
+    Task<ShopSettingsDto> UploadOwnerSignatureAsync(UploadSignatureDto dto);
+    Task DeleteOwnerSignatureAsync();
 }

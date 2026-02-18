@@ -57,9 +57,14 @@ import {
             <span *ngIf="!editing">{{ bicycle.farbe }}</span>
           </div>
           <div class="field">
-            <label>Reifengröße</label>
+            <label>Reifengröße (Zoll)</label>
             <input *ngIf="editing" [(ngModel)]="form.reifengroesse" />
             <span *ngIf="!editing">{{ bicycle.reifengroesse }}</span>
+          </div>
+          <div class="field">
+            <label>Stok Nr.</label>
+            <input *ngIf="editing" [(ngModel)]="form.stokNo" />
+            <span *ngIf="!editing">{{ bicycle.stokNo || '–' }}</span>
           </div>
           <div class="field">
             <label>Fahrradtyp</label>
@@ -273,6 +278,7 @@ export class BicycleDetailComponent implements OnInit {
     rahmennummer: '',
     farbe: '',
     reifengroesse: '',
+    stokNo: '',
     fahrradtyp: '',
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
@@ -295,6 +301,7 @@ export class BicycleDetailComponent implements OnInit {
         rahmennummer: b.rahmennummer,
         farbe: b.farbe,
         reifengroesse: b.reifengroesse,
+        stokNo: b.stokNo,
         fahrradtyp: b.fahrradtyp,
         beschreibung: b.beschreibung,
         status: b.status,

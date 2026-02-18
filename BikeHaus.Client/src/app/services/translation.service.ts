@@ -53,6 +53,13 @@ export interface Translations {
   german: string;
   turkish: string;
   settingsSaved: string;
+  ownerInfo: string;
+  ownerFirstName: string;
+  ownerLastName: string;
+  ownerSignature: string;
+  saveSignature: string;
+  deleteSignature: string;
+  plannedSellingPrice: string;
 
   // Bicycle
   brand: string;
@@ -78,6 +85,32 @@ export interface Translations {
   buyer: string;
   totalAmount: string;
   profit: string;
+
+  // Filters
+  searchPlaceholder: string;
+  allPaymentMethods: string;
+  allDates: string;
+  today: string;
+  thisWeek: string;
+  thisMonth: string;
+  thisYear: string;
+  receiptNo: string;
+  bicycle: string;
+  paymentMethod: string;
+  cash: string;
+  bankTransfer: string;
+  paypal: string;
+  warranty: string;
+  newPurchase: string;
+  newSale: string;
+  noPurchases: string;
+  noSales: string;
+  noResults: string;
+  deleteConfirmPurchase: string;
+  deleteConfirmSale: string;
+  deleteError: string;
+  from: string;
+  to: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -132,6 +165,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     german: 'Deutsch',
     turkish: 'Türkisch',
     settingsSaved: 'Einstellungen gespeichert',
+    ownerInfo: 'Inhaber',
+    ownerFirstName: 'Vorname',
+    ownerLastName: 'Nachname',
+    ownerSignature: 'Unterschrift des Inhabers',
+    saveSignature: 'Unterschrift speichern',
+    deleteSignature: 'Unterschrift löschen',
+    plannedSellingPrice: 'Geplanter Verkaufspreis',
 
     // Bicycle
     brand: 'Marke',
@@ -157,6 +197,32 @@ const TRANSLATIONS: Record<Language, Translations> = {
     buyer: 'Käufer',
     totalAmount: 'Gesamtbetrag',
     profit: 'Gewinn',
+
+    // Filters
+    searchPlaceholder: 'Suche nach Beleg-Nr., Fahrrad, Name...',
+    allPaymentMethods: 'Alle Zahlungsarten',
+    allDates: 'Alle Zeiträume',
+    today: 'Heute',
+    thisWeek: 'Diese Woche',
+    thisMonth: 'Dieser Monat',
+    thisYear: 'Dieses Jahr',
+    receiptNo: 'Beleg-Nr.',
+    bicycle: 'Fahrrad',
+    paymentMethod: 'Zahlungsart',
+    cash: 'Bar',
+    bankTransfer: 'Überweisung',
+    paypal: 'PayPal',
+    warranty: 'Garantie',
+    newPurchase: 'Neuer Ankauf',
+    newSale: 'Neuer Verkauf',
+    noPurchases: 'Keine Ankäufe vorhanden',
+    noSales: 'Keine Verkäufe vorhanden',
+    noResults: 'Keine Ergebnisse gefunden',
+    deleteConfirmPurchase: 'Ankauf wirklich löschen?',
+    deleteConfirmSale: 'Verkauf wirklich löschen?',
+    deleteError: 'Fehler beim Löschen',
+    from: 'Von',
+    to: 'Bis',
   },
   tr: {
     // Navigation
@@ -209,6 +275,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     german: 'Almanca',
     turkish: 'Türkçe',
     settingsSaved: 'Ayarlar kaydedildi',
+    ownerInfo: 'İşletme Sahibi',
+    ownerFirstName: 'Ad',
+    ownerLastName: 'Soyad',
+    ownerSignature: 'İşletme Sahibi İmzası',
+    saveSignature: 'İmzayı Kaydet',
+    deleteSignature: 'İmzayı Sil',
+    plannedSellingPrice: 'Planlanan Satış Fiyatı',
 
     // Bicycle
     brand: 'Marka',
@@ -234,6 +307,32 @@ const TRANSLATIONS: Record<Language, Translations> = {
     buyer: 'Alıcı',
     totalAmount: 'Toplam Tutar',
     profit: 'Kar',
+
+    // Filters
+    searchPlaceholder: 'Belge no, bisiklet, isim ara...',
+    allPaymentMethods: 'Tüm Ödeme Yöntemleri',
+    allDates: 'Tüm Tarihler',
+    today: 'Bugün',
+    thisWeek: 'Bu Hafta',
+    thisMonth: 'Bu Ay',
+    thisYear: 'Bu Yıl',
+    receiptNo: 'Belge No',
+    bicycle: 'Bisiklet',
+    paymentMethod: 'Ödeme Yöntemi',
+    cash: 'Nakit',
+    bankTransfer: 'Banka Havalesi',
+    paypal: 'PayPal',
+    warranty: 'Garanti',
+    newPurchase: 'Yeni Alım',
+    newSale: 'Yeni Satış',
+    noPurchases: 'Alım bulunamadı',
+    noSales: 'Satış bulunamadı',
+    noResults: 'Sonuç bulunamadı',
+    deleteConfirmPurchase: 'Bu alımı silmek istediğinize emin misiniz?',
+    deleteConfirmSale: 'Bu satışı silmek istediğinize emin misiniz?',
+    deleteError: 'Silme hatası',
+    from: 'Başlangıç',
+    to: 'Bitiş',
   },
 };
 

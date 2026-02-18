@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Sale, SaleCreate, SaleList } from '../models/models';
+import { Sale, SaleCreate, SaleList, SaleUpdate } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class SaleService {
@@ -20,6 +20,10 @@ export class SaleService {
 
   create(sale: SaleCreate): Observable<Sale> {
     return this.http.post<Sale>(this.url, sale);
+  }
+
+  update(id: number, sale: SaleUpdate): Observable<Sale> {
+    return this.http.put<Sale>(`${this.url}/${id}`, sale);
   }
 
   delete(id: number): Observable<void> {

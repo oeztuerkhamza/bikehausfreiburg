@@ -1,4 +1,5 @@
 using BikeHaus.Application.Interfaces;
+using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
 using QuestPDF.Fluent;
@@ -12,20 +13,21 @@ public class PdfService : IPdfService
     private readonly IPurchaseRepository _purchaseRepository;
     private readonly ISaleRepository _saleRepository;
     private readonly IReturnRepository _returnRepository;
+    private readonly IShopSettingsRepository _shopSettingsRepository;
 
-    // Shop Information
-    private const string ShopName = "BIKE HAUS FREIBURG";
-    private const string OwnerName = "CEVDET AKARSU";
-    private const string ShopType = "FAHRRADLADEN";
-    private const string Steuernummer = "06002/40667";
-    private const string UStIdNr = "DE437595861";
-    private const string ShopStreet = "Heckerstraße 27";
-    private const string ShopCity = "79114 Freiburg";
-    private const string ShopEmail = "bikehausfreiburg@gmail.com";
-    private const string ShopTelefon = "0 15566300011";
-    private const string BankName = "Sparkasse";
-    private const string BankAccountHolder = "Cevdet Akarsu";
-    private const string IBAN = "DE28 6805 0101 00 14 5475 04";
+    // Default Shop Information (fallback if no settings in DB)
+    private const string DefaultShopName = "BIKE HAUS FREIBURG";
+    private const string DefaultOwnerName = "CEVDET AKARSU";
+    private const string DefaultShopType = "FAHRRADLADEN";
+    private const string DefaultSteuernummer = "06002/40667";
+    private const string DefaultUStIdNr = "DE437595861";
+    private const string DefaultShopStreet = "Heckerstraße 27";
+    private const string DefaultShopCity = "79114 Freiburg";
+    private const string DefaultShopEmail = "bikehausfreiburg@gmail.com";
+    private const string DefaultShopTelefon = "0 15566300011";
+    private const string DefaultBankName = "Sparkasse";
+    private const string DefaultBankAccountHolder = "Cevdet Akarsu";
+    private const string DefaultIBAN = "DE28 6805 0101 00 14 5475 04";
 
     // Warranty Texts
     private const string NeuWarrantyText =
@@ -43,17 +45,115 @@ public class PdfService : IPdfService
     private const string RepairNote =
         "*Reparaturen im Garantiefall dürfen ausschließlich durch Bike Haus Freiburg durchgeführt werden.*";
 
-    public PdfService(IPurchaseRepository purchaseRepository, ISaleRepository saleRepository, IReturnRepository returnRepository)
+    public PdfService(
+        IPurchaseRepository purchaseRepository,
+        ISaleRepository saleRepository,
+        IReturnRepository returnRepository,
+        IShopSettingsRepository shopSettingsRepository)
     {
         _purchaseRepository = purchaseRepository;
         _saleRepository = saleRepository;
         _returnRepository = returnRepository;
+        _shopSettingsRepository = shopSettingsRepository;
+    }
+
+    // Helper to get shop info from DB settings or use defaults
+    private async Task<ShopInfo> GetShopInfoAsync()
+    {
+        var settings = await _shopSettingsRepository.GetSettingsAsync();
+        if (settings == null)
+        {
+            return new ShopInfo
+            {
+                ShopName = DefaultShopName,
+                OwnerName = DefaultOwnerName,
+                ShopType = DefaultShopType,
+                Steuernummer = DefaultSteuernummer,
+                UStIdNr = DefaultUStIdNr,
+                Street = DefaultShopStreet,
+                City = DefaultShopCity,
+                Email = DefaultShopEmail,
+                Telefon = DefaultShopTelefon,
+                BankName = DefaultBankName,
+                BankAccountHolder = DefaultBankAccountHolder,
+                IBAN = DefaultIBAN,
+                LogoBase64 = null,
+                OwnerSignatureBase64 = null
+            };
+        }
+
+        // Build owner name from settings or fallback
+        var ownerName = DefaultOwnerName;
+        if (!string.IsNullOrEmpty(settings.InhaberVorname) || !string.IsNullOrEmpty(settings.InhaberNachname))
+        {
+            ownerName = $"{settings.InhaberVorname} {settings.InhaberNachname}".Trim().ToUpper();
+        }
+
+        return new ShopInfo
+        {
+            ShopName = !string.IsNullOrEmpty(settings.ShopName) ? settings.ShopName.ToUpper() : DefaultShopName,
+            OwnerName = ownerName,
+            ShopType = DefaultShopType,
+            Steuernummer = !string.IsNullOrEmpty(settings.Steuernummer) ? settings.Steuernummer : DefaultSteuernummer,
+            UStIdNr = !string.IsNullOrEmpty(settings.UstIdNr) ? settings.UstIdNr : DefaultUStIdNr,
+            Street = !string.IsNullOrEmpty(settings.Strasse) ? $"{settings.Strasse} {settings.Hausnummer}" : DefaultShopStreet,
+            City = !string.IsNullOrEmpty(settings.PLZ) ? $"{settings.PLZ} {settings.Stadt}" : DefaultShopCity,
+            Email = !string.IsNullOrEmpty(settings.Email) ? settings.Email : DefaultShopEmail,
+            Telefon = !string.IsNullOrEmpty(settings.Telefon) ? settings.Telefon : DefaultShopTelefon,
+            BankName = !string.IsNullOrEmpty(settings.Bankname) ? settings.Bankname : DefaultBankName,
+            BankAccountHolder = ownerName,
+            IBAN = !string.IsNullOrEmpty(settings.IBAN) ? settings.IBAN : DefaultIBAN,
+            LogoBase64 = settings.LogoBase64,
+            OwnerSignatureBase64 = settings.InhaberSignatureBase64
+        };
+    }
+
+    private static void AddLogoToHeader(ColumnDescriptor col, ShopInfo shop)
+    {
+        if (!string.IsNullOrEmpty(shop.LogoBase64))
+        {
+            try
+            {
+                var base64Data = shop.LogoBase64;
+                // Remove data URI prefix if present
+                if (base64Data.Contains(","))
+                    base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
+
+                var logoBytes = Convert.FromBase64String(base64Data);
+                col.Item().AlignCenter().Height(60).Image(logoBytes);
+                col.Item().PaddingBottom(5);
+            }
+            catch
+            {
+                // Ignore logo errors, continue without logo
+            }
+        }
+    }
+
+    private class ShopInfo
+    {
+        public string ShopName { get; set; } = string.Empty;
+        public string OwnerName { get; set; } = string.Empty;
+        public string ShopType { get; set; } = string.Empty;
+        public string Steuernummer { get; set; } = string.Empty;
+        public string UStIdNr { get; set; } = string.Empty;
+        public string Street { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Telefon { get; set; } = string.Empty;
+        public string BankName { get; set; } = string.Empty;
+        public string BankAccountHolder { get; set; } = string.Empty;
+        public string IBAN { get; set; } = string.Empty;
+        public string? LogoBase64 { get; set; }
+        public string? OwnerSignatureBase64 { get; set; }
     }
 
     public async Task<byte[]> GenerateKaufbelegAsync(int purchaseId)
     {
         var purchase = await _purchaseRepository.GetWithDetailsAsync(purchaseId)
             ?? throw new KeyNotFoundException($"Purchase with ID {purchaseId} not found.");
+
+        var shop = await GetShopInfoAsync();
 
         QuestPDF.Settings.License = LicenseType.Community;
 
@@ -68,8 +168,9 @@ public class PdfService : IPdfService
                 // Header
                 page.Header().Column(col =>
                 {
+                    AddLogoToHeader(col, shop);
                     col.Item().Text("KAUFBELEG").FontSize(24).Bold().AlignCenter();
-                    col.Item().Text("Bike Haus Freiburg").FontSize(14).AlignCenter();
+                    col.Item().Text(shop.ShopName).FontSize(14).AlignCenter();
                     col.Item().PaddingBottom(10).LineHorizontal(1);
                 });
 
@@ -173,7 +274,7 @@ public class PdfService : IPdfService
                 // Footer
                 page.Footer().AlignCenter().Text(text =>
                 {
-                    text.Span("Bike Haus Freiburg | ");
+                    text.Span($"{shop.ShopName} | ");
                     text.Span($"Erstellt am {DateTime.Now:dd.MM.yyyy HH:mm}");
                 });
             });
@@ -186,6 +287,8 @@ public class PdfService : IPdfService
     {
         var sale = await _saleRepository.GetWithDetailsAsync(saleId)
             ?? throw new KeyNotFoundException($"Sale with ID {saleId} not found.");
+
+        var shop = await GetShopInfoAsync();
 
         QuestPDF.Settings.License = LicenseType.Community;
 
@@ -208,11 +311,25 @@ public class PdfService : IPdfService
                     {
                         row.RelativeItem().Column(leftCol =>
                         {
-                            leftCol.Item().Text(ShopName).FontSize(14).Bold();
-                            leftCol.Item().Text(OwnerName).FontSize(11);
-                            leftCol.Item().Text(ShopType).FontSize(11);
-                            leftCol.Item().PaddingTop(5).Text($"Steuernummer:{Steuernummer}").FontSize(9);
-                            leftCol.Item().Text(UStIdNr).FontSize(9);
+                            // Logo in header
+                            if (!string.IsNullOrEmpty(shop.LogoBase64))
+                            {
+                                try
+                                {
+                                    var base64Data = shop.LogoBase64;
+                                    if (base64Data.Contains(","))
+                                        base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
+                                    var logoBytes = Convert.FromBase64String(base64Data);
+                                    leftCol.Item().Height(40).Image(logoBytes);
+                                    leftCol.Item().PaddingBottom(3);
+                                }
+                                catch { }
+                            }
+                            leftCol.Item().Text(shop.ShopName).FontSize(14).Bold();
+                            leftCol.Item().Text(shop.OwnerName).FontSize(11);
+                            leftCol.Item().Text(shop.ShopType).FontSize(11);
+                            leftCol.Item().PaddingTop(5).Text($"Steuernummer:{shop.Steuernummer}").FontSize(9);
+                            leftCol.Item().Text(shop.UStIdNr).FontSize(9);
                             leftCol.Item().PaddingTop(3).Text("Kaufvertrag und Rechnung für ein gebrauchtes Kraftfahrzeug nach §25a UStG-Kein").FontSize(8);
                             leftCol.Item().Text("gesonderter Ausweis der Umsatzsteuer.").FontSize(8);
                         });
@@ -235,11 +352,11 @@ public class PdfService : IPdfService
                         row.RelativeItem().Column(leftCol =>
                         {
                             leftCol.Item().Text("Verkäufer:").Bold();
-                            leftCol.Item().Text(OwnerName);
-                            leftCol.Item().Text(ShopStreet);
-                            leftCol.Item().Text(ShopCity);
-                            leftCol.Item().Text($"Email: {ShopEmail}");
-                            leftCol.Item().Text($"Tel. nummer:{ShopTelefon}");
+                            leftCol.Item().Text(shop.OwnerName);
+                            leftCol.Item().Text(shop.Street);
+                            leftCol.Item().Text(shop.City);
+                            leftCol.Item().Text($"Email: {shop.Email}");
+                            leftCol.Item().Text($"Tel. nummer:{shop.Telefon}");
                         });
                         row.RelativeItem().Column(rightCol =>
                         {
@@ -393,7 +510,7 @@ public class PdfService : IPdfService
                     col.Item().PaddingTop(5).Text(RepairNote).FontSize(8).Italic();
 
                     // Bank Info
-                    col.Item().PaddingTop(5).Text($"Bank: {BankName}. {BankAccountHolder} Iban : {IBAN}").FontSize(8);
+                    col.Item().PaddingTop(5).Text($"Bank: {shop.BankName}. {shop.BankAccountHolder} Iban : {shop.IBAN}").FontSize(8);
 
                     // Date and Signatures
                     col.Item().PaddingTop(15).Text($"Datum:  {sale.Verkaufsdatum:dd.MM.yyyy}");
@@ -407,6 +524,18 @@ public class PdfService : IPdfService
                                 var imageData = Convert.FromBase64String(
                                     sale.SellerSignature.SignatureData.Replace("data:image/png;base64,", ""));
                                 sigCol.Item().Height(50).Image(imageData);
+                            }
+                            else if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
+                            {
+                                try
+                                {
+                                    var sigData = shop.OwnerSignatureBase64;
+                                    if (sigData.Contains(","))
+                                        sigData = sigData.Substring(sigData.IndexOf(",") + 1);
+                                    var imageData = Convert.FromBase64String(sigData);
+                                    sigCol.Item().Height(50).Image(imageData);
+                                }
+                                catch { sigCol.Item().PaddingTop(50); }
                             }
                             else
                             {
@@ -448,6 +577,8 @@ public class PdfService : IPdfService
         var ret = await _returnRepository.GetWithDetailsAsync(returnId)
             ?? throw new KeyNotFoundException($"Return with ID {returnId} not found.");
 
+        var shop = await GetShopInfoAsync();
+
         QuestPDF.Settings.License = LicenseType.Community;
 
         var document = QuestPDF.Fluent.Document.Create(container =>
@@ -461,13 +592,14 @@ public class PdfService : IPdfService
                 // Header
                 page.Header().Column(col =>
                 {
+                    AddLogoToHeader(col, shop);
                     col.Item().Row(row =>
                     {
                         row.RelativeItem().Column(left =>
                         {
-                            left.Item().Text(ShopName).Bold().FontSize(16);
-                            left.Item().Text(OwnerName).FontSize(10);
-                            left.Item().Text(ShopType).FontSize(10);
+                            left.Item().Text(shop.ShopName).Bold().FontSize(16);
+                            left.Item().Text(shop.OwnerName).FontSize(10);
+                            left.Item().Text(shop.ShopType).FontSize(10);
                         });
                         row.RelativeItem().AlignRight().Column(right =>
                         {
@@ -479,9 +611,9 @@ public class PdfService : IPdfService
                             });
                         });
                     });
-                    col.Item().PaddingTop(5).Text($"{ShopStreet}, {ShopCity}").FontSize(9);
-                    col.Item().Text($"Tel: {ShopTelefon} | Email: {ShopEmail}").FontSize(9);
-                    col.Item().Text($"Steuernummer: {Steuernummer} | UStIdNr: {UStIdNr}").FontSize(9);
+                    col.Item().PaddingTop(5).Text($"{shop.Street}, {shop.City}").FontSize(9);
+                    col.Item().Text($"Tel: {shop.Telefon} | Email: {shop.Email}").FontSize(9);
+                    col.Item().Text($"Steuernummer: {shop.Steuernummer} | UStIdNr: {shop.UStIdNr}").FontSize(9);
                     col.Item().PaddingTop(10).LineHorizontal(1);
                 });
 
@@ -557,7 +689,7 @@ public class PdfService : IPdfService
                     col.Item().Text("Das Fahrrad ist nun wieder zum Verkauf verfügbar.");
 
                     // Bank Info
-                    col.Item().PaddingTop(10).Text($"Bank: {BankName}. {BankAccountHolder} Iban : {IBAN}").FontSize(8);
+                    col.Item().PaddingTop(10).Text($"Bank: {shop.BankName}. {shop.BankAccountHolder} Iban : {shop.IBAN}").FontSize(8);
 
                     // Signatures
                     col.Item().PaddingTop(30).Row(row =>
@@ -572,7 +704,23 @@ public class PdfService : IPdfService
 
                         row.RelativeItem().Column(sigCol =>
                         {
-                            sigCol.Item().PaddingTop(40).LineHorizontal(1);
+                            if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
+                            {
+                                try
+                                {
+                                    var sigData = shop.OwnerSignatureBase64;
+                                    if (sigData.Contains(","))
+                                        sigData = sigData.Substring(sigData.IndexOf(",") + 1);
+                                    var imageData = Convert.FromBase64String(sigData);
+                                    sigCol.Item().Height(50).Image(imageData);
+                                }
+                                catch { sigCol.Item().PaddingTop(40); }
+                            }
+                            else
+                            {
+                                sigCol.Item().PaddingTop(40);
+                            }
+                            sigCol.Item().LineHorizontal(1);
                             sigCol.Item().Text("Unterschrift Verkäufer").FontSize(9);
                         });
                     });

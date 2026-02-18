@@ -55,4 +55,23 @@ public class SettingsController : ControllerBase
         await _settingsService.DeleteLogoAsync();
         return NoContent();
     }
+
+    [HttpPost("owner-signature")]
+    public async Task<ActionResult<ShopSettingsDto>> UploadOwnerSignature([FromBody] UploadSignatureDto dto)
+    {
+        if (string.IsNullOrEmpty(dto.SignatureBase64))
+        {
+            return BadRequest("Signature data is required");
+        }
+
+        var settings = await _settingsService.UploadOwnerSignatureAsync(dto);
+        return Ok(settings);
+    }
+
+    [HttpDelete("owner-signature")]
+    public async Task<IActionResult> DeleteOwnerSignature()
+    {
+        await _settingsService.DeleteOwnerSignatureAsync();
+        return NoContent();
+    }
 }

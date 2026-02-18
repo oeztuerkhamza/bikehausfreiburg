@@ -51,6 +51,11 @@ public class ReturnService : IReturnService
         if (bicycle.Status != BikeStatus.Sold)
             throw new InvalidOperationException("This bicycle is not currently sold and cannot be returned.");
 
+        // Check if bicycle has already been returned (can only return once)
+        var alreadyReturned = await _returnRepository.ExistsByBicycleIdAsync(sale.BicycleId);
+        if (alreadyReturned)
+            throw new InvalidOperationException("Dieses Fahrrad wurde bereits zurückgegeben. Eine erneute Rückgabe ist nicht möglich.");
+
         // Create Return
         var returnEntity = new Return
         {

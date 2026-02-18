@@ -19,6 +19,10 @@ export interface ShopSettings {
   bic?: string;
   logoBase64?: string;
   logoFileName?: string;
+  inhaberVorname?: string;
+  inhaberNachname?: string;
+  inhaberSignatureBase64?: string;
+  inhaberSignatureFileName?: string;
   oeffnungszeiten?: string;
   zusatzinfo?: string;
   fullAddress?: string;
@@ -38,6 +42,8 @@ export interface UpdateShopSettings {
   bankname?: string;
   iban?: string;
   bic?: string;
+  inhaberVorname?: string;
+  inhaberNachname?: string;
   oeffnungszeiten?: string;
   zusatzinfo?: string;
 }
@@ -69,5 +75,16 @@ export class SettingsService {
 
   deleteLogo(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/logo`);
+  }
+
+  uploadOwnerSignature(data: {
+    signatureBase64: string;
+    fileName: string;
+  }): Observable<ShopSettings> {
+    return this.http.post<ShopSettings>(`${this.apiUrl}/owner-signature`, data);
+  }
+
+  deleteOwnerSignature(): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/owner-signature`);
   }
 }

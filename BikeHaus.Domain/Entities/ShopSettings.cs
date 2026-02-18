@@ -16,16 +16,22 @@ public class ShopSettings : BaseEntity
     public string? Bankname { get; set; }
     public string? IBAN { get; set; }
     public string? BIC { get; set; }
-    
+
     // Logo (stored as base64 or file path)
     public string? LogoBase64 { get; set; }
     public string? LogoFileName { get; set; }
-    
+
+    // Owner Information
+    public string? InhaberVorname { get; set; }
+    public string? InhaberNachname { get; set; }
+    public string? InhaberSignatureBase64 { get; set; }
+    public string? InhaberSignatureFileName { get; set; }
+
     // Additional Info
     public string? Oeffnungszeiten { get; set; }   // Opening Hours
     public string? Zusatzinfo { get; set; }        // Additional Info for documents
 
-    public string FullAddress => !string.IsNullOrEmpty(Strasse) 
-        ? $"{Strasse} {Hausnummer}, {PLZ} {Stadt}" 
+    public string FullAddress => !string.IsNullOrEmpty(Strasse)
+        ? $"{Strasse} {Hausnummer}, {PLZ} {Stadt}"
         : string.Empty;
 }

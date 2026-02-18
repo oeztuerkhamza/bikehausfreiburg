@@ -62,3 +62,15 @@ public record SaleListDto(
     DateTime Verkaufsdatum,
     bool Garantie
 );
+
+// Update DTO - for editing existing sales
+public record SaleUpdateDto(
+    CustomerUpdateDto Buyer,
+    decimal Preis,
+    PaymentMethod Zahlungsart,
+    DateTime Verkaufsdatum,
+    bool Garantie,
+    string? GarantieBedingungen,
+    string? Notizen,
+    List<SaleAccessoryCreateDto>? Accessories
+);

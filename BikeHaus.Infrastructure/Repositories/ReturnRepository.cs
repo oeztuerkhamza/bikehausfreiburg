@@ -34,6 +34,11 @@ public class ReturnRepository : Repository<Return>, IReturnRepository
             .ToListAsync();
     }
 
+    public async Task<bool> ExistsByBicycleIdAsync(int bicycleId)
+    {
+        return await _dbSet.AnyAsync(r => r.BicycleId == bicycleId);
+    }
+
     public async Task<IEnumerable<Return>> GetRecentReturnsAsync(int count = 10)
     {
         return await _dbSet

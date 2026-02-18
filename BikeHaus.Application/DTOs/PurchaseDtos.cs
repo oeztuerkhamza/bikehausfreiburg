@@ -9,6 +9,7 @@ public record PurchaseDto(
     BicycleDto Bicycle,
     CustomerDto Seller,
     decimal Preis,
+    decimal? VerkaufspreisVorschlag,
     PaymentMethod Zahlungsart,
     DateTime Kaufdatum,
     string? Notizen,
@@ -20,6 +21,7 @@ public record PurchaseCreateDto(
     BicycleCreateDto Bicycle,
     CustomerCreateDto Seller,
     decimal Preis,
+    decimal? VerkaufspreisVorschlag,
     PaymentMethod Zahlungsart,
     DateTime? Kaufdatum,
     string? Notizen,
@@ -32,7 +34,19 @@ public record PurchaseListDto(
     string BikeInfo,
     string SellerName,
     decimal Preis,
+    decimal? VerkaufspreisVorschlag,
     PaymentMethod Zahlungsart,
     DateTime Kaufdatum,
     bool HasSale
+);
+
+// Update DTO - for editing existing purchases
+public record PurchaseUpdateDto(
+    BicycleUpdateDto Bicycle,
+    CustomerUpdateDto Seller,
+    decimal Preis,
+    decimal? VerkaufspreisVorschlag,
+    PaymentMethod Zahlungsart,
+    DateTime Kaufdatum,
+    string? Notizen
 );

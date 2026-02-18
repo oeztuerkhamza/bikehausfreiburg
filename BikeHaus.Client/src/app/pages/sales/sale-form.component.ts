@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { SaleService } from '../../services/sale.service';
 import { BicycleService } from '../../services/bicycle.service';
+import { PurchaseService } from '../../services/purchase.service';
+import { SettingsService } from '../../services/settings.service';
 import {
   SaleCreate,
   Bicycle,
@@ -138,24 +140,27 @@ import { AddressSuggestion } from '../../services/address.service';
                   required
                 />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="selectedBike">
                 <label>Garantie</label>
-                <label class="checkbox-label">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="garantie"
-                    name="garantie"
-                  />
-                  Garantie gewähren
-                </label>
-              </div>
-              <div class="field full" *ngIf="garantie">
-                <label>Garantiebedingungen</label>
-                <textarea
-                  [(ngModel)]="garantieBedingungen"
-                  name="garantieBed"
-                  rows="2"
-                ></textarea>
+                <div class="warranty-info">
+                  <span
+                    class="warranty-badge"
+                    [class.warranty-new]="selectedBike.zustand === 'Neu'"
+                  >
+                    {{
+                      selectedBike.zustand === 'Neu'
+                        ? '2 Jahre Gewährleistung'
+                        : '3 Monate Garantie'
+                    }}
+                  </span>
+                  <small
+                    >({{
+                      selectedBike.zustand === 'Neu'
+                        ? 'Neues Fahrrad'
+                        : 'Gebrauchtes Fahrrad'
+                    }})</small
+                  >
+                </div>
               </div>
               <div class="field full">
                 <label>Notizen</label>
@@ -391,6 +396,28 @@ import { AddressSuggestion } from '../../services/address.service';
         gap: 4px;
         font-size: 0.9rem;
       }
+      .warranty-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .warranty-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: #d4edda;
+        color: #155724;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+      .warranty-badge.warranty-new {
+        background: #cce5ff;
+        color: #004085;
+      }
+      .warranty-info small {
+        color: var(--text-secondary, #666);
+        font-size: 0.8rem;
+      }
       .form-actions {
         margin-top: 24px;
         text-align: right;
@@ -501,8 +528,6 @@ export class SaleFormComponent implements OnInit {
   preis = 0;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   verkaufsdatum = '';
-  garantie = false;
-  garantieBedingungen = '';
   notizen = '';
   buyerSignatureData = '';
   buyerSignerName = '';
@@ -521,6 +546,8 @@ export class SaleFormComponent implements OnInit {
   constructor(
     private saleService: SaleService,
     private bicycleService: BicycleService,
+    private purchaseService: PurchaseService,
+    private settingsService: SettingsService,
     private router: Router,
     private route: ActivatedRoute,
   ) {}
@@ -534,6 +561,19 @@ export class SaleFormComponent implements OnInit {
         const bike = bikes.find((b) => b.id === +preselect);
         if (bike) {
           this.selectedBike = bike;
+          this.loadPlannedPrice(bike.id);
+        }
+      }
+    });
+    // Load owner signature from settings
+    this.settingsService.getSettings().subscribe((settings) => {
+      if (settings?.inhaberSignatureBase64) {
+        this.sellerSignatureData = settings.inhaberSignatureBase64;
+        const ownerName = [settings.inhaberVorname, settings.inhaberNachname]
+          .filter(Boolean)
+          .join(' ');
+        if (ownerName) {
+          this.sellerSignerName = ownerName;
         }
       }
     });
@@ -541,6 +581,20 @@ export class SaleFormComponent implements OnInit {
 
   onBikeSelected(bike: Bicycle) {
     this.selectedBike = bike;
+    this.loadPlannedPrice(bike.id);
+  }
+
+  private loadPlannedPrice(bicycleId: number) {
+    this.purchaseService.getByBicycleId(bicycleId).subscribe({
+      next: (purchase) => {
+        if (purchase?.verkaufspreisVorschlag) {
+          this.preis = purchase.verkaufspreisVorschlag;
+        }
+      },
+      error: () => {
+        // No purchase found for this bike, ignore
+      },
+    });
   }
 
   onBuyerAddressSelected(address: AddressSuggestion) {
@@ -590,8 +644,11 @@ export class SaleFormComponent implements OnInit {
       preis: this.preis,
       zahlungsart: this.zahlungsart,
       verkaufsdatum: this.verkaufsdatum,
-      garantie: this.garantie,
-      garantieBedingungen: this.garantie ? this.garantieBedingungen : undefined,
+      garantie: true,
+      garantieBedingungen:
+        this.selectedBike!.zustand === 'Neu'
+          ? '2 Jahre Gewährleistung gemäß § 437 BGB'
+          : '3 Monate Garantie auf das Fahrrad',
       notizen: this.notizen || undefined,
       buyerSignature: buyerSig,
       sellerSignature: sellerSig,

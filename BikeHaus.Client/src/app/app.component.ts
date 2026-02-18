@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslationService } from './services/translation.service';
 
 @Component({
   selector: 'app-root',
@@ -20,49 +21,57 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
             [routerLinkActiveOptions]="{ exact: true }"
             (click)="closeSidebar()"
           >
-            <span class="nav-icon">📊</span> Dashboard
+            <span class="nav-icon">📊</span> {{ t.dashboard }}
           </a>
           <a
             routerLink="/bicycles"
             routerLinkActive="active"
             (click)="closeSidebar()"
           >
-            <span class="nav-icon">🚴</span> Fahrräder
+            <span class="nav-icon">🚴</span> {{ t.bicycles }}
           </a>
           <a
             routerLink="/customers"
             routerLinkActive="active"
             (click)="closeSidebar()"
           >
-            <span class="nav-icon">👥</span> Kunden
+            <span class="nav-icon">👥</span> {{ t.customers }}
           </a>
           <a
             routerLink="/purchases"
             routerLinkActive="active"
             (click)="closeSidebar()"
           >
-            <span class="nav-icon">📥</span> Ankäufe
+            <span class="nav-icon">📥</span> {{ t.purchases }}
           </a>
           <a
             routerLink="/sales"
             routerLinkActive="active"
             (click)="closeSidebar()"
           >
-            <span class="nav-icon">📤</span> Verkäufe
+            <span class="nav-icon">📤</span> {{ t.sales }}
           </a>
           <a
             routerLink="/returns"
             routerLinkActive="active"
             (click)="closeSidebar()"
           >
-            <span class="nav-icon">↩️</span> Rückgaben
+            <span class="nav-icon">↩️</span> {{ t.returns }}
           </a>
           <a
             routerLink="/statistics"
             routerLinkActive="active"
             (click)="closeSidebar()"
           >
-            <span class="nav-icon">📈</span> Statistiken
+            <span class="nav-icon">📈</span> {{ t.statistics }}
+          </a>
+          <a
+            routerLink="/settings"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+            class="nav-settings"
+          >
+            <span class="nav-icon">⚙️</span> {{ t.settings }}
           </a>
         </nav>
       </aside>
@@ -98,11 +107,16 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
       .sidebar {
         width: 230px;
         min-width: 230px;
-        background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-        color: #fff;
+        background: var(
+          --sidebar-bg,
+          linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)
+        );
+        color: var(--text-sidebar);
         display: flex;
         flex-direction: column;
-        transition: transform 0.3s;
+        transition:
+          transform 0.3s,
+          background 0.3s;
       }
       .brand {
         display: flex;
@@ -165,16 +179,19 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
       .topbar {
         padding: 12px 24px;
-        background: #fff;
-        border-bottom: 1px solid #eee;
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-light);
         display: flex;
         align-items: center;
         gap: 12px;
+        transition:
+          background 0.3s,
+          border-color 0.3s;
       }
       .topbar-title {
         font-weight: 600;
         font-size: 1.05rem;
-        color: #333;
+        color: var(--text-primary);
       }
       .menu-toggle {
         display: none;
@@ -183,13 +200,20 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
         font-size: 1.3rem;
         cursor: pointer;
         padding: 4px 8px;
+        color: var(--text-primary);
       }
 
       .content-area {
         flex: 1;
         overflow-y: auto;
         padding: 24px;
-        background: #f5f6fa;
+        background: var(--bg-primary);
+        transition: background 0.3s;
+      }
+
+      nav .nav-settings {
+        margin-top: auto;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .sidebar-overlay {
@@ -225,6 +249,12 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 export class AppComponent {
   title = 'BikeHaus.Client';
   sidebarOpen = false;
+  private translationService = inject(TranslationService);
+
+  get t() {
+    return this.translationService.translations();
+  }
+
   closeSidebar() {
     this.sidebarOpen = false;
   }

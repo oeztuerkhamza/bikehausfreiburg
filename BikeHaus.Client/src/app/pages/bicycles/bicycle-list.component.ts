@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
 import { Bicycle, BikeStatus } from '../../models/models';
 
@@ -47,11 +47,15 @@ import { Bicycle, BikeStatus } from '../../models/models';
               <th>Rahmennummer</th>
               <th>Zustand</th>
               <th>Status</th>
-              <th>Aktionen</th>
+              <th class="actions-col">Aktionen</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let b of filteredBicycles">
+            <tr
+              *ngFor="let b of filteredBicycles"
+              class="clickable-row"
+              (click)="toggleMenu($event, b)"
+            >
               <td>{{ b.marke }}</td>
               <td>{{ b.modell }}</td>
               <td class="mono">{{ b.rahmennummer }}</td>
@@ -68,26 +72,35 @@ import { Bicycle, BikeStatus } from '../../models/models';
                   {{ statusLabel(b.status) }}
                 </span>
               </td>
-              <td class="actions">
-                <a
-                  [routerLink]="['/bicycles', b.id]"
-                  class="btn btn-sm btn-outline"
-                  >Details</a
+              <td class="actions-cell">
+                <span class="action-icon">⋮</span>
+                <!-- Popup Menu -->
+                <div
+                  *ngIf="activeMenuId === b.id"
+                  class="popup-menu"
+                  (click)="$event.stopPropagation()"
                 >
-                <button
-                  *ngIf="b.status === 'Available'"
-                  class="btn btn-sm btn-primary"
-                  [routerLink]="['/sales/new']"
-                  [queryParams]="{ bicycleId: b.id }"
-                >
-                  Verkaufen
-                </button>
-                <button
-                  class="btn btn-sm btn-danger"
-                  (click)="deleteBicycle(b)"
-                >
-                  ×
-                </button>
+                  <button class="popup-item" (click)="goToDetail(b)">
+                    <span class="popup-icon">🔍</span>
+                    Details
+                  </button>
+                  <button
+                    *ngIf="b.status === 'Available'"
+                    class="popup-item popup-item-primary"
+                    (click)="goToSale(b)"
+                  >
+                    <span class="popup-icon">💰</span>
+                    Verkaufen
+                  </button>
+                  <div class="popup-divider"></div>
+                  <button
+                    class="popup-item popup-item-danger"
+                    (click)="deleteBicycle(b)"
+                  >
+                    <span class="popup-icon">🗑️</span>
+                    Löschen
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -120,17 +133,21 @@ import { Bicycle, BikeStatus } from '../../models/models';
         flex: 1;
         min-width: 250px;
         padding: 10px 14px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color, #ddd);
         border-radius: 6px;
         font-size: 0.95rem;
+        background: var(--input-bg, #fff);
+        color: var(--text-color, #333);
       }
       .filter-select {
         padding: 10px 14px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color, #ddd);
         border-radius: 6px;
+        background: var(--input-bg, #fff);
+        color: var(--text-color, #333);
       }
       .table-container {
-        background: #fff;
+        background: var(--card-bg, #fff);
         border-radius: 10px;
         padding: 16px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -143,13 +160,20 @@ import { Bicycle, BikeStatus } from '../../models/models';
       th {
         text-align: left;
         padding: 10px 8px;
-        border-bottom: 2px solid #eee;
+        border-bottom: 2px solid var(--border-color, #eee);
         font-size: 0.85rem;
-        color: #555;
+        color: var(--text-secondary, #555);
       }
       td {
         padding: 10px 8px;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid var(--border-color, #f0f0f0);
+      }
+      .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+      }
+      .clickable-row:hover {
+        background-color: var(--hover-bg, #f5f5f5);
       }
       .mono {
         font-family: monospace;
@@ -180,13 +204,88 @@ import { Bicycle, BikeStatus } from '../../models/models';
         background: #e2e3e5;
         color: #383d41;
       }
-      .actions {
+      .actions-col {
+        width: 80px;
+        text-align: center;
+      }
+      .actions-cell {
+        position: relative;
+        text-align: center;
+      }
+      .action-icon {
+        font-size: 1.3rem;
+        color: var(--text-secondary, #666);
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background-color 0.15s ease;
+      }
+      .action-icon:hover {
+        background-color: var(--hover-bg, #eee);
+      }
+      .popup-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        z-index: 1000;
+        min-width: 160px;
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--border-color, #ddd);
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        padding: 6px 0;
+        animation: fadeIn 0.15s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .popup-item {
         display: flex;
-        gap: 6px;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 10px 14px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--text-color, #333);
+        text-align: left;
+        transition: background-color 0.15s ease;
+      }
+      .popup-item:hover {
+        background-color: var(--hover-bg, #f5f5f5);
+      }
+      .popup-item-primary {
+        color: var(--primary-color, #2e7d32);
+      }
+      .popup-item-primary:hover {
+        background-color: rgba(46, 125, 50, 0.1);
+      }
+      .popup-item-danger {
+        color: #dc3545;
+      }
+      .popup-item-danger:hover {
+        background-color: rgba(220, 53, 69, 0.1);
+      }
+      .popup-icon {
+        font-size: 1rem;
+      }
+      .popup-divider {
+        height: 1px;
+        background: var(--border-color, #eee);
+        margin: 6px 0;
       }
       .empty {
         text-align: center;
-        color: #999;
+        color: var(--text-secondary, #999);
         padding: 40px;
       }
     `,
@@ -197,8 +296,21 @@ export class BicycleListComponent implements OnInit {
   filteredBicycles: Bicycle[] = [];
   searchTerm = '';
   statusFilter = '';
+  activeMenuId: number | null = null;
 
-  constructor(private bicycleService: BicycleService) {}
+  constructor(
+    private bicycleService: BicycleService,
+    private router: Router,
+    private elementRef: ElementRef,
+  ) {}
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    // Close menu when clicking outside
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.activeMenuId = null;
+    }
+  }
 
   ngOnInit() {
     this.load();
@@ -237,7 +349,27 @@ export class BicycleListComponent implements OnInit {
     return map[s] || s;
   }
 
+  toggleMenu(event: MouseEvent, bicycle: Bicycle) {
+    event.stopPropagation();
+    this.activeMenuId = this.activeMenuId === bicycle.id ? null : bicycle.id;
+  }
+
+  closeMenu() {
+    this.activeMenuId = null;
+  }
+
+  goToDetail(b: Bicycle) {
+    this.closeMenu();
+    this.router.navigate(['/bicycles', b.id]);
+  }
+
+  goToSale(b: Bicycle) {
+    this.closeMenu();
+    this.router.navigate(['/sales/new'], { queryParams: { bicycleId: b.id } });
+  }
+
   deleteBicycle(b: Bicycle) {
+    this.closeMenu();
     if (confirm(`Fahrrad "${b.marke} ${b.modell}" wirklich löschen?`)) {
       this.bicycleService.delete(b.id).subscribe({
         next: () => this.load(),

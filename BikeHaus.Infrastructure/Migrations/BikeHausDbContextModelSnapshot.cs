@@ -61,6 +61,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("StokNo")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
@@ -214,6 +217,9 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("VerkaufspreisVorschlag")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Zahlungsart")
@@ -438,6 +444,18 @@ namespace BikeHaus.Infrastructure.Migrations
 
                     b.Property<string>("IBAN")
                         .HasMaxLength(34)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InhaberNachname")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InhaberSignatureBase64")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InhaberSignatureFileName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InhaberVorname")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LogoBase64")

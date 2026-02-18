@@ -18,6 +18,10 @@ public class ShopSettingsDto
     public string? BIC { get; set; }
     public string? LogoBase64 { get; set; }
     public string? LogoFileName { get; set; }
+    public string? InhaberVorname { get; set; }
+    public string? InhaberNachname { get; set; }
+    public string? InhaberSignatureBase64 { get; set; }
+    public string? InhaberSignatureFileName { get; set; }
     public string? Oeffnungszeiten { get; set; }
     public string? Zusatzinfo { get; set; }
     public string? FullAddress { get; set; }
@@ -38,6 +42,8 @@ public class UpdateShopSettingsDto
     public string? Bankname { get; set; }
     public string? IBAN { get; set; }
     public string? BIC { get; set; }
+    public string? InhaberVorname { get; set; }
+    public string? InhaberNachname { get; set; }
     public string? Oeffnungszeiten { get; set; }
     public string? Zusatzinfo { get; set; }
 }
@@ -45,5 +51,11 @@ public class UpdateShopSettingsDto
 public class UploadLogoDto
 {
     public string LogoBase64 { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
+}
+
+public class UploadSignatureDto
+{
+    public string SignatureBase64 { get; set; } = string.Empty;
     public string FileName { get; set; } = string.Empty;
 }

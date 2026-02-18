@@ -9,6 +9,7 @@ public class Bicycle : BaseEntity
     public string Rahmennummer { get; set; } = string.Empty;   // Frame Number (Serienummer)
     public string Farbe { get; set; } = string.Empty;          // Color (Rahmenfarbe)
     public string Reifengroesse { get; set; } = string.Empty;  // Tire Size (Zoll)
+    public string? StokNo { get; set; }                         // Stock Number (Stok Numarası)
     public string? Fahrradtyp { get; set; }                     // Bike Type (E-Bike, Trekking, etc.)
     public string? Beschreibung { get; set; }                   // Description (Ausstattung/Features)
     public BikeStatus Status { get; set; } = BikeStatus.Available;

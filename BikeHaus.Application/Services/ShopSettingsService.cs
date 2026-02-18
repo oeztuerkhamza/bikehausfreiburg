@@ -44,6 +44,8 @@ public class ShopSettingsService : IShopSettingsService
                 Bankname = dto.Bankname,
                 IBAN = dto.IBAN,
                 BIC = dto.BIC,
+                InhaberVorname = dto.InhaberVorname,
+                InhaberNachname = dto.InhaberNachname,
                 Oeffnungszeiten = dto.Oeffnungszeiten,
                 Zusatzinfo = dto.Zusatzinfo
             };
@@ -65,6 +67,8 @@ public class ShopSettingsService : IShopSettingsService
             settings.Bankname = dto.Bankname;
             settings.IBAN = dto.IBAN;
             settings.BIC = dto.BIC;
+            settings.InhaberVorname = dto.InhaberVorname;
+            settings.InhaberNachname = dto.InhaberNachname;
             settings.Oeffnungszeiten = dto.Oeffnungszeiten;
             settings.Zusatzinfo = dto.Zusatzinfo;
             settings.UpdatedAt = DateTime.UtcNow;
@@ -112,6 +116,43 @@ public class ShopSettingsService : IShopSettingsService
         }
     }
 
+    public async Task<ShopSettingsDto> UploadOwnerSignatureAsync(UploadSignatureDto dto)
+    {
+        var settings = await _repository.GetSettingsAsync();
+
+        if (settings == null)
+        {
+            settings = new ShopSettings
+            {
+                ShopName = "Bike Haus Freiburg",
+                InhaberSignatureBase64 = dto.SignatureBase64,
+                InhaberSignatureFileName = dto.FileName
+            };
+            await _repository.AddAsync(settings);
+        }
+        else
+        {
+            settings.InhaberSignatureBase64 = dto.SignatureBase64;
+            settings.InhaberSignatureFileName = dto.FileName;
+            settings.UpdatedAt = DateTime.UtcNow;
+            await _repository.UpdateAsync(settings);
+        }
+
+        return MapToDto(settings);
+    }
+
+    public async Task DeleteOwnerSignatureAsync()
+    {
+        var settings = await _repository.GetSettingsAsync();
+        if (settings != null)
+        {
+            settings.InhaberSignatureBase64 = null;
+            settings.InhaberSignatureFileName = null;
+            settings.UpdatedAt = DateTime.UtcNow;
+            await _repository.UpdateAsync(settings);
+        }
+    }
+
     private static ShopSettingsDto MapToDto(ShopSettings settings)
     {
         return new ShopSettingsDto
@@ -132,6 +173,10 @@ public class ShopSettingsService : IShopSettingsService
             BIC = settings.BIC,
             LogoBase64 = settings.LogoBase64,
             LogoFileName = settings.LogoFileName,
+            InhaberVorname = settings.InhaberVorname,
+            InhaberNachname = settings.InhaberNachname,
+            InhaberSignatureBase64 = settings.InhaberSignatureBase64,
+            InhaberSignatureFileName = settings.InhaberSignatureFileName,
             Oeffnungszeiten = settings.Oeffnungszeiten,
             Zusatzinfo = settings.Zusatzinfo,
             FullAddress = settings.FullAddress

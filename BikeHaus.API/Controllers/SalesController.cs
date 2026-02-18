@@ -40,6 +40,20 @@ public class SalesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = sale.Id }, sale);
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult<SaleDto>> Update(int id, [FromBody] SaleUpdateDto dto)
+    {
+        try
+        {
+            var sale = await _saleService.UpdateAsync(id, dto);
+            return Ok(sale);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
     [HttpGet("{id}/verkaufsbeleg")]
     public async Task<IActionResult> DownloadVerkaufsbeleg(int id)
     {

@@ -7,11 +7,12 @@ import {
   TranslationService,
   Language,
 } from '../../services/translation.service';
+import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SignaturePadComponent],
   template: `
     <div class="settings-page">
       <h1>{{ t.settings }}</h1>
@@ -86,6 +87,66 @@ import {
                 (change)="onLogoSelected($event)"
                 hidden
               />
+            </div>
+          </div>
+        </section>
+
+        <!-- Owner Section -->
+        <section class="settings-section">
+          <h2>{{ t.ownerInfo }}</h2>
+          <div class="settings-card">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>{{ t.ownerFirstName }}</label>
+                <input
+                  type="text"
+                  [(ngModel)]="settings.inhaberVorname"
+                  name="inhaberVorname"
+                />
+              </div>
+              <div class="form-group">
+                <label>{{ t.ownerLastName }}</label>
+                <input
+                  type="text"
+                  [(ngModel)]="settings.inhaberNachname"
+                  name="inhaberNachname"
+                />
+              </div>
+            </div>
+
+            <div class="owner-signature-section">
+              <h3>{{ t.ownerSignature }}</h3>
+              <div
+                *ngIf="settings.inhaberSignatureBase64"
+                class="signature-preview"
+              >
+                <img
+                  [src]="settings.inhaberSignatureBase64"
+                  alt="Unterschrift"
+                />
+                <button
+                  class="btn btn-danger btn-sm"
+                  (click)="deleteOwnerSignature()"
+                >
+                  {{ t.deleteSignature }}
+                </button>
+              </div>
+              <div *ngIf="!settings.inhaberSignatureBase64">
+                <app-signature-pad
+                  [label]="t.ownerSignature"
+                  [(ngModel)]="ownerSignatureData"
+                  name="ownerSignature"
+                ></app-signature-pad>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  style="margin-top: 8px"
+                  [disabled]="!ownerSignatureData"
+                  (click)="saveOwnerSignature()"
+                >
+                  {{ t.saveSignature }}
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -414,6 +475,26 @@ import {
         font-size: 2rem;
       }
 
+      /* Owner Signature */
+      .owner-signature-section {
+        margin-top: 20px;
+      }
+      .signature-preview {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      .signature-preview img {
+        max-width: 300px;
+        max-height: 100px;
+        object-fit: contain;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 8px;
+        background: white;
+      }
+
       /* Form Grid */
       .form-grid {
         display: grid;
@@ -490,11 +571,17 @@ export class SettingsComponent implements OnInit {
     bankname: '',
     iban: '',
     bic: '',
+    inhaberVorname: '',
+    inhaberNachname: '',
     oeffnungszeiten: '',
     zusatzinfo: '',
     logoBase64: undefined,
     logoFileName: undefined,
+    inhaberSignatureBase64: undefined,
+    inhaberSignatureFileName: undefined,
   };
+
+  ownerSignatureData = '';
 
   get t() {
     return this.translationService.translations();
@@ -538,6 +625,8 @@ export class SettingsComponent implements OnInit {
         bankname: this.settings.bankname,
         iban: this.settings.iban,
         bic: this.settings.bic,
+        inhaberVorname: this.settings.inhaberVorname,
+        inhaberNachname: this.settings.inhaberNachname,
         oeffnungszeiten: this.settings.oeffnungszeiten,
         zusatzinfo: this.settings.zusatzinfo,
       })
@@ -588,6 +677,34 @@ export class SettingsComponent implements OnInit {
         this.showSuccessMessage();
       },
       error: (err) => console.error('Error deleting logo:', err),
+    });
+  }
+
+  saveOwnerSignature(): void {
+    if (!this.ownerSignatureData) return;
+    this.settingsService
+      .uploadOwnerSignature({
+        signatureBase64: this.ownerSignatureData,
+        fileName: 'owner-signature.png',
+      })
+      .subscribe({
+        next: (data) => {
+          this.settings = data;
+          this.ownerSignatureData = '';
+          this.showSuccessMessage();
+        },
+        error: (err) => console.error('Error saving signature:', err),
+      });
+  }
+
+  deleteOwnerSignature(): void {
+    this.settingsService.deleteOwnerSignature().subscribe({
+      next: () => {
+        this.settings.inhaberSignatureBase64 = undefined;
+        this.settings.inhaberSignatureFileName = undefined;
+        this.showSuccessMessage();
+      },
+      error: (err) => console.error('Error deleting signature:', err),
     });
   }
 
