@@ -14,7 +14,9 @@ import { ReservationList, ReservationStatus } from '../../models/models';
     <div class="page">
       <div class="page-header">
         <h1>{{ t.reservations }}</h1>
-        <a routerLink="/reservations/new" class="btn btn-primary">+ {{ t.newReservation }}</a>
+        <a routerLink="/reservations/new" class="btn btn-primary"
+          >+ {{ t.newReservation }}</a
+        >
       </div>
 
       <!-- Filter Bar -->
@@ -65,7 +67,11 @@ import { ReservationList, ReservationStatus } from '../../models/models';
             </tr>
           </thead>
           <tbody>
-            <tr *ngIf="filteredReservations.length === 0 && reservations.length > 0">
+            <tr
+              *ngIf="
+                filteredReservations.length === 0 && reservations.length > 0
+              "
+            >
               <td
                 colspan="8"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
@@ -81,16 +87,25 @@ import { ReservationList, ReservationStatus } from '../../models/models';
                 {{ t.noReservations }}
               </td>
             </tr>
-            <tr *ngFor="let r of filteredReservations" [class.expired-row]="r.isExpired && r.status === 'Active'">
+            <tr
+              *ngFor="let r of filteredReservations"
+              [class.expired-row]="r.isExpired && r.status === 'Active'"
+            >
               <td class="mono">{{ r.reservierungsNummer }}</td>
               <td>{{ r.bikeInfo }}</td>
               <td>{{ r.customerName }}</td>
               <td>{{ r.reservierungsDatum | date: 'dd.MM.yyyy' }}</td>
               <td [class.expired-date]="r.isExpired && r.status === 'Active'">
                 {{ r.ablaufDatum | date: 'dd.MM.yyyy' }}
-                <span *ngIf="r.isExpired && r.status === 'Active'" class="expired-badge">!</span>
+                <span
+                  *ngIf="r.isExpired && r.status === 'Active'"
+                  class="expired-badge"
+                  >!</span
+                >
               </td>
-              <td>{{ r.anzahlung ? (r.anzahlung | number: '1.2-2') + ' €' : '-' }}</td>
+              <td>
+                {{ r.anzahlung ? (r.anzahlung | number: '1.2-2') + ' €' : '-' }}
+              </td>
               <td>
                 <span class="status-badge" [class]="getStatusClass(r.status)">
                   {{ getStatusText(r.status) }}
@@ -135,7 +150,11 @@ import { ReservationList, ReservationStatus } from '../../models/models';
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div class="modal-backdrop" *ngIf="showDeleteModal" (click)="showDeleteModal = false">
+    <div
+      class="modal-backdrop"
+      *ngIf="showDeleteModal"
+      (click)="showDeleteModal = false"
+    >
       <div class="modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h3>{{ t.delete }}</h3>
@@ -143,307 +162,315 @@ import { ReservationList, ReservationStatus } from '../../models/models';
         <div class="modal-body">
           <p>{{ t.deleteConfirmReservation }}</p>
           <p *ngIf="selectedReservation" class="delete-info">
-            <strong>{{ selectedReservation.reservierungsNummer }}</strong> - {{ selectedReservation.bikeInfo }}
+            <strong>{{ selectedReservation.reservierungsNummer }}</strong> -
+            {{ selectedReservation.bikeInfo }}
           </p>
         </div>
         <div class="modal-footer">
-          <button class="btn" (click)="showDeleteModal = false">{{ t.cancel }}</button>
-          <button class="btn btn-danger" (click)="deleteReservation()">{{ t.delete }}</button>
+          <button class="btn" (click)="showDeleteModal = false">
+            {{ t.cancel }}
+          </button>
+          <button class="btn btn-danger" (click)="deleteReservation()">
+            {{ t.delete }}
+          </button>
         </div>
       </div>
     </div>
   `,
-  styles: [`
-    .page {
-      padding: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
+  styles: [
+    `
+      .page {
+        padding: 24px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
 
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
 
-    .page-header h1 {
-      font-size: 1.75rem;
-      font-weight: 600;
-      color: var(--text);
-    }
+      .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text);
+      }
 
-    .filter-bar {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+      .filter-bar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
 
-    .filter-group {
-      position: relative;
-    }
+      .filter-group {
+        position: relative;
+      }
 
-    .search-group {
-      flex: 1;
-      min-width: 200px;
-      max-width: 350px;
-    }
+      .search-group {
+        flex: 1;
+        min-width: 200px;
+        max-width: 350px;
+      }
 
-    .filter-input {
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--card);
-      color: var(--text);
-      font-size: 0.9rem;
-      transition: border-color 0.2s;
-    }
+      .filter-input {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--card);
+        color: var(--text);
+        font-size: 0.9rem;
+        transition: border-color 0.2s;
+      }
 
-    .filter-input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
 
-    .search-input {
-      width: 100%;
-      padding-left: 36px;
-    }
+      .search-input {
+        width: 100%;
+        padding-left: 36px;
+      }
 
-    .search-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      opacity: 0.5;
-    }
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.5;
+      }
 
-    select.filter-input {
-      min-width: 160px;
-      cursor: pointer;
-    }
+      select.filter-input {
+        min-width: 160px;
+        cursor: pointer;
+      }
 
-    .result-count {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      padding: 8px 12px;
-      background: var(--bg);
-      border-radius: 6px;
-    }
+      .result-count {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        padding: 8px 12px;
+        background: var(--bg);
+        border-radius: 6px;
+      }
 
-    .table-wrap {
-      overflow-x: auto;
-      background: var(--card);
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
+      .table-wrap {
+        overflow-x: auto;
+        background: var(--card);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
 
-    th, td {
-      text-align: left;
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border);
-    }
+      th,
+      td {
+        text-align: left;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+      }
 
-    th {
-      font-weight: 600;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      background: var(--bg);
-    }
+      th {
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        background: var(--bg);
+      }
 
-    td {
-      font-size: 0.9rem;
-      color: var(--text);
-    }
+      td {
+        font-size: 0.9rem;
+        color: var(--text);
+      }
 
-    .mono {
-      font-family: monospace;
-      font-size: 0.85rem;
-    }
+      .mono {
+        font-family: monospace;
+        font-size: 0.85rem;
+      }
 
-    .expired-row {
-      background: rgba(239, 68, 68, 0.05);
-    }
+      .expired-row {
+        background: rgba(239, 68, 68, 0.05);
+      }
 
-    .expired-date {
-      color: #ef4444;
-      font-weight: 600;
-    }
+      .expired-date {
+        color: #ef4444;
+        font-weight: 600;
+      }
 
-    .expired-badge {
-      display: inline-block;
-      background: #ef4444;
-      color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      text-align: center;
-      font-size: 0.75rem;
-      font-weight: bold;
-      margin-left: 6px;
-      line-height: 18px;
-    }
+      .expired-badge {
+        display: inline-block;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        text-align: center;
+        font-size: 0.75rem;
+        font-weight: bold;
+        margin-left: 6px;
+        line-height: 18px;
+      }
 
-    .status-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
+      .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
 
-    .status-active {
-      background: rgba(34, 197, 94, 0.1);
-      color: #16a34a;
-    }
+      .status-active {
+        background: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+      }
 
-    .status-expired {
-      background: rgba(239, 68, 68, 0.1);
-      color: #dc2626;
-    }
+      .status-expired {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+      }
 
-    .status-cancelled {
-      background: rgba(156, 163, 175, 0.2);
-      color: #6b7280;
-    }
+      .status-cancelled {
+        background: rgba(156, 163, 175, 0.2);
+        color: #6b7280;
+      }
 
-    .status-converted {
-      background: rgba(59, 130, 246, 0.1);
-      color: #2563eb;
-    }
+      .status-converted {
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563eb;
+      }
 
-    .actions-cell {
-      display: flex;
-      gap: 6px;
-    }
+      .actions-cell {
+        display: flex;
+        gap: 6px;
+      }
 
-    .btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 500;
-      font-size: 0.9rem;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-    }
+      .btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+      }
 
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
 
-    .btn-primary:hover {
-      opacity: 0.9;
-    }
+      .btn-primary:hover {
+        opacity: 0.9;
+      }
 
-    .btn-sm {
-      padding: 6px 10px;
-      font-size: 0.8rem;
-      background: var(--bg);
-      color: var(--text);
-    }
+      .btn-sm {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        background: var(--bg);
+        color: var(--text);
+      }
 
-    .btn-sm:hover {
-      background: var(--border);
-    }
+      .btn-sm:hover {
+        background: var(--border);
+      }
 
-    .btn-danger {
-      background: #fee2e2;
-      color: #dc2626;
-    }
+      .btn-danger {
+        background: #fee2e2;
+        color: #dc2626;
+      }
 
-    .btn-danger:hover {
-      background: #fecaca;
-    }
+      .btn-danger:hover {
+        background: #fecaca;
+      }
 
-    .btn-warning {
-      background: #fef3c7;
-      color: #d97706;
-    }
+      .btn-warning {
+        background: #fef3c7;
+        color: #d97706;
+      }
 
-    .btn-warning:hover {
-      background: #fde68a;
-    }
+      .btn-warning:hover {
+        background: #fde68a;
+      }
 
-    .btn-success {
-      background: #dcfce7;
-      color: #16a34a;
-    }
+      .btn-success {
+        background: #dcfce7;
+        color: #16a34a;
+      }
 
-    .btn-success:hover {
-      background: #bbf7d0;
-    }
+      .btn-success:hover {
+        background: #bbf7d0;
+      }
 
-    /* Modal */
-    .modal-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
+      /* Modal */
+      .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
 
-    .modal {
-      background: var(--card);
-      border-radius: 12px;
-      width: 90%;
-      max-width: 400px;
-      overflow: hidden;
-    }
+      .modal {
+        background: var(--card);
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+        overflow: hidden;
+      }
 
-    .modal-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-    }
+      .modal-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+      }
 
-    .modal-header h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
+      .modal-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
 
-    .modal-body {
-      padding: 20px;
-    }
+      .modal-body {
+        padding: 20px;
+      }
 
-    .modal-body p {
-      margin: 0 0 12px 0;
-      color: var(--text);
-    }
+      .modal-body p {
+        margin: 0 0 12px 0;
+        color: var(--text);
+      }
 
-    .delete-info {
-      background: var(--bg);
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-    }
+      .delete-info {
+        background: var(--bg);
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+      }
 
-    .modal-footer {
-      padding: 16px 20px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-    }
-  `]
+      .modal-footer {
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+    `,
+  ],
 })
 export class ReservationListComponent implements OnInit {
   private reservationService = inject(ReservationService);
@@ -472,7 +499,7 @@ export class ReservationListComponent implements OnInit {
         this.reservations = data;
         this.applyFilters();
       },
-      error: (err) => console.error('Error loading reservations:', err)
+      error: (err) => console.error('Error loading reservations:', err),
     });
   }
 
@@ -482,16 +509,17 @@ export class ReservationListComponent implements OnInit {
     // Search filter
     if (this.searchText.trim()) {
       const search = this.searchText.toLowerCase();
-      result = result.filter(r =>
-        r.reservierungsNummer.toLowerCase().includes(search) ||
-        r.bikeInfo.toLowerCase().includes(search) ||
-        r.customerName.toLowerCase().includes(search)
+      result = result.filter(
+        (r) =>
+          r.reservierungsNummer.toLowerCase().includes(search) ||
+          r.bikeInfo.toLowerCase().includes(search) ||
+          r.customerName.toLowerCase().includes(search),
       );
     }
 
     // Status filter
     if (this.filterStatus) {
-      result = result.filter(r => r.status === this.filterStatus);
+      result = result.filter((r) => r.status === this.filterStatus);
     }
 
     this.filteredReservations = result;
@@ -499,10 +527,10 @@ export class ReservationListComponent implements OnInit {
 
   getStatusClass(status: ReservationStatus): string {
     const map: Record<string, string> = {
-      'Active': 'status-active',
-      'Expired': 'status-expired',
-      'Cancelled': 'status-cancelled',
-      'Converted': 'status-converted'
+      Active: 'status-active',
+      Expired: 'status-expired',
+      Cancelled: 'status-cancelled',
+      Converted: 'status-converted',
     };
     return map[status] || '';
   }
@@ -510,10 +538,10 @@ export class ReservationListComponent implements OnInit {
   getStatusText(status: ReservationStatus): string {
     const t = this.t;
     const map: Record<string, string> = {
-      'Active': t.active,
-      'Expired': t.expired,
-      'Cancelled': t.cancelled,
-      'Converted': t.converted
+      Active: t.active,
+      Expired: t.expired,
+      Cancelled: t.cancelled,
+      Converted: t.converted,
     };
     return map[status] || status;
   }
@@ -522,7 +550,7 @@ export class ReservationListComponent implements OnInit {
     if (confirm(this.t.cancelReservation + '?')) {
       this.reservationService.cancel(reservation.id).subscribe({
         next: () => this.loadReservations(),
-        error: (err) => console.error('Error cancelling reservation:', err)
+        error: (err) => console.error('Error cancelling reservation:', err),
       });
     }
   }
@@ -541,7 +569,7 @@ export class ReservationListComponent implements OnInit {
         this.selectedReservation = null;
         this.loadReservations();
       },
-      error: (err) => console.error('Error deleting reservation:', err)
+      error: (err) => console.error('Error deleting reservation:', err),
     });
   }
 }

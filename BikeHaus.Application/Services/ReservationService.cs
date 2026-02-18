@@ -91,10 +91,10 @@ public class ReservationService : IReservationService
 
         if (dto.AblaufDatum.HasValue)
             reservation.AblaufDatum = dto.AblaufDatum.Value;
-        
+
         if (dto.Anzahlung.HasValue)
             reservation.Anzahlung = dto.Anzahlung.Value;
-        
+
         if (dto.Notizen != null)
             reservation.Notizen = dto.Notizen;
 
@@ -217,7 +217,7 @@ public class ReservationService : IReservationService
     public async Task ExpireOldReservationsAsync()
     {
         var expiredReservations = await _reservationRepository.GetExpiredReservationsAsync();
-        
+
         foreach (var reservation in expiredReservations)
         {
             reservation.Status = ReservationStatus.Expired;

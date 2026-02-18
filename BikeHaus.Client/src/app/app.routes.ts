@@ -11,6 +11,9 @@ import { SaleFormComponent } from './pages/sales/sale-form.component';
 import { SaleEditComponent } from './pages/sales/sale-edit.component';
 import { ReturnListComponent } from './pages/returns/return-list.component';
 import { ReturnFormComponent } from './pages/returns/return-form.component';
+import { ReservationListComponent } from './pages/reservations/reservation-list.component';
+import { ReservationFormComponent } from './pages/reservations/reservation-form.component';
+import { ReservationConvertComponent } from './pages/reservations/reservation-convert.component';
 import { PartsListComponent } from './pages/parts/parts-list.component';
 import { StatisticsComponent } from './pages/statistics/statistics.component';
 import { SettingsComponent } from './pages/settings/settings.component';
@@ -26,6 +29,10 @@ export const routes: Routes = [
   { path: 'sales', component: SaleListComponent },
   { path: 'sales/new', component: SaleFormComponent },
   { path: 'sales/edit/:id', component: SaleEditComponent },
+  { path: 'reservations', component: ReservationListComponent },
+  { path: 'reservations/new', component: ReservationFormComponent },
+  { path: 'reservations/:id', component: ReservationListComponent },
+  { path: 'reservations/:id/convert', component: ReservationConvertComponent },
   { path: 'returns', component: ReturnListComponent },
   { path: 'returns/new', component: ReturnFormComponent },
   { path: 'parts', component: PartsListComponent },

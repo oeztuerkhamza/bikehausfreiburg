@@ -11,7 +11,7 @@ import { TranslationService } from './services/translation.service';
     <div class="app-layout">
       <aside class="sidebar" [class.open]="sidebarOpen">
         <div class="brand">
-          <span class="brand-icon">🚲</span>
+          <img src="assets/logo.svg" alt="Bike Haus" class="brand-logo" />
           <span class="brand-text">Bike Haus<br /><small>Freiburg</small></span>
         </div>
         <nav>
@@ -50,6 +50,13 @@ import { TranslationService } from './services/translation.service';
             (click)="closeSidebar()"
           >
             <span class="nav-icon">📤</span> {{ t.sales }}
+          </a>
+          <a
+            routerLink="/reservations"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <span class="nav-icon">📋</span> {{ t.reservations }}
           </a>
           <a
             routerLink="/parts"
@@ -92,6 +99,7 @@ import { TranslationService } from './services/translation.service';
           <button class="menu-toggle" (click)="sidebarOpen = !sidebarOpen">
             ☰
           </button>
+          <img src="assets/logo.svg" alt="Bike Haus" class="topbar-logo" />
           <span class="topbar-title">Bike Haus Freiburg</span>
         </header>
         <div class="content-area">
@@ -134,6 +142,11 @@ import { TranslationService } from './services/translation.service';
       }
       .brand-icon {
         font-size: 2rem;
+      }
+      .brand-logo {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
       }
       .brand-text {
         font-weight: 700;
@@ -200,6 +213,11 @@ import { TranslationService } from './services/translation.service';
         font-size: 1.05rem;
         color: var(--text-primary);
       }
+      .topbar-logo {
+        width: 32px;
+        height: 32px;
+        display: none;
+      }
       .menu-toggle {
         display: none;
         background: none;
@@ -240,6 +258,9 @@ import { TranslationService } from './services/translation.service';
           transform: translateX(0);
         }
         .menu-toggle {
+          display: block;
+        }
+        .topbar-logo {
           display: block;
         }
         .sidebar-overlay {

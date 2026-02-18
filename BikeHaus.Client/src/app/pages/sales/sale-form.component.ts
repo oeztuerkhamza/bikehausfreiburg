@@ -301,7 +301,11 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field" style="margin-top:8px;">
                 <label>Name Verkäufer</label>
-                <input [(ngModel)]="sellerSignerName" name="sellerSignerName" readonly />
+                <input
+                  [(ngModel)]="sellerSignerName"
+                  name="sellerSignerName"
+                  readonly
+                />
               </div>
             </div>
           </div>

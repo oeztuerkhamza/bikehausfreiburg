@@ -12,7 +12,7 @@ public class Reservation : BaseEntity
     public string? Notizen { get; set; }                                 // Notes
     public ReservationStatus Status { get; set; } = ReservationStatus.Active;
     public string ReservierungsNummer { get; set; } = string.Empty;      // Reservation Number
-    
+
     // If converted to sale, link to the sale
     public int? SaleId { get; set; }
 

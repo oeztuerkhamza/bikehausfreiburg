@@ -92,6 +92,14 @@ import { Bicycle, BikeStatus } from '../../models/models';
                     <span class="popup-icon">💰</span>
                     Verkaufen
                   </button>
+                  <button
+                    *ngIf="b.status === 'Available'"
+                    class="popup-item popup-item-reserve"
+                    (click)="goToReservation(b)"
+                  >
+                    <span class="popup-icon">📋</span>
+                    Reservieren
+                  </button>
                   <div class="popup-divider"></div>
                   <button
                     class="popup-item popup-item-danger"
@@ -269,6 +277,12 @@ import { Bicycle, BikeStatus } from '../../models/models';
       .popup-item-primary:hover {
         background-color: rgba(46, 125, 50, 0.1);
       }
+      .popup-item-reserve {
+        color: #1565c0;
+      }
+      .popup-item-reserve:hover {
+        background-color: rgba(21, 101, 192, 0.1);
+      }
       .popup-item-danger {
         color: #dc3545;
       }
@@ -366,6 +380,11 @@ export class BicycleListComponent implements OnInit {
   goToSale(b: Bicycle) {
     this.closeMenu();
     this.router.navigate(['/sales/new'], { queryParams: { bicycleId: b.id } });
+  }
+
+  goToReservation(b: Bicycle) {
+    this.closeMenu();
+    this.router.navigate(['/reservations/new'], { queryParams: { bicycleId: b.id } });
   }
 
   deleteBicycle(b: Bicycle) {

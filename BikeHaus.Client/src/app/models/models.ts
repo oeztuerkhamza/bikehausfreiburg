@@ -416,4 +416,3 @@ export interface ReservationConvertToSale {
   sellerSignature?: SignatureCreate;
   accessories?: SaleAccessoryCreate[];
 }
-

@@ -1,11 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ReservationService } from '../../services/reservation.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { TranslationService } from '../../services/translation.service';
-import { ReservationCreate, Bicycle, CustomerCreate } from '../../models/models';
+import {
+  ReservationCreate,
+  Bicycle,
+  CustomerCreate,
+} from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
 import { AddressSuggestion } from '../../services/address.service';
@@ -65,7 +69,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint">Tippen Sie eine Adresse ein für Vorschläge</small>
+                <small class="hint"
+                  >Tippen Sie eine Adresse ein für Vorschläge</small
+                >
               </div>
               <div class="field">
                 <label>{{ t.street }}</label>
@@ -73,7 +79,10 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field">
                 <label>{{ t.houseNumber }}</label>
-                <input [(ngModel)]="customer.hausnummer" name="customerHausnr" />
+                <input
+                  [(ngModel)]="customer.hausnummer"
+                  name="customerHausnr"
+                />
               </div>
               <div class="field">
                 <label>{{ t.postalCode }}</label>
@@ -120,7 +129,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   name="reservierungsTage"
                   required
                 />
-                <small class="hint">Ablaufdatum: {{ getExpirationDate() }}</small>
+                <small class="hint"
+                  >Ablaufdatum: {{ getExpirationDate() }}</small
+                >
               </div>
               <div class="field">
                 <label>{{ t.deposit }} (€)</label>
@@ -144,6 +155,27 @@ import { AddressSuggestion } from '../../services/address.service';
           </div>
         </div>
 
+        <!-- Validation messages -->
+        <div class="validation-errors" *ngIf="!canSubmit() && !submitting">
+          <p *ngIf="!selectedBike" class="error-msg">
+            ⚠️ Bitte wählen Sie ein Fahrrad aus
+          </p>
+          <p *ngIf="!customer.vorname?.trim()" class="error-msg">
+            ⚠️ Vorname ist erforderlich
+          </p>
+          <p *ngIf="!customer.nachname?.trim()" class="error-msg">
+            ⚠️ Nachname ist erforderlich
+          </p>
+          <p *ngIf="reservierungsTage <= 0" class="error-msg">
+            ⚠️ Reservierungstage muss größer als 0 sein
+          </p>
+        </div>
+
+        <!-- API Error -->
+        <div class="api-error" *ngIf="errorMessage">
+          <p>❌ {{ errorMessage }}</p>
+        </div>
+
         <!-- Submit section -->
         <div class="submit-section">
           <button
@@ -151,167 +183,200 @@ import { AddressSuggestion } from '../../services/address.service';
             class="btn btn-primary btn-large"
             [disabled]="!canSubmit()"
           >
-            {{ t.save }}
+            {{ submitting ? 'Wird gespeichert...' : t.save }}
           </button>
         </div>
       </form>
     </div>
   `,
-  styles: [`
-    .page {
-      padding: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .page-header h1 {
-      font-size: 1.75rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      transition: all 0.2s;
-      text-decoration: none;
-    }
-
-    .btn-outline {
-      background: var(--card);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-outline:hover {
-      background: var(--bg);
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      opacity: 0.9;
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .btn-large {
-      padding: 14px 32px;
-      font-size: 1rem;
-    }
-
-    .form-sections {
-      display: grid;
-      gap: 24px;
-    }
-
-    .form-card {
-      background: var(--card);
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-
-    .form-card h2 {
-      margin: 0 0 20px 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--text);
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-
-    input, select, textarea {
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 0.95rem;
-      transition: border-color 0.2s;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    textarea {
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    .hint {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .submit-section {
-      margin-top: 32px;
-      display: flex;
-      justify-content: center;
-    }
-
-    @media (max-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr;
+  styles: [
+    `
+      .page {
+        padding: 24px;
+        max-width: 1200px;
+        margin: 0 auto;
       }
 
       .page-header {
-        flex-direction: column;
-        gap: 16px;
-        align-items: flex-start;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
       }
-    }
-  `]
+
+      .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+        text-decoration: none;
+      }
+
+      .btn-outline {
+        background: var(--card);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+
+      .btn-outline:hover {
+        background: var(--bg);
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        opacity: 0.9;
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .btn-large {
+        padding: 14px 32px;
+        font-size: 1rem;
+      }
+
+      .validation-errors {
+        background: #fff3e0;
+        border: 1px solid #ff9800;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 16px;
+      }
+
+      .error-msg {
+        color: #e65100;
+        margin: 4px 0;
+        font-size: 0.9rem;
+      }
+
+      .api-error {
+        background: #ffebee;
+        border: 1px solid #f44336;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 16px;
+        color: #c62828;
+        font-weight: 500;
+      }
+
+      .form-sections {
+        display: grid;
+        gap: 24px;
+      }
+
+      .form-card {
+        background: var(--card);
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+
+      .form-card h2 {
+        margin: 0 0 20px 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text);
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .field.full {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
+      input,
+      select,
+      textarea {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      textarea {
+        resize: vertical;
+        font-family: inherit;
+      }
+
+      .hint {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      .submit-section {
+        margin-top: 32px;
+        display: flex;
+        justify-content: center;
+      }
+
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .page-header {
+          flex-direction: column;
+          gap: 16px;
+          align-items: flex-start;
+        }
+      }
+    `,
+  ],
 })
 export class ReservationFormComponent implements OnInit {
   private reservationService = inject(ReservationService);
   private bicycleService = inject(BicycleService);
   private translationService = inject(TranslationService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   availableBikes: Bicycle[] = [];
   selectedBike: Bicycle | null = null;
+  submitting = false;
+  errorMessage: string | null = null;
 
   customer: CustomerCreate = {
     vorname: '',
@@ -321,7 +386,7 @@ export class ReservationFormComponent implements OnInit {
     plz: '',
     stadt: '',
     telefon: '',
-    email: ''
+    email: '',
   };
 
   reservierungsDatum: string = new Date().toISOString().split('T')[0];
@@ -340,9 +405,19 @@ export class ReservationFormComponent implements OnInit {
   loadAvailableBikes() {
     this.bicycleService.getAll().subscribe({
       next: (bikes) => {
-        this.availableBikes = bikes.filter(b => b.status === 'Available');
+        this.availableBikes = bikes.filter((b) => b.status === 'Available');
+        // Pre-select bike if bicycleId query param provided
+        const bicycleId = this.route.snapshot.queryParams['bicycleId'];
+        if (bicycleId) {
+          const preselected = this.availableBikes.find(
+            (b) => b.id === +bicycleId,
+          );
+          if (preselected) {
+            this.selectedBike = preselected;
+          }
+        }
       },
-      error: (err) => console.error('Error loading bikes:', err)
+      error: (err) => console.error('Error loading bikes:', err),
     });
   }
 
@@ -351,15 +426,15 @@ export class ReservationFormComponent implements OnInit {
   }
 
   onAddressSelected(address: AddressSuggestion) {
-    this.customer.strasse = address.street || '';
-    this.customer.hausnummer = address.houseNumber || '';
-    this.customer.plz = address.postalCode || '';
-    this.customer.stadt = address.city || '';
+    this.customer.strasse = address.strasse || '';
+    this.customer.hausnummer = address.hausnummer || '';
+    this.customer.plz = address.plz || '';
+    this.customer.stadt = address.stadt || '';
   }
 
   getExpirationDate(): string {
-    const date = this.reservierungsDatum 
-      ? new Date(this.reservierungsDatum) 
+    const date = this.reservierungsDatum
+      ? new Date(this.reservierungsDatum)
       : new Date();
     date.setDate(date.getDate() + this.reservierungsTage);
     return date.toLocaleDateString('de-DE');
@@ -370,12 +445,16 @@ export class ReservationFormComponent implements OnInit {
       this.selectedBike &&
       this.customer.vorname.trim() &&
       this.customer.nachname.trim() &&
-      this.reservierungsTage > 0
+      this.reservierungsTage > 0 &&
+      !this.submitting
     );
   }
 
   submit() {
     if (!this.canSubmit()) return;
+
+    this.submitting = true;
+    this.errorMessage = null;
 
     const reservation: ReservationCreate = {
       bicycleId: this.selectedBike!.id,
@@ -383,7 +462,7 @@ export class ReservationFormComponent implements OnInit {
       reservierungsDatum: this.reservierungsDatum || undefined,
       reservierungsTage: this.reservierungsTage,
       anzahlung: this.anzahlung || undefined,
-      notizen: this.notizen || undefined
+      notizen: this.notizen || undefined,
     };
 
     this.reservationService.create(reservation).subscribe({
@@ -393,8 +472,10 @@ export class ReservationFormComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error creating reservation:', err);
-        alert(err.error?.error || 'Fehler beim Erstellen der Reservierung');
-      }
+        this.submitting = false;
+        this.errorMessage =
+          err.error?.error || 'Fehler beim Erstellen der Reservierung';
+      },
     });
   }
 }

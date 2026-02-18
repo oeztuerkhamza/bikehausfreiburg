@@ -54,7 +54,7 @@ import { SaleList } from '../../models/models';
             <option value="year">{{ t.thisYear }}</option>
           </select>
         </div>
-<span
+        <span
           class="result-count"
           *ngIf="filteredSales.length !== sales.length"
         >
@@ -236,7 +236,7 @@ import { SaleList } from '../../models/models';
         background: #fff3e0;
         color: #e65100;
       }
-@media (max-width: 640px) {
+      @media (max-width: 640px) {
         .filter-bar {
           flex-direction: column;
         }

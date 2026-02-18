@@ -392,7 +392,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     convertToSale: 'Satışa Dönüştür',
     cancelReservation: 'Rezervasyonu İptal Et',
     noReservations: 'Rezervasyon bulunamadı',
-    deleteConfirmReservation: 'Bu rezervasyonu silmek istediğinize emin misiniz?',
+    deleteConfirmReservation:
+      'Bu rezervasyonu silmek istediğinize emin misiniz?',
     activeReservations: 'Aktif Rezervasyonlar',
     expiredReservations: 'Süresi Dolan Rezervasyonlar',
     cancelledReservations: 'İptal Edilen Rezervasyonlar',
