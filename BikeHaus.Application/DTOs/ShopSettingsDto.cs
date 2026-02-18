@@ -22,6 +22,7 @@ public class ShopSettingsDto
     public string? InhaberNachname { get; set; }
     public string? InhaberSignatureBase64 { get; set; }
     public string? InhaberSignatureFileName { get; set; }
+    public int FahrradNummerStart { get; set; }
     public string? Oeffnungszeiten { get; set; }
     public string? Zusatzinfo { get; set; }
     public string? FullAddress { get; set; }
@@ -44,6 +45,7 @@ public class UpdateShopSettingsDto
     public string? BIC { get; set; }
     public string? InhaberVorname { get; set; }
     public string? InhaberNachname { get; set; }
+    public int FahrradNummerStart { get; set; } = 1;
     public string? Oeffnungszeiten { get; set; }
     public string? Zusatzinfo { get; set; }
 }

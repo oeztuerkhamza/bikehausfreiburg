@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CustomerService } from '../../services/customer.service';
+import { ExcelExportService } from '../../services/excel-export.service';
 import { Customer, CustomerCreate, CustomerUpdate } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
@@ -14,9 +15,14 @@ import { AddressSuggestion } from '../../services/address.service';
     <div class="page">
       <div class="page-header">
         <h1>Kundenverwaltung</h1>
-        <button class="btn btn-primary" (click)="showForm = !showForm">
-          {{ showForm ? 'Abbrechen' : '+ Neuer Kunde' }}
-        </button>
+        <div class="header-actions">
+          <button class="btn btn-outline" (click)="exportExcel()">
+            📥 Excel Export
+          </button>
+          <button class="btn btn-primary" (click)="showForm = !showForm">
+            {{ showForm ? 'Abbrechen' : '+ Neuer Kunde' }}
+          </button>
+        </div>
       </div>
 
       <!-- Create / Edit form -->
@@ -136,6 +142,11 @@ import { AddressSuggestion } from '../../services/address.service';
         align-items: center;
         margin-bottom: 20px;
       }
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
       .form-card {
         background: #fff;
         border-radius: 10px;
@@ -232,7 +243,10 @@ export class CustomerListComponent implements OnInit {
   searchTerm = '';
   form: CustomerCreate = { vorname: '', nachname: '' };
 
-  constructor(private customerService: CustomerService) {}
+  constructor(
+    private customerService: CustomerService,
+    private excelExportService: ExcelExportService,
+  ) {}
 
   ngOnInit() {
     this.load();
@@ -306,6 +320,18 @@ export class CustomerListComponent implements OnInit {
           alert(err.error?.error || 'Fehler beim Löschen des Kunden'),
       });
     }
+  }
+
+  exportExcel() {
+    this.excelExportService.exportToExcel(this.customers, 'Kunden', [
+      { key: 'fullName', header: 'Name' },
+      { key: 'strasse', header: 'Straße' },
+      { key: 'hausnummer', header: 'Hausnummer' },
+      { key: 'plz', header: 'PLZ' },
+      { key: 'stadt', header: 'Stadt' },
+      { key: 'telefon', header: 'Telefon' },
+      { key: 'email', header: 'E-Mail' },
+    ]);
   }
 
   private resetForm() {

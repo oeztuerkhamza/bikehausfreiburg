@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DashboardService } from '../../services/dashboard.service';
 import { Dashboard } from '../../models/models';
 
@@ -65,7 +65,11 @@ import { Dashboard } from '../../models/models';
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let p of data.recentPurchases">
+              <tr
+                *ngFor="let p of data.recentPurchases"
+                class="clickable-row"
+                (click)="goToPurchase(p.id)"
+              >
                 <td>{{ p.belegNummer }}</td>
                 <td>{{ p.bikeInfo }}</td>
                 <td>{{ p.sellerName }}</td>
@@ -92,7 +96,11 @@ import { Dashboard } from '../../models/models';
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let s of data.recentSales">
+              <tr
+                *ngFor="let s of data.recentSales"
+                class="clickable-row"
+                (click)="goToSale(s.id)"
+              >
                 <td>{{ s.belegNummer }}</td>
                 <td>{{ s.bikeInfo }}</td>
                 <td>{{ s.buyerName }}</td>
@@ -197,6 +205,13 @@ import { Dashboard } from '../../models/models';
         padding: 8px 6px;
         border-bottom: 1px solid #f0f0f0;
       }
+      .clickable-row {
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+      }
+      .clickable-row:hover {
+        background-color: #f5f5f5;
+      }
       .empty {
         color: #999;
         font-style: italic;
@@ -212,9 +227,20 @@ import { Dashboard } from '../../models/models';
 export class DashboardComponent implements OnInit {
   data: Dashboard | null = null;
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     this.dashboardService.getDashboard().subscribe((d) => (this.data = d));
+  }
+
+  goToPurchase(id: number) {
+    this.router.navigate(['/purchases/edit', id]);
+  }
+
+  goToSale(id: number) {
+    this.router.navigate(['/sales/edit', id]);
   }
 }

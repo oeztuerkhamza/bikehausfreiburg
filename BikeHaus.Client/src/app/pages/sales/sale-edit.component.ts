@@ -234,7 +234,7 @@ import { AddressSuggestion } from '../../services/address.service';
                     (click)="removeAccessory(i)"
                     title="Entfernen"
                   >
-                    ✕
+                    🗑️
                   </button>
                 </div>
               </div>

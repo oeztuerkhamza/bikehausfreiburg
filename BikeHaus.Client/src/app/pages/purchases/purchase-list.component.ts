@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
+import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { PurchaseList } from '../../models/models';
 
@@ -14,9 +15,14 @@ import { PurchaseList } from '../../models/models';
     <div class="page">
       <div class="page-header">
         <h1>{{ t.purchases }}</h1>
-        <a routerLink="/purchases/new" class="btn btn-primary"
-          >+ {{ t.newPurchase }}</a
-        >
+        <div class="header-actions">
+          <button class="btn btn-outline" (click)="exportExcel()">
+            📥 Excel Export
+          </button>
+          <a routerLink="/purchases/new" class="btn btn-primary"
+            >+ {{ t.newPurchase }}</a
+          >
+        </div>
       </div>
 
       <!-- Filter Bar -->
@@ -142,6 +148,11 @@ import { PurchaseList } from '../../models/models';
         align-items: center;
         margin-bottom: 20px;
       }
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
       .filter-bar {
         display: flex;
         gap: 12px;
@@ -263,6 +274,7 @@ import { PurchaseList } from '../../models/models';
 })
 export class PurchaseListComponent implements OnInit {
   private purchaseService = inject(PurchaseService);
+  private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
 
   purchases: PurchaseList[] = [];
@@ -357,6 +369,18 @@ export class PurchaseListComponent implements OnInit {
       a.click();
       window.URL.revokeObjectURL(url);
     });
+  }
+
+  exportExcel() {
+    this.excelExportService.exportToExcel(this.filteredPurchases, 'Ankauefe', [
+      { key: 'belegNummer', header: 'Beleg-Nr.' },
+      { key: 'bikeInfo', header: 'Fahrrad' },
+      { key: 'sellerName', header: 'Verkäufer' },
+      { key: 'preis', header: 'Preis (€)' },
+      { key: 'verkaufspreisVorschlag', header: 'VK-Preis (€)' },
+      { key: 'zahlungsart', header: 'Zahlungsart' },
+      { key: 'kaufdatum', header: 'Kaufdatum' },
+    ]);
   }
 
   deletePurchase(p: PurchaseList) {

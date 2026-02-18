@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ReturnService } from '../../services/return.service';
+import { ExcelExportService } from '../../services/excel-export.service';
 import { ReturnList, ReturnReason } from '../../models/models';
 
 @Component({
@@ -13,7 +14,14 @@ import { ReturnList, ReturnReason } from '../../models/models';
     <div class="page">
       <div class="page-header">
         <h1>Rückgaben</h1>
-        <a routerLink="/returns/new" class="btn btn-primary">+ Neue Rückgabe</a>
+        <div class="header-actions">
+          <button class="btn btn-outline" (click)="exportExcel()">
+            📥 Excel Export
+          </button>
+          <a routerLink="/returns/new" class="btn btn-primary"
+            >+ Neue Rückgabe</a
+          >
+        </div>
       </div>
 
       <!-- Filter Bar -->
@@ -126,6 +134,11 @@ import { ReturnList, ReturnReason } from '../../models/models';
         align-items: center;
         margin-bottom: 20px;
       }
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
       .filter-bar {
         display: flex;
         gap: 12px;
@@ -230,7 +243,10 @@ export class ReturnListComponent implements OnInit {
   filterReason = '';
   filterDate = '';
 
-  constructor(private returnService: ReturnService) {}
+  constructor(
+    private returnService: ReturnService,
+    private excelExportService: ExcelExportService,
+  ) {}
 
   ngOnInit() {
     this.load();
@@ -322,6 +338,18 @@ export class ReturnListComponent implements OnInit {
       a.click();
       URL.revokeObjectURL(url);
     });
+  }
+
+  exportExcel() {
+    this.excelExportService.exportToExcel(this.filteredReturns, 'Rueckgaben', [
+      { key: 'belegNummer', header: 'Beleg-Nr.' },
+      { key: 'originalSaleBelegNummer', header: 'Org. Verkauf' },
+      { key: 'bikeInfo', header: 'Fahrrad' },
+      { key: 'customerName', header: 'Kunde' },
+      { key: 'rueckgabedatum', header: 'Datum' },
+      { key: 'grund', header: 'Grund' },
+      { key: 'erstattungsbetrag', header: 'Erstattung (€)' },
+    ]);
   }
 
   delete(id: number) {

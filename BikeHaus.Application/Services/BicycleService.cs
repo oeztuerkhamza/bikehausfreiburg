@@ -1,6 +1,7 @@
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Application.Mappings;
+using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
 
 namespace BikeHaus.Application.Services;
@@ -9,17 +10,69 @@ public class BicycleService : IBicycleService
 {
     private readonly IBicycleRepository _repository;
     private readonly IPurchaseRepository _purchaseRepository;
+    private readonly IShopSettingsRepository _settingsRepository;
 
-    public BicycleService(IBicycleRepository repository, IPurchaseRepository purchaseRepository)
+    public BicycleService(IBicycleRepository repository, IPurchaseRepository purchaseRepository, IShopSettingsRepository settingsRepository)
     {
         _repository = repository;
         _purchaseRepository = purchaseRepository;
+        _settingsRepository = settingsRepository;
     }
 
     public async Task<IEnumerable<BicycleDto>> GetAllAsync()
     {
         var bicycles = await _repository.GetAllAsync();
         return bicycles.Select(b => b.ToDto());
+    }
+
+    public async Task<PaginatedResult<BicycleDto>> GetPaginatedAsync(PaginationParams paginationParams)
+    {
+        System.Linq.Expressions.Expression<Func<Domain.Entities.Bicycle, bool>>? predicate = null;
+
+        // Apply status filter
+        if (!string.IsNullOrEmpty(paginationParams.Status))
+        {
+            if (Enum.TryParse<BikeStatus>(paginationParams.Status, out var status))
+            {
+                predicate = b => b.Status == status;
+            }
+        }
+
+        // Apply search filter
+        if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
+        {
+            var term = paginationParams.SearchTerm.ToLower();
+            if (predicate != null)
+            {
+                var statusPredicate = predicate;
+                predicate = b => statusPredicate.Compile()(b) &&
+                    (b.Marke.ToLower().Contains(term) ||
+                     b.Modell.ToLower().Contains(term) ||
+                     b.Rahmennummer.ToLower().Contains(term) ||
+                     (b.Farbe != null && b.Farbe.ToLower().Contains(term)));
+            }
+            else
+            {
+                predicate = b =>
+                    b.Marke.ToLower().Contains(term) ||
+                    b.Modell.ToLower().Contains(term) ||
+                    b.Rahmennummer.ToLower().Contains(term) ||
+                    (b.Farbe != null && b.Farbe.ToLower().Contains(term));
+            }
+        }
+
+        var (items, totalCount) = await _repository.GetPaginatedAsync(
+            paginationParams.Page,
+            paginationParams.PageSize,
+            predicate);
+
+        return new PaginatedResult<BicycleDto>
+        {
+            Items = items.Select(b => b.ToDto()),
+            TotalCount = totalCount,
+            Page = paginationParams.Page,
+            PageSize = paginationParams.PageSize
+        };
     }
 
     public async Task<BicycleDto?> GetByIdAsync(int id)
@@ -37,6 +90,15 @@ public class BicycleService : IBicycleService
     public async Task<BicycleDto> CreateAsync(BicycleCreateDto dto)
     {
         var entity = dto.ToEntity();
+
+        // Always auto-generate StokNo: find max and add 1
+        var maxStokNo = await _repository.GetMaxStokNoAsync();
+        var settings = await _settingsRepository.GetSettingsAsync();
+        var startNum = settings?.FahrradNummerStart ?? 1;
+
+        var nextNum = maxStokNo.HasValue ? Math.Max(maxStokNo.Value + 1, startNum) : startNum;
+        entity.StokNo = nextNum.ToString();
+
         var created = await _repository.AddAsync(entity);
         return created.ToDto();
     }
@@ -90,7 +152,22 @@ public class BicycleService : IBicycleService
             b.Marke.Contains(searchTerm) ||
             b.Modell.Contains(searchTerm) ||
             b.Rahmennummer.Contains(searchTerm) ||
-            b.Farbe.Contains(searchTerm));
+            (b.Farbe != null && b.Farbe.Contains(searchTerm)));
         return bicycles.Select(b => b.ToDto());
+    }
+
+    public async Task<BicycleDto?> GetByStokNoAsync(string stokNo)
+    {
+        var bicycle = await _repository.GetByStokNoAsync(stokNo);
+        return bicycle?.ToDto();
+    }
+
+    public async Task<string> GetNextStokNoAsync()
+    {
+        var maxStokNo = await _repository.GetMaxStokNoAsync();
+        var settings = await _settingsRepository.GetSettingsAsync();
+        var startNum = settings?.FahrradNummerStart ?? 1;
+        var nextNum = maxStokNo.HasValue ? Math.Max(maxStokNo.Value + 1, startNum) : startNum;
+        return nextNum.ToString();
     }
 }

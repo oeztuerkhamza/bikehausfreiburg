@@ -23,6 +23,7 @@ export interface ShopSettings {
   inhaberNachname?: string;
   inhaberSignatureBase64?: string;
   inhaberSignatureFileName?: string;
+  fahrradNummerStart: number;
   oeffnungszeiten?: string;
   zusatzinfo?: string;
   fullAddress?: string;
@@ -44,6 +45,7 @@ export interface UpdateShopSettings {
   bic?: string;
   inhaberVorname?: string;
   inhaberNachname?: string;
+  fahrradNummerStart: number;
   oeffnungszeiten?: string;
   zusatzinfo?: string;
 }

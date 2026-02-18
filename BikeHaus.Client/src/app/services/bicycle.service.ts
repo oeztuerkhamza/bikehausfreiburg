@@ -2,7 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Bicycle, BicycleCreate, BicycleUpdate } from '../models/models';
+import {
+  Bicycle,
+  BicycleCreate,
+  BicycleUpdate,
+  PaginatedResult,
+} from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class BicycleService {
@@ -14,8 +19,34 @@ export class BicycleService {
     return this.http.get<Bicycle[]>(this.url);
   }
 
+  getPaginated(
+    page: number,
+    pageSize: number,
+    status?: string,
+    search?: string,
+  ): Observable<PaginatedResult<Bicycle>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (status) params = params.set('status', status);
+    if (search) params = params.set('search', search);
+
+    return this.http.get<PaginatedResult<Bicycle>>(`${this.url}/paginated`, {
+      params,
+    });
+  }
+
   getById(id: number): Observable<Bicycle> {
     return this.http.get<Bicycle>(`${this.url}/${id}`);
+  }
+
+  getByStokNo(stokNo: string): Observable<Bicycle> {
+    return this.http.get<Bicycle>(`${this.url}/by-stokno/${stokNo}`);
+  }
+
+  getNextStokNo(): Observable<{ stokNo: string }> {
+    return this.http.get<{ stokNo: string }>(`${this.url}/next-stokno`);
   }
 
   getAvailable(): Observable<Bicycle[]> {

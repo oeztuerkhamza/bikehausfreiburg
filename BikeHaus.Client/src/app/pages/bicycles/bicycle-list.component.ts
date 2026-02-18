@@ -3,19 +3,26 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
-import { Bicycle, BikeStatus } from '../../models/models';
+import { ExcelExportService } from '../../services/excel-export.service';
+import { Bicycle, BikeStatus, PaginatedResult } from '../../models/models';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-bicycle-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, PaginationComponent],
   template: `
     <div class="page">
       <div class="page-header">
         <h1>Fahrräder</h1>
-        <a routerLink="/purchases/new" class="btn btn-primary"
-          >+ Neuer Ankauf</a
-        >
+        <div class="header-actions">
+          <button class="btn btn-outline" (click)="exportExcel()">
+            📥 Excel Export
+          </button>
+          <a routerLink="/purchases/new" class="btn btn-primary"
+            >+ Neuer Ankauf</a
+          >
+        </div>
       </div>
 
       <div class="filters">
@@ -28,7 +35,7 @@ import { Bicycle, BikeStatus } from '../../models/models';
         />
         <select
           [(ngModel)]="statusFilter"
-          (change)="applyFilter()"
+          (change)="onFilterChange()"
           class="filter-select"
         >
           <option value="">Alle Status</option>
@@ -42,6 +49,7 @@ import { Bicycle, BikeStatus } from '../../models/models';
         <table>
           <thead>
             <tr>
+              <th>Nr.</th>
               <th>Marke</th>
               <th>Modell</th>
               <th>Rahmennummer</th>
@@ -52,10 +60,11 @@ import { Bicycle, BikeStatus } from '../../models/models';
           </thead>
           <tbody>
             <tr
-              *ngFor="let b of filteredBicycles"
+              *ngFor="let b of paginatedResult?.items"
               class="clickable-row"
               (click)="toggleMenu($event, b)"
             >
+              <td class="mono">{{ b.stokNo || '–' }}</td>
               <td>{{ b.marke }}</td>
               <td>{{ b.modell }}</td>
               <td class="mono">{{ b.rahmennummer }}</td>
@@ -113,9 +122,21 @@ import { Bicycle, BikeStatus } from '../../models/models';
             </tr>
           </tbody>
         </table>
-        <p *ngIf="filteredBicycles.length === 0" class="empty">
+        <p *ngIf="paginatedResult?.items?.length === 0" class="empty">
           Keine Fahrräder gefunden
         </p>
+
+        <app-pagination
+          *ngIf="paginatedResult && paginatedResult.totalCount > 0"
+          [currentPage]="currentPage"
+          [pageSize]="pageSize"
+          [totalCount]="paginatedResult.totalCount"
+          [totalPages]="paginatedResult.totalPages"
+          [hasPrevious]="paginatedResult.hasPrevious"
+          [hasNext]="paginatedResult.hasNext"
+          (pageChange)="onPageChange($event)"
+          (pageSizeChange)="onPageSizeChange($event)"
+        ></app-pagination>
       </div>
     </div>
   `,
@@ -130,6 +151,11 @@ import { Bicycle, BikeStatus } from '../../models/models';
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
+      }
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
       }
       .filters {
         display: flex;
@@ -159,7 +185,7 @@ import { Bicycle, BikeStatus } from '../../models/models';
         border-radius: 10px;
         padding: 16px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        overflow-x: auto;
+        overflow: visible;
       }
       table {
         width: 100%;
@@ -167,13 +193,13 @@ import { Bicycle, BikeStatus } from '../../models/models';
       }
       th {
         text-align: left;
-        padding: 10px 8px;
+        padding: 6px 8px;
         border-bottom: 2px solid var(--border-color, #eee);
         font-size: 0.85rem;
         color: var(--text-secondary, #555);
       }
       td {
-        padding: 10px 8px;
+        padding: 6px 8px;
         border-bottom: 1px solid var(--border-color, #f0f0f0);
       }
       .clickable-row {
@@ -235,7 +261,7 @@ import { Bicycle, BikeStatus } from '../../models/models';
         position: absolute;
         top: 100%;
         right: 0;
-        z-index: 1000;
+        z-index: 9999;
         min-width: 160px;
         background: var(--card-bg, #fff);
         border: 1px solid var(--border-color, #ddd);
@@ -306,16 +332,18 @@ import { Bicycle, BikeStatus } from '../../models/models';
   ],
 })
 export class BicycleListComponent implements OnInit {
-  bicycles: Bicycle[] = [];
-  filteredBicycles: Bicycle[] = [];
+  paginatedResult: PaginatedResult<Bicycle> | null = null;
   searchTerm = '';
   statusFilter = '';
   activeMenuId: number | null = null;
+  currentPage = 1;
+  pageSize = 20;
 
   constructor(
     private bicycleService: BicycleService,
     private router: Router,
     private elementRef: ElementRef,
+    private excelExportService: ExcelExportService,
   ) {}
 
   @HostListener('document:click', ['$event'])
@@ -331,27 +359,37 @@ export class BicycleListComponent implements OnInit {
   }
 
   load() {
-    this.bicycleService.getAll().subscribe((data) => {
-      this.bicycles = data;
-      this.applyFilter();
-    });
+    this.bicycleService
+      .getPaginated(
+        this.currentPage,
+        this.pageSize,
+        this.statusFilter || undefined,
+        this.searchTerm || undefined,
+      )
+      .subscribe((data) => {
+        this.paginatedResult = data;
+      });
   }
 
   onSearch() {
-    if (this.searchTerm.length >= 2) {
-      this.bicycleService.search(this.searchTerm).subscribe((data) => {
-        this.bicycles = data;
-        this.applyFilter();
-      });
-    } else if (this.searchTerm.length === 0) {
-      this.load();
-    }
+    this.currentPage = 1;
+    this.load();
   }
 
-  applyFilter() {
-    this.filteredBicycles = this.statusFilter
-      ? this.bicycles.filter((b) => b.status === this.statusFilter)
-      : [...this.bicycles];
+  onFilterChange() {
+    this.currentPage = 1;
+    this.load();
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.load();
+  }
+
+  onPageSizeChange(size: number) {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.load();
   }
 
   statusLabel(s: BikeStatus): string {
@@ -384,7 +422,24 @@ export class BicycleListComponent implements OnInit {
 
   goToReservation(b: Bicycle) {
     this.closeMenu();
-    this.router.navigate(['/reservations/new'], { queryParams: { bicycleId: b.id } });
+    this.router.navigate(['/reservations/new'], {
+      queryParams: { bicycleId: b.id },
+    });
+  }
+
+  exportExcel() {
+    const data = this.paginatedResult?.items || [];
+    this.excelExportService.exportToExcel(data, 'Fahrraeder', [
+      { key: 'stokNo', header: 'Nr.' },
+      { key: 'marke', header: 'Marke' },
+      { key: 'modell', header: 'Modell' },
+      { key: 'rahmennummer', header: 'Rahmennummer' },
+      { key: 'farbe', header: 'Farbe' },
+      { key: 'reifengroesse', header: 'Reifengröße' },
+      { key: 'fahrradtyp', header: 'Fahrradtyp' },
+      { key: 'zustand', header: 'Zustand' },
+      { key: 'status', header: 'Status' },
+    ]);
   }
 
   deleteBicycle(b: Bicycle) {

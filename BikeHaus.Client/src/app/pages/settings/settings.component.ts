@@ -286,6 +286,29 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                 </div>
               </div>
 
+              <!-- Bicycle Numbering -->
+              <h3
+                style="margin-top: 24px; margin-bottom: 12px; font-size: 1rem; color: var(--text-secondary, #666);"
+              >
+                Fahrrad-Nummerierung
+              </h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Startnummer</label>
+                  <input
+                    type="number"
+                    min="1"
+                    [(ngModel)]="settings.fahrradNummerStart"
+                    name="fahrradNummerStart"
+                  />
+                  <small
+                    style="color: var(--text-muted, #888); font-size: 0.8rem;"
+                    >Neue Fahrräder bekommen automatisch die nächste
+                    Nummer</small
+                  >
+                </div>
+              </div>
+
               <div class="form-actions">
                 <button
                   type="submit"
@@ -573,6 +596,7 @@ export class SettingsComponent implements OnInit {
     bic: '',
     inhaberVorname: '',
     inhaberNachname: '',
+    fahrradNummerStart: 1,
     oeffnungszeiten: '',
     zusatzinfo: '',
     logoBase64: undefined,
@@ -627,6 +651,7 @@ export class SettingsComponent implements OnInit {
         bic: this.settings.bic,
         inhaberVorname: this.settings.inhaberVorname,
         inhaberNachname: this.settings.inhaberNachname,
+        fahrradNummerStart: this.settings.fahrradNummerStart || 1,
         oeffnungszeiten: this.settings.oeffnungszeiten,
         zusatzinfo: this.settings.zusatzinfo,
       })

@@ -179,7 +179,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                   class="btn-remove"
                   (click)="removeAccessory(i)"
                 >
-                  ✕
+                  🗑️
                 </button>
               </div>
             </div>

@@ -30,7 +30,7 @@ import { BicycleService } from '../../services/bicycle.service';
             <input
               type="text"
               [(ngModel)]="searchId"
-              placeholder="ID"
+              placeholder="Nr"
               class="id-input"
               (keyup.enter)="searchById()"
             />
@@ -39,7 +39,7 @@ import { BicycleService } from '../../services/bicycle.service';
               class="btn btn-sm btn-outline"
               (click)="searchById()"
             >
-              ID suchen
+              Nr suchen
             </button>
           </div>
         </div>
@@ -54,7 +54,7 @@ import { BicycleService } from '../../services/bicycle.service';
           (click)="selectBike(bike)"
         >
           <div class="bike-main">
-            <span class="bike-id">#{{ bike.id }}</span>
+            <span class="bike-id">#{{ bike.stokNo || bike.id }}</span>
             <span class="bike-brand">{{ bike.marke }} {{ bike.modell }}</span>
             <span class="bike-frame">{{ bike.rahmennummer }}</span>
           </div>
@@ -229,7 +229,8 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
         b.marke.toLowerCase().includes(term) ||
         b.modell.toLowerCase().includes(term) ||
         b.rahmennummer.toLowerCase().includes(term) ||
-        b.farbe.toLowerCase().includes(term) ||
+        (b.stokNo && b.stokNo.toLowerCase().includes(term)) ||
+        (b.farbe && b.farbe.toLowerCase().includes(term)) ||
         b.fahrradtyp?.toLowerCase().includes(term),
     );
   }
@@ -243,14 +244,14 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
 
   searchById() {
     this.searchError = '';
-    const id = Number.parseInt(this.searchId, 10);
-    if (!id || Number.isNaN(id)) {
-      this.searchError = 'Bitte eine gültige ID eingeben.';
+    const nr = this.searchId?.trim();
+    if (!nr) {
+      this.searchError = 'Bitte eine gültige Nr eingeben.';
       return;
     }
 
     // Check if already in list
-    const existing = this.bikes.find((b) => b.id === id);
+    const existing = this.bikes.find((b) => b.stokNo === nr);
     if (existing) {
       this.selectBike(existing);
       this.searchId = '';
@@ -259,11 +260,11 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
       return;
     }
 
-    // Fetch from server
-    this.bicycleService.getById(id).subscribe({
+    // Fetch from server by StokNo
+    this.bicycleService.getByStokNo(nr).subscribe({
       next: (bike) => {
         if (bike.status === BikeStatus.Sold) {
-          this.searchError = `Fahrrad #${id} ist bereits verkauft.`;
+          this.searchError = `Fahrrad #${nr} ist bereits verkauft.`;
         } else {
           this.bikes.push(bike);
           this.selectBike(bike);
@@ -272,7 +273,7 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
         }
       },
       error: () => {
-        this.searchError = `Fahrrad mit ID ${id} nicht gefunden.`;
+        this.searchError = `Fahrrad mit Nr ${nr} nicht gefunden.`;
       },
     });
   }

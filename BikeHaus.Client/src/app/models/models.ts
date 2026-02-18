@@ -416,3 +416,14 @@ export interface ReservationConvertToSale {
   sellerSignature?: SignatureCreate;
   accessories?: SaleAccessoryCreate[];
 }
+
+// ── Pagination ──
+export interface PaginatedResult<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+}

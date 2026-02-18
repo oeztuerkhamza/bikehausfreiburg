@@ -183,7 +183,7 @@ import { AddressSuggestion } from '../../services/address.service';
             class="btn btn-primary btn-large"
             [disabled]="!canSubmit()"
           >
-            {{ submitting ? 'Wird gespeichert...' : t.save }}
+            {{ submitting ? 'Wird gespeichert...' : 'Reservieren' }}
           </button>
         </div>
       </form>
@@ -207,7 +207,7 @@ import { AddressSuggestion } from '../../services/address.service';
       .page-header h1 {
         font-size: 1.75rem;
         font-weight: 600;
-        color: var(--text);
+        color: var(--text-primary, #333);
       }
 
       .btn {
@@ -221,17 +221,17 @@ import { AddressSuggestion } from '../../services/address.service';
       }
 
       .btn-outline {
-        background: var(--card);
-        color: var(--text);
-        border: 1px solid var(--border);
+        background: var(--bg-card, #ffffff);
+        color: var(--text-primary, #333);
+        border: 1px solid var(--border-color, #ddd);
       }
 
       .btn-outline:hover {
-        background: var(--bg);
+        background: var(--bg-secondary, #f5f5f5);
       }
 
       .btn-primary {
-        background: var(--primary);
+        background: var(--accent-primary, #4361ee);
         color: white;
       }
 
@@ -279,19 +279,20 @@ import { AddressSuggestion } from '../../services/address.service';
       }
 
       .form-card {
-        background: var(--card);
+        background: var(--bg-card, #ffffff);
         padding: 24px;
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        border: 1px solid var(--border-color, #eee);
       }
 
       .form-card h2 {
         margin: 0 0 20px 0;
         font-size: 1.1rem;
         font-weight: 600;
-        color: var(--text);
+        color: var(--text-primary, #333);
         padding-bottom: 12px;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid var(--border-color, #eee);
       }
 
       .form-grid {
@@ -313,26 +314,29 @@ import { AddressSuggestion } from '../../services/address.service';
       label {
         font-size: 0.85rem;
         font-weight: 500;
-        color: var(--text-muted);
+        color: var(--text-muted, #666);
       }
 
       input,
       select,
       textarea {
         padding: 10px 14px;
-        border: 1px solid var(--border);
+        border: 1px solid #c0c0c0;
         border-radius: 8px;
-        background: var(--bg);
-        color: var(--text);
+        background: var(--bg-input, #ffffff);
+        color: var(--text-primary, #333);
         font-size: 0.95rem;
         transition: border-color 0.2s;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       input:focus,
       select:focus,
       textarea:focus {
         outline: none;
-        border-color: var(--primary);
+        border-color: var(--accent-primary, #4361ee);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
       }
 
       textarea {
@@ -342,7 +346,7 @@ import { AddressSuggestion } from '../../services/address.service';
 
       .hint {
         font-size: 0.8rem;
-        color: var(--text-muted);
+        color: var(--text-muted, #666);
         margin-top: 4px;
       }
 

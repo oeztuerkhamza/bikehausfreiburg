@@ -46,6 +46,7 @@ public class ShopSettingsService : IShopSettingsService
                 BIC = dto.BIC,
                 InhaberVorname = dto.InhaberVorname,
                 InhaberNachname = dto.InhaberNachname,
+                FahrradNummerStart = dto.FahrradNummerStart > 0 ? dto.FahrradNummerStart : 1,
                 Oeffnungszeiten = dto.Oeffnungszeiten,
                 Zusatzinfo = dto.Zusatzinfo
             };
@@ -69,6 +70,7 @@ public class ShopSettingsService : IShopSettingsService
             settings.BIC = dto.BIC;
             settings.InhaberVorname = dto.InhaberVorname;
             settings.InhaberNachname = dto.InhaberNachname;
+            settings.FahrradNummerStart = dto.FahrradNummerStart > 0 ? dto.FahrradNummerStart : 1;
             settings.Oeffnungszeiten = dto.Oeffnungszeiten;
             settings.Zusatzinfo = dto.Zusatzinfo;
             settings.UpdatedAt = DateTime.UtcNow;
@@ -177,6 +179,7 @@ public class ShopSettingsService : IShopSettingsService
             InhaberNachname = settings.InhaberNachname,
             InhaberSignatureBase64 = settings.InhaberSignatureBase64,
             InhaberSignatureFileName = settings.InhaberSignatureFileName,
+            FahrradNummerStart = settings.FahrradNummerStart,
             Oeffnungszeiten = settings.Oeffnungszeiten,
             Zusatzinfo = settings.Zusatzinfo,
             FullAddress = settings.FullAddress

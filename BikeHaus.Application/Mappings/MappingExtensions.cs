@@ -26,7 +26,7 @@ public static class MappingExtensions
         Marke = dto.Marke,
         Modell = dto.Modell,
         Rahmennummer = dto.Rahmennummer,
-        Farbe = dto.Farbe,
+        Farbe = dto.Farbe ?? string.Empty,
         Reifengroesse = dto.Reifengroesse,
         StokNo = dto.StokNo,
         Fahrradtyp = dto.Fahrradtyp,

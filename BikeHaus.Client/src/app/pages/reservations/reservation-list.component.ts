@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ReservationService } from '../../services/reservation.service';
+import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { ReservationList, ReservationStatus } from '../../models/models';
 
@@ -14,9 +15,14 @@ import { ReservationList, ReservationStatus } from '../../models/models';
     <div class="page">
       <div class="page-header">
         <h1>{{ t.reservations }}</h1>
-        <a routerLink="/reservations/new" class="btn btn-primary"
-          >+ {{ t.newReservation }}</a
-        >
+        <div class="header-actions">
+          <button class="btn btn-outline" (click)="exportExcel()">
+            📥 Excel Export
+          </button>
+          <a routerLink="/reservations/new" class="btn btn-primary"
+            >+ {{ t.newReservation }}</a
+          >
+        </div>
       </div>
 
       <!-- Filter Bar -->
@@ -183,6 +189,7 @@ import { ReservationList, ReservationStatus } from '../../models/models';
         padding: 24px;
         max-width: 1400px;
         margin: 0 auto;
+        overflow-x: hidden;
       }
 
       .page-header {
@@ -190,12 +197,29 @@ import { ReservationList, ReservationStatus } from '../../models/models';
         justify-content: space-between;
         align-items: center;
         margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+        overflow: visible;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .header-actions .btn {
+        white-space: nowrap;
       }
 
       .page-header h1 {
         font-size: 1.75rem;
         font-weight: 600;
         color: var(--text);
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .filter-bar {
@@ -474,6 +498,7 @@ import { ReservationList, ReservationStatus } from '../../models/models';
 })
 export class ReservationListComponent implements OnInit {
   private reservationService = inject(ReservationService);
+  private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
 
   reservations: ReservationList[] = [];
@@ -553,6 +578,22 @@ export class ReservationListComponent implements OnInit {
         error: (err) => console.error('Error cancelling reservation:', err),
       });
     }
+  }
+
+  exportExcel() {
+    this.excelExportService.exportToExcel(
+      this.filteredReservations,
+      'Reservierungen',
+      [
+        { key: 'reservierungsNummer', header: 'Res.-Nr.' },
+        { key: 'bikeInfo', header: 'Fahrrad' },
+        { key: 'customerName', header: 'Kunde' },
+        { key: 'reservierungsDatum', header: 'Reservierungsdatum' },
+        { key: 'ablaufDatum', header: 'Ablaufdatum' },
+        { key: 'anzahlung', header: 'Anzahlung (€)' },
+        { key: 'status', header: 'Status' },
+      ],
+    );
   }
 
   confirmDelete(reservation: ReservationList) {

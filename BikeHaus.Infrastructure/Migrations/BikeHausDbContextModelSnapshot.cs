@@ -526,6 +526,9 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("FahrradNummerStart")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Hausnummer")
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");

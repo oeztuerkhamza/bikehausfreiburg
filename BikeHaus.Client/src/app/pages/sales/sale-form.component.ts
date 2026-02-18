@@ -61,6 +61,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   [(ngModel)]="buyer.vorname"
                   name="buyerVorname"
                   required
+                  (ngModelChange)="updateBuyerSignerName()"
                 />
               </div>
               <div class="field">
@@ -69,6 +70,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   [(ngModel)]="buyer.nachname"
                   name="buyerNachname"
                   required
+                  (ngModelChange)="updateBuyerSignerName()"
                 />
               </div>
               <div class="field full">
@@ -240,7 +242,7 @@ import { AddressSuggestion } from '../../services/address.service';
                     (click)="removeAccessory(i)"
                     title="Entfernen"
                   >
-                    ✕
+                    🗑️
                   </button>
                 </div>
               </div>
@@ -658,6 +660,16 @@ export class SaleFormComponent implements OnInit {
     this.buyer.hausnummer = address.hausnummer;
     this.buyer.plz = address.plz;
     this.buyer.stadt = address.stadt;
+  }
+
+  updateBuyerSignerName() {
+    const name = [this.buyer.vorname, this.buyer.nachname]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    if (name) {
+      this.buyerSignerName = name;
+    }
   }
 
   addAccessory() {

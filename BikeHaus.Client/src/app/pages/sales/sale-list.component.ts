@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SaleService } from '../../services/sale.service';
+import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { SaleList } from '../../models/models';
 
@@ -14,7 +15,14 @@ import { SaleList } from '../../models/models';
     <div class="page">
       <div class="page-header">
         <h1>{{ t.sales }}</h1>
-        <a routerLink="/sales/new" class="btn btn-primary">+ {{ t.newSale }}</a>
+        <div class="header-actions">
+          <button class="btn btn-outline" (click)="exportExcel()">
+            📥 Excel Export
+          </button>
+          <a routerLink="/sales/new" class="btn btn-primary"
+            >+ {{ t.newSale }}</a
+          >
+        </div>
       </div>
 
       <!-- Filter Bar -->
@@ -141,6 +149,11 @@ import { SaleList } from '../../models/models';
         align-items: center;
         margin-bottom: 20px;
       }
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
       .filter-bar {
         display: flex;
         gap: 12px;
@@ -249,6 +262,7 @@ import { SaleList } from '../../models/models';
 })
 export class SaleListComponent implements OnInit {
   private saleService = inject(SaleService);
+  private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
 
   sales: SaleList[] = [];
@@ -343,6 +357,18 @@ export class SaleListComponent implements OnInit {
       a.click();
       URL.revokeObjectURL(url);
     });
+  }
+
+  exportExcel() {
+    this.excelExportService.exportToExcel(this.filteredSales, 'Verkaeufe', [
+      { key: 'belegNummer', header: 'Beleg-Nr.' },
+      { key: 'bikeInfo', header: 'Fahrrad' },
+      { key: 'buyerName', header: 'Käufer' },
+      { key: 'preis', header: 'Preis (€)' },
+      { key: 'zahlungsart', header: 'Zahlungsart' },
+      { key: 'verkaufsdatum', header: 'Verkaufsdatum' },
+      { key: 'garantie', header: 'Garantie' },
+    ]);
   }
 
   deleteSale(id: number) {

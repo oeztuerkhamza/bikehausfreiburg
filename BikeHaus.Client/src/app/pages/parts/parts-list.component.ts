@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccessoryCatalogService } from '../../services/accessory-catalog.service';
+import { ExcelExportService } from '../../services/excel-export.service';
 import {
   AccessoryCatalogList,
   AccessoryCatalogCreate,
@@ -16,9 +17,14 @@ import {
     <div class="page">
       <div class="page-header">
         <h1>Zubehör-Katalog</h1>
-        <button class="btn btn-primary" (click)="openAddDialog()">
-          + Neues Zubehör
-        </button>
+        <div class="header-actions">
+          <button class="btn btn-outline" (click)="exportExcel()">
+            📥 Excel Export
+          </button>
+          <button class="btn btn-primary" (click)="openAddDialog()">
+            + Neues Zubehör
+          </button>
+        </div>
       </div>
 
       <!-- Search/Filter -->
@@ -176,6 +182,11 @@ import {
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
+      }
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
       }
       .filter-bar {
         display: flex;
@@ -338,7 +349,10 @@ export class PartsListComponent implements OnInit {
   };
   saving = false;
 
-  constructor(private service: AccessoryCatalogService) {}
+  constructor(
+    private service: AccessoryCatalogService,
+    private excelExportService: ExcelExportService,
+  ) {}
 
   ngOnInit() {
     this.loadParts();
@@ -438,6 +452,15 @@ export class PartsListComponent implements OnInit {
         },
       });
     }
+  }
+
+  exportExcel() {
+    this.excelExportService.exportToExcel(this.filteredParts, 'Zubehoer', [
+      { key: 'bezeichnung', header: 'Bezeichnung' },
+      { key: 'kategorie', header: 'Kategorie' },
+      { key: 'standardpreis', header: 'Standardpreis (€)' },
+      { key: 'aktiv', header: 'Status' },
+    ]);
   }
 
   deletePart(part: AccessoryCatalogList) {

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
 import { DocumentService } from '../../services/document.service';
+import { BicycleService } from '../../services/bicycle.service';
 import {
   PurchaseCreate,
   PaymentMethod,
@@ -45,6 +46,7 @@ import { forkJoin } from 'rxjs';
                   [(ngModel)]="seller.vorname"
                   name="sellerVorname"
                   required
+                  (ngModelChange)="updateSignerName()"
                 />
               </div>
               <div class="field">
@@ -53,6 +55,7 @@ import { forkJoin } from 'rxjs';
                   [(ngModel)]="seller.nachname"
                   name="sellerNachname"
                   required
+                  (ngModelChange)="updateSignerName()"
                 />
               </div>
               <div class="field full">
@@ -121,8 +124,8 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>Farbe *</label>
-                <input [(ngModel)]="bicycle.farbe" name="bikeFarbe" required />
+                <label>Farbe</label>
+                <input [(ngModel)]="bicycle.farbe" name="bikeFarbe" />
               </div>
               <div class="field">
                 <label>Reifengröße (Zoll) *</label>
@@ -134,11 +137,12 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>Stok Nr.</label>
+                <label>Stok Nr. *</label>
                 <input
                   [(ngModel)]="bicycle.stokNo"
                   name="bikeStokNo"
-                  placeholder="optional"
+                  required
+                  readonly
                 />
               </div>
               <div class="field">
@@ -292,11 +296,40 @@ import { forkJoin } from 'rxjs';
           </div>
         </div>
 
+        <!-- Validation messages -->
+        <div class="validation-errors" *ngIf="!canSubmit() && !submitting">
+          <p *ngIf="!seller.vorname?.trim()" class="error-msg">
+            ⚠️ Vorname des Verkäufers ist erforderlich
+          </p>
+          <p *ngIf="!seller.nachname?.trim()" class="error-msg">
+            ⚠️ Nachname des Verkäufers ist erforderlich
+          </p>
+          <p *ngIf="!bicycle.marke?.trim()" class="error-msg">
+            ⚠️ Marke ist erforderlich
+          </p>
+          <p *ngIf="!bicycle.modell?.trim()" class="error-msg">
+            ⚠️ Modell ist erforderlich
+          </p>
+          <p *ngIf="!bicycle.rahmennummer?.trim()" class="error-msg">
+            ⚠️ Rahmennummer ist erforderlich
+          </p>
+
+          <p *ngIf="!bicycle.reifengroesse?.trim()" class="error-msg">
+            ⚠️ Reifengröße ist erforderlich
+          </p>
+          <p *ngIf="!preis || preis <= 0" class="error-msg">
+            ⚠️ Preis muss größer als 0 sein
+          </p>
+          <p *ngIf="!kaufdatum" class="error-msg">
+            ⚠️ Kaufdatum ist erforderlich
+          </p>
+        </div>
+
         <div class="form-actions">
           <button
             type="submit"
             class="btn btn-primary btn-lg"
-            [disabled]="submitting"
+            [disabled]="!canSubmit() || submitting"
           >
             {{ submitting ? 'Wird gespeichert...' : 'Ankauf speichern' }}
           </button>
@@ -464,11 +497,33 @@ export class PurchaseFormComponent implements OnInit {
   constructor(
     private purchaseService: PurchaseService,
     private documentService: DocumentService,
+    private bicycleService: BicycleService,
     private router: Router,
   ) {}
 
   ngOnInit() {
     this.kaufdatum = new Date().toISOString().split('T')[0];
+    this.bicycleService.getNextStokNo().subscribe({
+      next: (res) => {
+        this.bicycle.stokNo = res.stokNo;
+      },
+      error: () => {
+        // fallback: leave empty
+      },
+    });
+  }
+
+  canSubmit(): boolean {
+    return !!(
+      this.seller.vorname?.trim() &&
+      this.seller.nachname?.trim() &&
+      this.bicycle.marke?.trim() &&
+      this.bicycle.modell?.trim() &&
+      this.bicycle.rahmennummer?.trim() &&
+      this.bicycle.reifengroesse?.trim() &&
+      this.preis > 0 &&
+      this.kaufdatum
+    );
   }
 
   onSellerAddressSelected(address: AddressSuggestion) {
@@ -476,6 +531,16 @@ export class PurchaseFormComponent implements OnInit {
     this.seller.hausnummer = address.hausnummer;
     this.seller.plz = address.plz;
     this.seller.stadt = address.stadt;
+  }
+
+  updateSignerName() {
+    const name = [this.seller.vorname, this.seller.nachname]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    if (name) {
+      this.signerName = name;
+    }
   }
 
   onFilesSelected(event: Event) {

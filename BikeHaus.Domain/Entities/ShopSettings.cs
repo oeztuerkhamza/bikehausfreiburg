@@ -27,6 +27,9 @@ public class ShopSettings : BaseEntity
     public string? InhaberSignatureBase64 { get; set; }
     public string? InhaberSignatureFileName { get; set; }
 
+    // Bicycle Numbering
+    public int FahrradNummerStart { get; set; } = 1;  // Starting number for bicycle numbering
+
     // Additional Info
     public string? Oeffnungszeiten { get; set; }   // Opening Hours
     public string? Zusatzinfo { get; set; }        // Additional Info for documents
