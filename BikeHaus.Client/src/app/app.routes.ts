@@ -5,8 +5,10 @@ import { BicycleDetailComponent } from './pages/bicycles/bicycle-detail.componen
 import { CustomerListComponent } from './pages/customers/customer-list.component';
 import { PurchaseListComponent } from './pages/purchases/purchase-list.component';
 import { PurchaseFormComponent } from './pages/purchases/purchase-form.component';
+import { PurchaseEditComponent } from './pages/purchases/purchase-edit.component';
 import { SaleListComponent } from './pages/sales/sale-list.component';
 import { SaleFormComponent } from './pages/sales/sale-form.component';
+import { SaleEditComponent } from './pages/sales/sale-edit.component';
 import { ReturnListComponent } from './pages/returns/return-list.component';
 import { ReturnFormComponent } from './pages/returns/return-form.component';
 import { StatisticsComponent } from './pages/statistics/statistics.component';
@@ -19,8 +21,10 @@ export const routes: Routes = [
   { path: 'customers', component: CustomerListComponent },
   { path: 'purchases', component: PurchaseListComponent },
   { path: 'purchases/new', component: PurchaseFormComponent },
+  { path: 'purchases/edit/:id', component: PurchaseEditComponent },
   { path: 'sales', component: SaleListComponent },
   { path: 'sales/new', component: SaleFormComponent },
+  { path: 'sales/edit/:id', component: SaleEditComponent },
   { path: 'returns', component: ReturnListComponent },
   { path: 'returns/new', component: ReturnFormComponent },
   { path: 'statistics', component: StatisticsComponent },

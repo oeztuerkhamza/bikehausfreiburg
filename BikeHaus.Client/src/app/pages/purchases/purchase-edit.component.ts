@@ -15,7 +15,12 @@ import { AddressSuggestion } from '../../services/address.service';
 @Component({
   selector: 'app-purchase-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AddressAutocompleteComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    AddressAutocompleteComponent,
+  ],
   template: `
     <div class="page">
       <div class="page-header">
@@ -54,7 +59,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onSellerAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint">Tippen Sie eine Adresse ein für Vorschläge</small>
+                <small class="hint"
+                  >Tippen Sie eine Adresse ein für Vorschläge</small
+                >
               </div>
               <div class="field">
                 <label>Straße</label>
@@ -154,7 +161,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   name="bikeZustand"
                   required
                 >
-                  <option value="Gebraucht">Gebraucht (3 Monate Garantie)</option>
+                  <option value="Gebraucht">
+                    Gebraucht (3 Monate Garantie)
+                  </option>
                   <option value="Neu">Neu (2 Jahre Gewährleistung)</option>
                 </select>
               </div>
@@ -246,7 +255,8 @@ import { AddressSuggestion } from '../../services/address.service';
         align-items: center;
         margin-bottom: 20px;
       }
-      .loading, .error {
+      .loading,
+      .error {
         text-align: center;
         padding: 40px;
         font-size: 1.1rem;
@@ -353,7 +363,7 @@ export class PurchaseEditComponent implements OnInit {
   constructor(
     private purchaseService: PurchaseService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
@@ -403,7 +413,9 @@ export class PurchaseEditComponent implements OnInit {
         stokNo: purchase.bicycle.stokNo || '',
         fahrradtyp: purchase.bicycle.fahrradtyp || '',
         beschreibung: purchase.bicycle.beschreibung || '',
-        zustand: purchase.bicycle.zustand as BikeCondition || BikeCondition.Gebraucht,
+        zustand:
+          (purchase.bicycle.zustand as BikeCondition) ||
+          BikeCondition.Gebraucht,
       };
     }
 
