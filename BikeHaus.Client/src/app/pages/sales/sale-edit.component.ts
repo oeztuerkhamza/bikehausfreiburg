@@ -289,21 +289,38 @@ import { AddressSuggestion } from '../../services/address.service';
       .page {
         max-width: 900px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 22px;
+      }
+      .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
       .loading,
       .error {
         text-align: center;
-        padding: 40px;
+        padding: 48px;
         font-size: 1.1rem;
+        color: var(--text-secondary, #64748b);
       }
       .error {
-        color: #dc3545;
+        color: var(--accent-danger, #ef4444);
       }
       .form-sections {
         display: flex;
@@ -311,20 +328,23 @@ import { AddressSuggestion } from '../../services/address.service';
         gap: 20px;
       }
       .form-card {
-        background: #fff;
-        border-radius: 10px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
       .form-card h2 {
         font-size: 1.1rem;
+        font-weight: 700;
         margin-bottom: 16px;
-        color: #1a1a2e;
+        color: var(--text-primary);
       }
       .bike-info {
-        background: #f8f9fa;
+        background: var(--bg-secondary, #f8fafc);
         padding: 16px;
-        border-radius: 8px;
+        border-radius: var(--radius-md, 10px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
         margin-bottom: 12px;
       }
       .info-row {
@@ -333,31 +353,33 @@ import { AddressSuggestion } from '../../services/address.service';
         padding: 4px 0;
       }
       .info-row .label {
-        font-weight: 500;
-        color: #666;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
         min-width: 140px;
+        font-size: 0.88rem;
       }
       .badge {
         display: inline-block;
-        padding: 2px 8px;
-        background: #d4edda;
-        color: #155724;
-        border-radius: 4px;
-        font-size: 0.85rem;
+        padding: 3px 10px;
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
+        color: var(--accent-success, #10b981);
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 600;
       }
       .badge.badge-new {
-        background: #cce5ff;
-        color: #004085;
+        background: rgba(59, 130, 246, 0.08);
+        color: #3b82f6;
       }
       .hint {
         font-size: 0.85rem;
-        color: #666;
+        color: var(--text-secondary, #64748b);
         font-style: italic;
       }
       .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        gap: 14px;
       }
       @media (max-width: 600px) {
         .form-grid {
@@ -366,28 +388,43 @@ import { AddressSuggestion } from '../../services/address.service';
       }
       .field label {
         display: block;
-        font-size: 0.8rem;
-        color: #777;
-        margin-bottom: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
       .field input,
       .field select,
       .field textarea {
         width: 100%;
-        padding: 8px 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 0.95rem;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .field.full {
         grid-column: 1 / -1;
       }
       .warranty-display {
-        padding: 8px 10px;
-        background: #f0f4f8;
-        border-radius: 6px;
+        padding: 9px 12px;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.04));
+        border-radius: var(--radius-md, 10px);
         font-size: 0.9rem;
-        color: #333;
+        color: var(--text-primary);
+        border: 1.5px solid var(--border-light, #e2e8f0);
       }
       .form-actions {
         margin-top: 24px;
@@ -404,9 +441,10 @@ import { AddressSuggestion } from '../../services/address.service';
         margin-bottom: 16px;
       }
       .accessory-item {
-        background: #f8f9fa;
-        padding: 12px;
-        border-radius: 8px;
+        background: var(--bg-secondary, #f8fafc);
+        padding: 14px;
+        border-radius: var(--radius-md, 10px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
       }
       .accessory-fields {
         display: flex;
@@ -426,12 +464,12 @@ import { AddressSuggestion } from '../../services/address.service';
         align-items: center;
       }
       .total-value {
-        font-weight: 600;
-        color: #1a1a2e;
-        padding: 6px 8px;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+        font-weight: 700;
+        color: var(--text-primary);
+        padding: 6px 10px;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-sm, 6px);
       }
       .btn-icon {
         width: 32px;
@@ -440,12 +478,12 @@ import { AddressSuggestion } from '../../services/address.service';
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
+        border-radius: var(--radius-sm, 6px);
         font-size: 14px;
         flex-shrink: 0;
       }
       .btn-danger {
-        background: #dc3545;
+        background: var(--accent-danger, #ef4444);
         color: white;
         border: none;
       }
@@ -456,28 +494,31 @@ import { AddressSuggestion } from '../../services/address.service';
       .accessory-summary {
         display: flex;
         justify-content: space-between;
-        padding: 10px;
-        background: #e9ecef;
-        border-radius: 6px;
+        padding: 10px 14px;
+        background: var(--bg-secondary, #f1f5f9);
+        border-radius: var(--radius-md, 10px);
         margin-bottom: 16px;
+        font-weight: 600;
       }
       .grand-total {
         margin-top: 16px;
         padding: 16px;
-        background: #f0f4f8;
-        border-radius: 8px;
-        border: 2px solid #e2e8f0;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.04));
+        border-radius: var(--radius-lg, 14px);
+        border: 2px solid var(--border-light, #e2e8f0);
       }
       .total-row {
         display: flex;
         justify-content: space-between;
         padding: 4px 0;
+        color: var(--text-primary);
       }
       .total-row.grand {
-        border-top: 1px solid #ccc;
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
         padding-top: 8px;
         margin-top: 8px;
         font-size: 1.1rem;
+        font-weight: 700;
       }
     `,
   ],

@@ -248,9 +248,19 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
   styles: [
     `
       .page {
-        padding: 24px;
         max-width: 1200px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .page-header {
@@ -261,9 +271,9 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       }
 
       .page-header h1 {
-        font-size: 1.75rem;
-        font-weight: 600;
-        color: var(--text);
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
 
       .reservation-info {
@@ -274,39 +284,44 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       }
 
       .info-card {
-        background: var(--card);
-        padding: 16px;
-        border-radius: 12px;
-        border-left: 4px solid var(--primary);
+        background: var(--bg-card, #fff);
+        padding: 18px;
+        border-radius: var(--radius-lg, 14px);
+        border-left: 4px solid var(--accent-primary, #6366f1);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-left: 4px solid var(--accent-primary, #6366f1);
       }
 
       .info-card h3 {
         margin: 0 0 8px 0;
-        font-size: 0.9rem;
-        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
 
       .bike-info,
       .customer-info {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--text);
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
         margin: 0 0 4px 0;
       }
 
       .detail {
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: var(--text-secondary, #64748b);
         margin: 2px 0;
       }
 
       .btn {
         padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 500;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
         cursor: pointer;
         border: none;
-        transition: all 0.2s;
+        transition: var(--transition-fast);
         text-decoration: none;
         display: inline-flex;
         align-items: center;
@@ -314,22 +329,24 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       }
 
       .btn-outline {
-        background: var(--card);
-        color: var(--text);
-        border: 1px solid var(--border);
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        border: 1.5px solid var(--border-light, #e2e8f0);
       }
 
       .btn-outline:hover {
-        background: var(--bg);
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
       }
 
       .btn-primary {
-        background: var(--primary);
+        background: var(--accent-primary, #6366f1);
         color: white;
       }
 
       .btn-primary:hover:not(:disabled) {
-        opacity: 0.9;
+        background: var(--accent-primary-hover, #4f46e5);
+        box-shadow: var(--shadow-sm);
       }
 
       .btn-primary:disabled {
@@ -345,29 +362,31 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       .btn-sm {
         padding: 8px 14px;
         font-size: 0.85rem;
-        background: var(--bg);
-        color: var(--text);
+        background: var(--bg-secondary, #f1f5f9);
+        color: var(--text-primary);
+        border-radius: var(--radius-sm, 6px);
       }
 
       .form-sections {
         display: grid;
-        gap: 24px;
+        gap: 20px;
       }
 
       .form-card {
-        background: var(--card);
+        background: var(--bg-card, #fff);
         padding: 24px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        border-radius: var(--radius-lg, 14px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
 
       .form-card h2 {
         margin: 0 0 20px 0;
         font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--text);
+        font-weight: 700;
+        color: var(--text-primary);
         padding-bottom: 12px;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
       }
 
       .form-grid {
@@ -387,28 +406,32 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       }
 
       label {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text-muted);
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
 
       input,
       select,
       textarea {
-        padding: 10px 14px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        background: var(--bg);
-        color: var(--text);
-        font-size: 0.95rem;
-        transition: border-color 0.2s;
+        padding: 9px 14px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        font-size: 0.92rem;
+        transition: var(--transition-fast);
       }
 
       input:focus,
       select:focus,
       textarea:focus {
         outline: none;
-        border-color: var(--primary);
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
 
       textarea {
@@ -417,8 +440,8 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       }
 
       .hint {
-        font-size: 0.8rem;
-        color: var(--text-muted);
+        font-size: 0.78rem;
+        color: var(--text-secondary, #94a3b8);
         margin-top: 4px;
       }
 
@@ -430,18 +453,18 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
 
       .warranty-badge {
         display: inline-block;
-        padding: 6px 12px;
-        background: #d4edda;
-        color: #155724;
-        border-radius: 6px;
-        font-weight: 500;
-        font-size: 0.9rem;
+        padding: 5px 12px;
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
+        color: var(--accent-success, #10b981);
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.82rem;
         width: fit-content;
       }
 
       .warranty-badge.warranty-new {
-        background: #cce5ff;
-        color: #004085;
+        background: rgba(59, 130, 246, 0.08);
+        color: #3b82f6;
       }
 
       .accessories-list {
@@ -462,23 +485,25 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
         flex: 2;
         min-width: 150px;
       }
-
       .acc-price {
         width: 80px;
       }
-
       .acc-qty {
         width: 60px;
       }
 
       .btn-remove {
-        background: #fee2e2;
-        color: #dc2626;
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
+        color: var(--accent-danger, #ef4444);
         border: none;
         width: 28px;
         height: 28px;
-        border-radius: 6px;
+        border-radius: var(--radius-sm, 6px);
         cursor: pointer;
+        transition: var(--transition-fast);
+      }
+      .btn-remove:hover {
+        background: rgba(239, 68, 68, 0.15);
       }
 
       .signatures-grid {
@@ -488,22 +513,25 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       }
 
       .signature-section h3 {
-        font-size: 0.9rem;
-        font-weight: 500;
+        font-size: 0.82rem;
+        font-weight: 600;
         margin: 0 0 12px 0;
-        color: var(--text-muted);
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
 
       .seller-signature-section {
-        border-left: 1px solid var(--border);
+        border-left: 1.5px solid var(--border-light, #e2e8f0);
         padding-left: 24px;
       }
 
       .signature-preview {
         padding: 16px;
-        background: var(--bg);
-        border-radius: 8px;
+        background: var(--bg-secondary, #f8fafc);
+        border-radius: var(--radius-md, 10px);
         text-align: center;
+        border: 1.5px solid var(--border-light, #e2e8f0);
       }
 
       .signature-preview img {
@@ -513,19 +541,22 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
 
       .no-signature {
         padding: 20px;
-        background: #fef3c7;
-        border-radius: 8px;
+        background: rgba(245, 158, 11, 0.06);
+        border-radius: var(--radius-md, 10px);
         text-align: center;
+        border: 1.5px solid rgba(245, 158, 11, 0.2);
       }
 
       .no-signature p {
         margin: 0 0 8px 0;
-        color: #92400e;
+        color: #f59e0b;
+        font-weight: 500;
       }
 
       .link {
-        color: var(--primary);
+        color: var(--accent-primary, #6366f1);
         text-decoration: none;
+        font-weight: 600;
       }
 
       .link:hover {
@@ -538,8 +569,10 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
         justify-content: space-between;
         align-items: center;
         padding: 20px;
-        background: var(--card);
-        border-radius: 12px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
 
       .total-amount {
@@ -551,29 +584,26 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
 
       .total-amount strong {
         font-size: 1.5rem;
-        color: var(--primary);
+        color: var(--accent-primary, #6366f1);
+        font-weight: 800;
       }
 
       @media (max-width: 768px) {
         .reservation-info {
           grid-template-columns: 1fr;
         }
-
         .form-grid {
           grid-template-columns: 1fr;
         }
-
         .signatures-grid {
           grid-template-columns: 1fr;
         }
-
         .seller-signature-section {
           border-left: none;
-          border-top: 1px solid var(--border);
+          border-top: 1.5px solid var(--border-light, #e2e8f0);
           padding-left: 0;
           padding-top: 24px;
         }
-
         .submit-section {
           flex-direction: column;
           gap: 16px;

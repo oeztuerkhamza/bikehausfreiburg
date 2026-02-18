@@ -166,12 +166,28 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
       .page {
         max-width: 700px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 22px;
+      }
+      .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
       .form-sections {
         display: flex;
@@ -179,17 +195,19 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         gap: 20px;
       }
       .form-card {
-        background: #fff;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
+        padding: 22px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
       .form-card h2 {
         font-size: 1rem;
+        font-weight: 700;
         margin: 0 0 16px;
-        color: #333;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 8px;
+        color: var(--text-primary);
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
+        padding-bottom: 10px;
       }
       .form-grid {
         display: grid;
@@ -204,17 +222,31 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         grid-column: 1 / -1;
       }
       .field label {
-        font-size: 0.85rem;
-        color: #555;
-        margin-bottom: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
       .field input,
       .field select,
       .field textarea {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 0.95rem;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .field textarea {
         resize: vertical;
@@ -225,9 +257,10 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         flex-direction: column;
         gap: 4px;
         margin-top: 10px;
-        padding: 12px;
-        background: #f8fafc;
-        border-radius: 6px;
+        padding: 14px;
+        background: var(--bg-secondary, #f8fafc);
+        border-radius: var(--radius-md, 10px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
         font-size: 0.9rem;
       }
       .form-actions {
@@ -237,23 +270,33 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
       }
       .btn {
         padding: 10px 20px;
-        border-radius: 6px;
-        font-size: 0.95rem;
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        font-weight: 600;
         cursor: pointer;
         border: none;
+        transition: var(--transition-fast);
       }
       .btn-primary {
-        background: #4f46e5;
+        background: var(--accent-primary, #6366f1);
         color: #fff;
       }
+      .btn-primary:hover {
+        background: var(--accent-primary-hover, #4f46e5);
+        box-shadow: var(--shadow-sm);
+      }
       .btn-primary:disabled {
-        background: #c7d2fe;
+        opacity: 0.5;
         cursor: not-allowed;
       }
       .btn-outline {
-        background: transparent;
-        border: 1px solid #ddd;
-        color: #333;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+      }
+      .btn-outline:hover {
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
       }
     `,
   ],

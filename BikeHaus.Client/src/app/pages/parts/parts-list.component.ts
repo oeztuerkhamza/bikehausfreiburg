@@ -178,7 +178,16 @@ import {
         margin: 0 auto;
         animation: fadeIn 0.4s ease;
       }
-      @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
       .page-header {
         display: flex;
         justify-content: space-between;
@@ -222,7 +231,8 @@ import {
       .filter-input:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .search-input {
         padding-left: 38px;
@@ -290,11 +300,11 @@ import {
         letter-spacing: 0.02em;
       }
       .status-badge.active {
-        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
         color: var(--accent-success, #10b981);
       }
       .status-badge.inactive {
-        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
         color: var(--accent-danger, #ef4444);
       }
       .dialog-overlay {
@@ -320,7 +330,16 @@ import {
         box-shadow: var(--shadow-xl);
         animation: scaleIn 0.25s ease;
       }
-      @keyframes scaleIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
       .dialog h2 {
         margin-bottom: 20px;
         font-size: 1.15rem;
@@ -353,7 +372,8 @@ import {
       .field input:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .checkbox-label {
         display: flex !important;
@@ -407,7 +427,7 @@ import {
       .btn-outline:hover {
         border-color: var(--accent-primary, #6366f1);
         color: var(--accent-primary, #6366f1);
-        background: var(--accent-primary-light, rgba(99,102,241,0.06));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
       }
       .btn-sm {
         padding: 5px 10px;
@@ -415,12 +435,12 @@ import {
         border-radius: var(--radius-sm, 6px);
       }
       .btn-danger {
-        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
         color: var(--accent-danger, #ef4444);
         border: none;
       }
       .btn-danger:hover {
-        background: rgba(239,68,68,0.15);
+        background: rgba(239, 68, 68, 0.15);
       }
     `,
   ],

@@ -330,12 +330,28 @@ import { AddressSuggestion } from '../../services/address.service';
       .page {
         max-width: 900px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 22px;
+      }
+      .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
       .form-sections {
         display: flex;
@@ -343,20 +359,22 @@ import { AddressSuggestion } from '../../services/address.service';
         gap: 20px;
       }
       .form-card {
-        background: #fff;
-        border-radius: 10px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
       .form-card h2 {
         font-size: 1.1rem;
+        font-weight: 700;
         margin-bottom: 16px;
-        color: #1a1a2e;
+        color: var(--text-primary);
       }
       .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        gap: 14px;
       }
       @media (max-width: 600px) {
         .form-grid {
@@ -365,26 +383,40 @@ import { AddressSuggestion } from '../../services/address.service';
       }
       .field label {
         display: block;
-        font-size: 0.8rem;
-        color: #777;
-        margin-bottom: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
       .field input,
       .field select,
       .field textarea {
         width: 100%;
-        padding: 8px 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 0.95rem;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .field.full {
         grid-column: 1 / -1;
       }
       .field .hint {
         display: block;
-        font-size: 0.75rem;
-        color: #888;
+        font-size: 0.73rem;
+        color: var(--text-secondary, #94a3b8);
         margin-top: 4px;
       }
       .checkbox-label {
@@ -392,9 +424,12 @@ import { AddressSuggestion } from '../../services/address.service';
         align-items: center;
         gap: 6px;
         cursor: pointer;
+        text-transform: none;
+        letter-spacing: normal;
       }
       .checkbox-label input {
         width: auto;
+        accent-color: var(--accent-primary, #6366f1);
       }
       .search-row {
         display: flex;
@@ -405,16 +440,17 @@ import { AddressSuggestion } from '../../services/address.service';
         width: 120px;
       }
       .error-text {
-        color: #dc3545;
-        font-size: 0.85rem;
+        color: var(--accent-danger, #ef4444);
+        font-size: 0.82rem;
         margin-top: 4px;
         display: block;
       }
       .bike-preview {
         margin-top: 12px;
-        padding: 12px;
-        background: #f8f9fa;
-        border-radius: 6px;
+        padding: 14px;
+        background: var(--bg-secondary, #f8fafc);
+        border-radius: var(--radius-md, 10px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -427,19 +463,19 @@ import { AddressSuggestion } from '../../services/address.service';
       }
       .warranty-badge {
         display: inline-block;
-        padding: 6px 12px;
-        background: #d4edda;
-        color: #155724;
-        border-radius: 6px;
-        font-weight: 500;
-        font-size: 0.9rem;
+        padding: 5px 12px;
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
+        color: var(--accent-success, #10b981);
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.82rem;
       }
       .warranty-badge.warranty-new {
-        background: #cce5ff;
-        color: #004085;
+        background: rgba(59, 130, 246, 0.08);
+        color: #3b82f6;
       }
       .warranty-info small {
-        color: var(--text-secondary, #666);
+        color: var(--text-secondary, #64748b);
         font-size: 0.8rem;
       }
       .form-actions {
@@ -457,9 +493,10 @@ import { AddressSuggestion } from '../../services/address.service';
         margin-bottom: 16px;
       }
       .accessory-item {
-        background: #f8f9fa;
-        padding: 12px;
-        border-radius: 8px;
+        background: var(--bg-secondary, #f8fafc);
+        padding: 14px;
+        border-radius: var(--radius-md, 10px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
       }
       .accessory-fields {
         display: flex;
@@ -479,12 +516,12 @@ import { AddressSuggestion } from '../../services/address.service';
         align-items: center;
       }
       .total-value {
-        font-weight: 600;
-        color: #1a1a2e;
-        padding: 6px 8px;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+        font-weight: 700;
+        color: var(--text-primary);
+        padding: 6px 10px;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-sm, 6px);
       }
       .btn-icon {
         width: 32px;
@@ -493,12 +530,12 @@ import { AddressSuggestion } from '../../services/address.service';
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 6px;
+        border-radius: var(--radius-sm, 6px);
         font-size: 14px;
         flex-shrink: 0;
       }
       .btn-danger {
-        background: #dc3545;
+        background: var(--accent-danger, #ef4444);
         color: white;
         border: none;
       }
@@ -509,44 +546,47 @@ import { AddressSuggestion } from '../../services/address.service';
       .accessory-summary {
         display: flex;
         justify-content: space-between;
-        padding: 10px;
-        background: #e9ecef;
-        border-radius: 6px;
+        padding: 10px 14px;
+        background: var(--bg-secondary, #f1f5f9);
+        border-radius: var(--radius-md, 10px);
         margin-bottom: 16px;
+        font-weight: 600;
       }
       .grand-total {
         margin-top: 16px;
         padding: 16px;
-        background: #f0f4f8;
-        border-radius: 8px;
-        border: 2px solid #e2e8f0;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.04));
+        border-radius: var(--radius-lg, 14px);
+        border: 2px solid var(--border-light, #e2e8f0);
       }
       .total-row {
         display: flex;
         justify-content: space-between;
         padding: 4px 0;
+        color: var(--text-primary);
       }
       .total-row.grand {
-        border-top: 1px solid #ccc;
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
         padding-top: 8px;
         margin-top: 8px;
         font-size: 1.1rem;
+        font-weight: 700;
       }
       .seller-signature-section {
         margin-top: 16px;
         padding-top: 16px;
-        border-top: 1px solid #eee;
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
       }
       .seller-signature-section > label {
         display: block;
-        font-weight: 500;
+        font-weight: 600;
         margin-bottom: 8px;
-        color: #333;
+        color: var(--text-primary);
       }
       .signature-preview {
-        background: #f8f9fa;
-        border: 1px solid #ddd;
-        border-radius: 8px;
+        background: var(--bg-secondary, #f8fafc);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
         padding: 12px;
         max-width: 300px;
       }
@@ -555,14 +595,15 @@ import { AddressSuggestion } from '../../services/address.service';
         max-height: 100px;
       }
       .signature-missing {
-        background: #fff3cd;
-        color: #856404;
-        padding: 12px;
-        border-radius: 8px;
+        background: rgba(245, 158, 11, 0.08);
+        color: #f59e0b;
+        padding: 12px 16px;
+        border-radius: var(--radius-md, 10px);
         font-size: 0.9rem;
+        font-weight: 500;
       }
       .signature-missing a {
-        color: #0056b3;
+        color: var(--accent-primary, #6366f1);
         text-decoration: underline;
         margin-left: 8px;
       }

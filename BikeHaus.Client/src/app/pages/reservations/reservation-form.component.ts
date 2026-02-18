@@ -192,9 +192,19 @@ import { AddressSuggestion } from '../../services/address.service';
   styles: [
     `
       .page {
-        padding: 24px;
         max-width: 1200px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .page-header {
@@ -205,38 +215,40 @@ import { AddressSuggestion } from '../../services/address.service';
       }
 
       .page-header h1 {
-        font-size: 1.75rem;
-        font-weight: 600;
-        color: var(--text-primary, #333);
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
 
       .btn {
         padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 500;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
         cursor: pointer;
         border: none;
-        transition: all 0.2s;
+        transition: var(--transition-fast);
         text-decoration: none;
       }
 
       .btn-outline {
-        background: var(--bg-card, #ffffff);
-        color: var(--text-primary, #333);
-        border: 1px solid var(--border-color, #ddd);
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        border: 1.5px solid var(--border-light, #e2e8f0);
       }
 
       .btn-outline:hover {
-        background: var(--bg-secondary, #f5f5f5);
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
       }
 
       .btn-primary {
-        background: var(--accent-primary, #4361ee);
+        background: var(--accent-primary, #6366f1);
         color: white;
       }
 
       .btn-primary:hover:not(:disabled) {
-        opacity: 0.9;
+        background: var(--accent-primary-hover, #4f46e5);
+        box-shadow: var(--shadow-sm);
       }
 
       .btn-primary:disabled {
@@ -250,49 +262,49 @@ import { AddressSuggestion } from '../../services/address.service';
       }
 
       .validation-errors {
-        background: #fff3e0;
-        border: 1px solid #ff9800;
-        border-radius: 8px;
+        background: rgba(245, 158, 11, 0.06);
+        border: 1.5px solid rgba(245, 158, 11, 0.3);
+        border-radius: var(--radius-md, 10px);
         padding: 16px;
         margin-top: 16px;
       }
 
       .error-msg {
-        color: #e65100;
+        color: #f59e0b;
         margin: 4px 0;
-        font-size: 0.9rem;
+        font-size: 0.88rem;
       }
 
       .api-error {
-        background: #ffebee;
-        border: 1px solid #f44336;
-        border-radius: 8px;
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.06));
+        border: 1.5px solid rgba(239, 68, 68, 0.3);
+        border-radius: var(--radius-md, 10px);
         padding: 16px;
         margin-top: 16px;
-        color: #c62828;
-        font-weight: 500;
+        color: var(--accent-danger, #ef4444);
+        font-weight: 600;
       }
 
       .form-sections {
         display: grid;
-        gap: 24px;
+        gap: 20px;
       }
 
       .form-card {
-        background: var(--bg-card, #ffffff);
+        background: var(--bg-card, #fff);
         padding: 24px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        border: 1px solid var(--border-color, #eee);
+        border-radius: var(--radius-lg, 14px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
 
       .form-card h2 {
         margin: 0 0 20px 0;
         font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--text-primary, #333);
+        font-weight: 700;
+        color: var(--text-primary);
         padding-bottom: 12px;
-        border-bottom: 1px solid var(--border-color, #eee);
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
       }
 
       .form-grid {
@@ -312,21 +324,23 @@ import { AddressSuggestion } from '../../services/address.service';
       }
 
       label {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text-muted, #666);
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
 
       input,
       select,
       textarea {
-        padding: 10px 14px;
-        border: 1px solid #c0c0c0;
-        border-radius: 8px;
-        background: var(--bg-input, #ffffff);
-        color: var(--text-primary, #333);
-        font-size: 0.95rem;
-        transition: border-color 0.2s;
+        padding: 9px 14px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        font-size: 0.92rem;
+        transition: var(--transition-fast);
         width: 100%;
         box-sizing: border-box;
       }
@@ -335,8 +349,9 @@ import { AddressSuggestion } from '../../services/address.service';
       select:focus,
       textarea:focus {
         outline: none;
-        border-color: var(--accent-primary, #4361ee);
-        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
 
       textarea {
@@ -345,8 +360,8 @@ import { AddressSuggestion } from '../../services/address.service';
       }
 
       .hint {
-        font-size: 0.8rem;
-        color: var(--text-muted, #666);
+        font-size: 0.78rem;
+        color: var(--text-secondary, #94a3b8);
         margin-top: 4px;
       }
 
@@ -360,7 +375,6 @@ import { AddressSuggestion } from '../../services/address.service';
         .form-grid {
           grid-template-columns: 1fr;
         }
-
         .page-header {
           flex-direction: column;
           gap: 16px;

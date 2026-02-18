@@ -40,7 +40,19 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             [placeholder]="t.searchPlaceholder"
             class="filter-input search-input"
           />
-          <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <span class="search-icon"
+            ><svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" /></svg
+          ></span>
         </div>
         <div class="filter-group">
           <select
@@ -193,8 +205,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         animation: fadeIn 0.4s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .page-header {
@@ -249,7 +267,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .filter-input:focus {
         outline: none;
         border-color: var(--accent-primary);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.08));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.08));
       }
 
       .search-input {
@@ -305,7 +324,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         font-size: 0.88rem;
         color: var(--text-secondary);
       }
-      
+
       tr:hover td {
         background: var(--table-hover, #f1f5f9);
       }
@@ -314,14 +333,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         font-family: 'SF Mono', 'Consolas', monospace;
         font-size: 0.82rem;
         color: var(--accent-primary);
-        background: var(--accent-primary-light, rgba(99,102,241,0.08));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
         padding: 2px 8px;
         border-radius: 6px;
         font-weight: 600;
       }
 
       .expired-row {
-        background: var(--accent-danger-light, rgba(239,68,68,0.04));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.04));
       }
 
       .expired-date {
@@ -353,22 +372,22 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
 
       .status-active {
-        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
         color: var(--accent-success, #10b981);
       }
 
       .status-expired {
-        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
         color: var(--accent-danger, #ef4444);
       }
 
       .status-cancelled {
-        background: rgba(100,116,139,0.08);
+        background: rgba(100, 116, 139, 0.08);
         color: #64748b;
       }
 
       .status-converted {
-        background: rgba(59,130,246,0.08);
+        background: rgba(59, 130, 246, 0.08);
         color: #3b82f6;
       }
 
@@ -414,30 +433,30 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
 
       .btn-danger {
-        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
         color: var(--accent-danger, #ef4444);
       }
 
       .btn-danger:hover {
-        background: rgba(239,68,68,0.15);
+        background: rgba(239, 68, 68, 0.15);
       }
 
       .btn-warning {
-        background: rgba(245,158,11,0.08);
+        background: rgba(245, 158, 11, 0.08);
         color: #f59e0b;
       }
 
       .btn-warning:hover {
-        background: rgba(245,158,11,0.15);
+        background: rgba(245, 158, 11, 0.15);
       }
 
       .btn-success {
-        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
         color: var(--accent-success, #10b981);
       }
 
       .btn-success:hover {
-        background: rgba(16,185,129,0.15);
+        background: rgba(16, 185, 129, 0.15);
       }
 
       /* Modal */

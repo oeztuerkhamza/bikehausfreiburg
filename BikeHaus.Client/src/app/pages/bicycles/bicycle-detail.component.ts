@@ -165,14 +165,30 @@ import {
       .page {
         max-width: 900px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 22px;
         flex-wrap: wrap;
         gap: 10px;
+      }
+      .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
       .header-actions {
         display: flex;
@@ -189,60 +205,85 @@ import {
         }
       }
       .detail-card {
-        background: #fff;
-        border-radius: 10px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
       .detail-card h2 {
         font-size: 1.1rem;
+        font-weight: 700;
         margin-bottom: 16px;
+        color: var(--text-primary);
       }
       .field {
         margin-bottom: 12px;
       }
       .field label {
         display: block;
-        font-size: 0.8rem;
-        color: #777;
-        margin-bottom: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
       .field input,
       .field select,
       .field textarea {
         width: 100%;
-        padding: 8px 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 0.95rem;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .mono {
-        font-family: monospace;
+        font-family: 'SF Mono', 'Consolas', monospace;
+        font-size: 0.82rem;
+        color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 600;
       }
       .badge {
-        padding: 3px 10px;
-        border-radius: 12px;
-        font-size: 0.8rem;
+        padding: 4px 11px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
       }
       .badge-available {
-        background: #d4edda;
-        color: #155724;
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
+        color: var(--accent-success, #10b981);
       }
       .badge-sold {
-        background: #f8d7da;
-        color: #721c24;
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
+        color: var(--accent-danger, #ef4444);
       }
       .badge-reserved {
-        background: #fff3cd;
-        color: #856404;
+        background: rgba(245, 158, 11, 0.08);
+        color: #f59e0b;
       }
       .badge-neu {
-        background: #cce5ff;
-        color: #004085;
+        background: rgba(59, 130, 246, 0.08);
+        color: #3b82f6;
       }
       .badge-gebraucht {
-        background: #e2e3e5;
-        color: #383d41;
+        background: rgba(100, 116, 139, 0.08);
+        color: #64748b;
       }
       .doc-upload {
         margin-bottom: 12px;
@@ -254,14 +295,14 @@ import {
         justify-content: space-between;
         align-items: center;
         padding: 8px 0;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
       }
       .doc-actions {
         display: flex;
         gap: 4px;
       }
       .empty {
-        color: #999;
+        color: var(--text-secondary, #64748b);
         font-style: italic;
       }
     `,

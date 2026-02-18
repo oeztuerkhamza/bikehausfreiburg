@@ -183,20 +183,33 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
   styles: [
     `
       .statistics-page {
-        padding: 20px;
         max-width: 1200px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       h1 {
         margin-bottom: 24px;
-        color: #333;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
 
       h2 {
         margin: 24px 0 16px;
-        color: #444;
-        font-size: 1.3rem;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-primary);
       }
 
       .period-selector {
@@ -208,22 +221,27 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 
       .period-selector button {
         padding: 10px 20px;
-        border: 2px solid #4caf50;
-        background: white;
-        color: #4caf50;
-        border-radius: 8px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        border-radius: var(--radius-md, 10px);
         cursor: pointer;
-        font-weight: 500;
-        transition: all 0.2s;
+        font-weight: 600;
+        font-size: 0.88rem;
+        transition: var(--transition-fast);
       }
 
       .period-selector button:hover {
-        background: #e8f5e9;
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
       }
 
       .period-selector button.active {
-        background: #4caf50;
+        background: var(--accent-primary, #6366f1);
         color: white;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: var(--shadow-sm);
       }
 
       .custom-range {
@@ -231,8 +249,9 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
         gap: 20px;
         margin-bottom: 20px;
         padding: 16px;
-        background: #f5f5f5;
-        border-radius: 8px;
+        background: var(--bg-secondary, #f8fafc);
+        border-radius: var(--radius-lg, 14px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
       }
 
       .date-field {
@@ -242,20 +261,34 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
       }
 
       .date-field label {
-        font-weight: 500;
+        font-weight: 600;
+        font-size: 0.82rem;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
 
       .date-field input {
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 1rem;
+        padding: 9px 14px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+
+      .date-field input:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
 
       .loading {
         text-align: center;
         padding: 40px;
-        color: #666;
+        color: var(--text-secondary, #64748b);
       }
 
       .summary-cards {
@@ -266,58 +299,68 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
       }
 
       .card {
-        background: white;
-        border-radius: 12px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-fast);
+      }
+
+      .card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
       }
 
       .card h3 {
         margin: 0 0 12px;
-        font-size: 1rem;
-        color: #666;
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.05em;
+        font-weight: 600;
       }
 
       .card .big-number {
-        font-size: 2.5rem;
-        font-weight: bold;
+        font-size: 2.2rem;
+        font-weight: 800;
         margin-bottom: 8px;
       }
 
       .card.purchases .big-number {
-        color: #2196f3;
+        color: #3b82f6;
       }
 
       .card.sales .big-number {
-        color: #4caf50;
+        color: var(--accent-success, #10b981);
       }
 
       .card.profit .big-number {
-        color: #4caf50;
+        color: var(--accent-primary, #6366f1);
       }
 
       .card.profit.negative .big-number {
-        color: #f44336;
+        color: var(--accent-danger, #ef4444);
       }
 
       .card .amount {
-        font-size: 1.2rem;
-        color: #333;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
         margin-bottom: 4px;
       }
 
       .card .avg {
-        font-size: 0.9rem;
-        color: #888;
+        font-size: 0.85rem;
+        color: var(--text-secondary, #94a3b8);
       }
 
       .daily-breakdown {
-        background: white;
-        border-radius: 12px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
         margin-bottom: 24px;
       }
 
@@ -332,85 +375,98 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 
       th,
       td {
-        padding: 12px;
+        padding: 12px 14px;
         text-align: left;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
       }
 
       th {
-        background: #f9f9f9;
+        background: var(--table-stripe, #f8fafc);
         font-weight: 600;
-        color: #555;
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
       }
 
       tr:hover {
-        background: #f5f5f5;
+        background: var(--table-hover, #f1f5f9);
       }
 
       tr.has-activity {
-        background: #e8f5e9;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.04));
       }
 
       tr.has-activity:hover {
-        background: #c8e6c9;
+        background: rgba(99, 102, 241, 0.08);
       }
 
       td.positive {
-        color: #4caf50;
-        font-weight: 500;
+        color: var(--accent-success, #10b981);
+        font-weight: 600;
       }
 
       td.negative {
-        color: #f44336;
-        font-weight: 500;
+        color: var(--accent-danger, #ef4444);
+        font-weight: 600;
       }
 
       .top-brands {
-        background: white;
-        border-radius: 12px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
 
       .brands-list {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 10px;
       }
 
       .brand-item {
         display: flex;
         align-items: center;
-        padding: 12px 16px;
-        background: #f9f9f9;
-        border-radius: 8px;
+        padding: 14px 16px;
+        background: var(--bg-secondary, #f8fafc);
+        border-radius: var(--radius-md, 10px);
+        border: 1px solid var(--border-light, #e2e8f0);
+        transition: var(--transition-fast);
+      }
+
+      .brand-item:hover {
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: var(--shadow-xs);
       }
 
       .brand-item .rank {
         width: 30px;
-        font-weight: bold;
-        color: #4caf50;
+        font-weight: 800;
+        color: var(--accent-primary, #6366f1);
       }
 
       .brand-item .brand-name {
         flex: 1;
-        font-weight: 500;
+        font-weight: 600;
+        color: var(--text-primary);
       }
 
       .brand-item .count {
         margin-right: 20px;
-        color: #666;
+        color: var(--text-secondary, #64748b);
+        font-size: 0.88rem;
       }
 
       .brand-item .revenue {
-        font-weight: bold;
-        color: #4caf50;
+        font-weight: 700;
+        color: var(--accent-primary, #6366f1);
       }
 
       .no-data {
         text-align: center;
         padding: 60px 20px;
-        color: #888;
+        color: var(--text-secondary, #94a3b8);
       }
     `,
   ],

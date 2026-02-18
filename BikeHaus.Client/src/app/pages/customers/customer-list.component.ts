@@ -137,7 +137,16 @@ import { AddressSuggestion } from '../../services/address.service';
         margin: 0 auto;
         animation: fadeIn 0.4s ease;
       }
-      @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
       .page-header {
         display: flex;
         justify-content: space-between;
@@ -195,7 +204,8 @@ import { AddressSuggestion } from '../../services/address.service';
       .field input:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .field.full {
         grid-column: 1 / -1;
@@ -226,7 +236,8 @@ import { AddressSuggestion } from '../../services/address.service';
       .search-input:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .table-container {
         background: var(--bg-card, #fff);
@@ -262,7 +273,7 @@ import { AddressSuggestion } from '../../services/address.service';
         font-family: 'SF Mono', 'Consolas', monospace;
         font-size: 0.82rem;
         color: var(--accent-primary, #6366f1);
-        background: var(--accent-primary-light, rgba(99,102,241,0.08));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
         padding: 2px 8px;
         border-radius: 6px;
         font-weight: 600;
@@ -306,7 +317,7 @@ import { AddressSuggestion } from '../../services/address.service';
       .btn-outline:hover {
         border-color: var(--accent-primary, #6366f1);
         color: var(--accent-primary, #6366f1);
-        background: var(--accent-primary-light, rgba(99,102,241,0.06));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
       }
       .btn-sm {
         padding: 5px 10px;
@@ -314,12 +325,12 @@ import { AddressSuggestion } from '../../services/address.service';
         border-radius: var(--radius-sm, 6px);
       }
       .btn-danger {
-        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
         color: var(--accent-danger, #ef4444);
         border: none;
       }
       .btn-danger:hover {
-        background: rgba(239,68,68,0.15);
+        background: rgba(239, 68, 68, 0.15);
       }
     `,
   ],

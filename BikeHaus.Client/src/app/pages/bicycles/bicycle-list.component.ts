@@ -184,7 +184,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .search-input:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .filter-select {
         padding: 10px 14px;
@@ -198,7 +199,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .filter-select:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .table-container {
         background: var(--bg-card, #fff);
@@ -238,7 +240,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         font-family: 'SF Mono', 'Consolas', monospace;
         font-size: 0.82rem;
         color: var(--accent-primary, #6366f1);
-        background: var(--accent-primary-light, rgba(99,102,241,0.08));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
         padding: 2px 8px;
         border-radius: 6px;
         font-weight: 600;
@@ -251,23 +253,23 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         letter-spacing: 0.02em;
       }
       .badge-available {
-        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
         color: var(--accent-success, #10b981);
       }
       .badge-sold {
-        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
         color: var(--accent-danger, #ef4444);
       }
       .badge-reserved {
-        background: rgba(245,158,11,0.08);
+        background: rgba(245, 158, 11, 0.08);
         color: #f59e0b;
       }
       .badge-neu {
-        background: rgba(59,130,246,0.08);
+        background: rgba(59, 130, 246, 0.08);
         color: #3b82f6;
       }
       .badge-gebraucht {
-        background: rgba(100,116,139,0.08);
+        background: rgba(100, 116, 139, 0.08);
         color: #64748b;
       }
       .actions-col {
@@ -304,8 +306,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         animation: fadeIn 0.15s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-4px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .popup-item {
         display: flex;
@@ -330,19 +338,19 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         color: var(--accent-success, #10b981);
       }
       .popup-item-primary:hover {
-        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
       }
       .popup-item-reserve {
         color: #3b82f6;
       }
       .popup-item-reserve:hover {
-        background: rgba(59,130,246,0.08);
+        background: rgba(59, 130, 246, 0.08);
       }
       .popup-item-danger {
         color: var(--accent-danger, #ef4444);
       }
       .popup-item-danger:hover {
-        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
       }
       .popup-icon {
         font-size: 1rem;
@@ -387,7 +395,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .btn-outline:hover {
         border-color: var(--accent-primary, #6366f1);
         color: var(--accent-primary, #6366f1);
-        background: var(--accent-primary-light, rgba(99,102,241,0.06));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
       }
     `,
   ],

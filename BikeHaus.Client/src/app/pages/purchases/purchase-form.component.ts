@@ -365,7 +365,16 @@ import { forkJoin } from 'rxjs';
         margin: 0 auto;
         animation: fadeIn 0.4s ease;
       }
-      @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
       .page-header {
         display: flex;
         justify-content: space-between;
@@ -401,7 +410,9 @@ import { forkJoin } from 'rxjs';
         gap: 14px;
       }
       @media (max-width: 600px) {
-        .form-grid { grid-template-columns: 1fr; }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
       }
       .field label {
         display: block;
@@ -429,7 +440,8 @@ import { forkJoin } from 'rxjs';
       .field textarea:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .field.full {
         grid-column: 1 / -1;

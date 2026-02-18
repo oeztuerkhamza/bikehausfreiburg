@@ -36,7 +36,19 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             [placeholder]="t.searchPlaceholder"
             class="filter-input search-input"
           />
-          <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <span class="search-icon"
+            ><svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" /></svg
+          ></span>
         </div>
         <div class="filter-group">
           <select
@@ -133,8 +145,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         animation: fadeIn 0.4s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
@@ -174,7 +192,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .filter-input:focus {
         outline: none;
         border-color: var(--accent-primary);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.08));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.08));
       }
       .search-input {
         padding-left: 40px;
@@ -223,7 +242,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         font-family: 'SF Mono', 'Consolas', monospace;
         font-size: 0.82rem;
         color: var(--accent-primary);
-        background: var(--accent-primary-light, rgba(99,102,241,0.08));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
         padding: 2px 8px;
         border-radius: 6px;
         font-weight: 600;
@@ -241,15 +260,15 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         letter-spacing: 0.02em;
       }
       .badge-Bar {
-        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
         color: var(--accent-success, #10b981);
       }
       .badge-Ueberweisung {
-        background: rgba(59,130,246,0.08);
+        background: rgba(59, 130, 246, 0.08);
         color: #3b82f6;
       }
       .badge-PayPal {
-        background: var(--accent-warning-light, rgba(245,158,11,0.08));
+        background: var(--accent-warning-light, rgba(245, 158, 11, 0.08));
         color: var(--accent-warning, #f59e0b);
       }
       @media (max-width: 640px) {

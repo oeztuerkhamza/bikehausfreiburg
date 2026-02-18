@@ -288,7 +288,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
 
               <!-- Bicycle Numbering -->
               <h3
-                style="margin-top: 24px; margin-bottom: 12px; font-size: 1rem; color: var(--text-secondary, #666);"
+                style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
               >
                 Fahrrad-Nummerierung
               </h3>
@@ -302,7 +302,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                     name="fahrradNummerStart"
                   />
                   <small
-                    style="color: var(--text-muted, #888); font-size: 0.8rem;"
+                    style="color: var(--text-secondary, #64748b); font-size: 0.78rem;"
                     >Neue Fahrräder bekommen automatisch die nächste
                     Nummer</small
                   >
@@ -327,24 +327,39 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
   styles: [
     `
       .settings-page {
-        padding: 24px;
         max-width: 900px;
+        animation: fadeIn 0.4s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       h1 {
         margin-bottom: 24px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
 
       .success-message {
-        background: var(--accent-success);
+        background: var(--accent-success, #10b981);
         color: white;
         padding: 12px 16px;
-        border-radius: 8px;
+        border-radius: var(--radius-md, 10px);
         margin-bottom: 20px;
-        animation: fadeIn 0.3s ease;
+        font-weight: 600;
+        animation: slideDown 0.3s ease;
       }
 
-      @keyframes fadeIn {
+      @keyframes slideDown {
         from {
           opacity: 0;
           transform: translateY(-10px);
@@ -358,7 +373,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
       .loading {
         text-align: center;
         padding: 40px;
-        color: var(--text-muted);
+        color: var(--text-secondary, #64748b);
       }
 
       .settings-section {
@@ -367,19 +382,23 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
 
       .settings-section h2 {
         margin-bottom: 16px;
-        color: var(--text-heading);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
       }
 
       .settings-section h3 {
         margin: 20px 0 12px;
-        font-size: 1rem;
-        color: var(--text-heading);
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
       }
 
       .settings-card {
-        background: var(--bg-card);
-        border-radius: 12px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
         padding: 24px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
         box-shadow: var(--shadow-sm);
       }
 
@@ -389,7 +408,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         align-items: center;
         justify-content: space-between;
         padding: 16px 0;
-        border-bottom: 1px solid var(--border-light);
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
       }
       .setting-row:last-child {
         border-bottom: none;
@@ -401,12 +420,12 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         gap: 4px;
       }
       .setting-label span {
-        font-weight: 500;
+        font-weight: 600;
         color: var(--text-primary);
       }
       .setting-label small {
-        color: var(--text-muted);
-        font-size: 0.85rem;
+        color: var(--text-secondary, #64748b);
+        font-size: 0.82rem;
       }
 
       /* Toggle Switch */
@@ -428,7 +447,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         left: 0;
         right: 0;
         bottom: 0;
-        background: var(--border-color);
+        background: var(--border-light, #cbd5e1);
         transition: 0.3s;
         border-radius: 28px;
       }
@@ -442,17 +461,30 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         background: white;
         transition: 0.3s;
         border-radius: 50%;
+        box-shadow: var(--shadow-xs);
       }
       .toggle-switch input:checked + .toggle-slider {
-        background: var(--accent-primary);
+        background: var(--accent-primary, #6366f1);
       }
       .toggle-switch input:checked + .toggle-slider:before {
         transform: translateX(22px);
       }
 
       .setting-row select {
-        padding: 8px 12px;
+        padding: 9px 14px;
         min-width: 150px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        font-size: 0.92rem;
+        transition: var(--transition-fast);
+      }
+      .setting-row select:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
 
       /* Logo Section */
@@ -473,8 +505,8 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         max-width: 200px;
         max-height: 150px;
         object-fit: contain;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
         padding: 8px;
         background: white;
       }
@@ -485,14 +517,16 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         align-items: center;
         gap: 8px;
         padding: 40px 60px;
-        border: 2px dashed var(--border-color);
-        border-radius: 12px;
+        border: 2px dashed var(--border-light, #e2e8f0);
+        border-radius: var(--radius-lg, 14px);
         cursor: pointer;
-        transition: all 0.2s;
+        transition: var(--transition-fast);
+        color: var(--text-secondary, #64748b);
       }
       .upload-area:hover {
-        border-color: var(--accent-primary);
-        background: var(--bg-secondary);
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.04));
+        color: var(--accent-primary, #6366f1);
       }
       .upload-icon {
         font-size: 2rem;
@@ -512,8 +546,8 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         max-width: 300px;
         max-height: 100px;
         object-fit: contain;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
         padding: 8px;
         background: white;
       }
@@ -538,18 +572,38 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
       }
 
       .form-group label {
-        font-weight: 500;
-        color: var(--text-secondary);
-        font-size: 0.9rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
 
       .form-group input,
-      .form-group textarea {
+      .form-group textarea,
+      .form-group select {
         width: 100%;
+        padding: 9px 14px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        font-size: 0.92rem;
+        transition: var(--transition-fast);
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
 
       .form-group textarea {
         resize: vertical;
+        font-family: inherit;
       }
 
       .form-actions {
