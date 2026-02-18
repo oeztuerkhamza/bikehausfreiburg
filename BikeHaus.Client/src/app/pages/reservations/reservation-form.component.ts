@@ -74,27 +74,40 @@ import { AddressSuggestion } from '../../services/address.service';
                 >
               </div>
               <div class="field">
-                <label>{{ t.street }}</label>
-                <input [(ngModel)]="customer.strasse" name="customerStrasse" />
-              </div>
-              <div class="field">
-                <label>{{ t.houseNumber }}</label>
+                <label>{{ t.street }} *</label>
                 <input
-                  [(ngModel)]="customer.hausnummer"
-                  name="customerHausnr"
+                  [(ngModel)]="customer.strasse"
+                  name="customerStrasse"
+                  required
                 />
               </div>
               <div class="field">
-                <label>{{ t.postalCode }}</label>
-                <input [(ngModel)]="customer.plz" name="customerPlz" />
+                <label>{{ t.houseNumber }} *</label>
+                <input
+                  [(ngModel)]="customer.hausnummer"
+                  name="customerHausnr"
+                  required
+                />
               </div>
               <div class="field">
-                <label>{{ t.city }}</label>
-                <input [(ngModel)]="customer.stadt" name="customerStadt" />
+                <label>{{ t.postalCode }} *</label>
+                <input [(ngModel)]="customer.plz" name="customerPlz" required />
               </div>
               <div class="field">
-                <label>{{ t.phone }}</label>
-                <input [(ngModel)]="customer.telefon" name="customerTel" />
+                <label>{{ t.city }} *</label>
+                <input
+                  [(ngModel)]="customer.stadt"
+                  name="customerStadt"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.phone }} *</label>
+                <input
+                  [(ngModel)]="customer.telefon"
+                  name="customerTel"
+                  required
+                />
               </div>
               <div class="field">
                 <label>{{ t.email }}</label>
@@ -165,6 +178,21 @@ import { AddressSuggestion } from '../../services/address.service';
           </p>
           <p *ngIf="!customer.nachname?.trim()" class="error-msg">
             ⚠️ Nachname ist erforderlich
+          </p>
+          <p *ngIf="!customer.strasse?.trim()" class="error-msg">
+            ⚠️ Straße ist erforderlich
+          </p>
+          <p *ngIf="!customer.hausnummer?.trim()" class="error-msg">
+            ⚠️ Hausnummer ist erforderlich
+          </p>
+          <p *ngIf="!customer.plz?.trim()" class="error-msg">
+            ⚠️ PLZ ist erforderlich
+          </p>
+          <p *ngIf="!customer.stadt?.trim()" class="error-msg">
+            ⚠️ Stadt ist erforderlich
+          </p>
+          <p *ngIf="!customer.telefon?.trim()" class="error-msg">
+            ⚠️ Telefon ist erforderlich
           </p>
           <p *ngIf="reservierungsTage <= 0" class="error-msg">
             ⚠️ Reservierungstage muss größer als 0 sein
@@ -463,6 +491,11 @@ export class ReservationFormComponent implements OnInit {
       this.selectedBike &&
       this.customer.vorname.trim() &&
       this.customer.nachname.trim() &&
+      this.customer.strasse?.trim() &&
+      this.customer.hausnummer?.trim() &&
+      this.customer.plz?.trim() &&
+      this.customer.stadt?.trim() &&
+      this.customer.telefon?.trim() &&
       this.reservierungsTage > 0 &&
       !this.submitting
     );

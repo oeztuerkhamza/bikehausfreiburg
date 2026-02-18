@@ -84,24 +84,32 @@ import { AddressSuggestion } from '../../services/address.service';
                 >
               </div>
               <div class="field">
-                <label>Straße</label>
-                <input [(ngModel)]="buyer.strasse" name="buyerStrasse" />
+                <label>Straße *</label>
+                <input
+                  [(ngModel)]="buyer.strasse"
+                  name="buyerStrasse"
+                  required
+                />
               </div>
               <div class="field">
-                <label>Hausnummer</label>
-                <input [(ngModel)]="buyer.hausnummer" name="buyerHausnr" />
+                <label>Hausnummer *</label>
+                <input
+                  [(ngModel)]="buyer.hausnummer"
+                  name="buyerHausnr"
+                  required
+                />
               </div>
               <div class="field">
-                <label>PLZ</label>
-                <input [(ngModel)]="buyer.plz" name="buyerPlz" />
+                <label>PLZ *</label>
+                <input [(ngModel)]="buyer.plz" name="buyerPlz" required />
               </div>
               <div class="field">
-                <label>Stadt</label>
-                <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
+                <label>Stadt *</label>
+                <input [(ngModel)]="buyer.stadt" name="buyerStadt" required />
               </div>
               <div class="field">
-                <label>Telefon</label>
-                <input [(ngModel)]="buyer.telefon" name="buyerTel" />
+                <label>Telefon *</label>
+                <input [(ngModel)]="buyer.telefon" name="buyerTel" required />
               </div>
               <div class="field">
                 <label>E-Mail</label>
