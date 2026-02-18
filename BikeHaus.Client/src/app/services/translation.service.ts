@@ -685,7 +685,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityRequired: 'Stadt *',
     phoneRequired: 'Telefon *',
     accessoriesOptional: 'Zubehör (Optional)',
-    accessorySaleHint: 'Fügen Sie verkaufte Zubehörteile hinzu, diese erscheinen auf dem Verkaufsbeleg.',
+    accessorySaleHint:
+      'Fügen Sie verkaufte Zubehörteile hinzu, diese erscheinen auf dem Verkaufsbeleg.',
     designation: 'Bezeichnung',
     buyerName: 'Name Käufer',
     sellerName: 'Name Verkäufer',
@@ -768,7 +769,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     settings: 'Ayarlar',
 
     // Dashboard
-    welcomeToBikeHaus: 'BikeHaus Freiburg\'a hoş geldiniz',
+    welcomeToBikeHaus: "BikeHaus Freiburg'a hoş geldiniz",
     buyBicycle: 'Bisiklet al',
     sellBicycle: 'Bisiklet sat',
     viewInventory: 'Envanteri görüntüle',
@@ -1048,7 +1049,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     modelIsRequired: 'Model gerekli',
     frameNumberIsRequired: 'Şase numarası gerekli',
     wheelSizeIsRequired: 'Tekerlek boyutu gerekli',
-    priceMustBeGreaterThanZero: 'Fiyat 0\'dan büyük olmalı',
+    priceMustBeGreaterThanZero: "Fiyat 0'dan büyük olmalı",
     purchaseDateIsRequired: 'Alım tarihi gerekli',
     invoiceIsRequired: 'Fatura gerekli',
     screenshotIsRequired: 'Sahibinden ekran görüntüsü gerekli',
@@ -1062,7 +1063,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityRequired: 'Şehir *',
     phoneRequired: 'Telefon *',
     accessoriesOptional: 'Aksesuarlar (İsteğe Bağlı)',
-    accessorySaleHint: 'Satılan aksesuarları ekleyin, satış belgesinde görünecektir.',
+    accessorySaleHint:
+      'Satılan aksesuarları ekleyin, satış belgesinde görünecektir.',
     designation: 'Tanım',
     buyerName: 'Alıcı Adı',
     sellerName: 'Satıcı Adı',

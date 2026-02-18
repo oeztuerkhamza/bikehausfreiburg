@@ -61,9 +61,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onSellerAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint"
-                  >{{ t.addressHint }}</small
-                >
+                <small class="hint">{{ t.addressHint }}</small>
               </div>
               <div class="field">
                 <label>{{ t.street }}</label>
@@ -362,7 +360,9 @@ import { AddressSuggestion } from '../../services/address.service';
 })
 export class PurchaseEditComponent implements OnInit {
   private translationService = inject(TranslationService);
-  get t() { return this.translationService.translations(); }
+  get t() {
+    return this.translationService.translations();
+  }
 
   purchase: Purchase | null = null;
   loading = true;

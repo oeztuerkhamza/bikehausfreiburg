@@ -112,7 +112,8 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
             <h3>{{ t.profit }}</h3>
             <div class="big-number">{{ stats.profit | currency: 'EUR' }}</div>
             <div class="avg">
-              {{ t.averagePerSale }}: {{ stats.averageProfit | currency: 'EUR' }}
+              {{ t.averagePerSale }}:
+              {{ stats.averageProfit | currency: 'EUR' }}
             </div>
           </div>
         </div>

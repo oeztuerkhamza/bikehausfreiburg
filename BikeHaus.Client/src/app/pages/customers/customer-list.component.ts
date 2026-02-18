@@ -419,8 +419,7 @@ export class CustomerListComponent implements OnInit {
     if (confirm(this.t.deleteConfirmCustomer)) {
       this.customerService.delete(c.id).subscribe({
         next: () => this.load(),
-        error: (err) =>
-          alert(err.error?.error || this.t.deleteCustomerError),
+        error: (err) => alert(err.error?.error || this.t.deleteCustomerError),
       });
     }
   }

@@ -84,7 +84,9 @@ import {
           <div class="field">
             <label>{{ t.condition }}</label>
             <select *ngIf="editing" [(ngModel)]="form.zustand">
-              <option [value]="BikeCondition.Gebraucht">{{ t.usedCondition }}</option>
+              <option [value]="BikeCondition.Gebraucht">
+                {{ t.usedCondition }}
+              </option>
               <option [value]="BikeCondition.Neu">{{ t.newCondition }}</option>
             </select>
             <span
@@ -155,7 +157,9 @@ import {
                 </button>
               </div>
             </div>
-            <p *ngIf="documents.length === 0" class="empty">{{ t.noDocuments }}</p>
+            <p *ngIf="documents.length === 0" class="empty">
+              {{ t.noDocuments }}
+            </p>
           </div>
         </div>
       </div>

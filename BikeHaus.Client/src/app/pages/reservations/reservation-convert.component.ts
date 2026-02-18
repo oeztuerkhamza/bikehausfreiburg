@@ -61,9 +61,12 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
         </div>
         <div class="info-card">
           <h3>📋 {{ t.reservationLabel }}</h3>
-          <p class="detail">{{ t.numberShort }} {{ reservation.reservierungsNummer }}</p>
           <p class="detail">
-            {{ t.from }}: {{ reservation.reservierungsDatum | date: 'dd.MM.yyyy' }}
+            {{ t.numberShort }} {{ reservation.reservierungsNummer }}
+          </p>
+          <p class="detail">
+            {{ t.from }}:
+            {{ reservation.reservierungsDatum | date: 'dd.MM.yyyy' }}
           </p>
           <p class="detail" *ngIf="reservation.anzahlung">
             {{ t.deposit }}: {{ reservation.anzahlung | number: '1.2-2' }} €
@@ -87,8 +90,10 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                   required
                 />
                 <small class="hint" *ngIf="reservation.anzahlung">
-                  ({{ t.depositColon }} {{ reservation.anzahlung | number: '1.2-2' }} € -
-                  {{ t.remainingAmount }} {{ getRestbetrag() | number: '1.2-2' }} €)
+                  ({{ t.depositColon }}
+                  {{ reservation.anzahlung | number: '1.2-2' }} € -
+                  {{ t.remainingAmount }}
+                  {{ getRestbetrag() | number: '1.2-2' }} €)
                 </small>
               </div>
               <div class="field">
@@ -214,7 +219,9 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                 </div>
                 <div *ngIf="!sellerSignatureData" class="no-signature">
                   <p>{{ t.noSignatureFound }}</p>
-                  <a routerLink="/settings" class="link">{{ t.settingsLink }}</a>
+                  <a routerLink="/settings" class="link">{{
+                    t.settingsLink
+                  }}</a>
                 </div>
               </div>
             </div>

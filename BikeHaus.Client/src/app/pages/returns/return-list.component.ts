@@ -274,7 +274,9 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 })
 export class ReturnListComponent implements OnInit {
   private translationService = inject(TranslationService);
-  get t() { return this.translationService.translations(); }
+  get t() {
+    return this.translationService.translations();
+  }
 
   paginatedResult: PaginatedResult<ReturnList> | null = null;
   searchText = '';
@@ -376,8 +378,7 @@ export class ReturnListComponent implements OnInit {
     if (confirm(this.t.deleteConfirmReturn)) {
       this.returnService.delete(id).subscribe({
         next: () => this.load(),
-        error: (err) =>
-          alert(err.error?.error || this.t.deleteError),
+        error: (err) => alert(err.error?.error || this.t.deleteError),
       });
     }
   }

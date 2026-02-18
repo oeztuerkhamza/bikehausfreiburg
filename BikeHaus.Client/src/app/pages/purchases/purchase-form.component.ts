@@ -65,9 +65,7 @@ import { forkJoin } from 'rxjs';
                   placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onSellerAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint"
-                  >{{ t.addressHint }}</small
-                >
+                <small class="hint">{{ t.addressHint }}</small>
               </div>
               <div class="field">
                 <label>{{ t.street }}</label>
@@ -249,9 +247,7 @@ import { forkJoin } from 'rxjs';
             </h2>
             <p class="hint-text">
               {{
-                bicycle.zustand === 'Neu'
-                  ? t.invoiceHint
-                  : t.screenshotsHint
+                bicycle.zustand === 'Neu' ? t.invoiceHint : t.screenshotsHint
               }}
             </p>
             <div class="upload-area">
@@ -516,7 +512,9 @@ import { forkJoin } from 'rxjs';
 })
 export class PurchaseFormComponent implements OnInit {
   private translationService = inject(TranslationService);
-  get t() { return this.translationService.translations(); }
+  get t() {
+    return this.translationService.translations();
+  }
 
   seller = {
     vorname: '',

@@ -103,9 +103,7 @@ import {
             <tr *ngIf="filteredParts.length === 0">
               <td colspan="5" class="empty">
                 {{
-                  parts.length === 0
-                    ? t.noAccessoriesAvailable
-                    : t.noMatches
+                  parts.length === 0 ? t.noAccessoriesAvailable : t.noMatches
                 }}
               </td>
             </tr>

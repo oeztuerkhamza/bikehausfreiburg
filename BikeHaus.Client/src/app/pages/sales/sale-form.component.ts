@@ -80,9 +80,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   [placeholder]="t.addressPlaceholder"
                   (addressSelected)="onBuyerAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint"
-                  >{{ t.addressHint }}</small
-                >
+                <small class="hint">{{ t.addressHint }}</small>
               </div>
               <div class="field">
                 <label>{{ t.streetRequired }}</label>

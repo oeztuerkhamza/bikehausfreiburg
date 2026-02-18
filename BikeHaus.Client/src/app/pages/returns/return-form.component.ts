@@ -38,7 +38,9 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                 required
                 (change)="onSaleSelect()"
               >
-                <option [value]="0" disabled>{{ t.selectSalePlaceholder }}</option>
+                <option [value]="0" disabled>
+                  {{ t.selectSalePlaceholder }}
+                </option>
                 <option *ngFor="let s of sales" [value]="s.id">
                   {{ s.belegNummer }} – {{ s.bikeInfo }} ({{ s.buyerName }}) –
                   {{ s.preis | number: '1.2-2' }} €
@@ -51,7 +53,10 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
               >
               <span>{{ t.bicycle }}: {{ selectedSale.bikeInfo }}</span>
               <span>{{ t.buyer }}: {{ selectedSale.buyerName }}</span>
-              <span>{{ t.price }}: {{ selectedSale.preis | number: '1.2-2' }} €</span>
+              <span
+                >{{ t.price }}:
+                {{ selectedSale.preis | number: '1.2-2' }} €</span
+              >
               <span
                 >{{ t.soldOn }}:
                 {{ selectedSale.verkaufsdatum | date: 'dd.MM.yyyy' }}</span
@@ -75,9 +80,13 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
               <div class="field">
                 <label>{{ t.returnReasonRequired }}</label>
                 <select [(ngModel)]="grund" name="grund" required>
-                  <option value="" disabled>{{ t.selectReasonPlaceholder }}</option>
+                  <option value="" disabled>
+                    {{ t.selectReasonPlaceholder }}
+                  </option>
                   <option value="Defekt">{{ t.defect }}</option>
-                  <option value="NichtWieErwartet">{{ t.notAsExpected }}</option>
+                  <option value="NichtWieErwartet">
+                    {{ t.notAsExpected }}
+                  </option>
                   <option value="Garantie">{{ t.warranty }}</option>
                   <option value="Sonstiges">{{ t.other }}</option>
                 </select>
@@ -304,7 +313,9 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
 })
 export class ReturnFormComponent implements OnInit {
   private translationService = inject(TranslationService);
-  get t() { return this.translationService.translations(); }
+  get t() {
+    return this.translationService.translations();
+  }
 
   sales: SaleList[] = [];
   selectedSaleId = 0;
