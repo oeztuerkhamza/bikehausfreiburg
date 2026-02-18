@@ -64,6 +64,8 @@ BikeHaus.API/uploads/**/*
 *.env
 .env.*
 secrets.json
+*sifreler*
+*şifreler*
 
 # Test results
 TestResults/

@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: '/api',
+  // Render backend URL - will be updated after deployment
+  apiUrl: 'https://bikehaus-api.onrender.com/api',
 };

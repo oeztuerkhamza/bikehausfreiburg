@@ -13,10 +13,22 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Database
+        // Database - PostgreSQL for production (connection string contains "postgres"), SQLite for development
+        var connectionString = configuration.GetConnectionString("DefaultConnection") ?? "";
+        var isPostgres = connectionString.Contains("postgres", StringComparison.OrdinalIgnoreCase)
+                      || connectionString.Contains("postgresql", StringComparison.OrdinalIgnoreCase);
+
         services.AddDbContext<BikeHausDbContext>(options =>
-            options.UseSqlite(
-                configuration.GetConnectionString("DefaultConnection")));
+        {
+            if (isPostgres)
+            {
+                options.UseNpgsql(connectionString);
+            }
+            else
+            {
+                options.UseSqlite(connectionString);
+            }
+        });
 
         // Repositories
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -44,11 +56,25 @@ public static class DependencyInjection
         services.AddScoped<IReservationService, BikeHaus.Application.Services.ReservationService>();
         services.AddScoped<IAuthService, BikeHaus.Infrastructure.Services.AuthService>();
         services.AddScoped<IPdfService, PdfService>();
-        services.AddScoped<IFileStorageService>(sp =>
+
+        // File Storage - Supabase Storage for production, local filesystem for development
+        var supabaseUrl = configuration["Supabase:Url"];
+        var supabaseKey = configuration["Supabase:ServiceKey"];
+        var bucketName = configuration["Supabase:BucketName"] ?? "documents";
+
+        if (!string.IsNullOrEmpty(supabaseUrl) && !string.IsNullOrEmpty(supabaseKey))
         {
-            var basePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-            return new FileStorageService(basePath);
-        });
+            services.AddScoped<IFileStorageService>(sp =>
+                new SupabaseStorageService(supabaseUrl, supabaseKey, bucketName));
+        }
+        else
+        {
+            services.AddScoped<IFileStorageService>(sp =>
+            {
+                var basePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+                return new FileStorageService(basePath);
+            });
+        }
 
         return services;
     }

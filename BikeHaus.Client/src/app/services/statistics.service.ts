@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface DailyStats {
   date: string;
@@ -36,7 +37,7 @@ export interface Statistics {
   providedIn: 'root',
 })
 export class StatisticsService {
-  private apiUrl = 'http://localhost:5196/api/statistics';
+  private apiUrl = `${environment.apiUrl}/statistics`;
 
   constructor(private http: HttpClient) {}
 

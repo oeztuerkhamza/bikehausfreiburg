@@ -1,0 +1,23 @@
+# Render Blueprint for BikeHaus API
+services:
+  - type: web
+    name: bikehaus-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: Jwt__Key
+        generateValue: true
+      - key: AllowedOrigins__0
+        value: https://bikehaus-freiburg.vercel.app
+      - key: Supabase__Url
+        sync: false
+      - key: Supabase__ServiceKey
+        sync: false
+      - key: Supabase__BucketName
+        value: documents
+    healthCheckPath: /api/dashboard

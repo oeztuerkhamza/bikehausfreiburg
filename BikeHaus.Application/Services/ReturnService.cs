@@ -12,17 +12,23 @@ public class ReturnService : IReturnService
     private readonly IReturnRepository _returnRepository;
     private readonly ISaleRepository _saleRepository;
     private readonly IBicycleRepository _bicycleRepository;
+    private readonly IDocumentRepository _documentRepository;
+    private readonly IFileStorageService _fileStorageService;
     private readonly IPdfService _pdfService;
 
     public ReturnService(
         IReturnRepository returnRepository,
         ISaleRepository saleRepository,
         IBicycleRepository bicycleRepository,
+        IDocumentRepository documentRepository,
+        IFileStorageService fileStorageService,
         IPdfService pdfService)
     {
         _returnRepository = returnRepository;
         _saleRepository = saleRepository;
         _bicycleRepository = bicycleRepository;
+        _documentRepository = documentRepository;
+        _fileStorageService = fileStorageService;
         _pdfService = pdfService;
     }
 
@@ -145,6 +151,32 @@ public class ReturnService : IReturnService
         await _bicycleRepository.UpdateAsync(bicycle);
 
         var result = await _returnRepository.GetWithDetailsAsync(created.Id);
+
+        // Auto-save PDF to cloud storage
+        try
+        {
+            var pdfBytes = await _pdfService.GenerateRueckgabebelegAsync(created.Id);
+            var fileName = $"Rueckgabebeleg_{result!.BelegNummer}_{DateTime.UtcNow:yyyyMMdd}.pdf";
+
+            using var pdfStream = new MemoryStream(pdfBytes);
+            var savedPath = await _fileStorageService.SaveFileAsync(pdfStream, fileName, "rueckgabebelege");
+
+            var document = new Document
+            {
+                FileName = fileName,
+                FilePath = savedPath,
+                ContentType = "application/pdf",
+                FileSize = pdfBytes.Length,
+                DocumentType = DocumentType.Rueckgabebeleg,
+                BicycleId = bicycle.Id
+            };
+            await _documentRepository.AddAsync(document);
+        }
+        catch
+        {
+            // PDF generation/storage failure should not fail the return
+        }
+
         return result!.ToDto();
     }
 

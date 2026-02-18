@@ -12,17 +12,23 @@ public class SaleService : ISaleService
     private readonly ISaleRepository _saleRepository;
     private readonly IBicycleRepository _bicycleRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IDocumentRepository _documentRepository;
+    private readonly IFileStorageService _fileStorageService;
     private readonly IPdfService _pdfService;
 
     public SaleService(
         ISaleRepository saleRepository,
         IBicycleRepository bicycleRepository,
         ICustomerRepository customerRepository,
+        IDocumentRepository documentRepository,
+        IFileStorageService fileStorageService,
         IPdfService pdfService)
     {
         _saleRepository = saleRepository;
         _bicycleRepository = bicycleRepository;
         _customerRepository = customerRepository;
+        _documentRepository = documentRepository;
+        _fileStorageService = fileStorageService;
         _pdfService = pdfService;
     }
 
@@ -152,6 +158,33 @@ public class SaleService : ISaleService
         await _bicycleRepository.UpdateAsync(bicycle);
 
         var result = await _saleRepository.GetWithDetailsAsync(created.Id);
+
+        // Auto-save PDF to cloud storage
+        try
+        {
+            var pdfBytes = await _pdfService.GenerateVerkaufsbelegAsync(created.Id);
+            var fileName = $"Verkaufsbeleg_{result!.BelegNummer}_{DateTime.UtcNow:yyyyMMdd}.pdf";
+
+            using var pdfStream = new MemoryStream(pdfBytes);
+            var savedPath = await _fileStorageService.SaveFileAsync(pdfStream, fileName, "verkaufsbelege");
+
+            var document = new Document
+            {
+                FileName = fileName,
+                FilePath = savedPath,
+                ContentType = "application/pdf",
+                FileSize = pdfBytes.Length,
+                DocumentType = DocumentType.Verkaufsbeleg,
+                BicycleId = bicycle.Id,
+                SaleId = created.Id
+            };
+            await _documentRepository.AddAsync(document);
+        }
+        catch
+        {
+            // PDF generation/storage failure should not fail the sale
+        }
+
         return result!.ToDto();
     }
 

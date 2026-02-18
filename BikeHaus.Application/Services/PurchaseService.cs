@@ -12,17 +12,23 @@ public class PurchaseService : IPurchaseService
     private readonly IPurchaseRepository _purchaseRepository;
     private readonly IBicycleRepository _bicycleRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IDocumentRepository _documentRepository;
+    private readonly IFileStorageService _fileStorageService;
     private readonly IPdfService _pdfService;
 
     public PurchaseService(
         IPurchaseRepository purchaseRepository,
         IBicycleRepository bicycleRepository,
         ICustomerRepository customerRepository,
+        IDocumentRepository documentRepository,
+        IFileStorageService fileStorageService,
         IPdfService pdfService)
     {
         _purchaseRepository = purchaseRepository;
         _bicycleRepository = bicycleRepository;
         _customerRepository = customerRepository;
+        _documentRepository = documentRepository;
+        _fileStorageService = fileStorageService;
         _pdfService = pdfService;
     }
 
@@ -129,6 +135,33 @@ public class PurchaseService : IPurchaseService
 
         var created = await _purchaseRepository.AddAsync(purchase);
         var result = await _purchaseRepository.GetWithDetailsAsync(created.Id);
+
+        // Auto-save PDF to cloud storage
+        try
+        {
+            var pdfBytes = await _pdfService.GenerateKaufbelegAsync(created.Id);
+            var fileName = $"Kaufbeleg_{result!.BelegNummer}_{DateTime.UtcNow:yyyyMMdd}.pdf";
+
+            using var pdfStream = new MemoryStream(pdfBytes);
+            var savedPath = await _fileStorageService.SaveFileAsync(pdfStream, fileName, "kaufbelege");
+
+            var document = new Document
+            {
+                FileName = fileName,
+                FilePath = savedPath,
+                ContentType = "application/pdf",
+                FileSize = pdfBytes.Length,
+                DocumentType = DocumentType.Kaufbeleg,
+                BicycleId = bicycle.Id,
+                PurchaseId = created.Id
+            };
+            await _documentRepository.AddAsync(document);
+        }
+        catch
+        {
+            // PDF generation/storage failure should not fail the purchase
+        }
+
         return result!.ToDto();
     }
 
