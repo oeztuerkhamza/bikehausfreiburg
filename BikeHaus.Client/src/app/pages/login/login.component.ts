@@ -31,7 +31,18 @@ import { AuthService } from '../../services/auth.service';
           <div class="form-group">
             <label for="username">Benutzername</label>
             <div class="input-wrap">
-              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <svg
+                class="input-icon"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
               <input
                 type="text"
                 id="username"
@@ -48,7 +59,18 @@ import { AuthService } from '../../services/auth.service';
           <div class="form-group">
             <label for="password">Passwort</label>
             <div class="input-wrap">
-              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <svg
+                class="input-icon"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
               <input
                 type="password"
                 id="password"
@@ -63,7 +85,18 @@ import { AuthService } from '../../services/auth.service';
           </div>
 
           <div class="error-message" *ngIf="errorMessage">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
             {{ errorMessage }}
           </div>
 
@@ -84,7 +117,12 @@ import { AuthService } from '../../services/auth.service';
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #312e81 100%);
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e293b 40%,
+          #312e81 100%
+        );
         padding: 20px;
         position: relative;
         overflow: hidden;
@@ -129,16 +167,31 @@ import { AuthService } from '../../services/auth.service';
       }
 
       @keyframes float1 {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        50% { transform: translate(-40px, 30px) scale(1.1); }
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(-40px, 30px) scale(1.1);
+        }
       }
       @keyframes float2 {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        50% { transform: translate(30px, -40px) scale(1.15); }
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(30px, -40px) scale(1.15);
+        }
       }
       @keyframes float3 {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        50% { transform: translate(-20px, -30px) scale(1.05); }
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(-20px, -30px) scale(1.05);
+        }
       }
 
       .login-card {
@@ -156,8 +209,14 @@ import { AuthService } from '../../services/auth.service';
         animation: cardIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
       }
       @keyframes cardIn {
-        from { opacity: 0; transform: translateY(20px) scale(0.97); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0.97);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
       }
 
       .login-header {
@@ -275,8 +334,14 @@ import { AuthService } from '../../services/auth.service';
         animation: fadeIn 0.25s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-4px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .btn-login {
@@ -298,7 +363,11 @@ import { AuthService } from '../../services/auth.service';
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.12) 0%,
+          transparent 100%
+        );
         pointer-events: none;
       }
       .btn-login:hover:not(:disabled) {
@@ -324,13 +393,15 @@ import { AuthService } from '../../services/auth.service';
       .spinner {
         width: 16px;
         height: 16px;
-        border: 2px solid rgba(255,255,255,0.3);
+        border: 2px solid rgba(255, 255, 255, 0.3);
         border-top-color: #fff;
         border-radius: 50%;
         animation: spin 0.6s linear infinite;
       }
       @keyframes spin {
-        to { transform: rotate(360deg); }
+        to {
+          transform: rotate(360deg);
+        }
       }
 
       @media (max-width: 480px) {

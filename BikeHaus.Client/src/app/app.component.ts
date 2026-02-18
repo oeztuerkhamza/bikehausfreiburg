@@ -29,21 +29,77 @@ import { AuthService } from './services/auth.service';
 
         <div class="nav-section-label">Menu</div>
         <nav>
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeSidebar()">
+          <a
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="closeSidebar()"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+              </svg>
             </span>
             <span class="nav-label">{{ t.dashboard }}</span>
           </a>
-          <a routerLink="/bicycles" routerLinkActive="active" (click)="closeSidebar()">
+          <a
+            routerLink="/bicycles"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="5.5" cy="17.5" r="3.5" />
+                <circle cx="18.5" cy="17.5" r="3.5" />
+                <path
+                  d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"
+                />
+              </svg>
             </span>
             <span class="nav-label">{{ t.bicycles }}</span>
           </a>
-          <a routerLink="/customers" routerLinkActive="active" (click)="closeSidebar()">
+          <a
+            routerLink="/customers"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
             </span>
             <span class="nav-label">{{ t.customers }}</span>
           </a>
@@ -51,27 +107,94 @@ import { AuthService } from './services/auth.service';
           <div class="nav-divider"></div>
           <div class="nav-section-label">Transaktionen</div>
 
-          <a routerLink="/purchases" routerLinkActive="active" (click)="closeSidebar()">
+          <a
+            routerLink="/purchases"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
             </span>
             <span class="nav-label">{{ t.purchases }}</span>
           </a>
-          <a routerLink="/sales" routerLinkActive="active" (click)="closeSidebar()">
+          <a
+            routerLink="/sales"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
             </span>
             <span class="nav-label">{{ t.sales }}</span>
           </a>
-          <a routerLink="/reservations" routerLinkActive="active" (click)="closeSidebar()">
+          <a
+            routerLink="/reservations"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
             </span>
             <span class="nav-label">{{ t.reservations }}</span>
           </a>
-          <a routerLink="/returns" routerLinkActive="active" (click)="closeSidebar()">
+          <a
+            routerLink="/returns"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="1 4 1 10 7 10" />
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+              </svg>
             </span>
             <span class="nav-label">{{ t.returns }}</span>
           </a>
@@ -79,33 +202,101 @@ import { AuthService } from './services/auth.service';
           <div class="nav-divider"></div>
           <div class="nav-section-label">Extras</div>
 
-          <a routerLink="/parts" routerLinkActive="active" (click)="closeSidebar()">
+          <a
+            routerLink="/parts"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+                />
+              </svg>
             </span>
             <span class="nav-label">Zubehör</span>
           </a>
-          <a routerLink="/statistics" routerLinkActive="active" (click)="closeSidebar()">
+          <a
+            routerLink="/statistics"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
             </span>
             <span class="nav-label">{{ t.statistics }}</span>
           </a>
-          <a routerLink="/settings" routerLinkActive="active" (click)="closeSidebar()" class="nav-settings">
+          <a
+            routerLink="/settings"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+            class="nav-settings"
+          >
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                />
+              </svg>
             </span>
             <span class="nav-label">{{ t.settings }}</span>
           </a>
         </nav>
       </aside>
 
-      <div class="sidebar-overlay" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+      <div
+        class="sidebar-overlay"
+        *ngIf="sidebarOpen"
+        (click)="closeSidebar()"
+      ></div>
 
       <main class="main-content">
         <header class="topbar">
           <button class="menu-toggle" (click)="sidebarOpen = !sidebarOpen">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
           </button>
           <img src="assets/logo.svg" alt="Bike Haus" class="topbar-logo" />
           <div class="topbar-spacer"></div>
@@ -115,7 +306,20 @@ import { AuthService } from './services/auth.service';
               <span class="user-name">{{ authService.displayName() }}</span>
             </div>
             <button class="btn-logout" (click)="logout()" title="Abmelden">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
             </button>
           </div>
         </header>
@@ -145,7 +349,7 @@ import { AuthService } from './services/auth.service';
         display: flex;
         flex-direction: column;
         transition: transform var(--transition-smooth, 0.35s);
-        border-right: 1px solid rgba(255,255,255,0.04);
+        border-right: 1px solid rgba(255, 255, 255, 0.04);
         z-index: 100;
       }
 
@@ -154,13 +358,17 @@ import { AuthService } from './services/auth.service';
         align-items: center;
         gap: 14px;
         padding: 24px 22px;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       }
       .brand-icon-wrap {
         width: 44px;
         height: 44px;
         border-radius: 12px;
-        background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(79,70,229,0.2));
+        background: linear-gradient(
+          135deg,
+          rgba(99, 102, 241, 0.3),
+          rgba(79, 70, 229, 0.2)
+        );
         display: flex;
         align-items: center;
         justify-content: center;
@@ -196,12 +404,12 @@ import { AuthService } from './services/auth.service';
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.12em;
-        color: rgba(255,255,255,0.3);
+        color: rgba(255, 255, 255, 0.3);
       }
 
       .nav-divider {
         margin: 4px 22px;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
       }
 
       nav {
@@ -218,7 +426,7 @@ import { AuthService } from './services/auth.service';
         gap: 12px;
         padding: 10px 22px;
         margin: 0 10px;
-        color: rgba(255,255,255,0.55);
+        color: rgba(255, 255, 255, 0.55);
         text-decoration: none;
         font-size: 0.88rem;
         font-weight: 500;
@@ -227,14 +435,18 @@ import { AuthService } from './services/auth.service';
         position: relative;
       }
       nav a:hover {
-        color: rgba(255,255,255,0.9);
-        background: rgba(255,255,255,0.06);
+        color: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.06);
         text-decoration: none;
       }
       nav a.active {
         color: #fff;
-        background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(99,102,241,0.12));
-        box-shadow: 0 0 20px rgba(99,102,241,0.15);
+        background: linear-gradient(
+          135deg,
+          rgba(99, 102, 241, 0.25),
+          rgba(99, 102, 241, 0.12)
+        );
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
       }
       nav a.active::before {
         content: '';
@@ -263,7 +475,7 @@ import { AuthService } from './services/auth.service';
 
       nav .nav-settings {
         margin-top: auto;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
         padding-top: 14px;
       }
 
@@ -286,7 +498,7 @@ import { AuthService } from './services/auth.service';
         align-items: center;
         gap: 16px;
         transition: all var(--transition-smooth, 0.35s);
-        box-shadow: var(--shadow-xs, 0 1px 2px rgba(0,0,0,0.04));
+        box-shadow: var(--shadow-xs, 0 1px 2px rgba(0, 0, 0, 0.04));
         position: relative;
         z-index: 10;
       }
@@ -306,11 +518,13 @@ import { AuthService } from './services/auth.service';
         transition: all 0.15s;
       }
       .menu-toggle:hover {
-        background: var(--accent-primary-light, rgba(99,102,241,0.08));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
         color: var(--accent-primary);
       }
 
-      .topbar-spacer { flex: 1; }
+      .topbar-spacer {
+        flex: 1;
+      }
 
       .topbar-right {
         display: flex;
@@ -326,7 +540,11 @@ import { AuthService } from './services/auth.service';
         width: 36px;
         height: 36px;
         border-radius: 10px;
-        background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-hover, #4f46e5));
+        background: linear-gradient(
+          135deg,
+          var(--accent-primary),
+          var(--accent-primary-hover, #4f46e5)
+        );
         color: #fff;
         display: flex;
         align-items: center;
@@ -356,7 +574,7 @@ import { AuthService } from './services/auth.service';
         transition: all 0.2s;
       }
       .btn-logout:hover {
-        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
         border-color: var(--accent-danger);
         color: var(--accent-danger);
       }
@@ -385,7 +603,7 @@ import { AuthService } from './services/auth.service';
         }
         .sidebar.open {
           transform: translateX(0);
-          box-shadow: 8px 0 30px rgba(0,0,0,0.3);
+          box-shadow: 8px 0 30px rgba(0, 0, 0, 0.3);
         }
         .menu-toggle {
           display: flex;
@@ -400,7 +618,7 @@ import { AuthService } from './services/auth.service';
           display: block;
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.5);
+          background: rgba(0, 0, 0, 0.5);
           z-index: 99;
           backdrop-filter: blur(2px);
         }
@@ -424,7 +642,12 @@ export class AppComponent {
   getInitials(): string {
     const name = this.authService.displayName();
     if (!name) return 'U';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   }
 
   closeSidebar() {

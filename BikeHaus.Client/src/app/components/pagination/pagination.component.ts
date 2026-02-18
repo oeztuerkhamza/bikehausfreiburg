@@ -12,7 +12,10 @@ import { FormsModule } from '@angular/forms';
         <span class="total-badge">{{ totalCount }}</span>
         <span>Einträge</span>
         <span class="dot">·</span>
-        <span>Seite <strong>{{ currentPage }}</strong> von <strong>{{ totalPages }}</strong></span>
+        <span
+          >Seite <strong>{{ currentPage }}</strong> von
+          <strong>{{ totalPages }}</strong></span
+        >
       </div>
 
       <div class="pagination-controls">
@@ -36,7 +39,17 @@ import { FormsModule } from '@angular/forms';
             (click)="goToPage(1)"
             title="Erste Seite"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="11 17 6 12 11 7" />
+              <polyline points="18 17 13 12 18 7" />
+            </svg>
           </button>
           <button
             class="page-btn"
@@ -44,7 +57,16 @@ import { FormsModule } from '@angular/forms';
             (click)="goToPage(currentPage - 1)"
             title="Vorherige"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
           </button>
 
           <span class="page-number">{{ currentPage }}</span>
@@ -55,7 +77,16 @@ import { FormsModule } from '@angular/forms';
             (click)="goToPage(currentPage + 1)"
             title="Nächste"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
           </button>
           <button
             class="page-btn"
@@ -63,7 +94,17 @@ import { FormsModule } from '@angular/forms';
             (click)="goToPage(totalPages)"
             title="Letzte Seite"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <polyline points="13 17 18 12 13 7" />
+              <polyline points="6 17 11 12 6 7" />
+            </svg>
           </button>
         </div>
       </div>
@@ -100,7 +141,7 @@ import { FormsModule } from '@angular/forms';
         justify-content: center;
         min-width: 28px;
         padding: 2px 8px;
-        background: var(--accent-primary-light, rgba(99,102,241,0.08));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
         color: var(--accent-primary, #6366f1);
         border-radius: 8px;
         font-size: 0.8rem;
@@ -137,7 +178,8 @@ import { FormsModule } from '@angular/forms';
       .page-size-select:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.08));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.08));
       }
 
       .page-buttons {
@@ -164,7 +206,7 @@ import { FormsModule } from '@angular/forms';
         color: #fff;
         border-color: var(--accent-primary, #6366f1);
         transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
       }
       .page-btn:active:not(:disabled) {
         transform: translateY(0);
@@ -185,7 +227,7 @@ import { FormsModule } from '@angular/forms';
         border-radius: var(--radius-md, 10px);
         font-size: 0.82rem;
         font-weight: 700;
-        box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
       }
 
       @media (max-width: 600px) {
