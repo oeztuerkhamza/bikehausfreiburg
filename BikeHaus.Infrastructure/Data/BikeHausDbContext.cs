@@ -16,6 +16,8 @@ public class BikeHausDbContext : DbContext
     public DbSet<Document> Documents => Set<Document>();
     public DbSet<Signature> Signatures => Set<Signature>();
     public DbSet<ShopSettings> ShopSettings => Set<ShopSettings>();
+    public DbSet<AccessoryCatalog> AccessoryCatalog => Set<AccessoryCatalog>();
+    public DbSet<Reservation> Reservations => Set<Reservation>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -219,6 +221,32 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Oeffnungszeiten).HasMaxLength(500);
             entity.Property(e => e.Zusatzinfo).HasMaxLength(1000);
             entity.Ignore(e => e.FullAddress);
+        });
+
+        // ── Reservation Configuration ──
+        modelBuilder.Entity<Reservation>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ReservierungsNummer).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Anzahlung).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Notizen).HasMaxLength(1000);
+
+            entity.HasOne(e => e.Bicycle)
+                .WithOne(b => b.Reservation)
+                .HasForeignKey<Reservation>(e => e.BicycleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.Reservations)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Sale)
+                .WithOne()
+                .HasForeignKey<Reservation>(e => e.SaleId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.ReservierungsNummer).IsUnique();
         });
     }
 }

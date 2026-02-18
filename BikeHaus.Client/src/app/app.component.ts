@@ -52,6 +52,13 @@ import { TranslationService } from './services/translation.service';
             <span class="nav-icon">📤</span> {{ t.sales }}
           </a>
           <a
+            routerLink="/parts"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <span class="nav-icon">🔧</span> Zubehör
+          </a>
+          <a
             routerLink="/returns"
             routerLinkActive="active"
             (click)="closeSidebar()"

@@ -324,3 +324,96 @@ export interface Dashboard {
   recentPurchases: PurchaseList[];
   recentSales: SaleList[];
 }
+
+// ── AccessoryCatalog ──
+export interface AccessoryCatalog {
+  id: number;
+  bezeichnung: string;
+  standardpreis: number;
+  kategorie?: string;
+  aktiv: boolean;
+  createdAt: string;
+}
+
+export interface AccessoryCatalogList {
+  id: number;
+  bezeichnung: string;
+  standardpreis: number;
+  kategorie?: string;
+  aktiv: boolean;
+}
+
+export interface AccessoryCatalogCreate {
+  bezeichnung: string;
+  standardpreis: number;
+  kategorie?: string;
+}
+
+export interface AccessoryCatalogUpdate {
+  bezeichnung: string;
+  standardpreis: number;
+  kategorie?: string;
+  aktiv: boolean;
+}
+
+// ── Reservation ──
+export enum ReservationStatus {
+  Active = 'Active',
+  Converted = 'Converted',
+  Expired = 'Expired',
+  Cancelled = 'Cancelled',
+}
+
+export interface Reservation {
+  id: number;
+  reservierungsNummer: string;
+  bicycle: Bicycle;
+  customer: Customer;
+  reservierungsDatum: string;
+  ablaufDatum: string;
+  anzahlung?: number;
+  notizen?: string;
+  status: ReservationStatus;
+  saleId?: number;
+  createdAt: string;
+  isExpired: boolean;
+}
+
+export interface ReservationList {
+  id: number;
+  reservierungsNummer: string;
+  bikeInfo: string;
+  customerName: string;
+  reservierungsDatum: string;
+  ablaufDatum: string;
+  anzahlung?: number;
+  status: ReservationStatus;
+  isExpired: boolean;
+}
+
+export interface ReservationCreate {
+  bicycleId: number;
+  customer: CustomerCreate;
+  reservierungsDatum?: string;
+  reservierungsTage: number;
+  anzahlung?: number;
+  notizen?: string;
+}
+
+export interface ReservationUpdate {
+  ablaufDatum?: string;
+  anzahlung?: number;
+  notizen?: string;
+}
+
+export interface ReservationConvertToSale {
+  preis: number;
+  zahlungsart: PaymentMethod;
+  garantie: boolean;
+  garantieBedingungen?: string;
+  notizen?: string;
+  buyerSignature?: SignatureCreate;
+  sellerSignature?: SignatureCreate;
+  accessories?: SaleAccessoryCreate[];
+}
+

@@ -8,14 +8,22 @@ import {
   SaleUpdate,
   PaymentMethod,
   SaleAccessoryCreate,
+  AccessoryCatalogList,
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
+import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
 
 @Component({
   selector: 'app-sale-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AddressAutocompleteComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    AddressAutocompleteComponent,
+    AccessoryAutocompleteComponent,
+  ],
   template: `
     <div class="page">
       <div class="page-header">
@@ -46,7 +54,10 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="info-row" *ngIf="sale.bicycle.zustand">
                 <span class="label">Zustand:</span>
-                <span class="badge" [class.badge-new]="sale.bicycle.zustand === 'Neu'">
+                <span
+                  class="badge"
+                  [class.badge-new]="sale.bicycle.zustand === 'Neu'"
+                >
                   {{ sale.bicycle.zustand }}
                 </span>
               </div>
@@ -80,7 +91,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onBuyerAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint">Tippen Sie eine Adresse ein für Vorschläge</small>
+                <small class="hint"
+                  >Tippen Sie eine Adresse ein für Vorschläge</small
+                >
               </div>
               <div class="field">
                 <label>Straße</label>
@@ -164,6 +177,16 @@ import { AddressSuggestion } from '../../services/address.service';
           <!-- Accessories -->
           <div class="form-card">
             <h2>Zubehör</h2>
+
+            <!-- Autocomplete to add from catalog -->
+            <div class="field" style="margin-bottom: 16px;">
+              <label>Zubehör aus Katalog hinzufügen</label>
+              <app-accessory-autocomplete
+                placeholder="Zubehör suchen..."
+                (itemSelected)="addAccessoryFromCatalog($event)"
+              ></app-accessory-autocomplete>
+            </div>
+
             <div class="accessories-list" *ngIf="accessories.length > 0">
               <div
                 class="accessory-item"
@@ -201,7 +224,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   </div>
                   <div class="field accessory-total">
                     <label>Gesamt</label>
-                    <span class="total-value">{{ acc.preis * acc.menge | number: '1.2-2' }} €</span>
+                    <span class="total-value"
+                      >{{ acc.preis * acc.menge | number: '1.2-2' }} €</span
+                    >
                   </div>
                   <button
                     type="button"
@@ -225,7 +250,7 @@ import { AddressSuggestion } from '../../services/address.service';
               class="btn btn-outline btn-sm"
               (click)="addAccessory()"
             >
-              + Zubehör hinzufügen
+              + Manuell hinzufügen
             </button>
 
             <div class="grand-total" *ngIf="preis > 0">
@@ -239,7 +264,9 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="total-row grand">
                 <span>Gesamtbetrag:</span>
-                <strong>{{ preis + accessoriesTotal | number: '1.2-2' }} €</strong>
+                <strong
+                  >{{ preis + accessoriesTotal | number: '1.2-2' }} €</strong
+                >
               </div>
             </div>
           </div>
@@ -269,7 +296,8 @@ import { AddressSuggestion } from '../../services/address.service';
         align-items: center;
         margin-bottom: 20px;
       }
-      .loading, .error {
+      .loading,
+      .error {
         text-align: center;
         padding: 40px;
         font-size: 1.1rem;
@@ -482,14 +510,14 @@ export class SaleEditComponent implements OnInit {
   get accessoriesTotal(): number {
     return this.accessories.reduce(
       (sum, acc) => sum + acc.preis * acc.menge,
-      0
+      0,
     );
   }
 
   constructor(
     private saleService: SaleService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
@@ -559,6 +587,14 @@ export class SaleEditComponent implements OnInit {
     this.accessories.push({
       bezeichnung: '',
       preis: 0,
+      menge: 1,
+    });
+  }
+
+  addAccessoryFromCatalog(item: AccessoryCatalogList) {
+    this.accessories.push({
+      bezeichnung: item.bezeichnung,
+      preis: item.standardpreis,
       menge: 1,
     });
   }

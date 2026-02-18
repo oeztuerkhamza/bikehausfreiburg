@@ -111,6 +111,29 @@ export interface Translations {
   deleteError: string;
   from: string;
   to: string;
+
+  // Reservations
+  reservations: string;
+  newReservation: string;
+  reservationNumber: string;
+  reservationDate: string;
+  expirationDate: string;
+  reservationDays: string;
+  deposit: string;
+  notes: string;
+  convertToSale: string;
+  cancelReservation: string;
+  noReservations: string;
+  deleteConfirmReservation: string;
+  activeReservations: string;
+  expiredReservations: string;
+  cancelledReservations: string;
+  convertedReservations: string;
+  reserved: string;
+  active: string;
+  expired: string;
+  cancelled: string;
+  converted: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -223,6 +246,29 @@ const TRANSLATIONS: Record<Language, Translations> = {
     deleteError: 'Fehler beim Löschen',
     from: 'Von',
     to: 'Bis',
+
+    // Reservations
+    reservations: 'Reservierungen',
+    newReservation: 'Neue Reservierung',
+    reservationNumber: 'Reservierungsnummer',
+    reservationDate: 'Reservierungsdatum',
+    expirationDate: 'Ablaufdatum',
+    reservationDays: 'Reservierungstage',
+    deposit: 'Anzahlung',
+    notes: 'Notizen',
+    convertToSale: 'In Verkauf umwandeln',
+    cancelReservation: 'Reservierung stornieren',
+    noReservations: 'Keine Reservierungen vorhanden',
+    deleteConfirmReservation: 'Reservierung wirklich löschen?',
+    activeReservations: 'Aktive Reservierungen',
+    expiredReservations: 'Abgelaufene Reservierungen',
+    cancelledReservations: 'Stornierte Reservierungen',
+    convertedReservations: 'Umgewandelte Reservierungen',
+    reserved: 'Reserviert',
+    active: 'Aktiv',
+    expired: 'Abgelaufen',
+    cancelled: 'Storniert',
+    converted: 'Umgewandelt',
   },
   tr: {
     // Navigation
@@ -333,6 +379,29 @@ const TRANSLATIONS: Record<Language, Translations> = {
     deleteError: 'Silme hatası',
     from: 'Başlangıç',
     to: 'Bitiş',
+
+    // Reservations
+    reservations: 'Rezervasyonlar',
+    newReservation: 'Yeni Rezervasyon',
+    reservationNumber: 'Rezervasyon Numarası',
+    reservationDate: 'Rezervasyon Tarihi',
+    expirationDate: 'Bitiş Tarihi',
+    reservationDays: 'Rezervasyon Günleri',
+    deposit: 'Kapora',
+    notes: 'Notlar',
+    convertToSale: 'Satışa Dönüştür',
+    cancelReservation: 'Rezervasyonu İptal Et',
+    noReservations: 'Rezervasyon bulunamadı',
+    deleteConfirmReservation: 'Bu rezervasyonu silmek istediğinize emin misiniz?',
+    activeReservations: 'Aktif Rezervasyonlar',
+    expiredReservations: 'Süresi Dolan Rezervasyonlar',
+    cancelledReservations: 'İptal Edilen Rezervasyonlar',
+    convertedReservations: 'Satışa Dönüştürülen Rezervasyonlar',
+    reserved: 'Rezerve',
+    active: 'Aktif',
+    expired: 'Süresi Doldu',
+    cancelled: 'İptal Edildi',
+    converted: 'Dönüştürüldü',
   },
 };
 

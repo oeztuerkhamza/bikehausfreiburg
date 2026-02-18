@@ -8,6 +8,7 @@ import {
   PurchaseUpdate,
   PaymentMethod,
   BikeCondition,
+  BikeStatus,
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
@@ -351,6 +352,7 @@ export class PurchaseEditComponent implements OnInit {
     stokNo: '',
     fahrradtyp: '',
     beschreibung: '',
+    status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
   };
 
@@ -413,6 +415,7 @@ export class PurchaseEditComponent implements OnInit {
         stokNo: purchase.bicycle.stokNo || '',
         fahrradtyp: purchase.bicycle.fahrradtyp || '',
         beschreibung: purchase.bicycle.beschreibung || '',
+        status: (purchase.bicycle.status as BikeStatus) || BikeStatus.Available,
         zustand:
           (purchase.bicycle.zustand as BikeCondition) ||
           BikeCondition.Gebraucht,

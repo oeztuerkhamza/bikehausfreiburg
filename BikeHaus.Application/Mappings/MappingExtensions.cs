@@ -193,4 +193,32 @@ public static class MappingExtensions
         entity.Grund,
         entity.Erstattungsbetrag
     );
+
+    // ── Reservation Mappings ──
+    public static ReservationDto ToDto(this Reservation entity) => new(
+        entity.Id,
+        entity.ReservierungsNummer,
+        entity.Bicycle.ToDto(),
+        entity.Customer.ToDto(),
+        entity.ReservierungsDatum,
+        entity.AblaufDatum,
+        entity.Anzahlung,
+        entity.Notizen,
+        entity.Status,
+        entity.SaleId,
+        entity.CreatedAt,
+        entity.AblaufDatum < DateTime.UtcNow && entity.Status == Domain.Enums.ReservationStatus.Active
+    );
+
+    public static ReservationListDto ToListDto(this Reservation entity) => new(
+        entity.Id,
+        entity.ReservierungsNummer,
+        $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
+        entity.Customer.FullName,
+        entity.ReservierungsDatum,
+        entity.AblaufDatum,
+        entity.Anzahlung,
+        entity.Status,
+        entity.AblaufDatum < DateTime.UtcNow && entity.Status == Domain.Enums.ReservationStatus.Active
+    );
 }

@@ -1,0 +1,400 @@
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { ReservationService } from '../../services/reservation.service';
+import { BicycleService } from '../../services/bicycle.service';
+import { TranslationService } from '../../services/translation.service';
+import { ReservationCreate, Bicycle, CustomerCreate } from '../../models/models';
+import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
+import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
+import { AddressSuggestion } from '../../services/address.service';
+
+@Component({
+  selector: 'app-reservation-form',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    AddressAutocompleteComponent,
+    BikeSelectorComponent,
+  ],
+  template: `
+    <div class="page">
+      <div class="page-header">
+        <h1>{{ t.newReservation }}</h1>
+        <a routerLink="/reservations" class="btn btn-outline">{{ t.back }}</a>
+      </div>
+
+      <form (ngSubmit)="submit()" #f="ngForm">
+        <div class="form-sections">
+          <!-- Bicycle selection -->
+          <div class="form-card">
+            <h2>Fahrrad auswählen</h2>
+            <app-bike-selector
+              [bikes]="availableBikes"
+              [(selectedBike)]="selectedBike"
+              (bikeSelected)="onBikeSelected($event)"
+            ></app-bike-selector>
+          </div>
+
+          <!-- Customer info -->
+          <div class="form-card">
+            <h2>Kunde</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>{{ t.firstName }} *</label>
+                <input
+                  [(ngModel)]="customer.vorname"
+                  name="customerVorname"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.lastName }} *</label>
+                <input
+                  [(ngModel)]="customer.nachname"
+                  name="customerNachname"
+                  required
+                />
+              </div>
+              <div class="field full">
+                <label>Adresse suchen</label>
+                <app-address-autocomplete
+                  placeholder="z.B. Bissierstraße 16, Freiburg"
+                  (addressSelected)="onAddressSelected($event)"
+                ></app-address-autocomplete>
+                <small class="hint">Tippen Sie eine Adresse ein für Vorschläge</small>
+              </div>
+              <div class="field">
+                <label>{{ t.street }}</label>
+                <input [(ngModel)]="customer.strasse" name="customerStrasse" />
+              </div>
+              <div class="field">
+                <label>{{ t.houseNumber }}</label>
+                <input [(ngModel)]="customer.hausnummer" name="customerHausnr" />
+              </div>
+              <div class="field">
+                <label>{{ t.postalCode }}</label>
+                <input [(ngModel)]="customer.plz" name="customerPlz" />
+              </div>
+              <div class="field">
+                <label>{{ t.city }}</label>
+                <input [(ngModel)]="customer.stadt" name="customerStadt" />
+              </div>
+              <div class="field">
+                <label>{{ t.phone }}</label>
+                <input [(ngModel)]="customer.telefon" name="customerTel" />
+              </div>
+              <div class="field">
+                <label>{{ t.email }}</label>
+                <input
+                  type="email"
+                  [(ngModel)]="customer.email"
+                  name="customerEmail"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Reservation details -->
+          <div class="form-card">
+            <h2>Reservierungsdaten</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>{{ t.reservationDate }}</label>
+                <input
+                  type="date"
+                  [(ngModel)]="reservierungsDatum"
+                  name="reservierungsDatum"
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.reservationDays }} *</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="90"
+                  [(ngModel)]="reservierungsTage"
+                  name="reservierungsTage"
+                  required
+                />
+                <small class="hint">Ablaufdatum: {{ getExpirationDate() }}</small>
+              </div>
+              <div class="field">
+                <label>{{ t.deposit }} (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  [(ngModel)]="anzahlung"
+                  name="anzahlung"
+                />
+              </div>
+              <div class="field full">
+                <label>{{ t.notes }}</label>
+                <textarea
+                  [(ngModel)]="notizen"
+                  name="notizen"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit section -->
+        <div class="submit-section">
+          <button
+            type="submit"
+            class="btn btn-primary btn-large"
+            [disabled]="!canSubmit()"
+          >
+            {{ t.save }}
+          </button>
+        </div>
+      </form>
+    </div>
+  `,
+  styles: [`
+    .page {
+      padding: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-outline {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      background: var(--bg);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-large {
+      padding: 14px 32px;
+      font-size: 1rem;
+    }
+
+    .form-sections {
+      display: grid;
+      gap: 24px;
+    }
+
+    .form-card {
+      background: var(--card);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .form-card h2 {
+      margin: 0 0 20px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    input, select, textarea {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    textarea {
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .submit-section {
+      margin-top: 32px;
+      display: flex;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+      }
+    }
+  `]
+})
+export class ReservationFormComponent implements OnInit {
+  private reservationService = inject(ReservationService);
+  private bicycleService = inject(BicycleService);
+  private translationService = inject(TranslationService);
+  private router = inject(Router);
+
+  availableBikes: Bicycle[] = [];
+  selectedBike: Bicycle | null = null;
+
+  customer: CustomerCreate = {
+    vorname: '',
+    nachname: '',
+    strasse: '',
+    hausnummer: '',
+    plz: '',
+    stadt: '',
+    telefon: '',
+    email: ''
+  };
+
+  reservierungsDatum: string = new Date().toISOString().split('T')[0];
+  reservierungsTage: number = 7;
+  anzahlung: number | null = null;
+  notizen: string = '';
+
+  get t() {
+    return this.translationService.translations();
+  }
+
+  ngOnInit() {
+    this.loadAvailableBikes();
+  }
+
+  loadAvailableBikes() {
+    this.bicycleService.getAll().subscribe({
+      next: (bikes) => {
+        this.availableBikes = bikes.filter(b => b.status === 'Available');
+      },
+      error: (err) => console.error('Error loading bikes:', err)
+    });
+  }
+
+  onBikeSelected(bike: Bicycle) {
+    this.selectedBike = bike;
+  }
+
+  onAddressSelected(address: AddressSuggestion) {
+    this.customer.strasse = address.street || '';
+    this.customer.hausnummer = address.houseNumber || '';
+    this.customer.plz = address.postalCode || '';
+    this.customer.stadt = address.city || '';
+  }
+
+  getExpirationDate(): string {
+    const date = this.reservierungsDatum 
+      ? new Date(this.reservierungsDatum) 
+      : new Date();
+    date.setDate(date.getDate() + this.reservierungsTage);
+    return date.toLocaleDateString('de-DE');
+  }
+
+  canSubmit(): boolean {
+    return !!(
+      this.selectedBike &&
+      this.customer.vorname.trim() &&
+      this.customer.nachname.trim() &&
+      this.reservierungsTage > 0
+    );
+  }
+
+  submit() {
+    if (!this.canSubmit()) return;
+
+    const reservation: ReservationCreate = {
+      bicycleId: this.selectedBike!.id,
+      customer: this.customer,
+      reservierungsDatum: this.reservierungsDatum || undefined,
+      reservierungsTage: this.reservierungsTage,
+      anzahlung: this.anzahlung || undefined,
+      notizen: this.notizen || undefined
+    };
+
+    this.reservationService.create(reservation).subscribe({
+      next: (created) => {
+        console.log('Reservation created:', created);
+        this.router.navigate(['/reservations']);
+      },
+      error: (err) => {
+        console.error('Error creating reservation:', err);
+        alert(err.error?.error || 'Fehler beim Erstellen der Reservierung');
+      }
+    });
+  }
+}

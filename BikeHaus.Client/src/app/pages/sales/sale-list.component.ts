@@ -54,18 +54,7 @@ import { SaleList } from '../../models/models';
             <option value="year">{{ t.thisYear }}</option>
           </select>
         </div>
-        <div class="filter-group">
-          <select
-            [(ngModel)]="filterWarranty"
-            (ngModelChange)="applyFilters()"
-            class="filter-input"
-          >
-            <option value="">{{ t.warranty }}</option>
-            <option value="yes">{{ t.yes }}</option>
-            <option value="no">{{ t.no }}</option>
-          </select>
-        </div>
-        <span
+<span
           class="result-count"
           *ngIf="filteredSales.length !== sales.length"
         >
@@ -83,14 +72,13 @@ import { SaleList } from '../../models/models';
               <th>{{ t.price }}</th>
               <th>{{ t.paymentMethod }}</th>
               <th>{{ t.date }}</th>
-              <th>{{ t.warranty }}</th>
               <th>{{ t.actions }}</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="filteredSales.length === 0 && sales.length > 0">
               <td
-                colspan="8"
+                colspan="7"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 {{ t.noResults }}
@@ -98,7 +86,7 @@ import { SaleList } from '../../models/models';
             </tr>
             <tr *ngIf="sales.length === 0">
               <td
-                colspan="8"
+                colspan="7"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 {{ t.noSales }}
@@ -115,12 +103,13 @@ import { SaleList } from '../../models/models';
                 </span>
               </td>
               <td>{{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}</td>
-              <td>
-                <span [class]="s.garantie ? 'warranty-yes' : 'warranty-no'">
-                  {{ s.garantie ? t.yes : t.no }}
-                </span>
-              </td>
               <td class="actions">
+                <a
+                  class="btn btn-sm btn-outline"
+                  [routerLink]="['/sales/edit', s.id]"
+                >
+                  ✎
+                </a>
                 <button
                   class="btn btn-sm btn-outline"
                   (click)="downloadPdf(s.id, s.belegNummer)"
@@ -247,15 +236,7 @@ import { SaleList } from '../../models/models';
         background: #fff3e0;
         color: #e65100;
       }
-      .warranty-yes {
-        color: var(--accent-success);
-        font-weight: 500;
-      }
-      .warranty-no {
-        color: var(--text-muted);
-      }
-
-      @media (max-width: 640px) {
+@media (max-width: 640px) {
         .filter-bar {
           flex-direction: column;
         }
@@ -276,7 +257,6 @@ export class SaleListComponent implements OnInit {
   searchText = '';
   filterPayment = '';
   filterDate = '';
-  filterWarranty = '';
 
   get t() {
     return this.translationService.translations();
@@ -336,13 +316,6 @@ export class SaleListComponent implements OnInit {
             return true;
         }
       });
-    }
-
-    // Warranty filter
-    if (this.filterWarranty) {
-      result = result.filter((s) =>
-        this.filterWarranty === 'yes' ? s.garantie : !s.garantie,
-      );
     }
 
     this.filteredSales = result;

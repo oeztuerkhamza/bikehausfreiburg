@@ -11,6 +11,7 @@ import { SaleFormComponent } from './pages/sales/sale-form.component';
 import { SaleEditComponent } from './pages/sales/sale-edit.component';
 import { ReturnListComponent } from './pages/returns/return-list.component';
 import { ReturnFormComponent } from './pages/returns/return-form.component';
+import { PartsListComponent } from './pages/parts/parts-list.component';
 import { StatisticsComponent } from './pages/statistics/statistics.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 
@@ -27,6 +28,7 @@ export const routes: Routes = [
   { path: 'sales/edit/:id', component: SaleEditComponent },
   { path: 'returns', component: ReturnListComponent },
   { path: 'returns/new', component: ReturnFormComponent },
+  { path: 'parts', component: PartsListComponent },
   { path: 'statistics', component: StatisticsComponent },
   { path: 'settings', component: SettingsComponent },
   { path: '**', redirectTo: '' },

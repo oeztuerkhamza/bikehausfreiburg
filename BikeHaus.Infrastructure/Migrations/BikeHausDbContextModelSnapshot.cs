@@ -17,6 +17,36 @@ namespace BikeHaus.Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.AccessoryCatalog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Aktiv")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Bezeichnung")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Kategorie")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Standardpreis")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AccessoryCatalog");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Bicycle", b =>
                 {
                     b.Property<int>("Id")
@@ -236,6 +266,64 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.HasIndex("SellerId");
 
                     b.ToTable("Purchases");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.Reservation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("AblaufDatum")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("Anzahlung")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("BicycleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Notizen")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ReservierungsDatum")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReservierungsNummer")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("SaleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BicycleId")
+                        .IsUnique();
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ReservierungsNummer")
+                        .IsUnique();
+
+                    b.HasIndex("SaleId")
+                        .IsUnique();
+
+                    b.ToTable("Reservations");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.Return", b =>
@@ -598,6 +686,32 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Seller");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.Reservation", b =>
+                {
+                    b.HasOne("BikeHaus.Domain.Entities.Bicycle", "Bicycle")
+                        .WithOne("Reservation")
+                        .HasForeignKey("BikeHaus.Domain.Entities.Reservation", "BicycleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BikeHaus.Domain.Entities.Customer", "Customer")
+                        .WithMany("Reservations")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BikeHaus.Domain.Entities.Sale", "Sale")
+                        .WithOne()
+                        .HasForeignKey("BikeHaus.Domain.Entities.Reservation", "SaleId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Bicycle");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Sale");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Return", b =>
                 {
                     b.HasOne("BikeHaus.Domain.Entities.Bicycle", "Bicycle")
@@ -706,12 +820,16 @@ namespace BikeHaus.Infrastructure.Migrations
 
                     b.Navigation("Purchase");
 
+                    b.Navigation("Reservation");
+
                     b.Navigation("Sale");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.Customer", b =>
                 {
                     b.Navigation("Purchases");
+
+                    b.Navigation("Reservations");
 
                     b.Navigation("Returns");
 

@@ -99,6 +99,12 @@ import { PurchaseList } from '../../models/models';
               </td>
               <td>{{ p.kaufdatum | date: 'dd.MM.yyyy' }}</td>
               <td class="actions">
+                <a
+                  class="btn btn-sm btn-outline"
+                  [routerLink]="['/purchases/edit', p.id]"
+                >
+                  ✎
+                </a>
                 <button class="btn btn-sm btn-outline" (click)="downloadPdf(p)">
                   PDF
                 </button>

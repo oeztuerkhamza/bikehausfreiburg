@@ -12,10 +12,12 @@ import {
   PaymentMethod,
   SignatureCreate,
   SaleAccessoryCreate,
+  AccessoryCatalogList,
 } from '../../models/models';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
+import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
 
 @Component({
@@ -28,6 +30,7 @@ import { AddressSuggestion } from '../../services/address.service';
     SignaturePadComponent,
     AddressAutocompleteComponent,
     BikeSelectorComponent,
+    AccessoryAutocompleteComponent,
   ],
   template: `
     <div class="page">
@@ -181,6 +184,15 @@ import { AddressSuggestion } from '../../services/address.service';
               Verkaufsbeleg.
             </p>
 
+            <!-- Autocomplete to add from catalog -->
+            <div class="field" style="margin-bottom: 16px;">
+              <label>Zubehör aus Katalog hinzufügen</label>
+              <app-accessory-autocomplete
+                placeholder="Zubehör suchen..."
+                (itemSelected)="addAccessoryFromCatalog($event)"
+              ></app-accessory-autocomplete>
+            </div>
+
             <div class="accessories-list" *ngIf="accessories.length > 0">
               <div
                 class="accessory-item"
@@ -244,7 +256,7 @@ import { AddressSuggestion } from '../../services/address.service';
               class="btn btn-outline btn-sm"
               (click)="addAccessory()"
             >
-              + Zubehör hinzufügen
+              + Manuell hinzufügen
             </button>
 
             <div class="grand-total" *ngIf="preis > 0">
@@ -277,14 +289,20 @@ import { AddressSuggestion } from '../../services/address.service';
               <label>Name Käufer</label>
               <input [(ngModel)]="buyerSignerName" name="buyerSignerName" />
             </div>
-            <app-signature-pad
-              label="Unterschrift Verkäufer (Shop)"
-              [(ngModel)]="sellerSignatureData"
-              name="sellerSig"
-            ></app-signature-pad>
-            <div class="field" style="margin-top:8px;">
-              <label>Name Verkäufer</label>
-              <input [(ngModel)]="sellerSignerName" name="sellerSignerName" />
+            <!-- Seller signature from settings (read-only preview) -->
+            <div class="seller-signature-section">
+              <label>Unterschrift Verkäufer (Shop)</label>
+              <div *ngIf="sellerSignatureData" class="signature-preview">
+                <img [src]="sellerSignatureData" alt="Verkäufer Unterschrift" />
+              </div>
+              <div *ngIf="!sellerSignatureData" class="signature-missing">
+                ⚠️ Keine Unterschrift in den Einstellungen hinterlegt.
+                <a routerLink="/settings">Jetzt hinzufügen</a>
+              </div>
+              <div class="field" style="margin-top:8px;">
+                <label>Name Verkäufer</label>
+                <input [(ngModel)]="sellerSignerName" name="sellerSignerName" readonly />
+              </div>
             </div>
           </div>
         </div>
@@ -508,6 +526,40 @@ import { AddressSuggestion } from '../../services/address.service';
         margin-top: 8px;
         font-size: 1.1rem;
       }
+      .seller-signature-section {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #eee;
+      }
+      .seller-signature-section > label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #333;
+      }
+      .signature-preview {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 12px;
+        max-width: 300px;
+      }
+      .signature-preview img {
+        max-width: 100%;
+        max-height: 100px;
+      }
+      .signature-missing {
+        background: #fff3cd;
+        color: #856404;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+      }
+      .signature-missing a {
+        color: #0056b3;
+        text-decoration: underline;
+        margin-left: 8px;
+      }
     `,
   ],
 })
@@ -608,6 +660,14 @@ export class SaleFormComponent implements OnInit {
     this.accessories.push({
       bezeichnung: '',
       preis: 0,
+      menge: 1,
+    });
+  }
+
+  addAccessoryFromCatalog(item: AccessoryCatalogList) {
+    this.accessories.push({
+      bezeichnung: item.bezeichnung,
+      preis: item.standardpreis,
       menge: 1,
     });
   }

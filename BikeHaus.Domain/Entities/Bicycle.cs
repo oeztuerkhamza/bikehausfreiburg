@@ -18,5 +18,6 @@ public class Bicycle : BaseEntity
     // Navigation Properties
     public Purchase? Purchase { get; set; }
     public Sale? Sale { get; set; }
+    public Reservation? Reservation { get; set; }
     public ICollection<Document> Documents { get; set; } = new List<Document>();
 }
