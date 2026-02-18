@@ -35,7 +35,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             placeholder="Suche nach Beleg-Nr., Fahrrad, Kunde..."
             class="filter-input search-input"
           />
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
         </div>
         <div class="filter-group">
           <select
@@ -121,14 +121,19 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
   styles: [
     `
       .page {
-        max-width: 1100px;
+        max-width: 1280px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
       }
       .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
       }
       .header-actions {
         display: flex;
@@ -138,7 +143,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .filter-bar {
         display: flex;
         gap: 12px;
-        margin-bottom: 16px;
+        margin-bottom: 18px;
         flex-wrap: wrap;
         align-items: center;
       }
@@ -151,35 +156,37 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
       .filter-input {
         padding: 10px 14px;
-        border: 1px solid var(--border-color, #ddd);
-        border-radius: 6px;
-        font-size: 0.9rem;
-        background: var(--input-bg, #fff);
-        color: var(--text-color, #333);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.88rem;
+        background: var(--bg-card);
+        color: var(--text-primary);
+        transition: all 0.2s;
+        width: 100%;
+      }
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.08));
       }
       .search-input {
-        width: 100%;
-        padding-left: 36px;
+        padding-left: 40px;
       }
       .search-icon {
         position: absolute;
-        left: 12px;
+        left: 13px;
         top: 50%;
         transform: translateY(-50%);
-        opacity: 0.5;
-      }
-      .result-count {
-        font-size: 0.85rem;
-        color: var(--text-secondary, #666);
-        padding: 8px 12px;
-        background: var(--card-bg, #f5f5f5);
-        border-radius: 6px;
+        color: var(--text-muted);
+        pointer-events: none;
+        display: flex;
       }
       .table-wrap {
-        background: var(--card-bg, #fff);
-        border-radius: 10px;
+        background: var(--bg-card);
+        border-radius: var(--radius-lg, 14px);
+        border: 1px solid var(--border-light);
         overflow: auto;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        box-shadow: var(--shadow-sm);
       }
       table {
         width: 100%;
@@ -187,47 +194,60 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
       th {
         text-align: left;
-        padding: 12px 14px;
-        font-size: 0.8rem;
-        color: var(--text-secondary, #777);
-        border-bottom: 2px solid var(--border-color, #eee);
+        padding: 12px 16px;
+        background: var(--table-stripe, #f8fafc);
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border-light);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.05em;
       }
       td {
-        padding: 12px 14px;
-        border-bottom: 1px solid var(--border-color, #f0f0f0);
-        font-size: 0.92rem;
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--border-light);
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+      }
+      tr:hover td {
+        background: var(--table-hover, #f1f5f9);
+      }
+      .mono {
+        font-family: 'SF Mono', 'Consolas', monospace;
+        font-size: 0.82rem;
+        color: var(--accent-primary);
+        background: var(--accent-primary-light, rgba(99,102,241,0.08));
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 600;
       }
       .actions {
         display: flex;
         gap: 6px;
       }
-      .btn-sm {
-        padding: 4px 10px;
-        font-size: 0.8rem;
-      }
       .badge {
-        padding: 3px 8px;
-        border-radius: 4px;
+        display: inline-block;
+        padding: 4px 11px;
+        border-radius: 50px;
         font-size: 0.75rem;
-        font-weight: 500;
+        font-weight: 600;
+        letter-spacing: 0.02em;
       }
       .badge-defekt {
-        background: #fee2e2;
-        color: #dc2626;
+        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        color: var(--accent-danger, #ef4444);
       }
       .badge-garantie {
-        background: #fef3c7;
-        color: #d97706;
+        background: var(--accent-warning-light, rgba(245,158,11,0.08));
+        color: var(--accent-warning, #f59e0b);
       }
       .badge-nicht-erwartet {
-        background: #dbeafe;
-        color: #2563eb;
+        background: rgba(59,130,246,0.08);
+        color: #3b82f6;
       }
       .badge-sonstiges {
-        background: #e5e7eb;
-        color: #6b7280;
+        background: rgba(100,116,139,0.08);
+        color: #64748b;
       }
     `,
   ],

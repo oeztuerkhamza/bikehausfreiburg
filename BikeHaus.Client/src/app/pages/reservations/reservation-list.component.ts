@@ -40,7 +40,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             [placeholder]="t.searchPlaceholder"
             class="filter-input search-input"
           />
-          <span class="search-icon">🔍</span>
+          <span class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
         </div>
         <div class="filter-group">
           <select
@@ -187,10 +187,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
   styles: [
     `
       .page {
-        padding: 24px;
         max-width: 1400px;
         margin: 0 auto;
         overflow-x: hidden;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
       .page-header {
@@ -214,19 +218,10 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         white-space: nowrap;
       }
 
-      .page-header h1 {
-        font-size: 1.75rem;
-        font-weight: 600;
-        color: var(--text);
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
       .filter-bar {
         display: flex;
         gap: 12px;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
         flex-wrap: wrap;
         align-items: center;
       }
@@ -243,30 +238,33 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 
       .filter-input {
         padding: 10px 14px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        background: var(--card);
-        color: var(--text);
-        font-size: 0.9rem;
-        transition: border-color 0.2s;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card);
+        color: var(--text-primary);
+        font-size: 0.88rem;
+        transition: all 0.2s;
       }
 
       .filter-input:focus {
         outline: none;
-        border-color: var(--primary);
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.08));
       }
 
       .search-input {
         width: 100%;
-        padding-left: 36px;
+        padding-left: 40px;
       }
 
       .search-icon {
         position: absolute;
-        left: 12px;
+        left: 13px;
         top: 50%;
         transform: translateY(-50%);
-        opacity: 0.5;
+        color: var(--text-muted);
+        pointer-events: none;
+        display: flex;
       }
 
       select.filter-input {
@@ -274,19 +272,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         cursor: pointer;
       }
 
-      .result-count {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        padding: 8px 12px;
-        background: var(--bg);
-        border-radius: 6px;
-      }
-
       .table-wrap {
         overflow-x: auto;
-        background: var(--card);
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        background: var(--bg-card);
+        border-radius: var(--radius-lg, 14px);
+        border: 1px solid var(--border-light);
+        box-shadow: var(--shadow-sm);
       }
 
       table {
@@ -297,79 +288,88 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       th,
       td {
         text-align: left;
-        padding: 14px 16px;
-        border-bottom: 1px solid var(--border);
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-light);
       }
 
       th {
         font-weight: 600;
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.05em;
         color: var(--text-muted);
-        background: var(--bg);
+        background: var(--table-stripe, #f8fafc);
       }
 
       td {
-        font-size: 0.9rem;
-        color: var(--text);
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+      }
+      
+      tr:hover td {
+        background: var(--table-hover, #f1f5f9);
       }
 
       .mono {
-        font-family: monospace;
-        font-size: 0.85rem;
+        font-family: 'SF Mono', 'Consolas', monospace;
+        font-size: 0.82rem;
+        color: var(--accent-primary);
+        background: var(--accent-primary-light, rgba(99,102,241,0.08));
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 600;
       }
 
       .expired-row {
-        background: rgba(239, 68, 68, 0.05);
+        background: var(--accent-danger-light, rgba(239,68,68,0.04));
       }
 
       .expired-date {
-        color: #ef4444;
+        color: var(--accent-danger, #ef4444);
         font-weight: 600;
       }
 
       .expired-badge {
-        display: inline-block;
-        background: #ef4444;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent-danger, #ef4444);
         color: white;
         border-radius: 50%;
         width: 18px;
         height: 18px;
-        text-align: center;
-        font-size: 0.75rem;
-        font-weight: bold;
+        font-size: 0.7rem;
+        font-weight: 700;
         margin-left: 6px;
-        line-height: 18px;
       }
 
       .status-badge {
         display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
+        padding: 4px 11px;
+        border-radius: 50px;
         font-size: 0.75rem;
         font-weight: 600;
-        text-transform: uppercase;
+        letter-spacing: 0.02em;
       }
 
       .status-active {
-        background: rgba(34, 197, 94, 0.1);
-        color: #16a34a;
+        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        color: var(--accent-success, #10b981);
       }
 
       .status-expired {
-        background: rgba(239, 68, 68, 0.1);
-        color: #dc2626;
+        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        color: var(--accent-danger, #ef4444);
       }
 
       .status-cancelled {
-        background: rgba(156, 163, 175, 0.2);
-        color: #6b7280;
+        background: rgba(100,116,139,0.08);
+        color: #64748b;
       }
 
       .status-converted {
-        background: rgba(59, 130, 246, 0.1);
-        color: #2563eb;
+        background: rgba(59,130,246,0.08);
+        color: #3b82f6;
       }
 
       .actions-cell {
@@ -379,12 +379,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 
       .btn {
         padding: 8px 16px;
-        border-radius: 8px;
-        font-weight: 500;
-        font-size: 0.9rem;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
+        font-size: 0.85rem;
         cursor: pointer;
         border: none;
-        transition: all 0.2s;
+        transition: var(--transition-fast);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -392,50 +392,52 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
 
       .btn-primary {
-        background: var(--primary);
+        background: var(--accent-primary, #6366f1);
         color: white;
       }
 
       .btn-primary:hover {
-        opacity: 0.9;
+        background: var(--accent-primary-hover, #4f46e5);
+        box-shadow: var(--shadow-sm);
       }
 
       .btn-sm {
-        padding: 6px 10px;
-        font-size: 0.8rem;
-        background: var(--bg);
-        color: var(--text);
+        padding: 5px 10px;
+        font-size: 0.78rem;
+        background: var(--bg-secondary, #f1f5f9);
+        color: var(--text-primary);
+        border-radius: var(--radius-sm, 6px);
       }
 
       .btn-sm:hover {
-        background: var(--border);
+        background: var(--border-light, #e2e8f0);
       }
 
       .btn-danger {
-        background: #fee2e2;
-        color: #dc2626;
+        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        color: var(--accent-danger, #ef4444);
       }
 
       .btn-danger:hover {
-        background: #fecaca;
+        background: rgba(239,68,68,0.15);
       }
 
       .btn-warning {
-        background: #fef3c7;
-        color: #d97706;
+        background: rgba(245,158,11,0.08);
+        color: #f59e0b;
       }
 
       .btn-warning:hover {
-        background: #fde68a;
+        background: rgba(245,158,11,0.15);
       }
 
       .btn-success {
-        background: #dcfce7;
-        color: #16a34a;
+        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        color: var(--accent-success, #10b981);
       }
 
       .btn-success:hover {
-        background: #bbf7d0;
+        background: rgba(16,185,129,0.15);
       }
 
       /* Modal */
@@ -445,54 +447,62 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 1000;
+        animation: fadeIn 0.2s ease;
       }
 
       .modal {
-        background: var(--card);
-        border-radius: 12px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-xl, 20px);
         width: 90%;
-        max-width: 400px;
+        max-width: 420px;
         overflow: hidden;
+        box-shadow: var(--shadow-xl);
+        animation: scaleIn 0.25s ease;
       }
 
       .modal-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid var(--border);
+        padding: 18px 22px;
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
       }
 
       .modal-header h3 {
         margin: 0;
-        font-size: 1.1rem;
-        font-weight: 600;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
       }
 
       .modal-body {
-        padding: 20px;
+        padding: 22px;
       }
 
       .modal-body p {
         margin: 0 0 12px 0;
-        color: var(--text);
+        color: var(--text-secondary, #64748b);
+        font-size: 0.92rem;
+        line-height: 1.5;
       }
 
       .delete-info {
-        background: var(--bg);
-        padding: 12px;
-        border-radius: 8px;
-        font-size: 0.9rem;
+        background: var(--bg-secondary, #f8fafc);
+        padding: 12px 14px;
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.88rem;
+        border: 1.5px solid var(--border-light, #e2e8f0);
       }
 
       .modal-footer {
-        padding: 16px 20px;
-        border-top: 1px solid var(--border);
+        padding: 16px 22px;
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
         display: flex;
         justify-content: flex-end;
-        gap: 12px;
+        gap: 10px;
       }
     `,
   ],

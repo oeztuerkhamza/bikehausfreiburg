@@ -135,12 +135,19 @@ import { AddressSuggestion } from '../../services/address.service';
       .page {
         max-width: 1200px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
       }
+      @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
       .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 22px;
+      }
+      .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
       .header-actions {
         display: flex;
@@ -148,62 +155,83 @@ import { AddressSuggestion } from '../../services/address.service';
         align-items: center;
       }
       .form-card {
-        background: #fff;
-        border-radius: 10px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
         padding: 24px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
       .form-card h2 {
         margin-bottom: 16px;
         font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
       }
       .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        gap: 14px;
       }
       .field label {
         display: block;
-        font-size: 0.8rem;
-        color: #777;
-        margin-bottom: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
       .field input {
         width: 100%;
-        padding: 8px 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 0.95rem;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+      .field input:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
       }
       .field.full {
         grid-column: 1 / -1;
       }
       .field .hint {
         display: block;
-        font-size: 0.75rem;
-        color: #888;
+        font-size: 0.73rem;
+        color: var(--text-secondary, #94a3b8);
         margin-top: 4px;
       }
       .form-actions {
-        margin-top: 16px;
+        margin-top: 18px;
       }
       .filters {
-        margin-bottom: 16px;
+        margin-bottom: 18px;
       }
       .search-input {
         width: 100%;
         max-width: 400px;
         padding: 10px 14px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 0.95rem;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+      .search-input:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
       }
       .table-container {
-        background: #fff;
-        border-radius: 10px;
-        padding: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
         overflow-x: auto;
       }
       table {
@@ -212,17 +240,32 @@ import { AddressSuggestion } from '../../services/address.service';
       }
       th {
         text-align: left;
-        padding: 10px 8px;
-        border-bottom: 2px solid #eee;
-        font-size: 0.85rem;
-        color: #555;
+        padding: 10px 12px;
+        background: var(--table-stripe, #f8fafc);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-secondary, #64748b);
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
       }
       td {
-        padding: 10px 8px;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+      }
+      tr:hover td {
+        background: var(--table-hover, #f1f5f9);
       }
       .mono {
-        font-family: monospace;
+        font-family: 'SF Mono', 'Consolas', monospace;
+        font-size: 0.82rem;
+        color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99,102,241,0.08));
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 600;
       }
       .actions {
         display: flex;
@@ -230,8 +273,53 @@ import { AddressSuggestion } from '../../services/address.service';
       }
       .empty {
         text-align: center;
-        color: #999;
-        padding: 40px;
+        color: var(--text-secondary, #64748b);
+        padding: 48px 20px;
+        font-size: 0.95rem;
+      }
+      .btn {
+        padding: 8px 16px;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border: none;
+        transition: var(--transition-fast);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+      }
+      .btn-primary {
+        background: var(--accent-primary, #6366f1);
+        color: white;
+      }
+      .btn-primary:hover {
+        background: var(--accent-primary-hover, #4f46e5);
+        box-shadow: var(--shadow-sm);
+      }
+      .btn-outline {
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+      }
+      .btn-outline:hover {
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99,102,241,0.06));
+      }
+      .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.82rem;
+        border-radius: var(--radius-sm, 6px);
+      }
+      .btn-danger {
+        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        color: var(--accent-danger, #ef4444);
+        border: none;
+      }
+      .btn-danger:hover {
+        background: rgba(239,68,68,0.15);
       }
     `,
   ],

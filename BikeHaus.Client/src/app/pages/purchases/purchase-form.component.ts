@@ -363,12 +363,19 @@ import { forkJoin } from 'rxjs';
       .page {
         max-width: 900px;
         margin: 0 auto;
+        animation: fadeIn 0.4s ease;
       }
+      @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
       .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 22px;
+      }
+      .page-header h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-primary);
       }
       .form-sections {
         display: flex;
@@ -376,48 +383,61 @@ import { forkJoin } from 'rxjs';
         gap: 20px;
       }
       .form-card {
-        background: #fff;
-        border-radius: 10px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
         padding: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
       }
       .form-card h2 {
         font-size: 1.1rem;
+        font-weight: 700;
         margin-bottom: 16px;
-        color: #1a1a2e;
+        color: var(--text-primary);
       }
       .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        gap: 14px;
       }
       @media (max-width: 600px) {
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
+        .form-grid { grid-template-columns: 1fr; }
       }
       .field label {
         display: block;
-        font-size: 0.8rem;
-        color: #777;
-        margin-bottom: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
       }
       .field input,
       .field select,
       .field textarea {
         width: 100%;
-        padding: 8px 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 0.95rem;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.10));
       }
       .field.full {
         grid-column: 1 / -1;
       }
       .field .hint {
         display: block;
-        font-size: 0.75rem;
-        color: #888;
+        font-size: 0.73rem;
+        color: var(--text-secondary, #94a3b8);
         margin-top: 4px;
       }
       .form-actions {
@@ -430,7 +450,7 @@ import { forkJoin } from 'rxjs';
       }
       .hint-text {
         font-size: 0.85rem;
-        color: #666;
+        color: var(--text-secondary, #64748b);
         margin-bottom: 12px;
       }
       .upload-area {
@@ -441,7 +461,7 @@ import { forkJoin } from 'rxjs';
       }
       .file-count {
         font-size: 0.9rem;
-        color: #555;
+        color: var(--text-secondary, #64748b);
       }
       .preview-grid {
         display: grid;
@@ -451,9 +471,9 @@ import { forkJoin } from 'rxjs';
       .preview-item {
         position: relative;
         aspect-ratio: 1;
-        border-radius: 8px;
+        border-radius: var(--radius-md, 10px);
         overflow: hidden;
-        border: 1px solid #ddd;
+        border: 1.5px solid var(--border-light, #e2e8f0);
       }
       .preview-item img {
         width: 100%;
@@ -473,9 +493,10 @@ import { forkJoin } from 'rxjs';
         cursor: pointer;
         font-size: 16px;
         line-height: 1;
+        transition: var(--transition-fast);
       }
       .remove-btn:hover {
-        background: rgba(220, 0, 0, 0.8);
+        background: var(--accent-danger, #ef4444);
       }
     `,
   ],
