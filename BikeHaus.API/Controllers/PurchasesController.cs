@@ -24,6 +24,24 @@ public class PurchasesController : ControllerBase
         return Ok(purchases);
     }
 
+    [HttpGet("paginated")]
+    public async Task<ActionResult<PaginatedResult<PurchaseListDto>>> GetPaginated(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? status = null,
+        [FromQuery] string? search = null)
+    {
+        var paginationParams = new PaginationParams
+        {
+            Page = page,
+            PageSize = pageSize,
+            Status = status,
+            SearchTerm = search
+        };
+        var result = await _purchaseService.GetPaginatedAsync(paginationParams);
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<PurchaseDto>> GetById(int id)
     {

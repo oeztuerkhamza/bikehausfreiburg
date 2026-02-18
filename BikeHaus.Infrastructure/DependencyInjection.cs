@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<IShopSettingsService, BikeHaus.Application.Services.ShopSettingsService>();
         services.AddScoped<IAccessoryCatalogService, BikeHaus.Application.Services.AccessoryCatalogService>();
         services.AddScoped<IReservationService, BikeHaus.Application.Services.ReservationService>();
+        services.AddScoped<IAuthService, BikeHaus.Infrastructure.Services.AuthService>();
         services.AddScoped<IPdfService, PdfService>();
         services.AddScoped<IFileStorageService>(sp =>
         {

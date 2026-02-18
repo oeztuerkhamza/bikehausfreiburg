@@ -18,6 +18,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<ShopSettings> ShopSettings => Set<ShopSettings>();
     public DbSet<AccessoryCatalog> AccessoryCatalog => Set<AccessoryCatalog>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -247,6 +248,17 @@ public class BikeHausDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasIndex(e => e.ReservierungsNummer).IsUnique();
+        });
+
+        // ── User Configuration ──
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Username).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.PasswordHash).IsRequired();
+            entity.Property(e => e.DisplayName).HasMaxLength(200);
+            entity.Property(e => e.Role).IsRequired().HasMaxLength(50);
+            entity.HasIndex(e => e.Username).IsUnique();
         });
     }
 }

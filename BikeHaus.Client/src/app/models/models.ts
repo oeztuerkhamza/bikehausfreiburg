@@ -150,6 +150,7 @@ export interface Purchase {
 export interface PurchaseList {
   id: number;
   belegNummer: string;
+  stokNo?: string;
   bikeInfo: string;
   sellerName: string;
   preis: number;
@@ -218,6 +219,7 @@ export interface Sale {
 export interface SaleList {
   id: number;
   belegNummer: string;
+  stokNo?: string;
   bikeInfo: string;
   buyerName: string;
   preis: number;
@@ -292,6 +294,7 @@ export interface Return {
 export interface ReturnList {
   id: number;
   belegNummer: string;
+  stokNo?: string;
   bikeInfo: string;
   customerName: string;
   originalSaleBelegNummer: string;
@@ -383,6 +386,7 @@ export interface Reservation {
 export interface ReservationList {
   id: number;
   reservierungsNummer: string;
+  stokNo?: string;
   bikeInfo: string;
   customerName: string;
   reservierungsDatum: string;

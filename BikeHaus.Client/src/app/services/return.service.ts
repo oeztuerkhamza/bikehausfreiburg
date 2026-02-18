@@ -1,8 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Return, ReturnCreate, ReturnList } from '../models/models';
+import {
+  Return,
+  ReturnCreate,
+  ReturnList,
+  PaginatedResult,
+} from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class ReturnService {
@@ -12,6 +17,24 @@ export class ReturnService {
 
   getAll(): Observable<ReturnList[]> {
     return this.http.get<ReturnList[]>(this.url);
+  }
+
+  getPaginated(
+    page: number,
+    pageSize: number,
+    status?: string,
+    search?: string,
+  ): Observable<PaginatedResult<ReturnList>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (status) params = params.set('status', status);
+    if (search) params = params.set('search', search);
+
+    return this.http.get<PaginatedResult<ReturnList>>(`${this.url}/paginated`, {
+      params,
+    });
   }
 
   getById(id: number): Observable<Return> {

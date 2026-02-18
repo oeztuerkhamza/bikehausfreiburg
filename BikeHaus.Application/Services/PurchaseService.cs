@@ -32,6 +32,60 @@ public class PurchaseService : IPurchaseService
         return purchases.Select(p => p.ToListDto());
     }
 
+    public async Task<PaginatedResult<PurchaseListDto>> GetPaginatedAsync(PaginationParams paginationParams)
+    {
+        System.Linq.Expressions.Expression<Func<Purchase, bool>>? predicate = null;
+
+        // Apply payment method filter (using Status field)
+        if (!string.IsNullOrEmpty(paginationParams.Status))
+        {
+            if (Enum.TryParse<Domain.Enums.PaymentMethod>(paginationParams.Status, out var paymentMethod))
+            {
+                predicate = p => p.Zahlungsart == paymentMethod;
+            }
+        }
+
+        // Apply search filter
+        if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
+        {
+            var term = paginationParams.SearchTerm.ToLower();
+            if (predicate != null)
+            {
+                var prevPredicate = predicate;
+                predicate = p => prevPredicate.Compile()(p) &&
+                    (p.BelegNummer.ToLower().Contains(term) ||
+                     p.Bicycle.Marke.ToLower().Contains(term) ||
+                     p.Bicycle.Modell.ToLower().Contains(term) ||
+                     (p.Bicycle.StokNo != null && p.Bicycle.StokNo.ToLower().Contains(term)) ||
+                     p.Seller.Vorname.ToLower().Contains(term) ||
+                     p.Seller.Nachname.ToLower().Contains(term));
+            }
+            else
+            {
+                predicate = p =>
+                    p.BelegNummer.ToLower().Contains(term) ||
+                    p.Bicycle.Marke.ToLower().Contains(term) ||
+                    p.Bicycle.Modell.ToLower().Contains(term) ||
+                    (p.Bicycle.StokNo != null && p.Bicycle.StokNo.ToLower().Contains(term)) ||
+                    p.Seller.Vorname.ToLower().Contains(term) ||
+                    p.Seller.Nachname.ToLower().Contains(term);
+            }
+        }
+
+        var (items, totalCount) = await _purchaseRepository.GetPaginatedAsync(
+            paginationParams.Page,
+            paginationParams.PageSize,
+            predicate);
+
+        return new PaginatedResult<PurchaseListDto>
+        {
+            Items = items.Select(p => p.ToListDto()),
+            TotalCount = totalCount,
+            Page = paginationParams.Page,
+            PageSize = paginationParams.PageSize
+        };
+    }
+
     public async Task<PurchaseDto?> GetByIdAsync(int id)
     {
         var purchase = await _purchaseRepository.GetWithDetailsAsync(id);

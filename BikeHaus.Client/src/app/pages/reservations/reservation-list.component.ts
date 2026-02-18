@@ -5,12 +5,17 @@ import { RouterLink } from '@angular/router';
 import { ReservationService } from '../../services/reservation.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
-import { ReservationList, ReservationStatus } from '../../models/models';
+import {
+  ReservationList,
+  ReservationStatus,
+  PaginatedResult,
+} from '../../models/models';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-reservation-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, PaginationComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -31,7 +36,7 @@ import { ReservationList, ReservationStatus } from '../../models/models';
           <input
             type="text"
             [(ngModel)]="searchText"
-            (ngModelChange)="applyFilters()"
+            (input)="onSearch()"
             [placeholder]="t.searchPlaceholder"
             class="filter-input search-input"
           />
@@ -40,7 +45,7 @@ import { ReservationList, ReservationStatus } from '../../models/models';
         <div class="filter-group">
           <select
             [(ngModel)]="filterStatus"
-            (ngModelChange)="applyFilters()"
+            (change)="onFilterChange()"
             class="filter-input"
           >
             <option value="">Alle Status</option>
@@ -50,12 +55,6 @@ import { ReservationList, ReservationStatus } from '../../models/models';
             <option value="Converted">{{ t.converted }}</option>
           </select>
         </div>
-        <span
-          class="result-count"
-          *ngIf="filteredReservations.length !== reservations.length"
-        >
-          {{ filteredReservations.length }} / {{ reservations.length }}
-        </span>
       </div>
 
       <div class="table-wrap">
@@ -63,6 +62,7 @@ import { ReservationList, ReservationStatus } from '../../models/models';
           <thead>
             <tr>
               <th>{{ t.reservationNumber }}</th>
+              <th>Stok Nr.</th>
               <th>{{ t.bicycle }}</th>
               <th>{{ t.buyer }}</th>
               <th>{{ t.reservationDate }}</th>
@@ -73,31 +73,20 @@ import { ReservationList, ReservationStatus } from '../../models/models';
             </tr>
           </thead>
           <tbody>
-            <tr
-              *ngIf="
-                filteredReservations.length === 0 && reservations.length > 0
-              "
-            >
+            <tr *ngIf="paginatedResult?.items?.length === 0">
               <td
-                colspan="8"
-                style="text-align:center;padding:32px;color:var(--text-muted);"
-              >
-                {{ t.noResults }}
-              </td>
-            </tr>
-            <tr *ngIf="reservations.length === 0">
-              <td
-                colspan="8"
+                colspan="9"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 {{ t.noReservations }}
               </td>
             </tr>
             <tr
-              *ngFor="let r of filteredReservations"
+              *ngFor="let r of paginatedResult?.items"
               [class.expired-row]="r.isExpired && r.status === 'Active'"
             >
               <td class="mono">{{ r.reservierungsNummer }}</td>
+              <td class="mono">{{ r.stokNo || '–' }}</td>
               <td>{{ r.bikeInfo }}</td>
               <td>{{ r.customerName }}</td>
               <td>{{ r.reservierungsDatum | date: 'dd.MM.yyyy' }}</td>
@@ -153,6 +142,18 @@ import { ReservationList, ReservationStatus } from '../../models/models';
           </tbody>
         </table>
       </div>
+
+      <app-pagination
+        *ngIf="paginatedResult && paginatedResult.totalCount > 0"
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalCount]="paginatedResult.totalCount"
+        [totalPages]="paginatedResult.totalPages"
+        [hasPrevious]="paginatedResult.hasPrevious"
+        [hasNext]="paginatedResult.hasNext"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      ></app-pagination>
     </div>
 
     <!-- Delete Confirmation Modal -->
@@ -501,11 +502,11 @@ export class ReservationListComponent implements OnInit {
   private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
 
-  reservations: ReservationList[] = [];
-  filteredReservations: ReservationList[] = [];
-
+  paginatedResult: PaginatedResult<ReservationList> | null = null;
   searchText = '';
   filterStatus = '';
+  currentPage = 1;
+  pageSize = 20;
 
   showDeleteModal = false;
   selectedReservation: ReservationList | null = null;
@@ -519,35 +520,40 @@ export class ReservationListComponent implements OnInit {
   }
 
   loadReservations() {
-    this.reservationService.getAll().subscribe({
-      next: (data) => {
-        this.reservations = data;
-        this.applyFilters();
-      },
-      error: (err) => console.error('Error loading reservations:', err),
-    });
+    this.reservationService
+      .getPaginated(
+        this.currentPage,
+        this.pageSize,
+        this.filterStatus || undefined,
+        this.searchText || undefined,
+      )
+      .subscribe({
+        next: (data) => {
+          this.paginatedResult = data;
+        },
+        error: (err) => console.error('Error loading reservations:', err),
+      });
   }
 
-  applyFilters() {
-    let result = [...this.reservations];
+  onSearch() {
+    this.currentPage = 1;
+    this.loadReservations();
+  }
 
-    // Search filter
-    if (this.searchText.trim()) {
-      const search = this.searchText.toLowerCase();
-      result = result.filter(
-        (r) =>
-          r.reservierungsNummer.toLowerCase().includes(search) ||
-          r.bikeInfo.toLowerCase().includes(search) ||
-          r.customerName.toLowerCase().includes(search),
-      );
-    }
+  onFilterChange() {
+    this.currentPage = 1;
+    this.loadReservations();
+  }
 
-    // Status filter
-    if (this.filterStatus) {
-      result = result.filter((r) => r.status === this.filterStatus);
-    }
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.loadReservations();
+  }
 
-    this.filteredReservations = result;
+  onPageSizeChange(size: number) {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.loadReservations();
   }
 
   getStatusClass(status: ReservationStatus): string {
@@ -582,7 +588,7 @@ export class ReservationListComponent implements OnInit {
 
   exportExcel() {
     this.excelExportService.exportToExcel(
-      this.filteredReservations,
+      this.paginatedResult?.items || [],
       'Reservierungen',
       [
         { key: 'reservierungsNummer', header: 'Res.-Nr.' },

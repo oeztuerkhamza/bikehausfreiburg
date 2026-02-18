@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ReturnService } from '../../services/return.service';
 import { ExcelExportService } from '../../services/excel-export.service';
-import { ReturnList, ReturnReason } from '../../models/models';
+import { ReturnList, ReturnReason, PaginatedResult } from '../../models/models';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-return-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, PaginationComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -30,7 +31,7 @@ import { ReturnList, ReturnReason } from '../../models/models';
           <input
             type="text"
             [(ngModel)]="searchText"
-            (ngModelChange)="applyFilters()"
+            (input)="onSearch()"
             placeholder="Suche nach Beleg-Nr., Fahrrad, Kunde..."
             class="filter-input search-input"
           />
@@ -39,7 +40,7 @@ import { ReturnList, ReturnReason } from '../../models/models';
         <div class="filter-group">
           <select
             [(ngModel)]="filterReason"
-            (ngModelChange)="applyFilters()"
+            (change)="onFilterChange()"
             class="filter-input"
           >
             <option value="">Alle Gründe</option>
@@ -49,25 +50,6 @@ import { ReturnList, ReturnReason } from '../../models/models';
             <option value="Sonstiges">Sonstiges</option>
           </select>
         </div>
-        <div class="filter-group">
-          <select
-            [(ngModel)]="filterDate"
-            (ngModelChange)="applyFilters()"
-            class="filter-input"
-          >
-            <option value="">Alle Daten</option>
-            <option value="today">Heute</option>
-            <option value="week">Diese Woche</option>
-            <option value="month">Diesen Monat</option>
-            <option value="year">Dieses Jahr</option>
-          </select>
-        </div>
-        <span
-          class="result-count"
-          *ngIf="filteredReturns.length !== returns.length"
-        >
-          {{ filteredReturns.length }} / {{ returns.length }}
-        </span>
       </div>
 
       <div class="table-wrap">
@@ -75,6 +57,7 @@ import { ReturnList, ReturnReason } from '../../models/models';
           <thead>
             <tr>
               <th>Beleg-Nr.</th>
+              <th>Stok Nr.</th>
               <th>Org. Verkauf</th>
               <th>Fahrrad</th>
               <th>Kunde</th>
@@ -85,16 +68,17 @@ import { ReturnList, ReturnReason } from '../../models/models';
             </tr>
           </thead>
           <tbody>
-            <tr *ngIf="filteredReturns.length === 0">
+            <tr *ngIf="paginatedResult?.items?.length === 0">
               <td
-                colspan="8"
+                colspan="9"
                 style="text-align:center;padding:32px;color:#999;"
               >
                 Keine Rückgaben gefunden
               </td>
             </tr>
-            <tr *ngFor="let r of filteredReturns">
+            <tr *ngFor="let r of paginatedResult?.items">
               <td>{{ r.belegNummer }}</td>
+              <td class="mono">{{ r.stokNo || '–' }}</td>
               <td>{{ r.originalSaleBelegNummer }}</td>
               <td>{{ r.bikeInfo }}</td>
               <td>{{ r.customerName }}</td>
@@ -119,6 +103,18 @@ import { ReturnList, ReturnReason } from '../../models/models';
             </tr>
           </tbody>
         </table>
+
+        <app-pagination
+          *ngIf="paginatedResult && paginatedResult.totalCount > 0"
+          [currentPage]="currentPage"
+          [pageSize]="pageSize"
+          [totalCount]="paginatedResult.totalCount"
+          [totalPages]="paginatedResult.totalPages"
+          [hasPrevious]="paginatedResult.hasPrevious"
+          [hasNext]="paginatedResult.hasNext"
+          (pageChange)="onPageChange($event)"
+          (pageSizeChange)="onPageSizeChange($event)"
+        ></app-pagination>
       </div>
     </div>
   `,
@@ -237,11 +233,11 @@ import { ReturnList, ReturnReason } from '../../models/models';
   ],
 })
 export class ReturnListComponent implements OnInit {
-  returns: ReturnList[] = [];
-  filteredReturns: ReturnList[] = [];
+  paginatedResult: PaginatedResult<ReturnList> | null = null;
   searchText = '';
   filterReason = '';
-  filterDate = '';
+  currentPage = 1;
+  pageSize = 20;
 
   constructor(
     private returnService: ReturnService,
@@ -253,60 +249,37 @@ export class ReturnListComponent implements OnInit {
   }
 
   load() {
-    this.returnService.getAll().subscribe((r) => {
-      this.returns = r;
-      this.applyFilters();
-    });
+    this.returnService
+      .getPaginated(
+        this.currentPage,
+        this.pageSize,
+        this.filterReason || undefined,
+        this.searchText || undefined,
+      )
+      .subscribe((data) => {
+        this.paginatedResult = data;
+      });
   }
 
-  applyFilters() {
-    let result = [...this.returns];
+  onSearch() {
+    this.currentPage = 1;
+    this.load();
+  }
 
-    // Search filter
-    if (this.searchText.trim()) {
-      const search = this.searchText.toLowerCase();
-      result = result.filter(
-        (r) =>
-          r.belegNummer.toLowerCase().includes(search) ||
-          r.originalSaleBelegNummer.toLowerCase().includes(search) ||
-          r.bikeInfo.toLowerCase().includes(search) ||
-          r.customerName.toLowerCase().includes(search),
-      );
-    }
+  onFilterChange() {
+    this.currentPage = 1;
+    this.load();
+  }
 
-    // Reason filter
-    if (this.filterReason) {
-      result = result.filter((r) => r.grund === this.filterReason);
-    }
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.load();
+  }
 
-    // Date filter
-    if (this.filterDate) {
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      result = result.filter((r) => {
-        const date = new Date(r.rueckgabedatum);
-        switch (this.filterDate) {
-          case 'today':
-            return date >= today;
-          case 'week':
-            const weekAgo = new Date(today);
-            weekAgo.setDate(weekAgo.getDate() - 7);
-            return date >= weekAgo;
-          case 'month':
-            const monthAgo = new Date(today);
-            monthAgo.setMonth(monthAgo.getMonth() - 1);
-            return date >= monthAgo;
-          case 'year':
-            const yearAgo = new Date(today);
-            yearAgo.setFullYear(yearAgo.getFullYear() - 1);
-            return date >= yearAgo;
-          default:
-            return true;
-        }
-      });
-    }
-
-    this.filteredReturns = result;
+  onPageSizeChange(size: number) {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.load();
   }
 
   getReasonLabel(reason: ReturnReason): string {
@@ -341,15 +314,19 @@ export class ReturnListComponent implements OnInit {
   }
 
   exportExcel() {
-    this.excelExportService.exportToExcel(this.filteredReturns, 'Rueckgaben', [
-      { key: 'belegNummer', header: 'Beleg-Nr.' },
-      { key: 'originalSaleBelegNummer', header: 'Org. Verkauf' },
-      { key: 'bikeInfo', header: 'Fahrrad' },
-      { key: 'customerName', header: 'Kunde' },
-      { key: 'rueckgabedatum', header: 'Datum' },
-      { key: 'grund', header: 'Grund' },
-      { key: 'erstattungsbetrag', header: 'Erstattung (€)' },
-    ]);
+    this.excelExportService.exportToExcel(
+      this.paginatedResult?.items || [],
+      'Rueckgaben',
+      [
+        { key: 'belegNummer', header: 'Beleg-Nr.' },
+        { key: 'originalSaleBelegNummer', header: 'Org. Verkauf' },
+        { key: 'bikeInfo', header: 'Fahrrad' },
+        { key: 'customerName', header: 'Kunde' },
+        { key: 'rueckgabedatum', header: 'Datum' },
+        { key: 'grund', header: 'Grund' },
+        { key: 'erstattungsbetrag', header: 'Erstattung (€)' },
+      ],
+    );
   }
 
   delete(id: number) {

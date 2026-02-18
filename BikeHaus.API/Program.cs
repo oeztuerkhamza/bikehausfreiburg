@@ -1,6 +1,10 @@
+using System.Text;
+using BikeHaus.Application.Interfaces;
 using BikeHaus.Infrastructure;
 using BikeHaus.Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +33,24 @@ builder.Services.AddCors(options =>
     });
 });
 
+// JWT Authentication
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "BikeHausFreiburgSuperSecretKey2024!@#$%^&*()";
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "BikeHausFreiburg",
+            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "BikeHausApp",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+builder.Services.AddAuthorization();
+
 // Infrastructure DI
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -45,6 +67,7 @@ app.UseCors("AllowAngular");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Ensure uploads directory exists
@@ -60,6 +83,10 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<BikeHausDbContext>();
     db.Database.Migrate();
+
+    // Seed default admin user
+    var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+    await authService.SeedDefaultUserAsync();
 }
 
-app.Run();
+await app.RunAsync();

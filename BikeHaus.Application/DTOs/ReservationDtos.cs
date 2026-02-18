@@ -29,6 +29,7 @@ public record ReservationCreateDto(
 public record ReservationListDto(
     int Id,
     string ReservierungsNummer,
+    string? StokNo,
     string BikeInfo,
     string CustomerName,
     DateTime ReservierungsDatum,

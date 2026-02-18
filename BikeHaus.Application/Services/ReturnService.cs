@@ -32,6 +32,62 @@ public class ReturnService : IReturnService
         return returns.Select(r => r.ToListDto());
     }
 
+    public async Task<PaginatedResult<ReturnListDto>> GetPaginatedAsync(PaginationParams paginationParams)
+    {
+        System.Linq.Expressions.Expression<Func<Return, bool>>? predicate = null;
+
+        // Apply reason filter (using Status field)
+        if (!string.IsNullOrEmpty(paginationParams.Status))
+        {
+            if (Enum.TryParse<Domain.Enums.ReturnReason>(paginationParams.Status, out var reason))
+            {
+                predicate = r => r.Grund == reason;
+            }
+        }
+
+        // Apply search filter
+        if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
+        {
+            var term = paginationParams.SearchTerm.ToLower();
+            if (predicate != null)
+            {
+                var prevPredicate = predicate;
+                predicate = r => prevPredicate.Compile()(r) &&
+                    (r.BelegNummer.ToLower().Contains(term) ||
+                     r.Bicycle.Marke.ToLower().Contains(term) ||
+                     r.Bicycle.Modell.ToLower().Contains(term) ||
+                     (r.Bicycle.StokNo != null && r.Bicycle.StokNo.ToLower().Contains(term)) ||
+                     r.Customer.Vorname.ToLower().Contains(term) ||
+                     r.Customer.Nachname.ToLower().Contains(term) ||
+                     r.Sale.BelegNummer.ToLower().Contains(term));
+            }
+            else
+            {
+                predicate = r =>
+                    r.BelegNummer.ToLower().Contains(term) ||
+                    r.Bicycle.Marke.ToLower().Contains(term) ||
+                    r.Bicycle.Modell.ToLower().Contains(term) ||
+                    (r.Bicycle.StokNo != null && r.Bicycle.StokNo.ToLower().Contains(term)) ||
+                    r.Customer.Vorname.ToLower().Contains(term) ||
+                    r.Customer.Nachname.ToLower().Contains(term) ||
+                    r.Sale.BelegNummer.ToLower().Contains(term);
+            }
+        }
+
+        var (items, totalCount) = await _returnRepository.GetPaginatedAsync(
+            paginationParams.Page,
+            paginationParams.PageSize,
+            predicate);
+
+        return new PaginatedResult<ReturnListDto>
+        {
+            Items = items.Select(r => r.ToListDto()),
+            TotalCount = totalCount,
+            Page = paginationParams.Page,
+            PageSize = paginationParams.PageSize
+        };
+    }
+
     public async Task<ReturnDto?> GetByIdAsync(int id)
     {
         var returnEntity = await _returnRepository.GetWithDetailsAsync(id);

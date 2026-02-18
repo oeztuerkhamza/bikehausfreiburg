@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Sale, SaleCreate, SaleList, SaleUpdate } from '../models/models';
+import {
+  Sale,
+  SaleCreate,
+  SaleList,
+  SaleUpdate,
+  PaginatedResult,
+} from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class SaleService {
@@ -12,6 +18,24 @@ export class SaleService {
 
   getAll(): Observable<SaleList[]> {
     return this.http.get<SaleList[]>(this.url);
+  }
+
+  getPaginated(
+    page: number,
+    pageSize: number,
+    status?: string,
+    search?: string,
+  ): Observable<PaginatedResult<SaleList>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (status) params = params.set('status', status);
+    if (search) params = params.set('search', search);
+
+    return this.http.get<PaginatedResult<SaleList>>(`${this.url}/paginated`, {
+      params,
+    });
   }
 
   getById(id: number): Observable<Sale> {

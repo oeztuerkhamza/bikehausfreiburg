@@ -79,6 +79,7 @@ public static class MappingExtensions
     public static PurchaseListDto ToListDto(this Purchase entity) => new(
         entity.Id,
         entity.BelegNummer,
+        entity.Bicycle.StokNo,
         $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
         entity.Seller.FullName,
         entity.Preis,
@@ -111,6 +112,7 @@ public static class MappingExtensions
     public static SaleListDto ToListDto(this Sale entity) => new(
         entity.Id,
         entity.BelegNummer,
+        entity.Bicycle.StokNo,
         $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
         entity.Buyer.FullName,
         entity.Preis,
@@ -186,6 +188,7 @@ public static class MappingExtensions
     public static ReturnListDto ToListDto(this Return entity) => new(
         entity.Id,
         entity.BelegNummer,
+        entity.Bicycle.StokNo,
         $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
         entity.Customer.FullName,
         entity.Sale.BelegNummer,
@@ -213,6 +216,7 @@ public static class MappingExtensions
     public static ReservationListDto ToListDto(this Reservation entity) => new(
         entity.Id,
         entity.ReservierungsNummer,
+        entity.Bicycle.StokNo,
         $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
         entity.Customer.FullName,
         entity.ReservierungsDatum,

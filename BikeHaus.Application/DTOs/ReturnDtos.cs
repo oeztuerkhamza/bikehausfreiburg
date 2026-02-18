@@ -35,6 +35,7 @@ public record ReturnCreateDto(
 public record ReturnListDto(
     int Id,
     string BelegNummer,
+    string? StokNo,
     string BikeInfo,
     string CustomerName,
     string OriginalSaleBelegNummer,

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
@@ -9,6 +9,7 @@ import {
   ReservationUpdate,
   ReservationConvertToSale,
   Sale,
+  PaginatedResult,
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +20,27 @@ export class ReservationService {
 
   getAll(): Observable<ReservationList[]> {
     return this.http.get<ReservationList[]>(this.url);
+  }
+
+  getPaginated(
+    page: number,
+    pageSize: number,
+    status?: string,
+    search?: string,
+  ): Observable<PaginatedResult<ReservationList>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (status) params = params.set('status', status);
+    if (search) params = params.set('search', search);
+
+    return this.http.get<PaginatedResult<ReservationList>>(
+      `${this.url}/paginated`,
+      {
+        params,
+      },
+    );
   }
 
   getById(id: number): Observable<Reservation> {

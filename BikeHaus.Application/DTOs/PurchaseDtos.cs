@@ -31,6 +31,7 @@ public record PurchaseCreateDto(
 public record PurchaseListDto(
     int Id,
     string BelegNummer,
+    string? StokNo,
     string BikeInfo,
     string SellerName,
     decimal Preis,

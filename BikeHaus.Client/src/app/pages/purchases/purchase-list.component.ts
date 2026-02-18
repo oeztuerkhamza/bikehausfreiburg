@@ -5,12 +5,13 @@ import { RouterLink } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
-import { PurchaseList } from '../../models/models';
+import { PurchaseList, PaginatedResult } from '../../models/models';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
   selector: 'app-purchase-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, PaginationComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -31,7 +32,7 @@ import { PurchaseList } from '../../models/models';
           <input
             type="text"
             [(ngModel)]="searchText"
-            (ngModelChange)="applyFilters()"
+            (input)="onSearch()"
             [placeholder]="t.searchPlaceholder"
             class="filter-input search-input"
           />
@@ -40,7 +41,7 @@ import { PurchaseList } from '../../models/models';
         <div class="filter-group">
           <select
             [(ngModel)]="filterPayment"
-            (ngModelChange)="applyFilters()"
+            (change)="onFilterChange()"
             class="filter-input"
           >
             <option value="">{{ t.allPaymentMethods }}</option>
@@ -49,25 +50,6 @@ import { PurchaseList } from '../../models/models';
             <option value="PayPal">{{ t.paypal }}</option>
           </select>
         </div>
-        <div class="filter-group">
-          <select
-            [(ngModel)]="filterDate"
-            (ngModelChange)="applyFilters()"
-            class="filter-input"
-          >
-            <option value="">{{ t.allDates }}</option>
-            <option value="today">{{ t.today }}</option>
-            <option value="week">{{ t.thisWeek }}</option>
-            <option value="month">{{ t.thisMonth }}</option>
-            <option value="year">{{ t.thisYear }}</option>
-          </select>
-        </div>
-        <span
-          class="result-count"
-          *ngIf="filteredPurchases.length !== purchases.length"
-        >
-          {{ filteredPurchases.length }} / {{ purchases.length }}
-        </span>
       </div>
 
       <div class="table-container">
@@ -75,6 +57,7 @@ import { PurchaseList } from '../../models/models';
           <thead>
             <tr>
               <th>{{ t.receiptNo }}</th>
+              <th>Stok Nr.</th>
               <th>{{ t.bicycle }}</th>
               <th>{{ t.seller }}</th>
               <th>{{ t.price }}</th>
@@ -85,8 +68,9 @@ import { PurchaseList } from '../../models/models';
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of filteredPurchases">
+            <tr *ngFor="let p of paginatedResult?.items">
               <td class="mono">{{ p.belegNummer }}</td>
+              <td class="mono">{{ p.stokNo || '–' }}</td>
               <td>{{ p.bikeInfo }}</td>
               <td>{{ p.sellerName }}</td>
               <td>{{ p.preis | number: '1.2-2' }} €</td>
@@ -124,15 +108,21 @@ import { PurchaseList } from '../../models/models';
             </tr>
           </tbody>
         </table>
-        <p
-          *ngIf="filteredPurchases.length === 0 && purchases.length > 0"
-          class="empty"
-        >
-          {{ t.noResults }}
-        </p>
-        <p *ngIf="purchases.length === 0" class="empty">
+        <p *ngIf="paginatedResult?.items?.length === 0" class="empty">
           {{ t.noPurchases }}
         </p>
+
+        <app-pagination
+          *ngIf="paginatedResult && paginatedResult.totalCount > 0"
+          [currentPage]="currentPage"
+          [pageSize]="pageSize"
+          [totalCount]="paginatedResult.totalCount"
+          [totalPages]="paginatedResult.totalPages"
+          [hasPrevious]="paginatedResult.hasPrevious"
+          [hasNext]="paginatedResult.hasNext"
+          (pageChange)="onPageChange($event)"
+          (pageSizeChange)="onPageSizeChange($event)"
+        ></app-pagination>
       </div>
     </div>
   `,
@@ -277,12 +267,11 @@ export class PurchaseListComponent implements OnInit {
   private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
 
-  purchases: PurchaseList[] = [];
-  filteredPurchases: PurchaseList[] = [];
-
+  paginatedResult: PaginatedResult<PurchaseList> | null = null;
   searchText = '';
   filterPayment = '';
-  filterDate = '';
+  currentPage = 1;
+  pageSize = 20;
 
   get t() {
     return this.translationService.translations();
@@ -293,58 +282,37 @@ export class PurchaseListComponent implements OnInit {
   }
 
   load() {
-    this.purchaseService.getAll().subscribe((data) => {
-      this.purchases = data;
-      this.applyFilters();
-    });
+    this.purchaseService
+      .getPaginated(
+        this.currentPage,
+        this.pageSize,
+        this.filterPayment || undefined,
+        this.searchText || undefined,
+      )
+      .subscribe((data) => {
+        this.paginatedResult = data;
+      });
   }
 
-  applyFilters(): void {
-    let result = [...this.purchases];
+  onSearch() {
+    this.currentPage = 1;
+    this.load();
+  }
 
-    // Text search
-    if (this.searchText.trim()) {
-      const q = this.searchText.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.belegNummer?.toLowerCase().includes(q) ||
-          p.bikeInfo?.toLowerCase().includes(q) ||
-          p.sellerName?.toLowerCase().includes(q),
-      );
-    }
+  onFilterChange() {
+    this.currentPage = 1;
+    this.load();
+  }
 
-    // Payment method filter
-    if (this.filterPayment) {
-      result = result.filter((p) => p.zahlungsart === this.filterPayment);
-    }
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.load();
+  }
 
-    // Date filter
-    if (this.filterDate) {
-      const now = new Date();
-      result = result.filter((p) => {
-        const d = new Date(p.kaufdatum);
-        switch (this.filterDate) {
-          case 'today':
-            return d.toDateString() === now.toDateString();
-          case 'week': {
-            const weekAgo = new Date(now);
-            weekAgo.setDate(weekAgo.getDate() - 7);
-            return d >= weekAgo;
-          }
-          case 'month':
-            return (
-              d.getMonth() === now.getMonth() &&
-              d.getFullYear() === now.getFullYear()
-            );
-          case 'year':
-            return d.getFullYear() === now.getFullYear();
-          default:
-            return true;
-        }
-      });
-    }
-
-    this.filteredPurchases = result;
+  onPageSizeChange(size: number) {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.load();
   }
 
   getPaymentLabel(method: string): string {
@@ -372,15 +340,19 @@ export class PurchaseListComponent implements OnInit {
   }
 
   exportExcel() {
-    this.excelExportService.exportToExcel(this.filteredPurchases, 'Ankauefe', [
-      { key: 'belegNummer', header: 'Beleg-Nr.' },
-      { key: 'bikeInfo', header: 'Fahrrad' },
-      { key: 'sellerName', header: 'Verkäufer' },
-      { key: 'preis', header: 'Preis (€)' },
-      { key: 'verkaufspreisVorschlag', header: 'VK-Preis (€)' },
-      { key: 'zahlungsart', header: 'Zahlungsart' },
-      { key: 'kaufdatum', header: 'Kaufdatum' },
-    ]);
+    this.excelExportService.exportToExcel(
+      this.paginatedResult?.items || [],
+      'Ankauefe',
+      [
+        { key: 'belegNummer', header: 'Beleg-Nr.' },
+        { key: 'bikeInfo', header: 'Fahrrad' },
+        { key: 'sellerName', header: 'Verkäufer' },
+        { key: 'preis', header: 'Preis (€)' },
+        { key: 'verkaufspreisVorschlag', header: 'VK-Preis (€)' },
+        { key: 'zahlungsart', header: 'Zahlungsart' },
+        { key: 'kaufdatum', header: 'Kaufdatum' },
+      ],
+    );
   }
 
   deletePurchase(p: PurchaseList) {

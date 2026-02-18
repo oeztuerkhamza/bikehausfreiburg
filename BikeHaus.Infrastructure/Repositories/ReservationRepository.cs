@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
@@ -51,5 +52,28 @@ public class ReservationRepository : Repository<Reservation>, IReservationReposi
             .Include(r => r.Customer)
             .OrderByDescending(r => r.ReservierungsDatum)
             .ToListAsync();
+    }
+
+    public async Task<(IEnumerable<Reservation> Items, int TotalCount)> GetPaginatedAsync(
+        int page, int pageSize,
+        Expression<Func<Reservation, bool>>? predicate = null)
+    {
+        var query = _dbSet
+            .Include(r => r.Bicycle)
+            .Include(r => r.Customer)
+            .AsQueryable();
+
+        if (predicate != null)
+            query = query.Where(predicate);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(r => r.ReservierungsDatum)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
     }
 }

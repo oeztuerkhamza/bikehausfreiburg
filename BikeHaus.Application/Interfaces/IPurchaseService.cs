@@ -5,6 +5,7 @@ namespace BikeHaus.Application.Interfaces;
 public interface IPurchaseService
 {
     Task<IEnumerable<PurchaseListDto>> GetAllAsync();
+    Task<PaginatedResult<PurchaseListDto>> GetPaginatedAsync(PaginationParams paginationParams);
     Task<PurchaseDto?> GetByIdAsync(int id);
     Task<PurchaseDto?> GetByBicycleIdAsync(int bicycleId);
     Task<PurchaseDto> CreateAsync(PurchaseCreateDto dto);

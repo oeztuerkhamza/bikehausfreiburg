@@ -32,6 +32,60 @@ public class SaleService : ISaleService
         return sales.Select(s => s.ToListDto());
     }
 
+    public async Task<PaginatedResult<SaleListDto>> GetPaginatedAsync(PaginationParams paginationParams)
+    {
+        System.Linq.Expressions.Expression<Func<Sale, bool>>? predicate = null;
+
+        // Apply payment method filter (using Status field)
+        if (!string.IsNullOrEmpty(paginationParams.Status))
+        {
+            if (Enum.TryParse<Domain.Enums.PaymentMethod>(paginationParams.Status, out var paymentMethod))
+            {
+                predicate = s => s.Zahlungsart == paymentMethod;
+            }
+        }
+
+        // Apply search filter
+        if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
+        {
+            var term = paginationParams.SearchTerm.ToLower();
+            if (predicate != null)
+            {
+                var prevPredicate = predicate;
+                predicate = s => prevPredicate.Compile()(s) &&
+                    (s.BelegNummer.ToLower().Contains(term) ||
+                     s.Bicycle.Marke.ToLower().Contains(term) ||
+                     s.Bicycle.Modell.ToLower().Contains(term) ||
+                     (s.Bicycle.StokNo != null && s.Bicycle.StokNo.ToLower().Contains(term)) ||
+                     s.Buyer.Vorname.ToLower().Contains(term) ||
+                     s.Buyer.Nachname.ToLower().Contains(term));
+            }
+            else
+            {
+                predicate = s =>
+                    s.BelegNummer.ToLower().Contains(term) ||
+                    s.Bicycle.Marke.ToLower().Contains(term) ||
+                    s.Bicycle.Modell.ToLower().Contains(term) ||
+                    (s.Bicycle.StokNo != null && s.Bicycle.StokNo.ToLower().Contains(term)) ||
+                    s.Buyer.Vorname.ToLower().Contains(term) ||
+                    s.Buyer.Nachname.ToLower().Contains(term);
+            }
+        }
+
+        var (items, totalCount) = await _saleRepository.GetPaginatedAsync(
+            paginationParams.Page,
+            paginationParams.PageSize,
+            predicate);
+
+        return new PaginatedResult<SaleListDto>
+        {
+            Items = items.Select(s => s.ToListDto()),
+            TotalCount = totalCount,
+            Page = paginationParams.Page,
+            PageSize = paginationParams.PageSize
+        };
+    }
+
     public async Task<SaleDto?> GetByIdAsync(int id)
     {
         var sale = await _saleRepository.GetWithDetailsAsync(id);

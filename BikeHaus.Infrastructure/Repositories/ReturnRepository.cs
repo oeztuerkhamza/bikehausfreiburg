@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Interfaces;
 using BikeHaus.Infrastructure.Data;
@@ -66,5 +67,29 @@ public class ReturnRepository : Repository<Return>, IReturnRepository
             .Include(r => r.Sale)
             .OrderByDescending(r => r.Rueckgabedatum)
             .ToListAsync();
+    }
+
+    public async Task<(IEnumerable<Return> Items, int TotalCount)> GetPaginatedAsync(
+        int page, int pageSize,
+        Expression<Func<Return, bool>>? predicate = null)
+    {
+        var query = _dbSet
+            .Include(r => r.Bicycle)
+            .Include(r => r.Customer)
+            .Include(r => r.Sale)
+            .AsQueryable();
+
+        if (predicate != null)
+            query = query.Where(predicate);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(r => r.Rueckgabedatum)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
     }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
@@ -7,6 +7,7 @@ import {
   PurchaseCreate,
   PurchaseList,
   PurchaseUpdate,
+  PaginatedResult,
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -17,6 +18,27 @@ export class PurchaseService {
 
   getAll(): Observable<PurchaseList[]> {
     return this.http.get<PurchaseList[]>(this.url);
+  }
+
+  getPaginated(
+    page: number,
+    pageSize: number,
+    status?: string,
+    search?: string,
+  ): Observable<PaginatedResult<PurchaseList>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (status) params = params.set('status', status);
+    if (search) params = params.set('search', search);
+
+    return this.http.get<PaginatedResult<PurchaseList>>(
+      `${this.url}/paginated`,
+      {
+        params,
+      },
+    );
   }
 
   getById(id: number): Observable<Purchase> {

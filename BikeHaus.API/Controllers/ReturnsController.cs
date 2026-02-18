@@ -24,6 +24,24 @@ public class ReturnsController : ControllerBase
         return Ok(returns);
     }
 
+    [HttpGet("paginated")]
+    public async Task<ActionResult<PaginatedResult<ReturnListDto>>> GetPaginated(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? status = null,
+        [FromQuery] string? search = null)
+    {
+        var paginationParams = new PaginationParams
+        {
+            Page = page,
+            PageSize = pageSize,
+            Status = status,
+            SearchTerm = search
+        };
+        var result = await _returnService.GetPaginatedAsync(paginationParams);
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ReturnDto>> GetById(int id)
     {

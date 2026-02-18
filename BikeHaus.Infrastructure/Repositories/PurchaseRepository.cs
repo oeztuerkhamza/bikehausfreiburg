@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Interfaces;
 using BikeHaus.Infrastructure.Data;
@@ -57,5 +58,29 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
             .Include(p => p.Sale)
             .OrderByDescending(p => p.Kaufdatum)
             .ToListAsync();
+    }
+
+    public async Task<(IEnumerable<Purchase> Items, int TotalCount)> GetPaginatedAsync(
+        int page, int pageSize,
+        Expression<Func<Purchase, bool>>? predicate = null)
+    {
+        var query = _dbSet
+            .Include(p => p.Bicycle)
+            .Include(p => p.Seller)
+            .Include(p => p.Sale)
+            .AsQueryable();
+
+        if (predicate != null)
+            query = query.Where(predicate);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(p => p.Kaufdatum)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
     }
 }

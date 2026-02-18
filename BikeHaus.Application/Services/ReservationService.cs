@@ -32,6 +32,60 @@ public class ReservationService : IReservationService
         return reservations.Select(r => r.ToListDto());
     }
 
+    public async Task<PaginatedResult<ReservationListDto>> GetPaginatedAsync(PaginationParams paginationParams)
+    {
+        System.Linq.Expressions.Expression<Func<Reservation, bool>>? predicate = null;
+
+        // Apply status filter
+        if (!string.IsNullOrEmpty(paginationParams.Status))
+        {
+            if (Enum.TryParse<ReservationStatus>(paginationParams.Status, out var status))
+            {
+                predicate = r => r.Status == status;
+            }
+        }
+
+        // Apply search filter
+        if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
+        {
+            var term = paginationParams.SearchTerm.ToLower();
+            if (predicate != null)
+            {
+                var prevPredicate = predicate;
+                predicate = r => prevPredicate.Compile()(r) &&
+                    (r.ReservierungsNummer.ToLower().Contains(term) ||
+                     r.Bicycle.Marke.ToLower().Contains(term) ||
+                     r.Bicycle.Modell.ToLower().Contains(term) ||
+                     (r.Bicycle.StokNo != null && r.Bicycle.StokNo.ToLower().Contains(term)) ||
+                     r.Customer.Vorname.ToLower().Contains(term) ||
+                     r.Customer.Nachname.ToLower().Contains(term));
+            }
+            else
+            {
+                predicate = r =>
+                    r.ReservierungsNummer.ToLower().Contains(term) ||
+                    r.Bicycle.Marke.ToLower().Contains(term) ||
+                    r.Bicycle.Modell.ToLower().Contains(term) ||
+                    (r.Bicycle.StokNo != null && r.Bicycle.StokNo.ToLower().Contains(term)) ||
+                    r.Customer.Vorname.ToLower().Contains(term) ||
+                    r.Customer.Nachname.ToLower().Contains(term);
+            }
+        }
+
+        var (items, totalCount) = await _reservationRepository.GetPaginatedAsync(
+            paginationParams.Page,
+            paginationParams.PageSize,
+            predicate);
+
+        return new PaginatedResult<ReservationListDto>
+        {
+            Items = items.Select(r => r.ToListDto()),
+            TotalCount = totalCount,
+            Page = paginationParams.Page,
+            PageSize = paginationParams.PageSize
+        };
+    }
+
     public async Task<ReservationDto?> GetByIdAsync(int id)
     {
         var reservation = await _reservationRepository.GetWithDetailsAsync(id);

@@ -17,26 +17,81 @@ import { ReservationConvertComponent } from './pages/reservations/reservation-co
 import { PartsListComponent } from './pages/parts/parts-list.component';
 import { StatisticsComponent } from './pages/statistics/statistics.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { LoginComponent } from './pages/login/login.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', component: DashboardComponent },
-  { path: 'bicycles', component: BicycleListComponent },
-  { path: 'bicycles/:id', component: BicycleDetailComponent },
-  { path: 'customers', component: CustomerListComponent },
-  { path: 'purchases', component: PurchaseListComponent },
-  { path: 'purchases/new', component: PurchaseFormComponent },
-  { path: 'purchases/edit/:id', component: PurchaseEditComponent },
-  { path: 'sales', component: SaleListComponent },
-  { path: 'sales/new', component: SaleFormComponent },
-  { path: 'sales/edit/:id', component: SaleEditComponent },
-  { path: 'reservations', component: ReservationListComponent },
-  { path: 'reservations/new', component: ReservationFormComponent },
-  { path: 'reservations/:id', component: ReservationListComponent },
-  { path: 'reservations/:id/convert', component: ReservationConvertComponent },
-  { path: 'returns', component: ReturnListComponent },
-  { path: 'returns/new', component: ReturnFormComponent },
-  { path: 'parts', component: PartsListComponent },
-  { path: 'statistics', component: StatisticsComponent },
-  { path: 'settings', component: SettingsComponent },
+  { path: 'login', component: LoginComponent },
+  { path: '', component: DashboardComponent, canActivate: [authGuard] },
+  {
+    path: 'bicycles',
+    component: BicycleListComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'bicycles/:id',
+    component: BicycleDetailComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'customers',
+    component: CustomerListComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'purchases',
+    component: PurchaseListComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'purchases/new',
+    component: PurchaseFormComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'purchases/edit/:id',
+    component: PurchaseEditComponent,
+    canActivate: [authGuard],
+  },
+  { path: 'sales', component: SaleListComponent, canActivate: [authGuard] },
+  { path: 'sales/new', component: SaleFormComponent, canActivate: [authGuard] },
+  {
+    path: 'sales/edit/:id',
+    component: SaleEditComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reservations',
+    component: ReservationListComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reservations/new',
+    component: ReservationFormComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reservations/:id',
+    component: ReservationListComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reservations/:id/convert',
+    component: ReservationConvertComponent,
+    canActivate: [authGuard],
+  },
+  { path: 'returns', component: ReturnListComponent, canActivate: [authGuard] },
+  {
+    path: 'returns/new',
+    component: ReturnFormComponent,
+    canActivate: [authGuard],
+  },
+  { path: 'parts', component: PartsListComponent, canActivate: [authGuard] },
+  {
+    path: 'statistics',
+    component: StatisticsComponent,
+    canActivate: [authGuard],
+  },
+  { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' },
 ];

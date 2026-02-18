@@ -49,6 +49,7 @@ public class BicycleService : IBicycleService
                     (b.Marke.ToLower().Contains(term) ||
                      b.Modell.ToLower().Contains(term) ||
                      b.Rahmennummer.ToLower().Contains(term) ||
+                     (b.StokNo != null && b.StokNo.ToLower().Contains(term)) ||
                      (b.Farbe != null && b.Farbe.ToLower().Contains(term)));
             }
             else
@@ -57,6 +58,7 @@ public class BicycleService : IBicycleService
                     b.Marke.ToLower().Contains(term) ||
                     b.Modell.ToLower().Contains(term) ||
                     b.Rahmennummer.ToLower().Contains(term) ||
+                    (b.StokNo != null && b.StokNo.ToLower().Contains(term)) ||
                     (b.Farbe != null && b.Farbe.ToLower().Contains(term));
             }
         }
@@ -152,6 +154,7 @@ public class BicycleService : IBicycleService
             b.Marke.Contains(searchTerm) ||
             b.Modell.Contains(searchTerm) ||
             b.Rahmennummer.Contains(searchTerm) ||
+            (b.StokNo != null && b.StokNo.Contains(searchTerm)) ||
             (b.Farbe != null && b.Farbe.Contains(searchTerm)));
         return bicycles.Select(b => b.ToDto());
     }
