@@ -1,9 +1,10 @@
-import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
 import { ExcelExportService } from '../../services/excel-export.service';
+import { TranslationService } from '../../services/translation.service';
 import { Bicycle, BikeStatus, PaginatedResult } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
@@ -14,13 +15,13 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Fahrräder</h1>
+        <h1>{{ t.bicycles }}</h1>
         <div class="header-actions">
           <button class="btn btn-outline" (click)="exportExcel()">
-            📥 Excel Export
+            📥 {{ t.excelExport }}
           </button>
           <a routerLink="/purchases/new" class="btn btn-primary"
-            >+ Neuer Ankauf</a
+            >+ {{ t.newPurchase }}</a
           >
         </div>
       </div>
@@ -28,7 +29,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       <div class="filters">
         <input
           type="text"
-          placeholder="Suche nach Marke, Modell, Rahmennummer..."
+          [placeholder]="t.searchBicyclePlaceholder"
           [(ngModel)]="searchTerm"
           (input)="onSearch()"
           class="search-input"
@@ -38,10 +39,10 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           (change)="onFilterChange()"
           class="filter-select"
         >
-          <option value="">Alle Status</option>
-          <option value="Available">Verfügbar</option>
-          <option value="Sold">Verkauft</option>
-          <option value="Reserved">Reserviert</option>
+          <option value="">{{ t.allStatus }}</option>
+          <option value="Available">{{ t.available }}</option>
+          <option value="Sold">{{ t.sold }}</option>
+          <option value="Reserved">{{ t.reserved }}</option>
         </select>
       </div>
 
@@ -49,13 +50,13 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         <table>
           <thead>
             <tr>
-              <th>Nr.</th>
-              <th>Marke</th>
-              <th>Modell</th>
-              <th>Rahmennummer</th>
-              <th>Zustand</th>
-              <th>Status</th>
-              <th class="actions-col">Aktionen</th>
+              <th>{{ t.numberShort }}</th>
+              <th>{{ t.brand }}</th>
+              <th>{{ t.model }}</th>
+              <th>{{ t.frameNumber }}</th>
+              <th>{{ t.condition }}</th>
+              <th>{{ t.status }}</th>
+              <th class="actions-col">{{ t.actions }}</th>
             </tr>
           </thead>
           <tbody>
@@ -91,7 +92,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 >
                   <button class="popup-item" (click)="goToDetail(b)">
                     <span class="popup-icon">🔍</span>
-                    Details
+                    {{ t.details }}
                   </button>
                   <button
                     *ngIf="b.status === 'Available'"
@@ -99,7 +100,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                     (click)="goToSale(b)"
                   >
                     <span class="popup-icon">💰</span>
-                    Verkaufen
+                    {{ t.sell }}
                   </button>
                   <button
                     *ngIf="b.status === 'Available'"
@@ -107,7 +108,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                     (click)="goToReservation(b)"
                   >
                     <span class="popup-icon">📋</span>
-                    Reservieren
+                    {{ t.reserve }}
                   </button>
                   <div class="popup-divider"></div>
                   <button
@@ -115,7 +116,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                     (click)="deleteBicycle(b)"
                   >
                     <span class="popup-icon">🗑️</span>
-                    Löschen
+                    {{ t.delete }}
                   </button>
                 </div>
               </td>
@@ -123,7 +124,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           </tbody>
         </table>
         <p *ngIf="paginatedResult?.items?.length === 0" class="empty">
-          Keine Fahrräder gefunden
+          {{ t.noBicyclesFound }}
         </p>
 
         <app-pagination
@@ -401,12 +402,17 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
   ],
 })
 export class BicycleListComponent implements OnInit {
+  private translationService = inject(TranslationService);
   paginatedResult: PaginatedResult<Bicycle> | null = null;
   searchTerm = '';
   statusFilter = '';
   activeMenuId: number | null = null;
   currentPage = 1;
   pageSize = 20;
+
+  get t() {
+    return this.translationService.translations();
+  }
 
   constructor(
     private bicycleService: BicycleService,
@@ -463,9 +469,9 @@ export class BicycleListComponent implements OnInit {
 
   statusLabel(s: BikeStatus): string {
     const map: Record<string, string> = {
-      Available: 'Verfügbar',
-      Sold: 'Verkauft',
-      Reserved: 'Reserviert',
+      Available: this.t.available,
+      Sold: this.t.sold,
+      Reserved: this.t.reserved,
     };
     return map[s] || s;
   }
@@ -513,11 +519,11 @@ export class BicycleListComponent implements OnInit {
 
   deleteBicycle(b: Bicycle) {
     this.closeMenu();
-    if (confirm(`Fahrrad "${b.marke} ${b.modell}" wirklich löschen?`)) {
+    if (confirm(this.t.deleteConfirmBicycle)) {
       this.bicycleService.delete(b.id).subscribe({
         next: () => this.load(),
         error: (err) => {
-          const msg = err.error?.error || 'Fehler beim Löschen des Fahrrads.';
+          const msg = err.error?.error || this.t.deleteError;
           alert(msg);
         },
       });

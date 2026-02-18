@@ -36,17 +36,17 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       <!-- Reservation Info -->
       <div class="reservation-info">
         <div class="info-card">
-          <h3>🚲 Fahrrad</h3>
+          <h3>🚲 {{ t.bicycleLabel }}</h3>
           <p class="bike-info">
             {{ reservation.bicycle.marke }} {{ reservation.bicycle.modell }}
           </p>
           <p class="detail">
-            Rahmennummer: {{ reservation.bicycle.rahmennummer }}
+            {{ t.frameNumber }}: {{ reservation.bicycle.rahmennummer }}
           </p>
-          <p class="detail">Farbe: {{ reservation.bicycle.farbe }}</p>
+          <p class="detail">{{ t.color }}: {{ reservation.bicycle.farbe }}</p>
         </div>
         <div class="info-card">
-          <h3>👤 Kunde</h3>
+          <h3>👤 {{ t.customerLabel }}</h3>
           <p class="customer-info">
             {{ reservation.customer.vorname }}
             {{ reservation.customer.nachname }}
@@ -60,13 +60,13 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
           </p>
         </div>
         <div class="info-card">
-          <h3>📋 Reservierung</h3>
-          <p class="detail">Nr.: {{ reservation.reservierungsNummer }}</p>
+          <h3>📋 {{ t.reservationLabel }}</h3>
+          <p class="detail">{{ t.numberShort }} {{ reservation.reservierungsNummer }}</p>
           <p class="detail">
-            Vom: {{ reservation.reservierungsDatum | date: 'dd.MM.yyyy' }}
+            {{ t.from }}: {{ reservation.reservierungsDatum | date: 'dd.MM.yyyy' }}
           </p>
           <p class="detail" *ngIf="reservation.anzahlung">
-            Anzahlung: {{ reservation.anzahlung | number: '1.2-2' }} €
+            {{ t.deposit }}: {{ reservation.anzahlung | number: '1.2-2' }} €
           </p>
         </div>
       </div>
@@ -75,7 +75,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
         <div class="form-sections">
           <!-- Sale details -->
           <div class="form-card">
-            <h2>Verkaufsdaten</h2>
+            <h2>{{ t.saleData }}</h2>
             <div class="form-grid">
               <div class="field">
                 <label>{{ t.price }} (€) *</label>
@@ -87,8 +87,8 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                   required
                 />
                 <small class="hint" *ngIf="reservation.anzahlung">
-                  (Anzahlung: {{ reservation.anzahlung | number: '1.2-2' }} € -
-                  Restbetrag: {{ getRestbetrag() | number: '1.2-2' }} €)
+                  ({{ t.depositColon }} {{ reservation.anzahlung | number: '1.2-2' }} € -
+                  {{ t.remainingAmount }} {{ getRestbetrag() | number: '1.2-2' }} €)
                 </small>
               </div>
               <div class="field">
@@ -108,15 +108,15 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                   >
                     {{
                       reservation.bicycle.zustand === 'Neu'
-                        ? '2 Jahre Gewährleistung'
-                        : '3 Monate Garantie'
+                        ? t.warrantyNew
+                        : t.warrantyUsed
                     }}
                   </span>
                   <small>
                     ({{
                       reservation.bicycle.zustand === 'Neu'
-                        ? 'Neues Fahrrad'
-                        : 'Gebrauchtes Fahrrad'
+                        ? t.newBicycle
+                        : t.usedBicycle
                     }})
                   </small>
                 </div>
@@ -127,7 +127,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                   [(ngModel)]="notizen"
                   name="notizen"
                   rows="2"
-                  placeholder="Verkaufsnotizen..."
+                  [placeholder]="t.salesNotes"
                 ></textarea>
               </div>
             </div>
@@ -135,13 +135,13 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
 
           <!-- Accessories -->
           <div class="form-card">
-            <h2>Zubehör (Optional)</h2>
-            <p class="hint">Fügen Sie verkaufte Zubehörteile hinzu.</p>
+            <h2>{{ t.accessoriesOptional }}</h2>
+            <p class="hint">{{ t.accessoriesHint }}</p>
 
             <div class="field" style="margin-bottom: 16px;">
-              <label>Zubehör aus Katalog hinzufügen</label>
+              <label>{{ t.addAccessoryFromCatalog }}</label>
               <app-accessory-autocomplete
-                placeholder="Zubehör suchen..."
+                [placeholder]="t.searchAccessory"
                 (itemSelected)="addAccessoryFromCatalog($event)"
               ></app-accessory-autocomplete>
             </div>
@@ -154,14 +154,14 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                 <input
                   [(ngModel)]="acc.bezeichnung"
                   [name]="'accName' + i"
-                  placeholder="Bezeichnung"
+                  [placeholder]="t.designation"
                   class="acc-name"
                 />
                 <input
                   type="number"
                   [(ngModel)]="acc.preis"
                   [name]="'accPreis' + i"
-                  placeholder="Preis"
+                  [placeholder]="t.price"
                   step="0.01"
                   class="acc-price"
                 />
@@ -185,17 +185,17 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
             </div>
 
             <button type="button" class="btn btn-sm" (click)="addAccessory()">
-              + Manuell hinzufügen
+              + {{ t.addManually }}
             </button>
           </div>
 
           <!-- Signatures -->
           <div class="form-card">
-            <h2>Unterschriften</h2>
+            <h2>{{ t.signatures }}</h2>
             <div class="signatures-grid">
               <div class="signature-section">
                 <h3>
-                  Käufer ({{ reservation.customer.vorname }}
+                  {{ t.buyer }} ({{ reservation.customer.vorname }}
                   {{ reservation.customer.nachname }})
                 </h3>
                 <app-signature-pad
@@ -204,19 +204,17 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                 ></app-signature-pad>
               </div>
               <div class="signature-section seller-signature-section">
-                <h3>Verkäufer (Bike Haus Freiburg)</h3>
+                <h3>{{ t.seller }} (Bike Haus Freiburg)</h3>
                 <div *ngIf="sellerSignatureData" class="signature-preview">
                   <img
                     [src]="sellerSignatureData"
-                    alt="Unterschrift des Verkäufers"
+                    alt="{{ t.sellerSignature }}"
                   />
-                  <p class="hint">✓ Gespeicherte Unterschrift wird verwendet</p>
+                  <p class="hint">✓ {{ t.savedSignatureUsed }}</p>
                 </div>
                 <div *ngIf="!sellerSignatureData" class="no-signature">
-                  <p>Keine gespeicherte Unterschrift gefunden.</p>
-                  <a routerLink="/settings" class="link"
-                    >In den Einstellungen hinterlegen</a
-                  >
+                  <p>{{ t.noSignatureFound }}</p>
+                  <a routerLink="/settings" class="link">{{ t.settingsLink }}</a>
                 </div>
               </div>
             </div>
@@ -226,7 +224,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
         <!-- Submit section -->
         <div class="submit-section">
           <div class="total-amount">
-            <span>Gesamtbetrag:</span>
+            <span>{{ t.totalAmountLabel }}</span>
             <strong>{{ getTotalAmount() | number: '1.2-2' }} €</strong>
           </div>
           <button
@@ -234,14 +232,14 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
             class="btn btn-primary btn-large"
             [disabled]="submitting || !canSubmit()"
           >
-            {{ submitting ? 'Wird gespeichert...' : t.convertToSale }}
+            {{ submitting ? t.saving : t.convertToSale }}
           </button>
         </div>
       </form>
     </div>
 
     <div class="page" *ngIf="!reservation && !loading">
-      <p>Reservierung nicht gefunden.</p>
+      <p>{{ t.reservationNotFound }}</p>
       <a routerLink="/reservations" class="btn">{{ t.back }}</a>
     </div>
   `,
@@ -757,7 +755,7 @@ export class ReservationConvertComponent implements OnInit {
       error: (err) => {
         console.error('Error converting to sale:', err);
         this.submitting = false;
-        alert(err.error?.error || 'Fehler beim Umwandeln in Verkauf');
+        alert(err.error?.error || this.t.convertError);
       },
     });
   }

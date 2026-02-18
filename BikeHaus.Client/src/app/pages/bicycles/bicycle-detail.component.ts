@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
 import { DocumentService } from '../../services/document.service';
+import { TranslationService } from '../../services/translation.service';
 import {
   Bicycle,
   BicycleUpdate,
@@ -22,54 +23,54 @@ import {
         <h1>{{ bicycle.marke }} {{ bicycle.modell }}</h1>
         <div class="header-actions">
           <button class="btn btn-primary" (click)="save()" *ngIf="editing">
-            Speichern
+            {{ t.save }}
           </button>
           <button class="btn btn-outline" (click)="editing = !editing">
-            {{ editing ? 'Abbrechen' : 'Bearbeiten' }}
+            {{ editing ? t.cancel : t.edit }}
           </button>
-          <a routerLink="/bicycles" class="btn btn-outline">Zurück</a>
+          <a routerLink="/bicycles" class="btn btn-outline">{{ t.back }}</a>
         </div>
       </div>
 
       <div class="detail-grid">
         <div class="detail-card">
-          <h2>Fahrrad-Daten</h2>
+          <h2>{{ t.bicycleData }}</h2>
           <div class="field">
-            <label>Marke</label>
+            <label>{{ t.brand }}</label>
             <input *ngIf="editing" [(ngModel)]="form.marke" />
             <span *ngIf="!editing">{{ bicycle.marke }}</span>
           </div>
           <div class="field">
-            <label>Modell</label>
+            <label>{{ t.model }}</label>
             <input *ngIf="editing" [(ngModel)]="form.modell" />
             <span *ngIf="!editing">{{ bicycle.modell }}</span>
           </div>
           <div class="field">
-            <label>Rahmennummer</label>
+            <label>{{ t.frameNumber }}</label>
             <input *ngIf="editing" [(ngModel)]="form.rahmennummer" />
             <span *ngIf="!editing" class="mono">{{
               bicycle.rahmennummer
             }}</span>
           </div>
           <div class="field">
-            <label>Farbe</label>
+            <label>{{ t.color }}</label>
             <input *ngIf="editing" [(ngModel)]="form.farbe" />
             <span *ngIf="!editing">{{ bicycle.farbe }}</span>
           </div>
           <div class="field">
-            <label>Reifengröße (Zoll)</label>
+            <label>{{ t.wheelSizeInch }}</label>
             <input *ngIf="editing" [(ngModel)]="form.reifengroesse" />
             <span *ngIf="!editing">{{ bicycle.reifengroesse }}</span>
           </div>
           <div class="field">
-            <label>Stok Nr.</label>
+            <label>{{ t.stockNo }}</label>
             <input *ngIf="editing" [(ngModel)]="form.stokNo" />
             <span *ngIf="!editing">{{ bicycle.stokNo || '–' }}</span>
           </div>
           <div class="field">
-            <label>Fahrradtyp</label>
+            <label>{{ t.bicycleType }}</label>
             <select *ngIf="editing" [(ngModel)]="form.fahrradtyp">
-              <option value="">– wählen –</option>
+              <option value="">{{ t.selectOption }}</option>
               <option value="E-Bike">E-Bike</option>
               <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
               <option value="Trekking">Trekking</option>
@@ -81,10 +82,10 @@ import {
             <span *ngIf="!editing">{{ bicycle.fahrradtyp || '–' }}</span>
           </div>
           <div class="field">
-            <label>Zustand</label>
+            <label>{{ t.condition }}</label>
             <select *ngIf="editing" [(ngModel)]="form.zustand">
-              <option [value]="BikeCondition.Gebraucht">Gebraucht</option>
-              <option [value]="BikeCondition.Neu">Neu</option>
+              <option [value]="BikeCondition.Gebraucht">{{ t.usedCondition }}</option>
+              <option [value]="BikeCondition.Neu">{{ t.newCondition }}</option>
             </select>
             <span
               *ngIf="!editing"
@@ -95,11 +96,11 @@ import {
             </span>
           </div>
           <div class="field">
-            <label>Status</label>
+            <label>{{ t.status }}</label>
             <select *ngIf="editing" [(ngModel)]="form.status">
-              <option value="Available">Verfügbar</option>
-              <option value="Sold">Verkauft</option>
-              <option value="Reserved">Reserviert</option>
+              <option value="Available">{{ t.available }}</option>
+              <option value="Sold">{{ t.sold }}</option>
+              <option value="Reserved">{{ t.reserved }}</option>
             </select>
             <span
               *ngIf="!editing"
@@ -108,15 +109,15 @@ import {
             >
               {{
                 bicycle.status === 'Available'
-                  ? 'Verfügbar'
+                  ? t.available
                   : bicycle.status === 'Sold'
-                    ? 'Verkauft'
-                    : 'Reserviert'
+                    ? t.sold
+                    : t.reserved
               }}
             </span>
           </div>
           <div class="field">
-            <label>Beschreibung</label>
+            <label>{{ t.description }}</label>
             <textarea
               *ngIf="editing"
               [(ngModel)]="form.beschreibung"
@@ -127,7 +128,7 @@ import {
         </div>
 
         <div class="detail-card">
-          <h2>Dokumente</h2>
+          <h2>{{ t.documents }}</h2>
           <div class="doc-upload">
             <input
               type="file"
@@ -136,7 +137,7 @@ import {
               style="display:none"
             />
             <button class="btn btn-sm btn-outline" (click)="fileInput.click()">
-              + Dokument hochladen
+              + {{ t.uploadDocument }}
             </button>
           </div>
           <div class="doc-list">
@@ -154,7 +155,7 @@ import {
                 </button>
               </div>
             </div>
-            <p *ngIf="documents.length === 0" class="empty">Keine Dokumente</p>
+            <p *ngIf="documents.length === 0" class="empty">{{ t.noDocuments }}</p>
           </div>
         </div>
       </div>
@@ -309,6 +310,7 @@ import {
   ],
 })
 export class BicycleDetailComponent implements OnInit {
+  private translationService = inject(TranslationService);
   bicycle: Bicycle | null = null;
   documents: DocModel[] = [];
   editing = false;
@@ -324,6 +326,10 @@ export class BicycleDetailComponent implements OnInit {
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
   };
+
+  get t() {
+    return this.translationService.translations();
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -387,7 +393,7 @@ export class BicycleDetailComponent implements OnInit {
   }
 
   deleteDoc(doc: DocModel) {
-    if (confirm(`Dokument "${doc.fileName}" löschen?`)) {
+    if (confirm(this.t.deleteConfirmDocument)) {
       this.documentService.delete(doc.id).subscribe(() => {
         this.documents = this.documents.filter((d) => d.id !== doc.id);
       });

@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { DashboardService } from '../../services/dashboard.service';
 import { Dashboard } from '../../models/models';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,8 +13,8 @@ import { Dashboard } from '../../models/models';
     <div class="dashboard" *ngIf="data">
       <div class="page-header">
         <div>
-          <h1>Dashboard</h1>
-          <p class="page-subtitle">Willkommen bei BikeHaus Freiburg</p>
+          <h1>{{ t.dashboard }}</h1>
+          <p class="page-subtitle">{{ t.welcomeToBikeHaus }}</p>
         </div>
       </div>
 
@@ -36,8 +37,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Neuer Ankauf</div>
-            <div class="shortcut-desc">Fahrrad ankaufen</div>
+            <div class="shortcut-label">{{ t.newPurchase }}</div>
+            <div class="shortcut-desc">{{ t.buyBicycle }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -66,8 +67,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Neuer Verkauf</div>
-            <div class="shortcut-desc">Fahrrad verkaufen</div>
+            <div class="shortcut-label">{{ t.newSale }}</div>
+            <div class="shortcut-desc">{{ t.sellBicycle }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -99,8 +100,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Fahrräder</div>
-            <div class="shortcut-desc">Bestand ansehen</div>
+            <div class="shortcut-label">{{ t.bicycles }}</div>
+            <div class="shortcut-desc">{{ t.viewInventory }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -131,8 +132,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Kunden</div>
-            <div class="shortcut-desc">Kundenverwaltung</div>
+            <div class="shortcut-label">{{ t.customers }}</div>
+            <div class="shortcut-desc">{{ t.customerManagement }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -162,8 +163,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Ankäufe</div>
-            <div class="shortcut-desc">Alle Ankäufe</div>
+            <div class="shortcut-label">{{ t.purchases }}</div>
+            <div class="shortcut-desc">{{ t.allPurchases }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -192,8 +193,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Verkäufe</div>
-            <div class="shortcut-desc">Alle Verkäufe</div>
+            <div class="shortcut-label">{{ t.sales }}</div>
+            <div class="shortcut-desc">{{ t.allSales }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -224,8 +225,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Reservierungen</div>
-            <div class="shortcut-desc">Reservierungen</div>
+            <div class="shortcut-label">{{ t.reservations }}</div>
+            <div class="shortcut-desc">{{ t.reservations }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -254,8 +255,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Rückgaben</div>
-            <div class="shortcut-desc">Rückgaben verwalten</div>
+            <div class="shortcut-label">{{ t.returns }}</div>
+            <div class="shortcut-desc">{{ t.manageReturns }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -285,8 +286,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Zubehör</div>
-            <div class="shortcut-desc">Zubehörteile</div>
+            <div class="shortcut-label">{{ t.accessories }}</div>
+            <div class="shortcut-desc">{{ t.accessoryParts }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -317,8 +318,8 @@ import { Dashboard } from '../../models/models';
             </svg>
           </div>
           <div class="shortcut-info">
-            <div class="shortcut-label">Einstellungen</div>
-            <div class="shortcut-desc">App konfigurieren</div>
+            <div class="shortcut-label">{{ t.settings }}</div>
+            <div class="shortcut-desc">{{ t.configureApp }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -337,9 +338,9 @@ import { Dashboard } from '../../models/models';
       <div class="recent-sections">
         <div class="recent-section">
           <div class="section-header">
-            <h2>Letzte Ankäufe</h2>
+            <h2>{{ t.recentPurchases }}</h2>
             <a routerLink="/purchases" class="view-all"
-              >Alle ansehen
+              >{{ t.viewAll }}
               <svg
                 width="14"
                 height="14"
@@ -359,11 +360,11 @@ import { Dashboard } from '../../models/models';
             <table>
               <thead>
                 <tr>
-                  <th>Beleg-Nr.</th>
-                  <th>Fahrrad</th>
-                  <th>Verkäufer</th>
-                  <th>Preis</th>
-                  <th>Datum</th>
+                  <th>{{ t.receiptNo }}</th>
+                  <th>{{ t.bicycle }}</th>
+                  <th>{{ t.seller }}</th>
+                  <th>{{ t.price }}</th>
+                  <th>{{ t.date }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -396,16 +397,16 @@ import { Dashboard } from '../../models/models';
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
                 <line x1="3" y1="6" x2="21" y2="6" />
               </svg>
-              <p>Keine Ankäufe vorhanden</p>
+              <p>{{ t.noPurchasesFound }}</p>
             </div>
           </ng-template>
         </div>
 
         <div class="recent-section">
           <div class="section-header">
-            <h2>Letzte Verkäufe</h2>
+            <h2>{{ t.recentSales }}</h2>
             <a routerLink="/sales" class="view-all"
-              >Alle ansehen
+              >{{ t.viewAll }}
               <svg
                 width="14"
                 height="14"
@@ -425,11 +426,11 @@ import { Dashboard } from '../../models/models';
             <table>
               <thead>
                 <tr>
-                  <th>Beleg-Nr.</th>
-                  <th>Fahrrad</th>
-                  <th>Käufer</th>
-                  <th>Preis</th>
-                  <th>Datum</th>
+                  <th>{{ t.receiptNo }}</th>
+                  <th>{{ t.bicycle }}</th>
+                  <th>{{ t.buyer }}</th>
+                  <th>{{ t.price }}</th>
+                  <th>{{ t.date }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -464,7 +465,7 @@ import { Dashboard } from '../../models/models';
                 <line x1="12" y1="1" x2="12" y2="23" />
                 <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
-              <p>Keine Verkäufe vorhanden</p>
+              <p>{{ t.noSalesFound }}</p>
             </div>
           </ng-template>
         </div>
@@ -758,6 +759,11 @@ import { Dashboard } from '../../models/models';
   ],
 })
 export class DashboardComponent implements OnInit {
+  private translationService = inject(TranslationService);
+  get t() {
+    return this.translationService.translations();
+  }
+
   data: Dashboard | null = null;
 
   constructor(

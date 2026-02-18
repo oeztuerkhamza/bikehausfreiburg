@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -6,6 +6,7 @@ import { SaleService } from '../../services/sale.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { PurchaseService } from '../../services/purchase.service';
 import { SettingsService } from '../../services/settings.service';
+import { TranslationService } from '../../services/translation.service';
 import {
   SaleCreate,
   Bicycle,
@@ -35,15 +36,15 @@ import { AddressSuggestion } from '../../services/address.service';
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Neuer Verkauf (Verkaufsbeleg)</h1>
-        <a routerLink="/sales" class="btn btn-outline">Zurück</a>
+        <h1>{{ t.newSaleTitle }}</h1>
+        <a routerLink="/sales" class="btn btn-outline">{{ t.back }}</a>
       </div>
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <!-- Bicycle selection -->
           <div class="form-card">
-            <h2>Fahrrad auswählen</h2>
+            <h2>{{ t.selectBicycle }}</h2>
             <app-bike-selector
               [bikes]="availableBikes"
               [(selectedBike)]="selectedBike"
@@ -53,10 +54,10 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Buyer info -->
           <div class="form-card">
-            <h2>Käufer</h2>
+            <h2>{{ t.buyer }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>Vorname *</label>
+                <label>{{ t.firstNameRequired }}</label>
                 <input
                   [(ngModel)]="buyer.vorname"
                   name="buyerVorname"
@@ -65,7 +66,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Nachname *</label>
+                <label>{{ t.lastNameRequired }}</label>
                 <input
                   [(ngModel)]="buyer.nachname"
                   name="buyerNachname"
@@ -74,17 +75,17 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field full">
-                <label>Adresse suchen</label>
+                <label>{{ t.searchAddress }}</label>
                 <app-address-autocomplete
-                  placeholder="z.B. Bissierstraße 16, Freiburg"
+                  [placeholder]="t.addressPlaceholder"
                   (addressSelected)="onBuyerAddressSelected($event)"
                 ></app-address-autocomplete>
                 <small class="hint"
-                  >Tippen Sie eine Adresse ein für Vorschläge</small
+                  >{{ t.addressHint }}</small
                 >
               </div>
               <div class="field">
-                <label>Straße *</label>
+                <label>{{ t.streetRequired }}</label>
                 <input
                   [(ngModel)]="buyer.strasse"
                   name="buyerStrasse"
@@ -92,7 +93,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Hausnummer *</label>
+                <label>{{ t.houseNumberRequired }}</label>
                 <input
                   [(ngModel)]="buyer.hausnummer"
                   name="buyerHausnr"
@@ -100,19 +101,19 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>PLZ *</label>
+                <label>{{ t.postalCodeRequired }}</label>
                 <input [(ngModel)]="buyer.plz" name="buyerPlz" required />
               </div>
               <div class="field">
-                <label>Stadt *</label>
+                <label>{{ t.cityRequired }}</label>
                 <input [(ngModel)]="buyer.stadt" name="buyerStadt" required />
               </div>
               <div class="field">
-                <label>Telefon *</label>
+                <label>{{ t.phoneRequired }}</label>
                 <input [(ngModel)]="buyer.telefon" name="buyerTel" required />
               </div>
               <div class="field">
-                <label>E-Mail</label>
+                <label>{{ t.email }}</label>
                 <input
                   type="email"
                   [(ngModel)]="buyer.email"
@@ -124,10 +125,10 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Sale details -->
           <div class="form-card">
-            <h2>Verkaufsdaten</h2>
+            <h2>{{ t.saleData }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>Preis (€) *</label>
+                <label>{{ t.priceRequired }}</label>
                 <input
                   type="number"
                   step="0.01"
@@ -137,15 +138,15 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Zahlungsart *</label>
+                <label>{{ t.paymentMethodRequired }}</label>
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
-                  <option value="Bar">Bar</option>
-                  <option value="PayPal">PayPal</option>
-                  <option value="Ueberweisung">Überweisung</option>
+                  <option value="Bar">{{ t.cash }}</option>
+                  <option value="PayPal">{{ t.paypal }}</option>
+                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field">
-                <label>Verkaufsdatum *</label>
+                <label>{{ t.saleDateRequired }}</label>
                 <input
                   type="date"
                   [(ngModel)]="verkaufsdatum"
@@ -154,7 +155,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field" *ngIf="selectedBike">
-                <label>Garantie</label>
+                <label>{{ t.warranty }}</label>
                 <div class="warranty-info">
                   <span
                     class="warranty-badge"
@@ -162,21 +163,21 @@ import { AddressSuggestion } from '../../services/address.service';
                   >
                     {{
                       selectedBike.zustand === 'Neu'
-                        ? '2 Jahre Gewährleistung'
-                        : '3 Monate Garantie'
+                        ? t.warrantyNew
+                        : t.warrantyUsed
                     }}
                   </span>
                   <small
                     >({{
                       selectedBike.zustand === 'Neu'
-                        ? 'Neues Fahrrad'
-                        : 'Gebrauchtes Fahrrad'
+                        ? t.newBicycle
+                        : t.usedBicycle
                     }})</small
                   >
                 </div>
               </div>
               <div class="field full">
-                <label>Notizen</label>
+                <label>{{ t.notes }}</label>
                 <textarea
                   [(ngModel)]="notizen"
                   name="notizen"
@@ -188,17 +189,16 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Accessories (Zubehör) -->
           <div class="form-card">
-            <h2>Zubehör (Optional)</h2>
+            <h2>{{ t.accessoriesOptional }}</h2>
             <p class="hint">
-              Fügen Sie verkaufte Zubehörteile hinzu, diese erscheinen auf dem
-              Verkaufsbeleg.
+              {{ t.accessorySaleHint }}
             </p>
 
             <!-- Autocomplete to add from catalog -->
             <div class="field" style="margin-bottom: 16px;">
-              <label>Zubehör aus Katalog hinzufügen</label>
+              <label>{{ t.addAccessoryFromCatalog }}</label>
               <app-accessory-autocomplete
-                placeholder="Zubehör suchen..."
+                [placeholder]="t.searchAccessory"
                 (itemSelected)="addAccessoryFromCatalog($event)"
               ></app-accessory-autocomplete>
             </div>
@@ -210,7 +210,7 @@ import { AddressSuggestion } from '../../services/address.service';
               >
                 <div class="accessory-fields">
                   <div class="field">
-                    <label>Bezeichnung</label>
+                    <label>{{ t.designation }}</label>
                     <input
                       [(ngModel)]="acc.bezeichnung"
                       [name]="'accBez' + i"
@@ -219,7 +219,7 @@ import { AddressSuggestion } from '../../services/address.service';
                     />
                   </div>
                   <div class="field">
-                    <label>Preis (€)</label>
+                    <label>{{ t.price }} (€)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -229,7 +229,7 @@ import { AddressSuggestion } from '../../services/address.service';
                     />
                   </div>
                   <div class="field">
-                    <label>Menge</label>
+                    <label>{{ t.quantity }}</label>
                     <input
                       type="number"
                       min="1"
@@ -239,7 +239,7 @@ import { AddressSuggestion } from '../../services/address.service';
                     />
                   </div>
                   <div class="field accessory-total">
-                    <label>Gesamt</label>
+                    <label>{{ t.total }}</label>
                     <span class="total-value"
                       >{{ acc.preis * acc.menge | number: '1.2-2' }} €</span
                     >
@@ -248,7 +248,7 @@ import { AddressSuggestion } from '../../services/address.service';
                     type="button"
                     class="btn btn-icon btn-danger"
                     (click)="removeAccessory(i)"
-                    title="Entfernen"
+                    [title]="t.remove"
                   >
                     🗑️
                   </button>
@@ -257,7 +257,7 @@ import { AddressSuggestion } from '../../services/address.service';
             </div>
 
             <div class="accessory-summary" *ngIf="accessories.length > 0">
-              <span>Zubehör Summe:</span>
+              <span>{{ t.accessoriesTotal }}:</span>
               <strong>{{ accessoriesTotal | number: '1.2-2' }} €</strong>
             </div>
 
@@ -266,20 +266,20 @@ import { AddressSuggestion } from '../../services/address.service';
               class="btn btn-outline btn-sm"
               (click)="addAccessory()"
             >
-              + Manuell hinzufügen
+              + {{ t.addManually }}
             </button>
 
             <div class="grand-total" *ngIf="preis > 0">
               <div class="total-row">
-                <span>Fahrradpreis:</span>
+                <span>{{ t.bicyclePrice }}:</span>
                 <span>{{ preis | number: '1.2-2' }} €</span>
               </div>
               <div class="total-row" *ngIf="accessories.length > 0">
-                <span>Zubehör:</span>
+                <span>{{ t.accessories }}:</span>
                 <span>{{ accessoriesTotal | number: '1.2-2' }} €</span>
               </div>
               <div class="total-row grand">
-                <span>Gesamtbetrag:</span>
+                <span>{{ t.grandTotal }}:</span>
                 <strong
                   >{{ preis + accessoriesTotal | number: '1.2-2' }} €</strong
                 >
@@ -289,28 +289,28 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Signatures -->
           <div class="form-card">
-            <h2>Unterschriften</h2>
+            <h2>{{ t.signatures }}</h2>
             <app-signature-pad
-              label="Unterschrift Käufer"
+              [label]="t.buyerSignature"
               [(ngModel)]="buyerSignatureData"
               name="buyerSig"
             ></app-signature-pad>
             <div class="field" style="margin-top:8px; margin-bottom:16px;">
-              <label>Name Käufer</label>
+              <label>{{ t.buyerName }}</label>
               <input [(ngModel)]="buyerSignerName" name="buyerSignerName" />
             </div>
             <!-- Seller signature from settings (read-only preview) -->
             <div class="seller-signature-section">
-              <label>Unterschrift Verkäufer (Shop)</label>
+              <label>{{ t.sellerSignatureShop }}</label>
               <div *ngIf="sellerSignatureData" class="signature-preview">
-                <img [src]="sellerSignatureData" alt="Verkäufer Unterschrift" />
+                <img [src]="sellerSignatureData" [alt]="t.sellerSignature" />
               </div>
               <div *ngIf="!sellerSignatureData" class="signature-missing">
-                ⚠️ Keine Unterschrift in den Einstellungen hinterlegt.
-                <a routerLink="/settings">Jetzt hinzufügen</a>
+                ⚠️ {{ t.noSignatureWarning }}
+                <a routerLink="/settings">{{ t.addNow }}</a>
               </div>
               <div class="field" style="margin-top:8px;">
-                <label>Name Verkäufer</label>
+                <label>{{ t.sellerName }}</label>
                 <input
                   [(ngModel)]="sellerSignerName"
                   name="sellerSignerName"
@@ -327,7 +327,7 @@ import { AddressSuggestion } from '../../services/address.service';
             class="btn btn-primary btn-lg"
             [disabled]="submitting"
           >
-            {{ submitting ? 'Wird gespeichert...' : 'Verkauf speichern' }}
+            {{ submitting ? t.saving : t.saveSale }}
           </button>
         </div>
       </form>
@@ -619,6 +619,8 @@ import { AddressSuggestion } from '../../services/address.service';
   ],
 })
 export class SaleFormComponent implements OnInit {
+  private translationService = inject(TranslationService);
+
   availableBikes: Bicycle[] = [];
   selectedBike: Bicycle | null = null;
 
@@ -642,6 +644,10 @@ export class SaleFormComponent implements OnInit {
   sellerSignerName = '';
   submitting = false;
   accessories: SaleAccessoryCreate[] = [];
+
+  get t() {
+    return this.translationService.translations();
+  }
 
   get accessoriesTotal(): number {
     return this.accessories.reduce(
@@ -787,7 +793,7 @@ export class SaleFormComponent implements OnInit {
       next: () => this.router.navigate(['/sales']),
       error: () => {
         this.submitting = false;
-        alert('Fehler beim Speichern des Verkaufs');
+        alert(this.t.saleError);
       },
     });
   }

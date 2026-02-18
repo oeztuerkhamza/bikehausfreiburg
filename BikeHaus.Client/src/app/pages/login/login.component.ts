@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-login',
@@ -24,12 +25,12 @@ import { AuthService } from '../../services/auth.service';
           </div>
           <h1>BikeHaus</h1>
           <span class="subtitle">Freiburg</span>
-          <p>Willkommen zurück — bitte melden Sie sich an</p>
+          <p>{{ t.welcomeBack }}</p>
         </div>
 
         <form (ngSubmit)="onLogin()" class="login-form">
           <div class="form-group">
-            <label for="username">Benutzername</label>
+            <label for="username">{{ t.username }}</label>
             <div class="input-wrap">
               <svg
                 class="input-icon"
@@ -48,7 +49,7 @@ import { AuthService } from '../../services/auth.service';
                 id="username"
                 [(ngModel)]="username"
                 name="username"
-                placeholder="Benutzername eingeben"
+                [placeholder]="t.usernameEnter"
                 autocomplete="username"
                 required
                 [class.error]="errorMessage"
@@ -57,7 +58,7 @@ import { AuthService } from '../../services/auth.service';
           </div>
 
           <div class="form-group">
-            <label for="password">Passwort</label>
+            <label for="password">{{ t.password }}</label>
             <div class="input-wrap">
               <svg
                 class="input-icon"
@@ -76,7 +77,7 @@ import { AuthService } from '../../services/auth.service';
                 id="password"
                 [(ngModel)]="password"
                 name="password"
-                placeholder="Passwort eingeben"
+                [placeholder]="t.passwordEnter"
                 autocomplete="current-password"
                 required
                 [class.error]="errorMessage"
@@ -101,9 +102,9 @@ import { AuthService } from '../../services/auth.service';
           </div>
 
           <button type="submit" class="btn-login" [disabled]="loading">
-            <span *ngIf="!loading">Anmelden</span>
+            <span *ngIf="!loading">{{ t.login }}</span>
             <span *ngIf="loading" class="loading-state">
-              <span class="spinner"></span> Wird geladen...
+              <span class="spinner"></span> {{ t.loginLoading }}
             </span>
           </button>
         </form>
@@ -414,10 +415,15 @@ import { AuthService } from '../../services/auth.service';
   ],
 })
 export class LoginComponent {
+  private translationService = inject(TranslationService);
   username = '';
   password = '';
   errorMessage = '';
   loading = false;
+
+  get t() {
+    return this.translationService.translations();
+  }
 
   constructor(
     private authService: AuthService,
@@ -440,7 +446,7 @@ export class LoginComponent {
         },
         error: (err) => {
           this.loading = false;
-          this.errorMessage = err.error?.message || 'Anmeldung fehlgeschlagen.';
+          this.errorMessage = err.error?.message || this.t.loginFailed;
         },
       });
   }

@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ReturnService } from '../../services/return.service';
 import { ExcelExportService } from '../../services/excel-export.service';
+import { TranslationService } from '../../services/translation.service';
 import { ReturnList, ReturnReason, PaginatedResult } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
@@ -14,13 +15,13 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Rückgaben</h1>
+        <h1>{{ t.returns }}</h1>
         <div class="header-actions">
           <button class="btn btn-outline" (click)="exportExcel()">
-            📥 Excel Export
+            📥 {{ t.excelExport }}
           </button>
           <a routerLink="/returns/new" class="btn btn-primary"
-            >+ Neue Rückgabe</a
+            >+ {{ t.newReturn }}</a
           >
         </div>
       </div>
@@ -32,7 +33,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             type="text"
             [(ngModel)]="searchText"
             (input)="onSearch()"
-            placeholder="Suche nach Beleg-Nr., Fahrrad, Kunde..."
+            [placeholder]="t.searchPlaceholder"
             class="filter-input search-input"
           />
           <span class="search-icon"
@@ -55,11 +56,11 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             (change)="onFilterChange()"
             class="filter-input"
           >
-            <option value="">Alle Gründe</option>
-            <option value="Defekt">Defekt</option>
-            <option value="Garantie">Garantie</option>
-            <option value="NichtWieErwartet">Nicht wie erwartet</option>
-            <option value="Sonstiges">Sonstiges</option>
+            <option value="">{{ t.allReasons }}</option>
+            <option value="Defekt">{{ t.defect }}</option>
+            <option value="Garantie">{{ t.warranty }}</option>
+            <option value="NichtWieErwartet">{{ t.notAsExpected }}</option>
+            <option value="Sonstiges">{{ t.other }}</option>
           </select>
         </div>
       </div>
@@ -68,15 +69,15 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         <table>
           <thead>
             <tr>
-              <th>Beleg-Nr.</th>
-              <th>Stok Nr.</th>
-              <th>Org. Verkauf</th>
-              <th>Fahrrad</th>
-              <th>Kunde</th>
-              <th>Datum</th>
-              <th>Grund</th>
-              <th>Erstattung</th>
-              <th>Aktionen</th>
+              <th>{{ t.receiptNo }}</th>
+              <th>{{ t.stockNo }}</th>
+              <th>{{ t.originalSale }}</th>
+              <th>{{ t.bicycle }}</th>
+              <th>{{ t.customer }}</th>
+              <th>{{ t.date }}</th>
+              <th>{{ t.reason }}</th>
+              <th>{{ t.refund }}</th>
+              <th>{{ t.actions }}</th>
             </tr>
           </thead>
           <tbody>
@@ -85,7 +86,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 colspan="9"
                 style="text-align:center;padding:32px;color:#999;"
               >
-                Keine Rückgaben gefunden
+                {{ t.noReturnsFound }}
               </td>
             </tr>
             <tr *ngFor="let r of paginatedResult?.items">
@@ -109,7 +110,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                   PDF
                 </button>
                 <button class="btn btn-sm btn-danger" (click)="delete(r.id)">
-                  Löschen
+                  {{ t.delete }}
                 </button>
               </td>
             </tr>
@@ -272,6 +273,9 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
   ],
 })
 export class ReturnListComponent implements OnInit {
+  private translationService = inject(TranslationService);
+  get t() { return this.translationService.translations(); }
+
   paginatedResult: PaginatedResult<ReturnList> | null = null;
   searchText = '';
   filterReason = '';
@@ -323,10 +327,10 @@ export class ReturnListComponent implements OnInit {
 
   getReasonLabel(reason: ReturnReason): string {
     const labels: Record<ReturnReason, string> = {
-      [ReturnReason.Defekt]: 'Defekt',
-      [ReturnReason.Garantie]: 'Garantie',
-      [ReturnReason.NichtWieErwartet]: 'Nicht wie erwartet',
-      [ReturnReason.Sonstiges]: 'Sonstiges',
+      [ReturnReason.Defekt]: this.t.defect,
+      [ReturnReason.Garantie]: this.t.warranty,
+      [ReturnReason.NichtWieErwartet]: this.t.notAsExpected,
+      [ReturnReason.Sonstiges]: this.t.other,
     };
     return labels[reason] || reason;
   }
@@ -369,11 +373,11 @@ export class ReturnListComponent implements OnInit {
   }
 
   delete(id: number) {
-    if (confirm('Rückgabe wirklich löschen?')) {
+    if (confirm(this.t.deleteConfirmReturn)) {
       this.returnService.delete(id).subscribe({
         next: () => this.load(),
         error: (err) =>
-          alert(err.error?.error || 'Fehler beim Löschen der Rückgabe'),
+          alert(err.error?.error || this.t.deleteError),
       });
     }
   }

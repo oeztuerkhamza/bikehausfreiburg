@@ -60,7 +60,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             (change)="onFilterChange()"
             class="filter-input"
           >
-            <option value="">Alle Status</option>
+            <option value="">{{ t.allStatus }}</option>
             <option value="Active">{{ t.active }}</option>
             <option value="Expired">{{ t.expired }}</option>
             <option value="Cancelled">{{ t.cancelled }}</option>
@@ -74,7 +74,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <thead>
             <tr>
               <th>{{ t.reservationNumber }}</th>
-              <th>Stok Nr.</th>
+              <th>{{ t.stockNo }}</th>
               <th>{{ t.bicycle }}</th>
               <th>{{ t.buyer }}</th>
               <th>{{ t.reservationDate }}</th>

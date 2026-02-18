@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
 import { DocumentService } from '../../services/document.service';
 import { BicycleService } from '../../services/bicycle.service';
+import { TranslationService } from '../../services/translation.service';
 import {
   PurchaseCreate,
   PaymentMethod,
@@ -30,18 +31,18 @@ import { forkJoin } from 'rxjs';
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Neuer Ankauf (Kaufbeleg)</h1>
-        <a routerLink="/purchases" class="btn btn-outline">Zurück</a>
+        <h1>{{ t.newPurchaseTitle }}</h1>
+        <a routerLink="/purchases" class="btn btn-outline">{{ t.back }}</a>
       </div>
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <!-- Seller info -->
           <div class="form-card">
-            <h2>Verkäufer (Kunde)</h2>
+            <h2>{{ t.seller }} ({{ t.customer }})</h2>
             <div class="form-grid">
               <div class="field">
-                <label>Vorname *</label>
+                <label>{{ t.firstNameRequired }}</label>
                 <input
                   [(ngModel)]="seller.vorname"
                   name="sellerVorname"
@@ -50,7 +51,7 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>Nachname *</label>
+                <label>{{ t.lastNameRequired }}</label>
                 <input
                   [(ngModel)]="seller.nachname"
                   name="sellerNachname"
@@ -59,37 +60,37 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field full">
-                <label>Adresse suchen</label>
+                <label>{{ t.searchAddress }}</label>
                 <app-address-autocomplete
                   placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onSellerAddressSelected($event)"
                 ></app-address-autocomplete>
                 <small class="hint"
-                  >Tippen Sie eine Adresse ein für Vorschläge</small
+                  >{{ t.addressHint }}</small
                 >
               </div>
               <div class="field">
-                <label>Straße</label>
+                <label>{{ t.street }}</label>
                 <input [(ngModel)]="seller.strasse" name="sellerStrasse" />
               </div>
               <div class="field">
-                <label>Hausnummer</label>
+                <label>{{ t.houseNumber }}</label>
                 <input [(ngModel)]="seller.hausnummer" name="sellerHausnr" />
               </div>
               <div class="field">
-                <label>PLZ</label>
+                <label>{{ t.postalCode }}</label>
                 <input [(ngModel)]="seller.plz" name="sellerPlz" />
               </div>
               <div class="field">
-                <label>Stadt</label>
+                <label>{{ t.city }}</label>
                 <input [(ngModel)]="seller.stadt" name="sellerStadt" />
               </div>
               <div class="field">
-                <label>Telefon</label>
+                <label>{{ t.phone }}</label>
                 <input [(ngModel)]="seller.telefon" name="sellerTel" />
               </div>
               <div class="field">
-                <label>E-Mail</label>
+                <label>{{ t.email }}</label>
                 <input
                   type="email"
                   [(ngModel)]="seller.email"
@@ -101,14 +102,14 @@ import { forkJoin } from 'rxjs';
 
           <!-- Bicycle info -->
           <div class="form-card">
-            <h2>Fahrrad</h2>
+            <h2>{{ t.bicycle }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>Marke *</label>
+                <label>{{ t.brand }} *</label>
                 <input [(ngModel)]="bicycle.marke" name="bikeMarke" required />
               </div>
               <div class="field">
-                <label>Modell *</label>
+                <label>{{ t.model }} *</label>
                 <input
                   [(ngModel)]="bicycle.modell"
                   name="bikeModell"
@@ -116,7 +117,7 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>Rahmennummer *</label>
+                <label>{{ t.frameNumber }} *</label>
                 <input
                   [(ngModel)]="bicycle.rahmennummer"
                   name="bikeRahmen"
@@ -124,11 +125,11 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>Farbe</label>
+                <label>{{ t.color }}</label>
                 <input [(ngModel)]="bicycle.farbe" name="bikeFarbe" />
               </div>
               <div class="field">
-                <label>Reifengröße (Zoll) *</label>
+                <label>{{ t.wheelSize }} *</label>
                 <input
                   [(ngModel)]="bicycle.reifengroesse"
                   name="bikeReifen"
@@ -137,7 +138,7 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>Stok Nr. *</label>
+                <label>{{ t.stockNo }} *</label>
                 <input
                   [(ngModel)]="bicycle.stokNo"
                   name="bikeStokNo"
@@ -146,7 +147,7 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>Fahrradtyp</label>
+                <label>{{ t.bicycleType }}</label>
                 <select [(ngModel)]="bicycle.fahrradtyp" name="bikeFahrradtyp">
                   <option value="">-- Auswählen --</option>
                   <option value="E-Bike">E-Bike</option>
@@ -161,20 +162,20 @@ import { forkJoin } from 'rxjs';
                 </select>
               </div>
               <div class="field">
-                <label>Zustand *</label>
+                <label>{{ t.condition }} *</label>
                 <select
                   [(ngModel)]="bicycle.zustand"
                   name="bikeZustand"
                   required
                 >
                   <option value="Gebraucht">
-                    Gebraucht (3 Monate Garantie)
+                    {{ t.usedCondition }}
                   </option>
-                  <option value="Neu">Neu (2 Jahre Gewährleistung)</option>
+                  <option value="Neu">{{ t.newCondition }}</option>
                 </select>
               </div>
               <div class="field full">
-                <label>Beschreibung (Ausstattung)</label>
+                <label>{{ t.descriptionEquipment }}</label>
                 <textarea
                   [(ngModel)]="bicycle.beschreibung"
                   name="bikeBeschr"
@@ -187,10 +188,10 @@ import { forkJoin } from 'rxjs';
 
           <!-- Purchase details -->
           <div class="form-card">
-            <h2>Kaufdaten</h2>
+            <h2>{{ t.purchaseData }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>Preis (€) *</label>
+                <label>{{ t.priceRequired }}</label>
                 <input
                   type="number"
                   step="0.01"
@@ -200,7 +201,7 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>Geplanter Verkaufspreis (€)</label>
+                <label>{{ t.plannedSellingPrice }} (€)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -210,15 +211,15 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>Zahlungsart *</label>
+                <label>{{ t.paymentMethodRequired }}</label>
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
-                  <option value="Bar">Bar</option>
-                  <option value="PayPal">PayPal</option>
-                  <option value="Ueberweisung">Überweisung</option>
+                  <option value="Bar">{{ t.cash }}</option>
+                  <option value="PayPal">{{ t.paypal }}</option>
+                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field">
-                <label>Kaufdatum *</label>
+                <label>{{ t.purchaseDate }} *</label>
                 <input
                   type="date"
                   [(ngModel)]="kaufdatum"
@@ -227,7 +228,7 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field full">
-                <label>Notizen</label>
+                <label>{{ t.notes }}</label>
                 <textarea
                   [(ngModel)]="notizen"
                   name="notizen"
@@ -242,15 +243,15 @@ import { forkJoin } from 'rxjs';
             <h2>
               {{
                 bicycle.zustand === 'Neu'
-                  ? 'Rechnung (Kaufbeleg) *'
-                  : 'Kleinanzeigen Screenshots *'
+                  ? t.invoiceRequired
+                  : t.screenshotsRequired
               }}
             </h2>
             <p class="hint-text">
               {{
                 bicycle.zustand === 'Neu'
-                  ? 'Bitte laden Sie die Kaufrechnung des neuen Fahrrads hoch.'
-                  : 'Bitte laden Sie Screenshots von Kleinanzeigen hoch.'
+                  ? t.invoiceHint
+                  : t.screenshotsHint
               }}
             </p>
             <div class="upload-area">
@@ -269,12 +270,12 @@ import { forkJoin } from 'rxjs';
               >
                 {{
                   bicycle.zustand === 'Neu'
-                    ? '📄 Rechnung auswählen'
-                    : '📷 Fotos auswählen'
+                    ? '📄 ' + t.selectInvoice
+                    : '📷 ' + t.selectPhotos
                 }}
               </button>
               <span class="file-count" *ngIf="selectedFiles.length > 0">
-                {{ selectedFiles.length }} Foto(s) ausgewählt
+                {{ selectedFiles.length }} {{ t.photosSelected }}
               </span>
             </div>
             <div class="preview-grid" *ngIf="previewUrls.length > 0">
@@ -296,14 +297,14 @@ import { forkJoin } from 'rxjs';
 
           <!-- Signature -->
           <div class="form-card">
-            <h2>Unterschrift des Verkäufers</h2>
+            <h2>{{ t.sellerSignature }}</h2>
             <app-signature-pad
-              label="Unterschrift"
+              [label]="t.signatures"
               [(ngModel)]="signatureData"
               name="signature"
             ></app-signature-pad>
             <div class="field" style="margin-top:8px;">
-              <label>Name des Unterschreibenden</label>
+              <label>{{ t.signerName }}</label>
               <input [(ngModel)]="signerName" name="signerName" />
             </div>
           </div>
@@ -312,36 +313,36 @@ import { forkJoin } from 'rxjs';
         <!-- Validation messages -->
         <div class="validation-errors" *ngIf="!canSubmit() && !submitting">
           <p *ngIf="!seller.vorname?.trim()" class="error-msg">
-            ⚠️ Vorname des Verkäufers ist erforderlich
+            ⚠️ {{ t.sellerFirstNameRequired }}
           </p>
           <p *ngIf="!seller.nachname?.trim()" class="error-msg">
-            ⚠️ Nachname des Verkäufers ist erforderlich
+            ⚠️ {{ t.sellerLastNameRequired }}
           </p>
           <p *ngIf="!bicycle.marke?.trim()" class="error-msg">
-            ⚠️ Marke ist erforderlich
+            ⚠️ {{ t.brandIsRequired }}
           </p>
           <p *ngIf="!bicycle.modell?.trim()" class="error-msg">
-            ⚠️ Modell ist erforderlich
+            ⚠️ {{ t.modelIsRequired }}
           </p>
           <p *ngIf="!bicycle.rahmennummer?.trim()" class="error-msg">
-            ⚠️ Rahmennummer ist erforderlich
+            ⚠️ {{ t.frameNumberIsRequired }}
           </p>
 
           <p *ngIf="!bicycle.reifengroesse?.trim()" class="error-msg">
-            ⚠️ Reifengröße ist erforderlich
+            ⚠️ {{ t.wheelSizeIsRequired }}
           </p>
           <p *ngIf="!preis || preis <= 0" class="error-msg">
-            ⚠️ Preis muss größer als 0 sein
+            ⚠️ {{ t.priceMustBeGreaterThanZero }}
           </p>
           <p *ngIf="!kaufdatum" class="error-msg">
-            ⚠️ Kaufdatum ist erforderlich
+            ⚠️ {{ t.purchaseDateIsRequired }}
           </p>
           <p *ngIf="selectedFiles.length === 0" class="error-msg">
             ⚠️
             {{
               bicycle.zustand === 'Neu'
-                ? 'Rechnung ist erforderlich'
-                : 'Kleinanzeigen Screenshot ist erforderlich'
+                ? t.invoiceIsRequired
+                : t.screenshotIsRequired
             }}
           </p>
         </div>
@@ -352,7 +353,7 @@ import { forkJoin } from 'rxjs';
             class="btn btn-primary btn-lg"
             [disabled]="!canSubmit() || submitting"
           >
-            {{ submitting ? 'Wird gespeichert...' : 'Ankauf speichern' }}
+            {{ submitting ? t.saving : t.savePurchase }}
           </button>
         </div>
       </form>
@@ -514,6 +515,9 @@ import { forkJoin } from 'rxjs';
   ],
 })
 export class PurchaseFormComponent implements OnInit {
+  private translationService = inject(TranslationService);
+  get t() { return this.translationService.translations(); }
+
   seller = {
     vorname: '',
     nachname: '',

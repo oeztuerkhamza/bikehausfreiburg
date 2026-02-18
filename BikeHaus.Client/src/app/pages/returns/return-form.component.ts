@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ReturnService } from '../../services/return.service';
 import { SaleService } from '../../services/sale.service';
+import { TranslationService } from '../../services/translation.service';
 import {
   ReturnCreate,
   SaleList,
@@ -20,24 +21,24 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Neue Rückgabe (Rückgabebeleg)</h1>
-        <a routerLink="/returns" class="btn btn-outline">Zurück</a>
+        <h1>{{ t.newReturnTitle }}</h1>
+        <a routerLink="/returns" class="btn btn-outline">{{ t.back }}</a>
       </div>
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <!-- Sale selection -->
           <div class="form-card">
-            <h2>Verkauf auswählen</h2>
+            <h2>{{ t.selectSale }}</h2>
             <div class="field">
-              <label>Verkauf (Beleg) *</label>
+              <label>{{ t.saleRequired }}</label>
               <select
                 [(ngModel)]="selectedSaleId"
                 name="saleId"
                 required
                 (change)="onSaleSelect()"
               >
-                <option [value]="0" disabled>-- Verkauf wählen --</option>
+                <option [value]="0" disabled>{{ t.selectSalePlaceholder }}</option>
                 <option *ngFor="let s of sales" [value]="s.id">
                   {{ s.belegNummer }} – {{ s.bikeInfo }} ({{ s.buyerName }}) –
                   {{ s.preis | number: '1.2-2' }} €
@@ -48,11 +49,11 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
               <span
                 ><strong>{{ selectedSale.belegNummer }}</strong></span
               >
-              <span>Fahrrad: {{ selectedSale.bikeInfo }}</span>
-              <span>Käufer: {{ selectedSale.buyerName }}</span>
-              <span>Preis: {{ selectedSale.preis | number: '1.2-2' }} €</span>
+              <span>{{ t.bicycle }}: {{ selectedSale.bikeInfo }}</span>
+              <span>{{ t.buyer }}: {{ selectedSale.buyerName }}</span>
+              <span>{{ t.price }}: {{ selectedSale.preis | number: '1.2-2' }} €</span>
               <span
-                >Verkauft am:
+                >{{ t.soldOn }}:
                 {{ selectedSale.verkaufsdatum | date: 'dd.MM.yyyy' }}</span
               >
             </div>
@@ -60,10 +61,10 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
 
           <!-- Return details -->
           <div class="form-card">
-            <h2>Rückgabedaten</h2>
+            <h2>{{ t.returnData }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>Rückgabedatum *</label>
+                <label>{{ t.returnDateRequired }}</label>
                 <input
                   type="date"
                   [(ngModel)]="rueckgabedatum"
@@ -72,29 +73,29 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                 />
               </div>
               <div class="field">
-                <label>Rückgabegrund *</label>
+                <label>{{ t.returnReasonRequired }}</label>
                 <select [(ngModel)]="grund" name="grund" required>
-                  <option value="" disabled>-- Grund wählen --</option>
-                  <option value="Defekt">Defekt</option>
-                  <option value="NichtWieErwartet">Nicht wie erwartet</option>
-                  <option value="Garantie">Garantie</option>
-                  <option value="Sonstiges">Sonstiges</option>
+                  <option value="" disabled>{{ t.selectReasonPlaceholder }}</option>
+                  <option value="Defekt">{{ t.defect }}</option>
+                  <option value="NichtWieErwartet">{{ t.notAsExpected }}</option>
+                  <option value="Garantie">{{ t.warranty }}</option>
+                  <option value="Sonstiges">{{ t.other }}</option>
                 </select>
               </div>
               <div
                 class="field full"
                 *ngIf="grund === 'Sonstiges' || grund === 'NichtWieErwartet'"
               >
-                <label>Details zum Grund</label>
+                <label>{{ t.reasonDetails }}</label>
                 <textarea
                   [(ngModel)]="grundDetails"
                   name="grundDetails"
                   rows="2"
-                  placeholder="Bitte beschreiben Sie den Grund genauer..."
+                  [placeholder]="t.reasonDetailsPlaceholder"
                 ></textarea>
               </div>
               <div class="field">
-                <label>Erstattungsbetrag (€) *</label>
+                <label>{{ t.refundAmountRequired }}</label>
                 <input
                   type="number"
                   step="0.01"
@@ -104,15 +105,15 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                 />
               </div>
               <div class="field">
-                <label>Zahlungsart *</label>
+                <label>{{ t.paymentMethodRequired }}</label>
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
-                  <option value="Bar">Bar</option>
+                  <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">PayPal</option>
-                  <option value="Ueberweisung">Überweisung</option>
+                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field full">
-                <label>Notizen</label>
+                <label>{{ t.notes }}</label>
                 <textarea
                   [(ngModel)]="notizen"
                   name="notizen"
@@ -124,26 +125,26 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
 
           <!-- Signatures -->
           <div class="form-card">
-            <h2>Unterschriften</h2>
+            <h2>{{ t.signatures }}</h2>
             <app-signature-pad
-              label="Unterschrift Kunde"
+              [label]="t.customerSignature"
               [(ngModel)]="customerSignatureData"
               name="customerSig"
             ></app-signature-pad>
             <div class="field" style="margin-top:8px; margin-bottom:16px;">
-              <label>Name Kunde</label>
+              <label>{{ t.customerName }}</label>
               <input
                 [(ngModel)]="customerSignerName"
                 name="customerSignerName"
               />
             </div>
             <app-signature-pad
-              label="Unterschrift Shop"
+              [label]="t.shopSignature"
               [(ngModel)]="shopSignatureData"
               name="shopSig"
             ></app-signature-pad>
             <div class="field" style="margin-top:8px;">
-              <label>Name Shop-Mitarbeiter</label>
+              <label>{{ t.shopEmployeeName }}</label>
               <input [(ngModel)]="shopSignerName" name="shopSignerName" />
             </div>
           </div>
@@ -155,7 +156,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
             class="btn btn-primary"
             [disabled]="!f.valid || !selectedSaleId"
           >
-            Rückgabe speichern
+            {{ t.saveReturn }}
           </button>
         </div>
       </form>
@@ -302,6 +303,9 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
   ],
 })
 export class ReturnFormComponent implements OnInit {
+  private translationService = inject(TranslationService);
+  get t() { return this.translationService.translations(); }
+
   sales: SaleList[] = [];
   selectedSaleId = 0;
   selectedSale: SaleList | null = null;
@@ -374,7 +378,7 @@ export class ReturnFormComponent implements OnInit {
 
     this.returnService.create(dto).subscribe({
       next: () => this.router.navigate(['/returns']),
-      error: (err) => alert('Fehler beim Speichern: ' + err.message),
+      error: (err) => alert(this.t.returnSaveError + ': ' + err.message),
     });
   }
 }

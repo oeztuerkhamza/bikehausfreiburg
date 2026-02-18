@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CustomerService } from '../../services/customer.service';
 import { ExcelExportService } from '../../services/excel-export.service';
+import { TranslationService } from '../../services/translation.service';
 import { Customer, CustomerCreate, CustomerUpdate } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
@@ -14,68 +15,66 @@ import { AddressSuggestion } from '../../services/address.service';
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Kundenverwaltung</h1>
+        <h1>{{ t.customerManagement }}</h1>
         <div class="header-actions">
           <button class="btn btn-outline" (click)="exportExcel()">
-            📥 Excel Export
+            📥 {{ t.excelExport }}
           </button>
           <button class="btn btn-primary" (click)="showForm = !showForm">
-            {{ showForm ? 'Abbrechen' : '+ Neuer Kunde' }}
+            {{ showForm ? t.cancel : '+ ' + t.newCustomer }}
           </button>
         </div>
       </div>
 
       <!-- Create / Edit form -->
       <div class="form-card" *ngIf="showForm">
-        <h2>{{ editId ? 'Kunde bearbeiten' : 'Neuer Kunde' }}</h2>
+        <h2>{{ editId ? t.editCustomer : t.newCustomer }}</h2>
         <div class="form-grid">
           <div class="field">
-            <label>Vorname *</label>
+            <label>{{ t.firstNameRequired }}</label>
             <input [(ngModel)]="form.vorname" required />
           </div>
           <div class="field">
-            <label>Nachname *</label>
+            <label>{{ t.lastNameRequired }}</label>
             <input [(ngModel)]="form.nachname" required />
           </div>
           <div class="field full">
-            <label>Adresse suchen</label>
+            <label>{{ t.searchAddress }}</label>
             <app-address-autocomplete
-              placeholder="z.B. Bissierstraße 16, Freiburg"
+              [placeholder]="t.addressPlaceholder"
               [initialValue]="getAddressInitialValue()"
               (addressSelected)="onAddressSelected($event)"
             ></app-address-autocomplete>
-            <small class="hint"
-              >Tippen Sie eine Adresse ein für Vorschläge</small
-            >
+            <small class="hint">{{ t.addressHint }}</small>
           </div>
           <div class="field">
-            <label>Straße</label>
+            <label>{{ t.street }}</label>
             <input [(ngModel)]="form.strasse" />
           </div>
           <div class="field">
-            <label>Hausnummer</label>
+            <label>{{ t.houseNumber }}</label>
             <input [(ngModel)]="form.hausnummer" />
           </div>
           <div class="field">
-            <label>PLZ</label>
+            <label>{{ t.postalCode }}</label>
             <input [(ngModel)]="form.plz" />
           </div>
           <div class="field">
-            <label>Stadt</label>
+            <label>{{ t.city }}</label>
             <input [(ngModel)]="form.stadt" />
           </div>
           <div class="field">
-            <label>Telefon</label>
+            <label>{{ t.phone }}</label>
             <input [(ngModel)]="form.telefon" />
           </div>
           <div class="field">
-            <label>E-Mail</label>
+            <label>{{ t.email }}</label>
             <input type="email" [(ngModel)]="form.email" />
           </div>
         </div>
         <div class="form-actions">
           <button class="btn btn-primary" (click)="saveCustomer()">
-            {{ editId ? 'Aktualisieren' : 'Anlegen' }}
+            {{ editId ? t.update : t.createNew }}
           </button>
         </div>
       </div>
@@ -83,7 +82,7 @@ import { AddressSuggestion } from '../../services/address.service';
       <div class="filters">
         <input
           type="text"
-          placeholder="Suche nach Name, E-Mail, Telefon..."
+          [placeholder]="t.customerSearchPlaceholder"
           [(ngModel)]="searchTerm"
           (input)="onSearch()"
           class="search-input"
@@ -94,11 +93,11 @@ import { AddressSuggestion } from '../../services/address.service';
         <table>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Adresse</th>
-              <th>Telefon</th>
-              <th>E-Mail</th>
-              <th>Aktionen</th>
+              <th>{{ t.name }}</th>
+              <th>{{ t.address }}</th>
+              <th>{{ t.phone }}</th>
+              <th>{{ t.email }}</th>
+              <th>{{ t.actions }}</th>
             </tr>
           </thead>
           <tbody>
@@ -125,7 +124,7 @@ import { AddressSuggestion } from '../../services/address.service';
           </tbody>
         </table>
         <p *ngIf="customers.length === 0" class="empty">
-          Keine Kunden gefunden
+          {{ t.noCustomersFound }}
         </p>
       </div>
     </div>
@@ -336,11 +335,16 @@ import { AddressSuggestion } from '../../services/address.service';
   ],
 })
 export class CustomerListComponent implements OnInit {
+  private translationService = inject(TranslationService);
   customers: Customer[] = [];
   showForm = false;
   editId: number | null = null;
   searchTerm = '';
   form: CustomerCreate = { vorname: '', nachname: '' };
+
+  get t() {
+    return this.translationService.translations();
+  }
 
   constructor(
     private customerService: CustomerService,
@@ -412,11 +416,11 @@ export class CustomerListComponent implements OnInit {
   }
 
   deleteCustomer(c: Customer) {
-    if (confirm(`Kunde "${c.fullName}" wirklich löschen?`)) {
+    if (confirm(this.t.deleteConfirmCustomer)) {
       this.customerService.delete(c.id).subscribe({
         next: () => this.load(),
         error: (err) =>
-          alert(err.error?.error || 'Fehler beim Löschen des Kunden'),
+          alert(err.error?.error || this.t.deleteCustomerError),
       });
     }
   }

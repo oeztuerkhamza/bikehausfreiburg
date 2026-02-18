@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   StatisticsService,
   Statistics,
 } from '../../services/statistics.service';
+import { TranslationService } from '../../services/translation.service';
 
 type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 
@@ -14,7 +15,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="statistics-page">
-      <h1>Statistiken</h1>
+      <h1>{{ t.statistics }}</h1>
 
       <!-- Period Selector -->
       <div class="period-selector">
@@ -22,44 +23,44 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
           [class.active]="selectedPeriod === 'today'"
           (click)="selectPeriod('today')"
         >
-          Heute
+          {{ t.today }}
         </button>
         <button
           [class.active]="selectedPeriod === 'week'"
           (click)="selectPeriod('week')"
         >
-          Diese Woche
+          {{ t.thisWeek }}
         </button>
         <button
           [class.active]="selectedPeriod === 'month'"
           (click)="selectPeriod('month')"
         >
-          Dieser Monat
+          {{ t.thisMonth }}
         </button>
         <button
           [class.active]="selectedPeriod === 'quarter'"
           (click)="selectPeriod('quarter')"
         >
-          Dieses Quartal
+          {{ t.thisQuarter }}
         </button>
         <button
           [class.active]="selectedPeriod === 'year'"
           (click)="selectPeriod('year')"
         >
-          Dieses Jahr
+          {{ t.thisYear }}
         </button>
         <button
           [class.active]="selectedPeriod === 'custom'"
           (click)="selectPeriod('custom')"
         >
-          Benutzerdefiniert
+          {{ t.custom }}
         </button>
       </div>
 
       <!-- Custom Date Range -->
       <div class="custom-range" *ngIf="selectedPeriod === 'custom'">
         <div class="date-field">
-          <label>Von:</label>
+          <label>{{ t.from }}:</label>
           <input
             type="date"
             [(ngModel)]="customStartDate"
@@ -67,7 +68,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
           />
         </div>
         <div class="date-field">
-          <label>Bis:</label>
+          <label>{{ t.to }}:</label>
           <input
             type="date"
             [(ngModel)]="customEndDate"
@@ -78,7 +79,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 
       <!-- Loading -->
       <div class="loading" *ngIf="loading">
-        <p>Lade Statistiken...</p>
+        <p>{{ t.loadingStatistics }}</p>
       </div>
 
       <!-- Statistics Content -->
@@ -86,7 +87,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
         <!-- Summary Cards -->
         <div class="summary-cards">
           <div class="card purchases">
-            <h3>Einkäufe</h3>
+            <h3>{{ t.purchases }}</h3>
             <div class="big-number">{{ stats.purchaseCount }}</div>
             <div class="amount">
               {{ stats.totalPurchaseAmount | currency: 'EUR' }}
@@ -97,7 +98,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
           </div>
 
           <div class="card sales">
-            <h3>Verkäufe</h3>
+            <h3>{{ t.sales }}</h3>
             <div class="big-number">{{ stats.saleCount }}</div>
             <div class="amount">
               {{ stats.totalSaleAmount | currency: 'EUR' }}
@@ -108,27 +109,27 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
           </div>
 
           <div class="card profit" [class.negative]="stats.profit < 0">
-            <h3>Gewinn</h3>
+            <h3>{{ t.profit }}</h3>
             <div class="big-number">{{ stats.profit | currency: 'EUR' }}</div>
             <div class="avg">
-              Ø pro Verkauf: {{ stats.averageProfit | currency: 'EUR' }}
+              {{ t.averagePerSale }}: {{ stats.averageProfit | currency: 'EUR' }}
             </div>
           </div>
         </div>
 
         <!-- Daily Breakdown Table -->
         <div class="daily-breakdown" *ngIf="stats.dailyBreakdown.length > 0">
-          <h2>Tägliche Übersicht</h2>
+          <h2>{{ t.dailyOverview }}</h2>
           <div class="table-wrapper">
             <table>
               <thead>
                 <tr>
-                  <th>Datum</th>
-                  <th>Einkäufe</th>
-                  <th>Einkaufswert</th>
-                  <th>Verkäufe</th>
-                  <th>Verkaufswert</th>
-                  <th>Tagesgewinn</th>
+                  <th>{{ t.date }}</th>
+                  <th>{{ t.purchases }}</th>
+                  <th>{{ t.purchaseValue }}</th>
+                  <th>{{ t.sales }}</th>
+                  <th>{{ t.saleValue }}</th>
+                  <th>{{ t.dailyProfit }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -157,7 +158,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 
         <!-- Top Brands -->
         <div class="top-brands" *ngIf="stats.topBrands.length > 0">
-          <h2>Top Marken (nach Umsatz)</h2>
+          <h2>{{ t.topBrands }}</h2>
           <div class="brands-list">
             <div
               class="brand-item"
@@ -165,7 +166,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
             >
               <span class="rank">{{ i + 1 }}.</span>
               <span class="brand-name">{{ brand.brand }}</span>
-              <span class="count">{{ brand.count }} verkauft</span>
+              <span class="count">{{ brand.count }} {{ t.soldCount }}</span>
               <span class="revenue">{{
                 brand.totalRevenue | currency: 'EUR'
               }}</span>
@@ -176,7 +177,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 
       <!-- No Data -->
       <div class="no-data" *ngIf="!loading && !stats">
-        <p>Keine Daten verfügbar</p>
+        <p>{{ t.noData }}</p>
       </div>
     </div>
   `,
@@ -472,6 +473,11 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
   ],
 })
 export class StatisticsComponent implements OnInit {
+  private translationService = inject(TranslationService);
+  get t() {
+    return this.translationService.translations();
+  }
+
   selectedPeriod: PeriodType = 'month';
   customStartDate = '';
   customEndDate = '';

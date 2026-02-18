@@ -18,7 +18,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         <h1>{{ t.purchases }}</h1>
         <div class="header-actions">
           <button class="btn btn-outline" (click)="exportExcel()">
-            📥 Excel Export
+            📥 {{ t.excelExport }}
           </button>
           <a routerLink="/purchases/new" class="btn btn-primary"
             >+ {{ t.newPurchase }}</a
@@ -69,11 +69,11 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <thead>
             <tr>
               <th>{{ t.receiptNo }}</th>
-              <th>Stok Nr.</th>
+              <th>{{ t.stockNo }}</th>
               <th>{{ t.bicycle }}</th>
               <th>{{ t.seller }}</th>
               <th>{{ t.price }}</th>
-              <th>VK-Preis</th>
+              <th>{{ t.sellingPrice }}</th>
               <th>{{ t.paymentMethod }}</th>
               <th>{{ t.date }}</th>
               <th>{{ t.actions }}</th>
@@ -379,15 +379,15 @@ export class PurchaseListComponent implements OnInit {
   exportExcel() {
     this.excelExportService.exportToExcel(
       this.paginatedResult?.items || [],
-      'Ankauefe',
+      this.t.purchases,
       [
-        { key: 'belegNummer', header: 'Beleg-Nr.' },
-        { key: 'bikeInfo', header: 'Fahrrad' },
-        { key: 'sellerName', header: 'Verkäufer' },
-        { key: 'preis', header: 'Preis (€)' },
-        { key: 'verkaufspreisVorschlag', header: 'VK-Preis (€)' },
-        { key: 'zahlungsart', header: 'Zahlungsart' },
-        { key: 'kaufdatum', header: 'Kaufdatum' },
+        { key: 'belegNummer', header: this.t.receiptNo },
+        { key: 'bikeInfo', header: this.t.bicycle },
+        { key: 'sellerName', header: this.t.seller },
+        { key: 'preis', header: `${this.t.price} (€)` },
+        { key: 'verkaufspreisVorschlag', header: `${this.t.sellingPrice} (€)` },
+        { key: 'zahlungsart', header: this.t.paymentMethod },
+        { key: 'kaufdatum', header: this.t.date },
       ],
     );
   }

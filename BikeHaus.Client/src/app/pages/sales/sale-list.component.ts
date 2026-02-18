@@ -18,7 +18,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         <h1>{{ t.sales }}</h1>
         <div class="header-actions">
           <button class="btn btn-outline" (click)="exportExcel()">
-            📥 Excel Export
+            📥 {{ t.excelExport }}
           </button>
           <a routerLink="/sales/new" class="btn btn-primary"
             >+ {{ t.newSale }}</a
@@ -69,7 +69,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <thead>
             <tr>
               <th>{{ t.receiptNo }}</th>
-              <th>Stok Nr.</th>
+              <th>{{ t.stockNo }}</th>
               <th>{{ t.bicycle }}</th>
               <th>{{ t.buyer }}</th>
               <th>{{ t.price }}</th>

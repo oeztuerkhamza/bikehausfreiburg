@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
+import { TranslationService } from '../../services/translation.service';
 import {
   Purchase,
   PurchaseUpdate,
@@ -25,21 +26,21 @@ import { AddressSuggestion } from '../../services/address.service';
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Ankauf bearbeiten</h1>
-        <a routerLink="/purchases" class="btn btn-outline">Zurück</a>
+        <h1>{{ t.editPurchase }}</h1>
+        <a routerLink="/purchases" class="btn btn-outline">{{ t.back }}</a>
       </div>
 
-      <div *ngIf="loading" class="loading">Laden...</div>
+      <div *ngIf="loading" class="loading">{{ t.loading }}</div>
       <div *ngIf="error" class="error">{{ error }}</div>
 
       <form *ngIf="purchase && !loading" (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <!-- Seller info -->
           <div class="form-card">
-            <h2>Verkäufer (Kunde)</h2>
+            <h2>{{ t.seller }} ({{ t.customer }})</h2>
             <div class="form-grid">
               <div class="field">
-                <label>Vorname *</label>
+                <label>{{ t.firstNameRequired }}</label>
                 <input
                   [(ngModel)]="seller.vorname"
                   name="sellerVorname"
@@ -47,7 +48,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Nachname *</label>
+                <label>{{ t.lastNameRequired }}</label>
                 <input
                   [(ngModel)]="seller.nachname"
                   name="sellerNachname"
@@ -55,37 +56,37 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field full">
-                <label>Adresse suchen</label>
+                <label>{{ t.searchAddress }}</label>
                 <app-address-autocomplete
                   placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onSellerAddressSelected($event)"
                 ></app-address-autocomplete>
                 <small class="hint"
-                  >Tippen Sie eine Adresse ein für Vorschläge</small
+                  >{{ t.addressHint }}</small
                 >
               </div>
               <div class="field">
-                <label>Straße</label>
+                <label>{{ t.street }}</label>
                 <input [(ngModel)]="seller.strasse" name="sellerStrasse" />
               </div>
               <div class="field">
-                <label>Hausnummer</label>
+                <label>{{ t.houseNumber }}</label>
                 <input [(ngModel)]="seller.hausnummer" name="sellerHausnr" />
               </div>
               <div class="field">
-                <label>PLZ</label>
+                <label>{{ t.postalCode }}</label>
                 <input [(ngModel)]="seller.plz" name="sellerPlz" />
               </div>
               <div class="field">
-                <label>Stadt</label>
+                <label>{{ t.city }}</label>
                 <input [(ngModel)]="seller.stadt" name="sellerStadt" />
               </div>
               <div class="field">
-                <label>Telefon</label>
+                <label>{{ t.phone }}</label>
                 <input [(ngModel)]="seller.telefon" name="sellerTel" />
               </div>
               <div class="field">
-                <label>E-Mail</label>
+                <label>{{ t.email }}</label>
                 <input
                   type="email"
                   [(ngModel)]="seller.email"
@@ -97,14 +98,14 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Bicycle info -->
           <div class="form-card">
-            <h2>Fahrrad</h2>
+            <h2>{{ t.bicycle }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>Marke *</label>
+                <label>{{ t.brand }} *</label>
                 <input [(ngModel)]="bicycle.marke" name="bikeMarke" required />
               </div>
               <div class="field">
-                <label>Modell *</label>
+                <label>{{ t.model }} *</label>
                 <input
                   [(ngModel)]="bicycle.modell"
                   name="bikeModell"
@@ -112,7 +113,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Rahmennummer *</label>
+                <label>{{ t.frameNumber }} *</label>
                 <input
                   [(ngModel)]="bicycle.rahmennummer"
                   name="bikeRahmen"
@@ -120,11 +121,11 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Farbe *</label>
+                <label>{{ t.color }} *</label>
                 <input [(ngModel)]="bicycle.farbe" name="bikeFarbe" required />
               </div>
               <div class="field">
-                <label>Reifengröße (Zoll) *</label>
+                <label>{{ t.wheelSize }} *</label>
                 <input
                   [(ngModel)]="bicycle.reifengroesse"
                   name="bikeReifen"
@@ -133,7 +134,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Stok Nr.</label>
+                <label>{{ t.stockNo }}</label>
                 <input
                   [(ngModel)]="bicycle.stokNo"
                   name="bikeStokNo"
@@ -141,7 +142,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Fahrradtyp</label>
+                <label>{{ t.bicycleType }}</label>
                 <select [(ngModel)]="bicycle.fahrradtyp" name="bikeFahrradtyp">
                   <option value="">-- Auswählen --</option>
                   <option value="E-Bike">E-Bike</option>
@@ -156,20 +157,20 @@ import { AddressSuggestion } from '../../services/address.service';
                 </select>
               </div>
               <div class="field">
-                <label>Zustand *</label>
+                <label>{{ t.condition }} *</label>
                 <select
                   [(ngModel)]="bicycle.zustand"
                   name="bikeZustand"
                   required
                 >
                   <option value="Gebraucht">
-                    Gebraucht (3 Monate Garantie)
+                    {{ t.usedCondition }}
                   </option>
-                  <option value="Neu">Neu (2 Jahre Gewährleistung)</option>
+                  <option value="Neu">{{ t.newCondition }}</option>
                 </select>
               </div>
               <div class="field full">
-                <label>Beschreibung (Ausstattung)</label>
+                <label>{{ t.descriptionEquipment }}</label>
                 <textarea
                   [(ngModel)]="bicycle.beschreibung"
                   name="bikeBeschr"
@@ -181,10 +182,10 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Purchase details -->
           <div class="form-card">
-            <h2>Kaufdaten</h2>
+            <h2>{{ t.purchaseData }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>Preis (€) *</label>
+                <label>{{ t.priceRequired }}</label>
                 <input
                   type="number"
                   step="0.01"
@@ -194,7 +195,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Geplanter Verkaufspreis (€)</label>
+                <label>{{ t.plannedSellingPrice }} (€)</label>
                 <input
                   type="number"
                   step="0.01"
@@ -204,15 +205,15 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Zahlungsart *</label>
+                <label>{{ t.paymentMethodRequired }}</label>
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
-                  <option value="Bar">Bar</option>
-                  <option value="PayPal">PayPal</option>
-                  <option value="Ueberweisung">Überweisung</option>
+                  <option value="Bar">{{ t.cash }}</option>
+                  <option value="PayPal">{{ t.paypal }}</option>
+                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field">
-                <label>Kaufdatum *</label>
+                <label>{{ t.purchaseDate }} *</label>
                 <input
                   type="date"
                   [(ngModel)]="kaufdatum"
@@ -221,7 +222,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field full">
-                <label>Notizen</label>
+                <label>{{ t.notes }}</label>
                 <textarea
                   [(ngModel)]="notizen"
                   name="notizen"
@@ -238,7 +239,7 @@ import { AddressSuggestion } from '../../services/address.service';
             class="btn btn-primary btn-lg"
             [disabled]="submitting"
           >
-            {{ submitting ? 'Wird gespeichert...' : 'Änderungen speichern' }}
+            {{ submitting ? t.saving : t.saveChanges }}
           </button>
         </div>
       </form>
@@ -360,6 +361,9 @@ import { AddressSuggestion } from '../../services/address.service';
   ],
 })
 export class PurchaseEditComponent implements OnInit {
+  private translationService = inject(TranslationService);
+  get t() { return this.translationService.translations(); }
+
   purchase: Purchase | null = null;
   loading = true;
   error = '';
@@ -404,7 +408,7 @@ export class PurchaseEditComponent implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.error = 'Ungültige Ankauf-ID';
+      this.error = this.t.invalidPurchaseId;
       this.loading = false;
       return;
     }
@@ -416,7 +420,7 @@ export class PurchaseEditComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.error = 'Ankauf nicht gefunden';
+        this.error = this.t.purchaseNotFound;
         this.loading = false;
       },
     });
@@ -492,7 +496,7 @@ export class PurchaseEditComponent implements OnInit {
       },
       error: () => {
         this.submitting = false;
-        alert('Fehler beim Speichern der Änderungen');
+        alert(this.t.saveError);
       },
     });
   }

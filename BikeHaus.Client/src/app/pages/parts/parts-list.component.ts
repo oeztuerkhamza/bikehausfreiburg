@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccessoryCatalogService } from '../../services/accessory-catalog.service';
 import { ExcelExportService } from '../../services/excel-export.service';
+import { TranslationService } from '../../services/translation.service';
 import {
   AccessoryCatalogList,
   AccessoryCatalogCreate,
@@ -16,13 +17,13 @@ import {
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Zubehör-Katalog</h1>
+        <h1>{{ t.accessoryCatalog }}</h1>
         <div class="header-actions">
           <button class="btn btn-outline" (click)="exportExcel()">
-            📥 Excel Export
+            📥 {{ t.excelExport }}
           </button>
           <button class="btn btn-primary" (click)="openAddDialog()">
-            + Neues Zubehör
+            + {{ t.newAccessory }}
           </button>
         </div>
       </div>
@@ -34,7 +35,7 @@ import {
             type="text"
             [(ngModel)]="searchText"
             (ngModelChange)="filterParts()"
-            placeholder="Suchen..."
+            [placeholder]="t.search + '...'"
             class="filter-input search-input"
           />
           <span class="search-icon">🔍</span>
@@ -45,9 +46,9 @@ import {
             (ngModelChange)="filterParts()"
             class="filter-input"
           >
-            <option value="">Alle</option>
-            <option value="active">Nur Aktive</option>
-            <option value="inactive">Nur Inaktive</option>
+            <option value="">{{ t.all }}</option>
+            <option value="active">{{ t.onlyActive }}</option>
+            <option value="inactive">{{ t.onlyInactive }}</option>
           </select>
         </div>
         <span
@@ -63,11 +64,11 @@ import {
         <table>
           <thead>
             <tr>
-              <th>Bezeichnung</th>
-              <th>Kategorie</th>
-              <th>Standardpreis</th>
-              <th>Status</th>
-              <th>Aktionen</th>
+              <th>{{ t.designation }}</th>
+              <th>{{ t.category }}</th>
+              <th>{{ t.defaultPrice }}</th>
+              <th>{{ t.status }}</th>
+              <th>{{ t.actions }}</th>
             </tr>
           </thead>
           <tbody>
@@ -81,7 +82,7 @@ import {
                   [class.active]="part.aktiv"
                   [class.inactive]="!part.aktiv"
                 >
-                  {{ part.aktiv ? 'Aktiv' : 'Inaktiv' }}
+                  {{ part.aktiv ? t.active : t.inactive }}
                 </span>
               </td>
               <td class="actions">
@@ -103,8 +104,8 @@ import {
               <td colspan="5" class="empty">
                 {{
                   parts.length === 0
-                    ? 'Keine Zubehörteile vorhanden'
-                    : 'Keine Treffer'
+                    ? t.noAccessoriesAvailable
+                    : t.noMatches
                 }}
               </td>
             </tr>
@@ -115,27 +116,27 @@ import {
       <!-- Add/Edit Dialog -->
       <div class="dialog-overlay" *ngIf="showDialog" (click)="closeDialog()">
         <div class="dialog" (click)="$event.stopPropagation()">
-          <h2>{{ editingPart ? 'Zubehör bearbeiten' : 'Neues Zubehör' }}</h2>
+          <h2>{{ editingPart ? t.editAccessory : t.newAccessory }}</h2>
           <form (ngSubmit)="savePart()">
             <div class="field">
-              <label>Bezeichnung *</label>
+              <label>{{ t.designation }} *</label>
               <input
                 [(ngModel)]="formData.bezeichnung"
                 name="bezeichnung"
                 required
-                placeholder="z.B. Fahrradschloss"
+                [placeholder]="t.exampleBikeLock"
               />
             </div>
             <div class="field">
-              <label>Kategorie</label>
+              <label>{{ t.category }}</label>
               <input
                 [(ngModel)]="formData.kategorie"
                 name="kategorie"
-                placeholder="z.B. Sicherheit"
+                [placeholder]="t.exampleSecurity"
               />
             </div>
             <div class="field">
-              <label>Standardpreis (€) *</label>
+              <label>{{ t.defaultPrice }} (€) *</label>
               <input
                 type="number"
                 step="0.01"
@@ -151,7 +152,7 @@ import {
                   [(ngModel)]="formData.aktiv"
                   name="aktiv"
                 />
-                Aktiv (wird in Verkäufen angezeigt)
+                {{ t.activeInSales }}
               </label>
             </div>
             <div class="dialog-actions">
@@ -160,10 +161,10 @@ import {
                 class="btn btn-outline"
                 (click)="closeDialog()"
               >
-                Abbrechen
+                {{ t.cancel }}
               </button>
               <button type="submit" class="btn btn-primary" [disabled]="saving">
-                {{ saving ? 'Speichern...' : 'Speichern' }}
+                {{ saving ? t.saving : t.save }}
               </button>
             </div>
           </form>
@@ -446,6 +447,7 @@ import {
   ],
 })
 export class PartsListComponent implements OnInit {
+  private translationService = inject(TranslationService);
   parts: AccessoryCatalogList[] = [];
   filteredParts: AccessoryCatalogList[] = [];
   searchText = '';
@@ -460,6 +462,10 @@ export class PartsListComponent implements OnInit {
     aktiv: true,
   };
   saving = false;
+
+  get t() {
+    return this.translationService.translations();
+  }
 
   constructor(
     private service: AccessoryCatalogService,
@@ -543,7 +549,7 @@ export class PartsListComponent implements OnInit {
         },
         error: () => {
           this.saving = false;
-          alert('Fehler beim Speichern');
+          alert(this.t.saveError);
         },
       });
     } else {
@@ -560,7 +566,7 @@ export class PartsListComponent implements OnInit {
         },
         error: () => {
           this.saving = false;
-          alert('Fehler beim Speichern');
+          alert(this.t.saveError);
         },
       });
     }
@@ -568,18 +574,18 @@ export class PartsListComponent implements OnInit {
 
   exportExcel() {
     this.excelExportService.exportToExcel(this.filteredParts, 'Zubehoer', [
-      { key: 'bezeichnung', header: 'Bezeichnung' },
-      { key: 'kategorie', header: 'Kategorie' },
-      { key: 'standardpreis', header: 'Standardpreis (€)' },
-      { key: 'aktiv', header: 'Status' },
+      { key: 'bezeichnung', header: this.t.designation },
+      { key: 'kategorie', header: this.t.category },
+      { key: 'standardpreis', header: this.t.defaultPrice + ' (€)' },
+      { key: 'aktiv', header: this.t.status },
     ]);
   }
 
   deletePart(part: AccessoryCatalogList) {
-    if (confirm(`"${part.bezeichnung}" wirklich löschen?`)) {
+    if (confirm(this.t.delete + '?')) {
       this.service.delete(part.id).subscribe({
         next: () => this.loadParts(),
-        error: () => alert('Fehler beim Löschen'),
+        error: () => alert(this.t.deleteError),
       });
     }
   }
