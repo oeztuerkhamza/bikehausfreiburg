@@ -22,6 +22,7 @@ export enum DocumentType {
   Image = 'Image',
   Kaufbeleg = 'Kaufbeleg',
   Verkaufsbeleg = 'Verkaufsbeleg',
+  Rechnung = 'Rechnung',
 }
 
 export enum SignatureType {

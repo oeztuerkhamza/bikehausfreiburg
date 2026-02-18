@@ -237,12 +237,21 @@ import { forkJoin } from 'rxjs';
             </div>
           </div>
 
-          <!-- Kleinanzeigen Screenshots -->
+          <!-- Document Upload (Rechnung or Kleinanzeigen) -->
           <div class="form-card">
-            <h2>Kleinanzeigen Fotos</h2>
+            <h2>
+              {{
+                bicycle.zustand === 'Neu'
+                  ? 'Rechnung (Kaufbeleg) *'
+                  : 'Kleinanzeigen Screenshots *'
+              }}
+            </h2>
             <p class="hint-text">
-              Hier können Sie Screenshots von Kleinanzeigen oder Fotos des
-              Fahrrads hochladen.
+              {{
+                bicycle.zustand === 'Neu'
+                  ? 'Bitte laden Sie die Kaufrechnung des neuen Fahrrads hoch.'
+                  : 'Bitte laden Sie Screenshots von Kleinanzeigen hoch.'
+              }}
             </p>
             <div class="upload-area">
               <input
@@ -258,7 +267,11 @@ import { forkJoin } from 'rxjs';
                 class="btn btn-outline"
                 (click)="fileInput.click()"
               >
-                📷 Fotos auswählen
+                {{
+                  bicycle.zustand === 'Neu'
+                    ? '📄 Rechnung auswählen'
+                    : '📷 Fotos auswählen'
+                }}
               </button>
               <span class="file-count" *ngIf="selectedFiles.length > 0">
                 {{ selectedFiles.length }} Foto(s) ausgewählt
@@ -322,6 +335,14 @@ import { forkJoin } from 'rxjs';
           </p>
           <p *ngIf="!kaufdatum" class="error-msg">
             ⚠️ Kaufdatum ist erforderlich
+          </p>
+          <p *ngIf="selectedFiles.length === 0" class="error-msg">
+            ⚠️
+            {{
+              bicycle.zustand === 'Neu'
+                ? 'Rechnung ist erforderlich'
+                : 'Kleinanzeigen Screenshot ist erforderlich'
+            }}
           </p>
         </div>
 
@@ -522,7 +543,8 @@ export class PurchaseFormComponent implements OnInit {
       this.bicycle.rahmennummer?.trim() &&
       this.bicycle.reifengroesse?.trim() &&
       this.preis > 0 &&
-      this.kaufdatum
+      this.kaufdatum &&
+      this.selectedFiles.length > 0
     );
   }
 
@@ -592,10 +614,14 @@ export class PurchaseFormComponent implements OnInit {
       next: (result) => {
         // Upload Kleinanzeigen screenshots if any
         if (this.selectedFiles.length > 0 && result.id) {
+          const docType =
+            this.bicycle.zustand === 'Neu'
+              ? DocumentType.Rechnung
+              : DocumentType.Screenshot;
           const uploadObservables = this.selectedFiles.map((file) =>
             this.documentService.upload(
               file,
-              DocumentType.Screenshot,
+              docType,
               result.bicycle.id,
               result.id,
             ),

@@ -6,5 +6,6 @@ public enum DocumentType
     PDF,
     Image,
     Kaufbeleg,     // Purchase Receipt
-    Verkaufsbeleg  // Sales Receipt
+    Verkaufsbeleg,  // Sales Receipt
+    Rechnung       // Invoice for new bikes
 }
