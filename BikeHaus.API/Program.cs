@@ -80,10 +80,9 @@ if (!Directory.Exists(uploadsPath))
 
 app.MapControllers();
 
-// Auto-migrate database in development
-if (app.Environment.IsDevelopment())
+// Auto-migrate database on startup
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<BikeHausDbContext>();
     db.Database.Migrate();
 
