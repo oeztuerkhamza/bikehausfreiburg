@@ -20,4 +20,4 @@ services:
         sync: false
       - key: Supabase__BucketName
         value: documents
-    healthCheckPath: /api/dashboard
+    healthCheckPath: /health

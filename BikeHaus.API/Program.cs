@@ -78,17 +78,26 @@ var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 if (!Directory.Exists(uploadsPath))
     Directory.CreateDirectory(uploadsPath);
 
+// Simple health check endpoint (no database)
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+
 app.MapControllers();
 
 // Auto-migrate database on startup
-using (var scope = app.Services.CreateScope())
+try
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<BikeHausDbContext>();
     db.Database.Migrate();
 
     // Seed default admin user
     var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
     await authService.SeedDefaultUserAsync();
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "Database migration failed");
 }
 
 await app.RunAsync();

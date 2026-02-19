@@ -33,4 +33,9 @@ EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 
+# Memory optimization for free tier
+ENV DOTNET_GCHeapHardLimit=268435456
+ENV DOTNET_gcServer=0
+ENV DOTNET_GCConserveMemory=9
+
 ENTRYPOINT ["dotnet", "BikeHaus.API.dll"]
