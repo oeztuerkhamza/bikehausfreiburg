@@ -112,6 +112,7 @@ export interface Translations {
   brand: string;
   model: string;
   frameNumber: string;
+  frameSize: string;
   color: string;
   wheelSize: string;
   description: string;
@@ -576,6 +577,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     brand: 'Marke',
     model: 'Modell',
     frameNumber: 'Rahmennummer',
+    frameSize: 'Rahmengröße',
     color: 'Farbe',
     wheelSize: 'Reifengröße',
     description: 'Beschreibung',
@@ -1041,6 +1043,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     brand: 'Marka',
     model: 'Model',
     frameNumber: 'Şase Numarası',
+    frameSize: 'Çerçeve Boyutu',
     color: 'Renk',
     wheelSize: 'Tekerlek Boyutu',
     description: 'Açıklama',

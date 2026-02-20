@@ -14,4 +14,5 @@ public interface IPurchaseService
     Task DeleteAsync(int id);
     Task<string> GetNextBelegNummerAsync();
     Task<byte[]> GeneratePdfAsync(int id);
+    Task<IEnumerable<string>> GetStoreNamesAsync();
 }

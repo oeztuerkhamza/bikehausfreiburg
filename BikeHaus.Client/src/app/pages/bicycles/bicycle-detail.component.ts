@@ -22,147 +22,137 @@ import {
   template: `
     <div class="page" *ngIf="bicycle">
       <div class="page-header">
-        <h1>{{ bicycle.marke }} {{ bicycle.modell }}</h1>
+        <h1>{{ t.edit }}: {{ bicycle.marke }} {{ bicycle.modell }}</h1>
         <div class="header-actions">
-          <button class="btn btn-primary" (click)="save()" *ngIf="editing">
-            {{ t.save }}
+          <button
+            class="btn btn-primary"
+            (click)="save()"
+            [disabled]="submitting"
+          >
+            {{ submitting ? '...' : t.save }}
           </button>
-          <button class="btn btn-outline" (click)="editing = !editing">
-            {{ editing ? t.cancel : t.edit }}
-          </button>
-          <a routerLink="/bicycles" class="btn btn-outline">{{ t.back }}</a>
+          <a routerLink="/bicycles" class="btn btn-outline">{{ t.cancel }}</a>
         </div>
       </div>
 
-      <div class="detail-grid">
-        <div class="detail-card">
+      <div class="edit-grid">
+        <!-- Left: Bicycle fields -->
+        <div class="edit-card">
           <h2>{{ t.bicycleData }}</h2>
-          <div class="field">
-            <label>{{ t.brand }}</label>
-            <input *ngIf="editing" [(ngModel)]="form.marke" />
-            <span *ngIf="!editing">{{ bicycle.marke }}</span>
-          </div>
-          <div class="field">
-            <label>{{ t.model }}</label>
-            <input *ngIf="editing" [(ngModel)]="form.modell" />
-            <span *ngIf="!editing">{{ bicycle.modell }}</span>
-          </div>
-          <div class="field">
-            <label>{{ t.frameNumber }}</label>
-            <input *ngIf="editing" [(ngModel)]="form.rahmennummer" />
-            <span *ngIf="!editing" class="mono">{{
-              bicycle.rahmennummer
-            }}</span>
-          </div>
-          <div class="field">
-            <label>{{ t.color }}</label>
-            <select *ngIf="editing" [(ngModel)]="form.farbe">
-              <option value="">-- {{ t.selectOption }} --</option>
-              <option value="Schwarz">Schwarz</option>
-              <option value="Weiß">Weiß</option>
-              <option value="Rot">Rot</option>
-              <option value="Blau">Blau</option>
-              <option value="Grün">Grün</option>
-              <option value="Gelb">Gelb</option>
-              <option value="Orange">Orange</option>
-              <option value="Grau">Grau</option>
-              <option value="Silber">Silber</option>
-              <option value="Pink">Pink</option>
-            </select>
-            <span *ngIf="!editing">{{ bicycle.farbe }}</span>
-          </div>
-          <div class="field">
-            <label>{{ t.wheelSizeInch }}</label>
-            <select *ngIf="editing" [(ngModel)]="form.reifengroesse">
-              <option value="">-- {{ t.selectOption }} --</option>
-              <option value="12">12"</option>
-              <option value="14">14"</option>
-              <option value="16">16"</option>
-              <option value="18">18"</option>
-              <option value="20">20"</option>
-              <option value="24">24"</option>
-              <option value="26">26"</option>
-              <option value="27.5">27.5"</option>
-              <option value="28">28"</option>
-              <option value="29">29"</option>
-            </select>
-            <span *ngIf="!editing">{{ bicycle.reifengroesse }}</span>
-          </div>
-          <div class="field">
-            <label>{{ t.stockNo }}</label>
-            <input *ngIf="editing" [(ngModel)]="form.stokNo" />
-            <span *ngIf="!editing">{{ bicycle.stokNo || '–' }}</span>
-          </div>
-          <div class="field">
-            <label>{{ t.bicycleType }}</label>
-            <select *ngIf="editing" [(ngModel)]="form.fahrradtyp">
-              <option value="">{{ t.selectOption }}</option>
-              <option value="E-Bike">E-Bike</option>
-              <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
-              <option value="Trekking">Trekking</option>
-              <option value="City">City</option>
-              <option value="MTB">MTB</option>
-              <option value="Rennrad">Rennrad</option>
-              <option value="Kinderfahrrad">Kinderfahrrad</option>
-            </select>
-            <span *ngIf="!editing">{{ bicycle.fahrradtyp || '–' }}</span>
-          </div>
-          <div class="field">
-            <label>{{ t.condition }}</label>
-            <select *ngIf="editing" [(ngModel)]="form.zustand">
-              <option [value]="BikeCondition.Gebraucht">
-                {{ t.usedCondition }}
-              </option>
-              <option [value]="BikeCondition.Neu">{{ t.newCondition }}</option>
-            </select>
-            <span
-              *ngIf="!editing"
-              class="badge"
-              [class]="'badge-' + bicycle.zustand.toLowerCase()"
-            >
-              {{ bicycle.zustand }}
-            </span>
-          </div>
-          <div class="field">
-            <label>{{ t.status }}</label>
-            <select *ngIf="editing" [(ngModel)]="form.status">
-              <option value="Available">{{ t.available }}</option>
-              <option value="Sold">{{ t.sold }}</option>
-              <option value="Reserved">{{ t.reserved }}</option>
-            </select>
-            <span
-              *ngIf="!editing"
-              class="badge"
-              [class]="'badge-' + bicycle.status.toLowerCase()"
-            >
-              {{
-                bicycle.status === 'Available'
-                  ? t.available
-                  : bicycle.status === 'Sold'
-                    ? t.sold
-                    : t.reserved
-              }}
-            </span>
-          </div>
-          <div class="field">
-            <label>{{ t.description }}</label>
-            <textarea
-              *ngIf="editing"
-              [(ngModel)]="form.beschreibung"
-              rows="3"
-            ></textarea>
-            <span *ngIf="!editing">{{ bicycle.beschreibung || '–' }}</span>
+          <div class="form-grid">
+            <div class="field">
+              <label>{{ t.brand }} *</label>
+              <input [(ngModel)]="form.marke" name="marke" />
+            </div>
+            <div class="field">
+              <label>{{ t.model }}</label>
+              <input [(ngModel)]="form.modell" name="modell" />
+            </div>
+            <div class="field">
+              <label>{{ t.frameNumber }}</label>
+              <input
+                [(ngModel)]="form.rahmennummer"
+                name="rahmennummer"
+                placeholder="optional"
+              />
+            </div>
+            <div class="field">
+              <label>{{ t.frameSize }}</label>
+              <input
+                [(ngModel)]="form.rahmengroesse"
+                name="rahmengroesse"
+                placeholder="z.B. 52, 56, M, L"
+              />
+            </div>
+            <div class="field">
+              <label>{{ t.color }}</label>
+              <select [(ngModel)]="form.farbe" name="farbe">
+                <option value="">-- {{ t.selectOption }} --</option>
+                <option value="Schwarz">Schwarz</option>
+                <option value="Weiß">Weiß</option>
+                <option value="Rot">Rot</option>
+                <option value="Blau">Blau</option>
+                <option value="Grün">Grün</option>
+                <option value="Gelb">Gelb</option>
+                <option value="Orange">Orange</option>
+                <option value="Grau">Grau</option>
+                <option value="Silber">Silber</option>
+                <option value="Pink">Pink</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>{{ t.wheelSize }}</label>
+              <select [(ngModel)]="form.reifengroesse" name="reifengroesse">
+                <option value="">-- {{ t.selectOption }} --</option>
+                <option value="12">12"</option>
+                <option value="14">14"</option>
+                <option value="16">16"</option>
+                <option value="18">18"</option>
+                <option value="20">20"</option>
+                <option value="24">24"</option>
+                <option value="26">26"</option>
+                <option value="27.5">27.5"</option>
+                <option value="28">28"</option>
+                <option value="29">29"</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>{{ t.stockNo }}</label>
+              <input [(ngModel)]="form.stokNo" name="stokNo" />
+            </div>
+            <div class="field">
+              <label>{{ t.bicycleType }}</label>
+              <select [(ngModel)]="form.fahrradtyp" name="fahrradtyp">
+                <option value="">-- {{ t.selectOption }} --</option>
+                <option value="E-Bike">E-Bike</option>
+                <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
+                <option value="Trekking">Trekking</option>
+                <option value="City">City</option>
+                <option value="MTB">Mountainbike (MTB)</option>
+                <option value="Rennrad">Rennrad</option>
+                <option value="Kinderfahrrad">Kinderfahrrad</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>{{ t.condition }}</label>
+              <select [(ngModel)]="form.zustand" name="zustand">
+                <option [value]="BikeCondition.Gebraucht">
+                  {{ t.usedCondition }}
+                </option>
+                <option [value]="BikeCondition.Neu">
+                  {{ t.newCondition }}
+                </option>
+              </select>
+            </div>
+            <div class="field">
+              <label>{{ t.status }}</label>
+              <select [(ngModel)]="form.status" name="status">
+                <option value="Available">{{ t.available }}</option>
+                <option value="Sold">{{ t.sold }}</option>
+                <option value="Reserved">{{ t.reserved }}</option>
+              </select>
+            </div>
+            <div class="field field-full">
+              <label>{{ t.description }}</label>
+              <textarea
+                [(ngModel)]="form.beschreibung"
+                name="beschreibung"
+                rows="3"
+                placeholder="optional"
+              ></textarea>
+            </div>
           </div>
         </div>
 
-        <div class="detail-card">
+        <!-- Right: Documents -->
+        <div class="edit-card">
           <h2>{{ t.documents }}</h2>
           <div class="doc-upload">
             <input
               type="file"
               #fileInput
               (change)="uploadFile($event)"
-              style="display:none"
+              style="display: none"
             />
             <button class="btn btn-sm btn-outline" (click)="fileInput.click()">
               + {{ t.uploadDocument }}
@@ -170,7 +160,7 @@ import {
           </div>
           <div class="doc-list">
             <div *ngFor="let doc of documents" class="doc-item">
-              <span>{{ doc.fileName }}</span>
+              <span class="doc-name">{{ doc.fileName }}</span>
               <div class="doc-actions">
                 <button
                   class="btn btn-sm btn-outline"
@@ -189,14 +179,27 @@ import {
           </div>
         </div>
       </div>
+
+      <!-- Bottom save bar -->
+      <div class="save-bar">
+        <a routerLink="/bicycles" class="btn btn-outline">{{ t.cancel }}</a>
+        <button
+          class="btn btn-primary btn-lg"
+          (click)="save()"
+          [disabled]="submitting"
+        >
+          {{ submitting ? '...' : t.save }}
+        </button>
+      </div>
     </div>
   `,
   styles: [
     `
       .page {
-        max-width: 900px;
+        max-width: 960px;
         margin: 0 auto;
-        animation: fadeIn 0.4s ease;
+        padding-bottom: 90px;
+        animation: fadeIn 0.3s ease;
       }
       @keyframes fadeIn {
         from {
@@ -217,7 +220,7 @@ import {
         gap: 10px;
       }
       .page-header h1 {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 800;
         color: var(--text-primary);
       }
@@ -225,34 +228,47 @@ import {
         display: flex;
         gap: 8px;
       }
-      .detail-grid {
+      .edit-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
       }
       @media (max-width: 768px) {
-        .detail-grid {
+        .edit-grid {
           grid-template-columns: 1fr;
         }
       }
-      .detail-card {
+      .edit-card {
         background: var(--bg-card, #fff);
         border-radius: var(--radius-lg, 14px);
         padding: 24px;
         border: 1.5px solid var(--border-light, #e2e8f0);
         box-shadow: var(--shadow-sm);
       }
-      .detail-card h2 {
-        font-size: 1.1rem;
+      .edit-card h2 {
+        font-size: 1.05rem;
         font-weight: 700;
         margin-bottom: 16px;
         color: var(--text-primary);
       }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .field-full {
+        grid-column: 1 / -1;
+      }
+      @media (max-width: 480px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
       .field {
-        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
       }
       .field label {
-        display: block;
         font-size: 0.78rem;
         font-weight: 600;
         color: var(--text-secondary, #64748b);
@@ -271,6 +287,7 @@ import {
         background: var(--bg-card, #fff);
         color: var(--text-primary);
         transition: var(--transition-fast);
+        box-sizing: border-box;
       }
       .field input:focus,
       .field select:focus,
@@ -280,46 +297,10 @@ import {
         box-shadow: 0 0 0 3px
           var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
-      .mono {
-        font-family: 'SF Mono', 'Consolas', monospace;
-        font-size: 0.82rem;
-        color: var(--accent-primary, #6366f1);
-        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
-        padding: 2px 8px;
-        border-radius: 6px;
-        font-weight: 600;
-      }
-      .badge {
-        padding: 4px 11px;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-      }
-      .badge-available {
-        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
-        color: var(--accent-success, #10b981);
-      }
-      .badge-sold {
-        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
-        color: var(--accent-danger, #ef4444);
-      }
-      .badge-reserved {
-        background: rgba(245, 158, 11, 0.08);
-        color: #f59e0b;
-      }
-      .badge-neu {
-        background: rgba(59, 130, 246, 0.08);
-        color: #3b82f6;
-      }
-      .badge-gebraucht {
-        background: rgba(100, 116, 139, 0.08);
-        color: #64748b;
-      }
+
+      /* Documents */
       .doc-upload {
         margin-bottom: 12px;
-      }
-      .doc-list {
       }
       .doc-item {
         display: flex;
@@ -328,6 +309,14 @@ import {
         padding: 8px 0;
         border-bottom: 1px solid var(--border-light, #e2e8f0);
       }
+      .doc-name {
+        font-size: 0.88rem;
+        color: var(--text-primary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 200px;
+      }
       .doc-actions {
         display: flex;
         gap: 4px;
@@ -335,6 +324,72 @@ import {
       .empty {
         color: var(--text-secondary, #64748b);
         font-style: italic;
+        font-size: 0.88rem;
+      }
+
+      /* Save bar */
+      .save-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-primary, #fff);
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
+        padding: 14px 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        z-index: 100;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+      }
+
+      /* ── Buttons ── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
+        font-size: 0.88rem;
+        cursor: pointer;
+        border: 1.5px solid transparent;
+        transition: all 0.15s;
+        text-decoration: none;
+        color: var(--text-primary);
+        background: var(--bg-primary, #fff);
+      }
+      .btn-outline {
+        border-color: var(--border-light, #e2e8f0);
+      }
+      .btn-outline:hover {
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
+      }
+      .btn-primary {
+        background: var(--accent-primary, #6366f1);
+        color: #fff;
+        border-color: var(--accent-primary, #6366f1);
+      }
+      .btn-primary:hover {
+        opacity: 0.9;
+      }
+      .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .btn-danger {
+        background: var(--accent-danger, #ef4444);
+        color: #fff;
+        border-color: var(--accent-danger, #ef4444);
+      }
+      .btn-sm {
+        padding: 5px 12px;
+        font-size: 0.8rem;
+      }
+      .btn-lg {
+        padding: 12px 28px;
+        font-size: 1rem;
       }
     `,
   ],
@@ -345,16 +400,18 @@ export class BicycleDetailComponent implements OnInit {
   private dialogService = inject(DialogService);
   bicycle: Bicycle | null = null;
   documents: DocModel[] = [];
-  editing = false;
+  submitting = false;
   BikeCondition = BikeCondition;
   form: BicycleUpdate = {
     marke: '',
     modell: '',
     rahmennummer: '',
+    rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
     stokNo: '',
     fahrradtyp: '',
+    beschreibung: '',
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
   };
@@ -378,6 +435,7 @@ export class BicycleDetailComponent implements OnInit {
         marke: b.marke,
         modell: b.modell,
         rahmennummer: b.rahmennummer,
+        rahmengroesse: b.rahmengroesse,
         farbe: b.farbe,
         reifengroesse: b.reifengroesse,
         stokNo: b.stokNo,
@@ -393,17 +451,20 @@ export class BicycleDetailComponent implements OnInit {
   }
 
   save() {
+    if (!this.form.marke?.trim()) {
+      this.notificationService.error('Marke ist erforderlich');
+      return;
+    }
+    this.submitting = true;
     this.bicycleService.update(this.bicycle!.id, this.form).subscribe({
       next: () => {
         this.notificationService.success(
           this.t.saveSuccess || 'Erfolgreich gespeichert',
         );
-        this.editing = false;
-        this.bicycleService
-          .getById(this.bicycle!.id)
-          .subscribe((b) => (this.bicycle = b));
+        this.router.navigate(['/bicycles']);
       },
       error: (err) => {
+        this.submitting = false;
         this.notificationService.error(
           err.error?.error || this.t.saveError || 'Fehler beim Speichern',
         );

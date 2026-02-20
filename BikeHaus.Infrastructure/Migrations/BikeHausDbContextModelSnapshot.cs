@@ -77,6 +77,9 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Rahmengroesse")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Rahmennummer")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");

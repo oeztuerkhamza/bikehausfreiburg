@@ -27,9 +27,18 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        if (builder.Environment.IsDevelopment())
+        {
+            policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
+        else
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
     });
 });
 
@@ -65,26 +74,37 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAngular");
 
-app.UseHttpsRedirection();
+// In production, serve Angular SPA from wwwroot
+if (!app.Environment.IsDevelopment())
+{
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Ensure uploads directory exists
-var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
+var uploadsPath = app.Environment.IsDevelopment()
+    ? Path.Combine(app.Environment.ContentRootPath, "uploads")
+    : (builder.Configuration["FileStorage:BasePath"] ?? "/app/data/uploads");
 if (!Directory.Exists(uploadsPath))
     Directory.CreateDirectory(uploadsPath);
 
 app.MapControllers();
 
-// Auto-migrate database in development
-if (app.Environment.IsDevelopment())
+// SPA fallback: serve index.html for non-API routes in production
+if (!app.Environment.IsDevelopment())
+{
+    app.MapFallbackToFile("index.html");
+}
+
+// Auto-migrate database and seed default user
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<BikeHausDbContext>();
     db.Database.Migrate();
 
-    // Seed default admin user
     var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
     await authService.SeedDefaultUserAsync();
 }

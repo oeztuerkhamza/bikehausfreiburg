@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { BicycleListComponent } from './pages/bicycles/bicycle-list.component';
 import { BicycleDetailComponent } from './pages/bicycles/bicycle-detail.component';
+import { BicycleLabelsComponent } from './pages/bicycles/bicycle-labels.component';
 import { CustomerListComponent } from './pages/customers/customer-list.component';
 import { PurchaseListComponent } from './pages/purchases/purchase-list.component';
 import { PurchaseFormComponent } from './pages/purchases/purchase-form.component';
@@ -33,6 +34,11 @@ export const routes: Routes = [
   {
     path: 'bicycles/:id',
     component: BicycleDetailComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'labels',
+    component: BicycleLabelsComponent,
     canActivate: [authGuard],
   },
   {

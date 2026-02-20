@@ -79,6 +79,10 @@ export class PurchaseService {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 
+  getStoreNames(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.url}/store-names`);
+  }
+
   downloadKaufbeleg(id: number): Observable<Blob> {
     return this.http.get(`${this.url}/${id}/kaufbeleg`, {
       responseType: 'blob',

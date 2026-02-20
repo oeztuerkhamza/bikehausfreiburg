@@ -87,6 +87,13 @@ public class PurchasesController : ControllerBase
         }
     }
 
+    [HttpGet("store-names")]
+    public async Task<ActionResult<IEnumerable<string>>> GetStoreNames()
+    {
+        var names = await _purchaseService.GetStoreNamesAsync();
+        return Ok(names);
+    }
+
     [HttpGet("next-belegnummer")]
     public async Task<ActionResult<object>> GetNextBelegNummer()
     {

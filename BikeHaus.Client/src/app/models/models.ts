@@ -44,6 +44,7 @@ export interface Bicycle {
   marke: string;
   modell: string;
   rahmennummer?: string;
+  rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
   stokNo?: string;
@@ -58,6 +59,7 @@ export interface BicycleCreate {
   marke: string;
   modell: string;
   rahmennummer?: string;
+  rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
   stokNo?: string;
@@ -70,6 +72,7 @@ export interface BicycleUpdate {
   marke: string;
   modell: string;
   rahmennummer?: string;
+  rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
   stokNo?: string;

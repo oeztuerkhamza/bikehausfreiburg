@@ -252,4 +252,15 @@ public class PurchaseService : IPurchaseService
     {
         return await _purchaseRepository.GenerateBelegNummerAsync();
     }
+
+    public async Task<IEnumerable<string>> GetStoreNamesAsync()
+    {
+        var purchases = await _purchaseRepository.GetAllAsync();
+        return purchases
+            .Select(p => p.Seller.Nachname)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .Distinct()
+            .OrderBy(n => n)
+            .ToList()!;
+    }
 }

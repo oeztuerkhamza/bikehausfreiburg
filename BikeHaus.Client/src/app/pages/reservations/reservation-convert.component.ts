@@ -193,21 +193,18 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
           </div>
 
           <!-- Seller Signature -->
-          <div class="form-card">
-            <h2>{{ t.sellerSignature }}</h2>
-            <div class="seller-signature-section">
-              <h3>{{ t.seller }} (Bike Haus Freiburg)</h3>
-              <div *ngIf="sellerSignatureData" class="signature-preview">
-                <img
-                  [src]="sellerSignatureData"
-                  alt="{{ t.sellerSignature }}"
-                />
-                <p class="hint">✓ {{ t.savedSignatureUsed }}</p>
+          <div class="form-card signature-card">
+            <div class="signature-block">
+              <div *ngIf="sellerSignatureData" class="sig-img-wrap">
+                <img [src]="sellerSignatureData" alt="{{ t.sellerSignature }}" class="sig-img" />
               </div>
               <div *ngIf="!sellerSignatureData" class="no-signature">
                 <p>{{ t.noSignatureFound }}</p>
                 <a routerLink="/settings" class="link">{{ t.settingsLink }}</a>
               </div>
+              <div class="sig-line"></div>
+              <div class="sig-name">{{ sellerSignerName || 'Bike Haus Freiburg' }}</div>
+              <div class="sig-label">{{ t.sellerSignature }}</div>
             </div>
           </div>
         </div>
@@ -515,17 +512,49 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
         padding-left: 24px;
       }
 
-      .signature-preview {
-        padding: 16px;
-        background: var(--bg-secondary, #f8fafc);
-        border-radius: var(--radius-md, 10px);
-        text-align: center;
-        border: 1.5px solid var(--border-light, #e2e8f0);
+      .signature-card {
+        display: flex;
+        justify-content: flex-start;
       }
-
-      .signature-preview img {
-        max-width: 100%;
-        max-height: 120px;
+      .signature-block {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        width: 160px;
+      }
+      .sig-img-wrap {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        height: 60px;
+        width: 100%;
+      }
+      .sig-img {
+        max-height: 56px;
+        max-width: 140px;
+        object-fit: contain;
+        display: block;
+      }
+      .sig-line {
+        width: 100%;
+        height: 1px;
+        background: #334155;
+        margin: 4px 0 5px;
+      }
+      .sig-name {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: 0.02em;
+        text-align: center;
+      }
+      .sig-label {
+        font-size: 0.7rem;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-top: 3px;
+        text-align: center;
       }
 
       .no-signature {

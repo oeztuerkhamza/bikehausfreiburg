@@ -55,10 +55,14 @@ import { AddressSuggestion } from '../../services/address.service';
           <!-- Bicycle details edit form -->
           <div class="form-card" *ngIf="selectedBike">
             <div class="card-header-row">
-              <h2>{{ t.bicycleDetails }}</h2>
+              <h2>
+                {{ t.bicycleDetails }}
+                <span *ngIf="hasBikeErrors && !bikeEditExpanded" class="bike-error-badge">Pflichtfelder fehlen</span>
+              </h2>
               <button
                 type="button"
                 class="btn btn-sm btn-outline"
+                [class.btn-error]="hasBikeErrors && !bikeEditExpanded"
                 (click)="bikeEditExpanded = !bikeEditExpanded"
               >
                 {{ bikeEditExpanded ? '▲ ' + t.collapse : '▼ ' + t.expand }}
@@ -73,21 +77,25 @@ import { AddressSuggestion } from '../../services/address.service';
               <span *ngIf="bikeEdit.rahmennummer"
                 >{{ t.frameNumber }}: {{ bikeEdit.rahmennummer }}</span
               >
+              <span *ngIf="bikeEdit.rahmengroesse"
+                >{{ t.frameSize }}: {{ bikeEdit.rahmengroesse }}</span
+              >
               <span>{{ bikeEdit.farbe }} | {{ bikeEdit.reifengroesse }}"</span>
             </div>
             <div class="form-grid" *ngIf="bikeEditExpanded">
-              <div class="field">
+              <div class="field" [class.field-error]="bikeErrors['marke']">
                 <label>{{ t.brand }} *</label>
                 <input
                   [(ngModel)]="bikeEdit.marke"
                   name="bikeMarke"
-                  required
                   list="brandList"
                   autocomplete="off"
+                  (ngModelChange)="bikeErrors['marke'] = false"
                 />
                 <datalist id="brandList">
                   <option *ngFor="let b of brands" [value]="b"></option>
                 </datalist>
+                <span class="error-msg" *ngIf="bikeErrors['marke']">Pflichtfeld</span>
               </div>
               <div class="field">
                 <label>{{ t.model }}</label>
@@ -101,17 +109,26 @@ import { AddressSuggestion } from '../../services/address.service';
                   <option *ngFor="let m of models" [value]="m"></option>
                 </datalist>
               </div>
-              <div class="field">
+              <div class="field" [class.field-error]="bikeErrors['rahmennummer']">
                 <label>{{ t.frameNumber }} *</label>
                 <input
                   [(ngModel)]="bikeEdit.rahmennummer"
                   name="bikeRahmen"
-                  required
+                  (ngModelChange)="bikeErrors['rahmennummer'] = false"
                 />
+                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']">Pflichtfeld</span>
               </div>
               <div class="field">
+                <label>{{ t.frameSize }}</label>
+                <input
+                  [(ngModel)]="bikeEdit.rahmengroesse"
+                  name="bikeRahmengroesse"
+                  placeholder="z.B. 52, 56, M, L"
+                />
+              </div>
+              <div class="field" [class.field-error]="bikeErrors['farbe']">
                 <label>{{ t.color }} *</label>
-                <select [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" required>
+                <select [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" (ngModelChange)="bikeErrors['farbe'] = false">
                   <option value="">-- {{ t.selectOption }} --</option>
                   <option value="Schwarz">Schwarz</option>
                   <option value="Weiß">Weiß</option>
@@ -124,13 +141,15 @@ import { AddressSuggestion } from '../../services/address.service';
                   <option value="Silber">Silber</option>
                   <option value="Pink">Pink</option>
                 </select>
+                <span class="error-msg" *ngIf="bikeErrors['farbe']">Pflichtfeld</span>
               </div>
-              <div class="field">
+              <div class="field" [class.field-error]="bikeErrors['reifengroesse']">
                 <label>{{ t.wheelSize }} *</label>
+                <span class="error-msg" *ngIf="bikeErrors['reifengroesse']">Pflichtfeld</span>
                 <select
                   [(ngModel)]="bikeEdit.reifengroesse"
                   name="bikeReifen"
-                  required
+                  (ngModelChange)="bikeErrors['reifengroesse'] = false"
                 >
                   <option value="">-- {{ t.selectOption }} --</option>
                   <option value="12">12"</option>
@@ -149,12 +168,13 @@ import { AddressSuggestion } from '../../services/address.service';
                 <label>{{ t.stockNo }}</label>
                 <input [(ngModel)]="bikeEdit.stokNo" name="bikeStokNo" />
               </div>
-              <div class="field">
+              <div class="field" [class.field-error]="bikeErrors['fahrradtyp']">
                 <label>{{ t.bicycleType }} *</label>
+                <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']">Pflichtfeld</span>
                 <select
                   [(ngModel)]="bikeEdit.fahrradtyp"
                   name="bikeFahrradtyp"
-                  required
+                  (ngModelChange)="bikeErrors['fahrradtyp'] = false"
                 >
                   <option value="">-- Auswählen --</option>
                   <option value="E-Bike">E-Bike</option>
@@ -458,28 +478,6 @@ import { AddressSuggestion } from '../../services/address.service';
             </div>
           </div>
 
-          <!-- Seller Signature -->
-          <div class="form-card">
-            <h2>{{ t.sellerSignature }}</h2>
-            <div class="seller-signature-section">
-              <label>{{ t.sellerSignatureShop }}</label>
-              <div *ngIf="sellerSignatureData" class="signature-preview">
-                <img [src]="sellerSignatureData" [alt]="t.sellerSignature" />
-              </div>
-              <div *ngIf="!sellerSignatureData" class="signature-missing">
-                ⚠️ {{ t.noSignatureWarning }}
-                <a routerLink="/settings">{{ t.addNow }}</a>
-              </div>
-              <div class="field" style="margin-top:8px;">
-                <label>{{ t.sellerName }}</label>
-                <input
-                  [(ngModel)]="sellerSignerName"
-                  name="sellerSignerName"
-                  readonly
-                />
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="form-actions">
@@ -786,30 +784,40 @@ import { AddressSuggestion } from '../../services/address.service';
         margin-bottom: 8px;
         color: var(--text-primary);
       }
-      .signature-preview {
-        background: var(--bg-secondary, #f8fafc);
-        border: 1.5px solid var(--border-light, #e2e8f0);
-        border-radius: var(--radius-md, 10px);
-        padding: 12px;
-        max-width: 300px;
+      .field-error input,
+      .field-error select,
+      .field-error textarea {
+        border-color: #ef4444 !important;
+        background: rgba(239, 68, 68, 0.04);
       }
-      .signature-preview img {
-        max-width: 100%;
-        max-height: 100px;
+      .field-error label {
+        color: #ef4444;
       }
-      .signature-missing {
-        background: rgba(245, 158, 11, 0.08);
-        color: #f59e0b;
-        padding: 12px 16px;
-        border-radius: var(--radius-md, 10px);
-        font-size: 0.9rem;
+      .error-msg {
+        display: block;
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 4px;
         font-weight: 500;
       }
-      .signature-missing a {
-        color: var(--accent-primary, #6366f1);
-        text-decoration: underline;
+      .bike-error-badge {
+        display: inline-block;
+        background: #ef4444;
+        color: #fff;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 99px;
         margin-left: 8px;
+        vertical-align: middle;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
       }
+      .btn-error {
+        border-color: #ef4444 !important;
+        color: #ef4444 !important;
+      }
+
     `,
   ],
 })
@@ -842,10 +850,12 @@ export class SaleFormComponent implements OnInit {
 
   // Bicycle edit
   bikeEditExpanded = false;
+  bikeErrors: { [key: string]: boolean } = {};
   bikeEdit = {
     marke: '',
     modell: '',
     rahmennummer: '',
+    rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
     stokNo: '',
@@ -858,6 +868,10 @@ export class SaleFormComponent implements OnInit {
 
   get t() {
     return this.translationService.translations();
+  }
+
+  get hasBikeErrors(): boolean {
+    return Object.values(this.bikeErrors).some(v => v);
   }
 
   get accessoriesTotal(): number {
@@ -933,6 +947,7 @@ export class SaleFormComponent implements OnInit {
       marke: bike.marke || '',
       modell: bike.modell || '',
       rahmennummer: bike.rahmennummer || '',
+      rahmengroesse: bike.rahmengroesse || '',
       farbe: bike.farbe || '',
       reifengroesse: bike.reifengroesse || '',
       stokNo: bike.stokNo || '',
@@ -982,8 +997,22 @@ export class SaleFormComponent implements OnInit {
     this.accessories.splice(index, 1);
   }
 
+  validateBike(): boolean {
+    this.bikeErrors = {};
+    if (!this.bikeEdit.marke?.trim()) this.bikeErrors['marke'] = true;
+    if (!this.bikeEdit.rahmennummer?.trim()) this.bikeErrors['rahmennummer'] = true;
+    if (!this.bikeEdit.farbe) this.bikeErrors['farbe'] = true;
+    if (!this.bikeEdit.reifengroesse) this.bikeErrors['reifengroesse'] = true;
+    if (!this.bikeEdit.fahrradtyp) this.bikeErrors['fahrradtyp'] = true;
+    return Object.keys(this.bikeErrors).length === 0;
+  }
+
   submit() {
     if (!this.selectedBike) return;
+    if (!this.validateBike()) {
+      this.bikeEditExpanded = true;
+      return;
+    }
     this.submitting = true;
 
     // First update the bicycle if needed
@@ -991,6 +1020,7 @@ export class SaleFormComponent implements OnInit {
       marke: this.bikeEdit.marke,
       modell: this.bikeEdit.modell,
       rahmennummer: this.bikeEdit.rahmennummer || undefined,
+      rahmengroesse: this.bikeEdit.rahmengroesse || undefined,
       farbe: this.bikeEdit.farbe || undefined,
       reifengroesse: this.bikeEdit.reifengroesse,
       stokNo: this.bikeEdit.stokNo || undefined,

@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/.angular/
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/Thumbs.db
+**/*.user
+**/*.suo
+**/docker-compose*.yml
+**/Dockerfile
+**/.dockerignore
+**/README.md

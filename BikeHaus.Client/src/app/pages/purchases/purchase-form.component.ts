@@ -91,7 +91,12 @@ import { forkJoin } from 'rxjs';
                   name="sellerStore"
                   [required]="bulkMode"
                   [placeholder]="t.storeNamePlaceholder"
+                  list="storeNameList"
+                  autocomplete="off"
                 />
+                <datalist id="storeNameList">
+                  <option *ngFor="let s of storeNames" [value]="s"></option>
+                </datalist>
               </div>
               <div class="field full" *ngIf="!bulkMode">
                 <label>{{ t.searchAddress }}</label>
@@ -189,6 +194,14 @@ import { forkJoin } from 'rxjs';
                   [(ngModel)]="bicycle.rahmennummer"
                   name="bikeRahmen"
                   placeholder="optional"
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.frameSize }}</label>
+                <input
+                  [(ngModel)]="bicycle.rahmengroesse"
+                  name="bikeRahmengroesse"
+                  placeholder="z.B. 52, 56, M, L"
                 />
               </div>
               <div class="field">
@@ -798,6 +811,7 @@ export class PurchaseFormComponent implements OnInit {
     marke: '',
     modell: '',
     rahmennummer: '',
+    rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
     stokNo: '',
@@ -820,6 +834,7 @@ export class PurchaseFormComponent implements OnInit {
 
   brands: string[] = [];
   models: string[] = [];
+  storeNames: string[] = [];
 
   firstNames: string[] = [];
   lastNames: string[] = [];
@@ -862,6 +877,14 @@ export class PurchaseFormComponent implements OnInit {
     this.bicycleService.getBrands().subscribe({
       next: (res) => {
         this.brands = res;
+      },
+      error: () => {},
+    });
+
+    // Load store names for autocomplete
+    this.purchaseService.getStoreNames().subscribe({
+      next: (res) => {
+        this.storeNames = res;
       },
       error: () => {},
     });
@@ -993,6 +1016,7 @@ export class PurchaseFormComponent implements OnInit {
         modell: this.bicycle.modell,
         farbe: this.bicycle.farbe || undefined,
         reifengroesse: this.bicycle.reifengroesse,
+        rahmengroesse: this.bicycle.rahmengroesse || undefined,
         fahrradtyp: this.bicycle.fahrradtyp || undefined,
         beschreibung: this.bicycle.beschreibung || undefined,
         zustand: this.bicycle.zustand as BikeCondition,

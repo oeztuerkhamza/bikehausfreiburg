@@ -119,6 +119,14 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
+                <label>{{ t.frameSize }}</label>
+                <input
+                  [(ngModel)]="bicycle.rahmengroesse"
+                  name="bikeRahmengroesse"
+                  placeholder="z.B. 52, 56, M, L"
+                />
+              </div>
+              <div class="field">
                 <label>{{ t.color }} *</label>
                 <select [(ngModel)]="bicycle.farbe" name="bikeFarbe" required>
                   <option value="">-- {{ t.selectOption }} --</option>
@@ -411,6 +419,7 @@ export class PurchaseEditComponent implements OnInit {
     marke: '',
     modell: '',
     rahmennummer: '',
+    rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
     stokNo: '',
@@ -475,6 +484,7 @@ export class PurchaseEditComponent implements OnInit {
         marke: purchase.bicycle.marke || '',
         modell: purchase.bicycle.modell || '',
         rahmennummer: purchase.bicycle.rahmennummer || '',
+        rahmengroesse: purchase.bicycle.rahmengroesse || '',
         farbe: purchase.bicycle.farbe || '',
         reifengroesse: purchase.bicycle.reifengroesse || '',
         stokNo: purchase.bicycle.stokNo || '',

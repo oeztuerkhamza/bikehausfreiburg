@@ -244,7 +244,8 @@ public class PdfService : IPdfService
 
                         AddStyledTableRow(table, "Marke", purchase.Bicycle.Marke, "Modell", purchase.Bicycle.Modell);
                         AddStyledTableRow(table, "Rahmennummer", purchase.Bicycle.Rahmennummer, "Farbe", purchase.Bicycle.Farbe);
-                        AddStyledTableRow(table, "Reifengröße", purchase.Bicycle.Reifengroesse, "Fahrradtyp", purchase.Bicycle.Fahrradtyp ?? "-");
+                        AddStyledTableRow(table, "Rahmengröße", purchase.Bicycle.Rahmengroesse ?? "-", "Reifengröße", purchase.Bicycle.Reifengroesse);
+                        AddStyledTableRow(table, "Fahrradtyp", purchase.Bicycle.Fahrradtyp ?? "-", "Zustand", purchase.Bicycle.Zustand.ToString());
                         if (!string.IsNullOrEmpty(purchase.Bicycle.StokNo))
                             AddStyledTableRow(table, "Stok Nr.", purchase.Bicycle.StokNo, "", "");
                     });
@@ -441,6 +442,9 @@ public class PdfService : IPdfService
 
                         table.Cell().Background(TableAltBg).Padding(5).Text("Reifengröße").FontSize(8).FontColor(Colors.Grey.Darken2);
                         table.Cell().Background(Colors.White).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(sale.Bicycle.Reifengroesse).FontSize(9);
+                        table.Cell().Background(TableAltBg).Padding(5).Text("Rahmengröße").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Background(Colors.White).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(sale.Bicycle.Rahmengroesse ?? "-").FontSize(9);
+
                         table.Cell().Background(TableAltBg).Padding(5).Text("Fahrradtyp").FontSize(8).FontColor(Colors.Grey.Darken2);
                         table.Cell().Background(Colors.White).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(sale.Bicycle.Fahrradtyp ?? "-").FontSize(9);
 
@@ -687,6 +691,7 @@ public class PdfService : IPdfService
                         AddTableRow(table, "Marke:", ret.Sale.Bicycle.Marke);
                         AddTableRow(table, "Modell:", ret.Sale.Bicycle.Modell);
                         AddTableRow(table, "Rahmennummer:", ret.Sale.Bicycle.Rahmennummer);
+                        AddTableRow(table, "Rahmengröße:", ret.Sale.Bicycle.Rahmengroesse ?? "-");
                         AddTableRow(table, "Farbe:", ret.Sale.Bicycle.Farbe);
                         AddTableRow(table, "Reifengröße:", ret.Sale.Bicycle.Reifengroesse);
                     });

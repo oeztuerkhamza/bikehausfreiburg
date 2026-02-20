@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  bikehaus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bikehaus-app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - bikehaus-data:/app/data
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Jwt__Key=${JWT_SECRET_KEY:-BikeHausFreiburgProductionKey2024SuperSecret!@#}
+    networks:
+      - bikehaus-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: bikehaus-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - certbot-etc:/etc/letsencrypt:ro
+      - certbot-var:/var/lib/letsencrypt
+    depends_on:
+      - bikehaus
+    networks:
+      - bikehaus-network
+
+  # Optional: Certbot for free SSL (Let's Encrypt)
+  # Uncomment after initial setup
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: bikehaus-certbot
+  #   volumes:
+  #     - certbot-etc:/etc/letsencrypt
+  #     - certbot-var:/var/lib/letsencrypt
+  #   depends_on:
+  #     - nginx
+  #   command: certonly --webroot --webroot-path=/var/lib/letsencrypt --email YOUR_EMAIL@example.com --agree-tos --no-eff-email -d YOUR_DOMAIN.com
+
+volumes:
+  bikehaus-data:
+    driver: local
+  certbot-etc:
+    driver: local
+  certbot-var:
+    driver: local
+
+networks:
+  bikehaus-network:
+    driver: bridge
