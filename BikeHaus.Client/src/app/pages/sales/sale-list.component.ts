@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -162,7 +162,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 {{ t.noSales }}
               </td>
             </tr>
-            <tr 
+            <tr
               *ngFor="let s of paginatedResult?.items"
               class="clickable-row"
               (click)="toggleMenu($event, s)"
@@ -202,7 +202,10 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                     {{ t.download }}
                   </button>
                   <div class="popup-divider"></div>
-                  <button class="popup-item popup-item-danger" (click)="deleteSale(s)">
+                  <button
+                    class="popup-item popup-item-danger"
+                    (click)="deleteSale(s)"
+                  >
                     <span class="popup-icon">🗑️</span>
                     {{ t.delete }}
                   </button>
@@ -415,6 +418,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .actions-cell {
         position: relative;
         text-align: center;
+        overflow: visible !important;
       }
       .action-icon {
         font-size: 1.2rem;
@@ -505,6 +509,14 @@ export class SaleListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
   private router = inject(Router);
+  private elementRef = inject(ElementRef);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.activeMenuId = null;
+    }
+  }
 
   paginatedResult: PaginatedResult<SaleList> | null = null;
   searchText = '';

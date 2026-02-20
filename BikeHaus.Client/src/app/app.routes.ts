@@ -19,6 +19,7 @@ import { ExpenseListComponent } from './pages/expenses/expense-list.component';
 import { StatisticsComponent } from './pages/statistics/statistics.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { LoginComponent } from './pages/login/login.component';
+import { ArchiveComponent } from './pages/archive/archive.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -99,5 +100,6 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
+  { path: 'archive', component: ArchiveComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' },
 ];

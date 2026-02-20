@@ -286,6 +286,29 @@ import { DialogComponent } from './components/dialog/dialog.component';
             <span class="nav-label">{{ t.statistics }}</span>
           </a>
           <a
+            routerLink="/archive"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <span class="nav-icon">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 8v13H3V8" />
+                <path d="M1 3h22v5H1z" />
+                <path d="M10 12h4" />
+              </svg>
+            </span>
+            <span class="nav-label">{{ t.archive }}</span>
+          </a>
+          <a
             routerLink="/settings"
             routerLinkActive="active"
             (click)="closeSidebar()"

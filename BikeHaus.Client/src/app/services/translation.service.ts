@@ -911,8 +911,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     // Archive
     archive: 'Archiv',
     archiveSearch: 'Fahrrad-Archiv durchsuchen',
-    archiveSearchPlaceholder: 'Beleg-Nr., Stok-Nr., Marke, Modell oder Rahmennummer...',
-    archiveSearchHint: 'Geben Sie eine Beleg-Nr., Stok-Nr., Marke, Modell oder Rahmennummer ein, um die komplette Fahrradhistorie einzusehen.',
+    archiveSearchPlaceholder:
+      'Beleg-Nr., Stok-Nr., Marke, Modell oder Rahmennummer...',
+    archiveSearchHint:
+      'Geben Sie eine Beleg-Nr., Stok-Nr., Marke, Modell oder Rahmennummer ein, um die komplette Fahrradhistorie einzusehen.',
     archiveNoResults: 'Keine Ergebnisse gefunden',
     archiveSelectBicycle: 'Wählen Sie ein Fahrrad aus der Liste',
     archiveTimeline: 'Chronik',
@@ -1371,6 +1373,29 @@ const TRANSLATIONS: Record<Language, Translations> = {
     filterByBrand: 'Markaya göre filtrele',
     filterByColor: 'Renge göre filtrele',
     allBicycleTypes: 'Tüm Bisiklet Tipleri',
+
+    // Archive
+    archive: 'Arşiv',
+    archiveSearch: 'Bisiklet arşivini ara',
+    archiveSearchPlaceholder:
+      'Belge No., Stok No., Marka, Model veya Şase No...',
+    archiveSearchHint:
+      'Belge numarası, stok numarası, marka, model veya şase numarası girerek bisikletin tüm geçmişini görüntüleyin.',
+    archiveNoResults: 'Sonuç bulunamadı',
+    archiveSelectBicycle: 'Listeden bir bisiklet seçin',
+    archiveTimeline: 'Zaman Çizelgesi',
+    archiveBicycleInfo: 'Bisiklet Bilgileri',
+    archivePurchase: 'Alım',
+    archiveSale: 'Satış',
+    archiveReturn: 'İade',
+    archiveReservation: 'Rezervasyon',
+    archiveReservationCancelled: 'Rezervasyon iptal edildi',
+    archiveStokNo: 'Stok No.',
+    archivePurchaseReceipt: 'Alım Belgesi',
+    archiveSaleReceipt: 'Satış Belgesi',
+    archiveViewDocument: 'Belgeyi görüntüle',
+    archivePrintDocument: 'Belgeyi yazdır',
+    archiveBackToSearch: 'Aramaya dön',
   },
 };
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -411,6 +411,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .actions-cell {
         position: relative;
         text-align: center;
+        overflow: visible !important;
       }
       .action-icon {
         font-size: 1.2rem;
@@ -516,6 +517,14 @@ export class PurchaseListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
   private router = inject(Router);
+  private elementRef = inject(ElementRef);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.activeMenuId = null;
+    }
+  }
 
   paginatedResult: PaginatedResult<PurchaseList> | null = null;
   searchText = '';

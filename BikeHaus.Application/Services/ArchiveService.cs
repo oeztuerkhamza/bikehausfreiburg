@@ -2,7 +2,6 @@ using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace BikeHaus.Application.Services;
 
@@ -36,19 +35,19 @@ public class ArchiveService : IArchiveService
         var results = new List<ArchiveSearchResultDto>();
         var searchTerm = query.Trim().ToLower();
 
-        // Search by StokNo
-        var bicycles = await _bicycleRepository.GetAllAsync();
-        var matchingByStokNo = bicycles
-            .Where(b => b.StokNo != null && b.StokNo.ToLower().Contains(searchTerm))
-            .ToList();
+        // Load all data once
+        var allBicycles = (await _bicycleRepository.GetAllAsync()).ToList();
+        var allPurchases = (await _purchaseRepository.GetAllAsync()).ToList();
+        var allSales = (await _saleRepository.GetAllAsync()).ToList();
+        var allReturns = (await _returnRepository.GetAllAsync()).ToList();
 
-        foreach (var bike in matchingByStokNo)
+        var addedBikeIds = new HashSet<int>();
+
+        void TryAdd(Bicycle bike, string matchType)
         {
-            var purchase = (await _purchaseRepository.GetAllAsync())
-                .FirstOrDefault(p => p.BicycleId == bike.Id);
-            var sale = (await _saleRepository.GetAllAsync())
-                .FirstOrDefault(s => s.BicycleId == bike.Id);
-
+            if (!addedBikeIds.Add(bike.Id)) return;
+            var purchase = allPurchases.FirstOrDefault(p => p.BicycleId == bike.Id);
+            var sale = allSales.FirstOrDefault(s => s.BicycleId == bike.Id);
             results.Add(new ArchiveSearchResultDto(
                 bike.Id,
                 bike.StokNo ?? "",
@@ -57,124 +56,42 @@ public class ArchiveService : IArchiveService
                 sale?.BelegNummer,
                 purchase?.Kaufdatum,
                 sale?.Verkaufsdatum,
-                "StokNo"
+                matchType
             ));
         }
 
+        // Search by StokNo
+        foreach (var bike in allBicycles.Where(b => b.StokNo != null && b.StokNo.ToLower().Contains(searchTerm)))
+            TryAdd(bike, "StokNo");
+
         // Search by Purchase BelegNummer
-        var purchases = await _purchaseRepository.GetAllAsync();
-        var matchingPurchases = purchases
-            .Where(p => p.BelegNummer != null && p.BelegNummer.ToLower().Contains(searchTerm))
-            .ToList();
-
-        foreach (var purchase in matchingPurchases)
+        foreach (var p in allPurchases.Where(p => p.BelegNummer != null && p.BelegNummer.ToLower().Contains(searchTerm)))
         {
-            if (results.Any(r => r.BicycleId == purchase.BicycleId)) continue;
-
-            var bike = await _bicycleRepository.GetByIdAsync(purchase.BicycleId);
-            if (bike == null) continue;
-
-            var sale = (await _saleRepository.GetAllAsync())
-                .FirstOrDefault(s => s.BicycleId == bike.Id);
-
-            results.Add(new ArchiveSearchResultDto(
-                bike.Id,
-                bike.StokNo ?? "",
-                $"{bike.Marke} {bike.Modell}",
-                purchase.BelegNummer,
-                sale?.BelegNummer,
-                purchase.Kaufdatum,
-                sale?.Verkaufsdatum,
-                "PurchaseBeleg"
-            ));
+            var bike = allBicycles.FirstOrDefault(b => b.Id == p.BicycleId);
+            if (bike != null) TryAdd(bike, "PurchaseBeleg");
         }
 
         // Search by Sale BelegNummer
-        var sales = await _saleRepository.GetAllAsync();
-        var matchingSales = sales
-            .Where(s => s.BelegNummer != null && s.BelegNummer.ToLower().Contains(searchTerm))
-            .ToList();
-
-        foreach (var sale in matchingSales)
+        foreach (var s in allSales.Where(s => s.BelegNummer.ToLower().Contains(searchTerm)))
         {
-            if (results.Any(r => r.BicycleId == sale.BicycleId)) continue;
-
-            var bike = await _bicycleRepository.GetByIdAsync(sale.BicycleId);
-            if (bike == null) continue;
-
-            var purchase = (await _purchaseRepository.GetAllAsync())
-                .FirstOrDefault(p => p.BicycleId == bike.Id);
-
-            results.Add(new ArchiveSearchResultDto(
-                bike.Id,
-                bike.StokNo ?? "",
-                $"{bike.Marke} {bike.Modell}",
-                purchase?.BelegNummer,
-                sale.BelegNummer,
-                purchase?.Kaufdatum,
-                sale.Verkaufsdatum,
-                "SaleBeleg"
-            ));
+            var bike = allBicycles.FirstOrDefault(b => b.Id == s.BicycleId);
+            if (bike != null) TryAdd(bike, "SaleBeleg");
         }
 
         // Search by Return BelegNummer
-        var returns = await _returnRepository.GetAllAsync();
-        var matchingReturns = returns
-            .Where(r => r.BelegNummer != null && r.BelegNummer.ToLower().Contains(searchTerm))
-            .ToList();
-
-        foreach (var ret in matchingReturns)
+        foreach (var r in allReturns.Where(r => r.BelegNummer.ToLower().Contains(searchTerm)))
         {
-            var sale = await _saleRepository.GetByIdAsync(ret.SaleId);
-            if (sale == null) continue;
-
-            if (results.Any(r => r.BicycleId == sale.BicycleId)) continue;
-
-            var bike = await _bicycleRepository.GetByIdAsync(sale.BicycleId);
-            if (bike == null) continue;
-
-            var purchase = (await _purchaseRepository.GetAllAsync())
-                .FirstOrDefault(p => p.BicycleId == bike.Id);
-
-            results.Add(new ArchiveSearchResultDto(
-                bike.Id,
-                bike.StokNo ?? "",
-                $"{bike.Marke} {bike.Modell}",
-                purchase?.BelegNummer,
-                sale.BelegNummer,
-                purchase?.Kaufdatum,
-                sale.Verkaufsdatum,
-                "ReturnBeleg"
-            ));
+            var bike = allBicycles.FirstOrDefault(b => b.Id == r.BicycleId);
+            if (bike != null) TryAdd(bike, "ReturnBeleg");
         }
 
-        // Search by brand/model
-        var matchingByName = bicycles
-            .Where(b => 
-                b.Marke.ToLower().Contains(searchTerm) ||
-                (b.Modell != null && b.Modell.ToLower().Contains(searchTerm)) ||
-                (b.Rahmennummer != null && b.Rahmennummer.ToLower().Contains(searchTerm)))
-            .ToList();
-
-        foreach (var bike in matchingByName)
+        // Search by brand/model/rahmennummer
+        foreach (var bike in allBicycles.Where(b =>
+            b.Marke.ToLower().Contains(searchTerm) ||
+            b.Modell.ToLower().Contains(searchTerm) ||
+            (b.Rahmennummer != null && b.Rahmennummer.ToLower().Contains(searchTerm))))
         {
-            if (results.Any(r => r.BicycleId == bike.Id)) continue;
-
-            var purchase = (await _purchaseRepository.GetAllAsync())
-                .FirstOrDefault(p => p.BicycleId == bike.Id);
-            var sale = (await _saleRepository.GetAllAsync())
-                .FirstOrDefault(s => s.BicycleId == bike.Id);
-
-            results.Add(new ArchiveSearchResultDto(
-                bike.Id,
-                bike.StokNo ?? "",
-                $"{bike.Marke} {bike.Modell}",
-                purchase?.BelegNummer,
-                sale?.BelegNummer,
-                purchase?.Kaufdatum,
-                sale?.Verkaufsdatum,
-                "BikeInfo"
-            ));
+            TryAdd(bike, "BikeInfo");
         }
 
         return results.Take(20);
@@ -190,7 +107,7 @@ public class ArchiveService : IArchiveService
         // Get Purchase
         var purchases = await _purchaseRepository.GetAllAsync();
         var purchase = purchases.FirstOrDefault(p => p.BicycleId == bicycleId);
-        
+
         if (purchase != null)
         {
             var purchaseWithDetails = await _purchaseRepository.GetWithDetailsAsync(purchase.Id);
@@ -216,7 +133,7 @@ public class ArchiveService : IArchiveService
         foreach (var reservation in reservations)
         {
             var resWithDetails = await _reservationRepository.GetWithDetailsAsync(reservation.Id);
-            
+
             timeline.Add(new ArchiveTimelineEventDto(
                 "Reservation",
                 reservation.ReservierungsDatum,
