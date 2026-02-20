@@ -28,17 +28,15 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
         return await _dbSet
             .Include(s => s.Bicycle)
             .Include(s => s.Buyer)
-            .OrderByDescending(s => s.Verkaufsdatum)
+            .OrderByDescending(s => s.BelegNummer)
             .Take(count)
             .ToListAsync();
     }
 
     public async Task<string> GenerateBelegNummerAsync()
     {
-        var today = DateTime.UtcNow;
-        var prefix = $"VB-{today:yyyyMMdd}";
-        var count = await _dbSet.CountAsync(s => s.BelegNummer.StartsWith(prefix));
-        return $"{prefix}-{(count + 1):D3}";
+        var count = await _dbSet.CountAsync();
+        return $"{(count + 1):D3}";
     }
 
     public override async Task<IEnumerable<Sale>> GetAllAsync()
@@ -46,7 +44,7 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
         return await _dbSet
             .Include(s => s.Bicycle)
             .Include(s => s.Buyer)
-            .OrderByDescending(s => s.Verkaufsdatum)
+            .OrderByDescending(s => s.BelegNummer)
             .ToListAsync();
     }
 
@@ -65,7 +63,7 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .OrderByDescending(s => s.Verkaufsdatum)
+            .OrderByDescending(s => s.BelegNummer)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

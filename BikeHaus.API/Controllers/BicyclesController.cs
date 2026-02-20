@@ -27,14 +27,22 @@ public class BicyclesController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? status = null,
-        [FromQuery] string? search = null)
+        [FromQuery] string? search = null,
+        [FromQuery] string? zustand = null,
+        [FromQuery] string? fahrradtyp = null,
+        [FromQuery] string? reifengroesse = null,
+        [FromQuery] string? marke = null)
     {
         var paginationParams = new PaginationParams
         {
             Page = page,
             PageSize = pageSize,
             Status = status,
-            SearchTerm = search
+            SearchTerm = search,
+            Zustand = zustand,
+            Fahrradtyp = fahrradtyp,
+            Reifengroesse = reifengroesse,
+            Marke = marke
         };
         var result = await _bicycleService.GetPaginatedAsync(paginationParams);
         return Ok(result);
@@ -109,5 +117,19 @@ public class BicyclesController : ControllerBase
         {
             return Conflict(new { error = ex.Message });
         }
+    }
+
+    [HttpGet("brands")]
+    public async Task<ActionResult<IEnumerable<string>>> GetBrands()
+    {
+        var brands = await _bicycleService.GetUniqueBrandsAsync();
+        return Ok(brands);
+    }
+
+    [HttpGet("models")]
+    public async Task<ActionResult<IEnumerable<string>>> GetModels([FromQuery] string? brand = null)
+    {
+        var models = await _bicycleService.GetUniqueModelsAsync(brand);
+        return Ok(models);
     }
 }

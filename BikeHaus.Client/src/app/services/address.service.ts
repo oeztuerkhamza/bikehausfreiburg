@@ -39,23 +39,30 @@ export class AddressService {
       return of([]);
     }
 
-    // Focus search on Germany/Freiburg area
+    // Search across Germany
     const params = {
       q: query,
       format: 'json',
       addressdetails: '1',
       limit: '8',
       countrycodes: 'de', // Germany only
-      viewbox: '7.6,48.1,8.1,47.8', // Freiburg area bounding box
-      bounded: '0', // Allow results outside viewbox but prefer inside
     };
 
     return this.http.get<NominatimResult[]>(this.nominatimUrl, { params }).pipe(
-      map((results) =>
-        results
+      map((results) => {
+        const suggestions = results
           .filter((r) => r.address?.road) // Only results with a street
-          .map((r) => this.mapToSuggestion(r)),
-      ),
+          .map((r) => this.mapToSuggestion(r));
+
+        // Remove similar addresses - keep only one per street + city
+        const seen = new Set<string>();
+        return suggestions.filter((s) => {
+          const key = `${s.strasse}|${s.stadt}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      }),
       catchError(() => of([])),
     );
   }

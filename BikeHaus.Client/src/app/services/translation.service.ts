@@ -29,6 +29,10 @@ export interface Translations {
   viewAll: string;
   noPurchasesFound: string;
   noSalesFound: string;
+  printDocument: string;
+  editDocument: string;
+  preview: string;
+  download: string;
 
   // Common
   save: string;
@@ -84,7 +88,25 @@ export interface Translations {
   ownerSignature: string;
   saveSignature: string;
   deleteSignature: string;
+  drawSignature: string;
+  uploadSignature: string;
+  or: string;
   plannedSellingPrice: string;
+
+  // User Account
+  userAccount: string;
+  currentUsername: string;
+  changeUsername: string;
+  newUsername: string;
+  changePassword: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+  usernameChanged: string;
+  usernameChangeError: string;
+  passwordChanged: string;
+  passwordChangeError: string;
+  passwordMismatch: string;
 
   // Bicycle
   brand: string;
@@ -98,6 +120,9 @@ export interface Translations {
   sold: string;
   returned: string;
   selectBicycle: string;
+  bicycleDetails: string;
+  expand: string;
+  collapse: string;
   deleteConfirmBicycle: string;
   totalBicycles: string;
   bicycleReadonly: string;
@@ -154,6 +179,9 @@ export interface Translations {
   deleteConfirmPurchase: string;
   deleteConfirmSale: string;
   deleteError: string;
+  deleteSuccess: string;
+  saveSuccess: string;
+  cancelSuccess: string;
   from: string;
   to: string;
   stockNo: string;
@@ -265,6 +293,19 @@ export interface Translations {
   soldCount: string;
   dailyProfit: string;
   custom: string;
+  expenses: string;
+  expenseValue: string;
+  netProfit: string;
+  expensesByCategory: string;
+  newExpense: string;
+  editExpense: string;
+  noExpenses: string;
+  expenseCount: string;
+  searchExpensePlaceholder: string;
+  expenseNamePlaceholder: string;
+  supplier: string;
+  supplierPlaceholder: string;
+  deleteConfirmExpense: string;
 
   // Login
   welcomeBack: string;
@@ -309,6 +350,8 @@ export interface Translations {
   accessoriesOptional: string;
   accessorySaleHint: string;
   designation: string;
+  discount: string;
+  discountOptional: string;
   buyerName: string;
   sellerName: string;
   sellerSignatureShop: string;
@@ -377,6 +420,49 @@ export interface Translations {
   login: string;
   loginLoading: string;
   loginFailed: string;
+
+  // Bulk Purchase & Filters
+  singlePurchase: string;
+  bulkPurchase: string;
+  bulkPurchaseDesc: string;
+  supplierStore: string;
+  storeName: string;
+  storeNamePlaceholder: string;
+  storeNameRequired: string;
+  bulkQuantityHint: string;
+  pricePerBike: string;
+  totalPrice: string;
+  saveBulkPurchase: string;
+  invoiceOptional: string;
+  sameInvoiceForAllBikes: string;
+  screenshotsOptional: string;
+  documentsOptionalHint: string;
+  filters: string;
+  clearFilters: string;
+  filterByBrand: string;
+  filterByColor: string;
+  allBicycleTypes: string;
+
+  // Archive
+  archive: string;
+  archiveSearch: string;
+  archiveSearchPlaceholder: string;
+  archiveSearchHint: string;
+  archiveNoResults: string;
+  archiveSelectBicycle: string;
+  archiveTimeline: string;
+  archiveBicycleInfo: string;
+  archivePurchase: string;
+  archiveSale: string;
+  archiveReturn: string;
+  archiveReservation: string;
+  archiveReservationCancelled: string;
+  archiveStokNo: string;
+  archivePurchaseReceipt: string;
+  archiveSaleReceipt: string;
+  archiveViewDocument: string;
+  archivePrintDocument: string;
+  archiveBackToSearch: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -407,6 +493,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     viewAll: 'Alle ansehen',
     noPurchasesFound: 'Keine Ankäufe vorhanden',
     noSalesFound: 'Keine Verkäufe vorhanden',
+    printDocument: 'Beleg drucken',
+    editDocument: 'Beleg bearbeiten',
+    preview: 'Vorschau',
+    download: 'Herunterladen',
 
     // Common
     save: 'Speichern',
@@ -462,7 +552,25 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ownerSignature: 'Unterschrift des Inhabers',
     saveSignature: 'Unterschrift speichern',
     deleteSignature: 'Unterschrift löschen',
+    drawSignature: 'Unterschrift zeichnen',
+    uploadSignature: 'Unterschrift hochladen',
+    or: 'oder',
     plannedSellingPrice: 'Geplanter Verkaufspreis',
+
+    // User Account
+    userAccount: 'Benutzerkonto',
+    currentUsername: 'Aktueller Benutzername',
+    changeUsername: 'Benutzername ändern',
+    newUsername: 'Neuer Benutzername',
+    changePassword: 'Passwort ändern',
+    currentPassword: 'Aktuelles Passwort',
+    newPassword: 'Neues Passwort',
+    confirmPassword: 'Passwort bestätigen',
+    usernameChanged: 'Benutzername erfolgreich geändert',
+    usernameChangeError: 'Passwort falsch oder Benutzername bereits vergeben',
+    passwordChanged: 'Passwort erfolgreich geändert',
+    passwordChangeError: 'Aktuelles Passwort ist falsch',
+    passwordMismatch: 'Passwörter stimmen nicht überein',
 
     // Bicycle
     brand: 'Marke',
@@ -476,6 +584,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     sold: 'Verkauft',
     returned: 'Zurückgegeben',
     selectBicycle: 'Fahrrad auswählen',
+    bicycleDetails: 'Fahrrad-Details',
+    expand: 'Erweitern',
+    collapse: 'Einklappen',
     deleteConfirmBicycle: 'Fahrrad wirklich löschen?',
     totalBicycles: 'Fahrräder gesamt',
     bicycleReadonly: 'Das Fahrrad kann nicht geändert werden.',
@@ -519,7 +630,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     paymentMethod: 'Zahlungsart',
     paymentMethodRequired: 'Zahlungsart *',
     cash: 'Bar',
-    bankTransfer: 'Überweisung',
+    bankTransfer: 'Karte',
     paypal: 'PayPal',
     warranty: 'Garantie',
     warrantyNew: '2 Jahre Gewährleistung',
@@ -532,6 +643,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     deleteConfirmPurchase: 'Ankauf wirklich löschen?',
     deleteConfirmSale: 'Verkauf wirklich löschen?',
     deleteError: 'Fehler beim Löschen',
+    deleteSuccess: 'Erfolgreich gelöscht',
+    saveSuccess: 'Erfolgreich gespeichert',
+    cancelSuccess: 'Erfolgreich storniert',
     from: 'Von',
     to: 'Bis',
     stockNo: 'Stok Nr.',
@@ -581,6 +695,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     accessoriesTotal: 'Zubehör Summe',
     editAccessory: 'Zubehör bearbeiten',
     newAccessory: 'Neues Zubehör',
+    discount: 'Rabatt',
+    discountOptional: 'Rabatt (optional)',
 
     // Returns
     newReturn: 'Neue Rückgabe',
@@ -643,6 +759,19 @@ const TRANSLATIONS: Record<Language, Translations> = {
     soldCount: 'verkauft',
     dailyProfit: 'Tagesgewinn',
     custom: 'Benutzerdefiniert',
+    expenses: 'Ausgaben',
+    expenseValue: 'Ausgabenwert',
+    netProfit: 'Nettogewinn',
+    expensesByCategory: 'Ausgaben nach Kategorie',
+    newExpense: 'Neue Ausgabe',
+    editExpense: 'Ausgabe bearbeiten',
+    noExpenses: 'Keine Ausgaben vorhanden',
+    expenseCount: 'Anzahl',
+    searchExpensePlaceholder: 'Suche nach Bezeichnung, Kategorie, Lieferant...',
+    expenseNamePlaceholder: 'z.B. Fahrradschlösser Einkauf',
+    supplier: 'Lieferant',
+    supplierPlaceholder: 'z.B. Amazon, Baumarkt',
+    deleteConfirmExpense: 'Ausgabe wirklich löschen?',
 
     // Login
     welcomeBack: 'Willkommen zurück — bitte melden Sie sich an',
@@ -756,6 +885,49 @@ const TRANSLATIONS: Record<Language, Translations> = {
     login: 'Anmelden',
     loginLoading: 'Wird geladen...',
     loginFailed: 'Anmeldung fehlgeschlagen.',
+
+    // Bulk Purchase & Filters
+    singlePurchase: 'Einzelankauf',
+    bulkPurchase: 'Sammelankauf',
+    bulkPurchaseDesc: 'Mehrere Fahrräder kaufen',
+    supplierStore: 'Lieferant / Geschäft',
+    storeName: 'Geschäftsname',
+    storeNamePlaceholder: 'z.B. Pyro Bikes, Bergamont...',
+    storeNameRequired: 'Geschäftsname ist erforderlich',
+    bulkQuantityHint: 'Wie viele identische Fahrräder kaufen Sie?',
+    pricePerBike: 'Preis pro Fahrrad',
+    totalPrice: 'Gesamtpreis',
+    saveBulkPurchase: 'Sammelankauf speichern',
+    invoiceOptional: 'Rechnung (optional)',
+    sameInvoiceForAllBikes: 'Diese Rechnungsnummer gilt für alle Fahrräder',
+    screenshotsOptional: 'Screenshots (optional)',
+    documentsOptionalHint: 'Dokumente können auch später hinzugefügt werden.',
+    filters: 'Filter',
+    clearFilters: 'Filter zurücksetzen',
+    filterByBrand: 'Nach Marke filtern',
+    filterByColor: 'Nach Farbe filtern',
+    allBicycleTypes: 'Alle Fahrradtypen',
+
+    // Archive
+    archive: 'Archiv',
+    archiveSearch: 'Fahrrad-Archiv durchsuchen',
+    archiveSearchPlaceholder: 'Beleg-Nr., Stok-Nr., Marke, Modell oder Rahmennummer...',
+    archiveSearchHint: 'Geben Sie eine Beleg-Nr., Stok-Nr., Marke, Modell oder Rahmennummer ein, um die komplette Fahrradhistorie einzusehen.',
+    archiveNoResults: 'Keine Ergebnisse gefunden',
+    archiveSelectBicycle: 'Wählen Sie ein Fahrrad aus der Liste',
+    archiveTimeline: 'Chronik',
+    archiveBicycleInfo: 'Fahrrad-Informationen',
+    archivePurchase: 'Ankauf',
+    archiveSale: 'Verkauf',
+    archiveReturn: 'Rückgabe',
+    archiveReservation: 'Reservierung',
+    archiveReservationCancelled: 'Reservierung storniert',
+    archiveStokNo: 'Stok-Nr.',
+    archivePurchaseReceipt: 'Kaufbeleg',
+    archiveSaleReceipt: 'Verkaufsbeleg',
+    archiveViewDocument: 'Beleg anzeigen',
+    archivePrintDocument: 'Beleg drucken',
+    archiveBackToSearch: 'Zurück zur Suche',
   },
   tr: {
     // Navigation
@@ -784,6 +956,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     viewAll: 'Tümünü göster',
     noPurchasesFound: 'Alım bulunamadı',
     noSalesFound: 'Satış bulunamadı',
+    printDocument: 'Belgeyi yazdır',
+    editDocument: 'Belgeyi düzenle',
+    preview: 'Önizleme',
+    download: 'İndir',
 
     // Common
     save: 'Kaydet',
@@ -839,7 +1015,25 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ownerSignature: 'İşletme Sahibi İmzası',
     saveSignature: 'İmzayı Kaydet',
     deleteSignature: 'İmzayı Sil',
+    drawSignature: 'İmza Çiz',
+    uploadSignature: 'İmza Yükle',
+    or: 'veya',
     plannedSellingPrice: 'Planlanan Satış Fiyatı',
+
+    // User Account
+    userAccount: 'Kullanıcı Hesabı',
+    currentUsername: 'Mevcut Kullanıcı Adı',
+    changeUsername: 'Kullanıcı Adını Değiştir',
+    newUsername: 'Yeni Kullanıcı Adı',
+    changePassword: 'Şifre Değiştir',
+    currentPassword: 'Mevcut Şifre',
+    newPassword: 'Yeni Şifre',
+    confirmPassword: 'Şifreyi Onayla',
+    usernameChanged: 'Kullanıcı adı başarıyla değiştirildi',
+    usernameChangeError: 'Şifre yanlış veya kullanıcı adı zaten alınmış',
+    passwordChanged: 'Şifre başarıyla değiştirildi',
+    passwordChangeError: 'Mevcut şifre yanlış',
+    passwordMismatch: 'Şifreler eşleşmiyor',
 
     // Bicycle
     brand: 'Marka',
@@ -853,6 +1047,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     sold: 'Satıldı',
     returned: 'İade Edildi',
     selectBicycle: 'Bisiklet seç',
+    bicycleDetails: 'Bisiklet Detayları',
+    expand: 'Genişlet',
+    collapse: 'Daralt',
     deleteConfirmBicycle: 'Bisikleti silmek istediğinize emin misiniz?',
     totalBicycles: 'Toplam bisiklet',
     bicycleReadonly: 'Bisiklet değiştirilemez.',
@@ -896,7 +1093,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     paymentMethod: 'Ödeme Yöntemi',
     paymentMethodRequired: 'Ödeme Yöntemi *',
     cash: 'Nakit',
-    bankTransfer: 'Banka Havalesi',
+    bankTransfer: 'Kart',
     paypal: 'PayPal',
     warranty: 'Garanti',
     warrantyNew: '2 Yıl Garanti',
@@ -909,6 +1106,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     deleteConfirmPurchase: 'Bu alımı silmek istediğinize emin misiniz?',
     deleteConfirmSale: 'Bu satışı silmek istediğinize emin misiniz?',
     deleteError: 'Silme hatası',
+    deleteSuccess: 'Başarıyla silindi',
+    saveSuccess: 'Başarıyla kaydedildi',
+    cancelSuccess: 'Başarıyla iptal edildi',
     from: 'Başlangıç',
     to: 'Bitiş',
     stockNo: 'Stok No',
@@ -958,6 +1158,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     accessoriesTotal: 'Aksesuar toplamı',
     editAccessory: 'Aksesuar düzenle',
     newAccessory: 'Yeni aksesuar',
+    discount: 'İndirim',
+    discountOptional: 'İndirim (opsiyonel)',
 
     // Returns
     newReturn: 'Yeni İade',
@@ -1021,6 +1223,19 @@ const TRANSLATIONS: Record<Language, Translations> = {
     soldCount: 'satıldı',
     dailyProfit: 'Günlük kar',
     custom: 'Özel',
+    expenses: 'Giderler',
+    expenseValue: 'Gider değeri',
+    netProfit: 'Net Kar',
+    expensesByCategory: 'Kategoriye göre giderler',
+    newExpense: 'Yeni Gider',
+    editExpense: 'Gider düzenle',
+    noExpenses: 'Gider bulunamadı',
+    expenseCount: 'Adet',
+    searchExpensePlaceholder: 'Açıklama, kategori, tedarikçi ara...',
+    expenseNamePlaceholder: 'örn. Bisiklet kilidi alımı',
+    supplier: 'Tedarikçi',
+    supplierPlaceholder: 'örn. Amazon, Baumarkt',
+    deleteConfirmExpense: 'Bu gideri silmek istediğinize emin misiniz?',
 
     // Login
     welcomeBack: 'Hoş geldiniz — lütfen giriş yapın',
@@ -1134,6 +1349,28 @@ const TRANSLATIONS: Record<Language, Translations> = {
     login: 'Giriş Yap',
     loginLoading: 'Yükleniyor...',
     loginFailed: 'Giriş başarısız.',
+
+    // Bulk Purchase & Filters
+    singlePurchase: 'Tekli Alım',
+    bulkPurchase: 'Toplu Alım',
+    bulkPurchaseDesc: 'Birden fazla bisiklet al',
+    supplierStore: 'Tedarikçi / Mağaza',
+    storeName: 'Mağaza Adı',
+    storeNamePlaceholder: 'örn. Pyro Bikes, Bergamont...',
+    storeNameRequired: 'Mağaza adı gereklidir',
+    bulkQuantityHint: 'Kaç adet aynı bisiklet alıyorsunuz?',
+    pricePerBike: 'Bisiklet Başına Fiyat',
+    totalPrice: 'Toplam Fiyat',
+    saveBulkPurchase: 'Toplu Alımı Kaydet',
+    invoiceOptional: 'Fatura (isteğe bağlı)',
+    sameInvoiceForAllBikes: 'Bu fatura numarası tüm bisikletler için geçerli',
+    screenshotsOptional: 'Ekran görüntüleri (isteğe bağlı)',
+    documentsOptionalHint: 'Belgeler daha sonra da eklenebilir.',
+    filters: 'Filtreler',
+    clearFilters: 'Filtreleri Temizle',
+    filterByBrand: 'Markaya göre filtrele',
+    filterByColor: 'Renge göre filtrele',
+    allBicycleTypes: 'Tüm Bisiklet Tipleri',
   },
 };
 

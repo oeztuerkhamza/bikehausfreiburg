@@ -1,10 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SaleService } from '../../services/sale.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
+import { NotificationService } from '../../services/notification.service';
+import { DialogService } from '../../services/dialog.service';
 import { SaleList, PaginatedResult } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
@@ -27,8 +29,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       </div>
 
       <!-- Filter Bar -->
-      <div class="filter-bar">
-        <div class="filter-group search-group">
+      <div class="filters">
+        <div class="search-group">
           <input
             type="text"
             [(ngModel)]="searchText"
@@ -36,8 +38,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             [placeholder]="t.searchPlaceholder"
             class="filter-input search-input"
           />
-          <span class="search-icon"
-            ><svg
+          <span class="search-icon">
+            <svg
               width="16"
               height="16"
               viewBox="0 0 24 24"
@@ -47,10 +49,44 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               stroke-linecap="round"
             >
               <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" /></svg
-          ></span>
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
         </div>
-        <div class="filter-group">
+        <button
+          class="btn btn-outline filter-toggle"
+          (click)="showFilters = !showFilters"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <polygon
+              points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
+            ></polygon>
+          </svg>
+          {{ t.filters }}
+          <span *ngIf="activeFilterCount > 0" class="filter-badge">{{
+            activeFilterCount
+          }}</span>
+        </button>
+        <button
+          *ngIf="activeFilterCount > 0"
+          class="btn btn-outline"
+          (click)="clearFilters()"
+        >
+          ✕ {{ t.clearFilters }}
+        </button>
+      </div>
+
+      <div class="filter-row" *ngIf="showFilters">
+        <div class="filter-item">
+          <label>{{ t.paymentMethod }}</label>
           <select
             [(ngModel)]="filterPayment"
             (change)="onFilterChange()"
@@ -58,9 +94,48 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           >
             <option value="">{{ t.allPaymentMethods }}</option>
             <option value="Bar">{{ t.cash }}</option>
-            <option value="Ueberweisung">{{ t.bankTransfer }}</option>
+            <option value="Karte">{{ t.bankTransfer }}</option>
             <option value="PayPal">{{ t.paypal }}</option>
           </select>
+        </div>
+        <div class="filter-item">
+          <label>{{ t.bicycleType }}</label>
+          <select
+            [(ngModel)]="filterFahrradtyp"
+            (change)="onFilterChange()"
+            class="filter-input"
+          >
+            <option value="">{{ t.allBicycleTypes }}</option>
+            <option value="E-Bike">E-Bike</option>
+            <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
+            <option value="Trekking">Trekking</option>
+            <option value="City">City</option>
+            <option value="MTB">Mountainbike</option>
+            <option value="Rennrad">Rennrad</option>
+            <option value="Kinderfahrrad">Kinderfahrrad</option>
+            <option value="Lastenrad">Lastenrad</option>
+            <option value="Sonstige">Sonstige</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>{{ t.brand }}</label>
+          <input
+            type="text"
+            [(ngModel)]="filterMarke"
+            (input)="onFilterChange()"
+            [placeholder]="t.filterByBrand"
+            class="filter-input"
+          />
+        </div>
+        <div class="filter-item">
+          <label>{{ t.color }}</label>
+          <input
+            type="text"
+            [(ngModel)]="filterFarbe"
+            (input)="onFilterChange()"
+            [placeholder]="t.filterByColor"
+            class="filter-input"
+          />
         </div>
       </div>
 
@@ -75,7 +150,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <th>{{ t.price }}</th>
               <th>{{ t.paymentMethod }}</th>
               <th>{{ t.date }}</th>
-              <th>{{ t.actions }}</th>
+              <th style="width: 50px;"></th>
             </tr>
           </thead>
           <tbody>
@@ -87,7 +162,11 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 {{ t.noSales }}
               </td>
             </tr>
-            <tr *ngFor="let s of paginatedResult?.items">
+            <tr 
+              *ngFor="let s of paginatedResult?.items"
+              class="clickable-row"
+              (click)="toggleMenu($event, s)"
+            >
               <td class="mono">{{ s.belegNummer }}</td>
               <td class="mono">{{ s.stokNo || '–' }}</td>
               <td>{{ s.bikeInfo }}</td>
@@ -99,25 +178,35 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 </span>
               </td>
               <td>{{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}</td>
-              <td class="actions">
-                <a
-                  class="btn btn-sm btn-outline"
-                  [routerLink]="['/sales/edit', s.id]"
+              <td class="actions-cell">
+                <span class="action-icon">⋮</span>
+                <div
+                  *ngIf="activeMenuId === s.id"
+                  class="popup-menu"
+                  (click)="$event.stopPropagation()"
                 >
-                  ✎
-                </a>
-                <button
-                  class="btn btn-sm btn-outline"
-                  (click)="downloadPdf(s.id, s.belegNummer)"
-                >
-                  PDF
-                </button>
-                <button
-                  class="btn btn-sm btn-danger"
-                  (click)="deleteSale(s.id)"
-                >
-                  ×
-                </button>
+                  <button class="popup-item" (click)="printPdf(s)">
+                    <span class="popup-icon">🖨️</span>
+                    {{ t.printDocument }}
+                  </button>
+                  <button class="popup-item" (click)="goToEdit(s)">
+                    <span class="popup-icon">✏️</span>
+                    {{ t.editDocument }}
+                  </button>
+                  <button class="popup-item" (click)="previewPdf(s)">
+                    <span class="popup-icon">👁️</span>
+                    {{ t.preview }}
+                  </button>
+                  <button class="popup-item" (click)="downloadPdf(s)">
+                    <span class="popup-icon">⬇️</span>
+                    {{ t.download }}
+                  </button>
+                  <div class="popup-divider"></div>
+                  <button class="popup-item popup-item-danger" (click)="deleteSale(s)">
+                    <span class="popup-icon">🗑️</span>
+                    {{ t.delete }}
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -165,17 +254,15 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         gap: 10px;
         align-items: center;
       }
-      .filter-bar {
+      .filters {
         display: flex;
         gap: 12px;
         margin-bottom: 18px;
         flex-wrap: wrap;
         align-items: center;
       }
-      .filter-group {
-        position: relative;
-      }
       .search-group {
+        position: relative;
         flex: 1;
         min-width: 220px;
       }
@@ -207,16 +294,61 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         pointer-events: none;
         display: flex;
       }
+      .filter-toggle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .filter-badge {
+        background: var(--accent-primary);
+        color: #fff;
+        font-size: 0.7rem;
+        padding: 2px 7px;
+        border-radius: 50px;
+        font-weight: 700;
+      }
+      .filter-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        animation: slideDown 0.25s ease;
+      }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 160px;
+      }
+      .filter-item label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
       .table-wrap {
         background: var(--bg-card);
         border-radius: var(--radius-lg, 14px);
         border: 1px solid var(--border-light);
-        overflow: auto;
+        overflow: visible;
         box-shadow: var(--shadow-sm);
       }
       table {
         width: 100%;
+        min-width: 950px;
         border-collapse: collapse;
+        table-layout: fixed;
       }
       th {
         text-align: left;
@@ -228,12 +360,38 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         border-bottom: 1px solid var(--border-light);
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        white-space: nowrap;
       }
+      th:nth-child(1) {
+        width: 110px;
+      } /* Beleg No */
+      th:nth-child(2) {
+        width: 70px;
+      } /* Stok No */
+      th:nth-child(3) {
+        width: 150px;
+      } /* Bisiklet */
+      th:nth-child(4) {
+        width: 150px;
+      } /* Alıcı */
+      th:nth-child(5) {
+        width: 90px;
+      } /* Fiyat */
+      th:nth-child(6) {
+        width: 100px;
+      } /* Ödeme */
+      th:nth-child(7) {
+        width: 100px;
+      } /* Tarih */
       td {
         padding: 11px 16px;
         border-bottom: 1px solid var(--border-light);
         font-size: 0.88rem;
         color: var(--text-secondary);
+        vertical-align: middle;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       tr:hover td {
         background: var(--table-hover, #f1f5f9);
@@ -247,9 +405,67 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         border-radius: 6px;
         font-weight: 600;
       }
-      .actions {
+      .clickable-row {
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .clickable-row:hover td {
+        background: var(--table-hover, #f1f5f9);
+      }
+      .actions-cell {
+        position: relative;
+        text-align: center;
+      }
+      .action-icon {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+      }
+      .popup-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        z-index: 9999;
+        min-width: 170px;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-lg, 14px);
+        box-shadow: var(--shadow-lg);
+        padding: 6px 0;
+        animation: fadeIn 0.15s ease;
+      }
+      .popup-item {
         display: flex;
-        gap: 6px;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 9px 14px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        text-align: left;
+        transition: var(--transition-fast);
+        border-radius: 0;
+      }
+      .popup-item:hover {
+        background: var(--table-hover, #f1f5f9);
+      }
+      .popup-item-danger {
+        color: var(--accent-danger, #ef4444);
+      }
+      .popup-item-danger:hover {
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
+      }
+      .popup-divider {
+        height: 1px;
+        background: var(--border-light, #e2e8f0);
+        margin: 4px 0;
+      }
+      .popup-icon {
+        font-size: 1rem;
       }
       .badge {
         display: inline-block;
@@ -263,7 +479,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
         color: var(--accent-success, #10b981);
       }
-      .badge-Ueberweisung {
+      .badge-Karte {
         background: rgba(59, 130, 246, 0.08);
         color: #3b82f6;
       }
@@ -272,10 +488,10 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         color: var(--accent-warning, #f59e0b);
       }
       @media (max-width: 640px) {
-        .filter-bar {
+        .filters {
           flex-direction: column;
         }
-        .search-group {
+        .search-input {
           min-width: 100%;
         }
       }
@@ -286,15 +502,32 @@ export class SaleListComponent implements OnInit {
   private saleService = inject(SaleService);
   private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
+  private notificationService = inject(NotificationService);
+  private dialogService = inject(DialogService);
+  private router = inject(Router);
 
   paginatedResult: PaginatedResult<SaleList> | null = null;
   searchText = '';
   filterPayment = '';
+  filterMarke = '';
+  filterFahrradtyp = '';
+  filterFarbe = '';
   currentPage = 1;
   pageSize = 20;
+  showFilters = false;
+  activeMenuId: number | null = null;
 
   get t() {
     return this.translationService.translations();
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.filterPayment) count++;
+    if (this.filterMarke) count++;
+    if (this.filterFahrradtyp) count++;
+    if (this.filterFarbe) count++;
+    return count;
   }
 
   ngOnInit() {
@@ -308,10 +541,22 @@ export class SaleListComponent implements OnInit {
         this.pageSize,
         this.filterPayment || undefined,
         this.searchText || undefined,
+        this.filterMarke || undefined,
+        this.filterFahrradtyp || undefined,
+        this.filterFarbe || undefined,
       )
       .subscribe((data) => {
         this.paginatedResult = data;
       });
+  }
+
+  clearFilters() {
+    this.filterPayment = '';
+    this.filterMarke = '';
+    this.filterFahrradtyp = '';
+    this.filterFarbe = '';
+    this.currentPage = 1;
+    this.load();
   }
 
   onSearch() {
@@ -339,7 +584,7 @@ export class SaleListComponent implements OnInit {
     switch (method) {
       case 'Bar':
         return this.t.cash;
-      case 'Ueberweisung':
+      case 'Karte':
         return this.t.bankTransfer;
       case 'PayPal':
         return this.t.paypal;
@@ -348,15 +593,51 @@ export class SaleListComponent implements OnInit {
     }
   }
 
-  downloadPdf(id: number, belegNr: string) {
-    this.saleService.downloadVerkaufsbeleg(id).subscribe((blob) => {
+  downloadPdf(s: SaleList) {
+    this.closeMenu();
+    this.saleService.downloadVerkaufsbeleg(s.id).subscribe((blob) => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Verkaufsbeleg_${belegNr}.pdf`;
+      a.download = `Verkaufsbeleg_${s.belegNummer}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     });
+  }
+
+  previewPdf(s: SaleList) {
+    this.closeMenu();
+    this.saleService.downloadVerkaufsbeleg(s.id).subscribe((blob) => {
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    });
+  }
+
+  printPdf(s: SaleList) {
+    this.closeMenu();
+    this.saleService.downloadVerkaufsbeleg(s.id).subscribe((blob) => {
+      const url = URL.createObjectURL(blob);
+      const printWindow = window.open(url, '_blank');
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      }
+    });
+  }
+
+  toggleMenu(event: MouseEvent, s: SaleList) {
+    event.stopPropagation();
+    this.activeMenuId = this.activeMenuId === s.id ? null : s.id;
+  }
+
+  closeMenu() {
+    this.activeMenuId = null;
+  }
+
+  goToEdit(s: SaleList) {
+    this.closeMenu();
+    this.router.navigate(['/sales/edit', s.id]);
   }
 
   exportExcel() {
@@ -375,12 +656,26 @@ export class SaleListComponent implements OnInit {
     );
   }
 
-  deleteSale(id: number) {
-    if (confirm(this.t.deleteConfirmSale)) {
-      this.saleService.delete(id).subscribe({
-        next: () => this.load(),
-        error: (err) => alert(err.error?.error || this.t.deleteError),
+  deleteSale(s: SaleList) {
+    this.closeMenu();
+    this.dialogService
+      .danger(this.t.delete, this.t.deleteConfirmSale)
+      .then((confirmed) => {
+        if (confirmed) {
+          this.saleService.delete(s.id).subscribe({
+            next: () => {
+              this.notificationService.success(
+                this.t.deleteSuccess || 'Erfolgreich gelöscht',
+              );
+              this.load();
+            },
+            error: (err) => {
+              this.notificationService.error(
+                err.error?.error || this.t.deleteError,
+              );
+            },
+          });
+        }
       });
-    }
   }
 }

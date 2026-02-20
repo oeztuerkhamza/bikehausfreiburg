@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
 import { DocumentService } from '../../services/document.service';
 import { TranslationService } from '../../services/translation.service';
+import { NotificationService } from '../../services/notification.service';
+import { DialogService } from '../../services/dialog.service';
 import {
   Bicycle,
   BicycleUpdate,
@@ -54,12 +56,36 @@ import {
           </div>
           <div class="field">
             <label>{{ t.color }}</label>
-            <input *ngIf="editing" [(ngModel)]="form.farbe" />
+            <select *ngIf="editing" [(ngModel)]="form.farbe">
+              <option value="">-- {{ t.selectOption }} --</option>
+              <option value="Schwarz">Schwarz</option>
+              <option value="Weiß">Weiß</option>
+              <option value="Rot">Rot</option>
+              <option value="Blau">Blau</option>
+              <option value="Grün">Grün</option>
+              <option value="Gelb">Gelb</option>
+              <option value="Orange">Orange</option>
+              <option value="Grau">Grau</option>
+              <option value="Silber">Silber</option>
+              <option value="Pink">Pink</option>
+            </select>
             <span *ngIf="!editing">{{ bicycle.farbe }}</span>
           </div>
           <div class="field">
             <label>{{ t.wheelSizeInch }}</label>
-            <input *ngIf="editing" [(ngModel)]="form.reifengroesse" />
+            <select *ngIf="editing" [(ngModel)]="form.reifengroesse">
+              <option value="">-- {{ t.selectOption }} --</option>
+              <option value="12">12"</option>
+              <option value="14">14"</option>
+              <option value="16">16"</option>
+              <option value="18">18"</option>
+              <option value="20">20"</option>
+              <option value="24">24"</option>
+              <option value="26">26"</option>
+              <option value="27.5">27.5"</option>
+              <option value="28">28"</option>
+              <option value="29">29"</option>
+            </select>
             <span *ngIf="!editing">{{ bicycle.reifengroesse }}</span>
           </div>
           <div class="field">
@@ -315,6 +341,8 @@ import {
 })
 export class BicycleDetailComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private notificationService = inject(NotificationService);
+  private dialogService = inject(DialogService);
   bicycle: Bicycle | null = null;
   documents: DocModel[] = [];
   editing = false;
@@ -365,11 +393,21 @@ export class BicycleDetailComponent implements OnInit {
   }
 
   save() {
-    this.bicycleService.update(this.bicycle!.id, this.form).subscribe(() => {
-      this.editing = false;
-      this.bicycleService
-        .getById(this.bicycle!.id)
-        .subscribe((b) => (this.bicycle = b));
+    this.bicycleService.update(this.bicycle!.id, this.form).subscribe({
+      next: () => {
+        this.notificationService.success(
+          this.t.saveSuccess || 'Erfolgreich gespeichert',
+        );
+        this.editing = false;
+        this.bicycleService
+          .getById(this.bicycle!.id)
+          .subscribe((b) => (this.bicycle = b));
+      },
+      error: (err) => {
+        this.notificationService.error(
+          err.error?.error || this.t.saveError || 'Fehler beim Speichern',
+        );
+      },
     });
   }
 
@@ -397,10 +435,24 @@ export class BicycleDetailComponent implements OnInit {
   }
 
   deleteDoc(doc: DocModel) {
-    if (confirm(this.t.deleteConfirmDocument)) {
-      this.documentService.delete(doc.id).subscribe(() => {
-        this.documents = this.documents.filter((d) => d.id !== doc.id);
+    this.dialogService
+      .danger(this.t.delete, this.t.deleteConfirmDocument)
+      .then((confirmed) => {
+        if (confirmed) {
+          this.documentService.delete(doc.id).subscribe({
+            next: () => {
+              this.notificationService.success(
+                this.t.deleteSuccess || 'Erfolgreich gelöscht',
+              );
+              this.documents = this.documents.filter((d) => d.id !== doc.id);
+            },
+            error: (err) => {
+              this.notificationService.error(
+                err.error?.error || this.t.deleteError,
+              );
+            },
+          });
+        }
       });
-    }
   }
 }

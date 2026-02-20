@@ -14,4 +14,6 @@ public interface IBicycleService
     Task<IEnumerable<BicycleDto>> SearchAsync(string searchTerm);
     Task<BicycleDto?> GetByStokNoAsync(string stokNo);
     Task<string> GetNextStokNoAsync();
+    Task<IEnumerable<string>> GetUniqueBrandsAsync();
+    Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null);
 }

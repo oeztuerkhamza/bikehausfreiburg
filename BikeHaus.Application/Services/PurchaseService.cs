@@ -12,17 +12,20 @@ public class PurchaseService : IPurchaseService
     private readonly IPurchaseRepository _purchaseRepository;
     private readonly IBicycleRepository _bicycleRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IShopSettingsRepository _settingsRepository;
     private readonly IPdfService _pdfService;
 
     public PurchaseService(
         IPurchaseRepository purchaseRepository,
         IBicycleRepository bicycleRepository,
         ICustomerRepository customerRepository,
+        IShopSettingsRepository settingsRepository,
         IPdfService pdfService)
     {
         _purchaseRepository = purchaseRepository;
         _bicycleRepository = bicycleRepository;
         _customerRepository = customerRepository;
+        _settingsRepository = settingsRepository;
         _pdfService = pdfService;
     }
 
@@ -34,43 +37,28 @@ public class PurchaseService : IPurchaseService
 
     public async Task<PaginatedResult<PurchaseListDto>> GetPaginatedAsync(PaginationParams paginationParams)
     {
-        System.Linq.Expressions.Expression<Func<Purchase, bool>>? predicate = null;
+        var paymentMethod = !string.IsNullOrEmpty(paginationParams.Status) &&
+            Enum.TryParse<Domain.Enums.PaymentMethod>(paginationParams.Status, out var pm) ? pm : (Domain.Enums.PaymentMethod?)null;
+        var term = paginationParams.SearchTerm?.ToLower();
+        var marke = paginationParams.Marke?.ToLower();
+        var fahrradtyp = paginationParams.Fahrradtyp?.ToLower();
+        var farbe = paginationParams.Farbe?.ToLower();
 
-        // Apply payment method filter (using Status field)
-        if (!string.IsNullOrEmpty(paginationParams.Status))
-        {
-            if (Enum.TryParse<Domain.Enums.PaymentMethod>(paginationParams.Status, out var paymentMethod))
-            {
-                predicate = p => p.Zahlungsart == paymentMethod;
-            }
-        }
-
-        // Apply search filter
-        if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
-        {
-            var term = paginationParams.SearchTerm.ToLower();
-            if (predicate != null)
-            {
-                var prevPredicate = predicate;
-                predicate = p => prevPredicate.Compile()(p) &&
-                    (p.BelegNummer.ToLower().Contains(term) ||
-                     p.Bicycle.Marke.ToLower().Contains(term) ||
-                     p.Bicycle.Modell.ToLower().Contains(term) ||
-                     (p.Bicycle.StokNo != null && p.Bicycle.StokNo.ToLower().Contains(term)) ||
-                     p.Seller.Vorname.ToLower().Contains(term) ||
-                     p.Seller.Nachname.ToLower().Contains(term));
-            }
-            else
-            {
-                predicate = p =>
-                    p.BelegNummer.ToLower().Contains(term) ||
-                    p.Bicycle.Marke.ToLower().Contains(term) ||
-                    p.Bicycle.Modell.ToLower().Contains(term) ||
-                    (p.Bicycle.StokNo != null && p.Bicycle.StokNo.ToLower().Contains(term)) ||
-                    p.Seller.Vorname.ToLower().Contains(term) ||
-                    p.Seller.Nachname.ToLower().Contains(term);
-            }
-        }
+        System.Linq.Expressions.Expression<Func<Purchase, bool>> predicate = p =>
+            // Payment method filter
+            (!paymentMethod.HasValue || p.Zahlungsart == paymentMethod.Value) &&
+            // Search filter
+            (string.IsNullOrEmpty(term) ||
+                (p.BelegNummer != null && p.BelegNummer.ToLower().Contains(term)) ||
+                p.Bicycle.Marke.ToLower().Contains(term) ||
+                p.Bicycle.Modell.ToLower().Contains(term) ||
+                (p.Bicycle.StokNo != null && p.Bicycle.StokNo.ToLower().Contains(term)) ||
+                p.Seller.Vorname.ToLower().Contains(term) ||
+                p.Seller.Nachname.ToLower().Contains(term)) &&
+            // Bicycle property filters
+            (string.IsNullOrEmpty(marke) || p.Bicycle.Marke.ToLower().Contains(marke)) &&
+            (string.IsNullOrEmpty(fahrradtyp) || (p.Bicycle.Fahrradtyp != null && p.Bicycle.Fahrradtyp.ToLower().Contains(fahrradtyp))) &&
+            (string.IsNullOrEmpty(farbe) || (p.Bicycle.Farbe != null && p.Bicycle.Farbe.ToLower().Contains(farbe)));
 
         var (items, totalCount) = await _purchaseRepository.GetPaginatedAsync(
             paginationParams.Page,
@@ -118,7 +106,9 @@ public class PurchaseService : IPurchaseService
             Zahlungsart = dto.Zahlungsart,
             Kaufdatum = dto.Kaufdatum ?? DateTime.UtcNow,
             Notizen = dto.Notizen,
-            BelegNummer = await _purchaseRepository.GenerateBelegNummerAsync()
+            BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
+                ? dto.BelegNummer
+                : null
         };
 
         // Add signature if provided
@@ -130,6 +120,53 @@ public class PurchaseService : IPurchaseService
         var created = await _purchaseRepository.AddAsync(purchase);
         var result = await _purchaseRepository.GetWithDetailsAsync(created.Id);
         return result!.ToDto();
+    }
+
+    public async Task<BulkPurchaseResultDto> CreateBulkAsync(BulkPurchaseCreateDto dto)
+    {
+        if (dto.Anzahl < 1 || dto.Anzahl > 100)
+            throw new ArgumentException("Anzahl muss zwischen 1 und 100 liegen.");
+
+        // Create or find Seller (shared for all bikes)
+        var seller = dto.Seller.ToEntity();
+        seller = await _customerRepository.AddAsync(seller);
+
+        // Get next StokNo
+        var maxStokNo = await _bicycleRepository.GetMaxStokNoAsync();
+        var settings = await _settingsRepository.GetSettingsAsync();
+        var startNum = settings?.FahrradNummerStart ?? 1;
+        var nextStokNo = maxStokNo.HasValue ? Math.Max(maxStokNo.Value + 1, startNum) : startNum;
+
+        var results = new List<PurchaseDto>();
+
+        for (int i = 0; i < dto.Anzahl; i++)
+        {
+            // Create Bicycle
+            var bicycle = dto.Bicycle.ToEntity();
+            bicycle.StokNo = (nextStokNo + i).ToString();
+            bicycle = await _bicycleRepository.AddAsync(bicycle);
+
+            // Create Purchase
+            var purchase = new Purchase
+            {
+                BicycleId = bicycle.Id,
+                SellerId = seller.Id,
+                Preis = dto.Preis,
+                VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag,
+                Zahlungsart = dto.Zahlungsart,
+                Kaufdatum = dto.Kaufdatum ?? DateTime.UtcNow,
+                Notizen = dto.Notizen,
+                BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
+                    ? dto.BelegNummer
+                    : null
+            };
+
+            var created = await _purchaseRepository.AddAsync(purchase);
+            var result = await _purchaseRepository.GetWithDetailsAsync(created.Id);
+            results.Add(result!.ToDto());
+        }
+
+        return new BulkPurchaseResultDto(results.Count, results);
     }
 
     public async Task<PurchaseDto> UpdateAsync(int id, PurchaseUpdateDto dto)
@@ -171,6 +208,8 @@ public class PurchaseService : IPurchaseService
         purchase.Zahlungsart = dto.Zahlungsart;
         purchase.Kaufdatum = dto.Kaufdatum;
         purchase.Notizen = dto.Notizen;
+        if (!string.IsNullOrWhiteSpace(dto.BelegNummer))
+            purchase.BelegNummer = dto.BelegNummer;
         purchase.UpdatedAt = DateTime.UtcNow;
         await _purchaseRepository.UpdateAsync(purchase);
 
@@ -207,5 +246,10 @@ public class PurchaseService : IPurchaseService
     public async Task<byte[]> GeneratePdfAsync(int id)
     {
         return await _pdfService.GenerateKaufbelegAsync(id);
+    }
+
+    public async Task<string> GetNextBelegNummerAsync()
+    {
+        return await _purchaseRepository.GenerateBelegNummerAsync();
     }
 }

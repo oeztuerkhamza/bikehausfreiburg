@@ -120,16 +120,39 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field">
                 <label>{{ t.color }} *</label>
-                <input [(ngModel)]="bicycle.farbe" name="bikeFarbe" required />
+                <select [(ngModel)]="bicycle.farbe" name="bikeFarbe" required>
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="Schwarz">Schwarz</option>
+                  <option value="Weiß">Weiß</option>
+                  <option value="Rot">Rot</option>
+                  <option value="Blau">Blau</option>
+                  <option value="Grün">Grün</option>
+                  <option value="Gelb">Gelb</option>
+                  <option value="Orange">Orange</option>
+                  <option value="Grau">Grau</option>
+                  <option value="Silber">Silber</option>
+                  <option value="Pink">Pink</option>
+                </select>
               </div>
               <div class="field">
                 <label>{{ t.wheelSize }} *</label>
-                <input
+                <select
                   [(ngModel)]="bicycle.reifengroesse"
                   name="bikeReifen"
                   required
-                  placeholder="z.B. 28"
-                />
+                >
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="12">12"</option>
+                  <option value="14">14"</option>
+                  <option value="16">16"</option>
+                  <option value="18">18"</option>
+                  <option value="20">20"</option>
+                  <option value="24">24"</option>
+                  <option value="26">26"</option>
+                  <option value="27.5">27.5"</option>
+                  <option value="28">28"</option>
+                  <option value="29">29"</option>
+                </select>
               </div>
               <div class="field">
                 <label>{{ t.stockNo }}</label>
@@ -183,6 +206,10 @@ import { AddressSuggestion } from '../../services/address.service';
             <h2>{{ t.purchaseData }}</h2>
             <div class="form-grid">
               <div class="field">
+                <label>{{ t.receiptNo }}</label>
+                <input [(ngModel)]="belegNummer" name="belegNummer" />
+              </div>
+              <div class="field">
                 <label>{{ t.priceRequired }}</label>
                 <input
                   type="number"
@@ -207,7 +234,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">{{ t.paypal }}</option>
-                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
+                  <option value="Karte">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field">
@@ -398,6 +425,7 @@ export class PurchaseEditComponent implements OnInit {
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   kaufdatum = '';
   notizen = '';
+  belegNummer = '';
 
   constructor(
     private purchaseService: PurchaseService,
@@ -467,6 +495,7 @@ export class PurchaseEditComponent implements OnInit {
       ? new Date(purchase.kaufdatum).toISOString().split('T')[0]
       : '';
     this.notizen = purchase.notizen || '';
+    this.belegNummer = purchase.belegNummer || '';
   }
 
   onSellerAddressSelected(address: AddressSuggestion) {
@@ -488,6 +517,7 @@ export class PurchaseEditComponent implements OnInit {
       zahlungsart: this.zahlungsart,
       kaufdatum: this.kaufdatum,
       notizen: this.notizen || undefined,
+      belegNummer: this.belegNummer || undefined,
     };
 
     this.purchaseService.update(this.purchase.id, update).subscribe({

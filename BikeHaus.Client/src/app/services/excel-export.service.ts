@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
+import * as XLSX from 'xlsx';
 
 @Injectable({ providedIn: 'root' })
 export class ExcelExportService {
   /**
-   * Export data to CSV file (Excel compatible)
+   * Export data to Excel file with proper formatting
    * @param data Array of objects to export
    * @param filename Name of the file (without extension)
    * @param columns Column configuration: { key: string, header: string }[]
@@ -18,50 +19,65 @@ export class ExcelExportService {
       return;
     }
 
-    // Build CSV content with BOM for Excel UTF-8 support
-    const BOM = '\uFEFF';
-    const separator = ';'; // Use semicolon for better Excel compatibility in German locale
-
-    // Headers
-    const headers = columns
-      .map((col) => this.escapeCSV(col.header))
-      .join(separator);
-
-    // Rows
+    // Prepare data array with headers
+    const headers = columns.map((col) => col.header);
     const rows = data.map((item) =>
-      columns
-        .map((col) => {
-          const value = this.getNestedValue(item, col.key as string);
-          return this.escapeCSV(this.formatValue(value));
-        })
-        .join(separator),
+      columns.map((col) => {
+        const value = this.getNestedValue(item, col.key as string);
+        return this.formatValue(value);
+      }),
     );
 
-    const csvContent = BOM + headers + '\n' + rows.join('\n');
+    // Create worksheet data
+    const wsData = [headers, ...rows];
 
-    // Create and download file
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Create worksheet
+    const ws: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Calculate column widths based on content
+    const colWidths = columns.map((col, idx) => {
+      // Start with header length
+      let maxWidth = col.header.length;
+
+      // Check each row for this column
+      rows.forEach((row) => {
+        const cellValue = row[idx];
+        const cellLength = cellValue ? String(cellValue).length : 0;
+        if (cellLength > maxWidth) {
+          maxWidth = cellLength;
+        }
+      });
+
+      // Add some padding and cap at reasonable max
+      return { wch: Math.min(maxWidth + 3, 50) };
+    });
+
+    ws['!cols'] = colWidths;
+
+    // Style header row (bold) - Note: xlsx library has limited styling support
+    // The column widths are the main improvement
+
+    // Create workbook
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Daten');
+
+    // Generate file and download
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
 
     link.setAttribute('href', url);
-    link.setAttribute('download', `${filename}_${this.getDateString()}.csv`);
+    link.setAttribute('download', `${filename}_${this.getDateString()}.xlsx`);
     link.style.visibility = 'hidden';
 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }
-
-  private escapeCSV(value: string): string {
-    if (value == null) return '';
-    const str = String(value);
-    // Escape quotes and wrap in quotes if contains separator, quote, or newline
-    if (str.includes(';') || str.includes('"') || str.includes('\n')) {
-      return `"${str.replace(/"/g, '""')}"`;
-    }
-    return str;
   }
 
   private getNestedValue(obj: any, path: string): any {

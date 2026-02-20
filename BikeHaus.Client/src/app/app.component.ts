@@ -1,13 +1,23 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslationService } from './services/translation.service';
 import { AuthService } from './services/auth.service';
+import { SettingsService, ShopSettings } from './services/settings.service';
+import { NotificationComponent } from './components/notification/notification.component';
+import { DialogComponent } from './components/dialog/dialog.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    NotificationComponent,
+    DialogComponent,
+  ],
   template: `
     <!-- Login page: no sidebar -->
     <ng-container *ngIf="!authService.isLoggedIn()">
@@ -19,7 +29,12 @@ import { AuthService } from './services/auth.service';
       <aside class="sidebar" [class.open]="sidebarOpen">
         <div class="brand">
           <div class="brand-icon-wrap">
-            <img src="assets/logo.svg" alt="Bike Haus" class="brand-logo" />
+            <img
+              [src]="logoSrc()"
+              alt="Bike Haus"
+              class="brand-logo"
+              [class.no-filter]="hasCustomLogo()"
+            />
           </div>
           <div class="brand-info">
             <span class="brand-name">BikeHaus</span>
@@ -226,6 +241,28 @@ import { AuthService } from './services/auth.service';
             <span class="nav-label">Zubehör</span>
           </a>
           <a
+            routerLink="/expenses"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <span class="nav-icon">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+            </span>
+            <span class="nav-label">{{ t.expenses }}</span>
+          </a>
+          <a
             routerLink="/statistics"
             routerLinkActive="active"
             (click)="closeSidebar()"
@@ -298,12 +335,17 @@ import { AuthService } from './services/auth.service';
               <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
-          <img src="assets/logo.svg" alt="Bike Haus" class="topbar-logo" />
+          <img
+            [src]="logoSrc()"
+            alt="Bike Haus"
+            class="topbar-logo"
+            [class.no-filter]="hasCustomLogo()"
+          />
           <div class="topbar-spacer"></div>
           <div class="topbar-right">
             <div class="user-info">
               <div class="user-avatar">{{ getInitials() }}</div>
-              <span class="user-name">{{ authService.displayName() }}</span>
+              <span class="user-name">{{ ownerDisplayName() }}</span>
             </div>
             <button class="btn-logout" (click)="logout()" title="Abmelden">
               <svg
@@ -328,6 +370,10 @@ import { AuthService } from './services/auth.service';
         </div>
       </main>
     </div>
+
+    <!-- Global Notification & Dialog -->
+    <app-notification></app-notification>
+    <app-dialog></app-dialog>
   `,
   styles: [
     `
@@ -379,6 +425,9 @@ import { AuthService } from './services/auth.service';
         height: 28px;
         object-fit: contain;
         filter: brightness(0) invert(1);
+      }
+      .brand-logo.no-filter {
+        filter: none;
       }
       .brand-info {
         display: flex;
@@ -629,18 +678,65 @@ import { AuthService } from './services/auth.service';
     `,
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'BikeHaus.Client';
   sidebarOpen = false;
   private translationService = inject(TranslationService);
+  private settingsService = inject(SettingsService);
   authService = inject(AuthService);
+
+  settings = signal<ShopSettings | null>(null);
+
+  logoSrc = signal('assets/logo.svg');
+  hasCustomLogo = signal(false);
+  ownerDisplayName = signal('');
+
+  ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.loadSettings();
+    }
+  }
+
+  private loadSettings(): void {
+    this.settingsService.getSettings().subscribe({
+      next: (settings) => {
+        this.settings.set(settings);
+
+        // Set logo
+        if (settings.logoBase64) {
+          this.logoSrc.set(settings.logoBase64);
+          this.hasCustomLogo.set(true);
+          this.updateFavicon(settings.logoBase64);
+        }
+
+        // Set owner name
+        const ownerName = [settings.inhaberVorname, settings.inhaberNachname]
+          .filter(Boolean)
+          .join(' ');
+        this.ownerDisplayName.set(ownerName || this.authService.displayName());
+      },
+      error: () => {
+        this.ownerDisplayName.set(this.authService.displayName());
+      },
+    });
+  }
+
+  private updateFavicon(base64: string): void {
+    const link =
+      (document.querySelector("link[rel*='icon']") as HTMLLinkElement) ||
+      document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'icon';
+    link.href = base64;
+    document.head.appendChild(link);
+  }
 
   get t() {
     return this.translationService.translations();
   }
 
   getInitials(): string {
-    const name = this.authService.displayName();
+    const name = this.ownerDisplayName() || this.authService.displayName();
     if (!name) return 'U';
     return name
       .split(' ')

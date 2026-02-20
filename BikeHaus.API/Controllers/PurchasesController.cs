@@ -29,14 +29,20 @@ public class PurchasesController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? status = null,
-        [FromQuery] string? search = null)
+        [FromQuery] string? search = null,
+        [FromQuery] string? marke = null,
+        [FromQuery] string? fahrradtyp = null,
+        [FromQuery] string? farbe = null)
     {
         var paginationParams = new PaginationParams
         {
             Page = page,
             PageSize = pageSize,
             Status = status,
-            SearchTerm = search
+            SearchTerm = search,
+            Marke = marke,
+            Fahrradtyp = fahrradtyp,
+            Farbe = farbe
         };
         var result = await _purchaseService.GetPaginatedAsync(paginationParams);
         return Ok(result);
@@ -65,6 +71,27 @@ public class PurchasesController : ControllerBase
     {
         var purchase = await _purchaseService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = purchase.Id }, purchase);
+    }
+
+    [HttpPost("bulk")]
+    public async Task<ActionResult<BulkPurchaseResultDto>> CreateBulk([FromBody] BulkPurchaseCreateDto dto)
+    {
+        try
+        {
+            var result = await _purchaseService.CreateBulkAsync(dto);
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("next-belegnummer")]
+    public async Task<ActionResult<object>> GetNextBelegNummer()
+    {
+        var nummer = await _purchaseService.GetNextBelegNummerAsync();
+        return Ok(new { belegNummer = nummer });
     }
 
     [HttpPut("{id}")]

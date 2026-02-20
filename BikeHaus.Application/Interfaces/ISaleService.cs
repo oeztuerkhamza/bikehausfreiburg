@@ -10,5 +10,6 @@ public interface ISaleService
     Task<SaleDto> CreateAsync(SaleCreateDto dto);
     Task<SaleDto> UpdateAsync(int id, SaleUpdateDto dto);
     Task DeleteAsync(int id);
+    Task<string> GetNextBelegNummerAsync();
     Task<byte[]> GeneratePdfAsync(int id);
 }

@@ -26,7 +26,7 @@ public static class MappingExtensions
         Marke = dto.Marke,
         Modell = dto.Modell,
         Rahmennummer = dto.Rahmennummer,
-        Farbe = dto.Farbe ?? string.Empty,
+        Farbe = dto.Farbe,
         Reifengroesse = dto.Reifengroesse,
         StokNo = dto.StokNo,
         Fahrradtyp = dto.Fahrradtyp,
@@ -105,6 +105,7 @@ public static class MappingExtensions
         entity.BuyerSignature?.ToDto(),
         entity.SellerSignature?.ToDto(),
         entity.Accessories.Select(a => a.ToDto()).ToList(),
+        entity.Rabatt,
         entity.Gesamtbetrag,
         entity.CreatedAt
     );
@@ -116,6 +117,7 @@ public static class MappingExtensions
         $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
         entity.Buyer.FullName,
         entity.Preis,
+        entity.Rabatt,
         entity.Zahlungsart,
         entity.Verkaufsdatum,
         entity.Garantie

@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { DashboardService } from '../../services/dashboard.service';
+import { PurchaseService } from '../../services/purchase.service';
+import { SaleService } from '../../services/sale.service';
 import { Dashboard } from '../../models/models';
 import { TranslationService } from '../../services/translation.service';
 
@@ -52,6 +54,42 @@ import { TranslationService } from '../../services/translation.service';
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </a>
+        <a
+          routerLink="/purchases/new"
+          [queryParams]="{ bulk: 'true' }"
+          class="shortcut-card card-accent"
+        >
+          <div class="shortcut-icon-wrap accent-violet">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="2" y="7" width="20" height="14" rx="2" />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+              <path d="M6 11h4" />
+              <path d="M14 11h4" />
+            </svg>
+          </div>
+          <div class="shortcut-info">
+            <div class="shortcut-label">{{ t.bulkPurchase }}</div>
+            <div class="shortcut-desc">{{ t.bulkPurchaseDesc }}</div>
+          </div>
+          <svg
+            class="shortcut-arrow"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </a>
         <a routerLink="/sales/new" class="shortcut-card card-accent">
           <div class="shortcut-icon-wrap accent-success">
             <svg
@@ -69,257 +107,6 @@ import { TranslationService } from '../../services/translation.service';
           <div class="shortcut-info">
             <div class="shortcut-label">{{ t.newSale }}</div>
             <div class="shortcut-desc">{{ t.sellBicycle }}</div>
-          </div>
-          <svg
-            class="shortcut-arrow"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
-        <a routerLink="/bicycles" class="shortcut-card">
-          <div class="shortcut-icon-wrap accent-info">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="5.5" cy="17.5" r="3.5" />
-              <circle cx="18.5" cy="17.5" r="3.5" />
-              <path
-                d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"
-              />
-            </svg>
-          </div>
-          <div class="shortcut-info">
-            <div class="shortcut-label">{{ t.bicycles }}</div>
-            <div class="shortcut-desc">{{ t.viewInventory }}</div>
-          </div>
-          <svg
-            class="shortcut-arrow"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
-        <a routerLink="/customers" class="shortcut-card">
-          <div class="shortcut-icon-wrap accent-warning">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </div>
-          <div class="shortcut-info">
-            <div class="shortcut-label">{{ t.customers }}</div>
-            <div class="shortcut-desc">{{ t.customerManagement }}</div>
-          </div>
-          <svg
-            class="shortcut-arrow"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
-        <a routerLink="/purchases" class="shortcut-card">
-          <div class="shortcut-icon-wrap accent-violet">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <path d="M16 10a4 4 0 0 1-8 0" />
-            </svg>
-          </div>
-          <div class="shortcut-info">
-            <div class="shortcut-label">{{ t.purchases }}</div>
-            <div class="shortcut-desc">{{ t.allPurchases }}</div>
-          </div>
-          <svg
-            class="shortcut-arrow"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
-        <a routerLink="/sales" class="shortcut-card">
-          <div class="shortcut-icon-wrap accent-emerald">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-              <polyline points="17 6 23 6 23 12" />
-            </svg>
-          </div>
-          <div class="shortcut-info">
-            <div class="shortcut-label">{{ t.sales }}</div>
-            <div class="shortcut-desc">{{ t.allSales }}</div>
-          </div>
-          <svg
-            class="shortcut-arrow"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
-        <a routerLink="/reservations" class="shortcut-card">
-          <div class="shortcut-icon-wrap accent-sky">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-          </div>
-          <div class="shortcut-info">
-            <div class="shortcut-label">{{ t.reservations }}</div>
-            <div class="shortcut-desc">{{ t.reservations }}</div>
-          </div>
-          <svg
-            class="shortcut-arrow"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
-        <a routerLink="/returns" class="shortcut-card">
-          <div class="shortcut-icon-wrap accent-rose">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <polyline points="1 4 1 10 7 10" />
-              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-            </svg>
-          </div>
-          <div class="shortcut-info">
-            <div class="shortcut-label">{{ t.returns }}</div>
-            <div class="shortcut-desc">{{ t.manageReturns }}</div>
-          </div>
-          <svg
-            class="shortcut-arrow"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
-        <a routerLink="/parts" class="shortcut-card">
-          <div class="shortcut-icon-wrap accent-amber">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
-              />
-            </svg>
-          </div>
-          <div class="shortcut-info">
-            <div class="shortcut-label">{{ t.accessories }}</div>
-            <div class="shortcut-desc">{{ t.accessoryParts }}</div>
-          </div>
-          <svg
-            class="shortcut-arrow"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
-        <a routerLink="/settings" class="shortcut-card">
-          <div class="shortcut-icon-wrap accent-slate">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
-              />
-            </svg>
-          </div>
-          <div class="shortcut-info">
-            <div class="shortcut-label">{{ t.settings }}</div>
-            <div class="shortcut-desc">{{ t.configureApp }}</div>
           </div>
           <svg
             class="shortcut-arrow"
@@ -365,13 +152,14 @@ import { TranslationService } from '../../services/translation.service';
                   <th>{{ t.seller }}</th>
                   <th>{{ t.price }}</th>
                   <th>{{ t.date }}</th>
+                  <th style="width: 80px;"></th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   *ngFor="let p of data.recentPurchases"
                   class="clickable-row"
-                  (click)="goToPurchase(p.id)"
+                  (click)="showPurchaseMenu($event, p.id)"
                 >
                   <td>
                     <span class="badge-mono">{{ p.belegNummer }}</span>
@@ -380,6 +168,47 @@ import { TranslationService } from '../../services/translation.service';
                   <td>{{ p.sellerName }}</td>
                   <td class="price">{{ p.preis | number: '1.2-2' }} €</td>
                   <td class="date">{{ p.kaufdatum | date: 'dd.MM.yyyy' }}</td>
+                  <td class="action-cell" (click)="$event.stopPropagation()">
+                    <button
+                      class="btn-icon"
+                      (click)="previewPurchasePdf(p.id)"
+                      title="Vorschau"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        ></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button
+                      class="btn-icon"
+                      (click)="downloadPurchasePdf(p.id, p.belegNummer)"
+                      title="PDF"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                        ></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                    </button>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -431,13 +260,14 @@ import { TranslationService } from '../../services/translation.service';
                   <th>{{ t.buyer }}</th>
                   <th>{{ t.price }}</th>
                   <th>{{ t.date }}</th>
+                  <th style="width: 80px;"></th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   *ngFor="let s of data.recentSales"
                   class="clickable-row"
-                  (click)="goToSale(s.id)"
+                  (click)="showSaleMenu($event, s.id)"
                 >
                   <td>
                     <span class="badge-mono">{{ s.belegNummer }}</span>
@@ -447,6 +277,47 @@ import { TranslationService } from '../../services/translation.service';
                   <td class="price">{{ s.preis | number: '1.2-2' }} €</td>
                   <td class="date">
                     {{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}
+                  </td>
+                  <td class="action-cell" (click)="$event.stopPropagation()">
+                    <button
+                      class="btn-icon"
+                      (click)="previewSalePdf(s.id)"
+                      title="Vorschau"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        ></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                    <button
+                      class="btn-icon"
+                      (click)="downloadSalePdf(s.id, s.belegNummer)"
+                      title="PDF"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                        ></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -471,6 +342,55 @@ import { TranslationService } from '../../services/translation.service';
         </div>
       </div>
     </div>
+
+    <!-- Context Menu -->
+    <div
+      class="context-menu"
+      *ngIf="contextMenu.visible"
+      [style.top.px]="contextMenu.y"
+      [style.left.px]="contextMenu.x"
+    >
+      <button (click)="printDocument()">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path
+            d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"
+          ></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        {{ t.printDocument }}
+      </button>
+      <button (click)="editDocument()">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+          ></path>
+          <path
+            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+          ></path>
+        </svg>
+        {{ t.editDocument }}
+      </button>
+    </div>
+    <div
+      class="context-menu-backdrop"
+      *ngIf="contextMenu.visible"
+      (click)="closeMenu()"
+    ></div>
   `,
   styles: [
     `
@@ -755,16 +675,106 @@ import { TranslationService } from '../../services/translation.service';
           grid-template-columns: 1fr;
         }
       }
+
+      .action-cell {
+        text-align: center;
+        display: flex;
+        gap: 4px;
+        justify-content: center;
+      }
+      .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border: none;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        color: var(--accent-primary, #6366f1);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-icon:hover {
+        background: var(--accent-primary, #6366f1);
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .context-menu-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 999;
+      }
+
+      .context-menu {
+        position: fixed;
+        z-index: 1000;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        min-width: 180px;
+        overflow: hidden;
+        animation: menuFadeIn 0.15s ease;
+      }
+
+      @keyframes menuFadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .context-menu button {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 12px 16px;
+        border: none;
+        background: none;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-align: left;
+      }
+
+      .context-menu button:hover {
+        background: var(--bg-secondary, #f3f4f6);
+      }
+
+      .context-menu button svg {
+        color: var(--accent-primary, #6366f1);
+      }
     `,
   ],
 })
 export class DashboardComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private purchaseService = inject(PurchaseService);
+  private saleService = inject(SaleService);
+
   get t() {
     return this.translationService.translations();
   }
 
   data: Dashboard | null = null;
+
+  contextMenu = {
+    visible: false,
+    x: 0,
+    y: 0,
+    type: '' as 'purchase' | 'sale',
+    id: 0,
+  };
 
   constructor(
     private dashboardService: DashboardService,
@@ -775,11 +785,86 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.getDashboard().subscribe((d) => (this.data = d));
   }
 
-  goToPurchase(id: number) {
-    this.router.navigate(['/purchases/edit', id]);
+  showPurchaseMenu(event: MouseEvent, id: number) {
+    event.stopPropagation();
+    this.contextMenu = {
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      type: 'purchase',
+      id,
+    };
   }
 
-  goToSale(id: number) {
-    this.router.navigate(['/sales/edit', id]);
+  showSaleMenu(event: MouseEvent, id: number) {
+    event.stopPropagation();
+    this.contextMenu = {
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      type: 'sale',
+      id,
+    };
+  }
+
+  closeMenu() {
+    this.contextMenu.visible = false;
+  }
+
+  printDocument() {
+    const id = this.contextMenu.id;
+    this.closeMenu();
+    if (this.contextMenu.type === 'purchase') {
+      this.previewPurchasePdf(id);
+    } else {
+      this.previewSalePdf(id);
+    }
+  }
+
+  editDocument() {
+    const id = this.contextMenu.id;
+    const type = this.contextMenu.type;
+    this.closeMenu();
+    if (type === 'purchase') {
+      this.router.navigate(['/purchases/edit', id]);
+    } else {
+      this.router.navigate(['/sales/edit', id]);
+    }
+  }
+
+  downloadPurchasePdf(id: number, belegNr: string | undefined) {
+    this.purchaseService.downloadKaufbeleg(id).subscribe((blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Kaufbeleg_${belegNr || id}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  downloadSalePdf(id: number, belegNr: string | undefined) {
+    this.saleService.downloadVerkaufsbeleg(id).subscribe((blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Verkaufsbeleg_${belegNr || id}.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  previewPurchasePdf(id: number) {
+    this.purchaseService.downloadKaufbeleg(id).subscribe((blob) => {
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    });
+  }
+
+  previewSalePdf(id: number) {
+    this.saleService.downloadVerkaufsbeleg(id).subscribe((blob) => {
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    });
   }
 }

@@ -3,6 +3,7 @@ using BikeHaus.Application.Interfaces;
 using BikeHaus.Application.Mappings;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
+using System.Linq.Expressions;
 
 namespace BikeHaus.Application.Services;
 
@@ -27,40 +28,53 @@ public class BicycleService : IBicycleService
 
     public async Task<PaginatedResult<BicycleDto>> GetPaginatedAsync(PaginationParams paginationParams)
     {
-        System.Linq.Expressions.Expression<Func<Domain.Entities.Bicycle, bool>>? predicate = null;
+        Expression<Func<Domain.Entities.Bicycle, bool>>? predicate = null;
 
-        // Apply status filter
-        if (!string.IsNullOrEmpty(paginationParams.Status))
+        // Status filter
+        if (!string.IsNullOrEmpty(paginationParams.Status) &&
+            Enum.TryParse<BikeStatus>(paginationParams.Status, out var status))
         {
-            if (Enum.TryParse<BikeStatus>(paginationParams.Status, out var status))
-            {
-                predicate = b => b.Status == status;
-            }
+            predicate = CombineAnd(predicate, b => b.Status == status);
         }
 
-        // Apply search filter
+        // Zustand (condition) filter
+        if (!string.IsNullOrEmpty(paginationParams.Zustand) &&
+            Enum.TryParse<BikeCondition>(paginationParams.Zustand, out var zustand))
+        {
+            predicate = CombineAnd(predicate, b => b.Zustand == zustand);
+        }
+
+        // Fahrradtyp filter
+        if (!string.IsNullOrEmpty(paginationParams.Fahrradtyp))
+        {
+            var typ = paginationParams.Fahrradtyp;
+            predicate = CombineAnd(predicate, b => b.Fahrradtyp != null && b.Fahrradtyp == typ);
+        }
+
+        // Reifengroesse filter
+        if (!string.IsNullOrEmpty(paginationParams.Reifengroesse))
+        {
+            var reifen = paginationParams.Reifengroesse;
+            predicate = CombineAnd(predicate, b => b.Reifengroesse == reifen);
+        }
+
+        // Marke filter
+        if (!string.IsNullOrEmpty(paginationParams.Marke))
+        {
+            var marke = paginationParams.Marke.ToLower();
+            predicate = CombineAnd(predicate, b => b.Marke.ToLower() == marke);
+        }
+
+        // Search filter
         if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
         {
             var term = paginationParams.SearchTerm.ToLower();
-            if (predicate != null)
-            {
-                var statusPredicate = predicate;
-                predicate = b => statusPredicate.Compile()(b) &&
-                    (b.Marke.ToLower().Contains(term) ||
-                     b.Modell.ToLower().Contains(term) ||
-                     b.Rahmennummer.ToLower().Contains(term) ||
-                     (b.StokNo != null && b.StokNo.ToLower().Contains(term)) ||
-                     (b.Farbe != null && b.Farbe.ToLower().Contains(term)));
-            }
-            else
-            {
-                predicate = b =>
-                    b.Marke.ToLower().Contains(term) ||
-                    b.Modell.ToLower().Contains(term) ||
-                    b.Rahmennummer.ToLower().Contains(term) ||
-                    (b.StokNo != null && b.StokNo.ToLower().Contains(term)) ||
-                    (b.Farbe != null && b.Farbe.ToLower().Contains(term));
-            }
+            predicate = CombineAnd(predicate, b =>
+                b.Marke.ToLower().Contains(term) ||
+                b.Modell.ToLower().Contains(term) ||
+                (b.Rahmennummer != null && b.Rahmennummer.ToLower().Contains(term)) ||
+                (b.StokNo != null && b.StokNo.ToLower().Contains(term)) ||
+                (b.Farbe != null && b.Farbe.ToLower().Contains(term)));
         }
 
         var (items, totalCount) = await _repository.GetPaginatedAsync(
@@ -75,6 +89,22 @@ public class BicycleService : IBicycleService
             Page = paginationParams.Page,
             PageSize = paginationParams.PageSize
         };
+    }
+
+    /// <summary>
+    /// Combines two Expression predicates with AndAlso, suitable for EF Core translation.
+    /// </summary>
+    private static Expression<Func<T, bool>> CombineAnd<T>(
+        Expression<Func<T, bool>>? left,
+        Expression<Func<T, bool>> right)
+    {
+        if (left == null) return right;
+
+        var param = Expression.Parameter(typeof(T), "x");
+        var body = Expression.AndAlso(
+            Expression.Invoke(left, param),
+            Expression.Invoke(right, param));
+        return Expression.Lambda<Func<T, bool>>(body, param);
     }
 
     public async Task<BicycleDto?> GetByIdAsync(int id)
@@ -153,7 +183,7 @@ public class BicycleService : IBicycleService
         var bicycles = await _repository.FindAsync(b =>
             b.Marke.Contains(searchTerm) ||
             b.Modell.Contains(searchTerm) ||
-            b.Rahmennummer.Contains(searchTerm) ||
+            (b.Rahmennummer != null && b.Rahmennummer.Contains(searchTerm)) ||
             (b.StokNo != null && b.StokNo.Contains(searchTerm)) ||
             (b.Farbe != null && b.Farbe.Contains(searchTerm)));
         return bicycles.Select(b => b.ToDto());
@@ -172,5 +202,15 @@ public class BicycleService : IBicycleService
         var startNum = settings?.FahrradNummerStart ?? 1;
         var nextNum = maxStokNo.HasValue ? Math.Max(maxStokNo.Value + 1, startNum) : startNum;
         return nextNum.ToString();
+    }
+
+    public async Task<IEnumerable<string>> GetUniqueBrandsAsync()
+    {
+        return await _repository.GetUniqueBrandsAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null)
+    {
+        return await _repository.GetUniqueModelsAsync(brand);
     }
 }

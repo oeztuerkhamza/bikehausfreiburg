@@ -29,4 +29,24 @@ public class CustomerRepository : Repository<Customer>, ICustomerRepository
             .Include(c => c.Sales).ThenInclude(s => s.Bicycle)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
+
+    public async Task<IEnumerable<string>> GetUniqueFirstNamesAsync()
+    {
+        return await _dbSet
+            .Where(c => !string.IsNullOrEmpty(c.Vorname))
+            .Select(c => c.Vorname)
+            .Distinct()
+            .OrderBy(n => n)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetUniqueLastNamesAsync()
+    {
+        return await _dbSet
+            .Where(c => !string.IsNullOrEmpty(c.Nachname))
+            .Select(c => c.Nachname)
+            .Distinct()
+            .OrderBy(n => n)
+            .ToListAsync();
+    }
 }

@@ -304,55 +304,7 @@ public class PdfService : IPdfService
                         });
                     }
 
-                    // Signatures
-                    col.Item().PaddingTop(25).Row(row =>
-                    {
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(12).Column(sigCol =>
-                        {
-                            sigCol.Item().Text("Unterschrift Verkäufer").FontSize(9).FontColor(Colors.Grey.Darken1).AlignCenter();
-                            if (purchase.Signature != null && !string.IsNullOrEmpty(purchase.Signature.SignatureData))
-                            {
-                                try
-                                {
-                                    var imageData = Convert.FromBase64String(
-                                        purchase.Signature.SignatureData.Replace("data:image/png;base64,", ""));
-                                    sigCol.Item().AlignCenter().Height(55).Image(imageData);
-                                }
-                                catch { sigCol.Item().Height(55); }
-                            }
-                            else
-                            {
-                                sigCol.Item().Height(55);
-                            }
-                            sigCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            sigCol.Item().PaddingTop(4).Text(purchase.Signature?.SignerName ?? "").FontSize(9).AlignCenter();
-                        });
 
-                        row.ConstantItem(20);
-
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(12).Column(sigCol =>
-                        {
-                            sigCol.Item().Text("Unterschrift Käufer (Shop)").FontSize(9).FontColor(Colors.Grey.Darken1).AlignCenter();
-                            if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
-                            {
-                                try
-                                {
-                                    var sigData = shop.OwnerSignatureBase64;
-                                    if (sigData.Contains(","))
-                                        sigData = sigData.Substring(sigData.IndexOf(",") + 1);
-                                    var imageData = Convert.FromBase64String(sigData);
-                                    sigCol.Item().AlignCenter().Height(55).Image(imageData);
-                                }
-                                catch { sigCol.Item().Height(55); }
-                            }
-                            else
-                            {
-                                sigCol.Item().Height(55);
-                            }
-                            sigCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            sigCol.Item().PaddingTop(4).Text(shop.OwnerName).FontSize(9).AlignCenter();
-                        });
-                    });
                 });
 
                 // Footer
@@ -548,11 +500,14 @@ public class PdfService : IPdfService
                             c.Item().Text("Zahlungsart:").FontSize(8).FontColor(Colors.Grey.Darken1);
                             c.Item().Background(LightBg).Padding(8).Text(sale.Zahlungsart.ToString()).FontSize(11).Bold();
 
-                            if (sale.Accessories.Any())
+                            if (sale.Accessories.Any() || sale.Rabatt > 0)
                             {
                                 c.Item().PaddingTop(8).Text("Preisübersicht:").FontSize(8).FontColor(Colors.Grey.Darken1);
                                 c.Item().Text($"Fahrrad: {sale.Preis:N2} €").FontSize(9);
-                                c.Item().Text($"Zubehör: {sale.Accessories.Sum(a => a.Gesamtpreis):N2} €").FontSize(9);
+                                if (sale.Accessories.Any())
+                                    c.Item().Text($"Zubehör: {sale.Accessories.Sum(a => a.Gesamtpreis):N2} €").FontSize(9);
+                                if (sale.Rabatt > 0)
+                                    c.Item().Text($"Rabatt: -{sale.Rabatt:N2} €").FontSize(9).FontColor(Colors.Red.Darken1);
                             }
                         });
 
@@ -618,7 +573,7 @@ public class PdfService : IPdfService
                         });
                     }
 
-                    // Signatures
+                    // Seller Signature
                     col.Item().PaddingTop(15).Row(row =>
                     {
                         row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(10).Column(sigCol =>
@@ -652,29 +607,6 @@ public class PdfService : IPdfService
                             }
                             sigCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                             sigCol.Item().PaddingTop(3).Text(sale.SellerSignature?.SignerName ?? shop.OwnerName).FontSize(8).AlignCenter();
-                        });
-
-                        row.ConstantItem(15);
-
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(10).Column(sigCol =>
-                        {
-                            sigCol.Item().Text("Unterschrift Käufer").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
-                            if (sale.BuyerSignature != null && !string.IsNullOrEmpty(sale.BuyerSignature.SignatureData))
-                            {
-                                try
-                                {
-                                    var imageData = Convert.FromBase64String(
-                                        sale.BuyerSignature.SignatureData.Replace("data:image/png;base64,", ""));
-                                    sigCol.Item().AlignCenter().Height(45).Image(imageData);
-                                }
-                                catch { sigCol.Item().Height(45); }
-                            }
-                            else
-                            {
-                                sigCol.Item().Height(45);
-                            }
-                            sigCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            sigCol.Item().PaddingTop(3).Text(sale.BuyerSignature?.SignerName ?? sale.Buyer.FullName).FontSize(8).AlignCenter();
                         });
                     });
                 });
@@ -806,17 +738,9 @@ public class PdfService : IPdfService
                     // Bank Info
                     col.Item().PaddingTop(10).Text($"Bank: {shop.BankName}. {shop.BankAccountHolder} Iban : {shop.IBAN}").FontSize(8);
 
-                    // Signatures
+                    // Seller Signature
                     col.Item().PaddingTop(30).Row(row =>
                     {
-                        row.RelativeItem().Column(sigCol =>
-                        {
-                            sigCol.Item().PaddingTop(40).LineHorizontal(1);
-                            sigCol.Item().Text("Unterschrift Käufer (Rückgeber)").FontSize(9);
-                        });
-
-                        row.ConstantItem(50);
-
                         row.RelativeItem().Column(sigCol =>
                         {
                             if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))

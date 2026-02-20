@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { ReturnService } from '../../services/return.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
+import { NotificationService } from '../../services/notification.service';
+import { DialogService } from '../../services/dialog.service';
 import { ReturnList, ReturnReason, PaginatedResult } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
@@ -105,9 +107,17 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <td class="actions">
                 <button
                   class="btn btn-sm btn-outline"
-                  (click)="downloadPdf(r.id, r.belegNummer)"
+                  (click)="previewPdf(r.id)"
+                  title="Vorschau"
                 >
-                  PDF
+                  👁
+                </button>
+                <button
+                  class="btn btn-sm btn-outline"
+                  (click)="downloadPdf(r.id, r.belegNummer)"
+                  title="Download"
+                >
+                  ⬇
                 </button>
                 <button class="btn btn-sm btn-danger" (click)="delete(r.id)">
                   {{ t.delete }}
@@ -205,12 +215,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         background: var(--bg-card);
         border-radius: var(--radius-lg, 14px);
         border: 1px solid var(--border-light);
-        overflow: auto;
+        overflow-x: auto;
         box-shadow: var(--shadow-sm);
       }
       table {
         width: 100%;
+        min-width: 1000px;
         border-collapse: collapse;
+        table-layout: fixed;
       }
       th {
         text-align: left;
@@ -222,12 +234,44 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         border-bottom: 1px solid var(--border-light);
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        white-space: nowrap;
       }
+      th:nth-child(1) {
+        width: 110px;
+      } /* Beleg No */
+      th:nth-child(2) {
+        width: 70px;
+      } /* Stok No */
+      th:nth-child(3) {
+        width: 110px;
+      } /* Original Sale */
+      th:nth-child(4) {
+        width: 140px;
+      } /* Bisiklet */
+      th:nth-child(5) {
+        width: 140px;
+      } /* Müşteri */
+      th:nth-child(6) {
+        width: 100px;
+      } /* Tarih */
+      th:nth-child(7) {
+        width: 100px;
+      } /* Sebep */
+      th:nth-child(8) {
+        width: 90px;
+      } /* İade */
+      th:nth-child(9) {
+        width: 120px;
+      } /* İşlemler */
       td {
         padding: 11px 16px;
         border-bottom: 1px solid var(--border-light);
         font-size: 0.88rem;
         color: var(--text-secondary);
+        vertical-align: middle;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       tr:hover td {
         background: var(--table-hover, #f1f5f9);
@@ -244,6 +288,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .actions {
         display: flex;
         gap: 6px;
+        flex-wrap: nowrap;
       }
       .badge {
         display: inline-block;
@@ -274,6 +319,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 })
 export class ReturnListComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private notificationService = inject(NotificationService);
+  private dialogService = inject(DialogService);
   get t() {
     return this.translationService.translations();
   }
@@ -358,6 +405,13 @@ export class ReturnListComponent implements OnInit {
     });
   }
 
+  previewPdf(id: number) {
+    this.returnService.downloadRueckgabebeleg(id).subscribe((blob) => {
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    });
+  }
+
   exportExcel() {
     this.excelExportService.exportToExcel(
       this.paginatedResult?.items || [],
@@ -375,11 +429,24 @@ export class ReturnListComponent implements OnInit {
   }
 
   delete(id: number) {
-    if (confirm(this.t.deleteConfirmReturn)) {
-      this.returnService.delete(id).subscribe({
-        next: () => this.load(),
-        error: (err) => alert(err.error?.error || this.t.deleteError),
+    this.dialogService
+      .danger(this.t.delete, this.t.deleteConfirmReturn)
+      .then((confirmed) => {
+        if (confirmed) {
+          this.returnService.delete(id).subscribe({
+            next: () => {
+              this.notificationService.success(
+                this.t.deleteSuccess || 'Erfolgreich gelöscht',
+              );
+              this.load();
+            },
+            error: (err) => {
+              this.notificationService.error(
+                err.error?.error || this.t.deleteError,
+              );
+            },
+          });
+        }
       });
-    }
   }
 }

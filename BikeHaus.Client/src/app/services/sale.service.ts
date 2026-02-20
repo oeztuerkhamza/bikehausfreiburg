@@ -25,6 +25,9 @@ export class SaleService {
     pageSize: number,
     status?: string,
     search?: string,
+    marke?: string,
+    fahrradtyp?: string,
+    farbe?: string,
   ): Observable<PaginatedResult<SaleList>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -32,6 +35,9 @@ export class SaleService {
 
     if (status) params = params.set('status', status);
     if (search) params = params.set('search', search);
+    if (marke) params = params.set('marke', marke);
+    if (fahrradtyp) params = params.set('fahrradtyp', fahrradtyp);
+    if (farbe) params = params.set('farbe', farbe);
 
     return this.http.get<PaginatedResult<SaleList>>(`${this.url}/paginated`, {
       params,
@@ -44,6 +50,12 @@ export class SaleService {
 
   create(sale: SaleCreate): Observable<Sale> {
     return this.http.post<Sale>(this.url, sale);
+  }
+
+  getNextBelegNummer(): Observable<{ belegNummer: string }> {
+    return this.http.get<{ belegNummer: string }>(
+      `${this.url}/next-belegnummer`,
+    );
   }
 
   update(id: number, sale: SaleUpdate): Observable<Sale> {

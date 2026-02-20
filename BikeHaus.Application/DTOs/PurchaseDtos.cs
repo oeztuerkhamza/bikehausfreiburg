@@ -5,7 +5,7 @@ namespace BikeHaus.Application.DTOs;
 // ── Purchase DTOs ──
 public record PurchaseDto(
     int Id,
-    string BelegNummer,
+    string? BelegNummer,
     BicycleDto Bicycle,
     CustomerDto Seller,
     decimal Preis,
@@ -25,12 +25,13 @@ public record PurchaseCreateDto(
     PaymentMethod Zahlungsart,
     DateTime? Kaufdatum,
     string? Notizen,
-    SignatureCreateDto? Signature
+    SignatureCreateDto? Signature,
+    string? BelegNummer = null
 );
 
 public record PurchaseListDto(
     int Id,
-    string BelegNummer,
+    string? BelegNummer,
     string? StokNo,
     string BikeInfo,
     string SellerName,
@@ -49,5 +50,24 @@ public record PurchaseUpdateDto(
     decimal? VerkaufspreisVorschlag,
     PaymentMethod Zahlungsart,
     DateTime Kaufdatum,
-    string? Notizen
+    string? Notizen,
+    string? BelegNummer = null
+);
+
+// Bulk Purchase DTO - for buying multiple identical bicycles at once
+public record BulkPurchaseCreateDto(
+    BicycleCreateDto Bicycle,
+    CustomerCreateDto Seller,
+    int Anzahl,                        // Quantity
+    decimal Preis,                     // Price per bike
+    decimal? VerkaufspreisVorschlag,
+    PaymentMethod Zahlungsart,
+    DateTime? Kaufdatum,
+    string? Notizen,
+    string? BelegNummer = null
+);
+
+public record BulkPurchaseResultDto(
+    int TotalCreated,
+    IEnumerable<PurchaseDto> Purchases
 );

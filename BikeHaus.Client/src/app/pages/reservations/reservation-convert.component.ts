@@ -13,7 +13,6 @@ import {
   SaleAccessoryCreate,
   AccessoryCatalogList,
 } from '../../models/models';
-import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
 
 @Component({
@@ -23,7 +22,6 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
     CommonModule,
     FormsModule,
     RouterLink,
-    SignaturePadComponent,
     AccessoryAutocompleteComponent,
   ],
   template: `
@@ -101,7 +99,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">{{ t.paypal }}</option>
-                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
+                  <option value="Karte">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field">
@@ -194,35 +192,21 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
             </button>
           </div>
 
-          <!-- Signatures -->
+          <!-- Seller Signature -->
           <div class="form-card">
-            <h2>{{ t.signatures }}</h2>
-            <div class="signatures-grid">
-              <div class="signature-section">
-                <h3>
-                  {{ t.buyer }} ({{ reservation.customer.vorname }}
-                  {{ reservation.customer.nachname }})
-                </h3>
-                <app-signature-pad
-                  [(ngModel)]="buyerSignatureData"
-                  name="buyerSignature"
-                ></app-signature-pad>
+            <h2>{{ t.sellerSignature }}</h2>
+            <div class="seller-signature-section">
+              <h3>{{ t.seller }} (Bike Haus Freiburg)</h3>
+              <div *ngIf="sellerSignatureData" class="signature-preview">
+                <img
+                  [src]="sellerSignatureData"
+                  alt="{{ t.sellerSignature }}"
+                />
+                <p class="hint">✓ {{ t.savedSignatureUsed }}</p>
               </div>
-              <div class="signature-section seller-signature-section">
-                <h3>{{ t.seller }} (Bike Haus Freiburg)</h3>
-                <div *ngIf="sellerSignatureData" class="signature-preview">
-                  <img
-                    [src]="sellerSignatureData"
-                    alt="{{ t.sellerSignature }}"
-                  />
-                  <p class="hint">✓ {{ t.savedSignatureUsed }}</p>
-                </div>
-                <div *ngIf="!sellerSignatureData" class="no-signature">
-                  <p>{{ t.noSignatureFound }}</p>
-                  <a routerLink="/settings" class="link">{{
-                    t.settingsLink
-                  }}</a>
-                </div>
+              <div *ngIf="!sellerSignatureData" class="no-signature">
+                <p>{{ t.noSignatureFound }}</p>
+                <a routerLink="/settings" class="link">{{ t.settingsLink }}</a>
               </div>
             </div>
           </div>
@@ -633,7 +617,6 @@ export class ReservationConvertComponent implements OnInit {
   notizen: string = '';
   accessories: SaleAccessoryCreate[] = [];
 
-  buyerSignatureData: string = '';
   sellerSignatureData: string = '';
   sellerSignerName: string = '';
 
@@ -717,16 +700,6 @@ export class ReservationConvertComponent implements OnInit {
     if (!this.canSubmit() || !this.reservation) return;
     this.submitting = true;
 
-    const buyerName = `${this.reservation.customer.vorname} ${this.reservation.customer.nachname}`;
-
-    const buyerSig: SignatureCreate | undefined = this.buyerSignatureData
-      ? {
-          signatureData: this.buyerSignatureData,
-          signerName: buyerName,
-          signatureType: 'Buyer' as any,
-        }
-      : undefined;
-
     const sellerSig: SignatureCreate | undefined = this.sellerSignatureData
       ? {
           signatureData: this.sellerSignatureData,
@@ -746,7 +719,6 @@ export class ReservationConvertComponent implements OnInit {
       garantie: true,
       garantieBedingungen,
       notizen: this.notizen || undefined,
-      buyerSignature: buyerSig,
       sellerSignature: sellerSig,
       accessories:
         this.accessories.length > 0

@@ -19,6 +19,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<AccessoryCatalog> AccessoryCatalog => Set<AccessoryCatalog>();
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<Expense> Expenses => Set<Expense>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,9 +30,9 @@ public class BikeHausDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Marke).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.Modell).IsRequired().HasMaxLength(100);
-            entity.Property(e => e.Rahmennummer).IsRequired().HasMaxLength(50);
-            entity.Property(e => e.Farbe).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Modell).HasMaxLength(100);
+            entity.Property(e => e.Rahmennummer).HasMaxLength(50);
+            entity.Property(e => e.Farbe).HasMaxLength(50);
             entity.Property(e => e.Reifengroesse).IsRequired().HasMaxLength(20);
             entity.Property(e => e.Beschreibung).HasMaxLength(500);
             entity.HasIndex(e => e.Rahmennummer);
@@ -58,7 +59,7 @@ public class BikeHausDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Preis).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.BelegNummer).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.BelegNummer).HasMaxLength(20);
             entity.Property(e => e.Notizen).HasMaxLength(1000);
 
             entity.HasOne(e => e.Bicycle)
@@ -76,7 +77,7 @@ public class BikeHausDbContext : DbContext
                 .HasForeignKey<Signature>(s => s.PurchaseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasIndex(e => e.BelegNummer).IsUnique();
+            entity.HasIndex(e => e.BelegNummer);
         });
 
         // ── Sale Configuration ──
@@ -259,6 +260,18 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.DisplayName).HasMaxLength(200);
             entity.Property(e => e.Role).IsRequired().HasMaxLength(50);
             entity.HasIndex(e => e.Username).IsUnique();
+        });
+
+        // ── Expense Configuration ──
+        modelBuilder.Entity<Expense>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Bezeichnung).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Kategorie).HasMaxLength(100);
+            entity.Property(e => e.Betrag).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Lieferant).HasMaxLength(200);
+            entity.Property(e => e.BelegNummer).HasMaxLength(50);
+            entity.Property(e => e.Notizen).HasMaxLength(1000);
         });
     }
 }

@@ -33,6 +33,7 @@ public record SaleDto(
     SignatureDto? BuyerSignature,
     SignatureDto? SellerSignature,
     List<SaleAccessoryDto> Accessories,
+    decimal Rabatt,
     decimal Gesamtbetrag,
     DateTime CreatedAt
 );
@@ -49,7 +50,9 @@ public record SaleCreateDto(
     string? Notizen,
     SignatureCreateDto? BuyerSignature,
     SignatureCreateDto? SellerSignature,
-    List<SaleAccessoryCreateDto>? Accessories
+    List<SaleAccessoryCreateDto>? Accessories,
+    decimal Rabatt = 0,
+    string? BelegNummer = null
 );
 
 public record SaleListDto(
@@ -59,6 +62,7 @@ public record SaleListDto(
     string BikeInfo,
     string BuyerName,
     decimal Preis,
+    decimal Rabatt,
     PaymentMethod Zahlungsart,
     DateTime Verkaufsdatum,
     bool Garantie
@@ -73,5 +77,7 @@ public record SaleUpdateDto(
     bool Garantie,
     string? GarantieBedingungen,
     string? Notizen,
-    List<SaleAccessoryCreateDto>? Accessories
+    List<SaleAccessoryCreateDto>? Accessories,
+    decimal Rabatt = 0,
+    string? BelegNummer = null
 );

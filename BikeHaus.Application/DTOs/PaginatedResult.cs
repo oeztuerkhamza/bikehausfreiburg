@@ -26,4 +26,11 @@ public class PaginationParams
 
     public string? Status { get; set; }
     public string? SearchTerm { get; set; }
+
+    // Additional filters for bicycle properties
+    public string? Zustand { get; set; }
+    public string? Fahrradtyp { get; set; }
+    public string? Reifengroesse { get; set; }
+    public string? Marke { get; set; }
+    public string? Farbe { get; set; }
 }

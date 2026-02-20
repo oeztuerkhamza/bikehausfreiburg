@@ -7,7 +7,7 @@ public record BicycleDto(
     int Id,
     string Marke,
     string Modell,
-    string Rahmennummer,
+    string? Rahmennummer,
     string? Farbe,
     string Reifengroesse,
     string? StokNo,
@@ -20,8 +20,8 @@ public record BicycleDto(
 
 public record BicycleCreateDto(
     string Marke,
-    string Modell,
-    string Rahmennummer,
+    string? Modell,
+    string? Rahmennummer,
     string? Farbe,
     string Reifengroesse,
     string? StokNo,
@@ -32,8 +32,8 @@ public record BicycleCreateDto(
 
 public record BicycleUpdateDto(
     string Marke,
-    string Modell,
-    string Rahmennummer,
+    string? Modell,
+    string? Rahmennummer,
     string? Farbe,
     string Reifengroesse,
     string? StokNo,

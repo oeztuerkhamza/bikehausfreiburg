@@ -15,6 +15,7 @@ import { ReservationListComponent } from './pages/reservations/reservation-list.
 import { ReservationFormComponent } from './pages/reservations/reservation-form.component';
 import { ReservationConvertComponent } from './pages/reservations/reservation-convert.component';
 import { PartsListComponent } from './pages/parts/parts-list.component';
+import { ExpenseListComponent } from './pages/expenses/expense-list.component';
 import { StatisticsComponent } from './pages/statistics/statistics.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { LoginComponent } from './pages/login/login.component';
@@ -87,6 +88,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   { path: 'parts', component: PartsListComponent, canActivate: [authGuard] },
+  {
+    path: 'expenses',
+    component: ExpenseListComponent,
+    canActivate: [authGuard],
+  },
   {
     path: 'statistics',
     component: StatisticsComponent,

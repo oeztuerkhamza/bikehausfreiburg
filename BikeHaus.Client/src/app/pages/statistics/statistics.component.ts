@@ -108,12 +108,57 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
             </div>
           </div>
 
+          <div class="card expenses">
+            <h3>{{ t.expenses }}</h3>
+            <div class="big-number">{{ stats.expenseCount }}</div>
+            <div class="amount">
+              {{ stats.totalExpenseAmount | currency: 'EUR' }}
+            </div>
+          </div>
+
           <div class="card profit" [class.negative]="stats.profit < 0">
             <h3>{{ t.profit }}</h3>
             <div class="big-number">{{ stats.profit | currency: 'EUR' }}</div>
             <div class="avg">
               {{ t.averagePerSale }}:
               {{ stats.averageProfit | currency: 'EUR' }}
+            </div>
+          </div>
+
+          <div class="card net-profit" [class.negative]="stats.netProfit < 0">
+            <h3>{{ t.netProfit }}</h3>
+            <div class="big-number">
+              {{ stats.netProfit | currency: 'EUR' }}
+            </div>
+            <div class="avg">
+              {{ t.profit }}: {{ stats.profit | currency: 'EUR' }} −
+              {{ t.expenses }}: {{ stats.totalExpenseAmount | currency: 'EUR' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Expenses by Category -->
+        <div
+          class="expense-categories"
+          *ngIf="stats.expensesByCategory.length > 0"
+        >
+          <h2>{{ t.expensesByCategory }}</h2>
+          <div class="categories-list">
+            <div
+              class="category-item"
+              *ngFor="let cat of stats.expensesByCategory"
+            >
+              <span class="cat-name">{{ cat.category }}</span>
+              <span class="cat-count">{{ cat.count }}x</span>
+              <div class="cat-bar-wrap">
+                <div
+                  class="cat-bar"
+                  [style.width.%]="getCategoryPercent(cat.totalAmount)"
+                ></div>
+              </div>
+              <span class="cat-amount">{{
+                cat.totalAmount | currency: 'EUR'
+              }}</span>
             </div>
           </div>
         </div>
@@ -130,14 +175,19 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
                   <th>{{ t.purchaseValue }}</th>
                   <th>{{ t.sales }}</th>
                   <th>{{ t.saleValue }}</th>
+                  <th>{{ t.expenses }}</th>
+                  <th>{{ t.expenseValue }}</th>
                   <th>{{ t.dailyProfit }}</th>
+                  <th>{{ t.netProfit }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   *ngFor="let day of stats.dailyBreakdown"
                   [class.has-activity]="
-                    day.purchaseCount > 0 || day.saleCount > 0
+                    day.purchaseCount > 0 ||
+                    day.saleCount > 0 ||
+                    day.expenseCount > 0
                   "
                 >
                   <td>{{ formatDate(day.date) }}</td>
@@ -145,11 +195,21 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
                   <td>{{ day.purchaseAmount | currency: 'EUR' }}</td>
                   <td>{{ day.saleCount }}</td>
                   <td>{{ day.saleAmount | currency: 'EUR' }}</td>
+                  <td>{{ day.expenseCount }}</td>
+                  <td class="expense-col">
+                    {{ day.expenseAmount | currency: 'EUR' }}
+                  </td>
                   <td
                     [class.positive]="day.dailyProfit > 0"
                     [class.negative]="day.dailyProfit < 0"
                   >
                     {{ day.dailyProfit | currency: 'EUR' }}
+                  </td>
+                  <td
+                    [class.positive]="day.dailyNetProfit > 0"
+                    [class.negative]="day.dailyNetProfit < 0"
+                  >
+                    {{ day.dailyNetProfit | currency: 'EUR' }}
                   </td>
                 </tr>
               </tbody>
@@ -341,6 +401,18 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
         color: var(--accent-primary, #6366f1);
       }
 
+      .card.expenses .big-number {
+        color: var(--accent-danger, #ef4444);
+      }
+
+      .card.net-profit .big-number {
+        color: var(--accent-success, #10b981);
+      }
+
+      .card.net-profit.negative .big-number {
+        color: var(--accent-danger, #ef4444);
+      }
+
       .card.profit.negative .big-number {
         color: var(--accent-danger, #ef4444);
       }
@@ -470,6 +542,74 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
         padding: 60px 20px;
         color: var(--text-secondary, #94a3b8);
       }
+
+      /* Expense Categories */
+      .expense-categories {
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
+        padding: 24px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 24px;
+      }
+
+      .categories-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .category-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: var(--bg-secondary, #f8fafc);
+        border-radius: var(--radius-md, 10px);
+        border: 1px solid var(--border-light, #e2e8f0);
+      }
+
+      .category-item .cat-name {
+        width: 120px;
+        font-weight: 600;
+        color: var(--text-primary);
+        flex-shrink: 0;
+      }
+
+      .category-item .cat-count {
+        width: 40px;
+        font-size: 0.85rem;
+        color: var(--text-secondary, #64748b);
+        flex-shrink: 0;
+      }
+
+      .cat-bar-wrap {
+        flex: 1;
+        height: 8px;
+        background: var(--border-light, #e2e8f0);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .cat-bar {
+        height: 100%;
+        background: var(--accent-danger, #ef4444);
+        border-radius: 4px;
+        transition: width 0.4s ease;
+      }
+
+      .category-item .cat-amount {
+        font-weight: 700;
+        color: var(--accent-danger, #ef4444);
+        flex-shrink: 0;
+        min-width: 100px;
+        text-align: right;
+      }
+
+      td.expense-col {
+        color: var(--accent-danger, #ef4444);
+        font-weight: 600;
+      }
     `,
   ],
 })
@@ -571,5 +711,10 @@ export class StatisticsComponent implements OnInit {
       month: '2-digit',
       year: 'numeric',
     });
+  }
+
+  getCategoryPercent(amount: number): number {
+    if (!this.stats || this.stats.totalExpenseAmount === 0) return 0;
+    return (amount / this.stats.totalExpenseAmount) * 100;
   }
 }

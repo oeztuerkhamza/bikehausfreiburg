@@ -16,6 +16,22 @@ export interface LoginResponse {
   expiresAt: string;
 }
 
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangeUsernameRequest {
+  newUsername: string;
+  currentPassword: string;
+}
+
+export interface UserInfo {
+  username: string;
+  displayName: string;
+  role: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private url = `${environment.apiUrl}/auth`;
@@ -52,6 +68,28 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  getMe(): Observable<UserInfo> {
+    return this.http.get<UserInfo>(`${this.url}/me`);
+  }
+
+  changePassword(
+    request: ChangePasswordRequest,
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.url}/change-password`,
+      request,
+    );
+  }
+
+  changeUsername(
+    request: ChangeUsernameRequest,
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.url}/change-username`,
+      request,
+    );
   }
 
   private hasValidToken(): boolean {

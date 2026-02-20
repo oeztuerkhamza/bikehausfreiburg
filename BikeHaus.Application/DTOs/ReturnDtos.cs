@@ -29,7 +29,8 @@ public record ReturnCreateDto(
     PaymentMethod Zahlungsart,
     string? Notizen,
     SignatureCreateDto? CustomerSignature,
-    SignatureCreateDto? ShopSignature
+    SignatureCreateDto? ShopSignature,
+    string? BelegNummer = null
 );
 
 public record ReturnListDto(

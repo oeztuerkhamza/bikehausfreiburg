@@ -6,9 +6,12 @@ export interface DailyStats {
   date: string;
   purchaseCount: number;
   saleCount: number;
+  expenseCount: number;
   purchaseAmount: number;
   saleAmount: number;
+  expenseAmount: number;
   dailyProfit: number;
+  dailyNetProfit: number;
 }
 
 export interface TopBrand {
@@ -17,19 +20,29 @@ export interface TopBrand {
   totalRevenue: number;
 }
 
+export interface ExpenseByCategory {
+  category: string;
+  count: number;
+  totalAmount: number;
+}
+
 export interface Statistics {
   startDate: string;
   endDate: string;
   purchaseCount: number;
   saleCount: number;
+  expenseCount: number;
   totalPurchaseAmount: number;
   totalSaleAmount: number;
+  totalExpenseAmount: number;
   profit: number;
+  netProfit: number;
   averagePurchasePrice: number;
   averageSalePrice: number;
   averageProfit: number;
   dailyBreakdown: DailyStats[];
   topBrands: TopBrand[];
+  expensesByCategory: ExpenseByCategory[];
 }
 
 @Injectable({

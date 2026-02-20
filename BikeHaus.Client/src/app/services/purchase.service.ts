@@ -7,6 +7,8 @@ import {
   PurchaseCreate,
   PurchaseList,
   PurchaseUpdate,
+  BulkPurchaseCreate,
+  BulkPurchaseResult,
   PaginatedResult,
 } from '../models/models';
 
@@ -25,6 +27,9 @@ export class PurchaseService {
     pageSize: number,
     status?: string,
     search?: string,
+    marke?: string,
+    fahrradtyp?: string,
+    farbe?: string,
   ): Observable<PaginatedResult<PurchaseList>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -32,6 +37,9 @@ export class PurchaseService {
 
     if (status) params = params.set('status', status);
     if (search) params = params.set('search', search);
+    if (marke) params = params.set('marke', marke);
+    if (fahrradtyp) params = params.set('fahrradtyp', fahrradtyp);
+    if (farbe) params = params.set('farbe', farbe);
 
     return this.http.get<PaginatedResult<PurchaseList>>(
       `${this.url}/paginated`,
@@ -51,6 +59,16 @@ export class PurchaseService {
 
   create(purchase: PurchaseCreate): Observable<Purchase> {
     return this.http.post<Purchase>(this.url, purchase);
+  }
+
+  createBulk(bulk: BulkPurchaseCreate): Observable<BulkPurchaseResult> {
+    return this.http.post<BulkPurchaseResult>(`${this.url}/bulk`, bulk);
+  }
+
+  getNextBelegNummer(): Observable<{ belegNummer: string }> {
+    return this.http.get<{ belegNummer: string }>(
+      `${this.url}/next-belegnummer`,
+    );
   }
 
   update(id: number, purchase: PurchaseUpdate): Observable<Purchase> {

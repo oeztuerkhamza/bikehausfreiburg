@@ -31,7 +31,7 @@ public class ReturnRepository : Repository<Return>, IReturnRepository
             .Include(r => r.Bicycle)
             .Include(r => r.Customer)
             .Where(r => r.SaleId == saleId)
-            .OrderByDescending(r => r.Rueckgabedatum)
+            .OrderByDescending(r => r.BelegNummer)
             .ToListAsync();
     }
 
@@ -46,17 +46,15 @@ public class ReturnRepository : Repository<Return>, IReturnRepository
             .Include(r => r.Bicycle)
             .Include(r => r.Customer)
             .Include(r => r.Sale)
-            .OrderByDescending(r => r.Rueckgabedatum)
+            .OrderByDescending(r => r.BelegNummer)
             .Take(count)
             .ToListAsync();
     }
 
     public async Task<string> GenerateBelegNummerAsync()
     {
-        var today = DateTime.UtcNow;
-        var prefix = $"RB-{today:yyyyMMdd}";
-        var count = await _dbSet.CountAsync(r => r.BelegNummer.StartsWith(prefix));
-        return $"{prefix}-{(count + 1):D3}";
+        var count = await _dbSet.CountAsync();
+        return $"{(count + 1):D3}";
     }
 
     public override async Task<IEnumerable<Return>> GetAllAsync()
@@ -65,7 +63,7 @@ public class ReturnRepository : Repository<Return>, IReturnRepository
             .Include(r => r.Bicycle)
             .Include(r => r.Customer)
             .Include(r => r.Sale)
-            .OrderByDescending(r => r.Rueckgabedatum)
+            .OrderByDescending(r => r.BelegNummer)
             .ToListAsync();
     }
 
@@ -85,7 +83,7 @@ public class ReturnRepository : Repository<Return>, IReturnRepository
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .OrderByDescending(r => r.Rueckgabedatum)
+            .OrderByDescending(r => r.BelegNummer)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

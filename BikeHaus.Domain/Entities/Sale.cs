@@ -14,6 +14,7 @@ public class Sale : BaseEntity
     public string? GarantieBedingungen { get; set; }            // Warranty Terms
     public string? Notizen { get; set; }                        // Notes
     public string BelegNummer { get; set; } = string.Empty;     // Receipt Number
+    public decimal Rabatt { get; set; }                          // Discount amount
 
     // Signature FK
     public int? BuyerSignatureId { get; set; }
@@ -28,6 +29,6 @@ public class Sale : BaseEntity
     public ICollection<Document> Documents { get; set; } = new List<Document>();
     public ICollection<SaleAccessory> Accessories { get; set; } = new List<SaleAccessory>();
 
-    // Computed: Total including accessories
-    public decimal Gesamtbetrag => Preis + Accessories.Sum(a => a.Gesamtpreis);
+    // Computed: Total including accessories minus discount
+    public decimal Gesamtbetrag => Preis + Accessories.Sum(a => a.Gesamtpreis) - Rabatt;
 }

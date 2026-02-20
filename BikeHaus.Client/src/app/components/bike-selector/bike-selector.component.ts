@@ -228,7 +228,7 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
       (b) =>
         b.marke.toLowerCase().includes(term) ||
         b.modell.toLowerCase().includes(term) ||
-        b.rahmennummer.toLowerCase().includes(term) ||
+        (b.rahmennummer && b.rahmennummer.toLowerCase().includes(term)) ||
         (b.stokNo && b.stokNo.toLowerCase().includes(term)) ||
         (b.farbe && b.farbe.toLowerCase().includes(term)) ||
         b.fahrradtyp?.toLowerCase().includes(term),

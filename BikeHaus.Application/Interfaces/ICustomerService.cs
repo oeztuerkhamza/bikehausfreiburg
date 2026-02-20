@@ -10,4 +10,6 @@ public interface ICustomerService
     Task<CustomerDto> CreateAsync(CustomerCreateDto dto);
     Task<CustomerDto> UpdateAsync(int id, CustomerUpdateDto dto);
     Task DeleteAsync(int id);
+    Task<IEnumerable<string>> GetUniqueFirstNamesAsync();
+    Task<IEnumerable<string>> GetUniqueLastNamesAsync();
 }

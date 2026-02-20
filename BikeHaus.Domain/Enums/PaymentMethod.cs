@@ -4,5 +4,5 @@ public enum PaymentMethod
 {
     Bar,       // Cash
     PayPal,
-    Ueberweisung // Bank Transfer
+    Karte // Card
 }

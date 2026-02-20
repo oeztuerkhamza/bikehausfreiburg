@@ -1,19 +1,19 @@
-import { Component, OnInit, inject } from '@angular/core';
+﻿import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
 import { DocumentService } from '../../services/document.service';
 import { BicycleService } from '../../services/bicycle.service';
+import { CustomerService } from '../../services/customer.service';
 import { TranslationService } from '../../services/translation.service';
 import {
   PurchaseCreate,
+  BulkPurchaseCreate,
   PaymentMethod,
   BikeCondition,
-  SignatureCreate,
   DocumentType,
 } from '../../models/models';
-import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
 import { forkJoin } from 'rxjs';
@@ -25,7 +25,6 @@ import { forkJoin } from 'rxjs';
     CommonModule,
     FormsModule,
     RouterLink,
-    SignaturePadComponent,
     AddressAutocompleteComponent,
   ],
   template: `
@@ -35,31 +34,66 @@ import { forkJoin } from 'rxjs';
         <a routerLink="/purchases" class="btn btn-outline">{{ t.back }}</a>
       </div>
 
+      <!-- Mode Toggle -->
+      <div class="mode-toggle">
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="!bulkMode"
+          (click)="bulkMode = false"
+        >
+          🚲 {{ t.singlePurchase }}
+        </button>
+        <button
+          type="button"
+          class="toggle-btn"
+          [class.active]="bulkMode"
+          (click)="bulkMode = true"
+        >
+          📦 {{ t.bulkPurchase }}
+        </button>
+      </div>
+
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <!-- Seller info -->
           <div class="form-card">
-            <h2>{{ t.seller }} ({{ t.customer }})</h2>
+            <h2>
+              {{
+                bulkMode ? t.supplierStore : t.seller + ' (' + t.customer + ')'
+              }}
+            </h2>
             <div class="form-grid">
-              <div class="field">
+              <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.firstNameRequired }}</label>
                 <input
                   [(ngModel)]="seller.vorname"
                   name="sellerVorname"
-                  required
+                  [required]="!bulkMode"
                   (ngModelChange)="updateSignerName()"
+                  autocomplete="off"
                 />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.lastNameRequired }}</label>
                 <input
                   [(ngModel)]="seller.nachname"
                   name="sellerNachname"
-                  required
+                  [required]="!bulkMode"
                   (ngModelChange)="updateSignerName()"
+                  autocomplete="off"
                 />
               </div>
-              <div class="field full">
+              <div class="field full" *ngIf="bulkMode">
+                <label>{{ t.storeName }} *</label>
+                <input
+                  [(ngModel)]="seller.nachname"
+                  name="sellerStore"
+                  [required]="bulkMode"
+                  [placeholder]="t.storeNamePlaceholder"
+                />
+              </div>
+              <div class="field full" *ngIf="!bulkMode">
                 <label>{{ t.searchAddress }}</label>
                 <app-address-autocomplete
                   placeholder="z.B. Bissierstraße 16, Freiburg"
@@ -67,27 +101,27 @@ import { forkJoin } from 'rxjs';
                 ></app-address-autocomplete>
                 <small class="hint">{{ t.addressHint }}</small>
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.street }}</label>
                 <input [(ngModel)]="seller.strasse" name="sellerStrasse" />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.houseNumber }}</label>
                 <input [(ngModel)]="seller.hausnummer" name="sellerHausnr" />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.postalCode }}</label>
                 <input [(ngModel)]="seller.plz" name="sellerPlz" />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.city }}</label>
                 <input [(ngModel)]="seller.stadt" name="sellerStadt" />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.phone }}</label>
                 <input [(ngModel)]="seller.telefon" name="sellerTel" />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.email }}</label>
                 <input
                   type="email"
@@ -101,47 +135,104 @@ import { forkJoin } from 'rxjs';
           <!-- Bicycle info -->
           <div class="form-card">
             <h2>{{ t.bicycle }}</h2>
+            <!-- Bulk quantity -->
+            <div class="bulk-quantity" *ngIf="bulkMode">
+              <label>{{ t.quantity }} *</label>
+              <div class="quantity-control">
+                <button type="button" class="qty-btn" (click)="decreaseQty()">
+                  −
+                </button>
+                <input
+                  type="number"
+                  [(ngModel)]="bulkQuantity"
+                  name="bulkQty"
+                  min="1"
+                  max="100"
+                  class="qty-input"
+                />
+                <button type="button" class="qty-btn" (click)="increaseQty()">
+                  +
+                </button>
+              </div>
+              <small class="hint">{{ t.bulkQuantityHint }}</small>
+            </div>
             <div class="form-grid">
               <div class="field">
                 <label>{{ t.brand }} *</label>
-                <input [(ngModel)]="bicycle.marke" name="bikeMarke" required />
+                <input
+                  [(ngModel)]="bicycle.marke"
+                  name="bikeMarke"
+                  required
+                  list="brandList"
+                  (ngModelChange)="onBrandChange()"
+                  autocomplete="off"
+                />
+                <datalist id="brandList">
+                  <option *ngFor="let b of brands" [value]="b"></option>
+                </datalist>
               </div>
               <div class="field">
-                <label>{{ t.model }} *</label>
+                <label>{{ t.model }}</label>
                 <input
                   [(ngModel)]="bicycle.modell"
                   name="bikeModell"
-                  required
+                  list="modelList"
+                  autocomplete="off"
                 />
+                <datalist id="modelList">
+                  <option *ngFor="let m of models" [value]="m"></option>
+                </datalist>
               </div>
-              <div class="field">
-                <label>{{ t.frameNumber }} *</label>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.frameNumber }}</label>
                 <input
                   [(ngModel)]="bicycle.rahmennummer"
                   name="bikeRahmen"
-                  required
+                  placeholder="optional"
                 />
               </div>
               <div class="field">
                 <label>{{ t.color }}</label>
-                <input [(ngModel)]="bicycle.farbe" name="bikeFarbe" />
+                <select [(ngModel)]="bicycle.farbe" name="bikeFarbe">
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="Schwarz">Schwarz</option>
+                  <option value="Weiß">Weiß</option>
+                  <option value="Rot">Rot</option>
+                  <option value="Blau">Blau</option>
+                  <option value="Grün">Grün</option>
+                  <option value="Gelb">Gelb</option>
+                  <option value="Orange">Orange</option>
+                  <option value="Grau">Grau</option>
+                  <option value="Silber">Silber</option>
+                  <option value="Pink">Pink</option>
+                </select>
               </div>
               <div class="field">
                 <label>{{ t.wheelSize }} *</label>
-                <input
+                <select
                   [(ngModel)]="bicycle.reifengroesse"
                   name="bikeReifen"
                   required
-                  placeholder="z.B. 28"
-                />
+                >
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="12">12"</option>
+                  <option value="14">14"</option>
+                  <option value="16">16"</option>
+                  <option value="18">18"</option>
+                  <option value="20">20"</option>
+                  <option value="24">24"</option>
+                  <option value="26">26"</option>
+                  <option value="27.5">27.5"</option>
+                  <option value="28">28"</option>
+                  <option value="29">29"</option>
+                </select>
               </div>
-              <div class="field">
-                <label>{{ t.stockNo }} *</label>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.stockNo }}</label>
                 <input
                   [(ngModel)]="bicycle.stokNo"
                   name="bikeStokNo"
-                  required
-                  readonly
+                  placeholder="optional"
                 />
               </div>
               <div class="field">
@@ -159,7 +250,7 @@ import { forkJoin } from 'rxjs';
                   <option value="Sonstige">Sonstige</option>
                 </select>
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.condition }} *</label>
                 <select
                   [(ngModel)]="bicycle.zustand"
@@ -171,6 +262,10 @@ import { forkJoin } from 'rxjs';
                   </option>
                   <option value="Neu">{{ t.newCondition }}</option>
                 </select>
+              </div>
+              <div class="field" *ngIf="bulkMode">
+                <label>{{ t.condition }}</label>
+                <div class="fixed-value">{{ t.newCondition }}</div>
               </div>
               <div class="field full">
                 <label>{{ t.descriptionEquipment }}</label>
@@ -189,7 +284,21 @@ import { forkJoin } from 'rxjs';
             <h2>{{ t.purchaseData }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>{{ t.priceRequired }}</label>
+                <label
+                  >{{ t.receiptNo }}
+                  {{ bulkMode ? '(' + t.invoiceOptional + ')' : '' }}</label
+                >
+                <input
+                  [(ngModel)]="belegNummer"
+                  name="belegNummer"
+                  [placeholder]="bulkMode ? 'z.B. RE-2026-001234' : 'z.B. 001'"
+                />
+                <small class="hint" *ngIf="bulkMode">{{
+                  t.sameInvoiceForAllBikes
+                }}</small>
+              </div>
+              <div class="field">
+                <label>{{ bulkMode ? t.pricePerBike : t.priceRequired }}</label>
                 <input
                   type="number"
                   step="0.01"
@@ -197,6 +306,12 @@ import { forkJoin } from 'rxjs';
                   name="preis"
                   required
                 />
+              </div>
+              <div class="field" *ngIf="bulkMode">
+                <label>{{ t.totalPrice }}</label>
+                <div class="calculated-price">
+                  {{ preis * bulkQuantity | number: '1.2-2' }} €
+                </div>
               </div>
               <div class="field">
                 <label>{{ t.plannedSellingPrice }} (€)</label>
@@ -213,7 +328,7 @@ import { forkJoin } from 'rxjs';
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">{{ t.paypal }}</option>
-                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
+                  <option value="Karte">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field">
@@ -236,19 +351,17 @@ import { forkJoin } from 'rxjs';
             </div>
           </div>
 
-          <!-- Document Upload (Rechnung or Kleinanzeigen) -->
-          <div class="form-card">
+          <!-- Document Upload (optional) -->
+          <div class="form-card" *ngIf="!bulkMode">
             <h2>
               {{
                 bicycle.zustand === 'Neu'
-                  ? t.invoiceRequired
-                  : t.screenshotsRequired
+                  ? t.invoiceOptional
+                  : t.screenshotsOptional
               }}
             </h2>
             <p class="hint-text">
-              {{
-                bicycle.zustand === 'Neu' ? t.invoiceHint : t.screenshotsHint
-              }}
+              {{ t.documentsOptionalHint }}
             </p>
             <div class="upload-area">
               <input
@@ -290,41 +403,23 @@ import { forkJoin } from 'rxjs';
               </div>
             </div>
           </div>
-
-          <!-- Signature -->
-          <div class="form-card">
-            <h2>{{ t.sellerSignature }}</h2>
-            <app-signature-pad
-              [label]="t.signatures"
-              [(ngModel)]="signatureData"
-              name="signature"
-            ></app-signature-pad>
-            <div class="field" style="margin-top:8px;">
-              <label>{{ t.signerName }}</label>
-              <input [(ngModel)]="signerName" name="signerName" />
-            </div>
-          </div>
         </div>
 
         <!-- Validation messages -->
         <div class="validation-errors" *ngIf="!canSubmit() && !submitting">
-          <p *ngIf="!seller.vorname?.trim()" class="error-msg">
+          <p *ngIf="!bulkMode && !seller.vorname.trim()" class="error-msg">
             ⚠️ {{ t.sellerFirstNameRequired }}
           </p>
-          <p *ngIf="!seller.nachname?.trim()" class="error-msg">
+          <p *ngIf="!bulkMode && !seller.nachname.trim()" class="error-msg">
             ⚠️ {{ t.sellerLastNameRequired }}
           </p>
-          <p *ngIf="!bicycle.marke?.trim()" class="error-msg">
+          <p *ngIf="bulkMode && !seller.nachname.trim()" class="error-msg">
+            ⚠️ {{ t.storeNameRequired }}
+          </p>
+          <p *ngIf="!bicycle.marke.trim()" class="error-msg">
             ⚠️ {{ t.brandIsRequired }}
           </p>
-          <p *ngIf="!bicycle.modell?.trim()" class="error-msg">
-            ⚠️ {{ t.modelIsRequired }}
-          </p>
-          <p *ngIf="!bicycle.rahmennummer?.trim()" class="error-msg">
-            ⚠️ {{ t.frameNumberIsRequired }}
-          </p>
-
-          <p *ngIf="!bicycle.reifengroesse?.trim()" class="error-msg">
+          <p *ngIf="!bicycle.reifengroesse.trim()" class="error-msg">
             ⚠️ {{ t.wheelSizeIsRequired }}
           </p>
           <p *ngIf="!preis || preis <= 0" class="error-msg">
@@ -333,13 +428,18 @@ import { forkJoin } from 'rxjs';
           <p *ngIf="!kaufdatum" class="error-msg">
             ⚠️ {{ t.purchaseDateIsRequired }}
           </p>
-          <p *ngIf="selectedFiles.length === 0" class="error-msg">
-            ⚠️
-            {{
-              bicycle.zustand === 'Neu'
-                ? t.invoiceIsRequired
-                : t.screenshotIsRequired
-            }}
+        </div>
+
+        <!-- Bulk summary -->
+        <div class="bulk-summary" *ngIf="bulkMode && canSubmit()">
+          <p>
+            📦 <strong>{{ bulkQuantity }}x</strong> {{ bicycle.marke }}
+            {{ bicycle.modell }}
+            <span *ngIf="bicycle.reifengroesse"
+              >({{ bicycle.reifengroesse }}")</span
+            >
+            — {{ t.pricePerBike }}: {{ preis | number: '1.2-2' }} € —
+            {{ t.totalPrice }}: {{ preis * bulkQuantity | number: '1.2-2' }} €
           </p>
         </div>
 
@@ -349,7 +449,13 @@ import { forkJoin } from 'rxjs';
             class="btn btn-primary btn-lg"
             [disabled]="!canSubmit() || submitting"
           >
-            {{ submitting ? t.saving : t.savePurchase }}
+            {{
+              submitting
+                ? t.saving
+                : bulkMode
+                  ? t.saveBulkPurchase
+                  : t.savePurchase
+            }}
           </button>
         </div>
       </form>
@@ -382,6 +488,33 @@ import { forkJoin } from 'rxjs';
         font-size: 1.5rem;
         font-weight: 800;
         color: var(--text-primary);
+      }
+      .mode-toggle {
+        display: flex;
+        gap: 0;
+        margin-bottom: 20px;
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        overflow: hidden;
+      }
+      .toggle-btn {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        background: transparent;
+        font-size: 0.92rem;
+        font-weight: 600;
+        cursor: pointer;
+        color: var(--text-secondary, #64748b);
+        transition: var(--transition-fast);
+      }
+      .toggle-btn.active {
+        background: var(--accent-primary, #6366f1);
+        color: white;
+      }
+      .toggle-btn:not(.active):hover {
+        background: var(--table-hover, #f1f5f9);
       }
       .form-sections {
         display: flex;
@@ -449,9 +582,133 @@ import { forkJoin } from 'rxjs';
         color: var(--text-secondary, #94a3b8);
         margin-top: 4px;
       }
+      .bulk-quantity {
+        margin-bottom: 18px;
+        padding-bottom: 18px;
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
+      }
+      .bulk-quantity label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        width: fit-content;
+      }
+      .qty-btn {
+        width: 40px;
+        height: 40px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        background: var(--bg-card, #fff);
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+      .qty-btn:first-child {
+        border-radius: var(--radius-md, 10px) 0 0 var(--radius-md, 10px);
+      }
+      .qty-btn:last-child {
+        border-radius: 0 var(--radius-md, 10px) var(--radius-md, 10px) 0;
+      }
+      .qty-btn:hover {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
+      }
+      .qty-input {
+        width: 60px;
+        height: 40px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-left: none;
+        border-right: none;
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 700;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+      }
+      .qty-input:focus {
+        outline: none;
+      }
+      .bulk-quantity .hint {
+        display: block;
+        font-size: 0.73rem;
+        color: var(--text-secondary, #94a3b8);
+        margin-top: 6px;
+      }
+      .calculated-price {
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
+      }
+      .fixed-value {
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        background: var(--bg-tertiary, #f1f5f9);
+      }
+      .bulk-summary {
+        margin-top: 16px;
+        padding: 14px 18px;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
+        border: 1.5px solid var(--accent-primary, #6366f1);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        color: var(--text-primary);
+      }
       .form-actions {
         margin-top: 24px;
         text-align: right;
+      }
+      .btn {
+        padding: 8px 16px;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border: none;
+        transition: var(--transition-fast);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+      }
+      .btn-primary {
+        background: var(--accent-primary, #6366f1);
+        color: white;
+      }
+      .btn-primary:hover {
+        background: var(--accent-primary-hover, #4f46e5);
+        box-shadow: var(--shadow-sm);
+      }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-outline {
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+      }
+      .btn-outline:hover {
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
       }
       .btn-lg {
         padding: 12px 32px;
@@ -507,6 +764,14 @@ import { forkJoin } from 'rxjs';
       .remove-btn:hover {
         background: var(--accent-danger, #ef4444);
       }
+      .validation-errors {
+        margin-top: 12px;
+      }
+      .error-msg {
+        font-size: 0.85rem;
+        color: var(--accent-danger, #ef4444);
+        margin: 4px 0;
+      }
     `,
   ],
 })
@@ -515,6 +780,9 @@ export class PurchaseFormComponent implements OnInit {
   get t() {
     return this.translationService.translations();
   }
+
+  bulkMode = false;
+  bulkQuantity = 1;
 
   seller = {
     vorname: '',
@@ -542,44 +810,133 @@ export class PurchaseFormComponent implements OnInit {
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   kaufdatum = '';
   notizen = '';
+  belegNummer = '';
   signatureData = '';
   signerName = '';
   submitting = false;
 
-  // Screenshot upload
   selectedFiles: File[] = [];
   previewUrls: string[] = [];
+
+  brands: string[] = [];
+  models: string[] = [];
+
+  firstNames: string[] = [];
+  lastNames: string[] = [];
 
   constructor(
     private purchaseService: PurchaseService,
     private documentService: DocumentService,
     private bicycleService: BicycleService,
+    private customerService: CustomerService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
+    // Check for bulk mode from query param
+    this.route.queryParams.subscribe((params) => {
+      if (params['bulk'] === 'true') {
+        this.bulkMode = true;
+        this.bicycle.zustand = BikeCondition.Neu; // Bulk mode is always Neu
+      } else {
+        this.bicycle.zustand = BikeCondition.Gebraucht; // Single mode is Gebraucht
+      }
+    });
+
     this.kaufdatum = new Date().toISOString().split('T')[0];
     this.bicycleService.getNextStokNo().subscribe({
       next: (res) => {
         this.bicycle.stokNo = res.stokNo;
       },
-      error: () => {
-        // fallback: leave empty
+      error: () => {},
+    });
+    this.purchaseService.getNextBelegNummer().subscribe({
+      next: (res) => {
+        this.belegNummer = res.belegNummer;
       },
+      error: () => {},
+    });
+
+    // Load brands for autocomplete
+    this.bicycleService.getBrands().subscribe({
+      next: (res) => {
+        this.brands = res;
+      },
+      error: () => {},
+    });
+
+    // Load all models initially
+    this.bicycleService.getModels().subscribe({
+      next: (res) => {
+        this.models = res;
+      },
+      error: () => {},
+    });
+
+    // Load customer names for autocomplete
+    this.customerService.getFirstNames().subscribe({
+      next: (res) => {
+        this.firstNames = res;
+      },
+      error: () => {},
+    });
+
+    this.customerService.getLastNames().subscribe({
+      next: (res) => {
+        this.lastNames = res;
+      },
+      error: () => {},
     });
   }
 
+  increaseQty() {
+    if (this.bulkQuantity < 100) this.bulkQuantity++;
+  }
+
+  decreaseQty() {
+    if (this.bulkQuantity > 1) this.bulkQuantity--;
+  }
+
+  onBrandChange() {
+    // Load models filtered by the selected brand
+    const brand = this.bicycle.marke?.trim();
+    if (brand && this.brands.includes(brand)) {
+      this.bicycleService.getModels(brand).subscribe({
+        next: (res) => {
+          this.models = res;
+        },
+        error: () => {},
+      });
+    } else {
+      // Load all models if brand is cleared or doesn't match exactly
+      this.bicycleService.getModels().subscribe({
+        next: (res) => {
+          this.models = res;
+        },
+        error: () => {},
+      });
+    }
+  }
+
   canSubmit(): boolean {
-    return !!(
-      this.seller.vorname?.trim() &&
-      this.seller.nachname?.trim() &&
+    const baseValid = !!(
       this.bicycle.marke?.trim() &&
-      this.bicycle.modell?.trim() &&
-      this.bicycle.rahmennummer?.trim() &&
       this.bicycle.reifengroesse?.trim() &&
       this.preis > 0 &&
-      this.kaufdatum &&
-      this.selectedFiles.length > 0
+      this.kaufdatum
+    );
+
+    if (this.bulkMode) {
+      return (
+        baseValid && !!this.seller.nachname?.trim() && this.bulkQuantity >= 1
+      );
+    }
+
+    return (
+      baseValid &&
+      !!this.seller.vorname?.trim() &&
+      !!this.seller.nachname?.trim()
     );
   }
 
@@ -605,8 +962,6 @@ export class PurchaseFormComponent implements OnInit {
     if (input.files) {
       for (const file of Array.from(input.files)) {
         this.selectedFiles.push(file);
-
-        // Create preview URL
         const reader = new FileReader();
         reader.onload = (e) => {
           this.previewUrls.push(e.target?.result as string);
@@ -614,7 +969,6 @@ export class PurchaseFormComponent implements OnInit {
         reader.readAsDataURL(file);
       }
     }
-    // Reset input so same file can be selected again
     input.value = '';
   }
 
@@ -625,15 +979,49 @@ export class PurchaseFormComponent implements OnInit {
 
   submit() {
     this.submitting = true;
-    const signature: SignatureCreate | undefined = this.signatureData
-      ? {
-          signatureData: this.signatureData,
-          signerName:
-            this.signerName || `${this.seller.vorname} ${this.seller.nachname}`,
-          signatureType: 'Seller' as any,
-        }
-      : undefined;
+    if (this.bulkMode) {
+      this.submitBulk();
+    } else {
+      this.submitSingle();
+    }
+  }
 
+  private submitBulk() {
+    const bulkData: BulkPurchaseCreate = {
+      bicycle: {
+        marke: this.bicycle.marke,
+        modell: this.bicycle.modell,
+        farbe: this.bicycle.farbe || undefined,
+        reifengroesse: this.bicycle.reifengroesse,
+        fahrradtyp: this.bicycle.fahrradtyp || undefined,
+        beschreibung: this.bicycle.beschreibung || undefined,
+        zustand: this.bicycle.zustand as BikeCondition,
+      },
+      seller: {
+        vorname: this.seller.vorname || this.seller.nachname,
+        nachname: this.seller.nachname,
+      },
+      anzahl: this.bulkQuantity,
+      preis: this.preis,
+      verkaufspreisVorschlag: this.verkaufspreisVorschlag || undefined,
+      zahlungsart: this.zahlungsart,
+      kaufdatum: this.kaufdatum,
+      notizen: this.notizen || undefined,
+      belegNummer: this.belegNummer || undefined,
+    };
+
+    this.purchaseService.createBulk(bulkData).subscribe({
+      next: () => {
+        this.router.navigate(['/purchases']);
+      },
+      error: () => {
+        this.submitting = false;
+        alert('Fehler beim Speichern des Toplu-Ankaufs');
+      },
+    });
+  }
+
+  private submitSingle() {
     const purchase: PurchaseCreate = {
       bicycle: this.bicycle,
       seller: this.seller,
@@ -642,12 +1030,11 @@ export class PurchaseFormComponent implements OnInit {
       zahlungsart: this.zahlungsart,
       kaufdatum: this.kaufdatum,
       notizen: this.notizen || undefined,
-      signature,
+      belegNummer: this.belegNummer || undefined,
     };
 
     this.purchaseService.create(purchase).subscribe({
       next: (result) => {
-        // Upload Kleinanzeigen screenshots if any
         if (this.selectedFiles.length > 0 && result.id) {
           const docType =
             this.bicycle.zustand === 'Neu'
@@ -667,7 +1054,6 @@ export class PurchaseFormComponent implements OnInit {
               this.router.navigate(['/purchases']);
             },
             error: () => {
-              // Purchase created but uploads failed - still navigate
               console.error('Fehler beim Hochladen der Screenshots');
               this.router.navigate(['/purchases']);
             },

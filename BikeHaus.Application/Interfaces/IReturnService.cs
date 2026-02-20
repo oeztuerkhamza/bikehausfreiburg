@@ -9,5 +9,6 @@ public interface IReturnService
     Task<ReturnDto?> GetByIdAsync(int id);
     Task<ReturnDto> CreateAsync(ReturnCreateDto dto);
     Task DeleteAsync(int id);
+    Task<string> GetNextBelegNummerAsync();
     Task<byte[]> GeneratePdfAsync(int id);
 }

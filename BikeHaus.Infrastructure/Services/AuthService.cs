@@ -61,6 +61,28 @@ public class AuthService : IAuthService
         return true;
     }
 
+    public async Task<bool> ChangeUsernameAsync(int userId, ChangeUsernameDto request)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+            return false;
+
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+            return false;
+
+        // Check if username already exists
+        var existingUser = await _context.Users
+            .FirstOrDefaultAsync(u => u.Username == request.NewUsername && u.Id != userId);
+        if (existingUser != null)
+            return false;
+
+        user.Username = request.NewUsername;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
     public async Task SeedDefaultUserAsync()
     {
         if (await _context.Users.AnyAsync())

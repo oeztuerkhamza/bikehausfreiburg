@@ -64,7 +64,6 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Farbe")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
@@ -79,7 +78,6 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Rahmennummer")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
@@ -216,6 +214,50 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("Documents");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.Expense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("BelegNummer")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Betrag")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Bezeichnung")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Datum")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Kategorie")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Lieferant")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notizen")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Expenses");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Purchase", b =>
                 {
                     b.Property<int>("Id")
@@ -223,7 +265,6 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("BelegNummer")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
@@ -257,8 +298,7 @@ namespace BikeHaus.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BelegNummer")
-                        .IsUnique();
+                    b.HasIndex("BelegNummer");
 
                     b.HasIndex("BicycleId")
                         .IsUnique();
@@ -437,6 +477,9 @@ namespace BikeHaus.Infrastructure.Migrations
 
                     b.Property<int?>("PurchaseId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Rabatt")
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("SellerSignatureId")
                         .HasColumnType("INTEGER");

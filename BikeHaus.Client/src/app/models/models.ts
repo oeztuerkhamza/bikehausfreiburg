@@ -13,7 +13,7 @@ export enum BikeCondition {
 export enum PaymentMethod {
   Bar = 'Bar',
   PayPal = 'PayPal',
-  Ueberweisung = 'Ueberweisung',
+  Karte = 'Karte',
 }
 
 export enum DocumentType {
@@ -43,8 +43,8 @@ export interface Bicycle {
   id: number;
   marke: string;
   modell: string;
-  rahmennummer: string;
-  farbe: string;
+  rahmennummer?: string;
+  farbe?: string;
   reifengroesse: string;
   stokNo?: string;
   fahrradtyp?: string;
@@ -57,8 +57,8 @@ export interface Bicycle {
 export interface BicycleCreate {
   marke: string;
   modell: string;
-  rahmennummer: string;
-  farbe: string;
+  rahmennummer?: string;
+  farbe?: string;
   reifengroesse: string;
   stokNo?: string;
   fahrradtyp?: string;
@@ -69,8 +69,8 @@ export interface BicycleCreate {
 export interface BicycleUpdate {
   marke: string;
   modell: string;
-  rahmennummer: string;
-  farbe: string;
+  rahmennummer?: string;
+  farbe?: string;
   reifengroesse: string;
   stokNo?: string;
   fahrradtyp?: string;
@@ -142,14 +142,14 @@ export interface Purchase {
   zahlungsart: PaymentMethod;
   kaufdatum: string;
   notizen?: string;
-  belegNummer: string;
+  belegNummer?: string;
   signature?: Signature;
   createdAt: string;
 }
 
 export interface PurchaseList {
   id: number;
-  belegNummer: string;
+  belegNummer?: string;
   stokNo?: string;
   bikeInfo: string;
   sellerName: string;
@@ -169,6 +169,7 @@ export interface PurchaseCreate {
   kaufdatum: string;
   notizen?: string;
   signature?: SignatureCreate;
+  belegNummer?: string;
 }
 
 export interface PurchaseUpdate {
@@ -179,6 +180,24 @@ export interface PurchaseUpdate {
   zahlungsart: PaymentMethod;
   kaufdatum: string;
   notizen?: string;
+  belegNummer?: string;
+}
+
+export interface BulkPurchaseCreate {
+  bicycle: BicycleCreate;
+  seller: CustomerCreate;
+  anzahl: number;
+  preis: number;
+  verkaufspreisVorschlag?: number;
+  zahlungsart: PaymentMethod;
+  kaufdatum: string;
+  notizen?: string;
+  belegNummer?: string;
+}
+
+export interface BulkPurchaseResult {
+  totalCreated: number;
+  purchases: Purchase[];
 }
 
 // ── Sale Accessory ──
@@ -212,6 +231,7 @@ export interface Sale {
   buyerSignature?: Signature;
   sellerSignature?: Signature;
   accessories: SaleAccessory[];
+  rabatt: number;
   gesamtbetrag: number;
   createdAt: string;
 }
@@ -223,6 +243,7 @@ export interface SaleList {
   bikeInfo: string;
   buyerName: string;
   preis: number;
+  rabatt: number;
   zahlungsart: PaymentMethod;
   verkaufsdatum: string;
   garantie: boolean;
@@ -240,6 +261,8 @@ export interface SaleCreate {
   buyerSignature?: SignatureCreate;
   sellerSignature?: SignatureCreate;
   accessories?: SaleAccessoryCreate[];
+  rabatt?: number;
+  belegNummer?: string;
 }
 
 export interface SaleUpdate {
@@ -251,6 +274,8 @@ export interface SaleUpdate {
   garantieBedingungen?: string;
   notizen?: string;
   accessories?: SaleAccessoryCreate[];
+  rabatt?: number;
+  belegNummer?: string;
 }
 
 // ── Document ──
@@ -313,6 +338,7 @@ export interface ReturnCreate {
   notizen?: string;
   customerSignature?: SignatureCreate;
   shopSignature?: SignatureCreate;
+  belegNummer?: string;
 }
 
 // ── Dashboard ──
@@ -431,4 +457,44 @@ export interface PaginatedResult<T> {
   totalPages: number;
   hasPrevious: boolean;
   hasNext: boolean;
+}
+
+// ── Archive ──
+export interface ArchiveSearchResult {
+  bicycleId: number;
+  stokNo: string;
+  bikeInfo: string;
+  purchaseBelegNummer?: string;
+  saleBelegNummer?: string;
+  purchaseDate?: string;
+  saleDate?: string;
+  matchType: string;
+}
+
+export interface ArchiveTimelineEvent {
+  eventType: string;
+  eventDate: string;
+  belegNummer?: string;
+  title: string;
+  description?: string;
+  amount?: number;
+  customerName?: string;
+  paymentMethod?: string;
+  documentId?: number;
+  documentType?: string;
+}
+
+export interface ArchiveBicycleHistory {
+  bicycleId: number;
+  stokNo: string;
+  marke: string;
+  modell?: string;
+  rahmennummer?: string;
+  farbe?: string;
+  reifengroesse: string;
+  fahrradtyp?: string;
+  status: string;
+  zustand: string;
+  createdAt: string;
+  timeline: ArchiveTimelineEvent[];
 }

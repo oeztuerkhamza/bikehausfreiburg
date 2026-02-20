@@ -45,6 +45,12 @@ export class ReturnService {
     return this.http.post<Return>(this.url, returnData);
   }
 
+  getNextBelegNummer(): Observable<{ belegNummer: string }> {
+    return this.http.get<{ belegNummer: string }>(
+      `${this.url}/next-belegnummer`,
+    );
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }

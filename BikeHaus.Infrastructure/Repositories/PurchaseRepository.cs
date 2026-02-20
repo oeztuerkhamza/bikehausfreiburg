@@ -37,17 +37,15 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
             .Include(p => p.Bicycle)
             .Include(p => p.Seller)
             .Include(p => p.Sale)
-            .OrderByDescending(p => p.Kaufdatum)
+            .OrderByDescending(p => p.BelegNummer)
             .Take(count)
             .ToListAsync();
     }
 
     public async Task<string> GenerateBelegNummerAsync()
     {
-        var today = DateTime.UtcNow;
-        var prefix = $"KB-{today:yyyyMMdd}";
-        var count = await _dbSet.CountAsync(p => p.BelegNummer.StartsWith(prefix));
-        return $"{prefix}-{(count + 1):D3}";
+        var count = await _dbSet.CountAsync();
+        return $"{(count + 1):D3}";
     }
 
     public override async Task<IEnumerable<Purchase>> GetAllAsync()
@@ -56,7 +54,7 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
             .Include(p => p.Bicycle)
             .Include(p => p.Seller)
             .Include(p => p.Sale)
-            .OrderByDescending(p => p.Kaufdatum)
+            .OrderByDescending(p => p.BelegNummer)
             .ToListAsync();
     }
 
@@ -76,7 +74,7 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .OrderByDescending(p => p.Kaufdatum)
+            .OrderByDescending(p => p.BelegNummer)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

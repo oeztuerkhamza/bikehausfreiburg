@@ -130,6 +130,10 @@ import { AddressSuggestion } from '../../services/address.service';
             <h2>{{ t.saleData }}</h2>
             <div class="form-grid">
               <div class="field">
+                <label>{{ t.receiptNo }}</label>
+                <input [(ngModel)]="belegNummer" name="belegNummer" />
+              </div>
+              <div class="field">
                 <label>{{ t.priceRequired }}</label>
                 <input
                   type="number"
@@ -144,7 +148,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">{{ t.paypal }}</option>
-                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
+                  <option value="Karte">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field">
@@ -251,6 +255,26 @@ import { AddressSuggestion } from '../../services/address.service';
             >
               + {{ t.addManually }}
             </button>
+          </div>
+
+          <!-- Rabatt & Gesamtbetrag -->
+          <div class="form-card">
+            <h2>{{ t.discount }}</h2>
+
+            <!-- Rabatt -->
+            <div class="discount-section">
+              <div class="field">
+                <label>{{ t.discountOptional }} (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  [(ngModel)]="rabatt"
+                  name="rabatt"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
 
             <div class="grand-total" *ngIf="preis > 0">
               <div class="total-row">
@@ -261,10 +285,19 @@ import { AddressSuggestion } from '../../services/address.service';
                 <span>{{ t.accessories }}:</span>
                 <span>{{ accessoriesTotal | number: '1.2-2' }} €</span>
               </div>
+              <div class="total-row discount" *ngIf="rabatt > 0">
+                <span>{{ t.discount }}:</span>
+                <span class="discount-value"
+                  >- {{ rabatt | number: '1.2-2' }} €</span
+                >
+              </div>
               <div class="total-row grand">
                 <span>{{ t.grandTotal }}:</span>
                 <strong
-                  >{{ preis + accessoriesTotal | number: '1.2-2' }} €</strong
+                  >{{
+                    preis + accessoriesTotal - rabatt | number: '1.2-2'
+                  }}
+                  €</strong
                 >
               </div>
             </div>
@@ -519,6 +552,17 @@ import { AddressSuggestion } from '../../services/address.service';
         font-size: 1.1rem;
         font-weight: 700;
       }
+      .total-row.discount {
+        color: var(--accent-danger, #ef4444);
+      }
+      .discount-value {
+        color: var(--accent-danger, #ef4444);
+        font-weight: 600;
+      }
+      .discount-section {
+        padding-top: 8px;
+        border-top: 1px dashed var(--border-light, #e2e8f0);
+      }
     `,
   ],
 })
@@ -545,9 +589,11 @@ export class SaleEditComponent implements OnInit {
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   verkaufsdatum = '';
   notizen = '';
+  belegNummer = '';
   garantie = true;
   garantieBedingungen = '';
   accessories: SaleAccessoryCreate[] = [];
+  rabatt = 0;
 
   get t() {
     return this.translationService.translations();
@@ -620,6 +666,12 @@ export class SaleEditComponent implements OnInit {
         menge: acc.menge,
       }));
     }
+
+    // Load rabatt
+    this.rabatt = sale.rabatt || 0;
+
+    // Load belegNummer
+    this.belegNummer = sale.belegNummer || '';
   }
 
   onBuyerAddressSelected(address: AddressSuggestion) {
@@ -665,6 +717,8 @@ export class SaleEditComponent implements OnInit {
         this.accessories.length > 0
           ? this.accessories.filter((a) => a.bezeichnung && a.preis > 0)
           : undefined,
+      rabatt: this.rabatt > 0 ? this.rabatt : undefined,
+      belegNummer: this.belegNummer || undefined,
     };
 
     this.saleService.update(this.sale.id, update).subscribe({

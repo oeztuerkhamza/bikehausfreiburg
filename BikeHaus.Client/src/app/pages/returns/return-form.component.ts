@@ -69,6 +69,14 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
             <h2>{{ t.returnData }}</h2>
             <div class="form-grid">
               <div class="field">
+                <label>{{ t.receiptNo }}</label>
+                <input
+                  [(ngModel)]="belegNummer"
+                  name="belegNummer"
+                  placeholder="z.B. RB-20260219-001"
+                />
+              </div>
+              <div class="field">
                 <label>{{ t.returnDateRequired }}</label>
                 <input
                   type="date"
@@ -118,7 +126,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">PayPal</option>
-                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
+                  <option value="Karte">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field full">
@@ -132,21 +140,9 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
             </div>
           </div>
 
-          <!-- Signatures -->
+          <!-- Shop Signature -->
           <div class="form-card">
-            <h2>{{ t.signatures }}</h2>
-            <app-signature-pad
-              [label]="t.customerSignature"
-              [(ngModel)]="customerSignatureData"
-              name="customerSig"
-            ></app-signature-pad>
-            <div class="field" style="margin-top:8px; margin-bottom:16px;">
-              <label>{{ t.customerName }}</label>
-              <input
-                [(ngModel)]="customerSignerName"
-                name="customerSignerName"
-              />
-            </div>
+            <h2>{{ t.shopSignature }}</h2>
             <app-signature-pad
               [label]="t.shopSignature"
               [(ngModel)]="shopSignatureData"
@@ -327,9 +323,8 @@ export class ReturnFormComponent implements OnInit {
   erstattungsbetrag = 0;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   notizen = '';
+  belegNummer = '';
 
-  customerSignatureData = '';
-  customerSignerName = '';
   shopSignatureData = '';
   shopSignerName = '';
 
@@ -342,6 +337,12 @@ export class ReturnFormComponent implements OnInit {
   ngOnInit() {
     this.rueckgabedatum = new Date().toISOString().split('T')[0];
     this.loadSales();
+    this.returnService.getNextBelegNummer().subscribe({
+      next: (res) => {
+        this.belegNummer = res.belegNummer;
+      },
+      error: () => {},
+    });
   }
 
   loadSales() {
@@ -359,14 +360,6 @@ export class ReturnFormComponent implements OnInit {
   submit() {
     if (!this.selectedSaleId || !this.grund) return;
 
-    const customerSig: SignatureCreate | undefined = this.customerSignatureData
-      ? {
-          signatureData: this.customerSignatureData,
-          signerName: this.customerSignerName,
-          signatureType: 'Buyer' as any,
-        }
-      : undefined;
-
     const shopSig: SignatureCreate | undefined = this.shopSignatureData
       ? {
           signatureData: this.shopSignatureData,
@@ -383,8 +376,8 @@ export class ReturnFormComponent implements OnInit {
       erstattungsbetrag: this.erstattungsbetrag,
       zahlungsart: this.zahlungsart,
       notizen: this.notizen || undefined,
-      customerSignature: customerSig,
       shopSignature: shopSig,
+      belegNummer: this.belegNummer || undefined,
     };
 
     this.returnService.create(dto).subscribe({

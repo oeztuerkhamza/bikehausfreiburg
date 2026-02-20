@@ -34,4 +34,12 @@ export class CustomerService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
+
+  getFirstNames(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.url}/firstnames`);
+  }
+
+  getLastNames(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.url}/lastnames`);
+  }
 }

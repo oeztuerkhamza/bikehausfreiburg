@@ -5,6 +5,8 @@ import { RouterLink } from '@angular/router';
 import { ReservationService } from '../../services/reservation.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
+import { NotificationService } from '../../services/notification.service';
+import { DialogService } from '../../services/dialog.service';
 import {
   ReservationList,
   ReservationStatus,
@@ -530,6 +532,8 @@ export class ReservationListComponent implements OnInit {
   private reservationService = inject(ReservationService);
   private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
+  private notificationService = inject(NotificationService);
+  private dialogService = inject(DialogService);
 
   paginatedResult: PaginatedResult<ReservationList> | null = null;
   searchText = '';
@@ -607,12 +611,30 @@ export class ReservationListComponent implements OnInit {
   }
 
   cancelReservation(reservation: ReservationList) {
-    if (confirm(this.t.cancelReservation + '?')) {
-      this.reservationService.cancel(reservation.id).subscribe({
-        next: () => this.loadReservations(),
-        error: (err) => console.error('Error cancelling reservation:', err),
+    this.dialogService
+      .confirm({
+        title: this.t.cancelReservation,
+        message: this.t.cancelReservation + '?',
+        type: 'danger',
+        confirmText: this.t.cancel || 'Abbrechen',
+      })
+      .then((confirmed) => {
+        if (confirmed) {
+          this.reservationService.cancel(reservation.id).subscribe({
+            next: () => {
+              this.notificationService.success(
+                this.t.cancelSuccess || 'Erfolgreich storniert',
+              );
+              this.loadReservations();
+            },
+            error: (err) => {
+              this.notificationService.error(
+                err.error?.error || 'Fehler beim Stornieren',
+              );
+            },
+          });
+        }
       });
-    }
   }
 
   exportExcel() {
@@ -632,20 +654,31 @@ export class ReservationListComponent implements OnInit {
   }
 
   confirmDelete(reservation: ReservationList) {
-    this.selectedReservation = reservation;
-    this.showDeleteModal = true;
+    this.dialogService
+      .danger(
+        this.t.delete,
+        this.t.deleteConfirmReservation || 'Reservierung endgültig löschen?',
+      )
+      .then((confirmed) => {
+        if (confirmed) {
+          this.reservationService.delete(reservation.id).subscribe({
+            next: () => {
+              this.notificationService.success(
+                this.t.deleteSuccess || 'Erfolgreich gelöscht',
+              );
+              this.loadReservations();
+            },
+            error: (err) => {
+              this.notificationService.error(
+                err.error?.error || this.t.deleteError,
+              );
+            },
+          });
+        }
+      });
   }
 
   deleteReservation() {
-    if (!this.selectedReservation) return;
-
-    this.reservationService.delete(this.selectedReservation.id).subscribe({
-      next: () => {
-        this.showDeleteModal = false;
-        this.selectedReservation = null;
-        this.loadReservations();
-      },
-      error: (err) => console.error('Error deleting reservation:', err),
-    });
+    // This method is deprecated - delete is now handled in confirmDelete
   }
 }

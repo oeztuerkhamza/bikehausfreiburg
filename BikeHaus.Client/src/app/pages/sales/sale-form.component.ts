@@ -10,12 +10,13 @@ import { TranslationService } from '../../services/translation.service';
 import {
   SaleCreate,
   Bicycle,
+  BicycleUpdate,
+  BikeCondition,
   PaymentMethod,
   SignatureCreate,
   SaleAccessoryCreate,
   AccessoryCatalogList,
 } from '../../models/models';
-import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
 import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
@@ -28,7 +29,6 @@ import { AddressSuggestion } from '../../services/address.service';
     CommonModule,
     FormsModule,
     RouterLink,
-    SignaturePadComponent,
     AddressAutocompleteComponent,
     BikeSelectorComponent,
     AccessoryAutocompleteComponent,
@@ -52,6 +52,144 @@ import { AddressSuggestion } from '../../services/address.service';
             ></app-bike-selector>
           </div>
 
+          <!-- Bicycle details edit form -->
+          <div class="form-card" *ngIf="selectedBike">
+            <div class="card-header-row">
+              <h2>{{ t.bicycleDetails }}</h2>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline"
+                (click)="bikeEditExpanded = !bikeEditExpanded"
+              >
+                {{ bikeEditExpanded ? '▲ ' + t.collapse : '▼ ' + t.expand }}
+              </button>
+            </div>
+            <div class="bike-summary" *ngIf="!bikeEditExpanded">
+              <span
+                ><strong
+                  >{{ bikeEdit.marke }} {{ bikeEdit.modell }}</strong
+                ></span
+              >
+              <span *ngIf="bikeEdit.rahmennummer"
+                >{{ t.frameNumber }}: {{ bikeEdit.rahmennummer }}</span
+              >
+              <span>{{ bikeEdit.farbe }} | {{ bikeEdit.reifengroesse }}"</span>
+            </div>
+            <div class="form-grid" *ngIf="bikeEditExpanded">
+              <div class="field">
+                <label>{{ t.brand }} *</label>
+                <input
+                  [(ngModel)]="bikeEdit.marke"
+                  name="bikeMarke"
+                  required
+                  list="brandList"
+                  autocomplete="off"
+                />
+                <datalist id="brandList">
+                  <option *ngFor="let b of brands" [value]="b"></option>
+                </datalist>
+              </div>
+              <div class="field">
+                <label>{{ t.model }}</label>
+                <input
+                  [(ngModel)]="bikeEdit.modell"
+                  name="bikeModell"
+                  list="modelList"
+                  autocomplete="off"
+                />
+                <datalist id="modelList">
+                  <option *ngFor="let m of models" [value]="m"></option>
+                </datalist>
+              </div>
+              <div class="field">
+                <label>{{ t.frameNumber }} *</label>
+                <input
+                  [(ngModel)]="bikeEdit.rahmennummer"
+                  name="bikeRahmen"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.color }} *</label>
+                <select [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" required>
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="Schwarz">Schwarz</option>
+                  <option value="Weiß">Weiß</option>
+                  <option value="Rot">Rot</option>
+                  <option value="Blau">Blau</option>
+                  <option value="Grün">Grün</option>
+                  <option value="Gelb">Gelb</option>
+                  <option value="Orange">Orange</option>
+                  <option value="Grau">Grau</option>
+                  <option value="Silber">Silber</option>
+                  <option value="Pink">Pink</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>{{ t.wheelSize }} *</label>
+                <select
+                  [(ngModel)]="bikeEdit.reifengroesse"
+                  name="bikeReifen"
+                  required
+                >
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="12">12"</option>
+                  <option value="14">14"</option>
+                  <option value="16">16"</option>
+                  <option value="18">18"</option>
+                  <option value="20">20"</option>
+                  <option value="24">24"</option>
+                  <option value="26">26"</option>
+                  <option value="27.5">27.5"</option>
+                  <option value="28">28"</option>
+                  <option value="29">29"</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>{{ t.stockNo }}</label>
+                <input [(ngModel)]="bikeEdit.stokNo" name="bikeStokNo" />
+              </div>
+              <div class="field">
+                <label>{{ t.bicycleType }} *</label>
+                <select
+                  [(ngModel)]="bikeEdit.fahrradtyp"
+                  name="bikeFahrradtyp"
+                  required
+                >
+                  <option value="">-- Auswählen --</option>
+                  <option value="E-Bike">E-Bike</option>
+                  <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
+                  <option value="Trekking">Trekking</option>
+                  <option value="City">City</option>
+                  <option value="MTB">Mountainbike (MTB)</option>
+                  <option value="Rennrad">Rennrad</option>
+                  <option value="Kinderfahrrad">Kinderfahrrad</option>
+                  <option value="Lastenrad">Lastenrad</option>
+                  <option value="Sonstige">Sonstige</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>{{ t.condition }} *</label>
+                <select
+                  [(ngModel)]="bikeEdit.zustand"
+                  name="bikeZustand"
+                  required
+                >
+                  <option value="Gebraucht">{{ t.usedCondition }}</option>
+                  <option value="Neu">{{ t.newCondition }}</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label>{{ t.descriptionEquipment }}</label>
+                <textarea
+                  [(ngModel)]="bikeEdit.beschreibung"
+                  name="bikeBeschr"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
           <!-- Buyer info -->
           <div class="form-card">
             <h2>{{ t.buyer }}</h2>
@@ -62,7 +200,6 @@ import { AddressSuggestion } from '../../services/address.service';
                   [(ngModel)]="buyer.vorname"
                   name="buyerVorname"
                   required
-                  (ngModelChange)="updateBuyerSignerName()"
                 />
               </div>
               <div class="field">
@@ -71,7 +208,6 @@ import { AddressSuggestion } from '../../services/address.service';
                   [(ngModel)]="buyer.nachname"
                   name="buyerNachname"
                   required
-                  (ngModelChange)="updateBuyerSignerName()"
                 />
               </div>
               <div class="field full">
@@ -107,8 +243,8 @@ import { AddressSuggestion } from '../../services/address.service';
                 <input [(ngModel)]="buyer.stadt" name="buyerStadt" required />
               </div>
               <div class="field">
-                <label>{{ t.phoneRequired }}</label>
-                <input [(ngModel)]="buyer.telefon" name="buyerTel" required />
+                <label>{{ t.phone }}</label>
+                <input [(ngModel)]="buyer.telefon" name="buyerTel" />
               </div>
               <div class="field">
                 <label>{{ t.email }}</label>
@@ -126,6 +262,14 @@ import { AddressSuggestion } from '../../services/address.service';
             <h2>{{ t.saleData }}</h2>
             <div class="form-grid">
               <div class="field">
+                <label>{{ t.receiptNo }}</label>
+                <input
+                  [(ngModel)]="belegNummer"
+                  name="belegNummer"
+                  placeholder="z.B. VB-20260219-001"
+                />
+              </div>
+              <div class="field">
                 <label>{{ t.priceRequired }}</label>
                 <input
                   type="number"
@@ -140,7 +284,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">{{ t.paypal }}</option>
-                  <option value="Ueberweisung">{{ t.bankTransfer }}</option>
+                  <option value="Karte">{{ t.bankTransfer }}</option>
                 </select>
               </div>
               <div class="field">
@@ -266,6 +410,26 @@ import { AddressSuggestion } from '../../services/address.service';
             >
               + {{ t.addManually }}
             </button>
+          </div>
+
+          <!-- Rabatt & Gesamtbetrag -->
+          <div class="form-card">
+            <h2>{{ t.discount }}</h2>
+
+            <!-- Rabatt -->
+            <div class="discount-section">
+              <div class="field">
+                <label>{{ t.discountOptional }} (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  [(ngModel)]="rabatt"
+                  name="rabatt"
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
 
             <div class="grand-total" *ngIf="preis > 0">
               <div class="total-row">
@@ -276,28 +440,27 @@ import { AddressSuggestion } from '../../services/address.service';
                 <span>{{ t.accessories }}:</span>
                 <span>{{ accessoriesTotal | number: '1.2-2' }} €</span>
               </div>
+              <div class="total-row discount" *ngIf="rabatt > 0">
+                <span>{{ t.discount }}:</span>
+                <span class="discount-value"
+                  >- {{ rabatt | number: '1.2-2' }} €</span
+                >
+              </div>
               <div class="total-row grand">
                 <span>{{ t.grandTotal }}:</span>
                 <strong
-                  >{{ preis + accessoriesTotal | number: '1.2-2' }} €</strong
+                  >{{
+                    preis + accessoriesTotal - rabatt | number: '1.2-2'
+                  }}
+                  €</strong
                 >
               </div>
             </div>
           </div>
 
-          <!-- Signatures -->
+          <!-- Seller Signature -->
           <div class="form-card">
-            <h2>{{ t.signatures }}</h2>
-            <app-signature-pad
-              [label]="t.buyerSignature"
-              [(ngModel)]="buyerSignatureData"
-              name="buyerSig"
-            ></app-signature-pad>
-            <div class="field" style="margin-top:8px; margin-bottom:16px;">
-              <label>{{ t.buyerName }}</label>
-              <input [(ngModel)]="buyerSignerName" name="buyerSignerName" />
-            </div>
-            <!-- Seller signature from settings (read-only preview) -->
+            <h2>{{ t.sellerSignature }}</h2>
             <div class="seller-signature-section">
               <label>{{ t.sellerSignatureShop }}</label>
               <div *ngIf="sellerSignatureData" class="signature-preview">
@@ -376,6 +539,29 @@ import { AddressSuggestion } from '../../services/address.service';
         font-weight: 700;
         margin-bottom: 16px;
         color: var(--text-primary);
+      }
+      .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .card-header-row h2 {
+        margin-bottom: 0;
+      }
+      .bike-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        padding: 12px;
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
+        border: 1px solid var(--accent-success, #10b981);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.9rem;
+        color: #1e293b;
+      }
+      .bike-summary strong {
+        color: #047857;
       }
       .form-grid {
         display: grid;
@@ -578,6 +764,17 @@ import { AddressSuggestion } from '../../services/address.service';
         font-size: 1.1rem;
         font-weight: 700;
       }
+      .total-row.discount {
+        color: var(--accent-danger, #ef4444);
+      }
+      .discount-value {
+        color: var(--accent-danger, #ef4444);
+        font-weight: 600;
+      }
+      .discount-section {
+        padding-top: 8px;
+        border-top: 1px dashed var(--border-light, #e2e8f0);
+      }
       .seller-signature-section {
         margin-top: 16px;
         padding-top: 16px;
@@ -636,12 +833,28 @@ export class SaleFormComponent implements OnInit {
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   verkaufsdatum = '';
   notizen = '';
-  buyerSignatureData = '';
-  buyerSignerName = '';
+  belegNummer = '';
   sellerSignatureData = '';
   sellerSignerName = '';
   submitting = false;
   accessories: SaleAccessoryCreate[] = [];
+  rabatt = 0;
+
+  // Bicycle edit
+  bikeEditExpanded = false;
+  bikeEdit = {
+    marke: '',
+    modell: '',
+    rahmennummer: '',
+    farbe: '',
+    reifengroesse: '',
+    stokNo: '',
+    fahrradtyp: '',
+    beschreibung: '',
+    zustand: 'Gebraucht' as BikeCondition,
+  };
+  brands: string[] = [];
+  models: string[] = [];
 
   get t() {
     return this.translationService.translations();
@@ -671,10 +884,32 @@ export class SaleFormComponent implements OnInit {
       if (preselect) {
         const bike = bikes.find((b) => b.id === +preselect);
         if (bike) {
-          this.selectedBike = bike;
-          this.loadPlannedPrice(bike.id);
+          this.onBikeSelected(bike);
         }
       }
+    });
+    // Load next BelegNummer
+    this.saleService.getNextBelegNummer().subscribe({
+      next: (res) => {
+        this.belegNummer = res.belegNummer;
+      },
+      error: () => {},
+    });
+
+    // Load brands for autocomplete
+    this.bicycleService.getBrands().subscribe({
+      next: (res) => {
+        this.brands = res;
+      },
+      error: () => {},
+    });
+
+    // Load all models
+    this.bicycleService.getModels().subscribe({
+      next: (res) => {
+        this.models = res;
+      },
+      error: () => {},
     });
     // Load owner signature from settings
     this.settingsService.getSettings().subscribe((settings) => {
@@ -693,6 +928,18 @@ export class SaleFormComponent implements OnInit {
   onBikeSelected(bike: Bicycle) {
     this.selectedBike = bike;
     this.loadPlannedPrice(bike.id);
+    // Populate bikeEdit form
+    this.bikeEdit = {
+      marke: bike.marke || '',
+      modell: bike.modell || '',
+      rahmennummer: bike.rahmennummer || '',
+      farbe: bike.farbe || '',
+      reifengroesse: bike.reifengroesse || '',
+      stokNo: bike.stokNo || '',
+      fahrradtyp: bike.fahrradtyp || '',
+      beschreibung: bike.beschreibung || '',
+      zustand: bike.zustand || BikeCondition.Gebraucht,
+    };
   }
 
   private loadPlannedPrice(bicycleId: number) {
@@ -713,16 +960,6 @@ export class SaleFormComponent implements OnInit {
     this.buyer.hausnummer = address.hausnummer;
     this.buyer.plz = address.plz;
     this.buyer.stadt = address.stadt;
-  }
-
-  updateBuyerSignerName() {
-    const name = [this.buyer.vorname, this.buyer.nachname]
-      .filter(Boolean)
-      .join(' ')
-      .trim();
-    if (name) {
-      this.buyerSignerName = name;
-    }
   }
 
   addAccessory() {
@@ -749,16 +986,35 @@ export class SaleFormComponent implements OnInit {
     if (!this.selectedBike) return;
     this.submitting = true;
 
-    const buyerSig: SignatureCreate | undefined = this.buyerSignatureData
-      ? {
-          signatureData: this.buyerSignatureData,
-          signerName:
-            this.buyerSignerName ||
-            `${this.buyer.vorname} ${this.buyer.nachname}`,
-          signatureType: 'Buyer' as any,
-        }
-      : undefined;
+    // First update the bicycle if needed
+    const bikeUpdate: BicycleUpdate = {
+      marke: this.bikeEdit.marke,
+      modell: this.bikeEdit.modell,
+      rahmennummer: this.bikeEdit.rahmennummer || undefined,
+      farbe: this.bikeEdit.farbe || undefined,
+      reifengroesse: this.bikeEdit.reifengroesse,
+      stokNo: this.bikeEdit.stokNo || undefined,
+      fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
+      beschreibung: this.bikeEdit.beschreibung || undefined,
+      status: this.selectedBike.status,
+      zustand: this.bikeEdit.zustand,
+    };
 
+    // Update bicycle first, then create sale
+    this.bicycleService.update(this.selectedBike.id, bikeUpdate).subscribe({
+      next: () => {
+        // Update local selectedBike to reflect changes (for warranty calculation)
+        this.selectedBike!.zustand = this.bikeEdit.zustand;
+        this.createSale();
+      },
+      error: () => {
+        this.submitting = false;
+        alert('Fehler beim Aktualisieren des Fahrrads');
+      },
+    });
+  }
+
+  private createSale() {
     const sellerSig: SignatureCreate | undefined = this.sellerSignatureData
       ? {
           signatureData: this.sellerSignatureData,
@@ -779,12 +1035,13 @@ export class SaleFormComponent implements OnInit {
           ? '2 Jahre Gewährleistung gemäß § 437 BGB'
           : '3 Monate Garantie auf das Fahrrad',
       notizen: this.notizen || undefined,
-      buyerSignature: buyerSig,
       sellerSignature: sellerSig,
       accessories:
         this.accessories.length > 0
           ? this.accessories.filter((a) => a.bezeichnung && a.preis > 0)
           : undefined,
+      rabatt: this.rabatt > 0 ? this.rabatt : undefined,
+      belegNummer: this.belegNummer || undefined,
     };
 
     this.saleService.create(sale).subscribe({

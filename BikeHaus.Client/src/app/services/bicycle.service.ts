@@ -24,6 +24,10 @@ export class BicycleService {
     pageSize: number,
     status?: string,
     search?: string,
+    zustand?: string,
+    fahrradtyp?: string,
+    reifengroesse?: string,
+    marke?: string,
   ): Observable<PaginatedResult<Bicycle>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -31,6 +35,10 @@ export class BicycleService {
 
     if (status) params = params.set('status', status);
     if (search) params = params.set('search', search);
+    if (zustand) params = params.set('zustand', zustand);
+    if (fahrradtyp) params = params.set('fahrradtyp', fahrradtyp);
+    if (reifengroesse) params = params.set('reifengroesse', reifengroesse);
+    if (marke) params = params.set('marke', marke);
 
     return this.http.get<PaginatedResult<Bicycle>>(`${this.url}/paginated`, {
       params,
@@ -68,5 +76,15 @@ export class BicycleService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
+  getBrands(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.url}/brands`);
+  }
+
+  getModels(brand?: string): Observable<string[]> {
+    let params = new HttpParams();
+    if (brand) params = params.set('brand', brand);
+    return this.http.get<string[]>(`${this.url}/models`, { params });
   }
 }

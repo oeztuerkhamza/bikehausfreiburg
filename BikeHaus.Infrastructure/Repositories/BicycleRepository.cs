@@ -83,4 +83,29 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
         }
         return max;
     }
+
+    public async Task<IEnumerable<string>> GetUniqueBrandsAsync()
+    {
+        return await _dbSet
+            .Select(b => b.Marke)
+            .Where(m => !string.IsNullOrEmpty(m))
+            .Distinct()
+            .OrderBy(m => m)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null)
+    {
+        var query = _dbSet.AsQueryable();
+
+        if (!string.IsNullOrEmpty(brand))
+            query = query.Where(b => b.Marke == brand);
+
+        return await query
+            .Select(b => b.Modell)
+            .Where(m => !string.IsNullOrEmpty(m))
+            .Distinct()
+            .OrderBy(m => m)
+            .ToListAsync();
+    }
 }

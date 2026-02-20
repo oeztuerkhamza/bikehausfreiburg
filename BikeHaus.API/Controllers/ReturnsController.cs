@@ -58,6 +58,13 @@ public class ReturnsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = returnDto.Id }, returnDto);
     }
 
+    [HttpGet("next-belegnummer")]
+    public async Task<ActionResult<object>> GetNextBelegNummer()
+    {
+        var nummer = await _returnService.GetNextBelegNummerAsync();
+        return Ok(new { belegNummer = nummer });
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

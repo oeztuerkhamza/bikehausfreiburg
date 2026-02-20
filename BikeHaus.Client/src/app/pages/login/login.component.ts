@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { TranslationService } from '../../services/translation.service';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-login',
@@ -20,8 +21,13 @@ import { TranslationService } from '../../services/translation.service';
 
       <div class="login-card">
         <div class="login-header">
-          <div class="logo-wrap">
-            <img src="assets/logo.svg" alt="Bike Haus" class="login-logo" />
+          <div class="logo-wrap" [class.custom-logo]="hasCustomLogo()">
+            <img
+              [src]="logoSrc()"
+              alt="Bike Haus"
+              class="login-logo"
+              [class.no-filter]="hasCustomLogo()"
+            />
           </div>
           <h1>BikeHaus</h1>
           <span class="subtitle">Freiburg</span>
@@ -241,6 +247,16 @@ import { TranslationService } from '../../services/translation.service';
         height: 42px;
         filter: brightness(0) invert(1);
       }
+      .login-logo.no-filter {
+        filter: none;
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+      }
+      .logo-wrap.custom-logo {
+        background: #fff;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
 
       .login-header h1 {
         font-size: 1.65rem;
@@ -416,10 +432,15 @@ import { TranslationService } from '../../services/translation.service';
 })
 export class LoginComponent {
   private translationService = inject(TranslationService);
+  private settingsService = inject(SettingsService);
+
   username = '';
   password = '';
   errorMessage = '';
   loading = false;
+
+  logoSrc = signal('assets/logo.svg');
+  hasCustomLogo = signal(false);
 
   get t() {
     return this.translationService.translations();
@@ -432,6 +453,18 @@ export class LoginComponent {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/']);
     }
+    this.loadLogo();
+  }
+
+  private loadLogo(): void {
+    this.settingsService.getSettings().subscribe({
+      next: (settings) => {
+        if (settings.logoBase64) {
+          this.logoSrc.set(settings.logoBase64);
+          this.hasCustomLogo.set(true);
+        }
+      },
+    });
   }
 
   onLogin() {

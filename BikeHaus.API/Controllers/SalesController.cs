@@ -29,14 +29,20 @@ public class SalesController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? status = null,
-        [FromQuery] string? search = null)
+        [FromQuery] string? search = null,
+        [FromQuery] string? marke = null,
+        [FromQuery] string? fahrradtyp = null,
+        [FromQuery] string? farbe = null)
     {
         var paginationParams = new PaginationParams
         {
             Page = page,
             PageSize = pageSize,
             Status = status,
-            SearchTerm = search
+            SearchTerm = search,
+            Marke = marke,
+            Fahrradtyp = fahrradtyp,
+            Farbe = farbe
         };
         var result = await _saleService.GetPaginatedAsync(paginationParams);
         return Ok(result);
@@ -56,6 +62,13 @@ public class SalesController : ControllerBase
     {
         var sale = await _saleService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = sale.Id }, sale);
+    }
+
+    [HttpGet("next-belegnummer")]
+    public async Task<ActionResult<object>> GetNextBelegNummer()
+    {
+        var nummer = await _saleService.GetNextBelegNummerAsync();
+        return Ok(new { belegNummer = nummer });
     }
 
     [HttpPut("{id}")]

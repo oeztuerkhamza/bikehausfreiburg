@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { AccessoryCatalogService } from '../../services/accessory-catalog.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
+import { NotificationService } from '../../services/notification.service';
+import { DialogService } from '../../services/dialog.service';
 import {
   AccessoryCatalogList,
   AccessoryCatalogCreate,
@@ -446,6 +448,8 @@ import {
 })
 export class PartsListComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private notificationService = inject(NotificationService);
+  private dialogService = inject(DialogService);
   parts: AccessoryCatalogList[] = [];
   filteredParts: AccessoryCatalogList[] = [];
   searchText = '';
@@ -542,12 +546,15 @@ export class PartsListComponent implements OnInit {
       this.service.update(this.editingPart.id, updateData).subscribe({
         next: () => {
           this.saving = false;
+          this.notificationService.success(
+            this.t.saveSuccess || 'Erfolgreich gespeichert',
+          );
           this.closeDialog();
           this.loadParts();
         },
         error: () => {
           this.saving = false;
-          alert(this.t.saveError);
+          this.notificationService.error(this.t.saveError);
         },
       });
     } else {
@@ -559,12 +566,15 @@ export class PartsListComponent implements OnInit {
       this.service.create(createData).subscribe({
         next: () => {
           this.saving = false;
+          this.notificationService.success(
+            this.t.saveSuccess || 'Erfolgreich gespeichert',
+          );
           this.closeDialog();
           this.loadParts();
         },
         error: () => {
           this.saving = false;
-          alert(this.t.saveError);
+          this.notificationService.error(this.t.saveError);
         },
       });
     }
@@ -580,11 +590,22 @@ export class PartsListComponent implements OnInit {
   }
 
   deletePart(part: AccessoryCatalogList) {
-    if (confirm(this.t.delete + '?')) {
-      this.service.delete(part.id).subscribe({
-        next: () => this.loadParts(),
-        error: () => alert(this.t.deleteError),
+    this.dialogService
+      .danger(this.t.delete, this.t.delete + '?')
+      .then((confirmed) => {
+        if (confirmed) {
+          this.service.delete(part.id).subscribe({
+            next: () => {
+              this.notificationService.success(
+                this.t.deleteSuccess || 'Erfolgreich gelöscht',
+              );
+              this.loadParts();
+            },
+            error: () => {
+              this.notificationService.error(this.t.deleteError);
+            },
+          });
+        }
       });
-    }
   }
 }

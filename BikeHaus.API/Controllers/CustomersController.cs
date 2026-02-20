@@ -71,4 +71,18 @@ public class CustomersController : ControllerBase
             return Conflict(new { error = ex.Message });
         }
     }
+
+    [HttpGet("firstnames")]
+    public async Task<ActionResult<IEnumerable<string>>> GetFirstNames()
+    {
+        var names = await _customerService.GetUniqueFirstNamesAsync();
+        return Ok(names);
+    }
+
+    [HttpGet("lastnames")]
+    public async Task<ActionResult<IEnumerable<string>>> GetLastNames()
+    {
+        var names = await _customerService.GetUniqueLastNamesAsync();
+        return Ok(names);
+    }
 }

@@ -80,4 +80,14 @@ public class CustomerService : ICustomerService
 
         await _repository.DeleteAsync(id);
     }
+
+    public async Task<IEnumerable<string>> GetUniqueFirstNamesAsync()
+    {
+        return await _repository.GetUniqueFirstNamesAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetUniqueLastNamesAsync()
+    {
+        return await _repository.GetUniqueLastNamesAsync();
+    }
 }

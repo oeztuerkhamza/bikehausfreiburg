@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { CustomerService } from '../../services/customer.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
+import { NotificationService } from '../../services/notification.service';
+import { DialogService } from '../../services/dialog.service';
 import { Customer, CustomerCreate, CustomerUpdate } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
@@ -336,6 +338,8 @@ import { AddressSuggestion } from '../../services/address.service';
 })
 export class CustomerListComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private notificationService = inject(NotificationService);
+  private dialogService = inject(DialogService);
   customers: Customer[] = [];
   showForm = false;
   editId: number | null = null;
@@ -403,25 +407,58 @@ export class CustomerListComponent implements OnInit {
     if (this.editId) {
       this.customerService
         .update(this.editId, this.form as CustomerUpdate)
-        .subscribe(() => {
-          this.resetForm();
-          this.load();
+        .subscribe({
+          next: () => {
+            this.notificationService.success(
+              this.t.saveSuccess || 'Erfolgreich gespeichert',
+            );
+            this.resetForm();
+            this.load();
+          },
+          error: (err) => {
+            this.notificationService.error(
+              err.error?.error || this.t.saveError || 'Fehler beim Speichern',
+            );
+          },
         });
     } else {
-      this.customerService.create(this.form).subscribe(() => {
-        this.resetForm();
-        this.load();
+      this.customerService.create(this.form).subscribe({
+        next: () => {
+          this.notificationService.success(
+            this.t.saveSuccess || 'Erfolgreich gespeichert',
+          );
+          this.resetForm();
+          this.load();
+        },
+        error: (err) => {
+          this.notificationService.error(
+            err.error?.error || this.t.saveError || 'Fehler beim Speichern',
+          );
+        },
       });
     }
   }
 
   deleteCustomer(c: Customer) {
-    if (confirm(this.t.deleteConfirmCustomer)) {
-      this.customerService.delete(c.id).subscribe({
-        next: () => this.load(),
-        error: (err) => alert(err.error?.error || this.t.deleteCustomerError),
+    this.dialogService
+      .danger(this.t.delete, this.t.deleteConfirmCustomer)
+      .then((confirmed) => {
+        if (confirmed) {
+          this.customerService.delete(c.id).subscribe({
+            next: () => {
+              this.notificationService.success(
+                this.t.deleteSuccess || 'Erfolgreich gelöscht',
+              );
+              this.load();
+            },
+            error: (err) => {
+              this.notificationService.error(
+                err.error?.error || this.t.deleteCustomerError,
+              );
+            },
+          });
+        }
       });
-    }
   }
 
   exportExcel() {

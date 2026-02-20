@@ -34,43 +34,28 @@ public class SaleService : ISaleService
 
     public async Task<PaginatedResult<SaleListDto>> GetPaginatedAsync(PaginationParams paginationParams)
     {
-        System.Linq.Expressions.Expression<Func<Sale, bool>>? predicate = null;
+        var paymentMethod = !string.IsNullOrEmpty(paginationParams.Status) &&
+            Enum.TryParse<Domain.Enums.PaymentMethod>(paginationParams.Status, out var pm) ? pm : (Domain.Enums.PaymentMethod?)null;
+        var term = paginationParams.SearchTerm?.ToLower();
+        var marke = paginationParams.Marke?.ToLower();
+        var fahrradtyp = paginationParams.Fahrradtyp?.ToLower();
+        var farbe = paginationParams.Farbe?.ToLower();
 
-        // Apply payment method filter (using Status field)
-        if (!string.IsNullOrEmpty(paginationParams.Status))
-        {
-            if (Enum.TryParse<Domain.Enums.PaymentMethod>(paginationParams.Status, out var paymentMethod))
-            {
-                predicate = s => s.Zahlungsart == paymentMethod;
-            }
-        }
-
-        // Apply search filter
-        if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
-        {
-            var term = paginationParams.SearchTerm.ToLower();
-            if (predicate != null)
-            {
-                var prevPredicate = predicate;
-                predicate = s => prevPredicate.Compile()(s) &&
-                    (s.BelegNummer.ToLower().Contains(term) ||
-                     s.Bicycle.Marke.ToLower().Contains(term) ||
-                     s.Bicycle.Modell.ToLower().Contains(term) ||
-                     (s.Bicycle.StokNo != null && s.Bicycle.StokNo.ToLower().Contains(term)) ||
-                     s.Buyer.Vorname.ToLower().Contains(term) ||
-                     s.Buyer.Nachname.ToLower().Contains(term));
-            }
-            else
-            {
-                predicate = s =>
-                    s.BelegNummer.ToLower().Contains(term) ||
-                    s.Bicycle.Marke.ToLower().Contains(term) ||
-                    s.Bicycle.Modell.ToLower().Contains(term) ||
-                    (s.Bicycle.StokNo != null && s.Bicycle.StokNo.ToLower().Contains(term)) ||
-                    s.Buyer.Vorname.ToLower().Contains(term) ||
-                    s.Buyer.Nachname.ToLower().Contains(term);
-            }
-        }
+        System.Linq.Expressions.Expression<Func<Sale, bool>> predicate = s =>
+            // Payment method filter
+            (!paymentMethod.HasValue || s.Zahlungsart == paymentMethod.Value) &&
+            // Search filter
+            (string.IsNullOrEmpty(term) ||
+                s.BelegNummer.ToLower().Contains(term) ||
+                s.Bicycle.Marke.ToLower().Contains(term) ||
+                s.Bicycle.Modell.ToLower().Contains(term) ||
+                (s.Bicycle.StokNo != null && s.Bicycle.StokNo.ToLower().Contains(term)) ||
+                s.Buyer.Vorname.ToLower().Contains(term) ||
+                s.Buyer.Nachname.ToLower().Contains(term)) &&
+            // Bicycle property filters
+            (string.IsNullOrEmpty(marke) || s.Bicycle.Marke.ToLower().Contains(marke)) &&
+            (string.IsNullOrEmpty(fahrradtyp) || (s.Bicycle.Fahrradtyp != null && s.Bicycle.Fahrradtyp.ToLower().Contains(fahrradtyp))) &&
+            (string.IsNullOrEmpty(farbe) || (s.Bicycle.Farbe != null && s.Bicycle.Farbe.ToLower().Contains(farbe)));
 
         var (items, totalCount) = await _saleRepository.GetPaginatedAsync(
             paginationParams.Page,
@@ -117,7 +102,10 @@ public class SaleService : ISaleService
             Garantie = dto.Garantie,
             GarantieBedingungen = dto.GarantieBedingungen,
             Notizen = dto.Notizen,
-            BelegNummer = await _saleRepository.GenerateBelegNummerAsync()
+            BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
+                ? dto.BelegNummer
+                : await _saleRepository.GenerateBelegNummerAsync(),
+            Rabatt = dto.Rabatt
         };
 
         // Add signatures if provided
@@ -180,6 +168,9 @@ public class SaleService : ISaleService
         sale.Garantie = dto.Garantie;
         sale.GarantieBedingungen = dto.GarantieBedingungen;
         sale.Notizen = dto.Notizen;
+        sale.Rabatt = dto.Rabatt;
+        if (!string.IsNullOrWhiteSpace(dto.BelegNummer))
+            sale.BelegNummer = dto.BelegNummer;
         sale.UpdatedAt = DateTime.UtcNow;
 
         // Update Accessories - clear and recreate
@@ -232,5 +223,10 @@ public class SaleService : ISaleService
     public async Task<byte[]> GeneratePdfAsync(int id)
     {
         return await _pdfService.GenerateVerkaufsbelegAsync(id);
+    }
+
+    public async Task<string> GetNextBelegNummerAsync()
+    {
+        return await _saleRepository.GenerateBelegNummerAsync();
     }
 }

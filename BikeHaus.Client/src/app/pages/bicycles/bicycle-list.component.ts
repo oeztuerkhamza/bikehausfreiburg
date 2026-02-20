@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   HostListener,
@@ -11,6 +11,8 @@ import { Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
+import { NotificationService } from '../../services/notification.service';
+import { DialogService } from '../../services/dialog.service';
 import { Bicycle, BikeStatus, PaginatedResult } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
@@ -40,16 +42,84 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           (input)="onSearch()"
           class="search-input"
         />
-        <select
-          [(ngModel)]="statusFilter"
-          (change)="onFilterChange()"
-          class="filter-select"
+        <button
+          class="btn btn-outline filter-toggle"
+          [class.active]="showFilters"
+          (click)="showFilters = !showFilters"
         >
-          <option value="">{{ t.allStatus }}</option>
-          <option value="Available">{{ t.available }}</option>
-          <option value="Sold">{{ t.sold }}</option>
-          <option value="Reserved">{{ t.reserved }}</option>
-        </select>
+          🔽 {{ t.filters }}
+          <span class="filter-badge" *ngIf="activeFilterCount > 0">{{
+            activeFilterCount
+          }}</span>
+        </button>
+        <button
+          *ngIf="activeFilterCount > 0"
+          class="btn btn-outline btn-clear"
+          (click)="clearFilters()"
+        >
+          ✕ {{ t.clearFilters }}
+        </button>
+      </div>
+
+      <!-- Advanced Filters Row -->
+      <div class="filter-row" *ngIf="showFilters">
+        <div class="filter-item">
+          <label>{{ t.status }}</label>
+          <select [(ngModel)]="statusFilter" (change)="onFilterChange()">
+            <option value="">{{ t.allStatus }}</option>
+            <option value="Available">{{ t.available }}</option>
+            <option value="Sold">{{ t.sold }}</option>
+            <option value="Reserved">{{ t.reserved }}</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>{{ t.condition }}</label>
+          <select [(ngModel)]="zustandFilter" (change)="onFilterChange()">
+            <option value="">{{ t.all }}</option>
+            <option value="Neu">{{ t.newCondition }}</option>
+            <option value="Gebraucht">{{ t.usedCondition }}</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>{{ t.wheelSize }}</label>
+          <select [(ngModel)]="reifengroesseFilter" (change)="onFilterChange()">
+            <option value="">{{ t.all }}</option>
+            <option value="12">12"</option>
+            <option value="14">14"</option>
+            <option value="16">16"</option>
+            <option value="18">18"</option>
+            <option value="20">20"</option>
+            <option value="24">24"</option>
+            <option value="26">26"</option>
+            <option value="27.5">27.5"</option>
+            <option value="28">28"</option>
+            <option value="29">29"</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>{{ t.bicycleType }}</label>
+          <select [(ngModel)]="fahrradtypFilter" (change)="onFilterChange()">
+            <option value="">{{ t.all }}</option>
+            <option value="E-Bike">E-Bike</option>
+            <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
+            <option value="Trekking">Trekking</option>
+            <option value="City">City</option>
+            <option value="MTB">Mountainbike</option>
+            <option value="Rennrad">Rennrad</option>
+            <option value="Kinderfahrrad">Kinderfahrrad</option>
+            <option value="Lastenrad">Lastenrad</option>
+            <option value="Sonstige">Sonstige</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>{{ t.brand }}</label>
+          <input
+            type="text"
+            [(ngModel)]="markeFilter"
+            (input)="onFilterChange()"
+            [placeholder]="t.filterByBrand"
+          />
+        </div>
       </div>
 
       <div class="table-container">
@@ -60,6 +130,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <th>{{ t.brand }}</th>
               <th>{{ t.model }}</th>
               <th>{{ t.frameNumber }}</th>
+              <th>{{ t.wheelSize }}</th>
+              <th>{{ t.bicycleType }}</th>
               <th>{{ t.condition }}</th>
               <th>{{ t.status }}</th>
               <th class="actions-col">{{ t.actions }}</th>
@@ -74,7 +146,9 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <td class="mono">{{ b.stokNo || '–' }}</td>
               <td>{{ b.marke }}</td>
               <td>{{ b.modell }}</td>
-              <td class="mono">{{ b.rahmennummer }}</td>
+              <td class="mono">{{ b.rahmennummer || '–' }}</td>
+              <td>{{ b.reifengroesse ? b.reifengroesse + '"' : '–' }}</td>
+              <td>{{ b.fahrradtyp || '–' }}</td>
               <td>
                 <span
                   class="badge"
@@ -90,7 +164,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               </td>
               <td class="actions-cell">
                 <span class="action-icon">⋮</span>
-                <!-- Popup Menu -->
                 <div
                   *ngIf="activeMenuId === b.id"
                   class="popup-menu"
@@ -173,7 +246,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .filters {
         display: flex;
         gap: 12px;
-        margin-bottom: 18px;
+        margin-bottom: 14px;
         flex-wrap: wrap;
         align-items: center;
       }
@@ -194,16 +267,82 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         box-shadow: 0 0 0 3px
           var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
-      .filter-select {
-        padding: 10px 14px;
+      .filter-toggle {
+        position: relative;
+      }
+      .filter-toggle.active {
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
+      }
+      .filter-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        background: var(--accent-primary, #6366f1);
+        color: white;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-left: 6px;
+      }
+      .btn-clear {
+        color: var(--accent-danger, #ef4444);
+        border-color: var(--accent-danger, #ef4444);
+      }
+      .btn-clear:hover {
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
+      }
+      .filter-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+        padding: 16px;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-lg, 14px);
+        animation: fadeIn 0.2s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .filter-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 140px;
+        flex: 1;
+      }
+      .filter-item label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--text-secondary, #64748b);
+      }
+      .filter-item select,
+      .filter-item input {
+        padding: 8px 10px;
         border: 1.5px solid var(--border-light, #e2e8f0);
         border-radius: var(--radius-md, 10px);
+        font-size: 0.85rem;
         background: var(--bg-card, #fff);
         color: var(--text-primary);
-        font-size: 0.92rem;
         transition: var(--transition-fast);
       }
-      .filter-select:focus {
+      .filter-item select:focus,
+      .filter-item input:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
         box-shadow: 0 0 0 3px
@@ -312,16 +451,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         padding: 6px 0;
         animation: fadeIn 0.15s ease;
       }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-4px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
       .popup-item {
         display: flex;
         align-items: center;
@@ -409,15 +538,34 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 })
 export class BicycleListComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private notificationService = inject(NotificationService);
+  private dialogService = inject(DialogService);
   paginatedResult: PaginatedResult<Bicycle> | null = null;
   searchTerm = '';
   statusFilter = '';
+  zustandFilter = '';
+  fahrradtypFilter = '';
+  reifengroesseFilter = '';
+  markeFilter = '';
+  showFilters = false;
   activeMenuId: number | null = null;
   currentPage = 1;
   pageSize = 20;
 
+  private searchDebounce: any;
+
   get t() {
     return this.translationService.translations();
+  }
+
+  get activeFilterCount(): number {
+    let count = 0;
+    if (this.statusFilter) count++;
+    if (this.zustandFilter) count++;
+    if (this.fahrradtypFilter) count++;
+    if (this.reifengroesseFilter) count++;
+    if (this.markeFilter) count++;
+    return count;
   }
 
   constructor(
@@ -429,7 +577,6 @@ export class BicycleListComponent implements OnInit {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
-    // Close menu when clicking outside
     if (!this.elementRef.nativeElement.contains(event.target)) {
       this.activeMenuId = null;
     }
@@ -446,6 +593,10 @@ export class BicycleListComponent implements OnInit {
         this.pageSize,
         this.statusFilter || undefined,
         this.searchTerm || undefined,
+        this.zustandFilter || undefined,
+        this.fahrradtypFilter || undefined,
+        this.reifengroesseFilter || undefined,
+        this.markeFilter || undefined,
       )
       .subscribe((data) => {
         this.paginatedResult = data;
@@ -453,11 +604,24 @@ export class BicycleListComponent implements OnInit {
   }
 
   onSearch() {
+    clearTimeout(this.searchDebounce);
+    this.searchDebounce = setTimeout(() => {
+      this.currentPage = 1;
+      this.load();
+    }, 300);
+  }
+
+  onFilterChange() {
     this.currentPage = 1;
     this.load();
   }
 
-  onFilterChange() {
+  clearFilters() {
+    this.statusFilter = '';
+    this.zustandFilter = '';
+    this.fahrradtypFilter = '';
+    this.reifengroesseFilter = '';
+    this.markeFilter = '';
     this.currentPage = 1;
     this.load();
   }
@@ -525,14 +689,24 @@ export class BicycleListComponent implements OnInit {
 
   deleteBicycle(b: Bicycle) {
     this.closeMenu();
-    if (confirm(this.t.deleteConfirmBicycle)) {
-      this.bicycleService.delete(b.id).subscribe({
-        next: () => this.load(),
-        error: (err) => {
-          const msg = err.error?.error || this.t.deleteError;
-          alert(msg);
-        },
+    this.dialogService
+      .danger(this.t.delete, this.t.deleteConfirmBicycle)
+      .then((confirmed) => {
+        if (confirmed) {
+          this.bicycleService.delete(b.id).subscribe({
+            next: () => {
+              this.notificationService.success(
+                this.t.deleteSuccess || 'Erfolgreich gelöscht',
+              );
+              this.load();
+            },
+            error: (err) => {
+              this.notificationService.error(
+                err.error?.error || this.t.deleteError,
+              );
+            },
+          });
+        }
       });
-    }
   }
 }

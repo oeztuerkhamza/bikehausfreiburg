@@ -8,6 +8,7 @@ import {
   Language,
 } from '../../services/translation.service';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
+import { AuthService, UserInfo } from '../../services/auth.service';
 
 @Component({
   selector: 'app-settings',
@@ -61,6 +62,114 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                 <option value="de">{{ t.german }}</option>
                 <option value="tr">{{ t.turkish }}</option>
               </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- User Account Section -->
+        <section class="settings-section">
+          <h2>{{ t.userAccount }}</h2>
+          <div class="settings-card">
+            <!-- Current User Info -->
+            <div class="user-info" *ngIf="currentUser">
+              <span class="user-label">{{ t.currentUsername }}:</span>
+              <span class="user-value">{{ currentUser.username }}</span>
+            </div>
+
+            <!-- Change Username -->
+            <div class="account-form">
+              <h3>{{ t.changeUsername }}</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>{{ t.newUsername }}</label>
+                  <input
+                    type="text"
+                    [(ngModel)]="usernameForm.newUsername"
+                    name="newUsername"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>{{ t.currentPassword }}</label>
+                  <input
+                    type="password"
+                    [(ngModel)]="usernameForm.currentPassword"
+                    name="usernamePassword"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                [disabled]="
+                  !usernameForm.newUsername ||
+                  !usernameForm.currentPassword ||
+                  savingUsername
+                "
+                (click)="changeUsername()"
+              >
+                {{ savingUsername ? t.loading : t.changeUsername }}
+              </button>
+              <div class="success-msg" *ngIf="usernameSuccess">
+                {{ usernameSuccess }}
+              </div>
+              <div class="error-msg" *ngIf="usernameError">
+                {{ usernameError }}
+              </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="account-form">
+              <h3>{{ t.changePassword }}</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>{{ t.currentPassword }}</label>
+                  <input
+                    type="password"
+                    [(ngModel)]="passwordForm.currentPassword"
+                    name="currentPassword"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>{{ t.newPassword }}</label>
+                  <input
+                    type="password"
+                    [(ngModel)]="passwordForm.newPassword"
+                    name="newPassword"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>{{ t.confirmPassword }}</label>
+                  <input
+                    type="password"
+                    [(ngModel)]="passwordForm.confirmPassword"
+                    name="confirmPassword"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                [disabled]="
+                  !passwordForm.currentPassword ||
+                  !passwordForm.newPassword ||
+                  !passwordForm.confirmPassword ||
+                  savingPassword
+                "
+                (click)="changePassword()"
+              >
+                {{ savingPassword ? t.loading : t.changePassword }}
+              </button>
+              <div class="success-msg" *ngIf="passwordSuccess">
+                {{ passwordSuccess }}
+              </div>
+              <div class="error-msg" *ngIf="passwordError">
+                {{ passwordError }}
+              </div>
             </div>
           </div>
         </section>
@@ -131,21 +240,42 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                   {{ t.deleteSignature }}
                 </button>
               </div>
-              <div *ngIf="!settings.inhaberSignatureBase64">
-                <app-signature-pad
-                  [label]="t.ownerSignature"
-                  [(ngModel)]="ownerSignatureData"
-                  name="ownerSignature"
-                ></app-signature-pad>
-                <button
-                  type="button"
-                  class="btn btn-primary btn-sm"
-                  style="margin-top: 8px"
-                  [disabled]="!ownerSignatureData"
-                  (click)="saveOwnerSignature()"
-                >
-                  {{ t.saveSignature }}
-                </button>
+              <div
+                *ngIf="!settings.inhaberSignatureBase64"
+                class="signature-options"
+              >
+                <div class="signature-option">
+                  <h4>{{ t.drawSignature }}</h4>
+                  <app-signature-pad
+                    [label]="t.ownerSignature"
+                    [(ngModel)]="ownerSignatureData"
+                    name="ownerSignature"
+                  ></app-signature-pad>
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    style="margin-top: 8px"
+                    [disabled]="!ownerSignatureData"
+                    (click)="saveOwnerSignature()"
+                  >
+                    {{ t.saveSignature }}
+                  </button>
+                </div>
+                <div class="signature-divider">{{ t.or }}</div>
+                <div class="signature-option">
+                  <h4>{{ t.uploadSignature }}</h4>
+                  <div class="upload-area" (click)="signatureFileInput.click()">
+                    <span class="upload-icon">📷</span>
+                    <span>{{ t.uploadSignature }}</span>
+                  </div>
+                  <input
+                    #signatureFileInput
+                    type="file"
+                    accept="image/*"
+                    (change)="onSignatureSelected($event)"
+                    hidden
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -551,6 +681,36 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         padding: 8px;
         background: white;
       }
+      .signature-options {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+      }
+      .signature-option {
+        flex: 1;
+      }
+      .signature-option h4 {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        margin-bottom: 10px;
+      }
+      .signature-divider {
+        display: flex;
+        align-items: center;
+        padding: 40px 16px;
+        font-size: 0.85rem;
+        color: var(--text-muted, #94a3b8);
+        font-weight: 500;
+      }
+      @media (max-width: 640px) {
+        .signature-options {
+          flex-direction: column;
+        }
+        .signature-divider {
+          padding: 12px 0;
+        }
+      }
 
       /* Form Grid */
       .form-grid {
@@ -620,6 +780,60 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
           max-width: none;
         }
       }
+
+      /* User Account Section */
+      .user-info {
+        display: flex;
+        gap: 8px;
+        padding: 12px 16px;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        border-radius: var(--radius-md, 10px);
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+      }
+      .user-label {
+        color: var(--text-secondary, #64748b);
+      }
+      .user-value {
+        font-weight: 600;
+        color: var(--accent-primary, #6366f1);
+      }
+      .account-form {
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+      }
+      .account-form:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .account-form h3 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+      .account-form .form-grid {
+        margin-bottom: 12px;
+      }
+      .success-msg {
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
+        color: var(--accent-success, #10b981);
+        border-radius: var(--radius-sm, 6px);
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+      .error-msg {
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
+        color: var(--accent-danger, #ef4444);
+        border-radius: var(--radius-sm, 6px);
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
     `,
   ],
 })
@@ -627,11 +841,23 @@ export class SettingsComponent implements OnInit {
   private settingsService = inject(SettingsService);
   themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
+  private authService = inject(AuthService);
 
   loading = true;
   saving = false;
   showSuccess = false;
   currentLanguage: Language = 'de';
+
+  // User account
+  currentUser: UserInfo | null = null;
+  usernameForm = { newUsername: '', currentPassword: '' };
+  passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
+  savingUsername = false;
+  savingPassword = false;
+  usernameSuccess = '';
+  usernameError = '';
+  passwordSuccess = '';
+  passwordError = '';
 
   settings: ShopSettings = {
     id: 0,
@@ -668,6 +894,82 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {
     this.currentLanguage = this.translationService.currentLanguage();
     this.loadSettings();
+    this.loadCurrentUser();
+  }
+
+  loadCurrentUser(): void {
+    this.authService.getMe().subscribe({
+      next: (user) => {
+        this.currentUser = user;
+      },
+      error: (err) => {
+        console.error('Error loading user:', err);
+      },
+    });
+  }
+
+  changeUsername(): void {
+    this.usernameError = '';
+    this.usernameSuccess = '';
+
+    if (!this.usernameForm.newUsername || !this.usernameForm.currentPassword) {
+      return;
+    }
+
+    this.savingUsername = true;
+    this.authService
+      .changeUsername({
+        newUsername: this.usernameForm.newUsername,
+        currentPassword: this.usernameForm.currentPassword,
+      })
+      .subscribe({
+        next: () => {
+          this.usernameSuccess = this.t.usernameChanged;
+          this.usernameForm = { newUsername: '', currentPassword: '' };
+          this.loadCurrentUser();
+          this.savingUsername = false;
+        },
+        error: () => {
+          this.usernameError = this.t.usernameChangeError;
+          this.savingUsername = false;
+        },
+      });
+  }
+
+  changePassword(): void {
+    this.passwordError = '';
+    this.passwordSuccess = '';
+
+    if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
+      this.passwordError = this.t.passwordMismatch;
+      return;
+    }
+
+    if (!this.passwordForm.currentPassword || !this.passwordForm.newPassword) {
+      return;
+    }
+
+    this.savingPassword = true;
+    this.authService
+      .changePassword({
+        currentPassword: this.passwordForm.currentPassword,
+        newPassword: this.passwordForm.newPassword,
+      })
+      .subscribe({
+        next: () => {
+          this.passwordSuccess = this.t.passwordChanged;
+          this.passwordForm = {
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: '',
+          };
+          this.savingPassword = false;
+        },
+        error: () => {
+          this.passwordError = this.t.passwordChangeError;
+          this.savingPassword = false;
+        },
+      });
   }
 
   loadSettings(): void {
@@ -774,6 +1076,32 @@ export class SettingsComponent implements OnInit {
         },
         error: (err) => console.error('Error saving signature:', err),
       });
+  }
+
+  onSignatureSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        this.settingsService
+          .uploadOwnerSignature({
+            signatureBase64: base64,
+            fileName: file.name,
+          })
+          .subscribe({
+            next: (data) => {
+              this.settings = data;
+              this.showSuccessMessage();
+            },
+            error: (err) => console.error('Error uploading signature:', err),
+          });
+      };
+
+      reader.readAsDataURL(file);
+    }
   }
 
   deleteOwnerSignature(): void {

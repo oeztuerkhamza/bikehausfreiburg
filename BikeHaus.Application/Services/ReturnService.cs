@@ -124,7 +124,9 @@ public class ReturnService : IReturnService
             Erstattungsbetrag = dto.Erstattungsbetrag,
             Zahlungsart = dto.Zahlungsart,
             Notizen = dto.Notizen,
-            BelegNummer = await _returnRepository.GenerateBelegNummerAsync()
+            BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
+                ? dto.BelegNummer
+                : await _returnRepository.GenerateBelegNummerAsync()
         };
 
         // Add signatures if provided
@@ -167,5 +169,10 @@ public class ReturnService : IReturnService
     public async Task<byte[]> GeneratePdfAsync(int id)
     {
         return await _pdfService.GenerateRueckgabebelegAsync(id);
+    }
+
+    public async Task<string> GetNextBelegNummerAsync()
+    {
+        return await _returnRepository.GenerateBelegNummerAsync();
     }
 }

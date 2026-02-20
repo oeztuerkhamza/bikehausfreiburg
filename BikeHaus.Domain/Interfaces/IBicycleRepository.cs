@@ -13,4 +13,6 @@ public interface IBicycleRepository : IRepository<Bicycle>
         Expression<Func<Bicycle, bool>>? predicate = null);
     Task<int?> GetMaxStokNoAsync();
     Task<Bicycle?> GetByStokNoAsync(string stokNo);
+    Task<IEnumerable<string>> GetUniqueBrandsAsync();
+    Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null);
 }

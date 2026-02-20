@@ -43,6 +43,21 @@ public class AuthController : ControllerBase
     }
 
     [Authorize]
+    [HttpPost("change-username")]
+    public async Task<IActionResult> ChangeUsername([FromBody] ChangeUsernameDto request)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null || !int.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var success = await _authService.ChangeUsernameAsync(userId, request);
+        if (!success)
+            return BadRequest(new { message = "Passwort falsch oder Benutzername bereits vergeben." });
+
+        return Ok(new { message = "Benutzername erfolgreich geändert." });
+    }
+
+    [Authorize]
     [HttpGet("me")]
     public IActionResult Me()
     {
