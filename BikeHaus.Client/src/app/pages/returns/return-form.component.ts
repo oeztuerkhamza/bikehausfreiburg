@@ -1,4 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  HostListener,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -30,24 +36,78 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
           <!-- Sale selection -->
           <div class="form-card">
             <h2>{{ t.selectSale }}</h2>
-            <div class="field">
+            <div class="field sale-search-wrap">
               <label>{{ t.saleRequired }}</label>
-              <select
-                [(ngModel)]="selectedSaleId"
-                name="saleId"
-                required
-                (change)="onSaleSelect()"
+              <div class="sale-search-box">
+                <span class="sale-search-icon">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  [(ngModel)]="saleSearchText"
+                  name="saleSearch"
+                  (input)="onSaleSearch()"
+                  (focus)="saleDropdownOpen = true"
+                  [placeholder]="'Beleg-Nr., Fahrrad oder Kunde suchen...'"
+                  class="sale-search-input"
+                  autocomplete="off"
+                />
+                <button
+                  *ngIf="saleSearchText"
+                  type="button"
+                  class="sale-search-clear"
+                  (click)="clearSaleSearch()"
+                >
+                  ✕
+                </button>
+              </div>
+              <div
+                *ngIf="saleDropdownOpen && filteredSales.length > 0"
+                class="sale-dropdown"
               >
-                <option [value]="0" disabled>
-                  {{ t.selectSalePlaceholder }}
-                </option>
-                <option *ngFor="let s of sales" [value]="s.id">
-                  {{ s.belegNummer }} – {{ s.bikeInfo }} ({{ s.buyerName }}) –
-                  {{ s.preis | number: '1.2-2' }} €
-                </option>
-              </select>
+                <div
+                  *ngFor="let s of filteredSales"
+                  class="sale-option"
+                  [class.selected]="selectedSaleId === s.id"
+                  (click)="selectSale(s)"
+                >
+                  <div class="sale-option-header">
+                    <span class="sale-beleg">{{ s.belegNummer }}</span>
+                    <span class="sale-price"
+                      >{{ s.preis | number: '1.2-2' }} €</span
+                    >
+                  </div>
+                  <div class="sale-option-detail">🚲 {{ s.bikeInfo }}</div>
+                  <div class="sale-option-detail">
+                    👤 {{ s.buyerName }} ·
+                    {{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}
+                  </div>
+                </div>
+              </div>
+              <div
+                *ngIf="
+                  saleDropdownOpen &&
+                  saleSearchText &&
+                  filteredSales.length === 0
+                "
+                class="sale-dropdown sale-empty"
+              >
+                {{ t.noSalesFound || 'Kein Verkauf gefunden' }}
+              </div>
             </div>
             <div *ngIf="selectedSale" class="sale-preview">
+              <div class="sale-preview-badge">✓ Ausgewählt</div>
               <span
                 ><strong>{{ selectedSale.belegNummer }}</strong></span
               >
@@ -264,10 +324,132 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
         gap: 4px;
         margin-top: 10px;
         padding: 14px;
-        background: var(--bg-secondary, #f8fafc);
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.06));
         border-radius: var(--radius-md, 10px);
-        border: 1.5px solid var(--border-light, #e2e8f0);
+        border: 1.5px solid var(--accent-success, #10b981);
         font-size: 0.9rem;
+        position: relative;
+      }
+      .sale-preview-badge {
+        position: absolute;
+        top: -10px;
+        right: 12px;
+        background: var(--accent-success, #10b981);
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 2px 10px;
+        border-radius: 50px;
+        letter-spacing: 0.03em;
+      }
+      .sale-search-wrap {
+        position: relative;
+      }
+      .sale-search-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .sale-search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+        display: flex;
+      }
+      .sale-search-input {
+        width: 100%;
+        padding: 10px 36px 10px 38px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        transition: var(--transition-fast);
+      }
+      .sale-search-input:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
+      }
+      .sale-search-clear {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        padding: 2px 6px;
+        border-radius: 50%;
+        transition: var(--transition-fast);
+      }
+      .sale-search-clear:hover {
+        background: var(--border-light, #e2e8f0);
+        color: var(--text-primary);
+      }
+      .sale-dropdown {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        z-index: 100;
+        max-height: 260px;
+        overflow-y: auto;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        box-shadow: var(--shadow-lg);
+        margin-top: 4px;
+      }
+      .sale-empty {
+        padding: 18px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.88rem;
+      }
+      .sale-option {
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: background 0.12s;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+      }
+      .sale-option:last-child {
+        border-bottom: none;
+      }
+      .sale-option:hover {
+        background: var(--table-hover, #f1f5f9);
+      }
+      .sale-option.selected {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        border-left: 3px solid var(--accent-primary, #6366f1);
+      }
+      .sale-option-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3px;
+      }
+      .sale-beleg {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: var(--accent-primary, #6366f1);
+        font-family: 'SF Mono', 'Consolas', monospace;
+      }
+      .sale-price {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: var(--accent-success, #10b981);
+      }
+      .sale-option-detail {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #64748b);
+        line-height: 1.4;
       }
       .form-actions {
         margin-top: 20px;
@@ -309,11 +491,22 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
 })
 export class ReturnFormComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private elementRef = inject(ElementRef);
   get t() {
     return this.translationService.translations();
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.saleDropdownOpen = false;
+    }
+  }
+
   sales: SaleList[] = [];
+  filteredSales: SaleList[] = [];
+  saleSearchText = '';
+  saleDropdownOpen = false;
   selectedSaleId = 0;
   selectedSale: SaleList | null = null;
 
@@ -346,15 +539,43 @@ export class ReturnFormComponent implements OnInit {
   }
 
   loadSales() {
-    this.saleService.getAll().subscribe((s) => (this.sales = s));
+    this.saleService.getAll().subscribe((s) => {
+      this.sales = s;
+      this.filteredSales = s;
+    });
   }
 
-  onSaleSelect() {
-    this.selectedSale =
-      this.sales.find((s) => s.id === +this.selectedSaleId) || null;
-    if (this.selectedSale) {
-      this.erstattungsbetrag = this.selectedSale.preis;
+  onSaleSearch() {
+    this.saleDropdownOpen = true;
+    const q = this.saleSearchText.toLowerCase().trim();
+    if (!q) {
+      this.filteredSales = this.sales;
+      return;
     }
+    this.filteredSales = this.sales.filter(
+      (s) =>
+        s.belegNummer.toLowerCase().includes(q) ||
+        s.bikeInfo.toLowerCase().includes(q) ||
+        s.buyerName.toLowerCase().includes(q) ||
+        (s.stokNo && s.stokNo.toLowerCase().includes(q)),
+    );
+  }
+
+  selectSale(s: SaleList) {
+    this.selectedSaleId = s.id;
+    this.selectedSale = s;
+    this.erstattungsbetrag = s.preis;
+    this.saleSearchText = `${s.belegNummer} – ${s.bikeInfo}`;
+    this.saleDropdownOpen = false;
+  }
+
+  clearSaleSearch() {
+    this.saleSearchText = '';
+    this.selectedSaleId = 0;
+    this.selectedSale = null;
+    this.erstattungsbetrag = 0;
+    this.filteredSales = this.sales;
+    this.saleDropdownOpen = false;
   }
 
   submit() {

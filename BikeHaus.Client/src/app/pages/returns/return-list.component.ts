@@ -1,7 +1,13 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  HostListener,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ReturnService } from '../../services/return.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
@@ -79,7 +85,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <th>{{ t.date }}</th>
               <th>{{ t.reason }}</th>
               <th>{{ t.refund }}</th>
-              <th>{{ t.actions }}</th>
+              <th style="width: 50px;"></th>
             </tr>
           </thead>
           <tbody>
@@ -91,8 +97,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 {{ t.noReturnsFound }}
               </td>
             </tr>
-            <tr *ngFor="let r of paginatedResult?.items">
-              <td>{{ r.belegNummer }}</td>
+            <tr
+              *ngFor="let r of paginatedResult?.items"
+              class="clickable-row"
+              (click)="toggleMenu($event, r)"
+            >
+              <td class="mono">{{ r.belegNummer }}</td>
               <td class="mono">{{ r.stokNo || '–' }}</td>
               <td>{{ r.originalSaleBelegNummer }}</td>
               <td>{{ r.bikeInfo }}</td>
@@ -104,24 +114,34 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 }}</span>
               </td>
               <td>{{ r.erstattungsbetrag | number: '1.2-2' }} €</td>
-              <td class="actions">
-                <button
-                  class="btn btn-sm btn-outline"
-                  (click)="previewPdf(r.id)"
-                  title="Vorschau"
+              <td class="actions-cell">
+                <span class="action-icon">⋮</span>
+                <div
+                  *ngIf="activeMenuId === r.id"
+                  class="popup-menu"
+                  (click)="$event.stopPropagation()"
                 >
-                  👁
-                </button>
-                <button
-                  class="btn btn-sm btn-outline"
-                  (click)="downloadPdf(r.id, r.belegNummer)"
-                  title="Download"
-                >
-                  ⬇
-                </button>
-                <button class="btn btn-sm btn-danger" (click)="delete(r.id)">
-                  {{ t.delete }}
-                </button>
+                  <button class="popup-item" (click)="printPdf(r)">
+                    <span class="popup-icon">🖨️</span>
+                    {{ t.printDocument }}
+                  </button>
+                  <button class="popup-item" (click)="previewPdf(r)">
+                    <span class="popup-icon">👁️</span>
+                    {{ t.preview }}
+                  </button>
+                  <button class="popup-item" (click)="downloadPdf(r)">
+                    <span class="popup-icon">⬇️</span>
+                    {{ t.download }}
+                  </button>
+                  <div class="popup-divider"></div>
+                  <button
+                    class="popup-item popup-item-danger"
+                    (click)="deleteReturn(r)"
+                  >
+                    <span class="popup-icon">🗑️</span>
+                    {{ t.delete }}
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -215,7 +235,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         background: var(--bg-card);
         border-radius: var(--radius-lg, 14px);
         border: 1px solid var(--border-light);
-        overflow-x: auto;
+        overflow: visible;
         box-shadow: var(--shadow-sm);
       }
       table {
@@ -238,31 +258,28 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
       th:nth-child(1) {
         width: 110px;
-      } /* Beleg No */
+      }
       th:nth-child(2) {
         width: 70px;
-      } /* Stok No */
+      }
       th:nth-child(3) {
         width: 110px;
-      } /* Original Sale */
+      }
       th:nth-child(4) {
         width: 140px;
-      } /* Bisiklet */
+      }
       th:nth-child(5) {
         width: 140px;
-      } /* Müşteri */
+      }
       th:nth-child(6) {
         width: 100px;
-      } /* Tarih */
+      }
       th:nth-child(7) {
         width: 100px;
-      } /* Sebep */
+      }
       th:nth-child(8) {
         width: 90px;
-      } /* İade */
-      th:nth-child(9) {
-        width: 120px;
-      } /* İşlemler */
+      }
       td {
         padding: 11px 16px;
         border-bottom: 1px solid var(--border-light);
@@ -273,9 +290,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-      tr:hover td {
-        background: var(--table-hover, #f1f5f9);
-      }
       .mono {
         font-family: 'SF Mono', 'Consolas', monospace;
         font-size: 0.82rem;
@@ -285,10 +299,68 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         border-radius: 6px;
         font-weight: 600;
       }
-      .actions {
+      .clickable-row {
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .clickable-row:hover td {
+        background: var(--table-hover, #f1f5f9);
+      }
+      .actions-cell {
+        position: relative;
+        text-align: center;
+        overflow: visible !important;
+      }
+      .action-icon {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+      }
+      .popup-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        z-index: 9999;
+        min-width: 170px;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-lg, 14px);
+        box-shadow: var(--shadow-lg);
+        padding: 6px 0;
+        animation: fadeIn 0.15s ease;
+      }
+      .popup-item {
         display: flex;
-        gap: 6px;
-        flex-wrap: nowrap;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 9px 14px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        text-align: left;
+        transition: var(--transition-fast);
+        border-radius: 0;
+      }
+      .popup-item:hover {
+        background: var(--table-hover, #f1f5f9);
+      }
+      .popup-item-danger {
+        color: var(--accent-danger, #ef4444);
+      }
+      .popup-item-danger:hover {
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
+      }
+      .popup-divider {
+        height: 1px;
+        background: var(--border-light, #e2e8f0);
+        margin: 4px 0;
+      }
+      .popup-icon {
+        font-size: 1rem;
       }
       .badge {
         display: inline-block;
@@ -321,6 +393,18 @@ export class ReturnListComponent implements OnInit {
   private translationService = inject(TranslationService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
+  private returnService = inject(ReturnService);
+  private excelExportService = inject(ExcelExportService);
+  private router = inject(Router);
+  private elementRef = inject(ElementRef);
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.activeMenuId = null;
+    }
+  }
+
   get t() {
     return this.translationService.translations();
   }
@@ -330,11 +414,7 @@ export class ReturnListComponent implements OnInit {
   filterReason = '';
   currentPage = 1;
   pageSize = 20;
-
-  constructor(
-    private returnService: ReturnService,
-    private excelExportService: ExcelExportService,
-  ) {}
+  activeMenuId: number | null = null;
 
   ngOnInit() {
     this.load();
@@ -394,21 +474,45 @@ export class ReturnListComponent implements OnInit {
     return classes[reason] || '';
   }
 
-  downloadPdf(id: number, belegNr: string) {
-    this.returnService.downloadRueckgabebeleg(id).subscribe((blob) => {
+  toggleMenu(event: MouseEvent, r: ReturnList) {
+    event.stopPropagation();
+    this.activeMenuId = this.activeMenuId === r.id ? null : r.id;
+  }
+
+  closeMenu() {
+    this.activeMenuId = null;
+  }
+
+  downloadPdf(r: ReturnList) {
+    this.closeMenu();
+    this.returnService.downloadRueckgabebeleg(r.id).subscribe((blob) => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Rueckgabebeleg_${belegNr}.pdf`;
+      a.download = `Rueckgabebeleg_${r.belegNummer}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     });
   }
 
-  previewPdf(id: number) {
-    this.returnService.downloadRueckgabebeleg(id).subscribe((blob) => {
+  previewPdf(r: ReturnList) {
+    this.closeMenu();
+    this.returnService.downloadRueckgabebeleg(r.id).subscribe((blob) => {
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
+    });
+  }
+
+  printPdf(r: ReturnList) {
+    this.closeMenu();
+    this.returnService.downloadRueckgabebeleg(r.id).subscribe((blob) => {
+      const url = URL.createObjectURL(blob);
+      const printWindow = window.open(url, '_blank');
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.print();
+        };
+      }
     });
   }
 
@@ -428,12 +532,13 @@ export class ReturnListComponent implements OnInit {
     );
   }
 
-  delete(id: number) {
+  deleteReturn(r: ReturnList) {
+    this.closeMenu();
     this.dialogService
-      .danger(this.t.delete, this.t.deleteConfirmReturn)
+      .danger(this.t.delete, `${this.t.deleteConfirmReturn} (${r.belegNummer})`)
       .then((confirmed) => {
         if (confirmed) {
-          this.returnService.delete(id).subscribe({
+          this.returnService.delete(r.id).subscribe({
             next: () => {
               this.notificationService.success(
                 this.t.deleteSuccess || 'Erfolgreich gelöscht',

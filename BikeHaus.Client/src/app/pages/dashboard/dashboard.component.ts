@@ -152,7 +152,6 @@ import { TranslationService } from '../../services/translation.service';
                   <th>{{ t.seller }}</th>
                   <th>{{ t.price }}</th>
                   <th>{{ t.date }}</th>
-                  <th style="width: 80px;"></th>
                 </tr>
               </thead>
               <tbody>
@@ -168,47 +167,6 @@ import { TranslationService } from '../../services/translation.service';
                   <td>{{ p.sellerName }}</td>
                   <td class="price">{{ p.preis | number: '1.2-2' }} €</td>
                   <td class="date">{{ p.kaufdatum | date: 'dd.MM.yyyy' }}</td>
-                  <td class="action-cell" (click)="$event.stopPropagation()">
-                    <button
-                      class="btn-icon"
-                      (click)="previewPurchasePdf(p.id)"
-                      title="Vorschau"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path
-                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-                        ></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                    <button
-                      class="btn-icon"
-                      (click)="downloadPurchasePdf(p.id, p.belegNummer)"
-                      title="PDF"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path
-                          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                        ></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                      </svg>
-                    </button>
-                  </td>
                 </tr>
               </tbody>
             </table>
@@ -260,7 +218,6 @@ import { TranslationService } from '../../services/translation.service';
                   <th>{{ t.buyer }}</th>
                   <th>{{ t.price }}</th>
                   <th>{{ t.date }}</th>
-                  <th style="width: 80px;"></th>
                 </tr>
               </thead>
               <tbody>
@@ -277,47 +234,6 @@ import { TranslationService } from '../../services/translation.service';
                   <td class="price">{{ s.preis | number: '1.2-2' }} €</td>
                   <td class="date">
                     {{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}
-                  </td>
-                  <td class="action-cell" (click)="$event.stopPropagation()">
-                    <button
-                      class="btn-icon"
-                      (click)="previewSalePdf(s.id)"
-                      title="Vorschau"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path
-                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-                        ></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                      </svg>
-                    </button>
-                    <button
-                      class="btn-icon"
-                      (click)="downloadSalePdf(s.id, s.belegNummer)"
-                      title="PDF"
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path
-                          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                        ></path>
-                        <polyline points="7 10 12 15 17 10"></polyline>
-                        <line x1="12" y1="15" x2="12" y2="3"></line>
-                      </svg>
-                    </button>
                   </td>
                 </tr>
               </tbody>
