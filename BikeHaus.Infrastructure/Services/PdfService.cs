@@ -174,10 +174,10 @@ public class PdfService : IPdfService
                 page.DefaultTextStyle(x => x.FontSize(10).FontColor(Colors.Grey.Darken4));
 
                 // Header with print-friendly styling
-                page.Header().Container().Column(col =>
+                page.Header().Column(col =>
                 {
-                    // Top bar with logo and shop name - light background for print
-                    col.Item().Border(1).BorderColor(PrimaryColor).Padding(12).Row(row =>
+                    // Top bar with logo and shop name
+                    col.Item().BorderBottom(1).BorderColor(PrimaryColor).PaddingBottom(10).Row(row =>
                     {
                         row.RelativeItem().Column(leftCol =>
                         {
@@ -197,18 +197,15 @@ public class PdfService : IPdfService
                             leftCol.Item().Text(shop.ShopType).FontSize(9).FontColor(Colors.Grey.Darken2);
                         });
 
-                        row.ConstantItem(130).AlignRight().Column(rightCol =>
+                        row.ConstantItem(130).AlignRight().AlignMiddle().Border(1.5f).BorderColor(PrimaryColor).Padding(8).Column(box =>
                         {
-                            rightCol.Item().Border(1.5f).BorderColor(PrimaryColor).Padding(8).Column(box =>
-                            {
-                                box.Item().Text("KAUFBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
-                                box.Item().Text(purchase.BelegNummer).FontSize(13).Bold().FontColor(PrimaryColor).AlignCenter();
-                            });
+                            box.Item().Text("KAUFBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                            box.Item().Text(purchase.BelegNummer).FontSize(13).Bold().FontColor(PrimaryColor).AlignCenter();
                         });
                     });
 
                     // Contact info bar
-                    col.Item().Background(TableHeaderBg).PaddingVertical(5).PaddingHorizontal(12).Row(row =>
+                    col.Item().PaddingTop(6).Row(row =>
                     {
                         row.RelativeItem().Text($"{shop.Street}, {shop.City}").FontSize(8).FontColor(Colors.Grey.Darken2);
                         row.RelativeItem().AlignCenter().Text($"Tel: {shop.Telefon}").FontSize(8).FontColor(Colors.Grey.Darken2);
@@ -219,26 +216,46 @@ public class PdfService : IPdfService
                 // Content
                 page.Content().PaddingTop(12).Column(col =>
                 {
-                    // Date and AnzeigeNr row
+                    // KÄUFER (HÄNDLER) and Kaufdatum row
                     col.Item().Row(row =>
                     {
-                        // AnzeigeNr if present
-                        if (!string.IsNullOrEmpty(purchase.AnzeigeNr))
+                        // Buyer Info (Shop Owner) - left side
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(c =>
+                        {
+                            c.Item().Text("KÄUFER (HÄNDLER)").FontSize(9).Bold().FontColor(PrimaryColor);
+                            c.Item().PaddingTop(4).Text(shop.ShopName).FontSize(10).Bold();
+                            c.Item().Text($"Inhaber: {shop.OwnerName}").FontSize(9);
+                            c.Item().Text($"{shop.Street}, {shop.City}").FontSize(9);
+                            if (!string.IsNullOrEmpty(shop.Telefon))
+                                c.Item().Text($"Tel: {shop.Telefon}").FontSize(9);
+                            if (!string.IsNullOrEmpty(shop.Email))
+                                c.Item().Text(shop.Email).FontSize(9);
+                            if (!string.IsNullOrEmpty(shop.Steuernummer))
+                                c.Item().Text($"Steuernummer: {shop.Steuernummer}").FontSize(9);
+                        });
+
+                        row.ConstantItem(10);
+
+                        // Kaufdatum - right side
+                        row.ConstantItem(130).AlignTop().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(c =>
+                        {
+                            c.Item().Text("Kaufdatum").FontSize(8).FontColor(Colors.Grey.Darken1);
+                            c.Item().Text($"{purchase.Kaufdatum:dd.MM.yyyy}").FontSize(12).Bold().FontColor(PrimaryColor);
+                        });
+                    });
+
+                    // AnzeigeNr if present (separate row)
+                    if (!string.IsNullOrEmpty(purchase.AnzeigeNr))
+                    {
+                        col.Item().PaddingTop(8).Row(row =>
                         {
                             row.ConstantItem(150).Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(c =>
                             {
                                 c.Item().Text("Anzeige Nr.").FontSize(8).FontColor(Colors.Grey.Darken1);
                                 c.Item().Text(purchase.AnzeigeNr).FontSize(11).Bold().FontColor(PrimaryColor);
                             });
-                            row.ConstantItem(10);
-                        }
-                        row.RelativeItem();
-                        row.ConstantItem(130).Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(c =>
-                        {
-                            c.Item().Text("Kaufdatum").FontSize(8).FontColor(Colors.Grey.Darken1);
-                            c.Item().Text($"{purchase.Kaufdatum:dd.MM.yyyy}").FontSize(12).Bold().FontColor(PrimaryColor);
                         });
-                    });
+                    }
 
                     // Section: Bicycle Info
                     col.Item().PaddingTop(12).Element(SectionHeader).Text("FAHRRAD-INFORMATIONEN");
@@ -277,29 +294,6 @@ public class PdfService : IPdfService
                             AddInfoRow(table, "Telefon", purchase.Seller.Telefon);
                         if (!string.IsNullOrEmpty(purchase.Seller.Email))
                             AddInfoRow(table, "E-Mail", purchase.Seller.Email);
-                        if (!string.IsNullOrEmpty(purchase.Seller.Steuernummer))
-                            AddInfoRow(table, "Steuernummer", purchase.Seller.Steuernummer);
-                    });
-
-                    // Section: Buyer Info (Shop Owner)
-                    col.Item().PaddingTop(12).Element(SectionHeader).Text("KÄUFER (HÄNDLER)");
-                    col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(10).Table(table =>
-                    {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.ConstantColumn(100);
-                            columns.RelativeColumn();
-                        });
-
-                        AddInfoRow(table, "Firma", shop.ShopName);
-                        AddInfoRow(table, "Inhaber", shop.OwnerName);
-                        AddInfoRow(table, "Adresse", $"{shop.Street}, {shop.City}");
-                        if (!string.IsNullOrEmpty(shop.Telefon))
-                            AddInfoRow(table, "Telefon", shop.Telefon);
-                        if (!string.IsNullOrEmpty(shop.Email))
-                            AddInfoRow(table, "E-Mail", shop.Email);
-                        if (!string.IsNullOrEmpty(shop.Steuernummer))
-                            AddInfoRow(table, "Steuernummer", shop.Steuernummer);
                     });
 
                     // Section: Purchase Details
@@ -342,10 +336,13 @@ public class PdfService : IPdfService
                 });
 
                 // Footer
-                page.Footer().BorderTop(1).BorderColor(Colors.Grey.Lighten2).PaddingTop(8).Column(col =>
+                page.Footer().Column(col =>
                 {
-                    col.Item().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(8).FontColor(Colors.Grey.Darken1);
-                    col.Item().PaddingTop(4).AlignCenter().Text($"Bank: {shop.BankName} | Kontoinhaber: {shop.BankAccountHolder} | IBAN: {shop.IBAN}").FontSize(8).FontColor(Colors.Grey.Darken1);
+                    col.Item().BorderTop(1).BorderColor(PrimaryColor).PaddingTop(8).Column(inner =>
+                    {
+                        inner.Item().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(8).FontColor(Colors.Grey.Darken1);
+                        inner.Item().PaddingTop(4).AlignCenter().Text($"Bank: {shop.BankName} | Kontoinhaber: {shop.BankAccountHolder} | IBAN: {shop.IBAN}").FontSize(8).FontColor(Colors.Grey.Darken1);
+                    });
                 });
             });
         });
@@ -549,7 +546,7 @@ public class PdfService : IPdfService
                         });
 
                         // Grand Total - print-friendly border style
-                        row.ConstantItem(160).Border(2).BorderColor(PrimaryColor).Padding(10).Column(c =>
+                        row.ConstantItem(160).AlignMiddle().Border(2).BorderColor(PrimaryColor).Padding(10).Column(c =>
                         {
                             c.Item().Text("GESAMTBETRAG").FontSize(8).FontColor(PrimaryColor).AlignCenter();
                             c.Item().Text("(inkl. MwSt.)").FontSize(6).FontColor(Colors.Grey.Darken2).AlignCenter();

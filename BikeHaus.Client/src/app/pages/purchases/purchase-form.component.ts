@@ -134,14 +134,6 @@ import { forkJoin } from 'rxjs';
                   name="sellerEmail"
                 />
               </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.taxNumber || 'Steuernummer' }}</label>
-                <input
-                  [(ngModel)]="seller.steuernummer"
-                  name="sellerSteuernummer"
-                  placeholder="optional"
-                />
-              </div>
             </div>
           </div>
 

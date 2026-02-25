@@ -132,41 +132,17 @@ interface LabelBike {
       <div class="a4-page" *ngFor="let page of pages">
         <div class="label-cell" *ngFor="let bike of page" [class.empty]="!bike">
           <div class="label-content" *ngIf="bike">
-            <div class="label-header">
-              <span class="label-logo">BIKE HAUS</span>
-              <span class="label-city">FREIBURG</span>
-            </div>
-            <div class="label-divider"></div>
+            <div class="label-zustand">{{ bike.zustand }}</div>
             <div class="label-brand">{{ bike.marke }}</div>
             <div class="label-model">{{ bike.modell }}</div>
             <div class="label-specs">
-              <div class="spec-row" *ngIf="bike.fahrradtyp">
-                <span class="spec-label">Typ</span>
-                <span class="spec-value">{{ bike.fahrradtyp }}</span>
-              </div>
-              <div class="spec-row" *ngIf="bike.farbe">
-                <span class="spec-label">Farbe</span>
-                <span class="spec-value">{{ bike.farbe }}</span>
-              </div>
               <div class="spec-row">
                 <span class="spec-label">Räder</span>
                 <span class="spec-value">{{ bike.reifengroesse }}"</span>
               </div>
-              <div class="spec-row">
-                <span class="spec-label">Zustand</span>
-                <span class="spec-value">{{ bike.zustand }}</span>
-              </div>
               <div class="spec-row" *ngIf="bike.rahmengroesse">
                 <span class="spec-label">Rahmengröße</span>
                 <span class="spec-value">{{ bike.rahmengroesse }}</span>
-              </div>
-              <div class="spec-row" *ngIf="bike.rahmennummer">
-                <span class="spec-label">Rahmen-Nr.</span>
-                <span class="spec-value">{{ bike.rahmennummer }}</span>
-              </div>
-              <div class="spec-row" *ngIf="bike.beschreibung">
-                <span class="spec-label">Info</span>
-                <span class="spec-value">{{ bike.beschreibung }}</span>
               </div>
             </div>
             <div class="label-price-area">
@@ -174,11 +150,7 @@ interface LabelBike {
                 {{ bike.preis | number: '1.0-0' }} €
               </div>
             </div>
-            <div class="label-footer">
-              <span class="label-stok" *ngIf="bike.stokNo"
-                >#{{ bike.stokNo }}</span
-              >
-            </div>
+            <div class="label-stok-bottom" *ngIf="bike.stokNo">#{{ bike.stokNo }}</div>
           </div>
         </div>
       </div>
@@ -384,115 +356,108 @@ interface LabelBike {
       }
       .a4-page {
         width: 210mm;
-        min-height: auto;
+        height: 297mm;
         margin: 0 auto 30px;
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: repeat(3, auto);
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
         border: 1px dashed #cbd5e1;
         background: #fff;
         page-break-after: always;
         box-sizing: border-box;
+        padding: 10mm;
+        gap: 6mm;
       }
       .label-cell {
         border: 0.5px dashed #e2e8f0;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 3mm 5mm;
+        padding: 5mm;
         box-sizing: border-box;
+        overflow: hidden;
       }
       .label-cell.empty {
         background: #fafafa;
-        min-height: 40mm;
       }
       .label-content {
         width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: space-between;
         text-align: center;
         font-family: 'Segoe UI', Arial, sans-serif;
-        padding: 2mm 0;
+        padding: 3mm 0;
       }
-      .label-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 1mm;
-      }
-      .label-logo {
-        font-size: 11pt;
-        font-weight: 900;
-        letter-spacing: 0.12em;
-        color: #1e293b;
-      }
-      .label-city {
-        font-size: 6pt;
-        font-weight: 600;
-        letter-spacing: 0.3em;
-        color: #64748b;
+      .label-zustand {
+        font-size: 16pt;
+        font-weight: 800;
+        color: #fff;
+        background: #10b981;
+        padding: 2mm 8mm;
+        border-radius: 2mm;
         text-transform: uppercase;
-      }
-      .label-divider {
-        width: 30mm;
-        height: 0.4mm;
-        background: #334155;
-        margin-bottom: 1.5mm;
+        letter-spacing: 0.1em;
+        margin-bottom: 3mm;
       }
       .label-brand {
-        font-size: 10pt;
-        font-weight: 800;
+        font-size: 24pt;
+        font-weight: 900;
         color: #0f172a;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.1em;
       }
       .label-model {
-        font-size: 8pt;
-        font-weight: 500;
+        font-size: 18pt;
+        font-weight: 600;
         color: #475569;
-        margin-bottom: 1mm;
+        margin-bottom: 5mm;
       }
       .label-specs {
         width: 100%;
-        margin-bottom: 1mm;
+        flex: 1;
+        overflow: hidden;
       }
       .spec-row {
         display: flex;
         justify-content: space-between;
-        padding: 0.3mm 0;
-        border-bottom: 0.2px solid #e2e8f0;
-        font-size: 6.5pt;
+        padding: 1.5mm 0;
+        border-bottom: 0.4px solid #e2e8f0;
+        font-size: 13pt;
       }
       .spec-label {
         color: #64748b;
-        font-weight: 500;
+        font-weight: 600;
       }
       .spec-value {
         color: #1e293b;
-        font-weight: 600;
+        font-weight: 700;
       }
       .label-price-area {
-        margin: 1.5mm 0 1mm;
-        padding: 1.5mm 4mm;
+        margin: 5mm 0 3mm;
+        padding: 3mm 10mm;
         background: #0f172a;
-        border-radius: 1.5mm;
+        border-radius: 3mm;
         display: inline-flex;
       }
       .label-price {
-        font-size: 13pt;
+        font-size: 24pt;
         font-weight: 900;
         color: #fff;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.05em;
       }
-      .label-footer {
-        margin-top: 0.5mm;
-      }
-      .label-stok {
-        font-size: 6pt;
-        color: #94a3b8;
+      .label-stok-bottom {
+        font-size: 16pt;
+        font-weight: 900;
+        color: #0f172a;
         font-family: 'Courier New', monospace;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.12em;
+        margin-top: 3mm;
+        padding: 2mm 6mm;
+        background: #f1f5f9;
+        border-radius: 2mm;
       }
 
       /* ── Buttons ── */
@@ -546,8 +511,28 @@ interface LabelBike {
         footer,
         aside,
         .sidebar,
-        .header-bar {
+        .header-bar,
+        .app-wrapper,
+        .main-content,
+        .content-area {
+          all: unset !important;
+          display: contents !important;
+        }
+
+        /* Hide specific navigation elements */
+        nav,
+        header,
+        footer,
+        aside,
+        .sidebar,
+        .header-bar,
+        .no-print,
+        .print-controls {
           display: none !important;
+          visibility: hidden !important;
+          height: 0 !important;
+          width: 0 !important;
+          overflow: hidden !important;
         }
 
         /* Reset body and html */
@@ -558,26 +543,33 @@ interface LabelBike {
           background: white !important;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
+          width: 210mm !important;
+          height: 297mm !important;
         }
 
         .print-view {
           padding: 0 !important;
           margin: 0 !important;
-          position: absolute !important;
+          position: fixed !important;
           top: 0 !important;
           left: 0 !important;
-          width: 100% !important;
+          width: 210mm !important;
+          z-index: 99999 !important;
+          background: white !important;
         }
 
         .a4-page {
           margin: 0 !important;
-          padding: 5mm !important;
+          padding: 10mm !important;
           border: none !important;
           page-break-after: always;
           page-break-inside: avoid;
-          width: 100% !important;
-          min-height: auto !important;
-          height: auto !important;
+          width: 210mm !important;
+          height: 297mm !important;
+          display: grid !important;
+          grid-template-columns: repeat(2, 1fr) !important;
+          grid-template-rows: repeat(2, 1fr) !important;
+          gap: 6mm !important;
         }
 
         .a4-page:last-child {
@@ -587,10 +579,11 @@ interface LabelBike {
         .label-cell {
           border: 0.5px dashed #ccc !important;
           page-break-inside: avoid;
+          overflow: hidden !important;
         }
 
         .label-cell.empty {
-          display: none !important;
+          visibility: hidden !important;
         }
 
         .label-price-area {
@@ -647,15 +640,15 @@ export class BicycleLabelsComponent implements OnInit {
   }
 
   get pageCount(): number {
-    return Math.ceil(this.selectedCount / 6);
+    return Math.ceil(this.selectedCount / 4);
   }
 
   get pages(): (LabelBike | null)[][] {
     const selected = this.selectedBikes;
     const result: (LabelBike | null)[][] = [];
-    for (let i = 0; i < selected.length; i += 6) {
-      const page: (LabelBike | null)[] = selected.slice(i, i + 6);
-      while (page.length < 6) page.push(null);
+    for (let i = 0; i < selected.length; i += 4) {
+      const page: (LabelBike | null)[] = selected.slice(i, i + 4);
+      while (page.length < 4) page.push(null);
       result.push(page);
     }
     return result;

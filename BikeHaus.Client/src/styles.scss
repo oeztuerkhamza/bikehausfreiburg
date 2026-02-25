@@ -371,3 +371,52 @@ table {
     background-position: 200% 0;
   }
 }
+
+// Global Print Styles - hide everything except labels
+@media print {
+  // Hide sidebar and header completely
+  .sidebar,
+  aside,
+  nav,
+  .header-bar,
+  header:not(.label-header) {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+  }
+
+  // Reset app wrapper
+  .app-wrapper {
+    display: block !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  // Main content should take full width
+  main,
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .content-area {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  // Body and HTML reset
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    overflow: visible !important;
+  }
+}
