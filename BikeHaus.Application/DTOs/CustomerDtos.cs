@@ -11,6 +11,7 @@ public record CustomerDto(
     string? Stadt,
     string? Telefon,
     string? Email,
+    string? Steuernummer,
     string FullName,
     string? FullAddress
 );
@@ -23,7 +24,8 @@ public record CustomerCreateDto(
     string? PLZ,
     string? Stadt,
     string? Telefon,
-    string? Email
+    string? Email,
+    string? Steuernummer = null
 );
 
 public record CustomerUpdateDto(
@@ -34,5 +36,6 @@ public record CustomerUpdateDto(
     string? PLZ,
     string? Stadt,
     string? Telefon,
-    string? Email
+    string? Email,
+    string? Steuernummer = null
 );

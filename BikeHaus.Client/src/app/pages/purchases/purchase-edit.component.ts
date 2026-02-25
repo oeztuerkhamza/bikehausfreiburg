@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
+import { DocumentService } from '../../services/document.service';
 import { TranslationService } from '../../services/translation.service';
 import {
   Purchase,
@@ -10,9 +11,12 @@ import {
   PaymentMethod,
   BikeCondition,
   BikeStatus,
+  Document as DocModel
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
+import { environment } from '../../../environments/environment';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-purchase-edit',
@@ -89,6 +93,14 @@ import { AddressSuggestion } from '../../services/address.service';
                   type="email"
                   [(ngModel)]="seller.email"
                   name="sellerEmail"
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.taxNumber || 'Steuernummer' }}</label>
+                <input
+                  [(ngModel)]="seller.steuernummer"
+                  name="sellerSteuernummer"
+                  placeholder="optional"
                 />
               </div>
             </div>
@@ -254,6 +266,14 @@ import { AddressSuggestion } from '../../services/address.service';
                   required
                 />
               </div>
+              <div class="field">
+                <label>{{ t.adNumber || 'Anzeige Nr.' }}</label>
+                <input
+                  [(ngModel)]="anzeigeNr"
+                  name="anzeigeNr"
+                  placeholder="optional"
+                />
+              </div>
               <div class="field full">
                 <label>{{ t.notes }}</label>
                 <textarea
@@ -261,6 +281,33 @@ import { AddressSuggestion } from '../../services/address.service';
                   name="notizen"
                   rows="2"
                 ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Photo Gallery -->
+          <div class="form-card">
+            <h2>📷 {{ t.photoGallery || 'Fotos' }}</h2>
+            <div class="gallery-section">
+              <div class="gallery-grid" *ngIf="documents.length > 0">
+                <div class="gallery-item" *ngFor="let doc of documents">
+                  <img [src]="getDocumentUrl(doc)" [alt]="doc.fileName" (click)="openImagePreview(doc)" />
+                  <button type="button" class="delete-btn" (click)="deleteDocument(doc)" title="Löschen">×</button>
+                </div>
+              </div>
+              <p *ngIf="documents.length === 0" class="no-photos">{{ t.noPhotos || 'Keine Fotos vorhanden' }}</p>
+              <div class="upload-row">
+                <input
+                  type="file"
+                  #photoInput
+                  (change)="onPhotosSelected($event)"
+                  accept="image/*"
+                  multiple
+                  style="display: none"
+                />
+                <button type="button" class="btn btn-outline" (click)="photoInput.click()" [disabled]="uploading">
+                  {{ uploading ? (t.uploading || 'Hochladen...') : (t.addPhotos || 'Fotos hinzufügen') }}
+                </button>
               </div>
             </div>
           </div>
@@ -276,6 +323,12 @@ import { AddressSuggestion } from '../../services/address.service';
           </button>
         </div>
       </form>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="preview-overlay" *ngIf="previewImage" (click)="closePreview()">
+      <button type="button" class="close-preview">×</button>
+      <img [src]="previewImage" alt="Preview" />
     </div>
   `,
   styles: [
@@ -390,6 +443,122 @@ import { AddressSuggestion } from '../../services/address.service';
         padding: 12px 32px;
         font-size: 1.05rem;
       }
+      /* Photo Gallery */
+      .gallery-section {
+        margin-top: 12px;
+      }
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .gallery-item {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: var(--radius-md, 10px);
+        overflow: hidden;
+        border: 1px solid var(--border-light, #e2e8f0);
+        cursor: pointer;
+      }
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.2s;
+      }
+      .gallery-item:hover img {
+        transform: scale(1.05);
+      }
+      .gallery-item .delete-btn {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(239, 68, 68, 0.9);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .gallery-item:hover .delete-btn {
+        opacity: 1;
+      }
+      .upload-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .upload-area input[type="file"] {
+        display: none;
+      }
+      .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        background: var(--accent-primary, #6366f1);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: var(--transition-fast);
+      }
+      .upload-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .upload-btn:hover:not(:disabled) {
+        background: var(--accent-primary-dark, #4f46e5);
+      }
+      .empty-gallery {
+        color: var(--text-secondary, #64748b);
+        font-size: 0.9rem;
+        padding: 20px;
+        text-align: center;
+        border: 2px dashed var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        margin-bottom: 16px;
+      }
+      /* Image Preview Modal */
+      .preview-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        cursor: pointer;
+      }
+      .preview-overlay img {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: var(--radius-md, 10px);
+      }
+      .close-preview {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 50%;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+      }
     `,
   ],
 })
@@ -403,6 +572,9 @@ export class PurchaseEditComponent implements OnInit {
   loading = true;
   error = '';
   submitting = false;
+  uploading = false;
+  documents: DocModel[] = [];
+  previewImage: string | null = null;
 
   seller = {
     vorname: '',
@@ -413,6 +585,7 @@ export class PurchaseEditComponent implements OnInit {
     stadt: '',
     telefon: '',
     email: '',
+    steuernummer: '',
   };
 
   bicycle = {
@@ -434,10 +607,12 @@ export class PurchaseEditComponent implements OnInit {
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   kaufdatum = '';
   notizen = '';
+  anzeigeNr = '';
   belegNummer = '';
 
   constructor(
     private purchaseService: PurchaseService,
+    private documentService: DocumentService,
     private router: Router,
     private route: ActivatedRoute,
   ) {}
@@ -454,6 +629,7 @@ export class PurchaseEditComponent implements OnInit {
       next: (purchase) => {
         this.purchase = purchase;
         this.loadFormData(purchase);
+        this.loadDocuments(+id);
         this.loading = false;
       },
       error: () => {
@@ -461,6 +637,59 @@ export class PurchaseEditComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  loadDocuments(purchaseId: number) {
+    this.documentService.getByPurchaseId(purchaseId).subscribe({
+      next: (docs) => {
+        this.documents = docs;
+      },
+      error: () => {
+        // silently fail - photos are optional
+      },
+    });
+  }
+
+  getDocumentUrl(doc: DocModel): string {
+    return `${environment.apiUrl}/documents/${doc.id}/download`;
+  }
+
+  onPhotosSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0 || !this.purchase) return;
+
+    this.uploading = true;
+    const uploads = Array.from(input.files).map((file) => {
+      return this.documentService.upload(file, 'screenshot', undefined, this.purchase!.id, undefined);
+    });
+
+    forkJoin(uploads).subscribe({
+      next: () => {
+        this.loadDocuments(this.purchase!.id);
+        this.uploading = false;
+        input.value = '';
+      },
+      error: () => {
+        this.uploading = false;
+      },
+    });
+  }
+
+  deleteDocument(doc: DocModel) {
+    if (!confirm('Löschen?')) return;
+    this.documentService.delete(doc.id).subscribe({
+      next: () => {
+        this.documents = this.documents.filter((d) => d.id !== doc.id);
+      },
+    });
+  }
+
+  openImagePreview(doc: DocModel) {
+    this.previewImage = this.getDocumentUrl(doc);
+  }
+
+  closePreview() {
+    this.previewImage = null;
   }
 
   private loadFormData(purchase: Purchase) {
@@ -475,6 +704,7 @@ export class PurchaseEditComponent implements OnInit {
         stadt: purchase.seller.stadt || '',
         telefon: purchase.seller.telefon || '',
         email: purchase.seller.email || '',
+        steuernummer: purchase.seller.steuernummer || '',
       };
     }
 
@@ -505,6 +735,7 @@ export class PurchaseEditComponent implements OnInit {
       ? new Date(purchase.kaufdatum).toISOString().split('T')[0]
       : '';
     this.notizen = purchase.notizen || '';
+    this.anzeigeNr = purchase.anzeigeNr || '';
     this.belegNummer = purchase.belegNummer || '';
   }
 
@@ -527,6 +758,7 @@ export class PurchaseEditComponent implements OnInit {
       zahlungsart: this.zahlungsart,
       kaufdatum: this.kaufdatum,
       notizen: this.notizen || undefined,
+      anzeigeNr: this.anzeigeNr || undefined,
       belegNummer: this.belegNummer || undefined,
     };
 

@@ -30,8 +30,9 @@ public class AuthService : IAuthService
         if (user == null)
             return null;
 
-        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            return null;
+        // Password check disabled - login with username only
+        // if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+        //     return null;
 
         var token = GenerateJwtToken(user);
         var expiresAt = DateTime.UtcNow.AddHours(24);

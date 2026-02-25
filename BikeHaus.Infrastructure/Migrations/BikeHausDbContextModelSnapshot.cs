@@ -138,6 +138,9 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Steuernummer")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Strasse")
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
@@ -266,6 +269,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("AnzeigeNr")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("BelegNummer")
                         .HasMaxLength(20)

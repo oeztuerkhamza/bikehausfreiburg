@@ -57,19 +57,21 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
       .autocomplete-input {
         width: 100%;
         padding: 8px 10px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color, #ddd);
         border-radius: 6px;
         font-size: 0.95rem;
+        background: var(--bg-input, #fff);
+        color: var(--text-primary, #1e293b);
       }
       .suggestions {
         position: absolute;
         top: 100%;
         left: 0;
         right: 0;
-        background: #fff;
-        border: 1px solid #ddd;
+        background: var(--bg-card, #fff);
+        border: 1px solid var(--border-color, #ddd);
         border-radius: 6px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--shadow-lg, 0 4px 12px rgba(0, 0, 0, 0.1));
         z-index: 100;
         max-height: 200px;
         overflow-y: auto;
@@ -81,32 +83,34 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
         display: flex;
         align-items: center;
         gap: 12px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-light, #eee);
+        color: var(--text-primary, #1e293b);
       }
       .suggestion-item:last-child {
         border-bottom: none;
       }
       .suggestion-item:hover {
-        background: #f5f7fa;
+        background: var(--accent-primary-light, #f5f7fa);
       }
       .item-name {
         flex: 1;
         font-weight: 500;
+        color: var(--text-primary, #1e293b);
       }
       .item-price {
-        color: #4361ee;
+        color: var(--accent-primary, #4361ee);
         font-weight: 500;
       }
       .item-category {
-        background: #e9ecef;
+        background: var(--bg-secondary, #e9ecef);
         padding: 2px 8px;
         border-radius: 4px;
         font-size: 0.75rem;
-        color: #666;
+        color: var(--text-secondary, #666);
       }
       .no-results {
         padding: 12px;
-        color: #999;
+        color: var(--text-muted, #999);
         text-align: center;
         font-size: 0.9rem;
       }

@@ -15,13 +15,13 @@ public class PdfService : IPdfService
     private readonly IReturnRepository _returnRepository;
     private readonly IShopSettingsRepository _shopSettingsRepository;
 
-    // Brand Colors
-    private static readonly string PrimaryColor = "#1a5f7a";       // Dark teal
-    private static readonly string SecondaryColor = "#57c5b6";     // Light teal
-    private static readonly string AccentColor = "#159895";        // Medium teal
-    private static readonly string LightBg = "#f8fffe";           // Very light teal tint
-    private static readonly string TableHeaderBg = "#e8f4f3";      // Light table header
-    private static readonly string TableAltBg = "#f5faf9";         // Alternating row bg
+    // Print-Friendly Colors (optimized for less ink consumption)
+    private static readonly string PrimaryColor = "#2c5282";       // Medium blue (for text)
+    private static readonly string SecondaryColor = "#4299e1";     // Light blue (for accents)
+    private static readonly string AccentColor = "#2b6cb0";        // Blue accent
+    private static readonly string LightBg = "#ffffff";           // White background
+    private static readonly string TableHeaderBg = "#f7fafc";      // Very light gray
+    private static readonly string TableAltBg = "#f7fafc";         // Very light gray for rows
 
     // Default Shop Information (fallback if no settings in DB)
     private const string DefaultShopName = "BIKE HAUS FREIBURG";
@@ -173,11 +173,11 @@ public class PdfService : IPdfService
                 page.Margin(1.5f, Unit.Centimetre);
                 page.DefaultTextStyle(x => x.FontSize(10).FontColor(Colors.Grey.Darken4));
 
-                // Header with brand styling
+                // Header with print-friendly styling
                 page.Header().Container().Column(col =>
                 {
-                    // Top bar with logo and shop name
-                    col.Item().Background(PrimaryColor).Padding(15).Row(row =>
+                    // Top bar with logo and shop name - light background for print
+                    col.Item().Border(1).BorderColor(PrimaryColor).Padding(12).Row(row =>
                     {
                         row.RelativeItem().Column(leftCol =>
                         {
@@ -189,56 +189,66 @@ public class PdfService : IPdfService
                                     if (base64Data.Contains(","))
                                         base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
                                     var logoBytes = Convert.FromBase64String(base64Data);
-                                    leftCol.Item().Height(45).Image(logoBytes);
+                                    leftCol.Item().Height(40).Image(logoBytes);
                                 }
                                 catch { }
                             }
-                            leftCol.Item().Text(shop.ShopName).FontSize(18).Bold().FontColor(Colors.White);
-                            leftCol.Item().Text(shop.ShopType).FontSize(10).FontColor(Colors.White).Light();
+                            leftCol.Item().Text(shop.ShopName).FontSize(16).Bold().FontColor(PrimaryColor);
+                            leftCol.Item().Text(shop.ShopType).FontSize(9).FontColor(Colors.Grey.Darken2);
                         });
 
-                        row.ConstantItem(120).AlignRight().Column(rightCol =>
+                        row.ConstantItem(130).AlignRight().Column(rightCol =>
                         {
-                            rightCol.Item().Background(Colors.White).Padding(8).Column(box =>
+                            rightCol.Item().Border(1.5f).BorderColor(PrimaryColor).Padding(8).Column(box =>
                             {
-                                box.Item().Text("KAUFBELEG").FontSize(12).Bold().FontColor(PrimaryColor).AlignCenter();
-                                box.Item().Text(purchase.BelegNummer).FontSize(14).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text("KAUFBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text(purchase.BelegNummer).FontSize(13).Bold().FontColor(PrimaryColor).AlignCenter();
                             });
                         });
                     });
 
                     // Contact info bar
-                    col.Item().Background(TableHeaderBg).PaddingVertical(6).PaddingHorizontal(15).Row(row =>
+                    col.Item().Background(TableHeaderBg).PaddingVertical(5).PaddingHorizontal(12).Row(row =>
                     {
-                        row.RelativeItem().Text($"📍 {shop.Street}, {shop.City}").FontSize(8).FontColor(Colors.Grey.Darken2);
-                        row.RelativeItem().AlignCenter().Text($"📞 {shop.Telefon}").FontSize(8).FontColor(Colors.Grey.Darken2);
-                        row.RelativeItem().AlignRight().Text($"✉ {shop.Email}").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().Text($"{shop.Street}, {shop.City}").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignCenter().Text($"Tel: {shop.Telefon}").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text($"E-Mail: {shop.Email}").FontSize(8).FontColor(Colors.Grey.Darken2);
                     });
                 });
 
                 // Content
-                page.Content().PaddingTop(15).Column(col =>
+                page.Content().PaddingTop(12).Column(col =>
                 {
-                    // Date row
+                    // Date and AnzeigeNr row
                     col.Item().Row(row =>
                     {
-                        row.RelativeItem();
-                        row.ConstantItem(150).Background(LightBg).Border(1).BorderColor(SecondaryColor).Padding(8).Column(c =>
+                        // AnzeigeNr if present
+                        if (!string.IsNullOrEmpty(purchase.AnzeigeNr))
                         {
-                            c.Item().Text("Kaufdatum").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            c.Item().Text($"{purchase.Kaufdatum:dd.MM.yyyy}").FontSize(14).Bold().FontColor(PrimaryColor);
+                            row.ConstantItem(150).Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(c =>
+                            {
+                                c.Item().Text("Anzeige Nr.").FontSize(8).FontColor(Colors.Grey.Darken1);
+                                c.Item().Text(purchase.AnzeigeNr).FontSize(11).Bold().FontColor(PrimaryColor);
+                            });
+                            row.ConstantItem(10);
+                        }
+                        row.RelativeItem();
+                        row.ConstantItem(130).Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(c =>
+                        {
+                            c.Item().Text("Kaufdatum").FontSize(8).FontColor(Colors.Grey.Darken1);
+                            c.Item().Text($"{purchase.Kaufdatum:dd.MM.yyyy}").FontSize(12).Bold().FontColor(PrimaryColor);
                         });
                     });
 
                     // Section: Bicycle Info
-                    col.Item().PaddingTop(15).Element(SectionHeader).Text("🚲  FAHRRAD-INFORMATIONEN");
-                    col.Item().Background(LightBg).Padding(12).Table(table =>
+                    col.Item().PaddingTop(12).Element(SectionHeader).Text("FAHRRAD-INFORMATIONEN");
+                    col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(10).Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.ConstantColumn(110);
+                            columns.ConstantColumn(100);
                             columns.RelativeColumn();
-                            columns.ConstantColumn(110);
+                            columns.ConstantColumn(100);
                             columns.RelativeColumn();
                         });
 
@@ -251,12 +261,12 @@ public class PdfService : IPdfService
                     });
 
                     // Section: Seller Info
-                    col.Item().PaddingTop(15).Element(SectionHeader).Text("👤  VERKÄUFER (VORBESITZER)");
-                    col.Item().Background(LightBg).Padding(12).Table(table =>
+                    col.Item().PaddingTop(12).Element(SectionHeader).Text("VERKÄUFER (VORBESITZER)");
+                    col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(10).Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.ConstantColumn(110);
+                            columns.ConstantColumn(100);
                             columns.RelativeColumn();
                         });
 
@@ -267,41 +277,64 @@ public class PdfService : IPdfService
                             AddInfoRow(table, "Telefon", purchase.Seller.Telefon);
                         if (!string.IsNullOrEmpty(purchase.Seller.Email))
                             AddInfoRow(table, "E-Mail", purchase.Seller.Email);
+                        if (!string.IsNullOrEmpty(purchase.Seller.Steuernummer))
+                            AddInfoRow(table, "Steuernummer", purchase.Seller.Steuernummer);
+                    });
+
+                    // Section: Buyer Info (Shop Owner)
+                    col.Item().PaddingTop(12).Element(SectionHeader).Text("KÄUFER (HÄNDLER)");
+                    col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(10).Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.ConstantColumn(100);
+                            columns.RelativeColumn();
+                        });
+
+                        AddInfoRow(table, "Firma", shop.ShopName);
+                        AddInfoRow(table, "Inhaber", shop.OwnerName);
+                        AddInfoRow(table, "Adresse", $"{shop.Street}, {shop.City}");
+                        if (!string.IsNullOrEmpty(shop.Telefon))
+                            AddInfoRow(table, "Telefon", shop.Telefon);
+                        if (!string.IsNullOrEmpty(shop.Email))
+                            AddInfoRow(table, "E-Mail", shop.Email);
+                        if (!string.IsNullOrEmpty(shop.Steuernummer))
+                            AddInfoRow(table, "Steuernummer", shop.Steuernummer);
                     });
 
                     // Section: Purchase Details
-                    col.Item().PaddingTop(15).Element(SectionHeader).Text("💰  KAUFDETAILS");
+                    col.Item().PaddingTop(12).Element(SectionHeader).Text("KAUFDETAILS");
                     col.Item().Row(row =>
                     {
-                        row.RelativeItem().Background(LightBg).Padding(12).Column(c =>
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(10).Column(c =>
                         {
-                            c.Item().Text("Zahlungsart").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            c.Item().Text(purchase.Zahlungsart.ToString()).FontSize(12).Bold();
+                            c.Item().Text("Zahlungsart").FontSize(8).FontColor(Colors.Grey.Darken1);
+                            c.Item().Text(purchase.Zahlungsart.ToString()).FontSize(11).Bold();
                         });
 
-                        row.ConstantItem(15);
+                        row.ConstantItem(10);
 
-                        row.ConstantItem(180).Background(PrimaryColor).Padding(15).Column(c =>
+                        row.ConstantItem(160).Border(2).BorderColor(PrimaryColor).Padding(12).Column(c =>
                         {
-                            c.Item().Text("KAUFPREIS").FontSize(10).FontColor(Colors.White).Light().AlignCenter();
-                            c.Item().Text($"{purchase.Preis:N2} €").FontSize(22).Bold().FontColor(Colors.White).AlignCenter();
+                            c.Item().Text("KAUFPREIS").FontSize(9).FontColor(PrimaryColor).AlignCenter();
+                            c.Item().Text($"{purchase.Preis:N2} €").FontSize(20).Bold().FontColor(PrimaryColor).AlignCenter();
                         });
                     });
 
                     // Notes if present
                     if (!string.IsNullOrEmpty(purchase.Notizen))
                     {
-                        col.Item().PaddingTop(15).Element(SectionHeader).Text("📝  NOTIZEN");
-                        col.Item().Background(LightBg).Padding(12).Text(purchase.Notizen).FontSize(10);
+                        col.Item().PaddingTop(12).Element(SectionHeader).Text("NOTIZEN");
+                        col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(10).Text(purchase.Notizen).FontSize(9);
                     }
 
                     // Suggested Sale Price
                     if (purchase.VerkaufspreisVorschlag.HasValue && purchase.VerkaufspreisVorschlag.Value > 0)
                     {
-                        col.Item().PaddingTop(10).Background(TableHeaderBg).Padding(8).Row(row =>
+                        col.Item().PaddingTop(8).Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Row(row =>
                         {
-                            row.RelativeItem().Text("Geplanter Verkaufspreis:").FontSize(10);
-                            row.ConstantItem(100).Text($"{purchase.VerkaufspreisVorschlag:N2} €").FontSize(12).Bold().FontColor(AccentColor).AlignRight();
+                            row.RelativeItem().Text("Geplanter Verkaufspreis:").FontSize(9);
+                            row.ConstantItem(100).Text($"{purchase.VerkaufspreisVorschlag:N2} €").FontSize(11).Bold().FontColor(PrimaryColor).AlignRight();
                         });
                     }
 
@@ -338,14 +371,14 @@ public class PdfService : IPdfService
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
-                page.Margin(1.2f, Unit.Centimetre);
-                page.DefaultTextStyle(x => x.FontSize(9).FontColor(Colors.Grey.Darken4));
+                page.Margin(0.8f, Unit.Centimetre);
+                page.DefaultTextStyle(x => x.FontSize(8).FontColor(Colors.Grey.Darken4));
 
-                // Header with professional branding
+                // Header with professional branding (print-friendly)
                 page.Header().Container().Column(col =>
                 {
-                    // Top header bar
-                    col.Item().Background(PrimaryColor).Padding(12).Row(row =>
+                    // Top header bar - border instead of filled background
+                    col.Item().Border(1).BorderColor(PrimaryColor).Padding(8).Row(row =>
                     {
                         row.RelativeItem().Column(leftCol =>
                         {
@@ -357,68 +390,68 @@ public class PdfService : IPdfService
                                     if (base64Data.Contains(","))
                                         base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
                                     var logoBytes = Convert.FromBase64String(base64Data);
-                                    leftCol.Item().Height(35).Image(logoBytes);
+                                    leftCol.Item().Height(28).Image(logoBytes);
                                 }
                                 catch { }
                             }
-                            leftCol.Item().Text(shop.ShopName).FontSize(16).Bold().FontColor(Colors.White);
-                            leftCol.Item().Text(shop.OwnerName).FontSize(9).FontColor(Colors.White).Light();
+                            leftCol.Item().Text(shop.ShopName).FontSize(14).Bold().FontColor(PrimaryColor);
+                            leftCol.Item().Text(shop.OwnerName).FontSize(8).FontColor(Colors.Grey.Darken2);
                         });
 
-                        row.ConstantItem(140).AlignRight().Column(rightCol =>
+                        row.ConstantItem(130).AlignRight().Column(rightCol =>
                         {
-                            rightCol.Item().Background(Colors.White).Padding(8).Column(box =>
+                            rightCol.Item().Border(1).BorderColor(PrimaryColor).Padding(6).Column(box =>
                             {
-                                box.Item().Text("VERKAUFSBELEG").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
-                                box.Item().Text(sale.BelegNummer).FontSize(13).Bold().FontColor(PrimaryColor).AlignCenter();
-                                box.Item().Text($"{sale.Verkaufsdatum:dd.MM.yyyy}").FontSize(9).FontColor(Colors.Grey.Darken1).AlignCenter();
+                                box.Item().Text("VERKAUFSBELEG").FontSize(9).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text(sale.BelegNummer).FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text($"{sale.Verkaufsdatum:dd.MM.yyyy}").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
                             });
                         });
                     });
 
-                    // Tax info bar
-                    col.Item().Background(TableHeaderBg).PaddingVertical(4).PaddingHorizontal(12).Row(row =>
+                    // Tax info bar - print-friendly border style
+                    col.Item().Border(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(3).PaddingHorizontal(8).Row(row =>
                     {
-                        row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(7).FontColor(Colors.Grey.Darken2);
-                        row.RelativeItem().AlignRight().Text("Kaufvertrag nach §25a UStG – Kein gesonderter Ausweis der Umsatzsteuer").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(6).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text("Kaufvertrag nach §25a UStG – Kein gesonderter Ausweis der Umsatzsteuer").FontSize(6).FontColor(Colors.Grey.Darken2);
                     });
                 });
 
                 // Content
-                page.Content().PaddingTop(10).Column(col =>
+                page.Content().PaddingTop(6).Column(col =>
                 {
-                    // Seller / Buyer Row
+                    // Seller / Buyer Row - print-friendly border style
                     col.Item().Row(row =>
                     {
                         // Seller (Shop)
-                        row.RelativeItem().Background(LightBg).Padding(10).Column(leftCol =>
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(leftCol =>
                         {
-                            leftCol.Item().Background(PrimaryColor).Padding(4).Text("VERKÄUFER").FontSize(9).Bold().FontColor(Colors.White).AlignCenter();
-                            leftCol.Item().PaddingTop(6).Text(shop.OwnerName).FontSize(10).Bold();
-                            leftCol.Item().Text(shop.Street).FontSize(9);
-                            leftCol.Item().Text(shop.City).FontSize(9);
-                            leftCol.Item().PaddingTop(4).Text($"📞 {shop.Telefon}").FontSize(8);
-                            leftCol.Item().Text($"✉ {shop.Email}").FontSize(8);
+                            leftCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+                            leftCol.Item().PaddingTop(4).Text(shop.OwnerName).FontSize(9).Bold();
+                            leftCol.Item().Text(shop.Street).FontSize(8);
+                            leftCol.Item().Text(shop.City).FontSize(8);
+                            leftCol.Item().PaddingTop(3).Text($"📞 {shop.Telefon}").FontSize(7);
+                            leftCol.Item().Text($"✉ {shop.Email}").FontSize(7);
                         });
 
-                        row.ConstantItem(10);
+                        row.ConstantItem(8);
 
                         // Buyer
-                        row.RelativeItem().Background(LightBg).Padding(10).Column(rightCol =>
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(rightCol =>
                         {
-                            rightCol.Item().Background(AccentColor).Padding(4).Text("KÄUFER").FontSize(9).Bold().FontColor(Colors.White).AlignCenter();
-                            rightCol.Item().PaddingTop(6).Text(sale.Buyer.FullName).FontSize(10).Bold();
-                            rightCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(9);
-                            rightCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(9);
+                            rightCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KÄUFER").FontSize(8).Bold().FontColor(AccentColor).AlignCenter();
+                            rightCol.Item().PaddingTop(4).Text(sale.Buyer.FullName).FontSize(9).Bold();
+                            rightCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(8);
+                            rightCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(8);
                             if (!string.IsNullOrEmpty(sale.Buyer.Telefon))
-                                rightCol.Item().PaddingTop(4).Text($"📞 {sale.Buyer.Telefon}").FontSize(8);
+                                rightCol.Item().PaddingTop(3).Text($"📞 {sale.Buyer.Telefon}").FontSize(7);
                             if (!string.IsNullOrEmpty(sale.Buyer.Email))
-                                rightCol.Item().Text($"✉ {sale.Buyer.Email}").FontSize(8);
+                                rightCol.Item().Text($"✉ {sale.Buyer.Email}").FontSize(7);
                         });
                     });
 
-                    // Bicycle Info Section
-                    col.Item().PaddingTop(12).Element(SectionHeader).Text("🚲  FAHRRAD-DETAILS");
+                    // Bicycle Info Section - print-friendly with price
+                    col.Item().PaddingTop(8).Element(SectionHeader).Text("🚲  FAHRRAD-DETAILS");
                     col.Item().Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
@@ -429,32 +462,35 @@ public class PdfService : IPdfService
                             columns.RelativeColumn();
                         });
 
-                        // Header row
-                        table.Cell().Background(PrimaryColor).Padding(5).Text("Marke").FontSize(8).Bold().FontColor(Colors.White);
-                        table.Cell().Background(TableHeaderBg).Padding(5).Text(sale.Bicycle.Marke).FontSize(9).Bold();
-                        table.Cell().Background(PrimaryColor).Padding(5).Text("Rahmennummer").FontSize(8).Bold().FontColor(Colors.White);
-                        table.Cell().Background(TableHeaderBg).Padding(5).Text(sale.Bicycle.Rahmennummer).FontSize(9).Bold();
+                        // Header row - border style instead of filled
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Marke").FontSize(7).Bold().FontColor(PrimaryColor);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Marke).FontSize(8).Bold();
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Rahmennummer").FontSize(7).Bold().FontColor(PrimaryColor);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Rahmennummer).FontSize(8).Bold();
 
-                        table.Cell().Background(TableAltBg).Padding(5).Text("Modell").FontSize(8).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Background(Colors.White).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(sale.Bicycle.Modell).FontSize(9);
-                        table.Cell().Background(TableAltBg).Padding(5).Text("Farbe").FontSize(8).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Background(Colors.White).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(sale.Bicycle.Farbe).FontSize(9);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Modell").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Modell).FontSize(8);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Farbe").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Farbe).FontSize(8);
 
-                        table.Cell().Background(TableAltBg).Padding(5).Text("Reifengröße").FontSize(8).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Background(Colors.White).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(sale.Bicycle.Reifengroesse).FontSize(9);
-                        table.Cell().Background(TableAltBg).Padding(5).Text("Rahmengröße").FontSize(8).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Background(Colors.White).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(sale.Bicycle.Rahmengroesse ?? "-").FontSize(9);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Reifengröße").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Reifengroesse).FontSize(8);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Rahmengröße").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Rahmengroesse ?? "-").FontSize(8);
 
-                        table.Cell().Background(TableAltBg).Padding(5).Text("Fahrradtyp").FontSize(8).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Background(Colors.White).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(sale.Bicycle.Fahrradtyp ?? "-").FontSize(9);
-
-                        table.Cell().Background(TableAltBg).Padding(5).Text("Zustand").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Fahrradtyp").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Fahrradtyp ?? "-").FontSize(8);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Zustand").FontSize(7).FontColor(Colors.Grey.Darken2);
                         if (isNeu)
-                            table.Cell().Background("#d4edda").Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("NEU").FontSize(9).Bold().FontColor("#155724");
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("NEU").FontSize(8).Bold().FontColor("#155724");
                         else
-                            table.Cell().Background("#fff3cd").Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("GEBRAUCHT").FontSize(9).Bold().FontColor("#856404");
-                        table.Cell().Background(TableAltBg).Padding(5).Text("Stok Nr.").FontSize(8).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Background(Colors.White).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(sale.Bicycle.StokNo ?? "-").FontSize(9);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("GEBRAUCHT").FontSize(8).Bold().FontColor("#856404");
+
+                        // Additional row with Stok Nr and Price
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Stok Nr.").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.StokNo ?? "-").FontSize(8);
+                        table.Cell().Border(1).BorderColor(AccentColor).Padding(4).Text("Preis").FontSize(7).Bold().FontColor(AccentColor);
+                        table.Cell().Border(1).BorderColor(AccentColor).Padding(4).Text($"{sale.Preis:N2} €").FontSize(8).Bold().FontColor(AccentColor);
                     });
 
                     // Accessories if any
@@ -466,82 +502,79 @@ public class PdfService : IPdfService
                             table.ColumnsDefinition(columns =>
                             {
                                 columns.RelativeColumn(3);
+                                columns.ConstantColumn(60);
+                                columns.ConstantColumn(40);
                                 columns.ConstantColumn(70);
-                                columns.ConstantColumn(50);
-                                columns.ConstantColumn(80);
                             });
 
-                            // Header
-                            table.Cell().Background(PrimaryColor).Padding(5).Text("Bezeichnung").FontSize(8).Bold().FontColor(Colors.White);
-                            table.Cell().Background(PrimaryColor).Padding(5).Text("Einzelpreis").FontSize(8).Bold().FontColor(Colors.White).AlignRight();
-                            table.Cell().Background(PrimaryColor).Padding(5).Text("Menge").FontSize(8).Bold().FontColor(Colors.White).AlignCenter();
-                            table.Cell().Background(PrimaryColor).Padding(5).Text("Gesamt").FontSize(8).Bold().FontColor(Colors.White).AlignRight();
+                            // Header - print-friendly border style
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Bezeichnung").FontSize(7).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Einzelpreis").FontSize(7).Bold().FontColor(PrimaryColor).AlignRight();
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Menge").FontSize(7).Bold().FontColor(PrimaryColor).AlignCenter();
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Gesamt").FontSize(7).Bold().FontColor(PrimaryColor).AlignRight();
 
-                            var rowAlt = false;
                             foreach (var accessory in sale.Accessories)
                             {
-                                var bgColor = rowAlt ? TableAltBg : "#ffffff";
-                                table.Cell().Background(bgColor).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(accessory.Bezeichnung).FontSize(9);
-                                table.Cell().Background(bgColor).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text($"{accessory.Preis:N2} €").FontSize(9).AlignRight();
-                                table.Cell().Background(bgColor).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(accessory.Menge.ToString()).FontSize(9).AlignCenter();
-                                table.Cell().Background(bgColor).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text($"{accessory.Gesamtpreis:N2} €").FontSize(9).AlignRight();
-                                rowAlt = !rowAlt;
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(accessory.Bezeichnung).FontSize(8);
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"{accessory.Preis:N2} €").FontSize(8).AlignRight();
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(accessory.Menge.ToString()).FontSize(8).AlignCenter();
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"{accessory.Gesamtpreis:N2} €").FontSize(8).AlignRight();
                             }
 
                             // Total row
                             var accessoriesTotal = sale.Accessories.Sum(a => a.Gesamtpreis);
-                            table.Cell().ColumnSpan(3).Background(TableHeaderBg).Padding(5).Text("Zubehör Summe:").FontSize(9).Bold().AlignRight();
-                            table.Cell().Background(TableHeaderBg).Padding(5).Text($"{accessoriesTotal:N2} €").FontSize(9).Bold().AlignRight();
+                            table.Cell().ColumnSpan(3).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Zubehör Summe:").FontSize(8).Bold().AlignRight();
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"{accessoriesTotal:N2} €").FontSize(8).Bold().AlignRight();
                         });
                     }
 
-                    // Payment and Total Section
-                    col.Item().PaddingTop(12).Row(row =>
+                    // Payment and Total Section - print-friendly
+                    col.Item().PaddingTop(8).Row(row =>
                     {
                         // Payment method
                         row.RelativeItem().Column(c =>
                         {
-                            c.Item().Text("Zahlungsart:").FontSize(8).FontColor(Colors.Grey.Darken1);
-                            c.Item().Background(LightBg).Padding(8).Text(sale.Zahlungsart.ToString()).FontSize(11).Bold();
+                            c.Item().Text("Zahlungsart:").FontSize(7).FontColor(Colors.Grey.Darken1);
+                            c.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Text(sale.Zahlungsart.ToString()).FontSize(10).Bold();
 
                             if (sale.Accessories.Any() || sale.Rabatt > 0)
                             {
-                                c.Item().PaddingTop(8).Text("Preisübersicht:").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                c.Item().Text($"Fahrrad: {sale.Preis:N2} €").FontSize(9);
+                                c.Item().PaddingTop(6).Text("Preisübersicht:").FontSize(7).FontColor(Colors.Grey.Darken1);
+                                c.Item().Text($"Fahrrad: {sale.Preis:N2} €").FontSize(8);
                                 if (sale.Accessories.Any())
-                                    c.Item().Text($"Zubehör: {sale.Accessories.Sum(a => a.Gesamtpreis):N2} €").FontSize(9);
+                                    c.Item().Text($"Zubehör: {sale.Accessories.Sum(a => a.Gesamtpreis):N2} €").FontSize(8);
                                 if (sale.Rabatt > 0)
-                                    c.Item().Text($"Rabatt: -{sale.Rabatt:N2} €").FontSize(9).FontColor(Colors.Red.Darken1);
+                                    c.Item().Text($"Rabatt: -{sale.Rabatt:N2} €").FontSize(8).FontColor(Colors.Red.Darken1);
                             }
                         });
 
-                        // Grand Total
-                        row.ConstantItem(180).Background(PrimaryColor).Padding(15).Column(c =>
+                        // Grand Total - print-friendly border style
+                        row.ConstantItem(160).Border(2).BorderColor(PrimaryColor).Padding(10).Column(c =>
                         {
-                            c.Item().Text("GESAMTBETRAG").FontSize(9).FontColor(Colors.White).Light().AlignCenter();
-                            c.Item().Text("(inkl. MwSt.)").FontSize(7).FontColor(Colors.White).Light().AlignCenter();
-                            c.Item().PaddingTop(5).Text($"{sale.Gesamtbetrag:N2} €").FontSize(24).Bold().FontColor(Colors.White).AlignCenter();
+                            c.Item().Text("GESAMTBETRAG").FontSize(8).FontColor(PrimaryColor).AlignCenter();
+                            c.Item().Text("(inkl. MwSt.)").FontSize(6).FontColor(Colors.Grey.Darken2).AlignCenter();
+                            c.Item().PaddingTop(4).Text($"{sale.Gesamtbetrag:N2} €").FontSize(20).Bold().FontColor(PrimaryColor).AlignCenter();
                         });
                     });
 
-                    // Warranty Section
-                    col.Item().PaddingTop(12).Element(SectionHeader).Text("📋  GARANTIEBEDINGUNGEN");
-                    col.Item().Background(LightBg).Padding(10).Column(wCol =>
+                    // Warranty Section - print-friendly
+                    col.Item().PaddingTop(8).Element(SectionHeader).Text("📋  GARANTIEBEDINGUNGEN");
+                    col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(wCol =>
                     {
                         // New warranty
                         wCol.Item().Row(wRow =>
                         {
                             if (isNeu)
-                                wRow.ConstantItem(20).AlignCenter().Text("☑").FontSize(12).FontColor(AccentColor);
+                                wRow.ConstantItem(18).AlignCenter().Text("☑").FontSize(10).FontColor(AccentColor);
                             else
-                                wRow.ConstantItem(20).AlignCenter().Text("☐").FontSize(12).FontColor(Colors.Grey.Lighten1);
+                                wRow.ConstantItem(18).AlignCenter().Text("☐").FontSize(10).FontColor(Colors.Grey.Lighten1);
                             wRow.RelativeItem().Text(text =>
                             {
-                                text.Span("NEU: ").Bold().FontSize(8);
+                                text.Span("NEU: ").Bold().FontSize(7);
                                 if (isNeu)
-                                    text.Span(NeuWarrantyText).FontSize(8).FontColor(Colors.Grey.Darken3);
+                                    text.Span(NeuWarrantyText).FontSize(7).FontColor(Colors.Grey.Darken3);
                                 else
-                                    text.Span(NeuWarrantyText).FontSize(8).FontColor(Colors.Grey.Lighten1);
+                                    text.Span(NeuWarrantyText).FontSize(7).FontColor(Colors.Grey.Lighten1);
                             });
                         });
 
@@ -551,47 +584,47 @@ public class PdfService : IPdfService
                         wCol.Item().Row(wRow =>
                         {
                             if (!isNeu)
-                                wRow.ConstantItem(20).AlignCenter().Text("☑").FontSize(12).FontColor(AccentColor);
+                                wRow.ConstantItem(18).AlignCenter().Text("☑").FontSize(10).FontColor(AccentColor);
                             else
-                                wRow.ConstantItem(20).AlignCenter().Text("☐").FontSize(12).FontColor(Colors.Grey.Lighten1);
+                                wRow.ConstantItem(18).AlignCenter().Text("☐").FontSize(10).FontColor(Colors.Grey.Lighten1);
                             wRow.RelativeItem().Text(text =>
                             {
-                                text.Span("GEBRAUCHT: ").Bold().FontSize(8);
+                                text.Span("GEBRAUCHT: ").Bold().FontSize(7);
                                 if (!isNeu)
-                                    text.Span(GebrauchtWarrantyText).FontSize(8).FontColor(Colors.Grey.Darken3);
+                                    text.Span(GebrauchtWarrantyText).FontSize(7).FontColor(Colors.Grey.Darken3);
                                 else
-                                    text.Span(GebrauchtWarrantyText).FontSize(8).FontColor(Colors.Grey.Lighten1);
+                                    text.Span(GebrauchtWarrantyText).FontSize(7).FontColor(Colors.Grey.Lighten1);
                             });
                         });
 
-                        wCol.Item().PaddingTop(6).Text(RepairNote).FontSize(7).Italic().FontColor(Colors.Grey.Darken2);
+                        wCol.Item().PaddingTop(4).Text(RepairNote).FontSize(6).Italic().FontColor(Colors.Grey.Darken2);
                     });
 
                     // Notes if present
                     if (!string.IsNullOrEmpty(sale.Notizen))
                     {
-                        col.Item().PaddingTop(8).Background(TableAltBg).Padding(8).Row(row =>
+                        col.Item().PaddingTop(6).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Row(row =>
                         {
-                            row.ConstantItem(50).Text("Notizen:").FontSize(8).Bold();
-                            row.RelativeItem().Text(sale.Notizen).FontSize(8);
+                            row.ConstantItem(45).Text("Notizen:").FontSize(7).Bold();
+                            row.RelativeItem().Text(sale.Notizen).FontSize(7);
                         });
                     }
 
-                    // Seller Signature
-                    col.Item().PaddingTop(15).Row(row =>
+                    // Seller Signature - more compact
+                    col.Item().PaddingTop(10).Row(row =>
                     {
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(10).Column(sigCol =>
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(8).Column(sigCol =>
                         {
-                            sigCol.Item().Text("Unterschrift Verkäufer").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
+                            sigCol.Item().Text("Unterschrift Verkäufer").FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
                             if (sale.SellerSignature != null && !string.IsNullOrEmpty(sale.SellerSignature.SignatureData))
                             {
                                 try
                                 {
                                     var imageData = Convert.FromBase64String(
                                         sale.SellerSignature.SignatureData.Replace("data:image/png;base64,", ""));
-                                    sigCol.Item().AlignCenter().Height(45).Image(imageData);
+                                    sigCol.Item().AlignCenter().Height(35).Image(imageData);
                                 }
-                                catch { sigCol.Item().Height(45); }
+                                catch { sigCol.Item().Height(35); }
                             }
                             else if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
                             {
@@ -601,22 +634,22 @@ public class PdfService : IPdfService
                                     if (sigData.Contains(","))
                                         sigData = sigData.Substring(sigData.IndexOf(",") + 1);
                                     var imageData = Convert.FromBase64String(sigData);
-                                    sigCol.Item().AlignCenter().Height(45).Image(imageData);
+                                    sigCol.Item().AlignCenter().Height(35).Image(imageData);
                                 }
-                                catch { sigCol.Item().Height(45); }
+                                catch { sigCol.Item().Height(35); }
                             }
                             else
                             {
-                                sigCol.Item().Height(45);
+                                sigCol.Item().Height(35);
                             }
                             sigCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            sigCol.Item().PaddingTop(3).Text(sale.SellerSignature?.SignerName ?? shop.OwnerName).FontSize(8).AlignCenter();
+                            sigCol.Item().PaddingTop(2).Text(sale.SellerSignature?.SignerName ?? shop.OwnerName).FontSize(7).AlignCenter();
                         });
                     });
                 });
 
                 // Footer
-                page.Footer().PaddingTop(5).AlignCenter().Text($"Bank: {shop.BankName} | Kontoinhaber: {shop.BankAccountHolder} | IBAN: {shop.IBAN}").FontSize(7).FontColor(Colors.Grey.Darken1);
+                page.Footer().PaddingTop(3).AlignCenter().Text($"Bank: {shop.BankName} | Kontoinhaber: {shop.BankAccountHolder} | IBAN: {shop.IBAN}").FontSize(6).FontColor(Colors.Grey.Darken1);
             });
         });
 

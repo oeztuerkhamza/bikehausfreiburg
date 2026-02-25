@@ -48,7 +48,9 @@ import { AddressSuggestion } from '../../services/address.service';
             <app-bike-selector
               [bikes]="availableBikes"
               [(selectedBike)]="selectedBike"
+              [allowQuickAdd]="true"
               (bikeSelected)="onBikeSelected($event)"
+              (quickAddRequested)="onQuickAddBike()"
             ></app-bike-selector>
           </div>
 
@@ -56,19 +58,30 @@ import { AddressSuggestion } from '../../services/address.service';
           <div class="form-card" *ngIf="selectedBike">
             <div class="card-header-row">
               <h2>
-                {{ t.bicycleDetails }}
-                <span *ngIf="hasBikeErrors && !bikeEditExpanded" class="bike-error-badge">Pflichtfelder fehlen</span>
+                <span *ngIf="isQuickAddMode" class="quick-add-badge"
+                  >🆕 Neues Fahrrad</span
+                >
+                <span *ngIf="!isQuickAddMode">{{ t.bicycleDetails }}</span>
+                <span
+                  *ngIf="hasBikeErrors && !bikeEditExpanded"
+                  class="bike-error-badge"
+                  >Pflichtfelder fehlen</span
+                >
               </h2>
               <button
                 type="button"
                 class="btn btn-sm btn-outline"
                 [class.btn-error]="hasBikeErrors && !bikeEditExpanded"
                 (click)="bikeEditExpanded = !bikeEditExpanded"
+                *ngIf="!isQuickAddMode"
               >
                 {{ bikeEditExpanded ? '▲ ' + t.collapse : '▼ ' + t.expand }}
               </button>
             </div>
-            <div class="bike-summary" *ngIf="!bikeEditExpanded">
+            <div
+              class="bike-summary"
+              *ngIf="!bikeEditExpanded && !isQuickAddMode"
+            >
               <span
                 ><strong
                   >{{ bikeEdit.marke }} {{ bikeEdit.modell }}</strong
@@ -82,7 +95,7 @@ import { AddressSuggestion } from '../../services/address.service';
               >
               <span>{{ bikeEdit.farbe }} | {{ bikeEdit.reifengroesse }}"</span>
             </div>
-            <div class="form-grid" *ngIf="bikeEditExpanded">
+            <div class="form-grid" *ngIf="bikeEditExpanded || isQuickAddMode">
               <div class="field" [class.field-error]="bikeErrors['marke']">
                 <label>{{ t.brand }} *</label>
                 <input
@@ -95,7 +108,9 @@ import { AddressSuggestion } from '../../services/address.service';
                 <datalist id="brandList">
                   <option *ngFor="let b of brands" [value]="b"></option>
                 </datalist>
-                <span class="error-msg" *ngIf="bikeErrors['marke']">Pflichtfeld</span>
+                <span class="error-msg" *ngIf="bikeErrors['marke']"
+                  >Pflichtfeld</span
+                >
               </div>
               <div class="field">
                 <label>{{ t.model }}</label>
@@ -109,14 +124,19 @@ import { AddressSuggestion } from '../../services/address.service';
                   <option *ngFor="let m of models" [value]="m"></option>
                 </datalist>
               </div>
-              <div class="field" [class.field-error]="bikeErrors['rahmennummer']">
+              <div
+                class="field"
+                [class.field-error]="bikeErrors['rahmennummer']"
+              >
                 <label>{{ t.frameNumber }} *</label>
                 <input
                   [(ngModel)]="bikeEdit.rahmennummer"
                   name="bikeRahmen"
                   (ngModelChange)="bikeErrors['rahmennummer'] = false"
                 />
-                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']">Pflichtfeld</span>
+                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']"
+                  >Pflichtfeld</span
+                >
               </div>
               <div class="field">
                 <label>{{ t.frameSize }}</label>
@@ -128,7 +148,11 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field" [class.field-error]="bikeErrors['farbe']">
                 <label>{{ t.color }} *</label>
-                <select [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" (ngModelChange)="bikeErrors['farbe'] = false">
+                <select
+                  [(ngModel)]="bikeEdit.farbe"
+                  name="bikeFarbe"
+                  (ngModelChange)="bikeErrors['farbe'] = false"
+                >
                   <option value="">-- {{ t.selectOption }} --</option>
                   <option value="Schwarz">Schwarz</option>
                   <option value="Weiß">Weiß</option>
@@ -141,11 +165,18 @@ import { AddressSuggestion } from '../../services/address.service';
                   <option value="Silber">Silber</option>
                   <option value="Pink">Pink</option>
                 </select>
-                <span class="error-msg" *ngIf="bikeErrors['farbe']">Pflichtfeld</span>
+                <span class="error-msg" *ngIf="bikeErrors['farbe']"
+                  >Pflichtfeld</span
+                >
               </div>
-              <div class="field" [class.field-error]="bikeErrors['reifengroesse']">
+              <div
+                class="field"
+                [class.field-error]="bikeErrors['reifengroesse']"
+              >
                 <label>{{ t.wheelSize }} *</label>
-                <span class="error-msg" *ngIf="bikeErrors['reifengroesse']">Pflichtfeld</span>
+                <span class="error-msg" *ngIf="bikeErrors['reifengroesse']"
+                  >Pflichtfeld</span
+                >
                 <select
                   [(ngModel)]="bikeEdit.reifengroesse"
                   name="bikeReifen"
@@ -170,7 +201,9 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field" [class.field-error]="bikeErrors['fahrradtyp']">
                 <label>{{ t.bicycleType }} *</label>
-                <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']">Pflichtfeld</span>
+                <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']"
+                  >Pflichtfeld</span
+                >
                 <select
                   [(ngModel)]="bikeEdit.fahrradtyp"
                   name="bikeFahrradtyp"
@@ -477,7 +510,6 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
             </div>
           </div>
-
         </div>
 
         <div class="form-actions">
@@ -813,11 +845,20 @@ import { AddressSuggestion } from '../../services/address.service';
         text-transform: uppercase;
         letter-spacing: 0.05em;
       }
+      .quick-add-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 8px;
+        vertical-align: middle;
+      }
       .btn-error {
         border-color: #ef4444 !important;
         color: #ef4444 !important;
       }
-
     `,
   ],
 })
@@ -850,6 +891,7 @@ export class SaleFormComponent implements OnInit {
 
   // Bicycle edit
   bikeEditExpanded = false;
+  isQuickAddMode = false;
   bikeErrors: { [key: string]: boolean } = {};
   bikeEdit = {
     marke: '',
@@ -871,7 +913,7 @@ export class SaleFormComponent implements OnInit {
   }
 
   get hasBikeErrors(): boolean {
-    return Object.values(this.bikeErrors).some(v => v);
+    return Object.values(this.bikeErrors).some((v) => v);
   }
 
   get accessoriesTotal(): number {
@@ -941,6 +983,7 @@ export class SaleFormComponent implements OnInit {
 
   onBikeSelected(bike: Bicycle) {
     this.selectedBike = bike;
+    this.isQuickAddMode = false;
     this.loadPlannedPrice(bike.id);
     // Populate bikeEdit form
     this.bikeEdit = {
@@ -955,6 +998,43 @@ export class SaleFormComponent implements OnInit {
       beschreibung: bike.beschreibung || '',
       zustand: bike.zustand || BikeCondition.Gebraucht,
     };
+  }
+
+  onQuickAddBike() {
+    // Create a temporary bike placeholder for quick add mode
+    this.isQuickAddMode = true;
+    this.selectedBike = {
+      id: 0, // Temporary ID, will be replaced when created
+      marke: '',
+      modell: '',
+      rahmennummer: '',
+      rahmengroesse: '',
+      farbe: '',
+      reifengroesse: '',
+      stokNo: '',
+      fahrradtyp: '',
+      beschreibung: '',
+      status: 'Verfügbar' as any,
+      zustand: BikeCondition.Gebraucht,
+    } as Bicycle;
+
+    // Clear bikeEdit form for new bike
+    this.bikeEdit = {
+      marke: '',
+      modell: '',
+      rahmennummer: '',
+      rahmengroesse: '',
+      farbe: '',
+      reifengroesse: '',
+      stokNo: '',
+      fahrradtyp: '',
+      beschreibung: '',
+      zustand: BikeCondition.Gebraucht,
+    };
+
+    // Expand the form to enter details
+    this.bikeEditExpanded = true;
+    this.bikeErrors = {};
   }
 
   private loadPlannedPrice(bicycleId: number) {
@@ -1000,7 +1080,8 @@ export class SaleFormComponent implements OnInit {
   validateBike(): boolean {
     this.bikeErrors = {};
     if (!this.bikeEdit.marke?.trim()) this.bikeErrors['marke'] = true;
-    if (!this.bikeEdit.rahmennummer?.trim()) this.bikeErrors['rahmennummer'] = true;
+    if (!this.bikeEdit.rahmennummer?.trim())
+      this.bikeErrors['rahmennummer'] = true;
     if (!this.bikeEdit.farbe) this.bikeErrors['farbe'] = true;
     if (!this.bikeEdit.reifengroesse) this.bikeErrors['reifengroesse'] = true;
     if (!this.bikeEdit.fahrradtyp) this.bikeErrors['fahrradtyp'] = true;
@@ -1015,7 +1096,37 @@ export class SaleFormComponent implements OnInit {
     }
     this.submitting = true;
 
-    // First update the bicycle if needed
+    // If in quick add mode, create the bike first
+    if (this.isQuickAddMode) {
+      const newBike = {
+        marke: this.bikeEdit.marke,
+        modell: this.bikeEdit.modell,
+        rahmennummer: this.bikeEdit.rahmennummer || undefined,
+        rahmengroesse: this.bikeEdit.rahmengroesse || undefined,
+        farbe: this.bikeEdit.farbe || undefined,
+        reifengroesse: this.bikeEdit.reifengroesse,
+        stokNo: this.bikeEdit.stokNo || undefined,
+        fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
+        beschreibung: this.bikeEdit.beschreibung || undefined,
+        status: 'Verfügbar' as any,
+        zustand: this.bikeEdit.zustand,
+      };
+
+      this.bicycleService.create(newBike).subscribe({
+        next: (createdBike) => {
+          this.selectedBike = createdBike;
+          this.isQuickAddMode = false;
+          this.createSale();
+        },
+        error: () => {
+          this.submitting = false;
+          alert('Fehler beim Erstellen des Fahrrads');
+        },
+      });
+      return;
+    }
+
+    // Otherwise update the existing bicycle
     const bikeUpdate: BicycleUpdate = {
       marke: this.bikeEdit.marke,
       modell: this.bikeEdit.modell,

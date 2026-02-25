@@ -71,6 +71,17 @@ import { BicycleService } from '../../services/bicycle.service';
         </p>
       </div>
 
+      <!-- Quick Add Button -->
+      <div class="quick-add-row" *ngIf="allowQuickAdd">
+        <button
+          type="button"
+          class="btn btn-outline quick-add-btn"
+          (click)="onQuickAdd()"
+        >
+          ➕ Fahrrad nicht in Liste? Schnell hinzufügen
+        </button>
+      </div>
+
       <div class="selected-preview" *ngIf="selectedBike">
         <h4>Ausgewählt:</h4>
         <div class="preview-content">
@@ -108,9 +119,11 @@ import { BicycleService } from '../../services/bicycle.service';
         flex: 1;
         min-width: 200px;
         padding: 10px 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color, #ddd);
         border-radius: 6px;
         font-size: 0.95rem;
+        background: var(--bg-input, #fff);
+        color: var(--text-primary, #1e293b);
       }
       .id-search {
         display: flex;
@@ -119,36 +132,39 @@ import { BicycleService } from '../../services/bicycle.service';
       .id-input {
         width: 80px;
         padding: 10px 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--border-color, #ddd);
         border-radius: 6px;
         font-size: 0.95rem;
+        background: var(--bg-input, #fff);
+        color: var(--text-primary, #1e293b);
       }
       .error-text {
-        color: #dc3545;
+        color: var(--accent-danger, #dc3545);
         font-size: 0.85rem;
       }
       .bike-list {
         max-height: 300px;
         overflow-y: auto;
-        border: 1px solid #eee;
+        border: 1px solid var(--border-light, #eee);
         border-radius: 8px;
-        background: #fafafa;
+        background: var(--bg-secondary, #fafafa);
       }
       .bike-item {
         padding: 12px 16px;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-light, #eee);
         cursor: pointer;
         transition: background 0.15s;
+        color: var(--text-primary, #1e293b);
       }
       .bike-item:last-child {
         border-bottom: none;
       }
       .bike-item:hover {
-        background: #f0f7ff;
+        background: var(--accent-primary-light, #f0f7ff);
       }
       .bike-item.selected {
-        background: #e3f2fd;
-        border-left: 3px solid #2196f3;
+        background: var(--accent-primary-light, #e3f2fd);
+        border-left: 3px solid var(--accent-primary, #2196f3);
       }
       .bike-main {
         display: flex;
@@ -158,45 +174,63 @@ import { BicycleService } from '../../services/bicycle.service';
       }
       .bike-id {
         font-size: 0.8rem;
-        color: #888;
+        color: var(--text-muted, #888);
         font-weight: 600;
       }
       .bike-brand {
         font-weight: 600;
-        color: #1a1a2e;
+        color: var(--text-primary, #1a1a2e);
       }
       .bike-frame {
         font-family: monospace;
         font-size: 0.85rem;
-        color: #555;
+        color: var(--text-secondary, #555);
       }
       .bike-details {
         display: flex;
         gap: 16px;
         font-size: 0.85rem;
-        color: #666;
+        color: var(--text-secondary, #666);
         padding-left: 40px;
       }
       .empty {
         padding: 24px;
         text-align: center;
-        color: #888;
+        color: var(--text-muted, #888);
       }
       .selected-preview {
-        background: #e8f5e9;
+        background: var(--bg-success, #e8f5e9);
         border-radius: 8px;
         padding: 12px 16px;
+        border: 1px solid var(--border-success, #a5d6a7);
       }
       .selected-preview h4 {
         margin: 0 0 8px;
         font-size: 0.9rem;
-        color: #2e7d32;
+        color: var(--text-success, #2e7d32);
       }
       .preview-content {
         display: flex;
         flex-direction: column;
         gap: 4px;
         font-size: 0.9rem;
+        color: var(--text-primary, #1a1a2e);
+      }
+      .preview-content strong {
+        color: var(--text-primary, #1a1a2e);
+      }
+      .quick-add-row {
+        margin-top: 12px;
+        text-align: center;
+      }
+      .quick-add-btn {
+        width: 100%;
+        padding: 12px;
+        border-style: dashed;
+        color: var(--accent-primary, #6366f1);
+      }
+      .quick-add-btn:hover {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
     `,
   ],
@@ -204,8 +238,10 @@ import { BicycleService } from '../../services/bicycle.service';
 export class BikeSelectorComponent implements OnInit, OnChanges {
   @Input() bikes: Bicycle[] = [];
   @Input() selectedBike: Bicycle | null = null;
+  @Input() allowQuickAdd = false;
   @Output() selectedBikeChange = new EventEmitter<Bicycle | null>();
   @Output() bikeSelected = new EventEmitter<Bicycle>();
+  @Output() quickAddRequested = new EventEmitter<void>();
 
   filteredBikes: Bicycle[] = [];
   searchTerm = '';
@@ -276,5 +312,9 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
         this.searchError = `Fahrrad mit Nr ${nr} nicht gefunden.`;
       },
     });
+  }
+
+  onQuickAdd() {
+    this.quickAddRequested.emit();
   }
 }

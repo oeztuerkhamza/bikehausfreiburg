@@ -29,6 +29,13 @@ public class DocumentsController : ControllerBase
         return Ok(documents);
     }
 
+    [HttpGet("purchase/{purchaseId}")]
+    public async Task<ActionResult<IEnumerable<DocumentDto>>> GetByPurchase(int purchaseId)
+    {
+        var documents = await _documentService.GetByPurchaseIdAsync(purchaseId);
+        return Ok(documents);
+    }
+
     [HttpPost]
     public async Task<ActionResult<DocumentDto>> Upload([FromForm] IFormFile file, [FromForm] DocumentUploadDto dto)
     {

@@ -4,6 +4,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslationService } from './services/translation.service';
 import { AuthService } from './services/auth.service';
 import { SettingsService, ShopSettings } from './services/settings.service';
+import { ThemeService } from './services/theme.service';
 import { NotificationComponent } from './components/notification/notification.component';
 import { DialogComponent } from './components/dialog/dialog.component';
 
@@ -233,7 +234,9 @@ import { DialogComponent } from './components/dialog/dialog.component';
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                <path
+                  d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+                />
                 <line x1="7" y1="7" x2="7.01" y2="7" />
               </svg>
             </span>
@@ -388,14 +391,20 @@ import { DialogComponent } from './components/dialog/dialog.component';
           />
           <div class="topbar-spacer"></div>
           <div class="topbar-right">
-            <div class="user-info">
-              <div class="user-avatar">{{ getInitials() }}</div>
-              <span class="user-name">{{ ownerDisplayName() }}</span>
-            </div>
-            <button class="btn-logout" (click)="logout()" title="Abmelden">
+            <button
+              class="btn-theme-toggle"
+              (click)="themeService.toggleTheme()"
+              [title]="
+                themeService.currentTheme() === 'dark'
+                  ? t.darkMode + ' (An)'
+                  : t.darkMode + ' (Aus)'
+              "
+            >
+              <!-- Sun icon for dark mode (click to go light) -->
               <svg
-                width="18"
-                height="18"
+                *ngIf="themeService.currentTheme() === 'dark'"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -403,11 +412,35 @@ import { DialogComponent } from './components/dialog/dialog.component';
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" />
+                <line x1="12" y1="21" x2="12" y2="23" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                <line x1="1" y1="12" x2="3" y2="12" />
+                <line x1="21" y1="12" x2="23" y2="12" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+              </svg>
+              <!-- Moon icon for light mode (click to go dark) -->
+              <svg
+                *ngIf="themeService.currentTheme() === 'light'"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
             </button>
+            <div class="user-info">
+              <div class="user-avatar">{{ getInitials() }}</div>
+              <span class="user-name">{{ ownerDisplayName() }}</span>
+            </div>
           </div>
         </header>
         <div class="content-area">
@@ -653,6 +686,26 @@ import { DialogComponent } from './components/dialog/dialog.component';
         color: var(--text-primary);
       }
 
+      .btn-theme-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        background: transparent;
+        border: 1.5px solid var(--border-color);
+        border-radius: 10px;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all 0.2s;
+      }
+      .btn-theme-toggle:hover {
+        background: var(--accent-light, rgba(79, 70, 229, 0.08));
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
       .btn-logout {
         display: flex;
         align-items: center;
@@ -729,6 +782,7 @@ export class AppComponent implements OnInit {
   private translationService = inject(TranslationService);
   private settingsService = inject(SettingsService);
   authService = inject(AuthService);
+  themeService = inject(ThemeService);
 
   settings = signal<ShopSettings | null>(null);
 

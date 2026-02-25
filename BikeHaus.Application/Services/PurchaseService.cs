@@ -108,7 +108,8 @@ public class PurchaseService : IPurchaseService
             Notizen = dto.Notizen,
             BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
                 ? dto.BelegNummer
-                : null
+                : null,
+            AnzeigeNr = dto.AnzeigeNr
         };
 
         // Add signature if provided
@@ -141,7 +142,7 @@ public class PurchaseService : IPurchaseService
 
         for (int i = 0; i < dto.Anzahl; i++)
         {
-            // Create Bicycle
+            // Create Bicycle - preserve Zustand from DTO
             var bicycle = dto.Bicycle.ToEntity();
             bicycle.StokNo = (nextStokNo + i).ToString();
             bicycle = await _bicycleRepository.AddAsync(bicycle);
@@ -158,7 +159,8 @@ public class PurchaseService : IPurchaseService
                 Notizen = dto.Notizen,
                 BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
                     ? dto.BelegNummer
-                    : null
+                    : null,
+                AnzeigeNr = dto.AnzeigeNr
             };
 
             var created = await _purchaseRepository.AddAsync(purchase);
@@ -199,6 +201,7 @@ public class PurchaseService : IPurchaseService
         seller.Stadt = dto.Seller.Stadt;
         seller.Telefon = dto.Seller.Telefon;
         seller.Email = dto.Seller.Email;
+        seller.Steuernummer = dto.Seller.Steuernummer;
         seller.UpdatedAt = DateTime.UtcNow;
         await _customerRepository.UpdateAsync(seller);
 
@@ -208,6 +211,7 @@ public class PurchaseService : IPurchaseService
         purchase.Zahlungsart = dto.Zahlungsart;
         purchase.Kaufdatum = dto.Kaufdatum;
         purchase.Notizen = dto.Notizen;
+        purchase.AnzeigeNr = dto.AnzeigeNr;
         if (!string.IsNullOrWhiteSpace(dto.BelegNummer))
             purchase.BelegNummer = dto.BelegNummer;
         purchase.UpdatedAt = DateTime.UtcNow;

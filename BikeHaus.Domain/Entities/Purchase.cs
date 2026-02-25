@@ -12,6 +12,7 @@ public class Purchase : BaseEntity
     public string? Notizen { get; set; }                        // Notes
     public string? BelegNummer { get; set; }                     // Receipt Number (optional)
     public decimal? VerkaufspreisVorschlag { get; set; }         // Planned Selling Price
+    public string? AnzeigeNr { get; set; }                       // Advertisement Number
 
     // Navigation Properties
     public Bicycle Bicycle { get; set; } = null!;

@@ -38,6 +38,7 @@ export interface Translations {
   save: string;
   cancel: string;
   delete: string;
+  confirmDelete: string;
   edit: string;
   add: string;
   search: string;
@@ -92,6 +93,19 @@ export interface Translations {
   uploadSignature: string;
   or: string;
   plannedSellingPrice: string;
+
+  // Purchase fields
+  adNumber: string;
+  adNumberHint: string;
+
+  // Photo Gallery
+  photoGallery: string;
+  noPhotos: string;
+  addPhotos: string;
+  uploading: string;
+
+  // Quick Add Bike
+  quickAddBike: string;
 
   // Backup & Restore
   backupRestore: string;
@@ -522,6 +536,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     save: 'Speichern',
     cancel: 'Abbrechen',
     delete: 'Löschen',
+    confirmDelete: 'Wirklich löschen?',
     edit: 'Bearbeiten',
     add: 'Hinzufügen',
     search: 'Suchen',
@@ -576,6 +591,19 @@ const TRANSLATIONS: Record<Language, Translations> = {
     uploadSignature: 'Unterschrift hochladen',
     or: 'oder',
     plannedSellingPrice: 'Geplanter Verkaufspreis',
+
+    // Purchase fields
+    adNumber: 'Anzeige Nr.',
+    adNumberHint: 'Kleinanzeigen o.ä.',
+
+    // Photo Gallery
+    photoGallery: 'Fotos',
+    noPhotos: 'Keine Fotos vorhanden',
+    addPhotos: 'Fotos hinzufügen',
+    uploading: 'Hochladen...',
+
+    // Quick Add Bike
+    quickAddBike: 'Fahrrad nicht in Liste? Schnell hinzufügen',
 
     // Backup & Restore
     backupRestore: 'Sicherung & Wiederherstellung',
@@ -1012,6 +1040,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     save: 'Kaydet',
     cancel: 'İptal',
     delete: 'Sil',
+    confirmDelete: 'Gerçekten silinsin mi?',
     edit: 'Düzenle',
     add: 'Ekle',
     search: 'Ara',
@@ -1066,6 +1095,19 @@ const TRANSLATIONS: Record<Language, Translations> = {
     uploadSignature: 'İmza Yükle',
     or: 'veya',
     plannedSellingPrice: 'Planlanan Satış Fiyatı',
+
+    // Purchase fields
+    adNumber: 'İlan No.',
+    adNumberHint: 'Kleinanzeigen vb.',
+
+    // Photo Gallery
+    photoGallery: 'Fotoğraflar',
+    noPhotos: 'Henüz fotoğraf yok',
+    addPhotos: 'Fotoğraf Ekle',
+    uploading: 'Yükleniyor...',
+
+    // Quick Add Bike
+    quickAddBike: 'Bisiklet listede yok mu? Hızlı ekle',
 
     // Backup & Restore
     backupRestore: 'Yedekleme & Geri Yükleme',

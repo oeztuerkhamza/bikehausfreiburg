@@ -40,7 +40,7 @@ import { forkJoin } from 'rxjs';
           type="button"
           class="toggle-btn"
           [class.active]="!bulkMode"
-          (click)="bulkMode = false"
+          (click)="setBulkMode(false)"
         >
           🚲 {{ t.singlePurchase }}
         </button>
@@ -48,7 +48,7 @@ import { forkJoin } from 'rxjs';
           type="button"
           class="toggle-btn"
           [class.active]="bulkMode"
-          (click)="bulkMode = true"
+          (click)="setBulkMode(true)"
         >
           📦 {{ t.bulkPurchase }}
         </button>
@@ -132,6 +132,14 @@ import { forkJoin } from 'rxjs';
                   type="email"
                   [(ngModel)]="seller.email"
                   name="sellerEmail"
+                />
+              </div>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.taxNumber || 'Steuernummer' }}</label>
+                <input
+                  [(ngModel)]="seller.steuernummer"
+                  name="sellerSteuernummer"
+                  placeholder="optional"
                 />
               </div>
             </div>
@@ -353,6 +361,17 @@ import { forkJoin } from 'rxjs';
                   required
                 />
               </div>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.adNumber || 'Anzeige Nr.' }}</label>
+                <input
+                  [(ngModel)]="anzeigeNr"
+                  name="anzeigeNr"
+                  placeholder="optional"
+                />
+                <small class="hint">{{
+                  t.adNumberHint || 'Kleinanzeigen o.ä.'
+                }}</small>
+              </div>
               <div class="field full">
                 <label>{{ t.notes }}</label>
                 <textarea
@@ -420,12 +439,6 @@ import { forkJoin } from 'rxjs';
 
         <!-- Validation messages -->
         <div class="validation-errors" *ngIf="!canSubmit() && !submitting">
-          <p *ngIf="!bulkMode && !seller.vorname.trim()" class="error-msg">
-            ⚠️ {{ t.sellerFirstNameRequired }}
-          </p>
-          <p *ngIf="!bulkMode && !seller.nachname.trim()" class="error-msg">
-            ⚠️ {{ t.sellerLastNameRequired }}
-          </p>
           <p *ngIf="bulkMode && !seller.nachname.trim()" class="error-msg">
             ⚠️ {{ t.storeNameRequired }}
           </p>
@@ -806,6 +819,7 @@ export class PurchaseFormComponent implements OnInit {
     stadt: '',
     telefon: '',
     email: '',
+    steuernummer: '',
   };
   bicycle = {
     marke: '',
@@ -824,6 +838,7 @@ export class PurchaseFormComponent implements OnInit {
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   kaufdatum = '';
   notizen = '';
+  anzeigeNr = '';
   belegNummer = '';
   signatureData = '';
   signerName = '';
@@ -921,6 +936,12 @@ export class PurchaseFormComponent implements OnInit {
     if (this.bulkQuantity > 1) this.bulkQuantity--;
   }
 
+  setBulkMode(isBulk: boolean) {
+    this.bulkMode = isBulk;
+    // Set the correct Zustand based on mode
+    this.bicycle.zustand = isBulk ? BikeCondition.Neu : BikeCondition.Gebraucht;
+  }
+
   onBrandChange() {
     // Load models filtered by the selected brand
     const brand = this.bicycle.marke?.trim();
@@ -956,11 +977,8 @@ export class PurchaseFormComponent implements OnInit {
       );
     }
 
-    return (
-      baseValid &&
-      !!this.seller.vorname?.trim() &&
-      !!this.seller.nachname?.trim()
-    );
+    // Seller vorname and nachname are now optional
+    return baseValid;
   }
 
   onSellerAddressSelected(address: AddressSuggestion) {
@@ -1032,6 +1050,7 @@ export class PurchaseFormComponent implements OnInit {
       kaufdatum: this.kaufdatum,
       notizen: this.notizen || undefined,
       belegNummer: this.belegNummer || undefined,
+      anzeigeNr: this.anzeigeNr || undefined,
     };
 
     this.purchaseService.createBulk(bulkData).subscribe({
@@ -1055,6 +1074,7 @@ export class PurchaseFormComponent implements OnInit {
       kaufdatum: this.kaufdatum,
       notizen: this.notizen || undefined,
       belegNummer: this.belegNummer || undefined,
+      anzeigeNr: this.anzeigeNr || undefined,
     };
 
     this.purchaseService.create(purchase).subscribe({

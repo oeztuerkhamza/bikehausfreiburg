@@ -47,6 +47,7 @@ public static class MappingExtensions
         entity.Stadt,
         entity.Telefon,
         entity.Email,
+        entity.Steuernummer,
         entity.FullName,
         entity.FullAddress
     );
@@ -60,13 +61,15 @@ public static class MappingExtensions
         PLZ = dto.PLZ,
         Stadt = dto.Stadt,
         Telefon = dto.Telefon,
-        Email = dto.Email
+        Email = dto.Email,
+        Steuernummer = dto.Steuernummer
     };
 
     // ── Purchase Mappings ──
     public static PurchaseDto ToDto(this Purchase entity) => new(
         entity.Id,
         entity.BelegNummer,
+        entity.AnzeigeNr,
         entity.Bicycle.ToDto(),
         entity.Seller.ToDto(),
         entity.Preis,

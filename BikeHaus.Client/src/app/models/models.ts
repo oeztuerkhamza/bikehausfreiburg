@@ -93,6 +93,7 @@ export interface Customer {
   stadt?: string;
   telefon?: string;
   email?: string;
+  steuernummer?: string;
   fullName: string;
   fullAddress?: string;
   createdAt: string;
@@ -107,6 +108,7 @@ export interface CustomerCreate {
   stadt?: string;
   telefon?: string;
   email?: string;
+  steuernummer?: string;
 }
 
 export interface CustomerUpdate {
@@ -118,6 +120,7 @@ export interface CustomerUpdate {
   stadt?: string;
   telefon?: string;
   email?: string;
+  steuernummer?: string;
 }
 
 // ── Signature ──
@@ -146,6 +149,7 @@ export interface Purchase {
   kaufdatum: string;
   notizen?: string;
   belegNummer?: string;
+  anzeigeNr?: string;
   signature?: Signature;
   createdAt: string;
 }
@@ -173,6 +177,7 @@ export interface PurchaseCreate {
   notizen?: string;
   signature?: SignatureCreate;
   belegNummer?: string;
+  anzeigeNr?: string;
 }
 
 export interface PurchaseUpdate {
@@ -184,6 +189,7 @@ export interface PurchaseUpdate {
   kaufdatum: string;
   notizen?: string;
   belegNummer?: string;
+  anzeigeNr?: string;
 }
 
 export interface BulkPurchaseCreate {
@@ -196,6 +202,7 @@ export interface BulkPurchaseCreate {
   kaufdatum: string;
   notizen?: string;
   belegNummer?: string;
+  anzeigeNr?: string;
 }
 
 export interface BulkPurchaseResult {

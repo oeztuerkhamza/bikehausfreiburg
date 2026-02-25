@@ -18,6 +18,10 @@ export class DocumentService {
     return this.http.get<DocModel[]>(`${this.url}/bicycle/${bicycleId}`);
   }
 
+  getByPurchaseId(purchaseId: number): Observable<DocModel[]> {
+    return this.http.get<DocModel[]>(`${this.url}/purchase/${purchaseId}`);
+  }
+
   upload(
     file: File,
     documentType: string,

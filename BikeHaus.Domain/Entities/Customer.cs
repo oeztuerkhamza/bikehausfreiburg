@@ -10,6 +10,7 @@ public class Customer : BaseEntity
     public string? Stadt { get; set; }                          // City
     public string? Telefon { get; set; }                        // Phone
     public string? Email { get; set; }
+    public string? Steuernummer { get; set; }                   // Tax Number (for sellers)
 
     public string FullName => $"{Vorname} {Nachname}";
     public string? FullAddress => Strasse != null ? $"{Strasse} {Hausnummer}, {PLZ} {Stadt}" : null;

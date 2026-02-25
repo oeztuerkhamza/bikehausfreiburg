@@ -35,8 +35,9 @@ export interface UserInfo {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private url = `${environment.apiUrl}/auth`;
-  isLoggedIn = signal(this.hasValidToken());
-  displayName = signal(localStorage.getItem('displayName') || '');
+  // Login disabled - always logged in
+  isLoggedIn = signal(true);
+  displayName = signal(localStorage.getItem('displayName') || 'Admin');
 
   constructor(
     private http: HttpClient,

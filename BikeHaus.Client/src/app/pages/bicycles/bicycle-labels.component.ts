@@ -5,7 +5,6 @@ import { RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
 import { PurchaseService } from '../../services/purchase.service';
 import { TranslationService } from '../../services/translation.service';
-import { Bicycle, PurchaseList } from '../../models/models';
 import { forkJoin } from 'rxjs';
 
 interface LabelBike {
@@ -96,8 +95,12 @@ interface LabelBike {
               <span *ngIf="bike.fahrradtyp">{{ bike.fahrradtyp }}</span>
             </div>
             <div class="bike-meta">
-              <span class="stok-no" *ngIf="bike.stokNo">#{{ bike.stokNo }}</span>
-              <span class="bike-price" *ngIf="bike.preis">{{ bike.preis | number: '1.0-0' }} €</span>
+              <span class="stok-no" *ngIf="bike.stokNo"
+                >#{{ bike.stokNo }}</span
+              >
+              <span class="bike-price" *ngIf="bike.preis"
+                >{{ bike.preis | number: '1.0-0' }} €</span
+              >
             </div>
           </div>
         </div>
@@ -110,9 +113,13 @@ interface LabelBike {
       <!-- Print action -->
       <div class="print-bar" *ngIf="selectedCount > 0">
         <div class="print-bar-info">
-          <strong>{{ selectedCount }}</strong> Fahrrad{{ selectedCount > 1 ? 'räder' : '' }} ausgewählt
-          · {{ pageCount }} Seite{{ pageCount > 1 ? 'n' : '' }}
-          ({{ selectedCount }} Etiketten)
+          <strong>{{ selectedCount }}</strong> Fahrrad{{
+            selectedCount > 1 ? 'räder' : ''
+          }}
+          ausgewählt · {{ pageCount }} Seite{{ pageCount > 1 ? 'n' : '' }} ({{
+            selectedCount
+          }}
+          Etiketten)
         </div>
         <button class="btn btn-primary btn-lg" (click)="startPrint()">
           🖨️ Drucken
@@ -122,15 +129,8 @@ interface LabelBike {
 
     <!-- Print view -->
     <div class="print-view" *ngIf="printMode" id="printArea">
-      <div
-        class="a4-page"
-        *ngFor="let page of pages"
-      >
-        <div
-          class="label-cell"
-          *ngFor="let bike of page"
-          [class.empty]="!bike"
-        >
+      <div class="a4-page" *ngFor="let page of pages">
+        <div class="label-cell" *ngFor="let bike of page" [class.empty]="!bike">
           <div class="label-content" *ngIf="bike">
             <div class="label-header">
               <span class="label-logo">BIKE HAUS</span>
@@ -170,10 +170,14 @@ interface LabelBike {
               </div>
             </div>
             <div class="label-price-area">
-              <div class="label-price">{{ bike.preis | number: '1.0-0' }} €</div>
+              <div class="label-price">
+                {{ bike.preis | number: '1.0-0' }} €
+              </div>
             </div>
             <div class="label-footer">
-              <span class="label-stok" *ngIf="bike.stokNo">#{{ bike.stokNo }}</span>
+              <span class="label-stok" *ngIf="bike.stokNo"
+                >#{{ bike.stokNo }}</span
+              >
             </div>
           </div>
         </div>
@@ -198,8 +202,14 @@ interface LabelBike {
         animation: fadeIn 0.3s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
@@ -374,11 +384,11 @@ interface LabelBike {
       }
       .a4-page {
         width: 210mm;
-        height: 297mm;
+        min-height: auto;
         margin: 0 auto 30px;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr 1fr 1fr;
+        grid-template-rows: repeat(3, auto);
         border: 1px dashed #cbd5e1;
         background: #fff;
         page-break-after: always;
@@ -389,69 +399,70 @@ interface LabelBike {
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 5mm 8mm;
+        padding: 3mm 5mm;
         box-sizing: border-box;
       }
       .label-cell.empty {
         background: #fafafa;
+        min-height: 40mm;
       }
       .label-content {
         width: 100%;
-        height: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
         font-family: 'Segoe UI', Arial, sans-serif;
+        padding: 2mm 0;
       }
       .label-header {
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 2mm;
+        margin-bottom: 1mm;
       }
       .label-logo {
-        font-size: 13pt;
+        font-size: 11pt;
         font-weight: 900;
-        letter-spacing: 0.15em;
+        letter-spacing: 0.12em;
         color: #1e293b;
       }
       .label-city {
-        font-size: 7pt;
+        font-size: 6pt;
         font-weight: 600;
-        letter-spacing: 0.35em;
+        letter-spacing: 0.3em;
         color: #64748b;
         text-transform: uppercase;
       }
       .label-divider {
-        width: 35mm;
-        height: 0.5mm;
+        width: 30mm;
+        height: 0.4mm;
         background: #334155;
-        margin-bottom: 2mm;
+        margin-bottom: 1.5mm;
       }
       .label-brand {
-        font-size: 12pt;
+        font-size: 10pt;
         font-weight: 800;
         color: #0f172a;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.06em;
       }
       .label-model {
-        font-size: 9pt;
+        font-size: 8pt;
         font-weight: 500;
         color: #475569;
-        margin-bottom: 1.5mm;
+        margin-bottom: 1mm;
       }
       .label-specs {
         width: 100%;
-        margin-bottom: auto;
+        margin-bottom: 1mm;
       }
       .spec-row {
         display: flex;
         justify-content: space-between;
-        padding: 0.5mm 0;
-        border-bottom: 0.3px solid #e2e8f0;
-        font-size: 7.5pt;
+        padding: 0.3mm 0;
+        border-bottom: 0.2px solid #e2e8f0;
+        font-size: 6.5pt;
       }
       .spec-label {
         color: #64748b;
@@ -462,26 +473,26 @@ interface LabelBike {
         font-weight: 600;
       }
       .label-price-area {
-        margin: 2mm 0 1mm;
-        padding: 2mm 5mm;
+        margin: 1.5mm 0 1mm;
+        padding: 1.5mm 4mm;
         background: #0f172a;
-        border-radius: 2mm;
+        border-radius: 1.5mm;
         display: inline-flex;
       }
       .label-price {
-        font-size: 16pt;
+        font-size: 13pt;
         font-weight: 900;
         color: #fff;
         letter-spacing: 0.03em;
       }
       .label-footer {
-        margin-top: 1mm;
+        margin-top: 0.5mm;
       }
       .label-stok {
-        font-size: 7pt;
+        font-size: 6pt;
         color: #94a3b8;
         font-family: 'Courier New', monospace;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
       }
 
       /* ── Buttons ── */
@@ -526,31 +537,75 @@ interface LabelBike {
 
       /* ── Print media ── */
       @media print {
-        .no-print { display: none !important; }
+        /* Hide everything except print area */
+        .no-print,
+        .page,
+        .print-controls,
+        nav,
+        header,
+        footer,
+        aside,
+        .sidebar,
+        .header-bar {
+          display: none !important;
+        }
+
+        /* Reset body and html */
+        html,
         body {
-          margin: 0;
-          padding: 0;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: white !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
+
         .print-view {
-          padding: 0;
+          padding: 0 !important;
+          margin: 0 !important;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
         }
+
         .a4-page {
-          margin: 0;
-          border: none;
+          margin: 0 !important;
+          padding: 5mm !important;
+          border: none !important;
           page-break-after: always;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
+          page-break-inside: avoid;
+          width: 100% !important;
+          min-height: auto !important;
+          height: auto !important;
         }
+
+        .a4-page:last-child {
+          page-break-after: auto;
+        }
+
         .label-cell {
-          border: 0.5px dashed #e2e8f0;
+          border: 0.5px dashed #ccc !important;
+          page-break-inside: avoid;
         }
+
+        .label-cell.empty {
+          display: none !important;
+        }
+
         .label-price-area {
           background: #0f172a !important;
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
+
         .label-price {
           color: #fff !important;
+        }
+
+        @page {
+          size: A4;
+          margin: 5mm;
         }
       }
 
