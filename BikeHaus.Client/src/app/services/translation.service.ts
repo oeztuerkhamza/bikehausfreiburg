@@ -93,6 +93,25 @@ export interface Translations {
   or: string;
   plannedSellingPrice: string;
 
+  // Backup & Restore
+  backupRestore: string;
+  backupDescription: string;
+  createBackup: string;
+  creatingBackup: string;
+  backupSuccess: string;
+  backupError: string;
+  restoreSystem: string;
+  restoreDescription: string;
+  restoreWarning: string;
+  selectBackupFile: string;
+  restoring: string;
+  restoreSuccess: string;
+  restoreError: string;
+  restoreConfirm: string;
+  restoreConfirmMessage: string;
+  downloadBackup: string;
+  uploadBackup: string;
+
   // User Account
   userAccount: string;
   currentUsername: string;
@@ -557,6 +576,30 @@ const TRANSLATIONS: Record<Language, Translations> = {
     uploadSignature: 'Unterschrift hochladen',
     or: 'oder',
     plannedSellingPrice: 'Geplanter Verkaufspreis',
+
+    // Backup & Restore
+    backupRestore: 'Sicherung & Wiederherstellung',
+    backupDescription:
+      'Erstellen Sie eine vollständige Sicherung aller Daten und Dokumente als ZIP-Datei.',
+    createBackup: 'Sicherung erstellen',
+    creatingBackup: 'Sicherung wird erstellt...',
+    backupSuccess: 'Sicherung erfolgreich heruntergeladen!',
+    backupError: 'Fehler beim Erstellen der Sicherung',
+    restoreSystem: 'System wiederherstellen',
+    restoreDescription:
+      'Laden Sie eine zuvor erstellte Sicherungsdatei hoch, um das System wiederherzustellen.',
+    restoreWarning:
+      'ACHTUNG: Alle aktuellen Daten werden durch die Sicherung ersetzt!',
+    selectBackupFile: 'Sicherungsdatei auswählen (.zip)',
+    restoring: 'Wiederherstellung läuft...',
+    restoreSuccess:
+      'System erfolgreich wiederhergestellt! Die Seite wird neu geladen.',
+    restoreError: 'Fehler bei der Wiederherstellung',
+    restoreConfirm: 'Wiederherstellung bestätigen',
+    restoreConfirmMessage:
+      'Sind Sie sicher? Alle aktuellen Daten werden durch die Sicherung ersetzt. Dieser Vorgang kann nicht rückgängig gemacht werden.',
+    downloadBackup: 'Sicherung herunterladen',
+    uploadBackup: 'Sicherung hochladen',
 
     // User Account
     userAccount: 'Benutzerkonto',
@@ -1023,6 +1066,28 @@ const TRANSLATIONS: Record<Language, Translations> = {
     uploadSignature: 'İmza Yükle',
     or: 'veya',
     plannedSellingPrice: 'Planlanan Satış Fiyatı',
+
+    // Backup & Restore
+    backupRestore: 'Yedekleme & Geri Yükleme',
+    backupDescription:
+      'Tüm veri ve belgelerin tam yedeğini ZIP dosyası olarak oluşturun.',
+    createBackup: 'Yedek Oluştur',
+    creatingBackup: 'Yedek oluşturuluyor...',
+    backupSuccess: 'Yedek başarıyla indirildi!',
+    backupError: 'Yedek oluşturulurken hata oluştu',
+    restoreSystem: 'Sistemi Geri Yükle',
+    restoreDescription:
+      'Daha önce oluşturulan bir yedek dosyasını yükleyerek sistemi geri yükleyin.',
+    restoreWarning: 'DİKKAT: Mevcut tüm veriler yedek ile değiştirilecektir!',
+    selectBackupFile: 'Yedek dosyası seçin (.zip)',
+    restoring: 'Geri yükleniyor...',
+    restoreSuccess: 'Sistem başarıyla geri yüklendi! Sayfa yeniden yüklenecek.',
+    restoreError: 'Geri yükleme sırasında hata oluştu',
+    restoreConfirm: 'Geri Yüklemeyi Onayla',
+    restoreConfirmMessage:
+      'Emin misiniz? Mevcut tüm veriler yedek ile değiştirilecektir. Bu işlem geri alınamaz.',
+    downloadBackup: 'Yedeği İndir',
+    uploadBackup: 'Yedeği Yükle',
 
     // User Account
     userAccount: 'Kullanıcı Hesabı',

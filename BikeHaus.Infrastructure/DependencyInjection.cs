@@ -53,6 +53,14 @@ public static class DependencyInjection
             return new FileStorageService(basePath);
         });
 
+        services.AddScoped<IBackupService>(sp =>
+        {
+            var dbContext = sp.GetRequiredService<BikeHausDbContext>();
+            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "BikeHausFreiburg.db");
+            return new BackupService(dbContext, uploadsPath, dbPath);
+        });
+
         return services;
     }
 }

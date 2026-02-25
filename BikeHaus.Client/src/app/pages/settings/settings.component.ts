@@ -9,6 +9,7 @@ import {
 } from '../../services/translation.service';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AuthService, UserInfo } from '../../services/auth.service';
+import { BackupService } from '../../services/backup.service';
 
 @Component({
   selector: 'app-settings',
@@ -451,6 +452,106 @@ import { AuthService, UserInfo } from '../../services/auth.service';
             </form>
           </div>
         </section>
+
+        <!-- Backup & Restore Section -->
+        <section class="settings-section">
+          <h2>{{ t.backupRestore }}</h2>
+          <div class="settings-card">
+            <!-- Create Backup -->
+            <div class="backup-section">
+              <div class="backup-info">
+                <div class="backup-icon">💾</div>
+                <div class="backup-text">
+                  <h3>{{ t.downloadBackup }}</h3>
+                  <p>{{ t.backupDescription }}</p>
+                </div>
+              </div>
+              <button
+                class="btn btn-primary"
+                [disabled]="creatingBackup"
+                (click)="createBackup()"
+              >
+                {{ creatingBackup ? t.creatingBackup : t.createBackup }}
+              </button>
+              <div class="success-msg" *ngIf="backupSuccess">
+                {{ backupSuccess }}
+              </div>
+              <div class="error-msg" *ngIf="backupError">
+                {{ backupError }}
+              </div>
+            </div>
+
+            <div class="backup-divider"></div>
+
+            <!-- Restore Backup -->
+            <div class="backup-section">
+              <div class="backup-info">
+                <div class="backup-icon">📦</div>
+                <div class="backup-text">
+                  <h3>{{ t.restoreSystem }}</h3>
+                  <p>{{ t.restoreDescription }}</p>
+                </div>
+              </div>
+              <div class="restore-warning" *ngIf="!showRestoreConfirm">
+                <span class="warning-icon">⚠️</span>
+                <span>{{ t.restoreWarning }}</span>
+              </div>
+              <div class="restore-actions" *ngIf="!showRestoreConfirm">
+                <button
+                  class="btn btn-warning"
+                  (click)="restoreFileInput.click()"
+                  [disabled]="restoringBackup"
+                >
+                  {{ t.selectBackupFile }}
+                </button>
+                <input
+                  #restoreFileInput
+                  type="file"
+                  accept=".zip"
+                  (change)="onRestoreFileSelected($event)"
+                  hidden
+                />
+              </div>
+
+              <!-- Confirm restore -->
+              <div class="restore-confirm" *ngIf="showRestoreConfirm">
+                <div class="restore-confirm-message">
+                  <span class="warning-icon">⚠️</span>
+                  <div>
+                    <strong>{{ t.restoreConfirm }}</strong>
+                    <p>{{ t.restoreConfirmMessage }}</p>
+                    <p class="selected-file" *ngIf="selectedRestoreFile">
+                      📎 {{ selectedRestoreFile.name }}
+                    </p>
+                  </div>
+                </div>
+                <div class="restore-confirm-buttons">
+                  <button
+                    class="btn btn-danger"
+                    [disabled]="restoringBackup"
+                    (click)="confirmRestore()"
+                  >
+                    {{ restoringBackup ? t.restoring : t.restoreConfirm }}
+                  </button>
+                  <button
+                    class="btn btn-secondary"
+                    [disabled]="restoringBackup"
+                    (click)="cancelRestore()"
+                  >
+                    {{ t.cancel }}
+                  </button>
+                </div>
+              </div>
+
+              <div class="success-msg" *ngIf="restoreSuccess">
+                {{ restoreSuccess }}
+              </div>
+              <div class="error-msg" *ngIf="restoreError">
+                {{ restoreError }}
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   `,
@@ -834,11 +935,135 @@ import { AuthService, UserInfo } from '../../services/auth.service';
         font-size: 0.85rem;
         font-weight: 500;
       }
+
+      /* Backup & Restore Section */
+      .backup-section {
+        padding: 20px 0;
+      }
+      .backup-section:first-child {
+        padding-top: 0;
+      }
+      .backup-section:last-child {
+        padding-bottom: 0;
+      }
+      .backup-info {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        margin-bottom: 16px;
+      }
+      .backup-icon {
+        font-size: 2rem;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+      .backup-text h3 {
+        margin: 0 0 6px 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .backup-text p {
+        margin: 0;
+        font-size: 0.88rem;
+        color: var(--text-secondary, #64748b);
+        line-height: 1.5;
+      }
+      .backup-divider {
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
+        margin: 0;
+      }
+      .restore-warning {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        background: rgba(245, 158, 11, 0.08);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        border-radius: var(--radius-md, 10px);
+        margin-bottom: 14px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #d97706;
+      }
+      .warning-icon {
+        font-size: 1.1rem;
+        flex-shrink: 0;
+      }
+      .restore-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+      .restore-confirm {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1.5px solid rgba(239, 68, 68, 0.2);
+        border-radius: var(--radius-md, 10px);
+        padding: 16px;
+      }
+      .restore-confirm-message {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .restore-confirm-message strong {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--accent-danger, #ef4444);
+      }
+      .restore-confirm-message p {
+        margin: 0;
+        font-size: 0.88rem;
+        color: var(--text-secondary, #64748b);
+        line-height: 1.5;
+      }
+      .selected-file {
+        margin-top: 8px !important;
+        font-weight: 600;
+        color: var(--text-primary) !important;
+      }
+      .restore-confirm-buttons {
+        display: flex;
+        gap: 12px;
+      }
+      .btn-warning {
+        background: #f59e0b;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: var(--transition-fast);
+      }
+      .btn-warning:hover {
+        background: #d97706;
+      }
+      .btn-warning:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .btn-secondary {
+        background: var(--border-light, #e2e8f0);
+        color: var(--text-primary);
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: var(--transition-fast);
+      }
+      .btn-secondary:hover {
+        background: var(--border-medium, #cbd5e1);
+      }
     `,
   ],
 })
 export class SettingsComponent implements OnInit {
   private settingsService = inject(SettingsService);
+  private backupService = inject(BackupService);
   themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
   private authService = inject(AuthService);
@@ -847,6 +1072,16 @@ export class SettingsComponent implements OnInit {
   saving = false;
   showSuccess = false;
   currentLanguage: Language = 'de';
+
+  // Backup & Restore
+  creatingBackup = false;
+  restoringBackup = false;
+  backupSuccess = '';
+  backupError = '';
+  restoreSuccess = '';
+  restoreError = '';
+  showRestoreConfirm = false;
+  selectedRestoreFile: File | null = null;
 
   // User account
   currentUser: UserInfo | null = null;
@@ -1117,6 +1352,89 @@ export class SettingsComponent implements OnInit {
 
   changeLanguage(lang: Language): void {
     this.translationService.setLanguage(lang);
+  }
+
+  // ── Backup & Restore ──
+
+  createBackup(): void {
+    this.creatingBackup = true;
+    this.backupSuccess = '';
+    this.backupError = '';
+
+    this.backupService.downloadBackup().subscribe({
+      next: (blob) => {
+        const timestamp = new Date()
+          .toISOString()
+          .replace(/[:.]/g, '-')
+          .slice(0, 19);
+        const fileName = `BikeHaus_Backup_${timestamp}.zip`;
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        this.backupSuccess = this.t.backupSuccess;
+        this.creatingBackup = false;
+        setTimeout(() => (this.backupSuccess = ''), 5000);
+      },
+      error: (err) => {
+        console.error('Backup error:', err);
+        this.backupError = this.t.backupError;
+        this.creatingBackup = false;
+        setTimeout(() => (this.backupError = ''), 5000);
+      },
+    });
+  }
+
+  onRestoreFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.selectedRestoreFile = input.files[0];
+      this.showRestoreConfirm = true;
+      this.restoreError = '';
+      this.restoreSuccess = '';
+    }
+    // Reset file input so same file can be selected again
+    input.value = '';
+  }
+
+  confirmRestore(): void {
+    if (!this.selectedRestoreFile) return;
+
+    this.restoringBackup = true;
+    this.restoreError = '';
+    this.restoreSuccess = '';
+
+    this.backupService.restoreBackup(this.selectedRestoreFile).subscribe({
+      next: () => {
+        this.restoreSuccess = this.t.restoreSuccess;
+        this.restoringBackup = false;
+        this.showRestoreConfirm = false;
+        this.selectedRestoreFile = null;
+
+        // Reload the page after 2 seconds to apply restored data
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      },
+      error: (err) => {
+        console.error('Restore error:', err);
+        this.restoreError = err.error?.message || this.t.restoreError;
+        this.restoringBackup = false;
+        setTimeout(() => (this.restoreError = ''), 8000);
+      },
+    });
+  }
+
+  cancelRestore(): void {
+    this.showRestoreConfirm = false;
+    this.selectedRestoreFile = null;
+    this.restoreError = '';
   }
 
   private showSuccessMessage(): void {
