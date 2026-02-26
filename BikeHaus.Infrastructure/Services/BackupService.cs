@@ -51,10 +51,10 @@ public class BackupService : IBackupService
 
         // Close the current database connection before restoring
         await _dbContext.Database.CloseConnectionAsync();
-        
+
         // Clear all SQLite connection pools to release file handles
         SqliteConnection.ClearAllPools();
-        
+
         // Wait for file handles to be released
         await Task.Delay(500);
 
@@ -90,7 +90,7 @@ public class BackupService : IBackupService
 
             // Ensure SQLite releases all handles
             SqliteConnection.ClearAllPools();
-            
+
             // Small delay to ensure file handles are released
             await Task.Delay(100);
 
