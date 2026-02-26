@@ -51,6 +51,12 @@ public class BackupService : IBackupService
 
         // Close the current database connection before restoring
         await _dbContext.Database.CloseConnectionAsync();
+        
+        // Clear all SQLite connection pools to release file handles
+        SqliteConnection.ClearAllPools();
+        
+        // Wait for file handles to be released
+        await Task.Delay(500);
 
         // 1. Restore the database
         await RestoreDatabaseFromArchive(archive);
@@ -65,7 +71,7 @@ public class BackupService : IBackupService
     private async Task BackupDatabaseToArchive(ZipArchive archive)
     {
         // Use SQLite online backup API to create a consistent backup
-        var tempDbPath = Path.GetTempFileName();
+        var tempDbPath = Path.Combine(Path.GetTempPath(), $"bikehaus_backup_{Guid.NewGuid()}.db");
 
         try
         {
@@ -73,28 +79,48 @@ public class BackupService : IBackupService
             await _dbContext.Database.ExecuteSqlRawAsync("PRAGMA wal_checkpoint(FULL);");
 
             // Create a backup using SQLite backup API
-            using (var sourceConnection = new SqliteConnection($"Data Source={_dbPath}"))
-            using (var destinationConnection = new SqliteConnection($"Data Source={tempDbPath}"))
+            using (var sourceConnection = new SqliteConnection($"Data Source={_dbPath};Mode=ReadOnly"))
+            using (var destinationConnection = new SqliteConnection($"Data Source={tempDbPath};Mode=ReadWriteCreate"))
             {
                 await sourceConnection.OpenAsync();
                 await destinationConnection.OpenAsync();
 
                 sourceConnection.BackupDatabase(destinationConnection);
-
-                await destinationConnection.CloseAsync();
-                await sourceConnection.CloseAsync();
             }
+
+            // Ensure SQLite releases all handles
+            SqliteConnection.ClearAllPools();
+            
+            // Small delay to ensure file handles are released
+            await Task.Delay(100);
 
             // Add the backup database to the archive
             var entry = archive.CreateEntry("database/BikeHausFreiburg.db", CompressionLevel.Optimal);
-            using var entryStream = entry.Open();
-            using var fileStream = File.OpenRead(tempDbPath);
-            await fileStream.CopyToAsync(entryStream);
+            using (var entryStream = entry.Open())
+            using (var fileStream = new FileStream(tempDbPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                await fileStream.CopyToAsync(entryStream);
+            }
         }
         finally
         {
-            if (File.Exists(tempDbPath))
-                File.Delete(tempDbPath);
+            // Clean up temp file
+            try
+            {
+                if (File.Exists(tempDbPath))
+                {
+                    File.Delete(tempDbPath);
+                }
+                // Also clean up any WAL/SHM files that might have been created
+                var walPath = tempDbPath + "-wal";
+                var shmPath = tempDbPath + "-shm";
+                if (File.Exists(walPath)) File.Delete(walPath);
+                if (File.Exists(shmPath)) File.Delete(shmPath);
+            }
+            catch
+            {
+                // Ignore cleanup errors
+            }
         }
     }
 
@@ -123,7 +149,7 @@ public class BackupService : IBackupService
         var dbEntry = archive.GetEntry("database/BikeHausFreiburg.db")!;
 
         // Write to a temp file first, then replace
-        var tempDbPath = _dbPath + ".restore_temp";
+        var tempDbPath = Path.Combine(Path.GetTempPath(), $"bikehaus_restore_{Guid.NewGuid()}.db");
 
         try
         {
@@ -133,20 +159,56 @@ public class BackupService : IBackupService
                 await entryStream.CopyToAsync(fileStream);
             }
 
-            // Delete WAL and SHM files if they exist
+            // Delete WAL and SHM files if they exist (with retry)
             var walPath = _dbPath + "-wal";
             var shmPath = _dbPath + "-shm";
 
-            if (File.Exists(walPath)) File.Delete(walPath);
-            if (File.Exists(shmPath)) File.Delete(shmPath);
+            await DeleteFileWithRetryAsync(walPath);
+            await DeleteFileWithRetryAsync(shmPath);
 
-            // Replace the current database
-            File.Copy(tempDbPath, _dbPath, overwrite: true);
+            // Replace the current database with retry
+            for (int i = 0; i < 5; i++)
+            {
+                try
+                {
+                    File.Copy(tempDbPath, _dbPath, overwrite: true);
+                    break;
+                }
+                catch (IOException) when (i < 4)
+                {
+                    SqliteConnection.ClearAllPools();
+                    await Task.Delay(500);
+                }
+            }
         }
         finally
         {
-            if (File.Exists(tempDbPath))
-                File.Delete(tempDbPath);
+            try
+            {
+                if (File.Exists(tempDbPath))
+                    File.Delete(tempDbPath);
+            }
+            catch { }
+        }
+    }
+
+    private static async Task DeleteFileWithRetryAsync(string filePath, int maxRetries = 5)
+    {
+        if (!File.Exists(filePath))
+            return;
+
+        for (int i = 0; i < maxRetries; i++)
+        {
+            try
+            {
+                File.Delete(filePath);
+                return;
+            }
+            catch (IOException) when (i < maxRetries - 1)
+            {
+                SqliteConnection.ClearAllPools();
+                await Task.Delay(300);
+            }
         }
     }
 

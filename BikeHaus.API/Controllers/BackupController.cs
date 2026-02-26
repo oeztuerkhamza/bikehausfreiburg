@@ -1,12 +1,10 @@
 using BikeHaus.Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BikeHaus.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class BackupController : ControllerBase
 {
     private readonly IBackupService _backupService;

@@ -49,15 +49,27 @@ public static class DependencyInjection
         services.AddScoped<IPdfService, PdfService>();
         services.AddScoped<IFileStorageService>(sp =>
         {
-            var basePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            var basePath = configuration["FileStorage:BasePath"]
+                ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Path.IsPathRooted(basePath))
+                basePath = Path.Combine(Directory.GetCurrentDirectory(), basePath);
             return new FileStorageService(basePath);
         });
 
         services.AddScoped<IBackupService>(sp =>
         {
             var dbContext = sp.GetRequiredService<BikeHausDbContext>();
-            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-            var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "BikeHausFreiburg.db");
+            var uploadsPath = configuration["FileStorage:BasePath"]
+                ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Path.IsPathRooted(uploadsPath))
+                uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), uploadsPath);
+
+            // Extract DB path from connection string
+            var connString = configuration.GetConnectionString("DefaultConnection") ?? "";
+            var dbPath = connString.Replace("Data Source=", "").Trim();
+            if (!Path.IsPathRooted(dbPath))
+                dbPath = Path.Combine(Directory.GetCurrentDirectory(), dbPath);
+
             return new BackupService(dbContext, uploadsPath, dbPath);
         });
 
