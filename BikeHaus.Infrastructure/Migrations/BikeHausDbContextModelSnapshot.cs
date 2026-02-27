@@ -108,6 +108,48 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("Bicycles");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.CloudBackupSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("AutoBackupOnExit")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EncryptedPassword")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("LastBackupDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastBackupStatus")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RemoteFolderPath")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CloudBackupSettings");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Customer", b =>
                 {
                     b.Property<int>("Id")

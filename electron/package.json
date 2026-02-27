@@ -7,7 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "start": "electron .",
-    "pack": "electron-packager . \"Bike Haus Freiburg\" --platform=win32 --arch=x64 --out=../dist-electron --overwrite --extra-resource=../publish:api --icon=icon.ico --asar=false"
+    "pack": "electron-packager . \"Bike Haus Freiburg\" --platform=win32 --arch=x64 --out=../dist-electron --overwrite --extra-resource=../publish:api --icon=icon.ico --asar=false",
+    "build-installer": "electron-builder --win --x64",
+    "build": "electron-builder --win --x64"
   },
   "devDependencies": {
     "electron": "^33.0.0",
@@ -24,7 +26,7 @@
     "win": {
       "target": [
         {
-          "target": "portable",
+          "target": "nsis",
           "arch": [
             "x64"
           ]
@@ -51,7 +53,7 @@
     "extraResources": [
       {
         "from": "../publish",
-        "to": "api",
+        "to": "publish",
         "filter": [
           "**/*"
         ]
