@@ -2,7 +2,16 @@ namespace BikeHaus.Application.Interfaces;
 
 public interface IKleinanzeigenScraperService
 {
-    Task<List<ScrapedListingData>> ScrapeListingsAsync(string profileUrl);
+    /// <summary>
+    /// Scrapes listings from Kleinanzeigen profile page.
+    /// </summary>
+    /// <param name="profileUrl">The Kleinanzeigen profile/listing URL</param>
+    /// <param name="existingExternalIds">External IDs already in DB — detail pages will be skipped for these</param>
+    /// <param name="cancellationToken">Cancellation token for timeout support</param>
+    Task<List<ScrapedListingData>> ScrapeListingsAsync(
+        string profileUrl,
+        HashSet<string>? existingExternalIds = null,
+        CancellationToken cancellationToken = default);
 }
 
 public class ScrapedListingData
@@ -16,4 +25,8 @@ public class ScrapedListingData
     public string? Location { get; set; }
     public string ExternalUrl { get; set; } = string.Empty;
     public List<string> ImageUrls { get; set; } = new();
+    /// <summary>
+    /// True if only card-level data was scraped (detail page was skipped for existing listings).
+    /// </summary>
+    public bool IsCardDataOnly { get; set; }
 }

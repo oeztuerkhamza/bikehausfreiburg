@@ -61,7 +61,7 @@ public class KleinanzeigenSyncBackgroundService : BackgroundService
             using var scope = _serviceProvider.CreateScope();
             var kleinanzeigenService = scope.ServiceProvider.GetRequiredService<IKleinanzeigenService>();
             var coordinator = scope.ServiceProvider.GetRequiredService<KleinanzeigenSyncCoordinator>();
-            var result = await coordinator.RunSyncDirectAsync(kleinanzeigenService);
+            var result = await coordinator.RunSyncDirectAsync(kleinanzeigenService, cancellationToken);
 
             if (result.Error != null)
             {

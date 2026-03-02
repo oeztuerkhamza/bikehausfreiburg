@@ -91,7 +91,7 @@ public class KleinanzeigenService : IKleinanzeigenService
         };
     }
 
-    public async Task<KleinanzeigenSyncResultDto> TriggerSyncAsync()
+    public async Task<KleinanzeigenSyncResultDto> TriggerSyncAsync(CancellationToken cancellationToken = default)
     {
         var result = new KleinanzeigenSyncResultDto { SyncedAt = DateTime.UtcNow };
 
@@ -106,8 +106,14 @@ public class KleinanzeigenService : IKleinanzeigenService
 
             _logger.LogInformation("Starting Kleinanzeigen sync from: {Url}", settings.KleinanzeigenUrl);
 
-            // Scrape listings from Kleinanzeigen
-            var scrapedListings = await _scraperService.ScrapeListingsAsync(settings.KleinanzeigenUrl);
+            // Get existing external IDs so scraper can skip detail pages for known listings
+            var existingListings = await _listingRepository.GetAllActiveAsync();
+            var existingExternalIds = new HashSet<string>(existingListings.Select(l => l.ExternalId));
+            _logger.LogInformation("Found {Count} existing listings in DB", existingExternalIds.Count);
+
+            // Scrape listings from Kleinanzeigen (skips detail pages for existing IDs)
+            var scrapedListings = await _scraperService.ScrapeListingsAsync(
+                settings.KleinanzeigenUrl, existingExternalIds, cancellationToken);
 
             if (!scrapedListings.Any())
             {
@@ -153,25 +159,39 @@ public class KleinanzeigenService : IKleinanzeigenService
                 else
                 {
                     // Existing listing — update
-                    existing.Title = scraped.Title;
-                    existing.Description = scraped.Description;
-                    existing.Price = scraped.Price;
-                    existing.PriceText = scraped.PriceText;
-                    existing.Category = scraped.Category;
-                    existing.Location = scraped.Location;
-                    existing.IsActive = true;
-                    existing.LastScrapedAt = DateTime.UtcNow;
-                    existing.UpdatedAt = DateTime.UtcNow;
-
-                    // Update images: clear old, add new
-                    existing.Images.Clear();
-                    foreach (var (url, index) in scraped.ImageUrls.Select((u, i) => (u, i)))
+                    if (scraped.IsCardDataOnly)
                     {
-                        existing.Images.Add(new KleinanzeigenImage
+                        // Only card-level data available (detail page was skipped)
+                        // Update only title/price from card, preserve description/images/location
+                        existing.Title = !string.IsNullOrEmpty(scraped.Title) ? scraped.Title : existing.Title;
+                        existing.PriceText = scraped.PriceText ?? existing.PriceText;
+                        existing.IsActive = true;
+                        existing.LastScrapedAt = DateTime.UtcNow;
+                        existing.UpdatedAt = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        // Full detail data available
+                        existing.Title = scraped.Title;
+                        existing.Description = scraped.Description;
+                        existing.Price = scraped.Price;
+                        existing.PriceText = scraped.PriceText;
+                        existing.Category = scraped.Category;
+                        existing.Location = scraped.Location;
+                        existing.IsActive = true;
+                        existing.LastScrapedAt = DateTime.UtcNow;
+                        existing.UpdatedAt = DateTime.UtcNow;
+
+                        // Update images: clear old, add new
+                        existing.Images.Clear();
+                        foreach (var (url, index) in scraped.ImageUrls.Select((u, i) => (u, i)))
                         {
-                            ImageUrl = url,
-                            SortOrder = index
-                        });
+                            existing.Images.Add(new KleinanzeigenImage
+                            {
+                                ImageUrl = url,
+                                SortOrder = index
+                            });
+                        }
                     }
 
                     await _listingRepository.UpdateAsync(existing);

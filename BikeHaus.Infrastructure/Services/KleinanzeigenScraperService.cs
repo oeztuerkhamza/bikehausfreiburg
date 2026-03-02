@@ -13,7 +13,10 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
         _logger = logger;
     }
 
-    public async Task<List<ScrapedListingData>> ScrapeListingsAsync(string profileUrl)
+    public async Task<List<ScrapedListingData>> ScrapeListingsAsync(
+        string profileUrl,
+        HashSet<string>? existingExternalIds = null,
+        CancellationToken cancellationToken = default)
     {
         var results = new List<ScrapedListingData>();
 
@@ -49,15 +52,38 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
 
             // Handle cookie consent
             await AcceptCookieConsentAsync(page);
-            await page.WaitForTimeoutAsync(2000);
+            await page.WaitForTimeoutAsync(1000);
 
             // Collect all listing URLs from the listing page
             var listingCards = await ScrapeListingCardsAsync(page, profileUrl);
             _logger.LogInformation("Found {Count} listing cards on profile page", listingCards.Count);
 
-            // Visit each listing detail page
-            foreach (var card in listingCards)
+            existingExternalIds ??= new HashSet<string>();
+            var newCards = listingCards.Where(c => !existingExternalIds.Contains(c.ExternalId)).ToList();
+            var existingCards = listingCards.Where(c => existingExternalIds.Contains(c.ExternalId)).ToList();
+            _logger.LogInformation(
+                "Listings breakdown: {New} new (need detail scrape), {Existing} existing (skip detail)",
+                newCards.Count, existingCards.Count);
+
+            // For existing listings, return card-level data only (no detail page visit)
+            foreach (var card in existingCards)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                results.Add(new ScrapedListingData
+                {
+                    ExternalId = card.ExternalId,
+                    Title = card.Title ?? string.Empty,
+                    PriceText = card.PriceText,
+                    Category = card.Category,
+                    ExternalUrl = card.Url,
+                    IsCardDataOnly = true
+                });
+            }
+
+            // Visit detail pages ONLY for new listings
+            foreach (var card in newCards)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
                     var detailData = await ScrapeListingDetailAsync(page, card);
@@ -67,8 +93,8 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
                         _logger.LogInformation("Scraped listing: {Title} ({Id})", detailData.Title, detailData.ExternalId);
                     }
 
-                    // Rate limiting: wait between requests to avoid bot detection
-                    await page.WaitForTimeoutAsync(Random.Shared.Next(2000, 4000));
+                    // Rate limiting between requests (reduced from 2-4s to 1-2s)
+                    await page.WaitForTimeoutAsync(Random.Shared.Next(1000, 2000));
                 }
                 catch (Exception ex)
                 {
@@ -169,7 +195,7 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
                     WaitUntil = WaitUntilState.DOMContentLoaded,
                     Timeout = 30000
                 });
-                await page.WaitForTimeoutAsync(2000);
+                await page.WaitForTimeoutAsync(1000);
             }
 
             // Get all ad items on the current page
@@ -275,7 +301,7 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             // Rate limiting between page navigations
             if (pageNum < maxPages)
             {
-                await page.WaitForTimeoutAsync(Random.Shared.Next(1500, 3000));
+                await page.WaitForTimeoutAsync(Random.Shared.Next(1000, 2000));
             }
         }
 
@@ -290,7 +316,7 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             Timeout = 30000
         });
 
-        await page.WaitForTimeoutAsync(1500);
+        await page.WaitForTimeoutAsync(800);
 
         var data = new ScrapedListingData
         {
@@ -378,35 +404,6 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
                 {
                     imageUrls.Add(fullUrl);
                 }
-            }
-        }
-
-        // If user clicks through gallery thumbnails
-        var thumbnails = await page.QuerySelectorAllAsync(".galleryimage--thumbnail img, .gallery-thumbnail img, [data-ix]");
-        if (thumbnails.Count > 1 && imageUrls.Count <= 1)
-        {
-            foreach (var thumb in thumbnails)
-            {
-                try
-                {
-                    await thumb.ClickAsync();
-                    await page.WaitForTimeoutAsync(500);
-
-                    var mainImg = await page.QuerySelectorAsync("#viewad-image img, .galleryimage--large img");
-                    if (mainImg != null)
-                    {
-                        var src = await mainImg.GetAttributeAsync("src");
-                        if (!string.IsNullOrEmpty(src) && src.Contains("img.kleinanzeigen"))
-                        {
-                            var fullUrl = ConvertToFullSizeUrl(src);
-                            if (!imageUrls.Contains(fullUrl))
-                            {
-                                imageUrls.Add(fullUrl);
-                            }
-                        }
-                    }
-                }
-                catch { /* Continue to next thumbnail */ }
             }
         }
 

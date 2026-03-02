@@ -14,6 +14,10 @@ public class KleinanzeigenSyncCoordinator
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<KleinanzeigenSyncCoordinator> _logger;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
+    private CancellationTokenSource? _currentSyncCts;
+
+    /// <summary>Maximum time allowed for a single sync operation (10 minutes).</summary>
+    private static readonly TimeSpan SyncTimeout = TimeSpan.FromMinutes(10);
 
     public bool IsSyncing { get; private set; }
     public KleinanzeigenSyncResultDto? LastResult { get; private set; }
@@ -44,13 +48,15 @@ public class KleinanzeigenSyncCoordinator
 
         _ = Task.Run(async () =>
         {
+            _currentSyncCts = new CancellationTokenSource(SyncTimeout);
             try
             {
-                _logger.LogInformation("Background sync triggered at {Time}", SyncStartedAt);
+                _logger.LogInformation("Background sync triggered at {Time} (timeout: {Timeout}min)",
+                    SyncStartedAt, SyncTimeout.TotalMinutes);
 
                 using var scope = _serviceProvider.CreateScope();
                 var service = scope.ServiceProvider.GetRequiredService<IKleinanzeigenService>();
-                LastResult = await service.TriggerSyncAsync();
+                LastResult = await service.TriggerSyncAsync(_currentSyncCts.Token);
 
                 if (LastResult.Error != null)
                 {
@@ -62,6 +68,15 @@ public class KleinanzeigenSyncCoordinator
                         "Sync completed: {New} new, {Updated} updated, {Deactivated} deactivated",
                         LastResult.NewListings, LastResult.UpdatedListings, LastResult.DeactivatedListings);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Sync was cancelled due to timeout ({Timeout}min)", SyncTimeout.TotalMinutes);
+                LastResult = new KleinanzeigenSyncResultDto
+                {
+                    Error = $"Sync timed out after {SyncTimeout.TotalMinutes} minutes",
+                    SyncedAt = DateTime.UtcNow
+                };
             }
             catch (Exception ex)
             {
@@ -76,6 +91,8 @@ public class KleinanzeigenSyncCoordinator
             {
                 IsSyncing = false;
                 _syncLock.Release();
+                _currentSyncCts?.Dispose();
+                _currentSyncCts = null;
             }
         });
 
@@ -85,7 +102,9 @@ public class KleinanzeigenSyncCoordinator
     /// <summary>
     /// Used by the background service to run sync synchronously within its own scope.
     /// </summary>
-    public async Task<KleinanzeigenSyncResultDto> RunSyncDirectAsync(IKleinanzeigenService service)
+    public async Task<KleinanzeigenSyncResultDto> RunSyncDirectAsync(
+        IKleinanzeigenService service,
+        CancellationToken cancellationToken = default)
     {
         if (!_syncLock.Wait(0))
         {
@@ -100,9 +119,23 @@ public class KleinanzeigenSyncCoordinator
         SyncStartedAt = DateTime.UtcNow;
         LastResult = null;
 
+        // Use a linked CTS so we respect both the caller's token and our own timeout
+        using var timeoutCts = new CancellationTokenSource(SyncTimeout);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken, timeoutCts.Token);
+
         try
         {
-            LastResult = await service.TriggerSyncAsync();
+            LastResult = await service.TriggerSyncAsync(linkedCts.Token);
+            return LastResult;
+        }
+        catch (OperationCanceledException)
+        {
+            LastResult = new KleinanzeigenSyncResultDto
+            {
+                Error = $"Sync timed out after {SyncTimeout.TotalMinutes} minutes",
+                SyncedAt = DateTime.UtcNow
+            };
             return LastResult;
         }
         catch (Exception ex)
