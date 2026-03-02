@@ -18,7 +18,7 @@ import { TranslationService } from '../../services/translation.service';
         <img
           *ngIf="listing.images?.length"
           [src]="listing.images[0].imageUrl"
-          [alt]="listing.title + ' — Fahrrad bei Bike Haus Freiburg'"
+          [alt]="listing.title + t().bikeAltSuffix"
           loading="lazy"
           (error)="onImageError($event)"
         />

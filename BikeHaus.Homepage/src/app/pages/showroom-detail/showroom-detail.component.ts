@@ -863,7 +863,8 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
 
     const t = this.t();
     const priceText = listing.price ? ` - ${listing.price}€` : '';
-    const baseText = `${t.whatsappInterested}\n${listing.title}${priceText}\n\n`;
+    const listingUrl = `https://bikehausfreiburg.com/showroom/${listing.id}`;
+    const baseText = `${listingUrl}\n\n${t.whatsappInterested}\n${listing.title}${priceText}\n\n`;
     const userMsg = this.userWhatsappMessage.trim();
     const fullText =
       baseText + (userMsg ? `${t.whatsappQuestion}\n${userMsg}` : '');
@@ -890,7 +891,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
         if (data) {
           const title = `${data.title} — Bike Haus Freiburg`;
           const price = data.price ? `${data.price}€` : '';
-          const desc = `${data.title} ${price}. Jetzt bei Bike Haus Freiburg in 79114 Freiburg im Breisgau ansehen.`;
+          const desc = `${data.title} ${price}. ${this.t().detailMetaDescSuffix}`;
 
           this.titleService.setTitle(title);
           this.metaService.updateTag({ name: 'description', content: desc });
@@ -956,7 +957,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
           name: 'Bike Haus Freiburg',
         },
       },
-      category: data.category || 'Fahrrad',
+      category: data.category || this.t().bikeFallbackCategory,
     };
 
     this.productSchemaElement = this.document.createElement('script');

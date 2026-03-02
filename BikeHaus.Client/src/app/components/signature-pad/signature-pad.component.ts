@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-signature-pad',
@@ -31,7 +32,7 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
       </canvas>
       <div class="signature-actions">
         <button type="button" class="btn btn-sm btn-outline" (click)="clear()">
-          Löschen
+          {{ t.clearButton }}
         </button>
       </div>
     </div>
@@ -82,6 +83,12 @@ export class SignaturePadComponent
 
   private onChange: (val: string) => void = () => {};
   private onTouched: () => void = () => {};
+
+  constructor(private readonly translationService: TranslationService) {}
+
+  get t() {
+    return this.translationService.translations();
+  }
 
   ngAfterViewInit() {
     const canvas = this.canvasRef.nativeElement;

@@ -12,6 +12,7 @@ export interface Translations {
   returns: string;
   statistics: string;
   settings: string;
+  skipToMain: string;
 
   // Dashboard
   welcomeToBikeHaus: string;
@@ -497,6 +498,85 @@ export interface Translations {
   archiveViewDocument: string;
   archivePrintDocument: string;
   archiveBackToSearch: string;
+
+  // Bike Selector
+  bikeSelectorPlaceholder: string;
+  noAvailableBikes: string;
+  selectedColon: string;
+  frameColon: string;
+  colorColon: string;
+  wheelsColon: string;
+  typeColon: string;
+  invalidNumberError: string;
+  bikeAlreadySoldError: string;
+  bikeNotFoundError: string;
+
+  // Pagination
+  paginationEntries: string;
+  paginationPage: string;
+  paginationOf: string;
+  paginationPerPage: string;
+  paginationFirstPage: string;
+  paginationPrevious: string;
+  paginationNext: string;
+  paginationLastPage: string;
+
+  // Signature Pad
+  clearButton: string;
+
+  // Address Autocomplete
+  addressInputPlaceholder: string;
+
+  // Bicycle Labels
+  createLabels: string;
+  labelsSearchPlaceholder: string;
+  selectedText: string;
+  selectAllButton: string;
+  deselectAllButton: string;
+  printButton: string;
+  wheelsSpec: string;
+  backToSelection: string;
+  printNowButton: string;
+  labelsWord: string;
+  bicyclesPlural: string;
+
+  // Settings - Kleinanzeigen
+  kleinanzeigenIntegration: string;
+  kleinanzeigenProfileUrl: string;
+  kleinanzeigenUrlHint: string;
+  syncNow: string;
+  syncingText: string;
+  lastSync: string;
+  syncNew: string;
+  syncUpdated: string;
+  syncDeactivated: string;
+  bicycleNumbering: string;
+  startNumber: string;
+  autoNumberHint: string;
+  syncFailed: string;
+  unknownError: string;
+
+  // Reservation Form
+  reservationDataTitle: string;
+  expirationDateColon: string;
+  selectBicycleWarning: string;
+  firstNameRequiredMsg: string;
+  lastNameRequiredMsg: string;
+  streetRequiredMsg: string;
+  houseNumberRequiredMsg: string;
+  postalCodeRequiredMsg: string;
+  cityRequiredMsg: string;
+  phoneRequiredMsg: string;
+  reservationDaysWarning: string;
+  reservationCreateError: string;
+  addressSuggestHint: string;
+
+  // Archive
+  noEventsFound: string;
+
+  // Sale Form
+  requiredFieldsMissing: string;
+  requiredField: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -510,6 +590,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     returns: 'Rückgaben',
     statistics: 'Statistiken',
     settings: 'Einstellungen',
+    skipToMain: 'Zum Hauptinhalt springen',
 
     // Dashboard
     welcomeToBikeHaus: 'Willkommen bei BikeHaus Freiburg',
@@ -1003,6 +1084,86 @@ const TRANSLATIONS: Record<Language, Translations> = {
     archiveViewDocument: 'Beleg anzeigen',
     archivePrintDocument: 'Beleg drucken',
     archiveBackToSearch: 'Zurück zur Suche',
+
+    // Bike Selector
+    bikeSelectorPlaceholder: 'Suche nach Marke, Modell, Rahmennummer...',
+    noAvailableBikes: 'Keine verfügbaren Fahrräder gefunden',
+    selectedColon: 'Ausgewählt:',
+    frameColon: 'Rahmen:',
+    colorColon: 'Farbe:',
+    wheelsColon: 'Reifen:',
+    typeColon: 'Typ:',
+    invalidNumberError: 'Bitte eine gültige Nr eingeben.',
+    bikeAlreadySoldError: 'Fahrrad #{nr} ist bereits verkauft.',
+    bikeNotFoundError: 'Fahrrad mit Nr {nr} nicht gefunden.',
+
+    // Pagination
+    paginationEntries: 'Einträge',
+    paginationPage: 'Seite',
+    paginationOf: 'von',
+    paginationPerPage: '/ Seite',
+    paginationFirstPage: 'Erste Seite',
+    paginationPrevious: 'Vorherige',
+    paginationNext: 'Nächste',
+    paginationLastPage: 'Letzte Seite',
+
+    // Signature Pad
+    clearButton: 'Löschen',
+
+    // Address Autocomplete
+    addressInputPlaceholder: 'Adresse eingeben...',
+
+    // Bicycle Labels
+    createLabels: 'Etiketten erstellen',
+    labelsSearchPlaceholder: 'Suche nach Marke, Modell, Stok-Nr...',
+    selectedText: 'ausgewählt',
+    selectAllButton: 'Alle auswählen',
+    deselectAllButton: 'Auswahl aufheben',
+    printButton: 'Drucken',
+    wheelsSpec: 'Räder',
+    backToSelection: 'Zurück zur Auswahl',
+    printNowButton: 'Jetzt drucken',
+    labelsWord: 'Etiketten',
+    bicyclesPlural: 'Fahrräder',
+
+    // Settings - Kleinanzeigen
+    kleinanzeigenIntegration: 'Kleinanzeigen Integration',
+    kleinanzeigenProfileUrl: 'Kleinanzeigen Profil-URL',
+    kleinanzeigenUrlHint:
+      'Die URL Ihrer Bestandsliste auf Kleinanzeigen. Anzeigen werden automatisch alle 4 Stunden synchronisiert.',
+    syncNow: 'Jetzt synchronisieren',
+    syncingText: 'Synchronisiere...',
+    lastSync: 'Letzte Sync:',
+    syncNew: 'neue',
+    syncUpdated: 'aktualisiert',
+    syncDeactivated: 'deaktiviert',
+    bicycleNumbering: 'Fahrrad-Nummerierung',
+    startNumber: 'Startnummer',
+    autoNumberHint: 'Neue Fahrräder bekommen automatisch die nächste Nummer',
+    syncFailed: 'Sync fehlgeschlagen:',
+    unknownError: 'Unbekannter Fehler',
+
+    // Reservation Form
+    reservationDataTitle: 'Reservierungsdaten',
+    expirationDateColon: 'Ablaufdatum:',
+    selectBicycleWarning: 'Bitte wählen Sie ein Fahrrad aus',
+    firstNameRequiredMsg: 'Vorname ist erforderlich',
+    lastNameRequiredMsg: 'Nachname ist erforderlich',
+    streetRequiredMsg: 'Straße ist erforderlich',
+    houseNumberRequiredMsg: 'Hausnummer ist erforderlich',
+    postalCodeRequiredMsg: 'PLZ ist erforderlich',
+    cityRequiredMsg: 'Stadt ist erforderlich',
+    phoneRequiredMsg: 'Telefon ist erforderlich',
+    reservationDaysWarning: 'Reservierungstage muss größer als 0 sein',
+    reservationCreateError: 'Fehler beim Erstellen der Reservierung',
+    addressSuggestHint: 'Tippen Sie eine Adresse ein für Vorschläge',
+
+    // Archive
+    noEventsFound: 'Keine Ereignisse vorhanden.',
+
+    // Sale Form
+    requiredFieldsMissing: 'Pflichtfelder fehlen',
+    requiredField: 'Pflichtfeld',
   },
   tr: {
     // Navigation
@@ -1014,6 +1175,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     returns: 'İadeler',
     statistics: 'İstatistikler',
     settings: 'Ayarlar',
+    skipToMain: 'Ana içeriğe atla',
 
     // Dashboard
     welcomeToBikeHaus: "BikeHaus Freiburg'a hoş geldiniz",
@@ -1506,6 +1668,86 @@ const TRANSLATIONS: Record<Language, Translations> = {
     archiveViewDocument: 'Belgeyi görüntüle',
     archivePrintDocument: 'Belgeyi yazdır',
     archiveBackToSearch: 'Aramaya dön',
+
+    // Bike Selector
+    bikeSelectorPlaceholder: 'Marka, model, şase numarası ara...',
+    noAvailableBikes: 'Mevcut bisiklet bulunamadı',
+    selectedColon: 'Seçildi:',
+    frameColon: 'Şase:',
+    colorColon: 'Renk:',
+    wheelsColon: 'Tekerlek:',
+    typeColon: 'Tip:',
+    invalidNumberError: 'Lütfen geçerli bir numara girin.',
+    bikeAlreadySoldError: '#{nr} numaralı bisiklet zaten satıldı.',
+    bikeNotFoundError: '{nr} numaralı bisiklet bulunamadı.',
+
+    // Pagination
+    paginationEntries: 'Kayıt',
+    paginationPage: 'Sayfa',
+    paginationOf: '/',
+    paginationPerPage: '/ Sayfa',
+    paginationFirstPage: 'İlk Sayfa',
+    paginationPrevious: 'Önceki',
+    paginationNext: 'Sonraki',
+    paginationLastPage: 'Son Sayfa',
+
+    // Signature Pad
+    clearButton: 'Temizle',
+
+    // Address Autocomplete
+    addressInputPlaceholder: 'Adres girin...',
+
+    // Bicycle Labels
+    createLabels: 'Etiket Oluştur',
+    labelsSearchPlaceholder: 'Marka, model, stok no ara...',
+    selectedText: 'seçildi',
+    selectAllButton: 'Tümünü Seç',
+    deselectAllButton: 'Seçimi Kaldır',
+    printButton: 'Yazdır',
+    wheelsSpec: 'Tekerlekler',
+    backToSelection: 'Seçime Geri Dön',
+    printNowButton: 'Şimdi Yazdır',
+    labelsWord: 'Etiket',
+    bicyclesPlural: 'Bisiklet',
+
+    // Settings - Kleinanzeigen
+    kleinanzeigenIntegration: 'Kleinanzeigen Entegrasyonu',
+    kleinanzeigenProfileUrl: 'Kleinanzeigen Profil URL',
+    kleinanzeigenUrlHint:
+      "Kleinanzeigen'deki ilan listenizin URL'si. İlanlar otomatik olarak her 4 saatte senkronize edilir.",
+    syncNow: 'Şimdi Senkronize Et',
+    syncingText: 'Senkronize ediliyor...',
+    lastSync: 'Son Senkronizasyon:',
+    syncNew: 'yeni',
+    syncUpdated: 'güncellendi',
+    syncDeactivated: 'devre dışı',
+    bicycleNumbering: 'Bisiklet Numaralandırma',
+    startNumber: 'Başlangıç Numarası',
+    autoNumberHint: 'Yeni bisikletler otomatik olarak sıradaki numarayı alır',
+    syncFailed: 'Senkronizasyon başarısız:',
+    unknownError: 'Bilinmeyen hata',
+
+    // Reservation Form
+    reservationDataTitle: 'Rezervasyon Bilgileri',
+    expirationDateColon: 'Son Tarih:',
+    selectBicycleWarning: 'Lütfen bir bisiklet seçin',
+    firstNameRequiredMsg: 'Ad gerekli',
+    lastNameRequiredMsg: 'Soyad gerekli',
+    streetRequiredMsg: 'Sokak gerekli',
+    houseNumberRequiredMsg: 'Kapı numarası gerekli',
+    postalCodeRequiredMsg: 'Posta kodu gerekli',
+    cityRequiredMsg: 'Şehir gerekli',
+    phoneRequiredMsg: 'Telefon gerekli',
+    reservationDaysWarning: "Rezervasyon günü 0'dan büyük olmalı",
+    reservationCreateError: 'Rezervasyon oluşturulurken hata oluştu',
+    addressSuggestHint: 'Öneri almak için adres yazın',
+
+    // Archive
+    noEventsFound: 'Herhangi bir işlem bulunamadı.',
+
+    // Sale Form
+    requiredFieldsMissing: 'Zorunlu alanlar eksik',
+    requiredField: 'Zorunlu alan',
   },
 };
 

@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-pagination',
@@ -10,11 +11,11 @@ import { FormsModule } from '@angular/forms';
     <div class="pagination-container">
       <div class="pagination-info">
         <span class="total-badge">{{ totalCount }}</span>
-        <span>Einträge</span>
+        <span>{{ t.paginationEntries }}</span>
         <span class="dot">·</span>
         <span
-          >Seite <strong>{{ currentPage }}</strong> von
-          <strong>{{ totalPages }}</strong></span
+          >{{ t.paginationPage }} <strong>{{ currentPage }}</strong>
+          {{ t.paginationOf }} <strong>{{ totalPages }}</strong></span
         >
       </div>
 
@@ -24,12 +25,12 @@ import { FormsModule } from '@angular/forms';
           (ngModelChange)="onPageSizeChange($event)"
           class="page-size-select"
         >
-          <option [value]="15">15 / Seite</option>
-          <option [value]="20">20 / Seite</option>
-          <option [value]="30">30 / Seite</option>
-          <option [value]="50">50 / Seite</option>
-          <option [value]="100">100 / Seite</option>
-          <option [value]="1000">1000 / Seite</option>
+          <option [value]="15">15 {{ t.paginationPerPage }}</option>
+          <option [value]="20">20 {{ t.paginationPerPage }}</option>
+          <option [value]="30">30 {{ t.paginationPerPage }}</option>
+          <option [value]="50">50 {{ t.paginationPerPage }}</option>
+          <option [value]="100">100 {{ t.paginationPerPage }}</option>
+          <option [value]="1000">1000 {{ t.paginationPerPage }}</option>
         </select>
 
         <div class="page-buttons">
@@ -37,7 +38,7 @@ import { FormsModule } from '@angular/forms';
             class="page-btn"
             [disabled]="!hasPrevious"
             (click)="goToPage(1)"
-            title="Erste Seite"
+            [title]="t.paginationFirstPage"
           >
             <svg
               width="14"
@@ -55,7 +56,7 @@ import { FormsModule } from '@angular/forms';
             class="page-btn"
             [disabled]="!hasPrevious"
             (click)="goToPage(currentPage - 1)"
-            title="Vorherige"
+            [title]="t.paginationPrevious"
           >
             <svg
               width="14"
@@ -75,7 +76,7 @@ import { FormsModule } from '@angular/forms';
             class="page-btn"
             [disabled]="!hasNext"
             (click)="goToPage(currentPage + 1)"
-            title="Nächste"
+            [title]="t.paginationNext"
           >
             <svg
               width="14"
@@ -92,7 +93,7 @@ import { FormsModule } from '@angular/forms';
             class="page-btn"
             [disabled]="!hasNext"
             (click)="goToPage(totalPages)"
-            title="Letzte Seite"
+            [title]="t.paginationLastPage"
           >
             <svg
               width="14"
@@ -252,6 +253,12 @@ export class PaginationComponent {
 
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
+
+  constructor(private readonly translationService: TranslationService) {}
+
+  get t() {
+    return this.translationService.translations();
+  }
 
   goToPage(page: number) {
     if (page >= 1 && page <= this.totalPages) {

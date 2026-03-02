@@ -59,13 +59,13 @@ import { AddressSuggestion } from '../../services/address.service';
             <div class="card-header-row">
               <h2>
                 <span *ngIf="isQuickAddMode" class="quick-add-badge"
-                  >🆕 Neues Fahrrad</span
+                  >🆕 {{ t.newBicycle }}</span
                 >
                 <span *ngIf="!isQuickAddMode">{{ t.bicycleDetails }}</span>
                 <span
                   *ngIf="hasBikeErrors && !bikeEditExpanded"
                   class="bike-error-badge"
-                  >Pflichtfelder fehlen</span
+                  >{{ t.requiredFieldsMissing }}</span
                 >
               </h2>
               <button
@@ -108,9 +108,9 @@ import { AddressSuggestion } from '../../services/address.service';
                 <datalist id="brandList">
                   <option *ngFor="let b of brands" [value]="b"></option>
                 </datalist>
-                <span class="error-msg" *ngIf="bikeErrors['marke']"
-                  >Pflichtfeld</span
-                >
+                <span class="error-msg" *ngIf="bikeErrors['marke']">{{
+                  t.requiredField
+                }}</span>
               </div>
               <div class="field">
                 <label>{{ t.model }}</label>
@@ -134,9 +134,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   name="bikeRahmen"
                   (ngModelChange)="bikeErrors['rahmennummer'] = false"
                 />
-                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']"
-                  >Pflichtfeld</span
-                >
+                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']">{{
+                  t.requiredField
+                }}</span>
               </div>
               <div class="field">
                 <label>{{ t.frameSize }}</label>
@@ -165,18 +165,18 @@ import { AddressSuggestion } from '../../services/address.service';
                   <option value="Silber">Silber</option>
                   <option value="Pink">Pink</option>
                 </select>
-                <span class="error-msg" *ngIf="bikeErrors['farbe']"
-                  >Pflichtfeld</span
-                >
+                <span class="error-msg" *ngIf="bikeErrors['farbe']">{{
+                  t.requiredField
+                }}</span>
               </div>
               <div
                 class="field"
                 [class.field-error]="bikeErrors['reifengroesse']"
               >
                 <label>{{ t.wheelSize }} *</label>
-                <span class="error-msg" *ngIf="bikeErrors['reifengroesse']"
-                  >Pflichtfeld</span
-                >
+                <span class="error-msg" *ngIf="bikeErrors['reifengroesse']">{{
+                  t.requiredField
+                }}</span>
                 <select
                   [(ngModel)]="bikeEdit.reifengroesse"
                   name="bikeReifen"
@@ -201,15 +201,15 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field" [class.field-error]="bikeErrors['fahrradtyp']">
                 <label>{{ t.bicycleType }} *</label>
-                <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']"
-                  >Pflichtfeld</span
-                >
+                <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']">{{
+                  t.requiredField
+                }}</span>
                 <select
                   [(ngModel)]="bikeEdit.fahrradtyp"
                   name="bikeFahrradtyp"
                   (ngModelChange)="bikeErrors['fahrradtyp'] = false"
                 >
-                  <option value="">-- Auswählen --</option>
+                  <option value="">-- {{ t.selectOption }} --</option>
                   <option value="E-Bike">E-Bike</option>
                   <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
                   <option value="Trekking">Trekking</option>
@@ -248,20 +248,12 @@ import { AddressSuggestion } from '../../services/address.service';
             <h2>{{ t.buyer }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>{{ t.firstNameRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.vorname"
-                  name="buyerVorname"
-                  required
-                />
+                <label>{{ t.firstName }}</label>
+                <input [(ngModel)]="buyer.vorname" name="buyerVorname" />
               </div>
               <div class="field">
-                <label>{{ t.lastNameRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.nachname"
-                  name="buyerNachname"
-                  required
-                />
+                <label>{{ t.lastName }}</label>
+                <input [(ngModel)]="buyer.nachname" name="buyerNachname" />
               </div>
               <div class="field full">
                 <label>{{ t.searchAddress }}</label>
@@ -272,28 +264,20 @@ import { AddressSuggestion } from '../../services/address.service';
                 <small class="hint">{{ t.addressHint }}</small>
               </div>
               <div class="field">
-                <label>{{ t.streetRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.strasse"
-                  name="buyerStrasse"
-                  required
-                />
+                <label>{{ t.street }}</label>
+                <input [(ngModel)]="buyer.strasse" name="buyerStrasse" />
               </div>
               <div class="field">
-                <label>{{ t.houseNumberRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.hausnummer"
-                  name="buyerHausnr"
-                  required
-                />
+                <label>{{ t.houseNumber }}</label>
+                <input [(ngModel)]="buyer.hausnummer" name="buyerHausnr" />
               </div>
               <div class="field">
-                <label>{{ t.postalCodeRequired }}</label>
-                <input [(ngModel)]="buyer.plz" name="buyerPlz" required />
+                <label>{{ t.postalCode }}</label>
+                <input [(ngModel)]="buyer.plz" name="buyerPlz" />
               </div>
               <div class="field">
-                <label>{{ t.cityRequired }}</label>
-                <input [(ngModel)]="buyer.stadt" name="buyerStadt" required />
+                <label>{{ t.city }}</label>
+                <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
               </div>
               <div class="field">
                 <label>{{ t.phone }}</label>

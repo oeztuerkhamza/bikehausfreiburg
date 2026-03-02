@@ -616,15 +616,13 @@ export class ReservationListComponent implements OnInit {
         title: this.t.cancelReservation,
         message: this.t.cancelReservation + '?',
         type: 'danger',
-        confirmText: this.t.cancel || 'Abbrechen',
+        confirmText: this.t.cancel,
       })
       .then((confirmed) => {
         if (confirmed) {
           this.reservationService.cancel(reservation.id).subscribe({
             next: () => {
-              this.notificationService.success(
-                this.t.cancelSuccess || 'Erfolgreich storniert',
-              );
+              this.notificationService.success(this.t.cancelSuccess);
               this.loadReservations();
             },
             error: (err) => {
@@ -655,17 +653,12 @@ export class ReservationListComponent implements OnInit {
 
   confirmDelete(reservation: ReservationList) {
     this.dialogService
-      .danger(
-        this.t.delete,
-        this.t.deleteConfirmReservation || 'Reservierung endgültig löschen?',
-      )
+      .danger(this.t.delete, this.t.deleteConfirmReservation)
       .then((confirmed) => {
         if (confirmed) {
           this.reservationService.delete(reservation.id).subscribe({
             next: () => {
-              this.notificationService.success(
-                this.t.deleteSuccess || 'Erfolgreich gelöscht',
-              );
+              this.notificationService.success(this.t.deleteSuccess);
               this.loadReservations();
             },
             error: (err) => {

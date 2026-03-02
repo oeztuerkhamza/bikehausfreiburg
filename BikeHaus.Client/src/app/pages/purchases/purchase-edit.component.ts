@@ -11,7 +11,7 @@ import {
   PaymentMethod,
   BikeCondition,
   BikeStatus,
-  Document as DocModel
+  Document as DocModel,
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
@@ -259,7 +259,7 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
-                <label>{{ t.adNumber || 'Anzeige Nr.' }}</label>
+                <label>{{ t.adNumber }}</label>
                 <input
                   [(ngModel)]="anzeigeNr"
                   name="anzeigeNr"
@@ -279,15 +279,28 @@ import { forkJoin } from 'rxjs';
 
           <!-- Photo Gallery -->
           <div class="form-card">
-            <h2>📷 {{ t.photoGallery || 'Fotos' }}</h2>
+            <h2>📷 {{ t.photoGallery }}</h2>
             <div class="gallery-section">
               <div class="gallery-grid" *ngIf="documents.length > 0">
                 <div class="gallery-item" *ngFor="let doc of documents">
-                  <img [src]="getDocumentUrl(doc)" [alt]="doc.fileName" (click)="openImagePreview(doc)" />
-                  <button type="button" class="delete-btn" (click)="deleteDocument(doc)" title="Löschen">×</button>
+                  <img
+                    [src]="getDocumentUrl(doc)"
+                    [alt]="doc.fileName"
+                    (click)="openImagePreview(doc)"
+                  />
+                  <button
+                    type="button"
+                    class="delete-btn"
+                    (click)="deleteDocument(doc)"
+                    title="Löschen"
+                  >
+                    ×
+                  </button>
                 </div>
               </div>
-              <p *ngIf="documents.length === 0" class="no-photos">{{ t.noPhotos || 'Keine Fotos vorhanden' }}</p>
+              <p *ngIf="documents.length === 0" class="no-photos">
+                {{ t.noPhotos }}
+              </p>
               <div class="upload-row">
                 <input
                   type="file"
@@ -297,8 +310,13 @@ import { forkJoin } from 'rxjs';
                   multiple
                   style="display: none"
                 />
-                <button type="button" class="btn btn-outline" (click)="photoInput.click()" [disabled]="uploading">
-                  {{ uploading ? (t.uploading || 'Hochladen...') : (t.addPhotos || 'Fotos hinzufügen') }}
+                <button
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="photoInput.click()"
+                  [disabled]="uploading"
+                >
+                  {{ uploading ? t.uploading : t.addPhotos }}
                 </button>
               </div>
             </div>
@@ -486,7 +504,7 @@ import { forkJoin } from 'rxjs';
         align-items: center;
         gap: 12px;
       }
-      .upload-area input[type="file"] {
+      .upload-area input[type='file'] {
         display: none;
       }
       .upload-btn {
@@ -652,7 +670,13 @@ export class PurchaseEditComponent implements OnInit {
 
     this.uploading = true;
     const uploads = Array.from(input.files).map((file) => {
-      return this.documentService.upload(file, 'screenshot', undefined, this.purchase!.id, undefined);
+      return this.documentService.upload(
+        file,
+        'screenshot',
+        undefined,
+        this.purchase!.id,
+        undefined,
+      );
     });
 
     forkJoin(uploads).subscribe({

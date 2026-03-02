@@ -15,6 +15,7 @@ import {
   AddressService,
   AddressSuggestion,
 } from '../../services/address.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-address-autocomplete',
@@ -44,7 +45,7 @@ import {
         </div>
       </div>
       <div class="loading" *ngIf="isLoading">
-        <span>Suche...</span>
+        <span>{{ t.searching }}</span>
       </div>
     </div>
   `,
@@ -120,7 +121,7 @@ import {
   ],
 })
 export class AddressAutocompleteComponent implements OnDestroy {
-  @Input() placeholder = 'Adresse eingeben...';
+  @Input() placeholder = '';
   @Input() initialValue = '';
   @Output() addressSelected = new EventEmitter<AddressSuggestion>();
 
@@ -135,7 +136,10 @@ export class AddressAutocompleteComponent implements OnDestroy {
   constructor(
     private addressService: AddressService,
     private elementRef: ElementRef,
+    private translationService: TranslationService,
   ) {
+    this.placeholder =
+      this.translationService.translations().addressInputPlaceholder;
     this.subscription = this.searchSubject
       .pipe(
         debounceTime(350),
@@ -155,6 +159,10 @@ export class AddressAutocompleteComponent implements OnDestroy {
         this.isLoading = false;
         this.showSuggestions = results.length > 0;
       });
+  }
+
+  get t() {
+    return this.translationService.translations();
   }
 
   ngOnInit() {

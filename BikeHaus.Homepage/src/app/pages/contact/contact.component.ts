@@ -45,7 +45,7 @@ import { PublicShopInfo } from '../../models/models';
             <div class="card-content">
               <h3>WhatsApp</h3>
               <p>+49 155 6630 0011</p>
-              <span class="card-hint">Direkt schreiben</span>
+              <span class="card-hint">{{ t().contactWhatsappHint }}</span>
             </div>
             <svg
               class="card-arrow"
@@ -155,25 +155,32 @@ import { PublicShopInfo } from '../../models/models';
               <h3>{{ t().openingHours }}</h3>
               <div class="hours-table">
                 <div class="hour-row">
-                  <span>Mo</span><span>11:00 – 17:00</span>
+                  <span>{{ t().monShort }}</span
+                  ><span>11:00 – 17:00</span>
                 </div>
                 <div class="hour-row">
-                  <span>Di</span><span>11:00 – 17:00</span>
+                  <span>{{ t().tueShort }}</span
+                  ><span>11:00 – 17:00</span>
                 </div>
                 <div class="hour-row closed">
-                  <span>Mi</span><span>Geschlossen</span>
+                  <span>{{ t().wedShort }}</span
+                  ><span>{{ t().closed }}</span>
                 </div>
                 <div class="hour-row">
-                  <span>Do</span><span>11:00 – 17:00</span>
+                  <span>{{ t().thuShort }}</span
+                  ><span>11:00 – 17:00</span>
                 </div>
                 <div class="hour-row">
-                  <span>Fr</span><span>14:00 – 18:00</span>
+                  <span>{{ t().friShort }}</span
+                  ><span>14:00 – 18:00</span>
                 </div>
                 <div class="hour-row">
-                  <span>Sa</span><span>11:30 – 17:00</span>
+                  <span>{{ t().satShort }}</span
+                  ><span>11:30 – 17:00</span>
                 </div>
                 <div class="hour-row closed">
-                  <span>So</span><span>Ruhetag</span>
+                  <span>{{ t().sunShort }}</span
+                  ><span>{{ t().restDay }}</span>
                 </div>
               </div>
             </div>
@@ -520,17 +527,14 @@ export class ContactComponent implements OnInit {
 
   ngOnInit(): void {
     // SEO
-    this.titleService.setTitle(
-      'Kontakt — Bike Haus Freiburg | Adresse & Öffnungszeiten',
-    );
+    this.titleService.setTitle(this.t().contactMetaTitle);
     this.metaService.updateTag({
       name: 'description',
-      content:
-        'Kontaktieren Sie Bike Haus Freiburg. Adresse, Öffnungszeiten, WhatsApp, Telefon. Besuchen Sie uns in 79114 Freiburg im Breisgau.',
+      content: this.t().contactMetaDescription,
     });
     this.metaService.updateTag({
       property: 'og:title',
-      content: 'Kontakt — Bike Haus Freiburg',
+      content: this.t().contactMetaTitle,
     });
     this.metaService.updateTag({
       property: 'og:url',

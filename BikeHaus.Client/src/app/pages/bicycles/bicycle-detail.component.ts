@@ -458,16 +458,12 @@ export class BicycleDetailComponent implements OnInit {
     this.submitting = true;
     this.bicycleService.update(this.bicycle!.id, this.form).subscribe({
       next: () => {
-        this.notificationService.success(
-          this.t.saveSuccess || 'Erfolgreich gespeichert',
-        );
+        this.notificationService.success(this.t.saveSuccess);
         this.router.navigate(['/bicycles']);
       },
       error: (err) => {
         this.submitting = false;
-        this.notificationService.error(
-          err.error?.error || this.t.saveError || 'Fehler beim Speichern',
-        );
+        this.notificationService.error(err.error?.error || this.t.saveError);
       },
     });
   }
@@ -502,9 +498,7 @@ export class BicycleDetailComponent implements OnInit {
         if (confirmed) {
           this.documentService.delete(doc.id).subscribe({
             next: () => {
-              this.notificationService.success(
-                this.t.deleteSuccess || 'Erfolgreich gelöscht',
-              );
+              this.notificationService.success(this.t.deleteSuccess);
               this.documents = this.documents.filter((d) => d.id !== doc.id);
             },
             error: (err) => {

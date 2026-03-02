@@ -37,19 +37,15 @@ import { PublicShopInfo } from '../../models/models';
                   d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
                 />
               </svg>
-              <span>Familienbetrieb seit 2021</span>
+              <span>{{ t().aboutBadge }}</span>
             </div>
             <h2 class="intro-headline">
-              Mehr als nur Fahrräder.<br /><span class="accent"
-                >Eine Leidenschaft.</span
-              >
+              {{ t().aboutHeadline }}<br /><span class="accent">{{
+                t().aboutHeadlineAccent
+              }}</span>
             </h2>
             <p class="intro-text">
-              Was als bescheidene Idee begann, ist heute ein Ort geworden, an
-              dem Menschen aller Altersgruppen ihr perfektes Fahrrad finden. Als
-              kleines Familienunternehmen in Freiburg glauben wir daran, dass
-              jedes Rad eine Geschichte erzählt — und jeder Mensch die Freiheit
-              verdient, seine eigene Geschichte auf zwei Rädern zu schreiben.
+              {{ t().aboutIntroText }}
             </p>
             <div class="intro-features">
               <div class="feature-item">
@@ -64,7 +60,7 @@ import { PublicShopInfo } from '../../models/models';
                   <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
-                <span>Rechnung & Kaufvertrag</span>
+                <span>{{ t().aboutFeatureInvoice }}</span>
               </div>
               <div class="feature-item">
                 <svg
@@ -80,7 +76,7 @@ import { PublicShopInfo } from '../../models/models';
                   <line x1="9" y1="9" x2="9.01" y2="9" />
                   <line x1="15" y1="9" x2="15.01" y2="9" />
                 </svg>
-                <span>Persönliche Beratung</span>
+                <span>{{ t().value3Title }}</span>
               </div>
               <div class="feature-item">
                 <svg
@@ -93,7 +89,7 @@ import { PublicShopInfo } from '../../models/models';
                 >
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
-                <span>Vertrauen & Qualität</span>
+                <span>{{ t().aboutFeatureTrust }}</span>
               </div>
             </div>
           </div>
@@ -101,13 +97,8 @@ import { PublicShopInfo } from '../../models/models';
             <div class="visual-card">
               <div class="year-badge">2021</div>
               <div class="visual-content">
-                <p class="visual-quote">
-                  "Jedes Fahrrad, das wir verkaufen, bringt Freude — und das ist
-                  der schönste Lohn."
-                </p>
-                <span class="visual-author"
-                  >— Die Familie hinter Bike Haus</span
-                >
+                <p class="visual-quote">"{{ t().aboutQuote }}"</p>
+                <span class="visual-author">{{ t().aboutQuoteAuthor }}</span>
               </div>
             </div>
           </div>
@@ -155,13 +146,10 @@ import { PublicShopInfo } from '../../models/models';
         <!-- ── Brands Section ── -->
         <section class="brands-section">
           <div class="brands-header">
-            <span class="section-label">MARKEN</span>
-            <h2>Unsere Marken — Neu &amp; Gebraucht</h2>
+            <span class="section-label">{{ t().brandsLabel }}</span>
+            <h2>{{ t().brandsTitle }}</h2>
             <p class="brands-intro">
-              In unserem Geschäft bieten wir eine sorgfältig ausgewählte Auswahl
-              an Fahrrädern an. Bitte beachten Sie: Wir sind kein offizieller
-              Händler aller Marken, verkaufen jedoch Fahrräder, die wir über
-              legale Quellen beziehen.
+              {{ t().brandsIntro }}
             </p>
           </div>
 
@@ -183,30 +171,28 @@ import { PublicShopInfo } from '../../models/models';
                     />
                   </svg>
                 </div>
-                <h3>Neue Fahrräder</h3>
+                <h3>{{ t().brandsNewTitle }}</h3>
               </div>
               <ul class="brand-list">
                 <li>
                   <strong>Victoria</strong>
-                  <span>Robuste und elegante Cityräder</span>
+                  <span>{{ t().brandVictoriaDesc }}</span>
                 </li>
                 <li>
                   <strong>Conway</strong>
-                  <span
-                    >Zuverlässige Leistung bei Mountain- und Stadträdern</span
-                  >
+                  <span>{{ t().brandConwayDesc }}</span>
                 </li>
                 <li>
                   <strong>Bikestar</strong>
-                  <span>Kinder- und Jugendräder</span>
+                  <span>{{ t().brandBikestarDesc }}</span>
                 </li>
                 <li>
                   <strong>Pyro</strong>
-                  <span>Leichte und schnelle Sportfahrräder</span>
+                  <span>{{ t().brandPyroDesc }}</span>
                 </li>
                 <li>
                   <strong>Xtract</strong>
-                  <span>Funktionale und preiswerte Modelle</span>
+                  <span>{{ t().brandXtractDesc }}</span>
                 </li>
               </ul>
             </div>
@@ -227,18 +213,16 @@ import { PublicShopInfo } from '../../models/models';
                     <path d="M9 12l2 2 4-4" />
                   </svg>
                 </div>
-                <h3>Gebrauchte Fahrräder</h3>
+                <h3>{{ t().brandsUsedTitle }}</h3>
               </div>
               <p class="brand-desc">
-                Wir führen gebrauchte Fahrräder bekannter Marken. Diese
-                Fahrräder stammen direkt von Privatpersonen oder aus anderen
-                legalen Quellen.
+                {{ t().brandsUsedDesc }}
               </p>
               <div class="brand-tags">
                 <span class="brand-tag" *ngFor="let brand of usedBrands">{{
                   brand
                 }}</span>
-                <span class="brand-tag more">und viele weitere</span>
+                <span class="brand-tag more">{{ t().brandsAndMore }}</span>
               </div>
             </div>
           </div>
@@ -257,10 +241,8 @@ import { PublicShopInfo } from '../../models/models';
               <line x1="12" y1="8" x2="12.01" y2="8" />
             </svg>
             <p>
-              <strong>Hinweis:</strong> Wir verwenden die Markennamen zur
-              Beschreibung der Produkte. Offizielle Garantie oder
-              Serviceleistungen der Markenhersteller können wir ohne
-              autorisierte Partnerschaft nicht anbieten.
+              <strong>{{ t().brandsDisclaimerLabel }}</strong>
+              {{ t().brandsDisclaimer }}
             </p>
           </div>
         </section>
@@ -285,25 +267,32 @@ import { PublicShopInfo } from '../../models/models';
               <h3>{{ t().openingHours }}</h3>
               <div class="hours-table">
                 <div class="hour-row">
-                  <span>Montag</span><span>11:00 – 17:00</span>
+                  <span>{{ t().monday }}</span
+                  ><span>11:00 – 17:00</span>
                 </div>
                 <div class="hour-row">
-                  <span>Dienstag</span><span>11:00 – 17:00</span>
+                  <span>{{ t().tuesday }}</span
+                  ><span>11:00 – 17:00</span>
                 </div>
                 <div class="hour-row closed">
-                  <span>Mittwoch</span><span>Geschlossen</span>
+                  <span>{{ t().wednesday }}</span
+                  ><span>{{ t().closed }}</span>
                 </div>
                 <div class="hour-row">
-                  <span>Donnerstag</span><span>11:00 – 17:00</span>
+                  <span>{{ t().thursday }}</span
+                  ><span>11:00 – 17:00</span>
                 </div>
                 <div class="hour-row">
-                  <span>Freitag</span><span>14:00 – 18:00</span>
+                  <span>{{ t().friday }}</span
+                  ><span>14:00 – 18:00</span>
                 </div>
                 <div class="hour-row">
-                  <span>Samstag</span><span>11:30 – 17:00</span>
+                  <span>{{ t().saturday }}</span
+                  ><span>11:30 – 17:00</span>
                 </div>
                 <div class="hour-row closed">
-                  <span>Sonntag</span><span>Ruhetag</span>
+                  <span>{{ t().sunday }}</span
+                  ><span>{{ t().restDay }}</span>
                 </div>
               </div>
             </div>
@@ -345,7 +334,7 @@ import { PublicShopInfo } from '../../models/models';
                     d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"
                   />
                 </svg>
-                Google Maps öffnen
+                {{ t().openGoogleMaps }}
               </a>
             </div>
 
@@ -1033,17 +1022,14 @@ export class AboutComponent implements OnInit {
 
   ngOnInit(): void {
     // SEO
-    this.titleService.setTitle(
-      'Über uns — Bike Haus Freiburg | Ihr Fahrradhändler',
-    );
+    this.titleService.setTitle(this.t().aboutMetaTitle);
     this.metaService.updateTag({
       name: 'description',
-      content:
-        'Lernen Sie Bike Haus Freiburg kennen. Fair, nachhaltig, persönlich — Ihr lokaler Fahrradhändler in Freiburg im Breisgau für neue und gebrauchte Fahrräder.',
+      content: this.t().aboutMetaDescription,
     });
     this.metaService.updateTag({
       property: 'og:title',
-      content: 'Über uns — Bike Haus Freiburg',
+      content: this.t().aboutMetaTitle,
     });
     this.metaService.updateTag({
       property: 'og:url',

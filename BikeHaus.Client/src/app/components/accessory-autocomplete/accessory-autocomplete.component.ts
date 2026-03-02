@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AccessoryCatalogService } from '../../services/accessory-catalog.service';
 import { AccessoryCatalogList } from '../../models/models';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-accessory-autocomplete',
@@ -44,7 +45,7 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
           showSuggestions && suggestions.length === 0 && searchText.length >= 2
         "
       >
-        <div class="no-results">Keine Treffer</div>
+        <div class="no-results">{{ t.noMatches }}</div>
       </div>
     </div>
   `,
@@ -118,7 +119,7 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
   ],
 })
 export class AccessoryAutocompleteComponent {
-  @Input() placeholder = 'Zubehör suchen...';
+  @Input() placeholder = '';
   @Output() itemSelected = new EventEmitter<AccessoryCatalogList>();
 
   searchText = '';
@@ -127,7 +128,11 @@ export class AccessoryAutocompleteComponent {
 
   private searchSubject = new Subject<string>();
 
-  constructor(private service: AccessoryCatalogService) {
+  constructor(
+    private service: AccessoryCatalogService,
+    private translationService: TranslationService,
+  ) {
+    this.placeholder = this.translationService.translations().searchAccessory;
     this.searchSubject
       .pipe(
         debounceTime(250),
@@ -139,6 +144,10 @@ export class AccessoryAutocompleteComponent {
       .subscribe((results) => {
         this.suggestions = results;
       });
+  }
+
+  get t() {
+    return this.translationService.translations();
   }
 
   onSearchChange(value: string) {

@@ -682,9 +682,7 @@ export class SaleListComponent implements OnInit {
         if (confirmed) {
           this.saleService.delete(s.id).subscribe({
             next: () => {
-              this.notificationService.success(
-                this.t.deleteSuccess || 'Erfolgreich gelöscht',
-              );
+              this.notificationService.success(this.t.deleteSuccess);
               this.load();
             },
             error: (err) => {

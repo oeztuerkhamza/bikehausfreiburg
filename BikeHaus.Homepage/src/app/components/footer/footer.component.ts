@@ -33,7 +33,7 @@ import { ShopInfoService } from '../../services/shop-info.service';
 
         <!-- Legal -->
         <div class="footer-col">
-          <h4>Legal</h4>
+          <h4>{{ t().legalLabel }}</h4>
           <nav>
             <a [routerLink]="['/' + lang(), 'impressum']">{{
               t().legalNotice
@@ -46,7 +46,7 @@ import { ShopInfoService } from '../../services/shop-info.service';
 
         <!-- Language -->
         <div class="footer-col">
-          <h4>Language</h4>
+          <h4>{{ t().languageLabel }}</h4>
           <div class="footer-langs">
             <a [routerLink]="['/de']" [class.active]="lang() === 'de'"
               >Deutsch</a

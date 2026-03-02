@@ -315,7 +315,10 @@ interface Testimonial {
             class="testimonial-card fade-in d1"
             *ngFor="let review of testimonials; let i = index"
           >
-            <div class="testimonial-stars" aria-label="5 von 5 Sternen">
+            <div
+              class="testimonial-stars"
+              [attr.aria-label]="t().ariaStarsRating"
+            >
               <svg
                 *ngFor="let s of [1, 2, 3, 4, 5]"
                 width="18"
@@ -354,7 +357,7 @@ interface Testimonial {
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               <path d="M9 12l2 2 4-4" />
             </svg>
-            <span>Geprüfte Qualität</span>
+            <span>{{ t().value1Title }}</span>
           </div>
           <div class="trust-badge">
             <svg
@@ -368,7 +371,7 @@ interface Testimonial {
               <circle cx="12" cy="12" r="10" />
               <path d="M12 6v6l4 2" />
             </svg>
-            <span>Seit 2020 in Freiburg</span>
+            <span>{{ t().trustBadgeSince }}</span>
           </div>
           <div class="trust-badge">
             <svg
@@ -383,7 +386,7 @@ interface Testimonial {
               <circle cx="9" cy="7" r="4" />
               <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
-            <span>500+ zufriedene Kunden</span>
+            <span>{{ t().trustBadgeCustomers }}</span>
           </div>
         </div>
       </div>
@@ -1238,17 +1241,14 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     // SEO - Reset to homepage defaults
-    this.titleService.setTitle(
-      'Bike Haus Freiburg — Neue & gebrauchte Fahrräder in Freiburg',
-    );
+    this.titleService.setTitle(this.t().metaTitle);
     this.metaService.updateTag({
       name: 'description',
-      content:
-        'Ihr Fahrradhändler in Freiburg im Breisgau. Über 100 neue und geprüfte Gebrauchträder — City, Trekking, Mountain, E-Bike, Kinderfahrräder. Fair, nachhaltig, persönlich.',
+      content: this.t().metaDescription,
     });
     this.metaService.updateTag({
       property: 'og:title',
-      content: 'Bike Haus Freiburg — Neue & gebrauchte Fahrrräder',
+      content: this.t().metaTitle,
     });
     this.metaService.updateTag({
       property: 'og:url',

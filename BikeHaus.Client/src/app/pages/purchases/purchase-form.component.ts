@@ -354,15 +354,13 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.adNumber || 'Anzeige Nr.' }}</label>
+                <label>{{ t.adNumber }}</label>
                 <input
                   [(ngModel)]="anzeigeNr"
                   name="anzeigeNr"
                   placeholder="optional"
                 />
-                <small class="hint">{{
-                  t.adNumberHint || 'Kleinanzeigen o.ä.'
-                }}</small>
+                <small class="hint">{{ t.adNumberHint }}</small>
               </div>
               <div class="field full">
                 <label>{{ t.notes }}</label>

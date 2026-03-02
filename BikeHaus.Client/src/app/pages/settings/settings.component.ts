@@ -425,11 +425,11 @@ import {
               <h3
                 style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
               >
-                🔗 Kleinanzeigen Integration
+                🔗 {{ t.kleinanzeigenIntegration }}
               </h3>
               <div class="form-grid">
                 <div class="form-group full-width">
-                  <label>Kleinanzeigen Profil-URL</label>
+                  <label>{{ t.kleinanzeigenProfileUrl }}</label>
                   <input
                     type="url"
                     [(ngModel)]="settings.kleinanzeigenUrl"
@@ -438,8 +438,7 @@ import {
                   />
                   <small
                     style="color: var(--text-secondary, #64748b); font-size: 0.78rem;"
-                    >Die URL Ihrer Bestandsliste auf Kleinanzeigen. Ilanlar
-                    automatisch alle 4 Stunden synchronisiert.</small
+                    >{{ t.kleinanzeigenUrlHint }}</small
                   >
                 </div>
               </div>
@@ -453,17 +452,13 @@ import {
                   (click)="triggerKleinanzeigenSync()"
                   style="white-space: nowrap;"
                 >
-                  {{
-                    syncing
-                      ? '⏳ Synchronisiere...'
-                      : '🔄 Jetzt synchronisieren'
-                  }}
+                  {{ syncing ? '⏳ ' + t.syncingText : '🔄 ' + t.syncNow }}
                 </button>
                 <span
                   *ngIf="lastSyncTime"
                   style="font-size: 0.82rem; color: var(--text-secondary, #64748b);"
                 >
-                  Letzte Sync: {{ lastSyncTime | date: 'dd.MM.yyyy HH:mm' }}
+                  {{ t.lastSync }} {{ lastSyncTime | date: 'dd.MM.yyyy HH:mm' }}
                 </span>
               </div>
               <div
@@ -482,9 +477,9 @@ import {
               >
                 <span *ngIf="syncResult.error">❌ {{ syncResult.error }}</span>
                 <span *ngIf="!syncResult.error">
-                  ✅ {{ syncResult.newListings }} neue,
-                  {{ syncResult.updatedListings }} aktualisiert,
-                  {{ syncResult.deactivatedListings }} deaktiviert
+                  ✅ {{ syncResult.newListings }} {{ t.syncNew }},
+                  {{ syncResult.updatedListings }} {{ t.syncUpdated }},
+                  {{ syncResult.deactivatedListings }} {{ t.syncDeactivated }}
                 </span>
               </div>
 
@@ -492,11 +487,11 @@ import {
               <h3
                 style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
               >
-                Fahrrad-Nummerierung
+                {{ t.bicycleNumbering }}
               </h3>
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Startnummer</label>
+                  <label>{{ t.startNumber }}</label>
                   <input
                     type="number"
                     min="1"
@@ -505,8 +500,7 @@ import {
                   />
                   <small
                     style="color: var(--text-secondary, #64748b); font-size: 0.78rem;"
-                    >Neue Fahrräder bekommen automatisch die nächste
-                    Nummer</small
+                    >{{ t.autoNumberHint }}</small
                   >
                 </div>
               </div>
@@ -1242,8 +1236,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
           deactivatedListings: 0,
           syncedAt: new Date().toISOString(),
           error:
-            'Sync fehlgeschlagen: ' +
-            (err.error?.message || err.message || 'Unbekannter Fehler'),
+            this.t.syncFailed +
+            ' ' +
+            (err.error?.message || err.message || this.t.unknownError),
         };
         this.syncing = false;
       },

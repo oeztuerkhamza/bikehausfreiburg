@@ -97,7 +97,7 @@ const TYP_PATTERN =
                 <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
-              Zustand
+              {{ t().filterCondition }}
             </h3>
             <div class="checkbox-group">
               <label
@@ -110,7 +110,7 @@ const TYP_PATTERN =
                   (change)="toggleZustand('neu')"
                 />
                 <span class="check-box"></span>
-                <span>Neu</span>
+                <span>{{ t().conditionNew }}</span>
                 <span class="filter-count">{{ zustandCounts().neu }}</span>
               </label>
               <label
@@ -123,7 +123,7 @@ const TYP_PATTERN =
                   (change)="toggleZustand('gebraucht')"
                 />
                 <span class="check-box"></span>
-                <span>Gebraucht</span>
+                <span>{{ t().conditionUsed }}</span>
                 <span class="filter-count">{{
                   zustandCounts().gebraucht
                 }}</span>
@@ -149,7 +149,7 @@ const TYP_PATTERN =
                 <path d="M23 21v-2a4 4 0 00-3-3.87" />
                 <path d="M16 3.13a4 4 0 010 7.75" />
               </svg>
-              Typ
+              {{ t().filterType }}
             </h3>
             <div class="checkbox-group">
               <label
@@ -162,7 +162,7 @@ const TYP_PATTERN =
                   (change)="toggleTyp('damen')"
                 />
                 <span class="check-box"></span>
-                <span>Damen</span>
+                <span>{{ t().filterWomen }}</span>
                 <span class="filter-count">{{ typCounts().damen }}</span>
               </label>
               <label
@@ -175,7 +175,7 @@ const TYP_PATTERN =
                   (change)="toggleTyp('herren')"
                 />
                 <span class="check-box"></span>
-                <span>Herren</span>
+                <span>{{ t().filterMen }}</span>
                 <span class="filter-count">{{ typCounts().herren }}</span>
               </label>
               <label
@@ -188,7 +188,7 @@ const TYP_PATTERN =
                   (change)="toggleTyp('kinder')"
                 />
                 <span class="check-box"></span>
-                <span>Kinder</span>
+                <span>{{ t().filterKids }}</span>
                 <span class="filter-count">{{ typCounts().kinder }}</span>
               </label>
             </div>
@@ -209,7 +209,7 @@ const TYP_PATTERN =
               >
                 <circle cx="12" cy="12" r="10" />
               </svg>
-              Reifengröße (Zoll)
+              {{ t().filterTireSize }}
             </h3>
             <div class="checkbox-group">
               <label
@@ -247,7 +247,7 @@ const TYP_PATTERN =
                   d="M12 1v6m0 6v6m5.66-14.66l-4.24 4.24m-2.84 2.84l-4.24 4.24m14.66 0l-4.24-4.24m-2.84-2.84l-4.24-4.24"
                 />
               </svg>
-              Gänge
+              {{ t().filterGears }}
             </h3>
             <div class="checkbox-group">
               <label
@@ -261,7 +261,7 @@ const TYP_PATTERN =
                   (change)="toggleGears(g.value)"
                 />
                 <span class="check-box"></span>
-                <span>{{ g.value }} Gänge</span>
+                <span>{{ g.value }} {{ t().gearsUnit }}</span>
                 <span class="filter-count">{{ g.count }}</span>
               </label>
             </div>
@@ -283,7 +283,7 @@ const TYP_PATTERN =
                 <path d="M21 3H3v18h18V3z" />
                 <path d="M3 9h18M3 15h18M9 3v18" />
               </svg>
-              Rahmengröße (Size)
+              {{ t().filterFrameSize }}
             </h3>
             <div class="checkbox-group">
               <label
@@ -400,7 +400,11 @@ const TYP_PATTERN =
             <!-- Active filters pills -->
             <div class="active-filters">
               <span class="active-pill" *ngIf="selectedZustand()">
-                {{ selectedZustand() === 'neu' ? 'Neu' : 'Gebraucht' }}
+                {{
+                  selectedZustand() === 'neu'
+                    ? t().conditionNew
+                    : t().conditionUsed
+                }}
                 <button
                   class="pill-close"
                   (click)="toggleZustand(selectedZustand()!)"
@@ -411,10 +415,10 @@ const TYP_PATTERN =
               <span class="active-pill" *ngIf="selectedTyp()">
                 {{
                   selectedTyp() === 'damen'
-                    ? 'Damen'
+                    ? t().filterWomen
                     : selectedTyp() === 'herren'
-                      ? 'Herren'
-                      : 'Kinder'
+                      ? t().filterMen
+                      : t().filterKids
                 }}
                 <button class="pill-close" (click)="toggleTyp(selectedTyp()!)">
                   ×
@@ -425,7 +429,7 @@ const TYP_PATTERN =
                 <button class="pill-close" (click)="toggleZoll(z)">×</button>
               </span>
               <span class="active-pill" *ngFor="let g of selectedGears()">
-                {{ g }} Gänge
+                {{ g }} {{ t().gearsUnit }}
                 <button class="pill-close" (click)="toggleGears(g)">×</button>
               </span>
               <span class="active-pill" *ngFor="let s of selectedSizes()">
@@ -1368,22 +1372,18 @@ export class ShowroomComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // SEO
-    this.titleService.setTitle(
-      'Showroom — Bike Haus Freiburg | Alle Fahrräder',
-    );
+    this.titleService.setTitle(this.t().showroomMetaTitle);
     this.metaService.updateTag({
       name: 'description',
-      content:
-        'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom. City, Trekking, Mountain, E-Bike, Kinderfahrräder — fair bewertet, geprüft, sofort verfügbar.',
+      content: this.t().showroomMetaDescription,
     });
     this.metaService.updateTag({
       property: 'og:title',
-      content: 'Showroom — Bike Haus Freiburg',
+      content: this.t().showroomMetaTitle,
     });
     this.metaService.updateTag({
       property: 'og:description',
-      content:
-        'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom.',
+      content: this.t().showroomMetaDescription,
     });
     this.metaService.updateTag({
       property: 'og:url',
@@ -1435,8 +1435,8 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
-      name: 'Fahrräder im Showroom',
-      description: `${listings.length} Fahrräder verfügbar bei Bike Haus Freiburg`,
+      name: this.t().showroomMetaTitle,
+      description: `${listings.length} ${this.t().bikesAvailable}`,
       numberOfItems: listings.length,
       itemListElement: items,
     };

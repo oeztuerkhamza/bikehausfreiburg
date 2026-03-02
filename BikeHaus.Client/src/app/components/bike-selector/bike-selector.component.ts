@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Bicycle, BikeStatus } from '../../models/models';
 import { BicycleService } from '../../services/bicycle.service';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-bike-selector',
@@ -23,14 +24,14 @@ import { BicycleService } from '../../services/bicycle.service';
             type="text"
             [(ngModel)]="searchTerm"
             (input)="filterBikes()"
-            placeholder="Suche nach Marke, Modell, Rahmennummer..."
+            [placeholder]="t.bikeSelectorPlaceholder"
             class="search-input"
           />
           <div class="id-search">
             <input
               type="text"
               [(ngModel)]="searchId"
-              placeholder="Nr"
+              [placeholder]="t.numberShort"
               class="id-input"
               (keyup.enter)="searchById()"
             />
@@ -39,7 +40,7 @@ import { BicycleService } from '../../services/bicycle.service';
               class="btn btn-sm btn-outline"
               (click)="searchById()"
             >
-              Nr suchen
+              {{ t.searchNumber }}
             </button>
           </div>
         </div>
@@ -67,7 +68,7 @@ import { BicycleService } from '../../services/bicycle.service';
           </div>
         </div>
         <p *ngIf="filteredBikes.length === 0" class="empty">
-          Keine verfügbaren Fahrräder gefunden
+          {{ t.noAvailableBikes }}
         </p>
       </div>
 
@@ -78,21 +79,21 @@ import { BicycleService } from '../../services/bicycle.service';
           class="btn btn-outline quick-add-btn"
           (click)="onQuickAdd()"
         >
-          ➕ Fahrrad nicht in Liste? Schnell hinzufügen
+          ➕ {{ t.quickAddBike }}
         </button>
       </div>
 
       <div class="selected-preview" *ngIf="selectedBike">
-        <h4>Ausgewählt:</h4>
+        <h4>{{ t.selectedColon }}</h4>
         <div class="preview-content">
           <strong>{{ selectedBike.marke }} {{ selectedBike.modell }}</strong>
-          <span>Rahmen: {{ selectedBike.rahmennummer }}</span>
+          <span>{{ t.frameColon }} {{ selectedBike.rahmennummer }}</span>
           <span
-            >Farbe: {{ selectedBike.farbe }} | Reifen:
+            >{{ t.colorColon }} {{ selectedBike.farbe }} | {{ t.wheelsColon }}
             {{ selectedBike.reifengroesse }}</span
           >
           <span *ngIf="selectedBike.fahrradtyp"
-            >Typ: {{ selectedBike.fahrradtyp }}</span
+            >{{ t.typeColon }} {{ selectedBike.fahrradtyp }}</span
           >
         </div>
       </div>
@@ -248,7 +249,14 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
   searchId = '';
   searchError = '';
 
-  constructor(private readonly bicycleService: BicycleService) {}
+  constructor(
+    private readonly bicycleService: BicycleService,
+    private readonly translationService: TranslationService,
+  ) {}
+
+  get t() {
+    return this.translationService.translations();
+  }
 
   ngOnInit() {
     this.filteredBikes = this.bikes;
@@ -282,7 +290,7 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
     this.searchError = '';
     const nr = this.searchId?.trim();
     if (!nr) {
-      this.searchError = 'Bitte eine gültige Nr eingeben.';
+      this.searchError = this.t.invalidNumberError;
       return;
     }
 
@@ -300,7 +308,7 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
     this.bicycleService.getByStokNo(nr).subscribe({
       next: (bike) => {
         if (bike.status === BikeStatus.Sold) {
-          this.searchError = `Fahrrad #${nr} ist bereits verkauft.`;
+          this.searchError = this.t.bikeAlreadySoldError.replace('{nr}', nr);
         } else {
           this.bikes.push(bike);
           this.selectBike(bike);
@@ -309,7 +317,7 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
         }
       },
       error: () => {
-        this.searchError = `Fahrrad mit Nr ${nr} nicht gefunden.`;
+        this.searchError = this.t.bikeNotFoundError.replace('{nr}', nr);
       },
     });
   }

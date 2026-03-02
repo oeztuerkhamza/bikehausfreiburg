@@ -103,7 +103,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                 "
                 class="sale-dropdown sale-empty"
               >
-                {{ t.noSalesFound || 'Kein Verkauf gefunden' }}
+                {{ t.noSalesFound }}
               </div>
             </div>
             <div *ngIf="selectedSale" class="sale-preview">

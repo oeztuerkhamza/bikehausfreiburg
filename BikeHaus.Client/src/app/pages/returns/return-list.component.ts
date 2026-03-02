@@ -540,9 +540,7 @@ export class ReturnListComponent implements OnInit {
         if (confirmed) {
           this.returnService.delete(r.id).subscribe({
             next: () => {
-              this.notificationService.success(
-                this.t.deleteSuccess || 'Erfolgreich gelöscht',
-              );
+              this.notificationService.success(this.t.deleteSuccess);
               this.load();
             },
             error: (err) => {

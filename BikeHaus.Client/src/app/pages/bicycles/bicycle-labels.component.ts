@@ -32,9 +32,9 @@ interface LabelBike {
     <!-- Selection screen -->
     <div class="page" *ngIf="!printMode">
       <div class="page-header">
-        <h1>🏷️ Etiketten erstellen</h1>
+        <h1>🏷️ {{ t.createLabels }}</h1>
         <div class="header-actions">
-          <a routerLink="/bicycles" class="btn btn-outline">← Zurück</a>
+          <a routerLink="/bicycles" class="btn btn-outline">← {{ t.back }}</a>
         </div>
       </div>
 
@@ -43,25 +43,27 @@ interface LabelBike {
           <input
             type="text"
             [(ngModel)]="searchTerm"
-            placeholder="Suche nach Marke, Modell, Stok-Nr..."
+            [placeholder]="t.labelsSearchPlaceholder"
             (ngModelChange)="filterBikes()"
           />
         </div>
         <div class="selection-info">
-          <span class="count-badge">{{ selectedCount }} ausgewählt</span>
+          <span class="count-badge"
+            >{{ selectedCount }} {{ t.selectedText }}</span
+          >
           <button
             class="btn btn-sm btn-outline"
             (click)="selectAll()"
             *ngIf="selectedCount < filteredBikes.length"
           >
-            Alle auswählen
+            {{ t.selectAllButton }}
           </button>
           <button
             class="btn btn-sm btn-outline"
             (click)="deselectAll()"
             *ngIf="selectedCount > 0"
           >
-            Auswahl aufheben
+            {{ t.deselectAllButton }}
           </button>
         </div>
       </div>
@@ -107,22 +109,20 @@ interface LabelBike {
       </div>
 
       <div class="empty-state" *ngIf="filteredBikes.length === 0">
-        Keine Fahrräder gefunden.
+        {{ t.noBicyclesFound }}
       </div>
 
       <!-- Print action -->
       <div class="print-bar" *ngIf="selectedCount > 0">
         <div class="print-bar-info">
-          <strong>{{ selectedCount }}</strong> Fahrrad{{
-            selectedCount > 1 ? 'räder' : ''
-          }}
-          ausgewählt · {{ pageCount }} Seite{{ pageCount > 1 ? 'n' : '' }} ({{
+          <strong>{{ selectedCount }}</strong> {{ t.bicyclesPlural }}
+          {{ t.selectedText }} · {{ pageCount }} {{ t.paginationPage }} ({{
             selectedCount
           }}
-          Etiketten)
+          {{ t.labelsWord }})
         </div>
         <button class="btn btn-primary btn-lg" (click)="startPrint()">
-          🖨️ Drucken
+          🖨️ {{ t.printButton }}
         </button>
       </div>
     </div>
@@ -137,11 +137,11 @@ interface LabelBike {
             <div class="label-model">{{ bike.modell }}</div>
             <div class="label-specs">
               <div class="spec-row">
-                <span class="spec-label">Räder</span>
+                <span class="spec-label">{{ t.wheelsSpec }}</span>
                 <span class="spec-value">{{ bike.reifengroesse }}"</span>
               </div>
               <div class="spec-row" *ngIf="bike.rahmengroesse">
-                <span class="spec-label">Rahmengröße</span>
+                <span class="spec-label">{{ t.frameSize }}</span>
                 <span class="spec-value">{{ bike.rahmengroesse }}</span>
               </div>
             </div>
@@ -150,16 +150,18 @@ interface LabelBike {
                 {{ bike.preis | number: '1.0-0' }} €
               </div>
             </div>
-            <div class="label-stok-bottom" *ngIf="bike.stokNo">#{{ bike.stokNo }}</div>
+            <div class="label-stok-bottom" *ngIf="bike.stokNo">
+              #{{ bike.stokNo }}
+            </div>
           </div>
         </div>
       </div>
       <div class="print-controls no-print">
         <button class="btn btn-outline" (click)="printMode = false">
-          ← Zurück zur Auswahl
+          ← {{ t.backToSelection }}
         </button>
         <button class="btn btn-primary btn-lg" (click)="print()">
-          🖨️ Jetzt drucken
+          🖨️ {{ t.printNowButton }}
         </button>
       </div>
     </div>

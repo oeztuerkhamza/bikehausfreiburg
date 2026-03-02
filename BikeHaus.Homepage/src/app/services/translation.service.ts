@@ -177,6 +177,89 @@ export interface Translations {
   ankaufCta: string;
   ankaufHint: string;
   ankaufMessage: string;
+
+  // About page extended
+  aboutBadge: string;
+  aboutHeadline: string;
+  aboutHeadlineAccent: string;
+  aboutIntroText: string;
+  aboutFeatureInvoice: string;
+  aboutFeatureTrust: string;
+  aboutQuote: string;
+  aboutQuoteAuthor: string;
+  aboutMetaTitle: string;
+  aboutMetaDescription: string;
+
+  // Brands
+  brandsLabel: string;
+  brandsTitle: string;
+  brandsIntro: string;
+  brandsNewTitle: string;
+  brandVictoriaDesc: string;
+  brandConwayDesc: string;
+  brandBikestarDesc: string;
+  brandPyroDesc: string;
+  brandXtractDesc: string;
+  brandsUsedTitle: string;
+  brandsUsedDesc: string;
+  brandsAndMore: string;
+  brandsDisclaimerLabel: string;
+  brandsDisclaimer: string;
+
+  // Days (full)
+  monday: string;
+  tuesday: string;
+  wednesday: string;
+  thursday: string;
+  friday: string;
+  saturday: string;
+  sunday: string;
+  closed: string;
+  restDay: string;
+  openGoogleMaps: string;
+
+  // Days (short) for contact
+  monShort: string;
+  tueShort: string;
+  wedShort: string;
+  thuShort: string;
+  friShort: string;
+  satShort: string;
+  sunShort: string;
+
+  // Contact extended
+  contactWhatsappHint: string;
+  contactMetaTitle: string;
+  contactMetaDescription: string;
+
+  // Home trust badges
+  trustBadgeSince: string;
+  trustBadgeCustomers: string;
+  ariaStarsRating: string;
+
+  // Showroom filters
+  filterCondition: string;
+  filterType: string;
+  filterWomen: string;
+  filterMen: string;
+  filterKids: string;
+  filterTireSize: string;
+  filterGears: string;
+  gearsUnit: string;
+  filterFrameSize: string;
+  showroomMetaTitle: string;
+  showroomMetaDescription: string;
+
+  // Showroom detail
+  detailMetaDescSuffix: string;
+  bikeFallbackCategory: string;
+
+  // Footer
+  legalLabel: string;
+  languageLabel: string;
+
+  // Bike card
+  bikeAltSuffix: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -356,6 +439,98 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ankaufHint: 'Fotos + Wunschpreis per WhatsApp',
     ankaufMessage:
       'Hallo, ich möchte mein Fahrrad verkaufen.\n\nMarke/Modell:\nZustand:\nWunschpreis:\n\n(Bitte Fotos anhängen)',
+
+    // About page extended
+    aboutBadge: 'Familienbetrieb seit 2021',
+    aboutHeadline: 'Mehr als nur Fahrräder.',
+    aboutHeadlineAccent: 'Eine Leidenschaft.',
+    aboutIntroText:
+      'Was als bescheidene Idee begann, ist heute ein Ort geworden, an dem Menschen aller Altersgruppen ihr perfektes Fahrrad finden. Als kleines Familienunternehmen in Freiburg glauben wir daran, dass jedes Rad eine Geschichte erzählt — und jeder Mensch die Freiheit verdient, seine eigene Geschichte auf zwei Rädern zu schreiben.',
+    aboutFeatureInvoice: 'Rechnung & Kaufvertrag',
+    aboutFeatureTrust: 'Vertrauen & Qualität',
+    aboutQuote:
+      'Jedes Fahrrad, das wir verkaufen, bringt Freude — und das ist der schönste Lohn.',
+    aboutQuoteAuthor: '— Die Familie hinter Bike Haus',
+    aboutMetaTitle: 'Über uns — Bike Haus Freiburg | Ihr Fahrradhändler',
+    aboutMetaDescription:
+      'Lernen Sie Bike Haus Freiburg kennen. Fair, nachhaltig, persönlich — Ihr lokaler Fahrradhändler in Freiburg im Breisgau für neue und gebrauchte Fahrräder.',
+
+    // Brands
+    brandsLabel: 'MARKEN',
+    brandsTitle: 'Unsere Marken — Neu & Gebraucht',
+    brandsIntro:
+      'In unserem Geschäft bieten wir eine sorgfältig ausgewählte Auswahl an Fahrrädern an. Bitte beachten Sie: Wir sind kein offizieller Händler aller Marken, verkaufen jedoch Fahrräder, die wir über legale Quellen beziehen.',
+    brandsNewTitle: 'Neue Fahrräder',
+    brandVictoriaDesc: 'Robuste und elegante Cityräder',
+    brandConwayDesc: 'Zuverlässige Leistung bei Mountain- und Stadträdern',
+    brandBikestarDesc: 'Kinder- und Jugendräder',
+    brandPyroDesc: 'Leichte und schnelle Sportfahrräder',
+    brandXtractDesc: 'Funktionale und preiswerte Modelle',
+    brandsUsedTitle: 'Gebrauchte Fahrräder',
+    brandsUsedDesc:
+      'Wir führen gebrauchte Fahrräder bekannter Marken. Diese Fahrräder stammen direkt von Privatpersonen oder aus anderen legalen Quellen.',
+    brandsAndMore: 'und viele weitere',
+    brandsDisclaimerLabel: 'Hinweis:',
+    brandsDisclaimer:
+      'Wir verwenden die Markennamen zur Beschreibung der Produkte. Offizielle Garantie oder Serviceleistungen der Markenhersteller können wir ohne autorisierte Partnerschaft nicht anbieten.',
+
+    // Days (full)
+    monday: 'Montag',
+    tuesday: 'Dienstag',
+    wednesday: 'Mittwoch',
+    thursday: 'Donnerstag',
+    friday: 'Freitag',
+    saturday: 'Samstag',
+    sunday: 'Sonntag',
+    closed: 'Geschlossen',
+    restDay: 'Ruhetag',
+    openGoogleMaps: 'Google Maps öffnen',
+
+    // Days (short)
+    monShort: 'Mo',
+    tueShort: 'Di',
+    wedShort: 'Mi',
+    thuShort: 'Do',
+    friShort: 'Fr',
+    satShort: 'Sa',
+    sunShort: 'So',
+
+    // Contact extended
+    contactWhatsappHint: 'Direkt schreiben',
+    contactMetaTitle: 'Kontakt — Bike Haus Freiburg | Adresse & Öffnungszeiten',
+    contactMetaDescription:
+      'Kontaktieren Sie Bike Haus Freiburg. Adresse, Öffnungszeiten, WhatsApp, Telefon. Besuchen Sie uns in 79114 Freiburg im Breisgau.',
+
+    // Home trust badges
+    trustBadgeSince: 'Seit 2020 in Freiburg',
+    trustBadgeCustomers: '500+ zufriedene Kunden',
+    ariaStarsRating: '5 von 5 Sternen',
+
+    // Showroom filters
+    filterCondition: 'Zustand',
+    filterType: 'Typ',
+    filterWomen: 'Damen',
+    filterMen: 'Herren',
+    filterKids: 'Kinder',
+    filterTireSize: 'Reifengröße (Zoll)',
+    filterGears: 'Gänge',
+    gearsUnit: 'Gänge',
+    filterFrameSize: 'Rahmengröße (Size)',
+    showroomMetaTitle: 'Showroom — Bike Haus Freiburg | Alle Fahrräder',
+    showroomMetaDescription:
+      'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom. City, Trekking, Mountain, E-Bike, Kinderfahrräder — fair bewertet, geprüft, sofort verfügbar.',
+
+    // Showroom detail
+    detailMetaDescSuffix:
+      'Jetzt bei Bike Haus Freiburg in 79114 Freiburg im Breisgau ansehen.',
+    bikeFallbackCategory: 'Fahrrad',
+
+    // Footer
+    legalLabel: 'Rechtliches',
+    languageLabel: 'Sprache',
+
+    // Bike card
+    bikeAltSuffix: ' — Fahrrad bei Bike Haus Freiburg',
   },
 
   fr: {
@@ -537,6 +712,98 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ankaufHint: 'Photos + prix souhaité via WhatsApp',
     ankaufMessage:
       'Bonjour, je souhaite vendre mon vélo.\n\nMarque/Modèle :\nÉtat :\nPrix souhaité :\n\n(Veuillez joindre des photos)',
+
+    // About page extended
+    aboutBadge: 'Entreprise familiale depuis 2021',
+    aboutHeadline: 'Plus que de simples vélos.',
+    aboutHeadlineAccent: 'Une passion.',
+    aboutIntroText:
+      "Ce qui a commencé comme une modeste idée est devenu un lieu où des personnes de tous âges trouvent leur vélo idéal. En tant que petite entreprise familiale à Fribourg, nous croyons que chaque vélo raconte une histoire — et que chacun mérite la liberté d'écrire la sienne sur deux roues.",
+    aboutFeatureInvoice: 'Facture & contrat de vente',
+    aboutFeatureTrust: 'Confiance & Qualité',
+    aboutQuote:
+      "Chaque vélo que nous vendons apporte de la joie — et c'est la plus belle récompense.",
+    aboutQuoteAuthor: '— La famille derrière Bike Haus',
+    aboutMetaTitle: 'À propos — Bike Haus Freiburg | Votre marchand de vélos',
+    aboutMetaDescription:
+      "Découvrez Bike Haus Freiburg. Honnête, durable, personnel — votre marchand de vélos local à Fribourg pour vélos neufs et d'occasion.",
+
+    // Brands
+    brandsLabel: 'MARQUES',
+    brandsTitle: 'Nos marques — Neufs & Occasion',
+    brandsIntro:
+      'Dans notre magasin, nous proposons une sélection soigneusement choisie de vélos. Veuillez noter : nous ne sommes pas un revendeur officiel de toutes les marques, mais nous vendons des vélos provenant de sources légales.',
+    brandsNewTitle: 'Vélos neufs',
+    brandVictoriaDesc: 'Vélos de ville robustes et élégants',
+    brandConwayDesc: 'Performance fiable pour VTT et vélos urbains',
+    brandBikestarDesc: 'Vélos pour enfants et adolescents',
+    brandPyroDesc: 'Vélos de sport légers et rapides',
+    brandXtractDesc: 'Modèles fonctionnels et abordables',
+    brandsUsedTitle: "Vélos d'occasion",
+    brandsUsedDesc:
+      "Nous proposons des vélos d'occasion de marques connues. Ces vélos proviennent directement de particuliers ou d'autres sources légales.",
+    brandsAndMore: "et bien d'autres",
+    brandsDisclaimerLabel: 'Remarque :',
+    brandsDisclaimer:
+      'Nous utilisons les noms de marques pour décrire les produits. Sans partenariat autorisé, nous ne pouvons pas offrir de garantie officielle ou de services des fabricants.',
+
+    // Days (full)
+    monday: 'Lundi',
+    tuesday: 'Mardi',
+    wednesday: 'Mercredi',
+    thursday: 'Jeudi',
+    friday: 'Vendredi',
+    saturday: 'Samedi',
+    sunday: 'Dimanche',
+    closed: 'Fermé',
+    restDay: 'Jour de repos',
+    openGoogleMaps: 'Ouvrir Google Maps',
+
+    // Days (short)
+    monShort: 'Lu',
+    tueShort: 'Ma',
+    wedShort: 'Me',
+    thuShort: 'Je',
+    friShort: 'Ve',
+    satShort: 'Sa',
+    sunShort: 'Di',
+
+    // Contact extended
+    contactWhatsappHint: 'Écrire directement',
+    contactMetaTitle: 'Contact — Bike Haus Freiburg | Adresse & Horaires',
+    contactMetaDescription:
+      "Contactez Bike Haus Freiburg. Adresse, horaires d'ouverture, WhatsApp, téléphone. Rendez-nous visite à 79114 Fribourg-en-Brisgau.",
+
+    // Home trust badges
+    trustBadgeSince: 'Depuis 2020 à Fribourg',
+    trustBadgeCustomers: '500+ clients satisfaits',
+    ariaStarsRating: '5 étoiles sur 5',
+
+    // Showroom filters
+    filterCondition: 'État',
+    filterType: 'Type',
+    filterWomen: 'Femmes',
+    filterMen: 'Hommes',
+    filterKids: 'Enfants',
+    filterTireSize: 'Taille de pneu (pouces)',
+    filterGears: 'Vitesses',
+    gearsUnit: 'vitesses',
+    filterFrameSize: 'Taille de cadre',
+    showroomMetaTitle: 'Showroom — Bike Haus Freiburg | Tous les vélos',
+    showroomMetaDescription:
+      "Découvrez plus de 100 vélos neufs et d'occasion dans notre showroom. Ville, trekking, VTT, vélo électrique — évalués, vérifiés, disponibles immédiatement.",
+
+    // Showroom detail
+    detailMetaDescSuffix:
+      'Voir maintenant chez Bike Haus Freiburg à 79114 Fribourg-en-Brisgau.',
+    bikeFallbackCategory: 'Vélo',
+
+    // Footer
+    legalLabel: 'Mentions légales',
+    languageLabel: 'Langue',
+
+    // Bike card
+    bikeAltSuffix: ' — Vélo chez Bike Haus Freiburg',
   },
 
   tr: {
@@ -714,6 +981,99 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ankaufHint: 'Fotoğraf + istenen fiyat WhatsApp ile',
     ankaufMessage:
       'Merhaba, bisikletimi satmak istiyorum.\n\nMarka/Model:\nDurum:\nİstenen fiyat:\n\n(Lütfen fotoğraf ekleyin)',
+
+    // About page extended
+    aboutBadge: "2021'den beri aile işletmesi",
+    aboutHeadline: 'Bisikletten fazlası.',
+    aboutHeadlineAccent: 'Bir tutku.',
+    aboutIntroText:
+      "Mütevazı bir fikirle başlayan şey, bugün her yaştan insanın mükemmel bisikletini bulduğu bir yer haline geldi. Freiburg'daki küçük bir aile işletmesi olarak, her bisikletin bir hikaye anlattığına ve herkesin iki tekerlek üzerinde kendi hikayesini yazma özgürlüğünü hak ettiğine inanıyoruz.",
+    aboutFeatureInvoice: 'Fatura & Satış Sözleşmesi',
+    aboutFeatureTrust: 'Güven & Kalite',
+    aboutQuote:
+      'Sattığımız her bisiklet mutluluk getiriyor — ve bu en güzel ödül.',
+    aboutQuoteAuthor: "— Bike Haus'un arkasındaki aile",
+    aboutMetaTitle: 'Hakkımızda — Bike Haus Freiburg | Bisiklet Mağazanız',
+    aboutMetaDescription:
+      "Bike Haus Freiburg'u tanıyın. Adil, sürdürülebilir, kişisel — Freiburg'daki yerel bisiklet mağazanız.",
+
+    // Brands
+    brandsLabel: 'MARKALAR',
+    brandsTitle: 'Markalarımız — Yeni & İkinci El',
+    brandsIntro:
+      'Mağazamızda özenle seçilmiş bir bisiklet yelpazesi sunuyoruz. Lütfen dikkat: tüm markaların resmi satıcısı değiliz, ancak yasal kaynaklardan temin ettiğimiz bisikletleri satıyoruz.',
+    brandsNewTitle: 'Yeni Bisikletler',
+    brandVictoriaDesc: 'Sağlam ve zarif şehir bisikletleri',
+    brandConwayDesc: 'Dağ ve şehir bisikletlerinde güvenilir performans',
+    brandBikestarDesc: 'Çocuk ve gençlik bisikletleri',
+    brandPyroDesc: 'Hafif ve hızlı spor bisikletleri',
+    brandXtractDesc: 'Fonksiyonel ve uygun fiyatlı modeller',
+    brandsUsedTitle: 'İkinci El Bisikletler',
+    brandsUsedDesc:
+      'Tanınmış markaların ikinci el bisikletlerini sunuyoruz. Bu bisikletler doğrudan bireylerden veya diğer yasal kaynaklardan temin edilmektedir.',
+    brandsAndMore: 've daha fazlası',
+    brandsDisclaimerLabel: 'Not:',
+    brandsDisclaimer:
+      'Marka adlarını ürünleri tanımlamak için kullanıyoruz. Yetkili ortaklık olmadan üreticilerin resmi garanti veya servis hizmetlerini sunamayız.',
+
+    // Days (full)
+    monday: 'Pazartesi',
+    tuesday: 'Salı',
+    wednesday: 'Çarşamba',
+    thursday: 'Perşembe',
+    friday: 'Cuma',
+    saturday: 'Cumartesi',
+    sunday: 'Pazar',
+    closed: 'Kapalı',
+    restDay: 'Tatil günü',
+    openGoogleMaps: "Google Maps'i aç",
+
+    // Days (short)
+    monShort: 'Pzt',
+    tueShort: 'Sal',
+    wedShort: 'Çar',
+    thuShort: 'Per',
+    friShort: 'Cum',
+    satShort: 'Cmt',
+    sunShort: 'Paz',
+
+    // Contact extended
+    contactWhatsappHint: 'Doğrudan yaz',
+    contactMetaTitle:
+      'İletişim — Bike Haus Freiburg | Adres & Çalışma Saatleri',
+    contactMetaDescription:
+      "Bike Haus Freiburg ile iletişime geçin. Adres, çalışma saatleri, WhatsApp, telefon. 79114 Freiburg'da bizi ziyaret edin.",
+
+    // Home trust badges
+    trustBadgeSince: "2020'den beri Freiburg'da",
+    trustBadgeCustomers: '500+ memnun müşteri',
+    ariaStarsRating: '5 üzerinden 5 yıldız',
+
+    // Showroom filters
+    filterCondition: 'Durum',
+    filterType: 'Tür',
+    filterWomen: 'Kadın',
+    filterMen: 'Erkek',
+    filterKids: 'Çocuk',
+    filterTireSize: 'Lastik Boyutu (inç)',
+    filterGears: 'Vites',
+    gearsUnit: 'Vites',
+    filterFrameSize: 'Kadro Boyutu',
+    showroomMetaTitle: 'Showroom — Bike Haus Freiburg | Tüm Bisikletler',
+    showroomMetaDescription:
+      "Showroom'umuzda 100'den fazla yeni ve ikinci el bisikleti keşfedin. Şehir, trekking, dağ, elektrikli bisiklet — değerlendi, kontrol edildi, hemen mevcut.",
+
+    // Showroom detail
+    detailMetaDescSuffix:
+      "Şimdi 79114 Freiburg'daki Bike Haus Freiburg'da görün.",
+    bikeFallbackCategory: 'Bisiklet',
+
+    // Footer
+    legalLabel: 'Yasal',
+    languageLabel: 'Dil',
+
+    // Bike card
+    bikeAltSuffix: " — Bike Haus Freiburg'da Bisiklet",
   },
 };
 
