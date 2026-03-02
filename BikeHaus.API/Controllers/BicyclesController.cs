@@ -1,5 +1,6 @@
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BikeHaus.API.Controllers;
@@ -87,6 +88,7 @@ public class BicyclesController : ControllerBase
         return Ok(new { stokNo = nextStokNo });
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<BicycleDto>> Create([FromBody] BicycleCreateDto dto)
     {
@@ -94,6 +96,7 @@ public class BicyclesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = bicycle.Id }, bicycle);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<BicycleDto>> Update(int id, [FromBody] BicycleUpdateDto dto)
     {
@@ -101,6 +104,7 @@ public class BicyclesController : ControllerBase
         return Ok(bicycle);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

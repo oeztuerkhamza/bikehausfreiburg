@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { PublicShopInfo } from '../../models/models';
@@ -1012,6 +1013,8 @@ import { PublicShopInfo } from '../../models/models';
 export class AboutComponent implements OnInit {
   private translationService = inject(TranslationService);
   private apiService = inject(ApiService);
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -1029,6 +1032,12 @@ export class AboutComponent implements OnInit {
   ];
 
   ngOnInit(): void {
+    // SEO
+    this.titleService.setTitle('Über uns — Bike Haus Freiburg | Ihr Fahrradhändler');
+    this.metaService.updateTag({ name: 'description', content: 'Lernen Sie Bike Haus Freiburg kennen. Fair, nachhaltig, persönlich — Ihr lokaler Fahrradhändler in Freiburg im Breisgau für neue und gebrauchte Fahrräder.' });
+    this.metaService.updateTag({ property: 'og:title', content: 'Über uns — Bike Haus Freiburg' });
+    this.metaService.updateTag({ property: 'og:url', content: 'https://bikehausfreiburg.com/about' });
+    
     this.apiService.getShopInfo().subscribe({
       next: (data) => this.shopInfo.set(data),
     });

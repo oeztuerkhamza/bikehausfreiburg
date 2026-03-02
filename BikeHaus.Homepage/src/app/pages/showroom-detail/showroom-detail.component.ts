@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { KleinanzeigenListing } from '../../models/models';
@@ -697,6 +698,8 @@ export class ShowroomDetailComponent implements OnInit {
   private translationService = inject(TranslationService);
   private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -731,6 +734,22 @@ export class ShowroomDetailComponent implements OnInit {
       next: (data) => {
         this.listing.set(data);
         this.loading.set(false);
+        
+        // Dynamic SEO
+        if (data) {
+          const title = `${data.title} — Bike Haus Freiburg`;
+          const price = data.price ? `${data.price}€` : '';
+          const desc = `${data.title} ${price}. Jetzt bei Bike Haus Freiburg in 79114 Freiburg im Breisgau ansehen.`;
+          
+          this.titleService.setTitle(title);
+          this.metaService.updateTag({ name: 'description', content: desc });
+          this.metaService.updateTag({ property: 'og:title', content: title });
+          this.metaService.updateTag({ property: 'og:description', content: desc });
+          this.metaService.updateTag({ property: 'og:url', content: `https://bikehausfreiburg.com/showroom/${id}` });
+          if (data.images?.length) {
+            this.metaService.updateTag({ property: 'og:image', content: data.images[0].imageUrl });
+          }
+        }
       },
       error: () => this.loading.set(false),
     });

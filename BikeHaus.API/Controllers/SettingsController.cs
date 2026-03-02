@@ -1,5 +1,6 @@
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BikeHaus.API.Controllers;
@@ -30,6 +31,7 @@ public class SettingsController : ControllerBase
         return Ok(settings);
     }
 
+    [Authorize]
     [HttpPut]
     public async Task<ActionResult<ShopSettingsDto>> UpdateSettings([FromBody] UpdateShopSettingsDto dto)
     {
@@ -37,6 +39,7 @@ public class SettingsController : ControllerBase
         return Ok(settings);
     }
 
+    [Authorize]
     [HttpPost("logo")]
     public async Task<ActionResult<ShopSettingsDto>> UploadLogo([FromBody] UploadLogoDto dto)
     {
@@ -49,6 +52,7 @@ public class SettingsController : ControllerBase
         return Ok(settings);
     }
 
+    [Authorize]
     [HttpDelete("logo")]
     public async Task<IActionResult> DeleteLogo()
     {
@@ -56,6 +60,7 @@ public class SettingsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpPost("owner-signature")]
     public async Task<ActionResult<ShopSettingsDto>> UploadOwnerSignature([FromBody] UploadSignatureDto dto)
     {
@@ -68,6 +73,7 @@ public class SettingsController : ControllerBase
         return Ok(settings);
     }
 
+    [Authorize]
     [HttpDelete("owner-signature")]
     public async Task<IActionResult> DeleteOwnerSignature()
     {

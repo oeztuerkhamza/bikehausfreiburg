@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { PublicShopInfo } from '../../models/models';
@@ -465,12 +466,20 @@ import { PublicShopInfo } from '../../models/models';
 export class ContactComponent implements OnInit {
   private translationService = inject(TranslationService);
   private apiService = inject(ApiService);
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
   shopInfo = signal<PublicShopInfo | null>(null);
 
   ngOnInit(): void {
+    // SEO
+    this.titleService.setTitle('Kontakt — Bike Haus Freiburg | Adresse & Öffnungszeiten');
+    this.metaService.updateTag({ name: 'description', content: 'Kontaktieren Sie Bike Haus Freiburg. Adresse, Öffnungszeiten, WhatsApp, Telefon. Besuchen Sie uns in 79114 Freiburg im Breisgau.' });
+    this.metaService.updateTag({ property: 'og:title', content: 'Kontakt — Bike Haus Freiburg' });
+    this.metaService.updateTag({ property: 'og:url', content: 'https://bikehausfreiburg.com/contact' });
+    
     this.apiService.getShopInfo().subscribe({
       next: (data) => this.shopInfo.set(data),
     });

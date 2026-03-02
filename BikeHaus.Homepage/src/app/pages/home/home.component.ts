@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { BikeCardComponent } from '../../components/bike-card/bike-card.component';
@@ -803,6 +804,8 @@ import {
 export class HomeComponent implements OnInit {
   private translationService = inject(TranslationService);
   private apiService = inject(ApiService);
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -813,6 +816,12 @@ export class HomeComponent implements OnInit {
   loading = signal(true);
 
   ngOnInit(): void {
+    // SEO - Reset to homepage defaults
+    this.titleService.setTitle('Bike Haus Freiburg — Neue & gebrauchte Fahrräder in Freiburg');
+    this.metaService.updateTag({ name: 'description', content: 'Ihr Fahrradhändler in Freiburg im Breisgau. Über 100 neue und geprüfte Gebrauchträder — City, Trekking, Mountain, E-Bike, Kinderfahrräder. Fair, nachhaltig, persönlich.' });
+    this.metaService.updateTag({ property: 'og:title', content: 'Bike Haus Freiburg — Neue & gebrauchte Fahrrräder' });
+    this.metaService.updateTag({ property: 'og:url', content: 'https://bikehausfreiburg.com' });
+    
     this.loadData();
   }
 

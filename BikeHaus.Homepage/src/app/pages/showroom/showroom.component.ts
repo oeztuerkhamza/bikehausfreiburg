@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { BikeCardComponent } from '../../components/bike-card/bike-card.component';
@@ -1065,6 +1066,8 @@ export class ShowroomComponent implements OnInit {
   private translationService = inject(TranslationService);
   private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
 
   t = this.translationService.translations;
 
@@ -1255,6 +1258,13 @@ export class ShowroomComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // SEO
+    this.titleService.setTitle('Showroom — Bike Haus Freiburg | Alle Fahrräder');
+    this.metaService.updateTag({ name: 'description', content: 'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom. City, Trekking, Mountain, E-Bike, Kinderfahrräder — fair bewertet, geprüft, sofort verfügbar.' });
+    this.metaService.updateTag({ property: 'og:title', content: 'Showroom — Bike Haus Freiburg' });
+    this.metaService.updateTag({ property: 'og:description', content: 'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom.' });
+    this.metaService.updateTag({ property: 'og:url', content: 'https://bikehausfreiburg.com/showroom' });
+    
     this.loadData();
   }
 

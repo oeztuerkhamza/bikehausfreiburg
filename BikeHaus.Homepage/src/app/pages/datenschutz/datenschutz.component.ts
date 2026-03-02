@@ -1,6 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 
 @Component({
@@ -345,8 +346,17 @@ import { TranslationService } from '../../services/translation.service';
     `,
   ],
 })
-export class DatenschutzComponent {
+export class DatenschutzComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
+  
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+
+  ngOnInit(): void {
+    this.titleService.setTitle('Datenschutz — Bike Haus Freiburg');
+    this.metaService.updateTag({ name: 'description', content: 'Datenschutzerklärung von Bike Haus Freiburg. Informationen zur Verarbeitung Ihrer personenbezogenen Daten.' });
+    this.metaService.updateTag({ name: 'robots', content: 'noindex, follow' });
+  }
 }
