@@ -12,7 +12,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ArchiveService } from '../../services/archive.service';
 import { PurchaseService } from '../../services/purchase.service';
 import { SaleService } from '../../services/sale.service';
-import { DocumentService } from '../../services/document.service';
+import { ReturnService } from '../../services/return.service';
 import { TranslationService } from '../../services/translation.service';
 import {
   ArchiveSearchResult,
@@ -990,7 +990,7 @@ export class ArchiveComponent implements OnDestroy {
   private archiveService = inject(ArchiveService);
   private purchaseService = inject(PurchaseService);
   private saleService = inject(SaleService);
-  private documentService = inject(DocumentService);
+  private returnService = inject(ReturnService);
   private translationService = inject(TranslationService);
 
   get t() {
@@ -1075,7 +1075,21 @@ export class ArchiveComponent implements OnDestroy {
 
   previewDocument(event: ArchiveTimelineEvent) {
     if (!event.documentId) return;
-    this.documentService.download(event.documentId).subscribe((blob) => {
+    let download$;
+    switch (event.documentType) {
+      case 'Kaufbeleg':
+        download$ = this.purchaseService.downloadKaufbeleg(event.documentId);
+        break;
+      case 'Verkaufsbeleg':
+        download$ = this.saleService.downloadVerkaufsbeleg(event.documentId);
+        break;
+      case 'Rueckgabebeleg':
+        download$ = this.returnService.downloadRueckgabebeleg(event.documentId);
+        break;
+      default:
+        return;
+    }
+    download$.subscribe((blob) => {
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
     });
@@ -1083,7 +1097,21 @@ export class ArchiveComponent implements OnDestroy {
 
   printDocument(event: ArchiveTimelineEvent) {
     if (!event.documentId) return;
-    this.documentService.download(event.documentId).subscribe((blob) => {
+    let download$;
+    switch (event.documentType) {
+      case 'Kaufbeleg':
+        download$ = this.purchaseService.downloadKaufbeleg(event.documentId);
+        break;
+      case 'Verkaufsbeleg':
+        download$ = this.saleService.downloadVerkaufsbeleg(event.documentId);
+        break;
+      case 'Rueckgabebeleg':
+        download$ = this.returnService.downloadRueckgabebeleg(event.documentId);
+        break;
+      default:
+        return;
+    }
+    download$.subscribe((blob) => {
       const url = window.URL.createObjectURL(blob);
       const w = window.open(url, '_blank');
       if (w) {
