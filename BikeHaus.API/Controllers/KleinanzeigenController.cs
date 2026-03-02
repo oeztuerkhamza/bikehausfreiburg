@@ -1,4 +1,5 @@
 using BikeHaus.Application.Interfaces;
+using BikeHaus.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,20 +11,47 @@ namespace BikeHaus.API.Controllers;
 public class KleinanzeigenController : ControllerBase
 {
     private readonly IKleinanzeigenService _kleinanzeigenService;
+    private readonly KleinanzeigenSyncCoordinator _syncCoordinator;
 
-    public KleinanzeigenController(IKleinanzeigenService kleinanzeigenService)
+    public KleinanzeigenController(
+        IKleinanzeigenService kleinanzeigenService,
+        KleinanzeigenSyncCoordinator syncCoordinator)
     {
         _kleinanzeigenService = kleinanzeigenService;
+        _syncCoordinator = syncCoordinator;
     }
 
     /// <summary>
-    /// Manually trigger Kleinanzeigen sync (admin only)
+    /// Manually trigger Kleinanzeigen sync (admin only).
+    /// Returns immediately — sync runs in the background.
+    /// Poll GET /sync-status for progress.
     /// </summary>
     [HttpPost("sync")]
-    public async Task<IActionResult> TriggerSync()
+    public IActionResult TriggerSync()
     {
-        var result = await _kleinanzeigenService.TriggerSyncAsync();
-        return Ok(result);
+        var started = _syncCoordinator.TriggerSync();
+
+        return Ok(new
+        {
+            syncing = true,
+            started,
+            message = started ? "Sync started" : "Sync already in progress",
+            syncedAt = DateTime.UtcNow
+        });
+    }
+
+    /// <summary>
+    /// Get current sync status (polling endpoint)
+    /// </summary>
+    [HttpGet("sync-status")]
+    public IActionResult GetSyncStatus()
+    {
+        return Ok(new
+        {
+            syncing = _syncCoordinator.IsSyncing,
+            startedAt = _syncCoordinator.SyncStartedAt,
+            result = _syncCoordinator.LastResult
+        });
     }
 
     /// <summary>

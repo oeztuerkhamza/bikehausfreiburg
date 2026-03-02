@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService, ShopSettings } from '../../services/settings.service';
@@ -1132,7 +1132,11 @@ import {
     `,
   ],
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
+  ngOnDestroy(): void {
+    this.stopSyncPolling();
+  }
+
   private settingsService = inject(SettingsService);
   private backupService = inject(BackupService);
   private kleinanzeigenService = inject(KleinanzeigenService);
@@ -1149,6 +1153,7 @@ export class SettingsComponent implements OnInit {
   syncing = false;
   lastSyncTime: Date | null = null;
   syncResult: KleinanzeigenSyncResult | null = null;
+  private syncPollTimer: any = null;
 
   // Backup & Restore
   creatingBackup = false;
@@ -1226,12 +1231,9 @@ export class SettingsComponent implements OnInit {
     this.syncing = true;
     this.syncResult = null;
     this.kleinanzeigenService.triggerSync().subscribe({
-      next: (result) => {
-        this.syncResult = result;
-        this.syncing = false;
-        if (!result.error) {
-          this.lastSyncTime = new Date(result.syncedAt);
-        }
+      next: () => {
+        // Sync started in background — poll for status
+        this.startSyncPolling();
       },
       error: (err) => {
         this.syncResult = {
@@ -1246,6 +1248,34 @@ export class SettingsComponent implements OnInit {
         this.syncing = false;
       },
     });
+  }
+
+  private startSyncPolling(): void {
+    this.stopSyncPolling();
+    this.syncPollTimer = setInterval(() => {
+      this.kleinanzeigenService.getSyncStatus().subscribe({
+        next: (status) => {
+          if (!status.syncing && status.result) {
+            this.syncResult = status.result;
+            this.syncing = false;
+            if (!status.result.error) {
+              this.lastSyncTime = new Date(status.result.syncedAt);
+            }
+            this.stopSyncPolling();
+          }
+        },
+        error: () => {
+          // Keep polling on transient errors
+        },
+      });
+    }, 3000);
+  }
+
+  private stopSyncPolling(): void {
+    if (this.syncPollTimer) {
+      clearInterval(this.syncPollTimer);
+      this.syncPollTimer = null;
+    }
   }
 
   loadCurrentUser(): void {

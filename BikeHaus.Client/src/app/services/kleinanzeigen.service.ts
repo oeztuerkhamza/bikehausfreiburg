@@ -11,6 +11,19 @@ export interface KleinanzeigenSyncResult {
   error?: string;
 }
 
+export interface KleinanzeigenSyncTriggerResponse {
+  syncing: boolean;
+  started: boolean;
+  message: string;
+  syncedAt: string;
+}
+
+export interface KleinanzeigenSyncStatus {
+  syncing: boolean;
+  startedAt?: string;
+  result?: KleinanzeigenSyncResult;
+}
+
 export interface KleinanzeigenListing {
   id: number;
   externalId: string;
@@ -47,8 +60,12 @@ export class KleinanzeigenService {
 
   constructor(private readonly http: HttpClient) {}
 
-  triggerSync(): Observable<KleinanzeigenSyncResult> {
-    return this.http.post<KleinanzeigenSyncResult>(`${this.apiUrl}/sync`, {});
+  triggerSync(): Observable<KleinanzeigenSyncTriggerResponse> {
+    return this.http.post<KleinanzeigenSyncTriggerResponse>(`${this.apiUrl}/sync`, {});
+  }
+
+  getSyncStatus(): Observable<KleinanzeigenSyncStatus> {
+    return this.http.get<KleinanzeigenSyncStatus>(`${this.apiUrl}/sync-status`);
   }
 
   getLastSync(): Observable<{ lastSyncedAt: string | null }> {
