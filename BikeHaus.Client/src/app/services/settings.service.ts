@@ -25,6 +25,7 @@ export interface ShopSettings {
   inhaberSignatureBase64?: string;
   inhaberSignatureFileName?: string;
   fahrradNummerStart: number;
+  kleinanzeigenUrl?: string;
   oeffnungszeiten?: string;
   zusatzinfo?: string;
   fullAddress?: string;
@@ -47,6 +48,7 @@ export interface UpdateShopSettings {
   inhaberVorname?: string;
   inhaberNachname?: string;
   fahrradNummerStart: number;
+  kleinanzeigenUrl?: string;
   oeffnungszeiten?: string;
   zusatzinfo?: string;
 }

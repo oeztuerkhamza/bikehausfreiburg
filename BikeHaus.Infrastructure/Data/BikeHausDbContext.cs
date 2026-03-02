@@ -20,6 +20,8 @@ public class BikeHausDbContext : DbContext
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<KleinanzeigenListing> KleinanzeigenListings => Set<KleinanzeigenListing>();
+    public DbSet<KleinanzeigenImage> KleinanzeigenImages => Set<KleinanzeigenImage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -272,6 +274,36 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Lieferant).HasMaxLength(200);
             entity.Property(e => e.BelegNummer).HasMaxLength(50);
             entity.Property(e => e.Notizen).HasMaxLength(1000);
+        });
+
+        // ── KleinanzeigenListing Configuration ──
+        modelBuilder.Entity<KleinanzeigenListing>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ExternalId).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Description).HasMaxLength(5000);
+            entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.PriceText).HasMaxLength(100);
+            entity.Property(e => e.Category).HasMaxLength(200);
+            entity.Property(e => e.Location).HasMaxLength(200);
+            entity.Property(e => e.ExternalUrl).IsRequired().HasMaxLength(500);
+            entity.HasIndex(e => e.ExternalId).IsUnique();
+            entity.HasIndex(e => e.IsActive);
+            entity.HasIndex(e => e.Category);
+        });
+
+        // ── KleinanzeigenImage Configuration ──
+        modelBuilder.Entity<KleinanzeigenImage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ImageUrl).IsRequired().HasMaxLength(1000);
+            entity.Property(e => e.LocalPath).HasMaxLength(500);
+
+            entity.HasOne(e => e.Listing)
+                .WithMany(l => l.Images)
+                .HasForeignKey(e => e.KleinanzeigenListingId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

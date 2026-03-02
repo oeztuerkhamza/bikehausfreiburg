@@ -63,6 +63,9 @@ builder.Services.AddAuthorization();
 // Infrastructure DI
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// Kleinanzeigen background sync service (runs every 4 hours)
+builder.Services.AddHostedService<BikeHaus.Infrastructure.Services.KleinanzeigenSyncBackgroundService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

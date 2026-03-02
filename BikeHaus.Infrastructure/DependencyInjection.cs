@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IAccessoryCatalogRepository, AccessoryCatalogRepository>();
         services.AddScoped<IReservationRepository, ReservationRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
+        services.AddScoped<IKleinanzeigenListingRepository, KleinanzeigenListingRepository>();
 
         // Services
         services.AddScoped<IBicycleService, BikeHaus.Application.Services.BicycleService>();
@@ -44,6 +45,8 @@ public static class DependencyInjection
         services.AddScoped<IAccessoryCatalogService, BikeHaus.Application.Services.AccessoryCatalogService>();
         services.AddScoped<IReservationService, BikeHaus.Application.Services.ReservationService>();
         services.AddScoped<IExpenseService, BikeHaus.Application.Services.ExpenseService>();
+        services.AddScoped<IKleinanzeigenService, BikeHaus.Application.Services.KleinanzeigenService>();
+        services.AddScoped<IKleinanzeigenScraperService, KleinanzeigenScraperService>();
         services.AddScoped<IArchiveService, BikeHaus.Application.Services.ArchiveService>();
         services.AddScoped<IAuthService, BikeHaus.Infrastructure.Services.AuthService>();
         services.AddScoped<IPdfService, PdfService>();

@@ -1,0 +1,145 @@
+worker_processes auto;
+events {
+    worker_connections 1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    # Logging
+    access_log /var/log/nginx/access.log;
+    error_log  /var/log/nginx/error.log;
+
+    # Performance
+    sendfile        on;
+    tcp_nopush      on;
+    tcp_nodelay     on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    client_max_body_size 50M;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript image/svg+xml;
+
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+
+    # Upstream
+    upstream bikehaus_api {
+        server bikehaus:5000;
+    }
+
+    # ═══════════════════════════════════════════════════════════════
+    # HTTP-ONLY CONFIGURATION (Use this before SSL is setup)
+    # After SSL is obtained, replace with nginx.conf (HTTPS version)
+    # ═══════════════════════════════════════════════════════════════
+
+    # PUBLIC HOMEPAGE (bikehausfreiburg.com)
+    server {
+        listen 80;
+        server_name bikehausfreiburg.com www.bikehausfreiburg.com;
+
+        # Let's Encrypt challenge
+        location /.well-known/acme-challenge/ {
+            root /var/lib/letsencrypt;
+        }
+
+        # Serve public homepage static files
+        root /usr/share/nginx/html/homepage;
+        index index.html;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Security headers
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+    }
+
+    # ADMIN PANEL (admin.bikehausfreiburg.com)
+    server {
+        listen 80;
+        server_name admin.bikehausfreiburg.com;
+
+        # Let's Encrypt challenge
+        location /.well-known/acme-challenge/ {
+            root /var/lib/letsencrypt;
+        }
+
+        # API reverse proxy
+        location /api/ {
+            limit_req zone=api burst=20 nodelay;
+            proxy_pass http://bikehaus_api;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection keep-alive;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
+            proxy_read_timeout 300s;
+        }
+
+        # Angular Admin SPA
+        location / {
+            proxy_pass http://bikehaus_api;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+
+    # API (api.bikehausfreiburg.com)
+    server {
+        listen 80;
+        server_name api.bikehausfreiburg.com;
+
+        # Let's Encrypt challenge
+        location /.well-known/acme-challenge/ {
+            root /var/lib/letsencrypt;
+        }
+
+        # All API requests
+        location / {
+            limit_req zone=api burst=20 nodelay;
+            proxy_pass http://bikehaus_api;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection keep-alive;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
+            proxy_read_timeout 300s;
+        }
+
+        # CORS headers for public API
+        add_header Access-Control-Allow-Origin "*" always;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Content-Type, Authorization" always;
+    }
+
+    # Fallback
+    server {
+        listen 80 default_server;
+        server_name _;
+
+        location /.well-known/acme-challenge/ {
+            root /var/lib/letsencrypt;
+        }
+
+        location / {
+            return 301 http://bikehausfreiburg.com$request_uri;
+        }
+    }
+}

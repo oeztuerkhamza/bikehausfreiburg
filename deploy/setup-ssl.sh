@@ -2,48 +2,52 @@
 # ============================================
 # SSL Setup with Let's Encrypt
 # Run AFTER the app is running on port 80
+# Sets up SSL for all 3 domains
 # ============================================
 
 set -e
 
-if [ -z "$1" ]; then
-    echo "Usage: ./setup-ssl.sh your-domain.com your-email@example.com"
-    exit 1
-fi
+DOMAIN="bikehausfreiburg.com"
+EMAIL="${1:-info@bikehausfreiburg.com}"
 
-DOMAIN=$1
-EMAIL=${2:-"admin@$DOMAIN"}
+echo "=== Setting up SSL for BikeHaus Freiburg ==="
+echo "Domains: $DOMAIN, admin.$DOMAIN, api.$DOMAIN"
 
-echo "=== Setting up SSL for $DOMAIN ==="
+cd /opt/bikehaus
 
-# Install certbot
-apt-get install -y certbot
+# Make sure containers are running
+docker compose up -d
 
-# Stop nginx temporarily
-docker compose stop nginx
-
-# Get certificate
-certbot certonly --standalone \
+# Use webroot method with certbot container
+echo ">> Obtaining SSL certificate..."
+docker compose run --rm certbot certonly \
+    --webroot \
+    --webroot-path=/var/lib/letsencrypt \
     --email "$EMAIL" \
     --agree-tos \
     --no-eff-email \
-    -d "$DOMAIN"
+    -d "$DOMAIN" \
+    -d "www.$DOMAIN" \
+    -d "admin.$DOMAIN" \
+    -d "api.$DOMAIN"
 
-# Copy certificates to nginx ssl directory
-mkdir -p /opt/bikehaus/nginx/ssl
-cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem /opt/bikehaus/nginx/ssl/
-cp /etc/letsencrypt/live/$DOMAIN/privkey.pem /opt/bikehaus/nginx/ssl/
+# Update nginx config with SSL
+echo ">> Updating nginx configuration..."
+
+# Backup original config
+cp nginx/nginx.conf nginx/nginx.conf.backup
+
+# Restart nginx to load new certificates
+docker compose restart nginx
 
 echo ""
 echo "=== SSL Certificate Obtained! ==="
 echo ""
-echo "Now update nginx/nginx.conf:"
-echo "1. Uncomment the HTTPS server block"
-echo "2. Replace YOUR_DOMAIN.com with $DOMAIN"
-echo "3. Uncomment the HTTP->HTTPS redirect block"
-echo "4. Comment out the main HTTP server block"
-echo "5. Run: docker compose up -d --build"
+echo "Certificates are stored in Docker volume 'certbot-etc'"
+echo "Auto-renewal is handled by certbot container"
 echo ""
-echo "Auto-renewal cron job:"
-echo "  echo '0 3 * * * certbot renew --quiet && cp /etc/letsencrypt/live/$DOMAIN/*.pem /opt/bikehaus/nginx/ssl/ && docker compose -f /opt/bikehaus/docker-compose.yml restart nginx' | crontab -"
+echo "Verify SSL:"
+echo "  curl -I https://bikehausfreiburg.com"
+echo "  curl -I https://admin.bikehausfreiburg.com"
+echo "  curl -I https://api.bikehausfreiburg.com"
 echo ""

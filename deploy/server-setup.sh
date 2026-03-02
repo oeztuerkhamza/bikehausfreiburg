@@ -14,7 +14,7 @@ apt-get update && apt-get upgrade -y
 
 # Install Docker
 echo ">> Installing Docker..."
-apt-get install -y ca-certificates curl gnupg
+apt-get install -y ca-certificates curl gnupg git
 install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 chmod a+r /etc/apt/keyrings/docker.gpg
@@ -43,13 +43,35 @@ ufw allow 80/tcp    # HTTP
 ufw allow 443/tcp   # HTTPS
 ufw --force enable
 
+# Create app directories
+echo ">> Creating directories..."
+mkdir -p /opt/bikehaus/homepage-dist
+mkdir -p /var/lib/letsencrypt
+
 echo ""
 echo "=== Setup Complete! ==="
 echo ""
 echo "Next steps:"
-echo "1. Clone/upload your project to /opt/bikehaus"
-echo "2. cd /opt/bikehaus"
-echo "3. cp .env.example .env"
-echo "4. Edit .env with your settings"
-echo "5. docker compose up -d --build"
+echo ""
+echo "1. Clone main repo:"
+echo "   git clone https://github.com/YOUR_USERNAME/bikehausfreiburg.git /opt/bikehaus"
+echo ""
+echo "2. Start services (first time, without SSL):"
+echo "   cd /opt/bikehaus"
+echo "   docker compose up -d --build"
+echo ""
+echo "3. Setup SSL:"
+echo "   cd /opt/bikehaus/deploy"
+echo "   ./setup-ssl.sh"
+echo ""
+echo "4. Configure DNS (A records):"
+echo "   bikehausfreiburg.com     → YOUR_SERVER_IP"
+echo "   www.bikehausfreiburg.com → YOUR_SERVER_IP"
+echo "   admin.bikehausfreiburg.com → YOUR_SERVER_IP"
+echo "   api.bikehausfreiburg.com   → YOUR_SERVER_IP"
+echo ""
+echo "5. Configure GitHub Secrets in both repos:"
+echo "   SERVER_HOST:    YOUR_SERVER_IP"
+echo "   SERVER_USER:    root"
+echo "   SERVER_SSH_KEY: (your SSH private key)"
 echo ""

@@ -10,6 +10,10 @@ import {
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { BackupService } from '../../services/backup.service';
+import {
+  KleinanzeigenService,
+  KleinanzeigenSyncResult,
+} from '../../services/kleinanzeigen.service';
 
 @Component({
   selector: 'app-settings',
@@ -415,6 +419,73 @@ import { BackupService } from '../../services/backup.service';
                     rows="3"
                   ></textarea>
                 </div>
+              </div>
+
+              <!-- Kleinanzeigen Integration -->
+              <h3
+                style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
+              >
+                🔗 Kleinanzeigen Integration
+              </h3>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>Kleinanzeigen Profil-URL</label>
+                  <input
+                    type="url"
+                    [(ngModel)]="settings.kleinanzeigenUrl"
+                    name="kleinanzeigenUrl"
+                    placeholder="https://www.kleinanzeigen.de/s-bestandsliste.html?userId=..."
+                  />
+                  <small
+                    style="color: var(--text-secondary, #64748b); font-size: 0.78rem;"
+                    >Die URL Ihrer Bestandsliste auf Kleinanzeigen. Ilanlar
+                    automatisch alle 4 Stunden synchronisiert.</small
+                  >
+                </div>
+              </div>
+              <div
+                style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;"
+              >
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  [disabled]="syncing || !settings.kleinanzeigenUrl"
+                  (click)="triggerKleinanzeigenSync()"
+                  style="white-space: nowrap;"
+                >
+                  {{
+                    syncing
+                      ? '⏳ Synchronisiere...'
+                      : '🔄 Jetzt synchronisieren'
+                  }}
+                </button>
+                <span
+                  *ngIf="lastSyncTime"
+                  style="font-size: 0.82rem; color: var(--text-secondary, #64748b);"
+                >
+                  Letzte Sync: {{ lastSyncTime | date: 'dd.MM.yyyy HH:mm' }}
+                </span>
+              </div>
+              <div
+                *ngIf="syncResult"
+                style="padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px;"
+                [style.background]="
+                  syncResult.error
+                    ? 'var(--danger-bg, #fef2f2)'
+                    : 'var(--success-bg, #f0fdf4)'
+                "
+                [style.color]="
+                  syncResult.error
+                    ? 'var(--danger, #dc2626)'
+                    : 'var(--success, #16a34a)'
+                "
+              >
+                <span *ngIf="syncResult.error">❌ {{ syncResult.error }}</span>
+                <span *ngIf="!syncResult.error">
+                  ✅ {{ syncResult.newListings }} neue,
+                  {{ syncResult.updatedListings }} aktualisiert,
+                  {{ syncResult.deactivatedListings }} deaktiviert
+                </span>
               </div>
 
               <!-- Bicycle Numbering -->
@@ -1064,6 +1135,7 @@ import { BackupService } from '../../services/backup.service';
 export class SettingsComponent implements OnInit {
   private settingsService = inject(SettingsService);
   private backupService = inject(BackupService);
+  private kleinanzeigenService = inject(KleinanzeigenService);
   themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
   private authService = inject(AuthService);
@@ -1072,6 +1144,11 @@ export class SettingsComponent implements OnInit {
   saving = false;
   showSuccess = false;
   currentLanguage: Language = 'de';
+
+  // Kleinanzeigen sync
+  syncing = false;
+  lastSyncTime: Date | null = null;
+  syncResult: KleinanzeigenSyncResult | null = null;
 
   // Backup & Restore
   creatingBackup = false;
@@ -1112,6 +1189,7 @@ export class SettingsComponent implements OnInit {
     inhaberVorname: '',
     inhaberNachname: '',
     fahrradNummerStart: 1,
+    kleinanzeigenUrl: '',
     oeffnungszeiten: '',
     zusatzinfo: '',
     logoBase64: undefined,
@@ -1130,6 +1208,44 @@ export class SettingsComponent implements OnInit {
     this.currentLanguage = this.translationService.currentLanguage();
     this.loadSettings();
     this.loadCurrentUser();
+    this.loadLastSyncTime();
+  }
+
+  loadLastSyncTime(): void {
+    this.kleinanzeigenService.getLastSync().subscribe({
+      next: (data) => {
+        this.lastSyncTime = data.lastSyncedAt
+          ? new Date(data.lastSyncedAt)
+          : null;
+      },
+      error: () => {},
+    });
+  }
+
+  triggerKleinanzeigenSync(): void {
+    this.syncing = true;
+    this.syncResult = null;
+    this.kleinanzeigenService.triggerSync().subscribe({
+      next: (result) => {
+        this.syncResult = result;
+        this.syncing = false;
+        if (!result.error) {
+          this.lastSyncTime = new Date(result.syncedAt);
+        }
+      },
+      error: (err) => {
+        this.syncResult = {
+          newListings: 0,
+          updatedListings: 0,
+          deactivatedListings: 0,
+          syncedAt: new Date().toISOString(),
+          error:
+            'Sync fehlgeschlagen: ' +
+            (err.error?.message || err.message || 'Unbekannter Fehler'),
+        };
+        this.syncing = false;
+      },
+    });
   }
 
   loadCurrentUser(): void {
@@ -1243,6 +1359,7 @@ export class SettingsComponent implements OnInit {
         inhaberVorname: this.settings.inhaberVorname,
         inhaberNachname: this.settings.inhaberNachname,
         fahrradNummerStart: this.settings.fahrradNummerStart || 1,
+        kleinanzeigenUrl: this.settings.kleinanzeigenUrl,
         oeffnungszeiten: this.settings.oeffnungszeiten,
         zusatzinfo: this.settings.zusatzinfo,
       })
