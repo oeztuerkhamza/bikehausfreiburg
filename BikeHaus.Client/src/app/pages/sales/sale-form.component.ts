@@ -17,10 +17,8 @@ import {
   SaleAccessoryCreate,
   AccessoryCatalogList,
 } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
-import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
 import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
-import { AddressSuggestion } from '../../services/address.service';
+import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
 
 @Component({
   selector: 'app-sale-form',
@@ -29,7 +27,6 @@ import { AddressSuggestion } from '../../services/address.service';
     CommonModule,
     FormsModule,
     RouterLink,
-    AddressAutocompleteComponent,
     BikeSelectorComponent,
     AccessoryAutocompleteComponent,
   ],
@@ -239,73 +236,6 @@ import { AddressSuggestion } from '../../services/address.service';
                   name="bikeBeschr"
                   rows="3"
                 ></textarea>
-              </div>
-            </div>
-          </div>
-
-          <!-- Buyer info -->
-          <div class="form-card">
-            <h2>{{ t.buyer }}</h2>
-            <div class="form-grid">
-              <div class="field">
-                <label>{{ t.firstNameRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.vorname"
-                  name="buyerVorname"
-                  required
-                />
-              </div>
-              <div class="field">
-                <label>{{ t.lastNameRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.nachname"
-                  name="buyerNachname"
-                  required
-                />
-              </div>
-              <div class="field full">
-                <label>{{ t.searchAddress }}</label>
-                <app-address-autocomplete
-                  [placeholder]="t.addressPlaceholder"
-                  (addressSelected)="onBuyerAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint">{{ t.addressHint }}</small>
-              </div>
-              <div class="field">
-                <label>{{ t.streetRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.strasse"
-                  name="buyerStrasse"
-                  required
-                />
-              </div>
-              <div class="field">
-                <label>{{ t.houseNumberRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.hausnummer"
-                  name="buyerHausnr"
-                  required
-                />
-              </div>
-              <div class="field">
-                <label>{{ t.postalCodeRequired }}</label>
-                <input [(ngModel)]="buyer.plz" name="buyerPlz" required />
-              </div>
-              <div class="field">
-                <label>{{ t.cityRequired }}</label>
-                <input [(ngModel)]="buyer.stadt" name="buyerStadt" required />
-              </div>
-              <div class="field">
-                <label>{{ t.phone }}</label>
-                <input [(ngModel)]="buyer.telefon" name="buyerTel" />
-              </div>
-              <div class="field">
-                <label>{{ t.email }}</label>
-                <input
-                  type="email"
-                  [(ngModel)]="buyer.email"
-                  name="buyerEmail"
-                />
               </div>
             </div>
           </div>
@@ -868,16 +798,6 @@ export class SaleFormComponent implements OnInit {
   availableBikes: Bicycle[] = [];
   selectedBike: Bicycle | null = null;
 
-  buyer = {
-    vorname: '',
-    nachname: '',
-    strasse: '',
-    hausnummer: '',
-    plz: '',
-    stadt: '',
-    telefon: '',
-    email: '',
-  };
   preis = 0;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   verkaufsdatum = '';
@@ -1050,13 +970,6 @@ export class SaleFormComponent implements OnInit {
     });
   }
 
-  onBuyerAddressSelected(address: AddressSuggestion) {
-    this.buyer.strasse = address.strasse;
-    this.buyer.hausnummer = address.hausnummer;
-    this.buyer.plz = address.plz;
-    this.buyer.stadt = address.stadt;
-  }
-
   addAccessory() {
     this.accessories.push({
       bezeichnung: '',
@@ -1166,7 +1079,6 @@ export class SaleFormComponent implements OnInit {
 
     const sale: SaleCreate = {
       bicycleId: this.selectedBike!.id,
-      buyer: this.buyer,
       preis: this.preis,
       zahlungsart: this.zahlungsart,
       verkaufsdatum: this.verkaufsdatum,

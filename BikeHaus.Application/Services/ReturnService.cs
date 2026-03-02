@@ -117,7 +117,7 @@ public class ReturnService : IReturnService
         {
             SaleId = dto.SaleId,
             BicycleId = sale.BicycleId,
-            CustomerId = sale.BuyerId,
+            CustomerId = sale.BuyerId,  // may be null if no buyer
             Rueckgabedatum = dto.Rueckgabedatum ?? DateTime.UtcNow,
             Grund = dto.Grund,
             GrundDetails = dto.GrundDetails,

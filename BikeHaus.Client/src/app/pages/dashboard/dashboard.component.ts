@@ -215,7 +215,6 @@ import { TranslationService } from '../../services/translation.service';
                 <tr>
                   <th>{{ t.receiptNo }}</th>
                   <th>{{ t.bicycle }}</th>
-                  <th>{{ t.buyer }}</th>
                   <th>{{ t.price }}</th>
                   <th>{{ t.date }}</th>
                 </tr>
@@ -230,7 +229,6 @@ import { TranslationService } from '../../services/translation.service';
                     <span class="badge-mono">{{ s.belegNummer }}</span>
                   </td>
                   <td>{{ s.bikeInfo }}</td>
-                  <td>{{ s.buyerName }}</td>
                   <td class="price">{{ s.preis | number: '1.2-2' }} €</td>
                   <td class="date">
                     {{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}

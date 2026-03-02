@@ -152,7 +152,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <th>{{ t.receiptNo }}</th>
               <th>{{ t.stockNo }}</th>
               <th>{{ t.bicycle }}</th>
-              <th>{{ t.buyer }}</th>
               <th>{{ t.price }}</th>
               <th>{{ t.paymentMethod }}</th>
               <th>{{ t.date }}</th>
@@ -162,7 +161,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <tbody>
             <tr *ngIf="paginatedResult?.items?.length === 0">
               <td
-                colspan="8"
+                colspan="7"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 {{ t.noSales }}
@@ -176,7 +175,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <td class="mono">{{ s.belegNummer }}</td>
               <td class="mono">{{ s.stokNo || '–' }}</td>
               <td>{{ s.bikeInfo }}</td>
-              <td>{{ s.buyerName }}</td>
               <td>{{ s.preis | number: '1.2-2' }} €</td>
               <td>
                 <span class="badge" [ngClass]="'badge-' + s.zahlungsart">
@@ -665,7 +663,6 @@ export class SaleListComponent implements OnInit {
       [
         { key: 'belegNummer', header: 'Beleg-Nr.' },
         { key: 'bikeInfo', header: 'Fahrrad' },
-        { key: 'buyerName', header: 'Käufer' },
         { key: 'preis', header: 'Preis (€)' },
         { key: 'zahlungsart', header: 'Zahlungsart' },
         { key: 'verkaufsdatum', header: 'Verkaufsdatum' },

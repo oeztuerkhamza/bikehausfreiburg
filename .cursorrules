@@ -1,0 +1,56 @@
+# Cursor Rules — BikeHaus Freiburg
+
+## Project
+
+BikeHaus Freiburg — Bicycle shop inventory & sales management system.
+Full-stack: .NET 9 backend + Angular 17 frontend + SQLite database.
+
+## Architecture (Clean Architecture)
+
+- `BikeHaus.Domain` → Entities, Enums, Repository interfaces (no dependencies)
+- `BikeHaus.Application` → DTOs, Service interfaces, Service implementations
+- `BikeHaus.Infrastructure` → EF Core DbContext, Repositories, Auth/PDF/File services
+- `BikeHaus.API` → Controllers, Program.cs (DI, middleware)
+- `BikeHaus.Client` → Angular SPA
+
+## Backend Rules
+
+- Entity properties in German: Marke, Modell, Preis, Vorname, Nachname
+- .NET 9 / net9.0 / EF Core 8 + SQLite
+- File-scoped namespaces: `namespace X;`
+- Repository + Service pattern
+- DI registrations in `BikeHaus.Infrastructure/DependencyInjection.cs`
+- Controller routes: `api/[controller]`
+- Decimal fields: `decimal(18,2)`
+- JSON: camelCase + JsonStringEnumConverter
+- Nullable enabled project-wide
+- Async methods with `Async` suffix
+
+## Frontend Rules
+
+- Angular 17 standalone components (NO NgModule)
+- Signal-based state: `signal()`, `computed()`
+- Functional guards & interceptors
+- Models in `src/app/models/models.ts` (central file)
+- Service per module: `bicycle.service.ts`, `sale.service.ts`
+- `TranslationService` for DE/TR/EN
+- `ThemeService` for dark/light mode
+- PascalCase for interfaces/enums, camelCase for properties
+
+## Key Entities
+
+Bicycle, Customer, Purchase, Sale, SaleAccessory, Reservation, Return,
+Expense, Document, Signature, AccessoryCatalog, ShopSettings, User
+
+## Enums
+
+BikeStatus(Available/Sold/Reserved), BikeCondition(Neu/Gebraucht),
+PaymentMethod(Bar/PayPal/Karte), ReservationStatus(Active/Converted/Expired/Cancelled),
+ReturnReason(Defekt/NichtWieErwartet/Garantie/Sonstiges),
+DocumentType(Screenshot/PDF/Image/Kaufbeleg/Verkaufsbeleg/Rechnung),
+SignatureType(Seller/Buyer/ShopOwner)
+
+## New Feature Checklist
+
+Backend: Entity → Enum → Repo Interface → DTOs → Service Interface → Service Impl → Repo Impl → DbContext → DI → Controller → Migration
+Frontend: Model (models.ts) → Service → Page Component → Route (app.routes.ts) → Sidebar (app.component.ts)

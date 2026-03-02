@@ -22,7 +22,7 @@ public record SaleDto(
     int Id,
     string BelegNummer,
     BicycleDto Bicycle,
-    CustomerDto Buyer,
+    CustomerDto? Buyer,
     int? PurchaseId,
     decimal Preis,
     PaymentMethod Zahlungsart,
@@ -41,7 +41,7 @@ public record SaleDto(
 public record SaleCreateDto(
     int BicycleId,
     int? PurchaseId,
-    CustomerCreateDto Buyer,
+    CustomerCreateDto? Buyer,
     decimal Preis,
     PaymentMethod Zahlungsart,
     DateTime? Verkaufsdatum,
@@ -60,7 +60,6 @@ public record SaleListDto(
     string BelegNummer,
     string? StokNo,
     string BikeInfo,
-    string BuyerName,
     decimal Preis,
     decimal Rabatt,
     PaymentMethod Zahlungsart,
@@ -70,7 +69,7 @@ public record SaleListDto(
 
 // Update DTO - for editing existing sales
 public record SaleUpdateDto(
-    CustomerUpdateDto Buyer,
+    CustomerUpdateDto? Buyer,
     decimal Preis,
     PaymentMethod Zahlungsart,
     DateTime Verkaufsdatum,

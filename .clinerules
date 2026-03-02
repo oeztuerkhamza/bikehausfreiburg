@@ -1,0 +1,72 @@
+config:
+  description: 'BikeHaus Freiburg — Bicycle shop inventory & sales management'
+  tech_stack:
+    backend: '.NET 9, ASP.NET Core, C# 12, EF Core 8, SQLite'
+    frontend: 'Angular 17 (standalone components, signals)'
+    pdf: 'QuestPDF'
+    auth: 'JWT Bearer + BCrypt'
+    deploy: 'Docker + Nginx'
+
+  architecture: 'Clean Architecture'
+  layers:
+    - 'BikeHaus.Domain → Entities, Enums, Repository Interfaces'
+    - 'BikeHaus.Application → DTOs, Service Interfaces, Service Implementations'
+    - 'BikeHaus.Infrastructure → DbContext, Repositories, Auth/PDF/File Services'
+    - 'BikeHaus.API → Controllers, Program.cs'
+    - 'BikeHaus.Client → Angular SPA'
+
+  conventions:
+    backend:
+      - 'Entity properties in German (Marke, Modell, Preis, Vorname)'
+      - 'File-scoped namespaces'
+      - 'Repository + Service pattern'
+      - 'DI registered in DependencyInjection.cs'
+      - 'Routes: api/[controller]'
+      - 'Decimal columns: decimal(18,2)'
+      - 'JSON: camelCase + JsonStringEnumConverter'
+      - 'Async methods with Async suffix'
+    frontend:
+      - 'Standalone components (no NgModule)'
+      - 'Signal-based state: signal(), computed()'
+      - 'Central models in models.ts'
+      - 'Per-module services'
+      - 'Functional guards & interceptors'
+      - 'TranslationService for DE/TR/EN'
+      - 'ThemeService for dark/light mode'
+
+  entities:
+    - Bicycle
+    - Customer
+    - Purchase
+    - Sale
+    - SaleAccessory
+    - Reservation
+    - Return
+    - Expense
+    - Document
+    - Signature
+    - AccessoryCatalog
+    - ShopSettings
+    - User
+
+  enums:
+    BikeStatus: [Available, Sold, Reserved]
+    BikeCondition: [Neu, Gebraucht]
+    PaymentMethod: [Bar, PayPal, Karte]
+    ReservationStatus: [Active, Converted, Expired, Cancelled]
+    ReturnReason: [Defekt, NichtWieErwartet, Garantie, Sonstiges]
+    DocumentType: [Screenshot, PDF, Image, Kaufbeleg, Verkaufsbeleg, Rechnung]
+    SignatureType: [Seller, Buyer, ShopOwner]
+
+  key_files:
+    entities: 'BikeHaus.Domain/Entities/'
+    dtos: 'BikeHaus.Application/DTOs/'
+    services: 'BikeHaus.Application/Services/'
+    repositories: 'BikeHaus.Infrastructure/Repositories/'
+    dbcontext: 'BikeHaus.Infrastructure/Data/BikeHausDbContext.cs'
+    di: 'BikeHaus.Infrastructure/DependencyInjection.cs'
+    controllers: 'BikeHaus.API/Controllers/'
+    models: 'BikeHaus.Client/src/app/models/models.ts'
+    angular_services: 'BikeHaus.Client/src/app/services/'
+    pages: 'BikeHaus.Client/src/app/pages/'
+    routes: 'BikeHaus.Client/src/app/app.routes.ts'

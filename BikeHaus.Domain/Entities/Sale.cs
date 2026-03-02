@@ -5,7 +5,7 @@ namespace BikeHaus.Domain.Entities;
 public class Sale : BaseEntity
 {
     public int BicycleId { get; set; }
-    public int BuyerId { get; set; }                            // Customer who bought the bike
+    public int? BuyerId { get; set; }                           // Customer who bought the bike (optional)
     public int? PurchaseId { get; set; }                        // Link to original purchase
     public decimal Preis { get; set; }                          // Selling Price
     public PaymentMethod Zahlungsart { get; set; }              // Payment Method
@@ -22,7 +22,7 @@ public class Sale : BaseEntity
 
     // Navigation Properties
     public Bicycle Bicycle { get; set; } = null!;
-    public Customer Buyer { get; set; } = null!;
+    public Customer? Buyer { get; set; }
     public Purchase? Purchase { get; set; }
     public Signature? BuyerSignature { get; set; }
     public Signature? SellerSignature { get; set; }

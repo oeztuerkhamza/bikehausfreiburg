@@ -49,9 +49,7 @@ public class SaleService : ISaleService
                 s.BelegNummer.ToLower().Contains(term) ||
                 s.Bicycle.Marke.ToLower().Contains(term) ||
                 s.Bicycle.Modell.ToLower().Contains(term) ||
-                (s.Bicycle.StokNo != null && s.Bicycle.StokNo.ToLower().Contains(term)) ||
-                s.Buyer.Vorname.ToLower().Contains(term) ||
-                s.Buyer.Nachname.ToLower().Contains(term)) &&
+                (s.Bicycle.StokNo != null && s.Bicycle.StokNo.ToLower().Contains(term))) &&
             // Bicycle property filters
             (string.IsNullOrEmpty(marke) || s.Bicycle.Marke.ToLower().Contains(marke)) &&
             (string.IsNullOrEmpty(fahrradtyp) || (s.Bicycle.Fahrradtyp != null && s.Bicycle.Fahrradtyp.ToLower().Contains(fahrradtyp))) &&
@@ -86,15 +84,20 @@ public class SaleService : ISaleService
         if (bicycle.Status != BikeStatus.Available)
             throw new InvalidOperationException("This bicycle is not available for sale.");
 
-        // Create or find Buyer
-        var buyer = dto.Buyer.ToEntity();
-        buyer = await _customerRepository.AddAsync(buyer);
+        // Create Buyer if provided
+        int? buyerId = null;
+        if (dto.Buyer != null)
+        {
+            var buyer = dto.Buyer.ToEntity();
+            buyer = await _customerRepository.AddAsync(buyer);
+            buyerId = buyer.Id;
+        }
 
         // Create Sale
         var sale = new Sale
         {
             BicycleId = dto.BicycleId,
-            BuyerId = buyer.Id,
+            BuyerId = buyerId,
             PurchaseId = dto.PurchaseId,
             Preis = dto.Preis,
             Zahlungsart = dto.Zahlungsart,
@@ -148,18 +151,21 @@ public class SaleService : ISaleService
         var sale = await _saleRepository.GetWithDetailsAsync(id)
             ?? throw new KeyNotFoundException($"Verkauf mit ID {id} nicht gefunden.");
 
-        // Update Buyer
-        var buyer = sale.Buyer;
-        buyer.Vorname = dto.Buyer.Vorname;
-        buyer.Nachname = dto.Buyer.Nachname;
-        buyer.Strasse = dto.Buyer.Strasse;
-        buyer.Hausnummer = dto.Buyer.Hausnummer;
-        buyer.PLZ = dto.Buyer.PLZ;
-        buyer.Stadt = dto.Buyer.Stadt;
-        buyer.Telefon = dto.Buyer.Telefon;
-        buyer.Email = dto.Buyer.Email;
-        buyer.UpdatedAt = DateTime.UtcNow;
-        await _customerRepository.UpdateAsync(buyer);
+        // Update Buyer if provided
+        if (dto.Buyer != null && sale.Buyer != null)
+        {
+            var buyer = sale.Buyer;
+            buyer.Vorname = dto.Buyer.Vorname;
+            buyer.Nachname = dto.Buyer.Nachname;
+            buyer.Strasse = dto.Buyer.Strasse;
+            buyer.Hausnummer = dto.Buyer.Hausnummer;
+            buyer.PLZ = dto.Buyer.PLZ;
+            buyer.Stadt = dto.Buyer.Stadt;
+            buyer.Telefon = dto.Buyer.Telefon;
+            buyer.Email = dto.Buyer.Email;
+            buyer.UpdatedAt = DateTime.UtcNow;
+            await _customerRepository.UpdateAsync(buyer);
+        }
 
         // Update Sale
         sale.Preis = dto.Preis;

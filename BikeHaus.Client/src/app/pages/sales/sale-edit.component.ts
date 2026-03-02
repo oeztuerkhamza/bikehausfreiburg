@@ -11,9 +11,7 @@ import {
   SaleAccessoryCreate,
   AccessoryCatalogList,
 } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
-import { AddressSuggestion } from '../../services/address.service';
 
 @Component({
   selector: 'app-sale-edit',
@@ -22,7 +20,6 @@ import { AddressSuggestion } from '../../services/address.service';
     CommonModule,
     FormsModule,
     RouterLink,
-    AddressAutocompleteComponent,
     AccessoryAutocompleteComponent,
   ],
   template: `
@@ -64,65 +61,6 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
             </div>
             <p class="hint">{{ t.bicycleReadonly }}</p>
-          </div>
-
-          <!-- Buyer info -->
-          <div class="form-card">
-            <h2>{{ t.buyer }}</h2>
-            <div class="form-grid">
-              <div class="field">
-                <label>{{ t.firstNameRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.vorname"
-                  name="buyerVorname"
-                  required
-                />
-              </div>
-              <div class="field">
-                <label>{{ t.lastNameRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.nachname"
-                  name="buyerNachname"
-                  required
-                />
-              </div>
-              <div class="field full">
-                <label>{{ t.searchAddress }}</label>
-                <app-address-autocomplete
-                  [placeholder]="t.addressPlaceholder"
-                  (addressSelected)="onBuyerAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint">{{ t.addressHint }}</small>
-              </div>
-              <div class="field">
-                <label>{{ t.street }}</label>
-                <input [(ngModel)]="buyer.strasse" name="buyerStrasse" />
-              </div>
-              <div class="field">
-                <label>{{ t.houseNumber }}</label>
-                <input [(ngModel)]="buyer.hausnummer" name="buyerHausnr" />
-              </div>
-              <div class="field">
-                <label>{{ t.postalCode }}</label>
-                <input [(ngModel)]="buyer.plz" name="buyerPlz" />
-              </div>
-              <div class="field">
-                <label>{{ t.city }}</label>
-                <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
-              </div>
-              <div class="field">
-                <label>{{ t.phone }}</label>
-                <input [(ngModel)]="buyer.telefon" name="buyerTel" />
-              </div>
-              <div class="field">
-                <label>{{ t.email }}</label>
-                <input
-                  type="email"
-                  [(ngModel)]="buyer.email"
-                  name="buyerEmail"
-                />
-              </div>
-            </div>
           </div>
 
           <!-- Sale details -->
@@ -574,17 +512,6 @@ export class SaleEditComponent implements OnInit {
   error = '';
   submitting = false;
 
-  buyer = {
-    vorname: '',
-    nachname: '',
-    strasse: '',
-    hausnummer: '',
-    plz: '',
-    stadt: '',
-    telefon: '',
-    email: '',
-  };
-
   preis = 0;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   verkaufsdatum = '';
@@ -634,20 +561,6 @@ export class SaleEditComponent implements OnInit {
   }
 
   private loadFormData(sale: Sale) {
-    // Load buyer data
-    if (sale.buyer) {
-      this.buyer = {
-        vorname: sale.buyer.vorname || '',
-        nachname: sale.buyer.nachname || '',
-        strasse: sale.buyer.strasse || '',
-        hausnummer: sale.buyer.hausnummer || '',
-        plz: sale.buyer.plz || '',
-        stadt: sale.buyer.stadt || '',
-        telefon: sale.buyer.telefon || '',
-        email: sale.buyer.email || '',
-      };
-    }
-
     // Load sale data
     this.preis = sale.preis;
     this.zahlungsart = sale.zahlungsart as PaymentMethod;
@@ -672,13 +585,6 @@ export class SaleEditComponent implements OnInit {
 
     // Load belegNummer
     this.belegNummer = sale.belegNummer || '';
-  }
-
-  onBuyerAddressSelected(address: AddressSuggestion) {
-    this.buyer.strasse = address.strasse;
-    this.buyer.hausnummer = address.hausnummer;
-    this.buyer.plz = address.plz;
-    this.buyer.stadt = address.stadt;
   }
 
   addAccessory() {
@@ -706,7 +612,6 @@ export class SaleEditComponent implements OnInit {
     this.submitting = true;
 
     const update: SaleUpdate = {
-      buyer: this.buyer,
       preis: this.preis,
       zahlungsart: this.zahlungsart,
       verkaufsdatum: this.verkaufsdatum,

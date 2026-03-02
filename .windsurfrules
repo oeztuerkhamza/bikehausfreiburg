@@ -1,0 +1,65 @@
+# WindSurf Rules — BikeHaus Freiburg
+
+## Project Summary
+
+BikeHaus Freiburg is a full-stack bicycle shop management system built with:
+
+- **Backend**: .NET 9, ASP.NET Core Web API, C# 12, EF Core 8, SQLite, QuestPDF
+- **Frontend**: Angular 17 (standalone components, signals), TypeScript
+- **Auth**: JWT Bearer + BCrypt
+- **Deploy**: Docker multi-stage + Nginx
+
+## Clean Architecture Layers
+
+```
+BikeHaus.Domain        → Entities, Enums, Repository Interfaces
+BikeHaus.Application   → DTOs, Service Interfaces, Service Implementations
+BikeHaus.Infrastructure→ DbContext, Repositories, Auth/PDF/File/Backup Services
+BikeHaus.API           → Controllers, Startup Config
+BikeHaus.Client        → Angular SPA (pages, services, models, components)
+```
+
+## Coding Conventions
+
+### C# Backend
+
+- German property names: Marke, Modell, Preis, Vorname, Nachname, Strasse, etc.
+- File-scoped namespaces
+- Repository + Service patterns
+- All DI in `DependencyInjection.cs`
+- Routes: `api/[controller]`
+- Decimal: `decimal(18,2)`
+- JSON: camelCase + string enums
+- Async methods end with `Async`
+
+### Angular Frontend
+
+- Standalone components only (no NgModule)
+- Signal-based state management
+- Central models file: `models.ts`
+- Per-module services
+- Functional guards/interceptors
+- DE/TR/EN translation support
+- Dark/Light theme support
+
+## Domain Model
+
+13 entities: Bicycle, Customer, Purchase, Sale, SaleAccessory, Reservation,
+Return, Expense, Document, Signature, AccessoryCatalog, ShopSettings, User
+
+Key relationships:
+
+- Bicycle ↔ Purchase (1:1), Bicycle ↔ Sale (1:1), Bicycle ↔ Reservation (1:1)
+- Customer → Purchases[], Sales[], Returns[], Reservations[]
+- Sale → Accessories[] (cascade), Signatures
+- Documents linked to Bicycle/Purchase/Sale
+
+## Business Rules
+
+- Purchase creates Bicycle + Customer, sets Status=Available
+- Sale sets Bicycle.Status=Sold
+- Reservation sets Status=Reserved, can convert to Sale
+- Return resets Bicycle.Status=Available
+- BelegNummer auto-generated (VK-/EK- prefix)
+- StokNo auto-incremented from ShopSettings
+- Warranty: Neu=2y, Gebraucht=3mo

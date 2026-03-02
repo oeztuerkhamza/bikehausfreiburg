@@ -97,7 +97,8 @@ public class BikeHausDbContext : DbContext
             entity.HasOne(e => e.Buyer)
                 .WithMany(c => c.Sales)
                 .HasForeignKey(e => e.BuyerId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasOne(e => e.Purchase)
                 .WithOne(p => p.Sale)
@@ -164,7 +165,8 @@ public class BikeHausDbContext : DbContext
             entity.HasOne(e => e.Customer)
                 .WithMany(c => c.Returns)
                 .HasForeignKey(e => e.CustomerId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasOne(e => e.CustomerSignature)
                 .WithOne()

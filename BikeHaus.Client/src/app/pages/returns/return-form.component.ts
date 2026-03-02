@@ -90,7 +90,6 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                   </div>
                   <div class="sale-option-detail">🚲 {{ s.bikeInfo }}</div>
                   <div class="sale-option-detail">
-                    👤 {{ s.buyerName }} ·
                     {{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}
                   </div>
                 </div>
@@ -112,7 +111,6 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                 ><strong>{{ selectedSale.belegNummer }}</strong></span
               >
               <span>{{ t.bicycle }}: {{ selectedSale.bikeInfo }}</span>
-              <span>{{ t.buyer }}: {{ selectedSale.buyerName }}</span>
               <span
                 >{{ t.price }}:
                 {{ selectedSale.preis | number: '1.2-2' }} €</span
@@ -556,7 +554,6 @@ export class ReturnFormComponent implements OnInit {
       (s) =>
         s.belegNummer.toLowerCase().includes(q) ||
         s.bikeInfo.toLowerCase().includes(q) ||
-        s.buyerName.toLowerCase().includes(q) ||
         (s.stokNo && s.stokNo.toLowerCase().includes(q)),
     );
   }

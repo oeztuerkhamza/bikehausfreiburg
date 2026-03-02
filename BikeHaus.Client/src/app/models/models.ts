@@ -229,7 +229,7 @@ export interface SaleAccessoryCreate {
 export interface Sale {
   id: number;
   bicycle: Bicycle;
-  buyer: Customer;
+  buyer?: Customer;
   purchaseId?: number;
   preis: number;
   zahlungsart: PaymentMethod;
@@ -251,7 +251,6 @@ export interface SaleList {
   belegNummer: string;
   stokNo?: string;
   bikeInfo: string;
-  buyerName: string;
   preis: number;
   rabatt: number;
   zahlungsart: PaymentMethod;
@@ -261,7 +260,7 @@ export interface SaleList {
 
 export interface SaleCreate {
   bicycleId: number;
-  buyer: CustomerCreate;
+  buyer?: CustomerCreate;
   preis: number;
   zahlungsart: PaymentMethod;
   verkaufsdatum: string;
@@ -276,7 +275,7 @@ export interface SaleCreate {
 }
 
 export interface SaleUpdate {
-  buyer: CustomerUpdate;
+  buyer?: CustomerUpdate;
   preis: number;
   zahlungsart: PaymentMethod;
   verkaufsdatum: string;

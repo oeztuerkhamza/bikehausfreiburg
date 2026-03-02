@@ -430,21 +430,6 @@ public class PdfService : IPdfService
                             leftCol.Item().PaddingTop(3).Text($"📞 {shop.Telefon}").FontSize(7);
                             leftCol.Item().Text($"✉ {shop.Email}").FontSize(7);
                         });
-
-                        row.ConstantItem(8);
-
-                        // Buyer
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(rightCol =>
-                        {
-                            rightCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KÄUFER").FontSize(8).Bold().FontColor(AccentColor).AlignCenter();
-                            rightCol.Item().PaddingTop(4).Text(sale.Buyer.FullName).FontSize(9).Bold();
-                            rightCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(8);
-                            rightCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(8);
-                            if (!string.IsNullOrEmpty(sale.Buyer.Telefon))
-                                rightCol.Item().PaddingTop(3).Text($"📞 {sale.Buyer.Telefon}").FontSize(7);
-                            if (!string.IsNullOrEmpty(sale.Buyer.Email))
-                                rightCol.Item().Text($"✉ {sale.Buyer.Email}").FontSize(7);
-                        });
                     });
 
                     // Bicycle Info Section - print-friendly with price
@@ -726,23 +711,26 @@ public class PdfService : IPdfService
                         AddTableRow(table, "Reifengröße:", ret.Sale.Bicycle.Reifengroesse);
                     });
 
-                    col.Item().PaddingTop(10).Text("KÄUFER (RÜCKGEBER)").FontSize(12).Bold();
-                    col.Item().LineHorizontal(0.5f);
-
-                    col.Item().Table(table =>
+                    if (ret.Sale.Buyer != null)
                     {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.RelativeColumn();
-                            columns.RelativeColumn(2);
-                        });
+                        col.Item().PaddingTop(10).Text("KÄUFER (RÜCKGEBER)").FontSize(12).Bold();
+                        col.Item().LineHorizontal(0.5f);
 
-                        AddTableRow(table, "Name:", ret.Sale.Buyer.FullName);
-                        if (!string.IsNullOrEmpty(ret.Sale.Buyer.FullAddress))
-                            AddTableRow(table, "Adresse:", ret.Sale.Buyer.FullAddress);
-                        if (!string.IsNullOrEmpty(ret.Sale.Buyer.Telefon))
-                            AddTableRow(table, "Telefon:", ret.Sale.Buyer.Telefon);
-                    });
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn();
+                                columns.RelativeColumn(2);
+                            });
+
+                            AddTableRow(table, "Name:", ret.Sale.Buyer.FullName);
+                            if (!string.IsNullOrEmpty(ret.Sale.Buyer.FullAddress))
+                                AddTableRow(table, "Adresse:", ret.Sale.Buyer.FullAddress);
+                            if (!string.IsNullOrEmpty(ret.Sale.Buyer.Telefon))
+                                AddTableRow(table, "Telefon:", ret.Sale.Buyer.Telefon);
+                        });
+                    }
 
                     col.Item().PaddingTop(10).Text("RÜCKGABE-DETAILS").FontSize(12).Bold();
                     col.Item().LineHorizontal(0.5f);
