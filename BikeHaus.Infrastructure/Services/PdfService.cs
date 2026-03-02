@@ -760,32 +760,6 @@ public class PdfService : IPdfService
 
                     // Bank Info
                     col.Item().PaddingTop(10).Text($"Bank: {shop.BankName}. {shop.BankAccountHolder} Iban : {shop.IBAN}").FontSize(8);
-
-                    // Seller Signature
-                    col.Item().PaddingTop(30).Row(row =>
-                    {
-                        row.RelativeItem().Column(sigCol =>
-                        {
-                            if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
-                            {
-                                try
-                                {
-                                    var sigData = shop.OwnerSignatureBase64;
-                                    if (sigData.Contains(","))
-                                        sigData = sigData.Substring(sigData.IndexOf(",") + 1);
-                                    var imageData = Convert.FromBase64String(sigData);
-                                    sigCol.Item().Height(50).Image(imageData);
-                                }
-                                catch { sigCol.Item().PaddingTop(40); }
-                            }
-                            else
-                            {
-                                sigCol.Item().PaddingTop(40);
-                            }
-                            sigCol.Item().LineHorizontal(1);
-                            sigCol.Item().Text("Unterschrift Verkäufer").FontSize(9);
-                        });
-                    });
                 });
             });
         });
