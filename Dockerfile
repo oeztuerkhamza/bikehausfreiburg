@@ -31,7 +31,7 @@ RUN dotnet publish BikeHaus.API/BikeHaus.API.csproj -c Release -o /app/publish -
 
 # Install Playwright browsers in SDK stage (Chromium only)
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/pw-browsers
-RUN dotnet exec /app/publish/Microsoft.Playwright.dll install chromium
+RUN pwsh /app/publish/playwright.ps1 install chromium
 
 # =============================================
 # Stage 3: Final Runtime Image

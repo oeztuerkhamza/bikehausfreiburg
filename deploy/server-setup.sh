@@ -16,12 +16,21 @@ apt-get update && apt-get upgrade -y
 echo ">> Installing Docker..."
 apt-get install -y ca-certificates curl gnupg git
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Detect OS (Ubuntu or Debian)
+. /etc/os-release
+if [ "$ID" = "debian" ]; then
+    DOCKER_REPO="https://download.docker.com/linux/debian"
+else
+    DOCKER_REPO="https://download.docker.com/linux/ubuntu"
+fi
+
+curl -fsSL "$DOCKER_REPO/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 chmod a+r /etc/apt/keyrings/docker.gpg
 
 echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] $DOCKER_REPO \
+  $VERSION_CODENAME stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 apt-get update
@@ -54,7 +63,7 @@ echo ""
 echo "Next steps:"
 echo ""
 echo "1. Clone main repo:"
-echo "   git clone https://github.com/YOUR_USERNAME/bikehausfreiburg.git /opt/bikehaus"
+echo "   git clone -b bikehaus-desktop https://github.com/oeztuerkhamza/bikehausfreiburg.git /opt/bikehaus"
 echo ""
 echo "2. Start services (first time, without SSL):"
 echo "   cd /opt/bikehaus"
@@ -65,13 +74,13 @@ echo "   cd /opt/bikehaus/deploy"
 echo "   ./setup-ssl.sh"
 echo ""
 echo "4. Configure DNS (A records):"
-echo "   bikehausfreiburg.com     → YOUR_SERVER_IP"
-echo "   www.bikehausfreiburg.com → YOUR_SERVER_IP"
-echo "   admin.bikehausfreiburg.com → YOUR_SERVER_IP"
-echo "   api.bikehausfreiburg.com   → YOUR_SERVER_IP"
+echo "   bikehausfreiburg.com     → 152.53.138.135"
+echo "   www.bikehausfreiburg.com → 152.53.138.135"
+echo "   admin.bikehausfreiburg.com → 152.53.138.135"
+echo "   api.bikehausfreiburg.com   → 152.53.138.135"
 echo ""
 echo "5. Configure GitHub Secrets in both repos:"
-echo "   SERVER_HOST:    YOUR_SERVER_IP"
+echo "   SERVER_HOST:    152.53.138.135"
 echo "   SERVER_USER:    root"
 echo "   SERVER_SSH_KEY: (your SSH private key)"
 echo ""

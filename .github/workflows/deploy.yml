@@ -2,7 +2,7 @@ name: Deploy to Netcup
 
 on:
   push:
-    branches: [main]
+    branches: [bikehaus-desktop]
 
 jobs:
   deploy:
@@ -16,6 +16,6 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /opt/bikehaus
-            git pull origin main
+            git pull origin bikehaus-desktop
             docker compose up -d --build
             docker image prune -f

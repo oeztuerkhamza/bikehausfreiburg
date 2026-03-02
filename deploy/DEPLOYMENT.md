@@ -47,16 +47,16 @@
 
 ```bash
 # SSH into your server
-ssh root@YOUR_SERVER_IP
+ssh root@152.53.138.135
 
 # Download and run setup script
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/bikehausfreiburg/main/deploy/server-setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/oeztuerkhamza/bikehausfreiburg/bikehaus-desktop/deploy/server-setup.sh | bash
 ```
 
 ### 2. Clone Main Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/bikehausfreiburg.git /opt/bikehaus
+git clone -b bikehaus-desktop https://github.com/oeztuerkhamza/bikehausfreiburg.git /opt/bikehaus
 cd /opt/bikehaus
 ```
 
@@ -64,10 +64,10 @@ cd /opt/bikehaus
 
 Add these A records pointing to your server IP:
 
-- `bikehausfreiburg.com` → YOUR_SERVER_IP
-- `www.bikehausfreiburg.com` → YOUR_SERVER_IP
-- `admin.bikehausfreiburg.com` → YOUR_SERVER_IP
-- `api.bikehausfreiburg.com` → YOUR_SERVER_IP
+- `bikehausfreiburg.com` → 152.53.138.135
+- `www.bikehausfreiburg.com` → 152.53.138.135
+- `admin.bikehausfreiburg.com` → 152.53.138.135
+- `api.bikehausfreiburg.com` → 152.53.138.135
 
 ### 4. Initial Start (HTTP only)
 
@@ -110,11 +110,11 @@ echo "<h1>Homepage coming soon</h1>" > /opt/bikehaus/homepage-dist/index.html
 
 Add these secrets to **BOTH** repositories:
 
-| Secret           | Value                        |
-| ---------------- | ---------------------------- |
-| `SERVER_HOST`    | Your Netcup VPS IP address   |
-| `SERVER_USER`    | `root` (or your deploy user) |
-| `SERVER_SSH_KEY` | Your SSH private key         |
+| Secret           | Value                |
+| ---------------- | -------------------- |
+| `SERVER_HOST`    | `152.53.138.135`     |
+| `SERVER_USER`    | `root`               |
+| `SERVER_SSH_KEY` | Your SSH private key |
 
 ### Generate SSH Key Pair
 
@@ -123,7 +123,7 @@ Add these secrets to **BOTH** repositories:
 ssh-keygen -t ed25519 -C "github-deploy" -f ~/.ssh/github-deploy
 
 # Copy public key to server
-ssh-copy-id -i ~/.ssh/github-deploy.pub root@YOUR_SERVER_IP
+ssh-copy-id -i ~/.ssh/github-deploy.pub root@152.53.138.135
 
 # The contents of ~/.ssh/github-deploy is your SERVER_SSH_KEY secret
 cat ~/.ssh/github-deploy
