@@ -55,4 +55,5 @@ public class PublicShopInfoDto
     public string? Oeffnungszeiten { get; set; }
     public string? FullAddress { get; set; }
     public int TotalActiveListings { get; set; }
+    public string? KleinanzeigenUrl { get; set; }
 }

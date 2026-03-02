@@ -86,7 +86,8 @@ public class KleinanzeigenService : IKleinanzeigenService
             LogoFileName = settings.LogoFileName,
             Oeffnungszeiten = settings.Oeffnungszeiten,
             FullAddress = settings.FullAddress,
-            TotalActiveListings = activeListings.Count()
+            TotalActiveListings = activeListings.Count(),
+            KleinanzeigenUrl = settings.KleinanzeigenUrl
         };
     }
 

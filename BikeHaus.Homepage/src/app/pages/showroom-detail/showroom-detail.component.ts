@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
@@ -9,7 +10,7 @@ import { KleinanzeigenListing } from '../../models/models';
 @Component({
   selector: 'app-showroom-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   template: `
     <!-- Loading -->
     <div *ngIf="loading()" class="loading-wrap">
@@ -224,6 +225,51 @@ import { KleinanzeigenListing } from '../../models/models';
                 </svg>
                 Google Maps
               </a>
+
+              <!-- WhatsApp Contact -->
+              <div class="whatsapp-contact">
+                <div class="whatsapp-header">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="#25D366"
+                  >
+                    <path
+                      d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+                    />
+                  </svg>
+                  <span>{{ t().whatsappTitle }}</span>
+                </div>
+                <div class="whatsapp-listing-preview">
+                  <strong>{{ listing()!.title }}</strong>
+                  <span *ngIf="listing()!.price">{{ listing()!.price }}€</span>
+                </div>
+                <textarea
+                  class="whatsapp-textarea"
+                  [placeholder]="t().whatsappPlaceholder"
+                  [(ngModel)]="userWhatsappMessage"
+                  rows="3"
+                ></textarea>
+                <a
+                  [href]="getWhatsappLink()"
+                  target="_blank"
+                  rel="noopener"
+                  class="btn-whatsapp"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+                    />
+                  </svg>
+                  {{ t().whatsappSend }}
+                </a>
+              </div>
             </div>
           </aside>
         </article>
@@ -610,6 +656,93 @@ import { KleinanzeigenListing } from '../../models/models';
         color: var(--color-accent);
       }
 
+      /* ── WhatsApp Contact ── */
+      .whatsapp-contact {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 12px;
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+      }
+
+      .whatsapp-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--color-text);
+        margin-bottom: 0.85rem;
+      }
+
+      .whatsapp-listing-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.75rem;
+        background: var(--color-bg-card);
+        border-radius: 8px;
+        margin-bottom: 0.85rem;
+        font-size: 0.85rem;
+      }
+
+      .whatsapp-listing-preview strong {
+        color: var(--color-text);
+        line-height: 1.4;
+      }
+
+      .whatsapp-listing-preview span {
+        color: var(--color-accent);
+        font-weight: 600;
+      }
+
+      .whatsapp-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-card);
+        color: var(--color-text);
+        font-size: 0.9rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 70px;
+        margin-bottom: 0.85rem;
+        transition: border-color 0.25s;
+      }
+
+      .whatsapp-textarea::placeholder {
+        color: var(--color-text-muted);
+      }
+
+      .whatsapp-textarea:focus {
+        outline: none;
+        border-color: #25d366;
+      }
+
+      .btn-whatsapp {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        background: #25d366;
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+          background 0.25s,
+          transform 0.15s;
+      }
+
+      .btn-whatsapp:hover {
+        background: #1eb655;
+        transform: translateY(-1px);
+      }
+
       /* ── Description ── */
       .desc-section {
         margin-top: 3rem;
@@ -701,7 +834,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   private titleService = inject(Title);
   private metaService = inject(Meta);
   private document = inject(DOCUMENT);
-  
+
   private productSchemaElement: HTMLScriptElement | null = null;
 
   t = this.translationService.translations;
@@ -710,6 +843,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   listing = signal<KleinanzeigenListing | null>(null);
   loading = signal(true);
   selectedImage = signal(0);
+  userWhatsappMessage = '';
 
   private static readonly NEW_PATTERN =
     /\b(neue?[smrn]?|nagelneu|brandneu|unbenutzt|originalverpackt|\bovp\b)\b/i;
@@ -721,6 +855,20 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
     const cat = this.listing()?.category;
     if (!cat || /kleinanzeigen|freiburg/i.test(cat)) return null;
     return cat;
+  }
+
+  getWhatsappLink(): string {
+    const listing = this.listing();
+    if (!listing) return '';
+
+    const t = this.t();
+    const priceText = listing.price ? ` - ${listing.price}€` : '';
+    const baseText = `${t.whatsappInterested}\n${listing.title}${priceText}\n\n`;
+    const userMsg = this.userWhatsappMessage.trim();
+    const fullText =
+      baseText + (userMsg ? `${t.whatsappQuestion}\n${userMsg}` : '');
+
+    return `https://wa.me/4915566300011?text=${encodeURIComponent(fullText)}`;
   }
 
   ngOnInit(): void {
@@ -761,7 +909,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
               content: data.images[0].imageUrl,
             });
           }
-          
+
           // Add Product Schema.org for SEO
           this.addProductSchema(data, id);
         }
@@ -769,57 +917,63 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
       error: () => this.loading.set(false),
     });
   }
-  
+
   private addProductSchema(data: KleinanzeigenListing, id: number): void {
     // Remove existing schema if any
     this.removeProductSchema();
-    
+
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'Product',
       '@id': `https://bikehausfreiburg.com/showroom/${id}#product`,
       name: data.title,
       description: data.description || data.title,
-      image: data.images?.map(img => img.imageUrl) || [],
+      image: data.images?.map((img) => img.imageUrl) || [],
       url: `https://bikehausfreiburg.com/showroom/${id}`,
       brand: {
         '@type': 'Brand',
-        name: 'Bike Haus Freiburg'
+        name: 'Bike Haus Freiburg',
       },
       seller: {
         '@type': 'LocalBusiness',
         name: 'Bike Haus Freiburg',
-        url: 'https://bikehausfreiburg.com'
+        url: 'https://bikehausfreiburg.com',
       },
       offers: {
         '@type': 'Offer',
         url: `https://bikehausfreiburg.com/showroom/${id}`,
         priceCurrency: 'EUR',
         price: data.price || 0,
-        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0],
         availability: 'https://schema.org/InStock',
-        itemCondition: this.isNew() ? 'https://schema.org/NewCondition' : 'https://schema.org/UsedCondition',
+        itemCondition: this.isNew()
+          ? 'https://schema.org/NewCondition'
+          : 'https://schema.org/UsedCondition',
         seller: {
           '@type': 'LocalBusiness',
-          name: 'Bike Haus Freiburg'
-        }
+          name: 'Bike Haus Freiburg',
+        },
       },
-      category: data.category || 'Fahrrad'
+      category: data.category || 'Fahrrad',
     };
-    
+
     this.productSchemaElement = this.document.createElement('script');
     this.productSchemaElement.type = 'application/ld+json';
     this.productSchemaElement.text = JSON.stringify(schema);
     this.document.head.appendChild(this.productSchemaElement);
   }
-  
+
   private removeProductSchema(): void {
     if (this.productSchemaElement && this.productSchemaElement.parentNode) {
-      this.productSchemaElement.parentNode.removeChild(this.productSchemaElement);
+      this.productSchemaElement.parentNode.removeChild(
+        this.productSchemaElement,
+      );
       this.productSchemaElement = null;
     }
   }
-  
+
   ngOnDestroy(): void {
     this.removeProductSchema();
   }

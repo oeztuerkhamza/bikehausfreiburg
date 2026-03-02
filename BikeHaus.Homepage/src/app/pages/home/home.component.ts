@@ -47,10 +47,6 @@ interface Testimonial {
             <span class="h-stat-n">{{ shopInfo()!.totalActiveListings }}</span>
             <span class="h-stat-l">{{ t().bikesAvailable }}</span>
           </div>
-          <div class="h-stat" *ngIf="categories().length">
-            <span class="h-stat-n">{{ categories().length }}</span>
-            <span class="h-stat-l">{{ t().categories }}</span>
-          </div>
         </div>
       </div>
       <div class="hero-scroll" aria-hidden="true">
@@ -303,17 +299,33 @@ interface Testimonial {
     </section>
 
     <!-- ═══ Section 6 — TESTIMONIALS ═══ -->
-    <section class="testimonials-section" aria-labelledby="testimonials-heading">
+    <section
+      class="testimonials-section"
+      aria-labelledby="testimonials-heading"
+    >
       <div class="container">
         <span class="section-label fade-in">{{ t().testimonialsLabel }}</span>
-        <h2 id="testimonials-heading" class="section-title fade-in d1">{{ t().testimonialsTitle }}</h2>
+        <h2 id="testimonials-heading" class="section-title fade-in d1">
+          {{ t().testimonialsTitle }}
+        </h2>
         <p class="section-sub fade-in d2">{{ t().testimonialsSub }}</p>
-        
+
         <div class="testimonials-grid">
-          <article class="testimonial-card fade-in d1" *ngFor="let review of testimonials; let i = index">
+          <article
+            class="testimonial-card fade-in d1"
+            *ngFor="let review of testimonials; let i = index"
+          >
             <div class="testimonial-stars" aria-label="5 von 5 Sternen">
-              <svg *ngFor="let s of [1,2,3,4,5]" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              <svg
+                *ngFor="let s of [1, 2, 3, 4, 5]"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                />
               </svg>
             </div>
             <blockquote class="testimonial-text">
@@ -331,24 +343,45 @@ interface Testimonial {
 
         <div class="trust-badges fade-in d3">
           <div class="trust-badge">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <path d="M9 12l2 2 4-4"/>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M9 12l2 2 4-4" />
             </svg>
             <span>Geprüfte Qualität</span>
           </div>
           <div class="trust-badge">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M12 6v6l4 2"/>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
             </svg>
             <span>Seit 2020 in Freiburg</span>
           </div>
           <div class="trust-badge">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
             <span>500+ zufriedene Kunden</span>
           </div>
@@ -356,7 +389,110 @@ interface Testimonial {
       </div>
     </section>
 
-    <!-- ═══ Section 7 — CTA ═══ -->
+    <!-- ═══ Section 7 — FAQ ═══ -->
+    <section class="faq-section" aria-labelledby="faq-heading">
+      <div class="container">
+        <span class="section-label fade-in">{{ t().faqLabel }}</span>
+        <h2 id="faq-heading" class="section-title fade-in d1">
+          {{ t().faqTitle }}
+        </h2>
+        <p class="section-sub fade-in d2">{{ t().faqSub }}</p>
+
+        <div class="faq-list">
+          <details class="faq-item fade-in d1">
+            <summary class="faq-question">
+              <span>{{ t().faq1Q }}</span>
+              <svg
+                class="faq-chevron"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </summary>
+            <p class="faq-answer">{{ t().faq1A }}</p>
+          </details>
+
+          <details class="faq-item fade-in d2">
+            <summary class="faq-question">
+              <span>{{ t().faq2Q }}</span>
+              <svg
+                class="faq-chevron"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </summary>
+            <p class="faq-answer">{{ t().faq2A }}</p>
+          </details>
+
+          <details class="faq-item fade-in d3">
+            <summary class="faq-question">
+              <span>{{ t().faq3Q }}</span>
+              <svg
+                class="faq-chevron"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </summary>
+            <p class="faq-answer">{{ t().faq3A }}</p>
+          </details>
+
+          <details class="faq-item fade-in d4">
+            <summary class="faq-question">
+              <span>{{ t().faq4Q }}</span>
+              <svg
+                class="faq-chevron"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </summary>
+            <p class="faq-answer">{{ t().faq4A }}</p>
+          </details>
+
+          <details class="faq-item fade-in d5">
+            <summary class="faq-question">
+              <span>{{ t().faq5Q }}</span>
+              <svg
+                class="faq-chevron"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </summary>
+            <p class="faq-answer">{{ t().faq5A }}</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Section 8 — CTA ═══ -->
     <section class="cta-section" aria-labelledby="cta-heading">
       <div class="container cta-inner">
         <h2 id="cta-heading" class="cta-h2 fade-in">
@@ -697,7 +833,9 @@ interface Testimonial {
         border: 1px solid var(--color-border);
         border-radius: 16px;
         padding: 1.75rem;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
       }
 
       .testimonial-card:hover {
@@ -730,7 +868,11 @@ interface Testimonial {
         width: 44px;
         height: 44px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--color-accent) 0%, #ff7043 100%);
+        background: linear-gradient(
+          135deg,
+          var(--color-accent) 0%,
+          #ff7043 100%
+        );
         display: flex;
         align-items: center;
         justify-content: center;
@@ -776,6 +918,75 @@ interface Testimonial {
 
       .trust-badge svg {
         color: var(--color-accent);
+      }
+
+      /* ═══ FAQ SECTION ═══ */
+      .faq-section {
+        padding: 6rem 0;
+        background: var(--color-bg);
+      }
+
+      .faq-list {
+        max-width: 800px;
+        margin: 3rem auto 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .faq-item {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .faq-item:hover {
+        border-color: var(--color-accent);
+      }
+
+      .faq-item[open] {
+        background: var(--color-surface-alt);
+      }
+
+      .faq-question {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--color-text);
+        list-style: none;
+        transition: all 0.2s ease;
+      }
+
+      .faq-question::-webkit-details-marker {
+        display: none;
+      }
+
+      .faq-question:hover {
+        color: var(--color-accent);
+      }
+
+      .faq-chevron {
+        flex-shrink: 0;
+        color: var(--color-text-muted);
+        transition: transform 0.3s ease;
+      }
+
+      .faq-item[open] .faq-chevron {
+        transform: rotate(180deg);
+        color: var(--color-accent);
+      }
+
+      .faq-answer {
+        padding: 0 1.5rem 1.25rem;
+        color: var(--color-text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.7;
       }
 
       /* ═══ CTA SECTION ═══ */
@@ -984,43 +1195,43 @@ export class HomeComponent implements OnInit {
       initials: 'TM',
       text: 'Habe hier mein Trekkingrad gekauft. Super Beratung, faire Preise und das Rad war top aufbereitet. Kann ich nur empfehlen!',
       detail: 'Trekkingrad gekauft',
-      rating: 5
+      rating: 5,
     },
     {
       name: 'Sandra K.',
       initials: 'SK',
       text: 'Endlich ein Fahrradladen in Freiburg, der ehrlich berät und keine überteuerten Preise hat. Mein Sohn liebt sein neues Kinderfahrrad!',
       detail: 'Kinderfahrrad gekauft',
-      rating: 5
+      rating: 5,
     },
     {
       name: 'Michael W.',
       initials: 'MW',
       text: 'Als Student war ich auf der Suche nach einem günstigen, zuverlässigen Fahrrad. Bei Bike Haus wurde ich fündig. Top Qualität zum fairen Preis!',
       detail: 'Cityrad gekauft',
-      rating: 5
+      rating: 5,
     },
     {
       name: 'Elena B.',
       initials: 'EB',
       text: 'Ich habe mein altes Fahrrad hier verkauft und gleich ein E-Bike mitgenommen. Unkompliziert und fair. Beste Fahrradhandlung in Freiburg!',
       detail: 'E-Bike gekauft',
-      rating: 5
+      rating: 5,
     },
     {
       name: 'Peter H.',
       initials: 'PH',
       text: 'Schnelle und unkomplizierte Abwicklung. Das gebrauchte Mountainbike war in einwandfreiem Zustand. Sehr zu empfehlen!',
       detail: 'Mountainbike gekauft',
-      rating: 5
+      rating: 5,
     },
     {
       name: 'Julia F.',
       initials: 'JF',
       text: 'Toller Service! Die Beratung war super und ich wurde nicht gedrängt. Mein neues Fahrrad macht mich jeden Tag glücklich.',
       detail: 'Damenrad gekauft',
-      rating: 5
-    }
+      rating: 5,
+    },
   ];
 
   private reviewSchemaElement: HTMLScriptElement | null = null;
@@ -1046,23 +1257,23 @@ export class HomeComponent implements OnInit {
 
     // Add Review/Rating Schema for SEO
     this.addReviewSchema();
-    
+
     this.loadData();
   }
 
   private addReviewSchema(): void {
-    const reviews = this.testimonials.map(t => ({
+    const reviews = this.testimonials.map((t) => ({
       '@type': 'Review',
       author: {
         '@type': 'Person',
-        name: t.name
+        name: t.name,
       },
       reviewRating: {
         '@type': 'Rating',
         ratingValue: t.rating,
-        bestRating: 5
+        bestRating: 5,
       },
-      reviewBody: t.text
+      reviewBody: t.text,
     }));
 
     const schema = {
@@ -1078,19 +1289,19 @@ export class HomeComponent implements OnInit {
         streetAddress: 'Heckerstraße 27',
         addressLocality: 'Freiburg im Breisgau',
         postalCode: '79114',
-        addressCountry: 'DE'
+        addressCountry: 'DE',
       },
       geo: {
         '@type': 'GeoCoordinates',
-        latitude: 47.9990,
-        longitude: 7.8421
+        latitude: 47.999,
+        longitude: 7.8421,
       },
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: '4.9',
         reviewCount: this.testimonials.length.toString(),
         bestRating: '5',
-        worstRating: '1'
+        worstRating: '1',
       },
       review: reviews,
       priceRange: '€-€€€',
@@ -1099,15 +1310,15 @@ export class HomeComponent implements OnInit {
           '@type': 'OpeningHoursSpecification',
           dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
           opens: '10:00',
-          closes: '18:00'
+          closes: '18:00',
         },
         {
           '@type': 'OpeningHoursSpecification',
           dayOfWeek: 'Saturday',
           opens: '10:00',
-          closes: '14:00'
-        }
-      ]
+          closes: '14:00',
+        },
+      ],
     };
 
     this.reviewSchemaElement = this.document.createElement('script');

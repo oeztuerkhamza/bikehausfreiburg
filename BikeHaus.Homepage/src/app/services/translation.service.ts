@@ -41,6 +41,16 @@ export interface Translations {
   usedBikes: string;
   allBikes: string;
 
+  // Home Bike Sections
+  newBikesLabel: string;
+  newBikesTitle: string;
+  newBikesSub: string;
+  browseNewBikes: string;
+  usedBikesLabel: string;
+  usedBikesTitle: string;
+  usedBikesSub: string;
+  browseUsedBikes: string;
+
   // Showroom Page
   allCategories: string;
   noBikesFound: string;
@@ -133,11 +143,40 @@ export interface Translations {
   conditionUsed: string;
   contactEmailHint: string;
   contactKaHint: string;
-  
+
   // Testimonials
   testimonialsLabel: string;
   testimonialsTitle: string;
   testimonialsSub: string;
+
+  // FAQ
+  faqLabel: string;
+  faqTitle: string;
+  faqSub: string;
+  faq1Q: string;
+  faq1A: string;
+  faq2Q: string;
+  faq2A: string;
+  faq3Q: string;
+  faq3A: string;
+  faq4Q: string;
+  faq4A: string;
+  faq5Q: string;
+  faq5A: string;
+
+  // WhatsApp Contact
+  whatsappTitle: string;
+  whatsappPlaceholder: string;
+  whatsappSend: string;
+  whatsappInterested: string;
+  whatsappQuestion: string;
+
+  // Ankauf
+  ankaufTitle: string;
+  ankaufDesc: string;
+  ankaufCta: string;
+  ankaufHint: string;
+  ankaufMessage: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -180,6 +219,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     usedBikes: 'Gebrauchträder',
     allBikes: 'Alle Räder',
 
+    newBikesLabel: 'NEU IM SORTIMENT',
+    newBikesTitle: 'Neue Fahrräder entdecken.',
+    newBikesSub: 'Fabrikneue Räder mit voller Herstellergarantie.',
+    browseNewBikes: 'Neue Räder ansehen',
+    usedBikesLabel: 'GEPRÜFT & BEREIT',
+    usedBikesTitle: 'Gebrauchträder entdecken.',
+    usedBikesSub: 'Sorgfältig geprüft, aufbereitet und sofort fahrbereit.',
+    browseUsedBikes: 'Gebrauchträder ansehen',
+
     allCategories: 'Alle',
     noBikesFound: 'Aktuell keine Fahrräder in dieser Kategorie.',
     searchPlaceholder: 'Suche nach Marke, Typ oder Größe...',
@@ -217,7 +265,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     trust1: 'Technische Inspektion aller sicherheitsrelevanten Komponenten',
     trust2: 'Professionelle Aufbereitung und gründliche Reinigung',
     trust3: 'Faire Bewertung und transparente Preisgestaltung',
-    trust4: '30 Tage Funktionsgarantie auf alle Gebrauchträder',
+    trust4: 'Garantie: 24 Monate (Neurad) / 3 Monate (Gebrauchtrad)',
 
     storyLabel: 'UNSERE GESCHICHTE',
     storyTitle: 'Aus Leidenschaft für das Radfahren.',
@@ -270,10 +318,44 @@ const TRANSLATIONS: Record<Language, Translations> = {
     conditionUsed: 'Gebraucht',
     contactEmailHint: 'Wir antworten innerhalb von 24 Stunden',
     contactKaHint: 'Alle unsere Angebote auf Kleinanzeigen ansehen',
-    
+
     testimonialsLabel: 'KUNDENSTIMMEN',
     testimonialsTitle: 'Was unsere Kunden sagen',
     testimonialsSub: 'Über 500 zufriedene Kunden in Freiburg vertrauen uns',
+
+    faqLabel: 'HÄUFIGE FRAGEN',
+    faqTitle: 'Fragen & Antworten',
+    faqSub: 'Alles, was Sie über unseren Service wissen müssen.',
+    faq1Q: 'Kann ich ein Fahrrad vor dem Kauf testen?',
+    faq1A:
+      'Ja! Kommen Sie einfach während unserer Öffnungszeiten vorbei — kein Termin erforderlich.',
+    faq2Q: 'Bieten Sie eine Garantie auf Gebrauchträder?',
+    faq2A:
+      'Jedes Gebrauchtrad wird technisch geprüft. 3 Tage Rückgaberecht, 3 Monate Garantie auf Gebrauchträder, 24 Monate auf Neuraeder.',
+    faq3Q: 'Wie kann ich bezahlen?',
+    faq3A: 'Barzahlung, EC-Karte, Überweisung und PayPal.',
+    faq4Q: 'Reparieren Sie auch Fahrräder?',
+    faq4A:
+      'Wir sind auf Verkauf spezialisiert. Für Reparaturen kontaktieren Sie uns bitte vorab per Telefon oder E-Mail.',
+    faq5Q: 'Wo finde ich Sie?',
+    faq5A:
+      'Heckerstraße 27, 79114 Freiburg. Kommen Sie einfach während der Öffnungszeiten vorbei — kein Termin nötig.',
+
+    // WhatsApp Contact
+    whatsappTitle: 'Verkäufer kontaktieren',
+    whatsappPlaceholder: 'Ihre Frage oder Nachricht...',
+    whatsappSend: 'Per WhatsApp senden',
+    whatsappInterested: 'Ich interessiere mich für dieses Fahrrad:',
+    whatsappQuestion: 'Meine Frage:',
+
+    // Ankauf
+    ankaufTitle: 'Fahrrad verkaufen?',
+    ankaufDesc:
+      'Wir kaufen Ihr gebrauchtes Fahrrad! Schicken Sie uns einfach Fotos und Ihren Wunschpreis per WhatsApp.',
+    ankaufCta: 'Angebot senden',
+    ankaufHint: 'Fotos + Wunschpreis per WhatsApp',
+    ankaufMessage:
+      'Hallo, ich möchte mein Fahrrad verkaufen.\n\nMarke/Modell:\nZustand:\nWunschpreis:\n\n(Bitte Fotos anhängen)',
   },
 
   fr: {
@@ -315,6 +397,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     usedBikes: 'Occasion',
     allBikes: 'Tous les vélos',
 
+    newBikesLabel: 'NOUVEAUTÉS',
+    newBikesTitle: 'Découvrez nos vélos neufs.',
+    newBikesSub: 'Vélos neufs avec garantie constructeur complète.',
+    browseNewBikes: 'Voir les vélos neufs',
+    usedBikesLabel: 'CONTRÔLÉS & PRÊTS',
+    usedBikesTitle: "Découvrez nos vélos d'occasion.",
+    usedBikesSub: 'Vérifiés avec soin, remis en état et prêts à rouler.',
+    browseUsedBikes: "Voir les vélos d'occasion",
+
     allCategories: 'Tous',
     noBikesFound: 'Aucun vélo dans cette catégorie actuellement.',
     searchPlaceholder: 'Recherche par marque, type ou taille...',
@@ -352,8 +443,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     trust1: 'Inspection technique complète de tous les composants de sécurité',
     trust2: 'Remise en état professionnelle et nettoyage approfondi',
     trust3: 'Évaluation honnête et tarification transparente',
-    trust4:
-      "Garantie de fonctionnement de 30 jours sur tous les vélos d'occasion",
+    trust4: 'Garantie : 24 mois (neuf) / 3 mois (occasion)',
 
     storyLabel: 'NOTRE HISTOIRE',
     storyTitle: 'Par passion pour le vélo.',
@@ -408,10 +498,45 @@ const TRANSLATIONS: Record<Language, Translations> = {
     conditionUsed: 'Occasion',
     contactEmailHint: 'Nous répondons sous 24 heures',
     contactKaHint: 'Voir toutes nos offres sur Kleinanzeigen',
-    
+
     testimonialsLabel: 'TÉMOIGNAGES',
     testimonialsTitle: 'Ce que disent nos clients',
-    testimonialsSub: 'Plus de 500 clients satisfaits à Fribourg nous font confiance',
+    testimonialsSub:
+      'Plus de 500 clients satisfaits à Fribourg nous font confiance',
+
+    faqLabel: 'QUESTIONS FRÉQUENTES',
+    faqTitle: 'Questions & Réponses',
+    faqSub: 'Tout ce que vous devez savoir sur notre service.',
+    faq1Q: "Puis-je essayer un vélo avant de l'acheter ?",
+    faq1A:
+      "Oui ! Passez simplement pendant nos heures d'ouverture — pas de rendez-vous nécessaire.",
+    faq2Q: "Offrez-vous une garantie sur les vélos d'occasion ?",
+    faq2A:
+      "Chaque vélo d'occasion est vérifié techniquement. 3 jours pour retourner, 3 mois de garantie sur l'occasion, 24 mois sur le neuf.",
+    faq3Q: 'Comment puis-je payer ?',
+    faq3A: 'Espèces, carte bancaire, virement et PayPal.',
+    faq4Q: 'Réparez-vous aussi les vélos ?',
+    faq4A:
+      "Nous nous spécialisons dans la vente. Pour les réparations, contactez-nous à l'avance par téléphone ou e-mail.",
+    faq5Q: 'Où vous trouver ?',
+    faq5A:
+      "Heckerstraße 27, 79114 Fribourg. Passez simplement pendant les heures d'ouverture — pas de rendez-vous nécessaire.",
+
+    // WhatsApp Contact
+    whatsappTitle: 'Contacter le vendeur',
+    whatsappPlaceholder: 'Votre question ou message...',
+    whatsappSend: 'Envoyer via WhatsApp',
+    whatsappInterested: 'Je suis intéressé(e) par ce vélo :',
+    whatsappQuestion: 'Ma question :',
+
+    // Ankauf
+    ankaufTitle: 'Vendre votre vélo ?',
+    ankaufDesc:
+      "Nous achetons votre vélo d'occasion ! Envoyez-nous simplement des photos et votre prix souhaité via WhatsApp.",
+    ankaufCta: 'Envoyer une offre',
+    ankaufHint: 'Photos + prix souhaité via WhatsApp',
+    ankaufMessage:
+      'Bonjour, je souhaite vendre mon vélo.\n\nMarque/Modèle :\nÉtat :\nPrix souhaité :\n\n(Veuillez joindre des photos)',
   },
 
   tr: {
@@ -452,6 +577,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     usedBikes: 'İkinci El',
     allBikes: 'Tüm Bisikletler',
 
+    newBikesLabel: 'YENİ ÜRÜNLER',
+    newBikesTitle: 'Yeni bisikletleri keşfedin.',
+    newBikesSub: 'Tam üretici garantili sıfır bisikletler.',
+    browseNewBikes: 'Yeni bisikletleri gör',
+    usedBikesLabel: 'KONTROL EDİLMİŞ & HAZIR',
+    usedBikesTitle: 'İkinci el bisikletleri keşfedin.',
+    usedBikesSub: 'Titizlikle kontrol edilmiş, yenilenmiş ve sürüşe hazır.',
+    browseUsedBikes: 'İkinci el bisikletleri gör',
+
     allCategories: 'Tümü',
     noBikesFound: 'Bu kategoride şu an bisiklet bulunmuyor.',
     searchPlaceholder: 'Marka, tür veya beden ara...',
@@ -489,7 +623,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     trust1: 'Tüm güvenlik bileşenlerinin teknik kontrolü',
     trust2: 'Profesyonel yenileme ve kapsamlı temizlik',
     trust3: 'Adil değerleme ve şeffaf fiyatlandırma',
-    trust4: 'Tüm ikinci el bisikletlerde 30 gün işlev garantisi',
+    trust4: 'Garanti: 24 ay (yeni) / 3 ay (ikinci el)',
 
     storyLabel: 'HİKAYEMİZ',
     storyTitle: 'Bisiklet tutkusuyla.',
@@ -543,10 +677,43 @@ const TRANSLATIONS: Record<Language, Translations> = {
     conditionUsed: 'İkinci El',
     contactEmailHint: '24 saat içinde yanıt veriyoruz',
     contactKaHint: "Tüm ilanlarımızı Kleinanzeigen'de görün",
-    
+
     testimonialsLabel: 'MÜŞTERİ YORUMLARI',
     testimonialsTitle: 'Müşterilerimiz ne diyor',
     testimonialsSub: "Freiburg'da 500'den fazla memnun müşteri bize güveniyor",
+
+    faqLabel: 'SIK SORULAN SORULAR',
+    faqTitle: 'Sorular & Cevaplar',
+    faqSub: 'Hizmetimiz hakkında bilmeniz gereken her şey.',
+    faq1Q: 'Satın almadan önce bisikleti test edebilir miyim?',
+    faq1A: 'Evet! Açılış saatlerinde gelin — randevu gerekmiyor.',
+    faq2Q: 'İkinci el bisikletlerde garanti var mı?',
+    faq2A:
+      'Her ikinci el bisiklet teknik olarak kontrol edilir. 3 gün iade hakkı, ikinci el için 3 ay garanti, yeni için 24 ay garanti.',
+    faq3Q: 'Nasıl ödeme yapabilirim?',
+    faq3A: 'Nakit, banka kartı, havale ve PayPal.',
+    faq4Q: 'Bisiklet tamiri de yapıyor musunuz?',
+    faq4A:
+      'Satış konusunda uzmanız. Tamir için önceden telefon veya e-posta ile iletişime geçin.',
+    faq5Q: 'Sizi nerede bulabilirim?',
+    faq5A:
+      'Heckerstraße 27, 79114 Freiburg. Açılış saatlerinde gelin — randevu gerekmiyor.',
+
+    // WhatsApp Contact
+    whatsappTitle: 'Satıcıyla İletişime Geç',
+    whatsappPlaceholder: 'Sorunuzu veya mesajınızı yazın...',
+    whatsappSend: 'WhatsApp ile Gönder',
+    whatsappInterested: 'Bu bisikletle ilgileniyorum:',
+    whatsappQuestion: 'Sorum:',
+
+    // Ankauf
+    ankaufTitle: 'Bisikletinizi satmak mı istiyorsunuz?',
+    ankaufDesc:
+      'İkinci el bisikletinizi satın alıyoruz! Bize WhatsApp üzerinden fotoğraf ve istediğiniz fiyatı gönderin.',
+    ankaufCta: 'Teklif gönder',
+    ankaufHint: 'Fotoğraf + istenen fiyat WhatsApp ile',
+    ankaufMessage:
+      'Merhaba, bisikletimi satmak istiyorum.\n\nMarka/Model:\nDurum:\nİstenen fiyat:\n\n(Lütfen fotoğraf ekleyin)',
   },
 };
 

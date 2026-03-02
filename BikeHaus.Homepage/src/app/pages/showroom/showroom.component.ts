@@ -23,6 +23,8 @@ const GEARS_PATTERN = /(\d{1,2})\s*(?:g[aä]ng|speed|gang)/i;
 const SIZE_PATTERN = /(\d{2,3})\s*size/i;
 const NEW_PATTERN =
   /\b(neue?[smrn]?|nagelneu|brandneu|unbenutzt|originalverpackt|\bovp\b)\b/i;
+const TYP_PATTERN =
+  /\b(damen|herren|männer|frauen|kinder|kids?|junge[ns]?|mädchen|boys?|girls?|unisex)\b/i;
 
 @Component({
   selector: 'app-showroom',
@@ -125,6 +127,69 @@ const NEW_PATTERN =
                 <span class="filter-count">{{
                   zustandCounts().gebraucht
                 }}</span>
+              </label>
+            </div>
+          </div>
+
+          <hr class="sidebar-divider" />
+
+          <!-- ══════ TYP (Damen/Herren/Kinder) ══════ -->
+          <div class="sidebar-section">
+            <h3 class="filter-heading">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                <path d="M16 3.13a4 4 0 010 7.75" />
+              </svg>
+              Typ
+            </h3>
+            <div class="checkbox-group">
+              <label
+                class="checkbox-item"
+                [class.active]="selectedTyp() === 'damen'"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="selectedTyp() === 'damen'"
+                  (change)="toggleTyp('damen')"
+                />
+                <span class="check-box"></span>
+                <span>Damen</span>
+                <span class="filter-count">{{ typCounts().damen }}</span>
+              </label>
+              <label
+                class="checkbox-item"
+                [class.active]="selectedTyp() === 'herren'"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="selectedTyp() === 'herren'"
+                  (change)="toggleTyp('herren')"
+                />
+                <span class="check-box"></span>
+                <span>Herren</span>
+                <span class="filter-count">{{ typCounts().herren }}</span>
+              </label>
+              <label
+                class="checkbox-item"
+                [class.active]="selectedTyp() === 'kinder'"
+              >
+                <input
+                  type="checkbox"
+                  [checked]="selectedTyp() === 'kinder'"
+                  (change)="toggleTyp('kinder')"
+                />
+                <span class="check-box"></span>
+                <span>Kinder</span>
+                <span class="filter-count">{{ typCounts().kinder }}</span>
               </label>
             </div>
           </div>
@@ -340,6 +405,18 @@ const NEW_PATTERN =
                   class="pill-close"
                   (click)="toggleZustand(selectedZustand()!)"
                 >
+                  ×
+                </button>
+              </span>
+              <span class="active-pill" *ngIf="selectedTyp()">
+                {{
+                  selectedTyp() === 'damen'
+                    ? 'Damen'
+                    : selectedTyp() === 'herren'
+                      ? 'Herren'
+                      : 'Kinder'
+                }}
+                <button class="pill-close" (click)="toggleTyp(selectedTyp()!)">
                   ×
                 </button>
               </span>
@@ -1078,7 +1155,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   private document = inject(DOCUMENT);
 
   private itemListSchemaElement: HTMLScriptElement | null = null;
-  
+
   t = this.translationService.translations;
 
   // Data
@@ -1094,6 +1171,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   searchQuery = signal<string>('');
   sortOption = signal<SortOption>('newest');
   selectedZustand = signal<'neu' | 'gebraucht' | null>(null);
+  selectedTyp = signal<'damen' | 'herren' | 'kinder' | null>(null);
   selectedZoll = signal<string[]>([]);
   selectedGears = signal<number[]>([]);
   selectedSizes = signal<string[]>([]);
@@ -1107,6 +1185,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       parsedZoll: this.parseZoll(listing.title),
       parsedGears: this.parseGears(listing.title),
       parsedSize: this.parseSize(listing.title),
+      parsedTyp: this.parseTyp(listing.title),
       isNew: this.isNew(listing.title),
     }));
   });
@@ -1162,11 +1241,24 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     return { neu, gebraucht };
   });
 
+  typCounts = computed(() => {
+    let damen = 0,
+      herren = 0,
+      kinder = 0;
+    this.parsedListings().forEach((l) => {
+      if (l.parsedTyp === 'damen') damen++;
+      else if (l.parsedTyp === 'herren') herren++;
+      else if (l.parsedTyp === 'kinder') kinder++;
+    });
+    return { damen, herren, kinder };
+  });
+
   // Filtered results
   filteredListings = computed(() => {
     let result = this.parsedListings();
     const query = this.searchQuery().toLowerCase().trim();
     const zustand = this.selectedZustand();
+    const typ = this.selectedTyp();
     const zollFilters = this.selectedZoll();
     const gearsFilters = this.selectedGears();
     const sizeFilters = this.selectedSizes();
@@ -1187,6 +1279,11 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       result = result.filter((l) => l.isNew);
     } else if (zustand === 'gebraucht') {
       result = result.filter((l) => !l.isNew);
+    }
+
+    // Typ filter (Damen/Herren/Kinder)
+    if (typ) {
+      result = result.filter((l) => l.parsedTyp === typ);
     }
 
     // Zoll filter
@@ -1249,6 +1346,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     () =>
       !!this.searchQuery() ||
       this.selectedZustand() !== null ||
+      this.selectedTyp() !== null ||
       this.selectedZoll().length > 0 ||
       this.selectedGears().length > 0 ||
       this.selectedSizes().length > 0 ||
@@ -1260,6 +1358,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     let count = 0;
     if (this.searchQuery()) count++;
     if (this.selectedZustand()) count++;
+    if (this.selectedTyp()) count++;
     count += this.selectedZoll().length;
     count += this.selectedGears().length;
     count += this.selectedSizes().length;
@@ -1299,7 +1398,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.allListings.set(data);
         this.loading.set(false);
-        
+
         // Add ItemList Schema for SEO
         this.addItemListSchema(data);
       },
@@ -1310,11 +1409,11 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       next: (data) => this.lastSync.set(data),
     });
   }
-  
+
   private addItemListSchema(listings: KleinanzeigenListing[]): void {
     // Remove existing schema
     this.removeItemListSchema();
-    
+
     // Take first 50 items for schema (Google limit)
     const items = listings.slice(0, 50).map((listing, index) => ({
       '@type': 'ListItem',
@@ -1328,33 +1427,35 @@ export class ShowroomComponent implements OnInit, OnDestroy {
           '@type': 'Offer',
           price: listing.price || 0,
           priceCurrency: 'EUR',
-          availability: 'https://schema.org/InStock'
-        }
-      }
+          availability: 'https://schema.org/InStock',
+        },
+      },
     }));
-    
+
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
       name: 'Fahrräder im Showroom',
       description: `${listings.length} Fahrräder verfügbar bei Bike Haus Freiburg`,
       numberOfItems: listings.length,
-      itemListElement: items
+      itemListElement: items,
     };
-    
+
     this.itemListSchemaElement = this.document.createElement('script');
     this.itemListSchemaElement.type = 'application/ld+json';
     this.itemListSchemaElement.text = JSON.stringify(schema);
     this.document.head.appendChild(this.itemListSchemaElement);
   }
-  
+
   private removeItemListSchema(): void {
     if (this.itemListSchemaElement && this.itemListSchemaElement.parentNode) {
-      this.itemListSchemaElement.parentNode.removeChild(this.itemListSchemaElement);
+      this.itemListSchemaElement.parentNode.removeChild(
+        this.itemListSchemaElement,
+      );
       this.itemListSchemaElement = null;
     }
   }
-  
+
   ngOnDestroy(): void {
     this.removeItemListSchema();
   }
@@ -1388,6 +1489,32 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     return NEW_PATTERN.test(title);
   }
 
+  private parseTyp(title: string): 'damen' | 'herren' | 'kinder' | null {
+    const match = title.match(TYP_PATTERN);
+    if (match) {
+      const typ = match[1].toLowerCase();
+      if (typ === 'damen' || typ === 'frauen') return 'damen';
+      if (typ === 'herren' || typ === 'männer') return 'herren';
+      if (
+        [
+          'kinder',
+          'kids',
+          'kid',
+          'jungen',
+          'jungens',
+          'junge',
+          'mädchen',
+          'boys',
+          'boy',
+          'girls',
+          'girl',
+        ].includes(typ)
+      )
+        return 'kinder';
+    }
+    return null;
+  }
+
   // Event handlers
   onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
@@ -1405,6 +1532,14 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       this.selectedZustand.set(null);
     } else {
       this.selectedZustand.set(value);
+    }
+  }
+
+  toggleTyp(value: 'damen' | 'herren' | 'kinder'): void {
+    if (this.selectedTyp() === value) {
+      this.selectedTyp.set(null);
+    } else {
+      this.selectedTyp.set(value);
     }
   }
 
@@ -1453,6 +1588,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   clearFilters(): void {
     this.searchQuery.set('');
     this.selectedZustand.set(null);
+    this.selectedTyp.set(null);
     this.selectedZoll.set([]);
     this.selectedGears.set([]);
     this.selectedSizes.set([]);

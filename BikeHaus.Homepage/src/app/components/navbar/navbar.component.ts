@@ -230,13 +230,16 @@ import { ShopInfoService } from '../../services/shop-info.service';
         .nav-menu {
           display: none;
           position: fixed;
-          inset: 0;
-          background: #0a0a0a;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: #000;
           flex-direction: column;
-          justify-content: center;
+          justify-content: flex-start;
           align-items: center;
           gap: 0;
-          padding: 2rem;
+          padding: 5rem 2rem 2rem;
           z-index: 999;
         }
 

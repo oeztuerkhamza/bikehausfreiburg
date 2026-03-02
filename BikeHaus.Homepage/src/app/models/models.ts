@@ -41,4 +41,5 @@ export interface PublicShopInfo {
   oeffnungszeiten?: string;
   fullAddress?: string;
   totalActiveListings?: number;
+  kleinanzeigenUrl?: string;
 }

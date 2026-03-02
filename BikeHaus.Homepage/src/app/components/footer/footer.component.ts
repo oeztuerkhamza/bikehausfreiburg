@@ -167,16 +167,46 @@ import { ShopInfoService } from '../../services/shop-info.service';
         .footer-grid {
           grid-template-columns: 1fr 1fr;
           gap: 2rem;
+          padding: 3rem 0 2rem;
         }
 
         .footer-brand {
           grid-column: 1 / -1;
+          text-align: center;
+        }
+
+        .footer-logo {
+          justify-content: center;
+        }
+
+        .footer-col {
+          text-align: center;
+        }
+
+        .footer-col nav,
+        .footer-langs {
+          align-items: center;
         }
       }
 
       @media (max-width: 480px) {
         .footer-grid {
           grid-template-columns: 1fr;
+          gap: 1.75rem;
+          padding: 2.5rem 0 1.5rem;
+        }
+
+        .footer-col h4 {
+          margin-bottom: 0.75rem;
+        }
+
+        .footer-bottom {
+          padding: 1.25rem 0;
+        }
+
+        .footer-bottom p {
+          font-size: 0.75rem;
+          text-align: center;
         }
       }
     `,
