@@ -34,10 +34,10 @@
 
 ## Repositories
 
-| Repository | Content | CI/CD Trigger |
-|------------|---------|---------------|
-| `bikehausfreiburg` | API + Admin Panel + Deploy configs | Push to `main` |
-| `bikehausfreiburg-homepage` | Public Homepage (Angular) | Push to `main` |
+| Repository                  | Content                            | CI/CD Trigger  |
+| --------------------------- | ---------------------------------- | -------------- |
+| `bikehausfreiburg`          | API + Admin Panel + Deploy configs | Push to `main` |
+| `bikehausfreiburg-homepage` | Public Homepage (Angular)          | Push to `main` |
 
 ---
 
@@ -63,6 +63,7 @@ cd /opt/bikehaus
 ### 3. Configure DNS (at your domain registrar)
 
 Add these A records pointing to your server IP:
+
 - `bikehausfreiburg.com` → YOUR_SERVER_IP
 - `www.bikehausfreiburg.com` → YOUR_SERVER_IP
 - `admin.bikehausfreiburg.com` → YOUR_SERVER_IP
@@ -109,11 +110,11 @@ echo "<h1>Homepage coming soon</h1>" > /opt/bikehaus/homepage-dist/index.html
 
 Add these secrets to **BOTH** repositories:
 
-| Secret | Value |
-|--------|-------|
-| `SERVER_HOST` | Your Netcup VPS IP address |
-| `SERVER_USER` | `root` (or your deploy user) |
-| `SERVER_SSH_KEY` | Your SSH private key |
+| Secret           | Value                        |
+| ---------------- | ---------------------------- |
+| `SERVER_HOST`    | Your Netcup VPS IP address   |
+| `SERVER_USER`    | `root` (or your deploy user) |
+| `SERVER_SSH_KEY` | Your SSH private key         |
 
 ### Generate SSH Key Pair
 

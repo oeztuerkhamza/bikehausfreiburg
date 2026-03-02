@@ -31,16 +31,17 @@ This repo uses GitHub Actions for continuous deployment.
 ### Auto-Deploy
 
 Push to `main` branch triggers:
+
 1. Build Angular app
 2. SCP to `/opt/bikehaus/homepage-dist/` on server
 3. Reload nginx
 
 ### GitHub Secrets Required
 
-| Secret | Value |
-|--------|-------|
-| `SERVER_HOST` | Netcup VPS IP |
-| `SERVER_USER` | `root` |
+| Secret           | Value           |
+| ---------------- | --------------- |
+| `SERVER_HOST`    | Netcup VPS IP   |
+| `SERVER_USER`    | `root`          |
 | `SERVER_SSH_KEY` | SSH private key |
 
 ### Manual Deploy
@@ -67,4 +68,3 @@ src/
 ## Related Repositories
 
 - [bikehausfreiburg](https://github.com/YOUR_USERNAME/bikehausfreiburg) - API + Admin Panel
-
