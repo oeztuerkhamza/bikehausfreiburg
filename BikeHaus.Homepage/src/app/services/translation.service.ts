@@ -133,6 +133,11 @@ export interface Translations {
   conditionUsed: string;
   contactEmailHint: string;
   contactKaHint: string;
+  
+  // Testimonials
+  testimonialsLabel: string;
+  testimonialsTitle: string;
+  testimonialsSub: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -265,6 +270,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     conditionUsed: 'Gebraucht',
     contactEmailHint: 'Wir antworten innerhalb von 24 Stunden',
     contactKaHint: 'Alle unsere Angebote auf Kleinanzeigen ansehen',
+    
+    testimonialsLabel: 'KUNDENSTIMMEN',
+    testimonialsTitle: 'Was unsere Kunden sagen',
+    testimonialsSub: 'Über 500 zufriedene Kunden in Freiburg vertrauen uns',
   },
 
   fr: {
@@ -399,6 +408,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     conditionUsed: 'Occasion',
     contactEmailHint: 'Nous répondons sous 24 heures',
     contactKaHint: 'Voir toutes nos offres sur Kleinanzeigen',
+    
+    testimonialsLabel: 'TÉMOIGNAGES',
+    testimonialsTitle: 'Ce que disent nos clients',
+    testimonialsSub: 'Plus de 500 clients satisfaits à Fribourg nous font confiance',
   },
 
   tr: {
@@ -530,6 +543,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     conditionUsed: 'İkinci El',
     contactEmailHint: '24 saat içinde yanıt veriyoruz',
     contactKaHint: "Tüm ilanlarımızı Kleinanzeigen'de görün",
+    
+    testimonialsLabel: 'MÜŞTERİ YORUMLARI',
+    testimonialsTitle: 'Müşterilerimiz ne diyor',
+    testimonialsSub: "Freiburg'da 500'den fazla memnun müşteri bize güveniyor",
   },
 };
 

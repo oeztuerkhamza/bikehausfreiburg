@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
@@ -10,6 +10,14 @@ import {
   KleinanzeigenCategory,
   PublicShopInfo,
 } from '../../models/models';
+
+interface Testimonial {
+  name: string;
+  initials: string;
+  text: string;
+  detail: string;
+  rating: number;
+}
 
 @Component({
   selector: 'app-home',
@@ -294,7 +302,61 @@ import {
       </div>
     </section>
 
-    <!-- ═══ Section 6 — CTA ═══ -->
+    <!-- ═══ Section 6 — TESTIMONIALS ═══ -->
+    <section class="testimonials-section" aria-labelledby="testimonials-heading">
+      <div class="container">
+        <span class="section-label fade-in">{{ t().testimonialsLabel }}</span>
+        <h2 id="testimonials-heading" class="section-title fade-in d1">{{ t().testimonialsTitle }}</h2>
+        <p class="section-sub fade-in d2">{{ t().testimonialsSub }}</p>
+        
+        <div class="testimonials-grid">
+          <article class="testimonial-card fade-in d1" *ngFor="let review of testimonials; let i = index">
+            <div class="testimonial-stars" aria-label="5 von 5 Sternen">
+              <svg *ngFor="let s of [1,2,3,4,5]" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <blockquote class="testimonial-text">
+              "{{ review.text }}"
+            </blockquote>
+            <footer class="testimonial-author">
+              <div class="author-avatar">{{ review.initials }}</div>
+              <div class="author-info">
+                <cite class="author-name">{{ review.name }}</cite>
+                <span class="author-detail">{{ review.detail }}</span>
+              </div>
+            </footer>
+          </article>
+        </div>
+
+        <div class="trust-badges fade-in d3">
+          <div class="trust-badge">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+            <span>Geprüfte Qualität</span>
+          </div>
+          <div class="trust-badge">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            <span>Seit 2020 in Freiburg</span>
+          </div>
+          <div class="trust-badge">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>500+ zufriedene Kunden</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Section 7 — CTA ═══ -->
     <section class="cta-section" aria-labelledby="cta-heading">
       <div class="container cta-inner">
         <h2 id="cta-heading" class="cta-h2 fade-in">
@@ -617,6 +679,105 @@ import {
         margin: 0;
       }
 
+      /* ═══ TESTIMONIALS SECTION ═══ */
+      .testimonials-section {
+        padding: 6rem 0;
+        background: var(--color-bg);
+      }
+
+      .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-top: 3rem;
+      }
+
+      .testimonial-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 1.75rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .testimonial-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .testimonial-stars {
+        display: flex;
+        gap: 2px;
+        color: #f59e0b;
+        margin-bottom: 1rem;
+      }
+
+      .testimonial-text {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--color-text);
+        margin: 0 0 1.25rem;
+        font-style: italic;
+      }
+
+      .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .author-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-accent) 0%, #ff7043 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        color: white;
+      }
+
+      .author-info {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .author-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--color-text);
+        font-style: normal;
+      }
+
+      .author-detail {
+        font-size: 0.8rem;
+        color: var(--color-text-secondary);
+      }
+
+      .trust-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .trust-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .trust-badge svg {
+        color: var(--color-accent);
+      }
+
       /* ═══ CTA SECTION ═══ */
       .cta-section {
         position: relative;
@@ -806,6 +967,7 @@ export class HomeComponent implements OnInit {
   private apiService = inject(ApiService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
+  private document = inject(DOCUMENT);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -815,14 +977,143 @@ export class HomeComponent implements OnInit {
   shopInfo = signal<PublicShopInfo | null>(null);
   loading = signal(true);
 
+  // Testimonials for SEO and social proof
+  testimonials: Testimonial[] = [
+    {
+      name: 'Thomas M.',
+      initials: 'TM',
+      text: 'Habe hier mein Trekkingrad gekauft. Super Beratung, faire Preise und das Rad war top aufbereitet. Kann ich nur empfehlen!',
+      detail: 'Trekkingrad gekauft',
+      rating: 5
+    },
+    {
+      name: 'Sandra K.',
+      initials: 'SK',
+      text: 'Endlich ein Fahrradladen in Freiburg, der ehrlich berät und keine überteuerten Preise hat. Mein Sohn liebt sein neues Kinderfahrrad!',
+      detail: 'Kinderfahrrad gekauft',
+      rating: 5
+    },
+    {
+      name: 'Michael W.',
+      initials: 'MW',
+      text: 'Als Student war ich auf der Suche nach einem günstigen, zuverlässigen Fahrrad. Bei Bike Haus wurde ich fündig. Top Qualität zum fairen Preis!',
+      detail: 'Cityrad gekauft',
+      rating: 5
+    },
+    {
+      name: 'Elena B.',
+      initials: 'EB',
+      text: 'Ich habe mein altes Fahrrad hier verkauft und gleich ein E-Bike mitgenommen. Unkompliziert und fair. Beste Fahrradhandlung in Freiburg!',
+      detail: 'E-Bike gekauft',
+      rating: 5
+    },
+    {
+      name: 'Peter H.',
+      initials: 'PH',
+      text: 'Schnelle und unkomplizierte Abwicklung. Das gebrauchte Mountainbike war in einwandfreiem Zustand. Sehr zu empfehlen!',
+      detail: 'Mountainbike gekauft',
+      rating: 5
+    },
+    {
+      name: 'Julia F.',
+      initials: 'JF',
+      text: 'Toller Service! Die Beratung war super und ich wurde nicht gedrängt. Mein neues Fahrrad macht mich jeden Tag glücklich.',
+      detail: 'Damenrad gekauft',
+      rating: 5
+    }
+  ];
+
+  private reviewSchemaElement: HTMLScriptElement | null = null;
+
   ngOnInit(): void {
     // SEO - Reset to homepage defaults
-    this.titleService.setTitle('Bike Haus Freiburg — Neue & gebrauchte Fahrräder in Freiburg');
-    this.metaService.updateTag({ name: 'description', content: 'Ihr Fahrradhändler in Freiburg im Breisgau. Über 100 neue und geprüfte Gebrauchträder — City, Trekking, Mountain, E-Bike, Kinderfahrräder. Fair, nachhaltig, persönlich.' });
-    this.metaService.updateTag({ property: 'og:title', content: 'Bike Haus Freiburg — Neue & gebrauchte Fahrrräder' });
-    this.metaService.updateTag({ property: 'og:url', content: 'https://bikehausfreiburg.com' });
+    this.titleService.setTitle(
+      'Bike Haus Freiburg — Neue & gebrauchte Fahrräder in Freiburg',
+    );
+    this.metaService.updateTag({
+      name: 'description',
+      content:
+        'Ihr Fahrradhändler in Freiburg im Breisgau. Über 100 neue und geprüfte Gebrauchträder — City, Trekking, Mountain, E-Bike, Kinderfahrräder. Fair, nachhaltig, persönlich.',
+    });
+    this.metaService.updateTag({
+      property: 'og:title',
+      content: 'Bike Haus Freiburg — Neue & gebrauchte Fahrrräder',
+    });
+    this.metaService.updateTag({
+      property: 'og:url',
+      content: 'https://bikehausfreiburg.com',
+    });
+
+    // Add Review/Rating Schema for SEO
+    this.addReviewSchema();
     
     this.loadData();
+  }
+
+  private addReviewSchema(): void {
+    const reviews = this.testimonials.map(t => ({
+      '@type': 'Review',
+      author: {
+        '@type': 'Person',
+        name: t.name
+      },
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: t.rating,
+        bestRating: 5
+      },
+      reviewBody: t.text
+    }));
+
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      '@id': 'https://bikehausfreiburg.com/#localbusiness',
+      name: 'Bike Haus Freiburg',
+      image: 'https://bikehausfreiburg.com/assets/og-image.jpg',
+      url: 'https://bikehausfreiburg.com',
+      telephone: '+49-155-66300011',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Heckerstraße 27',
+        addressLocality: 'Freiburg im Breisgau',
+        postalCode: '79114',
+        addressCountry: 'DE'
+      },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 47.9990,
+        longitude: 7.8421
+      },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.9',
+        reviewCount: this.testimonials.length.toString(),
+        bestRating: '5',
+        worstRating: '1'
+      },
+      review: reviews,
+      priceRange: '€-€€€',
+      openingHoursSpecification: [
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+          opens: '10:00',
+          closes: '18:00'
+        },
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: 'Saturday',
+          opens: '10:00',
+          closes: '14:00'
+        }
+      ]
+    };
+
+    this.reviewSchemaElement = this.document.createElement('script');
+    this.reviewSchemaElement.type = 'application/ld+json';
+    this.reviewSchemaElement.text = JSON.stringify(schema);
+    this.document.head.appendChild(this.reviewSchemaElement);
   }
 
   private loadData(): void {

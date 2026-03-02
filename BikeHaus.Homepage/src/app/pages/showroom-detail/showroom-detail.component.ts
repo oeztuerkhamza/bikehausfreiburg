@@ -1,5 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
@@ -694,12 +694,15 @@ import { KleinanzeigenListing } from '../../models/models';
     `,
   ],
 })
-export class ShowroomDetailComponent implements OnInit {
+export class ShowroomDetailComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
   private titleService = inject(Title);
   private metaService = inject(Meta);
+  private document = inject(DOCUMENT);
+  
+  private productSchemaElement: HTMLScriptElement | null = null;
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -734,25 +737,91 @@ export class ShowroomDetailComponent implements OnInit {
       next: (data) => {
         this.listing.set(data);
         this.loading.set(false);
-        
+
         // Dynamic SEO
         if (data) {
           const title = `${data.title} — Bike Haus Freiburg`;
           const price = data.price ? `${data.price}€` : '';
           const desc = `${data.title} ${price}. Jetzt bei Bike Haus Freiburg in 79114 Freiburg im Breisgau ansehen.`;
-          
+
           this.titleService.setTitle(title);
           this.metaService.updateTag({ name: 'description', content: desc });
           this.metaService.updateTag({ property: 'og:title', content: title });
-          this.metaService.updateTag({ property: 'og:description', content: desc });
-          this.metaService.updateTag({ property: 'og:url', content: `https://bikehausfreiburg.com/showroom/${id}` });
+          this.metaService.updateTag({
+            property: 'og:description',
+            content: desc,
+          });
+          this.metaService.updateTag({
+            property: 'og:url',
+            content: `https://bikehausfreiburg.com/showroom/${id}`,
+          });
           if (data.images?.length) {
-            this.metaService.updateTag({ property: 'og:image', content: data.images[0].imageUrl });
+            this.metaService.updateTag({
+              property: 'og:image',
+              content: data.images[0].imageUrl,
+            });
           }
+          
+          // Add Product Schema.org for SEO
+          this.addProductSchema(data, id);
         }
       },
       error: () => this.loading.set(false),
     });
+  }
+  
+  private addProductSchema(data: KleinanzeigenListing, id: number): void {
+    // Remove existing schema if any
+    this.removeProductSchema();
+    
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      '@id': `https://bikehausfreiburg.com/showroom/${id}#product`,
+      name: data.title,
+      description: data.description || data.title,
+      image: data.images?.map(img => img.imageUrl) || [],
+      url: `https://bikehausfreiburg.com/showroom/${id}`,
+      brand: {
+        '@type': 'Brand',
+        name: 'Bike Haus Freiburg'
+      },
+      seller: {
+        '@type': 'LocalBusiness',
+        name: 'Bike Haus Freiburg',
+        url: 'https://bikehausfreiburg.com'
+      },
+      offers: {
+        '@type': 'Offer',
+        url: `https://bikehausfreiburg.com/showroom/${id}`,
+        priceCurrency: 'EUR',
+        price: data.price || 0,
+        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        availability: 'https://schema.org/InStock',
+        itemCondition: this.isNew() ? 'https://schema.org/NewCondition' : 'https://schema.org/UsedCondition',
+        seller: {
+          '@type': 'LocalBusiness',
+          name: 'Bike Haus Freiburg'
+        }
+      },
+      category: data.category || 'Fahrrad'
+    };
+    
+    this.productSchemaElement = this.document.createElement('script');
+    this.productSchemaElement.type = 'application/ld+json';
+    this.productSchemaElement.text = JSON.stringify(schema);
+    this.document.head.appendChild(this.productSchemaElement);
+  }
+  
+  private removeProductSchema(): void {
+    if (this.productSchemaElement && this.productSchemaElement.parentNode) {
+      this.productSchemaElement.parentNode.removeChild(this.productSchemaElement);
+      this.productSchemaElement = null;
+    }
+  }
+  
+  ngOnDestroy(): void {
+    this.removeProductSchema();
   }
 
   prevImage(): void {

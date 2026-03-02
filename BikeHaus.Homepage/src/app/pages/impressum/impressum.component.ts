@@ -268,13 +268,17 @@ export class ImpressumComponent implements OnInit {
   private translationService = inject(TranslationService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
-  
+
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
 
   ngOnInit(): void {
     this.titleService.setTitle('Impressum — Bike Haus Freiburg');
-    this.metaService.updateTag({ name: 'description', content: 'Impressum und rechtliche Angaben von Bike Haus Freiburg gemäß § 5 TMG.' });
+    this.metaService.updateTag({
+      name: 'description',
+      content:
+        'Impressum und rechtliche Angaben von Bike Haus Freiburg gemäß § 5 TMG.',
+    });
     this.metaService.updateTag({ name: 'robots', content: 'noindex, follow' });
   }
 }

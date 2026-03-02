@@ -475,11 +475,23 @@ export class ContactComponent implements OnInit {
 
   ngOnInit(): void {
     // SEO
-    this.titleService.setTitle('Kontakt — Bike Haus Freiburg | Adresse & Öffnungszeiten');
-    this.metaService.updateTag({ name: 'description', content: 'Kontaktieren Sie Bike Haus Freiburg. Adresse, Öffnungszeiten, WhatsApp, Telefon. Besuchen Sie uns in 79114 Freiburg im Breisgau.' });
-    this.metaService.updateTag({ property: 'og:title', content: 'Kontakt — Bike Haus Freiburg' });
-    this.metaService.updateTag({ property: 'og:url', content: 'https://bikehausfreiburg.com/contact' });
-    
+    this.titleService.setTitle(
+      'Kontakt — Bike Haus Freiburg | Adresse & Öffnungszeiten',
+    );
+    this.metaService.updateTag({
+      name: 'description',
+      content:
+        'Kontaktieren Sie Bike Haus Freiburg. Adresse, Öffnungszeiten, WhatsApp, Telefon. Besuchen Sie uns in 79114 Freiburg im Breisgau.',
+    });
+    this.metaService.updateTag({
+      property: 'og:title',
+      content: 'Kontakt — Bike Haus Freiburg',
+    });
+    this.metaService.updateTag({
+      property: 'og:url',
+      content: 'https://bikehausfreiburg.com/contact',
+    });
+
     this.apiService.getShopInfo().subscribe({
       next: (data) => this.shopInfo.set(data),
     });

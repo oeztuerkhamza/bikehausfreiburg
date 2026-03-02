@@ -1,5 +1,12 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  computed,
+} from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
@@ -1062,13 +1069,16 @@ const NEW_PATTERN =
     `,
   ],
 })
-export class ShowroomComponent implements OnInit {
+export class ShowroomComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
   private titleService = inject(Title);
   private metaService = inject(Meta);
+  private document = inject(DOCUMENT);
 
+  private itemListSchemaElement: HTMLScriptElement | null = null;
+  
   t = this.translationService.translations;
 
   // Data
@@ -1259,12 +1269,28 @@ export class ShowroomComponent implements OnInit {
 
   ngOnInit(): void {
     // SEO
-    this.titleService.setTitle('Showroom — Bike Haus Freiburg | Alle Fahrräder');
-    this.metaService.updateTag({ name: 'description', content: 'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom. City, Trekking, Mountain, E-Bike, Kinderfahrräder — fair bewertet, geprüft, sofort verfügbar.' });
-    this.metaService.updateTag({ property: 'og:title', content: 'Showroom — Bike Haus Freiburg' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom.' });
-    this.metaService.updateTag({ property: 'og:url', content: 'https://bikehausfreiburg.com/showroom' });
-    
+    this.titleService.setTitle(
+      'Showroom — Bike Haus Freiburg | Alle Fahrräder',
+    );
+    this.metaService.updateTag({
+      name: 'description',
+      content:
+        'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom. City, Trekking, Mountain, E-Bike, Kinderfahrräder — fair bewertet, geprüft, sofort verfügbar.',
+    });
+    this.metaService.updateTag({
+      property: 'og:title',
+      content: 'Showroom — Bike Haus Freiburg',
+    });
+    this.metaService.updateTag({
+      property: 'og:description',
+      content:
+        'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom.',
+    });
+    this.metaService.updateTag({
+      property: 'og:url',
+      content: 'https://bikehausfreiburg.com/showroom',
+    });
+
     this.loadData();
   }
 
@@ -1273,6 +1299,9 @@ export class ShowroomComponent implements OnInit {
       next: (data) => {
         this.allListings.set(data);
         this.loading.set(false);
+        
+        // Add ItemList Schema for SEO
+        this.addItemListSchema(data);
       },
       error: () => this.loading.set(false),
     });
@@ -1280,6 +1309,54 @@ export class ShowroomComponent implements OnInit {
     this.apiService.getLastSync().subscribe({
       next: (data) => this.lastSync.set(data),
     });
+  }
+  
+  private addItemListSchema(listings: KleinanzeigenListing[]): void {
+    // Remove existing schema
+    this.removeItemListSchema();
+    
+    // Take first 50 items for schema (Google limit)
+    const items = listings.slice(0, 50).map((listing, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'Product',
+        name: listing.title,
+        url: `https://bikehausfreiburg.com/showroom/${listing.id}`,
+        image: listing.images?.[0]?.imageUrl || '',
+        offers: {
+          '@type': 'Offer',
+          price: listing.price || 0,
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock'
+        }
+      }
+    }));
+    
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Fahrräder im Showroom',
+      description: `${listings.length} Fahrräder verfügbar bei Bike Haus Freiburg`,
+      numberOfItems: listings.length,
+      itemListElement: items
+    };
+    
+    this.itemListSchemaElement = this.document.createElement('script');
+    this.itemListSchemaElement.type = 'application/ld+json';
+    this.itemListSchemaElement.text = JSON.stringify(schema);
+    this.document.head.appendChild(this.itemListSchemaElement);
+  }
+  
+  private removeItemListSchema(): void {
+    if (this.itemListSchemaElement && this.itemListSchemaElement.parentNode) {
+      this.itemListSchemaElement.parentNode.removeChild(this.itemListSchemaElement);
+      this.itemListSchemaElement = null;
+    }
+  }
+  
+  ngOnDestroy(): void {
+    this.removeItemListSchema();
   }
 
   // Parse functions
