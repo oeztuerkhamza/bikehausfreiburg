@@ -73,4 +73,14 @@ public class KleinanzeigenController : ControllerBase
         var listings = await _kleinanzeigenService.GetAllActiveListingsAsync();
         return Ok(listings);
     }
+
+    /// <summary>
+    /// Fix categories for existing listings based on title analysis
+    /// </summary>
+    [HttpPost("fix-categories")]
+    public async Task<IActionResult> FixCategories()
+    {
+        var updatedCount = await _kleinanzeigenService.FixCategoriesAsync();
+        return Ok(new { updated = updatedCount, message = $"Fixed categories for {updatedCount} listings" });
+    }
 }

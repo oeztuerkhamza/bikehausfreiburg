@@ -11,4 +11,5 @@ public interface IKleinanzeigenService
     Task<DateTime?> GetLastSyncTimeAsync();
     Task<PublicShopInfoDto?> GetPublicShopInfoAsync();
     Task<KleinanzeigenSyncResultDto> TriggerSyncAsync(CancellationToken cancellationToken = default);
+    Task<int> FixCategoriesAsync();
 }

@@ -270,11 +270,17 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
                         card.PriceText = (await priceEl.InnerTextAsync()).Trim();
                     }
 
-                    // Extract category from breadcrumb or tag
-                    var categoryEl = await element.QuerySelectorAsync(".breadcrump, .aditem-main--top--left, .simpletag");
+                    // Extract category from simpletag (more reliable for bicycle categories)
+                    var categoryEl = await element.QuerySelectorAsync(".simpletag, .aditem-main--top--left span");
                     if (categoryEl != null)
                     {
-                        card.Category = (await categoryEl.InnerTextAsync()).Trim();
+                        var catText = (await categoryEl.InnerTextAsync()).Trim();
+                        // Only use if it's a real bicycle category, not a location
+                        if (!catText.Contains("Kleinanzeigen") && !catText.Contains("Freiburg") &&
+                            !catText.Contains("Baden") && !catText.Contains("Breisgau"))
+                        {
+                            card.Category = catText;
+                        }
                     }
 
                     if (!string.IsNullOrEmpty(card.Url))
@@ -349,15 +355,65 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             data.Description = (await descEl.InnerTextAsync()).Trim();
         }
 
-        // Extract category
-        var categoryEl = await page.QuerySelectorAsync("#vap-brdcrmb .breadcrump-link:last-child, .breadcrump-link:nth-last-child(2), a[itemprop='item']:last-of-type span");
-        if (categoryEl != null)
+        // Extract category from breadcrumb - look for bicycle category (Herren, Damen, Kinder, etc.)
+        var categoryFound = false;
+        var breadcrumbLinks = await page.QuerySelectorAllAsync("#vap-brdcrmb .breadcrump-link, .breadcrump-link, a[itemprop='item'] span");
+        foreach (var link in breadcrumbLinks)
         {
-            data.Category = (await categoryEl.InnerTextAsync()).Trim();
+            var text = (await link.InnerTextAsync()).Trim();
+            // Check if it's a bicycle category
+            if (text.Contains("Fahrräder") || text.Contains("Herren") || text.Contains("Damen") ||
+                text.Contains("Kinder") || text.Contains("E-Bike") || text.Contains("Pedelec") ||
+                text.Contains("Rennr") || text.Contains("Mountain") || text.Contains("Trekking") ||
+                text.Contains("City") || text.Contains("Zubehör") || text.Contains("BMX") ||
+                text.Contains("Cruiser") || text.Contains("Holland"))
+            {
+                // Prefer more specific categories (skip generic "Fahrräder")
+                if (text != "Fahrräder" && text != "Fahrräder & Zubehör")
+                {
+                    data.Category = text;
+                    categoryFound = true;
+                }
+                else if (!categoryFound)
+                {
+                    data.Category = text;
+                }
+            }
         }
 
-        // Fallback: use card category
-        if (string.IsNullOrEmpty(data.Category))
+        // Fallback: try to detect category from title
+        if (string.IsNullOrEmpty(data.Category) || data.Category == "Fahrräder")
+        {
+            var title = data.Title.ToLower();
+            if (title.Contains("damen") || title.Contains("frau"))
+                data.Category = "Damen-Fahrräder";
+            else if (title.Contains("herren") || title.Contains("mann") || title.Contains("männer"))
+                data.Category = "Herren-Fahrräder";
+            else if (title.Contains("kind") || title.Contains("junge") || title.Contains("mädchen") || title.Contains("jugend"))
+                data.Category = "Kinder-Fahrräder";
+            else if (title.Contains("e-bike") || title.Contains("ebike") || title.Contains("pedelec") || title.Contains("elektro"))
+                data.Category = "E-Bikes";
+            else if (title.Contains("trekking"))
+                data.Category = "Trekkingräder";
+            else if (title.Contains("mountain") || title.Contains("mtb"))
+                data.Category = "Mountainbikes";
+            else if (title.Contains("city") || title.Contains("stadt"))
+                data.Category = "Cityräder";
+            else if (title.Contains("rennrad") || title.Contains("renn"))
+                data.Category = "Rennräder";
+            else if (title.Contains("bmx"))
+                data.Category = "BMX";
+            else if (title.Contains("holland") || title.Contains("hollandrad"))
+                data.Category = "Hollandräder";
+            else if (title.Contains("cruiser"))
+                data.Category = "Cruiser";
+            else if (title.Contains("zubehör") || title.Contains("ersatzteil") || title.Contains("teil"))
+                data.Category = "Zubehör";
+        }
+
+        // Final fallback: use card category if valid
+        if (string.IsNullOrEmpty(data.Category) && !string.IsNullOrEmpty(card.Category) &&
+            !card.Category.Contains("Kleinanzeigen") && !card.Category.Contains("Freiburg"))
         {
             data.Category = card.Category;
         }
