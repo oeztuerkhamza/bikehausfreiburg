@@ -109,6 +109,24 @@ export interface Translations {
   galleryTitle: string;
   gallerySub: string;
 
+  // Bike Check Service
+  bikeCheckLabel: string;
+  bikeCheckTitle: string;
+  bikeCheckSub: string;
+  bikeCheckFreeTitle: string;
+  bikeCheckBrakeCheck: string;
+  bikeCheckGearTest: string;
+  bikeCheckTireChain: string;
+  bikeCheckRepairTitle: string;
+  bikeCheckBrakeAdjust: string;
+  bikeCheckChainCassette: string;
+  bikeCheckGearAdjust: string;
+  bikeCheckTireService: string;
+  bikeCheckNote: string;
+  bikeCheckExclusion: string;
+  bikeCheckNoObligation: string;
+  bikeCheckFairPrices: string;
+
   // CTA
   ctaSectionTitle: string;
   ctaSectionSub: string;
@@ -388,6 +406,23 @@ const TRANSLATIONS: Record<Language, Translations> = {
     galleryLabel: 'UNSER LADEN',
     galleryTitle: 'Einblicke in unser Bike Haus.',
     gallerySub: 'Schauen Sie sich unseren Laden in Freiburg an — hier warten Ihre nächsten Räder auf Sie.',
+
+    bikeCheckLabel: 'SERVICE',
+    bikeCheckTitle: 'Kostenloser Fahrrad-Check!',
+    bikeCheckSub: 'Reparatur nur nach Wunsch — faire Preise, transparente Beratung.',
+    bikeCheckFreeTitle: 'Kostenloser Check',
+    bikeCheckBrakeCheck: 'Bremsenprüfung',
+    bikeCheckGearTest: 'Schaltungstest',
+    bikeCheckTireChain: 'Reifen & Kette prüfen',
+    bikeCheckRepairTitle: 'Reparatur auf Wunsch',
+    bikeCheckBrakeAdjust: 'Bremsen einstellen',
+    bikeCheckChainCassette: 'Kette & Kassette tauschen',
+    bikeCheckGearAdjust: 'Schaltung justieren',
+    bikeCheckTireService: 'Reifenservice',
+    bikeCheckNote: 'Nur für normale Fahrräder',
+    bikeCheckExclusion: 'Keine E-Bikes, keine Rennräder',
+    bikeCheckNoObligation: 'Keine Pflicht!',
+    bikeCheckFairPrices: 'Faire Preise — Transparente Beratung.',
 
     ctaSectionTitle: 'Bereit für Ihr nächstes Abenteuer?',
     ctaSectionSub:
@@ -681,6 +716,23 @@ const TRANSLATIONS: Record<Language, Translations> = {
     galleryTitle: 'Aperçu de notre Bike Haus.',
     gallerySub: 'Découvrez notre magasin à Fribourg — vos prochains vélos vous y attendent.',
 
+    bikeCheckLabel: 'SERVICE',
+    bikeCheckTitle: 'Contrôle vélo gratuit !',
+    bikeCheckSub: 'Réparation uniquement sur demande — prix justes, conseil transparent.',
+    bikeCheckFreeTitle: 'Contrôle gratuit',
+    bikeCheckBrakeCheck: 'Vérification des freins',
+    bikeCheckGearTest: 'Test des vitesses',
+    bikeCheckTireChain: 'Vérification pneus & chaîne',
+    bikeCheckRepairTitle: 'Réparation sur demande',
+    bikeCheckBrakeAdjust: 'Réglage des freins',
+    bikeCheckChainCassette: 'Remplacement chaîne & cassette',
+    bikeCheckGearAdjust: 'Ajustement des vitesses',
+    bikeCheckTireService: 'Service pneus',
+    bikeCheckNote: 'Uniquement pour les vélos classiques',
+    bikeCheckExclusion: 'Pas de vélos électriques, pas de vélos de course',
+    bikeCheckNoObligation: 'Aucune obligation !',
+    bikeCheckFairPrices: 'Prix justes — Conseil transparent.',
+
     ctaSectionTitle: 'Prêt pour votre prochaine aventure ?',
     ctaSectionSub:
       'Visitez notre showroom ou parcourez notre sélection en ligne.',
@@ -972,6 +1024,23 @@ const TRANSLATIONS: Record<Language, Translations> = {
     galleryLabel: 'DÜKKAN',
     galleryTitle: 'Bike Haus\'tan kareler.',
     gallerySub: 'Freiburg\'daki dükkânımıza göz atın — bir sonraki bisikletiniz sizi burada bekliyor.',
+
+    bikeCheckLabel: 'SERVİS',
+    bikeCheckTitle: 'Ücretsiz Bisiklet Kontrolü!',
+    bikeCheckSub: 'Tamir sadece istek üzerine — adil fiyatlar, şeffaf danışmanlık.',
+    bikeCheckFreeTitle: 'Ücretsiz Kontrol',
+    bikeCheckBrakeCheck: 'Fren kontrolü',
+    bikeCheckGearTest: 'Vites testi',
+    bikeCheckTireChain: 'Lastik & zincir kontrolü',
+    bikeCheckRepairTitle: 'İsteğe Bağlı Tamir',
+    bikeCheckBrakeAdjust: 'Fren ayarı',
+    bikeCheckChainCassette: 'Zincir & kaset değişimi',
+    bikeCheckGearAdjust: 'Vites ayarı',
+    bikeCheckTireService: 'Lastik servisi',
+    bikeCheckNote: 'Sadece normal bisikletler için',
+    bikeCheckExclusion: 'E-Bike ve yarış bisikleti hariç',
+    bikeCheckNoObligation: 'Zorunluluk yok!',
+    bikeCheckFairPrices: 'Adil fiyatlar — Şeffaf danışmanlık.',
 
     ctaSectionTitle: 'Bir sonraki maceranıza hazır mısınız?',
     ctaSectionSub:

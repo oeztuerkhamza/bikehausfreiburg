@@ -347,7 +347,99 @@ interface Testimonial {
       <div class="lightbox-counter" (click)="$event.stopPropagation()">{{ lightboxIndex + 1 }} / {{ shopPhotos.length }}</div>
     </div>
 
-    <!-- ═══ Section 7 — TESTIMONIALS ═══ -->
+    <!-- ═══ Section 7 — BIKE CHECK SERVICE ═══ -->
+    <section class="section section-alt" aria-labelledby="bikecheck-heading">
+      <div class="container">
+        <span class="section-label fade-in">{{ t().bikeCheckLabel }}</span>
+        <h2 id="bikecheck-heading" class="section-title fade-in d1">
+          {{ t().bikeCheckTitle }}
+        </h2>
+        <p class="section-subtitle fade-in d2">{{ t().bikeCheckSub }}</p>
+
+        <div class="bikecheck-grid fade-in d3">
+          <!-- Free Check -->
+          <div class="bikecheck-card bikecheck-free">
+            <div class="bikecheck-card-header">
+              <div class="bikecheck-icon free-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 12l2 2 4-4"/>
+                  <circle cx="12" cy="12" r="10"/>
+                </svg>
+              </div>
+              <h3>{{ t().bikeCheckFreeTitle }}</h3>
+              <span class="bikecheck-badge">{{ t().bikeCheckNoObligation }}</span>
+            </div>
+            <ul class="bikecheck-list">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                {{ t().bikeCheckBrakeCheck }}
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                {{ t().bikeCheckGearTest }}
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                {{ t().bikeCheckTireChain }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Repair on Request -->
+          <div class="bikecheck-card bikecheck-repair">
+            <div class="bikecheck-card-header">
+              <div class="bikecheck-icon repair-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+              </div>
+              <h3>{{ t().bikeCheckRepairTitle }}</h3>
+            </div>
+            <ul class="bikecheck-list">
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                {{ t().bikeCheckBrakeAdjust }}
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                {{ t().bikeCheckChainCassette }}
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                {{ t().bikeCheckGearAdjust }}
+              </li>
+              <li>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                {{ t().bikeCheckTireService }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Note & exclusion -->
+        <div class="bikecheck-footer fade-in d4">
+          <div class="bikecheck-note">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <span>{{ t().bikeCheckNote }} — {{ t().bikeCheckExclusion }}</span>
+          </div>
+          <p class="bikecheck-fair">{{ t().bikeCheckFairPrices }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Section 8 — TESTIMONIALS ═══ -->
     <section
       class="testimonials-section"
       aria-labelledby="testimonials-heading"
@@ -998,6 +1090,135 @@ interface Testimonial {
         letter-spacing: 0.05em;
       }
 
+      /* ═══ BIKE CHECK SECTION ═══ */
+      .bikecheck-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+        margin-top: 3rem;
+      }
+
+      .bikecheck-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        padding: 2.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .bikecheck-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+      }
+
+      .bikecheck-free {
+        border-color: rgba(227,135,30,0.3);
+        background: linear-gradient(135deg, rgba(227,135,30,0.06) 0%, rgba(255,255,255,0.02) 100%);
+      }
+
+      .bikecheck-card-header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .bikecheck-card-header h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--color-text);
+      }
+
+      .bikecheck-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .free-icon {
+        background: rgba(227,135,30,0.15);
+        color: var(--color-accent);
+      }
+
+      .repair-icon {
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.7);
+      }
+
+      .bikecheck-badge {
+        display: inline-block;
+        background: var(--color-accent);
+        color: #000;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        width: fit-content;
+      }
+
+      .bikecheck-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .bikecheck-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: rgba(255,255,255,0.85);
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      .bikecheck-free .bikecheck-list li svg {
+        color: var(--color-accent);
+        flex-shrink: 0;
+      }
+
+      .bikecheck-repair .bikecheck-list li svg {
+        color: rgba(255,255,255,0.5);
+        flex-shrink: 0;
+      }
+
+      .bikecheck-footer {
+        margin-top: 2.5rem;
+        text-align: center;
+      }
+
+      .bikecheck-note {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        padding: 0.8rem 1.5rem;
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+      }
+
+      .bikecheck-note svg {
+        color: var(--color-accent);
+        flex-shrink: 0;
+      }
+
+      .bikecheck-fair {
+        margin-top: 1rem;
+        color: var(--color-accent);
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: 0.03em;
+      }
+
       /* ═══ TESTIMONIALS SECTION ═══ */
       .testimonials-section {
         padding: 6rem 0;
@@ -1331,6 +1552,15 @@ interface Testimonial {
         }
       }
 
+      @media (max-width: 768px) {
+        .bikecheck-grid {
+          grid-template-columns: 1fr;
+        }
+        .bikecheck-card {
+          padding: 2rem;
+        }
+      }
+
       @media (max-width: 640px) {
         .hero-inner {
           padding: 7rem 1rem 5rem;
@@ -1367,6 +1597,16 @@ interface Testimonial {
         }
         .lightbox-next {
           right: 0.75rem;
+        }
+        .bikecheck-card {
+          padding: 1.5rem;
+        }
+        .bikecheck-card-header h3 {
+          font-size: 1.15rem;
+        }
+        .bikecheck-note {
+          flex-direction: column;
+          text-align: center;
         }
       }
     `,
