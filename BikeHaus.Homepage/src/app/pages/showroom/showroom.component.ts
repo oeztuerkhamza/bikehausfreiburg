@@ -386,7 +386,10 @@ const TYP_PATTERN =
               </span>
               <span class="active-pill" *ngIf="selectedCategory()">
                 {{ selectedCategory() }}
-                <button class="pill-close" (click)="toggleCategory(selectedCategory()!)">
+                <button
+                  class="pill-close"
+                  (click)="toggleCategory(selectedCategory()!)"
+                >
                   ×
                 </button>
               </span>
