@@ -401,26 +401,6 @@ import {
                 </div>
               </div>
 
-              <div class="form-grid">
-                <div class="form-group full-width">
-                  <label>{{ t.openingHours }}</label>
-                  <textarea
-                    [(ngModel)]="settings.oeffnungszeiten"
-                    name="oeffnungszeiten"
-                    rows="3"
-                  ></textarea>
-                </div>
-
-                <div class="form-group full-width">
-                  <label>{{ t.additionalInfo }}</label>
-                  <textarea
-                    [(ngModel)]="settings.zusatzinfo"
-                    name="zusatzinfo"
-                    rows="3"
-                  ></textarea>
-                </div>
-              </div>
-
               <!-- Kleinanzeigen Integration -->
               <h3
                 style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
