@@ -355,63 +355,57 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             data.Description = (await descEl.InnerTextAsync()).Trim();
         }
 
-        // Extract category from breadcrumb - look for bicycle category (Herren, Damen, Kinder, etc.)
-        var categoryFound = false;
-        var breadcrumbLinks = await page.QuerySelectorAllAsync("#vap-brdcrmb .breadcrump-link, .breadcrump-link, a[itemprop='item'] span");
-        foreach (var link in breadcrumbLinks)
+        // PRIORITY 1: Extract "Art" (Kinder, Damen, Herren) from detail attributes table
+        // This is the most reliable source for bicycle type classification
+        var artValue = await ExtractAttributeValueAsync(page, "Art");
+        if (!string.IsNullOrEmpty(artValue))
         {
-            var text = (await link.InnerTextAsync()).Trim();
-            // Check if it's a bicycle category
-            if (text.Contains("Fahrräder") || text.Contains("Herren") || text.Contains("Damen") ||
-                text.Contains("Kinder") || text.Contains("E-Bike") || text.Contains("Pedelec") ||
-                text.Contains("Rennr") || text.Contains("Mountain") || text.Contains("Trekking") ||
-                text.Contains("City") || text.Contains("Zubehör") || text.Contains("BMX") ||
-                text.Contains("Cruiser") || text.Contains("Holland"))
+            // Map "Art" value to category
+            var artLower = artValue.ToLower();
+            if (artLower.Contains("kinder") || artLower.Contains("kind"))
+                data.Category = "Kinder-Fahrräder";
+            else if (artLower.Contains("damen") || artLower.Contains("frau"))
+                data.Category = "Damen-Fahrräder";
+            else if (artLower.Contains("herren") || artLower.Contains("mann") || artLower.Contains("männer"))
+                data.Category = "Herren-Fahrräder";
+            else if (artLower.Contains("e-bike") || artLower.Contains("ebike") || artLower.Contains("pedelec") || artLower.Contains("elektro"))
+                data.Category = "E-Bikes";
+            else if (artLower.Contains("unisex"))
+                data.Category = "Sonstige Fahrräder";
+            else
+                _logger.LogInformation("Unknown Art value: {Art}", artValue);
+        }
+
+        // PRIORITY 2: Extract category from breadcrumb - only if Art wasn't found
+        if (string.IsNullOrEmpty(data.Category))
+        {
+            var breadcrumbLinks = await page.QuerySelectorAllAsync("#vap-brdcrmb .breadcrump-link, .breadcrump-link, a[itemprop='item'] span");
+            foreach (var link in breadcrumbLinks)
             {
-                // Prefer more specific categories (skip generic "Fahrräder")
-                if (text != "Fahrräder" && text != "Fahrräder & Zubehör")
+                var text = (await link.InnerTextAsync()).Trim();
+                // Check if it's a bicycle category
+                if (text.Contains("Fahrräder") || text.Contains("Herren") || text.Contains("Damen") ||
+                    text.Contains("Kinder") || text.Contains("E-Bike") || text.Contains("Pedelec") ||
+                    text.Contains("Rennr") || text.Contains("Mountain") || text.Contains("Trekking") ||
+                    text.Contains("City") || text.Contains("Zubehör") || text.Contains("BMX") ||
+                    text.Contains("Cruiser") || text.Contains("Holland"))
                 {
-                    data.Category = text;
-                    categoryFound = true;
-                }
-                else if (!categoryFound)
-                {
-                    data.Category = text;
+                    // Prefer more specific categories (skip generic "Fahrräder")
+                    if (text != "Fahrräder" && text != "Fahrräder & Zubehör")
+                    {
+                        data.Category = text;
+                        break;
+                    }
                 }
             }
         }
 
-        // Fallback: try to detect category from title
+        // PRIORITY 3: Fallback - detect category from title
         if (string.IsNullOrEmpty(data.Category) || data.Category == "Fahrräder")
         {
-            var title = data.Title.ToLower();
-            if (title.Contains("damen") || title.Contains("frau"))
-                data.Category = "Damen-Fahrräder";
-            else if (title.Contains("herren") || title.Contains("mann") || title.Contains("männer"))
-                data.Category = "Herren-Fahrräder";
-            else if (title.Contains("kind") || title.Contains("junge") || title.Contains("mädchen") || title.Contains("jugend"))
-                data.Category = "Kinder-Fahrräder";
-            else if (title.Contains("e-bike") || title.Contains("ebike") || title.Contains("pedelec") || title.Contains("elektro"))
-                data.Category = "E-Bikes";
-            else if (title.Contains("trekking"))
-                data.Category = "Trekkingräder";
-            else if (title.Contains("mountain") || title.Contains("mtb"))
-                data.Category = "Mountainbikes";
-            else if (title.Contains("city") || title.Contains("stadt"))
-                data.Category = "Cityräder";
-            else if (title.Contains("rennrad") || title.Contains("renn"))
-                data.Category = "Rennräder";
-            else if (title.Contains("bmx"))
-                data.Category = "BMX";
-            else if (title.Contains("holland") || title.Contains("hollandrad"))
-                data.Category = "Hollandräder";
-            else if (title.Contains("cruiser"))
-                data.Category = "Cruiser";
-            else if (title.Contains("zubehör") || title.Contains("ersatzteil") || title.Contains("teil"))
-                data.Category = "Zubehör";
+            data.Category = DetectCategoryFromTitle(data.Title);
         }
-
-        // Final fallback: use card category if valid
+        // Final fallback: use card category if still empty and valid
         if (string.IsNullOrEmpty(data.Category) && !string.IsNullOrEmpty(card.Category) &&
             !card.Category.Contains("Kleinanzeigen") && !card.Category.Contains("Freiburg"))
         {
@@ -505,6 +499,77 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             @"/\$_\d+\.JPG",
             "/$_59.JPG",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+    }
+
+    private async Task<string?> ExtractAttributeValueAsync(IPage page, string attributeName)
+    {
+        try
+        {
+            // Kleinanzeigen detail page has attribute table with format:
+            // <li class="addetailslist--detail"> 
+            //   Art
+            //   <span class="addetailslist--detail--value">Kinder</span>
+            // </li>
+            var detailItems = await page.QuerySelectorAllAsync("#viewad-details li, .addetailslist--detail, .boxedarticle--details--item");
+            foreach (var item in detailItems)
+            {
+                var text = (await item.InnerTextAsync()).Trim();
+                if (text.StartsWith(attributeName, StringComparison.OrdinalIgnoreCase))
+                {
+                    // Try to get value from span
+                    var valueEl = await item.QuerySelectorAsync("span.addetailslist--detail--value, span:last-child, .boxedarticle--details--item-value");
+                    if (valueEl != null)
+                    {
+                        return (await valueEl.InnerTextAsync()).Trim();
+                    }
+                    // Fallback: parse from text (remove attribute name)
+                    var lines = text.Split('\n', StringSplitOptions.RemoveEmptyEntries);
+                    if (lines.Length > 1)
+                    {
+                        return lines[1].Trim();
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to extract attribute: {Attribute}", attributeName);
+        }
+        return null;
+    }
+
+    private static string? DetectCategoryFromTitle(string title)
+    {
+        if (string.IsNullOrEmpty(title)) return null;
+        
+        var titleLower = title.ToLower();
+        
+        if (titleLower.Contains("damen") || titleLower.Contains("frau"))
+            return "Damen-Fahrräder";
+        if (titleLower.Contains("herren") || titleLower.Contains("mann") || titleLower.Contains("männer"))
+            return "Herren-Fahrräder";
+        if (titleLower.Contains("kind") || titleLower.Contains("junge") || titleLower.Contains("mädchen") || titleLower.Contains("jugend"))
+            return "Kinder-Fahrräder";
+        if (titleLower.Contains("e-bike") || titleLower.Contains("ebike") || titleLower.Contains("pedelec") || titleLower.Contains("elektro"))
+            return "E-Bikes";
+        if (titleLower.Contains("trekking"))
+            return "Trekkingräder";
+        if (titleLower.Contains("mountain") || titleLower.Contains("mtb"))
+            return "Mountainbikes";
+        if (titleLower.Contains("city") || titleLower.Contains("stadt"))
+            return "Cityräder";
+        if (titleLower.Contains("rennrad") || titleLower.Contains("renn"))
+            return "Rennräder";
+        if (titleLower.Contains("bmx"))
+            return "BMX";
+        if (titleLower.Contains("holland") || titleLower.Contains("hollandrad"))
+            return "Hollandräder";
+        if (titleLower.Contains("cruiser"))
+            return "Cruiser";
+        if (titleLower.Contains("zubehör") || titleLower.Contains("ersatzteil") || titleLower.Contains("teil"))
+            return "Zubehör";
+            
+        return null;
     }
 
     private class ListingCard
