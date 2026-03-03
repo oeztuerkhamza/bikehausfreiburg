@@ -28,7 +28,7 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
     {
         return await _dbSet
             .Include(b => b.Purchase).ThenInclude(p => p!.Seller)
-            .Include(b => b.Sale).ThenInclude(s => s!.Buyer)
+            .Include(b => b.Sales).ThenInclude(s => s!.Buyer)
             .Include(b => b.Documents)
             .FirstOrDefaultAsync(b => b.Id == id);
     }

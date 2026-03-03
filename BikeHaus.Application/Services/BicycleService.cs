@@ -163,7 +163,7 @@ public class BicycleService : IBicycleService
             ?? throw new KeyNotFoundException($"Fahrrad mit ID {id} nicht gefunden.");
 
         // If bicycle has a sale, it cannot be deleted
-        if (bicycle.Sale != null)
+        if (bicycle.Sales != null && bicycle.Sales.Any())
         {
             throw new InvalidOperationException(
                 "Fahrrad kann nicht gelöscht werden. Es gibt einen verknüpften Verkauf. " +

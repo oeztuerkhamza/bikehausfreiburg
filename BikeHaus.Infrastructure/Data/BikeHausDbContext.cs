@@ -92,8 +92,8 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Notizen).HasMaxLength(1000);
 
             entity.HasOne(e => e.Bicycle)
-                .WithOne(b => b.Sale)
-                .HasForeignKey<Sale>(e => e.BicycleId)
+                .WithMany(b => b.Sales)
+                .HasForeignKey(e => e.BicycleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.Buyer)

@@ -230,7 +230,7 @@ public class PurchaseService : IPurchaseService
         var bicycle = purchase.Bicycle;
 
         // Check if bicycle has a sale - if yes, cannot delete purchase
-        if (bicycle?.Sale != null)
+        if (bicycle?.Sales != null && bicycle.Sales.Any())
         {
             throw new InvalidOperationException(
                 "Ankauf kann nicht gelöscht werden. Das Fahrrad hat einen verknüpften Verkauf. " +
