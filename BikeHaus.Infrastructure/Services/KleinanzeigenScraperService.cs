@@ -400,11 +400,7 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             }
         }
 
-        // PRIORITY 3: Fallback - detect category from title
-        if (string.IsNullOrEmpty(data.Category) || data.Category == "Fahrräder")
-        {
-            data.Category = DetectCategoryFromTitle(data.Title);
-        }
+        // No title-based detection - only use Art attribute from Kleinanzeigen
         // Final fallback: use card category if still empty and valid
         if (string.IsNullOrEmpty(data.Category) && !string.IsNullOrEmpty(card.Category) &&
             !card.Category.Contains("Kleinanzeigen") && !card.Category.Contains("Freiburg"))
@@ -535,40 +531,6 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
         {
             _logger.LogWarning(ex, "Failed to extract attribute: {Attribute}", attributeName);
         }
-        return null;
-    }
-
-    private static string? DetectCategoryFromTitle(string title)
-    {
-        if (string.IsNullOrEmpty(title)) return null;
-
-        var titleLower = title.ToLower();
-
-        if (titleLower.Contains("damen") || titleLower.Contains("frau"))
-            return "Damen-Fahrräder";
-        if (titleLower.Contains("herren") || titleLower.Contains("mann") || titleLower.Contains("männer"))
-            return "Herren-Fahrräder";
-        if (titleLower.Contains("kind") || titleLower.Contains("junge") || titleLower.Contains("mädchen") || titleLower.Contains("jugend"))
-            return "Kinder-Fahrräder";
-        if (titleLower.Contains("e-bike") || titleLower.Contains("ebike") || titleLower.Contains("pedelec") || titleLower.Contains("elektro"))
-            return "E-Bikes";
-        if (titleLower.Contains("trekking"))
-            return "Trekkingräder";
-        if (titleLower.Contains("mountain") || titleLower.Contains("mtb"))
-            return "Mountainbikes";
-        if (titleLower.Contains("city") || titleLower.Contains("stadt"))
-            return "Cityräder";
-        if (titleLower.Contains("rennrad") || titleLower.Contains("renn"))
-            return "Rennräder";
-        if (titleLower.Contains("bmx"))
-            return "BMX";
-        if (titleLower.Contains("holland") || titleLower.Contains("hollandrad"))
-            return "Hollandräder";
-        if (titleLower.Contains("cruiser"))
-            return "Cruiser";
-        if (titleLower.Contains("zubehör") || titleLower.Contains("ersatzteil") || titleLower.Contains("teil"))
-            return "Zubehör";
-
         return null;
     }
 
