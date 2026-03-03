@@ -87,7 +87,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   >{{ bikeEdit.marke }} {{ bikeEdit.modell }}</strong
                 ></span
               >
-              <span *ngIf="bikeEdit.rahmennummer" style="text-transform: uppercase"
+              <span
+                *ngIf="bikeEdit.rahmennummer"
+                style="text-transform: uppercase"
                 >{{ t.frameNumber }}: {{ bikeEdit.rahmennummer }}</span
               >
               <span *ngIf="bikeEdit.rahmengroesse"
@@ -156,7 +158,10 @@ import { AddressSuggestion } from '../../services/address.service';
                     class="color-chip"
                     [class.selected]="isColorSelected(bikeEdit.farbe, c.value)"
                     [style.--chip-color]="c.hex"
-                    (click)="bikeEdit.farbe = toggleColor(bikeEdit.farbe, c.value); bikeErrors['farbe'] = false"
+                    (click)="
+                      bikeEdit.farbe = toggleColor(bikeEdit.farbe, c.value);
+                      bikeErrors['farbe'] = false
+                    "
                   >
                     <span class="chip-dot"></span>
                     {{ c.label }}
@@ -655,7 +660,7 @@ import { AddressSuggestion } from '../../services/address.service';
         height: 12px;
         border-radius: 50%;
         background: var(--chip-color, #ccc);
-        border: 1px solid rgba(0,0,0,0.12);
+        border: 1px solid rgba(0, 0, 0, 0.12);
         flex-shrink: 0;
       }
       .checkbox-label {

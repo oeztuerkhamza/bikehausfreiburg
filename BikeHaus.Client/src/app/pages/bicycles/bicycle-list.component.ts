@@ -146,7 +146,9 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <td class="mono">{{ b.stokNo || '–' }}</td>
               <td>{{ b.marke }}</td>
               <td>{{ b.modell }}</td>
-              <td class="mono" style="text-transform: uppercase">{{ b.rahmennummer || '–' }}</td>
+              <td class="mono" style="text-transform: uppercase">
+                {{ b.rahmennummer || '–' }}
+              </td>
               <td>{{ b.reifengroesse ? b.reifengroesse + '"' : '–' }}</td>
               <td>{{ b.fahrradtyp || '–' }}</td>
               <td>

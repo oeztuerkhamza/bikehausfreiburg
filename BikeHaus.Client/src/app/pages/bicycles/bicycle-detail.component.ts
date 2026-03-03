@@ -331,7 +331,7 @@ import {
         height: 12px;
         border-radius: 50%;
         background: var(--chip-color, #ccc);
-        border: 1px solid rgba(0,0,0,0.12);
+        border: 1px solid rgba(0, 0, 0, 0.12);
         flex-shrink: 0;
       }
 

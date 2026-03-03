@@ -214,7 +214,9 @@ import { forkJoin } from 'rxjs';
                     class="color-chip"
                     [class.selected]="isColorSelected(bicycle.farbe, c.value)"
                     [style.--chip-color]="c.hex"
-                    (click)="bicycle.farbe = toggleColor(bicycle.farbe, c.value)"
+                    (click)="
+                      bicycle.farbe = toggleColor(bicycle.farbe, c.value)
+                    "
                   >
                     <span class="chip-dot"></span>
                     {{ c.label }}
@@ -632,7 +634,7 @@ import { forkJoin } from 'rxjs';
         height: 12px;
         border-radius: 50%;
         background: var(--chip-color, #ccc);
-        border: 1px solid rgba(0,0,0,0.12);
+        border: 1px solid rgba(0, 0, 0, 0.12);
         flex-shrink: 0;
       }
       .bulk-quantity {
