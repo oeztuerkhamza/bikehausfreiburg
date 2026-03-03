@@ -1159,15 +1159,28 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   priceMin = signal<number | null>(null);
   priceMax = signal<number | null>(null);
 
+  // Known bike categories (whitelist) – anything NOT in this list goes to Zubehör
+  private static readonly BIKE_CATEGORIES = new Set([
+    'Damen-Fahrräder',
+    'Herren-Fahrräder',
+    'Kinder-Fahrräder',
+    'E-Bikes',
+    'Trekkingräder',
+    'Mountainbikes',
+    'Cityräder',
+    'Rennräder',
+    'Sonstige Fahrräder',
+  ]);
+
   // Computed: parsed values from all listings (filtered by mode)
   parsedListings = computed(() => {
     const accessoriesMode = this.isAccessoriesMode();
-    const ZUBEHOER_PATTERN = /zubeh/i;
     return this.allListings()
       .filter((listing) => {
-        const isZubehoer =
-          listing.category && ZUBEHOER_PATTERN.test(listing.category);
-        return accessoriesMode ? isZubehoer : !isZubehoer;
+        const isBike =
+          !!listing.category &&
+          ShowroomComponent.BIKE_CATEGORIES.has(listing.category);
+        return accessoriesMode ? !isBike : isBike;
       })
       .map((listing) => ({
         ...listing,
