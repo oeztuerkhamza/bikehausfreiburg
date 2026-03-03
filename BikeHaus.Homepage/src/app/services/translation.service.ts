@@ -104,6 +104,11 @@ export interface Translations {
   storyValue3Title: string;
   storyValue3Desc: string;
 
+  // Shop Gallery
+  galleryLabel: string;
+  galleryTitle: string;
+  gallerySub: string;
+
   // CTA
   ctaSectionTitle: string;
   ctaSectionSub: string;
@@ -379,6 +384,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     storyValue3Title: 'Handwerk',
     storyValue3Desc:
       'Mechanik trifft Leidenschaft. Jedes Rad wird mit Sorgfalt behandelt.',
+
+    galleryLabel: 'UNSER LADEN',
+    galleryTitle: 'Einblicke in unser Bike Haus.',
+    gallerySub: 'Schauen Sie sich unseren Laden in Freiburg an — hier warten Ihre nächsten Räder auf Sie.',
 
     ctaSectionTitle: 'Bereit für Ihr nächstes Abenteuer?',
     ctaSectionSub:
@@ -668,6 +677,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     storyValue3Desc:
       'La mécanique rencontre la passion. Chaque vélo est traité avec soin.',
 
+    galleryLabel: 'NOTRE BOUTIQUE',
+    galleryTitle: 'Aperçu de notre Bike Haus.',
+    gallerySub: 'Découvrez notre magasin à Fribourg — vos prochains vélos vous y attendent.',
+
     ctaSectionTitle: 'Prêt pour votre prochaine aventure ?',
     ctaSectionSub:
       'Visitez notre showroom ou parcourez notre sélection en ligne.',
@@ -955,6 +968,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     storyValue3Title: 'Zanaatkarlık',
     storyValue3Desc:
       'Mekanik tutku ile buluşur. Her bisiklet özenle ele alınır.',
+
+    galleryLabel: 'DÜKKAN',
+    galleryTitle: 'Bike Haus\'tan kareler.',
+    gallerySub: 'Freiburg\'daki dükkânımıza göz atın — bir sonraki bisikletiniz sizi burada bekliyor.',
 
     ctaSectionTitle: 'Bir sonraki maceranıza hazır mısınız?',
     ctaSectionSub:

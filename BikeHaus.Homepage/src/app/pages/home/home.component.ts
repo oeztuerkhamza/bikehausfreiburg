@@ -298,7 +298,56 @@ interface Testimonial {
       </div>
     </section>
 
-    <!-- ═══ Section 6 — TESTIMONIALS ═══ -->
+    <!-- ═══ Section 6 — SHOP GALLERY ═══ -->
+    <section class="section" aria-labelledby="gallery-heading">
+      <div class="container">
+        <span class="section-label fade-in">{{ t().galleryLabel }}</span>
+        <h2 id="gallery-heading" class="section-title fade-in d1">
+          {{ t().galleryTitle }}
+        </h2>
+        <p class="section-subtitle fade-in d2">{{ t().gallerySub }}</p>
+        <div class="gallery-grid fade-in d3">
+          <div
+            class="gallery-item"
+            *ngFor="let photo of shopPhotos; let i = index"
+            (click)="openLightbox(i)"
+          >
+            <img
+              [src]="photo"
+              [alt]="'Bike Haus Freiburg - Foto ' + (i + 1)"
+              loading="lazy"
+            />
+            <div class="gallery-overlay">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+                <path d="M11 8v6M8 11h6"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" *ngIf="lightboxOpen" (click)="closeLightbox()">
+      <button class="lightbox-close" (click)="closeLightbox()" aria-label="Close">&times;</button>
+      <button class="lightbox-nav lightbox-prev" (click)="prevPhoto($event)" aria-label="Previous">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <img
+        [src]="shopPhotos[lightboxIndex]"
+        [alt]="'Bike Haus Freiburg - Foto ' + (lightboxIndex + 1)"
+        class="lightbox-img"
+        (click)="$event.stopPropagation()"
+      />
+      <button class="lightbox-nav lightbox-next" (click)="nextPhoto($event)" aria-label="Next">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="lightbox-counter" (click)="$event.stopPropagation()">{{ lightboxIndex + 1 }} / {{ shopPhotos.length }}</div>
+    </div>
+
+    <!-- ═══ Section 7 — TESTIMONIALS ═══ -->
     <section
       class="testimonials-section"
       aria-labelledby="testimonials-heading"
@@ -818,6 +867,137 @@ interface Testimonial {
         margin: 0;
       }
 
+      /* ═══ SHOP GALLERY ═══ */
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 3rem;
+      }
+
+      .gallery-item {
+        position: relative;
+        border-radius: 14px;
+        overflow: hidden;
+        cursor: pointer;
+        aspect-ratio: 4 / 3;
+        border: 1px solid var(--color-border);
+      }
+
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+      }
+
+      .gallery-item:hover img {
+        transform: scale(1.06);
+      }
+
+      .gallery-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        color: #fff;
+      }
+
+      .gallery-item:hover .gallery-overlay {
+        opacity: 1;
+      }
+
+      /* ═══ LIGHTBOX ═══ */
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.92);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeInLightbox 0.25s ease;
+      }
+
+      @keyframes fadeInLightbox {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .lightbox-img {
+        max-width: 90vw;
+        max-height: 85vh;
+        border-radius: 12px;
+        object-fit: contain;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      }
+
+      .lightbox-close {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 2.5rem;
+        cursor: pointer;
+        line-height: 1;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+        z-index: 10;
+      }
+
+      .lightbox-close:hover {
+        opacity: 1;
+      }
+
+      .lightbox-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255,255,255,0.1);
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.7;
+        transition: opacity 0.2s, background 0.2s;
+        z-index: 10;
+      }
+
+      .lightbox-nav:hover {
+        opacity: 1;
+        background: rgba(255,255,255,0.2);
+      }
+
+      .lightbox-prev {
+        left: 1.5rem;
+      }
+
+      .lightbox-next {
+        right: 1.5rem;
+      }
+
+      .lightbox-counter {
+        position: absolute;
+        bottom: 1.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255,255,255,0.7);
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+
       /* ═══ TESTIMONIALS SECTION ═══ */
       .testimonials-section {
         padding: 6rem 0;
@@ -1146,6 +1326,9 @@ interface Testimonial {
         .skeleton-row {
           grid-template-columns: repeat(2, 1fr);
         }
+        .gallery-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
       }
 
       @media (max-width: 640px) {
@@ -1172,6 +1355,19 @@ interface Testimonial {
         .hero-stats {
           gap: 2rem;
         }
+        .gallery-grid {
+          grid-template-columns: 1fr;
+        }
+        .lightbox-nav {
+          width: 36px;
+          height: 36px;
+        }
+        .lightbox-prev {
+          left: 0.75rem;
+        }
+        .lightbox-next {
+          right: 0.75rem;
+        }
       }
     `,
   ],
@@ -1190,6 +1386,21 @@ export class HomeComponent implements OnInit {
   categories = signal<KleinanzeigenCategory[]>([]);
   shopInfo = signal<PublicShopInfo | null>(null);
   loading = signal(true);
+
+  // Shop gallery
+  shopPhotos: string[] = [
+    'assets/shop/shop-1.jpeg',
+    'assets/shop/shop-2.jpeg',
+    'assets/shop/shop-3.jpeg',
+    'assets/shop/shop-4.jpeg',
+    'assets/shop/shop-5.jpeg',
+    'assets/shop/shop-6.jpeg',
+    'assets/shop/shop-7.jpeg',
+    'assets/shop/shop-8.jpeg',
+    'assets/shop/shop-9.jpeg',
+  ];
+  lightboxOpen = false;
+  lightboxIndex = 0;
 
   // Testimonials for SEO and social proof
   testimonials: Testimonial[] = [
@@ -1343,5 +1554,25 @@ export class HomeComponent implements OnInit {
     this.apiService.getShopInfo().subscribe({
       next: (data) => this.shopInfo.set(data),
     });
+  }
+
+  openLightbox(index: number): void {
+    this.lightboxIndex = index;
+    this.lightboxOpen = true;
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen = false;
+  }
+
+  nextPhoto(event: Event): void {
+    event.stopPropagation();
+    this.lightboxIndex = (this.lightboxIndex + 1) % this.shopPhotos.length;
+  }
+
+  prevPhoto(event: Event): void {
+    event.stopPropagation();
+    this.lightboxIndex =
+      (this.lightboxIndex - 1 + this.shopPhotos.length) % this.shopPhotos.length;
   }
 }
