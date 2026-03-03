@@ -935,8 +935,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Misc
     searchNumber: 'Nr suchen',
-    firstNameRequired: 'Vorname *',
-    lastNameRequired: 'Nachname *',
+    firstNameRequired: 'Vorname',
+    lastNameRequired: 'Nachname',
 
     // Purchase Form/Edit
     condition: 'Zustand',
@@ -1519,8 +1519,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Misc
     searchNumber: 'No ara',
-    firstNameRequired: 'Ad *',
-    lastNameRequired: 'Soyad *',
+    firstNameRequired: 'Ad',
+    lastNameRequired: 'Soyad',
 
     // Purchase Form/Edit
     condition: 'Durum',

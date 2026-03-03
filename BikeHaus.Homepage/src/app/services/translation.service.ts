@@ -239,10 +239,7 @@ export interface Translations {
 
   // Showroom filters
   filterCondition: string;
-  filterType: string;
-  filterWomen: string;
-  filterMen: string;
-  filterKids: string;
+  filterCategory: string;
   filterTireSize: string;
   filterGears: string;
   gearsUnit: string;
@@ -508,10 +505,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Showroom filters
     filterCondition: 'Zustand',
-    filterType: 'Typ',
-    filterWomen: 'Damen',
-    filterMen: 'Herren',
-    filterKids: 'Kinder',
+    filterCategory: 'Kategorie',
     filterTireSize: 'Reifengröße (Zoll)',
     filterGears: 'Gänge',
     gearsUnit: 'Gänge',
@@ -781,10 +775,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Showroom filters
     filterCondition: 'État',
-    filterType: 'Type',
-    filterWomen: 'Femmes',
-    filterMen: 'Hommes',
-    filterKids: 'Enfants',
+    filterCategory: 'Catégorie',
     filterTireSize: 'Taille de pneu (pouces)',
     filterGears: 'Vitesses',
     gearsUnit: 'vitesses',
@@ -1051,10 +1042,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Showroom filters
     filterCondition: 'Durum',
-    filterType: 'Tür',
-    filterWomen: 'Kadın',
-    filterMen: 'Erkek',
-    filterKids: 'Çocuk',
+    filterCategory: 'Kategori',
     filterTireSize: 'Lastik Boyutu (inç)',
     filterGears: 'Vites',
     gearsUnit: 'Vites',

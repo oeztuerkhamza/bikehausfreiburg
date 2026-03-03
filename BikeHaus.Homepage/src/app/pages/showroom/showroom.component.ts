@@ -133,8 +133,8 @@ const TYP_PATTERN =
 
           <hr class="sidebar-divider" />
 
-          <!-- ══════ TYP (Damen/Herren/Kinder) ══════ -->
-          <div class="sidebar-section">
+          <!-- ══════ KATEGORIE ══════ -->
+          <div class="sidebar-section" *ngIf="availableCategories().length > 0">
             <h3 class="filter-heading">
               <svg
                 width="16"
@@ -144,52 +144,24 @@ const TYP_PATTERN =
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 00-3-3.87" />
-                <path d="M16 3.13a4 4 0 010 7.75" />
+                <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
               </svg>
-              {{ t().filterType }}
+              {{ t().filterCategory }}
             </h3>
             <div class="checkbox-group">
               <label
                 class="checkbox-item"
-                [class.active]="selectedTyp() === 'damen'"
+                *ngFor="let cat of availableCategories()"
+                [class.active]="selectedCategory() === cat.name"
               >
                 <input
                   type="checkbox"
-                  [checked]="selectedTyp() === 'damen'"
-                  (change)="toggleTyp('damen')"
+                  [checked]="selectedCategory() === cat.name"
+                  (change)="toggleCategory(cat.name)"
                 />
                 <span class="check-box"></span>
-                <span>{{ t().filterWomen }}</span>
-                <span class="filter-count">{{ typCounts().damen }}</span>
-              </label>
-              <label
-                class="checkbox-item"
-                [class.active]="selectedTyp() === 'herren'"
-              >
-                <input
-                  type="checkbox"
-                  [checked]="selectedTyp() === 'herren'"
-                  (change)="toggleTyp('herren')"
-                />
-                <span class="check-box"></span>
-                <span>{{ t().filterMen }}</span>
-                <span class="filter-count">{{ typCounts().herren }}</span>
-              </label>
-              <label
-                class="checkbox-item"
-                [class.active]="selectedTyp() === 'kinder'"
-              >
-                <input
-                  type="checkbox"
-                  [checked]="selectedTyp() === 'kinder'"
-                  (change)="toggleTyp('kinder')"
-                />
-                <span class="check-box"></span>
-                <span>{{ t().filterKids }}</span>
-                <span class="filter-count">{{ typCounts().kinder }}</span>
+                <span>{{ cat.name }}</span>
+                <span class="filter-count">{{ cat.count }}</span>
               </label>
             </div>
           </div>
@@ -412,15 +384,9 @@ const TYP_PATTERN =
                   ×
                 </button>
               </span>
-              <span class="active-pill" *ngIf="selectedTyp()">
-                {{
-                  selectedTyp() === 'damen'
-                    ? t().filterWomen
-                    : selectedTyp() === 'herren'
-                      ? t().filterMen
-                      : t().filterKids
-                }}
-                <button class="pill-close" (click)="toggleTyp(selectedTyp()!)">
+              <span class="active-pill" *ngIf="selectedCategory()">
+                {{ selectedCategory() }}
+                <button class="pill-close" (click)="toggleCategory(selectedCategory()!)">
                   ×
                 </button>
               </span>
@@ -1175,7 +1141,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   searchQuery = signal<string>('');
   sortOption = signal<SortOption>('newest');
   selectedZustand = signal<'neu' | 'gebraucht' | null>(null);
-  selectedTyp = signal<'damen' | 'herren' | 'kinder' | null>(null);
+  selectedCategory = signal<string | null>(null);
   selectedZoll = signal<string[]>([]);
   selectedGears = signal<number[]>([]);
   selectedSizes = signal<string[]>([]);
@@ -1245,16 +1211,19 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     return { neu, gebraucht };
   });
 
-  typCounts = computed(() => {
-    let damen = 0,
-      herren = 0,
-      kinder = 0;
-    this.parsedListings().forEach((l) => {
-      if (l.parsedTyp === 'damen') damen++;
-      else if (l.parsedTyp === 'herren') herren++;
-      else if (l.parsedTyp === 'kinder') kinder++;
+  // Available categories (dynamically computed from data)
+  availableCategories = computed(() => {
+    const counts = new Map<string, number>();
+    const hiddenPattern = /kleinanzeigen|freiburg/i;
+    this.allListings().forEach((l) => {
+      if (l.category && !hiddenPattern.test(l.category)) {
+        counts.set(l.category, (counts.get(l.category) || 0) + 1);
+      }
     });
-    return { damen, herren, kinder };
+    // Sort by count descending
+    return Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
   });
 
   // Filtered results
@@ -1262,7 +1231,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     let result = this.parsedListings();
     const query = this.searchQuery().toLowerCase().trim();
     const zustand = this.selectedZustand();
-    const typ = this.selectedTyp();
+    const category = this.selectedCategory();
     const zollFilters = this.selectedZoll();
     const gearsFilters = this.selectedGears();
     const sizeFilters = this.selectedSizes();
@@ -1285,9 +1254,9 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       result = result.filter((l) => !l.isNew);
     }
 
-    // Typ filter (Damen/Herren/Kinder)
-    if (typ) {
-      result = result.filter((l) => l.parsedTyp === typ);
+    // Category filter
+    if (category) {
+      result = result.filter((l) => l.category === category);
     }
 
     // Zoll filter
@@ -1350,7 +1319,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     () =>
       !!this.searchQuery() ||
       this.selectedZustand() !== null ||
-      this.selectedTyp() !== null ||
+      this.selectedCategory() !== null ||
       this.selectedZoll().length > 0 ||
       this.selectedGears().length > 0 ||
       this.selectedSizes().length > 0 ||
@@ -1362,7 +1331,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     let count = 0;
     if (this.searchQuery()) count++;
     if (this.selectedZustand()) count++;
-    if (this.selectedTyp()) count++;
+    if (this.selectedCategory()) count++;
     count += this.selectedZoll().length;
     count += this.selectedGears().length;
     count += this.selectedSizes().length;
@@ -1535,11 +1504,11 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleTyp(value: 'damen' | 'herren' | 'kinder'): void {
-    if (this.selectedTyp() === value) {
-      this.selectedTyp.set(null);
+  toggleCategory(value: string): void {
+    if (this.selectedCategory() === value) {
+      this.selectedCategory.set(null);
     } else {
-      this.selectedTyp.set(value);
+      this.selectedCategory.set(value);
     }
   }
 
@@ -1588,7 +1557,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   clearFilters(): void {
     this.searchQuery.set('');
     this.selectedZustand.set(null);
-    this.selectedTyp.set(null);
+    this.selectedCategory.set(null);
     this.selectedZoll.set([]);
     this.selectedGears.set([]);
     this.selectedSizes.set([]);
