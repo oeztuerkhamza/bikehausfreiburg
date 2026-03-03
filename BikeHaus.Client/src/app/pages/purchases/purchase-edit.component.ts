@@ -120,6 +120,7 @@ import { forkJoin } from 'rxjs';
                   [(ngModel)]="bicycle.rahmennummer"
                   name="bikeRahmen"
                   required
+                  style="text-transform: uppercase"
                 />
               </div>
               <div class="field">
@@ -629,15 +630,15 @@ export class PurchaseEditComponent implements OnInit {
 
   isColorSelected(farbe: string, color: string): boolean {
     if (!farbe) return false;
-    return farbe.split(', ').includes(color);
+    return farbe.split(/[,\/]\s*/).includes(color);
   }
 
   toggleColor(farbe: string, color: string): string {
-    const colors = farbe ? farbe.split(', ').filter(Boolean) : [];
+    const colors = farbe ? farbe.split(/[,\/]\s*/).filter(Boolean) : [];
     const idx = colors.indexOf(color);
     if (idx >= 0) colors.splice(idx, 1);
     else colors.push(color);
-    return colors.join(', ');
+    return colors.join('/');
   }
 
   purchase: Purchase | null = null;

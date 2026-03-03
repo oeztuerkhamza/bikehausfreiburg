@@ -222,7 +222,7 @@ import {
           <div class="bike-info-grid">
             <div class="info-item" *ngIf="selectedHistory()!.rahmennummer">
               <span class="info-label">{{ t.frameNumber }}</span>
-              <span class="info-value">{{
+              <span class="info-value" style="text-transform: uppercase">{{
                 selectedHistory()!.rahmennummer
               }}</span>
             </div>

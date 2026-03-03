@@ -38,7 +38,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
           <p class="bike-info">
             {{ reservation.bicycle.marke }} {{ reservation.bicycle.modell }}
           </p>
-          <p class="detail">
+          <p class="detail" style="text-transform: uppercase">
             {{ t.frameNumber }}: {{ reservation.bicycle.rahmennummer }}
           </p>
           <p class="detail">{{ t.color }}: {{ reservation.bicycle.farbe }}</p>

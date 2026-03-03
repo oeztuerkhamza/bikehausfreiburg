@@ -47,7 +47,7 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="info-row">
                 <span class="label">{{ t.frameNumber }}:</span>
-                <span>{{ sale.bicycle.rahmennummer }}</span>
+                <span style="text-transform: uppercase">{{ sale.bicycle.rahmennummer }}</span>
               </div>
               <div class="info-row">
                 <span class="label">{{ t.color }}:</span>
