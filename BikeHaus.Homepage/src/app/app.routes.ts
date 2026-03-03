@@ -40,6 +40,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'zubehoer',
+        loadComponent: () =>
+          import('./pages/showroom/showroom.component').then(
+            (m) => m.ShowroomComponent,
+          ),
+        data: { mode: 'zubehoer' },
+      },
+      {
         path: 'about',
         loadComponent: () =>
           import('./pages/about/about.component').then((m) => m.AboutComponent),

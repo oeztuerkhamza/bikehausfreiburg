@@ -34,7 +34,7 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Marke).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Modell).HasMaxLength(100);
             entity.Property(e => e.Rahmennummer).HasMaxLength(50);
-            entity.Property(e => e.Farbe).HasMaxLength(50);
+            entity.Property(e => e.Farbe).HasMaxLength(150);
             entity.Property(e => e.Reifengroesse).IsRequired().HasMaxLength(20);
             entity.Property(e => e.Beschreibung).HasMaxLength(500);
             entity.HasIndex(e => e.Rahmennummer);

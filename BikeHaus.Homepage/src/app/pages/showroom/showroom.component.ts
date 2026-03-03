@@ -35,10 +35,10 @@ const TYP_PATTERN =
       <!-- Header -->
       <header class="page-header">
         <div class="container">
-          <span class="section-label">{{ t().showroomLabel }}</span>
-          <h1>{{ t().showroomTitle }}</h1>
+          <span class="section-label">{{ isAccessoriesMode() ? t().accessories : t().showroomLabel }}</span>
+          <h1>{{ isAccessoriesMode() ? t().accessoriesTitle : t().showroomTitle }}</h1>
           <p class="header-sub" *ngIf="!loading()">
-            {{ filteredListings().length }} {{ t().bikesAvailable }}
+            {{ filteredListings().length }} {{ isAccessoriesMode() ? t().accessoriesSub : t().bikesAvailable }}
           </p>
         </div>
       </header>
@@ -160,7 +160,7 @@ const TYP_PATTERN =
                   (change)="toggleCategory(cat.name)"
                 />
                 <span class="check-box"></span>
-                <span>{{ cat.name }}</span>
+                <span>{{ translateCategory(cat.name) }}</span>
                 <span class="filter-count">{{ cat.count }}</span>
               </label>
             </div>
@@ -385,7 +385,7 @@ const TYP_PATTERN =
                 </button>
               </span>
               <span class="active-pill" *ngIf="selectedCategory()">
-                {{ selectedCategory() }}
+                {{ translateCategory(selectedCategory()!) }}
                 <button
                   class="pill-close"
                   (click)="toggleCategory(selectedCategory()!)"
@@ -1131,6 +1131,9 @@ export class ShowroomComponent implements OnInit, OnDestroy {
 
   t = this.translationService.translations;
 
+  // Mode: 'bikes' (default showroom) or 'zubehoer' (accessories only)
+  isAccessoriesMode = signal(false);
+
   // Data
   allListings = signal<KleinanzeigenListing[]>([]);
   loading = signal(true);
@@ -1151,16 +1154,23 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   priceMin = signal<number | null>(null);
   priceMax = signal<number | null>(null);
 
-  // Computed: parsed values from all listings
+  // Computed: parsed values from all listings (filtered by mode)
   parsedListings = computed(() => {
-    return this.allListings().map((listing) => ({
-      ...listing,
-      parsedZoll: this.parseZoll(listing.title),
-      parsedGears: this.parseGears(listing.title),
-      parsedSize: this.parseSize(listing.title),
-      parsedTyp: this.parseTyp(listing.title),
-      isNew: this.isNew(listing.title),
-    }));
+    const accessoriesMode = this.isAccessoriesMode();
+    const ZUBEHOER_PATTERN = /zubeh/i;
+    return this.allListings()
+      .filter((listing) => {
+        const isZubehoer = listing.category && ZUBEHOER_PATTERN.test(listing.category);
+        return accessoriesMode ? isZubehoer : !isZubehoer;
+      })
+      .map((listing) => ({
+        ...listing,
+        parsedZoll: this.parseZoll(listing.title),
+        parsedGears: this.parseGears(listing.title),
+        parsedSize: this.parseSize(listing.title),
+        parsedTyp: this.parseTyp(listing.title),
+        isNew: this.isNew(listing.title),
+      }));
   });
 
   // Available filter options (dynamically computed from data)
@@ -1342,25 +1352,50 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     return count;
   });
 
+  // Translate category name
+  translateCategory(category: string): string {
+    const t = this.t();
+    const map: Record<string, string> = {
+      'Damen-Fahrr\u00e4der': t.catDamen,
+      'Herren-Fahrr\u00e4der': t.catHerren,
+      'Kinder-Fahrr\u00e4der': t.catKinder,
+      'Zubeh\u00f6r': t.catZubehoer,
+      'E-Bikes': t.catEBike,
+      'Trekkingr\u00e4der': t.catTrekking,
+      'Mountainbikes': t.catMountain,
+      'Cityr\u00e4der': t.catCity,
+      'Rennr\u00e4der': t.catRennrad,
+      'Sonstige Fahrr\u00e4der': t.catSonstige,
+    };
+    return map[category] || category;
+  }
+
   ngOnInit(): void {
+    // Check route data for accessories mode
+    const routeData = this.route.snapshot.data;
+    if (routeData && routeData['mode'] === 'zubehoer') {
+      this.isAccessoriesMode.set(true);
+    }
+
     // SEO
-    this.titleService.setTitle(this.t().showroomMetaTitle);
-    this.metaService.updateTag({
-      name: 'description',
-      content: this.t().showroomMetaDescription,
-    });
-    this.metaService.updateTag({
-      property: 'og:title',
-      content: this.t().showroomMetaTitle,
-    });
+    const metaTitle = this.isAccessoriesMode()
+      ? this.t().accessoriesMetaTitle
+      : this.t().showroomMetaTitle;
+    const metaDesc = this.isAccessoriesMode()
+      ? this.t().accessoriesMetaDescription
+      : this.t().showroomMetaDescription;
+    const ogUrl = this.isAccessoriesMode()
+      ? 'https://bikehausfreiburg.com/zubehoer'
+      : 'https://bikehausfreiburg.com/showroom';
+
+    this.titleService.setTitle(metaTitle);
+    this.metaService.updateTag({ name: 'description', content: metaDesc });
+    this.metaService.updateTag({ property: 'og:title', content: metaTitle });
     this.metaService.updateTag({
       property: 'og:description',
-      content: this.t().showroomMetaDescription,
+      content: metaDesc,
     });
-    this.metaService.updateTag({
-      property: 'og:url',
-      content: 'https://bikehausfreiburg.com/showroom',
-    });
+    this.metaService.updateTag({ property: 'og:url', content: ogUrl });
 
     this.loadData();
   }

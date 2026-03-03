@@ -10,6 +10,7 @@ export interface Translations {
   // Nav
   home: string;
   showroom: string;
+  accessories: string;
   about: string;
   contact: string;
 
@@ -257,6 +258,24 @@ export interface Translations {
 
   // Bike card
   bikeAltSuffix: string;
+
+  // Category translations
+  catDamen: string;
+  catHerren: string;
+  catKinder: string;
+  catZubehoer: string;
+  catEBike: string;
+  catTrekking: string;
+  catMountain: string;
+  catCity: string;
+  catRennrad: string;
+  catSonstige: string;
+
+  // Accessories page
+  accessoriesMetaTitle: string;
+  accessoriesMetaDescription: string;
+  accessoriesTitle: string;
+  accessoriesSub: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -267,6 +286,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     home: 'Start',
     showroom: 'Showroom',
+    accessories: 'Zubehör',
     about: 'Über uns',
     contact: 'Kontakt',
 
@@ -525,6 +545,24 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Bike card
     bikeAltSuffix: ' — Fahrrad bei Bike Haus Freiburg',
+
+    // Category translations
+    catDamen: 'Damen-Fahrräder',
+    catHerren: 'Herren-Fahrräder',
+    catKinder: 'Kinder-Fahrräder',
+    catZubehoer: 'Zubehör',
+    catEBike: 'E-Bikes',
+    catTrekking: 'Trekkingräder',
+    catMountain: 'Mountainbikes',
+    catCity: 'Cityräder',
+    catRennrad: 'Rennräder',
+    catSonstige: 'Sonstige Fahrräder',
+
+    // Accessories page
+    accessoriesMetaTitle: 'Zubehör — Bike Haus Freiburg',
+    accessoriesMetaDescription: 'Fahrradzubehör bei Bike Haus Freiburg. Taschen, Helme, Schlösser und mehr.',
+    accessoriesTitle: 'Zubehör',
+    accessoriesSub: 'Taschen, Helme, Schlösser und mehr für Ihr Fahrrad.',
   },
 
   fr: {
@@ -534,6 +572,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     home: 'Accueil',
     showroom: 'Showroom',
+    accessories: 'Accessoires',
     about: 'À propos',
     contact: 'Contact',
 
@@ -795,6 +834,24 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Bike card
     bikeAltSuffix: ' — Vélo chez Bike Haus Freiburg',
+
+    // Category translations
+    catDamen: 'Vélos femmes',
+    catHerren: 'Vélos hommes',
+    catKinder: 'Vélos enfants',
+    catZubehoer: 'Accessoires',
+    catEBike: 'Vélos électriques',
+    catTrekking: 'Vélos trekking',
+    catMountain: 'VTT',
+    catCity: 'Vélos de ville',
+    catRennrad: 'Vélos de course',
+    catSonstige: 'Autres vélos',
+
+    // Accessories page
+    accessoriesMetaTitle: 'Accessoires — Bike Haus Freiburg',
+    accessoriesMetaDescription: 'Accessoires vélo chez Bike Haus Freiburg. Sacoches, casques, antivols et plus.',
+    accessoriesTitle: 'Accessoires',
+    accessoriesSub: 'Sacoches, casques, antivols et plus pour votre vélo.',
   },
 
   tr: {
@@ -804,6 +861,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     home: 'Ana Sayfa',
     showroom: 'Showroom',
+    accessories: 'Aksesuar',
     about: 'Hakkımızda',
     contact: 'İletişim',
 
@@ -1062,6 +1120,24 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Bike card
     bikeAltSuffix: " — Bike Haus Freiburg'da Bisiklet",
+
+    // Category translations
+    catDamen: 'Kadın Bisikletleri',
+    catHerren: 'Erkek Bisikletleri',
+    catKinder: 'Çocuk Bisikletleri',
+    catZubehoer: 'Aksesuar',
+    catEBike: 'Elektrikli Bisikletler',
+    catTrekking: 'Trekking Bisikletleri',
+    catMountain: 'Dağ Bisikletleri',
+    catCity: 'Şehir Bisikletleri',
+    catRennrad: 'Yarış Bisikletleri',
+    catSonstige: 'Diğer Bisikletler',
+
+    // Accessories page
+    accessoriesMetaTitle: 'Aksesuar — Bike Haus Freiburg',
+    accessoriesMetaDescription: "Bike Haus Freiburg'da bisiklet aksesuarları. Çanta, kask, kilit ve daha fazlası.",
+    accessoriesTitle: 'Aksesuar',
+    accessoriesSub: 'Bisikletiniz için çanta, kask, kilit ve daha fazlası.',
   },
 };
 

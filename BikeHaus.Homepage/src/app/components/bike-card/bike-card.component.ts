@@ -339,7 +339,24 @@ export class BikeCardComponent {
   get displayCategory(): string | null {
     const cat = this.listing.category;
     if (!cat || BikeCardComponent.HIDDEN_CAT.test(cat)) return null;
-    return cat;
+    return this.translateCategory(cat);
+  }
+
+  private translateCategory(category: string): string {
+    const t = this.t();
+    const map: Record<string, string> = {
+      'Damen-Fahrr\u00e4der': t.catDamen,
+      'Herren-Fahrr\u00e4der': t.catHerren,
+      'Kinder-Fahrr\u00e4der': t.catKinder,
+      'Zubeh\u00f6r': t.catZubehoer,
+      'E-Bikes': t.catEBike,
+      'Trekkingr\u00e4der': t.catTrekking,
+      'Mountainbikes': t.catMountain,
+      'Cityr\u00e4der': t.catCity,
+      'Rennr\u00e4der': t.catRennrad,
+      'Sonstige Fahrr\u00e4der': t.catSonstige,
+    };
+    return map[category] || category;
   }
 
   onImageError(event: Event): void {
