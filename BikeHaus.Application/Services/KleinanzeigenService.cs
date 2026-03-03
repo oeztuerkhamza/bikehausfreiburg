@@ -222,113 +222,30 @@ public class KleinanzeigenService : IKleinanzeigenService
     }
 
     /// <summary>
-    /// Fix categories for existing listings based on title analysis
+    /// Categories are now only set from Kleinanzeigen "Art" attribute during scraping.
+    /// To fix categories, a full re-sync is required.
     /// </summary>
     public async Task<int> FixCategoriesAsync()
     {
-        var listings = await _listingRepository.GetAllActiveAsync();
-        int updatedCount = 0;
-
-        foreach (var listing in listings)
-        {
-            var oldCategory = listing.Category;
-            var newCategory = DetectCategoryFromTitle(listing.Title);
-
-            // Update if: new category detected AND (old category is invalid OR different)
-            var isInvalidCategory = string.IsNullOrEmpty(oldCategory) ||
-                                    oldCategory.Contains("Kleinanzeigen") ||
-                                    oldCategory.Contains("Freiburg") ||
-                                    oldCategory.Contains("Baden") ||
-                                    oldCategory.Contains("Breisgau");
-
-            if (!string.IsNullOrEmpty(newCategory) && (isInvalidCategory || newCategory != oldCategory))
-            {
-                listing.Category = newCategory;
-                listing.UpdatedAt = DateTime.UtcNow;
-                await _listingRepository.UpdateAsync(listing);
-                updatedCount++;
-                _logger.LogInformation("Fixed category: {Title} -> {Category} (was: {OldCategory})",
-                    listing.Title, newCategory, oldCategory ?? "null");
-            }
-        }
-
-        _logger.LogInformation("Fixed categories for {Count} listings", updatedCount);
-        return updatedCount;
+        _logger.LogWarning("FixCategories is deprecated. Categories are now set from Kleinanzeigen 'Art' attribute during scraping. Please use full re-sync to update categories.");
+        await Task.CompletedTask;
+        return 0;
     }
 
-    private static string? DetectCategoryFromTitle(string title)
+    /// <summary>
+    /// Delete all Kleinanzeigen listings. Use this before a full re-sync to get fresh data with correct categories.
+    /// </summary>
+    public async Task<int> DeleteAllListingsAsync()
     {
-        var lowerTitle = title.ToLower();
-
-        // Accessories/Zubehör detection first (most specific)
-        if (lowerTitle.Contains("tasche") || lowerTitle.Contains("korb") ||
-            lowerTitle.Contains("helm") || lowerTitle.Contains("ständer") ||
-            lowerTitle.Contains("gepäckträger") || lowerTitle.Contains("gepäck") ||
-            lowerTitle.Contains("schloss") || lowerTitle.Contains("licht") ||
-            lowerTitle.Contains("pumpe") || lowerTitle.Contains("zubehör") ||
-            lowerTitle.Contains("ersatzteil") || lowerTitle.Contains("sattel") ||
-            lowerTitle.Contains("lenker") || lowerTitle.Contains("reifen") ||
-            lowerTitle.Contains("schlauch") || lowerTitle.Contains("kette") ||
-            lowerTitle.Contains("bremse") || lowerTitle.Contains("pedal"))
-            return "Zubehör";
-
-        if (lowerTitle.Contains("e-bike") || lowerTitle.Contains("ebike") ||
-            lowerTitle.Contains("pedelec") || lowerTitle.Contains("elektro"))
-            return "E-Bikes";
-
-        if (lowerTitle.Contains("kinder") || lowerTitle.Contains("kind ") ||
-            lowerTitle.Contains("junge") || lowerTitle.Contains("mädchen") ||
-            lowerTitle.Contains("jugend") || lowerTitle.Contains("12 zoll") ||
-            lowerTitle.Contains("14 zoll") || lowerTitle.Contains("16 zoll") ||
-            lowerTitle.Contains("18 zoll") || lowerTitle.Contains("20 zoll") ||
-            lowerTitle.Contains("24 zoll"))
-            return "Kinder-Fahrräder";
-
-        if (lowerTitle.Contains("damen") || lowerTitle.Contains("frau") ||
-            lowerTitle.Contains("frauen") || lowerTitle.Contains("tiefeinsteiger"))
-            return "Damen-Fahrräder";
-
-        if (lowerTitle.Contains("herren") || lowerTitle.Contains("männer") ||
-            lowerTitle.Contains("mann ") || lowerTitle.Contains("28 zoll") ||
-            lowerTitle.Contains("29 zoll") || lowerTitle.Contains("27,5") ||
-            lowerTitle.Contains("27.5") || lowerTitle.Contains("27. 5"))
-            return "Herren-Fahrräder";
-
-        if (lowerTitle.Contains("trekking"))
-            return "Trekkingräder";
-
-        if (lowerTitle.Contains("mountain") || lowerTitle.Contains("mtb") ||
-            lowerTitle.Contains("fully") || lowerTitle.Contains("hardtail"))
-            return "Mountainbikes";
-
-        if (lowerTitle.Contains("city") || lowerTitle.Contains("stadt"))
-            return "Cityräder";
-
-        if (lowerTitle.Contains("rennrad") || lowerTitle.Contains("renn ") ||
-            lowerTitle.Contains("renner"))
-            return "Rennräder";
-
-        if (lowerTitle.Contains("bmx"))
-            return "BMX";
-
-        if (lowerTitle.Contains("holland") || lowerTitle.Contains("hollandrad"))
-            return "Hollandräder";
-
-        if (lowerTitle.Contains("cruiser"))
-            return "Cruiser";
-
-        if (lowerTitle.Contains("klapp") || lowerTitle.Contains("falt"))
-            return "Klappräder";
-
-        // Default based on wheel size (common in titles)
-        if (lowerTitle.Contains("26 zoll"))
-            return "Herren-Fahrräder"; // 26" is typically adult unisex/herren
-
-        // If title contains "Fahrrad" but no size info, mark as general
-        if (lowerTitle.Contains("fahrrad") && !lowerTitle.Contains("zoll"))
-            return "Sonstige Fahrräder";
-
-        return null;
+        var listings = await _listingRepository.GetAllAsync();
+        var count = 0;
+        foreach (var listing in listings)
+        {
+            await _listingRepository.DeleteAsync(listing.Id);
+            count++;
+        }
+        _logger.LogInformation("Deleted {Count} Kleinanzeigen listings", count);
+        return count;
     }
 
     private static KleinanzeigenListingDto MapToDto(KleinanzeigenListing listing)

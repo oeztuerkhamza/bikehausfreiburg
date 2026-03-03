@@ -83,4 +83,26 @@ public class KleinanzeigenController : ControllerBase
         var updatedCount = await _kleinanzeigenService.FixCategoriesAsync();
         return Ok(new { updated = updatedCount, message = $"Fixed categories for {updatedCount} listings" });
     }
+
+    /// <summary>
+    /// Force full re-sync by deleting all existing listings and triggering a new sync.
+    /// This ensures all categories are fetched fresh from Kleinanzeigen "Art" attribute.
+    /// </summary>
+    [HttpPost("force-resync")]
+    public async Task<IActionResult> ForceResync()
+    {
+        // First delete all existing listings
+        var deletedCount = await _kleinanzeigenService.DeleteAllListingsAsync();
+
+        // Then trigger a new sync
+        var started = _syncCoordinator.TriggerSync();
+
+        return Ok(new
+        {
+            deleted = deletedCount,
+            syncing = true,
+            started,
+            message = $"Deleted {deletedCount} listings and started fresh sync"
+        });
+    }
 }

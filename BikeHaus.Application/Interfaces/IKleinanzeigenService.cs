@@ -12,4 +12,5 @@ public interface IKleinanzeigenService
     Task<PublicShopInfoDto?> GetPublicShopInfoAsync();
     Task<KleinanzeigenSyncResultDto> TriggerSyncAsync(CancellationToken cancellationToken = default);
     Task<int> FixCategoriesAsync();
+    Task<int> DeleteAllListingsAsync();
 }
