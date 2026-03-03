@@ -541,9 +541,9 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
     private static string? DetectCategoryFromTitle(string title)
     {
         if (string.IsNullOrEmpty(title)) return null;
-        
+
         var titleLower = title.ToLower();
-        
+
         if (titleLower.Contains("damen") || titleLower.Contains("frau"))
             return "Damen-Fahrräder";
         if (titleLower.Contains("herren") || titleLower.Contains("mann") || titleLower.Contains("männer"))
@@ -568,7 +568,7 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             return "Cruiser";
         if (titleLower.Contains("zubehör") || titleLower.Contains("ersatzteil") || titleLower.Contains("teil"))
             return "Zubehör";
-            
+
         return null;
     }
 
