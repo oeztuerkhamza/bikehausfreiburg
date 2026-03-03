@@ -35,10 +35,15 @@ const TYP_PATTERN =
       <!-- Header -->
       <header class="page-header">
         <div class="container">
-          <span class="section-label">{{ isAccessoriesMode() ? t().accessories : t().showroomLabel }}</span>
-          <h1>{{ isAccessoriesMode() ? t().accessoriesTitle : t().showroomTitle }}</h1>
+          <span class="section-label">{{
+            isAccessoriesMode() ? t().accessories : t().showroomLabel
+          }}</span>
+          <h1>
+            {{ isAccessoriesMode() ? t().accessoriesTitle : t().showroomTitle }}
+          </h1>
           <p class="header-sub" *ngIf="!loading()">
-            {{ filteredListings().length }} {{ isAccessoriesMode() ? t().accessoriesSub : t().bikesAvailable }}
+            {{ filteredListings().length }}
+            {{ isAccessoriesMode() ? t().accessoriesSub : t().bikesAvailable }}
           </p>
         </div>
       </header>
@@ -1160,7 +1165,8 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     const ZUBEHOER_PATTERN = /zubeh/i;
     return this.allListings()
       .filter((listing) => {
-        const isZubehoer = listing.category && ZUBEHOER_PATTERN.test(listing.category);
+        const isZubehoer =
+          listing.category && ZUBEHOER_PATTERN.test(listing.category);
         return accessoriesMode ? isZubehoer : !isZubehoer;
       })
       .map((listing) => ({
@@ -1362,7 +1368,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       'Zubeh\u00f6r': t.catZubehoer,
       'E-Bikes': t.catEBike,
       'Trekkingr\u00e4der': t.catTrekking,
-      'Mountainbikes': t.catMountain,
+      Mountainbikes: t.catMountain,
       'Cityr\u00e4der': t.catCity,
       'Rennr\u00e4der': t.catRennrad,
       'Sonstige Fahrr\u00e4der': t.catSonstige,

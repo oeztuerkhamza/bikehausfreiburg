@@ -351,7 +351,7 @@ export class BikeCardComponent {
       'Zubeh\u00f6r': t.catZubehoer,
       'E-Bikes': t.catEBike,
       'Trekkingr\u00e4der': t.catTrekking,
-      'Mountainbikes': t.catMountain,
+      Mountainbikes: t.catMountain,
       'Cityr\u00e4der': t.catCity,
       'Rennr\u00e4der': t.catRennrad,
       'Sonstige Fahrr\u00e4der': t.catSonstige,

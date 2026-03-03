@@ -560,7 +560,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Accessories page
     accessoriesMetaTitle: 'Zubehör — Bike Haus Freiburg',
-    accessoriesMetaDescription: 'Fahrradzubehör bei Bike Haus Freiburg. Taschen, Helme, Schlösser und mehr.',
+    accessoriesMetaDescription:
+      'Fahrradzubehör bei Bike Haus Freiburg. Taschen, Helme, Schlösser und mehr.',
     accessoriesTitle: 'Zubehör',
     accessoriesSub: 'Taschen, Helme, Schlösser und mehr für Ihr Fahrrad.',
   },
@@ -849,7 +850,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Accessories page
     accessoriesMetaTitle: 'Accessoires — Bike Haus Freiburg',
-    accessoriesMetaDescription: 'Accessoires vélo chez Bike Haus Freiburg. Sacoches, casques, antivols et plus.',
+    accessoriesMetaDescription:
+      'Accessoires vélo chez Bike Haus Freiburg. Sacoches, casques, antivols et plus.',
     accessoriesTitle: 'Accessoires',
     accessoriesSub: 'Sacoches, casques, antivols et plus pour votre vélo.',
   },
@@ -1135,7 +1137,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Accessories page
     accessoriesMetaTitle: 'Aksesuar — Bike Haus Freiburg',
-    accessoriesMetaDescription: "Bike Haus Freiburg'da bisiklet aksesuarları. Çanta, kask, kilit ve daha fazlası.",
+    accessoriesMetaDescription:
+      "Bike Haus Freiburg'da bisiklet aksesuarları. Çanta, kask, kilit ve daha fazlası.",
     accessoriesTitle: 'Aksesuar',
     accessoriesSub: 'Bisikletiniz için çanta, kask, kilit ve daha fazlası.',
   },
