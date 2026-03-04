@@ -1141,8 +1141,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       }
     }
 
-    // ── 10. Upload Photos ──
-    uploadPhotosToForm();
+    // Photos are now handled via drag & drop from the panel
 
     return filled;
   }
@@ -1173,7 +1172,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     const panel = document.createElement('div');
     panel.id = 'bikehaus-ka-panel';
 
-    // ── Images section ──
+    // ── Images section (draggable photos) ──
     let imagesHtml = '';
     if (pendingBike.images && pendingBike.images.length > 0) {
       const imageItems = pendingBike.images
@@ -1182,8 +1181,9 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
             ? `${pendingBike.apiBaseUrl}/public/gallery-image/${img.filePath}`
             : img.filePath;
           return `
-          <div class="bk-img-item">
-            <img src="${imgUrl}" alt="Foto ${i + 1}" crossorigin="anonymous" />
+          <div class="bk-img-item bk-draggable-photo" draggable="true" data-img-index="${i}" data-img-url="${imgUrl}" data-filename="fahrrad_${pendingBike.id}_${i + 1}.jpg" title="Foto ${i + 1} – In den Upload-Bereich ziehen">
+            <img src="${imgUrl}" alt="Foto ${i + 1}" crossorigin="anonymous" draggable="false" />
+            <div class="bk-drag-badge">${i + 1}</div>
             <a href="${imgUrl}" download="fahrrad_${pendingBike.id}_${i + 1}.jpg" 
                class="bk-img-download" title="Herunterladen">⬇</a>
           </div>
@@ -1193,11 +1193,13 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
       imagesHtml = `
         <div class="bk-section">
-          <div class="bk-section-title">📸 Fotos (${pendingBike.images.length})</div>
-          <div class="bk-images-grid">${imageItems}</div>
-          <button id="bk-download-all" class="bk-btn bk-btn-secondary">
-            ⬇ Alle herunterladen
-          </button>
+          <div class="bk-section-title">📸 Fotos (${pendingBike.images.length}) – Zum Upload-Bereich ziehen</div>
+          <div class="bk-images-grid bk-draggable-grid">${imageItems}</div>
+          <div class="bk-drag-hint">↕ Fotos einzeln oder alle auf einmal in den Upload-Bereich ziehen</div>
+          <div class="bk-photo-actions">
+            <button id="bk-select-all-photos" class="bk-btn bk-btn-secondary bk-btn-sm">☑ Alle auswählen</button>
+            <button id="bk-download-all" class="bk-btn bk-btn-secondary bk-btn-sm">⬇ Alle herunterladen</button>
+          </div>
         </div>
       `;
     }
@@ -1243,9 +1245,6 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
         <div class="bk-actions">
           <button id="bk-fill-form" class="bk-btn bk-btn-primary">
             ✨ Formular ausfüllen
-          </button>
-          <button id="bk-upload-photos" class="bk-btn bk-btn-primary" style="background:#8e44ad;">
-            📸 Fotos hochladen
           </button>
           <button id="bk-copy-all" class="bk-btn bk-btn-secondary">
             📋 Alles kopieren
@@ -1318,29 +1317,23 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       }, 3000);
     });
 
-    // Upload photos manually
-    const uploadBtn = panel.querySelector('#bk-upload-photos');
-    if (uploadBtn) {
-      if (!pendingBike.images || pendingBike.images.length === 0) {
-        uploadBtn.style.display = 'none';
-      }
-      uploadBtn.addEventListener('click', () => {
-        photosUploaded = false; // Reset flag to allow re-upload
-        uploadBtn.textContent = '⏳ Fotos werden hochgeladen...';
-        uploadBtn.disabled = true;
-        uploadBtn.style.background = '#7f8c8d';
-        uploadPhotosToForm();
-        // Reset button after some time
-        setTimeout(() => {
-          if (!photosUploaded) {
-            uploadBtn.textContent = '📸 Fotos erneut versuchen';
-            uploadBtn.disabled = false;
-            uploadBtn.style.background = '#8e44ad';
+    // ── Setup draggable photos ──
+    setupDraggablePhotos(panel);
+
+    // Select all photos button
+    const selectAllBtn = panel.querySelector('#bk-select-all-photos');
+    if (selectAllBtn) {
+      selectAllBtn.addEventListener('click', () => {
+        const photos = panel.querySelectorAll('.bk-draggable-photo');
+        const allSelected = [...photos].every(p => p.classList.contains('bk-selected'));
+        photos.forEach(p => {
+          if (allSelected) {
+            p.classList.remove('bk-selected');
           } else {
-            uploadBtn.textContent = '✅ Fotos hochgeladen!';
-            uploadBtn.style.background = '#27ae60';
+            p.classList.add('bk-selected');
           }
-        }, 8000);
+        });
+        selectAllBtn.textContent = allSelected ? '☑ Alle auswählen' : '☐ Auswahl aufheben';
       });
     }
 
@@ -1391,6 +1384,97 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
         console.log(`[BikeHaus] Auto-fill attempt at ${delay}ms`);
         fillForm();
       }, delay);
+    });
+  }
+
+  // ── Setup draggable photos in the panel ──
+  function setupDraggablePhotos(panel) {
+    const photos = panel.querySelectorAll('.bk-draggable-photo');
+    if (photos.length === 0) return;
+
+    // Pre-fetch all images as data URLs for drag operations
+    const photoDataCache = new Map();
+
+    photos.forEach((photo) => {
+      const imgUrl = photo.dataset.imgUrl;
+      const filename = photo.dataset.filename;
+      const index = parseInt(photo.dataset.imgIndex);
+
+      // Pre-fetch image data
+      chrome.runtime.sendMessage(
+        { type: 'BIKEHAUS_FETCH_IMAGE', url: imgUrl },
+        (response) => {
+          if (response && response.dataUrl) {
+            photoDataCache.set(index, { dataUrl: response.dataUrl, filename });
+            photo.classList.add('bk-photo-ready');
+            console.log(`[BikeHaus] Photo ${index + 1} cached for drag`);
+          }
+        }
+      );
+
+      // Toggle selection on click
+      photo.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') return; // Don't toggle when clicking download
+        photo.classList.toggle('bk-selected');
+      });
+
+      // Drag start
+      photo.addEventListener('dragstart', (e) => {
+        // Collect files to drag: selected photos or just this one
+        const selectedPhotos = panel.querySelectorAll('.bk-draggable-photo.bk-selected');
+        let indicesToDrag = [];
+
+        if (selectedPhotos.length > 0 && photo.classList.contains('bk-selected')) {
+          // Drag all selected
+          indicesToDrag = [...selectedPhotos].map(p => parseInt(p.dataset.imgIndex));
+        } else {
+          // Drag just this one
+          indicesToDrag = [index];
+        }
+
+        // Build file list from cache
+        const filesToDrag = [];
+        for (const idx of indicesToDrag) {
+          const cached = photoDataCache.get(idx);
+          if (cached) {
+            filesToDrag.push(cached);
+          }
+        }
+
+        if (filesToDrag.length === 0) {
+          console.log('[BikeHaus] Photos not ready yet, please wait...');
+          e.preventDefault();
+          return;
+        }
+
+        // Convert data URLs to Files and add to DataTransfer
+        for (const item of filesToDrag) {
+          const file = dataURLtoFile(item.dataUrl, item.filename);
+          e.dataTransfer.items.add(file);
+        }
+
+        e.dataTransfer.effectAllowed = 'copy';
+
+        // Visual feedback
+        photo.classList.add('bk-dragging');
+        console.log(`[BikeHaus] Dragging ${filesToDrag.length} photo(s)`);
+
+        // Set drag image
+        const dragGhost = document.createElement('div');
+        dragGhost.style.cssText = 'position:fixed;top:-1000px;left:-1000px;background:#3498db;color:white;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:bold;font-family:sans-serif;z-index:999999;pointer-events:none;';
+        dragGhost.textContent = `\uD83D\uDCF7 ${filesToDrag.length} Foto${filesToDrag.length > 1 ? 's' : ''}`;
+        document.body.appendChild(dragGhost);
+        e.dataTransfer.setDragImage(dragGhost, 0, 0);
+        setTimeout(() => dragGhost.remove(), 0);
+      });
+
+      photo.addEventListener('dragend', () => {
+        photo.classList.remove('bk-dragging');
+        // Clear selection after successful drag
+        panel.querySelectorAll('.bk-draggable-photo.bk-selected').forEach(p => {
+          p.classList.remove('bk-selected');
+        });
+      });
     });
   }
 
