@@ -1,6 +1,7 @@
 ﻿import {
   Component,
   OnInit,
+  OnDestroy,
   HostListener,
   ElementRef,
   inject,
@@ -165,6 +166,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 </span>
                 <span class="publish-icon" *ngIf="b.isPublishedOnWebsite" title="Website">🌐</span>
                 <span class="publish-icon" *ngIf="b.isPublishedOnKleinanzeigen" title="Kleinanzeigen">📢</span>
+                <span class="publish-icon ka-nr" *ngIf="b.kleinanzeigenAnzeigeNr" [title]="'KA: ' + b.kleinanzeigenAnzeigeNr">🔖</span>
               </td>
               <td class="actions-cell">
                 <span class="action-icon">⋮</span>
@@ -200,6 +202,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                   >
                     <span class="popup-icon">📢</span>
                     {{ b.isPublishedOnKleinanzeigen ? t.unpublishFromKleinanzeigen : t.publishOnKleinanzeigen }}
+                  </button>
+                  <button
+                    *ngIf="b.kleinanzeigenAnzeigeNr"
+                    class="popup-item popup-item-danger"
+                    (click)="deleteKleinanzeigenAd(b)"
+                  >
+                    <span class="popup-icon">🗑️</span>
+                    KA-Anzeige löschen
                   </button>
                   <div class="popup-divider"></div>
                   <button
@@ -559,7 +569,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
     `,
   ],
 })
-export class BicycleListComponent implements OnInit {
+export class BicycleListComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
@@ -576,6 +586,7 @@ export class BicycleListComponent implements OnInit {
   pageSize = 20;
 
   private searchDebounce: any;
+  private messageHandler: ((event: MessageEvent) => void) | null = null;
 
   get t() {
     return this.translationService.translations();
@@ -607,6 +618,28 @@ export class BicycleListComponent implements OnInit {
 
   ngOnInit() {
     this.load();
+
+    // Listen for Kleinanzeigen ad number from Chrome extension
+    this.messageHandler = (event: MessageEvent) => {
+      if (event.data?.type === 'BIKEHAUS_KA_AD_SAVED' && event.data.bicycleId && event.data.anzeigeNr) {
+        this.bicycleService.setKleinanzeigenAnzeigeNr(event.data.bicycleId, event.data.anzeigeNr).subscribe({
+          next: () => {
+            this.notificationService.success(`Kleinanzeigen Anzeige-Nr ${event.data.anzeigeNr} gespeichert`);
+            this.load();
+          },
+          error: () => {
+            this.notificationService.error('Fehler beim Speichern der Anzeige-Nr');
+          }
+        });
+      }
+    };
+    window.addEventListener('message', this.messageHandler);
+  }
+
+  ngOnDestroy() {
+    if (this.messageHandler) {
+      window.removeEventListener('message', this.messageHandler);
+    }
   }
 
   load() {
@@ -782,6 +815,43 @@ export class BicycleListComponent implements OnInit {
                 err.error?.error || this.t.deleteError,
               );
             },
+          });
+        }
+      });
+  }
+
+  deleteKleinanzeigenAd(b: Bicycle) {
+    this.closeMenu();
+    if (!b.kleinanzeigenAnzeigeNr) return;
+    this.dialogService
+      .danger('KA-Anzeige löschen', `Anzeige ${b.kleinanzeigenAnzeigeNr} auf Kleinanzeigen löschen?`)
+      .then((confirmed) => {
+        if (confirmed) {
+          // Send delete request to Chrome extension
+          window.postMessage({
+            type: 'BIKEHAUS_KA_DELETE',
+            bicycleId: b.id,
+            anzeigeNr: b.kleinanzeigenAnzeigeNr
+          }, '*');
+          // Clear the Anzeige-Nr in the backend
+          this.bicycleService.setKleinanzeigenAnzeigeNr(b.id, '').subscribe({
+            next: () => {
+              // Also unpublish from KA if published
+              if (b.isPublishedOnKleinanzeigen) {
+                this.bicycleService.togglePublishKleinanzeigen(b.id).subscribe({
+                  next: () => {
+                    this.notificationService.success('KA-Anzeige gelöscht & Veröffentlichung aufgehoben');
+                    this.load();
+                  }
+                });
+              } else {
+                this.notificationService.success('KA-Anzeige-Nr entfernt');
+                this.load();
+              }
+            },
+            error: () => {
+              this.notificationService.error('Fehler beim Entfernen der Anzeige-Nr');
+            }
           });
         }
       });

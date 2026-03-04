@@ -20,6 +20,7 @@ public record BicycleDto(
     bool IsPublishedOnWebsite,
     bool IsPublishedOnKleinanzeigen,
     decimal? VerkaufspreisVorschlag,
+    string? KleinanzeigenAnzeigeNr,
     DateTime CreatedAt,
     List<BicycleImageDto>? Images = null
 );
@@ -60,9 +61,11 @@ public record BicycleImageDto(
     int SortOrder
 );
 
+// ── Request DTOs ──
+public record SetAnzeigeNrRequest(string AnzeigeNr);
+
 // ── Public Bicycle DTO (for website display) ──
-public record PublicBicycleDto(
-    int Id,
+public record PublicBicycleDto(    int Id,
     string Marke,
     string Modell,
     string? Farbe,

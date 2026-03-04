@@ -3,7 +3,7 @@
   "name": "BikeHaus Kleinanzeigen Helper",
   "description": "Füllt Kleinanzeigen-Formulare automatisch mit Fahrraddaten aus BikeHaus",
   "version": "1.0.0",
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage", "activeTab", "tabs"],
   "host_permissions": [
     "https://www.kleinanzeigen.de/*",
     "http://localhost:*/*",

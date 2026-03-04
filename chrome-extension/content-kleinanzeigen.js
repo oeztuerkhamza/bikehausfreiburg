@@ -579,7 +579,134 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     if (pendingBike && !panelElement) {
       showPanel();
     }
+    // Check for ad number on confirmation/success page
+    detectAdNumber();
   });
   observer.observe(document.body, { childList: true, subtree: true });
+
+  // ── Detect Kleinanzeigen Ad Number after creation ──
+  function detectAdNumber() {
+    if (!pendingBike) return;
+
+    const url = window.location.href;
+
+    // After posting, KA often shows the ad or a confirmation page
+    // The ad URL format: /s-anzeige/{title}/{id} or confirmation page has a link to the ad
+
+    // Method 1: Check if we're on the confirmation page
+    if (url.includes('bestaetigung') || url.includes('success') || url.includes('p-anzeige-aufgeben-bestaetigung')) {
+      // Look for the ad link on the confirmation page
+      const adLinks = document.querySelectorAll('a[href*="/s-anzeige/"]');
+      for (const link of adLinks) {
+        const match = link.href.match(/\/s-anzeige\/[^/]+\/(\d+)/);
+        if (match) {
+          sendAdNumberToAdmin(match[1]);
+          return;
+        }
+      }
+      // Also look for the ad number in text
+      const bodyText = document.body.innerText;
+      const nrMatch = bodyText.match(/Anzeigennummer[:\s]*(\d+)/i) || bodyText.match(/Anzeige-Nr[.:\s]*(\d+)/i);
+      if (nrMatch) {
+        sendAdNumberToAdmin(nrMatch[1]);
+        return;
+      }
+    }
+
+    // Method 2: Check if we're viewing the created ad page
+    const adUrlMatch = url.match(/\/s-anzeige\/[^/]+\/(\d+)/);
+    if (adUrlMatch) {
+      sendAdNumberToAdmin(adUrlMatch[1]);
+      return;
+    }
+  }
+
+  function sendAdNumberToAdmin(anzeigeNr) {
+    if (!pendingBike || !anzeigeNr) return;
+    const bicycleId = pendingBike.id;
+
+    // Notify background to relay to admin
+    chrome.runtime.sendMessage({
+      type: 'BIKEHAUS_KA_AD_CREATED',
+      bicycleId: bicycleId,
+      anzeigeNr: anzeigeNr
+    });
+
+    // Show confirmation in panel
+    if (panelElement) {
+      const body = panelElement.querySelector('.bk-body');
+      if (body) {
+        const notice = document.createElement('div');
+        notice.className = 'bk-notice bk-notice-success';
+        notice.innerHTML = `✅ Anzeige-Nr <strong>${anzeigeNr}</strong> wurde an BikeHaus gesendet!`;
+        notice.style.cssText = 'background:#27ae60;color:white;padding:8px 12px;border-radius:6px;margin:8px 0;font-size:13px;text-align:center;';
+        body.prepend(notice);
+      }
+    }
+
+    // Clear pending bike after successful ad creation
+    chrome.runtime.sendMessage({ type: 'BIKEHAUS_CLEAR_PENDING' });
+    pendingBike = null;
+  }
+
+  // ── Handle pending delete requests (on "Meine Anzeigen" page) ──
+  chrome.runtime.sendMessage({ type: 'BIKEHAUS_GET_PENDING_DELETE' }, (response) => {
+    if (response && response.anzeigeNr) {
+      showDeleteHelper(response.anzeigeNr);
+    }
+  });
+
+  function showDeleteHelper(anzeigeNr) {
+    // Show a floating helper that highlights which ad to delete
+    const helper = document.createElement('div');
+    helper.id = 'bikehaus-delete-helper';
+    helper.style.cssText = `
+      position: fixed; top: 80px; right: 20px; z-index: 99999;
+      background: #e74c3c; color: white; padding: 16px 20px;
+      border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px; max-width: 350px; cursor: move;
+    `;
+    helper.innerHTML = `
+      <div style="font-weight:bold;font-size:15px;margin-bottom:8px;">🗑️ BikeHaus – Anzeige löschen</div>
+      <div>Bitte löschen Sie die Anzeige mit der Nr: <strong>${anzeigeNr}</strong></div>
+      <div style="margin-top:8px;font-size:12px;opacity:0.9;">
+        Suchen Sie die Anzeige in der Liste und klicken Sie auf "Löschen".
+      </div>
+      <button id="bk-delete-done" style="
+        margin-top:12px; padding:8px 16px; background:white; color:#e74c3c;
+        border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:13px; width:100%;
+      ">✓ Erledigt – Schließen</button>
+    `;
+    document.body.appendChild(helper);
+
+    helper.querySelector('#bk-delete-done').addEventListener('click', () => {
+      chrome.runtime.sendMessage({ type: 'BIKEHAUS_CLEAR_PENDING_DELETE' });
+      helper.remove();
+    });
+
+    // Try to highlight the ad with this number on the page
+    highlightAd(anzeigeNr);
+  }
+
+  function highlightAd(anzeigeNr) {
+    // Look for the ad number in links or text on the "Meine Anzeigen" page
+    const allLinks = document.querySelectorAll('a[href*="/s-anzeige/"]');
+    for (const link of allLinks) {
+      if (link.href.includes('/' + anzeigeNr)) {
+        const adItem = link.closest('[class*="aditem"]') || link.closest('li') || link.closest('article') || link.parentElement;
+        if (adItem) {
+          adItem.style.outline = '3px solid #e74c3c';
+          adItem.style.outlineOffset = '2px';
+          adItem.style.borderRadius = '8px';
+          adItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
+    }
+  }
+
+  // Check for ad number on initial page load too
+  setTimeout(detectAdNumber, 3000);
 
 })();

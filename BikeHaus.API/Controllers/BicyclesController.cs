@@ -163,6 +163,18 @@ public class BicyclesController : ControllerBase
         catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
     }
 
+    [Authorize]
+    [HttpPut("{id}/kleinanzeigen-anzeige-nr")]
+    public async Task<ActionResult<BicycleDto>> SetKleinanzeigenAnzeigeNr(int id, [FromBody] SetAnzeigeNrRequest request)
+    {
+        try
+        {
+            var bicycle = await _bicycleService.SetKleinanzeigenAnzeigeNrAsync(id, request.AnzeigeNr);
+            return Ok(bicycle);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
     // ═══ Gallery Images ═══
 
     [HttpGet("{id}/gallery")]

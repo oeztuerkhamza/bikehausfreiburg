@@ -49,12 +49,14 @@ export interface Bicycle {
   reifengroesse: string;
   stokNo?: string;
   fahrradtyp?: string;
+  art?: string;
   beschreibung?: string;
   status: BikeStatus;
   zustand: BikeCondition;
   isPublishedOnWebsite: boolean;
   isPublishedOnKleinanzeigen: boolean;
   verkaufspreisVorschlag?: number;
+  kleinanzeigenAnzeigeNr?: string;
   createdAt: string;
   images?: BicycleImage[];
 }

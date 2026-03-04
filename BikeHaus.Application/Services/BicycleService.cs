@@ -237,6 +237,16 @@ public class BicycleService : IBicycleService
         return entity.ToDto();
     }
 
+    public async Task<BicycleDto> SetKleinanzeigenAnzeigeNrAsync(int id, string anzeigeNr)
+    {
+        var entity = await _repository.GetWithImagesAsync(id)
+            ?? throw new KeyNotFoundException($"Bicycle with ID {id} not found.");
+        entity.KleinanzeigenAnzeigeNr = anzeigeNr;
+        entity.UpdatedAt = DateTime.UtcNow;
+        await _repository.UpdateAsync(entity);
+        return entity.ToDto();
+    }
+
     public async Task<IEnumerable<PublicBicycleDto>> GetPublishedOnWebsiteAsync()
     {
         var bicycles = await _repository.GetPublishedOnWebsiteAsync();

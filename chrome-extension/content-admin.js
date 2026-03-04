@@ -1,13 +1,12 @@
 // ============================================
 // BikeHaus Admin Panel - Content Script
-// Listens for messages from the admin panel
-// and sends bicycle data to the extension
+// Bridges messages between Angular app and extension
 // ============================================
 
 (function () {
   'use strict';
 
-  // Listen for messages from the Angular app
+  // ── Angular → Extension: Send bike data to Kleinanzeigen ──
   window.addEventListener('message', (event) => {
     if (event.source !== window) return;
 
@@ -27,6 +26,28 @@
         }
       );
     }
+
+    // ── Angular → Extension: Delete KA ad ──
+    if (event.data && event.data.type === 'BIKEHAUS_KA_DELETE') {
+      chrome.runtime.sendMessage({
+        type: 'BIKEHAUS_KA_DELETE',
+        anzeigeNr: event.data.anzeigeNr
+      });
+    }
+  });
+
+  // ── Extension → Angular: Receive ad number from Kleinanzeigen ──
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === 'BIKEHAUS_KA_AD_CREATED') {
+      // Forward to Angular app via postMessage
+      window.postMessage({
+        type: 'BIKEHAUS_KA_AD_SAVED',
+        bicycleId: message.bicycleId,
+        anzeigeNr: message.anzeigeNr
+      }, '*');
+      sendResponse({ success: true });
+    }
+    return true;
   });
 
   console.log('[BikeHaus Extension] Admin content script loaded.');

@@ -23,6 +23,7 @@ public static class MappingExtensions
         entity.IsPublishedOnWebsite,
         entity.IsPublishedOnKleinanzeigen,
         entity.VerkaufspreisVorschlag,
+        entity.KleinanzeigenAnzeigeNr,
         entity.CreatedAt,
         entity.Images?.Select(i => i.ToDto()).ToList()
     );

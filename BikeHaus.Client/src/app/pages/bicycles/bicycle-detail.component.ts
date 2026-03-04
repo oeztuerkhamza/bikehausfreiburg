@@ -151,6 +151,10 @@ import {
                 placeholder="optional"
               ></textarea>
             </div>
+            <div class="field" *ngIf="bicycle?.kleinanzeigenAnzeigeNr">
+              <label>KA Anzeige-Nr (Verkauf)</label>
+              <input [value]="bicycle?.kleinanzeigenAnzeigeNr" readonly class="readonly-field" />
+            </div>
           </div>
         </div>
 
@@ -306,6 +310,11 @@ import {
         border-color: var(--accent-primary, #6366f1);
         box-shadow: 0 0 0 3px
           var(--accent-primary-light, rgba(99, 102, 241, 0.1));
+      }
+      .readonly-field {
+        background: var(--table-hover, #f1f5f9) !important;
+        cursor: default;
+        color: var(--text-secondary, #64748b) !important;
       }
       .color-chips {
         display: flex;

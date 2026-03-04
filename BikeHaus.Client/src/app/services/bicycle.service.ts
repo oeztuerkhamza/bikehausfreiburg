@@ -98,6 +98,10 @@ export class BicycleService {
     return this.http.post<Bicycle>(`${this.url}/${id}/toggle-publish-kleinanzeigen`, {});
   }
 
+  setKleinanzeigenAnzeigeNr(id: number, anzeigeNr: string): Observable<Bicycle> {
+    return this.http.put<Bicycle>(`${this.url}/${id}/kleinanzeigen-anzeige-nr`, { anzeigeNr });
+  }
+
   // ── Gallery Images ──
   getGallery(id: number): Observable<BicycleImage[]> {
     return this.http.get<BicycleImage[]>(`${this.url}/${id}/gallery`);

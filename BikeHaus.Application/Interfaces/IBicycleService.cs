@@ -18,6 +18,7 @@ public interface IBicycleService
     Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null);
     Task<BicycleDto> TogglePublishOnWebsiteAsync(int id);
     Task<BicycleDto> TogglePublishOnKleinanzeigenAsync(int id);
+    Task<BicycleDto> SetKleinanzeigenAnzeigeNrAsync(int id, string anzeigeNr);
     Task<IEnumerable<PublicBicycleDto>> GetPublishedOnWebsiteAsync();
     Task<PublicBicycleDto?> GetPublishedBicycleByIdAsync(int id);
     Task<BicycleImageDto> AddImageAsync(int bicycleId, string filePath, int sortOrder);

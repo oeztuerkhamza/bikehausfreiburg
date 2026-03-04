@@ -21,6 +21,7 @@ public class Bicycle : BaseEntity
     public bool IsPublishedOnWebsite { get; set; } = false;
     public bool IsPublishedOnKleinanzeigen { get; set; } = false;
     public decimal? VerkaufspreisVorschlag { get; set; }  // Suggested selling price for listings
+    public string? KleinanzeigenAnzeigeNr { get; set; }   // Kleinanzeigen ad number (Verkaufs-Anzeige-Nr)
 
     // Navigation Properties
     public Purchase? Purchase { get; set; }
