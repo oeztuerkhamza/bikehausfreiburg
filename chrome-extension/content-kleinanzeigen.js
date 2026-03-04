@@ -185,23 +185,74 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     return null;
   }
 
+  // ── Find a <select> element by checking if its options contain specific text ──
+  function findSelectByOptionTexts(...optionTexts) {
+    const selects = document.querySelectorAll('select');
+    for (const sel of selects) {
+      for (const opt of sel.options) {
+        const optText = opt.textContent.trim().toLowerCase();
+        for (const search of optionTexts) {
+          if (optText === search.toLowerCase() || optText.includes(search.toLowerCase())) {
+            return sel;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  // ── Find a form field's input/select near a label with specific text ──
+  function findFieldByLabelText(labelText, fieldTag = 'select') {
+    // Strategy 1: look at all labels and text elements
+    const candidates = document.querySelectorAll('label, span, div, p, h3, h4, legend');
+    for (const el of candidates) {
+      // Check direct text content (not children)
+      const directText = Array.from(el.childNodes)
+        .filter(n => n.nodeType === Node.TEXT_NODE)
+        .map(n => n.textContent.trim())
+        .join(' ');
+      const fullText = el.textContent.trim();
+
+      if (directText.toLowerCase() === labelText.toLowerCase() ||
+          fullText.toLowerCase() === labelText.toLowerCase()) {
+        // Found the label, traverse up to find the field container
+        let parent = el.parentElement;
+        for (let i = 0; i < 5 && parent; i++) {
+          const field = parent.querySelector(fieldTag);
+          if (field && field !== el) return field;
+          parent = parent.parentElement;
+        }
+        // Try next siblings
+        let sibling = el.nextElementSibling;
+        for (let i = 0; i < 3 && sibling; i++) {
+          if (sibling.matches(fieldTag)) return sibling;
+          const nested = sibling.querySelector(fieldTag);
+          if (nested) return nested;
+          sibling = sibling.nextElementSibling;
+        }
+      }
+    }
+    return null;
+  }
+
   // ── Map fahrradtyp to Kleinanzeigen Typ dropdown ──
   function mapFahrradtypToKA(fahrradtyp) {
     if (!fahrradtyp) return [];
     const ft = fahrradtyp.toLowerCase();
-    if (ft.includes('city') || ft.includes('urban')) return ['Citybike', 'City'];
-    if (ft.includes('trekking') || ft.includes('tour')) return ['Trekkingrad', 'Trekking'];
-    if (ft.includes('mountain') || ft.includes('mtb')) return ['Mountainbike', 'Mountain'];
-    if (ft.includes('renn') || ft.includes('road') || ft.includes('race')) return ['Rennrad', 'Renn'];
-    if (ft.includes('e-bike') || ft.includes('ebike') || ft.includes('elektro') || ft.includes('pedelec')) return ['E-Bike', 'Pedelec'];
-    if (ft.includes('kinder') || ft.includes('kind') || ft.includes('jugend')) return ['Kinder', 'Jugend'];
+    if (ft.includes('city') || ft.includes('urban')) return ['Cityräder', 'Citybike', 'City'];
+    if (ft.includes('trekking') || ft.includes('tour')) return ['Trekkingräder', 'Trekkingrad', 'Trekking'];
+    if (ft.includes('mountain') || ft.includes('mtb')) return ['Mountainbikes', 'Mountainbike', 'Mountain'];
+    if (ft.includes('renn') || ft.includes('road') || ft.includes('race')) return ['Rennräder', 'Rennrad', 'Renn'];
+    if (ft.includes('e-bike') || ft.includes('ebike') || ft.includes('elektro') || ft.includes('pedelec')) return ['E-Bikes', 'E-Bike', 'Pedelec'];
+    if (ft.includes('kinder') || ft.includes('kind') || ft.includes('jugend')) return ['Kinderfahrräder', 'Kinder', 'Jugend'];
     if (ft.includes('bmx')) return ['BMX'];
-    if (ft.includes('cross') || ft.includes('gravel')) return ['Crossrad', 'Cross', 'Gravel'];
-    if (ft.includes('falt') || ft.includes('klapp')) return ['Faltrad', 'Klapp'];
+    if (ft.includes('cross') || ft.includes('gravel')) return ['Crossräder', 'Crossrad', 'Gravel'];
+    if (ft.includes('falt') || ft.includes('klapp')) return ['Falträder', 'Faltrad', 'Klapp'];
     if (ft.includes('cruiser')) return ['Cruiser'];
-    if (ft.includes('hollandrad') || ft.includes('holland')) return ['Hollandrad', 'Holland'];
-    if (ft.includes('lastenrad') || ft.includes('cargo')) return ['Lastenrad', 'Cargo'];
+    if (ft.includes('hollandrad') || ft.includes('holland')) return ['Hollandräder', 'Hollandrad', 'Holland'];
+    if (ft.includes('lastenrad') || ft.includes('cargo')) return ['Lastenräder', 'Lastenrad', 'Cargo'];
     if (ft.includes('tandem')) return ['Tandem'];
+    if (ft.includes('e-trekking')) return ['Trekkingräder', 'E-Bikes'];
     return [fahrradtyp];
   }
 
@@ -225,16 +276,23 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       priceType: false
     };
 
+    console.log('[BikeHaus] Filling form with data:', {
+      title, price, zustand: pendingBike.zustand, art: pendingBike.art,
+      fahrradtyp: pendingBike.fahrradtyp
+    });
+
     // ── 1. Titel ──
     const titleEl = findFirst(
       '#postad-title',
       'input[id*="title"]',
       'input[name*="title"]',
       'input[placeholder*="Titel"]',
-      'input[placeholder*="Was"]',
-      'input[data-testid*="title"]'
+      'input[placeholder*="Was"]'
     );
-    if (titleEl) filled.title = setInputValue(titleEl, title);
+    if (titleEl) {
+      filled.title = setInputValue(titleEl, title);
+      console.log('[BikeHaus] Title:', filled.title);
+    }
 
     // ── 2. Beschreibung ──
     const descEl = findFirst(
@@ -242,99 +300,149 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       'textarea[id*="descr"]',
       'textarea[name*="descr"]',
       'textarea[placeholder*="Beschreib"]',
-      'textarea[data-testid*="description"]',
       'textarea'
     );
-    if (descEl) filled.description = setInputValue(descEl, description);
+    if (descEl) {
+      filled.description = setInputValue(descEl, description);
+      console.log('[BikeHaus] Description:', filled.description);
+    }
 
     // ── 3. Preis ──
     if (price) {
-      const priceEl = findFirst(
-        '#postad-price',
-        'input[id*="price"]',
-        'input[name*="price"]',
-        'input[placeholder*="Preis"]',
-        'input[data-testid*="price"]'
-      );
-      if (priceEl) filled.price = setInputValue(priceEl, String(Math.round(price)));
+      // Strategy 1: Known ID
+      let priceEl = findFirst('#postad-price', 'input[id*="price"]', 'input[name*="price"]');
+      // Strategy 2: Find by label text "Preis"
+      if (!priceEl) {
+        priceEl = findFieldByLabelText('Preis', 'input');
+      }
+      // Strategy 3: Find input near EUR text
+      if (!priceEl) {
+        const eurTexts = document.querySelectorAll('*');
+        for (const el of eurTexts) {
+          if (el.childNodes.length === 1 && el.textContent.trim().includes('EUR')) {
+            const parent = el.parentElement;
+            if (parent) {
+              priceEl = parent.querySelector('input[type="text"], input[type="number"], input:not([type])');
+              if (priceEl) break;
+            }
+          }
+        }
+      }
+      if (priceEl) {
+        filled.price = setInputValue(priceEl, String(Math.round(price)));
+        console.log('[BikeHaus] Price:', filled.price);
+      }
     }
 
     // ── 4. Preistyp → Festpreis ──
-    const priceTypeEl = findFirst(
-      '#postad-priceType',
-      'select[id*="price"]',
-      'select[name*="price"]'
-    );
-    if (priceTypeEl && priceTypeEl.tagName === 'SELECT') {
-      filled.priceType = selectDropdownByText(priceTypeEl, 'Festpreis', 'FIXED');
+    // Find select that contains "Festpreis" option
+    const priceTypeSel = findSelectByOptionTexts('Festpreis', 'VB', 'Zu verschenken');
+    if (priceTypeSel) {
+      filled.priceType = selectDropdownByText(priceTypeSel, 'Festpreis');
+      console.log('[BikeHaus] PriceType:', filled.priceType);
     }
 
-    // ── 5. Zustand → Neu or Sehr Gut ──
-    if (isNew) {
-      // Try select/dropdown
-      const zustandSel = findFirst('select[id*="zustand"]', 'select[id*="condition"]', 'select[name*="condition"]');
-      if (zustandSel) {
-        filled.zustand = selectDropdownByText(zustandSel, 'Neu');
-      }
-      // Try clickable items (Kleinanzeigen often uses buttons/links for condition)
-      if (!filled.zustand) {
-        filled.zustand = clickElementByText('button, a, span, div[role="option"], li', 'Neu');
-      }
-    } else {
-      const zustandSel = findFirst('select[id*="zustand"]', 'select[id*="condition"]', 'select[name*="condition"]');
-      if (zustandSel) {
-        filled.zustand = selectDropdownByText(zustandSel, 'Sehr Gut', 'Sehr gut');
-      }
-      if (!filled.zustand) {
-        filled.zustand = clickElementByText('button, a, span, div[role="option"], li', 'Sehr Gut', 'Sehr gut');
+    // ── 5. Zustand ──
+    // Zustand on KA Fahrrad is typically a clickable picker ("Bitte wählen >")
+    // Try find by label, then try clicking
+    const zustandText = isNew ? 'Neu' : 'Sehr gut';
+    // Try select
+    const zustandSel = findSelectByOptionTexts('Neu', 'Gebraucht', 'Sehr gut');
+    if (zustandSel) {
+      filled.zustand = selectDropdownByText(zustandSel, zustandText);
+    }
+    // Try clicking the "Bitte wählen" button to open picker, then select
+    if (!filled.zustand) {
+      // Look for the Zustand picker button
+      const zustandBtn = findFieldByLabelText('Zustand', 'button, a, [role="button"], div[class*="select"], span');
+      if (zustandBtn) {
+        zustandBtn.click();
+        // After click, look for the option in the opened list
+        setTimeout(() => {
+          clickElementByText('li, div[role="option"], button, a, span', zustandText);
+        }, 500);
+        filled.zustand = true;
       }
     }
+    console.log('[BikeHaus] Zustand:', filled.zustand);
 
     // ── 6. Versand → Nur Abholung ──
-    filled.versand = clickRadioByText(
-      ['fieldset', 'div[class*="shipping"]', 'div[class*="versand"]', 'div[class*="Versand"]', 'form', 'body'],
-      'Nur Abholung', 'nur abholung', 'PICKUP'
-    );
+    // Find ALL radio/input elements and labels on the page
+    const allRadios = document.querySelectorAll('input[type="radio"]');
+    for (const radio of allRadios) {
+      // Check associated label
+      const label = radio.closest('label') ||
+                    document.querySelector(`label[for="${radio.id}"]`) ||
+                    radio.parentElement;
+      const labelText = label ? label.textContent.trim().toLowerCase() : '';
+      if (labelText.includes('nur abholung') || labelText.includes('abholung')) {
+        radio.checked = true;
+        radio.click();
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+        radio.dispatchEvent(new Event('input', { bubbles: true }));
+        filled.versand = true;
+        console.log('[BikeHaus] Versand: found radio with label');
+        break;
+      }
+    }
+    // Fallback: click label directly
+    if (!filled.versand) {
+      const allLabels = document.querySelectorAll('label, span');
+      for (const label of allLabels) {
+        if (label.textContent.trim().toLowerCase().includes('nur abholung')) {
+          label.click();
+          filled.versand = true;
+          console.log('[BikeHaus] Versand: clicked label directly');
+          break;
+        }
+      }
+    }
 
-    // ── 7. Typ (Fahrradtyp) ──
+    // ── 7. Art (Herren/Damen/Kinder) ──
+    // Find the Art select by its options: it contains "Herren", "Damen", etc.
+    if (pendingBike.art) {
+      const artSel = findSelectByOptionTexts('Herren', 'Damen');
+      if (artSel) {
+        const artMappings = {
+          'Herren': ['Herren'],
+          'Damen': ['Damen'],
+          'Kinder': ['Kinder']
+        };
+        const searchTerms = artMappings[pendingBike.art] || [pendingBike.art];
+        filled.art = selectDropdownByText(artSel, ...searchTerms);
+        console.log('[BikeHaus] Art:', filled.art, '- selected:', pendingBike.art);
+      } else {
+        console.log('[BikeHaus] Art: no select found with Herren/Damen options');
+      }
+    }
+
+    // ── 8. Typ (Fahrradtyp) ──
+    // Find the Typ select by its options: it contains "Cityräder", "Mountainbikes", etc.
     if (pendingBike.fahrradtyp) {
-      const typSel = findFirst(
-        'select[id*="typ"]', 'select[id*="type"]',
-        'select[name*="typ"]', 'select[name*="type"]'
-      );
+      const typSel = findSelectByOptionTexts('Cityräder', 'Mountainbikes', 'Rennräder', 'Trekkingräder');
       const kaTypes = mapFahrradtypToKA(pendingBike.fahrradtyp);
       if (typSel && kaTypes.length > 0) {
         filled.typ = selectDropdownByText(typSel, ...kaTypes);
+        console.log('[BikeHaus] Typ:', filled.typ, '- searched:', kaTypes);
+      } else {
+        console.log('[BikeHaus] Typ: no select found with bike type options');
       }
     }
 
-    // ── 8. Art (Herren/Damen/Kinder) ──
-    if (pendingBike.art) {
-      const artMappings = {
-        'Herren': ['Herren', 'Herrenfahrrad', 'herren'],
-        'Damen': ['Damen', 'Damenfahrrad', 'damen'],
-        'Kinder': ['Kinder', 'Kinderfahrrad', 'kinder', 'Jugend']
-      };
-      const artSearchTerms = artMappings[pendingBike.art] || [pendingBike.art];
-
-      // Try select dropdown
-      const artSel = findFirst(
-        'select[id*="art"]', 'select[name*="art"]',
-        'select[id*="gender"]', 'select[name*="gender"]'
-      );
-      if (artSel) {
-        filled.art = selectDropdownByText(artSel, ...artSearchTerms);
-      }
-      // Try radio/button approach
-      if (!filled.art) {
-        filled.art = clickRadioByText(
-          ['fieldset', 'div[class*="art"]', 'div[class*="gender"]', 'form', 'body'],
-          ...artSearchTerms
-        );
-      }
-      // Try clickable elements
-      if (!filled.art) {
-        filled.art = clickElementByText('button, a, span, div[role="option"], li', ...artSearchTerms);
+    // ── 9. "Direkt kaufen" → Nein ──
+    // Uncheck "Direkt kaufen" if present
+    const allRadios2 = document.querySelectorAll('input[type="radio"]');
+    for (const radio of allRadios2) {
+      const label = radio.closest('label') ||
+                    document.querySelector(`label[for="${radio.id}"]`) ||
+                    radio.parentElement;
+      const labelText = label ? label.textContent.trim().toLowerCase() : '';
+      if (labelText.includes('nein') && labelText.includes('direkt kaufen')) {
+        radio.checked = true;
+        radio.click();
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+        console.log('[BikeHaus] Direkt kaufen: set to Nein');
+        break;
       }
     }
 
@@ -542,10 +650,14 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     // Make panel draggable
     makeDraggable(panel, panel.querySelector('.bk-header'));
 
-    // Also try to auto-fill after a short delay (give page time to load)
-    setTimeout(() => {
-      fillForm();
-    }, 2000);
+    // Auto-fill with multiple retry attempts (KA React app renders fields at different times)
+    const fillAttempts = [2000, 4000, 6000];
+    fillAttempts.forEach(delay => {
+      setTimeout(() => {
+        console.log(`[BikeHaus] Auto-fill attempt at ${delay}ms`);
+        fillForm();
+      }, delay);
+    });
   }
 
   // ── Make element draggable ──
