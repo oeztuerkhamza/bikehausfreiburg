@@ -266,6 +266,15 @@ import { forkJoin, Observable } from 'rxjs';
                   <option value="Sonstige">Sonstige</option>
                 </select>
               </div>
+              <div class="field">
+                <label>{{ t.artLabel }} *</label>
+                <select [(ngModel)]="bicycle.art" name="bikeArt" required>
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="Herren">Herren</option>
+                  <option value="Damen">Damen</option>
+                  <option value="Kinder">Kinder</option>
+                </select>
+              </div>
               <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.condition }} *</label>
                 <select
@@ -295,11 +304,11 @@ import { forkJoin, Observable } from 'rxjs';
             </div>
           </div>
 
-          <!-- Gallery Photos (for Website & Kleinanzeigen) -->
+          <!-- Verkaufsfotos (for Website & Kleinanzeigen) -->
           <div class="form-card" *ngIf="!bulkMode">
-            <h2>📸 {{ t.galleryPhotos }}</h2>
+            <h2>📸 {{ t.salesPhotos }}</h2>
             <p class="hint-text">
-              {{ t.galleryPhotosHint }}
+              {{ t.salesPhotosHint }}
             </p>
             <div class="upload-area">
               <input
@@ -419,17 +428,13 @@ import { forkJoin, Observable } from 'rxjs';
             </div>
           </div>
 
-          <!-- Document Upload (optional) -->
+          <!-- Einkaufsfotos (internal documentation) -->
           <div class="form-card" *ngIf="!bulkMode">
             <h2>
-              {{
-                bicycle.zustand === 'Neu'
-                  ? t.invoiceOptional
-                  : t.screenshotsOptional
-              }}
+              📄 {{ t.purchasePhotos }}
             </h2>
             <p class="hint-text">
-              {{ t.documentsOptionalHint }}
+              {{ t.purchasePhotosHint }}
             </p>
             <div class="upload-area">
               <input
@@ -445,11 +450,7 @@ import { forkJoin, Observable } from 'rxjs';
                 class="btn btn-outline"
                 (click)="fileInput.click()"
               >
-                {{
-                  bicycle.zustand === 'Neu'
-                    ? '📄 ' + t.selectInvoice
-                    : '📷 ' + t.selectPhotos
-                }}
+                📷 {{ t.selectPhotos }}
               </button>
               <span class="file-count" *ngIf="selectedFiles.length > 0">
                 {{ selectedFiles.length }} {{ t.photosSelected }}
@@ -928,6 +929,7 @@ export class PurchaseFormComponent implements OnInit {
     reifengroesse: '',
     stokNo: '',
     fahrradtyp: '',
+    art: '',
     beschreibung: '',
     zustand: BikeCondition.Gebraucht,
   };

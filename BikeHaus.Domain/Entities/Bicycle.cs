@@ -12,6 +12,7 @@ public class Bicycle : BaseEntity
     public string Reifengroesse { get; set; } = string.Empty;  // Tire Size (Zoll)
     public string? StokNo { get; set; }                         // Stock Number (Stok Numarası)
     public string? Fahrradtyp { get; set; }                     // Bike Type (E-Bike, Trekking, etc.)
+    public string? Art { get; set; }                             // Gender: Herren, Damen, Kinder
     public string? Beschreibung { get; set; }                   // Description (Ausstattung/Features)
     public BikeStatus Status { get; set; } = BikeStatus.Available;
     public BikeCondition Zustand { get; set; } = BikeCondition.Gebraucht; // Neu or Gebraucht

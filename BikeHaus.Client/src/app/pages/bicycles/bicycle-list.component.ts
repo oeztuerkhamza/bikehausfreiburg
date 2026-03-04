@@ -711,8 +711,36 @@ export class BicycleListComponent implements OnInit {
           updated.isPublishedOnKleinanzeigen ? this.t.publishedOnKleinanzeigen : this.t.unpublishedFromKleinanzeigen
         );
         if (updated.isPublishedOnKleinanzeigen) {
-          // Navigate to bicycle detail page to review data for Kleinanzeigen
-          this.router.navigate(['/bicycles', b.id]);
+          // Fetch full bike details including images, then send to Chrome extension
+          this.bicycleService.getById(b.id).subscribe({
+            next: (fullBike) => {
+              // Determine API base URL for image serving
+              const apiBaseUrl = window.location.hostname === 'localhost'
+                ? 'http://localhost:5196/api'
+                : `${window.location.protocol}//api.${window.location.hostname.replace('admin.', '')}/api`;
+
+              // Send bicycle data to Chrome extension via postMessage
+              window.postMessage({
+                type: 'BIKEHAUS_KA_PUBLISH',
+                bicycle: {
+                  id: fullBike.id,
+                  marke: fullBike.marke,
+                  modell: fullBike.modell,
+                  fahrradtyp: fullBike.fahrradtyp,
+                  art: fullBike.art,
+                  rahmengroesse: fullBike.rahmengroesse,
+                  reifengroesse: fullBike.reifengroesse,
+                  farbe: fullBike.farbe,
+                  zustand: fullBike.zustand,
+                  beschreibung: fullBike.beschreibung,
+                  stokNo: fullBike.stokNo,
+                  verkaufspreisVorschlag: fullBike.verkaufspreisVorschlag,
+                  images: fullBike.images || [],
+                  apiBaseUrl: apiBaseUrl
+                }
+              }, '*');
+            }
+          });
         } else {
           this.load();
         }

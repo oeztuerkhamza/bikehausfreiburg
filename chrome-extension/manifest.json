@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "BikeHaus Kleinanzeigen Helper",
+  "description": "Füllt Kleinanzeigen-Formulare automatisch mit Fahrraddaten aus BikeHaus",
+  "version": "1.0.0",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": [
+    "https://www.kleinanzeigen.de/*",
+    "http://localhost:*/*",
+    "https://admin.bikehausfreiburg.com/*",
+    "https://api.bikehausfreiburg.com/*"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:4200/*",
+        "https://admin.bikehausfreiburg.com/*"
+      ],
+      "js": ["content-admin.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.kleinanzeigen.de/*"
+      ],
+      "js": ["content-kleinanzeigen.js"],
+      "css": ["kleinanzeigen-panel.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

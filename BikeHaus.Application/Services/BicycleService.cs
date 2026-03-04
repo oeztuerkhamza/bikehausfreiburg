@@ -149,6 +149,7 @@ public class BicycleService : IBicycleService
         entity.Reifengroesse = dto.Reifengroesse;
         entity.StokNo = dto.StokNo;
         entity.Fahrradtyp = dto.Fahrradtyp;
+        entity.Art = dto.Art;
         entity.Beschreibung = dto.Beschreibung;
         entity.Status = dto.Status;
         entity.Zustand = dto.Zustand;

@@ -53,6 +53,9 @@ namespace BikeHaus.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Art")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Beschreibung")
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");

@@ -75,6 +75,7 @@ export interface BicycleCreate {
   reifengroesse: string;
   stokNo?: string;
   fahrradtyp?: string;
+  art?: string;
   beschreibung?: string;
   zustand: BikeCondition;
 }
@@ -88,6 +89,7 @@ export interface BicycleUpdate {
   reifengroesse: string;
   stokNo?: string;
   fahrradtyp?: string;
+  art?: string;
   beschreibung?: string;
   status: BikeStatus;
   zustand: BikeCondition;

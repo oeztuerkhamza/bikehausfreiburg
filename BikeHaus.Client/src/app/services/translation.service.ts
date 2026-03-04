@@ -413,6 +413,11 @@ export interface Translations {
   unpublishedFromKleinanzeigen: string;
   galleryPhotos: string;
   galleryPhotosHint: string;
+  salesPhotos: string;
+  salesPhotosHint: string;
+  purchasePhotos: string;
+  purchasePhotosHint: string;
+  artLabel: string;
   noBicyclesFound: string;
 
   // Bicycle Detail
@@ -1041,6 +1046,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     unpublishedFromKleinanzeigen: 'Kleinanzeigen-Markierung entfernt!',
     galleryPhotos: 'Galerie-Fotos (Website & Kleinanzeigen)',
     galleryPhotosHint: 'Diese Fotos werden für die Veröffentlichung auf der Website und für Kleinanzeigen-Inserate verwendet.',
+    salesPhotos: 'Verkaufsfotos (Website & Kleinanzeigen)',
+    salesPhotosHint: 'Diese Fotos werden öffentlich angezeigt – für die Website und Kleinanzeigen-Inserate.',
+    purchasePhotos: 'Einkaufsfotos (Intern)',
+    purchasePhotosHint: 'Nur zur internen Dokumentation – diese Fotos werden nicht öffentlich angezeigt.',
+    artLabel: 'Art (Herren/Damen/Kinder)',
     noBicyclesFound: 'Keine Fahrräder gefunden',
 
     // Bicycle Detail
@@ -1669,6 +1679,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     unpublishedFromKleinanzeigen: 'Kleinanzeigen işareti kaldırıldı!',
     galleryPhotos: 'Galeri Fotoğrafları (Web Sitesi & Kleinanzeigen)',
     galleryPhotosHint: 'Bu fotoğraflar web sitesinde yayınlama ve Kleinanzeigen ilanı oluşturma amacıyla kullanılacaktır.',
+    salesPhotos: 'Satış Fotoğrafları (Web Sitesi & Kleinanzeigen)',
+    salesPhotosHint: 'Bu fotoğraflar herkese açık gösterilir – web sitesi ve Kleinanzeigen ilanları için.',
+    purchasePhotos: 'Alış Fotoğrafları (Dahili)',
+    purchasePhotosHint: 'Sadece dahili belgeleme için – bu fotoğraflar dışarıya gösterilmez.',
+    artLabel: 'Tür (Herren/Damen/Kinder)',
     noBicyclesFound: 'Bisiklet bulunamadı',
 
     // Bicycle Detail

@@ -115,6 +115,15 @@ import {
               </select>
             </div>
             <div class="field">
+              <label>{{ t.artLabel }}</label>
+              <select [(ngModel)]="form.art" name="art">
+                <option value="">-- {{ t.selectOption }} --</option>
+                <option value="Herren">Herren</option>
+                <option value="Damen">Damen</option>
+                <option value="Kinder">Kinder</option>
+              </select>
+            </div>
+            <div class="field">
               <label>{{ t.condition }}</label>
               <select [(ngModel)]="form.zustand" name="zustand">
                 <option [value]="BikeCondition.Gebraucht">
@@ -475,6 +484,7 @@ export class BicycleDetailComponent implements OnInit {
     reifengroesse: '',
     stokNo: '',
     fahrradtyp: '',
+    art: '',
     beschreibung: '',
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
@@ -504,6 +514,7 @@ export class BicycleDetailComponent implements OnInit {
         reifengroesse: b.reifengroesse,
         stokNo: b.stokNo,
         fahrradtyp: b.fahrradtyp,
+        art: b.art || '',
         beschreibung: b.beschreibung,
         status: b.status,
         zustand: b.zustand,

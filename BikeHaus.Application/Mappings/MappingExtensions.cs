@@ -16,6 +16,7 @@ public static class MappingExtensions
         entity.Reifengroesse,
         entity.StokNo,
         entity.Fahrradtyp,
+        entity.Art,
         entity.Beschreibung,
         entity.Status,
         entity.Zustand,
@@ -40,6 +41,7 @@ public static class MappingExtensions
         entity.Farbe,
         entity.Reifengroesse,
         entity.Fahrradtyp,
+        entity.Art,
         entity.Beschreibung,
         entity.Rahmengroesse,
         entity.Zustand,
@@ -58,6 +60,7 @@ public static class MappingExtensions
         Reifengroesse = dto.Reifengroesse,
         StokNo = dto.StokNo,
         Fahrradtyp = dto.Fahrradtyp,
+        Art = dto.Art,
         Beschreibung = dto.Beschreibung,
         Zustand = dto.Zustand
     };

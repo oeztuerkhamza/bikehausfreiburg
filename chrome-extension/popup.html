@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #fff;
+      color: #333;
+    }
+    .header {
+      background: linear-gradient(135deg, #2c3e50, #3498db);
+      color: #fff;
+      padding: 16px 20px;
+    }
+    .header h1 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .header p {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+    .content {
+      padding: 16px 20px;
+    }
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    .status-empty {
+      background: #f8f9fa;
+      color: #7f8c8d;
+    }
+    .status-pending {
+      background: #e8f8f5;
+      color: #27ae60;
+      border: 1px solid #a3e4d7;
+    }
+    .bike-info {
+      margin-top: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: #fff;
+    }
+    .btn-primary:hover { background: linear-gradient(135deg, #2980b9, #2471a3); }
+    .btn-danger {
+      background: #e74c3c;
+      color: #fff;
+    }
+    .btn-danger:hover { background: #c0392b; }
+    .instructions {
+      font-size: 12px;
+      color: #7f8c8d;
+      line-height: 1.5;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+    .instructions strong { color: #2c3e50; }
+    .instructions ol {
+      padding-left: 16px;
+      margin-top: 6px;
+    }
+    .instructions li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🚲 BikeHaus Kleinanzeigen</h1>
+    <p>Anzeigen-Helfer</p>
+  </div>
+  <div class="content">
+    <div id="status" class="status status-empty">
+      Prüfe...
+    </div>
+    <div id="actions"></div>
+    <div class="instructions">
+      <strong>Anleitung:</strong>
+      <ol>
+        <li>In BikeHaus Admin → Bisikletler</li>
+        <li>Beim Fahrrad auf 📢 <em>"Auf Kleinanzeigen veröffentlichen"</em> klicken</li>
+        <li>Kleinanzeigen öffnet sich automatisch</li>
+        <li>Auf <em>"Formular ausfüllen"</em> klicken oder Daten manuell kopieren</li>
+      </ol>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

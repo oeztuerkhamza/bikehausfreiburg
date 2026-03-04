@@ -13,6 +13,7 @@ public record BicycleDto(
     string Reifengroesse,
     string? StokNo,
     string? Fahrradtyp,
+    string? Art,
     string? Beschreibung,
     BikeStatus Status,
     BikeCondition Zustand,
@@ -32,6 +33,7 @@ public record BicycleCreateDto(
     string Reifengroesse,
     string? StokNo,
     string? Fahrradtyp,
+    string? Art,
     string? Beschreibung,
     BikeCondition Zustand = BikeCondition.Gebraucht
 );
@@ -45,6 +47,7 @@ public record BicycleUpdateDto(
     string Reifengroesse,
     string? StokNo,
     string? Fahrradtyp,
+    string? Art,
     string? Beschreibung,
     BikeStatus Status,
     BikeCondition Zustand
@@ -65,6 +68,7 @@ public record PublicBicycleDto(
     string? Farbe,
     string Reifengroesse,
     string? Fahrradtyp,
+    string? Art,
     string? Beschreibung,
     string? Rahmengroesse,
     BikeCondition Zustand,
