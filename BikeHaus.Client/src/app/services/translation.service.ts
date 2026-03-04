@@ -589,6 +589,16 @@ export interface Translations {
   neueFahrradBrand: string;
   neueFahrradModel: string;
   neueFahrradColor: string;
+  colorBlack: string;
+  colorWhite: string;
+  colorRed: string;
+  colorBlue: string;
+  colorGreen: string;
+  colorYellow: string;
+  colorOrange: string;
+  colorGray: string;
+  colorSilver: string;
+  colorPink: string;
   neueFahrradFrameSize: string;
   neueFahrradWheelSize: string;
   neueFahrradGears: string;
@@ -1200,6 +1210,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrradBrand: 'Marke',
     neueFahrradModel: 'Modell',
     neueFahrradColor: 'Farbe',
+    colorBlack: 'Schwarz',
+    colorWhite: 'Weiß',
+    colorRed: 'Rot',
+    colorBlue: 'Blau',
+    colorGreen: 'Grün',
+    colorYellow: 'Gelb',
+    colorOrange: 'Orange',
+    colorGray: 'Grau',
+    colorSilver: 'Silber',
+    colorPink: 'Pink',
     neueFahrradFrameSize: 'Rahmengröße',
     neueFahrradWheelSize: 'Reifengröße',
     neueFahrradGears: 'Gangschaltung',
@@ -1808,6 +1828,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrradBrand: 'Marka',
     neueFahrradModel: 'Model',
     neueFahrradColor: 'Renk',
+    colorBlack: 'Siyah',
+    colorWhite: 'Beyaz',
+    colorRed: 'Kırmızı',
+    colorBlue: 'Mavi',
+    colorGreen: 'Yeşil',
+    colorYellow: 'Sarı',
+    colorOrange: 'Turuncu',
+    colorGray: 'Gri',
+    colorSilver: 'Gümüş',
+    colorPink: 'Pembe',
     neueFahrradFrameSize: 'Kadro Boyutu',
     neueFahrradWheelSize: 'Tekerlek Boyutu',
     neueFahrradGears: 'Vites',

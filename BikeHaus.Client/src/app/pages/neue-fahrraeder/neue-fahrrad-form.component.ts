@@ -84,11 +84,19 @@ import { environment } from '../../../environments/environment';
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradColor }}</label>
-                <input
-                  [(ngModel)]="form.farbe"
-                  name="farbe"
-                  placeholder="z.B. Schwarz"
-                />
+                <div class="color-chips">
+                  <button
+                    type="button"
+                    *ngFor="let c of colorOptions"
+                    class="color-chip"
+                    [class.selected]="isColorSelected(form.farbe, c.value)"
+                    [style.--chip-color]="c.hex"
+                    (click)="form.farbe = toggleColor(form.farbe, c.value)"
+                  >
+                    <span class="chip-dot"></span>
+                    {{ c.label }}
+                  </button>
+                </div>
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradFrameSize }}</label>
@@ -432,6 +440,42 @@ import { environment } from '../../../environments/environment';
         padding: 12px 32px;
         font-size: 1.05rem;
       }
+      .color-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .color-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 20px;
+        background: var(--bg-card, #fff);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .color-chip:hover {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--table-hover, #f1f5f9);
+      }
+      .color-chip.selected {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        font-weight: 600;
+      }
+      .chip-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--chip-color, #ccc);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        flex-shrink: 0;
+      }
     `,
   ],
 })
@@ -466,6 +510,34 @@ export class NeueFahrradFormComponent implements OnInit {
 
   get t() {
     return this.translationService.translations();
+  }
+
+  get colorOptions() {
+    return [
+      { value: 'Schwarz', label: this.t.colorBlack, hex: '#1a1a1a' },
+      { value: 'Weiß', label: this.t.colorWhite, hex: '#f5f5f5' },
+      { value: 'Rot', label: this.t.colorRed, hex: '#ef4444' },
+      { value: 'Blau', label: this.t.colorBlue, hex: '#3b82f6' },
+      { value: 'Grün', label: this.t.colorGreen, hex: '#22c55e' },
+      { value: 'Gelb', label: this.t.colorYellow, hex: '#eab308' },
+      { value: 'Orange', label: this.t.colorOrange, hex: '#f97316' },
+      { value: 'Grau', label: this.t.colorGray, hex: '#9ca3af' },
+      { value: 'Silber', label: this.t.colorSilver, hex: '#c0c0c0' },
+      { value: 'Pink', label: this.t.colorPink, hex: '#ec4899' },
+    ];
+  }
+
+  isColorSelected(farbe: string | undefined, color: string): boolean {
+    if (!farbe) return false;
+    return farbe.split(/[,\/]\s*/).includes(color);
+  }
+
+  toggleColor(farbe: string | undefined, color: string): string {
+    const colors = farbe ? farbe.split(/[,\/]\s*/).filter(Boolean) : [];
+    const idx = colors.indexOf(color);
+    if (idx >= 0) colors.splice(idx, 1);
+    else colors.push(color);
+    return colors.join('/');
   }
 
   ngOnInit() {
