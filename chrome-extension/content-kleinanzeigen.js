@@ -84,9 +84,10 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     if (!input) return false;
 
     // Use native setter to bypass framework wrappers
-    const proto = input.tagName === 'TEXTAREA'
-      ? window.HTMLTextAreaElement.prototype
-      : window.HTMLInputElement.prototype;
+    const proto =
+      input.tagName === 'TEXTAREA'
+        ? window.HTMLTextAreaElement.prototype
+        : window.HTMLInputElement.prototype;
     const nativeSetter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
 
     if (nativeSetter) {
@@ -110,7 +111,10 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       const optText = opt.textContent.trim().toLowerCase();
       const optVal = opt.value.toLowerCase();
       for (const search of searchTexts) {
-        if (optText.includes(search.toLowerCase()) || optVal.includes(search.toLowerCase())) {
+        if (
+          optText.includes(search.toLowerCase()) ||
+          optVal.includes(search.toLowerCase())
+        ) {
           selectEl.value = opt.value;
           selectEl.dispatchEvent(new Event('change', { bubbles: true }));
           return true;
@@ -132,8 +136,9 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
           for (const search of searchTexts) {
             if (labelText.includes(search.toLowerCase())) {
               label.click();
-              const radio = label.querySelector('input[type="radio"]') || 
-                           (label.htmlFor ? document.getElementById(label.htmlFor) : null);
+              const radio =
+                label.querySelector('input[type="radio"]') ||
+                (label.htmlFor ? document.getElementById(label.htmlFor) : null);
               if (radio) {
                 radio.checked = true;
                 radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -146,10 +151,15 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
         const radios = container.querySelectorAll('input[type="radio"]');
         for (const radio of radios) {
           const val = radio.value.toLowerCase();
-          const label = radio.closest('label') || document.querySelector(`label[for="${radio.id}"]`);
+          const label =
+            radio.closest('label') ||
+            document.querySelector(`label[for="${radio.id}"]`);
           const labelText = label ? label.textContent.trim().toLowerCase() : '';
           for (const search of searchTexts) {
-            if (val.includes(search.toLowerCase()) || labelText.includes(search.toLowerCase())) {
+            if (
+              val.includes(search.toLowerCase()) ||
+              labelText.includes(search.toLowerCase())
+            ) {
               radio.checked = true;
               radio.click();
               radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -193,7 +203,10 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       for (const opt of sel.options) {
         const optText = opt.textContent.trim().toLowerCase();
         for (const search of optionTexts) {
-          if (optText === search.toLowerCase() || optText.includes(search.toLowerCase())) {
+          if (
+            optText === search.toLowerCase() ||
+            optText.includes(search.toLowerCase())
+          ) {
             return sel;
           }
         }
@@ -205,17 +218,21 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
   // ── Find a form field's input/select near a label with specific text ──
   function findFieldByLabelText(labelText, fieldTag = 'select') {
     // Strategy 1: look at all labels and text elements
-    const candidates = document.querySelectorAll('label, span, div, p, h3, h4, legend');
+    const candidates = document.querySelectorAll(
+      'label, span, div, p, h3, h4, legend',
+    );
     for (const el of candidates) {
       // Check direct text content (not children)
       const directText = Array.from(el.childNodes)
-        .filter(n => n.nodeType === Node.TEXT_NODE)
-        .map(n => n.textContent.trim())
+        .filter((n) => n.nodeType === Node.TEXT_NODE)
+        .map((n) => n.textContent.trim())
         .join(' ');
       const fullText = el.textContent.trim();
 
-      if (directText.toLowerCase() === labelText.toLowerCase() ||
-          fullText.toLowerCase() === labelText.toLowerCase()) {
+      if (
+        directText.toLowerCase() === labelText.toLowerCase() ||
+        fullText.toLowerCase() === labelText.toLowerCase()
+      ) {
         // Found the label, traverse up to find the field container
         let parent = el.parentElement;
         for (let i = 0; i < 5 && parent; i++) {
@@ -251,7 +268,11 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
   // ── Fetch all images from the API and return data URLs with filenames ──
   function fetchAllImageDataUrls() {
-    if (!pendingBike || !pendingBike.images || pendingBike.images.length === 0) {
+    if (
+      !pendingBike ||
+      !pendingBike.images ||
+      pendingBike.images.length === 0
+    ) {
       return Promise.resolve([]);
     }
 
@@ -271,15 +292,20 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
               console.log(`[BikeHaus] Fetched image ${i + 1}: ${filename}`);
               resolve({ dataUrl: response.dataUrl, filename });
             } else {
-              console.log(`[BikeHaus] Failed to fetch image ${i + 1}:`, response?.error);
+              console.log(
+                `[BikeHaus] Failed to fetch image ${i + 1}:`,
+                response?.error,
+              );
               resolve(null);
             }
-          }
+          },
         );
       });
     });
 
-    return Promise.all(fetchPromises).then(results => results.filter(r => r !== null));
+    return Promise.all(fetchPromises).then((results) =>
+      results.filter((r) => r !== null),
+    );
   }
 
   // ── Update panel to show photo upload status ──
@@ -317,22 +343,30 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       console.log('[BikeHaus] Photos already uploaded, skipping');
       return;
     }
-    if (!pendingBike || !pendingBike.images || pendingBike.images.length === 0) {
+    if (
+      !pendingBike ||
+      !pendingBike.images ||
+      pendingBike.images.length === 0
+    ) {
       console.log('[BikeHaus] No images to upload');
       return;
     }
 
-    console.log(`[BikeHaus] Uploading ${pendingBike.images.length} photos via page context injection...`);
+    console.log(
+      `[BikeHaus] Uploading ${pendingBike.images.length} photos via page context injection...`,
+    );
 
     // Step 1: Fetch all images as data URLs
-    fetchAllImageDataUrls().then(imageDataItems => {
+    fetchAllImageDataUrls().then((imageDataItems) => {
       if (imageDataItems.length === 0) {
         console.log('[BikeHaus] No valid images fetched');
         updatePanelPhotoStatus(0, false);
         return;
       }
 
-      console.log(`[BikeHaus] Got ${imageDataItems.length} images, injecting into page context...`);
+      console.log(
+        `[BikeHaus] Got ${imageDataItems.length} images, injecting into page context...`,
+      );
 
       // Step 2: Store image data in a hidden DOM element (bridge between content script and page)
       const dataEl = document.createElement('div');
@@ -346,11 +380,15 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
         if (event.detail) {
           window.removeEventListener('bikehaus-upload-result', resultHandler);
           if (event.detail.success) {
-            console.log(`[BikeHaus] Page-context upload succeeded: ${event.detail.count} files, method: ${event.detail.method}`);
+            console.log(
+              `[BikeHaus] Page-context upload succeeded: ${event.detail.count} files, method: ${event.detail.method}`,
+            );
             photosUploaded = true;
             updatePanelPhotoStatus(event.detail.count, true);
           } else {
-            console.log(`[BikeHaus] Page-context upload failed: ${event.detail.error}`);
+            console.log(
+              `[BikeHaus] Page-context upload failed: ${event.detail.error}`,
+            );
             updatePanelPhotoStatus(0, false);
           }
         }
@@ -358,6 +396,8 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       window.addEventListener('bikehaus-upload-result', resultHandler);
 
       // Step 4: Inject script into PAGE context (not content script isolated world)
+      // This runs in the MAIN world so it can access Plupload, jQuery, and dispatch
+      // DragEvent with real dataTransfer objects that the page's handlers can read.
       const script = document.createElement('script');
       script.textContent = `
         (function() {
@@ -387,169 +427,239 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
               return dataURLtoFile(item.dataUrl, item.filename);
             });
 
-            // ── Strategy 1: Find Plupload uploader instance ──
-            var uploader = null;
-
-            // Method A: plupload global
-            if (typeof plupload !== 'undefined') {
-              console.log('[BikeHaus PageCtx] plupload global found');
-              // Check for instances array (plupload stores all instances here)
-              if (plupload.instances && plupload.instances.length > 0) {
-                uploader = plupload.instances[0];
-                console.log('[BikeHaus PageCtx] Found uploader via plupload.instances[0], id=' + uploader.id);
-              }
+            function reportSuccess(count, method) {
+              window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
+                detail: { success: true, count: count, method: method }
+              }));
+            }
+            function reportFail(error) {
+              window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
+                detail: { success: false, error: error }
+              }));
             }
 
-            // Method B: Check common global variable names
-            if (!uploader) {
-              var globalNames = ['uploader', 'pictureUploader', 'imageUploader', 'fileUploader', 'pu'];
-              for (var i = 0; i < globalNames.length; i++) {
-                if (window[globalNames[i]] && typeof window[globalNames[i]].addFile === 'function') {
-                  uploader = window[globalNames[i]];
-                  console.log('[BikeHaus PageCtx] Found uploader via window.' + globalNames[i]);
-                  break;
-                }
-              }
-            }
-
-            // Method C: jQuery data on known elements
-            if (!uploader && typeof jQuery !== 'undefined') {
-              var jqSelectors = ['#pstad-pictureupload', '#dropzone-box', '#plupld', '.uploadbox'];
-              for (var j = 0; j < jqSelectors.length; j++) {
-                var jqEl = jQuery(jqSelectors[j]);
-                if (jqEl.length > 0) {
-                  var data = jqEl.data();
-                  if (data) {
-                    var dataKeys = Object.keys(data);
-                    for (var k = 0; k < dataKeys.length; k++) {
-                      var val = data[dataKeys[k]];
-                      if (val && typeof val === 'object' && typeof val.addFile === 'function') {
-                        uploader = val;
-                        console.log('[BikeHaus PageCtx] Found uploader via jQuery data key: ' + dataKeys[k]);
-                        break;
-                      }
-                    }
-                  }
-                  if (uploader) break;
-                }
-              }
-            }
-
-            // Method D: Scan window properties for anything with addFile
-            if (!uploader) {
-              var props = Object.getOwnPropertyNames(window);
-              for (var p = 0; p < props.length; p++) {
-                try {
-                  var obj = window[props[p]];
-                  if (obj && typeof obj === 'object' && obj !== window && typeof obj.addFile === 'function' && typeof obj.start === 'function') {
-                    uploader = obj;
-                    console.log('[BikeHaus PageCtx] Found uploader via window scan: ' + props[p]);
-                    break;
-                  }
-                } catch(e) {}
-              }
-            }
-
-            if (uploader) {
-              console.log('[BikeHaus PageCtx] Using Plupload API to add ' + files.length + ' files');
-
-              // Add files one by one with delay for Plupload to process
-              var addIndex = 0;
-              function addNextFile() {
-                if (addIndex >= files.length) {
-                  // All files added, start upload
-                  console.log('[BikeHaus PageCtx] All files added, starting upload...');
-                  setTimeout(function() {
-                    try {
-                      uploader.start();
-                    } catch(e) {
-                      console.log('[BikeHaus PageCtx] uploader.start() error (may auto-start): ' + e.message);
-                    }
-                    window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
-                      detail: { success: true, count: files.length, method: 'plupload-api' }
-                    }));
-                  }, 500);
-                  return;
-                }
-                try {
-                  uploader.addFile(files[addIndex]);
-                  console.log('[BikeHaus PageCtx] Added file ' + (addIndex + 1) + ': ' + files[addIndex].name);
-                } catch(e) {
-                  console.log('[BikeHaus PageCtx] addFile error: ' + e.message);
-                }
-                addIndex++;
-                setTimeout(addNextFile, 300);
-              }
-              addNextFile();
-              return;
-            }
-
-            console.log('[BikeHaus PageCtx] No Plupload instance found, trying file input fallback...');
-
-            // ── Strategy 2: Find and use file input directly ──
-            var fileInput = document.querySelector('#plupld input[type="file"]') ||
-                            document.querySelector('#pstad-pictureupload input[type="file"]') ||
-                            document.querySelector('input[type="file"][accept*="image"]') ||
-                            document.querySelector('input[type="file"]');
-
-            if (fileInput) {
-              console.log('[BikeHaus PageCtx] Found file input, uploading sequentially...');
-
-              var fileIndex = 0;
-              function addNextViaInput() {
-                if (fileIndex >= files.length) {
-                  console.log('[BikeHaus PageCtx] All files set via input');
-                  window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
-                    detail: { success: true, count: files.length, method: 'file-input' }
-                  }));
-                  return;
-                }
-
-                var dt = new DataTransfer();
-                dt.items.add(files[fileIndex]);
-                fileInput.files = dt.files;
-                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-                console.log('[BikeHaus PageCtx] Set file ' + (fileIndex + 1) + ' on input');
-                fileIndex++;
-
-                setTimeout(function() {
-                  // Re-find input as Plupload might recreate it
-                  fileInput = document.querySelector('#plupld input[type="file"]') ||
-                              document.querySelector('input[type="file"]');
-                  addNextViaInput();
-                }, 1500);
-              }
-              addNextViaInput();
-              return;
-            }
-
-            // ── Strategy 3: Try drag & drop on the dropzone ──
+            // ═══════════════════════════════════════════════════════
+            // Strategy 1 (PRIMARY): Drag & Drop on #dropzone-box
+            // Kleinanzeigen listens for drop events via jQuery/Plupload
+            // on #dropzone-box. We simulate the full drag sequence.
+            // ═══════════════════════════════════════════════════════
             var dropZone = document.querySelector('#dropzone-box') ||
                            document.querySelector('.uploadbox') ||
-                           document.querySelector('#pstad-pictureupload');
+                           document.querySelector('#pstad-pictureupload .formgroup-input');
 
             if (dropZone) {
-              console.log('[BikeHaus PageCtx] Trying drag & drop on dropzone...');
+              console.log('[BikeHaus PageCtx] Found dropzone: ' + (dropZone.id || dropZone.className));
+
+              // Build a proper DataTransfer with all files
               var dt = new DataTransfer();
               files.forEach(function(f) { dt.items.add(f); });
 
-              dropZone.dispatchEvent(new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: dt }));
+              // Simulate the full drag & drop sequence with proper timing
+              // Step 1: dragenter
+              var enterEvt = new DragEvent('dragenter', {
+                bubbles: true, cancelable: true, dataTransfer: dt
+              });
+              dropZone.dispatchEvent(enterEvt);
+              console.log('[BikeHaus PageCtx] dragenter dispatched');
+
               setTimeout(function() {
-                dropZone.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt }));
+                // Step 2: dragover (must be called to allow drop)
+                var overEvt = new DragEvent('dragover', {
+                  bubbles: true, cancelable: true, dataTransfer: dt
+                });
+                dropZone.dispatchEvent(overEvt);
+                console.log('[BikeHaus PageCtx] dragover dispatched');
+
                 setTimeout(function() {
-                  dropZone.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
-                  console.log('[BikeHaus PageCtx] Drop events dispatched');
-                  window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
-                    detail: { success: true, count: files.length, method: 'drop' }
-                  }));
-                }, 100);
-              }, 100);
+                  // Step 3: drop - the main event
+                  var dropEvt = new DragEvent('drop', {
+                    bubbles: true, cancelable: true, dataTransfer: dt
+                  });
+                  dropZone.dispatchEvent(dropEvt);
+                  console.log('[BikeHaus PageCtx] drop dispatched with ' + files.length + ' files');
+
+                  // Step 4: dragleave for cleanup
+                  setTimeout(function() {
+                    dropZone.dispatchEvent(new DragEvent('dragleave', {
+                      bubbles: true, cancelable: true
+                    }));
+
+                    // Check if thumbnails appeared (Plupload processes and shows them)
+                    setTimeout(function() {
+                      var thumbs = document.querySelector('#j-pictureupload-thumbnails');
+                      var thumbCount = thumbs ? thumbs.querySelectorAll('li').length : 0;
+                      if (thumbCount > 0) {
+                        console.log('[BikeHaus PageCtx] Drop SUCCESS - ' + thumbCount + ' thumbnails appeared');
+                        reportSuccess(files.length, 'drag-drop');
+                      } else {
+                        console.log('[BikeHaus PageCtx] No thumbnails after drop, trying jQuery trigger...');
+                        tryJQueryDrop(dropZone, files, dt);
+                      }
+                    }, 3000);
+                  }, 50);
+
+                }, 150);
+              }, 150);
               return;
             }
 
-            window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
-              detail: { success: false, error: 'No upload mechanism found on page' }
-            }));
+            // ═══════════════════════════════════════════════════════
+            // Strategy 2: Plupload API (addFile)
+            // ═══════════════════════════════════════════════════════
+            console.log('[BikeHaus PageCtx] No dropzone found, trying Plupload API...');
+            var uploader = findPluploadInstance();
+
+            if (uploader) {
+              console.log('[BikeHaus PageCtx] Using Plupload API addFile()');
+              var addIdx = 0;
+              function addNext() {
+                if (addIdx >= files.length) {
+                  setTimeout(function() {
+                    try { uploader.start(); } catch(e) {}
+                    reportSuccess(files.length, 'plupload-api');
+                  }, 500);
+                  return;
+                }
+                try { uploader.addFile(files[addIdx]); } catch(e) {
+                  console.log('[BikeHaus PageCtx] addFile error: ' + e.message);
+                }
+                addIdx++;
+                setTimeout(addNext, 300);
+              }
+              addNext();
+              return;
+            }
+
+            // ═══════════════════════════════════════════════════════
+            // Strategy 3: File input (sequential)
+            // ═══════════════════════════════════════════════════════
+            console.log('[BikeHaus PageCtx] No Plupload, trying file input...');
+            var fileInput = document.querySelector('#plupld input[type="file"]') ||
+                            document.querySelector('#pstad-pictureupload input[type="file"]') ||
+                            document.querySelector('input[type="file"]');
+
+            if (fileInput) {
+              var fIdx = 0;
+              function addNextInput() {
+                if (fIdx >= files.length) {
+                  reportSuccess(files.length, 'file-input');
+                  return;
+                }
+                var fdt = new DataTransfer();
+                fdt.items.add(files[fIdx]);
+                fileInput.files = fdt.files;
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                fIdx++;
+                setTimeout(function() {
+                  fileInput = document.querySelector('#plupld input[type="file"]') ||
+                              document.querySelector('input[type="file"]');
+                  addNextInput();
+                }, 1500);
+              }
+              addNextInput();
+              return;
+            }
+
+            reportFail('No upload mechanism found');
+
+            // ── Helper: Try jQuery-based drop event ──
+            function tryJQueryDrop(zone, fileList, dataTransfer) {
+              if (typeof jQuery === 'undefined') {
+                // Try Plupload API as last resort
+                var up = findPluploadInstance();
+                if (up) {
+                  var i = 0;
+                  function addF() {
+                    if (i >= fileList.length) {
+                      try { up.start(); } catch(e) {}
+                      reportSuccess(fileList.length, 'plupload-fallback');
+                      return;
+                    }
+                    try { up.addFile(fileList[i]); } catch(e) {}
+                    i++;
+                    setTimeout(addF, 300);
+                  }
+                  addF();
+                } else {
+                  reportFail('Drop did not work and no fallback available');
+                }
+                return;
+              }
+
+              // Try triggering via jQuery's event system
+              console.log('[BikeHaus PageCtx] Trying jQuery drop trigger...');
+              var jqEvt = jQuery.Event('drop');
+              jqEvt.originalEvent = { dataTransfer: { files: dataTransfer.files } };
+              jQuery(zone).trigger(jqEvt);
+
+              setTimeout(function() {
+                var thumbs2 = document.querySelector('#j-pictureupload-thumbnails');
+                var tc2 = thumbs2 ? thumbs2.querySelectorAll('li').length : 0;
+                if (tc2 > 0) {
+                  reportSuccess(fileList.length, 'jquery-drop');
+                } else {
+                  // Last resort: Plupload API
+                  var up2 = findPluploadInstance();
+                  if (up2) {
+                    var j = 0;
+                    function addF2() {
+                      if (j >= fileList.length) {
+                        try { up2.start(); } catch(e) {}
+                        reportSuccess(fileList.length, 'plupload-final');
+                        return;
+                      }
+                      try { up2.addFile(fileList[j]); } catch(e) {}
+                      j++;
+                      setTimeout(addF2, 300);
+                    }
+                    addF2();
+                  } else {
+                    reportFail('All upload methods failed');
+                  }
+                }
+              }, 3000);
+            }
+
+            // ── Helper: Find Plupload instance ──
+            function findPluploadInstance() {
+              // Method A: plupload.instances
+              if (typeof plupload !== 'undefined' && plupload.instances && plupload.instances.length > 0) {
+                return plupload.instances[0];
+              }
+              // Method B: known global names
+              var names = ['uploader', 'pictureUploader', 'imageUploader', 'fileUploader', 'pu'];
+              for (var i = 0; i < names.length; i++) {
+                if (window[names[i]] && typeof window[names[i]].addFile === 'function') return window[names[i]];
+              }
+              // Method C: jQuery data
+              if (typeof jQuery !== 'undefined') {
+                var sels = ['#pstad-pictureupload', '#dropzone-box', '#plupld', '.uploadbox'];
+                for (var s = 0; s < sels.length; s++) {
+                  var jq = jQuery(sels[s]);
+                  if (jq.length > 0) {
+                    var d = jq.data();
+                    if (d) {
+                      var keys = Object.keys(d);
+                      for (var k = 0; k < keys.length; k++) {
+                        var v = d[keys[k]];
+                        if (v && typeof v === 'object' && typeof v.addFile === 'function') return v;
+                      }
+                    }
+                  }
+                }
+              }
+              // Method D: scan window
+              try {
+                var props = Object.getOwnPropertyNames(window);
+                for (var p = 0; p < props.length; p++) {
+                  try {
+                    var o = window[props[p]];
+                    if (o && typeof o === 'object' && o !== window && typeof o.addFile === 'function' && typeof o.start === 'function') return o;
+                  } catch(e) {}
+                }
+              } catch(e) {}
+              return null;
+            }
 
           } catch(e) {
             console.error('[BikeHaus PageCtx] Error:', e);
@@ -577,18 +687,33 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
   function mapFahrradtypToKA(fahrradtyp) {
     if (!fahrradtyp) return [];
     const ft = fahrradtyp.toLowerCase();
-    if (ft.includes('city') || ft.includes('urban')) return ['Cityräder', 'Citybike', 'City'];
-    if (ft.includes('trekking') || ft.includes('tour')) return ['Trekkingräder', 'Trekkingrad', 'Trekking'];
-    if (ft.includes('mountain') || ft.includes('mtb')) return ['Mountainbikes', 'Mountainbike', 'Mountain'];
-    if (ft.includes('renn') || ft.includes('road') || ft.includes('race')) return ['Rennräder', 'Rennrad', 'Renn'];
-    if (ft.includes('e-bike') || ft.includes('ebike') || ft.includes('elektro') || ft.includes('pedelec')) return ['E-Bikes', 'E-Bike', 'Pedelec'];
-    if (ft.includes('kinder') || ft.includes('kind') || ft.includes('jugend')) return ['Kinderfahrräder', 'Kinder', 'Jugend'];
+    if (ft.includes('city') || ft.includes('urban'))
+      return ['Cityräder', 'Citybike', 'City'];
+    if (ft.includes('trekking') || ft.includes('tour'))
+      return ['Trekkingräder', 'Trekkingrad', 'Trekking'];
+    if (ft.includes('mountain') || ft.includes('mtb'))
+      return ['Mountainbikes', 'Mountainbike', 'Mountain'];
+    if (ft.includes('renn') || ft.includes('road') || ft.includes('race'))
+      return ['Rennräder', 'Rennrad', 'Renn'];
+    if (
+      ft.includes('e-bike') ||
+      ft.includes('ebike') ||
+      ft.includes('elektro') ||
+      ft.includes('pedelec')
+    )
+      return ['E-Bikes', 'E-Bike', 'Pedelec'];
+    if (ft.includes('kinder') || ft.includes('kind') || ft.includes('jugend'))
+      return ['Kinderfahrräder', 'Kinder', 'Jugend'];
     if (ft.includes('bmx')) return ['BMX'];
-    if (ft.includes('cross') || ft.includes('gravel')) return ['Crossräder', 'Crossrad', 'Gravel'];
-    if (ft.includes('falt') || ft.includes('klapp')) return ['Falträder', 'Faltrad', 'Klapp'];
+    if (ft.includes('cross') || ft.includes('gravel'))
+      return ['Crossräder', 'Crossrad', 'Gravel'];
+    if (ft.includes('falt') || ft.includes('klapp'))
+      return ['Falträder', 'Faltrad', 'Klapp'];
     if (ft.includes('cruiser')) return ['Cruiser'];
-    if (ft.includes('hollandrad') || ft.includes('holland')) return ['Hollandräder', 'Hollandrad', 'Holland'];
-    if (ft.includes('lastenrad') || ft.includes('cargo')) return ['Lastenräder', 'Lastenrad', 'Cargo'];
+    if (ft.includes('hollandrad') || ft.includes('holland'))
+      return ['Hollandräder', 'Hollandrad', 'Holland'];
+    if (ft.includes('lastenrad') || ft.includes('cargo'))
+      return ['Lastenräder', 'Lastenrad', 'Cargo'];
     if (ft.includes('tandem')) return ['Tandem'];
     if (ft.includes('e-trekking')) return ['Trekkingräder', 'E-Bikes'];
     return [fahrradtyp];
@@ -598,7 +723,9 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
   // KA uses a custom SingleSelect component, not a <select>.
   // The picker has a trigger button and a dropdown list of options.
   function fillZustandPicker(zustandText) {
-    console.log(`[BikeHaus] Trying to fill Zustand picker with: "${zustandText}"`);
+    console.log(
+      `[BikeHaus] Trying to fill Zustand picker with: "${zustandText}"`,
+    );
 
     // Find the Zustand section by looking for various container patterns
     // KA typically uses: #postad-condition, or a formgroup containing "Zustand" label
@@ -608,15 +735,21 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       return false;
     }
 
-    console.log('[BikeHaus] Found Zustand container:', zustandContainer.id || zustandContainer.className);
+    console.log(
+      '[BikeHaus] Found Zustand container:',
+      zustandContainer.id || zustandContainer.className,
+    );
 
     // Find the trigger button/element inside the container
-    const trigger = zustandContainer.querySelector('[class*="singleselect"] [class*="trigger"]') ||
-                    zustandContainer.querySelector('[role="button"]') ||
-                    zustandContainer.querySelector('button') ||
-                    zustandContainer.querySelector('[class*="singleselect"]') ||
-                    zustandContainer.querySelector('[class*="select"]') ||
-                    zustandContainer.querySelector('a');
+    const trigger =
+      zustandContainer.querySelector(
+        '[class*="singleselect"] [class*="trigger"]',
+      ) ||
+      zustandContainer.querySelector('[role="button"]') ||
+      zustandContainer.querySelector('button') ||
+      zustandContainer.querySelector('[class*="singleselect"]') ||
+      zustandContainer.querySelector('[class*="select"]') ||
+      zustandContainer.querySelector('a');
 
     if (trigger) {
       console.log('[BikeHaus] Found Zustand trigger, clicking...');
@@ -636,7 +769,9 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     }
 
     // Fallback: try to find any clickable element in the container
-    const clickable = zustandContainer.querySelector('div[tabindex], span[tabindex], div[onclick], span[onclick]');
+    const clickable = zustandContainer.querySelector(
+      'div[tabindex], span[tabindex], div[onclick], span[onclick]',
+    );
     if (clickable) {
       clickable.click();
       setTimeout(() => {
@@ -663,19 +798,21 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     for (const label of allLabels) {
       // Check direct text only (not deep children text)
       const directText = Array.from(label.childNodes)
-        .filter(n => n.nodeType === Node.TEXT_NODE)
-        .map(n => n.textContent.trim())
+        .filter((n) => n.nodeType === Node.TEXT_NODE)
+        .map((n) => n.textContent.trim())
         .join('');
 
       if (directText.toLowerCase().includes('zustand')) {
         // Go up to find the form group container
         let parent = label.parentElement;
         for (let i = 0; i < 4 && parent; i++) {
-          if (parent.classList.contains('formgroup') ||
-              parent.id.includes('condition') ||
-              parent.id.includes('zustand') ||
-              parent.querySelector('[class*="singleselect"]') ||
-              parent.querySelector('[role="button"]')) {
+          if (
+            parent.classList.contains('formgroup') ||
+            parent.id.includes('condition') ||
+            parent.id.includes('zustand') ||
+            parent.querySelector('[class*="singleselect"]') ||
+            parent.querySelector('[role="button"]')
+          ) {
             return parent;
           }
           parent = parent.parentElement;
@@ -709,10 +846,11 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       const radios = area.querySelectorAll('input[type="radio"]');
       for (const radio of radios) {
         // Check the label/container around this radio
-        const radioContainer = radio.closest('label') ||
-                               radio.closest('[class*="option"]') ||
-                               radio.closest('[class*="item"]') ||
-                               radio.parentElement;
+        const radioContainer =
+          radio.closest('label') ||
+          radio.closest('[class*="option"]') ||
+          radio.closest('[class*="item"]') ||
+          radio.parentElement;
         if (!radioContainer) continue;
 
         const containerText = radioContainer.textContent.trim();
@@ -721,9 +859,13 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
         // "Neu" should match "Neu\nUnbenutzter Artikel..."
         const firstLine = containerText.split('\n')[0].trim();
 
-        if (firstLine.toLowerCase() === zustandText.toLowerCase() ||
-            firstLine.toLowerCase().startsWith(zustandText.toLowerCase())) {
-          console.log(`[BikeHaus] Found Zustand radio: "${firstLine}", clicking...`);
+        if (
+          firstLine.toLowerCase() === zustandText.toLowerCase() ||
+          firstLine.toLowerCase().startsWith(zustandText.toLowerCase())
+        ) {
+          console.log(
+            `[BikeHaus] Found Zustand radio: "${firstLine}", clicking...`,
+          );
 
           // Click the radio button
           radio.checked = true;
@@ -744,14 +886,18 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       }
     }
 
-    console.log(`[BikeHaus] Zustand option "${zustandText}" not found in dialog`);
+    console.log(
+      `[BikeHaus] Zustand option "${zustandText}" not found in dialog`,
+    );
     return false;
   }
 
   // Click the "Bestätigen" button in the Zustand dialog
   function clickBestaetigenButton() {
     // Look for buttons with text "Bestätigen"
-    const allButtons = document.querySelectorAll('button, [role="button"], a, input[type="submit"]');
+    const allButtons = document.querySelectorAll(
+      'button, [role="button"], a, input[type="submit"]',
+    );
     for (const btn of allButtons) {
       const btnText = btn.textContent.trim().toLowerCase();
       if (btnText === 'bestätigen' || btnText.includes('bestätigen')) {
@@ -781,12 +927,15 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       versand: false,
       typ: false,
       art: false,
-      priceType: false
+      priceType: false,
     };
 
     console.log('[BikeHaus] Filling form with data:', {
-      title, price, zustand: pendingBike.zustand, art: pendingBike.art,
-      fahrradtyp: pendingBike.fahrradtyp
+      title,
+      price,
+      zustand: pendingBike.zustand,
+      art: pendingBike.art,
+      fahrradtyp: pendingBike.fahrradtyp,
     });
 
     // ── 1. Titel ──
@@ -795,7 +944,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       'input[id*="title"]',
       'input[name*="title"]',
       'input[placeholder*="Titel"]',
-      'input[placeholder*="Was"]'
+      'input[placeholder*="Was"]',
     );
     if (titleEl) {
       filled.title = setInputValue(titleEl, title);
@@ -808,7 +957,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       'textarea[id*="descr"]',
       'textarea[name*="descr"]',
       'textarea[placeholder*="Beschreib"]',
-      'textarea'
+      'textarea',
     );
     if (descEl) {
       filled.description = setInputValue(descEl, description);
@@ -818,7 +967,11 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     // ── 3. Preis ──
     if (price) {
       // Strategy 1: Known ID
-      let priceEl = findFirst('#postad-price', 'input[id*="price"]', 'input[name*="price"]');
+      let priceEl = findFirst(
+        '#postad-price',
+        'input[id*="price"]',
+        'input[name*="price"]',
+      );
       // Strategy 2: Find by label text "Preis"
       if (!priceEl) {
         priceEl = findFieldByLabelText('Preis', 'input');
@@ -827,10 +980,15 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       if (!priceEl) {
         const eurTexts = document.querySelectorAll('*');
         for (const el of eurTexts) {
-          if (el.childNodes.length === 1 && el.textContent.trim().includes('EUR')) {
+          if (
+            el.childNodes.length === 1 &&
+            el.textContent.trim().includes('EUR')
+          ) {
             const parent = el.parentElement;
             if (parent) {
-              priceEl = parent.querySelector('input[type="text"], input[type="number"], input:not([type])');
+              priceEl = parent.querySelector(
+                'input[type="text"], input[type="number"], input:not([type])',
+              );
               if (priceEl) break;
             }
           }
@@ -844,7 +1002,11 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
     // ── 4. Preistyp → Festpreis ──
     // Find select that contains "Festpreis" option
-    const priceTypeSel = findSelectByOptionTexts('Festpreis', 'VB', 'Zu verschenken');
+    const priceTypeSel = findSelectByOptionTexts(
+      'Festpreis',
+      'VB',
+      'Zu verschenken',
+    );
     if (priceTypeSel) {
       filled.priceType = selectDropdownByText(priceTypeSel, 'Festpreis');
       console.log('[BikeHaus] PriceType:', filled.priceType);
@@ -874,11 +1036,15 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     const allRadios = document.querySelectorAll('input[type="radio"]');
     for (const radio of allRadios) {
       // Check associated label
-      const label = radio.closest('label') ||
-                    document.querySelector(`label[for="${radio.id}"]`) ||
-                    radio.parentElement;
+      const label =
+        radio.closest('label') ||
+        document.querySelector(`label[for="${radio.id}"]`) ||
+        radio.parentElement;
       const labelText = label ? label.textContent.trim().toLowerCase() : '';
-      if (labelText.includes('nur abholung') || labelText.includes('abholung')) {
+      if (
+        labelText.includes('nur abholung') ||
+        labelText.includes('abholung')
+      ) {
         radio.checked = true;
         radio.click();
         radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -907,22 +1073,34 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       const artSel = findSelectByOptionTexts('Herren', 'Damen');
       if (artSel) {
         const artMappings = {
-          'Herren': ['Herren'],
-          'Damen': ['Damen'],
-          'Kinder': ['Kinder']
+          Herren: ['Herren'],
+          Damen: ['Damen'],
+          Kinder: ['Kinder'],
         };
         const searchTerms = artMappings[pendingBike.art] || [pendingBike.art];
         filled.art = selectDropdownByText(artSel, ...searchTerms);
-        console.log('[BikeHaus] Art:', filled.art, '- selected:', pendingBike.art);
+        console.log(
+          '[BikeHaus] Art:',
+          filled.art,
+          '- selected:',
+          pendingBike.art,
+        );
       } else {
-        console.log('[BikeHaus] Art: no select found with Herren/Damen options');
+        console.log(
+          '[BikeHaus] Art: no select found with Herren/Damen options',
+        );
       }
     }
 
     // ── 8. Typ (Fahrradtyp) ──
     // Find the Typ select by its options: it contains "Cityräder", "Mountainbikes", etc.
     if (pendingBike.fahrradtyp) {
-      const typSel = findSelectByOptionTexts('Cityräder', 'Mountainbikes', 'Rennräder', 'Trekkingräder');
+      const typSel = findSelectByOptionTexts(
+        'Cityräder',
+        'Mountainbikes',
+        'Rennräder',
+        'Trekkingräder',
+      );
       const kaTypes = mapFahrradtypToKA(pendingBike.fahrradtyp);
       if (typSel && kaTypes.length > 0) {
         filled.typ = selectDropdownByText(typSel, ...kaTypes);
@@ -936,17 +1114,23 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     // Look for "Direkt kaufen" section and select "Nein"
     const allRadios2 = document.querySelectorAll('input[type="radio"]');
     for (const radio of allRadios2) {
-      const label = radio.closest('label') ||
-                    document.querySelector(`label[for="${radio.id}"]`) ||
-                    radio.parentElement;
+      const label =
+        radio.closest('label') ||
+        document.querySelector(`label[for="${radio.id}"]`) ||
+        radio.parentElement;
       const labelText = label ? label.textContent.trim().toLowerCase() : '';
       // Find "Nein" radio that is within a "Direkt kaufen" context
       if (labelText === 'nein' || labelText.includes('nein')) {
         // Check parent context for "direkt kaufen"
-        let parent = radio.closest('[class*="field"]') || radio.parentElement?.parentElement?.parentElement;
+        let parent =
+          radio.closest('[class*="field"]') ||
+          radio.parentElement?.parentElement?.parentElement;
         if (parent) {
           const parentText = parent.textContent.toLowerCase();
-          if (parentText.includes('direkt kaufen') || parentText.includes('sofort-kaufen')) {
+          if (
+            parentText.includes('direkt kaufen') ||
+            parentText.includes('sofort-kaufen')
+          ) {
             radio.checked = true;
             radio.click();
             radio.dispatchEvent(new Event('change', { bubbles: true }));
@@ -992,18 +1176,20 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     // ── Images section ──
     let imagesHtml = '';
     if (pendingBike.images && pendingBike.images.length > 0) {
-      const imageItems = pendingBike.images.map((img, i) => {
-        const imgUrl = pendingBike.apiBaseUrl
-          ? `${pendingBike.apiBaseUrl}/public/gallery-image/${img.filePath}`
-          : img.filePath;
-        return `
+      const imageItems = pendingBike.images
+        .map((img, i) => {
+          const imgUrl = pendingBike.apiBaseUrl
+            ? `${pendingBike.apiBaseUrl}/public/gallery-image/${img.filePath}`
+            : img.filePath;
+          return `
           <div class="bk-img-item">
             <img src="${imgUrl}" alt="Foto ${i + 1}" crossorigin="anonymous" />
             <a href="${imgUrl}" download="fahrrad_${pendingBike.id}_${i + 1}.jpg" 
                class="bk-img-download" title="Herunterladen">⬇</a>
           </div>
         `;
-      }).join('');
+        })
+        .join('');
 
       imagesHtml = `
         <div class="bk-section">
@@ -1084,18 +1270,23 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     let minimized = false;
     panel.querySelector('#bk-minimize').addEventListener('click', () => {
       minimized = !minimized;
-      panel.querySelector('.bk-body').style.display = minimized ? 'none' : 'block';
+      panel.querySelector('.bk-body').style.display = minimized
+        ? 'none'
+        : 'block';
       panel.querySelector('#bk-minimize').textContent = minimized ? '+' : '−';
     });
 
     // Copy buttons
-    panel.querySelectorAll('.bk-btn-copy').forEach(btn => {
+    panel.querySelectorAll('.bk-btn-copy').forEach((btn) => {
       btn.addEventListener('click', () => {
         const field = btn.dataset.copy;
         let text = '';
         if (field === 'title') text = title;
         else if (field === 'desc') text = description;
-        else if (field === 'price') text = pendingBike.verkaufspreisVorschlag ? String(Math.round(pendingBike.verkaufspreisVorschlag)) : '';
+        else if (field === 'price')
+          text = pendingBike.verkaufspreisVorschlag
+            ? String(Math.round(pendingBike.verkaufspreisVorschlag))
+            : '';
         copyToClipboard(text, btn);
       });
     });
@@ -1180,7 +1371,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
                 a.download = `fahrrad_${pendingBike.id}_${i + 1}.jpg`;
                 a.click();
               }
-            }
+            },
           );
         });
         downloadAllBtn.textContent = '✓ Download gestartet!';
@@ -1195,7 +1386,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
     // Auto-fill with multiple retry attempts (KA React app renders fields at different times)
     const fillAttempts = [2000, 4000, 6000];
-    fillAttempts.forEach(delay => {
+    fillAttempts.forEach((delay) => {
       setTimeout(() => {
         console.log(`[BikeHaus] Auto-fill attempt at ${delay}ms`);
         fillForm();
@@ -1219,8 +1410,8 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     document.addEventListener('mousemove', (e) => {
       if (!isDragging) return;
       element.style.right = 'auto';
-      element.style.left = (e.clientX - offsetX) + 'px';
-      element.style.top = (e.clientY - offsetY) + 'px';
+      element.style.left = e.clientX - offsetX + 'px';
+      element.style.top = e.clientY - offsetY + 'px';
     });
 
     document.addEventListener('mouseup', () => {
@@ -1249,7 +1440,11 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     // The ad URL format: /s-anzeige/{title}/{id} or confirmation page has a link to the ad
 
     // Method 1: Check if we're on the confirmation page
-    if (url.includes('bestaetigung') || url.includes('success') || url.includes('p-anzeige-aufgeben-bestaetigung')) {
+    if (
+      url.includes('bestaetigung') ||
+      url.includes('success') ||
+      url.includes('p-anzeige-aufgeben-bestaetigung')
+    ) {
       // Look for the ad link on the confirmation page
       const adLinks = document.querySelectorAll('a[href*="/s-anzeige/"]');
       for (const link of adLinks) {
@@ -1261,7 +1456,9 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       }
       // Also look for the ad number in text
       const bodyText = document.body.innerText;
-      const nrMatch = bodyText.match(/Anzeigennummer[:\s]*(\d+)/i) || bodyText.match(/Anzeige-Nr[.:\s]*(\d+)/i);
+      const nrMatch =
+        bodyText.match(/Anzeigennummer[:\s]*(\d+)/i) ||
+        bodyText.match(/Anzeige-Nr[.:\s]*(\d+)/i);
       if (nrMatch) {
         sendAdNumberToAdmin(nrMatch[1]);
         return;
@@ -1284,7 +1481,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     chrome.runtime.sendMessage({
       type: 'BIKEHAUS_KA_AD_CREATED',
       bicycleId: bicycleId,
-      anzeigeNr: anzeigeNr
+      anzeigeNr: anzeigeNr,
     });
 
     // Show confirmation in panel
@@ -1294,7 +1491,8 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
         const notice = document.createElement('div');
         notice.className = 'bk-notice bk-notice-success';
         notice.innerHTML = `✅ Anzeige-Nr <strong>${anzeigeNr}</strong> wurde an BikeHaus gesendet!`;
-        notice.style.cssText = 'background:#27ae60;color:white;padding:8px 12px;border-radius:6px;margin:8px 0;font-size:13px;text-align:center;';
+        notice.style.cssText =
+          'background:#27ae60;color:white;padding:8px 12px;border-radius:6px;margin:8px 0;font-size:13px;text-align:center;';
         body.prepend(notice);
       }
     }
@@ -1305,11 +1503,14 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
   }
 
   // ── Handle pending delete requests (on "Meine Anzeigen" page) ──
-  chrome.runtime.sendMessage({ type: 'BIKEHAUS_GET_PENDING_DELETE' }, (response) => {
-    if (response && response.anzeigeNr) {
-      showDeleteHelper(response.anzeigeNr);
-    }
-  });
+  chrome.runtime.sendMessage(
+    { type: 'BIKEHAUS_GET_PENDING_DELETE' },
+    (response) => {
+      if (response && response.anzeigeNr) {
+        showDeleteHelper(response.anzeigeNr);
+      }
+    },
+  );
 
   function showDeleteHelper(anzeigeNr) {
     // Show a floating helper that highlights which ad to delete
@@ -1349,7 +1550,11 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     const allLinks = document.querySelectorAll('a[href*="/s-anzeige/"]');
     for (const link of allLinks) {
       if (link.href.includes('/' + anzeigeNr)) {
-        const adItem = link.closest('[class*="aditem"]') || link.closest('li') || link.closest('article') || link.parentElement;
+        const adItem =
+          link.closest('[class*="aditem"]') ||
+          link.closest('li') ||
+          link.closest('article') ||
+          link.parentElement;
         if (adItem) {
           adItem.style.outline = '3px solid #e74c3c';
           adItem.style.outlineOffset = '2px';
@@ -1363,5 +1568,4 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
   // Check for ad number on initial page load too
   setTimeout(detectAdNumber, 3000);
-
 })();
