@@ -299,6 +299,24 @@ export interface Translations {
   accessoriesMetaDescription: string;
   accessoriesTitle: string;
   accessoriesSub: string;
+
+  // Neue Fahrräder page
+  neueFahrraeder: string;
+  neueFahrraederMetaTitle: string;
+  neueFahrraederMetaDescription: string;
+  neueFahrraederTitle: string;
+  neueFahrraederSub: string;
+  neueFahrraederBrand: string;
+  neueFahrraederModel: string;
+  neueFahrraederColor: string;
+  neueFahrraederFrameSize: string;
+  neueFahrraederWheelSize: string;
+  neueFahrraederGears: string;
+  neueFahrraederCondition: string;
+  neueFahrraederBackToList: string;
+  neueFahrraederNoItems: string;
+  neueFahrraederContactUs: string;
+  neueFahrraederInterested: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -405,11 +423,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     galleryLabel: 'UNSER LADEN',
     galleryTitle: 'Einblicke in unser Bike Haus.',
-    gallerySub: 'Schauen Sie sich unseren Laden in Freiburg an — hier warten Ihre nächsten Räder auf Sie.',
+    gallerySub:
+      'Schauen Sie sich unseren Laden in Freiburg an — hier warten Ihre nächsten Räder auf Sie.',
 
     bikeCheckLabel: 'SERVICE',
     bikeCheckTitle: 'Kostenloser Fahrrad-Check!',
-    bikeCheckSub: 'Reparatur nur nach Wunsch — faire Preise, transparente Beratung.',
+    bikeCheckSub:
+      'Reparatur nur nach Wunsch — faire Preise, transparente Beratung.',
     bikeCheckFreeTitle: 'Kostenloser Check',
     bikeCheckBrakeCheck: 'Bremsenprüfung',
     bikeCheckGearTest: 'Schaltungstest',
@@ -608,6 +628,24 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Fahrradzubehör bei Bike Haus Freiburg. Taschen, Helme, Schlösser und mehr.',
     accessoriesTitle: 'Zubehör',
     accessoriesSub: 'Taschen, Helme, Schlösser und mehr für Ihr Fahrrad.',
+
+    // Neue Fahrräder
+    neueFahrraeder: 'Neue Fahrräder',
+    neueFahrraederMetaTitle: 'Neue Fahrräder — Bike Haus Freiburg',
+    neueFahrraederMetaDescription: 'Fabrikneue Fahrräder bei Bike Haus Freiburg. City, Trekking, Mountain, E-Bike — mit voller Herstellergarantie.',
+    neueFahrraederTitle: 'Neue Fahrräder',
+    neueFahrraederSub: 'Fabrikneue Räder mit voller Herstellergarantie.',
+    neueFahrraederBrand: 'Marke',
+    neueFahrraederModel: 'Modell',
+    neueFahrraederColor: 'Farbe',
+    neueFahrraederFrameSize: 'Rahmengröße',
+    neueFahrraederWheelSize: 'Reifengröße',
+    neueFahrraederGears: 'Gangschaltung',
+    neueFahrraederCondition: 'Zustand',
+    neueFahrraederBackToList: 'Zurück zur Übersicht',
+    neueFahrraederNoItems: 'Aktuell keine neuen Fahrräder verfügbar.',
+    neueFahrraederContactUs: 'Kontaktieren Sie uns',
+    neueFahrraederInterested: 'Interesse an diesem Fahrrad?',
   },
 
   fr: {
@@ -714,11 +752,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     galleryLabel: 'NOTRE BOUTIQUE',
     galleryTitle: 'Aperçu de notre Bike Haus.',
-    gallerySub: 'Découvrez notre magasin à Fribourg — vos prochains vélos vous y attendent.',
+    gallerySub:
+      'Découvrez notre magasin à Fribourg — vos prochains vélos vous y attendent.',
 
     bikeCheckLabel: 'SERVICE',
     bikeCheckTitle: 'Contrôle vélo gratuit !',
-    bikeCheckSub: 'Réparation uniquement sur demande — prix justes, conseil transparent.',
+    bikeCheckSub:
+      'Réparation uniquement sur demande — prix justes, conseil transparent.',
     bikeCheckFreeTitle: 'Contrôle gratuit',
     bikeCheckBrakeCheck: 'Vérification des freins',
     bikeCheckGearTest: 'Test des vitesses',
@@ -919,6 +959,24 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Accessoires vélo chez Bike Haus Freiburg. Sacoches, casques, antivols et plus.',
     accessoriesTitle: 'Accessoires',
     accessoriesSub: 'Sacoches, casques, antivols et plus pour votre vélo.',
+
+    // Neue Fahrräder
+    neueFahrraeder: 'Vélos neufs',
+    neueFahrraederMetaTitle: 'Vélos neufs — Bike Haus Freiburg',
+    neueFahrraederMetaDescription: 'Vélos neufs chez Bike Haus Freiburg. Ville, trekking, VTT, vélo électrique — avec garantie constructeur complète.',
+    neueFahrraederTitle: 'Vélos neufs',
+    neueFahrraederSub: 'Vélos neufs avec garantie constructeur complète.',
+    neueFahrraederBrand: 'Marque',
+    neueFahrraederModel: 'Modèle',
+    neueFahrraederColor: 'Couleur',
+    neueFahrraederFrameSize: 'Taille du cadre',
+    neueFahrraederWheelSize: 'Taille des pneus',
+    neueFahrraederGears: 'Vitesses',
+    neueFahrraederCondition: 'État',
+    neueFahrraederBackToList: 'Retour à la liste',
+    neueFahrraederNoItems: 'Aucun vélo neuf disponible actuellement.',
+    neueFahrraederContactUs: 'Contactez-nous',
+    neueFahrraederInterested: 'Intéressé par ce vélo ?',
   },
 
   tr: {
@@ -1022,12 +1080,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Mekanik tutku ile buluşur. Her bisiklet özenle ele alınır.',
 
     galleryLabel: 'DÜKKAN',
-    galleryTitle: 'Bike Haus\'tan kareler.',
-    gallerySub: 'Freiburg\'daki dükkânımıza göz atın — bir sonraki bisikletiniz sizi burada bekliyor.',
+    galleryTitle: "Bike Haus'tan kareler.",
+    gallerySub:
+      "Freiburg'daki dükkânımıza göz atın — bir sonraki bisikletiniz sizi burada bekliyor.",
 
     bikeCheckLabel: 'SERVİS',
     bikeCheckTitle: 'Ücretsiz Bisiklet Kontrolü!',
-    bikeCheckSub: 'Tamir sadece istek üzerine — adil fiyatlar, şeffaf danışmanlık.',
+    bikeCheckSub:
+      'Tamir sadece istek üzerine — adil fiyatlar, şeffaf danışmanlık.',
     bikeCheckFreeTitle: 'Ücretsiz Kontrol',
     bikeCheckBrakeCheck: 'Fren kontrolü',
     bikeCheckGearTest: 'Vites testi',
@@ -1227,6 +1287,24 @@ const TRANSLATIONS: Record<Language, Translations> = {
       "Bike Haus Freiburg'da bisiklet aksesuarları. Çanta, kask, kilit ve daha fazlası.",
     accessoriesTitle: 'Aksesuar',
     accessoriesSub: 'Bisikletiniz için çanta, kask, kilit ve daha fazlası.',
+
+    // Neue Fahrräder
+    neueFahrraeder: 'Yeni Bisikletler',
+    neueFahrraederMetaTitle: 'Yeni Bisikletler — Bike Haus Freiburg',
+    neueFahrraederMetaDescription: "Bike Haus Freiburg'da sıfır bisikletler. Şehir, trekking, dağ, elektrikli — tam üretici garantili.",
+    neueFahrraederTitle: 'Yeni Bisikletler',
+    neueFahrraederSub: 'Tam üretici garantili sıfır bisikletler.',
+    neueFahrraederBrand: 'Marka',
+    neueFahrraederModel: 'Model',
+    neueFahrraederColor: 'Renk',
+    neueFahrraederFrameSize: 'Kadro Boyutu',
+    neueFahrraederWheelSize: 'Tekerlek Boyutu',
+    neueFahrraederGears: 'Vites',
+    neueFahrraederCondition: 'Durum',
+    neueFahrraederBackToList: 'Listeye Dön',
+    neueFahrraederNoItems: 'Şu anda yeni bisiklet mevcut değil.',
+    neueFahrraederContactUs: 'Bize Ulaşın',
+    neueFahrraederInterested: 'Bu bisikletle ilgileniyor musunuz?',
   },
 };
 

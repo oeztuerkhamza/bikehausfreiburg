@@ -27,6 +27,38 @@ export interface KleinanzeigenCategory {
   count: number;
 }
 
+export interface NeueFahrradImage {
+  id: number;
+  neueFahrradId: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface NeueFahrrad {
+  id: number;
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  images: NeueFahrradImage[];
+}
+
+export interface NeueFahrradCategory {
+  name: string;
+  count: number;
+}
+
 export interface PublicShopInfo {
   shopName?: string;
   strasse?: string;

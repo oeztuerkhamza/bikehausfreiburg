@@ -508,3 +508,65 @@ export interface ArchiveBicycleHistory {
   createdAt: string;
   timeline: ArchiveTimelineEvent[];
 }
+
+// ── Neue Fahrräder (New Bicycles for Homepage) ──
+export interface NeueFahrrad {
+  id: number;
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+  isActive: boolean;
+  createdAt: string;
+  images: NeueFahrradImage[];
+}
+
+export interface NeueFahrradImage {
+  id: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface NeueFahrradCreate {
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+}
+
+export interface NeueFahrradUpdate {
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+  isActive: boolean;
+}
+
+export interface NeueFahrradCategory {
+  name: string;
+  count: number;
+}

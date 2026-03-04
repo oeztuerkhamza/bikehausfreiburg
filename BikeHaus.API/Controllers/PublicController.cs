@@ -8,10 +8,14 @@ namespace BikeHaus.API.Controllers;
 public class PublicController : ControllerBase
 {
     private readonly IKleinanzeigenService _kleinanzeigenService;
+    private readonly INeueFahrradService _neueFahrradService;
 
-    public PublicController(IKleinanzeigenService kleinanzeigenService)
+    public PublicController(
+        IKleinanzeigenService kleinanzeigenService,
+        INeueFahrradService neueFahrradService)
     {
         _kleinanzeigenService = kleinanzeigenService;
+        _neueFahrradService = neueFahrradService;
     }
 
     /// <summary>
@@ -77,5 +81,48 @@ public class PublicController : ControllerBase
     {
         var lastSync = await _kleinanzeigenService.GetLastSyncTimeAsync();
         return Ok(new { lastSyncedAt = lastSync });
+    }
+
+    // ═══ Neue Fahrräder (New Bicycles) ═══
+
+    /// <summary>
+    /// Get all active new bicycle listings (public)
+    /// </summary>
+    [HttpGet("neue-fahrraeder")]
+    public async Task<IActionResult> GetNeueFahrraeder()
+    {
+        var items = await _neueFahrradService.GetAllActiveAsync();
+        return Ok(items);
+    }
+
+    /// <summary>
+    /// Get new bicycles by category
+    /// </summary>
+    [HttpGet("neue-fahrraeder/category/{category}")]
+    public async Task<IActionResult> GetNeueFahrraederByCategory(string category)
+    {
+        var items = await _neueFahrradService.GetByCategoryAsync(Uri.UnescapeDataString(category));
+        return Ok(items);
+    }
+
+    /// <summary>
+    /// Get a single new bicycle by ID
+    /// </summary>
+    [HttpGet("neue-fahrraeder/{id}")]
+    public async Task<IActionResult> GetNeueFahrrad(int id)
+    {
+        var item = await _neueFahrradService.GetByIdAsync(id);
+        if (item == null) return NotFound();
+        return Ok(item);
+    }
+
+    /// <summary>
+    /// Get new bicycle categories with counts
+    /// </summary>
+    [HttpGet("neue-fahrraeder/categories")]
+    public async Task<IActionResult> GetNeueFahrraederCategories()
+    {
+        var categories = await _neueFahrradService.GetCategoriesAsync();
+        return Ok(categories);
     }
 }

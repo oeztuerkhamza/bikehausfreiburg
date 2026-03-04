@@ -48,6 +48,20 @@ export const routes: Routes = [
         data: { mode: 'zubehoer' },
       },
       {
+        path: 'neue-fahrraeder',
+        loadComponent: () =>
+          import(
+            './pages/neue-fahrraeder/neue-fahrraeder.component'
+          ).then((m) => m.NeueFahrraederComponent),
+      },
+      {
+        path: 'neue-fahrraeder/:id',
+        loadComponent: () =>
+          import(
+            './pages/neue-fahrraeder/neue-fahrrad-detail.component'
+          ).then((m) => m.NeueFahrradDetailComponent),
+      },
+      {
         path: 'about',
         loadComponent: () =>
           import('./pages/about/about.component').then((m) => m.AboutComponent),

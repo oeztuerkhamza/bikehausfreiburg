@@ -6,6 +6,8 @@ import {
   KleinanzeigenListing,
   KleinanzeigenCategory,
   PublicShopInfo,
+  NeueFahrrad,
+  NeueFahrradCategory,
 } from '../models/models';
 
 @Injectable({
@@ -43,5 +45,29 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/last-sync`, {
       responseType: 'text',
     }) as Observable<string | null>;
+  }
+
+  // ── Neue Fahrräder ──
+
+  getNeueFahrraeder(): Observable<NeueFahrrad[]> {
+    return this.http.get<NeueFahrrad[]>(`${this.baseUrl}/neue-fahrraeder`);
+  }
+
+  getNeueFahrraederByCategory(category: string): Observable<NeueFahrrad[]> {
+    return this.http.get<NeueFahrrad[]>(
+      `${this.baseUrl}/neue-fahrraeder/category/${encodeURIComponent(category)}`,
+    );
+  }
+
+  getNeueFahrradById(id: number): Observable<NeueFahrrad> {
+    return this.http.get<NeueFahrrad>(
+      `${this.baseUrl}/neue-fahrraeder/${id}`,
+    );
+  }
+
+  getNeueFahrraederCategories(): Observable<NeueFahrradCategory[]> {
+    return this.http.get<NeueFahrradCategory[]>(
+      `${this.baseUrl}/neue-fahrraeder/categories`,
+    );
   }
 }

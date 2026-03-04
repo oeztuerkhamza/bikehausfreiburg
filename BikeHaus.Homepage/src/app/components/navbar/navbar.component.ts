@@ -299,6 +299,7 @@ export class NavbarComponent {
   navLinks = [
     { path: '', label: () => this.t().home, exact: true },
     { path: 'showroom', label: () => this.t().showroom, exact: false },
+    { path: 'neue-fahrraeder', label: () => this.t().neueFahrraeder, exact: false },
     { path: 'zubehoer', label: () => this.t().accessories, exact: false },
     { path: 'about', label: () => this.t().about, exact: false },
     { path: 'contact', label: () => this.t().contact, exact: false },

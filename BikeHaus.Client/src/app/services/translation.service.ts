@@ -577,6 +577,30 @@ export interface Translations {
   // Sale Form
   requiredFieldsMissing: string;
   requiredField: string;
+
+  // Neue Fahrräder
+  neueFahrraeder: string;
+  neueFahrradNew: string;
+  neueFahrradEdit: string;
+  neueFahrradTitle: string;
+  neueFahrradDescription: string;
+  neueFahrradPrice: string;
+  neueFahrradCategory: string;
+  neueFahrradBrand: string;
+  neueFahrradModel: string;
+  neueFahrradColor: string;
+  neueFahrradFrameSize: string;
+  neueFahrradWheelSize: string;
+  neueFahrradGears: string;
+  neueFahrradCondition: string;
+  neueFahrradActive: string;
+  neueFahrradPhotos: string;
+  neueFahrradNoItems: string;
+  neueFahrradDeleteConfirm: string;
+  neueFahrradSaved: string;
+  neueFahrradDeleted: string;
+  neueFahrradUploadPhotos: string;
+  neueFahrradSelectCategory: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -1164,6 +1188,30 @@ const TRANSLATIONS: Record<Language, Translations> = {
     // Sale Form
     requiredFieldsMissing: 'Pflichtfelder fehlen',
     requiredField: 'Pflichtfeld',
+
+    // Neue Fahrräder
+    neueFahrraeder: 'Neue Fahrräder',
+    neueFahrradNew: 'Neues Fahrrad hinzufügen',
+    neueFahrradEdit: 'Fahrrad bearbeiten',
+    neueFahrradTitle: 'Titel',
+    neueFahrradDescription: 'Beschreibung',
+    neueFahrradPrice: 'Preis (€)',
+    neueFahrradCategory: 'Kategorie',
+    neueFahrradBrand: 'Marke',
+    neueFahrradModel: 'Modell',
+    neueFahrradColor: 'Farbe',
+    neueFahrradFrameSize: 'Rahmengröße',
+    neueFahrradWheelSize: 'Reifengröße',
+    neueFahrradGears: 'Gangschaltung',
+    neueFahrradCondition: 'Zustand',
+    neueFahrradActive: 'Aktiv',
+    neueFahrradPhotos: 'Fotos',
+    neueFahrradNoItems: 'Keine neuen Fahrräder vorhanden.',
+    neueFahrradDeleteConfirm: 'Möchten Sie dieses Fahrrad wirklich löschen?',
+    neueFahrradSaved: 'Fahrrad gespeichert!',
+    neueFahrradDeleted: 'Fahrrad gelöscht!',
+    neueFahrradUploadPhotos: 'Fotos hochladen',
+    neueFahrradSelectCategory: 'Kategorie wählen',
   },
   tr: {
     // Navigation
@@ -1748,6 +1796,30 @@ const TRANSLATIONS: Record<Language, Translations> = {
     // Sale Form
     requiredFieldsMissing: 'Zorunlu alanlar eksik',
     requiredField: 'Zorunlu alan',
+
+    // Neue Fahrräder
+    neueFahrraeder: 'Yeni Bisikletler',
+    neueFahrradNew: 'Yeni Bisiklet Ekle',
+    neueFahrradEdit: 'Bisikleti Düzenle',
+    neueFahrradTitle: 'Başlık',
+    neueFahrradDescription: 'Açıklama',
+    neueFahrradPrice: 'Fiyat (€)',
+    neueFahrradCategory: 'Kategori',
+    neueFahrradBrand: 'Marka',
+    neueFahrradModel: 'Model',
+    neueFahrradColor: 'Renk',
+    neueFahrradFrameSize: 'Kadro Boyutu',
+    neueFahrradWheelSize: 'Tekerlek Boyutu',
+    neueFahrradGears: 'Vites',
+    neueFahrradCondition: 'Durum',
+    neueFahrradActive: 'Aktif',
+    neueFahrradPhotos: 'Fotoğraflar',
+    neueFahrradNoItems: 'Henüz yeni bisiklet eklenmedi.',
+    neueFahrradDeleteConfirm: 'Bu bisikleti silmek istediğinize emin misiniz?',
+    neueFahrradSaved: 'Bisiklet kaydedildi!',
+    neueFahrradDeleted: 'Bisiklet silindi!',
+    neueFahrradUploadPhotos: 'Fotoğraf yükle',
+    neueFahrradSelectCategory: 'Kategori seçin',
   },
 };
 

@@ -183,5 +183,29 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'neue-fahrraeder',
+    loadComponent: () =>
+      import('./pages/neue-fahrraeder/neue-fahrrad-list.component').then(
+        (m) => m.NeueFahrradListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'neue-fahrraeder/new',
+    loadComponent: () =>
+      import('./pages/neue-fahrraeder/neue-fahrrad-form.component').then(
+        (m) => m.NeueFahrradFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'neue-fahrraeder/edit/:id',
+    loadComponent: () =>
+      import('./pages/neue-fahrraeder/neue-fahrrad-form.component').then(
+        (m) => m.NeueFahrradFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];
