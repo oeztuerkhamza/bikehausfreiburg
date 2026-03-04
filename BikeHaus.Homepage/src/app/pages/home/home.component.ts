@@ -527,6 +527,9 @@ interface Testimonial {
                 </svg>
               </div>
               <h3>{{ t().bikeCheckRepairTitle }}</h3>
+              <span class="bikecheck-badge liability-badge">{{
+                t().bikeCheckNoLiability
+              }}</span>
             </div>
             <ul class="bikecheck-list">
               <li>
@@ -1351,6 +1354,12 @@ interface Testimonial {
         padding: 0.3rem 0.8rem;
         border-radius: 20px;
         width: fit-content;
+      }
+
+      .bikecheck-badge.liability-badge {
+        background: rgba(239, 68, 68, 0.15);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.3);
       }
 
       .bikecheck-list {
