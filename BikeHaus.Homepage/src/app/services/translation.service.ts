@@ -313,6 +313,7 @@ export interface Translations {
   neueFahrraederWheelSize: string;
   neueFahrraederGears: string;
   neueFahrraederCondition: string;
+  neueFahrraederWarranty: string;
   neueFahrraederBackToList: string;
   neueFahrraederNoItems: string;
   neueFahrraederContactUs: string;
@@ -643,6 +644,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederWheelSize: 'Reifengröße',
     neueFahrraederGears: 'Gangschaltung',
     neueFahrraederCondition: 'Zustand',
+    neueFahrraederWarranty: '2 Jahre Garantie',
     neueFahrraederBackToList: 'Zurück zur Übersicht',
     neueFahrraederNoItems: 'Aktuell keine neuen Fahrräder verfügbar.',
     neueFahrraederContactUs: 'Kontaktieren Sie uns',
@@ -975,6 +977,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederWheelSize: 'Taille des pneus',
     neueFahrraederGears: 'Vitesses',
     neueFahrraederCondition: 'État',
+    neueFahrraederWarranty: '2 ans de garantie',
     neueFahrraederBackToList: 'Retour à la liste',
     neueFahrraederNoItems: 'Aucun vélo neuf disponible actuellement.',
     neueFahrraederContactUs: 'Contactez-nous',
@@ -1304,6 +1307,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederWheelSize: 'Tekerlek Boyutu',
     neueFahrraederGears: 'Vites',
     neueFahrraederCondition: 'Durum',
+    neueFahrraederWarranty: '2 Yıl Garanti',
     neueFahrraederBackToList: 'Listeye Dön',
     neueFahrraederNoItems: 'Şu anda yeni bisiklet mevcut değil.',
     neueFahrraederContactUs: 'Bize Ulaşın',

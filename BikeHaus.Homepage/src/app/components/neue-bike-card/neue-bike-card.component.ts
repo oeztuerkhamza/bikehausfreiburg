@@ -111,6 +111,19 @@ import { environment } from '../../../environments/environment';
             </svg>
           </span>
         </div>
+        <div class="card-warranty">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          {{ t().neueFahrraederWarranty }}
+        </div>
       </div>
     </a>
   `,
@@ -306,6 +319,20 @@ import { environment } from '../../../environments/environment';
       .card:hover .card-arrow {
         color: var(--color-accent);
         transform: translateX(4px);
+      }
+
+      .card-warranty {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 0.65rem;
+        padding: 0.45rem 0.7rem;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.06));
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--color-success);
       }
     `,
   ],

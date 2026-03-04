@@ -281,6 +281,19 @@ import { environment } from '../../../environments/environment';
                     {{ bike()!.zustand }}</span
                   >
                 </div>
+                <div class="meta-row warranty-row">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-success)"
+                    stroke-width="2"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  <span class="warranty-text">{{ t().neueFahrraederWarranty }}</span>
+                </div>
                 <div class="meta-row">
                   <svg
                     width="15"
@@ -540,6 +553,16 @@ import { environment } from '../../../environments/environment';
       .meta-row strong {
         color: var(--color-text);
         font-weight: 600;
+      }
+      .warranty-row {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.06));
+        padding: 0.65rem 0.85rem;
+        border-radius: 8px;
+        border: 1px solid rgba(34, 197, 94, 0.25);
+      }
+      .warranty-text {
+        color: var(--color-success);
+        font-weight: 700;
       }
 
       /* ═══ CTAs ═══ */
