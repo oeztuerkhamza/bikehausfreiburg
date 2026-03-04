@@ -249,35 +249,12 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     return new File([u8arr], filename, { type: mime });
   }
 
-  // ── Upload photos to Kleinanzeigen form ──
-  function uploadPhotosToForm() {
-    if (photosUploaded) {
-      console.log('[BikeHaus] Photos already uploaded, skipping');
-      return;
-    }
+  // ── Fetch all images from the API and return File objects ──
+  function fetchAllImages() {
     if (!pendingBike || !pendingBike.images || pendingBike.images.length === 0) {
-      console.log('[BikeHaus] No images to upload');
-      return;
+      return Promise.resolve([]);
     }
 
-    console.log(`[BikeHaus] Uploading ${pendingBike.images.length} photos...`);
-
-    // Strategy 1: Find file input on the page
-    const fileInput = document.querySelector('input[type="file"][accept*="image"]') ||
-                      document.querySelector('input[type="file"]');
-
-    if (!fileInput) {
-      console.log('[BikeHaus] No file input found on page');
-      // Strategy 2: Try finding drop zone and simulate drop
-      tryDropZoneUpload();
-      return;
-    }
-
-    console.log('[BikeHaus] Found file input, fetching images...');
-    fetchAndUploadImages(fileInput);
-  }
-
-  function fetchAndUploadImages(fileInput) {
     const images = pendingBike.images;
     const fetchPromises = images.map((img, i) => {
       const imgUrl = pendingBike.apiBaseUrl
@@ -303,104 +280,318 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       });
     });
 
-    Promise.all(fetchPromises).then(files => {
-      const validFiles = files.filter(f => f !== null);
-      if (validFiles.length === 0) {
-        console.log('[BikeHaus] No valid images fetched');
-        return;
-      }
-
-      console.log(`[BikeHaus] Uploading ${validFiles.length} images to file input...`);
-
-      // Set files on the file input using DataTransfer
-      const dt = new DataTransfer();
-      validFiles.forEach(f => dt.items.add(f));
-      fileInput.files = dt.files;
-
-      // Dispatch events to notify React/framework
-      fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-      fileInput.dispatchEvent(new Event('input', { bubbles: true }));
-
-      console.log('[BikeHaus] Photos uploaded to file input successfully');
-      photosUploaded = true;
-
-      // Update panel status
-      if (panelElement) {
-        const imagesSection = panelElement.querySelector('.bk-section-title');
-        if (imagesSection && imagesSection.textContent.includes('Fotos')) {
-          imagesSection.innerHTML = `📸 Fotos (${validFiles.length}) - ✅ Hochgeladen!`;
-        }
-      }
-    });
+    return Promise.all(fetchPromises).then(files => files.filter(f => f !== null));
   }
 
-  function tryDropZoneUpload() {
-    // Look for drag-and-drop upload zones
-    const dropZone = document.querySelector('[class*="dropzone"]') ||
-                     document.querySelector('[class*="upload"]') ||
-                     document.querySelector('[class*="drop-area"]') ||
-                     document.querySelector('[data-testid*="upload"]') ||
-                     document.querySelector('[class*="imageUpload"]') ||
-                     document.querySelector('[class*="file-upload"]');
-
-    if (!dropZone) {
-      console.log('[BikeHaus] No drop zone found either, trying hidden file input...');
-      // Sometimes file inputs are hidden - look for any input[type=file]
-      const allFileInputs = document.querySelectorAll('input[type="file"]');
-      if (allFileInputs.length > 0) {
-        console.log(`[BikeHaus] Found ${allFileInputs.length} hidden file input(s)`);
-        fetchAndUploadImages(allFileInputs[0]);
-        return;
+  // ── Update panel to show photo upload status ──
+  function updatePanelPhotoStatus(count, success) {
+    if (!panelElement) return;
+    const sections = panelElement.querySelectorAll('.bk-section-title');
+    for (const section of sections) {
+      if (section.textContent.includes('Fotos')) {
+        if (success) {
+          section.innerHTML = `📸 Fotos (${count}) - ✅ Hochgeladen!`;
+        } else {
+          section.innerHTML = `📸 Fotos - ⚠ Upload fehlgeschlagen`;
+        }
+        break;
       }
+    }
+  }
+
+  // ── Upload photos to Kleinanzeigen form ──
+  function uploadPhotosToForm() {
+    if (photosUploaded) {
+      console.log('[BikeHaus] Photos already uploaded, skipping');
+      return;
+    }
+    if (!pendingBike || !pendingBike.images || pendingBike.images.length === 0) {
+      console.log('[BikeHaus] No images to upload');
       return;
     }
 
-    console.log('[BikeHaus] Found drop zone, fetching images for drag-drop...');
+    console.log(`[BikeHaus] Uploading ${pendingBike.images.length} photos...`);
 
-    const images = pendingBike.images;
-    const fetchPromises = images.map((img, i) => {
-      const imgUrl = pendingBike.apiBaseUrl
-        ? `${pendingBike.apiBaseUrl}/public/gallery-image/${img.filePath}`
-        : img.filePath;
+    // Kleinanzeigen uses Plupload. Strategy order:
+    // 1. Find file input inside #plupld or #pstad-pictureupload (Plupload hidden input)
+    // 2. Try drop on #dropzone-box
+    // 3. Try any file input on page
+    // 4. Watch for lazily-created file inputs via MutationObserver
 
-      return new Promise((resolve) => {
-        chrome.runtime.sendMessage(
-          { type: 'BIKEHAUS_FETCH_IMAGE', url: imgUrl },
-          (response) => {
-            if (response && response.dataUrl) {
-              const ext = img.filePath.split('.').pop() || 'jpg';
-              const filename = `fahrrad_${pendingBike.id}_${i + 1}.${ext}`;
-              const file = dataURLtoFile(response.dataUrl, filename);
-              resolve(file);
-            } else {
-              resolve(null);
-            }
-          }
-        );
-      });
+    // Strategy 1: Plupload hidden file input
+    const pluploadInput = findPluploadFileInput();
+    if (pluploadInput) {
+      console.log('[BikeHaus] Found Plupload file input');
+      uploadViaFileInput(pluploadInput);
+      return;
+    }
+
+    // Strategy 2: Drop on Kleinanzeigen dropzone
+    const dropZone = document.querySelector('#dropzone-box') ||
+                     document.querySelector('#pstad-pictureupload .uploadbox') ||
+                     document.querySelector('[class*="uploadbox"]');
+    if (dropZone) {
+      console.log('[BikeHaus] Found Kleinanzeigen dropzone, trying drop...');
+      uploadViaDropZone(dropZone);
+      return;
+    }
+
+    // Strategy 3: Any file input on the page
+    const anyFileInput = document.querySelector('input[type="file"][accept*="image"]') ||
+                         document.querySelector('input[type="file"]');
+    if (anyFileInput) {
+      console.log('[BikeHaus] Found generic file input');
+      uploadViaFileInput(anyFileInput);
+      return;
+    }
+
+    // Strategy 4: Wait for Plupload to initialize (it creates file inputs lazily)
+    console.log('[BikeHaus] No upload element found yet, waiting for Plupload init...');
+    waitForFileInputAndUpload();
+  }
+
+  // ── Find Plupload's hidden file input ──
+  function findPluploadFileInput() {
+    // Plupload creates an input[type=file] inside #plupld or a container with moxie/plupload id
+    const containers = [
+      document.querySelector('#plupld'),
+      document.querySelector('#pstad-pictureupload'),
+      document.querySelector('[id*="plupload"]'),
+      document.querySelector('[id*="moxie"]'),
+      document.querySelector('[class*="moxie"]')
+    ].filter(Boolean);
+
+    for (const container of containers) {
+      // Plupload file inputs are often inside nested divs with moxie-shim styling
+      const input = container.querySelector('input[type="file"]');
+      if (input) return input;
+    }
+
+    // Also check for inputs with Plupload-specific attributes
+    const allFileInputs = document.querySelectorAll('input[type="file"]');
+    for (const input of allFileInputs) {
+      const parent = input.parentElement;
+      if (parent && (
+        parent.id.includes('moxie') ||
+        parent.id.includes('plupload') ||
+        parent.style.overflow === 'hidden' ||
+        parent.className.includes('moxie')
+      )) {
+        return input;
+      }
+    }
+
+    return null;
+  }
+
+  // ── Upload files by setting them on a file input ──
+  function uploadViaFileInput(fileInput) {
+    fetchAllImages().then(validFiles => {
+      if (validFiles.length === 0) {
+        console.log('[BikeHaus] No valid images fetched');
+        updatePanelPhotoStatus(0, false);
+        return;
+      }
+
+      console.log(`[BikeHaus] Uploading ${validFiles.length} images via file input...`);
+
+      // Upload one at a time for Plupload compatibility (it may only accept one file per change event)
+      uploadFilesSequentially(fileInput, validFiles, 0);
     });
+  }
 
-    Promise.all(fetchPromises).then(files => {
-      const validFiles = files.filter(f => f !== null);
-      if (validFiles.length === 0) return;
+  // ── Upload files one by one to work with Plupload ──
+  function uploadFilesSequentially(fileInput, files, index) {
+    if (index >= files.length) {
+      console.log(`[BikeHaus] All ${files.length} photos uploaded successfully`);
+      photosUploaded = true;
+      updatePanelPhotoStatus(files.length, true);
+      return;
+    }
 
-      // Create and dispatch drop event
+    const file = files[index];
+    console.log(`[BikeHaus] Uploading image ${index + 1}/${files.length}: ${file.name}`);
+
+    const dt = new DataTransfer();
+    dt.items.add(file);
+
+    // Try to make the input accept the file
+    try {
+      fileInput.files = dt.files;
+    } catch (e) {
+      // Some browsers/Plupload versions may block direct file assignment
+      console.log('[BikeHaus] Direct file assignment blocked, trying alternative...');
+      Object.defineProperty(fileInput, 'files', {
+        value: dt.files,
+        writable: true,
+        configurable: true
+      });
+    }
+
+    // Dispatch all relevant events that Plupload listens to
+    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+    fileInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+    // Wait for Plupload to process the file before sending the next one
+    setTimeout(() => {
+      // Re-find the file input as Plupload may recreate it after each upload
+      const freshInput = findPluploadFileInput() || fileInput;
+      uploadFilesSequentially(freshInput, files, index + 1);
+    }, 1500);
+  }
+
+  // ── Upload via drop event on the dropzone ──
+  function uploadViaDropZone(dropZone) {
+    fetchAllImages().then(validFiles => {
+      if (validFiles.length === 0) {
+        console.log('[BikeHaus] No valid images fetched');
+        updatePanelPhotoStatus(0, false);
+        return;
+      }
+
+      console.log(`[BikeHaus] Dropping ${validFiles.length} images on dropzone...`);
+
+      // Create DataTransfer with all files
       const dt = new DataTransfer();
       validFiles.forEach(f => dt.items.add(f));
 
+      // Simulate full drag & drop sequence
+      const dragEnterEvent = new DragEvent('dragenter', {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: dt
+      });
+      const dragOverEvent = new DragEvent('dragover', {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: dt
+      });
       const dropEvent = new DragEvent('drop', {
         bubbles: true,
         cancelable: true,
         dataTransfer: dt
       });
 
-      dropZone.dispatchEvent(new DragEvent('dragenter', { bubbles: true }));
-      dropZone.dispatchEvent(new DragEvent('dragover', { bubbles: true }));
-      dropZone.dispatchEvent(dropEvent);
+      dropZone.dispatchEvent(dragEnterEvent);
 
-      console.log('[BikeHaus] Drop event dispatched on drop zone');
-      photosUploaded = true;
+      // Small delay between events for realism
+      setTimeout(() => {
+        dropZone.dispatchEvent(dragOverEvent);
+
+        setTimeout(() => {
+          dropZone.dispatchEvent(dropEvent);
+          console.log('[BikeHaus] Drop events dispatched on dropzone');
+
+          // Check after a delay if it worked (thumbnails should appear)
+          setTimeout(() => {
+            const thumbnails = document.querySelector('#j-pictureupload-thumbnails, .pictureupload-thumbnails');
+            const hasImages = thumbnails && thumbnails.children.length > 0;
+
+            if (hasImages) {
+              console.log('[BikeHaus] Drop upload successful - thumbnails detected');
+              photosUploaded = true;
+              updatePanelPhotoStatus(validFiles.length, true);
+            } else {
+              console.log('[BikeHaus] Drop may not have worked, trying file input fallback...');
+              // Fallback: try to find a file input that appeared after drop interaction
+              const fallbackInput = findPluploadFileInput() ||
+                                     document.querySelector('input[type="file"]');
+              if (fallbackInput) {
+                uploadFilesSequentially(fallbackInput, validFiles, 0);
+              } else {
+                // Last resort: try dropping files one by one
+                dropFilesSequentially(dropZone, validFiles, 0);
+              }
+            }
+          }, 2000);
+        }, 100);
+      }, 100);
     });
+  }
+
+  // ── Drop files one by one for upload ──
+  function dropFilesSequentially(dropZone, files, index) {
+    if (index >= files.length) {
+      console.log(`[BikeHaus] All ${files.length} photos drop-uploaded`);
+      photosUploaded = true;
+      updatePanelPhotoStatus(files.length, true);
+      return;
+    }
+
+    const file = files[index];
+    const dt = new DataTransfer();
+    dt.items.add(file);
+
+    const dropEvent = new DragEvent('drop', {
+      bubbles: true,
+      cancelable: true,
+      dataTransfer: dt
+    });
+
+    dropZone.dispatchEvent(new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    dropZone.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt }));
+    dropZone.dispatchEvent(dropEvent);
+
+    console.log(`[BikeHaus] Dropped image ${index + 1}/${files.length}`);
+
+    setTimeout(() => {
+      dropFilesSequentially(dropZone, files, index + 1);
+    }, 1500);
+  }
+
+  // ── Wait for Plupload to create its file input (MutationObserver) ──
+  function waitForFileInputAndUpload() {
+    let attempts = 0;
+    const maxAttempts = 20; // 20 * 500ms = 10 seconds max wait
+
+    const checkInterval = setInterval(() => {
+      attempts++;
+
+      // Check for file input
+      const plInput = findPluploadFileInput();
+      if (plInput) {
+        clearInterval(checkInterval);
+        console.log(`[BikeHaus] Plupload file input found after ${attempts} attempts`);
+        uploadViaFileInput(plInput);
+        return;
+      }
+
+      // Check for dropzone
+      const dz = document.querySelector('#dropzone-box') ||
+                 document.querySelector('[class*="uploadbox"]');
+      if (dz) {
+        clearInterval(checkInterval);
+        console.log(`[BikeHaus] Dropzone found after ${attempts} attempts`);
+        uploadViaDropZone(dz);
+        return;
+      }
+
+      // Check for any file input
+      const anyInput = document.querySelector('input[type="file"]');
+      if (anyInput) {
+        clearInterval(checkInterval);
+        console.log(`[BikeHaus] Generic file input found after ${attempts} attempts`);
+        uploadViaFileInput(anyInput);
+        return;
+      }
+
+      if (attempts >= maxAttempts) {
+        clearInterval(checkInterval);
+        console.log('[BikeHaus] Gave up waiting for upload element after 10s');
+        updatePanelPhotoStatus(0, false);
+      }
+    }, 500);
+
+    // Also try triggering Plupload initialization by interacting with the upload area
+    setTimeout(() => {
+      const uploadArea = document.querySelector('#pstad-pictureupload') ||
+                         document.querySelector('.pictureupload-text');
+      if (uploadArea) {
+        // Click the upload area to trigger Plupload initialization
+        uploadArea.click();
+        console.log('[BikeHaus] Clicked upload area to trigger Plupload init');
+      }
+    }, 1000);
   }
 
   // ── Map fahrradtyp to Kleinanzeigen Typ dropdown ──
@@ -723,6 +914,9 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
           <button id="bk-fill-form" class="bk-btn bk-btn-primary">
             ✨ Formular ausfüllen
           </button>
+          <button id="bk-upload-photos" class="bk-btn bk-btn-primary" style="background:#8e44ad;">
+            📸 Fotos hochladen
+          </button>
           <button id="bk-copy-all" class="bk-btn bk-btn-secondary">
             📋 Alles kopieren
           </button>
@@ -788,6 +982,32 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
         btn.style.background = '';
       }, 3000);
     });
+
+    // Upload photos manually
+    const uploadBtn = panel.querySelector('#bk-upload-photos');
+    if (uploadBtn) {
+      if (!pendingBike.images || pendingBike.images.length === 0) {
+        uploadBtn.style.display = 'none';
+      }
+      uploadBtn.addEventListener('click', () => {
+        photosUploaded = false; // Reset flag to allow re-upload
+        uploadBtn.textContent = '⏳ Fotos werden hochgeladen...';
+        uploadBtn.disabled = true;
+        uploadBtn.style.background = '#7f8c8d';
+        uploadPhotosToForm();
+        // Reset button after some time
+        setTimeout(() => {
+          if (!photosUploaded) {
+            uploadBtn.textContent = '📸 Fotos erneut versuchen';
+            uploadBtn.disabled = false;
+            uploadBtn.style.background = '#8e44ad';
+          } else {
+            uploadBtn.textContent = '✅ Fotos hochgeladen!';
+            uploadBtn.style.background = '#27ae60';
+          }
+        }, 8000);
+      });
+    }
 
     // Copy all
     panel.querySelector('#bk-copy-all').addEventListener('click', () => {
