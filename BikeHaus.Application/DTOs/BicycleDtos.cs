@@ -51,7 +51,8 @@ public record BicycleUpdateDto(
     string? Art,
     string? Beschreibung,
     BikeStatus Status,
-    BikeCondition Zustand
+    BikeCondition Zustand,
+    decimal? VerkaufspreisVorschlag = null
 );
 
 public record BicycleImageDto(

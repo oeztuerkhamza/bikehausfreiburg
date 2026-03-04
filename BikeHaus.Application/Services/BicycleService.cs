@@ -153,6 +153,7 @@ public class BicycleService : IBicycleService
         entity.Beschreibung = dto.Beschreibung;
         entity.Status = dto.Status;
         entity.Zustand = dto.Zustand;
+        entity.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(entity);

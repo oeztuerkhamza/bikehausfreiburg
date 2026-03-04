@@ -12,13 +12,18 @@
       if (!chrome.runtime?.id) return; // Extension context invalidated
       chrome.runtime.sendMessage(msg, (response) => {
         if (chrome.runtime.lastError) {
-          console.warn('[BikeHaus Extension] Message error:', chrome.runtime.lastError.message);
+          console.warn(
+            '[BikeHaus Extension] Message error:',
+            chrome.runtime.lastError.message,
+          );
           return;
         }
         if (callback) callback(response);
       });
     } catch (e) {
-      console.warn('[BikeHaus Extension] Extension context invalidated. Please refresh the page.');
+      console.warn(
+        '[BikeHaus Extension] Extension context invalidated. Please refresh the page.',
+      );
     }
   }
 
@@ -33,13 +38,15 @@
       safeSendMessage(
         {
           type: 'BIKEHAUS_OPEN_KLEINANZEIGEN',
-          data: bikeData
+          data: bikeData,
         },
         (response) => {
           if (response && response.success) {
-            console.log('[BikeHaus Extension] Kleinanzeigen page opening with bike data...');
+            console.log(
+              '[BikeHaus Extension] Kleinanzeigen page opening with bike data...',
+            );
           }
-        }
+        },
       );
     }
 
@@ -47,7 +54,7 @@
     if (event.data && event.data.type === 'BIKEHAUS_KA_DELETE') {
       safeSendMessage({
         type: 'BIKEHAUS_KA_DELETE',
-        anzeigeNr: event.data.anzeigeNr
+        anzeigeNr: event.data.anzeigeNr,
       });
     }
   });
@@ -57,17 +64,23 @@
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.type === 'BIKEHAUS_KA_AD_CREATED') {
         // Forward to Angular app via postMessage
-        window.postMessage({
-          type: 'BIKEHAUS_KA_AD_SAVED',
-          bicycleId: message.bicycleId,
-          anzeigeNr: message.anzeigeNr
-        }, '*');
+        window.postMessage(
+          {
+            type: 'BIKEHAUS_KA_AD_SAVED',
+            bicycleId: message.bicycleId,
+            anzeigeNr: message.anzeigeNr,
+          },
+          '*',
+        );
         sendResponse({ success: true });
       }
       return true;
     });
   } catch (e) {
-    console.warn('[BikeHaus Extension] Could not register message listener:', e.message);
+    console.warn(
+      '[BikeHaus Extension] Could not register message listener:',
+      e.message,
+    );
   }
 
   console.log('[BikeHaus Extension] Admin content script loaded.');

@@ -181,13 +181,16 @@ public class PurchaseService : IPurchaseService
         bicycle.Marke = dto.Bicycle.Marke;
         bicycle.Modell = dto.Bicycle.Modell;
         bicycle.Rahmennummer = dto.Bicycle.Rahmennummer;
+        bicycle.Rahmengroesse = dto.Bicycle.Rahmengroesse;
         bicycle.Farbe = dto.Bicycle.Farbe;
         bicycle.Reifengroesse = dto.Bicycle.Reifengroesse;
         bicycle.StokNo = dto.Bicycle.StokNo;
         bicycle.Fahrradtyp = dto.Bicycle.Fahrradtyp;
+        bicycle.Art = dto.Bicycle.Art;
         bicycle.Beschreibung = dto.Bicycle.Beschreibung;
         bicycle.Status = dto.Bicycle.Status;
         bicycle.Zustand = dto.Bicycle.Zustand;
+        bicycle.VerkaufspreisVorschlag = dto.Bicycle.VerkaufspreisVorschlag;
         bicycle.UpdatedAt = DateTime.UtcNow;
         await _bicycleRepository.UpdateAsync(bicycle);
 

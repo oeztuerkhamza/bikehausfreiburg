@@ -95,6 +95,7 @@ export interface BicycleUpdate {
   beschreibung?: string;
   status: BikeStatus;
   zustand: BikeCondition;
+  verkaufspreisVorschlag?: number;
 }
 
 // ── Customer ──

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
+import { PurchaseService } from '../../services/purchase.service';
 import { DocumentService } from '../../services/document.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
@@ -12,6 +13,10 @@ import {
   BicycleUpdate,
   BikeStatus,
   BikeCondition,
+  Purchase,
+  PurchaseUpdate,
+  CustomerUpdate,
+  PaymentMethod,
   Document as DocModel,
 } from '../../models/models';
 
@@ -158,6 +163,82 @@ import {
           </div>
         </div>
 
+        <!-- Purchase Data (Alış Belgesi) -->
+        <div class="edit-card" *ngIf="purchase">
+          <h2>{{ t.purchaseData }}</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>{{ t.bicyclePrice }} (EK)</label>
+              <input type="number" [(ngModel)]="purchaseForm.preis" name="purchasePreis" step="0.01" />
+            </div>
+            <div class="field">
+              <label>{{ t.plannedSellingPrice }}</label>
+              <input type="number" [(ngModel)]="purchaseForm.verkaufspreisVorschlag" name="verkaufspreisVorschlag" step="0.01" placeholder="z.B. 350" />
+            </div>
+            <div class="field">
+              <label>{{ t.paymentMethod }}</label>
+              <select [(ngModel)]="purchaseForm.zahlungsart" name="zahlungsart">
+                <option value="Bar">Bar</option>
+                <option value="PayPal">PayPal</option>
+                <option value="Karte">Karte</option>
+                <option value="Ueberweisung">Überweisung</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>{{ t.purchaseDate }}</label>
+              <input type="date" [(ngModel)]="purchaseForm.kaufdatum" name="kaufdatum" />
+            </div>
+            <div class="field">
+              <label>Beleg-Nr.</label>
+              <input [(ngModel)]="purchaseForm.belegNummer" name="belegNummer" />
+            </div>
+            <div class="field">
+              <label>Anzeige-Nr.</label>
+              <input [(ngModel)]="purchaseForm.anzeigeNr" name="anzeigeNr" />
+            </div>
+            <div class="field field-full">
+              <label>{{ t.notes }}</label>
+              <textarea [(ngModel)]="purchaseForm.notizen" name="purchaseNotizen" rows="2" placeholder="optional"></textarea>
+            </div>
+          </div>
+
+          <h3 class="sub-heading">{{ t.seller }}</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label>{{ t.firstName }}</label>
+              <input [(ngModel)]="sellerForm.vorname" name="sellerVorname" />
+            </div>
+            <div class="field">
+              <label>{{ t.lastName }}</label>
+              <input [(ngModel)]="sellerForm.nachname" name="sellerNachname" />
+            </div>
+            <div class="field">
+              <label>{{ t.street || 'Straße' }}</label>
+              <input [(ngModel)]="sellerForm.strasse" name="sellerStrasse" />
+            </div>
+            <div class="field">
+              <label>{{ t.houseNumber || 'Hausnr.' }}</label>
+              <input [(ngModel)]="sellerForm.hausnummer" name="sellerHausnummer" />
+            </div>
+            <div class="field">
+              <label>{{ t.postalCode || 'PLZ' }}</label>
+              <input [(ngModel)]="sellerForm.plz" name="sellerPlz" />
+            </div>
+            <div class="field">
+              <label>{{ t.city || 'Stadt' }}</label>
+              <input [(ngModel)]="sellerForm.stadt" name="sellerStadt" />
+            </div>
+            <div class="field">
+              <label>{{ t.phone || 'Telefon' }}</label>
+              <input [(ngModel)]="sellerForm.telefon" name="sellerTelefon" />
+            </div>
+            <div class="field">
+              <label>{{ t.email || 'E-Mail' }}</label>
+              <input [(ngModel)]="sellerForm.email" name="sellerEmail" />
+            </div>
+          </div>
+        </div>
+
         <!-- Right: Documents -->
         <div class="edit-card">
           <h2>{{ t.documents }}</h2>
@@ -246,6 +327,9 @@ import {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
+      }
+      .edit-grid > .edit-card:first-child {
+        grid-column: 1 / -1;
       }
       @media (max-width: 768px) {
         .edit-grid {
@@ -353,6 +437,17 @@ import {
         flex-shrink: 0;
       }
 
+      /* Sub heading */
+      .sub-heading {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-top: 18px;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+        padding-top: 14px;
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
+      }
+
       /* Documents */
       .doc-upload {
         margin-bottom: 12px;
@@ -454,6 +549,7 @@ export class BicycleDetailComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
   bicycle: Bicycle | null = null;
+  purchase: Purchase | null = null;
   documents: DocModel[] = [];
   submitting = false;
   BikeCondition = BikeCondition;
@@ -499,6 +595,28 @@ export class BicycleDetailComponent implements OnInit {
     zustand: BikeCondition.Gebraucht,
   };
 
+  purchaseForm = {
+    preis: 0,
+    verkaufspreisVorschlag: null as number | null,
+    zahlungsart: 'Bar' as string,
+    kaufdatum: '',
+    notizen: '',
+    belegNummer: '',
+    anzeigeNr: '',
+  };
+
+  sellerForm: CustomerUpdate = {
+    vorname: '',
+    nachname: '',
+    strasse: '',
+    hausnummer: '',
+    plz: '',
+    stadt: '',
+    telefon: '',
+    email: '',
+    steuernummer: '',
+  };
+
   get t() {
     return this.translationService.translations();
   }
@@ -507,6 +625,7 @@ export class BicycleDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private bicycleService: BicycleService,
+    private purchaseService: PurchaseService,
     private documentService: DocumentService,
   ) {}
 
@@ -527,8 +646,43 @@ export class BicycleDetailComponent implements OnInit {
         beschreibung: b.beschreibung,
         status: b.status,
         zustand: b.zustand,
+        verkaufspreisVorschlag: b.verkaufspreisVorschlag,
       };
     });
+
+    // Load purchase data for this bicycle
+    this.purchaseService.getByBicycleId(id).subscribe({
+      next: (p) => {
+        this.purchase = p;
+        this.purchaseForm = {
+          preis: p.preis,
+          verkaufspreisVorschlag: p.verkaufspreisVorschlag ?? null,
+          zahlungsart: p.zahlungsart,
+          kaufdatum: p.kaufdatum ? p.kaufdatum.substring(0, 10) : '',
+          notizen: p.notizen || '',
+          belegNummer: p.belegNummer || '',
+          anzeigeNr: p.anzeigeNr || '',
+        };
+        if (p.seller) {
+          this.sellerForm = {
+            vorname: p.seller.vorname,
+            nachname: p.seller.nachname,
+            strasse: p.seller.strasse || '',
+            hausnummer: p.seller.hausnummer || '',
+            plz: p.seller.plz || '',
+            stadt: p.seller.stadt || '',
+            telefon: p.seller.telefon || '',
+            email: p.seller.email || '',
+            steuernummer: p.seller.steuernummer || '',
+          };
+        }
+      },
+      error: () => {
+        // No purchase found for this bicycle - that's ok
+        this.purchase = null;
+      },
+    });
+
     this.documentService
       .getByBicycleId(id)
       .subscribe((docs) => (this.documents = docs));
@@ -540,10 +694,37 @@ export class BicycleDetailComponent implements OnInit {
       return;
     }
     this.submitting = true;
+
+    // Save bicycle data
     this.bicycleService.update(this.bicycle!.id, this.form).subscribe({
       next: () => {
-        this.notificationService.success(this.t.saveSuccess);
-        this.router.navigate(['/bicycles']);
+        // If there's a purchase, save it too
+        if (this.purchase) {
+          const purchaseUpdate: PurchaseUpdate = {
+            bicycle: this.form,
+            seller: this.sellerForm,
+            preis: this.purchaseForm.preis,
+            verkaufspreisVorschlag: this.purchaseForm.verkaufspreisVorschlag || undefined,
+            zahlungsart: this.purchaseForm.zahlungsart as PaymentMethod,
+            kaufdatum: this.purchaseForm.kaufdatum,
+            notizen: this.purchaseForm.notizen || undefined,
+            belegNummer: this.purchaseForm.belegNummer || undefined,
+            anzeigeNr: this.purchaseForm.anzeigeNr || undefined,
+          };
+          this.purchaseService.update(this.purchase.id, purchaseUpdate).subscribe({
+            next: () => {
+              this.notificationService.success(this.t.saveSuccess);
+              this.router.navigate(['/bicycles']);
+            },
+            error: (err) => {
+              this.submitting = false;
+              this.notificationService.error(err.error?.error || this.t.saveError);
+            },
+          });
+        } else {
+          this.notificationService.success(this.t.saveSuccess);
+          this.router.navigate(['/bicycles']);
+        }
       },
       error: (err) => {
         this.submitting = false;

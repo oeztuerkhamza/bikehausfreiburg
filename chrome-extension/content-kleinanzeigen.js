@@ -1376,15 +1376,6 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
     // Make panel draggable
     makeDraggable(panel, panel.querySelector('.bk-header'));
-
-    // Auto-fill with multiple retry attempts (KA React app renders fields at different times)
-    const fillAttempts = [2000, 4000, 6000];
-    fillAttempts.forEach((delay) => {
-      setTimeout(() => {
-        console.log(`[BikeHaus] Auto-fill attempt at ${delay}ms`);
-        fillForm();
-      }, delay);
-    });
   }
 
   // ── Setup draggable photos in the panel ──
