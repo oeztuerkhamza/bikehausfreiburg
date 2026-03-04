@@ -1182,10 +1182,9 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
             : img.filePath;
           return `
           <div class="bk-img-item bk-draggable-photo" draggable="true" data-img-index="${i}" data-img-url="${imgUrl}" data-filename="fahrrad_${pendingBike.id}_${i + 1}.jpg" title="Foto ${i + 1} – In den Upload-Bereich ziehen">
-            <img src="${imgUrl}" alt="Foto ${i + 1}" crossorigin="anonymous" draggable="false" />
+            <img data-src="${imgUrl}" alt="Foto ${i + 1}" draggable="false" />
             <div class="bk-drag-badge">${i + 1}</div>
-            <a href="${imgUrl}" download="fahrrad_${pendingBike.id}_${i + 1}.jpg" 
-               class="bk-img-download" title="Herunterladen">⬇</a>
+            <a class="bk-img-download" title="Herunterladen" data-dl-url="${imgUrl}" data-dl-name="fahrrad_${pendingBike.id}_${i + 1}.jpg">⬇</a>
           </div>
         `;
         })
@@ -1376,6 +1375,47 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
     // Make panel draggable
     makeDraggable(panel, panel.querySelector('.bk-header'));
+
+    // Load images via background script to bypass CSP restrictions
+    loadPanelImages(panel);
+  }
+
+  // ── Fetch images via background script and display as data URLs ──
+  function loadPanelImages(panel) {
+    const imgElements = panel.querySelectorAll('.bk-draggable-photo img[data-src]');
+    imgElements.forEach((img) => {
+      const url = img.dataset.src;
+      chrome.runtime.sendMessage(
+        { type: 'BIKEHAUS_FETCH_IMAGE', url },
+        (response) => {
+          if (response && response.dataUrl) {
+            img.src = response.dataUrl;
+          }
+        }
+      );
+    });
+
+    // Also setup download links to use fetched data
+    const dlLinks = panel.querySelectorAll('.bk-img-download[data-dl-url]');
+    dlLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const dlUrl = link.dataset.dlUrl;
+        const dlName = link.dataset.dlName;
+        chrome.runtime.sendMessage(
+          { type: 'BIKEHAUS_FETCH_IMAGE', url: dlUrl },
+          (response) => {
+            if (response && response.dataUrl) {
+              const a = document.createElement('a');
+              a.href = response.dataUrl;
+              a.download = dlName;
+              a.click();
+            }
+          }
+        );
+      });
+    });
   }
 
   // ── Setup draggable photos in the panel ──
