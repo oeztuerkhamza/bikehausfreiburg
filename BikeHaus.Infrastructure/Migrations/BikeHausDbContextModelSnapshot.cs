@@ -67,6 +67,12 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsPublishedOnKleinanzeigen")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsPublishedOnWebsite")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Marke")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -98,6 +104,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal?>("VerkaufspreisVorschlag")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("Zustand")
                         .HasColumnType("INTEGER");
 
@@ -106,6 +115,36 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.HasIndex("Rahmennummer");
 
                     b.ToTable("Bicycles");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.BicycleImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BicycleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BicycleId");
+
+                    b.ToTable("BicycleImages");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.Customer", b =>
@@ -936,6 +975,17 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.BicycleImage", b =>
+                {
+                    b.HasOne("BikeHaus.Domain.Entities.Bicycle", "Bicycle")
+                        .WithMany("Images")
+                        .HasForeignKey("BicycleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bicycle");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Document", b =>
                 {
                     b.HasOne("BikeHaus.Domain.Entities.Bicycle", "Bicycle")
@@ -1136,6 +1186,8 @@ namespace BikeHaus.Infrastructure.Migrations
             modelBuilder.Entity("BikeHaus.Domain.Entities.Bicycle", b =>
                 {
                     b.Navigation("Documents");
+
+                    b.Navigation("Images");
 
                     b.Navigation("Purchase");
 

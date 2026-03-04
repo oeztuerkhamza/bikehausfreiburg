@@ -27,7 +27,7 @@ import { ShopInfoService } from '../../services/shop-info.service';
 
         <button
           class="menu-toggle"
-          (click)="menuOpen = !menuOpen"
+          (click)="toggleMenu()"
           [class.active]="menuOpen"
           [attr.aria-expanded]="menuOpen"
           aria-label="Menu"
@@ -294,6 +294,18 @@ export class NavbarComponent {
     this._menuOpen = value;
     // Prevent body scroll when menu is open
     document.body.style.overflow = value ? 'hidden' : '';
+  }
+
+  toggleMenu(): void {
+    if (!this._menuOpen) {
+      // Scroll to top first, then open menu
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        this.menuOpen = true;
+      }, 150);
+    } else {
+      this.menuOpen = false;
+    }
   }
 
   navLinks = [

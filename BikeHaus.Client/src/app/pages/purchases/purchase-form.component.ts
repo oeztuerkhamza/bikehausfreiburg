@@ -16,7 +16,7 @@ import {
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-purchase-form',
@@ -291,6 +291,49 @@ import { forkJoin } from 'rxjs';
                   rows="4"
                   placeholder="z.B.&#10;E-Trekking Pedelec&#10;Bosch Performance Line 65&#10;NM 500 Wh&#10;28 Zoll Trapez 50 cm"
                 ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gallery Photos (for Website & Kleinanzeigen) -->
+          <div class="form-card" *ngIf="!bulkMode">
+            <h2>📸 {{ t.galleryPhotos }}</h2>
+            <p class="hint-text">
+              {{ t.galleryPhotosHint }}
+            </p>
+            <div class="upload-area">
+              <input
+                type="file"
+                #galleryInput
+                (change)="onGalleryFilesSelected($event)"
+                accept="image/*"
+                multiple
+                style="display: none"
+              />
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="galleryInput.click()"
+              >
+                📷 {{ t.selectPhotos }}
+              </button>
+              <span class="file-count" *ngIf="galleryFiles.length > 0">
+                {{ galleryFiles.length }} {{ t.photosSelected }}
+              </span>
+            </div>
+            <div class="preview-grid" *ngIf="galleryPreviewUrls.length > 0">
+              <div
+                class="preview-item"
+                *ngFor="let url of galleryPreviewUrls; let i = index"
+              >
+                <img [src]="url" alt="Galerie Vorschau" />
+                <button
+                  type="button"
+                  class="remove-btn"
+                  (click)="removeGalleryFile(i)"
+                >
+                  ×
+                </button>
               </div>
             </div>
           </div>
@@ -902,6 +945,9 @@ export class PurchaseFormComponent implements OnInit {
   selectedFiles: File[] = [];
   previewUrls: string[] = [];
 
+  galleryFiles: File[] = [];
+  galleryPreviewUrls: string[] = [];
+
   brands: string[] = [];
   models: string[] = [];
   storeNames: string[] = [];
@@ -1073,6 +1119,26 @@ export class PurchaseFormComponent implements OnInit {
     this.previewUrls.splice(index, 1);
   }
 
+  onGalleryFilesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      for (const file of Array.from(input.files)) {
+        this.galleryFiles.push(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.galleryPreviewUrls.push(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    input.value = '';
+  }
+
+  removeGalleryFile(index: number) {
+    this.galleryFiles.splice(index, 1);
+    this.galleryPreviewUrls.splice(index, 1);
+  }
+
   submit() {
     this.submitting = true;
     if (this.bulkMode) {
@@ -1134,12 +1200,15 @@ export class PurchaseFormComponent implements OnInit {
 
     this.purchaseService.create(purchase).subscribe({
       next: (result) => {
+        const allUploads: Observable<any>[] = [];
+
+        // Upload document files (screenshots/invoices)
         if (this.selectedFiles.length > 0 && result.id) {
           const docType =
             this.bicycle.zustand === 'Neu'
               ? DocumentType.Rechnung
               : DocumentType.Screenshot;
-          const uploadObservables = this.selectedFiles.map((file) =>
+          const docUploads = this.selectedFiles.map((file) =>
             this.documentService.upload(
               file,
               docType,
@@ -1147,13 +1216,24 @@ export class PurchaseFormComponent implements OnInit {
               result.id,
             ),
           );
+          allUploads.push(...docUploads);
+        }
 
-          forkJoin(uploadObservables).subscribe({
+        // Upload gallery photos (for website/Kleinanzeigen)
+        if (this.galleryFiles.length > 0 && result.bicycle?.id) {
+          const galleryUploads = this.galleryFiles.map((file) =>
+            this.bicycleService.uploadGalleryImage(result.bicycle.id, file),
+          );
+          allUploads.push(...galleryUploads);
+        }
+
+        if (allUploads.length > 0) {
+          forkJoin(allUploads).subscribe({
             next: () => {
               this.router.navigate(['/purchases']);
             },
             error: () => {
-              console.error('Fehler beim Hochladen der Screenshots');
+              console.error('Fehler beim Hochladen der Dateien');
               this.router.navigate(['/purchases']);
             },
           });

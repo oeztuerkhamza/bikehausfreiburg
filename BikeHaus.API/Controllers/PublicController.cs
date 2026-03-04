@@ -9,13 +9,16 @@ public class PublicController : ControllerBase
 {
     private readonly IKleinanzeigenService _kleinanzeigenService;
     private readonly INeueFahrradService _neueFahrradService;
+    private readonly IBicycleService _bicycleService;
 
     public PublicController(
         IKleinanzeigenService kleinanzeigenService,
-        INeueFahrradService neueFahrradService)
+        INeueFahrradService neueFahrradService,
+        IBicycleService bicycleService)
     {
         _kleinanzeigenService = kleinanzeigenService;
         _neueFahrradService = neueFahrradService;
+        _bicycleService = bicycleService;
     }
 
     /// <summary>
@@ -124,5 +127,44 @@ public class PublicController : ControllerBase
     {
         var categories = await _neueFahrradService.GetCategoriesAsync();
         return Ok(categories);
+    }
+
+    // ═══ Gebrauchte Fahrräder (Published Used Bicycles) ═══
+
+    /// <summary>
+    /// Get all bicycles published on the website (public)
+    /// </summary>
+    [HttpGet("gebrauchte-fahrraeder")]
+    public async Task<IActionResult> GetGebrauchteFahrraeder()
+    {
+        var items = await _bicycleService.GetPublishedOnWebsiteAsync();
+        return Ok(items);
+    }
+
+    /// <summary>
+    /// Get a single published bicycle by ID
+    /// </summary>
+    [HttpGet("gebrauchte-fahrraeder/{id}")]
+    public async Task<IActionResult> GetGebrauchteFahrrad(int id)
+    {
+        var item = await _bicycleService.GetPublishedBicycleByIdAsync(id);
+        if (item == null) return NotFound();
+        return Ok(item);
+    }
+
+    /// <summary>
+    /// Serve gallery image files
+    /// </summary>
+    [HttpGet("gallery-image/{*filePath}")]
+    public IActionResult GetGalleryImage(string filePath)
+    {
+        var fullPath = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+        if (!System.IO.File.Exists(fullPath))
+            return NotFound();
+
+        var contentType = filePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png"
+            : filePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase) ? "image/webp"
+            : "image/jpeg";
+        return PhysicalFile(fullPath, contentType);
     }
 }

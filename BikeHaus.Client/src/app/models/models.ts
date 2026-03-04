@@ -52,7 +52,18 @@ export interface Bicycle {
   beschreibung?: string;
   status: BikeStatus;
   zustand: BikeCondition;
+  isPublishedOnWebsite: boolean;
+  isPublishedOnKleinanzeigen: boolean;
+  verkaufspreisVorschlag?: number;
   createdAt: string;
+  images?: BicycleImage[];
+}
+
+export interface BicycleImage {
+  id: number;
+  bicycleId: number;
+  filePath: string;
+  sortOrder: number;
 }
 
 export interface BicycleCreate {

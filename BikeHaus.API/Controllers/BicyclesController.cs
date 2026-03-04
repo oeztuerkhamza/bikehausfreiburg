@@ -136,4 +136,94 @@ public class BicyclesController : ControllerBase
         var models = await _bicycleService.GetUniqueModelsAsync(brand);
         return Ok(models);
     }
+
+    // ═══ Publishing ═══
+
+    [Authorize]
+    [HttpPost("{id}/toggle-publish-website")]
+    public async Task<ActionResult<BicycleDto>> TogglePublishWebsite(int id)
+    {
+        try
+        {
+            var bicycle = await _bicycleService.TogglePublishOnWebsiteAsync(id);
+            return Ok(bicycle);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    [Authorize]
+    [HttpPost("{id}/toggle-publish-kleinanzeigen")]
+    public async Task<ActionResult<BicycleDto>> TogglePublishKleinanzeigen(int id)
+    {
+        try
+        {
+            var bicycle = await _bicycleService.TogglePublishOnKleinanzeigenAsync(id);
+            return Ok(bicycle);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    // ═══ Gallery Images ═══
+
+    [HttpGet("{id}/gallery")]
+    public async Task<ActionResult<IEnumerable<BicycleImageDto>>> GetGallery(int id)
+    {
+        try
+        {
+            var images = await _bicycleService.GetImagesAsync(id);
+            return Ok(images);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    [Authorize]
+    [HttpPost("{id}/gallery")]
+    public async Task<ActionResult<BicycleImageDto>> UploadGalleryImage(int id, IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { error = "No file uploaded" });
+
+        try
+        {
+            // Save file to uploads/gallery/{bicycleId}/
+            var uploadsDir = Path.Combine("uploads", "gallery", id.ToString());
+            Directory.CreateDirectory(uploadsDir);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsDir, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Get current count for sort order
+            var existingImages = await _bicycleService.GetImagesAsync(id);
+            var sortOrder = existingImages.Count();
+
+            var image = await _bicycleService.AddImageAsync(id, filePath, sortOrder);
+            return Ok(image);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    [Authorize]
+    [HttpDelete("{id}/gallery/{imageId}")]
+    public async Task<IActionResult> DeleteGalleryImage(int id, int imageId)
+    {
+        try
+        {
+            // Get image info before deleting
+            var images = await _bicycleService.GetImagesAsync(id);
+            var image = images.FirstOrDefault(i => i.Id == imageId);
+            if (image != null && System.IO.File.Exists(image.FilePath))
+            {
+                System.IO.File.Delete(image.FilePath);
+            }
+
+            await _bicycleService.DeleteImageAsync(id, imageId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
 }

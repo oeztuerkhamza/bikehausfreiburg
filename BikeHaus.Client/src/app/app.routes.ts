@@ -96,38 +96,6 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'reservations',
-    loadComponent: () =>
-      import('./pages/reservations/reservation-list.component').then(
-        (m) => m.ReservationListComponent,
-      ),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'reservations/new',
-    loadComponent: () =>
-      import('./pages/reservations/reservation-form.component').then(
-        (m) => m.ReservationFormComponent,
-      ),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'reservations/:id',
-    loadComponent: () =>
-      import('./pages/reservations/reservation-list.component').then(
-        (m) => m.ReservationListComponent,
-      ),
-    canActivate: [authGuard],
-  },
-  {
-    path: 'reservations/:id/convert',
-    loadComponent: () =>
-      import('./pages/reservations/reservation-convert.component').then(
-        (m) => m.ReservationConvertComponent,
-      ),
-    canActivate: [authGuard],
-  },
-  {
     path: 'returns',
     loadComponent: () =>
       import('./pages/returns/return-list.component').then(

@@ -155,8 +155,22 @@ export interface Translations {
   quickLinks: string;
   legalNotice: string;
   privacy: string;
+  warrantyTerms: string;
   terms: string;
   allRights: string;
+
+  // Warranty Page
+  warrantyPageLabel: string;
+  warrantyPageTitle: string;
+  warrantyNewTitle: string;
+  warrantyNewText: string;
+  warrantyUsedTitle: string;
+  warrantyUsedText: string;
+  warrantyRepairNote: string;
+  warrantyExcludedTitle: string;
+  warrantyExcludedItems: string;
+  warrantyReturnTitle: string;
+  warrantyReturnText: string;
 
   // General
   loading: string;
@@ -473,8 +487,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     quickLinks: 'Navigation',
     legalNotice: 'Impressum',
     privacy: 'Datenschutz',
+    warrantyTerms: 'Garantiebedingungen',
     terms: 'AGB',
     allRights: 'Alle Rechte vorbehalten.',
+
+    // Warranty Page
+    warrantyPageLabel: 'RECHTLICHES',
+    warrantyPageTitle: 'Garantiebedingungen',
+    warrantyNewTitle: 'Neue Fahrräder',
+    warrantyNewText: 'Dieses Fahrrad ist Neuwaren und unterliegt der gesetzlichen 2-jährigen Gewährleistung. Die Rechnung wird mitgeliefert. Der Verkäufer garantiert, dass das Fahrrad bei Übergabe mängelfrei ist. Der Käufer hat das Recht, das Fahrrad innerhalb von 3 Tagen ohne Angabe von Gründen zurückzugeben, vorausgesetzt, das Fahrrad wird vollständig und unversehrt zurückgegeben.',
+    warrantyUsedTitle: 'Gebrauchte Fahrräder',
+    warrantyUsedText: '3 Monate Garantie auf: Kette, Schaltung, Schaltwerk, Dynamo, Pedale und hydraulische Bremsen.',
+    warrantyRepairNote: 'Reparaturen im Garantiefall dürfen ausschließlich durch Bike Haus Freiburg durchgeführt werden.',
+    warrantyExcludedTitle: 'Von der Garantie ausgeschlossen',
+    warrantyExcludedItems: 'Reifen, Schläuche, Bremsbeläge, Lampen. Ebenfalls ausgeschlossen: Schäden durch Unfälle oder unsachgemäße Nutzung.',
+    warrantyReturnTitle: 'Rückgaberecht',
+    warrantyReturnText: 'Innerhalb von 3 Arbeitstagen.',
 
     loading: 'Wird geladen...',
     error: 'Ein Fehler ist aufgetreten.',
@@ -799,8 +827,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     quickLinks: 'Navigation',
     legalNotice: 'Legal Notice',
     privacy: 'Privacy Policy',
+    warrantyTerms: 'Warranty Terms',
     terms: 'Terms',
     allRights: 'All rights reserved.',
+
+    // Warranty Page
+    warrantyPageLabel: 'LEGAL',
+    warrantyPageTitle: 'Warranty Terms',
+    warrantyNewTitle: 'New Bicycles',
+    warrantyNewText: 'This bicycle is new merchandise and is subject to the statutory 2-year warranty. The invoice is included. The seller guarantees that the bicycle is free of defects at handover. The buyer has the right to return the bicycle within 3 days without giving reasons, provided the bicycle is returned complete and undamaged.',
+    warrantyUsedTitle: 'Used Bicycles',
+    warrantyUsedText: '3 months warranty on: chain, gears, derailleur, dynamo, pedals and hydraulic brakes.',
+    warrantyRepairNote: 'Warranty repairs must be carried out exclusively by Bike Haus Freiburg.',
+    warrantyExcludedTitle: 'Excluded from Warranty',
+    warrantyExcludedItems: 'Tires, tubes, brake pads, lights. Also excluded: damage from accidents or improper use.',
+    warrantyReturnTitle: 'Return Policy',
+    warrantyReturnText: 'Within 3 business days.',
 
     loading: 'Loading...',
     error: 'An error occurred.',
@@ -1116,8 +1158,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     quickLinks: 'Navigation',
     legalNotice: 'Mentions légales',
     privacy: 'Confidentialité',
+    warrantyTerms: 'Conditions de garantie',
     terms: 'CGV',
     allRights: 'Tous droits réservés.',
+
+    // Warranty Page
+    warrantyPageLabel: 'JURIDIQUE',
+    warrantyPageTitle: 'Conditions de garantie',
+    warrantyNewTitle: 'Vélos neufs',
+    warrantyNewText: "Ce vélo est un produit neuf et est soumis à la garantie légale de 2 ans. La facture est fournie. Le vendeur garantit que le vélo est exempt de défauts lors de la remise. L'acheteur a le droit de retourner le vélo dans les 3 jours sans donner de raison, à condition que le vélo soit retourné complet et en bon état.",
+    warrantyUsedTitle: "Vélos d'occasion",
+    warrantyUsedText: '3 mois de garantie sur : chaîne, vitesses, dérailleur, dynamo, pédales et freins hydrauliques.',
+    warrantyRepairNote: 'Les réparations sous garantie doivent être effectuées exclusivement par Bike Haus Freiburg.',
+    warrantyExcludedTitle: 'Exclus de la garantie',
+    warrantyExcludedItems: 'Pneus, chambres à air, plaquettes de frein, lampes. Également exclus : dommages causés par des accidents ou une utilisation inappropriée.',
+    warrantyReturnTitle: 'Droit de retour',
+    warrantyReturnText: 'Dans les 3 jours ouvrables.',
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
@@ -1448,8 +1504,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     quickLinks: 'Navigasyon',
     legalNotice: 'Yasal Bildirim',
     privacy: 'Gizlilik',
+    warrantyTerms: 'Garanti Şartları',
     terms: 'Şartlar',
     allRights: 'Tüm hakları saklıdır.',
+
+    // Warranty Page
+    warrantyPageLabel: 'YASAL',
+    warrantyPageTitle: 'Garanti Şartları',
+    warrantyNewTitle: 'Yeni Bisikletler',
+    warrantyNewText: 'Bu bisiklet yeni üründür ve yasal 2 yıllık garanti kapsamındadır. Fatura dahildir. Satıcı, bisikletin teslim anında kusursuz olduğunu garanti eder. Alıcı, bisikletin eksiksiz ve hasarsız olarak iade edilmesi koşuluyla, 3 gün içinde sebep göstermeksizin bisikleti iade etme hakkına sahiptir.',
+    warrantyUsedTitle: 'İkinci El Bisikletler',
+    warrantyUsedText: '3 ay garanti: zincir, vites, aktarıcı, dinamo, pedallar ve hidrolik frenler.',
+    warrantyRepairNote: 'Garanti kapsamındaki onarımlar yalnızca Bike Haus Freiburg tarafından yapılmalıdır.',
+    warrantyExcludedTitle: 'Garanti Dışı',
+    warrantyExcludedItems: 'Lastikler, iç lastikler, fren balataları, lambalar. Ayrıca kapsam dışı: kaza veya uygunsuz kullanımdan kaynaklanan hasarlar.',
+    warrantyReturnTitle: 'İade Hakkı',
+    warrantyReturnText: '3 iş günü içinde.',
 
     loading: 'Yükleniyor...',
     error: 'Bir hata oluştu.',

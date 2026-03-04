@@ -24,6 +24,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<KleinanzeigenImage> KleinanzeigenImages => Set<KleinanzeigenImage>();
     public DbSet<NeueFahrrad> NeueFahrraeder => Set<NeueFahrrad>();
     public DbSet<NeueFahrradImage> NeueFahrradImages => Set<NeueFahrradImage>();
+    public DbSet<BicycleImage> BicycleImages => Set<BicycleImage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,7 +40,17 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Farbe).HasMaxLength(150);
             entity.Property(e => e.Reifengroesse).IsRequired().HasMaxLength(20);
             entity.Property(e => e.Beschreibung).HasMaxLength(500);
+            entity.Property(e => e.VerkaufspreisVorschlag).HasColumnType("decimal(18,2)");
             entity.HasIndex(e => e.Rahmennummer);
+            entity.HasMany(e => e.Images).WithOne(i => i.Bicycle)
+                .HasForeignKey(i => i.BicycleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── BicycleImage Configuration ──
+        modelBuilder.Entity<BicycleImage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FilePath).IsRequired().HasMaxLength(500);
         });
 
         // ── Customer Configuration ──

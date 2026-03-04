@@ -16,9 +16,15 @@ public class Bicycle : BaseEntity
     public BikeStatus Status { get; set; } = BikeStatus.Available;
     public BikeCondition Zustand { get; set; } = BikeCondition.Gebraucht; // Neu or Gebraucht
 
+    // Publishing flags
+    public bool IsPublishedOnWebsite { get; set; } = false;
+    public bool IsPublishedOnKleinanzeigen { get; set; } = false;
+    public decimal? VerkaufspreisVorschlag { get; set; }  // Suggested selling price for listings
+
     // Navigation Properties
     public Purchase? Purchase { get; set; }
     public ICollection<Sale> Sales { get; set; } = new List<Sale>();
     public Reservation? Reservation { get; set; }
     public ICollection<Document> Documents { get; set; } = new List<Document>();
+    public ICollection<BicycleImage> Images { get; set; } = new List<BicycleImage>();
 }

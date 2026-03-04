@@ -19,7 +19,33 @@ public static class MappingExtensions
         entity.Beschreibung,
         entity.Status,
         entity.Zustand,
-        entity.CreatedAt
+        entity.IsPublishedOnWebsite,
+        entity.IsPublishedOnKleinanzeigen,
+        entity.VerkaufspreisVorschlag,
+        entity.CreatedAt,
+        entity.Images?.Select(i => i.ToDto()).ToList()
+    );
+
+    public static BicycleImageDto ToDto(this BicycleImage entity) => new(
+        entity.Id,
+        entity.BicycleId,
+        entity.FilePath,
+        entity.SortOrder
+    );
+
+    public static PublicBicycleDto ToPublicDto(this Bicycle entity) => new(
+        entity.Id,
+        entity.Marke,
+        entity.Modell,
+        entity.Farbe,
+        entity.Reifengroesse,
+        entity.Fahrradtyp,
+        entity.Beschreibung,
+        entity.Rahmengroesse,
+        entity.Zustand,
+        entity.VerkaufspreisVorschlag,
+        entity.CreatedAt,
+        entity.Images?.Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>()
     );
 
     public static Bicycle ToEntity(this BicycleCreateDto dto) => new()

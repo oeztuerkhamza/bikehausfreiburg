@@ -163,6 +163,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 <span class="badge" [class]="'badge-' + b.status.toLowerCase()">
                   {{ statusLabel(b.status) }}
                 </span>
+                <span class="publish-icon" *ngIf="b.isPublishedOnWebsite" title="Website">🌐</span>
+                <span class="publish-icon" *ngIf="b.isPublishedOnKleinanzeigen" title="Kleinanzeigen">📢</span>
               </td>
               <td class="actions-cell">
                 <span class="action-icon">⋮</span>
@@ -185,11 +187,19 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                   </button>
                   <button
                     *ngIf="b.status === 'Available'"
-                    class="popup-item popup-item-reserve"
-                    (click)="goToReservation(b)"
+                    class="popup-item popup-item-publish"
+                    (click)="togglePublishWebsite(b)"
                   >
-                    <span class="popup-icon">📋</span>
-                    {{ t.reserve }}
+                    <span class="popup-icon">🌐</span>
+                    {{ b.isPublishedOnWebsite ? t.unpublishFromWebsite : t.publishOnWebsite }}
+                  </button>
+                  <button
+                    *ngIf="b.status === 'Available'"
+                    class="popup-item popup-item-kleinanzeigen"
+                    (click)="togglePublishKleinanzeigen(b)"
+                  >
+                    <span class="popup-icon">📢</span>
+                    {{ b.isPublishedOnKleinanzeigen ? t.unpublishFromKleinanzeigen : t.publishOnKleinanzeigen }}
                   </button>
                   <div class="popup-divider"></div>
                   <button
@@ -478,11 +488,17 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .popup-item-primary:hover {
         background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
       }
-      .popup-item-reserve {
-        color: #3b82f6;
+      .popup-item-publish {
+        color: #8b5cf6;
       }
-      .popup-item-reserve:hover {
-        background: rgba(59, 130, 246, 0.08);
+      .popup-item-publish:hover {
+        background: rgba(139, 92, 246, 0.08);
+      }
+      .popup-item-kleinanzeigen {
+        color: #059669;
+      }
+      .popup-item-kleinanzeigen:hover {
+        background: rgba(5, 150, 105, 0.08);
       }
       .popup-item-danger {
         color: var(--accent-danger, #ef4444);
@@ -503,6 +519,11 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         color: var(--text-secondary, #64748b);
         padding: 48px 20px;
         font-size: 0.95rem;
+      }
+      .publish-icon {
+        font-size: 0.75rem;
+        margin-left: 4px;
+        vertical-align: middle;
       }
       .btn {
         padding: 8px 16px;
@@ -667,10 +688,38 @@ export class BicycleListComponent implements OnInit {
     this.router.navigate(['/sales/new'], { queryParams: { bicycleId: b.id } });
   }
 
-  goToReservation(b: Bicycle) {
+  togglePublishWebsite(b: Bicycle) {
     this.closeMenu();
-    this.router.navigate(['/reservations/new'], {
-      queryParams: { bicycleId: b.id },
+    this.bicycleService.togglePublishWebsite(b.id).subscribe({
+      next: (updated) => {
+        this.notificationService.success(
+          updated.isPublishedOnWebsite ? this.t.publishedOnWebsite : this.t.unpublishedFromWebsite
+        );
+        this.load();
+      },
+      error: () => {
+        this.notificationService.error(this.t.saveChangesError);
+      },
+    });
+  }
+
+  togglePublishKleinanzeigen(b: Bicycle) {
+    this.closeMenu();
+    this.bicycleService.togglePublishKleinanzeigen(b.id).subscribe({
+      next: (updated) => {
+        this.notificationService.success(
+          updated.isPublishedOnKleinanzeigen ? this.t.publishedOnKleinanzeigen : this.t.unpublishedFromKleinanzeigen
+        );
+        if (updated.isPublishedOnKleinanzeigen) {
+          // Navigate to bicycle detail page to review data for Kleinanzeigen
+          this.router.navigate(['/bicycles', b.id]);
+        } else {
+          this.load();
+        }
+      },
+      error: () => {
+        this.notificationService.error(this.t.saveChangesError);
+      },
     });
   }
 

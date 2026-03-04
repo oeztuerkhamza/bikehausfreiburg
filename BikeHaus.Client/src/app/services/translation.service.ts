@@ -403,6 +403,16 @@ export interface Translations {
   details: string;
   sell: string;
   reserve: string;
+  publishOnWebsite: string;
+  unpublishFromWebsite: string;
+  publishOnKleinanzeigen: string;
+  unpublishFromKleinanzeigen: string;
+  publishedOnWebsite: string;
+  unpublishedFromWebsite: string;
+  publishedOnKleinanzeigen: string;
+  unpublishedFromKleinanzeigen: string;
+  galleryPhotos: string;
+  galleryPhotosHint: string;
   noBicyclesFound: string;
 
   // Bicycle Detail
@@ -1021,6 +1031,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     details: 'Details',
     sell: 'Verkaufen',
     reserve: 'Reservieren',
+    publishOnWebsite: 'Auf Website veröffentlichen',
+    unpublishFromWebsite: 'Von Website entfernen',
+    publishOnKleinanzeigen: 'Auf Kleinanzeigen veröffentlichen',
+    unpublishFromKleinanzeigen: 'Von Kleinanzeigen entfernen',
+    publishedOnWebsite: 'Auf Website veröffentlicht!',
+    unpublishedFromWebsite: 'Von Website entfernt!',
+    publishedOnKleinanzeigen: 'Für Kleinanzeigen markiert!',
+    unpublishedFromKleinanzeigen: 'Kleinanzeigen-Markierung entfernt!',
+    galleryPhotos: 'Galerie-Fotos (Website & Kleinanzeigen)',
+    galleryPhotosHint: 'Diese Fotos werden für die Veröffentlichung auf der Website und für Kleinanzeigen-Inserate verwendet.',
     noBicyclesFound: 'Keine Fahrräder gefunden',
 
     // Bicycle Detail
@@ -1639,6 +1659,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     details: 'Detaylar',
     sell: 'Sat',
     reserve: 'Rezerve Et',
+    publishOnWebsite: 'Web Sitesinde Yayınla',
+    unpublishFromWebsite: 'Web Sitesinden Kaldır',
+    publishOnKleinanzeigen: 'Kleinanzeigen\'de Yayınla',
+    unpublishFromKleinanzeigen: 'Kleinanzeigen\'den Kaldır',
+    publishedOnWebsite: 'Web sitesinde yayınlandı!',
+    unpublishedFromWebsite: 'Web sitesinden kaldırıldı!',
+    publishedOnKleinanzeigen: 'Kleinanzeigen için işaretlendi!',
+    unpublishedFromKleinanzeigen: 'Kleinanzeigen işareti kaldırıldı!',
+    galleryPhotos: 'Galeri Fotoğrafları (Web Sitesi & Kleinanzeigen)',
+    galleryPhotosHint: 'Bu fotoğraflar web sitesinde yayınlama ve Kleinanzeigen ilanı oluşturma amacıyla kullanılacaktır.',
     noBicyclesFound: 'Bisiklet bulunamadı',
 
     // Bicycle Detail

@@ -75,3 +75,26 @@ export interface PublicShopInfo {
   totalActiveListings?: number;
   kleinanzeigenUrl?: string;
 }
+
+// ── Published Used Bicycles ──
+export interface PublicBicycleImage {
+  id: number;
+  bicycleId: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface PublicBicycle {
+  id: number;
+  marke: string;
+  modell: string;
+  farbe?: string;
+  reifengroesse: string;
+  fahrradtyp?: string;
+  beschreibung?: string;
+  rahmengroesse?: string;
+  zustand: string;
+  preis?: number;
+  createdAt: string;
+  images: PublicBicycleImage[];
+}

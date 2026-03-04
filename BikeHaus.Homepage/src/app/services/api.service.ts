@@ -8,6 +8,7 @@ import {
   PublicShopInfo,
   NeueFahrrad,
   NeueFahrradCategory,
+  PublicBicycle,
 } from '../models/models';
 
 @Injectable({
@@ -66,6 +67,19 @@ export class ApiService {
   getNeueFahrraederCategories(): Observable<NeueFahrradCategory[]> {
     return this.http.get<NeueFahrradCategory[]>(
       `${this.baseUrl}/neue-fahrraeder/categories`,
+    );
+  }
+
+  // ── Gebrauchte Fahrräder (Published Used Bicycles) ──
+  getGebrauchteFahrraeder(): Observable<PublicBicycle[]> {
+    return this.http.get<PublicBicycle[]>(
+      `${this.baseUrl}/gebrauchte-fahrraeder`,
+    );
+  }
+
+  getGebrauchteFahrradById(id: number): Observable<PublicBicycle> {
+    return this.http.get<PublicBicycle>(
+      `${this.baseUrl}/gebrauchte-fahrraeder/${id}`,
     );
   }
 }

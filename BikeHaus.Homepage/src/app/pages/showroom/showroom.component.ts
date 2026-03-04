@@ -13,7 +13,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { BikeCardComponent } from '../../components/bike-card/bike-card.component';
-import { KleinanzeigenListing } from '../../models/models';
+import { KleinanzeigenListing, PublicBicycle } from '../../models/models';
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
 
@@ -1422,11 +1422,20 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   private loadData(): void {
     this.apiService.getListings().subscribe({
       next: (data) => {
-        this.allListings.set(data);
-        this.loading.set(false);
-
-        // Add ItemList Schema for SEO
-        this.addItemListSchema(data);
+        // Also load published bicycles and merge
+        this.apiService.getGebrauchteFahrraeder().subscribe({
+          next: (bikes) => {
+            const convertedBikes = bikes.map((b) => this.convertBicycleToListing(b));
+            this.allListings.set([...data, ...convertedBikes]);
+            this.loading.set(false);
+            this.addItemListSchema([...data, ...convertedBikes]);
+          },
+          error: () => {
+            this.allListings.set(data);
+            this.loading.set(false);
+            this.addItemListSchema(data);
+          },
+        });
       },
       error: () => this.loading.set(false),
     });
@@ -1434,6 +1443,37 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     this.apiService.getLastSync().subscribe({
       next: (data) => this.lastSync.set(data),
     });
+  }
+
+  private convertBicycleToListing(bike: PublicBicycle): KleinanzeigenListing {
+    const titleParts = [bike.marke, bike.modell];
+    if (bike.fahrradtyp) titleParts.push(bike.fahrradtyp);
+    if (bike.reifengroesse) titleParts.push(`${bike.reifengroesse} Zoll`);
+    if (bike.rahmengroesse) titleParts.push(`${bike.rahmengroesse} cm`);
+
+    const baseUrl = this.apiService['baseUrl'] || '';
+
+    return {
+      id: bike.id + 900000, // Offset to avoid ID collision with KA listings
+      externalId: `bike-${bike.id}`,
+      title: titleParts.join(' '),
+      description: bike.beschreibung || '',
+      price: bike.preis || undefined,
+      priceText: bike.preis ? `${bike.preis} €` : 'VB',
+      category: bike.fahrradtyp || 'Gebraucht',
+      location: 'Freiburg',
+      externalUrl: '',
+      isActive: true,
+      firstScrapedAt: bike.createdAt,
+      lastScrapedAt: bike.createdAt,
+      images: bike.images.map((img, idx) => ({
+        id: img.id,
+        kleinanzeigenListingId: bike.id + 900000,
+        imageUrl: `${baseUrl}/gallery-image/${img.filePath}`,
+        localPath: img.filePath,
+        sortOrder: img.sortOrder,
+      })),
+    };
   }
 
   private addItemListSchema(listings: KleinanzeigenListing[]): void {

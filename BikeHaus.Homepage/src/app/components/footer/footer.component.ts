@@ -41,6 +41,9 @@ import { ShopInfoService } from '../../services/shop-info.service';
             <a [routerLink]="['/' + lang(), 'datenschutz']">{{
               t().privacy
             }}</a>
+            <a [routerLink]="['/' + lang(), 'garantie']">{{
+              t().warrantyTerms
+            }}</a>
           </nav>
         </div>
 
@@ -50,6 +53,9 @@ import { ShopInfoService } from '../../services/shop-info.service';
           <div class="footer-langs">
             <a [routerLink]="['/de']" [class.active]="lang() === 'de'"
               >Deutsch</a
+            >
+            <a [routerLink]="['/en']" [class.active]="lang() === 'en'"
+              >English</a
             >
             <a [routerLink]="['/fr']" [class.active]="lang() === 'fr'"
               >Français</a

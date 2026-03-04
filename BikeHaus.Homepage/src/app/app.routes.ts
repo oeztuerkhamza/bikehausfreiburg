@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { TranslationService, Language } from './services/translation.service';
 
-const SUPPORTED_LANGS = ['de', 'fr', 'tr'];
+const SUPPORTED_LANGS = ['de', 'en', 'fr', 'tr'];
 
 export const languageGuard: CanActivateFn = (route) => {
   const lang = route.paramMap.get('lang');
@@ -85,6 +85,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/datenschutz/datenschutz.component').then(
             (m) => m.DatenschutzComponent,
+          ),
+      },
+      {
+        path: 'garantie',
+        loadComponent: () =>
+          import('./pages/garantie/garantie.component').then(
+            (m) => m.GarantieComponent,
           ),
       },
     ],

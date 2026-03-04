@@ -30,6 +30,7 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             .Include(b => b.Purchase).ThenInclude(p => p!.Seller)
             .Include(b => b.Sales).ThenInclude(s => s!.Buyer)
             .Include(b => b.Documents)
+            .Include(b => b.Images)
             .FirstOrDefaultAsync(b => b.Id == id);
     }
 
@@ -107,5 +108,21 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             .Distinct()
             .OrderBy(m => m)
             .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Bicycle>> GetPublishedOnWebsiteAsync()
+    {
+        return await _dbSet
+            .Include(b => b.Images)
+            .Where(b => b.IsPublishedOnWebsite && b.Status == BikeStatus.Available)
+            .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<Bicycle?> GetWithImagesAsync(int id)
+    {
+        return await _dbSet
+            .Include(b => b.Images)
+            .FirstOrDefaultAsync(b => b.Id == id);
     }
 }
