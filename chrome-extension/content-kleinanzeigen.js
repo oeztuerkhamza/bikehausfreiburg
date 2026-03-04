@@ -697,35 +697,70 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     return null;
   }
 
-  // Select an option from the opened Zustand dropdown
+  // Select an option from the opened Zustand dialog
+  // KA opens a modal dialog with radio buttons + "Bestätigen" button
   function selectZustandOption(container, zustandText) {
-    // Look for dropdown items anywhere on the page (might be in a portal/overlay)
-    const searchAreas = [container, document.body];
+    // The dialog may be a modal that appears anywhere on the page (portal)
+    // Look for radio buttons with the matching label text
+    const searchAreas = [document.body];
 
     for (const area of searchAreas) {
-      // Look for list items, options, buttons with the text
-      const candidates = area.querySelectorAll(
-        'li, [class*="item"], [class*="option"], [role="option"], [role="listbox"] > *, button, a, span, div'
-      );
+      // Find all radio buttons on the page
+      const radios = area.querySelectorAll('input[type="radio"]');
+      for (const radio of radios) {
+        // Check the label/container around this radio
+        const radioContainer = radio.closest('label') ||
+                               radio.closest('[class*="option"]') ||
+                               radio.closest('[class*="item"]') ||
+                               radio.parentElement;
+        if (!radioContainer) continue;
 
-      for (const item of candidates) {
-        const itemText = item.textContent.trim();
-        // Exact match or starts with the zustand text (case-insensitive)
-        if (itemText.toLowerCase() === zustandText.toLowerCase() ||
-            itemText.toLowerCase().startsWith(zustandText.toLowerCase())) {
-          // Make sure this is actually a clickable option, not just any element with that text
-          const isOption = item.matches('li, [class*="item"], [class*="option"], [role="option"], button, a') ||
-                          item.parentElement?.matches('ul, [role="listbox"], [class*="list"], [class*="dropdown"]');
-          if (isOption) {
-            console.log(`[BikeHaus] Clicking Zustand option: "${itemText}"`);
-            item.click();
-            return true;
-          }
+        const containerText = radioContainer.textContent.trim();
+        // Check if this radio's label starts with or matches the zustand text
+        // "Sehr Gut" should match "Sehr Gut\nGepflegter Artikel mit..."
+        // "Neu" should match "Neu\nUnbenutzter Artikel..."
+        const firstLine = containerText.split('\n')[0].trim();
+
+        if (firstLine.toLowerCase() === zustandText.toLowerCase() ||
+            firstLine.toLowerCase().startsWith(zustandText.toLowerCase())) {
+          console.log(`[BikeHaus] Found Zustand radio: "${firstLine}", clicking...`);
+
+          // Click the radio button
+          radio.checked = true;
+          radio.click();
+          radio.dispatchEvent(new Event('change', { bubbles: true }));
+          radio.dispatchEvent(new Event('input', { bubbles: true }));
+
+          // Also click the label/container (some frameworks listen on label click)
+          radioContainer.click();
+
+          // Now find and click the "Bestätigen" (Confirm) button
+          setTimeout(() => {
+            clickBestaetigenButton();
+          }, 400);
+
+          return true;
         }
       }
     }
 
-    console.log(`[BikeHaus] Zustand option "${zustandText}" not found in dropdown`);
+    console.log(`[BikeHaus] Zustand option "${zustandText}" not found in dialog`);
+    return false;
+  }
+
+  // Click the "Bestätigen" button in the Zustand dialog
+  function clickBestaetigenButton() {
+    // Look for buttons with text "Bestätigen"
+    const allButtons = document.querySelectorAll('button, [role="button"], a, input[type="submit"]');
+    for (const btn of allButtons) {
+      const btnText = btn.textContent.trim().toLowerCase();
+      if (btnText === 'bestätigen' || btnText.includes('bestätigen')) {
+        console.log('[BikeHaus] Clicking Bestätigen button');
+        btn.click();
+        return true;
+      }
+    }
+    console.log('[BikeHaus] Bestätigen button not found');
     return false;
   }
 
