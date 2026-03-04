@@ -60,9 +60,7 @@ export class ApiService {
   }
 
   getNeueFahrradById(id: number): Observable<NeueFahrrad> {
-    return this.http.get<NeueFahrrad>(
-      `${this.baseUrl}/neue-fahrraeder/${id}`,
-    );
+    return this.http.get<NeueFahrrad>(`${this.baseUrl}/neue-fahrraeder/${id}`);
   }
 
   getNeueFahrraederCategories(): Observable<NeueFahrradCategory[]> {

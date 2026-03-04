@@ -632,7 +632,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     // Neue Fahrräder
     neueFahrraeder: 'Neue Fahrräder',
     neueFahrraederMetaTitle: 'Neue Fahrräder — Bike Haus Freiburg',
-    neueFahrraederMetaDescription: 'Fabrikneue Fahrräder bei Bike Haus Freiburg. City, Trekking, Mountain, E-Bike — mit voller Herstellergarantie.',
+    neueFahrraederMetaDescription:
+      'Fabrikneue Fahrräder bei Bike Haus Freiburg. City, Trekking, Mountain, E-Bike — mit voller Herstellergarantie.',
     neueFahrraederTitle: 'Neue Fahrräder',
     neueFahrraederSub: 'Fabrikneue Räder mit voller Herstellergarantie.',
     neueFahrraederBrand: 'Marke',
@@ -963,7 +964,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     // Neue Fahrräder
     neueFahrraeder: 'Vélos neufs',
     neueFahrraederMetaTitle: 'Vélos neufs — Bike Haus Freiburg',
-    neueFahrraederMetaDescription: 'Vélos neufs chez Bike Haus Freiburg. Ville, trekking, VTT, vélo électrique — avec garantie constructeur complète.',
+    neueFahrraederMetaDescription:
+      'Vélos neufs chez Bike Haus Freiburg. Ville, trekking, VTT, vélo électrique — avec garantie constructeur complète.',
     neueFahrraederTitle: 'Vélos neufs',
     neueFahrraederSub: 'Vélos neufs avec garantie constructeur complète.',
     neueFahrraederBrand: 'Marque',
@@ -1291,7 +1293,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     // Neue Fahrräder
     neueFahrraeder: 'Yeni Bisikletler',
     neueFahrraederMetaTitle: 'Yeni Bisikletler — Bike Haus Freiburg',
-    neueFahrraederMetaDescription: "Bike Haus Freiburg'da sıfır bisikletler. Şehir, trekking, dağ, elektrikli — tam üretici garantili.",
+    neueFahrraederMetaDescription:
+      "Bike Haus Freiburg'da sıfır bisikletler. Şehir, trekking, dağ, elektrikli — tam üretici garantili.",
     neueFahrraederTitle: 'Yeni Bisikletler',
     neueFahrraederSub: 'Tam üretici garantili sıfır bisikletler.',
     neueFahrraederBrand: 'Marka',

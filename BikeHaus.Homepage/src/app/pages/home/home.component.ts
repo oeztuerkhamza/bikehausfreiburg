@@ -24,7 +24,12 @@ interface Testimonial {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, BikeCardComponent, NeueBikeCardComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    BikeCardComponent,
+    NeueBikeCardComponent,
+  ],
   template: `
     <!-- ═══ Section 1 — HERO ═══ -->
     <section class="hero" aria-labelledby="hero-heading">

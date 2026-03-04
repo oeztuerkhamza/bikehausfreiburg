@@ -25,8 +25,16 @@ import { environment } from '../../../environments/environment';
 
       <div class="toolbar">
         <div class="search-box">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
           </svg>
           <input
             type="text"
@@ -37,7 +45,9 @@ import { environment } from '../../../environments/environment';
         </div>
         <select [(ngModel)]="filterCategory" (change)="filterItems()">
           <option value="">{{ t.all }}</option>
-          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          <option *ngFor="let cat of categories" [value]="cat">
+            {{ cat }}
+          </option>
         </select>
       </div>
 
@@ -56,15 +66,28 @@ import { environment } from '../../../environments/environment';
               [alt]="item.titel"
             />
             <div *ngIf="item.images.length === 0" class="no-image">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21 15 16 10 5 21"/>
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
               </svg>
             </div>
             <div class="card-badges">
-              <span class="badge badge-category" *ngIf="item.kategorie">{{ item.kategorie }}</span>
-              <span class="badge" [class.badge-active]="item.isActive" [class.badge-inactive]="!item.isActive">
+              <span class="badge badge-category" *ngIf="item.kategorie">{{
+                item.kategorie
+              }}</span>
+              <span
+                class="badge"
+                [class.badge-active]="item.isActive"
+                [class.badge-inactive]="!item.isActive"
+              >
                 {{ item.isActive ? t.neueFahrradActive : t.inactive }}
               </span>
             </div>
@@ -77,12 +100,17 @@ import { environment } from '../../../environments/environment';
             <div class="card-meta">
               <span *ngIf="item.marke">{{ item.marke }}</span>
               <span *ngIf="item.modell">{{ item.modell }}</span>
-              <span *ngIf="item.zustand" class="condition">{{ item.zustand }}</span>
+              <span *ngIf="item.zustand" class="condition">{{
+                item.zustand
+              }}</span>
             </div>
             <div class="card-price">{{ item.preis | number: '1.2-2' }} €</div>
           </div>
           <div class="card-actions">
-            <a [routerLink]="['/neue-fahrraeder/edit', item.id]" class="btn btn-outline btn-sm">
+            <a
+              [routerLink]="['/neue-fahrraeder/edit', item.id]"
+              class="btn btn-outline btn-sm"
+            >
               {{ t.edit }}
             </a>
             <button class="btn btn-danger btn-sm" (click)="deleteItem(item)">
@@ -101,8 +129,14 @@ import { environment } from '../../../environments/environment';
         animation: fadeIn 0.4s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
@@ -178,10 +212,12 @@ import { environment } from '../../../environments/environment';
         border-radius: var(--radius-lg, 14px);
         border: 1.5px solid var(--border-light, #e2e8f0);
         overflow: hidden;
-        transition: box-shadow 0.2s, transform 0.2s;
+        transition:
+          box-shadow 0.2s,
+          transform 0.2s;
       }
       .card:hover {
-        box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1));
+        box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.1));
         transform: translateY(-2px);
       }
       .card-image {
@@ -232,7 +268,7 @@ import { environment } from '../../../environments/environment';
         position: absolute;
         bottom: 10px;
         right: 10px;
-        background: rgba(0,0,0,0.65);
+        background: rgba(0, 0, 0, 0.65);
         color: #fff;
         padding: 3px 8px;
         border-radius: 6px;

@@ -4,7 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { NeueFahrradService } from '../../services/neue-fahrrad.service';
 import { TranslationService } from '../../services/translation.service';
-import { NeueFahrrad, NeueFahrradCreate, NeueFahrradUpdate } from '../../models/models';
+import {
+  NeueFahrrad,
+  NeueFahrradCreate,
+  NeueFahrradUpdate,
+} from '../../models/models';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -15,7 +19,9 @@ import { environment } from '../../../environments/environment';
     <div class="page">
       <div class="page-header">
         <h1>{{ isEdit ? t.neueFahrradEdit : t.neueFahrradNew }}</h1>
-        <a routerLink="/neue-fahrraeder" class="btn btn-outline">{{ t.back }}</a>
+        <a routerLink="/neue-fahrraeder" class="btn btn-outline">{{
+          t.back
+        }}</a>
       </div>
 
       <div *ngIf="loading" class="loading">{{ t.loading }}</div>
@@ -37,11 +43,19 @@ import { environment } from '../../../environments/environment';
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradBrand }}</label>
-                <input [(ngModel)]="form.marke" name="marke" placeholder="z.B. Pegasus" />
+                <input
+                  [(ngModel)]="form.marke"
+                  name="marke"
+                  placeholder="z.B. Pegasus"
+                />
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradModel }}</label>
-                <input [(ngModel)]="form.modell" name="modell" placeholder="z.B. Premio SL" />
+                <input
+                  [(ngModel)]="form.modell"
+                  name="modell"
+                  placeholder="z.B. Premio SL"
+                />
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradPrice }} *</label>
@@ -70,19 +84,35 @@ import { environment } from '../../../environments/environment';
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradColor }}</label>
-                <input [(ngModel)]="form.farbe" name="farbe" placeholder="z.B. Schwarz" />
+                <input
+                  [(ngModel)]="form.farbe"
+                  name="farbe"
+                  placeholder="z.B. Schwarz"
+                />
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradFrameSize }}</label>
-                <input [(ngModel)]="form.rahmengroesse" name="rahmengroesse" placeholder="z.B. 50cm" />
+                <input
+                  [(ngModel)]="form.rahmengroesse"
+                  name="rahmengroesse"
+                  placeholder="z.B. 50cm"
+                />
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradWheelSize }}</label>
-                <input [(ngModel)]="form.reifengroesse" name="reifengroesse" placeholder="z.B. 28 Zoll" />
+                <input
+                  [(ngModel)]="form.reifengroesse"
+                  name="reifengroesse"
+                  placeholder="z.B. 28 Zoll"
+                />
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradGears }}</label>
-                <input [(ngModel)]="form.gangschaltung" name="gangschaltung" placeholder="z.B. 7-Gang Shimano" />
+                <input
+                  [(ngModel)]="form.gangschaltung"
+                  name="gangschaltung"
+                  placeholder="z.B. 7-Gang Shimano"
+                />
               </div>
               <div class="field">
                 <label>{{ t.neueFahrradCondition }}</label>
@@ -119,7 +149,10 @@ import { environment } from '../../../environments/environment';
 
             <div class="photo-grid" *ngIf="existingItem.images.length > 0">
               <div class="photo-item" *ngFor="let img of existingItem.images">
-                <img [src]="getImageUrl(img.filePath)" [alt]="existingItem.titel" />
+                <img
+                  [src]="getImageUrl(img.filePath)"
+                  [alt]="existingItem.titel"
+                />
                 <button
                   type="button"
                   class="photo-delete"
@@ -148,7 +181,10 @@ import { environment } from '../../../environments/environment';
 
           <!-- Photo upload hint for new items -->
           <div class="form-card hint-card" *ngIf="!isEdit">
-            <p class="hint">💡 {{ t.neueFahrradPhotos }}: Erstelle zuerst das Fahrrad, dann kannst du Fotos hochladen.</p>
+            <p class="hint">
+              💡 {{ t.neueFahrradPhotos }}: Erstelle zuerst das Fahrrad, dann
+              kannst du Fotos hochladen.
+            </p>
           </div>
         </div>
 
@@ -172,8 +208,14 @@ import { environment } from '../../../environments/environment';
         animation: fadeIn 0.4s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
@@ -223,7 +265,9 @@ import { environment } from '../../../environments/environment';
         gap: 14px;
       }
       @media (max-width: 600px) {
-        .form-grid { grid-template-columns: 1fr; }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
       }
       .field label {
         display: block;
@@ -251,12 +295,13 @@ import { environment } from '../../../environments/environment';
       .field textarea:focus {
         outline: none;
         border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99, 102, 241, 0.1));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
       .field.full {
         grid-column: 1 / -1;
       }
-      .field input[type="checkbox"] {
+      .field input[type='checkbox'] {
         width: auto;
         margin-right: 8px;
       }
@@ -298,6 +343,39 @@ import { environment } from '../../../environments/environment';
         display: flex;
         align-items: center;
         gap: 12px;
+      }
+      .drop-zone {
+        border: 2px dashed var(--border-light, #e2e8f0);
+        border-radius: var(--radius-lg, 14px);
+        padding: 32px 24px;
+        text-align: center;
+        background: var(--bg-secondary, #f8fafc);
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+      .drop-zone:hover {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.04));
+      }
+      .drop-zone.drag-over {
+        border-color: var(--accent-primary, #6366f1);
+        background: rgba(99, 102, 241, 0.1);
+        transform: scale(1.01);
+      }
+      .drop-zone-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .drop-icon {
+        font-size: 2.5rem;
+        opacity: 0.7;
+      }
+      .drop-text {
+        font-size: 0.95rem;
+        color: var(--text-secondary, #64748b);
+        margin: 0;
       }
       .upload-btn {
         display: inline-flex;
@@ -368,6 +446,7 @@ export class NeueFahrradFormComponent implements OnInit {
   submitting = false;
   uploading = false;
   isActive = true;
+  isDragging = false;
   existingItem: NeueFahrrad | null = null;
 
   form: NeueFahrradCreate = {
@@ -425,11 +504,46 @@ export class NeueFahrradFormComponent implements OnInit {
     return `${environment.apiUrl.replace('/api/public', '')}${path}`;
   }
 
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+
+    if (!event.dataTransfer?.files || !this.existingItem) return;
+
+    const files = Array.from(event.dataTransfer.files).filter(f => 
+      f.type.startsWith('image/')
+    );
+
+    if (files.length === 0) return;
+
+    this.uploadFiles(files);
+  }
+
   onFilesSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || !this.existingItem) return;
 
     const files = Array.from(input.files);
+    this.uploadFiles(files);
+    input.value = '';
+  }
+
+  private uploadFiles(files: File[]) {
+    if (!this.existingItem || files.length === 0) return;
+
     this.uploading = true;
 
     this.service.uploadImages(this.existingItem.id, files).subscribe({
@@ -438,7 +552,6 @@ export class NeueFahrradFormComponent implements OnInit {
           this.existingItem.images.push(...images);
         }
         this.uploading = false;
-        input.value = '';
       },
       error: () => {
         this.uploading = false;

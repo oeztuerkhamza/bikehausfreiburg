@@ -45,15 +45,10 @@ import { environment } from '../../../environments/environment';
         }}</span>
 
         <!-- Condition Badge -->
-        <span class="card-condition is-new">{{
-          t().conditionNew
-        }}</span>
+        <span class="card-condition is-new">{{ t().conditionNew }}</span>
 
         <!-- Image Count -->
-        <span
-          *ngIf="bike.images && bike.images.length > 1"
-          class="card-count"
-        >
+        <span *ngIf="bike.images && bike.images.length > 1" class="card-count">
           <svg
             width="10"
             height="10"
@@ -86,14 +81,19 @@ import { environment } from '../../../environments/environment';
             stroke="currentColor"
             stroke-width="2"
           >
-            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+            <path
+              d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+            />
             <line x1="7" y1="7" x2="7.01" y2="7" />
           </svg>
           {{ bike.marke }}{{ bike.modell ? ' ' + bike.modell : '' }}
         </p>
         <div class="card-footer">
-          <span class="card-price" *ngIf="bike.preisText || bike.preis; else noPrice">
-            {{ bike.preisText || (bike.preis | number:'1.0-0') + ' €' }}
+          <span
+            class="card-price"
+            *ngIf="bike.preisText || bike.preis; else noPrice"
+          >
+            {{ bike.preisText || (bike.preis | number: '1.0-0') + ' €' }}
           </span>
           <ng-template #noPrice>
             <span class="card-price subtle">{{ t().priceOnRequest }}</span>

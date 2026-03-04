@@ -14,7 +14,6 @@ import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { NeueBikeCardComponent } from '../../components/neue-bike-card/neue-bike-card.component';
 import { NeueFahrrad, NeueFahrradCategory } from '../../models/models';
-import { environment } from '../../../environments/environment';
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
 
@@ -39,14 +38,29 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         <!-- ====== Sidebar (Desktop) ====== -->
         <aside class="sidebar" [class.open]="sidebarOpen()">
           <button class="sidebar-close" (click)="closeSidebar()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
 
           <!-- Search -->
           <div class="sidebar-search">
-            <svg class="s-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              class="s-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.35-4.35" />
             </svg>
@@ -62,7 +76,14 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
           <!-- ══════ KATEGORIE ══════ -->
           <div class="sidebar-section" *ngIf="categories().length > 0">
             <h3 class="filter-heading">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
               </svg>
               {{ t().filterCategory }}
@@ -90,7 +111,14 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
           <!-- ══════ PREIS ══════ -->
           <div class="sidebar-section">
             <h3 class="filter-heading">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <line x1="12" y1="1" x2="12" y2="23" />
                 <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
               </svg>
@@ -99,21 +127,44 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
             <div class="price-inputs">
               <div class="price-field">
                 <span class="price-label">Min</span>
-                <input type="number" placeholder="0" [value]="priceMin()" (input)="onPriceMin($event)" min="0" />
+                <input
+                  type="number"
+                  placeholder="0"
+                  [value]="priceMin()"
+                  (input)="onPriceMin($event)"
+                  min="0"
+                />
                 <span class="price-unit">€</span>
               </div>
               <span class="price-separator">—</span>
               <div class="price-field">
                 <span class="price-label">Max</span>
-                <input type="number" placeholder="∞" [value]="priceMax()" (input)="onPriceMax($event)" min="0" />
+                <input
+                  type="number"
+                  placeholder="∞"
+                  [value]="priceMax()"
+                  (input)="onPriceMax($event)"
+                  min="0"
+                />
                 <span class="price-unit">€</span>
               </div>
             </div>
           </div>
 
           <!-- Clear Filters -->
-          <button class="clear-btn" *ngIf="hasActiveFilters()" (click)="clearFilters()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <button
+            class="clear-btn"
+            *ngIf="hasActiveFilters()"
+            (click)="clearFilters()"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
             {{ t().clearFilters }}
@@ -121,29 +172,49 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         </aside>
 
         <!-- Sidebar overlay (mobile) -->
-        <div class="sidebar-overlay" *ngIf="sidebarOpen()" (click)="closeSidebar()"></div>
+        <div
+          class="sidebar-overlay"
+          *ngIf="sidebarOpen()"
+          (click)="closeSidebar()"
+        ></div>
 
         <!-- ====== Main Content ====== -->
         <main class="main-content">
           <!-- Toolbar -->
           <div class="toolbar">
             <button class="filter-toggle" (click)="sidebarOpen.set(true)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
               </svg>
               {{ t().filters }}
-              <span class="active-badge" *ngIf="activeFilterCount() > 0">{{ activeFilterCount() }}</span>
+              <span class="active-badge" *ngIf="activeFilterCount() > 0">{{
+                activeFilterCount()
+              }}</span>
             </button>
 
             <!-- Active filter pills -->
             <div class="active-filters">
               <span class="active-pill" *ngIf="selectedCategory()">
                 {{ translateCategory(selectedCategory()!) }}
-                <button class="pill-close" (click)="toggleCategory(selectedCategory()!)">×</button>
+                <button
+                  class="pill-close"
+                  (click)="toggleCategory(selectedCategory()!)"
+                >
+                  ×
+                </button>
               </span>
               <span class="active-pill" *ngIf="priceMin() || priceMax()">
                 {{ priceMin() || 0 }}€ - {{ priceMax() || '∞' }}€
-                <button class="pill-close" (click)="clearPriceFilter()">×</button>
+                <button class="pill-close" (click)="clearPriceFilter()">
+                  ×
+                </button>
               </span>
             </div>
 
@@ -152,7 +223,11 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
             <!-- Sort -->
             <div class="sort-wrap">
               <label class="sort-label">{{ t().sortBy }}:</label>
-              <select class="sort-select" [value]="sortOption()" (change)="onSort($event)">
+              <select
+                class="sort-select"
+                [value]="sortOption()"
+                (change)="onSort($event)"
+              >
                 <option value="newest">{{ t().sortNewest }}</option>
                 <option value="price-asc">{{ t().sortPriceLow }}</option>
                 <option value="price-desc">{{ t().sortPriceHigh }}</option>
@@ -160,12 +235,22 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
               </select>
             </div>
 
-            <span class="result-count">{{ filteredBikes().length }} {{ t().bikesAvailable }}</span>
+            <span class="result-count"
+              >{{ filteredBikes().length }} {{ t().bikesAvailable }}</span
+            >
           </div>
 
           <!-- Mobile Search -->
           <div class="mobile-search">
-            <svg class="s-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              class="s-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.35-4.35" />
             </svg>
@@ -191,7 +276,10 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
           </div>
 
           <!-- Results -->
-          <div *ngIf="!loading() && filteredBikes().length > 0" class="bike-grid">
+          <div
+            *ngIf="!loading() && filteredBikes().length > 0"
+            class="bike-grid"
+          >
             <app-neue-bike-card
               *ngFor="let bike of filteredBikes()"
               [bike]="bike"
@@ -199,15 +287,29 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
           </div>
 
           <!-- Empty State -->
-          <div *ngIf="!loading() && filteredBikes().length === 0" class="empty-state">
-            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <div
+            *ngIf="!loading() && filteredBikes().length === 0"
+            class="empty-state"
+          >
+            <svg
+              width="56"
+              height="56"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
               <circle cx="5.5" cy="17.5" r="3.5" />
               <circle cx="18.5" cy="17.5" r="3.5" />
               <path d="M15 6l-4 8h6l-2 3.5" />
               <path d="M5.5 17.5L9 9h3" />
             </svg>
             <p>{{ t().neueFahrraederNoItems }}</p>
-            <button class="clear-btn" *ngIf="hasActiveFilters()" (click)="clearFilters()">
+            <button
+              class="clear-btn"
+              *ngIf="hasActiveFilters()"
+              (click)="clearFilters()"
+            >
               {{ t().clearFilters }}
             </button>
           </div>
@@ -304,7 +406,9 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         border-color: var(--color-accent);
       }
 
-      .sidebar-section { padding: 0.25rem 0; }
+      .sidebar-section {
+        padding: 0.25rem 0;
+      }
       .filter-heading {
         display: flex;
         align-items: center;
@@ -316,7 +420,11 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         color: var(--color-text-secondary);
         margin-bottom: 0.6rem;
       }
-      .checkbox-group { display: flex; flex-direction: column; gap: 0.15rem; }
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
       .checkbox-item {
         display: flex;
         align-items: center;
@@ -328,9 +436,17 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         color: var(--color-text-secondary);
         transition: all 0.2s;
       }
-      .checkbox-item:hover { background: var(--color-surface); color: var(--color-text); }
-      .checkbox-item.active { background: rgba(255, 87, 34, 0.08); color: var(--color-accent); }
-      .checkbox-item input { display: none; }
+      .checkbox-item:hover {
+        background: var(--color-surface);
+        color: var(--color-text);
+      }
+      .checkbox-item.active {
+        background: rgba(255, 87, 34, 0.08);
+        color: var(--color-accent);
+      }
+      .checkbox-item input {
+        display: none;
+      }
       .check-box {
         width: 16px;
         height: 16px;
@@ -458,7 +574,11 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         padding: 0.1rem 0.4rem;
         border-radius: 8px;
       }
-      .active-filters { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+      .active-filters {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+      }
       .active-pill {
         display: flex;
         align-items: center;
@@ -479,7 +599,9 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         padding: 0;
         line-height: 1;
       }
-      .toolbar-spacer { flex: 1; }
+      .toolbar-spacer {
+        flex: 1;
+      }
       .sort-wrap {
         display: flex;
         align-items: center;
@@ -537,7 +659,12 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
       }
-      .sk-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+      .sk-body {
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
       .sk-line {
         height: 12px;
         border-radius: 6px;
@@ -550,12 +677,22 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
       }
-      .w30 { width: 30%; }
-      .w40 { width: 40%; }
-      .w60 { width: 60%; }
+      .w30 {
+        width: 30%;
+      }
+      .w40 {
+        width: 40%;
+      }
+      .w60 {
+        width: 60%;
+      }
       @keyframes shimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
       }
 
       /* ═══ EMPTY STATE ═══ */
@@ -564,9 +701,18 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         padding: 4rem 2rem;
         color: var(--color-text-muted);
       }
-      .empty-state svg { margin-bottom: 1rem; opacity: 0.4; }
-      .empty-state p { font-size: 0.95rem; margin-bottom: 1rem; }
-      .empty-state .clear-btn { width: auto; display: inline-flex; }
+      .empty-state svg {
+        margin-bottom: 1rem;
+        opacity: 0.4;
+      }
+      .empty-state p {
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+      }
+      .empty-state .clear-btn {
+        width: auto;
+        display: inline-flex;
+      }
 
       /* ═══ MOBILE ═══ */
       @media (max-width: 900px) {
@@ -612,7 +758,9 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
           grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
           gap: 0.75rem;
         }
-        .sort-wrap { display: none; }
+        .sort-wrap {
+          display: none;
+        }
       }
     `,
   ],
@@ -652,10 +800,10 @@ export class NeueFahrraederComponent implements OnInit, OnDestroy {
       items = items.filter(
         (b) =>
           b.titel.toLowerCase().includes(query) ||
-          (b.beschreibung?.toLowerCase().includes(query)) ||
-          (b.marke?.toLowerCase().includes(query)) ||
-          (b.modell?.toLowerCase().includes(query)) ||
-          (b.kategorie?.toLowerCase().includes(query)),
+          b.beschreibung?.toLowerCase().includes(query) ||
+          b.marke?.toLowerCase().includes(query) ||
+          b.modell?.toLowerCase().includes(query) ||
+          b.kategorie?.toLowerCase().includes(query),
       );
     }
 
@@ -744,9 +892,7 @@ export class NeueFahrraederComponent implements OnInit, OnDestroy {
   }
 
   toggleCategory(name: string): void {
-    this.selectedCategory.set(
-      this.selectedCategory() === name ? null : name,
-    );
+    this.selectedCategory.set(this.selectedCategory() === name ? null : name);
   }
 
   onPriceMin(event: Event): void {
@@ -760,7 +906,9 @@ export class NeueFahrraederComponent implements OnInit, OnDestroy {
   }
 
   onSort(event: Event): void {
-    this.sortOption.set((event.target as HTMLSelectElement).value as SortOption);
+    this.sortOption.set(
+      (event.target as HTMLSelectElement).value as SortOption,
+    );
   }
 
   clearFilters(): void {

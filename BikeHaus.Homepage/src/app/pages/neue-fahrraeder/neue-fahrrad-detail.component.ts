@@ -32,7 +32,14 @@ import { environment } from '../../../environments/environment';
       <nav class="breadcrumb-bar">
         <div class="container">
           <a [routerLink]="['/' + lang(), 'neue-fahrraeder']" class="back-link">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
             <span>{{ t().neueFahrraederBackToList }}</span>
@@ -53,7 +60,14 @@ import { environment } from '../../../environments/environment';
                 (error)="onImageError($event)"
               />
               <div *ngIf="bike()!.images.length === 0" class="no-image">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1">
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--color-text-muted)"
+                  stroke-width="1"
+                >
                   <circle cx="5.5" cy="17.5" r="3.5" />
                   <circle cx="18.5" cy="17.5" r="3.5" />
                   <path d="M15 6l-4 8h6l-2 3.5" />
@@ -62,13 +76,37 @@ import { environment } from '../../../environments/environment';
               </div>
 
               <!-- Nav Arrows -->
-              <button *ngIf="bike()!.images.length > 1" class="g-nav g-prev" (click)="prevImage()" aria-label="Previous">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <button
+                *ngIf="bike()!.images.length > 1"
+                class="g-nav g-prev"
+                (click)="prevImage()"
+                aria-label="Previous"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
                   <path d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <button *ngIf="bike()!.images.length > 1" class="g-nav g-next" (click)="nextImage()" aria-label="Next">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <button
+                *ngIf="bike()!.images.length > 1"
+                class="g-nav g-next"
+                (click)="nextImage()"
+                aria-label="Next"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
                   <path d="M9 5l7 7-7 7" />
                 </svg>
               </button>
@@ -97,70 +135,161 @@ import { environment } from '../../../environments/environment';
             <div class="details-inner">
               <!-- Badges -->
               <div class="badge-row">
-                <span class="condition-badge is-new">{{ t().conditionNew }}</span>
-                <span *ngIf="displayCategory()" class="cat-badge">{{ displayCategory() }}</span>
+                <span class="condition-badge is-new">{{
+                  t().conditionNew
+                }}</span>
+                <span *ngIf="displayCategory()" class="cat-badge">{{
+                  displayCategory()
+                }}</span>
               </div>
 
               <!-- Title -->
               <h1 class="title">{{ bike()!.titel }}</h1>
 
               <!-- Price -->
-              <div class="price-card" *ngIf="bike()!.preisText || bike()!.preis">
-                <span class="price-value">{{ bike()!.preisText || (bike()!.preis | number:'1.0-0') + ' €' }}</span>
+              <div
+                class="price-card"
+                *ngIf="bike()!.preisText || bike()!.preis"
+              >
+                <span class="price-value">{{
+                  bike()!.preisText || (bike()!.preis | number: '1.0-0') + ' €'
+                }}</span>
               </div>
 
               <!-- Specs -->
               <div class="meta-list">
                 <div *ngIf="bike()!.marke" class="meta-row">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"
+                    />
                     <line x1="7" y1="7" x2="7.01" y2="7" />
                   </svg>
-                  <span><strong>{{ t().neueFahrraederBrand }}:</strong> {{ bike()!.marke }}</span>
+                  <span
+                    ><strong>{{ t().neueFahrraederBrand }}:</strong>
+                    {{ bike()!.marke }}</span
+                  >
                 </div>
                 <div *ngIf="bike()!.modell" class="meta-row">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    stroke-width="2"
+                  >
                     <circle cx="12" cy="12" r="10" />
                     <path d="M12 6v6l4 2" />
                   </svg>
-                  <span><strong>{{ t().neueFahrraederModel }}:</strong> {{ bike()!.modell }}</span>
+                  <span
+                    ><strong>{{ t().neueFahrraederModel }}:</strong>
+                    {{ bike()!.modell }}</span
+                  >
                 </div>
                 <div *ngIf="bike()!.farbe" class="meta-row">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    stroke-width="2"
+                  >
                     <circle cx="13.5" cy="6.5" r="2.5" />
                     <circle cx="6.5" cy="13.5" r="2.5" />
                     <circle cx="17.5" cy="17.5" r="2.5" />
                   </svg>
-                  <span><strong>{{ t().neueFahrraederColor }}:</strong> {{ bike()!.farbe }}</span>
+                  <span
+                    ><strong>{{ t().neueFahrraederColor }}:</strong>
+                    {{ bike()!.farbe }}</span
+                  >
                 </div>
                 <div *ngIf="bike()!.rahmengroesse" class="meta-row">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
-                    <path d="M21 3H3v18h18V3z" /><path d="M3 9h18M3 15h18M9 3v18" />
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    stroke-width="2"
+                  >
+                    <path d="M21 3H3v18h18V3z" />
+                    <path d="M3 9h18M3 15h18M9 3v18" />
                   </svg>
-                  <span><strong>{{ t().neueFahrraederFrameSize }}:</strong> {{ bike()!.rahmengroesse }}</span>
+                  <span
+                    ><strong>{{ t().neueFahrraederFrameSize }}:</strong>
+                    {{ bike()!.rahmengroesse }}</span
+                  >
                 </div>
                 <div *ngIf="bike()!.reifengroesse" class="meta-row">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    stroke-width="2"
+                  >
                     <circle cx="12" cy="12" r="10" />
                   </svg>
-                  <span><strong>{{ t().neueFahrraederWheelSize }}:</strong> {{ bike()!.reifengroesse }}</span>
+                  <span
+                    ><strong>{{ t().neueFahrraederWheelSize }}:</strong>
+                    {{ bike()!.reifengroesse }}</span
+                  >
                 </div>
                 <div *ngIf="bike()!.gangschaltung" class="meta-row">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    stroke-width="2"
+                  >
                     <circle cx="12" cy="12" r="3" />
-                    <path d="M12 1v6m0 6v6m5.66-14.66l-4.24 4.24m-2.84 2.84l-4.24 4.24m14.66 0l-4.24-4.24m-2.84-2.84l-4.24-4.24" />
+                    <path
+                      d="M12 1v6m0 6v6m5.66-14.66l-4.24 4.24m-2.84 2.84l-4.24 4.24m14.66 0l-4.24-4.24m-2.84-2.84l-4.24-4.24"
+                    />
                   </svg>
-                  <span><strong>{{ t().neueFahrraederGears }}:</strong> {{ bike()!.gangschaltung }}</span>
+                  <span
+                    ><strong>{{ t().neueFahrraederGears }}:</strong>
+                    {{ bike()!.gangschaltung }}</span
+                  >
                 </div>
                 <div class="meta-row">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    stroke-width="2"
+                  >
                     <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
                     <polyline points="22 4 12 14.01 9 11.01" />
                   </svg>
-                  <span><strong>{{ t().neueFahrraederCondition }}:</strong> {{ bike()!.zustand }}</span>
+                  <span
+                    ><strong>{{ t().neueFahrraederCondition }}:</strong>
+                    {{ bike()!.zustand }}</span
+                  >
                 </div>
                 <div class="meta-row">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--color-accent)"
+                    stroke-width="2"
+                  >
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <circle cx="8.5" cy="8.5" r="1.5" />
                     <polyline points="21 15 16 10 5 21" />
@@ -177,7 +306,9 @@ import { environment } from '../../../environments/environment';
                 class="btn-whatsapp"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                  <path
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"
+                  />
                 </svg>
                 {{ t().neueFahrraederInterested }}
               </a>
@@ -189,7 +320,14 @@ import { environment } from '../../../environments/environment';
                 rel="noopener"
                 class="btn-maps"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
@@ -202,7 +340,10 @@ import { environment } from '../../../environments/environment';
         <!-- ── Description ── -->
         <section class="description-section" *ngIf="bike()!.beschreibung">
           <h2>{{ t().description }}</h2>
-          <div class="desc-text" [innerHTML]="formatDescription(bike()!.beschreibung!)"></div>
+          <div
+            class="desc-text"
+            [innerHTML]="formatDescription(bike()!.beschreibung!)"
+          ></div>
         </section>
       </div>
     </div>
@@ -225,7 +366,9 @@ import { environment } from '../../../environments/environment';
         color: var(--color-text-secondary);
         transition: color 0.2s;
       }
-      .back-link:hover { color: var(--color-accent); }
+      .back-link:hover {
+        color: var(--color-accent);
+      }
 
       /* ═══ LAYOUT ═══ */
       .container {
@@ -279,9 +422,15 @@ import { environment } from '../../../environments/environment';
         cursor: pointer;
         transition: background 0.2s;
       }
-      .g-nav:hover { background: var(--color-accent); }
-      .g-prev { left: 0.75rem; }
-      .g-next { right: 0.75rem; }
+      .g-nav:hover {
+        background: var(--color-accent);
+      }
+      .g-prev {
+        left: 0.75rem;
+      }
+      .g-next {
+        right: 0.75rem;
+      }
       .img-counter {
         position: absolute;
         bottom: 0.75rem;
@@ -312,7 +461,9 @@ import { environment } from '../../../environments/environment';
         transition: border-color 0.2s;
         padding: 0;
       }
-      .thumb.active { border-color: var(--color-accent); }
+      .thumb.active {
+        border-color: var(--color-accent);
+      }
       .thumb img {
         width: 100%;
         height: 100%;
@@ -329,7 +480,8 @@ import { environment } from '../../../environments/environment';
         gap: 0.5rem;
         margin-bottom: 1rem;
       }
-      .condition-badge, .cat-badge {
+      .condition-badge,
+      .cat-badge {
         font-size: 0.7rem;
         font-weight: 700;
         padding: 0.3rem 0.75rem;
@@ -382,8 +534,13 @@ import { environment } from '../../../environments/environment';
         font-size: 0.88rem;
         color: var(--color-text-secondary);
       }
-      .meta-row svg { flex-shrink: 0; }
-      .meta-row strong { color: var(--color-text); font-weight: 600; }
+      .meta-row svg {
+        flex-shrink: 0;
+      }
+      .meta-row strong {
+        color: var(--color-text);
+        font-weight: 600;
+      }
 
       /* ═══ CTAs ═══ */
       .btn-whatsapp {
@@ -393,7 +550,7 @@ import { environment } from '../../../environments/environment';
         gap: 0.6rem;
         width: 100%;
         padding: 0.85rem 1.5rem;
-        background: #25D366;
+        background: #25d366;
         color: #fff;
         font-size: 0.95rem;
         font-weight: 700;
@@ -447,7 +604,9 @@ import { environment } from '../../../environments/environment';
       }
 
       /* ═══ SKELETON ═══ */
-      .loading-wrap { padding-top: 7rem; }
+      .loading-wrap {
+        padding-top: 7rem;
+      }
       .sk-layout {
         display: grid;
         grid-template-columns: 1.3fr 1fr;
@@ -456,34 +615,64 @@ import { environment } from '../../../environments/environment';
       .sk-main-img {
         aspect-ratio: 4/3;
         border-radius: var(--border-radius-lg);
-        background: linear-gradient(90deg, var(--color-bg-secondary) 25%, rgba(255,255,255,0.04) 50%, var(--color-bg-secondary) 75%);
+        background: linear-gradient(
+          90deg,
+          var(--color-bg-secondary) 25%,
+          rgba(255, 255, 255, 0.04) 50%,
+          var(--color-bg-secondary) 75%
+        );
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
       }
-      .sk-details { padding-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+      .sk-details {
+        padding-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
       .sk-line {
         height: 14px;
         border-radius: 6px;
-        background: linear-gradient(90deg, var(--color-bg-secondary) 25%, rgba(255,255,255,0.04) 50%, var(--color-bg-secondary) 75%);
+        background: linear-gradient(
+          90deg,
+          var(--color-bg-secondary) 25%,
+          rgba(255, 255, 255, 0.04) 50%,
+          var(--color-bg-secondary) 75%
+        );
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
       }
-      .w30 { width: 30%; }
-      .w50 { width: 50%; }
-      .w70 { width: 70%; }
-      .w90 { width: 90%; }
+      .w30 {
+        width: 30%;
+      }
+      .w50 {
+        width: 50%;
+      }
+      .w70 {
+        width: 70%;
+      }
+      .w90 {
+        width: 90%;
+      }
       @keyframes shimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
       }
 
       /* ═══ MOBILE ═══ */
       @media (max-width: 900px) {
-        .detail-layout, .sk-layout {
+        .detail-layout,
+        .sk-layout {
           grid-template-columns: 1fr;
           gap: 1.5rem;
         }
-        .details-inner { position: static; }
+        .details-inner {
+          position: static;
+        }
       }
     `,
   ],
@@ -552,9 +741,7 @@ export class NeueFahrradDetailComponent implements OnInit {
   nextImage(): void {
     const images = this.bike()?.images;
     if (!images?.length) return;
-    this.selectedImage.set(
-      (this.selectedImage() + 1) % images.length,
-    );
+    this.selectedImage.set((this.selectedImage() + 1) % images.length);
   }
 
   onImageError(event: Event): void {
