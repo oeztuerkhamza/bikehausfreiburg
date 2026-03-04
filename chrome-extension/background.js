@@ -11,9 +11,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     adminTabId = sender.tab?.id || null;
     // Store bike data
     chrome.storage.local.set({ pendingBike: message.data }, () => {
-      // Open Kleinanzeigen ad creation page (step 2 = form)
+      // Open Kleinanzeigen ad creation page with Fahrräder & Zubehör category (ID 217)
       chrome.tabs.create({
-        url: 'https://www.kleinanzeigen.de/p-anzeige-aufgeben-schritt2.html'
+        url: 'https://www.kleinanzeigen.de/p-anzeige-aufgeben-schritt2.html?catId=217'
       });
       sendResponse({ success: true });
     });

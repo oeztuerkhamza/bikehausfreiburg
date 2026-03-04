@@ -8,6 +8,7 @@
 
   let pendingBike = null;
   let panelElement = null;
+  let photosUploaded = false;
 
   // ── Standard description template ──
   const STANDARD_FOOTER = `
@@ -235,6 +236,173 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     return null;
   }
 
+  // ── Convert data URL to File object ──
+  function dataURLtoFile(dataUrl, filename) {
+    const arr = dataUrl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  }
+
+  // ── Upload photos to Kleinanzeigen form ──
+  function uploadPhotosToForm() {
+    if (photosUploaded) {
+      console.log('[BikeHaus] Photos already uploaded, skipping');
+      return;
+    }
+    if (!pendingBike || !pendingBike.images || pendingBike.images.length === 0) {
+      console.log('[BikeHaus] No images to upload');
+      return;
+    }
+
+    console.log(`[BikeHaus] Uploading ${pendingBike.images.length} photos...`);
+
+    // Strategy 1: Find file input on the page
+    const fileInput = document.querySelector('input[type="file"][accept*="image"]') ||
+                      document.querySelector('input[type="file"]');
+
+    if (!fileInput) {
+      console.log('[BikeHaus] No file input found on page');
+      // Strategy 2: Try finding drop zone and simulate drop
+      tryDropZoneUpload();
+      return;
+    }
+
+    console.log('[BikeHaus] Found file input, fetching images...');
+    fetchAndUploadImages(fileInput);
+  }
+
+  function fetchAndUploadImages(fileInput) {
+    const images = pendingBike.images;
+    const fetchPromises = images.map((img, i) => {
+      const imgUrl = pendingBike.apiBaseUrl
+        ? `${pendingBike.apiBaseUrl}/public/gallery-image/${img.filePath}`
+        : img.filePath;
+
+      return new Promise((resolve) => {
+        chrome.runtime.sendMessage(
+          { type: 'BIKEHAUS_FETCH_IMAGE', url: imgUrl },
+          (response) => {
+            if (response && response.dataUrl) {
+              const ext = img.filePath.split('.').pop() || 'jpg';
+              const filename = `fahrrad_${pendingBike.id}_${i + 1}.${ext}`;
+              const file = dataURLtoFile(response.dataUrl, filename);
+              console.log(`[BikeHaus] Fetched image ${i + 1}: ${filename} (${file.size} bytes)`);
+              resolve(file);
+            } else {
+              console.log(`[BikeHaus] Failed to fetch image ${i + 1}:`, response?.error);
+              resolve(null);
+            }
+          }
+        );
+      });
+    });
+
+    Promise.all(fetchPromises).then(files => {
+      const validFiles = files.filter(f => f !== null);
+      if (validFiles.length === 0) {
+        console.log('[BikeHaus] No valid images fetched');
+        return;
+      }
+
+      console.log(`[BikeHaus] Uploading ${validFiles.length} images to file input...`);
+
+      // Set files on the file input using DataTransfer
+      const dt = new DataTransfer();
+      validFiles.forEach(f => dt.items.add(f));
+      fileInput.files = dt.files;
+
+      // Dispatch events to notify React/framework
+      fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+      fileInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+      console.log('[BikeHaus] Photos uploaded to file input successfully');
+      photosUploaded = true;
+
+      // Update panel status
+      if (panelElement) {
+        const imagesSection = panelElement.querySelector('.bk-section-title');
+        if (imagesSection && imagesSection.textContent.includes('Fotos')) {
+          imagesSection.innerHTML = `📸 Fotos (${validFiles.length}) - ✅ Hochgeladen!`;
+        }
+      }
+    });
+  }
+
+  function tryDropZoneUpload() {
+    // Look for drag-and-drop upload zones
+    const dropZone = document.querySelector('[class*="dropzone"]') ||
+                     document.querySelector('[class*="upload"]') ||
+                     document.querySelector('[class*="drop-area"]') ||
+                     document.querySelector('[data-testid*="upload"]') ||
+                     document.querySelector('[class*="imageUpload"]') ||
+                     document.querySelector('[class*="file-upload"]');
+
+    if (!dropZone) {
+      console.log('[BikeHaus] No drop zone found either, trying hidden file input...');
+      // Sometimes file inputs are hidden - look for any input[type=file]
+      const allFileInputs = document.querySelectorAll('input[type="file"]');
+      if (allFileInputs.length > 0) {
+        console.log(`[BikeHaus] Found ${allFileInputs.length} hidden file input(s)`);
+        fetchAndUploadImages(allFileInputs[0]);
+        return;
+      }
+      return;
+    }
+
+    console.log('[BikeHaus] Found drop zone, fetching images for drag-drop...');
+
+    const images = pendingBike.images;
+    const fetchPromises = images.map((img, i) => {
+      const imgUrl = pendingBike.apiBaseUrl
+        ? `${pendingBike.apiBaseUrl}/public/gallery-image/${img.filePath}`
+        : img.filePath;
+
+      return new Promise((resolve) => {
+        chrome.runtime.sendMessage(
+          { type: 'BIKEHAUS_FETCH_IMAGE', url: imgUrl },
+          (response) => {
+            if (response && response.dataUrl) {
+              const ext = img.filePath.split('.').pop() || 'jpg';
+              const filename = `fahrrad_${pendingBike.id}_${i + 1}.${ext}`;
+              const file = dataURLtoFile(response.dataUrl, filename);
+              resolve(file);
+            } else {
+              resolve(null);
+            }
+          }
+        );
+      });
+    });
+
+    Promise.all(fetchPromises).then(files => {
+      const validFiles = files.filter(f => f !== null);
+      if (validFiles.length === 0) return;
+
+      // Create and dispatch drop event
+      const dt = new DataTransfer();
+      validFiles.forEach(f => dt.items.add(f));
+
+      const dropEvent = new DragEvent('drop', {
+        bubbles: true,
+        cancelable: true,
+        dataTransfer: dt
+      });
+
+      dropZone.dispatchEvent(new DragEvent('dragenter', { bubbles: true }));
+      dropZone.dispatchEvent(new DragEvent('dragover', { bubbles: true }));
+      dropZone.dispatchEvent(dropEvent);
+
+      console.log('[BikeHaus] Drop event dispatched on drop zone');
+      photosUploaded = true;
+    });
+  }
+
   // ── Map fahrradtyp to Kleinanzeigen Typ dropdown ──
   function mapFahrradtypToKA(fahrradtyp) {
     if (!fahrradtyp) return [];
@@ -430,21 +598,32 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     }
 
     // ── 9. "Direkt kaufen" → Nein ──
-    // Uncheck "Direkt kaufen" if present
+    // Look for "Direkt kaufen" section and select "Nein"
     const allRadios2 = document.querySelectorAll('input[type="radio"]');
     for (const radio of allRadios2) {
       const label = radio.closest('label') ||
                     document.querySelector(`label[for="${radio.id}"]`) ||
                     radio.parentElement;
       const labelText = label ? label.textContent.trim().toLowerCase() : '';
-      if (labelText.includes('nein') && labelText.includes('direkt kaufen')) {
-        radio.checked = true;
-        radio.click();
-        radio.dispatchEvent(new Event('change', { bubbles: true }));
-        console.log('[BikeHaus] Direkt kaufen: set to Nein');
-        break;
+      // Find "Nein" radio that is within a "Direkt kaufen" context
+      if (labelText === 'nein' || labelText.includes('nein')) {
+        // Check parent context for "direkt kaufen"
+        let parent = radio.closest('[class*="field"]') || radio.parentElement?.parentElement?.parentElement;
+        if (parent) {
+          const parentText = parent.textContent.toLowerCase();
+          if (parentText.includes('direkt kaufen') || parentText.includes('sofort-kaufen')) {
+            radio.checked = true;
+            radio.click();
+            radio.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log('[BikeHaus] Direkt kaufen: set to Nein');
+            break;
+          }
+        }
       }
     }
+
+    // ── 10. Upload Photos ──
+    uploadPhotosToForm();
 
     return filled;
   }
