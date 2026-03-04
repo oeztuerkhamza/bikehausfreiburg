@@ -10,15 +10,21 @@ public class PublicController : ControllerBase
     private readonly IKleinanzeigenService _kleinanzeigenService;
     private readonly INeueFahrradService _neueFahrradService;
     private readonly IBicycleService _bicycleService;
+    private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _config;
 
     public PublicController(
         IKleinanzeigenService kleinanzeigenService,
         INeueFahrradService neueFahrradService,
-        IBicycleService bicycleService)
+        IBicycleService bicycleService,
+        IWebHostEnvironment env,
+        IConfiguration config)
     {
         _kleinanzeigenService = kleinanzeigenService;
         _neueFahrradService = neueFahrradService;
         _bicycleService = bicycleService;
+        _env = env;
+        _config = config;
     }
 
     /// <summary>
@@ -158,7 +164,22 @@ public class PublicController : ControllerBase
     [HttpGet("gallery-image/{*filePath}")]
     public IActionResult GetGalleryImage(string filePath)
     {
-        var fullPath = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+        string fullPath;
+        if (_env.IsDevelopment())
+        {
+            fullPath = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+        }
+        else
+        {
+            // In production, resolve from FileStorage:BasePath
+            // filePath = "uploads/gallery/4/guid.jpg" → strip "uploads/" and combine with BasePath
+            var basePath = _config["FileStorage:BasePath"] ?? "/app/data/uploads";
+            var relativePart = filePath.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase)
+                ? filePath.Substring("uploads/".Length)
+                : filePath;
+            fullPath = Path.Combine(basePath, relativePart);
+        }
+
         if (!System.IO.File.Exists(fullPath))
             return NotFound();
 

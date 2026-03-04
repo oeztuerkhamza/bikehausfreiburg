@@ -48,9 +48,9 @@ const TYP_PATTERN =
         </div>
       </header>
 
-      <div class="container shop-layout">
+      <div class="container shop-layout" [class.no-sidebar]="isAccessoriesMode()">
         <!-- ====== Sidebar (Desktop) ====== -->
-        <aside class="sidebar" [class.open]="sidebarOpen()">
+        <aside class="sidebar" [class.open]="sidebarOpen()" *ngIf="!isAccessoriesMode()">
           <!-- Close button (mobile) -->
           <button class="sidebar-close" (click)="closeSidebar()">
             <svg
@@ -348,7 +348,7 @@ const TYP_PATTERN =
         <!-- Sidebar overlay (mobile) -->
         <div
           class="sidebar-overlay"
-          *ngIf="sidebarOpen()"
+          *ngIf="sidebarOpen() && !isAccessoriesMode()"
           (click)="closeSidebar()"
         ></div>
 
@@ -357,7 +357,7 @@ const TYP_PATTERN =
           <!-- Toolbar -->
           <div class="toolbar">
             <!-- Mobile filter toggle -->
-            <button class="filter-toggle" (click)="sidebarOpen.set(true)">
+            <button class="filter-toggle" (click)="sidebarOpen.set(true)" *ngIf="!isAccessoriesMode()">
               <svg
                 width="16"
                 height="16"
@@ -375,7 +375,7 @@ const TYP_PATTERN =
             </button>
 
             <!-- Active filters pills -->
-            <div class="active-filters">
+            <div class="active-filters" *ngIf="!isAccessoriesMode()">
               <span class="active-pill" *ngIf="selectedZustand()">
                 {{
                   selectedZustand() === 'neu'
@@ -577,6 +577,10 @@ const TYP_PATTERN =
         padding-top: 2rem;
         padding-bottom: 3rem;
         align-items: start;
+      }
+
+      .shop-layout.no-sidebar {
+        grid-template-columns: 1fr;
       }
 
       /* ── Sidebar ── */

@@ -10,10 +10,14 @@ namespace BikeHaus.API.Controllers;
 public class BicyclesController : ControllerBase
 {
     private readonly IBicycleService _bicycleService;
+    private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _config;
 
-    public BicyclesController(IBicycleService bicycleService)
+    public BicyclesController(IBicycleService bicycleService, IWebHostEnvironment env, IConfiguration config)
     {
         _bicycleService = bicycleService;
+        _env = env;
+        _config = config;
     }
 
     [HttpGet]
@@ -197,23 +201,29 @@ public class BicyclesController : ControllerBase
 
         try
         {
-            // Save file to uploads/gallery/{bicycleId}/
-            var uploadsDir = Path.Combine("uploads", "gallery", id.ToString());
+            // Use configured upload path (persistent volume in production)
+            var basePath = _env.IsDevelopment()
+                ? Path.Combine(_env.ContentRootPath, "uploads")
+                : (_config["FileStorage:BasePath"] ?? "/app/data/uploads");
+            var uploadsDir = Path.Combine(basePath, "gallery", id.ToString());
             Directory.CreateDirectory(uploadsDir);
 
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(uploadsDir, fileName);
+            var absolutePath = Path.Combine(uploadsDir, fileName);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            using (var stream = new FileStream(absolutePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
+
+            // Store relative path for URL construction
+            var relativePath = $"uploads/gallery/{id}/{fileName}";
 
             // Get current count for sort order
             var existingImages = await _bicycleService.GetImagesAsync(id);
             var sortOrder = existingImages.Count();
 
-            var image = await _bicycleService.AddImageAsync(id, filePath, sortOrder);
+            var image = await _bicycleService.AddImageAsync(id, relativePath, sortOrder);
             return Ok(image);
         }
         catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
@@ -228,9 +238,17 @@ public class BicyclesController : ControllerBase
             // Get image info before deleting
             var images = await _bicycleService.GetImagesAsync(id);
             var image = images.FirstOrDefault(i => i.Id == imageId);
-            if (image != null && System.IO.File.Exists(image.FilePath))
+            if (image != null)
             {
-                System.IO.File.Delete(image.FilePath);
+                // Resolve the actual file path
+                var basePath = _env.IsDevelopment()
+                    ? Directory.GetCurrentDirectory()
+                    : Path.GetDirectoryName(_config["FileStorage:BasePath"]?.TrimEnd('/')) ?? "/app/data";
+                var fullPath = Path.Combine(basePath, image.FilePath);
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
             }
 
             await _bicycleService.DeleteImageAsync(id, imageId);
