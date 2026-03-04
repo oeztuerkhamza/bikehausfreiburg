@@ -249,8 +249,8 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     return new File([u8arr], filename, { type: mime });
   }
 
-  // ── Fetch all images from the API and return File objects ──
-  function fetchAllImages() {
+  // ── Fetch all images from the API and return data URLs with filenames ──
+  function fetchAllImageDataUrls() {
     if (!pendingBike || !pendingBike.images || pendingBike.images.length === 0) {
       return Promise.resolve([]);
     }
@@ -268,9 +268,8 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
             if (response && response.dataUrl) {
               const ext = img.filePath.split('.').pop() || 'jpg';
               const filename = `fahrrad_${pendingBike.id}_${i + 1}.${ext}`;
-              const file = dataURLtoFile(response.dataUrl, filename);
-              console.log(`[BikeHaus] Fetched image ${i + 1}: ${filename} (${file.size} bytes)`);
-              resolve(file);
+              console.log(`[BikeHaus] Fetched image ${i + 1}: ${filename}`);
+              resolve({ dataUrl: response.dataUrl, filename });
             } else {
               console.log(`[BikeHaus] Failed to fetch image ${i + 1}:`, response?.error);
               resolve(null);
@@ -280,7 +279,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       });
     });
 
-    return Promise.all(fetchPromises).then(files => files.filter(f => f !== null));
+    return Promise.all(fetchPromises).then(results => results.filter(r => r !== null));
   }
 
   // ── Update panel to show photo upload status ──
@@ -297,9 +296,22 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
         break;
       }
     }
+    // Also update the upload button if it exists
+    const uploadBtn = panelElement.querySelector('#bk-upload-photos');
+    if (uploadBtn) {
+      if (success) {
+        uploadBtn.textContent = '✅ Fotos hochgeladen!';
+        uploadBtn.style.background = '#27ae60';
+        uploadBtn.disabled = false;
+      }
+    }
   }
 
   // ── Upload photos to Kleinanzeigen form ──
+  // Strategy: Inject script into PAGE context to access Plupload's JS API directly.
+  // Content scripts run in an isolated world and cannot access page JavaScript variables.
+  // Plupload creates its own file input and event handlers internally, so manipulating
+  // the DOM from content script context won't trigger Plupload's upload pipeline.
   function uploadPhotosToForm() {
     if (photosUploaded) {
       console.log('[BikeHaus] Photos already uploaded, skipping');
@@ -310,288 +322,255 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       return;
     }
 
-    console.log(`[BikeHaus] Uploading ${pendingBike.images.length} photos...`);
+    console.log(`[BikeHaus] Uploading ${pendingBike.images.length} photos via page context injection...`);
 
-    // Kleinanzeigen uses Plupload. Strategy order:
-    // 1. Find file input inside #plupld or #pstad-pictureupload (Plupload hidden input)
-    // 2. Try drop on #dropzone-box
-    // 3. Try any file input on page
-    // 4. Watch for lazily-created file inputs via MutationObserver
-
-    // Strategy 1: Plupload hidden file input
-    const pluploadInput = findPluploadFileInput();
-    if (pluploadInput) {
-      console.log('[BikeHaus] Found Plupload file input');
-      uploadViaFileInput(pluploadInput);
-      return;
-    }
-
-    // Strategy 2: Drop on Kleinanzeigen dropzone
-    const dropZone = document.querySelector('#dropzone-box') ||
-                     document.querySelector('#pstad-pictureupload .uploadbox') ||
-                     document.querySelector('[class*="uploadbox"]');
-    if (dropZone) {
-      console.log('[BikeHaus] Found Kleinanzeigen dropzone, trying drop...');
-      uploadViaDropZone(dropZone);
-      return;
-    }
-
-    // Strategy 3: Any file input on the page
-    const anyFileInput = document.querySelector('input[type="file"][accept*="image"]') ||
-                         document.querySelector('input[type="file"]');
-    if (anyFileInput) {
-      console.log('[BikeHaus] Found generic file input');
-      uploadViaFileInput(anyFileInput);
-      return;
-    }
-
-    // Strategy 4: Wait for Plupload to initialize (it creates file inputs lazily)
-    console.log('[BikeHaus] No upload element found yet, waiting for Plupload init...');
-    waitForFileInputAndUpload();
-  }
-
-  // ── Find Plupload's hidden file input ──
-  function findPluploadFileInput() {
-    // Plupload creates an input[type=file] inside #plupld or a container with moxie/plupload id
-    const containers = [
-      document.querySelector('#plupld'),
-      document.querySelector('#pstad-pictureupload'),
-      document.querySelector('[id*="plupload"]'),
-      document.querySelector('[id*="moxie"]'),
-      document.querySelector('[class*="moxie"]')
-    ].filter(Boolean);
-
-    for (const container of containers) {
-      // Plupload file inputs are often inside nested divs with moxie-shim styling
-      const input = container.querySelector('input[type="file"]');
-      if (input) return input;
-    }
-
-    // Also check for inputs with Plupload-specific attributes
-    const allFileInputs = document.querySelectorAll('input[type="file"]');
-    for (const input of allFileInputs) {
-      const parent = input.parentElement;
-      if (parent && (
-        parent.id.includes('moxie') ||
-        parent.id.includes('plupload') ||
-        parent.style.overflow === 'hidden' ||
-        parent.className.includes('moxie')
-      )) {
-        return input;
-      }
-    }
-
-    return null;
-  }
-
-  // ── Upload files by setting them on a file input ──
-  function uploadViaFileInput(fileInput) {
-    fetchAllImages().then(validFiles => {
-      if (validFiles.length === 0) {
+    // Step 1: Fetch all images as data URLs
+    fetchAllImageDataUrls().then(imageDataItems => {
+      if (imageDataItems.length === 0) {
         console.log('[BikeHaus] No valid images fetched');
         updatePanelPhotoStatus(0, false);
         return;
       }
 
-      console.log(`[BikeHaus] Uploading ${validFiles.length} images via file input...`);
+      console.log(`[BikeHaus] Got ${imageDataItems.length} images, injecting into page context...`);
 
-      // Upload one at a time for Plupload compatibility (it may only accept one file per change event)
-      uploadFilesSequentially(fileInput, validFiles, 0);
-    });
-  }
+      // Step 2: Store image data in a hidden DOM element (bridge between content script and page)
+      const dataEl = document.createElement('div');
+      dataEl.id = 'bikehaus-photo-data';
+      dataEl.style.display = 'none';
+      dataEl.setAttribute('data-photos', JSON.stringify(imageDataItems));
+      document.body.appendChild(dataEl);
 
-  // ── Upload files one by one to work with Plupload ──
-  function uploadFilesSequentially(fileInput, files, index) {
-    if (index >= files.length) {
-      console.log(`[BikeHaus] All ${files.length} photos uploaded successfully`);
-      photosUploaded = true;
-      updatePanelPhotoStatus(files.length, true);
-      return;
-    }
+      // Step 3: Listen for result from injected script
+      const resultHandler = (event) => {
+        if (event.detail) {
+          window.removeEventListener('bikehaus-upload-result', resultHandler);
+          if (event.detail.success) {
+            console.log(`[BikeHaus] Page-context upload succeeded: ${event.detail.count} files, method: ${event.detail.method}`);
+            photosUploaded = true;
+            updatePanelPhotoStatus(event.detail.count, true);
+          } else {
+            console.log(`[BikeHaus] Page-context upload failed: ${event.detail.error}`);
+            updatePanelPhotoStatus(0, false);
+          }
+        }
+      };
+      window.addEventListener('bikehaus-upload-result', resultHandler);
 
-    const file = files[index];
-    console.log(`[BikeHaus] Uploading image ${index + 1}/${files.length}: ${file.name}`);
+      // Step 4: Inject script into PAGE context (not content script isolated world)
+      const script = document.createElement('script');
+      script.textContent = `
+        (function() {
+          try {
+            var dataEl = document.getElementById('bikehaus-photo-data');
+            if (!dataEl) {
+              window.dispatchEvent(new CustomEvent('bikehaus-upload-result', { detail: { success: false, error: 'No data element found' } }));
+              return;
+            }
+            var imageDataItems = JSON.parse(dataEl.getAttribute('data-photos'));
+            dataEl.remove();
 
-    const dt = new DataTransfer();
-    dt.items.add(file);
+            console.log('[BikeHaus PageCtx] Starting upload of ' + imageDataItems.length + ' images');
 
-    // Try to make the input accept the file
-    try {
-      fileInput.files = dt.files;
-    } catch (e) {
-      // Some browsers/Plupload versions may block direct file assignment
-      console.log('[BikeHaus] Direct file assignment blocked, trying alternative...');
-      Object.defineProperty(fileInput, 'files', {
-        value: dt.files,
-        writable: true,
-        configurable: true
-      });
-    }
+            // Convert data URL to File
+            function dataURLtoFile(dataUrl, filename) {
+              var arr = dataUrl.split(',');
+              var mime = arr[0].match(/:(.*?);/)[1];
+              var bstr = atob(arr[1]);
+              var n = bstr.length;
+              var u8arr = new Uint8Array(n);
+              while (n--) u8arr[n] = bstr.charCodeAt(n);
+              return new File([u8arr], filename, { type: mime });
+            }
 
-    // Dispatch all relevant events that Plupload listens to
-    fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-    fileInput.dispatchEvent(new Event('input', { bubbles: true }));
+            var files = imageDataItems.map(function(item) {
+              return dataURLtoFile(item.dataUrl, item.filename);
+            });
 
-    // Wait for Plupload to process the file before sending the next one
-    setTimeout(() => {
-      // Re-find the file input as Plupload may recreate it after each upload
-      const freshInput = findPluploadFileInput() || fileInput;
-      uploadFilesSequentially(freshInput, files, index + 1);
-    }, 1500);
-  }
+            // ── Strategy 1: Find Plupload uploader instance ──
+            var uploader = null;
 
-  // ── Upload via drop event on the dropzone ──
-  function uploadViaDropZone(dropZone) {
-    fetchAllImages().then(validFiles => {
-      if (validFiles.length === 0) {
-        console.log('[BikeHaus] No valid images fetched');
-        updatePanelPhotoStatus(0, false);
-        return;
-      }
-
-      console.log(`[BikeHaus] Dropping ${validFiles.length} images on dropzone...`);
-
-      // Create DataTransfer with all files
-      const dt = new DataTransfer();
-      validFiles.forEach(f => dt.items.add(f));
-
-      // Simulate full drag & drop sequence
-      const dragEnterEvent = new DragEvent('dragenter', {
-        bubbles: true,
-        cancelable: true,
-        dataTransfer: dt
-      });
-      const dragOverEvent = new DragEvent('dragover', {
-        bubbles: true,
-        cancelable: true,
-        dataTransfer: dt
-      });
-      const dropEvent = new DragEvent('drop', {
-        bubbles: true,
-        cancelable: true,
-        dataTransfer: dt
-      });
-
-      dropZone.dispatchEvent(dragEnterEvent);
-
-      // Small delay between events for realism
-      setTimeout(() => {
-        dropZone.dispatchEvent(dragOverEvent);
-
-        setTimeout(() => {
-          dropZone.dispatchEvent(dropEvent);
-          console.log('[BikeHaus] Drop events dispatched on dropzone');
-
-          // Check after a delay if it worked (thumbnails should appear)
-          setTimeout(() => {
-            const thumbnails = document.querySelector('#j-pictureupload-thumbnails, .pictureupload-thumbnails');
-            const hasImages = thumbnails && thumbnails.children.length > 0;
-
-            if (hasImages) {
-              console.log('[BikeHaus] Drop upload successful - thumbnails detected');
-              photosUploaded = true;
-              updatePanelPhotoStatus(validFiles.length, true);
-            } else {
-              console.log('[BikeHaus] Drop may not have worked, trying file input fallback...');
-              // Fallback: try to find a file input that appeared after drop interaction
-              const fallbackInput = findPluploadFileInput() ||
-                                     document.querySelector('input[type="file"]');
-              if (fallbackInput) {
-                uploadFilesSequentially(fallbackInput, validFiles, 0);
-              } else {
-                // Last resort: try dropping files one by one
-                dropFilesSequentially(dropZone, validFiles, 0);
+            // Method A: plupload global
+            if (typeof plupload !== 'undefined') {
+              console.log('[BikeHaus PageCtx] plupload global found');
+              // Check for instances array (plupload stores all instances here)
+              if (plupload.instances && plupload.instances.length > 0) {
+                uploader = plupload.instances[0];
+                console.log('[BikeHaus PageCtx] Found uploader via plupload.instances[0], id=' + uploader.id);
               }
             }
-          }, 2000);
-        }, 100);
-      }, 100);
+
+            // Method B: Check common global variable names
+            if (!uploader) {
+              var globalNames = ['uploader', 'pictureUploader', 'imageUploader', 'fileUploader', 'pu'];
+              for (var i = 0; i < globalNames.length; i++) {
+                if (window[globalNames[i]] && typeof window[globalNames[i]].addFile === 'function') {
+                  uploader = window[globalNames[i]];
+                  console.log('[BikeHaus PageCtx] Found uploader via window.' + globalNames[i]);
+                  break;
+                }
+              }
+            }
+
+            // Method C: jQuery data on known elements
+            if (!uploader && typeof jQuery !== 'undefined') {
+              var jqSelectors = ['#pstad-pictureupload', '#dropzone-box', '#plupld', '.uploadbox'];
+              for (var j = 0; j < jqSelectors.length; j++) {
+                var jqEl = jQuery(jqSelectors[j]);
+                if (jqEl.length > 0) {
+                  var data = jqEl.data();
+                  if (data) {
+                    var dataKeys = Object.keys(data);
+                    for (var k = 0; k < dataKeys.length; k++) {
+                      var val = data[dataKeys[k]];
+                      if (val && typeof val === 'object' && typeof val.addFile === 'function') {
+                        uploader = val;
+                        console.log('[BikeHaus PageCtx] Found uploader via jQuery data key: ' + dataKeys[k]);
+                        break;
+                      }
+                    }
+                  }
+                  if (uploader) break;
+                }
+              }
+            }
+
+            // Method D: Scan window properties for anything with addFile
+            if (!uploader) {
+              var props = Object.getOwnPropertyNames(window);
+              for (var p = 0; p < props.length; p++) {
+                try {
+                  var obj = window[props[p]];
+                  if (obj && typeof obj === 'object' && obj !== window && typeof obj.addFile === 'function' && typeof obj.start === 'function') {
+                    uploader = obj;
+                    console.log('[BikeHaus PageCtx] Found uploader via window scan: ' + props[p]);
+                    break;
+                  }
+                } catch(e) {}
+              }
+            }
+
+            if (uploader) {
+              console.log('[BikeHaus PageCtx] Using Plupload API to add ' + files.length + ' files');
+
+              // Add files one by one with delay for Plupload to process
+              var addIndex = 0;
+              function addNextFile() {
+                if (addIndex >= files.length) {
+                  // All files added, start upload
+                  console.log('[BikeHaus PageCtx] All files added, starting upload...');
+                  setTimeout(function() {
+                    try {
+                      uploader.start();
+                    } catch(e) {
+                      console.log('[BikeHaus PageCtx] uploader.start() error (may auto-start): ' + e.message);
+                    }
+                    window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
+                      detail: { success: true, count: files.length, method: 'plupload-api' }
+                    }));
+                  }, 500);
+                  return;
+                }
+                try {
+                  uploader.addFile(files[addIndex]);
+                  console.log('[BikeHaus PageCtx] Added file ' + (addIndex + 1) + ': ' + files[addIndex].name);
+                } catch(e) {
+                  console.log('[BikeHaus PageCtx] addFile error: ' + e.message);
+                }
+                addIndex++;
+                setTimeout(addNextFile, 300);
+              }
+              addNextFile();
+              return;
+            }
+
+            console.log('[BikeHaus PageCtx] No Plupload instance found, trying file input fallback...');
+
+            // ── Strategy 2: Find and use file input directly ──
+            var fileInput = document.querySelector('#plupld input[type="file"]') ||
+                            document.querySelector('#pstad-pictureupload input[type="file"]') ||
+                            document.querySelector('input[type="file"][accept*="image"]') ||
+                            document.querySelector('input[type="file"]');
+
+            if (fileInput) {
+              console.log('[BikeHaus PageCtx] Found file input, uploading sequentially...');
+
+              var fileIndex = 0;
+              function addNextViaInput() {
+                if (fileIndex >= files.length) {
+                  console.log('[BikeHaus PageCtx] All files set via input');
+                  window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
+                    detail: { success: true, count: files.length, method: 'file-input' }
+                  }));
+                  return;
+                }
+
+                var dt = new DataTransfer();
+                dt.items.add(files[fileIndex]);
+                fileInput.files = dt.files;
+                fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                console.log('[BikeHaus PageCtx] Set file ' + (fileIndex + 1) + ' on input');
+                fileIndex++;
+
+                setTimeout(function() {
+                  // Re-find input as Plupload might recreate it
+                  fileInput = document.querySelector('#plupld input[type="file"]') ||
+                              document.querySelector('input[type="file"]');
+                  addNextViaInput();
+                }, 1500);
+              }
+              addNextViaInput();
+              return;
+            }
+
+            // ── Strategy 3: Try drag & drop on the dropzone ──
+            var dropZone = document.querySelector('#dropzone-box') ||
+                           document.querySelector('.uploadbox') ||
+                           document.querySelector('#pstad-pictureupload');
+
+            if (dropZone) {
+              console.log('[BikeHaus PageCtx] Trying drag & drop on dropzone...');
+              var dt = new DataTransfer();
+              files.forEach(function(f) { dt.items.add(f); });
+
+              dropZone.dispatchEvent(new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: dt }));
+              setTimeout(function() {
+                dropZone.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt }));
+                setTimeout(function() {
+                  dropZone.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
+                  console.log('[BikeHaus PageCtx] Drop events dispatched');
+                  window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
+                    detail: { success: true, count: files.length, method: 'drop' }
+                  }));
+                }, 100);
+              }, 100);
+              return;
+            }
+
+            window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
+              detail: { success: false, error: 'No upload mechanism found on page' }
+            }));
+
+          } catch(e) {
+            console.error('[BikeHaus PageCtx] Error:', e);
+            window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
+              detail: { success: false, error: e.message }
+            }));
+          }
+        })();
+      `;
+      document.body.appendChild(script);
+      script.remove();
+
+      // Timeout: if no result after 30s, consider it failed
+      setTimeout(() => {
+        window.removeEventListener('bikehaus-upload-result', resultHandler);
+        if (!photosUploaded) {
+          console.log('[BikeHaus] Photo upload timed out after 30s');
+          updatePanelPhotoStatus(0, false);
+        }
+      }, 30000);
     });
-  }
-
-  // ── Drop files one by one for upload ──
-  function dropFilesSequentially(dropZone, files, index) {
-    if (index >= files.length) {
-      console.log(`[BikeHaus] All ${files.length} photos drop-uploaded`);
-      photosUploaded = true;
-      updatePanelPhotoStatus(files.length, true);
-      return;
-    }
-
-    const file = files[index];
-    const dt = new DataTransfer();
-    dt.items.add(file);
-
-    const dropEvent = new DragEvent('drop', {
-      bubbles: true,
-      cancelable: true,
-      dataTransfer: dt
-    });
-
-    dropZone.dispatchEvent(new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer: dt }));
-    dropZone.dispatchEvent(new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer: dt }));
-    dropZone.dispatchEvent(dropEvent);
-
-    console.log(`[BikeHaus] Dropped image ${index + 1}/${files.length}`);
-
-    setTimeout(() => {
-      dropFilesSequentially(dropZone, files, index + 1);
-    }, 1500);
-  }
-
-  // ── Wait for Plupload to create its file input (MutationObserver) ──
-  function waitForFileInputAndUpload() {
-    let attempts = 0;
-    const maxAttempts = 20; // 20 * 500ms = 10 seconds max wait
-
-    const checkInterval = setInterval(() => {
-      attempts++;
-
-      // Check for file input
-      const plInput = findPluploadFileInput();
-      if (plInput) {
-        clearInterval(checkInterval);
-        console.log(`[BikeHaus] Plupload file input found after ${attempts} attempts`);
-        uploadViaFileInput(plInput);
-        return;
-      }
-
-      // Check for dropzone
-      const dz = document.querySelector('#dropzone-box') ||
-                 document.querySelector('[class*="uploadbox"]');
-      if (dz) {
-        clearInterval(checkInterval);
-        console.log(`[BikeHaus] Dropzone found after ${attempts} attempts`);
-        uploadViaDropZone(dz);
-        return;
-      }
-
-      // Check for any file input
-      const anyInput = document.querySelector('input[type="file"]');
-      if (anyInput) {
-        clearInterval(checkInterval);
-        console.log(`[BikeHaus] Generic file input found after ${attempts} attempts`);
-        uploadViaFileInput(anyInput);
-        return;
-      }
-
-      if (attempts >= maxAttempts) {
-        clearInterval(checkInterval);
-        console.log('[BikeHaus] Gave up waiting for upload element after 10s');
-        updatePanelPhotoStatus(0, false);
-      }
-    }, 500);
-
-    // Also try triggering Plupload initialization by interacting with the upload area
-    setTimeout(() => {
-      const uploadArea = document.querySelector('#pstad-pictureupload') ||
-                         document.querySelector('.pictureupload-text');
-      if (uploadArea) {
-        // Click the upload area to trigger Plupload initialization
-        uploadArea.click();
-        console.log('[BikeHaus] Clicked upload area to trigger Plupload init');
-      }
-    }, 1000);
   }
 
   // ── Map fahrradtyp to Kleinanzeigen Typ dropdown ──
@@ -613,6 +592,141 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     if (ft.includes('tandem')) return ['Tandem'];
     if (ft.includes('e-trekking')) return ['Trekkingräder', 'E-Bikes'];
     return [fahrradtyp];
+  }
+
+  // ── Fill Zustand (condition) picker on Kleinanzeigen ──
+  // KA uses a custom SingleSelect component, not a <select>.
+  // The picker has a trigger button and a dropdown list of options.
+  function fillZustandPicker(zustandText) {
+    console.log(`[BikeHaus] Trying to fill Zustand picker with: "${zustandText}"`);
+
+    // Find the Zustand section by looking for various container patterns
+    // KA typically uses: #postad-condition, or a formgroup containing "Zustand" label
+    const zustandContainer = findZustandContainer();
+    if (!zustandContainer) {
+      console.log('[BikeHaus] Zustand container not found');
+      return false;
+    }
+
+    console.log('[BikeHaus] Found Zustand container:', zustandContainer.id || zustandContainer.className);
+
+    // Find the trigger button/element inside the container
+    const trigger = zustandContainer.querySelector('[class*="singleselect"] [class*="trigger"]') ||
+                    zustandContainer.querySelector('[role="button"]') ||
+                    zustandContainer.querySelector('button') ||
+                    zustandContainer.querySelector('[class*="singleselect"]') ||
+                    zustandContainer.querySelector('[class*="select"]') ||
+                    zustandContainer.querySelector('a');
+
+    if (trigger) {
+      console.log('[BikeHaus] Found Zustand trigger, clicking...');
+      trigger.click();
+
+      // Wait for dropdown to appear, then click the option
+      setTimeout(() => {
+        selectZustandOption(zustandContainer, zustandText);
+      }, 600);
+
+      // Also try again after a longer delay in case it takes time
+      setTimeout(() => {
+        selectZustandOption(zustandContainer, zustandText);
+      }, 1200);
+
+      return true;
+    }
+
+    // Fallback: try to find any clickable element in the container
+    const clickable = zustandContainer.querySelector('div[tabindex], span[tabindex], div[onclick], span[onclick]');
+    if (clickable) {
+      clickable.click();
+      setTimeout(() => {
+        selectZustandOption(zustandContainer, zustandText);
+      }, 600);
+      return true;
+    }
+
+    console.log('[BikeHaus] No Zustand trigger element found');
+    return false;
+  }
+
+  // Find the Zustand container element
+  function findZustandContainer() {
+    // Method 1: Known IDs
+    const knownIds = ['postad-condition', 'condition', 'zustand'];
+    for (const id of knownIds) {
+      const el = document.getElementById(id);
+      if (el) return el;
+    }
+
+    // Method 2: Find by label/legend text "Zustand"
+    const allLabels = document.querySelectorAll('label, legend, span, div');
+    for (const label of allLabels) {
+      // Check direct text only (not deep children text)
+      const directText = Array.from(label.childNodes)
+        .filter(n => n.nodeType === Node.TEXT_NODE)
+        .map(n => n.textContent.trim())
+        .join('');
+
+      if (directText.toLowerCase().includes('zustand')) {
+        // Go up to find the form group container
+        let parent = label.parentElement;
+        for (let i = 0; i < 4 && parent; i++) {
+          if (parent.classList.contains('formgroup') ||
+              parent.id.includes('condition') ||
+              parent.id.includes('zustand') ||
+              parent.querySelector('[class*="singleselect"]') ||
+              parent.querySelector('[role="button"]')) {
+            return parent;
+          }
+          parent = parent.parentElement;
+        }
+        // If no formgroup found, return the label's parent
+        return label.parentElement;
+      }
+    }
+
+    // Method 3: Find by singleselect class near a Zustand-related element
+    const singleSelects = document.querySelectorAll('[class*="singleselect"]');
+    for (const ss of singleSelects) {
+      const parent = ss.closest('[class*="formgroup"]') || ss.parentElement;
+      if (parent && parent.textContent.toLowerCase().includes('zustand')) {
+        return parent;
+      }
+    }
+
+    return null;
+  }
+
+  // Select an option from the opened Zustand dropdown
+  function selectZustandOption(container, zustandText) {
+    // Look for dropdown items anywhere on the page (might be in a portal/overlay)
+    const searchAreas = [container, document.body];
+
+    for (const area of searchAreas) {
+      // Look for list items, options, buttons with the text
+      const candidates = area.querySelectorAll(
+        'li, [class*="item"], [class*="option"], [role="option"], [role="listbox"] > *, button, a, span, div'
+      );
+
+      for (const item of candidates) {
+        const itemText = item.textContent.trim();
+        // Exact match or starts with the zustand text (case-insensitive)
+        if (itemText.toLowerCase() === zustandText.toLowerCase() ||
+            itemText.toLowerCase().startsWith(zustandText.toLowerCase())) {
+          // Make sure this is actually a clickable option, not just any element with that text
+          const isOption = item.matches('li, [class*="item"], [class*="option"], [role="option"], button, a') ||
+                          item.parentElement?.matches('ul, [role="listbox"], [class*="list"], [class*="dropdown"]');
+          if (isOption) {
+            console.log(`[BikeHaus] Clicking Zustand option: "${itemText}"`);
+            item.click();
+            return true;
+          }
+        }
+      }
+    }
+
+    console.log(`[BikeHaus] Zustand option "${zustandText}" not found in dropdown`);
+    return false;
   }
 
   // ── Try to fill ALL form fields ──
@@ -702,27 +816,22 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     }
 
     // ── 5. Zustand ──
-    // Zustand on KA Fahrrad is typically a clickable picker ("Bitte wählen >")
-    // Try find by label, then try clicking
+    // Kleinanzeigen uses a custom SingleSelect picker for Zustand, NOT a standard <select>.
+    // It renders as a clickable button/div that opens a dropdown list of options.
+    // We inject into page context to handle any JavaScript-bound click handlers.
     const zustandText = isNew ? 'Neu' : 'Sehr gut';
-    // Try select
+
+    // Strategy A: Standard <select> element
     const zustandSel = findSelectByOptionTexts('Neu', 'Gebraucht', 'Sehr gut');
     if (zustandSel) {
       filled.zustand = selectDropdownByText(zustandSel, zustandText);
     }
-    // Try clicking the "Bitte wählen" button to open picker, then select
+
+    // Strategy B: Custom SingleSelect picker - find by known IDs and class patterns
     if (!filled.zustand) {
-      // Look for the Zustand picker button
-      const zustandBtn = findFieldByLabelText('Zustand', 'button, a, [role="button"], div[class*="select"], span');
-      if (zustandBtn) {
-        zustandBtn.click();
-        // After click, look for the option in the opened list
-        setTimeout(() => {
-          clickElementByText('li, div[role="option"], button, a, span', zustandText);
-        }, 500);
-        filled.zustand = true;
-      }
+      filled.zustand = fillZustandPicker(zustandText);
     }
+
     console.log('[BikeHaus] Zustand:', filled.zustand);
 
     // ── 6. Versand → Nur Abholung ──
