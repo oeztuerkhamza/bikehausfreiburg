@@ -12,11 +12,13 @@ public class NeueFahrraederController : ControllerBase
 {
     private readonly INeueFahrradService _service;
     private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _config;
 
-    public NeueFahrraederController(INeueFahrradService service, IWebHostEnvironment env)
+    public NeueFahrraederController(INeueFahrradService service, IWebHostEnvironment env, IConfiguration config)
     {
         _service = service;
         _env = env;
+        _config = config;
     }
 
     /// <summary>
@@ -91,7 +93,11 @@ public class NeueFahrraederController : ControllerBase
         var item = await _service.GetByIdAsync(id);
         if (item == null) return NotFound();
 
-        var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "uploads", "neue-fahrraeder", id.ToString());
+        // Use configured upload path (persistent volume in production)
+        var basePath = _env.IsDevelopment()
+            ? Path.Combine(_env.ContentRootPath, "uploads")
+            : (_config["FileStorage:BasePath"] ?? "/app/data/uploads");
+        var uploadsDir = Path.Combine(basePath, "neue-fahrraeder", id.ToString());
         Directory.CreateDirectory(uploadsDir);
 
         var results = new List<NeueFahrradImageDto>();
