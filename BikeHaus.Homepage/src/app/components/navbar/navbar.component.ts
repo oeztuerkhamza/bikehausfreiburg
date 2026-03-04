@@ -311,6 +311,7 @@ export class NavbarComponent {
 
   languages: { code: Language; label: string }[] = [
     { code: 'de', label: 'Deutsch' },
+    { code: 'en', label: 'English' },
     { code: 'fr', label: 'Français' },
     { code: 'tr', label: 'Türkçe' },
   ];

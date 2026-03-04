@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 
-export type Language = 'de' | 'fr' | 'tr';
+export type Language = 'de' | 'en' | 'fr' | 'tr';
 
 export interface Translations {
   // Meta / SEO
@@ -125,6 +125,7 @@ export interface Translations {
   bikeCheckNote: string;
   bikeCheckExclusion: string;
   bikeCheckNoObligation: string;
+  bikeCheckNoLiability: string;
   bikeCheckFairPrices: string;
 
   // CTA
@@ -363,7 +364,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     newBikesLabel: 'NEU IM SORTIMENT',
     newBikesTitle: 'Neue Fahrräder entdecken.',
-    newBikesSub: 'Fabrikneue Räder mit voller Herstellergarantie.',
+    newBikesSub: 'Fabrikneue Räder mit 2 Jahren Geschäftsgarantie.',
     browseNewBikes: 'Neue Räder ansehen',
     usedBikesLabel: 'GEPRÜFT & BEREIT',
     usedBikesTitle: 'Gebrauchträder entdecken.',
@@ -443,6 +444,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckNote: 'Nur für normale Fahrräder',
     bikeCheckExclusion: 'Keine E-Bikes, keine Rennräder',
     bikeCheckNoObligation: 'Keine Pflicht!',
+    bikeCheckNoLiability: 'Keine Haftung für Reparaturen',
     bikeCheckFairPrices: 'Faire Preise — Transparente Beratung.',
 
     ctaSectionTitle: 'Bereit für Ihr nächstes Abenteuer?',
@@ -634,9 +636,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraeder: 'Neue Fahrräder',
     neueFahrraederMetaTitle: 'Neue Fahrräder — Bike Haus Freiburg',
     neueFahrraederMetaDescription:
-      'Fabrikneue Fahrräder bei Bike Haus Freiburg. City, Trekking, Mountain, E-Bike — mit voller Herstellergarantie.',
+      'Fabrikneue Fahrräder bei Bike Haus Freiburg. City, Trekking, Mountain, E-Bike — mit 2 Jahren Geschäftsgarantie.',
     neueFahrraederTitle: 'Neue Fahrräder',
-    neueFahrraederSub: 'Fabrikneue Räder mit voller Herstellergarantie.',
+    neueFahrraederSub: 'Fabrikneue Räder mit 2 Jahren Geschäftsgarantie.',
     neueFahrraederBrand: 'Marke',
     neueFahrraederModel: 'Modell',
     neueFahrraederColor: 'Farbe',
@@ -649,6 +651,316 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederNoItems: 'Aktuell keine neuen Fahrräder verfügbar.',
     neueFahrraederContactUs: 'Kontaktieren Sie uns',
     neueFahrraederInterested: 'Interesse an diesem Fahrrad?',
+  },
+
+  en: {
+    metaTitle: 'Bike Haus Freiburg — New & Used Bicycles',
+    metaDescription:
+      'Your bicycle shop in Freiburg. New and certified used bikes — city, trekking, mountain, e-bike. Fair, sustainable, personal.',
+
+    home: 'Home',
+    showroom: 'Showroom',
+    accessories: 'Accessories',
+    about: 'About',
+    contact: 'Contact',
+
+    heroH1: 'Your next bike is waiting.',
+    heroSub:
+      'New and certified used bikes in Freiburg — fair prices, sustainable refurbishment, personal advice.',
+    ctaPrimary: 'Discover Bikes',
+    ctaSecondary: 'View Showroom',
+
+    valueLabel: 'WHY US',
+    valueTitle: 'More than just a bike shop.',
+    value1Title: 'Certified Quality',
+    value1Desc:
+      'Every used bike goes through a multi-step inspection and refurbishment process.',
+    value2Title: 'Fair Prices',
+    value2Desc: 'Transparently calculated. No haggling, no fine print.',
+    value3Title: 'Personal Advice',
+    value3Desc: 'We help you find the bike that truly fits you.',
+    value4Title: 'Sustainable Action',
+    value4Desc: 'Used bikes extend lifecycles and conserve resources.',
+
+    showroomLabel: 'SHOWROOM',
+    showroomTitle: 'Current Bikes.',
+    showroomSub: 'Discover our selection — regularly updated.',
+    viewAll: 'View All',
+    viewDetails: 'Details',
+    newBikes: 'New Bikes',
+    usedBikes: 'Used Bikes',
+    allBikes: 'All Bikes',
+
+    newBikesLabel: 'NEW IN STOCK',
+    newBikesTitle: 'Discover New Bikes.',
+    newBikesSub: 'Brand new bikes with 2 years shop warranty.',
+    browseNewBikes: 'Browse New Bikes',
+    usedBikesLabel: 'CERTIFIED & READY',
+    usedBikesTitle: 'Discover Used Bikes.',
+    usedBikesSub: 'Carefully inspected, refurbished, and ready to ride.',
+    browseUsedBikes: 'Browse Used Bikes',
+
+    allCategories: 'All',
+    noBikesFound: 'No bikes available in this category.',
+    searchPlaceholder: 'Search by brand, type, or size...',
+    priceOnRequest: 'Price on request',
+    viewOnKleinanzeigen: 'View on Kleinanzeigen',
+    lastUpdated: 'Last updated',
+    bikesAvailable: 'Bikes available',
+    filterByCategory: 'Category',
+    sortBy: 'Sort by',
+    sortNewest: 'Newest first',
+    sortPriceLow: 'Price low to high',
+    sortPriceHigh: 'Price high to low',
+    sortAZ: 'A — Z',
+    priceRange: 'Price range',
+    allPrices: 'All prices',
+    under500: 'Under €500',
+    range500to1000: '€500 — €1,000',
+    over1000: 'Over €1,000',
+    filters: 'Filters',
+    clearFilters: 'Clear filters',
+    showFilters: 'Show filters',
+    hideFilters: 'Hide filters',
+
+    description: 'Description',
+    price: 'Price',
+    category: 'Category',
+    location: 'Location',
+    photos: 'Photos',
+    backToShowroom: 'Back to Showroom',
+
+    trustLabel: 'QUALITY',
+    trustTitle: 'Quality you can trust.',
+    trustSub:
+      'Every bike at Bike Haus Freiburg is carefully inspected before entering our showroom.',
+    trust1: 'Technical inspection of all safety-relevant components',
+    trust2: 'Professional refurbishment and thorough cleaning',
+    trust3: 'Fair evaluation and transparent pricing',
+    trust4: 'Warranty: 24 months (new) / 3 months (used)',
+
+    storyLabel: 'OUR STORY',
+    storyTitle: 'Driven by passion for cycling.',
+    storyText:
+      'Bike Haus Freiburg was founded on the belief that good bikes don\'t have to be expensive — and that every bike deserves a second chance.',
+    storyValue1Title: 'Sustainability',
+    storyValue1Desc:
+      'Every used bike we refurbish means less waste and more mobility.',
+    storyValue2Title: 'Community',
+    storyValue2Desc: 'We get people on bikes — regardless of budget.',
+    storyValue3Title: 'Craftsmanship',
+    storyValue3Desc: 'Mechanics meets passion. Every bike is treated with care.',
+
+    galleryLabel: 'OUR SHOP',
+    galleryTitle: 'Inside our Bike Haus.',
+    gallerySub: 'Take a look at our shop in Freiburg — your next bike awaits.',
+
+    bikeCheckLabel: 'SERVICE',
+    bikeCheckTitle: 'Free Bike Check!',
+    bikeCheckSub: 'Repairs only on request — fair prices, transparent advice.',
+    bikeCheckFreeTitle: 'Free Check',
+    bikeCheckBrakeCheck: 'Brake inspection',
+    bikeCheckGearTest: 'Gear test',
+    bikeCheckTireChain: 'Tire & chain check',
+    bikeCheckRepairTitle: 'Repairs on Request',
+    bikeCheckBrakeAdjust: 'Brake adjustment',
+    bikeCheckChainCassette: 'Chain & cassette replacement',
+    bikeCheckGearAdjust: 'Gear adjustment',
+    bikeCheckTireService: 'Tire service',
+    bikeCheckNote: 'Regular bikes only',
+    bikeCheckExclusion: 'No e-bikes, no racing bikes',
+    bikeCheckNoObligation: 'No obligation!',
+    bikeCheckNoLiability: 'No liability for repairs',
+    bikeCheckFairPrices: 'Fair prices — Transparent advice.',
+
+    ctaSectionTitle: 'Ready for your next adventure?',
+    ctaSectionSub:
+      'Visit our showroom or browse our current selection online.',
+    ctaSectionButton: 'Find a Bike Now',
+
+    aboutLabel: 'ABOUT US',
+    aboutTitle: 'Who we are.',
+    aboutText:
+      'We are an independent bicycle dealer in Freiburg im Breisgau. Our range includes certified used bikes and selected new bikes — for every purpose and every budget.',
+    aboutMission:
+      'Our mission: Making quality mobility accessible — sustainable, fair, and personal.',
+    openingHours: 'Opening Hours',
+    findUs: 'Find Us',
+
+    contactLabel: 'CONTACT',
+    contactTitle: 'Get in touch.',
+    contactSub: 'We\'re happy to advise you — in person or by phone.',
+    phone: 'Phone',
+    email: 'Email',
+    address: 'Address',
+    visitUs: 'Visit Us',
+
+    footerTagline: 'New & used bikes in Freiburg.',
+    quickLinks: 'Navigation',
+    legalNotice: 'Legal Notice',
+    privacy: 'Privacy Policy',
+    terms: 'Terms',
+    allRights: 'All rights reserved.',
+
+    loading: 'Loading...',
+    error: 'An error occurred.',
+    noResults: 'No results.',
+    categories: 'Categories',
+    ourShowroom: 'Showroom',
+    conditionNew: 'New',
+    conditionUsed: 'Used',
+    contactEmailHint: 'We respond within 24 hours',
+    contactKaHint: 'View all our listings on Kleinanzeigen',
+
+    testimonialsLabel: 'TESTIMONIALS',
+    testimonialsTitle: 'What our customers say',
+    testimonialsSub: 'Over 500 satisfied customers in Freiburg trust us',
+
+    faqLabel: 'FAQ',
+    faqTitle: 'Questions & Answers',
+    faqSub: 'Everything you need to know about our service.',
+    faq1Q: 'Can I test a bike before buying?',
+    faq1A: 'Yes! Just drop by during our opening hours — no appointment needed.',
+    faq2Q: 'Do you offer a warranty on used bikes?',
+    faq2A:
+      'Every used bike is technically inspected. 3-day return policy, 3 months warranty on used bikes, 24 months on new bikes.',
+    faq3Q: 'How can I pay?',
+    faq3A: 'Cash, debit card, bank transfer, and PayPal.',
+    faq4Q: 'Do you also repair bikes?',
+    faq4A:
+      'We specialize in sales. For repairs, please contact us in advance by phone or email.',
+    faq5Q: 'Where can I find you?',
+    faq5A:
+      'Heckerstraße 27, 79114 Freiburg. Just drop by during opening hours — no appointment needed.',
+
+    whatsappTitle: 'Contact Seller',
+    whatsappPlaceholder: 'Your question or message...',
+    whatsappSend: 'Send via WhatsApp',
+    whatsappInterested: 'I\'m interested in this bike:',
+    whatsappQuestion: 'My question:',
+
+    ankaufTitle: 'Sell your bike?',
+    ankaufDesc:
+      'We buy your used bike! Just send us photos and your asking price via WhatsApp.',
+    ankaufCta: 'Send Offer',
+    ankaufHint: 'Photos + asking price via WhatsApp',
+    ankaufMessage:
+      'Hello, I would like to sell my bike.\n\nBrand/Model:\nCondition:\nAsking price:\n\n(Please attach photos)',
+
+    aboutBadge: 'Family business since 2021',
+    aboutHeadline: 'More than just bikes.',
+    aboutHeadlineAccent: 'A passion.',
+    aboutIntroText:
+      'What started as a humble idea has become a place where people of all ages find their perfect bike. As a small family business in Freiburg, we believe that every bike tells a story — and everyone deserves the freedom to write their own story on two wheels.',
+    aboutFeatureInvoice: 'Invoice & Purchase Contract',
+    aboutFeatureTrust: 'Trust & Quality',
+    aboutQuote:
+      'Every bike we sell brings joy — and that\'s the greatest reward.',
+    aboutQuoteAuthor: '— The Family Behind Bike Haus',
+    aboutMetaTitle: 'About Us — Bike Haus Freiburg | Your Bicycle Dealer',
+    aboutMetaDescription:
+      'Get to know Bike Haus Freiburg. Fair, sustainable, personal — your local bicycle dealer in Freiburg im Breisgau for new and used bikes.',
+
+    brandsLabel: 'BRANDS',
+    brandsTitle: 'Our Brands — New & Used',
+    brandsIntro:
+      'We offer a carefully selected range of bicycles in our shop. Please note: We are not an official dealer for all brands, but we sell bikes sourced through legal channels.',
+    brandsNewTitle: 'New Bikes',
+    brandVictoriaDesc: 'Robust and elegant city bikes',
+    brandConwayDesc: 'Reliable performance in mountain and city bikes',
+    brandBikestarDesc: 'Children and youth bikes',
+    brandPyroDesc: 'Light and fast sports bikes',
+    brandXtractDesc: 'Functional and affordable models',
+    brandsUsedTitle: 'Used Bikes',
+    brandsUsedDesc:
+      'We carry used bikes from well-known brands. These bikes come directly from private individuals or other legal sources.',
+    brandsAndMore: 'and many more',
+    brandsDisclaimerLabel: 'Note:',
+    brandsDisclaimer:
+      'We use brand names to describe products. Without authorized partnership, we cannot offer official warranty or service from brand manufacturers.',
+
+    monday: 'Monday',
+    tuesday: 'Tuesday',
+    wednesday: 'Wednesday',
+    thursday: 'Thursday',
+    friday: 'Friday',
+    saturday: 'Saturday',
+    sunday: 'Sunday',
+    closed: 'Closed',
+    restDay: 'Rest Day',
+    openGoogleMaps: 'Open Google Maps',
+
+    monShort: 'Mon',
+    tueShort: 'Tue',
+    wedShort: 'Wed',
+    thuShort: 'Thu',
+    friShort: 'Fri',
+    satShort: 'Sat',
+    sunShort: 'Sun',
+
+    contactWhatsappHint: 'Write directly',
+    contactMetaTitle: 'Contact — Bike Haus Freiburg | Address & Hours',
+    contactMetaDescription:
+      'Contact Bike Haus Freiburg. Address, opening hours, WhatsApp, phone. Visit us at 79114 Freiburg im Breisgau.',
+
+    trustBadgeSince: 'In Freiburg since 2020',
+    trustBadgeCustomers: '500+ satisfied customers',
+    ariaStarsRating: '5 out of 5 stars',
+
+    filterCondition: 'Condition',
+    filterCategory: 'Category',
+    filterTireSize: 'Tire Size (inches)',
+    filterGears: 'Gears',
+    gearsUnit: 'gears',
+    filterFrameSize: 'Frame Size',
+    showroomMetaTitle: 'Showroom — Bike Haus Freiburg | All Bikes',
+    showroomMetaDescription:
+      'Discover over 100 new and used bikes in our showroom. City, trekking, mountain, e-bike, kids bikes — fairly priced, inspected, immediately available.',
+
+    detailMetaDescSuffix:
+      'View now at Bike Haus Freiburg in 79114 Freiburg im Breisgau.',
+    bikeFallbackCategory: 'Bicycle',
+
+    legalLabel: 'Legal',
+    languageLabel: 'Language',
+
+    bikeAltSuffix: ' — Bike at Bike Haus Freiburg',
+
+    catDamen: "Women's Bikes",
+    catHerren: "Men's Bikes",
+    catKinder: "Kids' Bikes",
+    catZubehoer: 'Accessories',
+    catEBike: 'E-Bikes',
+    catTrekking: 'Trekking Bikes',
+    catMountain: 'Mountain Bikes',
+    catCity: 'City Bikes',
+    catRennrad: 'Road Bikes',
+    catSonstige: 'Other Bikes',
+
+    accessoriesMetaTitle: 'Accessories — Bike Haus Freiburg',
+    accessoriesMetaDescription:
+      'Bike accessories at Bike Haus Freiburg. Bags, helmets, locks, and more.',
+    accessoriesTitle: 'Accessories',
+    accessoriesSub: 'Bags, helmets, locks, and more for your bike.',
+
+    neueFahrraeder: 'New Bikes',
+    neueFahrraederMetaTitle: 'New Bikes — Bike Haus Freiburg',
+    neueFahrraederMetaDescription:
+      'Brand new bikes at Bike Haus Freiburg. City, trekking, mountain, e-bike — with 2 years shop warranty.',
+    neueFahrraederTitle: 'New Bikes',
+    neueFahrraederSub: 'Brand new bikes with 2 years shop warranty.',
+    neueFahrraederBrand: 'Brand',
+    neueFahrraederModel: 'Model',
+    neueFahrraederColor: 'Color',
+    neueFahrraederFrameSize: 'Frame Size',
+    neueFahrraederWheelSize: 'Wheel Size',
+    neueFahrraederGears: 'Gears',
+    neueFahrraederCondition: 'Condition',
+    neueFahrraederWarranty: '2 Year Warranty',
+    neueFahrraederBackToList: 'Back to List',
+    neueFahrraederNoItems: 'No new bikes available at the moment.',
+    neueFahrraederContactUs: 'Contact Us',
+    neueFahrraederInterested: 'Interested in this bike?',
   },
 
   fr: {
@@ -693,7 +1005,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     newBikesLabel: 'NOUVEAUTÉS',
     newBikesTitle: 'Découvrez nos vélos neufs.',
-    newBikesSub: 'Vélos neufs avec garantie constructeur complète.',
+    newBikesSub: 'Vélos neufs avec 2 ans de garantie magasin.',
     browseNewBikes: 'Voir les vélos neufs',
     usedBikesLabel: 'CONTRÔLÉS & PRÊTS',
     usedBikesTitle: "Découvrez nos vélos d'occasion.",
@@ -774,6 +1086,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckNote: 'Uniquement pour les vélos classiques',
     bikeCheckExclusion: 'Pas de vélos électriques, pas de vélos de course',
     bikeCheckNoObligation: 'Aucune obligation !',
+    bikeCheckNoLiability: 'Pas de responsabilité pour les réparations',
     bikeCheckFairPrices: 'Prix justes — Conseil transparent.',
 
     ctaSectionTitle: 'Prêt pour votre prochaine aventure ?',
@@ -967,9 +1280,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraeder: 'Vélos neufs',
     neueFahrraederMetaTitle: 'Vélos neufs — Bike Haus Freiburg',
     neueFahrraederMetaDescription:
-      'Vélos neufs chez Bike Haus Freiburg. Ville, trekking, VTT, vélo électrique — avec garantie constructeur complète.',
+      'Vélos neufs chez Bike Haus Freiburg. Ville, trekking, VTT, vélo électrique — avec 2 ans de garantie magasin.',
     neueFahrraederTitle: 'Vélos neufs',
-    neueFahrraederSub: 'Vélos neufs avec garantie constructeur complète.',
+    neueFahrraederSub: 'Vélos neufs avec 2 ans de garantie magasin.',
     neueFahrraederBrand: 'Marque',
     neueFahrraederModel: 'Modèle',
     neueFahrraederColor: 'Couleur',
@@ -1025,7 +1338,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     newBikesLabel: 'YENİ ÜRÜNLER',
     newBikesTitle: 'Yeni bisikletleri keşfedin.',
-    newBikesSub: 'Tam üretici garantili sıfır bisikletler.',
+    newBikesSub: '2 yıl mağaza garantili sıfır bisikletler.',
     browseNewBikes: 'Yeni bisikletleri gör',
     usedBikesLabel: 'KONTROL EDİLMİŞ & HAZIR',
     usedBikesTitle: 'İkinci el bisikletleri keşfedin.',
@@ -1105,6 +1418,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckNote: 'Sadece normal bisikletler için',
     bikeCheckExclusion: 'E-Bike ve yarış bisikleti hariç',
     bikeCheckNoObligation: 'Zorunluluk yok!',
+    bikeCheckNoLiability: 'Tamir için sorumluluk kabul edilmez',
     bikeCheckFairPrices: 'Adil fiyatlar — Şeffaf danışmanlık.',
 
     ctaSectionTitle: 'Bir sonraki maceranıza hazır mısınız?',
@@ -1297,9 +1611,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraeder: 'Yeni Bisikletler',
     neueFahrraederMetaTitle: 'Yeni Bisikletler — Bike Haus Freiburg',
     neueFahrraederMetaDescription:
-      "Bike Haus Freiburg'da sıfır bisikletler. Şehir, trekking, dağ, elektrikli — tam üretici garantili.",
+      "Bike Haus Freiburg'da sıfır bisikletler. Şehir, trekking, dağ, elektrikli — 2 yıl mağaza garantili.",
     neueFahrraederTitle: 'Yeni Bisikletler',
-    neueFahrraederSub: 'Tam üretici garantili sıfır bisikletler.',
+    neueFahrraederSub: '2 yıl mağaza garantili sıfır bisikletler.',
     neueFahrraederBrand: 'Marka',
     neueFahrraederModel: 'Model',
     neueFahrraederColor: 'Renk',
@@ -1330,11 +1644,11 @@ export class TranslationService {
 
   private getStoredLanguage(): Language {
     const stored = localStorage.getItem('bikehaus-homepage-language');
-    if (stored && ['de', 'fr', 'tr'].includes(stored)) {
+    if (stored && ['de', 'en', 'fr', 'tr'].includes(stored)) {
       return stored as Language;
     }
     const browserLang = navigator.language.substring(0, 2);
-    if (['de', 'fr', 'tr'].includes(browserLang)) {
+    if (['de', 'en', 'fr', 'tr'].includes(browserLang)) {
       return browserLang as Language;
     }
     return 'de';
