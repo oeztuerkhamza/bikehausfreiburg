@@ -501,7 +501,12 @@ export class NeueFahrradFormComponent implements OnInit {
   }
 
   getImageUrl(path: string): string {
-    return `${environment.apiUrl.replace('/api/public', '')}${path}`;
+    // In production, uploads are served at /uploads directly
+    // In development, prepend API URL
+    if (environment.production) {
+      return path;  // e.g. /uploads/neue-fahrraeder/1/image.jpg
+    }
+    return `${environment.apiUrl.replace('/api', '')}${path}`;
   }
 
   onDragOver(event: DragEvent) {
