@@ -218,6 +218,14 @@ public class PurchaseService : IPurchaseService
         if (!string.IsNullOrWhiteSpace(dto.BelegNummer))
             purchase.BelegNummer = dto.BelegNummer;
         purchase.UpdatedAt = DateTime.UtcNow;
+
+        // Always sync VerkaufspreisVorschlag to Bicycle (Purchase is source of truth)
+        if (dto.VerkaufspreisVorschlag.HasValue)
+        {
+            bicycle.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
+            await _bicycleRepository.UpdateAsync(bicycle);
+        }
+
         await _purchaseRepository.UpdateAsync(purchase);
 
         var updated = await _purchaseRepository.GetWithDetailsAsync(id);
