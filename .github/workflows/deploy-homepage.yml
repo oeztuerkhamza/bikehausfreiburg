@@ -9,6 +9,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BikeHaus.Homepage
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,6 +21,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+          cache-dependency-path: BikeHaus.Homepage/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -31,9 +35,9 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "dist/bike-haus.homepage/browser/"
+          source: "BikeHaus.Homepage/dist/bike-haus.homepage/browser/"
           target: "/opt/bikehaus/homepage-dist"
-          strip_components: 3
+          strip_components: 4
           rm: true
 
       - name: Fix permissions and restart nginx
