@@ -48,9 +48,16 @@ const TYP_PATTERN =
         </div>
       </header>
 
-      <div class="container shop-layout" [class.no-sidebar]="isAccessoriesMode()">
+      <div
+        class="container shop-layout"
+        [class.no-sidebar]="isAccessoriesMode()"
+      >
         <!-- ====== Sidebar (Desktop) ====== -->
-        <aside class="sidebar" [class.open]="sidebarOpen()" *ngIf="!isAccessoriesMode()">
+        <aside
+          class="sidebar"
+          [class.open]="sidebarOpen()"
+          *ngIf="!isAccessoriesMode()"
+        >
           <!-- Close button (mobile) -->
           <button class="sidebar-close" (click)="closeSidebar()">
             <svg
@@ -357,7 +364,11 @@ const TYP_PATTERN =
           <!-- Toolbar -->
           <div class="toolbar">
             <!-- Mobile filter toggle -->
-            <button class="filter-toggle" (click)="sidebarOpen.set(true)" *ngIf="!isAccessoriesMode()">
+            <button
+              class="filter-toggle"
+              (click)="sidebarOpen.set(true)"
+              *ngIf="!isAccessoriesMode()"
+            >
               <svg
                 width="16"
                 height="16"
@@ -1429,7 +1440,9 @@ export class ShowroomComponent implements OnInit, OnDestroy {
         // Also load published bicycles and merge
         this.apiService.getGebrauchteFahrraeder().subscribe({
           next: (bikes) => {
-            const convertedBikes = bikes.map((b) => this.convertBicycleToListing(b));
+            const convertedBikes = bikes.map((b) =>
+              this.convertBicycleToListing(b),
+            );
             this.allListings.set([...data, ...convertedBikes]);
             this.loading.set(false);
             this.addItemListSchema([...data, ...convertedBikes]);
@@ -1452,10 +1465,23 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   private mapArtToCategory(art?: string): string {
     if (!art) return 'Sonstige Fahrräder';
     const lower = art.toLowerCase();
-    if (lower.includes('herren') || lower.includes('mann') || lower.includes('männer')) return 'Herren-Fahrräder';
-    if (lower.includes('damen') || lower.includes('frau')) return 'Damen-Fahrräder';
-    if (lower.includes('kinder') || lower.includes('kind')) return 'Kinder-Fahrräder';
-    if (lower.includes('e-bike') || lower.includes('ebike') || lower.includes('pedelec') || lower.includes('elektro')) return 'E-Bikes';
+    if (
+      lower.includes('herren') ||
+      lower.includes('mann') ||
+      lower.includes('männer')
+    )
+      return 'Herren-Fahrräder';
+    if (lower.includes('damen') || lower.includes('frau'))
+      return 'Damen-Fahrräder';
+    if (lower.includes('kinder') || lower.includes('kind'))
+      return 'Kinder-Fahrräder';
+    if (
+      lower.includes('e-bike') ||
+      lower.includes('ebike') ||
+      lower.includes('pedelec') ||
+      lower.includes('elektro')
+    )
+      return 'E-Bikes';
     if (lower.includes('unisex')) return 'Sonstige Fahrräder';
     return 'Sonstige Fahrräder';
   }

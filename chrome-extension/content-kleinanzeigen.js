@@ -438,13 +438,22 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
             }
 
             // ═══════════════════════════════════════════════════════
-            // Strategy 1 (PRIMARY): Drag & Drop on #dropzone-box
-            // Kleinanzeigen listens for drop events via jQuery/Plupload
-            // on #dropzone-box. We simulate the full drag sequence.
+            // Strategy 1 (PRIMARY): Drag & Drop on dropzone
+            // Kleinanzeigen listens for drop events via jQuery/Plupload.
+            // Try multiple selectors for different KA versions.
             // ═══════════════════════════════════════════════════════
             var dropZone = document.querySelector('#dropzone-box') ||
+                           document.querySelector('[data-testid="picture-upload-dropzone"]') ||
+                           document.querySelector('[data-testid="dropzone"]') ||
+                           document.querySelector('.picture-upload-dropzone') ||
+                           document.querySelector('.dropzone') ||
                            document.querySelector('.uploadbox') ||
-                           document.querySelector('#pstad-pictureupload .formgroup-input');
+                           document.querySelector('#pstad-pictureupload .formgroup-input') ||
+                           document.querySelector('[class*="dropzone"]') ||
+                           document.querySelector('[class*="picture-upload"]');
+
+            console.log('[BikeHaus PageCtx] Looking for dropzone...');
+            console.log('[BikeHaus PageCtx] All potential dropzones:', document.querySelectorAll('[class*="drop"], [class*="upload"], [data-testid*="upload"]'));
 
             if (dropZone) {
               console.log('[BikeHaus PageCtx] Found dropzone: ' + (dropZone.id || dropZone.className));
@@ -533,11 +542,18 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
             // Strategy 3: File input (sequential)
             // ═══════════════════════════════════════════════════════
             console.log('[BikeHaus PageCtx] No Plupload, trying file input...');
+            console.log('[BikeHaus PageCtx] All file inputs:', document.querySelectorAll('input[type="file"]'));
             var fileInput = document.querySelector('#plupld input[type="file"]') ||
                             document.querySelector('#pstad-pictureupload input[type="file"]') ||
+                            document.querySelector('[data-testid*="picture"] input[type="file"]') ||
+                            document.querySelector('[data-testid*="upload"] input[type="file"]') ||
+                            document.querySelector('[class*="picture-upload"] input[type="file"]') ||
+                            document.querySelector('[class*="dropzone"] input[type="file"]') ||
+                            document.querySelector('input[type="file"][accept*="image"]') ||
                             document.querySelector('input[type="file"]');
 
             if (fileInput) {
+              console.log('[BikeHaus PageCtx] Found file input:', fileInput);
               var fIdx = 0;
               function addNextInput() {
                 if (fIdx >= files.length) {
@@ -551,6 +567,9 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
                 fIdx++;
                 setTimeout(function() {
                   fileInput = document.querySelector('#plupld input[type="file"]') ||
+                              document.querySelector('[data-testid*="picture"] input[type="file"]') ||
+                              document.querySelector('[class*="picture-upload"] input[type="file"]') ||
+                              document.querySelector('input[type="file"][accept*="image"]') ||
                               document.querySelector('input[type="file"]');
                   addNextInput();
                 }, 1500);
@@ -559,6 +578,8 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
               return;
             }
 
+            console.log('[BikeHaus PageCtx] ERROR: No upload mechanism found on page');
+            console.log('[BikeHaus PageCtx] Page body classes:', document.body.className);
             reportFail('No upload mechanism found');
 
             // ── Helper: Try jQuery-based drop event ──
@@ -1323,15 +1344,19 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     if (selectAllBtn) {
       selectAllBtn.addEventListener('click', () => {
         const photos = panel.querySelectorAll('.bk-draggable-photo');
-        const allSelected = [...photos].every(p => p.classList.contains('bk-selected'));
-        photos.forEach(p => {
+        const allSelected = [...photos].every((p) =>
+          p.classList.contains('bk-selected'),
+        );
+        photos.forEach((p) => {
           if (allSelected) {
             p.classList.remove('bk-selected');
           } else {
             p.classList.add('bk-selected');
           }
         });
-        selectAllBtn.textContent = allSelected ? '☑ Alle auswählen' : '☐ Auswahl aufheben';
+        selectAllBtn.textContent = allSelected
+          ? '☑ Alle auswählen'
+          : '☐ Auswahl aufheben';
       });
     }
 
@@ -1381,7 +1406,9 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
   // ── Fetch images via background script and display as data URLs ──
   function loadPanelImages(panel) {
-    const imgElements = panel.querySelectorAll('.bk-draggable-photo img[data-src]');
+    const imgElements = panel.querySelectorAll(
+      '.bk-draggable-photo img[data-src]',
+    );
     imgElements.forEach((img) => {
       const url = img.dataset.src;
       chrome.runtime.sendMessage(
@@ -1390,7 +1417,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
           if (response && response.dataUrl) {
             img.src = response.dataUrl;
           }
-        }
+        },
       );
     });
 
@@ -1411,7 +1438,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
               a.download = dlName;
               a.click();
             }
-          }
+          },
         );
       });
     });
@@ -1439,7 +1466,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
             photo.classList.add('bk-photo-ready');
             console.log(`[BikeHaus] Photo ${index + 1} cached for drag`);
           }
-        }
+        },
       );
 
       // Toggle selection on click
@@ -1451,12 +1478,19 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       // Drag start
       photo.addEventListener('dragstart', (e) => {
         // Collect files to drag: selected photos or just this one
-        const selectedPhotos = panel.querySelectorAll('.bk-draggable-photo.bk-selected');
+        const selectedPhotos = panel.querySelectorAll(
+          '.bk-draggable-photo.bk-selected',
+        );
         let indicesToDrag = [];
 
-        if (selectedPhotos.length > 0 && photo.classList.contains('bk-selected')) {
+        if (
+          selectedPhotos.length > 0 &&
+          photo.classList.contains('bk-selected')
+        ) {
           // Drag all selected
-          indicesToDrag = [...selectedPhotos].map(p => parseInt(p.dataset.imgIndex));
+          indicesToDrag = [...selectedPhotos].map((p) =>
+            parseInt(p.dataset.imgIndex),
+          );
         } else {
           // Drag just this one
           indicesToDrag = [index];
@@ -1491,7 +1525,8 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
         // Set drag image
         const dragGhost = document.createElement('div');
-        dragGhost.style.cssText = 'position:fixed;top:-1000px;left:-1000px;background:#3498db;color:white;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:bold;font-family:sans-serif;z-index:999999;pointer-events:none;';
+        dragGhost.style.cssText =
+          'position:fixed;top:-1000px;left:-1000px;background:#3498db;color:white;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:bold;font-family:sans-serif;z-index:999999;pointer-events:none;';
         dragGhost.textContent = `\uD83D\uDCF7 ${filesToDrag.length} Foto${filesToDrag.length > 1 ? 's' : ''}`;
         document.body.appendChild(dragGhost);
         e.dataTransfer.setDragImage(dragGhost, 0, 0);
@@ -1501,9 +1536,11 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
       photo.addEventListener('dragend', () => {
         photo.classList.remove('bk-dragging');
         // Clear selection after successful drag
-        panel.querySelectorAll('.bk-draggable-photo.bk-selected').forEach(p => {
-          p.classList.remove('bk-selected');
-        });
+        panel
+          .querySelectorAll('.bk-draggable-photo.bk-selected')
+          .forEach((p) => {
+            p.classList.remove('bk-selected');
+          });
       });
     });
   }

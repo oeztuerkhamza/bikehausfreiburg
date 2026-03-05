@@ -163,7 +163,11 @@ import {
             </div>
             <div class="field" *ngIf="bicycle?.kleinanzeigenAnzeigeNr">
               <label>KA Anzeige-Nr (Verkauf)</label>
-              <input [value]="bicycle?.kleinanzeigenAnzeigeNr" readonly class="readonly-field" />
+              <input
+                [value]="bicycle?.kleinanzeigenAnzeigeNr"
+                readonly
+                class="readonly-field"
+              />
             </div>
           </div>
         </div>
@@ -174,11 +178,22 @@ import {
           <div class="form-grid">
             <div class="field">
               <label>{{ t.bicyclePrice }} (EK)</label>
-              <input type="number" [(ngModel)]="purchaseForm.preis" name="purchasePreis" step="0.01" />
+              <input
+                type="number"
+                [(ngModel)]="purchaseForm.preis"
+                name="purchasePreis"
+                step="0.01"
+              />
             </div>
             <div class="field">
               <label>{{ t.plannedSellingPrice }}</label>
-              <input type="number" [(ngModel)]="purchaseForm.verkaufspreisVorschlag" name="verkaufspreisVorschlag" step="0.01" placeholder="z.B. 350" />
+              <input
+                type="number"
+                [(ngModel)]="purchaseForm.verkaufspreisVorschlag"
+                name="verkaufspreisVorschlag"
+                step="0.01"
+                placeholder="z.B. 350"
+              />
             </div>
             <div class="field">
               <label>{{ t.paymentMethod }}</label>
@@ -190,11 +205,18 @@ import {
             </div>
             <div class="field">
               <label>{{ t.purchaseDate }}</label>
-              <input type="date" [(ngModel)]="purchaseForm.kaufdatum" name="kaufdatum" />
+              <input
+                type="date"
+                [(ngModel)]="purchaseForm.kaufdatum"
+                name="kaufdatum"
+              />
             </div>
             <div class="field">
               <label>Beleg-Nr.</label>
-              <input [(ngModel)]="purchaseForm.belegNummer" name="belegNummer" />
+              <input
+                [(ngModel)]="purchaseForm.belegNummer"
+                name="belegNummer"
+              />
             </div>
             <div class="field">
               <label>Anzeige-Nr.</label>
@@ -202,7 +224,12 @@ import {
             </div>
             <div class="field field-full">
               <label>{{ t.notes }}</label>
-              <textarea [(ngModel)]="purchaseForm.notizen" name="purchaseNotizen" rows="2" placeholder="optional"></textarea>
+              <textarea
+                [(ngModel)]="purchaseForm.notizen"
+                name="purchaseNotizen"
+                rows="2"
+                placeholder="optional"
+              ></textarea>
             </div>
           </div>
 
@@ -222,7 +249,10 @@ import {
             </div>
             <div class="field">
               <label>{{ t.houseNumber || 'Hausnr.' }}</label>
-              <input [(ngModel)]="sellerForm.hausnummer" name="sellerHausnummer" />
+              <input
+                [(ngModel)]="sellerForm.hausnummer"
+                name="sellerHausnummer"
+              />
             </div>
             <div class="field">
               <label>{{ t.postalCode || 'PLZ' }}</label>
@@ -256,7 +286,10 @@ import {
               multiple
               style="display: none"
             />
-            <button class="btn btn-sm btn-outline" (click)="purchaseFileInput.click()">
+            <button
+              class="btn btn-sm btn-outline"
+              (click)="purchaseFileInput.click()"
+            >
               + {{ t.addPhotos || 'Fotos hinzufügen' }}
             </button>
           </div>
@@ -264,8 +297,18 @@ import {
             <div class="gallery-thumb" *ngFor="let doc of purchaseDocuments">
               <img [src]="getDocumentUrl(doc)" [alt]="doc.fileName" />
               <div class="thumb-actions">
-                <button class="btn btn-sm btn-outline" (click)="downloadDoc(doc)">↓</button>
-                <button class="btn btn-sm btn-danger" (click)="deleteDoc(doc, 'purchase')">×</button>
+                <button
+                  class="btn btn-sm btn-outline"
+                  (click)="downloadDoc(doc)"
+                >
+                  ↓
+                </button>
+                <button
+                  class="btn btn-sm btn-danger"
+                  (click)="deleteDoc(doc, 'purchase')"
+                >
+                  ×
+                </button>
               </div>
             </div>
           </div>
@@ -277,7 +320,9 @@ import {
         <!-- Right: Sale Documents (Verkauf Fotos) -->
         <div class="edit-card" *ngIf="sale">
           <h2>📷 {{ t.salesPhotos || 'Verkauf Fotos' }}</h2>
-          <p class="doc-hint">{{ t.salesPhotosHint || 'Fotos vom Verkauf hochladen' }}</p>
+          <p class="doc-hint">
+            {{ t.salesPhotosHint || 'Fotos vom Verkauf hochladen' }}
+          </p>
           <div class="doc-upload">
             <input
               type="file"
@@ -287,7 +332,10 @@ import {
               multiple
               style="display: none"
             />
-            <button class="btn btn-sm btn-outline" (click)="saleFileInput.click()">
+            <button
+              class="btn btn-sm btn-outline"
+              (click)="saleFileInput.click()"
+            >
               + {{ t.addPhotos || 'Fotos hinzufügen' }}
             </button>
           </div>
@@ -295,8 +343,18 @@ import {
             <div class="gallery-thumb" *ngFor="let doc of saleDocuments">
               <img [src]="getDocumentUrl(doc)" [alt]="doc.fileName" />
               <div class="thumb-actions">
-                <button class="btn btn-sm btn-outline" (click)="downloadDoc(doc)">↓</button>
-                <button class="btn btn-sm btn-danger" (click)="deleteDoc(doc, 'sale')">×</button>
+                <button
+                  class="btn btn-sm btn-outline"
+                  (click)="downloadDoc(doc)"
+                >
+                  ↓
+                </button>
+                <button
+                  class="btn btn-sm btn-danger"
+                  (click)="deleteDoc(doc, 'sale')"
+                >
+                  ×
+                </button>
               </div>
             </div>
           </div>
@@ -793,23 +851,28 @@ export class BicycleDetailComponent implements OnInit {
             bicycle: this.form,
             seller: this.sellerForm,
             preis: this.purchaseForm.preis,
-            verkaufspreisVorschlag: this.purchaseForm.verkaufspreisVorschlag || undefined,
+            verkaufspreisVorschlag:
+              this.purchaseForm.verkaufspreisVorschlag || undefined,
             zahlungsart: this.purchaseForm.zahlungsart as PaymentMethod,
             kaufdatum: this.purchaseForm.kaufdatum,
             notizen: this.purchaseForm.notizen || undefined,
             belegNummer: this.purchaseForm.belegNummer || undefined,
             anzeigeNr: this.purchaseForm.anzeigeNr || undefined,
           };
-          this.purchaseService.update(this.purchase.id, purchaseUpdate).subscribe({
-            next: () => {
-              this.notificationService.success(this.t.saveSuccess);
-              this.router.navigate(['/bicycles']);
-            },
-            error: (err) => {
-              this.submitting = false;
-              this.notificationService.error(err.error?.error || this.t.saveError);
-            },
-          });
+          this.purchaseService
+            .update(this.purchase.id, purchaseUpdate)
+            .subscribe({
+              next: () => {
+                this.notificationService.success(this.t.saveSuccess);
+                this.router.navigate(['/bicycles']);
+              },
+              error: (err) => {
+                this.submitting = false;
+                this.notificationService.error(
+                  err.error?.error || this.t.saveError,
+                );
+              },
+            });
         } else {
           this.notificationService.success(this.t.saveSuccess);
           this.router.navigate(['/bicycles']);
@@ -885,7 +948,10 @@ export class BicycleDetailComponent implements OnInit {
     });
   }
 
-  deleteDoc(doc: DocModel, source: 'bicycle' | 'purchase' | 'sale' = 'bicycle') {
+  deleteDoc(
+    doc: DocModel,
+    source: 'bicycle' | 'purchase' | 'sale' = 'bicycle',
+  ) {
     this.dialogService
       .danger(this.t.delete, this.t.deleteConfirmDocument)
       .then((confirmed) => {
@@ -894,9 +960,13 @@ export class BicycleDetailComponent implements OnInit {
             next: () => {
               this.notificationService.success(this.t.deleteSuccess);
               if (source === 'purchase') {
-                this.purchaseDocuments = this.purchaseDocuments.filter((d) => d.id !== doc.id);
+                this.purchaseDocuments = this.purchaseDocuments.filter(
+                  (d) => d.id !== doc.id,
+                );
               } else if (source === 'sale') {
-                this.saleDocuments = this.saleDocuments.filter((d) => d.id !== doc.id);
+                this.saleDocuments = this.saleDocuments.filter(
+                  (d) => d.id !== doc.id,
+                );
               } else {
                 this.documents = this.documents.filter((d) => d.id !== doc.id);
               }
