@@ -88,7 +88,7 @@ import { TranslationService } from '../../services/translation.service';
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          {{ listing.location }}
+          {{ simplifyLocation(listing.location) }}
         </p>
         <div class="card-footer">
           <span class="card-price" *ngIf="listing.priceText; else noPrice">{{
@@ -362,5 +362,13 @@ export class BikeCardComponent {
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
+  }
+
+  simplifyLocation(location: string): string {
+    // Always show just "Freiburg" for consistency
+    if (location.toLowerCase().includes('freiburg')) {
+      return 'Freiburg';
+    }
+    return location;
   }
 }
