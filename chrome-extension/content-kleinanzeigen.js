@@ -411,31 +411,66 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
 
             console.log('[BikeHaus PageCtx] Starting upload of ' + imageDataItems.length + ' images');
 
-            // Convert data URL to File
-            function dataURLtoFile(dataUrl, filename) {
-              var arr = dataUrl.split(',');
-              var mime = arr[0].match(/:(.*?);/)[1];
-              var bstr = atob(arr[1]);
-              var n = bstr.length;
-              var u8arr = new Uint8Array(n);
-              while (n--) u8arr[n] = bstr.charCodeAt(n);
-              return new File([u8arr], filename, { type: mime });
+            // Convert data URL to JPEG File (Kleinanzeigen only accepts JPG/PNG)
+            function convertToJpegFile(dataUrl, filename) {
+              return new Promise(function(resolve) {
+                var img = new Image();
+                img.onload = function() {
+                  var canvas = document.createElement('canvas');
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+                  var ctx = canvas.getContext('2d');
+                  // Fill white background for transparency
+                  ctx.fillStyle = '#FFFFFF';
+                  ctx.fillRect(0, 0, canvas.width, canvas.height);
+                  ctx.drawImage(img, 0, 0);
+                  // Convert to JPEG with 90% quality
+                  var jpegDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                  var arr = jpegDataUrl.split(',');
+                  var bstr = atob(arr[1]);
+                  var n = bstr.length;
+                  var u8arr = new Uint8Array(n);
+                  while (n--) u8arr[n] = bstr.charCodeAt(n);
+                  // Always use .jpg extension
+                  var jpgFilename = filename.replace(/\.[^.]+$/, '.jpg');
+                  var file = new File([u8arr], jpgFilename, { type: 'image/jpeg' });
+                  console.log('[BikeHaus PageCtx] Converted ' + filename + ' to JPEG (' + file.size + ' bytes)');
+                  resolve(file);
+                };
+                img.onerror = function() {
+                  console.log('[BikeHaus PageCtx] Failed to load image for conversion: ' + filename);
+                  // Fallback: try original format
+                  var arr = dataUrl.split(',');
+                  var mime = arr[0].match(/:(.*?);/)[1];
+                  var bstr = atob(arr[1]);
+                  var n = bstr.length;
+                  var u8arr = new Uint8Array(n);
+                  while (n--) u8arr[n] = bstr.charCodeAt(n);
+                  resolve(new File([u8arr], filename, { type: mime }));
+                };
+                img.src = dataUrl;
+              });
             }
 
-            var files = imageDataItems.map(function(item) {
-              return dataURLtoFile(item.dataUrl, item.filename);
+            // Convert all images to JPEG
+            Promise.all(imageDataItems.map(function(item) {
+              return convertToJpegFile(item.dataUrl, item.filename);
+            })).then(function(convertedFiles) {
+              console.log('[BikeHaus PageCtx] All ' + convertedFiles.length + ' images converted to JPEG');
+              runUpload(convertedFiles);
             });
 
-            function reportSuccess(count, method) {
-              window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
-                detail: { success: true, count: count, method: method }
-              }));
-            }
-            function reportFail(error) {
-              window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
-                detail: { success: false, error: error }
-              }));
-            }
+            function runUpload(files) {
+              function reportSuccess(count, method) {
+                window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
+                  detail: { success: true, count: count, method: method }
+                }));
+              }
+              function reportFail(error) {
+                window.dispatchEvent(new CustomEvent('bikehaus-upload-result', {
+                  detail: { success: false, error: error }
+                }));
+              }
 
             // ═══════════════════════════════════════════════════════
             // Strategy 1 (PRIMARY): Drag & Drop on dropzone
@@ -680,6 +715,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
               } catch(e) {}
               return null;
             }
+            } // end runUpload
 
           } catch(e) {
             console.error('[BikeHaus PageCtx] Error:', e);
