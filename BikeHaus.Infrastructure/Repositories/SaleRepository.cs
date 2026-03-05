@@ -23,6 +23,15 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
+    public async Task<Sale?> GetByBicycleIdAsync(int bicycleId)
+    {
+        return await _dbSet
+            .Include(s => s.Bicycle)
+            .Include(s => s.Buyer)
+            .Include(s => s.Documents)
+            .FirstOrDefaultAsync(s => s.BicycleId == bicycleId);
+    }
+
     public async Task<IEnumerable<Sale>> GetRecentSalesAsync(int count = 10)
     {
         return await _dbSet

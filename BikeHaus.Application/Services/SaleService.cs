@@ -77,6 +77,12 @@ public class SaleService : ISaleService
         return sale?.ToDto();
     }
 
+    public async Task<SaleDto?> GetByBicycleIdAsync(int bicycleId)
+    {
+        var sale = await _saleRepository.GetByBicycleIdAsync(bicycleId);
+        return sale?.ToDto();
+    }
+
     public async Task<SaleDto> CreateAsync(SaleCreateDto dto)
     {
         // Verify bicycle exists and is available

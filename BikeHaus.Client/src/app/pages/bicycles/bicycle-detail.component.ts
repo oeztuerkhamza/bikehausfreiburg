@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
 import { PurchaseService } from '../../services/purchase.service';
+import { SaleService } from '../../services/sale.service';
 import { DocumentService } from '../../services/document.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
@@ -18,6 +19,7 @@ import {
   PurchaseUpdate,
   CustomerUpdate,
   PaymentMethod,
+  Sale,
   Document as DocModel,
 } from '../../models/models';
 
@@ -268,6 +270,37 @@ import {
             </div>
           </div>
           <p *ngIf="purchaseDocuments.length === 0" class="empty">
+            {{ t.noPhotos || 'Keine Fotos' }}
+          </p>
+        </div>
+
+        <!-- Right: Sale Documents (Verkauf Fotos) -->
+        <div class="edit-card" *ngIf="sale">
+          <h2>📷 {{ t.salesPhotos || 'Verkauf Fotos' }}</h2>
+          <p class="doc-hint">{{ t.salesPhotosHint || 'Fotos vom Verkauf hochladen' }}</p>
+          <div class="doc-upload">
+            <input
+              type="file"
+              #saleFileInput
+              (change)="uploadSaleFile($event)"
+              accept="image/*"
+              multiple
+              style="display: none"
+            />
+            <button class="btn btn-sm btn-outline" (click)="saleFileInput.click()">
+              + {{ t.addPhotos || 'Fotos hinzufügen' }}
+            </button>
+          </div>
+          <div class="gallery-grid" *ngIf="saleDocuments.length > 0">
+            <div class="gallery-thumb" *ngFor="let doc of saleDocuments">
+              <img [src]="getDocumentUrl(doc)" [alt]="doc.fileName" />
+              <div class="thumb-actions">
+                <button class="btn btn-sm btn-outline" (click)="downloadDoc(doc)">↓</button>
+                <button class="btn btn-sm btn-danger" (click)="deleteDoc(doc, 'sale')">×</button>
+              </div>
+            </div>
+          </div>
+          <p *ngIf="saleDocuments.length === 0" class="empty">
             {{ t.noPhotos || 'Keine Fotos' }}
           </p>
         </div>
@@ -620,8 +653,10 @@ export class BicycleDetailComponent implements OnInit {
   private dialogService = inject(DialogService);
   bicycle: Bicycle | null = null;
   purchase: Purchase | null = null;
+  sale: Sale | null = null;
   documents: DocModel[] = [];
   purchaseDocuments: DocModel[] = [];
+  saleDocuments: DocModel[] = [];
   submitting = false;
   BikeCondition = BikeCondition;
 
@@ -697,6 +732,7 @@ export class BicycleDetailComponent implements OnInit {
     private router: Router,
     private bicycleService: BicycleService,
     private purchaseService: PurchaseService,
+    private saleService: SaleService,
     private documentService: DocumentService,
   ) {}
 
@@ -761,6 +797,19 @@ export class BicycleDetailComponent implements OnInit {
     this.documentService
       .getByBicycleId(id)
       .subscribe((docs) => (this.documents = docs));
+
+    // Load sale data for this bicycle
+    this.saleService.getByBicycleId(id).subscribe({
+      next: (s) => {
+        this.sale = s;
+        this.documentService
+          .getBySaleId(s.id)
+          .subscribe((docs) => (this.saleDocuments = docs));
+      },
+      error: () => {
+        this.sale = null;
+      },
+    });
   }
 
   save() {
@@ -838,6 +887,24 @@ export class BicycleDetailComponent implements OnInit {
     }
   }
 
+  uploadSaleFile(event: Event) {
+    const files = (event.target as HTMLInputElement).files;
+    if (!files || files.length === 0 || !this.sale) return;
+    let remaining = files.length;
+    for (let i = 0; i < files.length; i++) {
+      this.documentService
+        .upload(files[i], 'Screenshot', undefined, undefined, this.sale.id)
+        .subscribe(() => {
+          remaining--;
+          if (remaining === 0) {
+            this.documentService
+              .getBySaleId(this.sale!.id)
+              .subscribe((docs) => (this.saleDocuments = docs));
+          }
+        });
+    }
+  }
+
   getDocumentUrl(doc: DocModel): string {
     return `${environment.apiUrl}/documents/${doc.id}/download`;
   }
@@ -853,7 +920,7 @@ export class BicycleDetailComponent implements OnInit {
     });
   }
 
-  deleteDoc(doc: DocModel, source: 'bicycle' | 'purchase' = 'bicycle') {
+  deleteDoc(doc: DocModel, source: 'bicycle' | 'purchase' | 'sale' = 'bicycle') {
     this.dialogService
       .danger(this.t.delete, this.t.deleteConfirmDocument)
       .then((confirmed) => {
@@ -863,6 +930,8 @@ export class BicycleDetailComponent implements OnInit {
               this.notificationService.success(this.t.deleteSuccess);
               if (source === 'purchase') {
                 this.purchaseDocuments = this.purchaseDocuments.filter((d) => d.id !== doc.id);
+              } else if (source === 'sale') {
+                this.saleDocuments = this.saleDocuments.filter((d) => d.id !== doc.id);
               } else {
                 this.documents = this.documents.filter((d) => d.id !== doc.id);
               }

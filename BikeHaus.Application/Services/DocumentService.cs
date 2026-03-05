@@ -41,6 +41,12 @@ public class DocumentService : IDocumentService
         return documents.Select(d => d.ToDto());
     }
 
+    public async Task<IEnumerable<DocumentDto>> GetBySaleIdAsync(int saleId)
+    {
+        var documents = await _repository.GetBySaleIdAsync(saleId);
+        return documents.Select(d => d.ToDto());
+    }
+
     public async Task<DocumentDto> UploadAsync(Stream fileStream, string fileName, string contentType, DocumentUploadDto dto)
     {
         var folder = dto.DocumentType.ToString().ToLower();

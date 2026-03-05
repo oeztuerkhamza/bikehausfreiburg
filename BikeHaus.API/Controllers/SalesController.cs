@@ -59,6 +59,15 @@ public class SalesController : ControllerBase
         return Ok(sale);
     }
 
+    [HttpGet("bicycle/{bicycleId}")]
+    public async Task<ActionResult<SaleDto>> GetByBicycleId(int bicycleId)
+    {
+        var sale = await _saleService.GetByBicycleIdAsync(bicycleId);
+        if (sale == null)
+            return NotFound();
+        return Ok(sale);
+    }
+
     [HttpPost]
     public async Task<ActionResult<SaleDto>> Create([FromBody] SaleCreateDto dto)
     {

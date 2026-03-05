@@ -48,6 +48,10 @@ export class SaleService {
     return this.http.get<Sale>(`${this.url}/${id}`);
   }
 
+  getByBicycleId(bicycleId: number): Observable<Sale> {
+    return this.http.get<Sale>(`${this.url}/bicycle/${bicycleId}`);
+  }
+
   create(sale: SaleCreate): Observable<Sale> {
     return this.http.post<Sale>(this.url, sale);
   }
