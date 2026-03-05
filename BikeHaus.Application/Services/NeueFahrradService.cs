@@ -16,7 +16,7 @@ public class NeueFahrradService : INeueFahrradService
 
     public async Task<IEnumerable<NeueFahrradDto>> GetAllAsync()
     {
-        var items = await _repository.GetAllActiveAsync();
+        var items = await _repository.GetAllWithImagesAsync();
         return items.Select(MapToDto);
     }
 

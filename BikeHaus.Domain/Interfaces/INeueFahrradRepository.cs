@@ -4,6 +4,7 @@ namespace BikeHaus.Domain.Interfaces;
 
 public interface INeueFahrradRepository : IRepository<NeueFahrrad>
 {
+    Task<IEnumerable<NeueFahrrad>> GetAllWithImagesAsync();
     Task<IEnumerable<NeueFahrrad>> GetAllActiveAsync();
     Task<IEnumerable<NeueFahrrad>> GetByCategoryAsync(string category);
     Task<NeueFahrrad?> GetWithImagesAsync(int id);

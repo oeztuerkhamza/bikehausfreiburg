@@ -9,6 +9,14 @@ public class NeueFahrradRepository : Repository<NeueFahrrad>, INeueFahrradReposi
 {
     public NeueFahrradRepository(BikeHausDbContext context) : base(context) { }
 
+    public async Task<IEnumerable<NeueFahrrad>> GetAllWithImagesAsync()
+    {
+        return await _dbSet
+            .Include(f => f.Images.OrderBy(i => i.SortOrder))
+            .OrderByDescending(f => f.CreatedAt)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<NeueFahrrad>> GetAllActiveAsync()
     {
         return await _dbSet

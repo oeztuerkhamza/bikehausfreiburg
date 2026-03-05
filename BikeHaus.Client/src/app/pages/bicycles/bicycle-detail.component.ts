@@ -8,6 +8,7 @@ import { DocumentService } from '../../services/document.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
+import { environment } from '../../../environments/environment';
 import {
   Bicycle,
   BicycleUpdate,
@@ -239,9 +240,40 @@ import {
           </div>
         </div>
 
-        <!-- Right: Documents -->
+        <!-- Right: Purchase Documents (Alış Fotoğrafları) -->
+        <div class="edit-card" *ngIf="purchase">
+          <h2>📷 {{ t.purchasePhotos }}</h2>
+          <p class="doc-hint">{{ t.purchasePhotosHint }}</p>
+          <div class="doc-upload">
+            <input
+              type="file"
+              #purchaseFileInput
+              (change)="uploadPurchaseFile($event)"
+              accept="image/*"
+              multiple
+              style="display: none"
+            />
+            <button class="btn btn-sm btn-outline" (click)="purchaseFileInput.click()">
+              + {{ t.addPhotos || 'Fotos hinzufügen' }}
+            </button>
+          </div>
+          <div class="gallery-grid" *ngIf="purchaseDocuments.length > 0">
+            <div class="gallery-thumb" *ngFor="let doc of purchaseDocuments">
+              <img [src]="getDocumentUrl(doc)" [alt]="doc.fileName" />
+              <div class="thumb-actions">
+                <button class="btn btn-sm btn-outline" (click)="downloadDoc(doc)">↓</button>
+                <button class="btn btn-sm btn-danger" (click)="deleteDoc(doc, 'purchase')">×</button>
+              </div>
+            </div>
+          </div>
+          <p *ngIf="purchaseDocuments.length === 0" class="empty">
+            {{ t.noPhotos || 'Keine Fotos' }}
+          </p>
+        </div>
+
+        <!-- Right: Bicycle Documents (Satış / Fahrrad Dokumente) -->
         <div class="edit-card">
-          <h2>{{ t.documents }}</h2>
+          <h2>📄 {{ t.documents }}</h2>
           <div class="doc-upload">
             <input
               type="file"
@@ -263,7 +295,7 @@ import {
                 >
                   ↓
                 </button>
-                <button class="btn btn-sm btn-danger" (click)="deleteDoc(doc)">
+                <button class="btn btn-sm btn-danger" (click)="deleteDoc(doc, 'bicycle')">
                   ×
                 </button>
               </div>
@@ -541,6 +573,43 @@ import {
         padding: 12px 28px;
         font-size: 1rem;
       }
+
+      .doc-hint {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #64748b);
+        margin: -4px 0 12px;
+      }
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .gallery-thumb {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        border: 1px solid var(--border-light, #e2e8f0);
+      }
+      .gallery-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .thumb-actions {
+        position: absolute;
+        bottom: 4px;
+        right: 4px;
+        display: flex;
+        gap: 4px;
+      }
+      .thumb-actions .btn {
+        padding: 2px 6px;
+        font-size: 0.7rem;
+        border-radius: 6px;
+        min-width: 0;
+      }
     `,
   ],
 })
@@ -551,6 +620,7 @@ export class BicycleDetailComponent implements OnInit {
   bicycle: Bicycle | null = null;
   purchase: Purchase | null = null;
   documents: DocModel[] = [];
+  purchaseDocuments: DocModel[] = [];
   submitting = false;
   BikeCondition = BikeCondition;
 
@@ -676,6 +746,10 @@ export class BicycleDetailComponent implements OnInit {
             steuernummer: p.seller.steuernummer || '',
           };
         }
+        // Load purchase documents
+        this.documentService
+          .getByPurchaseId(p.id)
+          .subscribe((docs) => (this.purchaseDocuments = docs));
       },
       error: () => {
         // No purchase found for this bicycle - that's ok
@@ -745,6 +819,28 @@ export class BicycleDetailComponent implements OnInit {
       });
   }
 
+  uploadPurchaseFile(event: Event) {
+    const files = (event.target as HTMLInputElement).files;
+    if (!files || files.length === 0 || !this.purchase) return;
+    let remaining = files.length;
+    for (let i = 0; i < files.length; i++) {
+      this.documentService
+        .upload(files[i], 'Screenshot', undefined, this.purchase.id, undefined)
+        .subscribe(() => {
+          remaining--;
+          if (remaining === 0) {
+            this.documentService
+              .getByPurchaseId(this.purchase!.id)
+              .subscribe((docs) => (this.purchaseDocuments = docs));
+          }
+        });
+    }
+  }
+
+  getDocumentUrl(doc: DocModel): string {
+    return `${environment.apiUrl}/documents/${doc.id}/download`;
+  }
+
   downloadDoc(doc: DocModel) {
     this.documentService.download(doc.id).subscribe((blob) => {
       const url = window.URL.createObjectURL(blob);
@@ -756,7 +852,7 @@ export class BicycleDetailComponent implements OnInit {
     });
   }
 
-  deleteDoc(doc: DocModel) {
+  deleteDoc(doc: DocModel, source: 'bicycle' | 'purchase' = 'bicycle') {
     this.dialogService
       .danger(this.t.delete, this.t.deleteConfirmDocument)
       .then((confirmed) => {
@@ -764,7 +860,11 @@ export class BicycleDetailComponent implements OnInit {
           this.documentService.delete(doc.id).subscribe({
             next: () => {
               this.notificationService.success(this.t.deleteSuccess);
-              this.documents = this.documents.filter((d) => d.id !== doc.id);
+              if (source === 'purchase') {
+                this.purchaseDocuments = this.purchaseDocuments.filter((d) => d.id !== doc.id);
+              } else {
+                this.documents = this.documents.filter((d) => d.id !== doc.id);
+              }
             },
             error: (err) => {
               this.notificationService.error(
