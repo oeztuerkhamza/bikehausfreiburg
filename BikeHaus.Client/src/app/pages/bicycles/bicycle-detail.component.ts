@@ -930,17 +930,21 @@ export class BicycleDetailComponent implements OnInit {
       .danger(this.t.delete, this.t.deleteConfirmDocument)
       .then((confirmed) => {
         if (confirmed && this.bicycle) {
-          this.bicycleService.deleteGalleryImage(this.bicycle.id, img.id).subscribe({
-            next: () => {
-              this.notificationService.success(this.t.deleteSuccess);
-              this.galleryImages = this.galleryImages.filter((i) => i.id !== img.id);
-            },
-            error: (err) => {
-              this.notificationService.error(
-                err.error?.error || this.t.deleteError,
-              );
-            },
-          });
+          this.bicycleService
+            .deleteGalleryImage(this.bicycle.id, img.id)
+            .subscribe({
+              next: () => {
+                this.notificationService.success(this.t.deleteSuccess);
+                this.galleryImages = this.galleryImages.filter(
+                  (i) => i.id !== img.id,
+                );
+              },
+              error: (err) => {
+                this.notificationService.error(
+                  err.error?.error || this.t.deleteError,
+                );
+              },
+            });
         }
       });
   }
@@ -960,10 +964,7 @@ export class BicycleDetailComponent implements OnInit {
     });
   }
 
-  deleteDoc(
-    doc: DocModel,
-    source: 'bicycle' | 'purchase' = 'bicycle',
-  ) {
+  deleteDoc(doc: DocModel, source: 'bicycle' | 'purchase' = 'bicycle') {
     this.dialogService
       .danger(this.t.delete, this.t.deleteConfirmDocument)
       .then((confirmed) => {

@@ -885,7 +885,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   private loadListing(id: number): void {
     // ID >= 900000 means BikeHaus bicycle (offset to avoid collision with KA IDs)
     const BIKEHAUS_ID_OFFSET = 900000;
-    
+
     if (id >= BIKEHAUS_ID_OFFSET) {
       // BikeHaus bicycle - get from gebrauchte-fahrraeder endpoint
       const realId = id - BIKEHAUS_ID_OFFSET;
@@ -912,7 +912,10 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  private convertBicycleToListing(bike: PublicBicycle, displayId: number): KleinanzeigenListing {
+  private convertBicycleToListing(
+    bike: PublicBicycle,
+    displayId: number,
+  ): KleinanzeigenListing {
     const titleParts = [bike.marke, bike.modell];
     if (bike.fahrradtyp) titleParts.push(bike.fahrradtyp);
     if (bike.reifengroesse) titleParts.push(`${bike.reifengroesse} Zoll`);
