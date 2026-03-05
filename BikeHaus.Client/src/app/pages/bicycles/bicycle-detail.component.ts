@@ -304,41 +304,6 @@ import {
             {{ t.noPhotos || 'Keine Fotos' }}
           </p>
         </div>
-
-        <!-- Right: Bicycle Documents (Satış / Fahrrad Dokumente) -->
-        <div class="edit-card">
-          <h2>📄 {{ t.documents }}</h2>
-          <div class="doc-upload">
-            <input
-              type="file"
-              #fileInput
-              (change)="uploadFile($event)"
-              style="display: none"
-            />
-            <button class="btn btn-sm btn-outline" (click)="fileInput.click()">
-              + {{ t.uploadDocument }}
-            </button>
-          </div>
-          <div class="doc-list">
-            <div *ngFor="let doc of documents" class="doc-item">
-              <span class="doc-name">{{ doc.fileName }}</span>
-              <div class="doc-actions">
-                <button
-                  class="btn btn-sm btn-outline"
-                  (click)="downloadDoc(doc)"
-                >
-                  ↓
-                </button>
-                <button class="btn btn-sm btn-danger" (click)="deleteDoc(doc, 'bicycle')">
-                  ×
-                </button>
-              </div>
-            </div>
-            <p *ngIf="documents.length === 0" class="empty">
-              {{ t.noDocuments }}
-            </p>
-          </div>
-        </div>
       </div>
 
       <!-- Bottom save bar -->
