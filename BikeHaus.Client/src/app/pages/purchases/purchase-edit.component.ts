@@ -193,6 +193,15 @@ import { forkJoin } from 'rxjs';
                 </select>
               </div>
               <div class="field">
+                <label>{{ t.artLabel }}</label>
+                <select [(ngModel)]="bicycle.art" name="bikeArt">
+                  <option value="">-- Auswählen --</option>
+                  <option value="Herren">Herren</option>
+                  <option value="Damen">Damen</option>
+                  <option value="Kinder">Kinder</option>
+                </select>
+              </div>
+              <div class="field">
                 <label>{{ t.condition }} *</label>
                 <select
                   [(ngModel)]="bicycle.zustand"
@@ -250,6 +259,7 @@ import { forkJoin } from 'rxjs';
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">{{ t.paypal }}</option>
                   <option value="Karte">{{ t.bankTransfer }}</option>
+                  <option value="Ueberweisung">Überweisung</option>
                 </select>
               </div>
               <div class="field">
@@ -672,6 +682,7 @@ export class PurchaseEditComponent implements OnInit {
     reifengroesse: '',
     stokNo: '',
     fahrradtyp: '',
+    art: '',
     beschreibung: '',
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
@@ -800,6 +811,7 @@ export class PurchaseEditComponent implements OnInit {
         reifengroesse: purchase.bicycle.reifengroesse || '',
         stokNo: purchase.bicycle.stokNo || '',
         fahrradtyp: purchase.bicycle.fahrradtyp || '',
+        art: purchase.bicycle.art || '',
         beschreibung: purchase.bicycle.beschreibung || '',
         status: (purchase.bicycle.status as BikeStatus) || BikeStatus.Available,
         zustand:

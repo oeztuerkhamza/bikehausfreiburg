@@ -118,6 +118,8 @@ import {
                 <option value="MTB">Mountainbike (MTB)</option>
                 <option value="Rennrad">Rennrad</option>
                 <option value="Kinderfahrrad">Kinderfahrrad</option>
+                <option value="Lastenrad">Lastenrad</option>
+                <option value="Sonstige">Sonstige</option>
               </select>
             </div>
             <div class="field">
