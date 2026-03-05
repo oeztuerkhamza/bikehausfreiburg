@@ -53,7 +53,6 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
     if (bike.rahmengroesse) lines.push(`Rahmengröße: ${bike.rahmengroesse}`);
     if (bike.reifengroesse) lines.push(`Reifengröße: ${bike.reifengroesse}`);
     if (bike.farbe) lines.push(`Farbe: ${bike.farbe}`);
-    if (bike.gangschaltung) lines.push(`Gangschaltung: ${bike.gangschaltung}`);
 
     lines.push('');
     if (bike.beschreibung) {

@@ -259,7 +259,6 @@ import { forkJoin } from 'rxjs';
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">{{ t.paypal }}</option>
                   <option value="Karte">{{ t.bankTransfer }}</option>
-                  <option value="Ueberweisung">Überweisung</option>
                 </select>
               </div>
               <div class="field">
