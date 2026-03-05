@@ -367,7 +367,7 @@ export class BikeCardComponent {
   simplifyLocation(location: string): string {
     // Always show just "Freiburg" for consistency
     if (location.toLowerCase().includes('freiburg')) {
-      return 'Freiburg';
+      return 'Freiburg im Breisgau';
     }
     return location;
   }

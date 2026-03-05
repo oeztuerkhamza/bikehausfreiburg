@@ -66,7 +66,7 @@ public record BicycleImageDto(
 public record SetAnzeigeNrRequest(string AnzeigeNr);
 
 // ── Public Bicycle DTO (for website display) ──
-public record PublicBicycleDto(    int Id,
+public record PublicBicycleDto(int Id,
     string Marke,
     string Modell,
     string? Farbe,
