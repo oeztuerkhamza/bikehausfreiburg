@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { TranslationService } from './translation.service';
 
 export interface DialogConfig {
   title: string;
@@ -27,15 +28,18 @@ export class DialogService {
     resolve: null,
   });
 
+  constructor(private readonly translationService: TranslationService) {}
+
   confirm(config: DialogConfig): Promise<boolean> {
     return new Promise((resolve) => {
+      const t = this.translationService.translations();
       this.state.set({
         isOpen: true,
         title: config.title,
         message: config.message,
         type: config.type || 'confirm',
         confirmText: config.confirmText || 'OK',
-        cancelText: config.cancelText || 'Abbrechen',
+        cancelText: config.cancelText || t.cancel,
         resolve,
       });
     });
@@ -53,14 +57,15 @@ export class DialogService {
   danger(
     title: string,
     message: string,
-    confirmText = 'Löschen',
+    confirmText?: string,
   ): Promise<boolean> {
+    const t = this.translationService.translations();
     return this.confirm({
       title,
       message,
       type: 'danger',
-      confirmText,
-      cancelText: 'Abbrechen',
+      confirmText: confirmText || t.delete,
+      cancelText: t.cancel,
     });
   }
 

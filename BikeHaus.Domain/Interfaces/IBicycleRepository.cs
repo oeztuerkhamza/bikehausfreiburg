@@ -15,4 +15,6 @@ public interface IBicycleRepository : IRepository<Bicycle>
     Task<Bicycle?> GetByStokNoAsync(string stokNo);
     Task<IEnumerable<string>> GetUniqueBrandsAsync();
     Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null);
+    Task<IEnumerable<Bicycle>> GetPublishedOnWebsiteAsync();
+    Task<Bicycle?> GetWithImagesAsync(int id);
 }

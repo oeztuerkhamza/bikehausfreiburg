@@ -12,7 +12,29 @@ import { TranslationService } from '../../services/translation.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="dashboard" *ngIf="data">
+    <!-- Loading State -->
+    <div
+      class="dashboard-loading"
+      *ngIf="loading"
+      role="status"
+      aria-label="Laden..."
+    >
+      <div class="skeleton-header">
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-subtitle"></div>
+      </div>
+      <div class="skeleton-grid">
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+      </div>
+      <div class="skeleton-sections">
+        <div class="skeleton skeleton-table"></div>
+        <div class="skeleton skeleton-table"></div>
+      </div>
+    </div>
+
+    <div class="dashboard" *ngIf="!loading && data" role="main">
       <div class="page-header">
         <div>
           <h1>{{ t.dashboard }}</h1>
@@ -310,6 +332,66 @@ import { TranslationService } from '../../services/translation.service';
   `,
   styles: [
     `
+      /* ── Skeleton Loading ── */
+      .dashboard-loading {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          var(--bg-card) 25%,
+          var(--border-light) 50%,
+          var(--bg-card) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: var(--radius-md, 8px);
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+      .skeleton-header {
+        margin-bottom: 28px;
+      }
+      .skeleton-title {
+        height: 32px;
+        width: 180px;
+        margin-bottom: 8px;
+      }
+      .skeleton-subtitle {
+        height: 18px;
+        width: 240px;
+      }
+      .skeleton-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 14px;
+        margin-bottom: 36px;
+      }
+      .skeleton-card {
+        height: 80px;
+      }
+      .skeleton-sections {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+      .skeleton-table {
+        height: 300px;
+      }
+      @media (max-width: 900px) {
+        .skeleton-sections {
+          grid-template-columns: 1fr;
+        }
+      }
+
       .dashboard {
         max-width: 1280px;
         margin: 0 auto;
@@ -691,6 +773,7 @@ export class DashboardComponent implements OnInit {
     type: '' as 'purchase' | 'sale',
     id: 0,
   };
+  loading = true;
 
   constructor(
     private dashboardService: DashboardService,
@@ -698,7 +781,16 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.dashboardService.getDashboard().subscribe((d) => (this.data = d));
+    this.loading = true;
+    this.dashboardService.getDashboard().subscribe({
+      next: (d) => {
+        this.data = d;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
+    });
   }
 
   showPurchaseMenu(event: MouseEvent, id: number) {

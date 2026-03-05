@@ -1,0 +1,20 @@
+# Robots.txt for Bike Haus Freiburg
+# https://bikehausfreiburg.com
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://bikehausfreiburg.com/sitemap.xml
+
+# Crawl-delay (optional, be friendly to search engines)
+Crawl-delay: 1
+
+# Block unnecessary paths
+Disallow: /api/
+Disallow: /*.json$
+Disallow: /assets/icons/
+
+# Allow important assets
+Allow: /assets/logo.svg
+Allow: /assets/og-image.jpg

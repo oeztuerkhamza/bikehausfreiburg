@@ -693,9 +693,7 @@ export class PurchaseListComponent implements OnInit {
         if (confirmed) {
           this.purchaseService.delete(p.id).subscribe({
             next: () => {
-              this.notificationService.success(
-                this.t.deleteSuccess || 'Erfolgreich gelöscht',
-              );
+              this.notificationService.success(this.t.deleteSuccess);
               this.load();
             },
             error: (err) => {

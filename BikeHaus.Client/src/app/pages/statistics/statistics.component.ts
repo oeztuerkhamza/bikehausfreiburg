@@ -355,15 +355,15 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 
       .summary-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-        margin-bottom: 32px;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
       }
 
       .card {
         background: var(--bg-card, #fff);
-        border-radius: var(--radius-lg, 14px);
-        padding: 24px;
+        border-radius: var(--radius-md, 10px);
+        padding: 16px;
         border: 1.5px solid var(--border-light, #e2e8f0);
         box-shadow: var(--shadow-sm);
         transition: var(--transition-fast);
@@ -375,8 +375,8 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
       }
 
       .card h3 {
-        margin: 0 0 12px;
-        font-size: 0.78rem;
+        margin: 0 0 8px;
+        font-size: 0.7rem;
         color: var(--text-secondary, #64748b);
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -384,9 +384,9 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
       }
 
       .card .big-number {
-        font-size: 2.2rem;
+        font-size: 1.6rem;
         font-weight: 800;
-        margin-bottom: 8px;
+        margin-bottom: 4px;
       }
 
       .card.purchases .big-number {
@@ -418,15 +418,27 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
       }
 
       .card .amount {
-        font-size: 1.1rem;
+        font-size: 0.95rem;
         font-weight: 600;
         color: var(--text-primary);
-        margin-bottom: 4px;
+        margin-bottom: 2px;
       }
 
       .card .avg {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         color: var(--text-secondary, #94a3b8);
+      }
+
+      @media (max-width: 1000px) {
+        .summary-cards {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .summary-cards {
+          grid-template-columns: repeat(2, 1fr);
+        }
       }
 
       .daily-breakdown {

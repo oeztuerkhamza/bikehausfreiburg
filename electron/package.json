@@ -1,0 +1,64 @@
+{
+  "name": "bikehaus-freiburg",
+  "version": "1.0.0",
+  "description": "Bike Haus Freiburg - Fahrradladen Verwaltung",
+  "main": "main.js",
+  "author": "Bike Haus Freiburg",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-packager . \"Bike Haus Freiburg\" --platform=win32 --arch=x64 --out=../dist-electron --overwrite --extra-resource=../publish:api --icon=icon.ico --asar=false",
+    "build-installer": "electron-builder --win --x64",
+    "build": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "electron-packager": "^17.1.2"
+  },
+  "build": {
+    "appId": "com.bikehaus.freiburg",
+    "productName": "Bike Haus Freiburg",
+    "copyright": "Copyright © 2026 Bike Haus Freiburg",
+    "directories": {
+      "output": "../dist-electron"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico",
+      "signingHashAlgorithms": null,
+      "sign": null,
+      "signDlls": false
+    },
+    "forceCodeSigning": false,
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Bike Haus Freiburg"
+    },
+    "files": [
+      "main.js",
+      "preload.js"
+    ],
+    "extraResources": [
+      {
+        "from": "../publish",
+        "to": "publish",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": false
+  }
+}

@@ -30,6 +30,9 @@ public class ShopSettings : BaseEntity
     // Bicycle Numbering
     public int FahrradNummerStart { get; set; } = 1;  // Starting number for bicycle numbering
 
+    // Kleinanzeigen Integration
+    public string? KleinanzeigenUrl { get; set; }  // Kleinanzeigen profile/listing URL
+
     // Additional Info
     public string? Oeffnungszeiten { get; set; }   // Opening Hours
     public string? Zusatzinfo { get; set; }        // Additional Info for documents

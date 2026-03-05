@@ -27,12 +27,20 @@ import { DialogComponent } from './components/dialog/dialog.component';
 
     <!-- Authenticated layout -->
     <div class="app-layout" *ngIf="authService.isLoggedIn()">
-      <aside class="sidebar" [class.open]="sidebarOpen">
+      <!-- Skip Link für Barrierefreiheit -->
+      <a href="#main-content" class="skip-link">{{ t.skipToMain }}</a>
+
+      <aside
+        class="sidebar"
+        [class.open]="sidebarOpen"
+        role="complementary"
+        aria-label="Hauptnavigation"
+      >
         <div class="brand">
           <div class="brand-icon-wrap">
             <img
               [src]="logoSrc()"
-              alt="Bike Haus"
+              alt="Bike Haus Logo"
               class="brand-logo"
               [class.no-filter]="hasCustomLogo()"
             />
@@ -43,8 +51,8 @@ import { DialogComponent } from './components/dialog/dialog.component';
           </div>
         </div>
 
-        <div class="nav-section-label">Menu</div>
-        <nav>
+        <div class="nav-section-label" id="menu-label">Menu</div>
+        <nav role="navigation" aria-labelledby="menu-label">
           <a
             routerLink="/"
             routerLinkActive="active"
@@ -96,7 +104,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
             <span class="nav-label">{{ t.bicycles }}</span>
           </a>
           <a
-            routerLink="/customers"
+            routerLink="/neue-fahrraeder"
             routerLinkActive="active"
             (click)="closeSidebar()"
           >
@@ -111,13 +119,16 @@ import { DialogComponent } from './components/dialog/dialog.component';
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                <circle cx="5.5" cy="17.5" r="3.5" />
+                <circle cx="18.5" cy="17.5" r="3.5" />
+                <path
+                  d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"
+                />
+                <line x1="12" y1="2" x2="12" y2="6" />
+                <line x1="10" y1="4" x2="14" y2="4" />
               </svg>
             </span>
-            <span class="nav-label">{{ t.customers }}</span>
+            <span class="nav-label">{{ t.neueFahrraeder }}</span>
           </a>
 
           <div class="nav-divider"></div>
@@ -167,30 +178,6 @@ import { DialogComponent } from './components/dialog/dialog.component';
               </svg>
             </span>
             <span class="nav-label">{{ t.sales }}</span>
-          </a>
-          <a
-            routerLink="/reservations"
-            routerLinkActive="active"
-            (click)="closeSidebar()"
-          >
-            <span class="nav-icon">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-            </span>
-            <span class="nav-label">{{ t.reservations }}</span>
           </a>
           <a
             routerLink="/returns"
@@ -365,11 +352,19 @@ import { DialogComponent } from './components/dialog/dialog.component';
         class="sidebar-overlay"
         *ngIf="sidebarOpen"
         (click)="closeSidebar()"
+        role="button"
+        aria-label="Menü schließen"
       ></div>
 
-      <main class="main-content">
-        <header class="topbar">
-          <button class="menu-toggle" (click)="sidebarOpen = !sidebarOpen">
+      <main id="main-content" class="main-content" role="main">
+        <header class="topbar" role="banner">
+          <button
+            class="menu-toggle"
+            (click)="sidebarOpen = !sidebarOpen"
+            [attr.aria-expanded]="sidebarOpen"
+            aria-controls="sidebar"
+            aria-label="Menü öffnen/schließen"
+          >
             <svg
               width="22"
               height="22"
@@ -377,6 +372,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
               fill="none"
               stroke="currentColor"
               stroke-width="2"
+              aria-hidden="true"
             >
               <line x1="3" y1="6" x2="21" y2="6" />
               <line x1="3" y1="12" x2="21" y2="12" />
@@ -459,6 +455,27 @@ import { DialogComponent } from './components/dialog/dialog.component';
         display: block;
         height: 100vh;
       }
+
+      /* ══ SKIP LINK (Barrierefreiheit) ══ */
+      .skip-link {
+        position: absolute;
+        top: -100px;
+        left: 16px;
+        padding: 12px 24px;
+        background: var(--accent-primary, #6366f1);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        border-radius: 8px;
+        z-index: 9999;
+        transition: top 0.2s ease;
+      }
+      .skip-link:focus {
+        top: 16px;
+        outline: 2px solid var(--accent-primary, #6366f1);
+        outline-offset: 2px;
+      }
+
       .app-layout {
         display: flex;
         height: 100%;

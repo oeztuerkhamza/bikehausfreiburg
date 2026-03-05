@@ -59,13 +59,13 @@ import { AddressSuggestion } from '../../services/address.service';
             <div class="card-header-row">
               <h2>
                 <span *ngIf="isQuickAddMode" class="quick-add-badge"
-                  >🆕 Neues Fahrrad</span
+                  >🆕 {{ t.newBicycle }}</span
                 >
                 <span *ngIf="!isQuickAddMode">{{ t.bicycleDetails }}</span>
                 <span
                   *ngIf="hasBikeErrors && !bikeEditExpanded"
                   class="bike-error-badge"
-                  >Pflichtfelder fehlen</span
+                  >{{ t.requiredFieldsMissing }}</span
                 >
               </h2>
               <button
@@ -87,7 +87,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   >{{ bikeEdit.marke }} {{ bikeEdit.modell }}</strong
                 ></span
               >
-              <span *ngIf="bikeEdit.rahmennummer"
+              <span
+                *ngIf="bikeEdit.rahmennummer"
+                style="text-transform: uppercase"
                 >{{ t.frameNumber }}: {{ bikeEdit.rahmennummer }}</span
               >
               <span *ngIf="bikeEdit.rahmengroesse"
@@ -108,9 +110,9 @@ import { AddressSuggestion } from '../../services/address.service';
                 <datalist id="brandList">
                   <option *ngFor="let b of brands" [value]="b"></option>
                 </datalist>
-                <span class="error-msg" *ngIf="bikeErrors['marke']"
-                  >Pflichtfeld</span
-                >
+                <span class="error-msg" *ngIf="bikeErrors['marke']">{{
+                  t.requiredField
+                }}</span>
               </div>
               <div class="field">
                 <label>{{ t.model }}</label>
@@ -133,10 +135,11 @@ import { AddressSuggestion } from '../../services/address.service';
                   [(ngModel)]="bikeEdit.rahmennummer"
                   name="bikeRahmen"
                   (ngModelChange)="bikeErrors['rahmennummer'] = false"
+                  style="text-transform: uppercase"
                 />
-                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']"
-                  >Pflichtfeld</span
-                >
+                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']">{{
+                  t.requiredField
+                }}</span>
               </div>
               <div class="field">
                 <label>{{ t.frameSize }}</label>
@@ -148,35 +151,34 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field" [class.field-error]="bikeErrors['farbe']">
                 <label>{{ t.color }} *</label>
-                <select
-                  [(ngModel)]="bikeEdit.farbe"
-                  name="bikeFarbe"
-                  (ngModelChange)="bikeErrors['farbe'] = false"
-                >
-                  <option value="">-- {{ t.selectOption }} --</option>
-                  <option value="Schwarz">Schwarz</option>
-                  <option value="Weiß">Weiß</option>
-                  <option value="Rot">Rot</option>
-                  <option value="Blau">Blau</option>
-                  <option value="Grün">Grün</option>
-                  <option value="Gelb">Gelb</option>
-                  <option value="Orange">Orange</option>
-                  <option value="Grau">Grau</option>
-                  <option value="Silber">Silber</option>
-                  <option value="Pink">Pink</option>
-                </select>
-                <span class="error-msg" *ngIf="bikeErrors['farbe']"
-                  >Pflichtfeld</span
-                >
+                <div class="color-chips">
+                  <button
+                    type="button"
+                    *ngFor="let c of colorOptions"
+                    class="color-chip"
+                    [class.selected]="isColorSelected(bikeEdit.farbe, c.value)"
+                    [style.--chip-color]="c.hex"
+                    (click)="
+                      bikeEdit.farbe = toggleColor(bikeEdit.farbe, c.value);
+                      bikeErrors['farbe'] = false
+                    "
+                  >
+                    <span class="chip-dot"></span>
+                    {{ c.label }}
+                  </button>
+                </div>
+                <span class="error-msg" *ngIf="bikeErrors['farbe']">{{
+                  t.requiredField
+                }}</span>
               </div>
               <div
                 class="field"
                 [class.field-error]="bikeErrors['reifengroesse']"
               >
                 <label>{{ t.wheelSize }} *</label>
-                <span class="error-msg" *ngIf="bikeErrors['reifengroesse']"
-                  >Pflichtfeld</span
-                >
+                <span class="error-msg" *ngIf="bikeErrors['reifengroesse']">{{
+                  t.requiredField
+                }}</span>
                 <select
                   [(ngModel)]="bikeEdit.reifengroesse"
                   name="bikeReifen"
@@ -201,15 +203,15 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field" [class.field-error]="bikeErrors['fahrradtyp']">
                 <label>{{ t.bicycleType }} *</label>
-                <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']"
-                  >Pflichtfeld</span
-                >
+                <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']">{{
+                  t.requiredField
+                }}</span>
                 <select
                   [(ngModel)]="bikeEdit.fahrradtyp"
                   name="bikeFahrradtyp"
                   (ngModelChange)="bikeErrors['fahrradtyp'] = false"
                 >
-                  <option value="">-- Auswählen --</option>
+                  <option value="">-- {{ t.selectOption }} --</option>
                   <option value="E-Bike">E-Bike</option>
                   <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
                   <option value="Trekking">Trekking</option>
@@ -248,20 +250,12 @@ import { AddressSuggestion } from '../../services/address.service';
             <h2>{{ t.buyer }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>{{ t.firstNameRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.vorname"
-                  name="buyerVorname"
-                  required
-                />
+                <label>{{ t.firstName }}</label>
+                <input [(ngModel)]="buyer.vorname" name="buyerVorname" />
               </div>
               <div class="field">
-                <label>{{ t.lastNameRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.nachname"
-                  name="buyerNachname"
-                  required
-                />
+                <label>{{ t.lastName }}</label>
+                <input [(ngModel)]="buyer.nachname" name="buyerNachname" />
               </div>
               <div class="field full">
                 <label>{{ t.searchAddress }}</label>
@@ -272,28 +266,20 @@ import { AddressSuggestion } from '../../services/address.service';
                 <small class="hint">{{ t.addressHint }}</small>
               </div>
               <div class="field">
-                <label>{{ t.streetRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.strasse"
-                  name="buyerStrasse"
-                  required
-                />
+                <label>{{ t.street }}</label>
+                <input [(ngModel)]="buyer.strasse" name="buyerStrasse" />
               </div>
               <div class="field">
-                <label>{{ t.houseNumberRequired }}</label>
-                <input
-                  [(ngModel)]="buyer.hausnummer"
-                  name="buyerHausnr"
-                  required
-                />
+                <label>{{ t.houseNumber }}</label>
+                <input [(ngModel)]="buyer.hausnummer" name="buyerHausnr" />
               </div>
               <div class="field">
-                <label>{{ t.postalCodeRequired }}</label>
-                <input [(ngModel)]="buyer.plz" name="buyerPlz" required />
+                <label>{{ t.postalCode }}</label>
+                <input [(ngModel)]="buyer.plz" name="buyerPlz" />
               </div>
               <div class="field">
-                <label>{{ t.cityRequired }}</label>
-                <input [(ngModel)]="buyer.stadt" name="buyerStadt" required />
+                <label>{{ t.city }}</label>
+                <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
               </div>
               <div class="field">
                 <label>{{ t.phone }}</label>
@@ -641,6 +627,42 @@ import { AddressSuggestion } from '../../services/address.service';
         color: var(--text-secondary, #94a3b8);
         margin-top: 4px;
       }
+      .color-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .color-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 20px;
+        background: var(--bg-card, #fff);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .color-chip:hover {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--table-hover, #f1f5f9);
+      }
+      .color-chip.selected {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        font-weight: 600;
+      }
+      .chip-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--chip-color, #ccc);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        flex-shrink: 0;
+      }
       .checkbox-label {
         display: flex !important;
         align-items: center;
@@ -864,6 +886,32 @@ import { AddressSuggestion } from '../../services/address.service';
 })
 export class SaleFormComponent implements OnInit {
   private translationService = inject(TranslationService);
+
+  colorOptions = [
+    { value: 'Schwarz', label: 'Schwarz', hex: '#1a1a1a' },
+    { value: 'Weiß', label: 'Weiß', hex: '#f5f5f5' },
+    { value: 'Rot', label: 'Rot', hex: '#ef4444' },
+    { value: 'Blau', label: 'Blau', hex: '#3b82f6' },
+    { value: 'Grün', label: 'Grün', hex: '#22c55e' },
+    { value: 'Gelb', label: 'Gelb', hex: '#eab308' },
+    { value: 'Orange', label: 'Orange', hex: '#f97316' },
+    { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
+    { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
+    { value: 'Pink', label: 'Pink', hex: '#ec4899' },
+  ];
+
+  isColorSelected(farbe: string, color: string): boolean {
+    if (!farbe) return false;
+    return farbe.split(/[,\/]\s*/).includes(color);
+  }
+
+  toggleColor(farbe: string, color: string): string {
+    const colors = farbe ? farbe.split(/[,\/]\s*/).filter(Boolean) : [];
+    const idx = colors.indexOf(color);
+    if (idx >= 0) colors.splice(idx, 1);
+    else colors.push(color);
+    return colors.join('/');
+  }
 
   availableBikes: Bicycle[] = [];
   selectedBike: Bicycle | null = null;

@@ -49,10 +49,23 @@ export interface Bicycle {
   reifengroesse: string;
   stokNo?: string;
   fahrradtyp?: string;
+  art?: string;
   beschreibung?: string;
   status: BikeStatus;
   zustand: BikeCondition;
+  isPublishedOnWebsite: boolean;
+  isPublishedOnKleinanzeigen: boolean;
+  verkaufspreisVorschlag?: number;
+  kleinanzeigenAnzeigeNr?: string;
   createdAt: string;
+  images?: BicycleImage[];
+}
+
+export interface BicycleImage {
+  id: number;
+  bicycleId: number;
+  filePath: string;
+  sortOrder: number;
 }
 
 export interface BicycleCreate {
@@ -64,6 +77,7 @@ export interface BicycleCreate {
   reifengroesse: string;
   stokNo?: string;
   fahrradtyp?: string;
+  art?: string;
   beschreibung?: string;
   zustand: BikeCondition;
 }
@@ -77,9 +91,11 @@ export interface BicycleUpdate {
   reifengroesse: string;
   stokNo?: string;
   fahrradtyp?: string;
+  art?: string;
   beschreibung?: string;
   status: BikeStatus;
   zustand: BikeCondition;
+  verkaufspreisVorschlag?: number;
 }
 
 // ── Customer ──
@@ -507,4 +523,66 @@ export interface ArchiveBicycleHistory {
   zustand: string;
   createdAt: string;
   timeline: ArchiveTimelineEvent[];
+}
+
+// ── Neue Fahrräder (New Bicycles for Homepage) ──
+export interface NeueFahrrad {
+  id: number;
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+  isActive: boolean;
+  createdAt: string;
+  images: NeueFahrradImage[];
+}
+
+export interface NeueFahrradImage {
+  id: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface NeueFahrradCreate {
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+}
+
+export interface NeueFahrradUpdate {
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+  isActive: boolean;
+}
+
+export interface NeueFahrradCategory {
+  name: string;
+  count: number;
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
+import { PurchaseService } from '../../services/purchase.service';
 import { DocumentService } from '../../services/document.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
@@ -12,6 +13,10 @@ import {
   BicycleUpdate,
   BikeStatus,
   BikeCondition,
+  Purchase,
+  PurchaseUpdate,
+  CustomerUpdate,
+  PaymentMethod,
   Document as DocModel,
 } from '../../models/models';
 
@@ -54,6 +59,7 @@ import {
                 [(ngModel)]="form.rahmennummer"
                 name="rahmennummer"
                 placeholder="optional"
+                style="text-transform: uppercase"
               />
             </div>
             <div class="field">
@@ -66,19 +72,19 @@ import {
             </div>
             <div class="field">
               <label>{{ t.color }}</label>
-              <select [(ngModel)]="form.farbe" name="farbe">
-                <option value="">-- {{ t.selectOption }} --</option>
-                <option value="Schwarz">Schwarz</option>
-                <option value="Weiß">Weiß</option>
-                <option value="Rot">Rot</option>
-                <option value="Blau">Blau</option>
-                <option value="Grün">Grün</option>
-                <option value="Gelb">Gelb</option>
-                <option value="Orange">Orange</option>
-                <option value="Grau">Grau</option>
-                <option value="Silber">Silber</option>
-                <option value="Pink">Pink</option>
-              </select>
+              <div class="color-chips">
+                <button
+                  type="button"
+                  *ngFor="let c of colorOptions"
+                  class="color-chip"
+                  [class.selected]="isColorSelected(form.farbe || '', c.value)"
+                  [style.--chip-color]="c.hex"
+                  (click)="form.farbe = toggleColor(form.farbe || '', c.value)"
+                >
+                  <span class="chip-dot"></span>
+                  {{ c.label }}
+                </button>
+              </div>
             </div>
             <div class="field">
               <label>{{ t.wheelSize }}</label>
@@ -114,6 +120,15 @@ import {
               </select>
             </div>
             <div class="field">
+              <label>{{ t.artLabel }}</label>
+              <select [(ngModel)]="form.art" name="art">
+                <option value="">-- {{ t.selectOption }} --</option>
+                <option value="Herren">Herren</option>
+                <option value="Damen">Damen</option>
+                <option value="Kinder">Kinder</option>
+              </select>
+            </div>
+            <div class="field">
               <label>{{ t.condition }}</label>
               <select [(ngModel)]="form.zustand" name="zustand">
                 <option [value]="BikeCondition.Gebraucht">
@@ -140,6 +155,86 @@ import {
                 rows="3"
                 placeholder="optional"
               ></textarea>
+            </div>
+            <div class="field" *ngIf="bicycle?.kleinanzeigenAnzeigeNr">
+              <label>KA Anzeige-Nr (Verkauf)</label>
+              <input [value]="bicycle?.kleinanzeigenAnzeigeNr" readonly class="readonly-field" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Purchase Data (Alış Belgesi) -->
+        <div class="edit-card" *ngIf="purchase">
+          <h2>{{ t.purchaseData }}</h2>
+          <div class="form-grid">
+            <div class="field">
+              <label>{{ t.bicyclePrice }} (EK)</label>
+              <input type="number" [(ngModel)]="purchaseForm.preis" name="purchasePreis" step="0.01" />
+            </div>
+            <div class="field">
+              <label>{{ t.plannedSellingPrice }}</label>
+              <input type="number" [(ngModel)]="purchaseForm.verkaufspreisVorschlag" name="verkaufspreisVorschlag" step="0.01" placeholder="z.B. 350" />
+            </div>
+            <div class="field">
+              <label>{{ t.paymentMethod }}</label>
+              <select [(ngModel)]="purchaseForm.zahlungsart" name="zahlungsart">
+                <option value="Bar">Bar</option>
+                <option value="PayPal">PayPal</option>
+                <option value="Karte">Karte</option>
+                <option value="Ueberweisung">Überweisung</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>{{ t.purchaseDate }}</label>
+              <input type="date" [(ngModel)]="purchaseForm.kaufdatum" name="kaufdatum" />
+            </div>
+            <div class="field">
+              <label>Beleg-Nr.</label>
+              <input [(ngModel)]="purchaseForm.belegNummer" name="belegNummer" />
+            </div>
+            <div class="field">
+              <label>Anzeige-Nr.</label>
+              <input [(ngModel)]="purchaseForm.anzeigeNr" name="anzeigeNr" />
+            </div>
+            <div class="field field-full">
+              <label>{{ t.notes }}</label>
+              <textarea [(ngModel)]="purchaseForm.notizen" name="purchaseNotizen" rows="2" placeholder="optional"></textarea>
+            </div>
+          </div>
+
+          <h3 class="sub-heading">{{ t.seller }}</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label>{{ t.firstName }}</label>
+              <input [(ngModel)]="sellerForm.vorname" name="sellerVorname" />
+            </div>
+            <div class="field">
+              <label>{{ t.lastName }}</label>
+              <input [(ngModel)]="sellerForm.nachname" name="sellerNachname" />
+            </div>
+            <div class="field">
+              <label>{{ t.street || 'Straße' }}</label>
+              <input [(ngModel)]="sellerForm.strasse" name="sellerStrasse" />
+            </div>
+            <div class="field">
+              <label>{{ t.houseNumber || 'Hausnr.' }}</label>
+              <input [(ngModel)]="sellerForm.hausnummer" name="sellerHausnummer" />
+            </div>
+            <div class="field">
+              <label>{{ t.postalCode || 'PLZ' }}</label>
+              <input [(ngModel)]="sellerForm.plz" name="sellerPlz" />
+            </div>
+            <div class="field">
+              <label>{{ t.city || 'Stadt' }}</label>
+              <input [(ngModel)]="sellerForm.stadt" name="sellerStadt" />
+            </div>
+            <div class="field">
+              <label>{{ t.phone || 'Telefon' }}</label>
+              <input [(ngModel)]="sellerForm.telefon" name="sellerTelefon" />
+            </div>
+            <div class="field">
+              <label>{{ t.email || 'E-Mail' }}</label>
+              <input [(ngModel)]="sellerForm.email" name="sellerEmail" />
             </div>
           </div>
         </div>
@@ -233,6 +328,9 @@ import {
         grid-template-columns: 1fr 1fr;
         gap: 20px;
       }
+      .edit-grid > .edit-card:first-child {
+        grid-column: 1 / -1;
+      }
       @media (max-width: 768px) {
         .edit-grid {
           grid-template-columns: 1fr;
@@ -296,6 +394,58 @@ import {
         border-color: var(--accent-primary, #6366f1);
         box-shadow: 0 0 0 3px
           var(--accent-primary-light, rgba(99, 102, 241, 0.1));
+      }
+      .readonly-field {
+        background: var(--table-hover, #f1f5f9) !important;
+        cursor: default;
+        color: var(--text-secondary, #64748b) !important;
+      }
+      .color-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .color-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 20px;
+        background: var(--bg-card, #fff);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .color-chip:hover {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--table-hover, #f1f5f9);
+      }
+      .color-chip.selected {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        font-weight: 600;
+      }
+      .chip-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--chip-color, #ccc);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        flex-shrink: 0;
+      }
+
+      /* Sub heading */
+      .sub-heading {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-top: 18px;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+        padding-top: 14px;
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
       }
 
       /* Documents */
@@ -399,9 +549,37 @@ export class BicycleDetailComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
   bicycle: Bicycle | null = null;
+  purchase: Purchase | null = null;
   documents: DocModel[] = [];
   submitting = false;
   BikeCondition = BikeCondition;
+
+  colorOptions = [
+    { value: 'Schwarz', label: 'Schwarz', hex: '#1a1a1a' },
+    { value: 'Weiß', label: 'Weiß', hex: '#f5f5f5' },
+    { value: 'Rot', label: 'Rot', hex: '#ef4444' },
+    { value: 'Blau', label: 'Blau', hex: '#3b82f6' },
+    { value: 'Grün', label: 'Grün', hex: '#22c55e' },
+    { value: 'Gelb', label: 'Gelb', hex: '#eab308' },
+    { value: 'Orange', label: 'Orange', hex: '#f97316' },
+    { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
+    { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
+    { value: 'Pink', label: 'Pink', hex: '#ec4899' },
+  ];
+
+  isColorSelected(farbe: string, color: string): boolean {
+    if (!farbe) return false;
+    return farbe.split(/[,\/]\s*/).includes(color);
+  }
+
+  toggleColor(farbe: string, color: string): string {
+    const colors = farbe ? farbe.split(/[,\/]\s*/).filter(Boolean) : [];
+    const idx = colors.indexOf(color);
+    if (idx >= 0) colors.splice(idx, 1);
+    else colors.push(color);
+    return colors.join('/');
+  }
+
   form: BicycleUpdate = {
     marke: '',
     modell: '',
@@ -411,9 +589,32 @@ export class BicycleDetailComponent implements OnInit {
     reifengroesse: '',
     stokNo: '',
     fahrradtyp: '',
+    art: '',
     beschreibung: '',
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
+  };
+
+  purchaseForm = {
+    preis: 0,
+    verkaufspreisVorschlag: null as number | null,
+    zahlungsart: 'Bar' as string,
+    kaufdatum: '',
+    notizen: '',
+    belegNummer: '',
+    anzeigeNr: '',
+  };
+
+  sellerForm: CustomerUpdate = {
+    vorname: '',
+    nachname: '',
+    strasse: '',
+    hausnummer: '',
+    plz: '',
+    stadt: '',
+    telefon: '',
+    email: '',
+    steuernummer: '',
   };
 
   get t() {
@@ -424,6 +625,7 @@ export class BicycleDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private bicycleService: BicycleService,
+    private purchaseService: PurchaseService,
     private documentService: DocumentService,
   ) {}
 
@@ -440,11 +642,47 @@ export class BicycleDetailComponent implements OnInit {
         reifengroesse: b.reifengroesse,
         stokNo: b.stokNo,
         fahrradtyp: b.fahrradtyp,
+        art: b.art || '',
         beschreibung: b.beschreibung,
         status: b.status,
         zustand: b.zustand,
+        verkaufspreisVorschlag: b.verkaufspreisVorschlag,
       };
     });
+
+    // Load purchase data for this bicycle
+    this.purchaseService.getByBicycleId(id).subscribe({
+      next: (p) => {
+        this.purchase = p;
+        this.purchaseForm = {
+          preis: p.preis,
+          verkaufspreisVorschlag: p.verkaufspreisVorschlag ?? null,
+          zahlungsart: p.zahlungsart,
+          kaufdatum: p.kaufdatum ? p.kaufdatum.substring(0, 10) : '',
+          notizen: p.notizen || '',
+          belegNummer: p.belegNummer || '',
+          anzeigeNr: p.anzeigeNr || '',
+        };
+        if (p.seller) {
+          this.sellerForm = {
+            vorname: p.seller.vorname,
+            nachname: p.seller.nachname,
+            strasse: p.seller.strasse || '',
+            hausnummer: p.seller.hausnummer || '',
+            plz: p.seller.plz || '',
+            stadt: p.seller.stadt || '',
+            telefon: p.seller.telefon || '',
+            email: p.seller.email || '',
+            steuernummer: p.seller.steuernummer || '',
+          };
+        }
+      },
+      error: () => {
+        // No purchase found for this bicycle - that's ok
+        this.purchase = null;
+      },
+    });
+
     this.documentService
       .getByBicycleId(id)
       .subscribe((docs) => (this.documents = docs));
@@ -456,18 +694,41 @@ export class BicycleDetailComponent implements OnInit {
       return;
     }
     this.submitting = true;
+
+    // Save bicycle data
     this.bicycleService.update(this.bicycle!.id, this.form).subscribe({
       next: () => {
-        this.notificationService.success(
-          this.t.saveSuccess || 'Erfolgreich gespeichert',
-        );
-        this.router.navigate(['/bicycles']);
+        // If there's a purchase, save it too
+        if (this.purchase) {
+          const purchaseUpdate: PurchaseUpdate = {
+            bicycle: this.form,
+            seller: this.sellerForm,
+            preis: this.purchaseForm.preis,
+            verkaufspreisVorschlag: this.purchaseForm.verkaufspreisVorschlag || undefined,
+            zahlungsart: this.purchaseForm.zahlungsart as PaymentMethod,
+            kaufdatum: this.purchaseForm.kaufdatum,
+            notizen: this.purchaseForm.notizen || undefined,
+            belegNummer: this.purchaseForm.belegNummer || undefined,
+            anzeigeNr: this.purchaseForm.anzeigeNr || undefined,
+          };
+          this.purchaseService.update(this.purchase.id, purchaseUpdate).subscribe({
+            next: () => {
+              this.notificationService.success(this.t.saveSuccess);
+              this.router.navigate(['/bicycles']);
+            },
+            error: (err) => {
+              this.submitting = false;
+              this.notificationService.error(err.error?.error || this.t.saveError);
+            },
+          });
+        } else {
+          this.notificationService.success(this.t.saveSuccess);
+          this.router.navigate(['/bicycles']);
+        }
       },
       error: (err) => {
         this.submitting = false;
-        this.notificationService.error(
-          err.error?.error || this.t.saveError || 'Fehler beim Speichern',
-        );
+        this.notificationService.error(err.error?.error || this.t.saveError);
       },
     });
   }
@@ -502,9 +763,7 @@ export class BicycleDetailComponent implements OnInit {
         if (confirmed) {
           this.documentService.delete(doc.id).subscribe({
             next: () => {
-              this.notificationService.success(
-                this.t.deleteSuccess || 'Erfolgreich gelöscht',
-              );
+              this.notificationService.success(this.t.deleteSuccess);
               this.documents = this.documents.filter((d) => d.id !== doc.id);
             },
             error: (err) => {

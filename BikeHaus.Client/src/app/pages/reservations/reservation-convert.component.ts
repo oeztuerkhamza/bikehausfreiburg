@@ -38,7 +38,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
           <p class="bike-info">
             {{ reservation.bicycle.marke }} {{ reservation.bicycle.modell }}
           </p>
-          <p class="detail">
+          <p class="detail" style="text-transform: uppercase">
             {{ t.frameNumber }}: {{ reservation.bicycle.rahmennummer }}
           </p>
           <p class="detail">{{ t.color }}: {{ reservation.bicycle.farbe }}</p>
@@ -196,14 +196,20 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
           <div class="form-card signature-card">
             <div class="signature-block">
               <div *ngIf="sellerSignatureData" class="sig-img-wrap">
-                <img [src]="sellerSignatureData" alt="{{ t.sellerSignature }}" class="sig-img" />
+                <img
+                  [src]="sellerSignatureData"
+                  alt="{{ t.sellerSignature }}"
+                  class="sig-img"
+                />
               </div>
               <div *ngIf="!sellerSignatureData" class="no-signature">
                 <p>{{ t.noSignatureFound }}</p>
                 <a routerLink="/settings" class="link">{{ t.settingsLink }}</a>
               </div>
               <div class="sig-line"></div>
-              <div class="sig-name">{{ sellerSignerName || 'Bike Haus Freiburg' }}</div>
+              <div class="sig-name">
+                {{ sellerSignerName || 'Bike Haus Freiburg' }}
+              </div>
               <div class="sig-label">{{ t.sellerSignature }}</div>
             </div>
           </div>

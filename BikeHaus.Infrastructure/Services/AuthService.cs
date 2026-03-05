@@ -30,12 +30,12 @@ public class AuthService : IAuthService
         if (user == null)
             return null;
 
-        // Password check disabled - login with username only
-        // if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-        //     return null;
+        // Verify password
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            return null;
 
         var token = GenerateJwtToken(user);
-        var expiresAt = DateTime.UtcNow.AddHours(24);
+        var expiresAt = DateTime.UtcNow.AddDays(30); // 30 days - device stays logged in
 
         return new LoginResponseDto
         {
@@ -120,7 +120,7 @@ public class AuthService : IAuthService
             issuer: _configuration["Jwt:Issuer"] ?? "BikeHausFreiburg",
             audience: _configuration["Jwt:Audience"] ?? "BikeHausApp",
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(24),
+            expires: DateTime.UtcNow.AddDays(30), // 30 days
             signingCredentials: creds
         );
 

@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BikeHaus.API.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class BackupController : ControllerBase
 {
     private readonly IBackupService _backupService;

@@ -35,7 +35,7 @@ import { AddressSuggestion } from '../../services/address.service';
         <div class="form-sections">
           <!-- Bicycle selection -->
           <div class="form-card">
-            <h2>Fahrrad auswählen</h2>
+            <h2>{{ t.selectBicycle }}</h2>
             <app-bike-selector
               [bikes]="availableBikes"
               [(selectedBike)]="selectedBike"
@@ -45,7 +45,7 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Customer info -->
           <div class="form-card">
-            <h2>Kunde</h2>
+            <h2>{{ t.customer }}</h2>
             <div class="form-grid">
               <div class="field">
                 <label>{{ t.firstName }} *</label>
@@ -64,14 +64,12 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field full">
-                <label>Adresse suchen</label>
+                <label>{{ t.searchAddress }}</label>
                 <app-address-autocomplete
-                  placeholder="z.B. Bissierstraße 16, Freiburg"
+                  [placeholder]="t.addressPlaceholder"
                   (addressSelected)="onAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint"
-                  >Tippen Sie eine Adresse ein für Vorschläge</small
-                >
+                <small class="hint">{{ t.addressSuggestHint }}</small>
               </div>
               <div class="field">
                 <label>{{ t.street }} *</label>
@@ -122,7 +120,7 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Reservation details -->
           <div class="form-card">
-            <h2>Reservierungsdaten</h2>
+            <h2>{{ t.reservationDataTitle }}</h2>
             <div class="form-grid">
               <div class="field">
                 <label>{{ t.reservationDate }}</label>
@@ -143,7 +141,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   required
                 />
                 <small class="hint"
-                  >Ablaufdatum: {{ getExpirationDate() }}</small
+                  >{{ t.expirationDateColon }} {{ getExpirationDate() }}</small
                 >
               </div>
               <div class="field">
@@ -171,31 +169,31 @@ import { AddressSuggestion } from '../../services/address.service';
         <!-- Validation messages -->
         <div class="validation-errors" *ngIf="!canSubmit() && !submitting">
           <p *ngIf="!selectedBike" class="error-msg">
-            ⚠️ Bitte wählen Sie ein Fahrrad aus
+            ⚠️ {{ t.selectBicycleWarning }}
           </p>
           <p *ngIf="!customer.vorname?.trim()" class="error-msg">
-            ⚠️ Vorname ist erforderlich
+            ⚠️ {{ t.firstNameRequiredMsg }}
           </p>
           <p *ngIf="!customer.nachname?.trim()" class="error-msg">
-            ⚠️ Nachname ist erforderlich
+            ⚠️ {{ t.lastNameRequiredMsg }}
           </p>
           <p *ngIf="!customer.strasse?.trim()" class="error-msg">
-            ⚠️ Straße ist erforderlich
+            ⚠️ {{ t.streetRequiredMsg }}
           </p>
           <p *ngIf="!customer.hausnummer?.trim()" class="error-msg">
-            ⚠️ Hausnummer ist erforderlich
+            ⚠️ {{ t.houseNumberRequiredMsg }}
           </p>
           <p *ngIf="!customer.plz?.trim()" class="error-msg">
-            ⚠️ PLZ ist erforderlich
+            ⚠️ {{ t.postalCodeRequiredMsg }}
           </p>
           <p *ngIf="!customer.stadt?.trim()" class="error-msg">
-            ⚠️ Stadt ist erforderlich
+            ⚠️ {{ t.cityRequiredMsg }}
           </p>
           <p *ngIf="!customer.telefon?.trim()" class="error-msg">
-            ⚠️ Telefon ist erforderlich
+            ⚠️ {{ t.phoneRequiredMsg }}
           </p>
           <p *ngIf="reservierungsTage <= 0" class="error-msg">
-            ⚠️ Reservierungstage muss größer als 0 sein
+            ⚠️ {{ t.reservationDaysWarning }}
           </p>
         </div>
 
@@ -524,8 +522,7 @@ export class ReservationFormComponent implements OnInit {
       error: (err) => {
         console.error('Error creating reservation:', err);
         this.submitting = false;
-        this.errorMessage =
-          err.error?.error || 'Fehler beim Erstellen der Reservierung';
+        this.errorMessage = err.error?.error || this.t.reservationCreateError;
       },
     });
   }

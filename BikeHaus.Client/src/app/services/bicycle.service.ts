@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import {
   Bicycle,
   BicycleCreate,
+  BicycleImage,
   BicycleUpdate,
   PaginatedResult,
 } from '../models/models';
@@ -86,5 +87,33 @@ export class BicycleService {
     let params = new HttpParams();
     if (brand) params = params.set('brand', brand);
     return this.http.get<string[]>(`${this.url}/models`, { params });
+  }
+
+  // ── Publishing ──
+  togglePublishWebsite(id: number): Observable<Bicycle> {
+    return this.http.post<Bicycle>(`${this.url}/${id}/toggle-publish-website`, {});
+  }
+
+  togglePublishKleinanzeigen(id: number): Observable<Bicycle> {
+    return this.http.post<Bicycle>(`${this.url}/${id}/toggle-publish-kleinanzeigen`, {});
+  }
+
+  setKleinanzeigenAnzeigeNr(id: number, anzeigeNr: string): Observable<Bicycle> {
+    return this.http.put<Bicycle>(`${this.url}/${id}/kleinanzeigen-anzeige-nr`, { anzeigeNr });
+  }
+
+  // ── Gallery Images ──
+  getGallery(id: number): Observable<BicycleImage[]> {
+    return this.http.get<BicycleImage[]>(`${this.url}/${id}/gallery`);
+  }
+
+  uploadGalleryImage(bicycleId: number, file: File): Observable<BicycleImage> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<BicycleImage>(`${this.url}/${bicycleId}/gallery`, formData);
+  }
+
+  deleteGalleryImage(bicycleId: number, imageId: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${bicycleId}/gallery/${imageId}`);
   }
 }

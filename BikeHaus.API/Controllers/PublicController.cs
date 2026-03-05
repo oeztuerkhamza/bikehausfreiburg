@@ -1,0 +1,191 @@
+using BikeHaus.Application.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BikeHaus.API.Controllers;
+
+[ApiController]
+[Route("api/public")]
+public class PublicController : ControllerBase
+{
+    private readonly IKleinanzeigenService _kleinanzeigenService;
+    private readonly INeueFahrradService _neueFahrradService;
+    private readonly IBicycleService _bicycleService;
+    private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _config;
+
+    public PublicController(
+        IKleinanzeigenService kleinanzeigenService,
+        INeueFahrradService neueFahrradService,
+        IBicycleService bicycleService,
+        IWebHostEnvironment env,
+        IConfiguration config)
+    {
+        _kleinanzeigenService = kleinanzeigenService;
+        _neueFahrradService = neueFahrradService;
+        _bicycleService = bicycleService;
+        _env = env;
+        _config = config;
+    }
+
+    /// <summary>
+    /// Get all active Kleinanzeigen listings (public, no auth required)
+    /// </summary>
+    [HttpGet("listings")]
+    public async Task<IActionResult> GetListings()
+    {
+        var listings = await _kleinanzeigenService.GetAllActiveListingsAsync();
+        return Ok(listings);
+    }
+
+    /// <summary>
+    /// Get listings by category
+    /// </summary>
+    [HttpGet("listings/category/{category}")]
+    public async Task<IActionResult> GetListingsByCategory(string category)
+    {
+        var listings = await _kleinanzeigenService.GetListingsByCategoryAsync(Uri.UnescapeDataString(category));
+        return Ok(listings);
+    }
+
+    /// <summary>
+    /// Get a single listing by ID
+    /// </summary>
+    [HttpGet("listings/{id}")]
+    public async Task<IActionResult> GetListing(int id)
+    {
+        var listing = await _kleinanzeigenService.GetListingByIdAsync(id);
+        if (listing == null) return NotFound();
+        return Ok(listing);
+    }
+
+    /// <summary>
+    /// Get all active categories with listing counts
+    /// </summary>
+    [HttpGet("categories")]
+    public async Task<IActionResult> GetCategories()
+    {
+        var categories = await _kleinanzeigenService.GetCategoriesAsync();
+        return Ok(categories);
+    }
+
+    /// <summary>
+    /// Get public shop info (name, address, contact, logo, hours)
+    /// </summary>
+    [HttpGet("shop-info")]
+    public async Task<IActionResult> GetShopInfo()
+    {
+        var info = await _kleinanzeigenService.GetPublicShopInfoAsync();
+        if (info == null)
+        {
+            return Ok(new { shopName = "Bike Haus Freiburg" });
+        }
+        return Ok(info);
+    }
+
+    /// <summary>
+    /// Get last sync timestamp
+    /// </summary>
+    [HttpGet("last-sync")]
+    public async Task<IActionResult> GetLastSync()
+    {
+        var lastSync = await _kleinanzeigenService.GetLastSyncTimeAsync();
+        return Ok(new { lastSyncedAt = lastSync });
+    }
+
+    // ═══ Neue Fahrräder (New Bicycles) ═══
+
+    /// <summary>
+    /// Get all active new bicycle listings (public)
+    /// </summary>
+    [HttpGet("neue-fahrraeder")]
+    public async Task<IActionResult> GetNeueFahrraeder()
+    {
+        var items = await _neueFahrradService.GetAllActiveAsync();
+        return Ok(items);
+    }
+
+    /// <summary>
+    /// Get new bicycles by category
+    /// </summary>
+    [HttpGet("neue-fahrraeder/category/{category}")]
+    public async Task<IActionResult> GetNeueFahrraederByCategory(string category)
+    {
+        var items = await _neueFahrradService.GetByCategoryAsync(Uri.UnescapeDataString(category));
+        return Ok(items);
+    }
+
+    /// <summary>
+    /// Get a single new bicycle by ID
+    /// </summary>
+    [HttpGet("neue-fahrraeder/{id}")]
+    public async Task<IActionResult> GetNeueFahrrad(int id)
+    {
+        var item = await _neueFahrradService.GetByIdAsync(id);
+        if (item == null) return NotFound();
+        return Ok(item);
+    }
+
+    /// <summary>
+    /// Get new bicycle categories with counts
+    /// </summary>
+    [HttpGet("neue-fahrraeder/categories")]
+    public async Task<IActionResult> GetNeueFahrraederCategories()
+    {
+        var categories = await _neueFahrradService.GetCategoriesAsync();
+        return Ok(categories);
+    }
+
+    // ═══ Gebrauchte Fahrräder (Published Used Bicycles) ═══
+
+    /// <summary>
+    /// Get all bicycles published on the website (public)
+    /// </summary>
+    [HttpGet("gebrauchte-fahrraeder")]
+    public async Task<IActionResult> GetGebrauchteFahrraeder()
+    {
+        var items = await _bicycleService.GetPublishedOnWebsiteAsync();
+        return Ok(items);
+    }
+
+    /// <summary>
+    /// Get a single published bicycle by ID
+    /// </summary>
+    [HttpGet("gebrauchte-fahrraeder/{id}")]
+    public async Task<IActionResult> GetGebrauchteFahrrad(int id)
+    {
+        var item = await _bicycleService.GetPublishedBicycleByIdAsync(id);
+        if (item == null) return NotFound();
+        return Ok(item);
+    }
+
+    /// <summary>
+    /// Serve gallery image files
+    /// </summary>
+    [HttpGet("gallery-image/{*filePath}")]
+    public IActionResult GetGalleryImage(string filePath)
+    {
+        string fullPath;
+        if (_env.IsDevelopment())
+        {
+            fullPath = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+        }
+        else
+        {
+            // In production, resolve from FileStorage:BasePath
+            // filePath = "uploads/gallery/4/guid.jpg" → strip "uploads/" and combine with BasePath
+            var basePath = _config["FileStorage:BasePath"] ?? "/app/data/uploads";
+            var relativePart = filePath.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase)
+                ? filePath.Substring("uploads/".Length)
+                : filePath;
+            fullPath = Path.Combine(basePath, relativePart);
+        }
+
+        if (!System.IO.File.Exists(fullPath))
+            return NotFound();
+
+        var contentType = filePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png"
+            : filePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase) ? "image/webp"
+            : "image/jpeg";
+        return PhysicalFile(fullPath, contentType);
+    }
+}

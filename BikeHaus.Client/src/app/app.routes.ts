@@ -1,111 +1,179 @@
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { BicycleListComponent } from './pages/bicycles/bicycle-list.component';
-import { BicycleDetailComponent } from './pages/bicycles/bicycle-detail.component';
-import { BicycleLabelsComponent } from './pages/bicycles/bicycle-labels.component';
-import { CustomerListComponent } from './pages/customers/customer-list.component';
-import { PurchaseListComponent } from './pages/purchases/purchase-list.component';
-import { PurchaseFormComponent } from './pages/purchases/purchase-form.component';
-import { PurchaseEditComponent } from './pages/purchases/purchase-edit.component';
-import { SaleListComponent } from './pages/sales/sale-list.component';
-import { SaleFormComponent } from './pages/sales/sale-form.component';
-import { SaleEditComponent } from './pages/sales/sale-edit.component';
-import { ReturnListComponent } from './pages/returns/return-list.component';
-import { ReturnFormComponent } from './pages/returns/return-form.component';
-import { ReservationListComponent } from './pages/reservations/reservation-list.component';
-import { ReservationFormComponent } from './pages/reservations/reservation-form.component';
-import { ReservationConvertComponent } from './pages/reservations/reservation-convert.component';
-import { PartsListComponent } from './pages/parts/parts-list.component';
-import { ExpenseListComponent } from './pages/expenses/expense-list.component';
-import { StatisticsComponent } from './pages/statistics/statistics.component';
-import { SettingsComponent } from './pages/settings/settings.component';
-import { LoginComponent } from './pages/login/login.component';
-import { ArchiveComponent } from './pages/archive/archive.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: '', component: DashboardComponent, canActivate: [authGuard] },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.component').then(
+        (m) => m.DashboardComponent,
+      ),
+    canActivate: [authGuard],
+  },
   {
     path: 'bicycles',
-    component: BicycleListComponent,
+    loadComponent: () =>
+      import('./pages/bicycles/bicycle-list.component').then(
+        (m) => m.BicycleListComponent,
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'bicycles/:id',
-    component: BicycleDetailComponent,
+    loadComponent: () =>
+      import('./pages/bicycles/bicycle-detail.component').then(
+        (m) => m.BicycleDetailComponent,
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'labels',
-    component: BicycleLabelsComponent,
+    loadComponent: () =>
+      import('./pages/bicycles/bicycle-labels.component').then(
+        (m) => m.BicycleLabelsComponent,
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'customers',
-    component: CustomerListComponent,
+    loadComponent: () =>
+      import('./pages/customers/customer-list.component').then(
+        (m) => m.CustomerListComponent,
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'purchases',
-    component: PurchaseListComponent,
+    loadComponent: () =>
+      import('./pages/purchases/purchase-list.component').then(
+        (m) => m.PurchaseListComponent,
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'purchases/new',
-    component: PurchaseFormComponent,
+    loadComponent: () =>
+      import('./pages/purchases/purchase-form.component').then(
+        (m) => m.PurchaseFormComponent,
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'purchases/edit/:id',
-    component: PurchaseEditComponent,
+    loadComponent: () =>
+      import('./pages/purchases/purchase-edit.component').then(
+        (m) => m.PurchaseEditComponent,
+      ),
     canActivate: [authGuard],
   },
-  { path: 'sales', component: SaleListComponent, canActivate: [authGuard] },
-  { path: 'sales/new', component: SaleFormComponent, canActivate: [authGuard] },
+  {
+    path: 'sales',
+    loadComponent: () =>
+      import('./pages/sales/sale-list.component').then(
+        (m) => m.SaleListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'sales/new',
+    loadComponent: () =>
+      import('./pages/sales/sale-form.component').then(
+        (m) => m.SaleFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
   {
     path: 'sales/edit/:id',
-    component: SaleEditComponent,
+    loadComponent: () =>
+      import('./pages/sales/sale-edit.component').then(
+        (m) => m.SaleEditComponent,
+      ),
     canActivate: [authGuard],
   },
   {
-    path: 'reservations',
-    component: ReservationListComponent,
+    path: 'returns',
+    loadComponent: () =>
+      import('./pages/returns/return-list.component').then(
+        (m) => m.ReturnListComponent,
+      ),
     canActivate: [authGuard],
   },
-  {
-    path: 'reservations/new',
-    component: ReservationFormComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'reservations/:id',
-    component: ReservationListComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: 'reservations/:id/convert',
-    component: ReservationConvertComponent,
-    canActivate: [authGuard],
-  },
-  { path: 'returns', component: ReturnListComponent, canActivate: [authGuard] },
   {
     path: 'returns/new',
-    component: ReturnFormComponent,
+    loadComponent: () =>
+      import('./pages/returns/return-form.component').then(
+        (m) => m.ReturnFormComponent,
+      ),
     canActivate: [authGuard],
   },
-  { path: 'parts', component: PartsListComponent, canActivate: [authGuard] },
+  {
+    path: 'parts',
+    loadComponent: () =>
+      import('./pages/parts/parts-list.component').then(
+        (m) => m.PartsListComponent,
+      ),
+    canActivate: [authGuard],
+  },
   {
     path: 'expenses',
-    component: ExpenseListComponent,
+    loadComponent: () =>
+      import('./pages/expenses/expense-list.component').then(
+        (m) => m.ExpenseListComponent,
+      ),
     canActivate: [authGuard],
   },
   {
     path: 'statistics',
-    component: StatisticsComponent,
+    loadComponent: () =>
+      import('./pages/statistics/statistics.component').then(
+        (m) => m.StatisticsComponent,
+      ),
     canActivate: [authGuard],
   },
-  { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
-  { path: 'archive', component: ArchiveComponent, canActivate: [authGuard] },
+  {
+    path: 'settings',
+    loadComponent: () =>
+      import('./pages/settings/settings.component').then(
+        (m) => m.SettingsComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'archive',
+    loadComponent: () =>
+      import('./pages/archive/archive.component').then(
+        (m) => m.ArchiveComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'neue-fahrraeder',
+    loadComponent: () =>
+      import('./pages/neue-fahrraeder/neue-fahrrad-list.component').then(
+        (m) => m.NeueFahrradListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'neue-fahrraeder/new',
+    loadComponent: () =>
+      import('./pages/neue-fahrraeder/neue-fahrrad-form.component').then(
+        (m) => m.NeueFahrradFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'neue-fahrraeder/edit/:id',
+    loadComponent: () =>
+      import('./pages/neue-fahrraeder/neue-fahrrad-form.component').then(
+        (m) => m.NeueFahrradFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];

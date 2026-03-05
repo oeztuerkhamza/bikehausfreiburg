@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService, ShopSettings } from '../../services/settings.service';
@@ -10,6 +10,10 @@ import {
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { BackupService } from '../../services/backup.service';
+import {
+  KleinanzeigenService,
+  KleinanzeigenSyncResult,
+} from '../../services/kleinanzeigen.service';
 
 @Component({
   selector: 'app-settings',
@@ -397,35 +401,77 @@ import { BackupService } from '../../services/backup.service';
                 </div>
               </div>
 
+              <!-- Kleinanzeigen Integration -->
+              <h3
+                style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
+              >
+                🔗 {{ t.kleinanzeigenIntegration }}
+              </h3>
               <div class="form-grid">
                 <div class="form-group full-width">
-                  <label>{{ t.openingHours }}</label>
-                  <textarea
-                    [(ngModel)]="settings.oeffnungszeiten"
-                    name="oeffnungszeiten"
-                    rows="3"
-                  ></textarea>
+                  <label>{{ t.kleinanzeigenProfileUrl }}</label>
+                  <input
+                    type="url"
+                    [(ngModel)]="settings.kleinanzeigenUrl"
+                    name="kleinanzeigenUrl"
+                    placeholder="https://www.kleinanzeigen.de/s-bestandsliste.html?userId=..."
+                  />
+                  <small
+                    style="color: var(--text-secondary, #64748b); font-size: 0.78rem;"
+                    >{{ t.kleinanzeigenUrlHint }}</small
+                  >
                 </div>
-
-                <div class="form-group full-width">
-                  <label>{{ t.additionalInfo }}</label>
-                  <textarea
-                    [(ngModel)]="settings.zusatzinfo"
-                    name="zusatzinfo"
-                    rows="3"
-                  ></textarea>
-                </div>
+              </div>
+              <div
+                style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;"
+              >
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  [disabled]="syncing || !settings.kleinanzeigenUrl"
+                  (click)="triggerKleinanzeigenSync()"
+                  style="white-space: nowrap;"
+                >
+                  {{ syncing ? '⏳ ' + t.syncingText : '🔄 ' + t.syncNow }}
+                </button>
+                <span
+                  *ngIf="lastSyncTime"
+                  style="font-size: 0.82rem; color: var(--text-secondary, #64748b);"
+                >
+                  {{ t.lastSync }} {{ lastSyncTime | date: 'dd.MM.yyyy HH:mm' }}
+                </span>
+              </div>
+              <div
+                *ngIf="syncResult"
+                style="padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px;"
+                [style.background]="
+                  syncResult.error
+                    ? 'var(--danger-bg, #fef2f2)'
+                    : 'var(--success-bg, #f0fdf4)'
+                "
+                [style.color]="
+                  syncResult.error
+                    ? 'var(--danger, #dc2626)'
+                    : 'var(--success, #16a34a)'
+                "
+              >
+                <span *ngIf="syncResult.error">❌ {{ syncResult.error }}</span>
+                <span *ngIf="!syncResult.error">
+                  ✅ {{ syncResult.newListings }} {{ t.syncNew }},
+                  {{ syncResult.updatedListings }} {{ t.syncUpdated }},
+                  {{ syncResult.deactivatedListings }} {{ t.syncDeactivated }}
+                </span>
               </div>
 
               <!-- Bicycle Numbering -->
               <h3
                 style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
               >
-                Fahrrad-Nummerierung
+                {{ t.bicycleNumbering }}
               </h3>
               <div class="form-grid">
                 <div class="form-group">
-                  <label>Startnummer</label>
+                  <label>{{ t.startNumber }}</label>
                   <input
                     type="number"
                     min="1"
@@ -434,8 +480,7 @@ import { BackupService } from '../../services/backup.service';
                   />
                   <small
                     style="color: var(--text-secondary, #64748b); font-size: 0.78rem;"
-                    >Neue Fahrräder bekommen automatisch die nächste
-                    Nummer</small
+                    >{{ t.autoNumberHint }}</small
                   >
                 </div>
               </div>
@@ -1061,9 +1106,14 @@ import { BackupService } from '../../services/backup.service';
     `,
   ],
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
+  ngOnDestroy(): void {
+    this.stopSyncPolling();
+  }
+
   private settingsService = inject(SettingsService);
   private backupService = inject(BackupService);
+  private kleinanzeigenService = inject(KleinanzeigenService);
   themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
   private authService = inject(AuthService);
@@ -1072,6 +1122,12 @@ export class SettingsComponent implements OnInit {
   saving = false;
   showSuccess = false;
   currentLanguage: Language = 'de';
+
+  // Kleinanzeigen sync
+  syncing = false;
+  lastSyncTime: Date | null = null;
+  syncResult: KleinanzeigenSyncResult | null = null;
+  private syncPollTimer: any = null;
 
   // Backup & Restore
   creatingBackup = false;
@@ -1112,6 +1168,7 @@ export class SettingsComponent implements OnInit {
     inhaberVorname: '',
     inhaberNachname: '',
     fahrradNummerStart: 1,
+    kleinanzeigenUrl: '',
     oeffnungszeiten: '',
     zusatzinfo: '',
     logoBase64: undefined,
@@ -1130,6 +1187,70 @@ export class SettingsComponent implements OnInit {
     this.currentLanguage = this.translationService.currentLanguage();
     this.loadSettings();
     this.loadCurrentUser();
+    this.loadLastSyncTime();
+  }
+
+  loadLastSyncTime(): void {
+    this.kleinanzeigenService.getLastSync().subscribe({
+      next: (data) => {
+        this.lastSyncTime = data.lastSyncedAt
+          ? new Date(data.lastSyncedAt)
+          : null;
+      },
+      error: () => {},
+    });
+  }
+
+  triggerKleinanzeigenSync(): void {
+    this.syncing = true;
+    this.syncResult = null;
+    this.kleinanzeigenService.triggerSync().subscribe({
+      next: () => {
+        // Sync started in background — poll for status
+        this.startSyncPolling();
+      },
+      error: (err) => {
+        this.syncResult = {
+          newListings: 0,
+          updatedListings: 0,
+          deactivatedListings: 0,
+          syncedAt: new Date().toISOString(),
+          error:
+            this.t.syncFailed +
+            ' ' +
+            (err.error?.message || err.message || this.t.unknownError),
+        };
+        this.syncing = false;
+      },
+    });
+  }
+
+  private startSyncPolling(): void {
+    this.stopSyncPolling();
+    this.syncPollTimer = setInterval(() => {
+      this.kleinanzeigenService.getSyncStatus().subscribe({
+        next: (status) => {
+          if (!status.syncing && status.result) {
+            this.syncResult = status.result;
+            this.syncing = false;
+            if (!status.result.error) {
+              this.lastSyncTime = new Date(status.result.syncedAt);
+            }
+            this.stopSyncPolling();
+          }
+        },
+        error: () => {
+          // Keep polling on transient errors
+        },
+      });
+    }, 3000);
+  }
+
+  private stopSyncPolling(): void {
+    if (this.syncPollTimer) {
+      clearInterval(this.syncPollTimer);
+      this.syncPollTimer = null;
+    }
   }
 
   loadCurrentUser(): void {
@@ -1243,6 +1364,7 @@ export class SettingsComponent implements OnInit {
         inhaberVorname: this.settings.inhaberVorname,
         inhaberNachname: this.settings.inhaberNachname,
         fahrradNummerStart: this.settings.fahrradNummerStart || 1,
+        kleinanzeigenUrl: this.settings.kleinanzeigenUrl,
         oeffnungszeiten: this.settings.oeffnungszeiten,
         zusatzinfo: this.settings.zusatzinfo,
       })

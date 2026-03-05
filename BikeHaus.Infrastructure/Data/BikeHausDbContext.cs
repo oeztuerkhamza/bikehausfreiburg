@@ -20,6 +20,11 @@ public class BikeHausDbContext : DbContext
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Expense> Expenses => Set<Expense>();
+    public DbSet<KleinanzeigenListing> KleinanzeigenListings => Set<KleinanzeigenListing>();
+    public DbSet<KleinanzeigenImage> KleinanzeigenImages => Set<KleinanzeigenImage>();
+    public DbSet<NeueFahrrad> NeueFahrraeder => Set<NeueFahrrad>();
+    public DbSet<NeueFahrradImage> NeueFahrradImages => Set<NeueFahrradImage>();
+    public DbSet<BicycleImage> BicycleImages => Set<BicycleImage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,10 +37,20 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Marke).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Modell).HasMaxLength(100);
             entity.Property(e => e.Rahmennummer).HasMaxLength(50);
-            entity.Property(e => e.Farbe).HasMaxLength(50);
+            entity.Property(e => e.Farbe).HasMaxLength(150);
             entity.Property(e => e.Reifengroesse).IsRequired().HasMaxLength(20);
             entity.Property(e => e.Beschreibung).HasMaxLength(500);
+            entity.Property(e => e.VerkaufspreisVorschlag).HasColumnType("decimal(18,2)");
             entity.HasIndex(e => e.Rahmennummer);
+            entity.HasMany(e => e.Images).WithOne(i => i.Bicycle)
+                .HasForeignKey(i => i.BicycleId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── BicycleImage Configuration ──
+        modelBuilder.Entity<BicycleImage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FilePath).IsRequired().HasMaxLength(500);
         });
 
         // ── Customer Configuration ──
@@ -90,8 +105,8 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Notizen).HasMaxLength(1000);
 
             entity.HasOne(e => e.Bicycle)
-                .WithOne(b => b.Sale)
-                .HasForeignKey<Sale>(e => e.BicycleId)
+                .WithMany(b => b.Sales)
+                .HasForeignKey(e => e.BicycleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.Buyer)
@@ -272,6 +287,68 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Lieferant).HasMaxLength(200);
             entity.Property(e => e.BelegNummer).HasMaxLength(50);
             entity.Property(e => e.Notizen).HasMaxLength(1000);
+        });
+
+        // ── KleinanzeigenListing Configuration ──
+        modelBuilder.Entity<KleinanzeigenListing>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ExternalId).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Description).HasMaxLength(5000);
+            entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.PriceText).HasMaxLength(100);
+            entity.Property(e => e.Category).HasMaxLength(200);
+            entity.Property(e => e.Location).HasMaxLength(200);
+            entity.Property(e => e.ExternalUrl).IsRequired().HasMaxLength(500);
+            entity.HasIndex(e => e.ExternalId).IsUnique();
+            entity.HasIndex(e => e.IsActive);
+            entity.HasIndex(e => e.Category);
+        });
+
+        // ── KleinanzeigenImage Configuration ──
+        modelBuilder.Entity<KleinanzeigenImage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ImageUrl).IsRequired().HasMaxLength(1000);
+            entity.Property(e => e.LocalPath).HasMaxLength(500);
+
+            entity.HasOne(e => e.Listing)
+                .WithMany(l => l.Images)
+                .HasForeignKey(e => e.KleinanzeigenListingId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── NeueFahrrad Configuration ──
+        modelBuilder.Entity<NeueFahrrad>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Titel).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Beschreibung).HasMaxLength(5000);
+            entity.Property(e => e.Preis).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.PreisText).HasMaxLength(100);
+            entity.Property(e => e.Kategorie).HasMaxLength(200);
+            entity.Property(e => e.Marke).HasMaxLength(100);
+            entity.Property(e => e.Modell).HasMaxLength(100);
+            entity.Property(e => e.Farbe).HasMaxLength(150);
+            entity.Property(e => e.Rahmengroesse).HasMaxLength(20);
+            entity.Property(e => e.Reifengroesse).HasMaxLength(20);
+            entity.Property(e => e.Gangschaltung).HasMaxLength(50);
+            entity.Property(e => e.Zustand).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.IsActive);
+            entity.HasIndex(e => e.Kategorie);
+        });
+
+        // ── NeueFahrradImage Configuration ──
+        modelBuilder.Entity<NeueFahrradImage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FilePath).IsRequired().HasMaxLength(500);
+
+            entity.HasOne(e => e.Fahrrad)
+                .WithMany(f => f.Images)
+                .HasForeignKey(e => e.NeueFahrradId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

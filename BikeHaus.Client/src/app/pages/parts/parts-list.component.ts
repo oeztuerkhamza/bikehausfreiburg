@@ -546,9 +546,7 @@ export class PartsListComponent implements OnInit {
       this.service.update(this.editingPart.id, updateData).subscribe({
         next: () => {
           this.saving = false;
-          this.notificationService.success(
-            this.t.saveSuccess || 'Erfolgreich gespeichert',
-          );
+          this.notificationService.success(this.t.saveSuccess);
           this.closeDialog();
           this.loadParts();
         },
@@ -566,9 +564,7 @@ export class PartsListComponent implements OnInit {
       this.service.create(createData).subscribe({
         next: () => {
           this.saving = false;
-          this.notificationService.success(
-            this.t.saveSuccess || 'Erfolgreich gespeichert',
-          );
+          this.notificationService.success(this.t.saveSuccess);
           this.closeDialog();
           this.loadParts();
         },
@@ -596,9 +592,7 @@ export class PartsListComponent implements OnInit {
         if (confirmed) {
           this.service.delete(part.id).subscribe({
             next: () => {
-              this.notificationService.success(
-                this.t.deleteSuccess || 'Erfolgreich gelöscht',
-              );
+              this.notificationService.success(this.t.deleteSuccess);
               this.loadParts();
             },
             error: () => {

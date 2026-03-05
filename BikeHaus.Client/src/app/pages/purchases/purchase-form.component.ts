@@ -16,7 +16,7 @@ import {
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-purchase-form',
@@ -194,6 +194,7 @@ import { forkJoin } from 'rxjs';
                   [(ngModel)]="bicycle.rahmennummer"
                   name="bikeRahmen"
                   placeholder="optional"
+                  style="text-transform: uppercase"
                 />
               </div>
               <div class="field">
@@ -206,19 +207,21 @@ import { forkJoin } from 'rxjs';
               </div>
               <div class="field">
                 <label>{{ t.color }}</label>
-                <select [(ngModel)]="bicycle.farbe" name="bikeFarbe">
-                  <option value="">-- {{ t.selectOption }} --</option>
-                  <option value="Schwarz">Schwarz</option>
-                  <option value="Weiß">Weiß</option>
-                  <option value="Rot">Rot</option>
-                  <option value="Blau">Blau</option>
-                  <option value="Grün">Grün</option>
-                  <option value="Gelb">Gelb</option>
-                  <option value="Orange">Orange</option>
-                  <option value="Grau">Grau</option>
-                  <option value="Silber">Silber</option>
-                  <option value="Pink">Pink</option>
-                </select>
+                <div class="color-chips">
+                  <button
+                    type="button"
+                    *ngFor="let c of colorOptions"
+                    class="color-chip"
+                    [class.selected]="isColorSelected(bicycle.farbe, c.value)"
+                    [style.--chip-color]="c.hex"
+                    (click)="
+                      bicycle.farbe = toggleColor(bicycle.farbe, c.value)
+                    "
+                  >
+                    <span class="chip-dot"></span>
+                    {{ c.label }}
+                  </button>
+                </div>
               </div>
               <div class="field">
                 <label>{{ t.wheelSize }} *</label>
@@ -263,6 +266,15 @@ import { forkJoin } from 'rxjs';
                   <option value="Sonstige">Sonstige</option>
                 </select>
               </div>
+              <div class="field">
+                <label>{{ t.artLabel }} *</label>
+                <select [(ngModel)]="bicycle.art" name="bikeArt" required>
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="Herren">Herren</option>
+                  <option value="Damen">Damen</option>
+                  <option value="Kinder">Kinder</option>
+                </select>
+              </div>
               <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.condition }} *</label>
                 <select
@@ -288,6 +300,49 @@ import { forkJoin } from 'rxjs';
                   rows="4"
                   placeholder="z.B.&#10;E-Trekking Pedelec&#10;Bosch Performance Line 65&#10;NM 500 Wh&#10;28 Zoll Trapez 50 cm"
                 ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Verkaufsfotos (for Website & Kleinanzeigen) -->
+          <div class="form-card" *ngIf="!bulkMode">
+            <h2>📸 {{ t.salesPhotos }}</h2>
+            <p class="hint-text">
+              {{ t.salesPhotosHint }}
+            </p>
+            <div class="upload-area">
+              <input
+                type="file"
+                #galleryInput
+                (change)="onGalleryFilesSelected($event)"
+                accept="image/*"
+                multiple
+                style="display: none"
+              />
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="galleryInput.click()"
+              >
+                📷 {{ t.selectPhotos }}
+              </button>
+              <span class="file-count" *ngIf="galleryFiles.length > 0">
+                {{ galleryFiles.length }} {{ t.photosSelected }}
+              </span>
+            </div>
+            <div class="preview-grid" *ngIf="galleryPreviewUrls.length > 0">
+              <div
+                class="preview-item"
+                *ngFor="let url of galleryPreviewUrls; let i = index"
+              >
+                <img [src]="url" alt="Galerie Vorschau" />
+                <button
+                  type="button"
+                  class="remove-btn"
+                  (click)="removeGalleryFile(i)"
+                >
+                  ×
+                </button>
               </div>
             </div>
           </div>
@@ -354,15 +409,13 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.adNumber || 'Anzeige Nr.' }}</label>
+                <label>{{ t.adNumber }}</label>
                 <input
                   [(ngModel)]="anzeigeNr"
                   name="anzeigeNr"
                   placeholder="optional"
                 />
-                <small class="hint">{{
-                  t.adNumberHint || 'Kleinanzeigen o.ä.'
-                }}</small>
+                <small class="hint">{{ t.adNumberHint }}</small>
               </div>
               <div class="field full">
                 <label>{{ t.notes }}</label>
@@ -375,17 +428,13 @@ import { forkJoin } from 'rxjs';
             </div>
           </div>
 
-          <!-- Document Upload (optional) -->
+          <!-- Einkaufsfotos (internal documentation) -->
           <div class="form-card" *ngIf="!bulkMode">
             <h2>
-              {{
-                bicycle.zustand === 'Neu'
-                  ? t.invoiceOptional
-                  : t.screenshotsOptional
-              }}
+              📄 {{ t.purchasePhotos }}
             </h2>
             <p class="hint-text">
-              {{ t.documentsOptionalHint }}
+              {{ t.purchasePhotosHint }}
             </p>
             <div class="upload-area">
               <input
@@ -401,11 +450,7 @@ import { forkJoin } from 'rxjs';
                 class="btn btn-outline"
                 (click)="fileInput.click()"
               >
-                {{
-                  bicycle.zustand === 'Neu'
-                    ? '📄 ' + t.selectInvoice
-                    : '📷 ' + t.selectPhotos
-                }}
+                📷 {{ t.selectPhotos }}
               </button>
               <span class="file-count" *ngIf="selectedFiles.length > 0">
                 {{ selectedFiles.length }} {{ t.photosSelected }}
@@ -599,6 +644,42 @@ import { forkJoin } from 'rxjs';
         font-size: 0.73rem;
         color: var(--text-secondary, #94a3b8);
         margin-top: 4px;
+      }
+      .color-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .color-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 20px;
+        background: var(--bg-card, #fff);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .color-chip:hover {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--table-hover, #f1f5f9);
+      }
+      .color-chip.selected {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        font-weight: 600;
+      }
+      .chip-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--chip-color, #ccc);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        flex-shrink: 0;
       }
       .bulk-quantity {
         margin-bottom: 18px;
@@ -799,6 +880,32 @@ export class PurchaseFormComponent implements OnInit {
     return this.translationService.translations();
   }
 
+  colorOptions = [
+    { value: 'Schwarz', label: 'Schwarz', hex: '#1a1a1a' },
+    { value: 'Weiß', label: 'Weiß', hex: '#f5f5f5' },
+    { value: 'Rot', label: 'Rot', hex: '#ef4444' },
+    { value: 'Blau', label: 'Blau', hex: '#3b82f6' },
+    { value: 'Grün', label: 'Grün', hex: '#22c55e' },
+    { value: 'Gelb', label: 'Gelb', hex: '#eab308' },
+    { value: 'Orange', label: 'Orange', hex: '#f97316' },
+    { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
+    { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
+    { value: 'Pink', label: 'Pink', hex: '#ec4899' },
+  ];
+
+  isColorSelected(farbe: string, color: string): boolean {
+    if (!farbe) return false;
+    return farbe.split(/[,\/]\s*/).includes(color);
+  }
+
+  toggleColor(farbe: string, color: string): string {
+    const colors = farbe ? farbe.split(/[,\/]\s*/).filter(Boolean) : [];
+    const idx = colors.indexOf(color);
+    if (idx >= 0) colors.splice(idx, 1);
+    else colors.push(color);
+    return colors.join('/');
+  }
+
   bulkMode = false;
   bulkQuantity = 1;
 
@@ -822,6 +929,7 @@ export class PurchaseFormComponent implements OnInit {
     reifengroesse: '',
     stokNo: '',
     fahrradtyp: '',
+    art: '',
     beschreibung: '',
     zustand: BikeCondition.Gebraucht,
   };
@@ -838,6 +946,9 @@ export class PurchaseFormComponent implements OnInit {
 
   selectedFiles: File[] = [];
   previewUrls: string[] = [];
+
+  galleryFiles: File[] = [];
+  galleryPreviewUrls: string[] = [];
 
   brands: string[] = [];
   models: string[] = [];
@@ -1010,6 +1121,26 @@ export class PurchaseFormComponent implements OnInit {
     this.previewUrls.splice(index, 1);
   }
 
+  onGalleryFilesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      for (const file of Array.from(input.files)) {
+        this.galleryFiles.push(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.galleryPreviewUrls.push(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    input.value = '';
+  }
+
+  removeGalleryFile(index: number) {
+    this.galleryFiles.splice(index, 1);
+    this.galleryPreviewUrls.splice(index, 1);
+  }
+
   submit() {
     this.submitting = true;
     if (this.bulkMode) {
@@ -1071,12 +1202,15 @@ export class PurchaseFormComponent implements OnInit {
 
     this.purchaseService.create(purchase).subscribe({
       next: (result) => {
+        const allUploads: Observable<any>[] = [];
+
+        // Upload document files (screenshots/invoices)
         if (this.selectedFiles.length > 0 && result.id) {
           const docType =
             this.bicycle.zustand === 'Neu'
               ? DocumentType.Rechnung
               : DocumentType.Screenshot;
-          const uploadObservables = this.selectedFiles.map((file) =>
+          const docUploads = this.selectedFiles.map((file) =>
             this.documentService.upload(
               file,
               docType,
@@ -1084,13 +1218,24 @@ export class PurchaseFormComponent implements OnInit {
               result.id,
             ),
           );
+          allUploads.push(...docUploads);
+        }
 
-          forkJoin(uploadObservables).subscribe({
+        // Upload gallery photos (for website/Kleinanzeigen)
+        if (this.galleryFiles.length > 0 && result.bicycle?.id) {
+          const galleryUploads = this.galleryFiles.map((file) =>
+            this.bicycleService.uploadGalleryImage(result.bicycle.id, file),
+          );
+          allUploads.push(...galleryUploads);
+        }
+
+        if (allUploads.length > 0) {
+          forkJoin(allUploads).subscribe({
             next: () => {
               this.router.navigate(['/purchases']);
             },
             error: () => {
-              console.error('Fehler beim Hochladen der Screenshots');
+              console.error('Fehler beim Hochladen der Dateien');
               this.router.navigate(['/purchases']);
             },
           });

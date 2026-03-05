@@ -1,6 +1,7 @@
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Application.Mappings;
+using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
 using System.Linq.Expressions;
@@ -148,9 +149,11 @@ public class BicycleService : IBicycleService
         entity.Reifengroesse = dto.Reifengroesse;
         entity.StokNo = dto.StokNo;
         entity.Fahrradtyp = dto.Fahrradtyp;
+        entity.Art = dto.Art;
         entity.Beschreibung = dto.Beschreibung;
         entity.Status = dto.Status;
         entity.Zustand = dto.Zustand;
+        entity.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(entity);
@@ -163,7 +166,7 @@ public class BicycleService : IBicycleService
             ?? throw new KeyNotFoundException($"Fahrrad mit ID {id} nicht gefunden.");
 
         // If bicycle has a sale, it cannot be deleted
-        if (bicycle.Sale != null)
+        if (bicycle.Sales != null && bicycle.Sales.Any())
         {
             throw new InvalidOperationException(
                 "Fahrrad kann nicht gelöscht werden. Es gibt einen verknüpften Verkauf. " +
@@ -213,5 +216,88 @@ public class BicycleService : IBicycleService
     public async Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null)
     {
         return await _repository.GetUniqueModelsAsync(brand);
+    }
+
+    public async Task<BicycleDto> TogglePublishOnWebsiteAsync(int id)
+    {
+        var entity = await _repository.GetWithImagesAsync(id)
+            ?? throw new KeyNotFoundException($"Bicycle with ID {id} not found.");
+        entity.IsPublishedOnWebsite = !entity.IsPublishedOnWebsite;
+        entity.UpdatedAt = DateTime.UtcNow;
+        await _repository.UpdateAsync(entity);
+        return entity.ToDto();
+    }
+
+    public async Task<BicycleDto> TogglePublishOnKleinanzeigenAsync(int id)
+    {
+        var entity = await _repository.GetWithImagesAsync(id)
+            ?? throw new KeyNotFoundException($"Bicycle with ID {id} not found.");
+        entity.IsPublishedOnKleinanzeigen = !entity.IsPublishedOnKleinanzeigen;
+        entity.UpdatedAt = DateTime.UtcNow;
+        await _repository.UpdateAsync(entity);
+        return entity.ToDto();
+    }
+
+    public async Task<BicycleDto> SetKleinanzeigenAnzeigeNrAsync(int id, string anzeigeNr)
+    {
+        var entity = await _repository.GetWithImagesAsync(id)
+            ?? throw new KeyNotFoundException($"Bicycle with ID {id} not found.");
+        entity.KleinanzeigenAnzeigeNr = anzeigeNr;
+        entity.UpdatedAt = DateTime.UtcNow;
+        await _repository.UpdateAsync(entity);
+        return entity.ToDto();
+    }
+
+    public async Task<IEnumerable<PublicBicycleDto>> GetPublishedOnWebsiteAsync()
+    {
+        var bicycles = await _repository.GetPublishedOnWebsiteAsync();
+        return bicycles.Select(b => b.ToPublicDto());
+    }
+
+    public async Task<PublicBicycleDto?> GetPublishedBicycleByIdAsync(int id)
+    {
+        var bicycle = await _repository.GetWithImagesAsync(id);
+        if (bicycle == null || !bicycle.IsPublishedOnWebsite) return null;
+        return bicycle.ToPublicDto();
+    }
+
+    public async Task<BicycleImageDto> AddImageAsync(int bicycleId, string filePath, int sortOrder)
+    {
+        var bicycle = await _repository.GetByIdAsync(bicycleId)
+            ?? throw new KeyNotFoundException($"Bicycle with ID {bicycleId} not found.");
+
+        var image = new BicycleImage
+        {
+            BicycleId = bicycleId,
+            FilePath = filePath,
+            SortOrder = sortOrder
+        };
+
+        bicycle.Images ??= new List<BicycleImage>();
+        bicycle.Images.Add(image);
+        await _repository.UpdateAsync(bicycle);
+
+        return image.ToDto();
+    }
+
+    public async Task DeleteImageAsync(int bicycleId, int imageId)
+    {
+        var bicycle = await _repository.GetWithImagesAsync(bicycleId)
+            ?? throw new KeyNotFoundException($"Bicycle with ID {bicycleId} not found.");
+
+        var image = bicycle.Images?.FirstOrDefault(i => i.Id == imageId)
+            ?? throw new KeyNotFoundException($"Image with ID {imageId} not found.");
+
+        bicycle.Images!.Remove(image);
+        await _repository.UpdateAsync(bicycle);
+    }
+
+    public async Task<IEnumerable<BicycleImageDto>> GetImagesAsync(int bicycleId)
+    {
+        var bicycle = await _repository.GetWithImagesAsync(bicycleId)
+            ?? throw new KeyNotFoundException($"Bicycle with ID {bicycleId} not found.");
+
+        return bicycle.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto())
+            ?? Enumerable.Empty<BicycleImageDto>();
     }
 }

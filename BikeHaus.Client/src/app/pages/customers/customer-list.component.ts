@@ -409,31 +409,25 @@ export class CustomerListComponent implements OnInit {
         .update(this.editId, this.form as CustomerUpdate)
         .subscribe({
           next: () => {
-            this.notificationService.success(
-              this.t.saveSuccess || 'Erfolgreich gespeichert',
-            );
+            this.notificationService.success(this.t.saveSuccess);
             this.resetForm();
             this.load();
           },
           error: (err) => {
             this.notificationService.error(
-              err.error?.error || this.t.saveError || 'Fehler beim Speichern',
+              err.error?.error || this.t.saveError,
             );
           },
         });
     } else {
       this.customerService.create(this.form).subscribe({
         next: () => {
-          this.notificationService.success(
-            this.t.saveSuccess || 'Erfolgreich gespeichert',
-          );
+          this.notificationService.success(this.t.saveSuccess);
           this.resetForm();
           this.load();
         },
         error: (err) => {
-          this.notificationService.error(
-            err.error?.error || this.t.saveError || 'Fehler beim Speichern',
-          );
+          this.notificationService.error(err.error?.error || this.t.saveError);
         },
       });
     }
@@ -446,9 +440,7 @@ export class CustomerListComponent implements OnInit {
         if (confirmed) {
           this.customerService.delete(c.id).subscribe({
             next: () => {
-              this.notificationService.success(
-                this.t.deleteSuccess || 'Erfolgreich gelöscht',
-              );
+              this.notificationService.success(this.t.deleteSuccess);
               this.load();
             },
             error: (err) => {

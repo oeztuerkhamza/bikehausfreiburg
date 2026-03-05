@@ -29,6 +29,9 @@ x86/
 build/
 bld/
 
+# Publish output
+publish/
+
 # Angular / Node.js
 BikeHaus.Client/node_modules/
 BikeHaus.Client/dist/
@@ -37,6 +40,10 @@ npm-debug.log
 yarn-error.log
 .npm/
 .yarn/
+
+# Electron
+electron/node_modules/
+dist-electron/
 
 # IDE
 .idea/
@@ -60,6 +67,11 @@ BikeHaus.API/uploads/**/*
 !BikeHaus.API/uploads/image/.gitkeep
 !BikeHaus.API/uploads/screenshot/.gitkeep
 
+# SQLite databases
+*.db
+*.db-wal
+*.db-shm
+
 # Secrets
 *.env
 .env.*
@@ -69,3 +81,7 @@ secrets.json
 TestResults/
 coverage/
 *.coverage
+
+# Backup files
+*.zip
+*.bak

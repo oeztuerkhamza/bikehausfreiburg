@@ -1,5 +1,6 @@
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BikeHaus.API.Controllers;
@@ -9,10 +10,14 @@ namespace BikeHaus.API.Controllers;
 public class BicyclesController : ControllerBase
 {
     private readonly IBicycleService _bicycleService;
+    private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _config;
 
-    public BicyclesController(IBicycleService bicycleService)
+    public BicyclesController(IBicycleService bicycleService, IWebHostEnvironment env, IConfiguration config)
     {
         _bicycleService = bicycleService;
+        _env = env;
+        _config = config;
     }
 
     [HttpGet]
@@ -87,6 +92,7 @@ public class BicyclesController : ControllerBase
         return Ok(new { stokNo = nextStokNo });
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<BicycleDto>> Create([FromBody] BicycleCreateDto dto)
     {
@@ -94,6 +100,7 @@ public class BicyclesController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = bicycle.Id }, bicycle);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<ActionResult<BicycleDto>> Update(int id, [FromBody] BicycleUpdateDto dto)
     {
@@ -101,6 +108,7 @@ public class BicyclesController : ControllerBase
         return Ok(bicycle);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -131,5 +139,121 @@ public class BicyclesController : ControllerBase
     {
         var models = await _bicycleService.GetUniqueModelsAsync(brand);
         return Ok(models);
+    }
+
+    // ═══ Publishing ═══
+
+    [Authorize]
+    [HttpPost("{id}/toggle-publish-website")]
+    public async Task<ActionResult<BicycleDto>> TogglePublishWebsite(int id)
+    {
+        try
+        {
+            var bicycle = await _bicycleService.TogglePublishOnWebsiteAsync(id);
+            return Ok(bicycle);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    [Authorize]
+    [HttpPost("{id}/toggle-publish-kleinanzeigen")]
+    public async Task<ActionResult<BicycleDto>> TogglePublishKleinanzeigen(int id)
+    {
+        try
+        {
+            var bicycle = await _bicycleService.TogglePublishOnKleinanzeigenAsync(id);
+            return Ok(bicycle);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    [Authorize]
+    [HttpPut("{id}/kleinanzeigen-anzeige-nr")]
+    public async Task<ActionResult<BicycleDto>> SetKleinanzeigenAnzeigeNr(int id, [FromBody] SetAnzeigeNrRequest request)
+    {
+        try
+        {
+            var bicycle = await _bicycleService.SetKleinanzeigenAnzeigeNrAsync(id, request.AnzeigeNr);
+            return Ok(bicycle);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    // ═══ Gallery Images ═══
+
+    [HttpGet("{id}/gallery")]
+    public async Task<ActionResult<IEnumerable<BicycleImageDto>>> GetGallery(int id)
+    {
+        try
+        {
+            var images = await _bicycleService.GetImagesAsync(id);
+            return Ok(images);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    [Authorize]
+    [HttpPost("{id}/gallery")]
+    public async Task<ActionResult<BicycleImageDto>> UploadGalleryImage(int id, IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { error = "No file uploaded" });
+
+        try
+        {
+            // Use configured upload path (persistent volume in production)
+            var basePath = _env.IsDevelopment()
+                ? Path.Combine(_env.ContentRootPath, "uploads")
+                : (_config["FileStorage:BasePath"] ?? "/app/data/uploads");
+            var uploadsDir = Path.Combine(basePath, "gallery", id.ToString());
+            Directory.CreateDirectory(uploadsDir);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var absolutePath = Path.Combine(uploadsDir, fileName);
+
+            using (var stream = new FileStream(absolutePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Store relative path for URL construction
+            var relativePath = $"uploads/gallery/{id}/{fileName}";
+
+            // Get current count for sort order
+            var existingImages = await _bicycleService.GetImagesAsync(id);
+            var sortOrder = existingImages.Count();
+
+            var image = await _bicycleService.AddImageAsync(id, relativePath, sortOrder);
+            return Ok(image);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    [Authorize]
+    [HttpDelete("{id}/gallery/{imageId}")]
+    public async Task<IActionResult> DeleteGalleryImage(int id, int imageId)
+    {
+        try
+        {
+            // Get image info before deleting
+            var images = await _bicycleService.GetImagesAsync(id);
+            var image = images.FirstOrDefault(i => i.Id == imageId);
+            if (image != null)
+            {
+                // Resolve the actual file path
+                var basePath = _env.IsDevelopment()
+                    ? Directory.GetCurrentDirectory()
+                    : Path.GetDirectoryName(_config["FileStorage:BasePath"]?.TrimEnd('/')) ?? "/app/data";
+                var fullPath = Path.Combine(basePath, image.FilePath);
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+            }
+
+            await _bicycleService.DeleteImageAsync(id, imageId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
     }
 }

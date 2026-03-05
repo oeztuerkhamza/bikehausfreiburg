@@ -30,6 +30,8 @@ public static class DependencyInjection
         services.AddScoped<IAccessoryCatalogRepository, AccessoryCatalogRepository>();
         services.AddScoped<IReservationRepository, ReservationRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
+        services.AddScoped<IKleinanzeigenListingRepository, KleinanzeigenListingRepository>();
+        services.AddScoped<INeueFahrradRepository, NeueFahrradRepository>();
 
         // Services
         services.AddScoped<IBicycleService, BikeHaus.Application.Services.BicycleService>();
@@ -44,20 +46,36 @@ public static class DependencyInjection
         services.AddScoped<IAccessoryCatalogService, BikeHaus.Application.Services.AccessoryCatalogService>();
         services.AddScoped<IReservationService, BikeHaus.Application.Services.ReservationService>();
         services.AddScoped<IExpenseService, BikeHaus.Application.Services.ExpenseService>();
+        services.AddScoped<IKleinanzeigenService, BikeHaus.Application.Services.KleinanzeigenService>();
+        services.AddScoped<INeueFahrradService, BikeHaus.Application.Services.NeueFahrradService>();
+        services.AddScoped<IKleinanzeigenScraperService, KleinanzeigenScraperService>();
+        services.AddSingleton<KleinanzeigenSyncCoordinator>();
         services.AddScoped<IArchiveService, BikeHaus.Application.Services.ArchiveService>();
         services.AddScoped<IAuthService, BikeHaus.Infrastructure.Services.AuthService>();
         services.AddScoped<IPdfService, PdfService>();
         services.AddScoped<IFileStorageService>(sp =>
         {
-            var basePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            var basePath = configuration["FileStorage:BasePath"]
+                ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Path.IsPathRooted(basePath))
+                basePath = Path.Combine(Directory.GetCurrentDirectory(), basePath);
             return new FileStorageService(basePath);
         });
 
         services.AddScoped<IBackupService>(sp =>
         {
             var dbContext = sp.GetRequiredService<BikeHausDbContext>();
-            var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
-            var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "BikeHausFreiburg.db");
+            var uploadsPath = configuration["FileStorage:BasePath"]
+                ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Path.IsPathRooted(uploadsPath))
+                uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), uploadsPath);
+
+            // Extract DB path from connection string
+            var connString = configuration.GetConnectionString("DefaultConnection") ?? "";
+            var dbPath = connString.Replace("Data Source=", "").Trim();
+            if (!Path.IsPathRooted(dbPath))
+                dbPath = Path.Combine(Directory.GetCurrentDirectory(), dbPath);
+
             return new BackupService(dbContext, uploadsPath, dbPath);
         });
 
