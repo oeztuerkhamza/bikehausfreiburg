@@ -1449,6 +1449,17 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     });
   }
 
+  private mapArtToCategory(art?: string): string {
+    if (!art) return 'Sonstige Fahrräder';
+    const lower = art.toLowerCase();
+    if (lower.includes('herren') || lower.includes('mann') || lower.includes('männer')) return 'Herren-Fahrräder';
+    if (lower.includes('damen') || lower.includes('frau')) return 'Damen-Fahrräder';
+    if (lower.includes('kinder') || lower.includes('kind')) return 'Kinder-Fahrräder';
+    if (lower.includes('e-bike') || lower.includes('ebike') || lower.includes('pedelec') || lower.includes('elektro')) return 'E-Bikes';
+    if (lower.includes('unisex')) return 'Sonstige Fahrräder';
+    return 'Sonstige Fahrräder';
+  }
+
   private convertBicycleToListing(bike: PublicBicycle): KleinanzeigenListing {
     const titleParts = [bike.marke, bike.modell];
     if (bike.fahrradtyp) titleParts.push(bike.fahrradtyp);
@@ -1464,7 +1475,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       description: bike.beschreibung || '',
       price: bike.preis || undefined,
       priceText: bike.preis ? `${bike.preis} €` : 'VB',
-      category: bike.fahrradtyp || 'Gebraucht',
+      category: this.mapArtToCategory(bike.art),
       location: 'Freiburg',
       externalUrl: '',
       isActive: true,

@@ -91,6 +91,7 @@ export interface PublicBicycle {
   farbe?: string;
   reifengroesse: string;
   fahrradtyp?: string;
+  art?: string;
   beschreibung?: string;
   rahmengroesse?: string;
   zustand: string;
