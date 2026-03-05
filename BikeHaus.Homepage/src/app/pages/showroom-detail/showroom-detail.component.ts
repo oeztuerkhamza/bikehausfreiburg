@@ -885,25 +885,19 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   private loadListing(id: number): void {
     // ID >= 900000 means BikeHaus bicycle (offset to avoid collision with KA IDs)
     const BIKEHAUS_ID_OFFSET = 900000;
-    console.log('[showroom-detail] loadListing called with id:', id);
 
     if (id >= BIKEHAUS_ID_OFFSET) {
       // BikeHaus bicycle - get from gebrauchte-fahrraeder endpoint
       const realId = id - BIKEHAUS_ID_OFFSET;
-      console.log('[showroom-detail] BikeHaus bicycle, realId:', realId);
       this.apiService.getGebrauchteFahrradById(realId).subscribe({
         next: (bike) => {
-          console.log('[showroom-detail] Got BikeHaus bicycle:', bike);
           // Convert PublicBicycle to KleinanzeigenListing format
           const listing = this.convertBicycleToListing(bike, id);
           this.listing.set(listing);
           this.loading.set(false);
           this.updateSeoMeta(listing, id);
         },
-        error: (err) => {
-          console.error('[showroom-detail] Error fetching BikeHaus bicycle:', err);
-          this.loading.set(false);
-        },
+        error: () => this.loading.set(false),
       });
     } else {
       // Kleinanzeigen listing
@@ -913,10 +907,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
           this.loading.set(false);
           this.updateSeoMeta(data, id);
         },
-        error: (err) => {
-          console.error('[showroom-detail] Error fetching KA listing:', err);
-          this.loading.set(false);
-        },
+        error: () => this.loading.set(false),
       });
     }
   }
