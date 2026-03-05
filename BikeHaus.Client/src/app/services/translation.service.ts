@@ -1230,7 +1230,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     requiredField: 'Pflichtfeld',
 
     // Neue Fahrräder
-    neueFahrraeder: 'Neue Fahrräder',
+    neueFahrraeder: 'Neue Anzeige',
     neueFahrradNew: 'Neues Fahrrad hinzufügen',
     neueFahrradEdit: 'Fahrrad bearbeiten',
     neueFahrradTitle: 'Titel',
@@ -1863,7 +1863,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     requiredField: 'Zorunlu alan',
 
     // Neue Fahrräder
-    neueFahrraeder: 'Yeni Bisikletler',
+    neueFahrraeder: 'Yeni İlan',
     neueFahrradNew: 'Yeni Bisiklet Ekle',
     neueFahrradEdit: 'Bisikleti Düzenle',
     neueFahrradTitle: 'Başlık',
