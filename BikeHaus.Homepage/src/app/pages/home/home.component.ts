@@ -1831,15 +1831,15 @@ export class HomeComponent implements OnInit {
 
   // Shop gallery
   shopPhotos: string[] = [
-    'assets/shop/shop-1.jpeg',
-    'assets/shop/shop-2.jpeg',
-    'assets/shop/shop-3.jpeg',
-    'assets/shop/shop-4.jpeg',
-    'assets/shop/shop-5.jpeg',
-    'assets/shop/shop-6.jpeg',
-    'assets/shop/shop-7.jpeg',
-    'assets/shop/shop-8.jpeg',
-    'assets/shop/shop-9.jpeg',
+    '/assets/shop/shop-1.jpeg',
+    '/assets/shop/shop-2.jpeg',
+    '/assets/shop/shop-3.jpeg',
+    '/assets/shop/shop-4.jpeg',
+    '/assets/shop/shop-5.jpeg',
+    '/assets/shop/shop-6.jpeg',
+    '/assets/shop/shop-7.jpeg',
+    '/assets/shop/shop-8.jpeg',
+    '/assets/shop/shop-9.jpeg',
   ];
   lightboxOpen = false;
   lightboxIndex = 0;
