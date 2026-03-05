@@ -5,7 +5,8 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
-import { KleinanzeigenListing } from '../../models/models';
+import { KleinanzeigenListing, PublicBicycle } from '../../models/models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-showroom-detail',
@@ -882,41 +883,103 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   }
 
   private loadListing(id: number): void {
-    this.apiService.getListingById(id).subscribe({
-      next: (data) => {
-        this.listing.set(data);
-        this.loading.set(false);
+    // ID >= 900000 means BikeHaus bicycle (offset to avoid collision with KA IDs)
+    const BIKEHAUS_ID_OFFSET = 900000;
+    
+    if (id >= BIKEHAUS_ID_OFFSET) {
+      // BikeHaus bicycle - get from gebrauchte-fahrraeder endpoint
+      const realId = id - BIKEHAUS_ID_OFFSET;
+      this.apiService.getGebrauchteFahrradById(realId).subscribe({
+        next: (bike) => {
+          // Convert PublicBicycle to KleinanzeigenListing format
+          const listing = this.convertBicycleToListing(bike, id);
+          this.listing.set(listing);
+          this.loading.set(false);
+          this.updateSeoMeta(listing, id);
+        },
+        error: () => this.loading.set(false),
+      });
+    } else {
+      // Kleinanzeigen listing
+      this.apiService.getListingById(id).subscribe({
+        next: (data) => {
+          this.listing.set(data);
+          this.loading.set(false);
+          this.updateSeoMeta(data, id);
+        },
+        error: () => this.loading.set(false),
+      });
+    }
+  }
 
-        // Dynamic SEO
-        if (data) {
-          const title = `${data.title} — Bike Haus Freiburg`;
-          const price = data.price ? `${data.price}€` : '';
-          const desc = `${data.title} ${price}. ${this.t().detailMetaDescSuffix}`;
+  private convertBicycleToListing(bike: PublicBicycle, displayId: number): KleinanzeigenListing {
+    const titleParts = [bike.marke, bike.modell];
+    if (bike.fahrradtyp) titleParts.push(bike.fahrradtyp);
+    if (bike.reifengroesse) titleParts.push(`${bike.reifengroesse} Zoll`);
+    if (bike.rahmengroesse) titleParts.push(`${bike.rahmengroesse} cm`);
 
-          this.titleService.setTitle(title);
-          this.metaService.updateTag({ name: 'description', content: desc });
-          this.metaService.updateTag({ property: 'og:title', content: title });
-          this.metaService.updateTag({
-            property: 'og:description',
-            content: desc,
-          });
-          this.metaService.updateTag({
-            property: 'og:url',
-            content: `https://bikehausfreiburg.com/showroom/${id}`,
-          });
-          if (data.images?.length) {
-            this.metaService.updateTag({
-              property: 'og:image',
-              content: data.images[0].imageUrl,
-            });
-          }
+    const baseUrl = environment.apiUrl;
 
-          // Add Product Schema.org for SEO
-          this.addProductSchema(data, id);
-        }
-      },
-      error: () => this.loading.set(false),
-    });
+    return {
+      id: displayId,
+      externalId: `bike-${bike.id}`,
+      title: titleParts.join(' '),
+      description: bike.beschreibung || '',
+      price: bike.preis || undefined,
+      priceText: bike.preis ? `${bike.preis} €` : 'VB',
+      category: this.mapArtToCategory(bike.art),
+      location: 'Freiburg',
+      externalUrl: '',
+      isActive: true,
+      firstScrapedAt: bike.createdAt,
+      lastScrapedAt: bike.createdAt,
+      images: bike.images.map((img, idx) => ({
+        id: img.id,
+        kleinanzeigenListingId: displayId,
+        imageUrl: `${baseUrl}/gallery-image/${img.filePath}`,
+        localPath: img.filePath,
+        sortOrder: img.sortOrder,
+      })),
+    };
+  }
+
+  private mapArtToCategory(art?: string): string {
+    if (!art) return 'Sonstige Fahrräder';
+    const lower = art.toLowerCase();
+    if (lower.includes('herren')) return 'Herren Fahrräder';
+    if (lower.includes('damen')) return 'Damen Fahrräder';
+    if (lower.includes('kinder')) return 'Kinder Fahrräder';
+    if (lower.includes('unisex')) return 'Sonstige Fahrräder';
+    return 'Sonstige Fahrräder';
+  }
+
+  private updateSeoMeta(data: KleinanzeigenListing, id: number): void {
+    if (data) {
+      const title = `${data.title} — Bike Haus Freiburg`;
+      const price = data.price ? `${data.price}€` : '';
+      const desc = `${data.title} ${price}. ${this.t().detailMetaDescSuffix}`;
+
+      this.titleService.setTitle(title);
+      this.metaService.updateTag({ name: 'description', content: desc });
+      this.metaService.updateTag({ property: 'og:title', content: title });
+      this.metaService.updateTag({
+        property: 'og:description',
+        content: desc,
+      });
+      this.metaService.updateTag({
+        property: 'og:url',
+        content: `https://bikehausfreiburg.com/showroom/${id}`,
+      });
+      if (data.images?.length) {
+        this.metaService.updateTag({
+          property: 'og:image',
+          content: data.images[0].imageUrl,
+        });
+      }
+
+      // Add Product Schema.org for SEO
+      this.addProductSchema(data, id);
+    }
   }
 
   private addProductSchema(data: KleinanzeigenListing, id: number): void {
