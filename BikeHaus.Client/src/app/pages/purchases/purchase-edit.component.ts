@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
+import { SaleService } from '../../services/sale.service';
 import { DocumentService } from '../../services/document.service';
 import { TranslationService } from '../../services/translation.service';
 import {
@@ -11,6 +12,7 @@ import {
   PaymentMethod,
   BikeCondition,
   BikeStatus,
+  Sale,
   Document as DocModel,
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
@@ -289,9 +291,9 @@ import { forkJoin } from 'rxjs';
             </div>
           </div>
 
-          <!-- Photo Gallery -->
+          <!-- Purchase Photo Gallery (Alış Fotoğrafları) -->
           <div class="form-card">
-            <h2>📷 {{ t.photoGallery }}</h2>
+            <h2>📷 {{ t.purchasePhotos || 'Alış Fotoğrafları' }}</h2>
             <div class="gallery-section">
               <div class="gallery-grid" *ngIf="documents.length > 0">
                 <div class="gallery-item" *ngFor="let doc of documents">
@@ -329,6 +331,51 @@ import { forkJoin } from 'rxjs';
                   [disabled]="uploading"
                 >
                   {{ uploading ? t.uploading : t.addPhotos }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sale Photo Gallery (Satış Fotoğrafları) -->
+          <div class="form-card" *ngIf="sale">
+            <h2>📷 {{ t.salesPhotos || 'Satış Fotoğrafları' }}</h2>
+            <div class="gallery-section">
+              <div class="gallery-grid" *ngIf="saleDocuments.length > 0">
+                <div class="gallery-item" *ngFor="let doc of saleDocuments">
+                  <img
+                    [src]="getDocumentUrl(doc)"
+                    [alt]="doc.fileName"
+                    (click)="openImagePreview(doc)"
+                  />
+                  <button
+                    type="button"
+                    class="delete-btn"
+                    (click)="deleteSaleDocument(doc)"
+                    title="Löschen"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+              <p *ngIf="saleDocuments.length === 0" class="no-photos">
+                {{ t.noPhotos }}
+              </p>
+              <div class="upload-row">
+                <input
+                  type="file"
+                  #salePhotoInput
+                  (change)="onSalePhotosSelected($event)"
+                  accept="image/*"
+                  multiple
+                  style="display: none"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="salePhotoInput.click()"
+                  [disabled]="uploadingSale"
+                >
+                  {{ uploadingSale ? t.uploading : t.addPhotos }}
                 </button>
               </div>
             </div>
@@ -653,11 +700,14 @@ export class PurchaseEditComponent implements OnInit {
   }
 
   purchase: Purchase | null = null;
+  sale: Sale | null = null;
   loading = true;
   error = '';
   submitting = false;
   uploading = false;
+  uploadingSale = false;
   documents: DocModel[] = [];
+  saleDocuments: DocModel[] = [];
   previewImage: string | null = null;
 
   seller = {
@@ -697,6 +747,7 @@ export class PurchaseEditComponent implements OnInit {
 
   constructor(
     private purchaseService: PurchaseService,
+    private saleService: SaleService,
     private documentService: DocumentService,
     private router: Router,
     private route: ActivatedRoute,
@@ -715,11 +766,27 @@ export class PurchaseEditComponent implements OnInit {
         this.purchase = purchase;
         this.loadFormData(purchase);
         this.loadDocuments(+id);
+        this.loadSaleData(purchase.bicycle.id);
         this.loading = false;
       },
       error: () => {
         this.error = this.t.purchaseNotFound;
         this.loading = false;
+      },
+    });
+  }
+
+  loadSaleData(bicycleId: number) {
+    this.saleService.getByBicycleId(bicycleId).subscribe({
+      next: (sale) => {
+        this.sale = sale;
+        this.documentService.getBySaleId(sale.id).subscribe({
+          next: (docs) => (this.saleDocuments = docs),
+          error: () => {},
+        });
+      },
+      error: () => {
+        this.sale = null;
       },
     });
   }
@@ -771,6 +838,44 @@ export class PurchaseEditComponent implements OnInit {
     this.documentService.delete(doc.id).subscribe({
       next: () => {
         this.documents = this.documents.filter((d) => d.id !== doc.id);
+      },
+    });
+  }
+
+  onSalePhotosSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0 || !this.sale) return;
+
+    this.uploadingSale = true;
+    const uploads = Array.from(input.files).map((file) => {
+      return this.documentService.upload(
+        file,
+        'screenshot',
+        undefined,
+        undefined,
+        this.sale!.id,
+      );
+    });
+
+    forkJoin(uploads).subscribe({
+      next: () => {
+        this.documentService.getBySaleId(this.sale!.id).subscribe({
+          next: (docs) => (this.saleDocuments = docs),
+        });
+        this.uploadingSale = false;
+        input.value = '';
+      },
+      error: () => {
+        this.uploadingSale = false;
+      },
+    });
+  }
+
+  deleteSaleDocument(doc: DocModel) {
+    if (!confirm('Löschen?')) return;
+    this.documentService.delete(doc.id).subscribe({
+      next: () => {
+        this.saleDocuments = this.saleDocuments.filter((d) => d.id !== doc.id);
       },
     });
   }
