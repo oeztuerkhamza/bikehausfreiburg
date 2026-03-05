@@ -16,13 +16,13 @@ import { TranslationService } from '../../services/translation.service';
     >
       <figure class="card-media">
         <img
-          *ngIf="listing.images?.length"
+          *ngIf="listing.images.length"
           [src]="listing.images[0].imageUrl"
           [alt]="listing.title + t().bikeAltSuffix"
           loading="lazy"
           (error)="onImageError($event)"
         />
-        <div *ngIf="!listing.images?.length" class="card-placeholder">
+        <div *ngIf="!listing.images.length" class="card-placeholder">
           <svg
             width="48"
             height="48"

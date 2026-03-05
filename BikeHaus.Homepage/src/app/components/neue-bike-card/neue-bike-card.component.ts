@@ -17,13 +17,13 @@ import { environment } from '../../../environments/environment';
     >
       <figure class="card-media">
         <img
-          *ngIf="bike.images?.length"
+          *ngIf="bike.images.length"
           [src]="getImageUrl(bike.images[0].filePath)"
           [alt]="bike.titel + ' — Bike Haus Freiburg'"
           loading="lazy"
           (error)="onImageError($event)"
         />
-        <div *ngIf="!bike.images?.length" class="card-placeholder">
+        <div *ngIf="!bike.images.length" class="card-placeholder">
           <svg
             width="48"
             height="48"

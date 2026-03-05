@@ -160,10 +160,10 @@ import {
                 placeholder="optional"
               ></textarea>
             </div>
-            <div class="field" *ngIf="bicycle?.kleinanzeigenAnzeigeNr">
+            <div class="field" *ngIf="bicycle.kleinanzeigenAnzeigeNr">
               <label>KA Anzeige-Nr (Verkauf)</label>
               <input
-                [value]="bicycle?.kleinanzeigenAnzeigeNr"
+                [value]="bicycle.kleinanzeigenAnzeigeNr"
                 readonly
                 class="readonly-field"
               />
