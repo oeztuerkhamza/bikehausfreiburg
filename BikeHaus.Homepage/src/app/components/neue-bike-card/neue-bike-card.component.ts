@@ -327,7 +327,11 @@ import { environment } from '../../../environments/environment';
         gap: 0.4rem;
         margin-top: 0.65rem;
         padding: 0.45rem 0.7rem;
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.06));
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.12),
+          rgba(34, 197, 94, 0.06)
+        );
         border: 1px solid rgba(34, 197, 94, 0.25);
         border-radius: 6px;
         font-size: 0.75rem;
