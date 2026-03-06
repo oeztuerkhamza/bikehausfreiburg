@@ -463,6 +463,28 @@ import {
                 </span>
               </div>
 
+              <!-- Google Review -->
+              <h3
+                style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
+              >
+                ⭐ Google Review
+              </h3>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>Google Review URL</label>
+                  <input
+                    type="url"
+                    [(ngModel)]="settings.googleReviewUrl"
+                    name="googleReviewUrl"
+                    placeholder="https://g.page/r/..."
+                  />
+                  <small
+                    style="color: var(--text-secondary, #64748b); font-size: 0.78rem;"
+                    >Link für Google-Bewertungen</small
+                  >
+                </div>
+              </div>
+
               <!-- Bicycle Numbering -->
               <h3
                 style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
@@ -1169,6 +1191,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     inhaberNachname: '',
     fahrradNummerStart: 1,
     kleinanzeigenUrl: '',
+    googleReviewUrl: '',
     oeffnungszeiten: '',
     zusatzinfo: '',
     logoBase64: undefined,
@@ -1365,6 +1388,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         inhaberNachname: this.settings.inhaberNachname,
         fahrradNummerStart: this.settings.fahrradNummerStart || 1,
         kleinanzeigenUrl: this.settings.kleinanzeigenUrl,
+        googleReviewUrl: this.settings.googleReviewUrl,
         oeffnungszeiten: this.settings.oeffnungszeiten,
         zusatzinfo: this.settings.zusatzinfo,
       })

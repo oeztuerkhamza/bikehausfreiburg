@@ -218,6 +218,14 @@ export interface Translations {
   saveSuccess: string;
   cancelSuccess: string;
   from: string;
+  // Missing Purchases
+  missingPurchases: string;
+  missingPurchasesTitle: string;
+  missingPurchasesDesc: string;
+  noMissingPurchases: string;
+  createPurchase: string;
+  soldTo: string;
+  salePrice: string;
   to: string;
   stockNo: string;
 
@@ -850,6 +858,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     saveSuccess: 'Erfolgreich gespeichert',
     cancelSuccess: 'Erfolgreich storniert',
     from: 'Von',
+    missingPurchases: 'Fehlende Ankäufe',
+    missingPurchasesTitle: 'Fehlende Ankäufe',
+    missingPurchasesDesc: 'Verkaufte Fahrräder ohne Ankauf-Beleg',
+    noMissingPurchases: 'Alle Verkäufe haben einen zugehörigen Ankauf',
+    createPurchase: 'Ankauf erstellen',
+    soldTo: 'Verkauft an',
+    salePrice: 'Verkaufspreis',
     to: 'Bis',
     stockNo: 'Stok Nr.',
 
@@ -1485,6 +1500,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     saveSuccess: 'Başarıyla kaydedildi',
     cancelSuccess: 'Başarıyla iptal edildi',
     from: 'Başlangıç',
+    missingPurchases: 'Eksik Alımlar',
+    missingPurchasesTitle: 'Eksik Alımlar',
+    missingPurchasesDesc: 'Alım belgesi olmayan satılmış bisikletler',
+    noMissingPurchases: 'Tüm satışların ilgili alım kaydı mevcut',
+    createPurchase: 'Alım Oluştur',
+    soldTo: 'Alıcı',
+    salePrice: 'Satış Fiyatı',
     to: 'Bitiş',
     stockNo: 'Stok No',
 

@@ -10,6 +10,7 @@ public class PublicController : ControllerBase
     private readonly IKleinanzeigenService _kleinanzeigenService;
     private readonly INeueFahrradService _neueFahrradService;
     private readonly IBicycleService _bicycleService;
+    private readonly IRepairShowcaseService _repairShowcaseService;
     private readonly IWebHostEnvironment _env;
     private readonly IConfiguration _config;
 
@@ -17,12 +18,14 @@ public class PublicController : ControllerBase
         IKleinanzeigenService kleinanzeigenService,
         INeueFahrradService neueFahrradService,
         IBicycleService bicycleService,
+        IRepairShowcaseService repairShowcaseService,
         IWebHostEnvironment env,
         IConfiguration config)
     {
         _kleinanzeigenService = kleinanzeigenService;
         _neueFahrradService = neueFahrradService;
         _bicycleService = bicycleService;
+        _repairShowcaseService = repairShowcaseService;
         _env = env;
         _config = config;
     }
@@ -154,6 +157,29 @@ public class PublicController : ControllerBase
     public async Task<IActionResult> GetGebrauchteFahrrad(int id)
     {
         var item = await _bicycleService.GetPublishedBicycleByIdAsync(id);
+        if (item == null) return NotFound();
+        return Ok(item);
+    }
+
+    // ═══ Repair Showcases ═══
+
+    /// <summary>
+    /// Get all active repair showcases (public)
+    /// </summary>
+    [HttpGet("repair-showcases")]
+    public async Task<IActionResult> GetRepairShowcases()
+    {
+        var items = await _repairShowcaseService.GetAllActiveAsync();
+        return Ok(items);
+    }
+
+    /// <summary>
+    /// Get a single repair showcase by ID
+    /// </summary>
+    [HttpGet("repair-showcases/{id}")]
+    public async Task<IActionResult> GetRepairShowcase(int id)
+    {
+        var item = await _repairShowcaseService.GetByIdAsync(id);
         if (item == null) return NotFound();
         return Ok(item);
     }

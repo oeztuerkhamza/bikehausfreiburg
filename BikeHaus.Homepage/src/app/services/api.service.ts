@@ -9,6 +9,7 @@ import {
   NeueFahrrad,
   NeueFahrradCategory,
   PublicBicycle,
+  RepairShowcase,
 } from '../models/models';
 
 @Injectable({
@@ -81,5 +82,10 @@ export class ApiService {
     return this.http.get<PublicBicycle>(
       `${this.baseUrl}/gebrauchte-fahrraeder/${id}`,
     );
+  }
+
+  // ── Repair Showcases ──
+  getRepairShowcases(): Observable<RepairShowcase[]> {
+    return this.http.get<RepairShowcase[]>(`${this.baseUrl}/repair-showcases`);
   }
 }

@@ -75,3 +75,41 @@ public record BulkPurchaseResultDto(
     int TotalCreated,
     IEnumerable<PurchaseDto> Purchases
 );
+
+// ── Missing Purchase DTOs ──
+// Sales whose bicycle has no purchase record
+public record MissingPurchaseSaleDto(
+    int SaleId,
+    string SaleBelegNummer,
+    int BicycleId,
+    string BikeInfo,
+    string? StokNo,
+    string BuyerName,
+    decimal SalePreis,
+    DateTime Verkaufsdatum,
+    // Bicycle details for pre-filling the purchase form
+    string Marke,
+    string Modell,
+    string? Rahmennummer,
+    string? Rahmengroesse,
+    string? Farbe,
+    string Reifengroesse,
+    string? Fahrradtyp,
+    string? Art,
+    string? Beschreibung,
+    BikeCondition Zustand
+);
+
+// Create purchase for an existing bicycle (no new bike creation)
+public record PurchaseCreateForExistingBikeDto(
+    int BicycleId,
+    CustomerCreateDto Seller,
+    decimal Preis,
+    decimal? VerkaufspreisVorschlag,
+    PaymentMethod Zahlungsart,
+    DateTime? Kaufdatum,
+    string? Notizen,
+    SignatureCreateDto? Signature,
+    string? BelegNummer = null,
+    string? AnzeigeNr = null
+);

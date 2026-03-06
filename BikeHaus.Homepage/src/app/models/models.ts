@@ -74,6 +74,8 @@ export interface PublicShopInfo {
   fullAddress?: string;
   totalActiveListings?: number;
   kleinanzeigenUrl?: string;
+  steuernummer?: string;
+  ustIdNr?: string;
 }
 
 // ── Published Used Bicycles ──
@@ -98,4 +100,20 @@ export interface PublicBicycle {
   preis?: number;
   createdAt: string;
   images: PublicBicycleImage[];
+}
+
+// ── Repair Showcases ──
+export interface RepairShowcaseImage {
+  id: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface RepairShowcase {
+  id: number;
+  titel: string;
+  beschreibung?: string;
+  isActive: boolean;
+  createdAt: string;
+  images: RepairShowcaseImage[];
 }

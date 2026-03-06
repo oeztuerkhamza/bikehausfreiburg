@@ -5,6 +5,7 @@ using BikeHaus.Domain.Interfaces;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using QRCoder;
 
 namespace BikeHaus.Infrastructure.Services;
 
@@ -36,6 +37,8 @@ public class PdfService : IPdfService
     private const string DefaultBankName = "Sparkasse";
     private const string DefaultBankAccountHolder = "Cevdet Akarsu";
     private const string DefaultIBAN = "DE28 6805 0101 00 14 5475 04";
+    private const string GoogleReviewUrl = "https://g.page/r/CQTjOCyqlXbGEBM/review";
+    private const string WebsiteUrl = "www.bikehausfreiburg.com";
 
     // Warranty Texts
     private const string NeuWarrantyText =
@@ -86,7 +89,8 @@ public class PdfService : IPdfService
                 BankAccountHolder = DefaultBankAccountHolder,
                 IBAN = DefaultIBAN,
                 LogoBase64 = null,
-                OwnerSignatureBase64 = null
+                OwnerSignatureBase64 = null,
+                GoogleReviewUrl = GoogleReviewUrl
             };
         }
 
@@ -112,7 +116,8 @@ public class PdfService : IPdfService
             BankAccountHolder = ownerName,
             IBAN = !string.IsNullOrEmpty(settings.IBAN) ? settings.IBAN : DefaultIBAN,
             LogoBase64 = settings.LogoBase64,
-            OwnerSignatureBase64 = settings.InhaberSignatureBase64
+            OwnerSignatureBase64 = settings.InhaberSignatureBase64,
+            GoogleReviewUrl = !string.IsNullOrEmpty(settings.GoogleReviewUrl) ? settings.GoogleReviewUrl : GoogleReviewUrl
         };
     }
 
@@ -138,6 +143,14 @@ public class PdfService : IPdfService
         }
     }
 
+    private static byte[] GenerateQrCode(string url)
+    {
+        using var qrGenerator = new QRCodeGenerator();
+        using var qrCodeData = qrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.M);
+        using var qrCode = new PngByteQRCode(qrCodeData);
+        return qrCode.GetGraphic(8);
+    }
+
     private class ShopInfo
     {
         public string ShopName { get; set; } = string.Empty;
@@ -154,6 +167,7 @@ public class PdfService : IPdfService
         public string IBAN { get; set; } = string.Empty;
         public string? LogoBase64 { get; set; }
         public string? OwnerSignatureBase64 { get; set; }
+        public string? GoogleReviewUrl { get; set; }
     }
 
     public async Task<byte[]> GenerateKaufbelegAsync(int purchaseId)
@@ -417,38 +431,17 @@ public class PdfService : IPdfService
                 // Content
                 page.Content().PaddingTop(6).Column(col =>
                 {
-                    // Seller / Buyer Row - print-friendly border style
                     var hasBuyerName = !string.IsNullOrWhiteSpace(sale.Buyer.Vorname) || !string.IsNullOrWhiteSpace(sale.Buyer.Nachname);
-                    col.Item().Row(row =>
+
+                    // Seller Row - print-friendly border style
+                    col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(leftCol =>
                     {
-                        // Seller (Shop)
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(leftCol =>
-                        {
-                            leftCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
-                            leftCol.Item().PaddingTop(4).Text(shop.OwnerName).FontSize(9).Bold();
-                            leftCol.Item().Text(shop.Street).FontSize(8);
-                            leftCol.Item().Text(shop.City).FontSize(8);
-                            leftCol.Item().PaddingTop(3).Text($"📞 {shop.Telefon}").FontSize(7);
-                            leftCol.Item().Text($"✉ {shop.Email}").FontSize(7);
-                        });
-
-                        if (hasBuyerName)
-                        {
-                            row.ConstantItem(8);
-
-                            // Buyer
-                            row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(rightCol =>
-                            {
-                                rightCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KÄUFER").FontSize(8).Bold().FontColor(AccentColor).AlignCenter();
-                                rightCol.Item().PaddingTop(4).Text(sale.Buyer.FullName).FontSize(9).Bold();
-                                rightCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(8);
-                                rightCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(8);
-                                if (!string.IsNullOrEmpty(sale.Buyer.Telefon))
-                                    rightCol.Item().PaddingTop(3).Text($"📞 {sale.Buyer.Telefon}").FontSize(7);
-                                if (!string.IsNullOrEmpty(sale.Buyer.Email))
-                                    rightCol.Item().Text($"✉ {sale.Buyer.Email}").FontSize(7);
-                            });
-                        }
+                        leftCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+                        leftCol.Item().PaddingTop(4).Text(shop.OwnerName).FontSize(9).Bold();
+                        leftCol.Item().Text(shop.Street).FontSize(8);
+                        leftCol.Item().Text(shop.City).FontSize(8);
+                        leftCol.Item().PaddingTop(3).Text($"📞 {shop.Telefon}").FontSize(7);
+                        leftCol.Item().Text($"✉ {shop.Email}").FontSize(7);
                     });
 
                     // Bicycle Info Section - print-friendly with price
@@ -630,6 +623,51 @@ public class PdfService : IPdfService
                         });
 
                         row.RelativeItem(); // empty space to push signature left
+                    });
+
+                    // Buyer Section - at the end
+                    if (hasBuyerName)
+                    {
+                        col.Item().PaddingTop(10).Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(buyerCol =>
+                        {
+                            buyerCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KÄUFER").FontSize(8).Bold().FontColor(AccentColor).AlignCenter();
+                            buyerCol.Item().PaddingTop(4).Text(sale.Buyer.FullName).FontSize(9).Bold();
+                            buyerCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(8);
+                            buyerCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(8);
+                            if (!string.IsNullOrEmpty(sale.Buyer.Telefon))
+                                buyerCol.Item().PaddingTop(3).Text($"📞 {sale.Buyer.Telefon}").FontSize(7);
+                            if (!string.IsNullOrEmpty(sale.Buyer.Email))
+                                buyerCol.Item().Text($"✉ {sale.Buyer.Email}").FontSize(7);
+                        });
+                    }
+
+                    // Google Review & Shop Info Section
+                    col.Item().PaddingTop(14).Border(1).BorderColor(PrimaryColor).Padding(10).Row(reviewRow =>
+                    {
+                        // QR Code
+                        reviewRow.ConstantItem(80).Column(qrCol =>
+                        {
+                            var qrBytes = GenerateQrCode(shop.GoogleReviewUrl ?? GoogleReviewUrl);
+                            qrCol.Item().Height(72).Width(72).Image(qrBytes);
+                        });
+
+                        reviewRow.ConstantItem(12);
+
+                        // Review text + address
+                        reviewRow.RelativeItem().Column(infoCol =>
+                        {
+                            infoCol.Item().Text("⭐ Bewerten Sie uns auf Google!").FontSize(10).Bold().FontColor(PrimaryColor);
+                            infoCol.Item().PaddingTop(2).Text("Ihre Meinung ist uns wichtig! Scannen Sie den QR-Code").FontSize(7).FontColor(Colors.Grey.Darken3);
+                            infoCol.Item().Text("und teilen Sie Ihre Erfahrung mit uns.").FontSize(7).FontColor(Colors.Grey.Darken3);
+
+                            infoCol.Item().PaddingTop(8).LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten2);
+
+                            infoCol.Item().PaddingTop(4).Text(shop.ShopName).FontSize(8).Bold().FontColor(PrimaryColor);
+                            infoCol.Item().Text(shop.Street).FontSize(7).FontColor(Colors.Grey.Darken2);
+                            infoCol.Item().Text(shop.City).FontSize(7).FontColor(Colors.Grey.Darken2);
+                            infoCol.Item().PaddingTop(2).Text($"📞 {shop.Telefon}  |  ✉ {shop.Email}").FontSize(6).FontColor(Colors.Grey.Darken2);
+                            infoCol.Item().Text($"🌐 {WebsiteUrl}").FontSize(7).Bold().FontColor(AccentColor);
+                        });
                     });
                 });
 

@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
-import { NeueFahrrad } from '../../models/models';
+import { NeueFahrrad, PublicShopInfo } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -292,7 +292,9 @@ import { environment } from '../../../environments/environment';
                   >
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   </svg>
-                  <span class="warranty-text">{{ t().neueFahrraederWarranty }}</span>
+                  <span class="warranty-text">{{
+                    t().neueFahrraederWarranty
+                  }}</span>
                 </div>
                 <div class="meta-row">
                   <svg
@@ -555,7 +557,11 @@ import { environment } from '../../../environments/environment';
         font-weight: 600;
       }
       .warranty-row {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.06));
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.12),
+          rgba(34, 197, 94, 0.06)
+        );
         padding: 0.65rem 0.85rem;
         border-radius: 8px;
         border: 1px solid rgba(34, 197, 94, 0.25);
@@ -713,6 +719,7 @@ export class NeueFahrradDetailComponent implements OnInit {
   bike = signal<NeueFahrrad | null>(null);
   loading = signal(true);
   selectedImage = signal(0);
+  private shopInfo = signal<PublicShopInfo | null>(null);
 
   displayCategory = computed(() => {
     const cat = this.bike()?.kategorie;
@@ -723,11 +730,17 @@ export class NeueFahrradDetailComponent implements OnInit {
   whatsappUrl = computed(() => {
     const b = this.bike();
     if (!b) return '';
+    const tel = this.shopInfo()?.telefon || '+49 155 6630 0011';
+    const phone = tel.replace(/[^0-9]/g, '');
     const text = `Hallo, ich interessiere mich für das Fahrrad: ${b.titel}${b.preis ? ' (' + b.preis + '€)' : ''}. Ist es noch verfügbar?`;
-    return `https://wa.me/4915234537068?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
   });
 
   ngOnInit(): void {
+    this.apiService.getShopInfo().subscribe({
+      next: (data) => this.shopInfo.set(data),
+    });
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
       this.apiService.getNeueFahrradById(id).subscribe({

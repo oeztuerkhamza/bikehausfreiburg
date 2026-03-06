@@ -87,7 +87,9 @@ public class KleinanzeigenService : IKleinanzeigenService
             Oeffnungszeiten = settings.Oeffnungszeiten,
             FullAddress = settings.FullAddress,
             TotalActiveListings = activeListings.Count(),
-            KleinanzeigenUrl = settings.KleinanzeigenUrl
+            KleinanzeigenUrl = settings.KleinanzeigenUrl,
+            Steuernummer = settings.Steuernummer,
+            UstIdNr = settings.UstIdNr
         };
     }
 

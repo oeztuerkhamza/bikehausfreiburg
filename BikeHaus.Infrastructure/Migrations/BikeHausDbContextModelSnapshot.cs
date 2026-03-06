@@ -563,6 +563,67 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("Purchases");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RepairShowcase", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Beschreibung")
+                        .HasMaxLength(5000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Titel")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.ToTable("RepairShowcases");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RepairShowcaseImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("RepairShowcaseId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RepairShowcaseId");
+
+                    b.ToTable("RepairShowcaseImages");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Reservation", b =>
                 {
                     b.Property<int>("Id")
@@ -826,6 +887,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<int>("FahrradNummerStart")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("GoogleReviewUrl")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Hausnummer")
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");
@@ -1061,6 +1125,17 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Seller");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RepairShowcaseImage", b =>
+                {
+                    b.HasOne("BikeHaus.Domain.Entities.RepairShowcase", "RepairShowcase")
+                        .WithMany("Images")
+                        .HasForeignKey("RepairShowcaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RepairShowcase");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Reservation", b =>
                 {
                     b.HasOne("BikeHaus.Domain.Entities.Bicycle", "Bicycle")
@@ -1230,6 +1305,11 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Sale");
 
                     b.Navigation("Signature");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RepairShowcase", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.Return", b =>

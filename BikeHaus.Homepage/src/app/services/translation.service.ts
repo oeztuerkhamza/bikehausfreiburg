@@ -188,6 +188,11 @@ export interface Translations {
   testimonialsTitle: string;
   testimonialsSub: string;
 
+  // Repair Showcases
+  repairLabel: string;
+  repairTitle: string;
+  repairSub: string;
+
   // FAQ
   faqLabel: string;
   faqTitle: string;
@@ -350,7 +355,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     heroH1: 'Dein nächstes Fahrrad wartet.',
     heroSub:
       'Neue und geprüfte Gebrauchträder in Freiburg — fair bewertet, nachhaltig aufbereitet, persönlich beraten.',
-    ctaPrimary: 'Fahrräder entdecken',
+    ctaPrimary: 'Neue Fahrräder entdecken',
     ctaSecondary: 'Showroom ansehen',
 
     valueLabel: 'WARUM WIR',
@@ -495,12 +500,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     warrantyPageLabel: 'RECHTLICHES',
     warrantyPageTitle: 'Garantiebedingungen',
     warrantyNewTitle: 'Neue Fahrräder',
-    warrantyNewText: 'Dieses Fahrrad ist Neuwaren und unterliegt der gesetzlichen 2-jährigen Gewährleistung. Die Rechnung wird mitgeliefert. Der Verkäufer garantiert, dass das Fahrrad bei Übergabe mängelfrei ist. Der Käufer hat das Recht, das Fahrrad innerhalb von 3 Tagen ohne Angabe von Gründen zurückzugeben, vorausgesetzt, das Fahrrad wird vollständig und unversehrt zurückgegeben.',
+    warrantyNewText:
+      'Dieses Fahrrad ist Neuwaren und unterliegt der gesetzlichen 2-jährigen Gewährleistung. Die Rechnung wird mitgeliefert. Der Verkäufer garantiert, dass das Fahrrad bei Übergabe mängelfrei ist. Der Käufer hat das Recht, das Fahrrad innerhalb von 3 Tagen ohne Angabe von Gründen zurückzugeben, vorausgesetzt, das Fahrrad wird vollständig und unversehrt zurückgegeben.',
     warrantyUsedTitle: 'Gebrauchte Fahrräder',
-    warrantyUsedText: '3 Monate Garantie auf: Kette, Schaltung, Schaltwerk, Dynamo, Pedale und hydraulische Bremsen.',
-    warrantyRepairNote: 'Reparaturen im Garantiefall dürfen ausschließlich durch Bike Haus Freiburg durchgeführt werden.',
+    warrantyUsedText:
+      '3 Monate Garantie auf: Kette, Schaltung, Schaltwerk, Dynamo, Pedale und hydraulische Bremsen.',
+    warrantyRepairNote:
+      'Reparaturen im Garantiefall dürfen ausschließlich durch Bike Haus Freiburg durchgeführt werden.',
     warrantyExcludedTitle: 'Von der Garantie ausgeschlossen',
-    warrantyExcludedItems: 'Reifen, Schläuche, Bremsbeläge, Lampen. Ebenfalls ausgeschlossen: Schäden durch Unfälle oder unsachgemäße Nutzung.',
+    warrantyExcludedItems:
+      'Reifen, Schläuche, Bremsbeläge, Lampen. Ebenfalls ausgeschlossen: Schäden durch Unfälle oder unsachgemäße Nutzung.',
     warrantyReturnTitle: 'Rückgaberecht',
     warrantyReturnText: 'Innerhalb von 3 Arbeitstagen.',
 
@@ -517,6 +526,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     testimonialsLabel: 'KUNDENSTIMMEN',
     testimonialsTitle: 'Was unsere Kunden sagen',
     testimonialsSub: 'Über 500 zufriedene Kunden in Freiburg vertrauen uns',
+
+    repairLabel: 'WERKSTATT',
+    repairTitle: 'Unsere Reparaturen',
+    repairSub: 'Einblicke in unsere professionelle Fahrradwerkstatt',
 
     faqLabel: 'HÄUFIGE FRAGEN',
     faqTitle: 'Fragen & Antworten',
@@ -695,7 +708,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     heroH1: 'Your next bike is waiting.',
     heroSub:
       'New and certified used bikes in Freiburg — fair prices, sustainable refurbishment, personal advice.',
-    ctaPrimary: 'Discover Bikes',
+    ctaPrimary: 'Discover New Bikes',
     ctaSecondary: 'View Showroom',
 
     valueLabel: 'WHY US',
@@ -770,14 +783,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     storyLabel: 'OUR STORY',
     storyTitle: 'Driven by passion for cycling.',
     storyText:
-      'Bike Haus Freiburg was founded on the belief that good bikes don\'t have to be expensive — and that every bike deserves a second chance.',
+      "Bike Haus Freiburg was founded on the belief that good bikes don't have to be expensive — and that every bike deserves a second chance.",
     storyValue1Title: 'Sustainability',
     storyValue1Desc:
       'Every used bike we refurbish means less waste and more mobility.',
     storyValue2Title: 'Community',
     storyValue2Desc: 'We get people on bikes — regardless of budget.',
     storyValue3Title: 'Craftsmanship',
-    storyValue3Desc: 'Mechanics meets passion. Every bike is treated with care.',
+    storyValue3Desc:
+      'Mechanics meets passion. Every bike is treated with care.',
 
     galleryLabel: 'OUR SHOP',
     galleryTitle: 'Inside our Bike Haus.',
@@ -802,8 +816,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckFairPrices: 'Fair prices — Transparent advice.',
 
     ctaSectionTitle: 'Ready for your next adventure?',
-    ctaSectionSub:
-      'Visit our showroom or browse our current selection online.',
+    ctaSectionSub: 'Visit our showroom or browse our current selection online.',
     ctaSectionButton: 'Find a Bike Now',
 
     aboutLabel: 'ABOUT US',
@@ -817,7 +830,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     contactLabel: 'CONTACT',
     contactTitle: 'Get in touch.',
-    contactSub: 'We\'re happy to advise you — in person or by phone.',
+    contactSub: "We're happy to advise you — in person or by phone.",
     phone: 'Phone',
     email: 'Email',
     address: 'Address',
@@ -835,12 +848,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     warrantyPageLabel: 'LEGAL',
     warrantyPageTitle: 'Warranty Terms',
     warrantyNewTitle: 'New Bicycles',
-    warrantyNewText: 'This bicycle is new merchandise and is subject to the statutory 2-year warranty. The invoice is included. The seller guarantees that the bicycle is free of defects at handover. The buyer has the right to return the bicycle within 3 days without giving reasons, provided the bicycle is returned complete and undamaged.',
+    warrantyNewText:
+      'This bicycle is new merchandise and is subject to the statutory 2-year warranty. The invoice is included. The seller guarantees that the bicycle is free of defects at handover. The buyer has the right to return the bicycle within 3 days without giving reasons, provided the bicycle is returned complete and undamaged.',
     warrantyUsedTitle: 'Used Bicycles',
-    warrantyUsedText: '3 months warranty on: chain, gears, derailleur, dynamo, pedals and hydraulic brakes.',
-    warrantyRepairNote: 'Warranty repairs must be carried out exclusively by Bike Haus Freiburg.',
+    warrantyUsedText:
+      '3 months warranty on: chain, gears, derailleur, dynamo, pedals and hydraulic brakes.',
+    warrantyRepairNote:
+      'Warranty repairs must be carried out exclusively by Bike Haus Freiburg.',
     warrantyExcludedTitle: 'Excluded from Warranty',
-    warrantyExcludedItems: 'Tires, tubes, brake pads, lights. Also excluded: damage from accidents or improper use.',
+    warrantyExcludedItems:
+      'Tires, tubes, brake pads, lights. Also excluded: damage from accidents or improper use.',
     warrantyReturnTitle: 'Return Policy',
     warrantyReturnText: 'Within 3 business days.',
 
@@ -858,11 +875,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     testimonialsTitle: 'What our customers say',
     testimonialsSub: 'Over 500 satisfied customers in Freiburg trust us',
 
+    repairLabel: 'WORKSHOP',
+    repairTitle: 'Our Repairs',
+    repairSub: 'Insights into our professional bicycle workshop',
+
     faqLabel: 'FAQ',
     faqTitle: 'Questions & Answers',
     faqSub: 'Everything you need to know about our service.',
     faq1Q: 'Can I test a bike before buying?',
-    faq1A: 'Yes! Just drop by during our opening hours — no appointment needed.',
+    faq1A:
+      'Yes! Just drop by during our opening hours — no appointment needed.',
     faq2Q: 'Do you offer a warranty on used bikes?',
     faq2A:
       'Every used bike is technically inspected. 3-day return policy, 3 months warranty on used bikes, 24 months on new bikes.',
@@ -878,7 +900,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     whatsappTitle: 'Contact Seller',
     whatsappPlaceholder: 'Your question or message...',
     whatsappSend: 'Send via WhatsApp',
-    whatsappInterested: 'I\'m interested in this bike:',
+    whatsappInterested: "I'm interested in this bike:",
     whatsappQuestion: 'My question:',
 
     ankaufTitle: 'Sell your bike?',
@@ -897,7 +919,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     aboutFeatureInvoice: 'Invoice & Purchase Contract',
     aboutFeatureTrust: 'Trust & Quality',
     aboutQuote:
-      'Every bike we sell brings joy — and that\'s the greatest reward.',
+      "Every bike we sell brings joy — and that's the greatest reward.",
     aboutQuoteAuthor: '— The Family Behind Bike Haus',
     aboutMetaTitle: 'About Us — Bike Haus Freiburg | Your Bicycle Dealer',
     aboutMetaDescription:
@@ -1019,7 +1041,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     heroH1: 'Votre prochain vélo vous attend.',
     heroSub:
       "Vélos neufs et d'occasion certifiés à Fribourg — prix transparents, remise en état durable, conseil personnalisé.",
-    ctaPrimary: 'Découvrir les vélos',
+    ctaPrimary: 'Découvrir les nouveaux vélos',
     ctaSecondary: 'Voir le showroom',
 
     valueLabel: 'POURQUOI NOUS',
@@ -1166,12 +1188,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     warrantyPageLabel: 'JURIDIQUE',
     warrantyPageTitle: 'Conditions de garantie',
     warrantyNewTitle: 'Vélos neufs',
-    warrantyNewText: "Ce vélo est un produit neuf et est soumis à la garantie légale de 2 ans. La facture est fournie. Le vendeur garantit que le vélo est exempt de défauts lors de la remise. L'acheteur a le droit de retourner le vélo dans les 3 jours sans donner de raison, à condition que le vélo soit retourné complet et en bon état.",
+    warrantyNewText:
+      "Ce vélo est un produit neuf et est soumis à la garantie légale de 2 ans. La facture est fournie. Le vendeur garantit que le vélo est exempt de défauts lors de la remise. L'acheteur a le droit de retourner le vélo dans les 3 jours sans donner de raison, à condition que le vélo soit retourné complet et en bon état.",
     warrantyUsedTitle: "Vélos d'occasion",
-    warrantyUsedText: '3 mois de garantie sur : chaîne, vitesses, dérailleur, dynamo, pédales et freins hydrauliques.',
-    warrantyRepairNote: 'Les réparations sous garantie doivent être effectuées exclusivement par Bike Haus Freiburg.',
+    warrantyUsedText:
+      '3 mois de garantie sur : chaîne, vitesses, dérailleur, dynamo, pédales et freins hydrauliques.',
+    warrantyRepairNote:
+      'Les réparations sous garantie doivent être effectuées exclusivement par Bike Haus Freiburg.',
     warrantyExcludedTitle: 'Exclus de la garantie',
-    warrantyExcludedItems: 'Pneus, chambres à air, plaquettes de frein, lampes. Également exclus : dommages causés par des accidents ou une utilisation inappropriée.',
+    warrantyExcludedItems:
+      'Pneus, chambres à air, plaquettes de frein, lampes. Également exclus : dommages causés par des accidents ou une utilisation inappropriée.',
     warrantyReturnTitle: 'Droit de retour',
     warrantyReturnText: 'Dans les 3 jours ouvrables.',
 
@@ -1189,6 +1215,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     testimonialsTitle: 'Ce que disent nos clients',
     testimonialsSub:
       'Plus de 500 clients satisfaits à Fribourg nous font confiance',
+
+    repairLabel: 'ATELIER',
+    repairTitle: 'Nos réparations',
+    repairSub: 'Aperçu de notre atelier de réparation de vélos professionnel',
 
     faqLabel: 'QUESTIONS FRÉQUENTES',
     faqTitle: 'Questions & Réponses',
@@ -1367,7 +1397,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     heroH1: 'Bir sonraki bisikletin seni bekliyor.',
     heroSub:
       "Freiburg'da yeni ve kontrol edilmiş ikinci el bisikletler — adil fiyat, sürdürülebilir bakım, kişisel danışmanlık.",
-    ctaPrimary: 'Bisikletleri Keşfet',
+    ctaPrimary: 'Yeni Bisikletleri Keşfet',
     ctaSecondary: "Showroom'u Gör",
 
     valueLabel: 'NEDEN BİZ',
@@ -1512,12 +1542,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     warrantyPageLabel: 'YASAL',
     warrantyPageTitle: 'Garanti Şartları',
     warrantyNewTitle: 'Yeni Bisikletler',
-    warrantyNewText: 'Bu bisiklet yeni üründür ve yasal 2 yıllık garanti kapsamındadır. Fatura dahildir. Satıcı, bisikletin teslim anında kusursuz olduğunu garanti eder. Alıcı, bisikletin eksiksiz ve hasarsız olarak iade edilmesi koşuluyla, 3 gün içinde sebep göstermeksizin bisikleti iade etme hakkına sahiptir.',
+    warrantyNewText:
+      'Bu bisiklet yeni üründür ve yasal 2 yıllık garanti kapsamındadır. Fatura dahildir. Satıcı, bisikletin teslim anında kusursuz olduğunu garanti eder. Alıcı, bisikletin eksiksiz ve hasarsız olarak iade edilmesi koşuluyla, 3 gün içinde sebep göstermeksizin bisikleti iade etme hakkına sahiptir.',
     warrantyUsedTitle: 'İkinci El Bisikletler',
-    warrantyUsedText: '3 ay garanti: zincir, vites, aktarıcı, dinamo, pedallar ve hidrolik frenler.',
-    warrantyRepairNote: 'Garanti kapsamındaki onarımlar yalnızca Bike Haus Freiburg tarafından yapılmalıdır.',
+    warrantyUsedText:
+      '3 ay garanti: zincir, vites, aktarıcı, dinamo, pedallar ve hidrolik frenler.',
+    warrantyRepairNote:
+      'Garanti kapsamındaki onarımlar yalnızca Bike Haus Freiburg tarafından yapılmalıdır.',
     warrantyExcludedTitle: 'Garanti Dışı',
-    warrantyExcludedItems: 'Lastikler, iç lastikler, fren balataları, lambalar. Ayrıca kapsam dışı: kaza veya uygunsuz kullanımdan kaynaklanan hasarlar.',
+    warrantyExcludedItems:
+      'Lastikler, iç lastikler, fren balataları, lambalar. Ayrıca kapsam dışı: kaza veya uygunsuz kullanımdan kaynaklanan hasarlar.',
     warrantyReturnTitle: 'İade Hakkı',
     warrantyReturnText: '3 iş günü içinde.',
 
@@ -1534,6 +1568,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     testimonialsLabel: 'MÜŞTERİ YORUMLARI',
     testimonialsTitle: 'Müşterilerimiz ne diyor',
     testimonialsSub: "Freiburg'da 500'den fazla memnun müşteri bize güveniyor",
+
+    repairLabel: 'ATÖLYE',
+    repairTitle: 'Tamir Çalışmalarımız',
+    repairSub: 'Profesyonel bisiklet atölyemizden görüntüler',
 
     faqLabel: 'SIK SORULAN SORULAR',
     faqTitle: 'Sorular & Cevaplar',

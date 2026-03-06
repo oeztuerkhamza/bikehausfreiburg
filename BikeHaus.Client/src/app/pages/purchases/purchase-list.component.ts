@@ -25,6 +25,9 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       <div class="page-header">
         <h1>{{ t.purchases }}</h1>
         <div class="header-actions">
+          <a routerLink="/purchases/missing" class="btn btn-warning" *ngIf="missingCount > 0">
+            ⚠️ {{ t.missingPurchases }} ({{ missingCount }})
+          </a>
           <button class="btn btn-outline" (click)="exportExcel()">
             📥 {{ t.excelExport }}
           </button>
@@ -229,6 +232,20 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         display: flex;
         gap: 10px;
         align-items: center;
+      }
+      .btn-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+        border: 1.5px solid #d97706;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+      .btn-warning:hover {
+        background: rgba(245, 158, 11, 0.2);
       }
       .filters {
         display: flex;
@@ -542,6 +559,7 @@ export class PurchaseListComponent implements OnInit {
   pageSize = 20;
   showFilters = false;
   activeMenuId: number | null = null;
+  missingCount = 0;
 
   get t() {
     return this.translationService.translations();
@@ -558,6 +576,10 @@ export class PurchaseListComponent implements OnInit {
 
   ngOnInit() {
     this.load();
+    this.purchaseService.getMissingSalesCount().subscribe({
+      next: (res) => (this.missingCount = res.count),
+      error: () => {},
+    });
   }
 
   load() {

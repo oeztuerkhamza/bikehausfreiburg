@@ -5,6 +5,7 @@ import { TranslationService } from './services/translation.service';
 import { AuthService } from './services/auth.service';
 import { SettingsService, ShopSettings } from './services/settings.service';
 import { ThemeService } from './services/theme.service';
+import { PurchaseService } from './services/purchase.service';
 import { NotificationComponent } from './components/notification/notification.component';
 import { DialogComponent } from './components/dialog/dialog.component';
 
@@ -156,6 +157,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
               </svg>
             </span>
             <span class="nav-label">{{ t.purchases }}</span>
+            <span class="nav-badge" *ngIf="missingPurchasesCount() > 0">{{ missingPurchasesCount() }}</span>
           </a>
           <a
             routerLink="/sales"
@@ -616,6 +618,21 @@ import { DialogComponent } from './components/dialog/dialog.component';
       .nav-label {
         white-space: nowrap;
       }
+      .nav-badge {
+        margin-left: auto;
+        background: #ef4444;
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 700;
+        min-width: 20px;
+        height: 20px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        line-height: 1;
+      }
 
       nav .nav-settings {
         margin-top: auto;
@@ -798,6 +815,7 @@ export class AppComponent implements OnInit {
   sidebarOpen = false;
   private translationService = inject(TranslationService);
   private settingsService = inject(SettingsService);
+  private purchaseService = inject(PurchaseService);
   authService = inject(AuthService);
   themeService = inject(ThemeService);
 
@@ -806,11 +824,20 @@ export class AppComponent implements OnInit {
   logoSrc = signal('assets/logo.svg');
   hasCustomLogo = signal(false);
   ownerDisplayName = signal('');
+  missingPurchasesCount = signal(0);
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.loadSettings();
+      this.loadMissingPurchasesCount();
     }
+  }
+
+  private loadMissingPurchasesCount(): void {
+    this.purchaseService.getMissingSalesCount().subscribe({
+      next: (res) => this.missingPurchasesCount.set(res.count),
+      error: () => {},
+    });
   }
 
   private loadSettings(): void {

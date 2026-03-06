@@ -33,6 +33,9 @@ public class ShopSettings : BaseEntity
     // Kleinanzeigen Integration
     public string? KleinanzeigenUrl { get; set; }  // Kleinanzeigen profile/listing URL
 
+    // Google Review
+    public string? GoogleReviewUrl { get; set; }   // Google Review URL
+
     // Additional Info
     public string? Oeffnungszeiten { get; set; }   // Opening Hours
     public string? Zusatzinfo { get; set; }        // Additional Info for documents

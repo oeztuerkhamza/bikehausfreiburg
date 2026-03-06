@@ -79,4 +79,21 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
 
         return (items, totalCount);
     }
+
+    public async Task<IEnumerable<Sale>> GetSalesWithoutPurchaseAsync()
+    {
+        return await _dbSet
+            .Include(s => s.Bicycle)
+            .Include(s => s.Buyer)
+            .Where(s => s.Bicycle.Purchase == null)
+            .OrderByDescending(s => s.Verkaufsdatum)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetSalesWithoutPurchaseCountAsync()
+    {
+        return await _dbSet
+            .Where(s => s.Bicycle.Purchase == null)
+            .CountAsync();
+    }
 }

@@ -1,8 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
+import { ApiService } from '../../services/api.service';
+import { PublicShopInfo } from '../../models/models';
 
 @Component({
   selector: 'app-impressum',
@@ -22,9 +24,10 @@ import { TranslationService } from '../../services/translation.service';
           <section>
             <h2>Angaben gemäß § 5 TMG</h2>
             <p>
-              <strong>Bike Haus Freiburg</strong><br />
-              Heckerstraße 27<br />
-              79114 Freiburg im Breisgau<br />
+              <strong>{{ shopInfo()?.shopName || 'Bike Haus Freiburg' }}</strong
+              ><br />
+              {{ shopInfo()?.strasse }} {{ shopInfo()?.hausnummer }}<br />
+              {{ shopInfo()?.plz }} {{ shopInfo()?.stadt }}<br />
               Deutschland
             </p>
           </section>
@@ -32,17 +35,37 @@ import { TranslationService } from '../../services/translation.service';
           <section>
             <h2>Kontakt</h2>
             <p>
-              E-Mail: bikehausfreiburg&#64;gmail.com<br />
-              WhatsApp: +49 155 6630 0011
+              E-Mail: {{ shopInfo()?.email || 'bikehausfreiburg@gmail.com'
+              }}<br />
+              Telefon / WhatsApp:
+              {{ shopInfo()?.telefon || '+49 155 6630 0011' }}
             </p>
           </section>
+
+          @if (shopInfo()?.ustIdNr || shopInfo()?.steuernummer) {
+            <section>
+              <h2>Umsatzsteuer</h2>
+              @if (shopInfo()?.ustIdNr) {
+                <p>
+                  Umsatzsteuer-Identifikationsnummer gemäß § 27a
+                  Umsatzsteuergesetz:<br />
+                  <strong>{{ shopInfo()!.ustIdNr }}</strong>
+                </p>
+              }
+              @if (shopInfo()?.steuernummer) {
+                <p>
+                  Steuernummer: <strong>{{ shopInfo()!.steuernummer }}</strong>
+                </p>
+              }
+            </section>
+          }
 
           <section>
             <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
             <p>
-              Bike Haus Freiburg<br />
-              Heckerstraße 27<br />
-              79114 Freiburg im Breisgau
+              {{ shopInfo()?.shopName || 'Bike Haus Freiburg' }}<br />
+              {{ shopInfo()?.strasse }} {{ shopInfo()?.hausnummer }}<br />
+              {{ shopInfo()?.plz }} {{ shopInfo()?.stadt }}
             </p>
           </section>
 
@@ -268,11 +291,16 @@ export class ImpressumComponent implements OnInit {
   private translationService = inject(TranslationService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
+  private apiService = inject(ApiService);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+  shopInfo = signal<PublicShopInfo | null>(null);
 
   ngOnInit(): void {
+    this.apiService.getShopInfo().subscribe({
+      next: (data) => this.shopInfo.set(data),
+    });
     this.titleService.setTitle('Impressum — Bike Haus Freiburg');
     this.metaService.updateTag({
       name: 'description',

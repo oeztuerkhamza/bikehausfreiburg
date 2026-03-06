@@ -56,4 +56,6 @@ public class PublicShopInfoDto
     public string? FullAddress { get; set; }
     public int TotalActiveListings { get; set; }
     public string? KleinanzeigenUrl { get; set; }
+    public string? Steuernummer { get; set; }
+    public string? UstIdNr { get; set; }
 }

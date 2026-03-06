@@ -64,6 +64,22 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'purchases/missing',
+    loadComponent: () =>
+      import('./pages/purchases/missing-purchases.component').then(
+        (m) => m.MissingPurchasesComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'purchases/missing/new',
+    loadComponent: () =>
+      import('./pages/purchases/missing-purchase-form.component').then(
+        (m) => m.MissingPurchaseFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'purchases/edit/:id',
     loadComponent: () =>
       import('./pages/purchases/purchase-edit.component').then(

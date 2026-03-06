@@ -13,6 +13,7 @@ public class PurchaseService : IPurchaseService
     private readonly IBicycleRepository _bicycleRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IShopSettingsRepository _settingsRepository;
+    private readonly ISaleRepository _saleRepository;
     private readonly IPdfService _pdfService;
 
     public PurchaseService(
@@ -20,12 +21,14 @@ public class PurchaseService : IPurchaseService
         IBicycleRepository bicycleRepository,
         ICustomerRepository customerRepository,
         IShopSettingsRepository settingsRepository,
+        ISaleRepository saleRepository,
         IPdfService pdfService)
     {
         _purchaseRepository = purchaseRepository;
         _bicycleRepository = bicycleRepository;
         _customerRepository = customerRepository;
         _settingsRepository = settingsRepository;
+        _saleRepository = saleRepository;
         _pdfService = pdfService;
     }
 
@@ -277,5 +280,80 @@ public class PurchaseService : IPurchaseService
             .Distinct()
             .OrderBy(n => n)
             .ToList()!;
+    }
+
+    public async Task<PurchaseDto> CreateForExistingBicycleAsync(PurchaseCreateForExistingBikeDto dto)
+    {
+        // Verify bicycle exists
+        var bicycle = await _bicycleRepository.GetByIdAsync(dto.BicycleId)
+            ?? throw new KeyNotFoundException($"Fahrrad mit ID {dto.BicycleId} nicht gefunden.");
+
+        // Create or find Seller
+        var seller = dto.Seller.ToEntity();
+        seller = await _customerRepository.AddAsync(seller);
+
+        // Create Purchase for existing bicycle
+        var purchase = new Purchase
+        {
+            BicycleId = dto.BicycleId,
+            SellerId = seller.Id,
+            Preis = dto.Preis,
+            VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag,
+            Zahlungsart = dto.Zahlungsart,
+            Kaufdatum = dto.Kaufdatum ?? DateTime.UtcNow,
+            Notizen = dto.Notizen,
+            BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
+                ? dto.BelegNummer
+                : null,
+            AnzeigeNr = dto.AnzeigeNr
+        };
+
+        if (dto.Signature != null)
+        {
+            purchase.Signature = dto.Signature.ToEntity();
+        }
+
+        var created = await _purchaseRepository.AddAsync(purchase);
+
+        // Also link the sale to this purchase if there is one
+        var sale = await _saleRepository.GetByBicycleIdAsync(dto.BicycleId);
+        if (sale != null && sale.PurchaseId == null)
+        {
+            sale.PurchaseId = created.Id;
+            await _saleRepository.UpdateAsync(sale);
+        }
+
+        var result = await _purchaseRepository.GetWithDetailsAsync(created.Id);
+        return result!.ToDto();
+    }
+
+    public async Task<IEnumerable<MissingPurchaseSaleDto>> GetMissingPurchaseSalesAsync()
+    {
+        var sales = await _saleRepository.GetSalesWithoutPurchaseAsync();
+        return sales.Select(s => new MissingPurchaseSaleDto(
+            s.Id,
+            s.BelegNummer,
+            s.BicycleId,
+            $"{s.Bicycle.Marke} {s.Bicycle.Modell}",
+            s.Bicycle.StokNo,
+            s.Buyer.FullName,
+            s.Preis,
+            s.Verkaufsdatum,
+            s.Bicycle.Marke,
+            s.Bicycle.Modell,
+            s.Bicycle.Rahmennummer,
+            s.Bicycle.Rahmengroesse,
+            s.Bicycle.Farbe,
+            s.Bicycle.Reifengroesse,
+            s.Bicycle.Fahrradtyp,
+            s.Bicycle.Art,
+            s.Bicycle.Beschreibung,
+            s.Bicycle.Zustand
+        ));
+    }
+
+    public async Task<int> GetMissingPurchaseSalesCountAsync()
+    {
+        return await _saleRepository.GetSalesWithoutPurchaseCountAsync();
     }
 }

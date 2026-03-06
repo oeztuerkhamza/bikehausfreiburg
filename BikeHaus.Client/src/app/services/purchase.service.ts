@@ -5,11 +5,13 @@ import { environment } from '../../environments/environment';
 import {
   Purchase,
   PurchaseCreate,
+  PurchaseCreateForExistingBike,
   PurchaseList,
   PurchaseUpdate,
   BulkPurchaseCreate,
   BulkPurchaseResult,
   PaginatedResult,
+  MissingSale,
 } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
@@ -87,5 +89,19 @@ export class PurchaseService {
     return this.http.get(`${this.url}/${id}/kaufbeleg`, {
       responseType: 'blob',
     });
+  }
+
+  getMissingSales(): Observable<MissingSale[]> {
+    return this.http.get<MissingSale[]>(`${this.url}/missing`);
+  }
+
+  getMissingSalesCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.url}/missing/count`);
+  }
+
+  createForExistingBike(
+    dto: PurchaseCreateForExistingBike,
+  ): Observable<Purchase> {
+    return this.http.post<Purchase>(`${this.url}/for-existing-bike`, dto);
   }
 }

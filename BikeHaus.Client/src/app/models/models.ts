@@ -586,3 +586,38 @@ export interface NeueFahrradCategory {
   name: string;
   count: number;
 }
+
+// ── Missing Purchase ──
+export interface MissingSale {
+  saleId: number;
+  saleBelegNummer: string;
+  bicycleId: number;
+  bikeInfo: string;
+  stokNo?: string;
+  buyerName: string;
+  salePreis: number;
+  verkaufsdatum: string;
+  marke: string;
+  modell: string;
+  rahmennummer?: string;
+  rahmengroesse?: string;
+  farbe?: string;
+  reifengroesse: string;
+  fahrradtyp?: string;
+  art?: string;
+  beschreibung?: string;
+  zustand: BikeCondition;
+}
+
+export interface PurchaseCreateForExistingBike {
+  bicycleId: number;
+  seller: CustomerCreate;
+  preis: number;
+  verkaufspreisVorschlag?: number;
+  zahlungsart: PaymentMethod;
+  kaufdatum: string;
+  notizen?: string;
+  signature?: SignatureCreate;
+  belegNummer?: string;
+  anzeigeNr?: string;
+}

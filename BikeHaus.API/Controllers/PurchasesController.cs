@@ -103,6 +103,34 @@ public class PurchasesController : ControllerBase
         return Ok(new { belegNummer = nummer });
     }
 
+    [HttpGet("missing")]
+    public async Task<ActionResult<IEnumerable<MissingPurchaseSaleDto>>> GetMissingPurchases()
+    {
+        var missing = await _purchaseService.GetMissingPurchaseSalesAsync();
+        return Ok(missing);
+    }
+
+    [HttpGet("missing/count")]
+    public async Task<ActionResult<object>> GetMissingPurchasesCount()
+    {
+        var count = await _purchaseService.GetMissingPurchaseSalesCountAsync();
+        return Ok(new { count });
+    }
+
+    [HttpPost("for-existing-bike")]
+    public async Task<ActionResult<PurchaseDto>> CreateForExistingBike([FromBody] PurchaseCreateForExistingBikeDto dto)
+    {
+        try
+        {
+            var purchase = await _purchaseService.CreateForExistingBicycleAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = purchase.Id }, purchase);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
     [HttpPut("{id}")]
     public async Task<ActionResult<PurchaseDto>> Update(int id, [FromBody] PurchaseUpdateDto dto)
     {

@@ -48,6 +48,7 @@ public class ShopSettingsService : IShopSettingsService
                 InhaberNachname = dto.InhaberNachname,
                 FahrradNummerStart = dto.FahrradNummerStart > 0 ? dto.FahrradNummerStart : 1,
                 KleinanzeigenUrl = dto.KleinanzeigenUrl,
+                GoogleReviewUrl = dto.GoogleReviewUrl,
                 Oeffnungszeiten = dto.Oeffnungszeiten,
                 Zusatzinfo = dto.Zusatzinfo
             };
@@ -73,6 +74,7 @@ public class ShopSettingsService : IShopSettingsService
             settings.InhaberNachname = dto.InhaberNachname;
             settings.FahrradNummerStart = dto.FahrradNummerStart > 0 ? dto.FahrradNummerStart : 1;
             settings.KleinanzeigenUrl = dto.KleinanzeigenUrl;
+            settings.GoogleReviewUrl = dto.GoogleReviewUrl;
             settings.Oeffnungszeiten = dto.Oeffnungszeiten;
             settings.Zusatzinfo = dto.Zusatzinfo;
             settings.UpdatedAt = DateTime.UtcNow;
@@ -183,6 +185,7 @@ public class ShopSettingsService : IShopSettingsService
             InhaberSignatureFileName = settings.InhaberSignatureFileName,
             FahrradNummerStart = settings.FahrradNummerStart,
             KleinanzeigenUrl = settings.KleinanzeigenUrl,
+            GoogleReviewUrl = settings.GoogleReviewUrl,
             Oeffnungszeiten = settings.Oeffnungszeiten,
             Zusatzinfo = settings.Zusatzinfo,
             FullAddress = settings.FullAddress

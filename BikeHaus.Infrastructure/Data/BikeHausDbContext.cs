@@ -25,6 +25,8 @@ public class BikeHausDbContext : DbContext
     public DbSet<NeueFahrrad> NeueFahrraeder => Set<NeueFahrrad>();
     public DbSet<NeueFahrradImage> NeueFahrradImages => Set<NeueFahrradImage>();
     public DbSet<BicycleImage> BicycleImages => Set<BicycleImage>();
+    public DbSet<RepairShowcase> RepairShowcases => Set<RepairShowcase>();
+    public DbSet<RepairShowcaseImage> RepairShowcaseImages => Set<RepairShowcaseImage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -348,6 +350,27 @@ public class BikeHausDbContext : DbContext
             entity.HasOne(e => e.Fahrrad)
                 .WithMany(f => f.Images)
                 .HasForeignKey(e => e.NeueFahrradId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── RepairShowcase Configuration ──
+        modelBuilder.Entity<RepairShowcase>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Titel).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Beschreibung).HasMaxLength(5000);
+            entity.HasIndex(e => e.IsActive);
+        });
+
+        // ── RepairShowcaseImage Configuration ──
+        modelBuilder.Entity<RepairShowcaseImage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FilePath).IsRequired().HasMaxLength(500);
+
+            entity.HasOne(e => e.RepairShowcase)
+                .WithMany(r => r.Images)
+                .HasForeignKey(e => e.RepairShowcaseId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

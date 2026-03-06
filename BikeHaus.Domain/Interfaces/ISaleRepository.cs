@@ -10,4 +10,6 @@ public interface ISaleRepository : IRepository<Sale>
     Task<IEnumerable<Sale>> GetRecentSalesAsync(int count = 10);
     Task<string> GenerateBelegNummerAsync();
     Task<(IEnumerable<Sale> Items, int TotalCount)> GetPaginatedAsync(int page, int pageSize, Expression<Func<Sale, bool>>? predicate = null);
+    Task<IEnumerable<Sale>> GetSalesWithoutPurchaseAsync();
+    Task<int> GetSalesWithoutPurchaseCountAsync();
 }

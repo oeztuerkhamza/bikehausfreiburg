@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
@@ -6,11 +6,13 @@ import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { BikeCardComponent } from '../../components/bike-card/bike-card.component';
 import { NeueBikeCardComponent } from '../../components/neue-bike-card/neue-bike-card.component';
+import { environment } from '../../../environments/environment';
 import {
   KleinanzeigenListing,
   KleinanzeigenCategory,
   PublicShopInfo,
   NeueFahrrad,
+  RepairShowcase,
 } from '../../models/models';
 
 interface Testimonial {
@@ -42,9 +44,11 @@ interface Testimonial {
         <h1 id="hero-heading" class="hero-h1 fade-in d1">{{ t().heroH1 }}</h1>
         <p class="hero-sub fade-in d2">{{ t().heroSub }}</p>
         <div class="hero-actions fade-in d3">
-          <a [routerLink]="['/' + lang(), 'showroom']" class="btn-primary">{{
-            t().ctaPrimary
-          }}</a>
+          <a
+            [routerLink]="['/' + lang(), 'neue-fahrraeder']"
+            class="btn-primary"
+            >{{ t().ctaPrimary }}</a
+          >
           <a [routerLink]="['/' + lang(), 'showroom']" class="btn-secondary">{{
             t().ctaSecondary
           }}</a>
@@ -621,6 +625,78 @@ interface Testimonial {
         </div>
       </div>
     </section>
+
+    <!-- ═══ Section 7b — REPAIR SHOWCASES ═══ -->
+    @if (repairShowcases().length > 0) {
+      <section class="repair-section" aria-labelledby="repair-heading">
+        <div class="container">
+          <span class="section-label fade-in">{{ t().repairLabel }}</span>
+          <h2 id="repair-heading" class="section-title fade-in d1">
+            {{ t().repairTitle }}
+          </h2>
+          <p class="section-subtitle fade-in d2">{{ t().repairSub }}</p>
+
+          <div class="repair-showcase fade-in d3">
+            <!-- Main image display -->
+            <div class="repair-main-image">
+              @if (repairShowcases()[repairActiveIndex]?.images?.length) {
+                <img
+                  [src]="
+                    getRepairImageUrl(
+                      repairShowcases()[repairActiveIndex].images[
+                        repairImageIndex
+                      ].filePath
+                    )
+                  "
+                  [alt]="repairShowcases()[repairActiveIndex].titel"
+                  loading="lazy"
+                />
+                <!-- Image counter -->
+                @if (repairShowcases()[repairActiveIndex].images.length > 1) {
+                  <div class="repair-image-counter">
+                    {{ repairImageIndex + 1 }} /
+                    {{ repairShowcases()[repairActiveIndex].images.length }}
+                  </div>
+                }
+              }
+              <!-- Overlay info -->
+              <div class="repair-overlay">
+                <h3>{{ repairShowcases()[repairActiveIndex]?.titel }}</h3>
+                @if (repairShowcases()[repairActiveIndex]?.beschreibung) {
+                  <p>{{ repairShowcases()[repairActiveIndex].beschreibung }}</p>
+                }
+              </div>
+            </div>
+
+            <!-- Thumbnail strip -->
+            @if (repairShowcases().length > 1) {
+              <div class="repair-thumbs">
+                @for (
+                  showcase of repairShowcases();
+                  track showcase.id;
+                  let i = $index
+                ) {
+                  <button
+                    class="repair-thumb"
+                    [class.active]="i === repairActiveIndex"
+                    (click)="selectRepairShowcase(i)"
+                  >
+                    @if (showcase.images.length > 0) {
+                      <img
+                        [src]="getRepairImageUrl(showcase.images[0].filePath)"
+                        [alt]="showcase.titel"
+                        loading="lazy"
+                      />
+                    }
+                    <span class="repair-thumb-label">{{ showcase.titel }}</span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    }
 
     <!-- ═══ Section 8 — TESTIMONIALS ═══ -->
     <section
@@ -1279,6 +1355,124 @@ interface Testimonial {
         letter-spacing: 0.05em;
       }
 
+      /* ═══ REPAIR SHOWCASE SECTION ═══ */
+      .repair-section {
+        padding: 6rem 0;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.02) 0%,
+          transparent 100%
+        );
+      }
+
+      .repair-showcase {
+        margin-top: 3rem;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .repair-main-image {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        aspect-ratio: 16 / 10;
+        background: #111;
+      }
+
+      .repair-main-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: opacity 0.5s ease;
+      }
+
+      .repair-image-counter {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+
+      .repair-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 2rem 1.5rem 1.5rem;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+        color: #fff;
+      }
+
+      .repair-overlay h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0 0 0.3rem;
+      }
+
+      .repair-overlay p {
+        font-size: 0.85rem;
+        margin: 0;
+        opacity: 0.85;
+        line-height: 1.4;
+      }
+
+      .repair-thumbs {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .repair-thumb {
+        flex-shrink: 0;
+        width: 120px;
+        border: 2px solid transparent;
+        border-radius: 10px;
+        overflow: hidden;
+        cursor: pointer;
+        background: #222;
+        padding: 0;
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
+      }
+
+      .repair-thumb.active {
+        border-color: #e8c547;
+        transform: scale(1.05);
+      }
+
+      .repair-thumb:hover {
+        border-color: rgba(232, 197, 71, 0.5);
+      }
+
+      .repair-thumb img {
+        width: 100%;
+        height: 70px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .repair-thumb-label {
+        display: block;
+        padding: 4px 6px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
       /* ═══ BIKE CHECK SECTION ═══ */
       .bikecheck-grid {
         display: grid;
@@ -1760,6 +1954,12 @@ interface Testimonial {
         .bikecheck-card {
           padding: 2rem;
         }
+        .repair-thumb {
+          width: 90px;
+        }
+        .repair-thumb img {
+          height: 55px;
+        }
       }
 
       @media (max-width: 640px) {
@@ -1813,7 +2013,7 @@ interface Testimonial {
     `,
   ],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private apiService = inject(ApiService);
   private titleService = inject(Title);
@@ -1828,6 +2028,12 @@ export class HomeComponent implements OnInit {
   shopInfo = signal<PublicShopInfo | null>(null);
   neueFahrraeder = signal<NeueFahrrad[]>([]);
   loading = signal(true);
+
+  // Repair Showcases
+  repairShowcases = signal<RepairShowcase[]>([]);
+  repairActiveIndex = 0;
+  repairImageIndex = 0;
+  private repairInterval: ReturnType<typeof setInterval> | null = null;
 
   // Shop gallery
   shopPhotos: string[] = [
@@ -2000,6 +2206,56 @@ export class HomeComponent implements OnInit {
     this.apiService.getNeueFahrraeder().subscribe({
       next: (data) => this.neueFahrraeder.set(data),
     });
+
+    this.apiService.getRepairShowcases().subscribe({
+      next: (data) => {
+        this.repairShowcases.set(data);
+        if (data.length > 0) {
+          this.startRepairSlideshow();
+        }
+      },
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stopRepairSlideshow();
+  }
+
+  // ── Repair Showcase Slideshow ──
+  getRepairImageUrl(path: string): string {
+    return `${environment.apiUrl.replace('/api/public', '')}${path}`;
+  }
+
+  private startRepairSlideshow(): void {
+    this.stopRepairSlideshow();
+    this.repairInterval = setInterval(() => {
+      const showcases = this.repairShowcases();
+      if (showcases.length === 0) return;
+      const current = showcases[this.repairActiveIndex];
+      if (
+        current.images.length > 1 &&
+        this.repairImageIndex < current.images.length - 1
+      ) {
+        this.repairImageIndex++;
+      } else {
+        this.repairActiveIndex =
+          (this.repairActiveIndex + 1) % showcases.length;
+        this.repairImageIndex = 0;
+      }
+    }, 3000);
+  }
+
+  private stopRepairSlideshow(): void {
+    if (this.repairInterval) {
+      clearInterval(this.repairInterval);
+      this.repairInterval = null;
+    }
+  }
+
+  selectRepairShowcase(index: number): void {
+    this.repairActiveIndex = index;
+    this.repairImageIndex = 0;
+    this.startRepairSlideshow();
   }
 
   openLightbox(index: number): void {

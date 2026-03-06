@@ -25,7 +25,7 @@ import { PublicShopInfo } from '../../models/models';
         <section class="contact-grid">
           <!-- WhatsApp -->
           <a
-            href="https://wa.me/4915566300011"
+            [href]="getWhatsappLink()"
             target="_blank"
             rel="noopener"
             class="contact-card whatsapp"
@@ -546,8 +546,17 @@ export class ContactComponent implements OnInit {
     });
   }
 
+  private getWhatsappPhone(): string {
+    const tel = this.shopInfo()?.telefon || '+49 155 6630 0011';
+    return tel.replace(/[^0-9]/g, '');
+  }
+
+  getWhatsappLink(): string {
+    return `https://wa.me/${this.getWhatsappPhone()}`;
+  }
+
   getAnkaufWhatsappLink(): string {
-    const phone = '4915566300011';
+    const phone = this.getWhatsappPhone();
     const message = encodeURIComponent(this.t().ankaufMessage);
     return `https://wa.me/${phone}?text=${message}`;
   }
