@@ -51,7 +51,10 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field">
                 <label>{{ t.frameSize }}</label>
-                <input [(ngModel)]="bikeRahmengroesse" name="bikeRahmengroesse" />
+                <input
+                  [(ngModel)]="bikeRahmengroesse"
+                  name="bikeRahmengroesse"
+                />
               </div>
               <div class="field">
                 <label>{{ t.color }}</label>
@@ -59,7 +62,10 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field">
                 <label>{{ t.wheelSize }}</label>
-                <input [(ngModel)]="bikeReifengroesse" name="bikeReifengroesse" />
+                <input
+                  [(ngModel)]="bikeReifengroesse"
+                  name="bikeReifengroesse"
+                />
               </div>
               <div class="field">
                 <label>{{ t.bicycleType }}</label>
