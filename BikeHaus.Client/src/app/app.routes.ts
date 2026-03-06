@@ -154,9 +154,7 @@ export const routes: Routes = [
   {
     path: 'export',
     loadComponent: () =>
-      import('./pages/export/export.component').then(
-        (m) => m.ExportComponent,
-      ),
+      import('./pages/export/export.component').then((m) => m.ExportComponent),
     canActivate: [authGuard],
   },
   {

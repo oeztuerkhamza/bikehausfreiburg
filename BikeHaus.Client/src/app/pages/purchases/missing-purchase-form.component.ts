@@ -33,39 +33,39 @@ import { AddressSuggestion } from '../../services/address.service';
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
-          <!-- Bicycle Info (read-only) -->
+          <!-- Bicycle Info -->
           <div class="form-card">
             <h2>🚲 {{ t.bicycle }}</h2>
             <div class="form-grid">
               <div class="field">
                 <label>{{ t.brand }}</label>
-                <input [value]="bikeMarke" readonly class="readonly" />
+                <input [(ngModel)]="bikeMarke" name="bikeMarke" />
               </div>
               <div class="field">
                 <label>{{ t.model }}</label>
-                <input [value]="bikeModell" readonly class="readonly" />
+                <input [(ngModel)]="bikeModell" name="bikeModell" />
               </div>
-              <div class="field" *ngIf="bikeRahmennummer">
+              <div class="field">
                 <label>{{ t.frameNumber }}</label>
-                <input [value]="bikeRahmennummer" readonly class="readonly" />
+                <input [(ngModel)]="bikeRahmennummer" name="bikeRahmennummer" />
               </div>
-              <div class="field" *ngIf="bikeRahmengroesse">
+              <div class="field">
                 <label>{{ t.frameSize }}</label>
-                <input [value]="bikeRahmengroesse" readonly class="readonly" />
+                <input [(ngModel)]="bikeRahmengroesse" name="bikeRahmengroesse" />
               </div>
-              <div class="field" *ngIf="bikeFarbe">
+              <div class="field">
                 <label>{{ t.color }}</label>
-                <input [value]="bikeFarbe" readonly class="readonly" />
+                <input [(ngModel)]="bikeFarbe" name="bikeFarbe" />
               </div>
               <div class="field">
                 <label>{{ t.wheelSize }}</label>
-                <input [value]="bikeReifengroesse" readonly class="readonly" />
+                <input [(ngModel)]="bikeReifengroesse" name="bikeReifengroesse" />
               </div>
-              <div class="field" *ngIf="bikeFahrradtyp">
+              <div class="field">
                 <label>{{ t.bicycleType }}</label>
-                <input [value]="bikeFahrradtyp" readonly class="readonly" />
+                <input [(ngModel)]="bikeFahrradtyp" name="bikeFahrradtyp" />
               </div>
-              <div class="field" *ngIf="bikeStokNo">
+              <div class="field">
                 <label>{{ t.stockNo }}</label>
                 <input [value]="bikeStokNo" readonly class="readonly" />
               </div>
@@ -492,6 +492,15 @@ export class MissingPurchaseFormComponent implements OnInit {
       kaufdatum: this.kaufdatum,
       notizen: this.notizen || undefined,
       belegNummer: this.belegNummer || undefined,
+      marke: this.bikeMarke || undefined,
+      modell: this.bikeModell || undefined,
+      rahmennummer: this.bikeRahmennummer || undefined,
+      rahmengroesse: this.bikeRahmengroesse || undefined,
+      farbe: this.bikeFarbe || undefined,
+      reifengroesse: this.bikeReifengroesse || undefined,
+      fahrradtyp: this.bikeFahrradtyp || undefined,
+      art: this.bikeArt || undefined,
+      zustand: this.bikeZustand,
     };
 
     this.purchaseService.createForExistingBike(dto).subscribe({

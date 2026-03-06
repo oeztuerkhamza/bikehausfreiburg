@@ -196,8 +196,12 @@ import { environment } from '../../../environments/environment';
         transform: translateY(-50%) scale(1.05);
       }
 
-      .prev { left: 12px; }
-      .next { right: 12px; }
+      .prev {
+        left: 12px;
+      }
+      .next {
+        right: 12px;
+      }
 
       .image-counter {
         position: absolute;
@@ -320,7 +324,9 @@ import { environment } from '../../../environments/environment';
       }
 
       @keyframes spin {
-        to { transform: rotate(360deg); }
+        to {
+          transform: rotate(360deg);
+        }
       }
 
       .not-found {

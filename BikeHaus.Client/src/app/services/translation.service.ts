@@ -808,7 +808,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Export
     exportDocuments: 'Belege exportieren',
-    exportDescription: 'Kaufbelege, Verkaufsbelege, Rückgabebelege, Ausgaben-Dokumente und Rechnungen als ZIP herunterladen.',
+    exportDescription:
+      'Kaufbelege, Verkaufsbelege, Rückgabebelege, Ausgaben-Dokumente und Rechnungen als ZIP herunterladen.',
     exportStartDate: 'Von',
     exportEndDate: 'Bis',
     exportDownloadZip: 'ZIP herunterladen',
@@ -1489,7 +1490,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Export
     exportDocuments: 'Belge Dışa Aktar',
-    exportDescription: 'Alış belgeleri, satış belgeleri, iade belgeleri, harcama belgeleri ve faturaları ZIP olarak indir.',
+    exportDescription:
+      'Alış belgeleri, satış belgeleri, iade belgeleri, harcama belgeleri ve faturaları ZIP olarak indir.',
     exportStartDate: 'Başlangıç',
     exportEndDate: 'Bitiş',
     exportDownloadZip: 'ZIP İndir',
