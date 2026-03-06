@@ -88,11 +88,10 @@ import { AddressSuggestion } from '../../services/address.service';
             <h2>{{ t.seller }} ({{ t.customer }})</h2>
             <div class="form-grid">
               <div class="field">
-                <label>{{ t.firstNameRequired }}</label>
+                <label>{{ t.firstName }}</label>
                 <input
                   [(ngModel)]="seller.vorname"
                   name="sellerVorname"
-                  required
                   autocomplete="off"
                   list="firstNameList"
                 />
@@ -101,11 +100,10 @@ import { AddressSuggestion } from '../../services/address.service';
                 </datalist>
               </div>
               <div class="field">
-                <label>{{ t.lastNameRequired }}</label>
+                <label>{{ t.lastName }}</label>
                 <input
                   [(ngModel)]="seller.nachname"
                   name="sellerNachname"
-                  required
                   autocomplete="off"
                   list="lastNameList"
                 />
@@ -471,8 +469,6 @@ export class MissingPurchaseFormComponent implements OnInit {
       this.bikeMarke?.trim() &&
       this.bikeRahmennummer?.trim() &&
       this.bikeReifengroesse?.trim() &&
-      this.seller.vorname?.trim() &&
-      this.seller.nachname?.trim() &&
       this.preis > 0 &&
       this.kaufdatum
     );
