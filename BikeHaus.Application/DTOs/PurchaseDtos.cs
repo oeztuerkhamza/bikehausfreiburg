@@ -111,5 +111,15 @@ public record PurchaseCreateForExistingBikeDto(
     string? Notizen,
     SignatureCreateDto? Signature,
     string? BelegNummer = null,
-    string? AnzeigeNr = null
+    string? AnzeigeNr = null,
+    // Optional bicycle field updates
+    string? Marke = null,
+    string? Modell = null,
+    string? Rahmennummer = null,
+    string? Rahmengroesse = null,
+    string? Farbe = null,
+    string? Reifengroesse = null,
+    string? Fahrradtyp = null,
+    string? Art = null,
+    BikeCondition? Zustand = null
 );

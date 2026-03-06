@@ -514,6 +514,15 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.StokNo ?? "-").FontSize(8);
                         table.Cell().Border(1).BorderColor(AccentColor).Padding(4).Text("Preis").FontSize(7).Bold().FontColor(AccentColor);
                         table.Cell().Border(1).BorderColor(AccentColor).Padding(4).Text($"{sale.Preis:N2} €").FontSize(8).Bold().FontColor(AccentColor);
+
+                        // Einkaufspreis (Purchase price) if available
+                        if (sale.Purchase != null)
+                        {
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Einkaufspreis").FontSize(7).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text($"{sale.Purchase.Preis:N2} €").FontSize(8);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("").FontSize(7);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("").FontSize(7);
+                        }
                     });
 
                     // Accessories if any

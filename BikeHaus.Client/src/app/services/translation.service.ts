@@ -127,6 +127,17 @@ export interface Translations {
   downloadBackup: string;
   uploadBackup: string;
 
+  // Export
+  exportDocuments: string;
+  exportDescription: string;
+  exportStartDate: string;
+  exportEndDate: string;
+  exportDownloadZip: string;
+  exportDownloading: string;
+  exportSuccess: string;
+  exportError: string;
+  exportNoData: string;
+
   // User Account
   userAccount: string;
   currentUsername: string;
@@ -794,6 +805,17 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Sind Sie sicher? Alle aktuellen Daten werden durch die Sicherung ersetzt. Dieser Vorgang kann nicht rückgängig gemacht werden.',
     downloadBackup: 'Sicherung herunterladen',
     uploadBackup: 'Sicherung hochladen',
+
+    // Export
+    exportDocuments: 'Belege exportieren',
+    exportDescription: 'Kaufbelege, Verkaufsbelege, Rückgabebelege, Ausgaben-Dokumente und Rechnungen als ZIP herunterladen.',
+    exportStartDate: 'Von',
+    exportEndDate: 'Bis',
+    exportDownloadZip: 'ZIP herunterladen',
+    exportDownloading: 'Wird erstellt...',
+    exportSuccess: 'Export erfolgreich heruntergeladen!',
+    exportError: 'Fehler beim Erstellen des Exports',
+    exportNoData: 'Bitte wählen Sie einen Zeitraum aus.',
 
     // User Account
     userAccount: 'Benutzerkonto',
@@ -1464,6 +1486,17 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Emin misiniz? Mevcut tüm veriler yedek ile değiştirilecektir. Bu işlem geri alınamaz.',
     downloadBackup: 'Yedeği İndir',
     uploadBackup: 'Yedeği Yükle',
+
+    // Export
+    exportDocuments: 'Belge Dışa Aktar',
+    exportDescription: 'Alış belgeleri, satış belgeleri, iade belgeleri, harcama belgeleri ve faturaları ZIP olarak indir.',
+    exportStartDate: 'Başlangıç',
+    exportEndDate: 'Bitiş',
+    exportDownloadZip: 'ZIP İndir',
+    exportDownloading: 'Oluşturuluyor...',
+    exportSuccess: 'Dışa aktarma başarıyla indirildi!',
+    exportError: 'Dışa aktarma oluşturulurken hata oluştu',
+    exportNoData: 'Lütfen bir tarih aralığı seçin.',
 
     // User Account
     userAccount: 'Kullanıcı Hesabı',

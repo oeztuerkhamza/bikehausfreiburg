@@ -346,13 +346,23 @@ import { environment } from '../../../environments/environment';
         margin-bottom: 0.625rem;
       }
 
-      .w60 { width: 60%; }
-      .w40 { width: 40%; }
-      .w30 { width: 30%; }
+      .w60 {
+        width: 60%;
+      }
+      .w40 {
+        width: 40%;
+      }
+      .w30 {
+        width: 30%;
+      }
 
       @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
       }
 
       /* ── Empty State ── */
@@ -385,7 +395,9 @@ import { environment } from '../../../environments/environment';
         overflow: hidden;
         border: 1px solid var(--color-border);
         cursor: pointer;
-        transition: border-color 0.3s, transform 0.3s;
+        transition:
+          border-color 0.3s,
+          transform 0.3s;
         text-decoration: none;
         color: inherit;
       }

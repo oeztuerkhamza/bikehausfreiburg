@@ -658,4 +658,14 @@ export interface PurchaseCreateForExistingBike {
   signature?: SignatureCreate;
   belegNummer?: string;
   anzeigeNr?: string;
+  // Bicycle field updates
+  marke?: string;
+  modell?: string;
+  rahmennummer?: string;
+  rahmengroesse?: string;
+  farbe?: string;
+  reifengroesse?: string;
+  fahrradtyp?: string;
+  art?: string;
+  zustand?: BikeCondition;
 }

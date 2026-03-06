@@ -169,7 +169,8 @@ import { TranslationService } from '../../services/translation.service';
                   class="doc-link"
                   (click)="openDocument(expense)"
                   title="Beleg anzeigen"
-                >📄</span>
+                  >📄</span
+                >
                 <label
                   *ngIf="!expense.belegDatei"
                   class="doc-upload-label"
@@ -528,21 +529,27 @@ import { TranslationService } from '../../services/translation.service';
         background: rgba(239, 68, 68, 0.06);
       }
 
-      .doc-cell { text-align: center; }
+      .doc-cell {
+        text-align: center;
+      }
       .doc-link {
         cursor: pointer;
         font-size: 1.1rem;
         text-decoration: none;
       }
-      .doc-link:hover { opacity: 0.7; }
+      .doc-link:hover {
+        opacity: 0.7;
+      }
       .doc-upload-label {
         cursor: pointer;
         font-size: 1.1rem;
         opacity: 0.5;
         transition: var(--transition-fast);
       }
-      .doc-upload-label:hover { opacity: 1; }
-      .doc-upload-label input[type="file"] {
+      .doc-upload-label:hover {
+        opacity: 1;
+      }
+      .doc-upload-label input[type='file'] {
         display: none;
       }
 

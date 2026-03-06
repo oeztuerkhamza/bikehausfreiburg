@@ -59,6 +59,21 @@ public static class DependencyInjection
         services.AddScoped<IArchiveService, BikeHaus.Application.Services.ArchiveService>();
         services.AddScoped<IAuthService, BikeHaus.Infrastructure.Services.AuthService>();
         services.AddScoped<IPdfService, PdfService>();
+        services.AddScoped<IExportService>(sp =>
+        {
+            var uploadsPath = configuration["FileStorage:BasePath"]
+                ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Path.IsPathRooted(uploadsPath))
+                uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), uploadsPath);
+            return new BikeHaus.Application.Services.ExportService(
+                sp.GetRequiredService<IPurchaseRepository>(),
+                sp.GetRequiredService<ISaleRepository>(),
+                sp.GetRequiredService<IReturnRepository>(),
+                sp.GetRequiredService<IExpenseRepository>(),
+                sp.GetRequiredService<IInvoiceRepository>(),
+                sp.GetRequiredService<IPdfService>(),
+                uploadsPath);
+        });
         services.AddScoped<IFileStorageService>(sp =>
         {
             var basePath = configuration["FileStorage:BasePath"]

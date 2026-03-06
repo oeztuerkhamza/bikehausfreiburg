@@ -117,14 +117,22 @@ export interface Translations {
   bikeCheckBrakeCheck: string;
   bikeCheckGearTest: string;
   bikeCheckTireChain: string;
+  bikeCheckLightCheck: string;
+  bikeCheckReflectorCheck: string;
+  bikeCheckBellCheck: string;
+  bikeCheckSafetyCheck: string;
   bikeCheckRepairTitle: string;
   bikeCheckBrakeAdjust: string;
   bikeCheckChainCassette: string;
   bikeCheckGearAdjust: string;
   bikeCheckTireService: string;
+  bikeCheckCableReplace: string;
+  bikeCheckBottomBracket: string;
+  bikeCheckSpokeRepair: string;
+  bikeCheckLightInstall: string;
+  bikeCheckPedalReplace: string;
   bikeCheckNote: string;
   bikeCheckExclusion: string;
-  bikeCheckNoObligation: string;
   bikeCheckNoLiability: string;
   bikeCheckFairPrices: string;
 
@@ -460,14 +468,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckBrakeCheck: 'Bremsenprüfung',
     bikeCheckGearTest: 'Schaltungstest',
     bikeCheckTireChain: 'Reifen & Kette prüfen',
+    bikeCheckLightCheck: 'Lichtanlage prüfen',
+    bikeCheckReflectorCheck: 'Reflektoren & Sichtbarkeit',
+    bikeCheckBellCheck: 'Klingel & Hupe prüfen',
+    bikeCheckSafetyCheck: 'Allgemeine Sicherheitsprüfung',
     bikeCheckRepairTitle: 'Reparatur auf Wunsch',
     bikeCheckBrakeAdjust: 'Bremsen einstellen',
     bikeCheckChainCassette: 'Kette & Kassette tauschen',
     bikeCheckGearAdjust: 'Schaltung justieren',
     bikeCheckTireService: 'Reifenservice',
+    bikeCheckCableReplace: 'Bowdenzug wechseln',
+    bikeCheckBottomBracket: 'Tretlager warten',
+    bikeCheckSpokeRepair: 'Speichen reparieren & zentrieren',
+    bikeCheckLightInstall: 'Licht nachrüsten',
+    bikeCheckPedalReplace: 'Pedale tauschen',
     bikeCheckNote: 'Nur für normale Fahrräder',
     bikeCheckExclusion: 'Keine E-Bikes, keine Rennräder',
-    bikeCheckNoObligation: 'Keine Pflicht!',
     bikeCheckNoLiability: 'Keine Haftung für Reparaturen',
     bikeCheckFairPrices: 'Faire Preise — Transparente Beratung.',
 
@@ -814,14 +830,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckBrakeCheck: 'Brake inspection',
     bikeCheckGearTest: 'Gear test',
     bikeCheckTireChain: 'Tire & chain check',
+    bikeCheckLightCheck: 'Light system check',
+    bikeCheckReflectorCheck: 'Reflectors & visibility',
+    bikeCheckBellCheck: 'Bell & horn check',
+    bikeCheckSafetyCheck: 'General safety inspection',
     bikeCheckRepairTitle: 'Repairs on Request',
     bikeCheckBrakeAdjust: 'Brake adjustment',
     bikeCheckChainCassette: 'Chain & cassette replacement',
     bikeCheckGearAdjust: 'Gear adjustment',
     bikeCheckTireService: 'Tire service',
+    bikeCheckCableReplace: 'Cable replacement',
+    bikeCheckBottomBracket: 'Bottom bracket service',
+    bikeCheckSpokeRepair: 'Spoke repair & truing',
+    bikeCheckLightInstall: 'Light installation',
+    bikeCheckPedalReplace: 'Pedal replacement',
     bikeCheckNote: 'Regular bikes only',
     bikeCheckExclusion: 'No e-bikes, no racing bikes',
-    bikeCheckNoObligation: 'No obligation!',
     bikeCheckNoLiability: 'No liability for repairs',
     bikeCheckFairPrices: 'Fair prices — Transparent advice.',
 
@@ -1157,14 +1181,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckBrakeCheck: 'Vérification des freins',
     bikeCheckGearTest: 'Test des vitesses',
     bikeCheckTireChain: 'Vérification pneus & chaîne',
+    bikeCheckLightCheck: 'Vérification de l\'éclairage',
+    bikeCheckReflectorCheck: 'Réflecteurs & visibilité',
+    bikeCheckBellCheck: 'Vérification sonnette & klaxon',
+    bikeCheckSafetyCheck: 'Contrôle de sécurité général',
     bikeCheckRepairTitle: 'Réparation sur demande',
     bikeCheckBrakeAdjust: 'Réglage des freins',
     bikeCheckChainCassette: 'Remplacement chaîne & cassette',
     bikeCheckGearAdjust: 'Ajustement des vitesses',
     bikeCheckTireService: 'Service pneus',
+    bikeCheckCableReplace: 'Remplacement de câble',
+    bikeCheckBottomBracket: 'Entretien du pédalier',
+    bikeCheckSpokeRepair: 'Réparation & centrage des rayons',
+    bikeCheckLightInstall: 'Installation d\'éclairage',
+    bikeCheckPedalReplace: 'Remplacement des pédales',
     bikeCheckNote: 'Uniquement pour les vélos classiques',
     bikeCheckExclusion: 'Pas de vélos électriques, pas de vélos de course',
-    bikeCheckNoObligation: 'Aucune obligation !',
     bikeCheckNoLiability: 'Pas de responsabilité pour les réparations',
     bikeCheckFairPrices: 'Prix justes — Conseil transparent.',
 
@@ -1516,14 +1548,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckBrakeCheck: 'Fren kontrolü',
     bikeCheckGearTest: 'Vites testi',
     bikeCheckTireChain: 'Lastik & zincir kontrolü',
+    bikeCheckLightCheck: 'Aydınlatma kontrolü',
+    bikeCheckReflectorCheck: 'Reflektör & görünürlük',
+    bikeCheckBellCheck: 'Zil & korna kontrolü',
+    bikeCheckSafetyCheck: 'Genel güvenlik kontrolü',
     bikeCheckRepairTitle: 'İsteğe Bağlı Tamir',
     bikeCheckBrakeAdjust: 'Fren ayarı',
     bikeCheckChainCassette: 'Zincir & kaset değişimi',
     bikeCheckGearAdjust: 'Vites ayarı',
     bikeCheckTireService: 'Lastik servisi',
+    bikeCheckCableReplace: 'Bowden teli değişimi',
+    bikeCheckBottomBracket: 'Orta göbek bakımı',
+    bikeCheckSpokeRepair: 'Jant teli onarımı & merkezleme',
+    bikeCheckLightInstall: 'Aydınlatma montajı',
+    bikeCheckPedalReplace: 'Pedal değişimi',
     bikeCheckNote: 'Sadece normal bisikletler için',
     bikeCheckExclusion: 'E-Bike ve yarış bisikleti hariç',
-    bikeCheckNoObligation: 'Zorunluluk yok!',
     bikeCheckNoLiability: 'Tamir için sorumluluk kabul edilmez',
     bikeCheckFairPrices: 'Adil fiyatlar — Şeffaf danışmanlık.',
 

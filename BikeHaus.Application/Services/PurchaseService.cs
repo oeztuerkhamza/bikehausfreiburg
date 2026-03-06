@@ -288,6 +288,22 @@ public class PurchaseService : IPurchaseService
         var bicycle = await _bicycleRepository.GetByIdAsync(dto.BicycleId)
             ?? throw new KeyNotFoundException($"Fahrrad mit ID {dto.BicycleId} nicht gefunden.");
 
+        // Update bicycle fields if provided
+        var bicycleUpdated = false;
+        if (!string.IsNullOrWhiteSpace(dto.Marke)) { bicycle.Marke = dto.Marke; bicycleUpdated = true; }
+        if (dto.Modell != null) { bicycle.Modell = dto.Modell; bicycleUpdated = true; }
+        if (dto.Rahmennummer != null) { bicycle.Rahmennummer = dto.Rahmennummer; bicycleUpdated = true; }
+        if (dto.Rahmengroesse != null) { bicycle.Rahmengroesse = dto.Rahmengroesse; bicycleUpdated = true; }
+        if (dto.Farbe != null) { bicycle.Farbe = dto.Farbe; bicycleUpdated = true; }
+        if (!string.IsNullOrWhiteSpace(dto.Reifengroesse)) { bicycle.Reifengroesse = dto.Reifengroesse; bicycleUpdated = true; }
+        if (dto.Fahrradtyp != null) { bicycle.Fahrradtyp = dto.Fahrradtyp; bicycleUpdated = true; }
+        if (dto.Art != null) { bicycle.Art = dto.Art; bicycleUpdated = true; }
+        if (dto.Zustand.HasValue) { bicycle.Zustand = dto.Zustand.Value; bicycleUpdated = true; }
+        if (bicycleUpdated)
+        {
+            await _bicycleRepository.UpdateAsync(bicycle);
+        }
+
         // Create or find Seller
         var seller = dto.Seller.ToEntity();
         seller = await _customerRepository.AddAsync(seller);

@@ -152,6 +152,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'export',
+    loadComponent: () =>
+      import('./pages/export/export.component').then(
+        (m) => m.ExportComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'statistics',
     loadComponent: () =>
       import('./pages/statistics/statistics.component').then(
