@@ -53,8 +53,18 @@ public class ReturnRepository : Repository<Return>, IReturnRepository
 
     public async Task<string> GenerateBelegNummerAsync()
     {
-        var count = await _dbSet.CountAsync();
-        return $"{(count + 1):D3}";
+        var lastBeleg = await _dbSet
+            .OrderByDescending(r => r.BelegNummer)
+            .Select(r => r.BelegNummer)
+            .FirstOrDefaultAsync();
+
+        var nextNumber = 1;
+        if (!string.IsNullOrEmpty(lastBeleg) && int.TryParse(lastBeleg, out var parsed))
+        {
+            nextNumber = parsed + 1;
+        }
+
+        return $"{nextNumber:D3}";
     }
 
     public override async Task<IEnumerable<Return>> GetAllAsync()
