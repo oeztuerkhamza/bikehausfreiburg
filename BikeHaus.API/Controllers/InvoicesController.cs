@@ -43,6 +43,13 @@ public class InvoicesController : ControllerBase
         return Ok(invoices);
     }
 
+    [HttpGet("next-number")]
+    public async Task<ActionResult<object>> GetNextNumber()
+    {
+        var nummer = await _service.GetNextRechnungsNummerAsync();
+        return Ok(new { rechnungsNummer = nummer });
+    }
+
     [HttpPost]
     public async Task<ActionResult<InvoiceDto>> Create(InvoiceCreateDto dto)
     {

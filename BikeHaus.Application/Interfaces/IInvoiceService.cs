@@ -7,6 +7,7 @@ public interface IInvoiceService
     Task<IEnumerable<InvoiceListDto>> GetAllAsync();
     Task<InvoiceDto?> GetByIdAsync(int id);
     Task<IEnumerable<InvoiceListDto>> SearchAsync(string query);
+    Task<string> GetNextRechnungsNummerAsync();
     Task<InvoiceDto> CreateAsync(InvoiceCreateDto dto);
     Task<InvoiceDto?> UpdateAsync(int id, InvoiceUpdateDto dto);
     Task<bool> DeleteAsync(int id);

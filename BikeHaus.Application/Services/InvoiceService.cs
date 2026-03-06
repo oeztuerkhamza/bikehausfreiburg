@@ -35,6 +35,11 @@ public class InvoiceService : IInvoiceService
         return invoices.Select(MapToListDto);
     }
 
+    public async Task<string> GetNextRechnungsNummerAsync()
+    {
+        return await _repository.GetNextRechnungsNummerAsync();
+    }
+
     public async Task<InvoiceDto> CreateAsync(InvoiceCreateDto dto)
     {
         var rechnungsNummer = dto.RechnungsNummer;

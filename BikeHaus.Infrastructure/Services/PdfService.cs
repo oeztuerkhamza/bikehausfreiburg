@@ -16,6 +16,7 @@ public class PdfService : IPdfService
     private readonly IReturnRepository _returnRepository;
     private readonly IShopSettingsRepository _shopSettingsRepository;
     private readonly IInvoiceRepository _invoiceRepository;
+    private readonly IExpenseRepository _expenseRepository;
 
     // Print-Friendly Colors (optimized for less ink consumption)
     private static readonly string PrimaryColor = "#2c5282";       // Medium blue (for text)
@@ -62,13 +63,15 @@ public class PdfService : IPdfService
         ISaleRepository saleRepository,
         IReturnRepository returnRepository,
         IShopSettingsRepository shopSettingsRepository,
-        IInvoiceRepository invoiceRepository)
+        IInvoiceRepository invoiceRepository,
+        IExpenseRepository expenseRepository)
     {
         _purchaseRepository = purchaseRepository;
         _saleRepository = saleRepository;
         _returnRepository = returnRepository;
         _shopSettingsRepository = shopSettingsRepository;
         _invoiceRepository = invoiceRepository;
+        _expenseRepository = expenseRepository;
     }
 
     // Helper to get shop info from DB settings or use defaults
@@ -498,8 +501,8 @@ public class PdfService : IPdfService
 
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Reifengröße").FontSize(7).FontColor(Colors.Grey.Darken2);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Reifengroesse).FontSize(8);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Beleg Nr.").FontSize(7).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.BelegNummer ?? "-").FontSize(8);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Kauf Beleg Nr.").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Purchase?.BelegNummer ?? "-").FontSize(8);
 
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Fahrradtyp").FontSize(7).FontColor(Colors.Grey.Darken2);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Fahrradtyp ?? "-").FontSize(8);
@@ -1019,6 +1022,110 @@ public class PdfService : IPdfService
 
                     // Footer
                     col.Item().PaddingTop(20).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}").FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
+                });
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    public async Task<byte[]> GenerateAusgabebelegAsync(int expenseId)
+    {
+        var expense = await _expenseRepository.GetByIdAsync(expenseId)
+            ?? throw new KeyNotFoundException($"Expense with ID {expenseId} not found.");
+
+        var shop = await GetShopInfoAsync();
+
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = QuestPDF.Fluent.Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(1.5f, Unit.Centimetre);
+                page.DefaultTextStyle(x => x.FontSize(9).FontColor(Colors.Grey.Darken4));
+
+                // Header
+                page.Header().Container().Column(col =>
+                {
+                    col.Item().Row(row =>
+                    {
+                        row.RelativeItem().Column(leftCol =>
+                        {
+                            if (!string.IsNullOrEmpty(shop.LogoBase64))
+                            {
+                                try
+                                {
+                                    var base64Data = shop.LogoBase64;
+                                    if (base64Data.Contains(","))
+                                        base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
+                                    var logoBytes = Convert.FromBase64String(base64Data);
+                                    leftCol.Item().Height(32).Image(logoBytes);
+                                }
+                                catch { }
+                            }
+                            leftCol.Item().Text(shop.ShopName).FontSize(16).Bold().FontColor(PrimaryColor);
+                            leftCol.Item().Text(shop.OwnerName).FontSize(9).FontColor(Colors.Grey.Darken2);
+                            leftCol.Item().PaddingTop(4).Text(shop.Street).FontSize(8);
+                            leftCol.Item().Text(shop.City).FontSize(8);
+                        });
+
+                        row.ConstantItem(150).AlignRight().Column(rightCol =>
+                        {
+                            rightCol.Item().Border(2).BorderColor(PrimaryColor).Padding(8).Column(box =>
+                            {
+                                box.Item().Text("AUSGABEBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text(expense.BelegNummer ?? $"A-{expense.Id}").FontSize(12).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text($"{expense.Datum:dd.MM.yyyy}").FontSize(9).FontColor(Colors.Grey.Darken1).AlignCenter();
+                            });
+                        });
+                    });
+                });
+
+                // Content
+                page.Content().PaddingTop(20).Column(col =>
+                {
+                    // Details table
+                    col.Item().Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                        });
+
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(6).Text("Bezeichnung").FontSize(8).Bold().FontColor(PrimaryColor);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(expense.Bezeichnung).FontSize(9);
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Kategorie").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(expense.Kategorie ?? "-").FontSize(9);
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Lieferant").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(expense.Lieferant ?? "-").FontSize(9);
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Datum").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text($"{expense.Datum:dd.MM.yyyy}").FontSize(9);
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Beleg Nr.").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(expense.BelegNummer ?? "-").FontSize(9);
+
+                        table.Cell().Border(1).BorderColor(AccentColor).Padding(6).Text("Betrag").FontSize(8).Bold().FontColor(AccentColor);
+                        table.Cell().Border(1).BorderColor(AccentColor).Padding(6).Text($"{expense.Betrag:N2} \u20ac").FontSize(10).Bold().FontColor(AccentColor);
+                    });
+
+                    // Notes
+                    if (!string.IsNullOrWhiteSpace(expense.Notizen))
+                    {
+                        col.Item().PaddingTop(12).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8).Column(nCol =>
+                        {
+                            nCol.Item().Text("Notizen:").FontSize(8).Bold().FontColor(Colors.Grey.Darken1);
+                            nCol.Item().PaddingTop(2).Text(expense.Notizen).FontSize(8);
+                        });
+                    }
+
+                    // Footer
+                    col.Item().PaddingTop(30).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}").FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
                 });
             });
         });

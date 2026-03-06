@@ -73,23 +73,33 @@ public class ExportService : IExportService
                 await entryStream.WriteAsync(pdf);
             }
 
-            // 4. Ausgaben-Belege (Expense documents - uploaded files)
+            // 4. Ausgaben-Belege (Expense PDFs + uploaded documents)
             var expenses = await _expenseRepository.GetByDateRangeAsync(startDate, endDate);
             foreach (var expense in expenses)
             {
-                if (string.IsNullOrEmpty(expense.BelegDatei))
-                    continue;
+                // Generate PDF for each expense
+                var pdf = await _pdfService.GenerateAusgabebelegAsync(expense.Id);
+                var pdfFileName = $"Ausgaben/Ausgabe_{expense.BelegNummer ?? expense.Id.ToString()}_{expense.Datum:yyyy-MM-dd}.pdf";
+                var pdfEntry = archive.CreateEntry(SanitizeFileName(pdfFileName));
+                using (var pdfStream = pdfEntry.Open())
+                {
+                    await pdfStream.WriteAsync(pdf);
+                }
 
-                var filePath = Path.Combine(_uploadsPath, expense.BelegDatei.TrimStart('/'));
-                if (!File.Exists(filePath))
-                    continue;
-
-                var ext = Path.GetExtension(filePath);
-                var fileName = $"Ausgaben/Ausgabe_{expense.BelegNummer ?? expense.Id.ToString()}_{expense.Datum:yyyy-MM-dd}{ext}";
-                var entry = archive.CreateEntry(SanitizeFileName(fileName));
-                using var entryStream = entry.Open();
-                using var fileStream = File.OpenRead(filePath);
-                await fileStream.CopyToAsync(entryStream);
+                // Also include uploaded document if exists
+                if (!string.IsNullOrEmpty(expense.BelegDatei))
+                {
+                    var filePath = Path.Combine(_uploadsPath, expense.BelegDatei.TrimStart('/'));
+                    if (File.Exists(filePath))
+                    {
+                        var ext = Path.GetExtension(filePath);
+                        var docFileName = $"Ausgaben/Dokument_{expense.BelegNummer ?? expense.Id.ToString()}_{expense.Datum:yyyy-MM-dd}{ext}";
+                        var docEntry = archive.CreateEntry(SanitizeFileName(docFileName));
+                        using var docStream = docEntry.Open();
+                        using var fileStream = File.OpenRead(filePath);
+                        await fileStream.CopyToAsync(docStream);
+                    }
+                }
             }
 
             // 5. Rechnungen (Invoices)

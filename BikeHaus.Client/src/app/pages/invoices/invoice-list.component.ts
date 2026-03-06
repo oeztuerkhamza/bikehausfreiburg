@@ -155,9 +155,9 @@ import { TranslationService } from '../../services/translation.service';
         <div class="modal-content" (click)="$event.stopPropagation()">
           <h2>{{ editingInvoice ? t.editInvoice : t.newInvoice }}</h2>
           <div class="form-grid">
-            <div class="form-group" *ngIf="editingInvoice">
+            <div class="form-group">
               <label>{{ t.invoiceNumber }}</label>
-              <input type="text" [(ngModel)]="form.rechnungsNummer" readonly />
+              <input type="text" [(ngModel)]="form.rechnungsNummer" />
             </div>
             <div class="form-group">
               <label>{{ t.date }} *</label>
@@ -639,6 +639,11 @@ export class InvoiceListComponent implements OnInit {
       notizen: null,
     };
     this.showForm = true;
+    this.invoiceService.getNextRechnungsNummer().subscribe({
+      next: (res) => {
+        this.form.rechnungsNummer = res.rechnungsNummer;
+      },
+    });
   }
 
   startEdit(inv: Invoice) {
