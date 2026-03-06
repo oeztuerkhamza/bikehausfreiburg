@@ -112,7 +112,6 @@ import { AddressSuggestion } from '../../services/address.service';
                 <label>{{ t.city }}</label>
                 <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
               </div>
-
             </div>
           </div>
 

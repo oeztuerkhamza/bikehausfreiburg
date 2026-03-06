@@ -88,10 +88,7 @@ import { TranslationService } from '../../services/translation.service';
             </div>
             <div class="form-group checkbox-group">
               <label class="checkbox-label">
-                <input
-                  type="checkbox"
-                  [(ngModel)]="form.bezahlt"
-                />
+                <input type="checkbox" [(ngModel)]="form.bezahlt" />
                 <span>{{ t.paid || 'Ödendi' }}</span>
               </label>
             </div>
@@ -107,7 +104,9 @@ import { TranslationService } from '../../services/translation.service';
                 (change)="onFileSelected($event)"
                 class="file-input"
               />
-              <span *ngIf="selectedFile" class="file-name">📎 {{ selectedFile.name }}</span>
+              <span *ngIf="selectedFile" class="file-name"
+                >📎 {{ selectedFile.name }}</span
+              >
             </div>
           </div>
           <div class="form-actions">
@@ -172,11 +171,25 @@ import { TranslationService } from '../../services/translation.service';
               <td class="amount-cell">
                 {{ expense.betrag | currency: 'EUR' }}
               </td>
-              <td>{{ expense.faelligkeitsDatum ? formatDate(expense.faelligkeitsDatum) : '–' }}</td>
               <td>
-                <span class="status-badge" [class.paid]="expense.bezahlt" [class.unpaid]="!expense.bezahlt"
-                  (click)="toggleBezahlt(expense)">
-                  {{ expense.bezahlt ? (t.paid || 'Ödendi') : (t.unpaid || 'Ödenmedi') }}
+                {{
+                  expense.faelligkeitsDatum
+                    ? formatDate(expense.faelligkeitsDatum)
+                    : '–'
+                }}
+              </td>
+              <td>
+                <span
+                  class="status-badge"
+                  [class.paid]="expense.bezahlt"
+                  [class.unpaid]="!expense.bezahlt"
+                  (click)="toggleBezahlt(expense)"
+                >
+                  {{
+                    expense.bezahlt
+                      ? t.paid || 'Ödendi'
+                      : t.unpaid || 'Ödenmedi'
+                  }}
                 </span>
               </td>
               <td class="doc-cell">
@@ -744,7 +757,9 @@ export class ExpenseListComponent implements OnInit {
       lieferant: expense.lieferant,
       belegNummer: expense.belegNummer,
       notizen: expense.notizen,
-      faelligkeitsDatum: expense.faelligkeitsDatum ? expense.faelligkeitsDatum.split('T')[0] : null,
+      faelligkeitsDatum: expense.faelligkeitsDatum
+        ? expense.faelligkeitsDatum.split('T')[0]
+        : null,
       bezahlt: expense.bezahlt,
     };
     this.showForm = true;
@@ -769,20 +784,22 @@ export class ExpenseListComponent implements OnInit {
     request$.subscribe({
       next: (saved) => {
         if (this.selectedFile) {
-          this.expenseService.uploadDocument(saved.id, this.selectedFile).subscribe({
-            next: () => {
-              this.showForm = false;
-              this.saving = false;
-              this.selectedFile = null;
-              this.loadExpenses();
-            },
-            error: () => {
-              this.showForm = false;
-              this.saving = false;
-              this.selectedFile = null;
-              this.loadExpenses();
-            },
-          });
+          this.expenseService
+            .uploadDocument(saved.id, this.selectedFile)
+            .subscribe({
+              next: () => {
+                this.showForm = false;
+                this.saving = false;
+                this.selectedFile = null;
+                this.loadExpenses();
+              },
+              error: () => {
+                this.showForm = false;
+                this.saving = false;
+                this.selectedFile = null;
+                this.loadExpenses();
+              },
+            });
         } else {
           this.showForm = false;
           this.saving = false;
