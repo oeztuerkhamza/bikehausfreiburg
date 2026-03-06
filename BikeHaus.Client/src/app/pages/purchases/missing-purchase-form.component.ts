@@ -47,7 +47,11 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field">
                 <label>{{ t.frameNumber }} *</label>
-                <input [(ngModel)]="bikeRahmennummer" name="bikeRahmennummer" required />
+                <input
+                  [(ngModel)]="bikeRahmennummer"
+                  name="bikeRahmennummer"
+                  required
+                />
               </div>
               <div class="field">
                 <label>{{ t.frameSize }}</label>
@@ -153,10 +157,7 @@ import { AddressSuggestion } from '../../services/address.service';
             <div class="form-grid">
               <div class="field">
                 <label>{{ t.receiptNo }}</label>
-                <input
-                  [(ngModel)]="belegNummer"
-                  name="belegNummer"
-                />
+                <input [(ngModel)]="belegNummer" name="belegNummer" />
               </div>
               <div class="field">
                 <label>{{ t.bicyclePrice }} *</label>
