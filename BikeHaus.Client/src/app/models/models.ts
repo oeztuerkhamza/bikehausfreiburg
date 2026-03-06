@@ -668,4 +668,5 @@ export interface PurchaseCreateForExistingBike {
   fahrradtyp?: string;
   art?: string;
   zustand?: BikeCondition;
+  stokNo?: string;
 }

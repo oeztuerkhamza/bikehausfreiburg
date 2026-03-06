@@ -38,16 +38,16 @@ import { AddressSuggestion } from '../../services/address.service';
             <h2>🚲 {{ t.bicycle }}</h2>
             <div class="form-grid">
               <div class="field">
-                <label>{{ t.brand }}</label>
-                <input [(ngModel)]="bikeMarke" name="bikeMarke" />
+                <label>{{ t.brand }} *</label>
+                <input [(ngModel)]="bikeMarke" name="bikeMarke" required />
               </div>
               <div class="field">
                 <label>{{ t.model }}</label>
                 <input [(ngModel)]="bikeModell" name="bikeModell" />
               </div>
               <div class="field">
-                <label>{{ t.frameNumber }}</label>
-                <input [(ngModel)]="bikeRahmennummer" name="bikeRahmennummer" />
+                <label>{{ t.frameNumber }} *</label>
+                <input [(ngModel)]="bikeRahmennummer" name="bikeRahmennummer" required />
               </div>
               <div class="field">
                 <label>{{ t.frameSize }}</label>
@@ -61,10 +61,11 @@ import { AddressSuggestion } from '../../services/address.service';
                 <input [(ngModel)]="bikeFarbe" name="bikeFarbe" />
               </div>
               <div class="field">
-                <label>{{ t.wheelSize }}</label>
+                <label>{{ t.wheelSize }} *</label>
                 <input
                   [(ngModel)]="bikeReifengroesse"
                   name="bikeReifengroesse"
+                  required
                 />
               </div>
               <div class="field">
@@ -73,7 +74,7 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field">
                 <label>{{ t.stockNo }}</label>
-                <input [value]="bikeStokNo" readonly class="readonly" />
+                <input [(ngModel)]="bikeStokNo" name="bikeStokNo" />
               </div>
             </div>
           </div>
@@ -155,8 +156,6 @@ import { AddressSuggestion } from '../../services/address.service';
                 <input
                   [(ngModel)]="belegNummer"
                   name="belegNummer"
-                  readonly
-                  class="readonly"
                 />
               </div>
               <div class="field">
@@ -468,6 +467,9 @@ export class MissingPurchaseFormComponent implements OnInit {
   canSubmit(): boolean {
     return !!(
       this.bicycleId > 0 &&
+      this.bikeMarke?.trim() &&
+      this.bikeRahmennummer?.trim() &&
+      this.bikeReifengroesse?.trim() &&
       this.seller.vorname?.trim() &&
       this.seller.nachname?.trim() &&
       this.preis > 0 &&
@@ -507,6 +509,7 @@ export class MissingPurchaseFormComponent implements OnInit {
       fahrradtyp: this.bikeFahrradtyp || undefined,
       art: this.bikeArt || undefined,
       zustand: this.bikeZustand,
+      stokNo: this.bikeStokNo || undefined,
     };
 
     this.purchaseService.createForExistingBike(dto).subscribe({

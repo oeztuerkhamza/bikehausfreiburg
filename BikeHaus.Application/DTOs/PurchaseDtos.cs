@@ -121,5 +121,6 @@ public record PurchaseCreateForExistingBikeDto(
     string? Reifengroesse = null,
     string? Fahrradtyp = null,
     string? Art = null,
-    BikeCondition? Zustand = null
+    BikeCondition? Zustand = null,
+    string? StokNo = null
 );

@@ -299,6 +299,7 @@ public class PurchaseService : IPurchaseService
         if (dto.Fahrradtyp != null) { bicycle.Fahrradtyp = dto.Fahrradtyp; bicycleUpdated = true; }
         if (dto.Art != null) { bicycle.Art = dto.Art; bicycleUpdated = true; }
         if (dto.Zustand.HasValue) { bicycle.Zustand = dto.Zustand.Value; bicycleUpdated = true; }
+        if (dto.StokNo != null) { bicycle.StokNo = dto.StokNo; bicycleUpdated = true; }
         if (bicycleUpdated)
         {
             await _bicycleRepository.UpdateAsync(bicycle);
