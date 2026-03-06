@@ -117,3 +117,28 @@ export interface RepairShowcase {
   createdAt: string;
   images: RepairShowcaseImage[];
 }
+
+// ── Homepage Accessories ──
+export interface HomepageAccessoryImage {
+  id: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface HomepageAccessory {
+  id: number;
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  isActive: boolean;
+  createdAt: string;
+  images: HomepageAccessoryImage[];
+}
+
+export interface HomepageAccessoryCategory {
+  name: string;
+  count: number;
+}

@@ -191,5 +191,29 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'homepage-accessories',
+    loadComponent: () =>
+      import(
+        './pages/homepage-accessories/homepage-accessory-list.component'
+      ).then((m) => m.HomepageAccessoryListComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'homepage-accessories/new',
+    loadComponent: () =>
+      import(
+        './pages/homepage-accessories/homepage-accessory-form.component'
+      ).then((m) => m.HomepageAccessoryFormComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'homepage-accessories/edit/:id',
+    loadComponent: () =>
+      import(
+        './pages/homepage-accessories/homepage-accessory-form.component'
+      ).then((m) => m.HomepageAccessoryFormComponent),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];

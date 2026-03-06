@@ -11,6 +11,7 @@ public class PublicController : ControllerBase
     private readonly INeueFahrradService _neueFahrradService;
     private readonly IBicycleService _bicycleService;
     private readonly IRepairShowcaseService _repairShowcaseService;
+    private readonly IHomepageAccessoryService _homepageAccessoryService;
     private readonly IWebHostEnvironment _env;
     private readonly IConfiguration _config;
 
@@ -19,6 +20,7 @@ public class PublicController : ControllerBase
         INeueFahrradService neueFahrradService,
         IBicycleService bicycleService,
         IRepairShowcaseService repairShowcaseService,
+        IHomepageAccessoryService homepageAccessoryService,
         IWebHostEnvironment env,
         IConfiguration config)
     {
@@ -26,6 +28,7 @@ public class PublicController : ControllerBase
         _neueFahrradService = neueFahrradService;
         _bicycleService = bicycleService;
         _repairShowcaseService = repairShowcaseService;
+        _homepageAccessoryService = homepageAccessoryService;
         _env = env;
         _config = config;
     }
@@ -182,6 +185,49 @@ public class PublicController : ControllerBase
         var item = await _repairShowcaseService.GetByIdAsync(id);
         if (item == null) return NotFound();
         return Ok(item);
+    }
+
+    // ═══ Homepage Accessories ═══
+
+    /// <summary>
+    /// Get all active homepage accessories (public)
+    /// </summary>
+    [HttpGet("homepage-accessories")]
+    public async Task<IActionResult> GetHomepageAccessories()
+    {
+        var items = await _homepageAccessoryService.GetAllActiveAsync();
+        return Ok(items);
+    }
+
+    /// <summary>
+    /// Get homepage accessories by category
+    /// </summary>
+    [HttpGet("homepage-accessories/category/{category}")]
+    public async Task<IActionResult> GetHomepageAccessoriesByCategory(string category)
+    {
+        var items = await _homepageAccessoryService.GetByCategoryAsync(Uri.UnescapeDataString(category));
+        return Ok(items);
+    }
+
+    /// <summary>
+    /// Get a single homepage accessory by ID
+    /// </summary>
+    [HttpGet("homepage-accessories/{id}")]
+    public async Task<IActionResult> GetHomepageAccessory(int id)
+    {
+        var item = await _homepageAccessoryService.GetByIdAsync(id);
+        if (item == null) return NotFound();
+        return Ok(item);
+    }
+
+    /// <summary>
+    /// Get homepage accessory categories with counts
+    /// </summary>
+    [HttpGet("homepage-accessories/categories")]
+    public async Task<IActionResult> GetHomepageAccessoryCategories()
+    {
+        var categories = await _homepageAccessoryService.GetCategoriesAsync();
+        return Ok(categories);
     }
 
     /// <summary>

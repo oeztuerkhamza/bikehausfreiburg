@@ -42,10 +42,16 @@ export const routes: Routes = [
       {
         path: 'zubehoer',
         loadComponent: () =>
-          import('./pages/showroom/showroom.component').then(
-            (m) => m.ShowroomComponent,
+          import('./pages/zubehoer/zubehoer.component').then(
+            (m) => m.ZubehoerComponent,
           ),
-        data: { mode: 'zubehoer' },
+      },
+      {
+        path: 'zubehoer/:id',
+        loadComponent: () =>
+          import('./pages/zubehoer/zubehoer-detail.component').then(
+            (m) => m.ZubehoerDetailComponent,
+          ),
       },
       {
         path: 'neue-fahrraeder',

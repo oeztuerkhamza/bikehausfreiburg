@@ -16,7 +16,12 @@ import { AddressSuggestion } from '../../services/address.service';
 @Component({
   selector: 'app-missing-purchase-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AddressAutocompleteComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    AddressAutocompleteComponent,
+  ],
   template: `
     <div class="page">
       <div class="page-header">
@@ -81,10 +86,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   list="firstNameList"
                 />
                 <datalist id="firstNameList">
-                  <option
-                    *ngFor="let n of firstNames"
-                    [value]="n"
-                  ></option>
+                  <option *ngFor="let n of firstNames" [value]="n"></option>
                 </datalist>
               </div>
               <div class="field">
@@ -97,10 +99,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   list="lastNameList"
                 />
                 <datalist id="lastNameList">
-                  <option
-                    *ngFor="let n of lastNames"
-                    [value]="n"
-                  ></option>
+                  <option *ngFor="let n of lastNames" [value]="n"></option>
                 </datalist>
               </div>
               <div class="field full">

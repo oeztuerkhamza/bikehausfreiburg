@@ -10,6 +10,8 @@ import {
   NeueFahrradCategory,
   PublicBicycle,
   RepairShowcase,
+  HomepageAccessory,
+  HomepageAccessoryCategory,
 } from '../models/models';
 
 @Injectable({
@@ -87,5 +89,32 @@ export class ApiService {
   // ── Repair Showcases ──
   getRepairShowcases(): Observable<RepairShowcase[]> {
     return this.http.get<RepairShowcase[]>(`${this.baseUrl}/repair-showcases`);
+  }
+
+  // ── Homepage Accessories ──
+  getHomepageAccessories(): Observable<HomepageAccessory[]> {
+    return this.http.get<HomepageAccessory[]>(
+      `${this.baseUrl}/homepage-accessories`,
+    );
+  }
+
+  getHomepageAccessoriesByCategory(
+    category: string,
+  ): Observable<HomepageAccessory[]> {
+    return this.http.get<HomepageAccessory[]>(
+      `${this.baseUrl}/homepage-accessories/category/${encodeURIComponent(category)}`,
+    );
+  }
+
+  getHomepageAccessoryById(id: number): Observable<HomepageAccessory> {
+    return this.http.get<HomepageAccessory>(
+      `${this.baseUrl}/homepage-accessories/${id}`,
+    );
+  }
+
+  getHomepageAccessoryCategories(): Observable<HomepageAccessoryCategory[]> {
+    return this.http.get<HomepageAccessoryCategory[]>(
+      `${this.baseUrl}/homepage-accessories/categories`,
+    );
   }
 }

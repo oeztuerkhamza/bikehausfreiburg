@@ -25,7 +25,11 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       <div class="page-header">
         <h1>{{ t.purchases }}</h1>
         <div class="header-actions">
-          <a routerLink="/purchases/missing" class="btn btn-warning" *ngIf="missingCount > 0">
+          <a
+            routerLink="/purchases/missing"
+            class="btn btn-warning"
+            *ngIf="missingCount > 0"
+          >
             ⚠️ {{ t.missingPurchases }} ({{ missingCount }})
           </a>
           <button class="btn btn-outline" (click)="exportExcel()">

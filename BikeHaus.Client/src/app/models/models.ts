@@ -587,6 +587,44 @@ export interface NeueFahrradCategory {
   count: number;
 }
 
+// ── Homepage Accessories ──
+export interface HomepageAccessory {
+  id: number;
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  isActive: boolean;
+  createdAt: string;
+  images: HomepageAccessoryImage[];
+}
+
+export interface HomepageAccessoryImage {
+  id: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface HomepageAccessoryCreate {
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+}
+
+export interface HomepageAccessoryUpdate extends HomepageAccessoryCreate {
+  isActive: boolean;
+}
+
+export interface HomepageAccessoryCategory {
+  name: string;
+  count: number;
+}
+
 // ── Missing Purchase ──
 export interface MissingSale {
   saleId: number;

@@ -27,6 +27,8 @@ public class BikeHausDbContext : DbContext
     public DbSet<BicycleImage> BicycleImages => Set<BicycleImage>();
     public DbSet<RepairShowcase> RepairShowcases => Set<RepairShowcase>();
     public DbSet<RepairShowcaseImage> RepairShowcaseImages => Set<RepairShowcaseImage>();
+    public DbSet<HomepageAccessory> HomepageAccessories => Set<HomepageAccessory>();
+    public DbSet<HomepageAccessoryImage> HomepageAccessoryImages => Set<HomepageAccessoryImage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -371,6 +373,32 @@ public class BikeHausDbContext : DbContext
             entity.HasOne(e => e.RepairShowcase)
                 .WithMany(r => r.Images)
                 .HasForeignKey(e => e.RepairShowcaseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── HomepageAccessory Configuration ──
+        modelBuilder.Entity<HomepageAccessory>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Titel).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Beschreibung).HasMaxLength(5000);
+            entity.Property(e => e.Preis).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.PreisText).HasMaxLength(100);
+            entity.Property(e => e.Kategorie).HasMaxLength(200);
+            entity.Property(e => e.Marke).HasMaxLength(100);
+            entity.HasIndex(e => e.IsActive);
+            entity.HasIndex(e => e.Kategorie);
+        });
+
+        // ── HomepageAccessoryImage Configuration ──
+        modelBuilder.Entity<HomepageAccessoryImage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FilePath).IsRequired().HasMaxLength(500);
+
+            entity.HasOne(e => e.Accessory)
+                .WithMany(a => a.Images)
+                .HasForeignKey(e => e.HomepageAccessoryId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

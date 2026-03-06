@@ -309,6 +309,84 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("Expenses");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.HomepageAccessory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Beschreibung")
+                        .HasMaxLength(5000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Kategorie")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Marke")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Preis")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("PreisText")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Titel")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Kategorie");
+
+                    b.ToTable("HomepageAccessories");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.HomepageAccessoryImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("HomepageAccessoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HomepageAccessoryId");
+
+                    b.ToTable("HomepageAccessoryImages");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.KleinanzeigenImage", b =>
                 {
                     b.Property<int>("Id")
@@ -1084,6 +1162,17 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.HomepageAccessoryImage", b =>
+                {
+                    b.HasOne("BikeHaus.Domain.Entities.HomepageAccessory", "Accessory")
+                        .WithMany("Images")
+                        .HasForeignKey("HomepageAccessoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accessory");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.KleinanzeigenImage", b =>
                 {
                     b.HasOne("BikeHaus.Domain.Entities.KleinanzeigenListing", "Listing")
@@ -1286,6 +1375,11 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Returns");
 
                     b.Navigation("Sales");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.HomepageAccessory", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.KleinanzeigenListing", b =>

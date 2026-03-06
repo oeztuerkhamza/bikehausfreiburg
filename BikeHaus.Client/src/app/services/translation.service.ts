@@ -634,6 +634,22 @@ export interface Translations {
   neueFahrradDeleted: string;
   neueFahrradUploadPhotos: string;
   neueFahrradSelectCategory: string;
+
+  // Homepage Accessories
+  homepageAccessories: string;
+  homepageAccessoryNew: string;
+  homepageAccessoryEdit: string;
+  homepageAccessoryTitle: string;
+  homepageAccessoryDescription: string;
+  homepageAccessoryPrice: string;
+  homepageAccessoryCategory: string;
+  homepageAccessoryBrand: string;
+  homepageAccessoryActive: string;
+  homepageAccessoryPhotos: string;
+  homepageAccessoryNoItems: string;
+  homepageAccessoryDeleteConfirm: string;
+  homepageAccessoryUploadPhotos: string;
+  homepageAccessorySelectCategory: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -1280,6 +1296,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrradDeleted: 'Fahrrad gelöscht!',
     neueFahrradUploadPhotos: 'Fotos hochladen',
     neueFahrradSelectCategory: 'Kategorie wählen',
+
+    // Homepage Accessories
+    homepageAccessories: 'Zubehör (Homepage)',
+    homepageAccessoryNew: 'Neues Zubehör hinzufügen',
+    homepageAccessoryEdit: 'Zubehör bearbeiten',
+    homepageAccessoryTitle: 'Titel',
+    homepageAccessoryDescription: 'Beschreibung',
+    homepageAccessoryPrice: 'Preis (€)',
+    homepageAccessoryCategory: 'Kategorie',
+    homepageAccessoryBrand: 'Marke',
+    homepageAccessoryActive: 'Aktiv',
+    homepageAccessoryPhotos: 'Fotos',
+    homepageAccessoryNoItems: 'Keine Zubehörartikel vorhanden.',
+    homepageAccessoryDeleteConfirm: 'Zubehör wirklich löschen?',
+    homepageAccessoryUploadPhotos: 'Fotos hochladen',
+    homepageAccessorySelectCategory: 'Kategorie wählen',
   },
   tr: {
     // Navigation
@@ -1923,6 +1955,22 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrradDeleted: 'Bisiklet silindi!',
     neueFahrradUploadPhotos: 'Fotoğraf yükle',
     neueFahrradSelectCategory: 'Kategori seçin',
+
+    // Homepage Accessories
+    homepageAccessories: 'Aksesuarlar (Homepage)',
+    homepageAccessoryNew: 'Yeni aksesuar ekle',
+    homepageAccessoryEdit: 'Aksesuar düzenle',
+    homepageAccessoryTitle: 'Başlık',
+    homepageAccessoryDescription: 'Açıklama',
+    homepageAccessoryPrice: 'Fiyat (€)',
+    homepageAccessoryCategory: 'Kategori',
+    homepageAccessoryBrand: 'Marka',
+    homepageAccessoryActive: 'Aktif',
+    homepageAccessoryPhotos: 'Fotoğraflar',
+    homepageAccessoryNoItems: 'Henüz aksesuar eklenmedi.',
+    homepageAccessoryDeleteConfirm: 'Bu aksesuarı silmek istediğinize emin misiniz?',
+    homepageAccessoryUploadPhotos: 'Fotoğraf yükle',
+    homepageAccessorySelectCategory: 'Kategori seçin',
   },
 };
 

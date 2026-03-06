@@ -319,6 +319,11 @@ export interface Translations {
   accessoriesMetaDescription: string;
   accessoriesTitle: string;
   accessoriesSub: string;
+  accessoriesNoItems: string;
+  accessoriesAllCategories: string;
+  accessoriesViewDetails: string;
+  accessoriesBrand: string;
+  accessoriesPriceOnRequest: string;
 
   // Neue Fahrräder page
   neueFahrraeder: string;
@@ -672,6 +677,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Fahrradzubehör bei Bike Haus Freiburg. Taschen, Helme, Schlösser und mehr.',
     accessoriesTitle: 'Zubehör',
     accessoriesSub: 'Taschen, Helme, Schlösser und mehr für Ihr Fahrrad.',
+    accessoriesNoItems: 'Derzeit keine Zubehörartikel verfügbar.',
+    accessoriesAllCategories: 'Alle Kategorien',
+    accessoriesViewDetails: 'Details ansehen',
+    accessoriesBrand: 'Marke',
+    accessoriesPriceOnRequest: 'Preis auf Anfrage',
 
     // Neue Fahrräder
     neueFahrraeder: 'Neue Fahrräder',
@@ -1006,6 +1016,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Bike accessories at Bike Haus Freiburg. Bags, helmets, locks, and more.',
     accessoriesTitle: 'Accessories',
     accessoriesSub: 'Bags, helmets, locks, and more for your bike.',
+    accessoriesNoItems: 'No accessories available at the moment.',
+    accessoriesAllCategories: 'All Categories',
+    accessoriesViewDetails: 'View Details',
+    accessoriesBrand: 'Brand',
+    accessoriesPriceOnRequest: 'Price on request',
 
     neueFahrraeder: 'New Bikes',
     neueFahrraederMetaTitle: 'New Bikes — Bike Haus Freiburg',
@@ -1361,6 +1376,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Accessoires vélo chez Bike Haus Freiburg. Sacoches, casques, antivols et plus.',
     accessoriesTitle: 'Accessoires',
     accessoriesSub: 'Sacoches, casques, antivols et plus pour votre vélo.',
+    accessoriesNoItems: 'Aucun accessoire disponible pour le moment.',
+    accessoriesAllCategories: 'Toutes les catégories',
+    accessoriesViewDetails: 'Voir les détails',
+    accessoriesBrand: 'Marque',
+    accessoriesPriceOnRequest: 'Prix sur demande',
 
     // Neue Fahrräder
     neueFahrraeder: 'Vélos neufs',
@@ -1714,6 +1734,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
       "Bike Haus Freiburg'da bisiklet aksesuarları. Çanta, kask, kilit ve daha fazlası.",
     accessoriesTitle: 'Aksesuar',
     accessoriesSub: 'Bisikletiniz için çanta, kask, kilit ve daha fazlası.',
+    accessoriesNoItems: 'Şu anda mevcut aksesuar bulunmamaktadır.',
+    accessoriesAllCategories: 'Tüm Kategoriler',
+    accessoriesViewDetails: 'Detayları Gör',
+    accessoriesBrand: 'Marka',
+    accessoriesPriceOnRequest: 'Fiyat talep üzerine',
 
     // Neue Fahrräder
     neueFahrraeder: 'Yeni Bisikletler',

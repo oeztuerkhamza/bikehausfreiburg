@@ -35,10 +35,14 @@ import { MissingSale } from '../../models/models';
         <div class="missing-card" *ngFor="let sale of missingSales">
           <div class="card-header">
             <div class="bike-info">
-              <span class="stok-badge" *ngIf="sale.stokNo">#{{ sale.stokNo }}</span>
+              <span class="stok-badge" *ngIf="sale.stokNo"
+                >#{{ sale.stokNo }}</span
+              >
               <h3>{{ sale.bikeInfo }}</h3>
             </div>
-            <span class="sale-badge">{{ t.saleReceipt }} {{ sale.saleBelegNummer }}</span>
+            <span class="sale-badge"
+              >{{ t.saleReceipt }} {{ sale.saleBelegNummer }}</span
+            >
           </div>
 
           <div class="card-details">
@@ -48,11 +52,15 @@ import { MissingSale } from '../../models/models';
             </div>
             <div class="detail-row">
               <span class="label">{{ t.salePrice }}:</span>
-              <span class="value price">{{ sale.salePreis | number:'1.2-2' }} €</span>
+              <span class="value price"
+                >{{ sale.salePreis | number: '1.2-2' }} €</span
+              >
             </div>
             <div class="detail-row">
               <span class="label">{{ t.date }}:</span>
-              <span class="value">{{ sale.verkaufsdatum | date:'dd.MM.yyyy' }}</span>
+              <span class="value">{{
+                sale.verkaufsdatum | date: 'dd.MM.yyyy'
+              }}</span>
             </div>
             <div class="detail-row" *ngIf="sale.rahmennummer">
               <span class="label">{{ t.frameNumber }}:</span>
@@ -75,7 +83,7 @@ import { MissingSale } from '../../models/models';
                 art: sale.art || '',
                 zustand: sale.zustand,
                 stokNo: sale.stokNo || '',
-                salePreis: sale.salePreis
+                salePreis: sale.salePreis,
               }"
               class="btn btn-primary"
             >
