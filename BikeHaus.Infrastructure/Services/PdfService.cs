@@ -439,10 +439,23 @@ public class PdfService : IPdfService
                 {
                     var hasBuyerName = !string.IsNullOrWhiteSpace(sale.Buyer.Vorname) || !string.IsNullOrWhiteSpace(sale.Buyer.Nachname);
 
-                    // Käufer (left) + Verkäufer (right) side by side
+                    // Verkäufer (left) + Käufer (right) side by side
                     col.Item().Row(row =>
                     {
-                        // KÄUFER - left side
+                        // VERKÄUFER - left side
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(sellerCol =>
+                        {
+                            sellerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+                            sellerCol.Item().PaddingTop(4).Text(shop.OwnerName).FontSize(9).Bold();
+                            sellerCol.Item().Text(shop.Street).FontSize(8);
+                            sellerCol.Item().Text(shop.City).FontSize(8);
+                            sellerCol.Item().PaddingTop(3).Text($"Tel: {shop.Telefon}").FontSize(7);
+                            sellerCol.Item().Text($"E-Mail: {shop.Email}").FontSize(7);
+                        });
+
+                        row.ConstantItem(10);
+
+                        // KÄUFER - right side
                         if (hasBuyerName)
                         {
                             row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(buyerCol =>
@@ -461,19 +474,6 @@ public class PdfService : IPdfService
                         {
                             row.RelativeItem();
                         }
-
-                        row.ConstantItem(10);
-
-                        // VERKÄUFER - right side
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(sellerCol =>
-                        {
-                            sellerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
-                            sellerCol.Item().PaddingTop(4).Text(shop.OwnerName).FontSize(9).Bold();
-                            sellerCol.Item().Text(shop.Street).FontSize(8);
-                            sellerCol.Item().Text(shop.City).FontSize(8);
-                            sellerCol.Item().PaddingTop(3).Text($"Tel: {shop.Telefon}").FontSize(7);
-                            sellerCol.Item().Text($"E-Mail: {shop.Email}").FontSize(7);
-                        });
                     });
 
                     // Bicycle Info Section - print-friendly with price
