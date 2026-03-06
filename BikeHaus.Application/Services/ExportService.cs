@@ -80,7 +80,12 @@ public class ExportService : IExportService
                 if (string.IsNullOrEmpty(expense.BelegDatei))
                     continue;
 
-                var filePath = Path.Combine(_uploadsPath, expense.BelegDatei.TrimStart('/'));
+                // BelegDatei stores path like "/uploads/expenses/1/file.pdf"
+                // _uploadsPath points to the "uploads" directory, so strip "/uploads/" prefix
+                var relativePath = expense.BelegDatei.TrimStart('/');
+                if (relativePath.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase))
+                    relativePath = relativePath.Substring("uploads/".Length);
+                var filePath = Path.Combine(_uploadsPath, relativePath);
                 if (!File.Exists(filePath))
                     continue;
 
