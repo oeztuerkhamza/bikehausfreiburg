@@ -29,6 +29,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<RepairShowcaseImage> RepairShowcaseImages => Set<RepairShowcaseImage>();
     public DbSet<HomepageAccessory> HomepageAccessories => Set<HomepageAccessory>();
     public DbSet<HomepageAccessoryImage> HomepageAccessoryImages => Set<HomepageAccessoryImage>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -290,7 +291,22 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Betrag).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Lieferant).HasMaxLength(200);
             entity.Property(e => e.BelegNummer).HasMaxLength(50);
+            entity.Property(e => e.BelegDatei).HasMaxLength(500);
             entity.Property(e => e.Notizen).HasMaxLength(1000);
+        });
+
+        // ── Invoice Configuration ──
+        modelBuilder.Entity<Invoice>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.RechnungsNummer).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Bezeichnung).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Betrag).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Kategorie).HasMaxLength(100);
+            entity.Property(e => e.KundenName).HasMaxLength(200);
+            entity.Property(e => e.KundenAdresse).HasMaxLength(500);
+            entity.Property(e => e.Notizen).HasMaxLength(1000);
+            entity.HasIndex(e => e.RechnungsNummer).IsUnique();
         });
 
         // ── KleinanzeigenListing Configuration ──

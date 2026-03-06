@@ -11,6 +11,7 @@ export interface Expense {
   datum: string;
   lieferant: string | null;
   belegNummer: string | null;
+  belegDatei: string | null;
   notizen: string | null;
   createdAt?: string;
 }
@@ -57,5 +58,19 @@ export class ExpenseService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  uploadDocument(id: number, file: File): Observable<Expense> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<Expense>(`${this.apiUrl}/${id}/document`, formData);
+  }
+
+  deleteDocument(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}/document`);
+  }
+
+  getDocumentUrl(path: string): string {
+    return `${environment.apiUrl.replace('/api', '')}${path}`;
   }
 }

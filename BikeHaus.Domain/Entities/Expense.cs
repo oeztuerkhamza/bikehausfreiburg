@@ -12,5 +12,6 @@ public class Expense : BaseEntity
     public DateTime Datum { get; set; } = DateTime.UtcNow;       // Date
     public string? Lieferant { get; set; }                       // Supplier
     public string? BelegNummer { get; set; }                     // Receipt number
+    public string? BelegDatei { get; set; }                      // Receipt document file path
     public string? Notizen { get; set; }                         // Notes
 }

@@ -52,6 +52,8 @@ public static class DependencyInjection
         services.AddScoped<INeueFahrradService, BikeHaus.Application.Services.NeueFahrradService>();
         services.AddScoped<IRepairShowcaseService, BikeHaus.Application.Services.RepairShowcaseService>();
         services.AddScoped<IHomepageAccessoryService, BikeHaus.Application.Services.HomepageAccessoryService>();
+        services.AddScoped<IInvoiceRepository, BikeHaus.Infrastructure.Repositories.InvoiceRepository>();
+        services.AddScoped<IInvoiceService, BikeHaus.Application.Services.InvoiceService>();
         services.AddScoped<IKleinanzeigenScraperService, KleinanzeigenScraperService>();
         services.AddSingleton<KleinanzeigenSyncCoordinator>();
         services.AddScoped<IArchiveService, BikeHaus.Application.Services.ArchiveService>();

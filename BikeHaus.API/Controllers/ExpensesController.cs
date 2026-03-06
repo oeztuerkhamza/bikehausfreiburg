@@ -11,10 +11,14 @@ namespace BikeHaus.API.Controllers;
 public class ExpensesController : ControllerBase
 {
     private readonly IExpenseService _service;
+    private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _config;
 
-    public ExpensesController(IExpenseService service)
+    public ExpensesController(IExpenseService service, IWebHostEnvironment env, IConfiguration config)
     {
         _service = service;
+        _env = env;
+        _config = config;
     }
 
     [HttpGet]
@@ -70,6 +74,51 @@ public class ExpensesController : ControllerBase
     {
         var success = await _service.DeleteAsync(id);
         if (!success) return NotFound();
+        return NoContent();
+    }
+
+    [HttpPost("{id}/document")]
+    public async Task<ActionResult<ExpenseDto>> UploadDocument(int id, [FromForm] IFormFile file)
+    {
+        var expense = await _service.GetByIdAsync(id);
+        if (expense == null) return NotFound();
+        if (file == null || file.Length == 0) return BadRequest("No file provided");
+
+        var basePath = _env.IsDevelopment()
+            ? Path.Combine(_env.ContentRootPath, "uploads")
+            : (_config["FileStorage:BasePath"] ?? "/app/data/uploads");
+        var uploadsDir = Path.Combine(basePath, "expenses", id.ToString());
+        Directory.CreateDirectory(uploadsDir);
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var fileName = $"{Guid.NewGuid()}{ext}";
+        var filePath = Path.Combine(uploadsDir, fileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        var relativePath = $"/uploads/expenses/{id}/{fileName}";
+        var updated = await _service.UpdateDocumentPathAsync(id, relativePath);
+        return Ok(updated);
+    }
+
+    [HttpDelete("{id}/document")]
+    public async Task<IActionResult> DeleteDocument(int id)
+    {
+        var expense = await _service.GetByIdAsync(id);
+        if (expense == null) return NotFound();
+        if (string.IsNullOrEmpty(expense.BelegDatei)) return NoContent();
+
+        var basePath = _env.IsDevelopment()
+            ? Path.Combine(_env.ContentRootPath, "uploads")
+            : (_config["FileStorage:BasePath"] ?? "/app/data/uploads");
+        var fullPath = Path.Combine(basePath, expense.BelegDatei.TrimStart('/').Replace("/uploads/", ""));
+        if (System.IO.File.Exists(fullPath))
+            System.IO.File.Delete(fullPath);
+
+        await _service.UpdateDocumentPathAsync(id, null);
         return NoContent();
     }
 }

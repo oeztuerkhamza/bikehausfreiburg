@@ -9,6 +9,7 @@ public record ExpenseListDto(
     DateTime Datum,
     string? Lieferant,
     string? BelegNummer,
+    string? BelegDatei,
     string? Notizen
 );
 
@@ -20,6 +21,7 @@ public record ExpenseDto(
     DateTime Datum,
     string? Lieferant,
     string? BelegNummer,
+    string? BelegDatei,
     string? Notizen,
     DateTime CreatedAt
 );

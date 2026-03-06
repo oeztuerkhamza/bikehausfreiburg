@@ -145,6 +145,7 @@ import { TranslationService } from '../../services/translation.service';
               <th>{{ t.price }}</th>
               <th>{{ t.supplier }}</th>
               <th>{{ t.receiptNo }}</th>
+              <th>Beleg</th>
               <th>{{ t.actions }}</th>
             </tr>
           </thead>
@@ -162,6 +163,27 @@ import { TranslationService } from '../../services/translation.service';
               </td>
               <td>{{ expense.lieferant || '–' }}</td>
               <td>{{ expense.belegNummer || '–' }}</td>
+              <td class="doc-cell">
+                <span
+                  *ngIf="expense.belegDatei"
+                  class="doc-link"
+                  (click)="openDocument(expense)"
+                  title="Beleg anzeigen"
+                >📄</span>
+                <label
+                  *ngIf="!expense.belegDatei"
+                  class="doc-upload-label"
+                  title="Beleg hochladen"
+                >
+                  📎
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    style="display:none"
+                    (change)="onDocumentUpload($event, expense)"
+                  />
+                </label>
+              </td>
               <td class="actions-cell">
                 <button
                   class="btn-icon edit"
@@ -506,6 +528,24 @@ import { TranslationService } from '../../services/translation.service';
         background: rgba(239, 68, 68, 0.06);
       }
 
+      .doc-cell { text-align: center; }
+      .doc-link {
+        cursor: pointer;
+        font-size: 1.1rem;
+        text-decoration: none;
+      }
+      .doc-link:hover { opacity: 0.7; }
+      .doc-upload-label {
+        cursor: pointer;
+        font-size: 1.1rem;
+        opacity: 0.5;
+        transition: var(--transition-fast);
+      }
+      .doc-upload-label:hover { opacity: 1; }
+      .doc-upload-label input[type="file"] {
+        display: none;
+      }
+
       .no-data {
         text-align: center;
         padding: 60px 20px;
@@ -666,5 +706,24 @@ export class ExpenseListComponent implements OnInit {
       month: '2-digit',
       year: 'numeric',
     });
+  }
+
+  onDocumentUpload(event: Event, expense: Expense) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    this.expenseService.uploadDocument(expense.id, input.files[0]).subscribe({
+      next: (updated) => {
+        expense.belegDatei = updated.belegDatei;
+      },
+    });
+  }
+
+  openDocument(expense: Expense) {
+    if (expense.belegDatei) {
+      window.open(
+        this.expenseService.getDocumentUrl(expense.belegDatei),
+        '_blank',
+      );
+    }
   }
 }

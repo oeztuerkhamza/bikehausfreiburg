@@ -84,13 +84,23 @@ public class ExpenseService : IExpenseService
         return expenses.Select(MapToListDto);
     }
 
+    public async Task<ExpenseDto?> UpdateDocumentPathAsync(int id, string? path)
+    {
+        var expense = await _repository.GetByIdAsync(id);
+        if (expense == null) return null;
+        expense.BelegDatei = path;
+        expense.UpdatedAt = DateTime.UtcNow;
+        await _repository.UpdateAsync(expense);
+        return MapToDto(expense);
+    }
+
     private static ExpenseListDto MapToListDto(Expense e) => new(
         e.Id, e.Bezeichnung, e.Kategorie, e.Betrag,
-        e.Datum, e.Lieferant, e.BelegNummer, e.Notizen
+        e.Datum, e.Lieferant, e.BelegNummer, e.BelegDatei, e.Notizen
     );
 
     private static ExpenseDto MapToDto(Expense e) => new(
         e.Id, e.Bezeichnung, e.Kategorie, e.Betrag,
-        e.Datum, e.Lieferant, e.BelegNummer, e.Notizen, e.CreatedAt
+        e.Datum, e.Lieferant, e.BelegNummer, e.BelegDatei, e.Notizen, e.CreatedAt
     );
 }

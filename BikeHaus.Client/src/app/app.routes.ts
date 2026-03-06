@@ -144,6 +144,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'invoices',
+    loadComponent: () =>
+      import('./pages/invoices/invoice-list.component').then(
+        (m) => m.InvoiceListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'statistics',
     loadComponent: () =>
       import('./pages/statistics/statistics.component').then(

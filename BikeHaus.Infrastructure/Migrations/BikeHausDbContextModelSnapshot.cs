@@ -271,6 +271,10 @@ namespace BikeHaus.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("BelegDatei")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("BelegNummer")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
@@ -385,6 +389,58 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.HasIndex("HomepageAccessoryId");
 
                     b.ToTable("HomepageAccessoryImages");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.Invoice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Betrag")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Bezeichnung")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Datum")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Kategorie")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("KundenAdresse")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("KundenName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notizen")
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RechnungsNummer")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RechnungsNummer")
+                        .IsUnique();
+
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.KleinanzeigenImage", b =>

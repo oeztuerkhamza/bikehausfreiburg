@@ -11,4 +11,5 @@ public interface IExpenseService
     Task<ExpenseDto?> UpdateAsync(int id, ExpenseUpdateDto dto);
     Task<bool> DeleteAsync(int id);
     Task<IEnumerable<ExpenseListDto>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
+    Task<ExpenseDto?> UpdateDocumentPathAsync(int id, string? path);
 }

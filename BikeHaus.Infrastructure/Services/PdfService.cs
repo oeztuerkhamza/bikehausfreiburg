@@ -15,6 +15,7 @@ public class PdfService : IPdfService
     private readonly ISaleRepository _saleRepository;
     private readonly IReturnRepository _returnRepository;
     private readonly IShopSettingsRepository _shopSettingsRepository;
+    private readonly IInvoiceRepository _invoiceRepository;
 
     // Print-Friendly Colors (optimized for less ink consumption)
     private static readonly string PrimaryColor = "#2c5282";       // Medium blue (for text)
@@ -60,12 +61,14 @@ public class PdfService : IPdfService
         IPurchaseRepository purchaseRepository,
         ISaleRepository saleRepository,
         IReturnRepository returnRepository,
-        IShopSettingsRepository shopSettingsRepository)
+        IShopSettingsRepository shopSettingsRepository,
+        IInvoiceRepository invoiceRepository)
     {
         _purchaseRepository = purchaseRepository;
         _saleRepository = saleRepository;
         _returnRepository = returnRepository;
         _shopSettingsRepository = shopSettingsRepository;
+        _invoiceRepository = invoiceRepository;
     }
 
     // Helper to get shop info from DB settings or use defaults
@@ -866,5 +869,151 @@ public class PdfService : IPdfService
             ReturnReason.Sonstiges => "Sonstiges",
             _ => reason.ToString()
         };
+    }
+
+    public async Task<byte[]> GenerateRechnungAsync(int invoiceId)
+    {
+        var invoice = await _invoiceRepository.GetByIdAsync(invoiceId)
+            ?? throw new KeyNotFoundException($"Invoice with ID {invoiceId} not found.");
+
+        var shop = await GetShopInfoAsync();
+
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = QuestPDF.Fluent.Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(1.5f, Unit.Centimetre);
+                page.DefaultTextStyle(x => x.FontSize(9).FontColor(Colors.Grey.Darken4));
+
+                // Header
+                page.Header().Container().Column(col =>
+                {
+                    col.Item().Row(row =>
+                    {
+                        row.RelativeItem().Column(leftCol =>
+                        {
+                            if (!string.IsNullOrEmpty(shop.LogoBase64))
+                            {
+                                try
+                                {
+                                    var base64Data = shop.LogoBase64;
+                                    if (base64Data.Contains(","))
+                                        base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
+                                    var logoBytes = Convert.FromBase64String(base64Data);
+                                    leftCol.Item().Height(32).Image(logoBytes);
+                                }
+                                catch { }
+                            }
+                            leftCol.Item().Text(shop.ShopName).FontSize(16).Bold().FontColor(PrimaryColor);
+                            leftCol.Item().Text(shop.OwnerName).FontSize(9).FontColor(Colors.Grey.Darken2);
+                            leftCol.Item().PaddingTop(4).Text(shop.Street).FontSize(8);
+                            leftCol.Item().Text(shop.City).FontSize(8);
+                            leftCol.Item().Text($"Tel: {shop.Telefon}").FontSize(8);
+                            leftCol.Item().Text($"E-Mail: {shop.Email}").FontSize(8);
+                        });
+
+                        row.ConstantItem(150).AlignRight().Column(rightCol =>
+                        {
+                            rightCol.Item().Border(2).BorderColor(PrimaryColor).Padding(8).Column(box =>
+                            {
+                                box.Item().Text("RECHNUNG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text(invoice.RechnungsNummer).FontSize(12).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text($"{invoice.Datum:dd.MM.yyyy}").FontSize(9).FontColor(Colors.Grey.Darken1).AlignCenter();
+                            });
+                        });
+                    });
+
+                    col.Item().PaddingTop(4).Border(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(3).PaddingHorizontal(8).Row(row =>
+                    {
+                        row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text("Kleinunternehmerregelung gem. \u00a719 UStG").FontSize(7).FontColor(Colors.Grey.Darken2);
+                    });
+                });
+
+                // Content
+                page.Content().PaddingTop(14).Column(col =>
+                {
+                    // Customer info
+                    if (!string.IsNullOrWhiteSpace(invoice.KundenName))
+                    {
+                        col.Item().Text("Rechnungsempf\u00e4nger:").FontSize(8).FontColor(Colors.Grey.Darken1);
+                        col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(10).Column(custCol =>
+                        {
+                            custCol.Item().Text(invoice.KundenName).FontSize(10).Bold();
+                            if (!string.IsNullOrWhiteSpace(invoice.KundenAdresse))
+                                custCol.Item().Text(invoice.KundenAdresse).FontSize(9);
+                        });
+                    }
+
+                    // Invoice details table
+                    col.Item().PaddingTop(16).Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.ConstantColumn(40);
+                            columns.RelativeColumn(3);
+                            columns.ConstantColumn(80);
+                            columns.ConstantColumn(80);
+                        });
+
+                        // Header
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(6).Text("Pos.").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(6).Text("Bezeichnung").FontSize(8).Bold().FontColor(PrimaryColor);
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(6).Text("Kategorie").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(6).Text("Betrag").FontSize(8).Bold().FontColor(PrimaryColor).AlignRight();
+
+                        // Single row
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("1").FontSize(9).AlignCenter();
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(invoice.Bezeichnung).FontSize(9);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(invoice.Kategorie ?? "-").FontSize(9).AlignCenter();
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text($"{invoice.Betrag:N2} \u20ac").FontSize(9).Bold().AlignRight();
+                    });
+
+                    // Total
+                    col.Item().PaddingTop(8).AlignRight().Row(row =>
+                    {
+                        row.ConstantItem(200).Border(2).BorderColor(PrimaryColor).Padding(10).Column(c =>
+                        {
+                            c.Item().Row(r =>
+                            {
+                                r.RelativeItem().Text("Gesamtbetrag:").FontSize(10).FontColor(PrimaryColor);
+                                r.ConstantItem(80).AlignRight().Text($"{invoice.Betrag:N2} \u20ac").FontSize(12).Bold().FontColor(PrimaryColor);
+                            });
+                            c.Item().Text("(Gem\u00e4\u00df \u00a719 UStG wird keine Umsatzsteuer berechnet)").FontSize(6).FontColor(Colors.Grey.Darken2);
+                        });
+                    });
+
+                    // Notes
+                    if (!string.IsNullOrWhiteSpace(invoice.Notizen))
+                    {
+                        col.Item().PaddingTop(12).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8).Column(nCol =>
+                        {
+                            nCol.Item().Text("Bemerkungen:").FontSize(8).Bold().FontColor(Colors.Grey.Darken1);
+                            nCol.Item().PaddingTop(2).Text(invoice.Notizen).FontSize(8);
+                        });
+                    }
+
+                    // Bank info
+                    col.Item().PaddingTop(16).Border(1).BorderColor(Colors.Grey.Lighten1).Padding(10).Column(bankCol =>
+                    {
+                        bankCol.Item().Text("Bankverbindung").FontSize(8).Bold().FontColor(PrimaryColor);
+                        bankCol.Item().PaddingTop(2).Text($"Bank: {shop.BankName}").FontSize(8);
+                        bankCol.Item().Text($"Kontoinhaber: {shop.BankAccountHolder}").FontSize(8);
+                        bankCol.Item().Text($"IBAN: {shop.IBAN}").FontSize(8).Bold();
+                    });
+
+                    // Payment note
+                    col.Item().PaddingTop(10).Text("Bitte \u00fcberweisen Sie den Rechnungsbetrag innerhalb von 14 Tagen unter Angabe der Rechnungsnummer.").FontSize(8).FontColor(Colors.Grey.Darken2);
+
+                    // Footer
+                    col.Item().PaddingTop(20).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}").FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
+                });
+            });
+        });
+
+        return document.GeneratePdf();
     }
 }

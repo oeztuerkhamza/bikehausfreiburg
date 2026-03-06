@@ -5,4 +5,5 @@ public interface IPdfService
     Task<byte[]> GenerateKaufbelegAsync(int purchaseId);
     Task<byte[]> GenerateVerkaufsbelegAsync(int saleId);
     Task<byte[]> GenerateRueckgabebelegAsync(int returnId);
+    Task<byte[]> GenerateRechnungAsync(int invoiceId);
 }

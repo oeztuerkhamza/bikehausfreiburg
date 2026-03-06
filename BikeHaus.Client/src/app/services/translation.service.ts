@@ -350,6 +350,18 @@ export interface Translations {
   supplierPlaceholder: string;
   deleteConfirmExpense: string;
 
+  // Invoices
+  invoices: string;
+  newInvoice: string;
+  editInvoice: string;
+  noInvoices: string;
+  invoiceNumber: string;
+  customerAddress: string;
+  searchInvoicePlaceholder: string;
+  deleteConfirmInvoice: string;
+  invoiceCount: string;
+  invoiceTotal: string;
+
   // Login
   welcomeBack: string;
 
@@ -1006,6 +1018,18 @@ const TRANSLATIONS: Record<Language, Translations> = {
     supplier: 'Lieferant',
     supplierPlaceholder: 'z.B. Amazon, Baumarkt',
     deleteConfirmExpense: 'Ausgabe wirklich löschen?',
+
+    // Invoices
+    invoices: 'Rechnungen',
+    newInvoice: 'Neue Rechnung',
+    editInvoice: 'Rechnung bearbeiten',
+    noInvoices: 'Keine Rechnungen vorhanden',
+    invoiceNumber: 'Rechnungsnr.',
+    customerAddress: 'Kundenadresse',
+    searchInvoicePlaceholder: 'Suche nach Rechnungsnr., Bezeichnung, Kunde...',
+    deleteConfirmInvoice: 'Rechnung wirklich löschen?',
+    invoiceCount: 'Anzahl',
+    invoiceTotal: 'Gesamtbetrag',
 
     // Login
     welcomeBack: 'Willkommen zurück — bitte melden Sie sich an',
@@ -1665,6 +1689,18 @@ const TRANSLATIONS: Record<Language, Translations> = {
     supplier: 'Tedarikçi',
     supplierPlaceholder: 'örn. Amazon, Baumarkt',
     deleteConfirmExpense: 'Bu gideri silmek istediğinize emin misiniz?',
+
+    // Invoices
+    invoices: 'Faturalar',
+    newInvoice: 'Yeni Fatura',
+    editInvoice: 'Fatura düzenle',
+    noInvoices: 'Fatura bulunamadı',
+    invoiceNumber: 'Fatura No',
+    customerAddress: 'Müşteri adresi',
+    searchInvoicePlaceholder: 'Fatura no, açıklama, müşteri ara...',
+    deleteConfirmInvoice: 'Bu faturayı silmek istediğinize emin misiniz?',
+    invoiceCount: 'Adet',
+    invoiceTotal: 'Toplam tutar',
 
     // Login
     welcomeBack: 'Hoş geldiniz — lütfen giriş yapın',
