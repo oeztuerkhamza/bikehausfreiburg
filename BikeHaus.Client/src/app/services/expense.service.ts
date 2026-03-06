@@ -15,6 +15,7 @@ export interface Expense {
   notizen: string | null;
   faelligkeitsDatum: string | null;
   bezahlt: boolean;
+  zahlungsart: string | null;
   createdAt?: string;
 }
 
@@ -28,6 +29,7 @@ export interface ExpenseCreate {
   notizen: string | null;
   faelligkeitsDatum: string | null;
   bezahlt: boolean;
+  zahlungsart: string | null;
 }
 
 @Injectable({

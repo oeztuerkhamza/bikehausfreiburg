@@ -46,7 +46,8 @@ public class ExpenseService : IExpenseService
             BelegNummer = dto.BelegNummer,
             Notizen = dto.Notizen,
             FaelligkeitsDatum = dto.FaelligkeitsDatum,
-            Bezahlt = dto.Bezahlt
+            Bezahlt = dto.Bezahlt,
+            Zahlungsart = dto.Zahlungsart
         };
 
         var created = await _repository.AddAsync(expense);
@@ -67,6 +68,7 @@ public class ExpenseService : IExpenseService
         expense.Notizen = dto.Notizen;
         expense.FaelligkeitsDatum = dto.FaelligkeitsDatum;
         expense.Bezahlt = dto.Bezahlt;
+        expense.Zahlungsart = dto.Zahlungsart;
         expense.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(expense);
@@ -101,12 +103,12 @@ public class ExpenseService : IExpenseService
     private static ExpenseListDto MapToListDto(Expense e) => new(
         e.Id, e.Bezeichnung, e.Kategorie, e.Betrag,
         e.Datum, e.Lieferant, e.BelegNummer, e.BelegDatei, e.Notizen,
-        e.FaelligkeitsDatum, e.Bezahlt
+        e.FaelligkeitsDatum, e.Bezahlt, e.Zahlungsart
     );
 
     private static ExpenseDto MapToDto(Expense e) => new(
         e.Id, e.Bezeichnung, e.Kategorie, e.Betrag,
         e.Datum, e.Lieferant, e.BelegNummer, e.BelegDatei, e.Notizen,
-        e.FaelligkeitsDatum, e.Bezahlt, e.CreatedAt
+        e.FaelligkeitsDatum, e.Bezahlt, e.Zahlungsart, e.CreatedAt
     );
 }

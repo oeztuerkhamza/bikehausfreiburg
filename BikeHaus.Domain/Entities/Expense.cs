@@ -16,4 +16,5 @@ public class Expense : BaseEntity
     public string? Notizen { get; set; }                         // Notes
     public DateTime? FaelligkeitsDatum { get; set; }             // Due date
     public bool Bezahlt { get; set; }                            // Paid status
+    public string? Zahlungsart { get; set; }                      // Payment method
 }

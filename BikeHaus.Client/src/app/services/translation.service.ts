@@ -364,6 +364,7 @@ export interface Translations {
   paid: string;
   unpaid: string;
   document: string;
+  chooseFile: string;
 
   // Invoices
   invoices: string;
@@ -1049,6 +1050,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     paid: 'Bezahlt',
     unpaid: 'Unbezahlt',
     document: 'Dokument',
+    chooseFile: 'Datei auswählen',
 
     // Invoices
     invoices: 'Rechnungen',
@@ -1736,6 +1738,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     paid: 'Ödendi',
     unpaid: 'Ödenmedi',
     document: 'Dosya',
+    chooseFile: 'Dosya seç',
 
     // Invoices
     invoices: 'Faturalar',

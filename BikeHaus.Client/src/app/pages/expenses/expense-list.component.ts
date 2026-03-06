@@ -92,21 +92,30 @@ import { TranslationService } from '../../services/translation.service';
                 <span>{{ t.paid }}</span>
               </label>
             </div>
+            <div class="form-group">
+              <label>{{ t.paymentMethod }}</label>
+              <select [(ngModel)]="form.zahlungsart">
+                <option [ngValue]="null">{{ t.selectOption }}</option>
+                <option value="Bar">Bar</option>
+                <option value="Überweisung">Überweisung</option>
+                <option value="PayPal">PayPal</option>
+                <option value="Karte">Karte</option>
+              </select>
+            </div>
             <div class="form-group full-width">
               <label>{{ t.notes }}</label>
               <textarea [(ngModel)]="form.notizen" rows="3"></textarea>
             </div>
             <div class="form-group full-width">
               <label>{{ t.document }}</label>
-              <input
-                type="file"
-                accept="image/*,.pdf"
-                (change)="onFileSelected($event)"
-                class="file-input"
-              />
-              <span *ngIf="selectedFile" class="file-name"
-                >📎 {{ selectedFile.name }}</span
-              >
+              <label class="file-upload-btn">
+                <span>📎 {{ selectedFile ? selectedFile.name : t.chooseFile }}</span>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  (change)="onFileSelected($event)"
+                />
+              </label>
             </div>
           </div>
           <div class="form-actions">
@@ -155,6 +164,7 @@ import { TranslationService } from '../../services/translation.service';
               <th>{{ t.price }}</th>
               <th>{{ t.dueDate }}</th>
               <th>{{ t.paid }}</th>
+              <th>{{ t.paymentMethod }}</th>
               <th>Beleg</th>
               <th>{{ t.actions }}</th>
             </tr>
@@ -191,6 +201,9 @@ import { TranslationService } from '../../services/translation.service';
                       : t.unpaid
                   }}
                 </span>
+              </td>
+              <td>
+                <span class="badge" *ngIf="expense.zahlungsart">{{ expense.zahlungsart }}</span>
               </td>
               <td class="doc-cell">
                 <span
@@ -634,20 +647,26 @@ import { TranslationService } from '../../services/translation.service';
       .status-badge:hover {
         opacity: 0.8;
       }
-      .file-input {
-        padding: 8px 12px;
-        border: 1.5px dashed var(--border-light, #e2e8f0);
+      .file-upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border: 1.5px dashed var(--accent-primary, #6366f1);
         border-radius: var(--radius-md, 10px);
-        background: var(--bg-card, #fff);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
+        color: var(--accent-primary, #6366f1);
         cursor: pointer;
         font-size: 0.88rem;
-        color: var(--text-secondary, #64748b);
+        font-weight: 600;
+        transition: var(--transition-fast);
       }
-      .file-name {
-        font-size: 0.82rem;
-        color: var(--accent-primary, #6366f1);
-        font-weight: 500;
-        margin-top: 4px;
+      .file-upload-btn:hover {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.12));
+        border-style: solid;
+      }
+      .file-upload-btn input[type='file'] {
+        display: none;
       }
 
       @media (max-width: 768px) {
@@ -687,6 +706,7 @@ export class ExpenseListComponent implements OnInit {
     notizen: null,
     faelligkeitsDatum: null,
     bezahlt: false,
+    zahlungsart: null,
   };
 
   selectedFile: File | null = null;
@@ -743,6 +763,7 @@ export class ExpenseListComponent implements OnInit {
       notizen: null,
       faelligkeitsDatum: null,
       bezahlt: false,
+      zahlungsart: null,
     };
   }
 
@@ -761,6 +782,7 @@ export class ExpenseListComponent implements OnInit {
         ? expense.faelligkeitsDatum.split('T')[0]
         : null,
       bezahlt: expense.bezahlt,
+      zahlungsart: expense.zahlungsart,
     };
     this.showForm = true;
   }
@@ -872,6 +894,7 @@ export class ExpenseListComponent implements OnInit {
       notizen: expense.notizen,
       faelligkeitsDatum: expense.faelligkeitsDatum,
       bezahlt: !expense.bezahlt,
+      zahlungsart: expense.zahlungsart,
     };
     this.expenseService.update(expense.id, payload).subscribe({
       next: () => {

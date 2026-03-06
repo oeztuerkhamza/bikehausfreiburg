@@ -12,7 +12,8 @@ public record ExpenseListDto(
     string? BelegDatei,
     string? Notizen,
     DateTime? FaelligkeitsDatum,
-    bool Bezahlt
+    bool Bezahlt,
+    string? Zahlungsart
 );
 
 public record ExpenseDto(
@@ -27,6 +28,7 @@ public record ExpenseDto(
     string? Notizen,
     DateTime? FaelligkeitsDatum,
     bool Bezahlt,
+    string? Zahlungsart,
     DateTime CreatedAt
 );
 
@@ -39,7 +41,8 @@ public record ExpenseCreateDto(
     string? BelegNummer,
     string? Notizen,
     DateTime? FaelligkeitsDatum,
-    bool Bezahlt
+    bool Bezahlt,
+    string? Zahlungsart
 );
 
 public record ExpenseUpdateDto(
@@ -51,5 +54,6 @@ public record ExpenseUpdateDto(
     string? BelegNummer,
     string? Notizen,
     DateTime? FaelligkeitsDatum,
-    bool Bezahlt
+    bool Bezahlt,
+    string? Zahlungsart
 );
