@@ -433,15 +433,41 @@ public class PdfService : IPdfService
                 {
                     var hasBuyerName = !string.IsNullOrWhiteSpace(sale.Buyer.Vorname) || !string.IsNullOrWhiteSpace(sale.Buyer.Nachname);
 
-                    // Seller Row - print-friendly border style
-                    col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(leftCol =>
+                    // Käufer (left) + Verkäufer (right) side by side
+                    col.Item().Row(row =>
                     {
-                        leftCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
-                        leftCol.Item().PaddingTop(4).Text(shop.OwnerName).FontSize(9).Bold();
-                        leftCol.Item().Text(shop.Street).FontSize(8);
-                        leftCol.Item().Text(shop.City).FontSize(8);
-                        leftCol.Item().PaddingTop(3).Text($"📞 {shop.Telefon}").FontSize(7);
-                        leftCol.Item().Text($"✉ {shop.Email}").FontSize(7);
+                        // KÄUFER - left side
+                        if (hasBuyerName)
+                        {
+                            row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(buyerCol =>
+                            {
+                                buyerCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KÄUFER").FontSize(8).Bold().FontColor(AccentColor).AlignCenter();
+                                buyerCol.Item().PaddingTop(4).Text(sale.Buyer.FullName).FontSize(9).Bold();
+                                buyerCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(8);
+                                buyerCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(8);
+                                if (!string.IsNullOrEmpty(sale.Buyer.Telefon))
+                                    buyerCol.Item().PaddingTop(3).Text($"Tel: {sale.Buyer.Telefon}").FontSize(7);
+                                if (!string.IsNullOrEmpty(sale.Buyer.Email))
+                                    buyerCol.Item().Text($"E-Mail: {sale.Buyer.Email}").FontSize(7);
+                            });
+                        }
+                        else
+                        {
+                            row.RelativeItem();
+                        }
+
+                        row.ConstantItem(10);
+
+                        // VERKÄUFER - right side
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(sellerCol =>
+                        {
+                            sellerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+                            sellerCol.Item().PaddingTop(4).Text(shop.OwnerName).FontSize(9).Bold();
+                            sellerCol.Item().Text(shop.Street).FontSize(8);
+                            sellerCol.Item().Text(shop.City).FontSize(8);
+                            sellerCol.Item().PaddingTop(3).Text($"Tel: {shop.Telefon}").FontSize(7);
+                            sellerCol.Item().Text($"E-Mail: {shop.Email}").FontSize(7);
+                        });
                     });
 
                     // Bicycle Info Section - print-friendly with price
@@ -469,8 +495,8 @@ public class PdfService : IPdfService
 
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Reifengröße").FontSize(7).FontColor(Colors.Grey.Darken2);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Reifengroesse).FontSize(8);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Rahmengröße").FontSize(7).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Rahmengroesse ?? "-").FontSize(8);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Beleg Nr.").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.BelegNummer ?? "-").FontSize(8);
 
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text("Fahrradtyp").FontSize(7).FontColor(Colors.Grey.Darken2);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(sale.Bicycle.Fahrradtyp ?? "-").FontSize(8);
@@ -625,21 +651,7 @@ public class PdfService : IPdfService
                         row.RelativeItem(); // empty space to push signature left
                     });
 
-                    // Buyer Section - at the end
-                    if (hasBuyerName)
-                    {
-                        col.Item().PaddingTop(10).Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(buyerCol =>
-                        {
-                            buyerCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KÄUFER").FontSize(8).Bold().FontColor(AccentColor).AlignCenter();
-                            buyerCol.Item().PaddingTop(4).Text(sale.Buyer.FullName).FontSize(9).Bold();
-                            buyerCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(8);
-                            buyerCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(8);
-                            if (!string.IsNullOrEmpty(sale.Buyer.Telefon))
-                                buyerCol.Item().PaddingTop(3).Text($"📞 {sale.Buyer.Telefon}").FontSize(7);
-                            if (!string.IsNullOrEmpty(sale.Buyer.Email))
-                                buyerCol.Item().Text($"✉ {sale.Buyer.Email}").FontSize(7);
-                        });
-                    }
+
 
                     // Google Review & Shop Info Section
                     col.Item().PaddingTop(14).Border(1).BorderColor(PrimaryColor).Padding(10).Row(reviewRow =>
