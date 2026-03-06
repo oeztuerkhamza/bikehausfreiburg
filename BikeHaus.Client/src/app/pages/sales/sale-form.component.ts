@@ -245,57 +245,6 @@ import { AddressSuggestion } from '../../services/address.service';
             </div>
           </div>
 
-          <!-- Buyer info -->
-          <div class="form-card">
-            <h2>{{ t.buyer }}</h2>
-            <div class="form-grid">
-              <div class="field">
-                <label>{{ t.firstName }}</label>
-                <input [(ngModel)]="buyer.vorname" name="buyerVorname" />
-              </div>
-              <div class="field">
-                <label>{{ t.lastName }}</label>
-                <input [(ngModel)]="buyer.nachname" name="buyerNachname" />
-              </div>
-              <div class="field full">
-                <label>{{ t.searchAddress }}</label>
-                <app-address-autocomplete
-                  [placeholder]="t.addressPlaceholder"
-                  (addressSelected)="onBuyerAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint">{{ t.addressHint }}</small>
-              </div>
-              <div class="field">
-                <label>{{ t.street }}</label>
-                <input [(ngModel)]="buyer.strasse" name="buyerStrasse" />
-              </div>
-              <div class="field">
-                <label>{{ t.houseNumber }}</label>
-                <input [(ngModel)]="buyer.hausnummer" name="buyerHausnr" />
-              </div>
-              <div class="field">
-                <label>{{ t.postalCode }}</label>
-                <input [(ngModel)]="buyer.plz" name="buyerPlz" />
-              </div>
-              <div class="field">
-                <label>{{ t.city }}</label>
-                <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
-              </div>
-              <div class="field">
-                <label>{{ t.phone }}</label>
-                <input [(ngModel)]="buyer.telefon" name="buyerTel" />
-              </div>
-              <div class="field">
-                <label>{{ t.email }}</label>
-                <input
-                  type="email"
-                  [(ngModel)]="buyer.email"
-                  name="buyerEmail"
-                />
-              </div>
-            </div>
-          </div>
-
           <!-- Sale details -->
           <div class="form-card">
             <h2>{{ t.saleData }}</h2>
@@ -493,6 +442,57 @@ import { AddressSuggestion } from '../../services/address.service';
                   }}
                   €</strong
                 >
+              </div>
+            </div>
+          </div>
+
+          <!-- Buyer info -->
+          <div class="form-card">
+            <h2>{{ t.buyer }}</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>{{ t.firstName }}</label>
+                <input [(ngModel)]="buyer.vorname" name="buyerVorname" />
+              </div>
+              <div class="field">
+                <label>{{ t.lastName }}</label>
+                <input [(ngModel)]="buyer.nachname" name="buyerNachname" />
+              </div>
+              <div class="field full">
+                <label>{{ t.searchAddress }}</label>
+                <app-address-autocomplete
+                  [placeholder]="t.addressPlaceholder"
+                  (addressSelected)="onBuyerAddressSelected($event)"
+                ></app-address-autocomplete>
+                <small class="hint">{{ t.addressHint }}</small>
+              </div>
+              <div class="field">
+                <label>{{ t.street }}</label>
+                <input [(ngModel)]="buyer.strasse" name="buyerStrasse" />
+              </div>
+              <div class="field">
+                <label>{{ t.houseNumber }}</label>
+                <input [(ngModel)]="buyer.hausnummer" name="buyerHausnr" />
+              </div>
+              <div class="field">
+                <label>{{ t.postalCode }}</label>
+                <input [(ngModel)]="buyer.plz" name="buyerPlz" />
+              </div>
+              <div class="field">
+                <label>{{ t.city }}</label>
+                <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
+              </div>
+              <div class="field">
+                <label>{{ t.phone }}</label>
+                <input [(ngModel)]="buyer.telefon" name="buyerTel" />
+              </div>
+              <div class="field">
+                <label>{{ t.email }}</label>
+                <input
+                  type="email"
+                  [(ngModel)]="buyer.email"
+                  name="buyerEmail"
+                />
               </div>
             </div>
           </div>
