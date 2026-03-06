@@ -1968,7 +1968,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homepageAccessoryActive: 'Aktif',
     homepageAccessoryPhotos: 'Fotoğraflar',
     homepageAccessoryNoItems: 'Henüz aksesuar eklenmedi.',
-    homepageAccessoryDeleteConfirm: 'Bu aksesuarı silmek istediğinize emin misiniz?',
+    homepageAccessoryDeleteConfirm:
+      'Bu aksesuarı silmek istediğinize emin misiniz?',
     homepageAccessoryUploadPhotos: 'Fotoğraf yükle',
     homepageAccessorySelectCategory: 'Kategori seçin',
   },

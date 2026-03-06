@@ -4,10 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
-import {
-  TranslationService,
-  Language,
-} from '../../services/translation.service';
+import { TranslationService } from '../../services/translation.service';
 import { HomepageAccessory } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
@@ -307,7 +304,12 @@ import { environment } from '../../../environments/environment';
 
       .skeleton-image {
         height: 220px;
-        background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+        background: linear-gradient(
+          90deg,
+          #f1f5f9 25%,
+          #e2e8f0 50%,
+          #f1f5f9 75%
+        );
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
       }

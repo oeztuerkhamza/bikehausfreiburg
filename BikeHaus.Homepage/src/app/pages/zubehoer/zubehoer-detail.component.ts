@@ -26,7 +26,9 @@ import { environment } from '../../../environments/environment';
           <div class="gallery">
             <div class="main-image" *ngIf="item()!.images.length > 0">
               <img
-                [src]="getImageUrl(item()!.images[currentImageIndex()].filePath)"
+                [src]="
+                  getImageUrl(item()!.images[currentImageIndex()].filePath)
+                "
                 [alt]="item()!.titel"
                 (error)="onImageError($event)"
               />
@@ -62,10 +64,7 @@ import { environment } from '../../../environments/environment';
                 <path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
             </div>
-            <div
-              class="thumbnails"
-              *ngIf="item()!.images.length > 1"
-            >
+            <div class="thumbnails" *ngIf="item()!.images.length > 1">
               <div
                 class="thumb"
                 *ngFor="let img of item()!.images; let i = index"
@@ -389,17 +388,13 @@ export class ZubehoerDetailComponent implements OnInit {
     const item = this.item();
     if (!item) return;
     const idx = this.currentImageIndex();
-    this.currentImageIndex.set(
-      idx === 0 ? item.images.length - 1 : idx - 1,
-    );
+    this.currentImageIndex.set(idx === 0 ? item.images.length - 1 : idx - 1);
   }
 
   nextImage() {
     const item = this.item();
     if (!item) return;
     const idx = this.currentImageIndex();
-    this.currentImageIndex.set(
-      idx === item.images.length - 1 ? 0 : idx + 1,
-    );
+    this.currentImageIndex.set(idx === item.images.length - 1 ? 0 : idx + 1);
   }
 }
