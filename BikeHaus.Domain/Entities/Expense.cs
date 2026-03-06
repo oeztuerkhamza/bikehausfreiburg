@@ -14,4 +14,6 @@ public class Expense : BaseEntity
     public string? BelegNummer { get; set; }                     // Receipt number
     public string? BelegDatei { get; set; }                      // Receipt document file path
     public string? Notizen { get; set; }                         // Notes
+    public DateTime? FaelligkeitsDatum { get; set; }             // Due date
+    public bool Bezahlt { get; set; }                            // Paid status
 }

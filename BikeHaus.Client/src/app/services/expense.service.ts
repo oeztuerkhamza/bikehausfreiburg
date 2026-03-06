@@ -13,6 +13,8 @@ export interface Expense {
   belegNummer: string | null;
   belegDatei: string | null;
   notizen: string | null;
+  faelligkeitsDatum: string | null;
+  bezahlt: boolean;
   createdAt?: string;
 }
 
@@ -24,6 +26,8 @@ export interface ExpenseCreate {
   lieferant: string | null;
   belegNummer: string | null;
   notizen: string | null;
+  faelligkeitsDatum: string | null;
+  bezahlt: boolean;
 }
 
 @Injectable({

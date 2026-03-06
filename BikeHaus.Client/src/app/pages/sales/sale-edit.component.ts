@@ -112,18 +112,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 <label>{{ t.city }}</label>
                 <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
               </div>
-              <div class="field">
-                <label>{{ t.phone }}</label>
-                <input [(ngModel)]="buyer.telefon" name="buyerTel" />
-              </div>
-              <div class="field">
-                <label>{{ t.email }}</label>
-                <input
-                  type="email"
-                  [(ngModel)]="buyer.email"
-                  name="buyerEmail"
-                />
-              </div>
+
             </div>
           </div>
 

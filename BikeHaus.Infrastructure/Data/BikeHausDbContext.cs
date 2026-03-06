@@ -293,6 +293,7 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.BelegNummer).HasMaxLength(50);
             entity.Property(e => e.BelegDatei).HasMaxLength(500);
             entity.Property(e => e.Notizen).HasMaxLength(1000);
+            entity.Property(e => e.Bezahlt).HasDefaultValue(false);
         });
 
         // ── Invoice Configuration ──

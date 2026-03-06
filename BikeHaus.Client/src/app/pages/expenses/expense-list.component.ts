@@ -83,20 +83,31 @@ import { TranslationService } from '../../services/translation.service';
               <input type="date" [(ngModel)]="form.datum" />
             </div>
             <div class="form-group">
-              <label>{{ t.supplier }}</label>
-              <input
-                type="text"
-                [(ngModel)]="form.lieferant"
-                [placeholder]="t.supplierPlaceholder"
-              />
+              <label>{{ t.dueDate || 'Son Ödeme Tarihi' }}</label>
+              <input type="date" [(ngModel)]="form.faelligkeitsDatum" />
             </div>
-            <div class="form-group">
-              <label>{{ t.receiptNo }}</label>
-              <input type="text" [(ngModel)]="form.belegNummer" />
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="form.bezahlt"
+                />
+                <span>{{ t.paid || 'Ödendi' }}</span>
+              </label>
             </div>
             <div class="form-group full-width">
               <label>{{ t.notes }}</label>
               <textarea [(ngModel)]="form.notizen" rows="3"></textarea>
+            </div>
+            <div class="form-group full-width">
+              <label>{{ t.document || 'Dosya' }}</label>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                (change)="onFileSelected($event)"
+                class="file-input"
+              />
+              <span *ngIf="selectedFile" class="file-name">📎 {{ selectedFile.name }}</span>
             </div>
           </div>
           <div class="form-actions">
@@ -143,8 +154,8 @@ import { TranslationService } from '../../services/translation.service';
               <th>{{ t.designation }}</th>
               <th>{{ t.category }}</th>
               <th>{{ t.price }}</th>
-              <th>{{ t.supplier }}</th>
-              <th>{{ t.receiptNo }}</th>
+              <th>{{ t.dueDate || 'Son Ödeme Tarihi' }}</th>
+              <th>{{ t.paid || 'Ödendi' }}</th>
               <th>Beleg</th>
               <th>{{ t.actions }}</th>
             </tr>
@@ -161,8 +172,13 @@ import { TranslationService } from '../../services/translation.service';
               <td class="amount-cell">
                 {{ expense.betrag | currency: 'EUR' }}
               </td>
-              <td>{{ expense.lieferant || '–' }}</td>
-              <td>{{ expense.belegNummer || '–' }}</td>
+              <td>{{ expense.faelligkeitsDatum ? formatDate(expense.faelligkeitsDatum) : '–' }}</td>
+              <td>
+                <span class="status-badge" [class.paid]="expense.bezahlt" [class.unpaid]="!expense.bezahlt"
+                  (click)="toggleBezahlt(expense)">
+                  {{ expense.bezahlt ? (t.paid || 'Ödendi') : (t.unpaid || 'Ödenmedi') }}
+                </span>
+              </td>
               <td class="doc-cell">
                 <span
                   *ngIf="expense.belegDatei"
@@ -564,6 +580,63 @@ import { TranslationService } from '../../services/translation.service';
         color: var(--text-secondary, #64748b);
       }
 
+      .checkbox-group {
+        flex-direction: row !important;
+        align-items: center;
+        gap: 10px !important;
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.92rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+      }
+      .checkbox-label input[type='checkbox'] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: var(--accent-primary, #6366f1);
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        user-select: none;
+      }
+      .status-badge.paid {
+        background: rgba(34, 197, 94, 0.1);
+        color: #16a34a;
+      }
+      .status-badge.unpaid {
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
+      }
+      .status-badge:hover {
+        opacity: 0.8;
+      }
+      .file-input {
+        padding: 8px 12px;
+        border: 1.5px dashed var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card, #fff);
+        cursor: pointer;
+        font-size: 0.88rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .file-name {
+        font-size: 0.82rem;
+        color: var(--accent-primary, #6366f1);
+        font-weight: 500;
+        margin-top: 4px;
+      }
+
       @media (max-width: 768px) {
         .form-grid {
           grid-template-columns: 1fr;
@@ -599,7 +672,11 @@ export class ExpenseListComponent implements OnInit {
     lieferant: null,
     belegNummer: null,
     notizen: null,
+    faelligkeitsDatum: null,
+    bezahlt: false,
   };
+
+  selectedFile: File | null = null;
 
   constructor(private readonly expenseService: ExpenseService) {}
 
@@ -642,6 +719,7 @@ export class ExpenseListComponent implements OnInit {
 
   resetForm() {
     this.editingExpense = null;
+    this.selectedFile = null;
     this.form = {
       bezeichnung: '',
       kategorie: null,
@@ -650,11 +728,14 @@ export class ExpenseListComponent implements OnInit {
       lieferant: null,
       belegNummer: null,
       notizen: null,
+      faelligkeitsDatum: null,
+      bezahlt: false,
     };
   }
 
   startEdit(expense: Expense) {
     this.editingExpense = expense;
+    this.selectedFile = null;
     this.form = {
       bezeichnung: expense.bezeichnung,
       kategorie: expense.kategorie,
@@ -663,6 +744,8 @@ export class ExpenseListComponent implements OnInit {
       lieferant: expense.lieferant,
       belegNummer: expense.belegNummer,
       notizen: expense.notizen,
+      faelligkeitsDatum: expense.faelligkeitsDatum ? expense.faelligkeitsDatum.split('T')[0] : null,
+      bezahlt: expense.bezahlt,
     };
     this.showForm = true;
   }
@@ -674,6 +757,9 @@ export class ExpenseListComponent implements OnInit {
     const payload: ExpenseCreate = {
       ...this.form,
       datum: new Date(this.form.datum).toISOString(),
+      faelligkeitsDatum: this.form.faelligkeitsDatum
+        ? new Date(this.form.faelligkeitsDatum).toISOString()
+        : null,
     };
 
     const request$ = this.editingExpense
@@ -681,10 +767,27 @@ export class ExpenseListComponent implements OnInit {
       : this.expenseService.create(payload);
 
     request$.subscribe({
-      next: () => {
-        this.showForm = false;
-        this.saving = false;
-        this.loadExpenses();
+      next: (saved) => {
+        if (this.selectedFile) {
+          this.expenseService.uploadDocument(saved.id, this.selectedFile).subscribe({
+            next: () => {
+              this.showForm = false;
+              this.saving = false;
+              this.selectedFile = null;
+              this.loadExpenses();
+            },
+            error: () => {
+              this.showForm = false;
+              this.saving = false;
+              this.selectedFile = null;
+              this.loadExpenses();
+            },
+          });
+        } else {
+          this.showForm = false;
+          this.saving = false;
+          this.loadExpenses();
+        }
       },
       error: () => {
         this.saving = false;
@@ -732,5 +835,31 @@ export class ExpenseListComponent implements OnInit {
         '_blank',
       );
     }
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
+  toggleBezahlt(expense: Expense) {
+    const payload: ExpenseCreate = {
+      bezeichnung: expense.bezeichnung,
+      kategorie: expense.kategorie,
+      betrag: expense.betrag,
+      datum: expense.datum,
+      lieferant: expense.lieferant,
+      belegNummer: expense.belegNummer,
+      notizen: expense.notizen,
+      faelligkeitsDatum: expense.faelligkeitsDatum,
+      bezahlt: !expense.bezahlt,
+    };
+    this.expenseService.update(expense.id, payload).subscribe({
+      next: () => {
+        expense.bezahlt = !expense.bezahlt;
+      },
+    });
   }
 }
