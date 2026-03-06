@@ -50,7 +50,9 @@ export class InvoiceService {
   }
 
   getNextRechnungsNummer(): Observable<{ rechnungsNummer: string }> {
-    return this.http.get<{ rechnungsNummer: string }>(`${this.apiUrl}/next-number`);
+    return this.http.get<{ rechnungsNummer: string }>(
+      `${this.apiUrl}/next-number`,
+    );
   }
 
   create(invoice: InvoiceCreate): Observable<Invoice> {
