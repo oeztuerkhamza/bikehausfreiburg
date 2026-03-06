@@ -360,6 +360,10 @@ export interface Translations {
   supplier: string;
   supplierPlaceholder: string;
   deleteConfirmExpense: string;
+  dueDate: string;
+  paid: string;
+  unpaid: string;
+  document: string;
 
   // Invoices
   invoices: string;
@@ -1041,6 +1045,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     supplier: 'Lieferant',
     supplierPlaceholder: 'z.B. Amazon, Baumarkt',
     deleteConfirmExpense: 'Ausgabe wirklich löschen?',
+    dueDate: 'Fälligkeitsdatum',
+    paid: 'Bezahlt',
+    unpaid: 'Unbezahlt',
+    document: 'Dokument',
 
     // Invoices
     invoices: 'Rechnungen',
@@ -1724,6 +1732,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     supplier: 'Tedarikçi',
     supplierPlaceholder: 'örn. Amazon, Baumarkt',
     deleteConfirmExpense: 'Bu gideri silmek istediğinize emin misiniz?',
+    dueDate: 'Son Ödeme Tarihi',
+    paid: 'Ödendi',
+    unpaid: 'Ödenmedi',
+    document: 'Dosya',
 
     // Invoices
     invoices: 'Faturalar',

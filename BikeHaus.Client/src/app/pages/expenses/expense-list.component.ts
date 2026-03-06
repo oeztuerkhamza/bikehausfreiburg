@@ -83,13 +83,13 @@ import { TranslationService } from '../../services/translation.service';
               <input type="date" [(ngModel)]="form.datum" />
             </div>
             <div class="form-group">
-              <label>{{ t.dueDate || 'Son Ödeme Tarihi' }}</label>
+              <label>{{ t.dueDate }}</label>
               <input type="date" [(ngModel)]="form.faelligkeitsDatum" />
             </div>
             <div class="form-group checkbox-group">
               <label class="checkbox-label">
                 <input type="checkbox" [(ngModel)]="form.bezahlt" />
-                <span>{{ t.paid || 'Ödendi' }}</span>
+                <span>{{ t.paid }}</span>
               </label>
             </div>
             <div class="form-group full-width">
@@ -97,7 +97,7 @@ import { TranslationService } from '../../services/translation.service';
               <textarea [(ngModel)]="form.notizen" rows="3"></textarea>
             </div>
             <div class="form-group full-width">
-              <label>{{ t.document || 'Dosya' }}</label>
+              <label>{{ t.document }}</label>
               <input
                 type="file"
                 accept="image/*,.pdf"
@@ -153,8 +153,8 @@ import { TranslationService } from '../../services/translation.service';
               <th>{{ t.designation }}</th>
               <th>{{ t.category }}</th>
               <th>{{ t.price }}</th>
-              <th>{{ t.dueDate || 'Son Ödeme Tarihi' }}</th>
-              <th>{{ t.paid || 'Ödendi' }}</th>
+              <th>{{ t.dueDate }}</th>
+              <th>{{ t.paid }}</th>
               <th>Beleg</th>
               <th>{{ t.actions }}</th>
             </tr>
@@ -187,8 +187,8 @@ import { TranslationService } from '../../services/translation.service';
                 >
                   {{
                     expense.bezahlt
-                      ? t.paid || 'Ödendi'
-                      : t.unpaid || 'Ödenmedi'
+                      ? t.paid
+                      : t.unpaid
                   }}
                 </span>
               </td>
