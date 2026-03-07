@@ -127,7 +127,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         <table>
           <thead>
             <tr>
-              <th>{{ t.numberShort }}</th>
               <th>{{ t.brand }}</th>
               <th>{{ t.model }}</th>
               <th>{{ t.frameNumber }}</th>
