@@ -50,7 +50,6 @@ public class ArchiveService : IArchiveService
             var sale = allSales.FirstOrDefault(s => s.BicycleId == bike.Id);
             results.Add(new ArchiveSearchResultDto(
                 bike.Id,
-                bike.StokNo ?? "",
                 $"{bike.Marke} {bike.Modell}",
                 purchase?.BelegNummer,
                 sale?.BelegNummer,
@@ -59,10 +58,6 @@ public class ArchiveService : IArchiveService
                 matchType
             ));
         }
-
-        // Search by StokNo
-        foreach (var bike in allBicycles.Where(b => b.StokNo != null && b.StokNo.ToLower().Contains(searchTerm)))
-            TryAdd(bike, "StokNo");
 
         // Search by Purchase BelegNummer
         foreach (var p in allPurchases.Where(p => p.BelegNummer != null && p.BelegNummer.ToLower().Contains(searchTerm)))
@@ -212,7 +207,6 @@ public class ArchiveService : IArchiveService
 
         return new ArchiveBicycleHistoryDto(
             bicycle.Id,
-            bicycle.StokNo ?? "",
             bicycle.Marke,
             bicycle.Modell,
             bicycle.Rahmennummer,

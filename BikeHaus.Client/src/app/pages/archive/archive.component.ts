@@ -98,9 +98,6 @@ import {
             <div class="result-main">
               <div class="result-bike">{{ r.bikeInfo }}</div>
               <div class="result-meta">
-                <span class="result-stok" *ngIf="r.stokNo"
-                  >Stok {{ r.stokNo }}</span
-                >
                 <span class="result-beleg" *ngIf="r.purchaseBelegNummer">
                   {{ t.archivePurchaseReceipt }}: {{ r.purchaseBelegNummer }}
                 </span>
@@ -203,9 +200,6 @@ import {
               <h2>
                 {{ selectedHistory()!.marke }} {{ selectedHistory()!.modell }}
               </h2>
-              <span class="bike-stok" *ngIf="selectedHistory()!.stokNo">
-                {{ t.archiveStokNo }} {{ selectedHistory()!.stokNo }}
-              </span>
             </div>
             <div class="bike-status-badges">
               <span

@@ -47,7 +47,6 @@ export interface Bicycle {
   rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
-  stokNo?: string;
   fahrradtyp?: string;
   art?: string;
   beschreibung?: string;
@@ -75,7 +74,6 @@ export interface BicycleCreate {
   rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
-  stokNo?: string;
   fahrradtyp?: string;
   art?: string;
   beschreibung?: string;
@@ -89,7 +87,6 @@ export interface BicycleUpdate {
   rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
-  stokNo?: string;
   fahrradtyp?: string;
   art?: string;
   beschreibung?: string;
@@ -173,7 +170,6 @@ export interface Purchase {
 export interface PurchaseList {
   id: number;
   belegNummer?: string;
-  stokNo?: string;
   bikeInfo: string;
   sellerName: string;
   preis: number;
@@ -265,7 +261,6 @@ export interface Sale {
 export interface SaleList {
   id: number;
   belegNummer: string;
-  stokNo?: string;
   bikeInfo: string;
   buyerName: string;
   preis: number;
@@ -345,7 +340,6 @@ export interface Return {
 export interface ReturnList {
   id: number;
   belegNummer: string;
-  stokNo?: string;
   bikeInfo: string;
   customerName: string;
   originalSaleBelegNummer: string;
@@ -438,7 +432,6 @@ export interface Reservation {
 export interface ReservationList {
   id: number;
   reservierungsNummer: string;
-  stokNo?: string;
   bikeInfo: string;
   customerName: string;
   reservierungsDatum: string;
@@ -488,7 +481,6 @@ export interface PaginatedResult<T> {
 // ── Archive ──
 export interface ArchiveSearchResult {
   bicycleId: number;
-  stokNo: string;
   bikeInfo: string;
   purchaseBelegNummer?: string;
   saleBelegNummer?: string;
@@ -512,7 +504,6 @@ export interface ArchiveTimelineEvent {
 
 export interface ArchiveBicycleHistory {
   bicycleId: number;
-  stokNo: string;
   marke: string;
   modell?: string;
   rahmennummer?: string;
@@ -631,7 +622,6 @@ export interface MissingSale {
   saleBelegNummer: string;
   bicycleId: number;
   bikeInfo: string;
-  stokNo?: string;
   buyerName: string;
   salePreis: number;
   verkaufsdatum: string;
@@ -668,5 +658,4 @@ export interface PurchaseCreateForExistingBike {
   fahrradtyp?: string;
   art?: string;
   zustand?: BikeCondition;
-  stokNo?: string;
 }

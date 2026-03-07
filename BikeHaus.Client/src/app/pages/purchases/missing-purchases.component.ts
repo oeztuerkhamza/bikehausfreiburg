@@ -35,9 +35,6 @@ import { MissingSale } from '../../models/models';
         <div class="missing-card" *ngFor="let sale of missingSales">
           <div class="card-header">
             <div class="bike-info">
-              <span class="stok-badge" *ngIf="sale.stokNo"
-                >#{{ sale.stokNo }}</span
-              >
               <h3>{{ sale.bikeInfo }}</h3>
             </div>
             <span class="sale-badge"
@@ -82,7 +79,6 @@ import { MissingSale } from '../../models/models';
                 fahrradtyp: sale.fahrradtyp || '',
                 art: sale.art || '',
                 zustand: sale.zustand,
-                stokNo: sale.stokNo || '',
                 salePreis: sale.salePreis,
               }"
               class="btn btn-primary"

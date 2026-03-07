@@ -4,13 +4,12 @@ namespace BikeHaus.Application.DTOs;
 
 public record ArchiveSearchResultDto(
     int BicycleId,
-    string StokNo,
     string BikeInfo,
     string? PurchaseBelegNummer,
     string? SaleBelegNummer,
     DateTime? PurchaseDate,
     DateTime? SaleDate,
-    string MatchType // "StokNo", "PurchaseBeleg", "SaleBeleg", "ReturnBeleg"
+    string MatchType // "PurchaseBeleg", "SaleBeleg", "ReturnBeleg"
 );
 
 public record ArchiveTimelineEventDto(
@@ -28,7 +27,6 @@ public record ArchiveTimelineEventDto(
 
 public record ArchiveBicycleHistoryDto(
     int BicycleId,
-    string StokNo,
     string Marke,
     string? Modell,
     string? Rahmennummer,

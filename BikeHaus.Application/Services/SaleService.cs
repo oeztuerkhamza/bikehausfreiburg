@@ -49,7 +49,6 @@ public class SaleService : ISaleService
                 s.BelegNummer.ToLower().Contains(term) ||
                 s.Bicycle.Marke.ToLower().Contains(term) ||
                 s.Bicycle.Modell.ToLower().Contains(term) ||
-                (s.Bicycle.StokNo != null && s.Bicycle.StokNo.ToLower().Contains(term)) ||
                 s.Buyer.Vorname.ToLower().Contains(term) ||
                 s.Buyer.Nachname.ToLower().Contains(term)) &&
             // Bicycle property filters

@@ -10,7 +10,6 @@ public class Bicycle : BaseEntity
     public string? Rahmengroesse { get; set; }                   // Frame Size (Rahmengröße)
     public string? Farbe { get; set; }                          // Color (Rahmenfarbe)
     public string Reifengroesse { get; set; } = string.Empty;  // Tire Size (Zoll)
-    public string? StokNo { get; set; }                         // Stock Number (Stok Numarası)
     public string? Fahrradtyp { get; set; }                     // Bike Type (E-Bike, Trekking, etc.)
     public string? Art { get; set; }                             // Gender: Herren, Damen, Kinder
     public string? Beschreibung { get; set; }                   // Description (Ausstattung/Features)

@@ -9,7 +9,6 @@ import { forkJoin } from 'rxjs';
 
 interface LabelBike {
   id: number;
-  stokNo: string;
   marke: string;
   modell: string;
   farbe: string;
@@ -97,9 +96,6 @@ interface LabelBike {
               <span *ngIf="bike.fahrradtyp">{{ bike.fahrradtyp }}</span>
             </div>
             <div class="bike-meta">
-              <span class="stok-no" *ngIf="bike.stokNo"
-                >#{{ bike.stokNo }}</span
-              >
               <span class="bike-price" *ngIf="bike.preis"
                 >{{ bike.preis | number: '1.0-0' }} €</span
               >
@@ -150,8 +146,6 @@ interface LabelBike {
                 {{ bike.preis | number: '1.0-0' }} €
               </div>
             </div>
-            <div class="label-stok-bottom" *ngIf="bike.stokNo">
-              #{{ bike.stokNo }}
             </div>
           </div>
         </div>
@@ -309,11 +303,6 @@ interface LabelBike {
         justify-content: space-between;
         align-items: center;
       }
-      .stok-no {
-        font-size: 0.75rem;
-        color: var(--text-tertiary, #94a3b8);
-        font-family: monospace;
-      }
       .bike-price {
         font-weight: 700;
         font-size: 1rem;
@@ -449,17 +438,6 @@ interface LabelBike {
         font-weight: 900;
         color: #fff;
         letter-spacing: 0.05em;
-      }
-      .label-stok-bottom {
-        font-size: 16pt;
-        font-weight: 900;
-        color: #0f172a;
-        font-family: 'Courier New', monospace;
-        letter-spacing: 0.12em;
-        margin-top: 3mm;
-        padding: 2mm 6mm;
-        background: #f1f5f9;
-        border-radius: 2mm;
       }
 
       /* ── Buttons ── */
@@ -665,11 +643,11 @@ export class BicycleLabelsComponent implements OnInit {
       this.bicycleService.getAll(),
       this.purchaseService.getAll(),
     ]).subscribe(([bicycles, purchases]) => {
-      // Build a price map: bicycle stokNo → verkaufspreisVorschlag or preis
-      const priceMap = new Map<string, number>();
+      // Build a price map: bicycle id → verkaufspreisVorschlag or preis
+      const priceMap = new Map<number, number>();
       for (const p of purchases) {
-        if (p.stokNo) {
-          priceMap.set(p.stokNo, p.verkaufspreisVorschlag ?? p.preis);
+        if (p.bicycle?.id) {
+          priceMap.set(p.bicycle.id, p.verkaufspreisVorschlag ?? p.preis);
         }
       }
 
@@ -682,7 +660,6 @@ export class BicycleLabelsComponent implements OnInit {
         )
         .map((b) => ({
           id: b.id,
-          stokNo: b.stokNo || '',
           marke: b.marke,
           modell: b.modell,
           farbe: b.farbe || '',
@@ -692,7 +669,7 @@ export class BicycleLabelsComponent implements OnInit {
           rahmennummer: b.rahmennummer || '',
           rahmengroesse: b.rahmengroesse || '',
           beschreibung: b.beschreibung || '',
-          preis: b.stokNo ? priceMap.get(b.stokNo) || 0 : 0,
+          preis: priceMap.get(b.id) || 0,
           selected: false,
           createdAt: b.createdAt,
         }));
@@ -711,7 +688,6 @@ export class BicycleLabelsComponent implements OnInit {
       (b) =>
         b.marke.toLowerCase().includes(term) ||
         b.modell.toLowerCase().includes(term) ||
-        b.stokNo.toLowerCase().includes(term) ||
         b.fahrradtyp.toLowerCase().includes(term) ||
         b.farbe.toLowerCase().includes(term),
     );

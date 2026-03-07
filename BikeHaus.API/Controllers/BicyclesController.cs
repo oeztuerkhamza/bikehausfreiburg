@@ -76,22 +76,6 @@ public class BicyclesController : ControllerBase
         return Ok(bicycles);
     }
 
-    [HttpGet("by-stokno/{stokNo}")]
-    public async Task<ActionResult<BicycleDto>> GetByStokNo(string stokNo)
-    {
-        var bicycle = await _bicycleService.GetByStokNoAsync(stokNo);
-        if (bicycle == null)
-            return NotFound();
-        return Ok(bicycle);
-    }
-
-    [HttpGet("next-stokno")]
-    public async Task<ActionResult<object>> GetNextStokNo()
-    {
-        var nextStokNo = await _bicycleService.GetNextStokNoAsync();
-        return Ok(new { stokNo = nextStokNo });
-    }
-
     [Authorize]
     [HttpPost]
     public async Task<ActionResult<BicycleDto>> Create([FromBody] BicycleCreateDto dto)

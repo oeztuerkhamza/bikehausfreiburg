@@ -172,14 +172,6 @@ import { forkJoin } from 'rxjs';
                 </select>
               </div>
               <div class="field">
-                <label>{{ t.stockNo }}</label>
-                <input
-                  [(ngModel)]="bicycle.stokNo"
-                  name="bikeStokNo"
-                  placeholder="optional"
-                />
-              </div>
-              <div class="field">
                 <label>{{ t.bicycleType }}</label>
                 <select [(ngModel)]="bicycle.fahrradtyp" name="bikeFahrradtyp">
                   <option value="">-- Auswählen --</option>
@@ -729,7 +721,6 @@ export class PurchaseEditComponent implements OnInit {
     rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
-    stokNo: '',
     fahrradtyp: '',
     art: '',
     beschreibung: '',
@@ -913,7 +904,6 @@ export class PurchaseEditComponent implements OnInit {
         rahmengroesse: purchase.bicycle.rahmengroesse || '',
         farbe: purchase.bicycle.farbe || '',
         reifengroesse: purchase.bicycle.reifengroesse || '',
-        stokNo: purchase.bicycle.stokNo || '',
         fahrradtyp: purchase.bicycle.fahrradtyp || '',
         art: purchase.bicycle.art || '',
         beschreibung: purchase.bicycle.beschreibung || '',

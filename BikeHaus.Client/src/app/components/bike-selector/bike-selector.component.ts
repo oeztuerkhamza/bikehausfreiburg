@@ -55,7 +55,7 @@ import { TranslationService } from '../../services/translation.service';
           (click)="selectBike(bike)"
         >
           <div class="bike-main">
-            <span class="bike-id">#{{ bike.stokNo || bike.id }}</span>
+            <span class="bike-id">#{{ bike.id }}</span>
             <span class="bike-brand">{{ bike.marke }} {{ bike.modell }}</span>
             <span class="bike-frame">{{ bike.rahmennummer }}</span>
           </div>
@@ -273,7 +273,6 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
         b.marke.toLowerCase().includes(term) ||
         b.modell.toLowerCase().includes(term) ||
         (b.rahmennummer && b.rahmennummer.toLowerCase().includes(term)) ||
-        (b.stokNo && b.stokNo.toLowerCase().includes(term)) ||
         (b.farbe && b.farbe.toLowerCase().includes(term)) ||
         b.fahrradtyp?.toLowerCase().includes(term),
     );
@@ -295,7 +294,7 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
     }
 
     // Check if already in list
-    const existing = this.bikes.find((b) => b.stokNo === nr);
+    const existing = this.bikes.find((b) => b.id.toString() === nr);
     if (existing) {
       this.selectBike(existing);
       this.searchId = '';
@@ -304,8 +303,13 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
       return;
     }
 
-    // Fetch from server by StokNo
-    this.bicycleService.getByStokNo(nr).subscribe({
+    // Fetch from server by ID
+    const nrNum = parseInt(nr, 10);
+    if (isNaN(nrNum)) {
+      this.searchError = this.t.invalidNumberError;
+      return;
+    }
+    this.bicycleService.getById(nrNum).subscribe({
       next: (bike) => {
         if (bike.status === BikeStatus.Sold) {
           this.searchError = this.t.bikeAlreadySoldError.replace('{nr}', nr);

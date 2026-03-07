@@ -55,7 +55,7 @@ public class PurchaseService : IPurchaseService
                 (p.BelegNummer != null && p.BelegNummer.ToLower().Contains(term)) ||
                 p.Bicycle.Marke.ToLower().Contains(term) ||
                 p.Bicycle.Modell.ToLower().Contains(term) ||
-                (p.Bicycle.StokNo != null && p.Bicycle.StokNo.ToLower().Contains(term)) ||
+
                 p.Seller.Vorname.ToLower().Contains(term) ||
                 p.Seller.Nachname.ToLower().Contains(term)) &&
             // Bicycle property filters
@@ -135,19 +135,12 @@ public class PurchaseService : IPurchaseService
         var seller = dto.Seller.ToEntity();
         seller = await _customerRepository.AddAsync(seller);
 
-        // Get next StokNo
-        var maxStokNo = await _bicycleRepository.GetMaxStokNoAsync();
-        var settings = await _settingsRepository.GetSettingsAsync();
-        var startNum = settings?.FahrradNummerStart ?? 1;
-        var nextStokNo = maxStokNo.HasValue ? Math.Max(maxStokNo.Value + 1, startNum) : startNum;
-
         var results = new List<PurchaseDto>();
 
         for (int i = 0; i < dto.Anzahl; i++)
         {
             // Create Bicycle - preserve Zustand from DTO
             var bicycle = dto.Bicycle.ToEntity();
-            bicycle.StokNo = (nextStokNo + i).ToString();
             bicycle = await _bicycleRepository.AddAsync(bicycle);
 
             // Create Purchase
@@ -187,7 +180,6 @@ public class PurchaseService : IPurchaseService
         bicycle.Rahmengroesse = dto.Bicycle.Rahmengroesse;
         bicycle.Farbe = dto.Bicycle.Farbe;
         bicycle.Reifengroesse = dto.Bicycle.Reifengroesse;
-        bicycle.StokNo = dto.Bicycle.StokNo;
         bicycle.Fahrradtyp = dto.Bicycle.Fahrradtyp;
         bicycle.Art = dto.Bicycle.Art;
         bicycle.Beschreibung = dto.Bicycle.Beschreibung;
@@ -299,7 +291,6 @@ public class PurchaseService : IPurchaseService
         if (dto.Fahrradtyp != null) { bicycle.Fahrradtyp = dto.Fahrradtyp; bicycleUpdated = true; }
         if (dto.Art != null) { bicycle.Art = dto.Art; bicycleUpdated = true; }
         if (dto.Zustand.HasValue) { bicycle.Zustand = dto.Zustand.Value; bicycleUpdated = true; }
-        if (dto.StokNo != null) { bicycle.StokNo = dto.StokNo; bicycleUpdated = true; }
         if (bicycleUpdated)
         {
             await _bicycleRepository.UpdateAsync(bicycle);
@@ -352,7 +343,6 @@ public class PurchaseService : IPurchaseService
             s.BelegNummer,
             s.BicycleId,
             $"{s.Bicycle.Marke} {s.Bicycle.Modell}",
-            s.Bicycle.StokNo,
             s.Buyer.FullName,
             s.Preis,
             s.Verkaufsdatum,

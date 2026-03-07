@@ -11,8 +11,6 @@ public interface IBicycleRepository : IRepository<Bicycle>
     Task<(IEnumerable<Bicycle> Items, int TotalCount)> GetPaginatedAsync(
         int page, int pageSize,
         Expression<Func<Bicycle, bool>>? predicate = null);
-    Task<int?> GetMaxStokNoAsync();
-    Task<Bicycle?> GetByStokNoAsync(string stokNo);
     Task<IEnumerable<string>> GetUniqueBrandsAsync();
     Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null);
     Task<IEnumerable<Bicycle>> GetPublishedOnWebsiteAsync();

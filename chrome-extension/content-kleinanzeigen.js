@@ -1268,10 +1268,7 @@ Weitere Angebote finden Sie in unseren Anzeigen.`.trim();
         </div>
       </div>
       <div class="bk-body">
-        <div class="bk-bike-name">${pendingBike.marke} ${pendingBike.modell}</div>
-        <div class="bk-stok">${pendingBike.stokNo || ''}</div>
-
-        <div class="bk-section">
+        <div class="bk-bike-name">${pendingBike.marke} ${pendingBike.modell}</div>\n\n        <div class="bk-section">
           <div class="bk-section-title">Titel</div>
           <div class="bk-field-row">
             <input type="text" class="bk-input" id="bk-title" value="${title}" readonly />

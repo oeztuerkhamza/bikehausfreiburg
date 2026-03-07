@@ -293,8 +293,6 @@ public class PdfService : IPdfService
                         AddStyledTableRow(table, "Rahmennummer", purchase.Bicycle.Rahmennummer, "Farbe", purchase.Bicycle.Farbe);
                         AddStyledTableRow(table, "Rahmengröße", purchase.Bicycle.Rahmengroesse ?? "-", "Reifengröße", purchase.Bicycle.Reifengroesse);
                         AddStyledTableRow(table, "Fahrradtyp", purchase.Bicycle.Fahrradtyp ?? "-", "Zustand", purchase.Bicycle.Zustand.ToString());
-                        if (!string.IsNullOrEmpty(purchase.Bicycle.StokNo))
-                            AddStyledTableRow(table, "Stok Nr.", purchase.Bicycle.StokNo, "", "");
                     });
 
                     // Section: Seller Info
@@ -512,11 +510,11 @@ public class PdfService : IPdfService
                         else
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("GEBRAUCHT").FontSize(10).Bold().FontColor("#856404");
 
-                        // Additional row with Stok Nr and Price
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Stok Nr.").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.StokNo ?? "-").FontSize(10);
+                        // Price row
                         table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text("Preis").FontSize(9).Bold().FontColor(AccentColor);
                         table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{sale.Preis:N2} €").FontSize(10).Bold().FontColor(AccentColor);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("").FontSize(9);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("").FontSize(9);
 
                         // Einkaufspreis (Purchase price) if available
                         if (sale.Purchase != null)

@@ -61,30 +61,6 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             .ToListAsync();
     }
 
-    public async Task<Bicycle?> GetByStokNoAsync(string stokNo)
-    {
-        return await _dbSet.FirstOrDefaultAsync(b => b.StokNo == stokNo);
-    }
-
-    public async Task<int?> GetMaxStokNoAsync()
-    {
-        var maxStokNo = await _dbSet
-            .Where(b => b.StokNo != null && b.StokNo != "")
-            .Select(b => b.StokNo!)
-            .ToListAsync();
-
-        int? max = null;
-        foreach (var s in maxStokNo)
-        {
-            if (int.TryParse(s, out var num))
-            {
-                if (max == null || num > max)
-                    max = num;
-            }
-        }
-        return max;
-    }
-
     public async Task<IEnumerable<string>> GetUniqueBrandsAsync()
     {
         return await _dbSet

@@ -243,14 +243,6 @@ import { forkJoin, Observable } from 'rxjs';
                   <option value="29">29"</option>
                 </select>
               </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.stockNo }}</label>
-                <input
-                  [(ngModel)]="bicycle.stokNo"
-                  name="bikeStokNo"
-                  placeholder="optional"
-                />
-              </div>
               <div class="field">
                 <label>{{ t.bicycleType }}</label>
                 <select [(ngModel)]="bicycle.fahrradtyp" name="bikeFahrradtyp">
@@ -927,7 +919,6 @@ export class PurchaseFormComponent implements OnInit {
     rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
-    stokNo: '',
     fahrradtyp: '',
     art: '',
     beschreibung: '',
@@ -978,12 +969,6 @@ export class PurchaseFormComponent implements OnInit {
     });
 
     this.kaufdatum = new Date().toISOString().split('T')[0];
-    this.bicycleService.getNextStokNo().subscribe({
-      next: (res) => {
-        this.bicycle.stokNo = res.stokNo;
-      },
-      error: () => {},
-    });
     this.purchaseService.getNextBelegNummer().subscribe({
       next: (res) => {
         this.belegNummer = res.belegNummer;

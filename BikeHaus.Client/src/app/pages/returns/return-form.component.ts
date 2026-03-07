@@ -556,8 +556,7 @@ export class ReturnFormComponent implements OnInit {
       (s) =>
         s.belegNummer.toLowerCase().includes(q) ||
         s.bikeInfo.toLowerCase().includes(q) ||
-        s.buyerName.toLowerCase().includes(q) ||
-        (s.stokNo && s.stokNo.toLowerCase().includes(q)),
+        s.buyerName.toLowerCase().includes(q),
     );
   }
 

@@ -34,7 +34,6 @@ public record PurchaseCreateDto(
 public record PurchaseListDto(
     int Id,
     string? BelegNummer,
-    string? StokNo,
     string BikeInfo,
     string SellerName,
     decimal Preis,
@@ -83,7 +82,6 @@ public record MissingPurchaseSaleDto(
     string SaleBelegNummer,
     int BicycleId,
     string BikeInfo,
-    string? StokNo,
     string BuyerName,
     decimal SalePreis,
     DateTime Verkaufsdatum,
@@ -121,6 +119,5 @@ public record PurchaseCreateForExistingBikeDto(
     string? Reifengroesse = null,
     string? Fahrradtyp = null,
     string? Art = null,
-    BikeCondition? Zustand = null,
-    string? StokNo = null
+    BikeCondition? Zustand = null
 );

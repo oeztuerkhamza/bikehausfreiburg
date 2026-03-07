@@ -238,7 +238,6 @@ export interface Translations {
   soldTo: string;
   salePrice: string;
   to: string;
-  stockNo: string;
 
   // Purchase
   newPurchaseTitle: string;
@@ -543,7 +542,6 @@ export interface Translations {
   archiveReturn: string;
   archiveReservation: string;
   archiveReservationCancelled: string;
-  archiveStokNo: string;
   archivePurchaseReceipt: string;
   archiveSaleReceipt: string;
   archiveViewDocument: string;
@@ -922,7 +920,6 @@ const TRANSLATIONS: Record<Language, Translations> = {
     soldTo: 'Verkauft an',
     salePrice: 'Verkaufspreis',
     to: 'Bis',
-    stockNo: 'Stok Nr.',
 
     // Purchase
     newPurchaseTitle: 'Neuer Ankauf (Kaufbeleg)',
@@ -1221,9 +1218,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     archive: 'Archiv',
     archiveSearch: 'Fahrrad-Archiv durchsuchen',
     archiveSearchPlaceholder:
-      'Beleg-Nr., Stok-Nr., Marke, Modell oder Rahmennummer...',
+      'Beleg-Nr., Marke, Modell oder Rahmennummer...',
     archiveSearchHint:
-      'Geben Sie eine Beleg-Nr., Stok-Nr., Marke, Modell oder Rahmennummer ein, um die komplette Fahrradhistorie einzusehen.',
+      'Geben Sie eine Beleg-Nr., Marke, Modell oder Rahmennummer ein, um die komplette Fahrradhistorie einzusehen.',
     archiveNoResults: 'Keine Ergebnisse gefunden',
     archiveSelectBicycle: 'Wählen Sie ein Fahrrad aus der Liste',
     archiveTimeline: 'Chronik',
@@ -1233,7 +1230,6 @@ const TRANSLATIONS: Record<Language, Translations> = {
     archiveReturn: 'Rückgabe',
     archiveReservation: 'Reservierung',
     archiveReservationCancelled: 'Reservierung storniert',
-    archiveStokNo: 'Stok-Nr.',
     archivePurchaseReceipt: 'Kaufbeleg',
     archiveSaleReceipt: 'Verkaufsbeleg',
     archiveViewDocument: 'Beleg anzeigen',
@@ -1270,7 +1266,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Bicycle Labels
     createLabels: 'Etiketten erstellen',
-    labelsSearchPlaceholder: 'Suche nach Marke, Modell, Stok-Nr...',
+    labelsSearchPlaceholder: 'Suche nach Marke, Modell...',
     selectedText: 'ausgewählt',
     selectAllButton: 'Alle auswählen',
     deselectAllButton: 'Auswahl aufheben',
@@ -1609,7 +1605,6 @@ const TRANSLATIONS: Record<Language, Translations> = {
     soldTo: 'Alıcı',
     salePrice: 'Satış Fiyatı',
     to: 'Bitiş',
-    stockNo: 'Stok No',
 
     // Purchase
     newPurchaseTitle: 'Yeni Alım (Alış Belgesi)',
@@ -1909,9 +1904,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     archive: 'Arşiv',
     archiveSearch: 'Bisiklet arşivini ara',
     archiveSearchPlaceholder:
-      'Belge No., Stok No., Marka, Model veya Şase No...',
+      'Belge No., Marka, Model veya Şase No...',
     archiveSearchHint:
-      'Belge numarası, stok numarası, marka, model veya şase numarası girerek bisikletin tüm geçmişini görüntüleyin.',
+      'Belge numarası, marka, model veya şase numarası girerek bisikletin tüm geçmişini görüntüleyin.',
     archiveNoResults: 'Sonuç bulunamadı',
     archiveSelectBicycle: 'Listeden bir bisiklet seçin',
     archiveTimeline: 'Zaman Çizelgesi',
@@ -1921,7 +1916,6 @@ const TRANSLATIONS: Record<Language, Translations> = {
     archiveReturn: 'İade',
     archiveReservation: 'Rezervasyon',
     archiveReservationCancelled: 'Rezervasyon iptal edildi',
-    archiveStokNo: 'Stok No.',
     archivePurchaseReceipt: 'Alım Belgesi',
     archiveSaleReceipt: 'Satış Belgesi',
     archiveViewDocument: 'Belgeyi görüntüle',
@@ -1958,7 +1952,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Bicycle Labels
     createLabels: 'Etiket Oluştur',
-    labelsSearchPlaceholder: 'Marka, model, stok no ara...',
+    labelsSearchPlaceholder: 'Marka, model ara...',
     selectedText: 'seçildi',
     selectAllButton: 'Tümünü Seç',
     deselectAllButton: 'Seçimi Kaldır',

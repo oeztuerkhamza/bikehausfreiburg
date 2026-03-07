@@ -76,7 +76,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <thead>
             <tr>
               <th>{{ t.reservationNumber }}</th>
-              <th>{{ t.stockNo }}</th>
               <th>{{ t.bicycle }}</th>
               <th>{{ t.buyer }}</th>
               <th>{{ t.reservationDate }}</th>
@@ -100,7 +99,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               [class.expired-row]="r.isExpired && r.status === 'Active'"
             >
               <td class="mono">{{ r.reservierungsNummer }}</td>
-              <td class="mono">{{ r.stokNo || '–' }}</td>
               <td>{{ r.bikeInfo }}</td>
               <td>{{ r.customerName }}</td>
               <td>{{ r.reservierungsDatum | date: 'dd.MM.yyyy' }}</td>

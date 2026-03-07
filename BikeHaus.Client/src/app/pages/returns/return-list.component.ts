@@ -78,7 +78,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <thead>
             <tr>
               <th>{{ t.receiptNo }}</th>
-              <th>{{ t.stockNo }}</th>
               <th>{{ t.originalSale }}</th>
               <th>{{ t.bicycle }}</th>
               <th>{{ t.customer }}</th>
@@ -103,7 +102,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               (click)="toggleMenu($event, r)"
             >
               <td class="mono">{{ r.belegNummer }}</td>
-              <td class="mono">{{ r.stokNo || '–' }}</td>
               <td>{{ r.originalSaleBelegNummer }}</td>
               <td>{{ r.bikeInfo }}</td>
               <td>{{ r.customerName }}</td>

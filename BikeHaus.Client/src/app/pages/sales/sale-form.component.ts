@@ -197,10 +197,6 @@ import { AddressSuggestion } from '../../services/address.service';
                   <option value="29">29"</option>
                 </select>
               </div>
-              <div class="field">
-                <label>{{ t.stockNo }}</label>
-                <input [(ngModel)]="bikeEdit.stokNo" name="bikeStokNo" />
-              </div>
               <div class="field" [class.field-error]="bikeErrors['fahrradtyp']">
                 <label>{{ t.bicycleType }} *</label>
                 <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']">{{
@@ -936,7 +932,6 @@ export class SaleFormComponent implements OnInit {
     rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
-    stokNo: '',
     fahrradtyp: '',
     beschreibung: '',
     zustand: 'Gebraucht' as BikeCondition,
@@ -1029,7 +1024,6 @@ export class SaleFormComponent implements OnInit {
       rahmengroesse: bike.rahmengroesse || '',
       farbe: bike.farbe || '',
       reifengroesse: bike.reifengroesse || '',
-      stokNo: bike.stokNo || '',
       fahrradtyp: bike.fahrradtyp || '',
       beschreibung: bike.beschreibung || '',
       zustand: bike.zustand || BikeCondition.Gebraucht,
@@ -1047,7 +1041,6 @@ export class SaleFormComponent implements OnInit {
       rahmengroesse: '',
       farbe: '',
       reifengroesse: '',
-      stokNo: '',
       fahrradtyp: '',
       beschreibung: '',
       status: 'Verfügbar' as any,
@@ -1062,7 +1055,6 @@ export class SaleFormComponent implements OnInit {
       rahmengroesse: '',
       farbe: '',
       reifengroesse: '',
-      stokNo: '',
       fahrradtyp: '',
       beschreibung: '',
       zustand: BikeCondition.Gebraucht,
@@ -1141,7 +1133,6 @@ export class SaleFormComponent implements OnInit {
         rahmengroesse: this.bikeEdit.rahmengroesse || undefined,
         farbe: this.bikeEdit.farbe || undefined,
         reifengroesse: this.bikeEdit.reifengroesse,
-        stokNo: this.bikeEdit.stokNo || undefined,
         fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
         beschreibung: this.bikeEdit.beschreibung || undefined,
         status: 'Verfügbar' as any,
@@ -1170,7 +1161,6 @@ export class SaleFormComponent implements OnInit {
       rahmengroesse: this.bikeEdit.rahmengroesse || undefined,
       farbe: this.bikeEdit.farbe || undefined,
       reifengroesse: this.bikeEdit.reifengroesse,
-      stokNo: this.bikeEdit.stokNo || undefined,
       fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
       beschreibung: this.bikeEdit.beschreibung || undefined,
       status: this.selectedBike.status,

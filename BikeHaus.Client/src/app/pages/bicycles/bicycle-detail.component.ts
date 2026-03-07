@@ -105,10 +105,6 @@ import {
               </select>
             </div>
             <div class="field">
-              <label>{{ t.stockNo }}</label>
-              <input [(ngModel)]="form.stokNo" name="stokNo" />
-            </div>
-            <div class="field">
               <label>{{ t.bicycleType }}</label>
               <select [(ngModel)]="form.fahrradtyp" name="fahrradtyp">
                 <option value="">-- {{ t.selectOption }} --</option>
@@ -708,7 +704,6 @@ export class BicycleDetailComponent implements OnInit {
     rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
-    stokNo: '',
     fahrradtyp: '',
     art: '',
     beschreibung: '',
@@ -761,7 +756,6 @@ export class BicycleDetailComponent implements OnInit {
         rahmengroesse: b.rahmengroesse,
         farbe: b.farbe,
         reifengroesse: b.reifengroesse,
-        stokNo: b.stokNo,
         fahrradtyp: b.fahrradtyp,
         art: b.art || '',
         beschreibung: b.beschreibung,

@@ -56,7 +56,6 @@ public class ReturnService : IReturnService
                     (r.BelegNummer.ToLower().Contains(term) ||
                      r.Bicycle.Marke.ToLower().Contains(term) ||
                      r.Bicycle.Modell.ToLower().Contains(term) ||
-                     (r.Bicycle.StokNo != null && r.Bicycle.StokNo.ToLower().Contains(term)) ||
                      r.Customer.Vorname.ToLower().Contains(term) ||
                      r.Customer.Nachname.ToLower().Contains(term) ||
                      r.Sale.BelegNummer.ToLower().Contains(term));
@@ -67,7 +66,6 @@ public class ReturnService : IReturnService
                     r.BelegNummer.ToLower().Contains(term) ||
                     r.Bicycle.Marke.ToLower().Contains(term) ||
                     r.Bicycle.Modell.ToLower().Contains(term) ||
-                    (r.Bicycle.StokNo != null && r.Bicycle.StokNo.ToLower().Contains(term)) ||
                     r.Customer.Vorname.ToLower().Contains(term) ||
                     r.Customer.Nachname.ToLower().Contains(term) ||
                     r.Sale.BelegNummer.ToLower().Contains(term);

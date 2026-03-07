@@ -50,14 +50,6 @@ export class BicycleService {
     return this.http.get<Bicycle>(`${this.url}/${id}`);
   }
 
-  getByStokNo(stokNo: string): Observable<Bicycle> {
-    return this.http.get<Bicycle>(`${this.url}/by-stokno/${stokNo}`);
-  }
-
-  getNextStokNo(): Observable<{ stokNo: string }> {
-    return this.http.get<{ stokNo: string }>(`${this.url}/next-stokno`);
-  }
-
   getAvailable(): Observable<Bicycle[]> {
     return this.http.get<Bicycle[]>(`${this.url}/available`);
   }

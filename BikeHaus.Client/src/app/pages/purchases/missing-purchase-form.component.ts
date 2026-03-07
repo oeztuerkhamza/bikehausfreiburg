@@ -76,10 +76,6 @@ import { AddressSuggestion } from '../../services/address.service';
                 <label>{{ t.bicycleType }}</label>
                 <input [(ngModel)]="bikeFahrradtyp" name="bikeFahrradtyp" />
               </div>
-              <div class="field">
-                <label>{{ t.stockNo }}</label>
-                <input [(ngModel)]="bikeStokNo" name="bikeStokNo" />
-              </div>
             </div>
           </div>
 
@@ -377,7 +373,6 @@ export class MissingPurchaseFormComponent implements OnInit {
   bikeFarbe = '';
   bikeReifengroesse = '';
   bikeFahrradtyp = '';
-  bikeStokNo = '';
   bikeArt = '';
   bikeZustand: BikeCondition = BikeCondition.Gebraucht;
 
@@ -423,7 +418,6 @@ export class MissingPurchaseFormComponent implements OnInit {
       this.bikeReifengroesse = params['reifengroesse'] || '';
       this.bikeFahrradtyp = params['fahrradtyp'] || '';
       this.bikeArt = params['art'] || '';
-      this.bikeStokNo = params['stokNo'] || '';
       this.bikeZustand =
         (params['zustand'] as BikeCondition) || BikeCondition.Gebraucht;
 
@@ -506,7 +500,6 @@ export class MissingPurchaseFormComponent implements OnInit {
       fahrradtyp: this.bikeFahrradtyp || undefined,
       art: this.bikeArt || undefined,
       zustand: this.bikeZustand,
-      stokNo: this.bikeStokNo || undefined,
     };
 
     this.purchaseService.createForExistingBike(dto).subscribe({

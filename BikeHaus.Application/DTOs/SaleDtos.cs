@@ -58,7 +58,6 @@ public record SaleCreateDto(
 public record SaleListDto(
     int Id,
     string BelegNummer,
-    string? StokNo,
     string BikeInfo,
     string BuyerName,
     decimal Preis,

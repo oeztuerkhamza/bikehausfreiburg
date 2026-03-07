@@ -12,8 +12,6 @@ public interface IBicycleService
     Task<BicycleDto> UpdateAsync(int id, BicycleUpdateDto dto);
     Task DeleteAsync(int id);
     Task<IEnumerable<BicycleDto>> SearchAsync(string searchTerm);
-    Task<BicycleDto?> GetByStokNoAsync(string stokNo);
-    Task<string> GetNextStokNoAsync();
     Task<IEnumerable<string>> GetUniqueBrandsAsync();
     Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null);
     Task<BicycleDto> TogglePublishOnWebsiteAsync(int id);

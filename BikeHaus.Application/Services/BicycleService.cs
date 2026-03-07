@@ -74,7 +74,6 @@ public class BicycleService : IBicycleService
                 b.Marke.ToLower().Contains(term) ||
                 b.Modell.ToLower().Contains(term) ||
                 (b.Rahmennummer != null && b.Rahmennummer.ToLower().Contains(term)) ||
-                (b.StokNo != null && b.StokNo.ToLower().Contains(term)) ||
                 (b.Farbe != null && b.Farbe.ToLower().Contains(term)));
         }
 
@@ -124,14 +123,6 @@ public class BicycleService : IBicycleService
     {
         var entity = dto.ToEntity();
 
-        // Always auto-generate StokNo: find max and add 1
-        var maxStokNo = await _repository.GetMaxStokNoAsync();
-        var settings = await _settingsRepository.GetSettingsAsync();
-        var startNum = settings?.FahrradNummerStart ?? 1;
-
-        var nextNum = maxStokNo.HasValue ? Math.Max(maxStokNo.Value + 1, startNum) : startNum;
-        entity.StokNo = nextNum.ToString();
-
         var created = await _repository.AddAsync(entity);
         return created.ToDto();
     }
@@ -147,7 +138,6 @@ public class BicycleService : IBicycleService
         entity.Rahmengroesse = dto.Rahmengroesse;
         entity.Farbe = dto.Farbe;
         entity.Reifengroesse = dto.Reifengroesse;
-        entity.StokNo = dto.StokNo;
         entity.Fahrradtyp = dto.Fahrradtyp;
         entity.Art = dto.Art;
         entity.Beschreibung = dto.Beschreibung;
@@ -188,24 +178,8 @@ public class BicycleService : IBicycleService
             b.Marke.Contains(searchTerm) ||
             b.Modell.Contains(searchTerm) ||
             (b.Rahmennummer != null && b.Rahmennummer.Contains(searchTerm)) ||
-            (b.StokNo != null && b.StokNo.Contains(searchTerm)) ||
             (b.Farbe != null && b.Farbe.Contains(searchTerm)));
         return bicycles.Select(b => b.ToDto());
-    }
-
-    public async Task<BicycleDto?> GetByStokNoAsync(string stokNo)
-    {
-        var bicycle = await _repository.GetByStokNoAsync(stokNo);
-        return bicycle?.ToDto();
-    }
-
-    public async Task<string> GetNextStokNoAsync()
-    {
-        var maxStokNo = await _repository.GetMaxStokNoAsync();
-        var settings = await _settingsRepository.GetSettingsAsync();
-        var startNum = settings?.FahrradNummerStart ?? 1;
-        var nextNum = maxStokNo.HasValue ? Math.Max(maxStokNo.Value + 1, startNum) : startNum;
-        return nextNum.ToString();
     }
 
     public async Task<IEnumerable<string>> GetUniqueBrandsAsync()

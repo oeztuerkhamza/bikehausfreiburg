@@ -56,7 +56,6 @@ public class ReservationService : IReservationService
                     (r.ReservierungsNummer.ToLower().Contains(term) ||
                      r.Bicycle.Marke.ToLower().Contains(term) ||
                      r.Bicycle.Modell.ToLower().Contains(term) ||
-                     (r.Bicycle.StokNo != null && r.Bicycle.StokNo.ToLower().Contains(term)) ||
                      r.Customer.Vorname.ToLower().Contains(term) ||
                      r.Customer.Nachname.ToLower().Contains(term));
             }
@@ -66,7 +65,6 @@ public class ReservationService : IReservationService
                     r.ReservierungsNummer.ToLower().Contains(term) ||
                     r.Bicycle.Marke.ToLower().Contains(term) ||
                     r.Bicycle.Modell.ToLower().Contains(term) ||
-                    (r.Bicycle.StokNo != null && r.Bicycle.StokNo.ToLower().Contains(term)) ||
                     r.Customer.Vorname.ToLower().Contains(term) ||
                     r.Customer.Nachname.ToLower().Contains(term);
             }

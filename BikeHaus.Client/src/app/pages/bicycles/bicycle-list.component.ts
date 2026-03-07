@@ -144,7 +144,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               class="clickable-row"
               (click)="toggleMenu($event, b)"
             >
-              <td class="mono">{{ b.stokNo || '–' }}</td>
               <td>{{ b.marke }}</td>
               <td>{{ b.modell }}</td>
               <td class="mono" style="text-transform: uppercase">
@@ -766,7 +765,6 @@ export class BicycleListComponent implements OnInit, OnDestroy {
                   farbe: fullBike.farbe,
                   zustand: fullBike.zustand,
                   beschreibung: fullBike.beschreibung,
-                  stokNo: fullBike.stokNo,
                   verkaufspreisVorschlag: fullBike.verkaufspreisVorschlag,
                   images: fullBike.images || [],
                   apiBaseUrl: apiBaseUrl
@@ -787,7 +785,6 @@ export class BicycleListComponent implements OnInit, OnDestroy {
   exportExcel() {
     const data = this.paginatedResult?.items || [];
     this.excelExportService.exportToExcel(data, 'Fahrraeder', [
-      { key: 'stokNo', header: 'Nr.' },
       { key: 'marke', header: 'Marke' },
       { key: 'modell', header: 'Modell' },
       { key: 'rahmennummer', header: 'Rahmennummer' },
