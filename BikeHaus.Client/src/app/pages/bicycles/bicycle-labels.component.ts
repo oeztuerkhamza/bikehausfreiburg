@@ -144,7 +144,6 @@ interface LabelBike {
                 {{ bike.preis | number: '1.0-0' }} €
               </div>
             </div>
-            </div>
           </div>
         </div>
       </div>
