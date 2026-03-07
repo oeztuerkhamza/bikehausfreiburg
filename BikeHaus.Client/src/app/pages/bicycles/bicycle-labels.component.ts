@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
-import { PurchaseService } from '../../services/purchase.service';
 import { TranslationService } from '../../services/translation.service';
-import { forkJoin } from 'rxjs';
 
 interface LabelBike {
   id: number;
@@ -599,7 +597,6 @@ interface LabelBike {
 })
 export class BicycleLabelsComponent implements OnInit {
   private bicycleService = inject(BicycleService);
-  private purchaseService = inject(PurchaseService);
   private translationService = inject(TranslationService);
 
   allBikes: LabelBike[] = [];
@@ -639,18 +636,7 @@ export class BicycleLabelsComponent implements OnInit {
   }
 
   loadData() {
-    forkJoin([
-      this.bicycleService.getAll(),
-      this.purchaseService.getAll(),
-    ]).subscribe(([bicycles, purchases]) => {
-      // Build a price map: bicycle id → verkaufspreisVorschlag or preis
-      const priceMap = new Map<number, number>();
-      for (const p of purchases) {
-        if (p.bicycle?.id) {
-          priceMap.set(p.bicycle.id, p.verkaufspreisVorschlag ?? p.preis);
-        }
-      }
-
+    this.bicycleService.getAll().subscribe((bicycles) => {
       // Map bicycles, sorted newest first
       this.allBikes = bicycles
         .filter((b) => b.status === 'Available')
@@ -669,7 +655,7 @@ export class BicycleLabelsComponent implements OnInit {
           rahmennummer: b.rahmennummer || '',
           rahmengroesse: b.rahmengroesse || '',
           beschreibung: b.beschreibung || '',
-          preis: priceMap.get(b.id) || 0,
+          preis: b.verkaufspreisVorschlag || 0,
           selected: false,
           createdAt: b.createdAt,
         }));
