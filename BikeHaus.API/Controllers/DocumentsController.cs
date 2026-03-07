@@ -60,6 +60,13 @@ public class DocumentsController : ControllerBase
         return File(fileStream, contentType, fileName);
     }
 
+    [HttpGet("{id}/view")]
+    public async Task<IActionResult> View(int id)
+    {
+        var (fileStream, contentType, _) = await _documentService.DownloadAsync(id);
+        return File(fileStream, contentType);
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

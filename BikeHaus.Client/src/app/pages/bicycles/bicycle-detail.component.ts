@@ -944,7 +944,7 @@ export class BicycleDetailComponent implements OnInit {
   }
 
   getDocumentUrl(doc: DocModel): string {
-    return `${environment.apiUrl}/documents/${doc.id}/download`;
+    return `${environment.apiUrl}/documents/${doc.id}/view`;
   }
 
   downloadDoc(doc: DocModel) {
