@@ -59,6 +59,7 @@ public record SaleListDto(
     int Id,
     string BelegNummer,
     string BikeInfo,
+    string? Rahmennummer,
     string BuyerName,
     decimal Preis,
     decimal Rabatt,

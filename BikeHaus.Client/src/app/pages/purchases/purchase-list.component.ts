@@ -121,6 +121,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <tr>
               <th>{{ t.receiptNo }}</th>
               <th>{{ t.bicycle }}</th>
+              <th>{{ t.frameNumber }}</th>
               <th>{{ t.seller }}</th>
               <th>{{ t.price }}</th>
               <th>{{ t.sellingPrice }}</th>
@@ -137,6 +138,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             >
               <td class="mono">{{ p.belegNummer }}</td>
               <td>{{ p.bikeInfo }}</td>
+              <td class="mono" style="text-transform: uppercase">{{ p.rahmennummer || '–' }}</td>
               <td>{{ p.sellerName }}</td>
               <td>{{ p.preis | number: '1.2-2' }} €</td>
               <td>

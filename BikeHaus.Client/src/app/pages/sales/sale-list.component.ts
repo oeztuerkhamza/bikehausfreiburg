@@ -151,6 +151,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <tr>
               <th>{{ t.receiptNo }}</th>
               <th>{{ t.bicycle }}</th>
+              <th>{{ t.frameNumber }}</th>
               <th>{{ t.buyer }}</th>
               <th>{{ t.price }}</th>
               <th>{{ t.paymentMethod }}</th>
@@ -161,7 +162,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <tbody>
             <tr *ngIf="paginatedResult?.items?.length === 0">
               <td
-                colspan="8"
+                colspan="9"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 {{ t.noSales }}
@@ -174,6 +175,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             >
               <td class="mono">{{ s.belegNummer }}</td>
               <td>{{ s.bikeInfo }}</td>
+              <td class="mono" style="text-transform: uppercase">{{ s.rahmennummer || '–' }}</td>
               <td>{{ s.buyerName }}</td>
               <td>{{ s.preis | number: '1.2-2' }} €</td>
               <td>

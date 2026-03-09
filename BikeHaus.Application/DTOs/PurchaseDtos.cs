@@ -35,6 +35,7 @@ public record PurchaseListDto(
     int Id,
     string? BelegNummer,
     string BikeInfo,
+    string? Rahmennummer,
     string SellerName,
     decimal Preis,
     decimal? VerkaufspreisVorschlag,

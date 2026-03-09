@@ -171,6 +171,7 @@ export interface PurchaseList {
   id: number;
   belegNummer?: string;
   bikeInfo: string;
+  rahmennummer?: string;
   sellerName: string;
   preis: number;
   verkaufspreisVorschlag?: number;
@@ -262,6 +263,7 @@ export interface SaleList {
   id: number;
   belegNummer: string;
   bikeInfo: string;
+  rahmennummer?: string;
   buyerName: string;
   preis: number;
   rabatt: number;
