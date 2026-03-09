@@ -446,7 +446,7 @@ public class PdfService : IPdfService
                     var hasBuyerName = !string.IsNullOrWhiteSpace(sale.Buyer.Vorname) || !string.IsNullOrWhiteSpace(sale.Buyer.Nachname);
 
                     // Bicycle Info Section - print-friendly with price
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("🚲  FAHRRAD-DETAILS");
+                    col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRAD-DETAILS");
                     col.Item().Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
@@ -492,7 +492,7 @@ public class PdfService : IPdfService
                     // Accessories if any
                     if (sale.Accessories.Any())
                     {
-                        col.Item().PaddingTop(6).Element(SectionHeader).Text("🔧  ZUBEHÖR");
+                        col.Item().PaddingTop(6).Element(SectionHeader).Text("ZUBEHÖR");
                         col.Item().Table(table =>
                         {
                             table.ColumnsDefinition(columns =>
@@ -554,12 +554,12 @@ public class PdfService : IPdfService
                     });
 
                     // Warranty Section - only show the relevant condition
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("📋  GARANTIEBEDINGUNGEN");
+                    col.Item().PaddingTop(6).Element(SectionHeader).Text("GARANTIEBEDINGUNGEN");
                     col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(wCol =>
                     {
                         wCol.Item().Row(wRow =>
                         {
-                            wRow.ConstantItem(18).AlignCenter().Text("☑").FontSize(13).FontColor(AccentColor);
+                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
                             wRow.RelativeItem().Text(text =>
                             {
                                 if (isNeu)
@@ -664,7 +664,7 @@ public class PdfService : IPdfService
                         // Review text
                         reviewRow.RelativeItem().AlignMiddle().Column(infoCol =>
                         {
-                            infoCol.Item().Text("⭐ Bewerten Sie uns auf Google!").FontSize(13).Bold().FontColor(PrimaryColor);
+                            infoCol.Item().Text("Bewerten Sie uns auf Google!").FontSize(13).Bold().FontColor(PrimaryColor);
                             infoCol.Item().PaddingTop(2).Text("Ihre Meinung ist uns wichtig! Scannen Sie den QR-Code").FontSize(9).FontColor(Colors.Grey.Darken3);
                             infoCol.Item().Text("und teilen Sie Ihre Erfahrung mit uns.").FontSize(9).FontColor(Colors.Grey.Darken3);
                         });
