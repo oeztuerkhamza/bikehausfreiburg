@@ -317,6 +317,11 @@ export class NavbarComponent {
       exact: false,
     },
     { path: 'zubehoer', label: () => this.t().accessories, exact: false },
+    {
+      path: 'fahrradverleih',
+      label: () => this.t().bikeRental,
+      exact: false,
+    },
     { path: 'about', label: () => this.t().about, exact: false },
     { path: 'contact', label: () => this.t().contact, exact: false },
   ];

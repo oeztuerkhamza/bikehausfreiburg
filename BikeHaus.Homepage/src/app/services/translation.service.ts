@@ -180,6 +180,25 @@ export interface Translations {
   warrantyReturnTitle: string;
   warrantyReturnText: string;
 
+  // Bike Rental Page
+  bikeRental: string;
+  bikeRentalPageLabel: string;
+  bikeRentalPageTitle: string;
+  bikeRentalIntro: string;
+  bikeRentalPricesTitle: string;
+  bikeRentalDay1: string;
+  bikeRentalDay7: string;
+  bikeRentalDay8Plus: string;
+  bikeRentalMonth: string;
+  bikeRentalDepositTitle: string;
+  bikeRentalDepositText: string;
+  bikeRentalNoteTitle: string;
+  bikeRentalNoteText: string;
+  bikeRentalIncludedTitle: string;
+  bikeRentalIncluded1: string;
+  bikeRentalIncluded2: string;
+  bikeRentalIncludedNote: string;
+
   // General
   loading: string;
   error: string;
@@ -533,6 +552,28 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Reifen, Schläuche, Bremsbeläge, Lampen. Ebenfalls ausgeschlossen: Schäden durch Unfälle oder unsachgemäße Nutzung.',
     warrantyReturnTitle: 'Rückgaberecht',
     warrantyReturnText: 'Innerhalb von 3 Arbeitstagen.',
+
+    // Bike Rental Page
+    bikeRental: 'Fahrradverleih',
+    bikeRentalPageLabel: 'SERVICE',
+    bikeRentalPageTitle: 'Fahrradverleih – Einfach und flexibel',
+    bikeRentalIntro:
+      'Entdecken Sie Freiburg bequem mit dem Fahrrad. Mieten Sie bei uns Fahrräder zu günstigen Preisen und ohne Aufwand.',
+    bikeRentalPricesTitle: 'Preise',
+    bikeRentalDay1: '1 Tag: 10 €',
+    bikeRentalDay7: '7 Tage: 50 €',
+    bikeRentalDay8Plus: 'Ab dem 8. Tag: 5 € pro Tag',
+    bikeRentalMonth: '1 Monat: 120 €',
+    bikeRentalDepositTitle: 'Kaution',
+    bikeRentalDepositText:
+      'Der Kaufpreis des Fahrrads wird vorab als Kaution hinterlegt. Bei Rückgabe wird der Mietpreis abgezogen und der Restbetrag erstattet.',
+    bikeRentalNoteTitle: 'Hinweis',
+    bikeRentalNoteText:
+      'Bei Schäden durch normale Nutzung kann eine kleine Reparaturgebühr anfallen.',
+    bikeRentalIncludedTitle: 'Inklusive',
+    bikeRentalIncluded1: 'Faltschloss',
+    bikeRentalIncluded2: 'Fahrradkorb',
+    bikeRentalIncludedNote: 'Diese werden kostenlos am Fahrrad montiert.',
 
     loading: 'Wird geladen...',
     error: 'Ein Fehler ist aufgetreten.',
@@ -895,6 +936,28 @@ const TRANSLATIONS: Record<Language, Translations> = {
     warrantyReturnTitle: 'Return Policy',
     warrantyReturnText: 'Within 3 business days.',
 
+    // Bike Rental Page
+    bikeRental: 'Bike Rental',
+    bikeRentalPageLabel: 'SERVICE',
+    bikeRentalPageTitle: 'Bike Rental – Simple and Flexible',
+    bikeRentalIntro:
+      'Discover Freiburg comfortably by bike. Rent bicycles from us at affordable prices with no hassle.',
+    bikeRentalPricesTitle: 'Prices',
+    bikeRentalDay1: '1 Day: 10 €',
+    bikeRentalDay7: '7 Days: 50 €',
+    bikeRentalDay8Plus: 'From day 8: 5 € per day',
+    bikeRentalMonth: '1 Month: 120 €',
+    bikeRentalDepositTitle: 'Deposit',
+    bikeRentalDepositText:
+      'The purchase price of the bicycle is deposited as a security deposit in advance. Upon return, the rental fee is deducted and the remaining amount is refunded.',
+    bikeRentalNoteTitle: 'Note',
+    bikeRentalNoteText:
+      'A small repair fee may be charged for damage caused by normal use.',
+    bikeRentalIncludedTitle: 'Included',
+    bikeRentalIncluded1: 'Folding lock',
+    bikeRentalIncluded2: 'Bicycle basket',
+    bikeRentalIncludedNote: 'These are mounted on the bicycle free of charge.',
+
     loading: 'Loading...',
     error: 'An error occurred.',
     noResults: 'No results.',
@@ -1247,6 +1310,28 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Pneus, chambres à air, plaquettes de frein, lampes. Également exclus : dommages causés par des accidents ou une utilisation inappropriée.',
     warrantyReturnTitle: 'Droit de retour',
     warrantyReturnText: 'Dans les 3 jours ouvrables.',
+
+    // Bike Rental Page
+    bikeRental: 'Location de vélos',
+    bikeRentalPageLabel: 'SERVICE',
+    bikeRentalPageTitle: 'Location de vélos – Simple et flexible',
+    bikeRentalIntro:
+      'Découvrez Fribourg confortablement à vélo. Louez des vélos chez nous à des prix abordables et sans complications.',
+    bikeRentalPricesTitle: 'Tarifs',
+    bikeRentalDay1: '1 Jour : 10 €',
+    bikeRentalDay7: '7 Jours : 50 €',
+    bikeRentalDay8Plus: 'À partir du 8e jour : 5 € par jour',
+    bikeRentalMonth: '1 Mois : 120 €',
+    bikeRentalDepositTitle: 'Caution',
+    bikeRentalDepositText:
+      "Le prix d'achat du vélo est déposé en avance comme caution. Lors du retour, le prix de location est déduit et le montant restant est remboursé.",
+    bikeRentalNoteTitle: 'Remarque',
+    bikeRentalNoteText:
+      'Des frais de réparation minimes peuvent être facturés en cas de dommages liés à une utilisation normale.',
+    bikeRentalIncludedTitle: 'Inclus',
+    bikeRentalIncluded1: 'Antivol pliable',
+    bikeRentalIncluded2: 'Panier de vélo',
+    bikeRentalIncludedNote: 'Ceux-ci sont montés gratuitement sur le vélo.',
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
@@ -1614,6 +1699,28 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Lastikler, iç lastikler, fren balataları, lambalar. Ayrıca kapsam dışı: kaza veya uygunsuz kullanımdan kaynaklanan hasarlar.',
     warrantyReturnTitle: 'İade Hakkı',
     warrantyReturnText: '3 iş günü içinde.',
+
+    // Bike Rental Page
+    bikeRental: 'Bisiklet Kiralama',
+    bikeRentalPageLabel: 'HİZMET',
+    bikeRentalPageTitle: 'Bisiklet Kiralama – Kolay ve Esnek',
+    bikeRentalIntro:
+      "Freiburg'u bisikletle keşfedin. Bizden uygun fiyatlı ve kolay bir şekilde bisiklet kiralayabilirsiniz.",
+    bikeRentalPricesTitle: 'Fiyatlar',
+    bikeRentalDay1: '1 Gün: 10 €',
+    bikeRentalDay7: '7 Gün: 50 €',
+    bikeRentalDay8Plus: '8. günden itibaren: günlük 5 €',
+    bikeRentalMonth: '1 Ay: 120 €',
+    bikeRentalDepositTitle: 'Depozito',
+    bikeRentalDepositText:
+      'Bisikletin satın alma fiyatı peşin olarak depozito olarak bırakılır. Bisiklet iade edildiğinde kiralama bedeli düşülür ve kalan tutar geri ödenir.',
+    bikeRentalNoteTitle: 'Not',
+    bikeRentalNoteText:
+      'Normal kullanımdan kaynaklanan hasarlarda küçük bir onarım ücreti alınabilir.',
+    bikeRentalIncludedTitle: 'Dahil',
+    bikeRentalIncluded1: 'Katlanabilir kilit',
+    bikeRentalIncluded2: 'Bisiklet sepeti',
+    bikeRentalIncludedNote: 'Bunlar bisiklete ücretsiz olarak monte edilir.',
 
     loading: 'Yükleniyor...',
     error: 'Bir hata oluştu.',

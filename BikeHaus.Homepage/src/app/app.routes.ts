@@ -100,6 +100,13 @@ export const routes: Routes = [
             (m) => m.GarantieComponent,
           ),
       },
+      {
+        path: 'fahrradverleih',
+        loadComponent: () =>
+          import('./pages/fahrradverleih/fahrradverleih.component').then(
+            (m) => m.FahrradverleihComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: 'de' },
