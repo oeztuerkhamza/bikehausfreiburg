@@ -392,10 +392,11 @@ public class PdfService : IPdfService
                 // Header with professional branding (print-friendly)
                 page.Header().Container().Column(col =>
                 {
-                    // Top header bar - border instead of filled background
-                    col.Item().Border(1).BorderColor(PrimaryColor).Padding(6).Row(row =>
+                    // Top header bar
+                    col.Item().Row(row =>
                     {
-                        row.RelativeItem().Column(leftCol =>
+                        // Logo - left
+                        row.ConstantItem(90).Column(logoCol =>
                         {
                             if (!string.IsNullOrEmpty(shop.LogoBase64))
                             {
@@ -405,26 +406,29 @@ public class PdfService : IPdfService
                                     if (base64Data.Contains(","))
                                         base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
                                     var logoBytes = Convert.FromBase64String(base64Data);
-                                    leftCol.Item().Height(84).Image(logoBytes);
+                                    logoCol.Item().Height(84).Image(logoBytes);
                                 }
                                 catch { }
                             }
-                            leftCol.Item().Text(shop.ShopName).FontSize(18).Bold().FontColor(PrimaryColor);
-                            leftCol.Item().Text(shop.OwnerName).FontSize(10).FontColor(Colors.Grey.Darken2);
-                            leftCol.Item().Text(shop.Street).FontSize(9).FontColor(Colors.Grey.Darken2);
-                            leftCol.Item().Text(shop.City).FontSize(9).FontColor(Colors.Grey.Darken2);
-                            leftCol.Item().Text($"Tel: {shop.Telefon}").FontSize(9).FontColor(Colors.Grey.Darken2);
-                            leftCol.Item().Text($"E-Mail: {shop.Email}").FontSize(9).FontColor(Colors.Grey.Darken2);
                         });
 
-                        row.ConstantItem(150).AlignRight().Column(rightCol =>
+                        // Shop info - center
+                        row.RelativeItem().AlignMiddle().PaddingHorizontal(10).Column(centerCol =>
                         {
-                            rightCol.Item().Border(1).BorderColor(PrimaryColor).Padding(6).Column(box =>
-                            {
-                                box.Item().Text("VERKAUFSBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
-                                box.Item().Text(sale.BelegNummer).FontSize(14).Bold().FontColor(PrimaryColor).AlignCenter();
-                                box.Item().Text($"{sale.Verkaufsdatum:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
-                            });
+                            centerCol.Item().AlignCenter().Text(shop.ShopName).FontSize(18).Bold().FontColor(PrimaryColor);
+                            centerCol.Item().AlignCenter().Text(shop.OwnerName).FontSize(10).Bold().FontColor(Colors.Grey.Darken2);
+                            centerCol.Item().AlignCenter().Text(shop.Street).FontSize(9).FontColor(Colors.Grey.Darken2);
+                            centerCol.Item().AlignCenter().Text(shop.City).FontSize(9).FontColor(Colors.Grey.Darken2);
+                            centerCol.Item().AlignCenter().Text($"Tel: {shop.Telefon}").FontSize(9).FontColor(Colors.Grey.Darken2);
+                            centerCol.Item().AlignCenter().Text($"E-Mail: {shop.Email}").FontSize(9).FontColor(Colors.Grey.Darken2);
+                        });
+
+                        // Verkaufsbeleg box - right
+                        row.ConstantItem(150).AlignMiddle().Border(1).BorderColor(PrimaryColor).Padding(6).Column(box =>
+                        {
+                            box.Item().Text("VERKAUFSBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                            box.Item().Text(sale.BelegNummer).FontSize(14).Bold().FontColor(PrimaryColor).AlignCenter();
+                            box.Item().Text($"{sale.Verkaufsdatum:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
                         });
                     });
 
@@ -657,20 +661,12 @@ public class PdfService : IPdfService
 
                         reviewRow.ConstantItem(10);
 
-                        // Review text + address
-                        reviewRow.RelativeItem().Column(infoCol =>
+                        // Review text
+                        reviewRow.RelativeItem().AlignMiddle().Column(infoCol =>
                         {
                             infoCol.Item().Text("⭐ Bewerten Sie uns auf Google!").FontSize(13).Bold().FontColor(PrimaryColor);
                             infoCol.Item().PaddingTop(2).Text("Ihre Meinung ist uns wichtig! Scannen Sie den QR-Code").FontSize(9).FontColor(Colors.Grey.Darken3);
                             infoCol.Item().Text("und teilen Sie Ihre Erfahrung mit uns.").FontSize(9).FontColor(Colors.Grey.Darken3);
-
-                            infoCol.Item().PaddingTop(6).LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten2);
-
-                            infoCol.Item().PaddingTop(3).Text(shop.ShopName).FontSize(10).Bold().FontColor(PrimaryColor);
-                            infoCol.Item().Text(shop.Street).FontSize(9).FontColor(Colors.Grey.Darken2);
-                            infoCol.Item().Text(shop.City).FontSize(9).FontColor(Colors.Grey.Darken2);
-                            infoCol.Item().PaddingTop(2).Text($"📞 {shop.Telefon}  |  ✉ {shop.Email}").FontSize(8).FontColor(Colors.Grey.Darken2);
-                            infoCol.Item().Text($"🌐 {WebsiteUrl}").FontSize(9).Bold().FontColor(AccentColor);
                         });
                     });
                 });

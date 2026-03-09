@@ -154,7 +154,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <th>{{ t.frameNumber }}</th>
               <th>{{ t.buyer }}</th>
               <th>{{ t.price }}</th>
-              <th>{{ t.paymentMethod }}</th>
               <th>{{ t.date }}</th>
               <th style="width: 50px;"></th>
             </tr>
@@ -162,7 +161,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <tbody>
             <tr *ngIf="paginatedResult?.items?.length === 0">
               <td
-                colspan="9"
+                colspan="7"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 {{ t.noSales }}
@@ -178,11 +177,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <td class="mono" style="text-transform: uppercase">{{ s.rahmennummer || '–' }}</td>
               <td>{{ s.buyerName }}</td>
               <td>{{ s.preis | number: '1.2-2' }} €</td>
-              <td>
-                <span class="badge" [ngClass]="'badge-' + s.zahlungsart">
-                  {{ getPaymentLabel(s.zahlungsart) }}
-                </span>
-              </td>
               <td>{{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}</td>
               <td class="actions-cell">
                 <span class="action-icon">⋮</span>
@@ -355,9 +349,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
       table {
         width: 100%;
-        min-width: 950px;
         border-collapse: collapse;
-        table-layout: fixed;
       }
       th {
         text-align: left;
@@ -371,35 +363,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         letter-spacing: 0.05em;
         white-space: nowrap;
       }
-      th:nth-child(1) {
-        width: 110px;
-      } /* Beleg No */
-      th:nth-child(2) {
-        width: 70px;
-      } /* Stok No */
-      th:nth-child(3) {
-        width: 150px;
-      } /* Bisiklet */
-      th:nth-child(4) {
-        width: 150px;
-      } /* Alıcı */
-      th:nth-child(5) {
-        width: 90px;
-      } /* Fiyat */
-      th:nth-child(6) {
-        width: 100px;
-      } /* Ödeme */
-      th:nth-child(7) {
-        width: 100px;
-      } /* Tarih */
       td {
         padding: 11px 16px;
         border-bottom: 1px solid var(--border-light);
         font-size: 0.88rem;
         color: var(--text-secondary);
         vertical-align: middle;
-        overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
       }
       tr:hover td {
