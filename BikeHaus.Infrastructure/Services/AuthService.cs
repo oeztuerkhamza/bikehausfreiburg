@@ -104,7 +104,7 @@ public class AuthService : IAuthService
 
     private string GenerateJwtToken(User user)
     {
-        var jwtKey = _configuration["Jwt:Key"] ?? "BikeHausFreiburgSuperSecretKey2024!@#$%^&*()";
+        var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key must be configured");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

@@ -43,7 +43,7 @@ builder.Services.AddCors(options =>
 });
 
 // JWT Authentication
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "BikeHausFreiburgSuperSecretKey2024!@#$%^&*()";
+var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key must be configured");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
