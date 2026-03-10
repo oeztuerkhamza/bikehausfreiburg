@@ -54,6 +54,7 @@ public class NeueFahrradService : INeueFahrradService
             Reifengroesse = dto.Reifengroesse,
             Gangschaltung = dto.Gangschaltung,
             Zustand = dto.Zustand,
+            Angebot = dto.Angebot,
             IsActive = true,
         };
 
@@ -78,6 +79,7 @@ public class NeueFahrradService : INeueFahrradService
         entity.Reifengroesse = dto.Reifengroesse;
         entity.Gangschaltung = dto.Gangschaltung;
         entity.Zustand = dto.Zustand;
+        entity.Angebot = dto.Angebot;
         entity.IsActive = dto.IsActive;
         entity.UpdatedAt = DateTime.UtcNow;
 
@@ -163,6 +165,7 @@ public class NeueFahrradService : INeueFahrradService
             Reifengroesse = entity.Reifengroesse,
             Gangschaltung = entity.Gangschaltung,
             Zustand = entity.Zustand,
+            Angebot = entity.Angebot,
             IsActive = entity.IsActive,
             CreatedAt = entity.CreatedAt,
             Images = entity.Images

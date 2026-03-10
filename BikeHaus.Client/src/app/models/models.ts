@@ -397,7 +397,7 @@ export interface Dashboard {
 export interface AccessoryCatalog {
   id: number;
   bezeichnung: string;
-  standardpreis: number;
+  standardpreis?: number;
   kategorie?: string;
   aktiv: boolean;
   createdAt: string;
@@ -406,20 +406,20 @@ export interface AccessoryCatalog {
 export interface AccessoryCatalogList {
   id: number;
   bezeichnung: string;
-  standardpreis: number;
+  standardpreis?: number;
   kategorie?: string;
   aktiv: boolean;
 }
 
 export interface AccessoryCatalogCreate {
   bezeichnung: string;
-  standardpreis: number;
+  standardpreis?: number;
   kategorie?: string;
 }
 
 export interface AccessoryCatalogUpdate {
   bezeichnung: string;
-  standardpreis: number;
+  standardpreis?: number;
   kategorie?: string;
   aktiv: boolean;
 }
@@ -549,6 +549,7 @@ export interface NeueFahrrad {
   reifengroesse?: string;
   gangschaltung?: string;
   zustand: string;
+  angebot?: number;
   isActive: boolean;
   createdAt: string;
   images: NeueFahrradImage[];
@@ -573,6 +574,7 @@ export interface NeueFahrradCreate {
   reifengroesse?: string;
   gangschaltung?: string;
   zustand: string;
+  angebot?: number;
 }
 
 export interface NeueFahrradUpdate {
@@ -588,6 +590,7 @@ export interface NeueFahrradUpdate {
   reifengroesse?: string;
   gangschaltung?: string;
   zustand: string;
+  angebot?: number;
   isActive: boolean;
 }
 

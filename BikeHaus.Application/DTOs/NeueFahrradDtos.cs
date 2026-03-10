@@ -15,6 +15,7 @@ public class NeueFahrradDto
     public string? Reifengroesse { get; set; }
     public string? Gangschaltung { get; set; }
     public string Zustand { get; set; } = "Neu";
+    public decimal? Angebot { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public List<NeueFahrradImageDto> Images { get; set; } = new();
@@ -41,6 +42,7 @@ public class NeueFahrradCreateDto
     public string? Reifengroesse { get; set; }
     public string? Gangschaltung { get; set; }
     public string Zustand { get; set; } = "Neu";
+    public decimal? Angebot { get; set; }
 }
 
 public class NeueFahrradUpdateDto
@@ -57,6 +59,7 @@ public class NeueFahrradUpdateDto
     public string? Reifengroesse { get; set; }
     public string? Gangschaltung { get; set; }
     public string Zustand { get; set; } = "Neu";
+    public decimal? Angebot { get; set; }
     public bool IsActive { get; set; } = true;
 }
 

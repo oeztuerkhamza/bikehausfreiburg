@@ -648,6 +648,9 @@ export interface Translations {
   colorGray: string;
   colorSilver: string;
   colorPink: string;
+  colorTurkis: string;
+  colorLila: string;
+  colorDunkelblau: string;
   neueFahrradFrameSize: string;
   neueFahrradWheelSize: string;
   neueFahrradGears: string;
@@ -1337,6 +1340,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     colorGray: 'Grau',
     colorSilver: 'Silber',
     colorPink: 'Pink',
+    colorTurkis: 'Türkis',
+    colorLila: 'Lila',
+    colorDunkelblau: 'Dunkelblau',
     neueFahrradFrameSize: 'Rahmengröße',
     neueFahrradWheelSize: 'Reifengröße',
     neueFahrradGears: 'Gangschaltung',
@@ -2023,6 +2029,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     colorGray: 'Gri',
     colorSilver: 'Gümüş',
     colorPink: 'Pembe',
+    colorTurkis: 'Turkuaz',
+    colorLila: 'Mor',
+    colorDunkelblau: 'Koyu Mavi',
     neueFahrradFrameSize: 'Kadro Boyutu',
     neueFahrradWheelSize: 'Tekerlek Boyutu',
     neueFahrradGears: 'Vites',

@@ -68,6 +68,21 @@ import { environment } from '../../../environments/environment';
                 />
               </div>
               <div class="field">
+                <label>Angebot / Rabatt (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  [(ngModel)]="form.angebot"
+                  name="angebot"
+                  placeholder="z.B. 50"
+                />
+                <small *ngIf="form.angebot && form.angebot > 0" class="angebot-preview">
+                  Verkaufspreis: {{ form.preis - form.angebot | number: '1.0-0' }} €
+                  <span class="angebot-original">(statt {{ form.preis | number: '1.0-0' }} €)</span>
+                </small>
+              </div>
+              <div class="field">
                 <label>{{ t.neueFahrradCategory }}</label>
                 <select [(ngModel)]="form.kategorie" name="kategorie">
                   <option value="">{{ t.neueFahrradSelectCategory }}</option>
@@ -476,6 +491,18 @@ import { environment } from '../../../environments/environment';
         border: 1px solid rgba(0, 0, 0, 0.12);
         flex-shrink: 0;
       }
+      .angebot-preview {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #10b981;
+      }
+      .angebot-original {
+        color: var(--text-secondary, #94a3b8);
+        font-weight: 400;
+        text-decoration: line-through;
+      }
     `,
   ],
 })
@@ -506,6 +533,7 @@ export class NeueFahrradFormComponent implements OnInit {
     reifengroesse: '',
     gangschaltung: '',
     zustand: 'Neu',
+    angebot: undefined,
   };
 
   get t() {
@@ -524,6 +552,9 @@ export class NeueFahrradFormComponent implements OnInit {
       { value: 'Grau', label: this.t.colorGray, hex: '#9ca3af' },
       { value: 'Silber', label: this.t.colorSilver, hex: '#c0c0c0' },
       { value: 'Pink', label: this.t.colorPink, hex: '#ec4899' },
+      { value: 'T\u00fcrkis', label: this.t.colorTurkis, hex: '#06b6d4' },
+      { value: 'Lila', label: this.t.colorLila, hex: '#a855f7' },
+      { value: 'Dunkelblau', label: this.t.colorDunkelblau, hex: '#1e3a5f' },
     ];
   }
 
@@ -562,6 +593,7 @@ export class NeueFahrradFormComponent implements OnInit {
             reifengroesse: item.reifengroesse || '',
             gangschaltung: item.gangschaltung || '',
             zustand: item.zustand,
+            angebot: item.angebot || undefined,
           };
           this.loading = false;
         },
@@ -655,6 +687,7 @@ export class NeueFahrradFormComponent implements OnInit {
     if (this.isEdit && this.existingItem) {
       const update: NeueFahrradUpdate = {
         ...this.form,
+        angebot: this.form.angebot && this.form.angebot > 0 ? this.form.angebot : undefined,
         isActive: this.isActive,
       };
       this.service.update(this.existingItem.id, update).subscribe({
@@ -666,7 +699,11 @@ export class NeueFahrradFormComponent implements OnInit {
         },
       });
     } else {
-      this.service.create(this.form).subscribe({
+      const createDto = {
+        ...this.form,
+        angebot: this.form.angebot && this.form.angebot > 0 ? this.form.angebot : undefined,
+      };
+      this.service.create(createDto).subscribe({
         next: (created) => {
           // Navigate to edit page so user can upload photos
           this.router.navigate(['/neue-fahrraeder/edit', created.id]);

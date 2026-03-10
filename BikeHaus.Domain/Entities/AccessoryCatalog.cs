@@ -6,7 +6,7 @@ namespace BikeHaus.Domain.Entities;
 public class AccessoryCatalog : BaseEntity
 {
     public string Bezeichnung { get; set; } = string.Empty;  // Name/Description
-    public decimal Standardpreis { get; set; }               // Default price
+    public decimal? Standardpreis { get; set; }               // Default price (optional)
     public string? Kategorie { get; set; }                   // Category (optional)
     public bool Aktiv { get; set; } = true;                  // Active/available
 }

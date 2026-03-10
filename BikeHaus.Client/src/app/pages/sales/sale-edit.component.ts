@@ -763,7 +763,7 @@ export class SaleEditComponent implements OnInit {
   addAccessoryFromCatalog(item: AccessoryCatalogList) {
     this.accessories.push({
       bezeichnung: item.bezeichnung,
-      preis: item.standardpreis,
+      preis: item.standardpreis || 0,
       menge: 1,
     });
   }

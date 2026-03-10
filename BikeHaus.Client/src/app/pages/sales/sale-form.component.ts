@@ -99,6 +99,31 @@ import { AddressSuggestion } from '../../services/address.service';
               <span>{{ bikeEdit.farbe }} | {{ bikeEdit.reifengroesse }}"</span>
             </div>
             <div class="form-grid" *ngIf="bikeEditExpanded || isQuickAddMode">
+              <!-- Rahmennummer first for quick lookup -->
+              <div
+                class="field full"
+                [class.field-error]="bikeErrors['rahmennummer']"
+              >
+                <label>{{ t.frameNumber }} *</label>
+                <input
+                  [(ngModel)]="bikeEdit.rahmennummer"
+                  name="bikeRahmen"
+                  (ngModelChange)="bikeErrors['rahmennummer'] = false; onRahmennummerChange($event)"
+                  style="text-transform: uppercase"
+                  placeholder="Rahmennummer eingeben..."
+                />
+                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']">{{
+                  t.requiredField
+                }}</span>
+                <!-- Warning: bike already exists -->
+                <div class="rahmen-warning" *ngIf="rahmenMatchBike">
+                  <span class="warning-icon">⚠️</span>
+                  <span>Dieses Fahrrad ist bereits registriert: <strong>{{ rahmenMatchBike.marke }} {{ rahmenMatchBike.modell }}</strong> (Ankauf-Beleg vorhanden)</span>
+                  <button type="button" class="btn btn-sm btn-primary" (click)="useExistingBike(rahmenMatchBike)">
+                    Vorhandenes Fahrrad verwenden
+                  </button>
+                </div>
+              </div>
               <div class="field" [class.field-error]="bikeErrors['marke']">
                 <label>{{ t.brand }} *</label>
                 <input
@@ -126,21 +151,6 @@ import { AddressSuggestion } from '../../services/address.service';
                 <datalist id="modelList">
                   <option *ngFor="let m of models" [value]="m"></option>
                 </datalist>
-              </div>
-              <div
-                class="field"
-                [class.field-error]="bikeErrors['rahmennummer']"
-              >
-                <label>{{ t.frameNumber }} *</label>
-                <input
-                  [(ngModel)]="bikeEdit.rahmennummer"
-                  name="bikeRahmen"
-                  (ngModelChange)="bikeErrors['rahmennummer'] = false"
-                  style="text-transform: uppercase"
-                />
-                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']">{{
-                  t.requiredField
-                }}</span>
               </div>
               <div class="field">
                 <label>{{ t.frameSize }}</label>
@@ -925,6 +935,23 @@ import { AddressSuggestion } from '../../services/address.service';
         border-color: #ef4444 !important;
         color: #ef4444 !important;
       }
+      .rahmen-warning {
+        margin-top: 8px;
+        padding: 12px 14px;
+        background: rgba(245, 158, 11, 0.08);
+        border: 1.5px solid #f59e0b;
+        border-radius: var(--radius-md, 10px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 0.88rem;
+        color: #92400e;
+      }
+      .warning-icon {
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
     `,
   ],
 })
@@ -942,6 +969,9 @@ export class SaleFormComponent implements OnInit {
     { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
     { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
     { value: 'Pink', label: 'Pink', hex: '#ec4899' },
+    { value: 'T\u00fcrkis', label: 'T\u00fcrkis', hex: '#06b6d4' },
+    { value: 'Lila', label: 'Lila', hex: '#a855f7' },
+    { value: 'Dunkelblau', label: 'Dunkelblau', hex: '#1e3a5f' },
   ];
 
   isColorSelected(farbe: string, color: string): boolean {
@@ -988,6 +1018,8 @@ export class SaleFormComponent implements OnInit {
   bikeEditExpanded = false;
   isQuickAddMode = false;
   bikeErrors: { [key: string]: boolean } = {};
+  rahmenMatchBike: Bicycle | null = null;
+  private rahmenSearchTimeout: any = null;
   bikeEdit = {
     marke: '',
     modell: '',
@@ -1096,6 +1128,7 @@ export class SaleFormComponent implements OnInit {
   onQuickAddBike() {
     // Create a temporary bike placeholder for quick add mode
     this.isQuickAddMode = true;
+    this.rahmenMatchBike = null;
     this.selectedBike = {
       id: 0, // Temporary ID, will be replaced when created
       marke: '',
@@ -1126,6 +1159,41 @@ export class SaleFormComponent implements OnInit {
     // Expand the form to enter details
     this.bikeEditExpanded = true;
     this.bikeErrors = {};
+  }
+
+  onRahmennummerChange(value: string) {
+    this.rahmenMatchBike = null;
+    if (this.rahmenSearchTimeout) clearTimeout(this.rahmenSearchTimeout);
+    if (!value || value.trim().length < 3) return;
+    this.rahmenSearchTimeout = setTimeout(() => {
+      this.bicycleService.search(value.trim()).subscribe({
+        next: (bikes) => {
+          const match = bikes.find(
+            (b) => b.rahmennummer?.toUpperCase() === value.trim().toUpperCase()
+          );
+          this.rahmenMatchBike = match || null;
+        },
+        error: () => {},
+      });
+    }, 400);
+  }
+
+  useExistingBike(bike: Bicycle) {
+    this.rahmenMatchBike = null;
+    this.isQuickAddMode = false;
+    this.selectedBike = bike;
+    this.loadPlannedPrice(bike.id);
+    this.bikeEdit = {
+      marke: bike.marke || '',
+      modell: bike.modell || '',
+      rahmennummer: bike.rahmennummer || '',
+      rahmengroesse: bike.rahmengroesse || '',
+      farbe: bike.farbe || '',
+      reifengroesse: bike.reifengroesse || '',
+      fahrradtyp: bike.fahrradtyp || '',
+      beschreibung: bike.beschreibung || '',
+      zustand: bike.zustand || BikeCondition.Gebraucht,
+    };
   }
 
   private loadPlannedPrice(bicycleId: number) {
@@ -1159,7 +1227,7 @@ export class SaleFormComponent implements OnInit {
   addAccessoryFromCatalog(item: AccessoryCatalogList) {
     this.accessories.push({
       bezeichnung: item.bezeichnung,
-      preis: item.standardpreis,
+      preis: item.standardpreis || 0,
       menge: 1,
     });
   }

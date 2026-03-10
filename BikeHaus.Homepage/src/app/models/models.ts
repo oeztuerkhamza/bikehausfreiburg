@@ -48,6 +48,7 @@ export interface NeueFahrrad {
   reifengroesse?: string;
   gangschaltung?: string;
   zustand: string;
+  angebot?: number;
   isActive: boolean;
   createdAt: string;
   updatedAt?: string;

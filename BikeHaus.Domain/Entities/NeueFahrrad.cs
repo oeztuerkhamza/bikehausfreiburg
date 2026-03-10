@@ -14,6 +14,7 @@ public class NeueFahrrad : BaseEntity
     public string? Reifengroesse { get; set; }
     public string? Gangschaltung { get; set; }
     public string Zustand { get; set; } = "Neu";
+    public decimal? Angebot { get; set; }
     public bool IsActive { get; set; } = true;
 
     // Navigation property

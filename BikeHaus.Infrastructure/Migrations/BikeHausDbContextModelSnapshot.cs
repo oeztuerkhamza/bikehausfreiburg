@@ -36,7 +36,7 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<string>("Kategorie")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Standardpreis")
+                    b.Property<decimal?>("Standardpreis")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -554,6 +554,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<decimal?>("Angebot")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Beschreibung")
                         .HasMaxLength(5000)

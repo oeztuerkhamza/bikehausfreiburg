@@ -151,9 +151,16 @@ import { environment } from '../../../environments/environment';
                 class="price-card"
                 *ngIf="bike()!.preisText || bike()!.preis"
               >
-                <span class="price-value">{{
-                  bike()!.preisText || (bike()!.preis | number: '1.0-0') + ' €'
-                }}</span>
+                <ng-container *ngIf="bike()!.angebot && bike()!.angebot! > 0; else normalDetailPrice">
+                  <span class="price-old">{{ bike()!.preis | number: '1.0-0' }} €</span>
+                  <span class="price-value price-sale">{{ bike()!.preis - bike()!.angebot! | number: '1.0-0' }} €</span>
+                  <span class="price-save">Sie sparen {{ bike()!.angebot | number: '1.0-0' }} €</span>
+                </ng-container>
+                <ng-template #normalDetailPrice>
+                  <span class="price-value">{{
+                    bike()!.preisText || (bike()!.preis | number: '1.0-0') + ' €'
+                  }}</span>
+                </ng-template>
               </div>
 
               <!-- Specs -->
@@ -535,6 +542,23 @@ import { environment } from '../../../environments/environment';
         font-weight: 800;
         color: var(--color-accent);
         letter-spacing: -0.02em;
+      }
+      .price-value.price-sale {
+        color: #ef4444;
+      }
+      .price-old {
+        text-decoration: line-through;
+        color: var(--color-text-muted);
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-right: 10px;
+      }
+      .price-save {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #10b981;
       }
       .meta-list {
         display: flex;

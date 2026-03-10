@@ -136,13 +136,12 @@ import {
               />
             </div>
             <div class="field">
-              <label>{{ t.defaultPrice }} (€) *</label>
+              <label>{{ t.defaultPrice }} (€)</label>
               <input
                 type="number"
                 step="0.01"
                 [(ngModel)]="formData.standardpreis"
                 name="standardpreis"
-                required
               />
             </div>
             <div class="field" *ngIf="editingPart">

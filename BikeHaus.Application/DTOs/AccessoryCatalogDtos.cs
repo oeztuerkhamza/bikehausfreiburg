@@ -4,7 +4,7 @@ namespace BikeHaus.Application.DTOs;
 public record AccessoryCatalogDto(
     int Id,
     string Bezeichnung,
-    decimal Standardpreis,
+    decimal? Standardpreis,
     string? Kategorie,
     bool Aktiv,
     DateTime CreatedAt
@@ -12,13 +12,13 @@ public record AccessoryCatalogDto(
 
 public record AccessoryCatalogCreateDto(
     string Bezeichnung,
-    decimal Standardpreis,
+    decimal? Standardpreis,
     string? Kategorie
 );
 
 public record AccessoryCatalogUpdateDto(
     string Bezeichnung,
-    decimal Standardpreis,
+    decimal? Standardpreis,
     string? Kategorie,
     bool Aktiv
 );
@@ -26,7 +26,7 @@ public record AccessoryCatalogUpdateDto(
 public record AccessoryCatalogListDto(
     int Id,
     string Bezeichnung,
-    decimal Standardpreis,
+    decimal? Standardpreis,
     string? Kategorie,
     bool Aktiv
 );
