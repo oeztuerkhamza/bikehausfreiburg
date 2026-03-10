@@ -273,13 +273,12 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>{{ t.priceRequired }}</label>
+                <label>Preis (€)</label>
                 <input
                   type="number"
                   step="0.01"
                   [(ngModel)]="preis"
                   name="preis"
-                  required
                 />
               </div>
               <div class="field">
@@ -490,38 +489,38 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Buyer info -->
           <div class="form-card">
-            <h2>{{ t.buyer }}</h2>
+            <h2>Käufer</h2>
             <div class="form-grid">
               <div class="field">
-                <label>{{ t.firstName }}</label>
+                <label>Vorname</label>
                 <input [(ngModel)]="buyer.vorname" name="buyerVorname" />
               </div>
               <div class="field">
-                <label>{{ t.lastName }}</label>
+                <label>Nachname</label>
                 <input [(ngModel)]="buyer.nachname" name="buyerNachname" />
               </div>
               <div class="field full">
-                <label>{{ t.searchAddress }}</label>
+                <label>Adresse suchen</label>
                 <app-address-autocomplete
-                  [placeholder]="t.addressPlaceholder"
+                  placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onBuyerAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint">{{ t.addressHint }}</small>
+                <small class="hint">Tippen Sie eine Adresse ein für Vorschläge</small>
               </div>
               <div class="field">
-                <label>{{ t.street }}</label>
+                <label>Straße</label>
                 <input [(ngModel)]="buyer.strasse" name="buyerStrasse" />
               </div>
               <div class="field">
-                <label>{{ t.houseNumber }}</label>
+                <label>Hausnummer</label>
                 <input [(ngModel)]="buyer.hausnummer" name="buyerHausnr" />
               </div>
               <div class="field">
-                <label>{{ t.postalCode }}</label>
+                <label>PLZ</label>
                 <input [(ngModel)]="buyer.plz" name="buyerPlz" />
               </div>
               <div class="field">
-                <label>{{ t.city }}</label>
+                <label>Stadt</label>
                 <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
               </div>
             </div>
@@ -1124,7 +1123,8 @@ export class SaleFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.verkaufsdatum = new Date().toISOString().split('T')[0];
+    const _d = new Date();
+    this.verkaufsdatum = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`;
     this.bicycleService.getAvailable().subscribe((bikes) => {
       this.availableBikes = bikes;
       const preselect = this.route.snapshot.queryParamMap.get('bicycleId');
@@ -1238,7 +1238,7 @@ export class SaleFormComponent implements OnInit {
       this.bicycleService.search(value.trim()).subscribe({
         next: (bikes) => {
           this.rahmenSearchResults = bikes.filter(
-            (b) => b.rahmennummer?.toUpperCase().includes(value.trim().toUpperCase())
+            (b) => b.status !== 'Sold' && b.rahmennummer?.toUpperCase().includes(value.trim().toUpperCase())
           );
           this.showRahmenDropdown = this.rahmenSearchResults.length > 0;
         },

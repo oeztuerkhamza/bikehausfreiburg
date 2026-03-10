@@ -174,11 +174,13 @@ public class BicycleService : IBicycleService
 
     public async Task<IEnumerable<BicycleDto>> SearchAsync(string searchTerm)
     {
+        var lowerTerm = searchTerm.ToLower();
         var bicycles = await _repository.FindAsync(b =>
+            b.Status != BikeStatus.Sold && (
             b.Marke.Contains(searchTerm) ||
             b.Modell.Contains(searchTerm) ||
-            (b.Rahmennummer != null && b.Rahmennummer.Contains(searchTerm)) ||
-            (b.Farbe != null && b.Farbe.Contains(searchTerm)));
+            (b.Rahmennummer != null && b.Rahmennummer.ToLower().Contains(lowerTerm)) ||
+            (b.Farbe != null && b.Farbe.Contains(searchTerm))));
         return bicycles.Select(b => b.ToDto());
     }
 

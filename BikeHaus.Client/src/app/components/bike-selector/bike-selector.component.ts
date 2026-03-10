@@ -27,22 +27,6 @@ import { TranslationService } from '../../services/translation.service';
             [placeholder]="t.bikeSelectorPlaceholder"
             class="search-input"
           />
-          <div class="id-search">
-            <input
-              type="text"
-              [(ngModel)]="searchId"
-              [placeholder]="t.numberShort"
-              class="id-input"
-              (keyup.enter)="searchById()"
-            />
-            <button
-              type="button"
-              class="btn btn-sm btn-outline"
-              (click)="searchById()"
-            >
-              {{ t.searchNumber }}
-            </button>
-          </div>
         </div>
         <small *ngIf="searchError" class="error-text">{{ searchError }}</small>
       </div>
