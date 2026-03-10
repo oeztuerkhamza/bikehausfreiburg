@@ -918,9 +918,15 @@ export class PurchaseEditComponent implements OnInit {
     this.preis = purchase.preis;
     this.verkaufspreisVorschlag = purchase.verkaufspreisVorschlag || null;
     this.zahlungsart = purchase.zahlungsart as PaymentMethod;
-    this.kaufdatum = purchase.kaufdatum
-      ? new Date(purchase.kaufdatum).toISOString().split('T')[0]
-      : '';
+    if (purchase.kaufdatum) {
+      const d = new Date(purchase.kaufdatum);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      this.kaufdatum = `${year}-${month}-${day}`;
+    } else {
+      this.kaufdatum = '';
+    }
     this.notizen = purchase.notizen || '';
     this.anzeigeNr = purchase.anzeigeNr || '';
     this.belegNummer = purchase.belegNummer || '';

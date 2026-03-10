@@ -641,9 +641,15 @@ export class SaleEditComponent implements OnInit {
     // Load sale data
     this.preis = sale.preis;
     this.zahlungsart = sale.zahlungsart as PaymentMethod;
-    this.verkaufsdatum = sale.verkaufsdatum
-      ? new Date(sale.verkaufsdatum).toISOString().split('T')[0]
-      : '';
+    if (sale.verkaufsdatum) {
+      const d = new Date(sale.verkaufsdatum);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      this.verkaufsdatum = `${year}-${month}-${day}`;
+    } else {
+      this.verkaufsdatum = '';
+    }
     this.notizen = sale.notizen || '';
     this.garantie = sale.garantie;
     this.garantieBedingungen = sale.garantieBedingungen || '';
