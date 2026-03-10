@@ -99,9 +99,9 @@ import { AddressSuggestion } from '../../services/address.service';
               <span>{{ bikeEdit.farbe }} | {{ bikeEdit.reifengroesse }}"</span>
             </div>
             <div class="form-grid" *ngIf="bikeEditExpanded || isQuickAddMode">
-              <!-- Rahmennummer first for quick lookup -->
+              <!-- Rahmennummer first with autocomplete dropdown -->
               <div
-                class="field full"
+                class="field full rahmen-autocomplete-wrapper"
                 [class.field-error]="bikeErrors['rahmennummer']"
               >
                 <label>{{ t.frameNumber }} *</label>
@@ -109,19 +109,27 @@ import { AddressSuggestion } from '../../services/address.service';
                   [(ngModel)]="bikeEdit.rahmennummer"
                   name="bikeRahmen"
                   (ngModelChange)="bikeErrors['rahmennummer'] = false; onRahmennummerChange($event)"
+                  (focus)="onRahmennummerChange(bikeEdit.rahmennummer)"
+                  (blur)="hideRahmenDropdown()"
                   style="text-transform: uppercase"
                   placeholder="Rahmennummer eingeben..."
+                  autocomplete="off"
                 />
                 <span class="error-msg" *ngIf="bikeErrors['rahmennummer']">{{
                   t.requiredField
                 }}</span>
-                <!-- Warning: bike already exists -->
-                <div class="rahmen-warning" *ngIf="rahmenMatchBike">
-                  <span class="warning-icon">⚠️</span>
-                  <span>Dieses Fahrrad ist bereits registriert: <strong>{{ rahmenMatchBike.marke }} {{ rahmenMatchBike.modell }}</strong> (Ankauf-Beleg vorhanden)</span>
-                  <button type="button" class="btn btn-sm btn-primary" (click)="useExistingBike(rahmenMatchBike)">
-                    Vorhandenes Fahrrad verwenden
-                  </button>
+                <!-- Autocomplete dropdown -->
+                <div class="rahmen-dropdown" *ngIf="rahmenSearchResults.length > 0 && showRahmenDropdown">
+                  <div
+                    class="rahmen-dropdown-item"
+                    *ngFor="let bike of rahmenSearchResults"
+                    (mousedown)="selectRahmenBike(bike)"
+                  >
+                    <span class="rahmen-nr">{{ bike.rahmennummer }}</span>
+                    <span class="rahmen-info">{{ bike.marke }} {{ bike.modell }}</span>
+                    <span class="rahmen-badge" *ngIf="bike.status === 'Available'">Verfügbar</span>
+                    <span class="rahmen-badge sold" *ngIf="bike.status === 'Sold'">Verkauft</span>
+                  </div>
                 </div>
               </div>
               <div class="field" [class.field-error]="bikeErrors['marke']">
@@ -952,6 +960,61 @@ import { AddressSuggestion } from '../../services/address.service';
         font-size: 1.2rem;
         flex-shrink: 0;
       }
+      .rahmen-autocomplete-wrapper {
+        position: relative;
+      }
+      .rahmen-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--accent-primary, #6366f1);
+        border-radius: 0 0 var(--radius-md, 10px) var(--radius-md, 10px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        max-height: 240px;
+        overflow-y: auto;
+      }
+      .rahmen-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: background 0.1s;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+      }
+      .rahmen-dropdown-item:last-child {
+        border-bottom: none;
+      }
+      .rahmen-dropdown-item:hover {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+      }
+      .rahmen-nr {
+        font-weight: 700;
+        font-family: monospace;
+        font-size: 0.88rem;
+        text-transform: uppercase;
+        color: var(--accent-primary, #6366f1);
+      }
+      .rahmen-info {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+      }
+      .rahmen-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 99px;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        margin-left: auto;
+      }
+      .rahmen-badge.sold {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
     `,
   ],
 })
@@ -1019,6 +1082,8 @@ export class SaleFormComponent implements OnInit {
   isQuickAddMode = false;
   bikeErrors: { [key: string]: boolean } = {};
   rahmenMatchBike: Bicycle | null = null;
+  rahmenSearchResults: Bicycle[] = [];
+  showRahmenDropdown = false;
   private rahmenSearchTimeout: any = null;
   bikeEdit = {
     marke: '',
@@ -1163,19 +1228,51 @@ export class SaleFormComponent implements OnInit {
 
   onRahmennummerChange(value: string) {
     this.rahmenMatchBike = null;
+    this.rahmenSearchResults = [];
     if (this.rahmenSearchTimeout) clearTimeout(this.rahmenSearchTimeout);
-    if (!value || value.trim().length < 3) return;
+    if (!value || value.trim().length < 2) {
+      this.showRahmenDropdown = false;
+      return;
+    }
     this.rahmenSearchTimeout = setTimeout(() => {
       this.bicycleService.search(value.trim()).subscribe({
         next: (bikes) => {
-          const match = bikes.find(
-            (b) => b.rahmennummer?.toUpperCase() === value.trim().toUpperCase()
+          this.rahmenSearchResults = bikes.filter(
+            (b) => b.rahmennummer?.toUpperCase().includes(value.trim().toUpperCase())
           );
-          this.rahmenMatchBike = match || null;
+          this.showRahmenDropdown = this.rahmenSearchResults.length > 0;
         },
         error: () => {},
       });
-    }, 400);
+    }, 300);
+  }
+
+  hideRahmenDropdown() {
+    // Small delay so mousedown on dropdown item fires first
+    setTimeout(() => {
+      this.showRahmenDropdown = false;
+    }, 200);
+  }
+
+  selectRahmenBike(bike: Bicycle) {
+    this.showRahmenDropdown = false;
+    this.rahmenSearchResults = [];
+    this.rahmenMatchBike = null;
+    this.isQuickAddMode = false;
+    this.selectedBike = bike;
+    this.loadPlannedPrice(bike.id);
+    this.bikeEdit = {
+      marke: bike.marke || '',
+      modell: bike.modell || '',
+      rahmennummer: bike.rahmennummer || '',
+      rahmengroesse: bike.rahmengroesse || '',
+      farbe: bike.farbe || '',
+      reifengroesse: bike.reifengroesse || '',
+      fahrradtyp: bike.fahrradtyp || '',
+      beschreibung: bike.beschreibung || '',
+      zustand: bike.zustand || BikeCondition.Gebraucht,
+    };
+    this.bikeErrors = {};
   }
 
   useExistingBike(bike: Bicycle) {

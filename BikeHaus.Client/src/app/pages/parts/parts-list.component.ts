@@ -521,7 +521,7 @@ export class PartsListComponent implements OnInit {
     this.formData = {
       bezeichnung: part.bezeichnung,
       kategorie: part.kategorie || '',
-      standardpreis: part.standardpreis,
+      standardpreis: part.standardpreis ?? 0,
       aktiv: part.aktiv,
     };
     this.showDialog = true;
