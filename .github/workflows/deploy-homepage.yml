@@ -3,6 +3,8 @@ name: Deploy Homepage to Netcup
 on:
   push:
     branches: [master]
+    paths:
+      - 'BikeHaus.Homepage/**'
   workflow_dispatch:
 
 jobs:
