@@ -2,7 +2,7 @@ name: Deploy Homepage to Netcup
 
 on:
   push:
-    branches: [dev]
+    branches: [master]
   workflow_dispatch:
 
 jobs:

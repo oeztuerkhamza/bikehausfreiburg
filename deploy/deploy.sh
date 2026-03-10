@@ -17,7 +17,7 @@ cd "$APP_DIR"
 
 if [ -d ".git" ]; then
     echo ">> Pulling latest changes..."
-    git pull origin bikehaus-desktop
+    git pull origin master
 fi
 
 # ─── 2. Build and start containers ───
