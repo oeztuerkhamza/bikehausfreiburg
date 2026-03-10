@@ -28,6 +28,7 @@ public class Sale : BaseEntity
     public Signature? SellerSignature { get; set; }
     public ICollection<Document> Documents { get; set; } = new List<Document>();
     public ICollection<SaleAccessory> Accessories { get; set; } = new List<SaleAccessory>();
+    public ICollection<SalePayment> Zahlungen { get; set; } = new List<SalePayment>();
 
     // Computed: Total including accessories minus discount
     public decimal Gesamtbetrag => Preis + Accessories.Sum(a => a.Gesamtpreis) - Rabatt;

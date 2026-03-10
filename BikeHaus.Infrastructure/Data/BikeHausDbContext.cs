@@ -12,6 +12,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<Purchase> Purchases => Set<Purchase>();
     public DbSet<Sale> Sales => Set<Sale>();
     public DbSet<SaleAccessory> SaleAccessories => Set<SaleAccessory>();
+    public DbSet<SalePayment> SalePayments => Set<SalePayment>();
     public DbSet<Return> Returns => Set<Return>();
     public DbSet<Document> Documents => Set<Document>();
     public DbSet<Signature> Signatures => Set<Signature>();
@@ -153,6 +154,18 @@ public class BikeHausDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.Ignore(e => e.Gesamtpreis); // Computed property
+        });
+
+        // ── SalePayment Configuration ──
+        modelBuilder.Entity<SalePayment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Betrag).HasColumnType("decimal(18,2)");
+
+            entity.HasOne(e => e.Sale)
+                .WithMany(s => s.Zahlungen)
+                .HasForeignKey(e => e.SaleId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ── Signature Configuration ──

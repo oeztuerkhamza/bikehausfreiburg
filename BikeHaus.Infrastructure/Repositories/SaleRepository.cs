@@ -20,6 +20,7 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
             .Include(s => s.SellerSignature)
             .Include(s => s.Documents)
             .Include(s => s.Accessories)
+            .Include(s => s.Zahlungen)
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
@@ -74,6 +75,7 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
         var query = _dbSet
             .Include(s => s.Bicycle)
             .Include(s => s.Buyer)
+            .Include(s => s.Zahlungen)
             .AsQueryable();
 
         if (predicate != null)

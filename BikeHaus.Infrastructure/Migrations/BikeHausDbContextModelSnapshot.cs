@@ -1005,6 +1005,34 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("SaleAccessories");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.SalePayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Betrag")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("SaleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Zahlungsart")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SaleId");
+
+                    b.ToTable("SalePayments");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.ShopSettings", b =>
                 {
                     b.Property<int>("Id")
@@ -1407,6 +1435,17 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.SalePayment", b =>
+                {
+                    b.HasOne("BikeHaus.Domain.Entities.Sale", "Sale")
+                        .WithMany("Zahlungen")
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sale");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Signature", b =>
                 {
                     b.HasOne("BikeHaus.Domain.Entities.Purchase", "Purchase")
@@ -1480,6 +1519,8 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Accessories");
 
                     b.Navigation("Documents");
+
+                    b.Navigation("Zahlungen");
                 });
 #pragma warning restore 612, 618
         }

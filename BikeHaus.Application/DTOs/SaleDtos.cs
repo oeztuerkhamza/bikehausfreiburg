@@ -2,6 +2,18 @@ using BikeHaus.Domain.Enums;
 
 namespace BikeHaus.Application.DTOs;
 
+// ── SalePayment DTOs ──
+public record SalePaymentDto(
+    int Id,
+    PaymentMethod Zahlungsart,
+    decimal Betrag
+);
+
+public record SalePaymentCreateDto(
+    PaymentMethod Zahlungsart,
+    decimal Betrag
+);
+
 // ── SaleAccessory DTOs ──
 public record SaleAccessoryDto(
     int Id,
@@ -33,6 +45,7 @@ public record SaleDto(
     SignatureDto? BuyerSignature,
     SignatureDto? SellerSignature,
     List<SaleAccessoryDto> Accessories,
+    List<SalePaymentDto> Zahlungen,
     decimal Rabatt,
     decimal Gesamtbetrag,
     DateTime CreatedAt
@@ -51,6 +64,7 @@ public record SaleCreateDto(
     SignatureCreateDto? BuyerSignature,
     SignatureCreateDto? SellerSignature,
     List<SaleAccessoryCreateDto>? Accessories,
+    List<SalePaymentCreateDto>? Zahlungen = null,
     decimal Rabatt = 0,
     string? BelegNummer = null
 );
@@ -64,6 +78,7 @@ public record SaleListDto(
     decimal Preis,
     decimal Rabatt,
     PaymentMethod Zahlungsart,
+    List<SalePaymentDto> Zahlungen,
     DateTime Verkaufsdatum,
     bool Garantie
 );
@@ -78,6 +93,7 @@ public record SaleUpdateDto(
     string? GarantieBedingungen,
     string? Notizen,
     List<SaleAccessoryCreateDto>? Accessories,
+    List<SalePaymentCreateDto>? Zahlungen = null,
     decimal Rabatt = 0,
     string? BelegNummer = null
 );

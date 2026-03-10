@@ -138,6 +138,7 @@ public static class MappingExtensions
         entity.BuyerSignature?.ToDto(),
         entity.SellerSignature?.ToDto(),
         entity.Accessories.Select(a => a.ToDto()).ToList(),
+        entity.Zahlungen.Select(z => z.ToDto()).ToList(),
         entity.Rabatt,
         entity.Gesamtbetrag,
         entity.CreatedAt
@@ -152,6 +153,7 @@ public static class MappingExtensions
         entity.Preis,
         entity.Rabatt,
         entity.Zahlungsart,
+        entity.Zahlungen.Select(z => z.ToDto()).ToList(),
         entity.Verkaufsdatum,
         entity.Garantie
     );
@@ -163,6 +165,13 @@ public static class MappingExtensions
         entity.Preis,
         entity.Menge,
         entity.Gesamtpreis
+    );
+
+    // ── SalePayment Mappings ──
+    public static SalePaymentDto ToDto(this SalePayment entity) => new(
+        entity.Id,
+        entity.Zahlungsart,
+        entity.Betrag
     );
 
     public static SaleAccessory ToEntity(this SaleAccessoryCreateDto dto, int saleId) => new()

@@ -238,6 +238,18 @@ export interface SaleAccessoryCreate {
   menge: number;
 }
 
+// ── Sale Payment ──
+export interface SalePayment {
+  id: number;
+  zahlungsart: PaymentMethod;
+  betrag: number;
+}
+
+export interface SalePaymentCreate {
+  zahlungsart: PaymentMethod;
+  betrag: number;
+}
+
 // ── Sale ──
 export interface Sale {
   id: number;
@@ -254,6 +266,7 @@ export interface Sale {
   buyerSignature?: Signature;
   sellerSignature?: Signature;
   accessories: SaleAccessory[];
+  zahlungen: SalePayment[];
   rabatt: number;
   gesamtbetrag: number;
   createdAt: string;
@@ -268,6 +281,7 @@ export interface SaleList {
   preis: number;
   rabatt: number;
   zahlungsart: PaymentMethod;
+  zahlungen: SalePayment[];
   verkaufsdatum: string;
   garantie: boolean;
 }
@@ -284,6 +298,7 @@ export interface SaleCreate {
   buyerSignature?: SignatureCreate;
   sellerSignature?: SignatureCreate;
   accessories?: SaleAccessoryCreate[];
+  zahlungen?: SalePaymentCreate[];
   rabatt?: number;
   belegNummer?: string;
 }
@@ -297,6 +312,7 @@ export interface SaleUpdate {
   garantieBedingungen?: string;
   notizen?: string;
   accessories?: SaleAccessoryCreate[];
+  zahlungen?: SalePaymentCreate[];
   rabatt?: number;
   belegNummer?: string;
 }

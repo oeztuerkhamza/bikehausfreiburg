@@ -137,6 +137,19 @@ public class SaleService : ISaleService
             }
         }
 
+        // Add payments if provided
+        if (dto.Zahlungen != null && dto.Zahlungen.Count > 0)
+        {
+            foreach (var zahlung in dto.Zahlungen)
+            {
+                sale.Zahlungen.Add(new SalePayment
+                {
+                    Zahlungsart = zahlung.Zahlungsart,
+                    Betrag = zahlung.Betrag
+                });
+            }
+        }
+
         var created = await _saleRepository.AddAsync(sale);
 
         // Update bicycle status
@@ -190,6 +203,21 @@ public class SaleService : ISaleService
                     Bezeichnung = accessory.Bezeichnung,
                     Preis = accessory.Preis,
                     Menge = accessory.Menge
+                });
+            }
+        }
+
+        // Update Payments - clear and recreate
+        sale.Zahlungen.Clear();
+        if (dto.Zahlungen != null && dto.Zahlungen.Count > 0)
+        {
+            foreach (var zahlung in dto.Zahlungen)
+            {
+                sale.Zahlungen.Add(new SalePayment
+                {
+                    SaleId = sale.Id,
+                    Zahlungsart = zahlung.Zahlungsart,
+                    Betrag = zahlung.Betrag
                 });
             }
         }

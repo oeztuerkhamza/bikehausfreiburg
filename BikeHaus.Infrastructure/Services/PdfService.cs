@@ -531,7 +531,18 @@ public class PdfService : IPdfService
                         row.RelativeItem().Column(c =>
                         {
                             c.Item().Text("Zahlungsart:").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            c.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(5).Text(sale.Zahlungsart.ToString()).FontSize(13).Bold();
+                            if (sale.Zahlungen.Any())
+                            {
+                                foreach (var zahlung in sale.Zahlungen)
+                                {
+                                    c.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(3)
+                                        .Text($"{zahlung.Zahlungsart}: {zahlung.Betrag:N2} €").FontSize(11).Bold();
+                                }
+                            }
+                            else
+                            {
+                                c.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(5).Text(sale.Zahlungsart.ToString()).FontSize(13).Bold();
+                            }
 
                             if (sale.Accessories.Any() || sale.Rabatt > 0)
                             {

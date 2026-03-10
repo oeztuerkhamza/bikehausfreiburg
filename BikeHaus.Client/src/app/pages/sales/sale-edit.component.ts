@@ -9,6 +9,7 @@ import {
   SaleUpdate,
   PaymentMethod,
   SaleAccessoryCreate,
+  SalePaymentCreate,
   AccessoryCatalogList,
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
@@ -135,11 +136,38 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field">
                 <label>{{ t.paymentMethodRequired }}</label>
-                <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
-                  <option value="Bar">{{ t.cash }}</option>
-                  <option value="PayPal">{{ t.paypal }}</option>
-                  <option value="Karte">{{ t.bankTransfer }}</option>
-                </select>
+                <div class="zahlungen-list">
+                  <div class="zahlung-item" *ngFor="let z of zahlungen; let i = index">
+                    <select [(ngModel)]="z.zahlungsart" [name]="'zArt' + i">
+                      <option value="Bar">{{ t.cash }}</option>
+                      <option value="PayPal">{{ t.paypal }}</option>
+                      <option value="Karte">{{ t.bankTransfer }}</option>
+                    </select>
+                    <input
+                      type="number"
+                      step="0.01"
+                      [(ngModel)]="z.betrag"
+                      [name]="'zBetrag' + i"
+                      placeholder="Betrag"
+                    />
+                    <span class="zahlung-euro">€</span>
+                    <button
+                      type="button"
+                      class="btn btn-icon btn-danger"
+                      (click)="removeZahlung(i)"
+                      *ngIf="zahlungen.length > 1"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                    (click)="addZahlung()"
+                  >
+                    + Weitere Zahlungsart
+                  </button>
+                </div>
               </div>
               <div class="field">
                 <label>{{ t.saleDateRequired }}</label>
@@ -553,6 +581,38 @@ import { AddressSuggestion } from '../../services/address.service';
         padding-top: 8px;
         border-top: 1px dashed var(--border-light, #e2e8f0);
       }
+      .zahlungen-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .zahlung-item {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .zahlung-item select {
+        flex: 1;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+      }
+      .zahlung-item input {
+        width: 110px;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        font-size: 0.92rem;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+      }
+      .zahlung-euro {
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+      }
     `,
   ],
 })
@@ -577,6 +637,9 @@ export class SaleEditComponent implements OnInit {
 
   preis = 0;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
+  zahlungen: SalePaymentCreate[] = [
+    { zahlungsart: PaymentMethod.Bar, betrag: 0 },
+  ];
   verkaufsdatum = '';
   notizen = '';
   belegNummer = '';
@@ -663,6 +726,18 @@ export class SaleEditComponent implements OnInit {
       }));
     }
 
+    // Load zahlungen
+    if (sale.zahlungen && sale.zahlungen.length > 0) {
+      this.zahlungen = sale.zahlungen.map((z) => ({
+        zahlungsart: z.zahlungsart as PaymentMethod,
+        betrag: z.betrag,
+      }));
+    } else {
+      this.zahlungen = [
+        { zahlungsart: sale.zahlungsart as PaymentMethod, betrag: sale.preis },
+      ];
+    }
+
     // Load rabatt
     this.rabatt = sale.rabatt || 0;
 
@@ -697,6 +772,14 @@ export class SaleEditComponent implements OnInit {
     this.accessories.splice(index, 1);
   }
 
+  addZahlung() {
+    this.zahlungen.push({ zahlungsart: PaymentMethod.Bar, betrag: 0 });
+  }
+
+  removeZahlung(index: number) {
+    this.zahlungen.splice(index, 1);
+  }
+
   submit() {
     if (!this.sale) return;
     this.submitting = true;
@@ -704,7 +787,7 @@ export class SaleEditComponent implements OnInit {
     const update: SaleUpdate = {
       buyer: this.buyer,
       preis: this.preis,
-      zahlungsart: this.zahlungsart,
+      zahlungsart: this.zahlungen[0]?.zahlungsart || this.zahlungsart,
       verkaufsdatum: this.verkaufsdatum,
       garantie: this.garantie,
       garantieBedingungen: this.garantieBedingungen || undefined,
@@ -712,6 +795,10 @@ export class SaleEditComponent implements OnInit {
       accessories:
         this.accessories.length > 0
           ? this.accessories.filter((a) => a.bezeichnung && a.preis > 0)
+          : undefined,
+      zahlungen:
+        this.zahlungen.length > 0
+          ? this.zahlungen.filter((z) => z.betrag > 0)
           : undefined,
       rabatt: this.rabatt > 0 ? this.rabatt : undefined,
       belegNummer: this.belegNummer || undefined,
