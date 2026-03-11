@@ -1096,6 +1096,7 @@ export class SaleFormComponent implements OnInit {
   submitting = false;
   accessories: SaleAccessoryCreate[] = [];
   rabatt = 0;
+  purchaseId: number | undefined = undefined;
 
   // Bicycle edit
   bikeEditExpanded = false;
@@ -1214,6 +1215,7 @@ export class SaleFormComponent implements OnInit {
   onQuickAddBike() {
     // Create a temporary bike placeholder for quick add mode
     this.isQuickAddMode = true;
+    this.purchaseId = undefined;
     this.rahmenMatchBike = null;
     this.selectedBike = {
       id: 0, // Temporary ID, will be replaced when created
@@ -1321,12 +1323,16 @@ export class SaleFormComponent implements OnInit {
   private loadPlannedPrice(bicycleId: number) {
     this.purchaseService.getByBicycleId(bicycleId).subscribe({
       next: (purchase) => {
-        if (purchase?.verkaufspreisVorschlag) {
-          this.preis = purchase.verkaufspreisVorschlag;
+        if (purchase) {
+          this.purchaseId = purchase.id;
+          if (purchase.verkaufspreisVorschlag) {
+            this.preis = purchase.verkaufspreisVorschlag;
+          }
         }
       },
       error: () => {
         // No purchase found for this bike, ignore
+        this.purchaseId = undefined;
       },
     });
   }
@@ -1453,6 +1459,7 @@ export class SaleFormComponent implements OnInit {
 
     const sale: SaleCreate = {
       bicycleId: this.selectedBike!.id,
+      purchaseId: this.purchaseId,
       buyer: this.buyer,
       preis: this.preis,
       zahlungsart: this.zahlungen[0]?.zahlungsart || this.zahlungsart,

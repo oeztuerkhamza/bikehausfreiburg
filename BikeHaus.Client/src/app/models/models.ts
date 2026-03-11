@@ -288,6 +288,7 @@ export interface SaleList {
 
 export interface SaleCreate {
   bicycleId: number;
+  purchaseId?: number;
   buyer: CustomerCreate;
   preis: number;
   zahlungsart: PaymentMethod;
