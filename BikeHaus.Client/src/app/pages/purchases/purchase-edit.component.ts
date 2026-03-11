@@ -17,7 +17,6 @@ import {
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
-import { environment } from '../../../environments/environment';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -676,6 +675,9 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
     { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
     { value: 'Pink', label: 'Pink', hex: '#ec4899' },
+    { value: 'Türkis', label: 'Türkis', hex: '#06b6d4' },
+    { value: 'Lila', label: 'Lila', hex: '#a855f7' },
+    { value: 'Dunkelblau', label: 'Dunkelblau', hex: '#1e3a5f' },
   ];
 
   isColorSelected(farbe: string, color: string): boolean {
@@ -850,7 +852,10 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     this.documentService.delete(doc.id).subscribe({
       next: () => {
         const url = this.docBlobUrls.get(doc.id);
-        if (url) { URL.revokeObjectURL(url); this.docBlobUrls.delete(doc.id); }
+        if (url) {
+          URL.revokeObjectURL(url);
+          this.docBlobUrls.delete(doc.id);
+        }
         this.documents = this.documents.filter((d) => d.id !== doc.id);
       },
     });
@@ -893,7 +898,10 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     this.documentService.delete(doc.id).subscribe({
       next: () => {
         const url = this.docBlobUrls.get(doc.id);
-        if (url) { URL.revokeObjectURL(url); this.docBlobUrls.delete(doc.id); }
+        if (url) {
+          URL.revokeObjectURL(url);
+          this.docBlobUrls.delete(doc.id);
+        }
         this.saleDocuments = this.saleDocuments.filter((d) => d.id !== doc.id);
       },
     });

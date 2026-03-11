@@ -883,6 +883,9 @@ export class PurchaseFormComponent implements OnInit {
     { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
     { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
     { value: 'Pink', label: 'Pink', hex: '#ec4899' },
+    { value: 'Türkis', label: 'Türkis', hex: '#06b6d4' },
+    { value: 'Lila', label: 'Lila', hex: '#a855f7' },
+    { value: 'Dunkelblau', label: 'Dunkelblau', hex: '#1e3a5f' },
   ];
 
   isColorSelected(farbe: string, color: string): boolean {
