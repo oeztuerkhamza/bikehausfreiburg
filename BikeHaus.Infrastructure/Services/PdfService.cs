@@ -471,7 +471,12 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Reifengröße").FontSize(9).FontColor(Colors.Grey.Darken2);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Reifengroesse).FontSize(10);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Kauf Beleg Nr.").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Purchase?.BelegNummer ?? "-").FontSize(10);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Column(c =>
+                        {
+                            c.Item().Text(sale.Purchase?.BelegNummer ?? "-").FontSize(10);
+                            if (sale.Purchase != null)
+                                c.Item().Text($"Ankaufpreis: {sale.Purchase.Preis:N2} €").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        });
 
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Fahrradtyp").FontSize(9).FontColor(Colors.Grey.Darken2);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Fahrradtyp ?? "-").FontSize(10);
