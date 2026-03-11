@@ -2686,16 +2686,16 @@ interface Testimonial {
 
       @media (max-width: 768px) {
         .svc-slide-inner {
-          padding: 3.5rem 1.25rem;
+          padding: 5.5rem 1.25rem 3rem;
+        }
+        .angebote-inner {
+          padding: 5.5rem 1.25rem 3rem;
         }
         .svc-icon-wrap {
           display: none;
         }
         .angebote-cards {
           grid-template-columns: 1fr;
-        }
-        .angebote-inner {
-          padding: 3rem 1.25rem;
         }
         .svc-title {
           font-size: 1.6rem;
