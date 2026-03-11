@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -659,7 +659,7 @@ import { forkJoin } from 'rxjs';
     `,
   ],
 })
-export class PurchaseEditComponent implements OnInit {
+export class PurchaseEditComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   get t() {
     return this.translationService.translations();
@@ -701,6 +701,7 @@ export class PurchaseEditComponent implements OnInit {
   documents: DocModel[] = [];
   saleDocuments: DocModel[] = [];
   previewImage: string | null = null;
+  private docBlobUrls: Map<number, string> = new Map();
 
   seller = {
     vorname: '',
@@ -772,7 +773,10 @@ export class PurchaseEditComponent implements OnInit {
       next: (sale) => {
         this.sale = sale;
         this.documentService.getBySaleId(sale.id).subscribe({
-          next: (docs) => (this.saleDocuments = docs),
+          next: (docs) => {
+            this.saleDocuments = docs;
+            docs.forEach((d) => this.loadBlobUrl(d));
+          },
           error: () => {},
         });
       },
@@ -786,6 +790,7 @@ export class PurchaseEditComponent implements OnInit {
     this.documentService.getByPurchaseId(purchaseId).subscribe({
       next: (docs) => {
         this.documents = docs;
+        docs.forEach((d) => this.loadBlobUrl(d));
       },
       error: () => {
         // silently fail - photos are optional
@@ -793,8 +798,24 @@ export class PurchaseEditComponent implements OnInit {
     });
   }
 
+  private loadBlobUrl(doc: DocModel) {
+    if (this.docBlobUrls.has(doc.id)) return;
+    this.documentService.download(doc.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        this.docBlobUrls.set(doc.id, url);
+      },
+      error: () => {},
+    });
+  }
+
   getDocumentUrl(doc: DocModel): string {
-    return `${environment.apiUrl}/documents/${doc.id}/download`;
+    return this.docBlobUrls.get(doc.id) ?? '';
+  }
+
+  ngOnDestroy() {
+    this.docBlobUrls.forEach((url) => URL.revokeObjectURL(url));
+    this.docBlobUrls.clear();
   }
 
   onPhotosSelected(event: Event) {
@@ -828,6 +849,8 @@ export class PurchaseEditComponent implements OnInit {
     if (!confirm('Löschen?')) return;
     this.documentService.delete(doc.id).subscribe({
       next: () => {
+        const url = this.docBlobUrls.get(doc.id);
+        if (url) { URL.revokeObjectURL(url); this.docBlobUrls.delete(doc.id); }
         this.documents = this.documents.filter((d) => d.id !== doc.id);
       },
     });
@@ -851,7 +874,10 @@ export class PurchaseEditComponent implements OnInit {
     forkJoin(uploads).subscribe({
       next: () => {
         this.documentService.getBySaleId(this.sale!.id).subscribe({
-          next: (docs) => (this.saleDocuments = docs),
+          next: (docs) => {
+            this.saleDocuments = docs;
+            docs.forEach((d) => this.loadBlobUrl(d));
+          },
         });
         this.uploadingSale = false;
         input.value = '';
@@ -866,6 +892,8 @@ export class PurchaseEditComponent implements OnInit {
     if (!confirm('Löschen?')) return;
     this.documentService.delete(doc.id).subscribe({
       next: () => {
+        const url = this.docBlobUrls.get(doc.id);
+        if (url) { URL.revokeObjectURL(url); this.docBlobUrls.delete(doc.id); }
         this.saleDocuments = this.saleDocuments.filter((d) => d.id !== doc.id);
       },
     });

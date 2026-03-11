@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -659,7 +659,7 @@ import {
     `,
   ],
 })
-export class BicycleDetailComponent implements OnInit {
+export class BicycleDetailComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
@@ -667,6 +667,7 @@ export class BicycleDetailComponent implements OnInit {
   purchase: Purchase | null = null;
   documents: DocModel[] = [];
   purchaseDocuments: DocModel[] = [];
+  private docBlobUrls: Map<number, string> = new Map();
   galleryImages: BicycleImage[] = [];
   submitting = false;
   BikeCondition = BikeCondition;
@@ -794,7 +795,10 @@ export class BicycleDetailComponent implements OnInit {
         // Load purchase documents
         this.documentService
           .getByPurchaseId(p.id)
-          .subscribe((docs) => (this.purchaseDocuments = docs));
+          .subscribe((docs) => {
+            this.purchaseDocuments = docs;
+            docs.forEach((d) => this.loadBlobUrl(d));
+          });
       },
       error: () => {
         // No purchase found for this bicycle - that's ok
@@ -891,7 +895,10 @@ export class BicycleDetailComponent implements OnInit {
           if (remaining === 0) {
             this.documentService
               .getByPurchaseId(this.purchase!.id)
-              .subscribe((docs) => (this.purchaseDocuments = docs));
+              .subscribe((docs) => {
+                this.purchaseDocuments = docs;
+                docs.forEach((d) => this.loadBlobUrl(d));
+              });
           }
         });
     }
@@ -944,7 +951,22 @@ export class BicycleDetailComponent implements OnInit {
   }
 
   getDocumentUrl(doc: DocModel): string {
-    return `${environment.apiUrl}/documents/${doc.id}/view`;
+    return this.docBlobUrls.get(doc.id) ?? '';
+  }
+
+  private loadBlobUrl(doc: DocModel) {
+    if (this.docBlobUrls.has(doc.id)) return;
+    this.documentService.download(doc.id).subscribe({
+      next: (blob) => {
+        this.docBlobUrls.set(doc.id, URL.createObjectURL(blob));
+      },
+      error: () => {},
+    });
+  }
+
+  ngOnDestroy() {
+    this.docBlobUrls.forEach((url) => URL.revokeObjectURL(url));
+    this.docBlobUrls.clear();
   }
 
   downloadDoc(doc: DocModel) {
@@ -963,10 +985,7 @@ export class BicycleDetailComponent implements OnInit {
       .danger(this.t.delete, this.t.deleteConfirmDocument)
       .then((confirmed) => {
         if (confirmed) {
-          this.documentService.delete(doc.id).subscribe({
-            next: () => {
-              this.notificationService.success(this.t.deleteSuccess);
-              if (source === 'purchase') {
+          this.documentService.delete(doc.id).subscribe({\n            next: () => {\n              this.notificationService.success(this.t.deleteSuccess);\n              const blobUrl = this.docBlobUrls.get(doc.id);\n              if (blobUrl) { URL.revokeObjectURL(blobUrl); this.docBlobUrls.delete(doc.id); }\n              if (source === 'purchase') {
                 this.purchaseDocuments = this.purchaseDocuments.filter(
                   (d) => d.id !== doc.id,
                 );
