@@ -108,7 +108,10 @@ import { AddressSuggestion } from '../../services/address.service';
                 <input
                   [(ngModel)]="bikeEdit.rahmennummer"
                   name="bikeRahmen"
-                  (ngModelChange)="bikeErrors['rahmennummer'] = false; onRahmennummerChange($event)"
+                  (ngModelChange)="
+                    bikeErrors['rahmennummer'] = false;
+                    onRahmennummerChange($event)
+                  "
                   (focus)="onRahmennummerChange(bikeEdit.rahmennummer)"
                   (blur)="hideRahmenDropdown()"
                   style="text-transform: uppercase"
@@ -119,16 +122,29 @@ import { AddressSuggestion } from '../../services/address.service';
                   t.requiredField
                 }}</span>
                 <!-- Autocomplete dropdown -->
-                <div class="rahmen-dropdown" *ngIf="rahmenSearchResults.length > 0 && showRahmenDropdown">
+                <div
+                  class="rahmen-dropdown"
+                  *ngIf="rahmenSearchResults.length > 0 && showRahmenDropdown"
+                >
                   <div
                     class="rahmen-dropdown-item"
                     *ngFor="let bike of rahmenSearchResults"
                     (mousedown)="selectRahmenBike(bike)"
                   >
                     <span class="rahmen-nr">{{ bike.rahmennummer }}</span>
-                    <span class="rahmen-info">{{ bike.marke }} {{ bike.modell }}</span>
-                    <span class="rahmen-badge" *ngIf="bike.status === 'Available'">Verfügbar</span>
-                    <span class="rahmen-badge sold" *ngIf="bike.status === 'Sold'">Verkauft</span>
+                    <span class="rahmen-info"
+                      >{{ bike.marke }} {{ bike.modell }}</span
+                    >
+                    <span
+                      class="rahmen-badge"
+                      *ngIf="bike.status === 'Available'"
+                      >Verfügbar</span
+                    >
+                    <span
+                      class="rahmen-badge sold"
+                      *ngIf="bike.status === 'Sold'"
+                      >Verkauft</span
+                    >
                   </div>
                 </div>
               </div>
@@ -284,7 +300,10 @@ import { AddressSuggestion } from '../../services/address.service';
               <div class="field">
                 <label>{{ t.paymentMethodRequired }}</label>
                 <div class="zahlungen-list">
-                  <div class="zahlung-item" *ngFor="let z of zahlungen; let i = index">
+                  <div
+                    class="zahlung-item"
+                    *ngFor="let z of zahlungen; let i = index"
+                  >
                     <select [(ngModel)]="z.zahlungsart" [name]="'zArt' + i">
                       <option value="Bar">{{ t.cash }}</option>
                       <option value="PayPal">{{ t.paypal }}</option>
@@ -505,7 +524,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onBuyerAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint">Tippen Sie eine Adresse ein für Vorschläge</small>
+                <small class="hint"
+                  >Tippen Sie eine Adresse ein für Vorschläge</small
+                >
               </div>
               <div class="field">
                 <label>Straße</label>
@@ -1238,7 +1259,11 @@ export class SaleFormComponent implements OnInit {
       this.bicycleService.search(value.trim()).subscribe({
         next: (bikes) => {
           this.rahmenSearchResults = bikes.filter(
-            (b) => b.status !== 'Sold' && b.rahmennummer?.toUpperCase().includes(value.trim().toUpperCase())
+            (b) =>
+              b.status !== 'Sold' &&
+              b.rahmennummer
+                ?.toUpperCase()
+                .includes(value.trim().toUpperCase()),
           );
           this.showRahmenDropdown = this.rahmenSearchResults.length > 0;
         },

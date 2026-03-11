@@ -1,10 +1,17 @@
 using BikeHaus.Application.Interfaces;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
 
 namespace BikeHaus.Infrastructure.Services;
 
 public class FileStorageService : IFileStorageService
 {
     private readonly string _basePath;
+    private static readonly HashSet<string> _imageExtensions = new(StringComparer.OrdinalIgnoreCase)
+        { ".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff" };
+    private const int MaxImageWidth = 1920;
+    private const int JpegQuality = 82;
 
     public FileStorageService(string basePath)
     {
@@ -17,13 +24,28 @@ public class FileStorageService : IFileStorageService
         var folderPath = Path.Combine(_basePath, folder);
         Directory.CreateDirectory(folderPath);
 
-        var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
-        var filePath = Path.Combine(folderPath, uniqueFileName);
+        var ext = Path.GetExtension(fileName);
+        if (_imageExtensions.Contains(ext))
+        {
+            // Save compressed image as JPEG
+            var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}.jpg";
+            var filePath = Path.Combine(folderPath, uniqueFileName);
 
-        using var outputStream = new FileStream(filePath, FileMode.Create);
-        await fileStream.CopyToAsync(outputStream);
+            using var image = await Image.LoadAsync(fileStream);
+            if (image.Width > MaxImageWidth)
+                image.Mutate(x => x.Resize(MaxImageWidth, 0)); // keep aspect ratio
 
-        return Path.Combine(folder, uniqueFileName);
+            await image.SaveAsJpegAsync(filePath, new JpegEncoder { Quality = JpegQuality });
+            return Path.Combine(folder, uniqueFileName);
+        }
+        else
+        {
+            var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+            var filePath = Path.Combine(folderPath, uniqueFileName);
+            using var outputStream = new FileStream(filePath, FileMode.Create);
+            await fileStream.CopyToAsync(outputStream);
+            return Path.Combine(folder, uniqueFileName);
+        }
     }
 
     public Task<Stream> GetFileAsync(string filePath)

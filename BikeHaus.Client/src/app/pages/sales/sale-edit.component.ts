@@ -71,10 +71,10 @@ import { AddressSuggestion } from '../../services/address.service';
 
           <!-- Buyer info -->
           <div class="form-card">
-            <h2>{{ t.buyer }}</h2>
+            <h2>Käufer</h2>
             <div class="form-grid">
               <div class="field">
-                <label>{{ t.firstNameRequired }}</label>
+                <label>Vorname</label>
                 <input
                   [(ngModel)]="buyer.vorname"
                   name="buyerVorname"
@@ -82,7 +82,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>{{ t.lastNameRequired }}</label>
+                <label>Nachname</label>
                 <input
                   [(ngModel)]="buyer.nachname"
                   name="buyerNachname"
@@ -90,27 +90,27 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field full">
-                <label>{{ t.searchAddress }}</label>
+                <label>Adresse suchen</label>
                 <app-address-autocomplete
-                  [placeholder]="t.addressPlaceholder"
+                  placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onBuyerAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint">{{ t.addressHint }}</small>
+                <small class="hint">Tippen Sie eine Adresse ein für Vorschläge</small>
               </div>
               <div class="field">
-                <label>{{ t.street }}</label>
+                <label>Straße</label>
                 <input [(ngModel)]="buyer.strasse" name="buyerStrasse" />
               </div>
               <div class="field">
-                <label>{{ t.houseNumber }}</label>
+                <label>Hausnummer</label>
                 <input [(ngModel)]="buyer.hausnummer" name="buyerHausnr" />
               </div>
               <div class="field">
-                <label>{{ t.postalCode }}</label>
+                <label>PLZ</label>
                 <input [(ngModel)]="buyer.plz" name="buyerPlz" />
               </div>
               <div class="field">
-                <label>{{ t.city }}</label>
+                <label>Stadt</label>
                 <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
               </div>
             </div>
@@ -125,13 +125,12 @@ import { AddressSuggestion } from '../../services/address.service';
                 <input [(ngModel)]="belegNummer" name="belegNummer" />
               </div>
               <div class="field">
-                <label>{{ t.priceRequired }}</label>
+                <label>Preis (€)</label>
                 <input
                   type="number"
                   step="0.01"
                   [(ngModel)]="preis"
                   name="preis"
-                  required
                 />
               </div>
               <div class="field">
