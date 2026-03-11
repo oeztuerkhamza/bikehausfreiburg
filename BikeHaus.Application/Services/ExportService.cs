@@ -54,7 +54,7 @@ public class ExportService : IExportService
                 s.Verkaufsdatum >= startDate && s.Verkaufsdatum <= endDate);
             foreach (var sale in sales)
             {
-                var pdf = await _pdfService.GenerateVerkaufsbelegAsync(sale.Id);
+                var pdf = await _pdfService.GenerateVerkaufsbelegAsync(sale.Id, includeAnkaufPreis: true);
                 var fileName = $"Verkaufsbelege/Verkaufsbeleg_{sale.BelegNummer}_{sale.Verkaufsdatum:yyyy-MM-dd}.pdf";
                 var entry = archive.CreateEntry(SanitizeFileName(fileName));
                 using var entryStream = entry.Open();

@@ -368,7 +368,7 @@ public class PdfService : IPdfService
         return document.GeneratePdf();
     }
 
-    public async Task<byte[]> GenerateVerkaufsbelegAsync(int saleId)
+    public async Task<byte[]> GenerateVerkaufsbelegAsync(int saleId, bool includeAnkaufPreis = false)
     {
         var sale = await _saleRepository.GetWithDetailsAsync(saleId)
             ?? throw new KeyNotFoundException($"Sale with ID {saleId} not found.");
@@ -474,7 +474,7 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Column(c =>
                         {
                             c.Item().Text(sale.Purchase?.BelegNummer ?? "-").FontSize(10);
-                            if (sale.Purchase != null)
+                            if (includeAnkaufPreis && sale.Purchase != null)
                                 c.Item().Text($"Ankaufpreis: {sale.Purchase.Preis:N2} €").FontSize(8).FontColor(Colors.Grey.Darken2);
                         });
 
