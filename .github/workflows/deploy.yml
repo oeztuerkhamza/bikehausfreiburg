@@ -3,9 +3,28 @@ name: Deploy to Netcup
 on:
   push:
     branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-netcup
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      homepage: ${{ steps.filter.outputs.homepage }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            homepage:
+              - 'BikeHaus.Homepage/**'
+
+  deploy-api:
+    needs: changes
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
@@ -22,9 +41,67 @@ jobs:
             docker image prune -f
             echo "Deploy complete!"
 
+  deploy-homepage:
+    needs: changes
+    if: needs.changes.outputs.homepage == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BikeHaus.Homepage
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: BikeHaus.Homepage/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production
+        run: npm run build -- --configuration production
+
+      - name: Clean target directory
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            mkdir -p /opt/bikehaus/homepage-dist
+            find /opt/bikehaus/homepage-dist -mindepth 1 -delete
+
+      - name: Deploy to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: 'BikeHaus.Homepage/dist/bike-haus.homepage/browser/'
+          target: '/opt/bikehaus/homepage-dist'
+          strip_components: 4
+          rm: false
+
+      - name: Fix permissions and restart nginx
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            chmod -R 755 /opt/bikehaus/homepage-dist
+            find /opt/bikehaus/homepage-dist -type f -exec chmod 644 {} \;
+            docker restart bikehaus-nginx
+            echo "Homepage deployed successfully!"
+
   healthcheck:
     runs-on: ubuntu-latest
-    needs: deploy
+    needs: [deploy-api, deploy-homepage]
+    if: always() && needs.deploy-api.result == 'success'
     steps:
       - name: Health check endpoints
         run: |

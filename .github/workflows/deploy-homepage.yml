@@ -20,8 +20,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: '20'
+          cache: 'npm'
           cache-dependency-path: BikeHaus.Homepage/package-lock.json
 
       - name: Install dependencies
@@ -46,8 +46,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: "BikeHaus.Homepage/dist/bike-haus.homepage/browser/"
-          target: "/opt/bikehaus/homepage-dist"
+          source: 'BikeHaus.Homepage/dist/bike-haus.homepage/browser/'
+          target: '/opt/bikehaus/homepage-dist'
           strip_components: 4
           rm: false
 
