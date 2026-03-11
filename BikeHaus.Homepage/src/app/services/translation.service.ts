@@ -60,6 +60,29 @@ export interface Translations {
   viewOnKleinanzeigen: string;
   lastUpdated: string;
   bikesAvailable: string;
+
+  // Service Carousel
+  svcRepairBadge: string;
+  svcRepairTitle: string;
+  svcRepairSub: string;
+  svcRepairItem1: string;
+  svcRepairItem2: string;
+  svcRepairItem3: string;
+  svcRepairItem4: string;
+  svcRepairCta: string;
+  svcRentalBadge: string;
+  svcRentalTitle: string;
+  svcRentalSub: string;
+  svcRentalItem1: string;
+  svcRentalItem2: string;
+  svcRentalItem3: string;
+  svcRentalItem4: string;
+  svcRentalCta: string;
+  svcAngeboteBadge: string;
+  svcAngeboteTitle: string;
+  svcAngeboteSub: string;
+  svcAngeboteCta: string;
+
   filterByCategory: string;
   sortBy: string;
   sortNewest: string;
@@ -759,6 +782,26 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederNoItems: 'Aktuell keine neuen Fahrräder verfügbar.',
     neueFahrraederContactUs: 'Kontaktieren Sie uns',
     neueFahrraederInterested: 'Interesse an diesem Fahrrad?',
+    svcRepairBadge: 'Service',
+    svcRepairTitle: 'Fahrrad Reparatur',
+    svcRepairSub: 'Professionelle Wartung & Reparatur – schnell, zuverlässig, fair.',
+    svcRepairItem1: 'Bremsen, Schaltung, Reifen',
+    svcRepairItem2: 'Komplette Inspektion',
+    svcRepairItem3: 'E-Bike Diagnose & Wartung',
+    svcRepairItem4: 'Ersatzteile auf Lager',
+    svcRepairCta: 'Termin anfragen',
+    svcRentalBadge: 'Verleih',
+    svcRentalTitle: 'Fahrradverleih',
+    svcRentalSub: 'Stadtrad, Trekking oder E-Bike – flexibel mieten ab einem Tag.',
+    svcRentalItem1: 'City- & Trekkingräder',
+    svcRentalItem2: 'E-Bikes verfügbar',
+    svcRentalItem3: 'Tages- & Wochenmiete',
+    svcRentalItem4: 'Schloss & Helm inklusive',
+    svcRentalCta: 'Fahrrad mieten',
+    svcAngeboteBadge: 'Angebote',
+    svcAngeboteTitle: 'Aktuelle Angebote',
+    svcAngeboteSub: 'Neue Fahrräder zum reduzierten Preis – nur solange der Vorrat reicht.',
+    svcAngeboteCta: 'Alle neuen Fahrräder',
   },
 
   en: {
@@ -1127,6 +1170,26 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederNoItems: 'No new bikes available at the moment.',
     neueFahrraederContactUs: 'Contact Us',
     neueFahrraederInterested: 'Interested in this bike?',
+    svcRepairBadge: 'Service',
+    svcRepairTitle: 'Bicycle Repair',
+    svcRepairSub: 'Professional maintenance & repairs – fast, reliable, fair.',
+    svcRepairItem1: 'Brakes, Gears, Tyres',
+    svcRepairItem2: 'Full Inspection',
+    svcRepairItem3: 'E-Bike Diagnostics & Maintenance',
+    svcRepairItem4: 'Spare Parts in Stock',
+    svcRepairCta: 'Request Appointment',
+    svcRentalBadge: 'Rental',
+    svcRentalTitle: 'Bike Rental',
+    svcRentalSub: 'City bike, trekking or e-bike – rent flexibly from one day.',
+    svcRentalItem1: 'City & Trekking Bikes',
+    svcRentalItem2: 'E-Bikes available',
+    svcRentalItem3: 'Daily & Weekly Rental',
+    svcRentalItem4: 'Lock & Helmet included',
+    svcRentalCta: 'Rent a Bike',
+    svcAngeboteBadge: 'Offers',
+    svcAngeboteTitle: 'Current Offers',
+    svcAngeboteSub: 'New bikes at reduced prices – while stocks last.',
+    svcAngeboteCta: 'All New Bikes',
   },
 
   fr: {
@@ -1518,6 +1581,26 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederNoItems: 'Aucun vélo neuf disponible actuellement.',
     neueFahrraederContactUs: 'Contactez-nous',
     neueFahrraederInterested: 'Intéressé par ce vélo ?',
+    svcRepairBadge: 'Service',
+    svcRepairTitle: 'Réparation de vélos',
+    svcRepairSub: 'Entretien & réparation professionnels – rapide, fiable, juste.',
+    svcRepairItem1: 'Freins, Vitesses, Pneus',
+    svcRepairItem2: 'Inspection complète',
+    svcRepairItem3: 'Diagnostic & entretien E-Bike',
+    svcRepairItem4: 'Pièces détachées en stock',
+    svcRepairCta: 'Prendre rendez-vous',
+    svcRentalBadge: 'Location',
+    svcRentalTitle: 'Location de vélos',
+    svcRentalSub: 'Vélo de ville, trekking ou e-bike – location flexible dès un jour.',
+    svcRentalItem1: 'Vélos ville & trekking',
+    svcRentalItem2: 'E-Bikes disponibles',
+    svcRentalItem3: 'Location jour & semaine',
+    svcRentalItem4: 'Antivol & casque inclus',
+    svcRentalCta: 'Louer un vélo',
+    svcAngeboteBadge: 'Offres',
+    svcAngeboteTitle: 'Offres actuelles',
+    svcAngeboteSub: 'Vélos neufs à prix réduit – dans la limite des stocks disponibles.',
+    svcAngeboteCta: 'Tous les vélos neufs',
   },
 
   tr: {
@@ -1906,6 +1989,26 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederNoItems: 'Şu anda yeni bisiklet mevcut değil.',
     neueFahrraederContactUs: 'Bize Ulaşın',
     neueFahrraederInterested: 'Bu bisikletle ilgileniyor musunuz?',
+    svcRepairBadge: 'Servis',
+    svcRepairTitle: 'Bisiklet Tamiri',
+    svcRepairSub: 'Profesyonel bakım & tamir – hızlı, güvenilir, adil.',
+    svcRepairItem1: 'Frenler, Vites, Lastik',
+    svcRepairItem2: 'Tam Kontrol',
+    svcRepairItem3: 'E-Bisiklet Tanı & Bakım',
+    svcRepairItem4: 'Yedek Parça Stokta',
+    svcRepairCta: 'Randevu Talep Et',
+    svcRentalBadge: 'Kiralama',
+    svcRentalTitle: 'Bisiklet Kiralama',
+    svcRentalSub: 'Şehir, Trekking veya E-Bike – günlük esnek kiralama.',
+    svcRentalItem1: 'Şehir & Trekking Bisikletleri',
+    svcRentalItem2: 'E-Bisikletler mevcut',
+    svcRentalItem3: 'Günlük & Haftalık Kiralama',
+    svcRentalItem4: 'Kilit & Kask dahil',
+    svcRentalCta: 'Bisiklet Kirala',
+    svcAngeboteBadge: 'Fırsatlar',
+    svcAngeboteTitle: 'Güncel Fırsatlar',
+    svcAngeboteSub: 'İndirimli yeni bisikletler – stoklar tükenene kadar.',
+    svcAngeboteCta: 'Tüm Yeni Bisikletler',
   },
 };
 

@@ -33,49 +33,8 @@ interface Testimonial {
     NeueBikeCardComponent,
   ],
   template: `
-    <!-- ═══ Section 1 — HERO ═══ -->
-    <section class="hero" aria-labelledby="hero-heading">
-      <div class="hero-bg" aria-hidden="true">
-        <div class="hero-grain"></div>
-        <div class="hero-radial"></div>
-      </div>
-      <div class="container hero-inner">
-        <span class="hero-label fade-in">Bike Haus Freiburg</span>
-        <h1 id="hero-heading" class="hero-h1 fade-in d1">{{ t().heroH1 }}</h1>
-        <p class="hero-sub fade-in d2">{{ t().heroSub }}</p>
-        <div class="hero-actions fade-in d3">
-          <a
-            [routerLink]="['/' + lang(), 'neue-fahrraeder']"
-            class="btn-primary"
-            >{{ t().ctaPrimary }}</a
-          >
-          <a [routerLink]="['/' + lang(), 'showroom']" class="btn-secondary">{{
-            t().ctaSecondary
-          }}</a>
-        </div>
-        <div class="hero-stats fade-in d4" *ngIf="shopInfo()">
-          <div class="h-stat">
-            <span class="h-stat-n">{{ shopInfo()!.totalActiveListings }}</span>
-            <span class="h-stat-l">{{ t().bikesAvailable }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="hero-scroll" aria-hidden="true">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M12 5v14M5 12l7 7 7-7" />
-        </svg>
-      </div>
-    </section>
-
-    <!-- ═══ SERVICE CAROUSEL ═══ -->
-    <section class="svc-carousel-section" aria-label="Unsere Leistungen">
+    <!-- ═══ HERO + SERVICE CAROUSEL ═══ -->
+    <section class="svc-carousel-section" aria-label="Service & Hero">
       <div
         class="svc-carousel-wrap"
         (mouseenter)="pauseCarousel()"
@@ -83,16 +42,55 @@ interface Testimonial {
       >
         <!-- Track -->
         <div class="svc-track" [style.transform]="carouselTransform">
+
+          <!-- Slide 0: Hero -->
+          <div class="svc-slide slide-hero" aria-labelledby="hero-heading">
+            <div class="hero-bg" aria-hidden="true">
+              <div class="hero-grain"></div>
+              <div class="hero-radial"></div>
+            </div>
+            <div class="container hero-inner">
+              <span class="hero-label fade-in">Bike Haus Freiburg</span>
+              <h1 id="hero-heading" class="hero-h1 fade-in d1">{{ t().heroH1 }}</h1>
+              <p class="hero-sub fade-in d2">{{ t().heroSub }}</p>
+              <div class="hero-actions fade-in d3">
+                <a
+                  [routerLink]="['/' + lang(), 'neue-fahrraeder']"
+                  class="btn-primary"
+                  >{{ t().ctaPrimary }}</a
+                >
+                <a [routerLink]="['/' + lang(), 'showroom']" class="btn-secondary">{{
+                  t().ctaSecondary
+                }}</a>
+              </div>
+              <div class="hero-stats fade-in d4" *ngIf="shopInfo()">
+                <div class="h-stat">
+                  <span class="h-stat-n">{{ shopInfo()!.totalActiveListings }}</span>
+                  <span class="h-stat-l">{{ t().bikesAvailable }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="hero-scroll" aria-hidden="true">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M12 5v14M5 12l7 7 7-7" />
+              </svg>
+            </div>
+          </div>
+
           <!-- Slide 1: Reparatur -->
           <div class="svc-slide slide-repair">
             <div class="svc-slide-inner">
               <div class="svc-content">
-                <span class="svc-badge">Service</span>
-                <h2 class="svc-title">Fahrrad Reparatur</h2>
-                <p class="svc-sub">
-                  Professionelle Wartung &amp; Reparatur – schnell, zuverlässig,
-                  fair.
-                </p>
+                <span class="svc-badge">{{ t().svcRepairBadge }}</span>
+                <h2 class="svc-title">{{ t().svcRepairTitle }}</h2>
+                <p class="svc-sub">{{ t().svcRepairSub }}</p>
                 <ul class="svc-list">
                   <li>
                     <svg
@@ -104,7 +102,7 @@ interface Testimonial {
                       stroke-width="2.5"
                     >
                       <polyline points="20 6 9 17 4 12" /></svg
-                    >Bremsen, Schaltung, Reifen
+                    >{{ t().svcRepairItem1 }}
                   </li>
                   <li>
                     <svg
@@ -116,7 +114,7 @@ interface Testimonial {
                       stroke-width="2.5"
                     >
                       <polyline points="20 6 9 17 4 12" /></svg
-                    >Komplette Inspektion
+                    >{{ t().svcRepairItem2 }}
                   </li>
                   <li>
                     <svg
@@ -128,7 +126,7 @@ interface Testimonial {
                       stroke-width="2.5"
                     >
                       <polyline points="20 6 9 17 4 12" /></svg
-                    >E-Bike Diagnose &amp; Wartung
+                    >{{ t().svcRepairItem3 }}
                   </li>
                   <li>
                     <svg
@@ -140,11 +138,11 @@ interface Testimonial {
                       stroke-width="2.5"
                     >
                       <polyline points="20 6 9 17 4 12" /></svg
-                    >Ersatzteile auf Lager
+                    >{{ t().svcRepairItem4 }}
                   </li>
                 </ul>
                 <a [routerLink]="['/' + lang(), 'kontakt']" class="svc-cta"
-                  >Termin anfragen
+                  >{{ t().svcRepairCta }}
                   <svg
                     width="16"
                     height="16"
@@ -177,11 +175,9 @@ interface Testimonial {
           <div class="svc-slide slide-rental">
             <div class="svc-slide-inner">
               <div class="svc-content">
-                <span class="svc-badge">Verleih</span>
-                <h2 class="svc-title">Fahrradverleih</h2>
-                <p class="svc-sub">
-                  Stadtrad, Trekking oder E-Bike – flexibel mieten ab einem Tag.
-                </p>
+                <span class="svc-badge">{{ t().svcRentalBadge }}</span>
+                <h2 class="svc-title">{{ t().svcRentalTitle }}</h2>
+                <p class="svc-sub">{{ t().svcRentalSub }}</p>
                 <ul class="svc-list">
                   <li>
                     <svg
@@ -193,7 +189,7 @@ interface Testimonial {
                       stroke-width="2.5"
                     >
                       <polyline points="20 6 9 17 4 12" /></svg
-                    >City- &amp; Trekkingräder
+                    >{{ t().svcRentalItem1 }}
                   </li>
                   <li>
                     <svg
@@ -205,7 +201,7 @@ interface Testimonial {
                       stroke-width="2.5"
                     >
                       <polyline points="20 6 9 17 4 12" /></svg
-                    >E-Bikes verfügbar
+                    >{{ t().svcRentalItem2 }}
                   </li>
                   <li>
                     <svg
@@ -217,7 +213,7 @@ interface Testimonial {
                       stroke-width="2.5"
                     >
                       <polyline points="20 6 9 17 4 12" /></svg
-                    >Tages- &amp; Wochenmiete
+                    >{{ t().svcRentalItem3 }}
                   </li>
                   <li>
                     <svg
@@ -229,13 +225,13 @@ interface Testimonial {
                       stroke-width="2.5"
                     >
                       <polyline points="20 6 9 17 4 12" /></svg
-                    >Schloss &amp; Helm inklusive
+                    >{{ t().svcRentalItem4 }}
                   </li>
                 </ul>
                 <a
                   [routerLink]="['/' + lang(), 'fahrradverleih']"
                   class="svc-cta"
-                  >Fahrrad mieten
+                  >{{ t().svcRentalCta }}
                   <svg
                     width="16"
                     height="16"
@@ -265,21 +261,15 @@ interface Testimonial {
             </div>
           </div>
 
-          <!-- Slide 3: Angebote -->
-          <div class="svc-slide slide-angebote">
+          <!-- Slide 3: Angebote (only shown when bikes with angebot exist) -->
+          <div class="svc-slide slide-angebote" *ngIf="angebotBikes().length > 0">
             <div class="svc-slide-inner angebote-inner">
               <div class="angebote-header">
-                <span class="svc-badge">Angebote</span>
-                <h2 class="svc-title">Aktuelle Angebote</h2>
-                <p class="svc-sub">
-                  Neue Fahrräder zum reduzierten Preis – nur solange der Vorrat
-                  reicht.
-                </p>
+                <span class="svc-badge">{{ t().svcAngeboteBadge }}</span>
+                <h2 class="svc-title">{{ t().svcAngeboteTitle }}</h2>
+                <p class="svc-sub">{{ t().svcAngeboteSub }}</p>
               </div>
-              <div
-                class="angebote-cards"
-                *ngIf="angebotBikes().length; else noAngebote"
-              >
+              <div class="angebote-cards">
                 <a
                   *ngFor="let bike of angebotBikes()"
                   [routerLink]="['/' + lang(), 'neue-fahrraeder', bike.id]"
@@ -328,13 +318,10 @@ interface Testimonial {
                   </div>
                 </a>
               </div>
-              <ng-template #noAngebote>
-                <p class="no-angebote">Aktuell keine Angebote verfügbar.</p>
-              </ng-template>
               <a
                 [routerLink]="['/' + lang(), 'neue-fahrraeder']"
                 class="svc-cta angebote-cta"
-                >Alle neuen Fahrräder
+                >{{ t().svcAngeboteCta }}
                 <svg
                   width="16"
                   height="16"
@@ -387,7 +374,7 @@ interface Testimonial {
         <!-- Dots -->
         <div class="svc-dots" role="tablist">
           <button
-            *ngFor="let i of [0, 1, 2]"
+            *ngFor="let i of slideIndices"
             [class.active]="currentSlide === i"
             (click)="goToSlide(i)"
             [attr.aria-label]="'Slide ' + (i + 1)"
@@ -2409,6 +2396,16 @@ interface Testimonial {
         margin: 0 auto;
         padding: 5rem 2rem;
       }
+      .slide-hero {
+        position: relative;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-bg);
+        overflow: hidden;
+      }
       .slide-repair {
         background: linear-gradient(135deg, #1a0a02 0%, #0f0f0f 60%);
       }
@@ -2788,9 +2785,16 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // ── Service Carousel ──
   currentSlide = 0;
-  private readonly SLIDE_COUNT = 3;
   private carouselInterval: ReturnType<typeof setInterval> | null = null;
   private carouselPaused = false;
+
+  get totalSlides(): number {
+    return 3 + (this.angebotBikes().length > 0 ? 1 : 0);
+  }
+
+  get slideIndices(): number[] {
+    return Array.from({ length: this.totalSlides }, (_, i) => i);
+  }
 
   angebotBikes() {
     return this.neueFahrraeder()
@@ -2807,13 +2811,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   nextSlide(): void {
-    this.currentSlide = (this.currentSlide + 1) % this.SLIDE_COUNT;
+    this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
     this.resetCarouselTimer();
   }
 
   prevSlide(): void {
     this.currentSlide =
-      (this.currentSlide - 1 + this.SLIDE_COUNT) % this.SLIDE_COUNT;
+      (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
     this.resetCarouselTimer();
   }
 
@@ -2839,7 +2843,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.carouselInterval) clearInterval(this.carouselInterval);
     this.carouselInterval = setInterval(() => {
       if (!this.carouselPaused) {
-        this.currentSlide = (this.currentSlide + 1) % this.SLIDE_COUNT;
+        this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
       }
     }, 5000);
   }
