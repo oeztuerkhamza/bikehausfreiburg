@@ -95,7 +95,9 @@ import { AddressSuggestion } from '../../services/address.service';
                   placeholder="z.B. Bissierstraße 16, Freiburg"
                   (addressSelected)="onBuyerAddressSelected($event)"
                 ></app-address-autocomplete>
-                <small class="hint">Tippen Sie eine Adresse ein für Vorschläge</small>
+                <small class="hint"
+                  >Tippen Sie eine Adresse ein für Vorschläge</small
+                >
               </div>
               <div class="field">
                 <label>Straße</label>
@@ -136,7 +138,10 @@ import { AddressSuggestion } from '../../services/address.service';
               <div class="field">
                 <label>{{ t.paymentMethodRequired }}</label>
                 <div class="zahlungen-list">
-                  <div class="zahlung-item" *ngFor="let z of zahlungen; let i = index">
+                  <div
+                    class="zahlung-item"
+                    *ngFor="let z of zahlungen; let i = index"
+                  >
                     <select [(ngModel)]="z.zahlungsart" [name]="'zArt' + i">
                       <option value="Bar">{{ t.cash }}</option>
                       <option value="PayPal">{{ t.paypal }}</option>
