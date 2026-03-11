@@ -784,7 +784,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederInterested: 'Interesse an diesem Fahrrad?',
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Fahrrad Reparatur',
-    svcRepairSub: 'Professionelle Wartung & Reparatur – schnell, zuverlässig, fair.',
+    svcRepairSub:
+      'Professionelle Wartung & Reparatur – schnell, zuverlässig, fair.',
     svcRepairItem1: 'Bremsen, Schaltung, Reifen',
     svcRepairItem2: 'Komplette Inspektion',
     svcRepairItem3: 'E-Bike Diagnose & Wartung',
@@ -792,7 +793,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRepairCta: 'Termin anfragen',
     svcRentalBadge: 'Verleih',
     svcRentalTitle: 'Fahrradverleih',
-    svcRentalSub: 'Stadtrad, Trekking oder E-Bike – flexibel mieten ab einem Tag.',
+    svcRentalSub:
+      'Stadtrad, Trekking oder E-Bike – flexibel mieten ab einem Tag.',
     svcRentalItem1: 'City- & Trekkingräder',
     svcRentalItem2: 'E-Bikes verfügbar',
     svcRentalItem3: 'Tages- & Wochenmiete',
@@ -800,7 +802,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRentalCta: 'Fahrrad mieten',
     svcAngeboteBadge: 'Angebote',
     svcAngeboteTitle: 'Aktuelle Angebote',
-    svcAngeboteSub: 'Neue Fahrräder zum reduzierten Preis – nur solange der Vorrat reicht.',
+    svcAngeboteSub:
+      'Neue Fahrräder zum reduzierten Preis – nur solange der Vorrat reicht.',
     svcAngeboteCta: 'Alle neuen Fahrräder',
   },
 
@@ -1583,7 +1586,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederInterested: 'Intéressé par ce vélo ?',
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Réparation de vélos',
-    svcRepairSub: 'Entretien & réparation professionnels – rapide, fiable, juste.',
+    svcRepairSub:
+      'Entretien & réparation professionnels – rapide, fiable, juste.',
     svcRepairItem1: 'Freins, Vitesses, Pneus',
     svcRepairItem2: 'Inspection complète',
     svcRepairItem3: 'Diagnostic & entretien E-Bike',
@@ -1591,7 +1595,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRepairCta: 'Prendre rendez-vous',
     svcRentalBadge: 'Location',
     svcRentalTitle: 'Location de vélos',
-    svcRentalSub: 'Vélo de ville, trekking ou e-bike – location flexible dès un jour.',
+    svcRentalSub:
+      'Vélo de ville, trekking ou e-bike – location flexible dès un jour.',
     svcRentalItem1: 'Vélos ville & trekking',
     svcRentalItem2: 'E-Bikes disponibles',
     svcRentalItem3: 'Location jour & semaine',
@@ -1599,7 +1604,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRentalCta: 'Louer un vélo',
     svcAngeboteBadge: 'Offres',
     svcAngeboteTitle: 'Offres actuelles',
-    svcAngeboteSub: 'Vélos neufs à prix réduit – dans la limite des stocks disponibles.',
+    svcAngeboteSub:
+      'Vélos neufs à prix réduit – dans la limite des stocks disponibles.',
     svcAngeboteCta: 'Tous les vélos neufs',
   },
 

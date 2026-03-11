@@ -42,7 +42,6 @@ interface Testimonial {
       >
         <!-- Track -->
         <div class="svc-track" [style.transform]="carouselTransform">
-
           <!-- Slide 0: Hero -->
           <div class="svc-slide slide-hero" aria-labelledby="hero-heading">
             <div class="hero-bg" aria-hidden="true">
@@ -51,7 +50,9 @@ interface Testimonial {
             </div>
             <div class="container hero-inner">
               <span class="hero-label fade-in">Bike Haus Freiburg</span>
-              <h1 id="hero-heading" class="hero-h1 fade-in d1">{{ t().heroH1 }}</h1>
+              <h1 id="hero-heading" class="hero-h1 fade-in d1">
+                {{ t().heroH1 }}
+              </h1>
               <p class="hero-sub fade-in d2">{{ t().heroSub }}</p>
               <div class="hero-actions fade-in d3">
                 <a
@@ -59,13 +60,17 @@ interface Testimonial {
                   class="btn-primary"
                   >{{ t().ctaPrimary }}</a
                 >
-                <a [routerLink]="['/' + lang(), 'showroom']" class="btn-secondary">{{
-                  t().ctaSecondary
-                }}</a>
+                <a
+                  [routerLink]="['/' + lang(), 'showroom']"
+                  class="btn-secondary"
+                  >{{ t().ctaSecondary }}</a
+                >
               </div>
               <div class="hero-stats fade-in d4" *ngIf="shopInfo()">
                 <div class="h-stat">
-                  <span class="h-stat-n">{{ shopInfo()!.totalActiveListings }}</span>
+                  <span class="h-stat-n">{{
+                    shopInfo()!.totalActiveListings
+                  }}</span>
                   <span class="h-stat-l">{{ t().bikesAvailable }}</span>
                 </div>
               </div>
@@ -262,7 +267,10 @@ interface Testimonial {
           </div>
 
           <!-- Slide 3: Angebote (only shown when bikes with angebot exist) -->
-          <div class="svc-slide slide-angebote" *ngIf="angebotBikes().length > 0">
+          <div
+            class="svc-slide slide-angebote"
+            *ngIf="angebotBikes().length > 0"
+          >
             <div class="svc-slide-inner angebote-inner">
               <div class="angebote-header">
                 <span class="svc-badge">{{ t().svcAngeboteBadge }}</span>
