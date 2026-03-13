@@ -796,12 +796,10 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
           };
         }
         // Load purchase documents
-        this.documentService
-          .getByPurchaseId(p.id)
-          .subscribe((docs) => {
-            this.purchaseDocuments = docs;
-            docs.forEach((d) => this.loadBlobUrl(d));
-          });
+        this.documentService.getByPurchaseId(p.id).subscribe((docs) => {
+          this.purchaseDocuments = docs;
+          docs.forEach((d) => this.loadBlobUrl(d));
+        });
       },
       error: () => {
         // No purchase found for this bicycle - that's ok
@@ -988,7 +986,15 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
       .danger(this.t.delete, this.t.deleteConfirmDocument)
       .then((confirmed) => {
         if (confirmed) {
-          this.documentService.delete(doc.id).subscribe({\n            next: () => {\n              this.notificationService.success(this.t.deleteSuccess);\n              const blobUrl = this.docBlobUrls.get(doc.id);\n              if (blobUrl) { URL.revokeObjectURL(blobUrl); this.docBlobUrls.delete(doc.id); }\n              if (source === 'purchase') {
+          this.documentService.delete(doc.id).subscribe({
+            next: () => {
+              this.notificationService.success(this.t.deleteSuccess);
+              const blobUrl = this.docBlobUrls.get(doc.id);
+              if (blobUrl) {
+                URL.revokeObjectURL(blobUrl);
+                this.docBlobUrls.delete(doc.id);
+              }
+              if (source === 'purchase') {
                 this.purchaseDocuments = this.purchaseDocuments.filter(
                   (d) => d.id !== doc.id,
                 );
