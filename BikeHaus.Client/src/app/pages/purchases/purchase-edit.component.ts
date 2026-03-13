@@ -41,7 +41,7 @@ import { forkJoin } from 'rxjs';
       <form *ngIf="purchase && !loading" (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <!-- Seller info -->
-          <div class="form-card">
+          <div class="form-card seller-card">
             <h2>{{ t.seller }} ({{ t.customer }})</h2>
             <div class="form-grid">
               <div class="field">
@@ -100,7 +100,7 @@ import { forkJoin } from 'rxjs';
           </div>
 
           <!-- Bicycle info -->
-          <div class="form-card">
+          <div class="form-card bicycle-card">
             <h2>{{ t.bicycle }}</h2>
             <div class="form-grid">
               <div class="field">
@@ -440,6 +440,12 @@ import { forkJoin } from 'rxjs';
         padding: 24px;
         border: 1.5px solid var(--border-light, #e2e8f0);
         box-shadow: var(--shadow-sm);
+      }
+      .bicycle-card {
+        order: 1;
+      }
+      .seller-card {
+        order: 2;
       }
       .form-card h2 {
         font-size: 1.1rem;

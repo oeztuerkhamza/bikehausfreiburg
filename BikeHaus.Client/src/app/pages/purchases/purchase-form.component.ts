@@ -57,7 +57,7 @@ import { forkJoin, Observable } from 'rxjs';
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <!-- Seller info -->
-          <div class="form-card">
+          <div class="form-card seller-card">
             <h2>
               {{
                 bulkMode ? t.supplierStore : t.seller + ' (' + t.customer + ')'
@@ -138,7 +138,7 @@ import { forkJoin, Observable } from 'rxjs';
           </div>
 
           <!-- Bicycle info -->
-          <div class="form-card">
+          <div class="form-card bicycle-card">
             <h2>{{ t.bicycle }}</h2>
             <!-- Bulk quantity -->
             <div class="bulk-quantity" *ngIf="bulkMode">
@@ -422,9 +422,7 @@ import { forkJoin, Observable } from 'rxjs';
 
           <!-- Einkaufsfotos (internal documentation) -->
           <div class="form-card" *ngIf="!bulkMode">
-            <h2>
-              📄 {{ t.purchasePhotos }}
-            </h2>
+            <h2>📄 {{ t.purchasePhotos }}</h2>
             <p class="hint-text">
               {{ t.purchasePhotosHint }}
             </p>
@@ -582,6 +580,12 @@ import { forkJoin, Observable } from 'rxjs';
         padding: 24px;
         border: 1.5px solid var(--border-light, #e2e8f0);
         box-shadow: var(--shadow-sm);
+      }
+      .bicycle-card {
+        order: 1;
+      }
+      .seller-card {
+        order: 2;
       }
       .form-card h2 {
         font-size: 1.1rem;
