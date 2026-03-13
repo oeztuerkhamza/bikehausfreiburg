@@ -56,87 +56,6 @@ import { forkJoin, Observable } from 'rxjs';
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
-          <!-- Seller info -->
-          <div class="form-card seller-card">
-            <h2>
-              {{
-                bulkMode ? t.supplierStore : t.seller + ' (' + t.customer + ')'
-              }}
-            </h2>
-            <div class="form-grid">
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.firstNameRequired }}</label>
-                <input
-                  [(ngModel)]="seller.vorname"
-                  name="sellerVorname"
-                  [required]="!bulkMode"
-                  (ngModelChange)="updateSignerName()"
-                  autocomplete="off"
-                />
-              </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.lastNameRequired }}</label>
-                <input
-                  [(ngModel)]="seller.nachname"
-                  name="sellerNachname"
-                  [required]="!bulkMode"
-                  (ngModelChange)="updateSignerName()"
-                  autocomplete="off"
-                />
-              </div>
-              <div class="field full" *ngIf="bulkMode">
-                <label>{{ t.storeName }} *</label>
-                <input
-                  [(ngModel)]="seller.nachname"
-                  name="sellerStore"
-                  [required]="bulkMode"
-                  [placeholder]="t.storeNamePlaceholder"
-                  list="storeNameList"
-                  autocomplete="off"
-                />
-                <datalist id="storeNameList">
-                  <option *ngFor="let s of storeNames" [value]="s"></option>
-                </datalist>
-              </div>
-              <div class="field full" *ngIf="!bulkMode">
-                <label>{{ t.searchAddress }}</label>
-                <app-address-autocomplete
-                  placeholder="z.B. Bissierstraße 16, Freiburg"
-                  (addressSelected)="onSellerAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint">{{ t.addressHint }}</small>
-              </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.street }}</label>
-                <input [(ngModel)]="seller.strasse" name="sellerStrasse" />
-              </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.houseNumber }}</label>
-                <input [(ngModel)]="seller.hausnummer" name="sellerHausnr" />
-              </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.postalCode }}</label>
-                <input [(ngModel)]="seller.plz" name="sellerPlz" />
-              </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.city }}</label>
-                <input [(ngModel)]="seller.stadt" name="sellerStadt" />
-              </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.phone }}</label>
-                <input [(ngModel)]="seller.telefon" name="sellerTel" />
-              </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.email }}</label>
-                <input
-                  type="email"
-                  [(ngModel)]="seller.email"
-                  name="sellerEmail"
-                />
-              </div>
-            </div>
-          </div>
-
           <!-- Bicycle info -->
           <div class="form-card bicycle-card">
             <h2>{{ t.bicycle }}</h2>
@@ -292,6 +211,87 @@ import { forkJoin, Observable } from 'rxjs';
                   rows="4"
                   placeholder="z.B.&#10;E-Trekking Pedelec&#10;Bosch Performance Line 65&#10;NM 500 Wh&#10;28 Zoll Trapez 50 cm"
                 ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seller info -->
+          <div class="form-card seller-card">
+            <h2>
+              {{
+                bulkMode ? t.supplierStore : t.seller + ' (' + t.customer + ')'
+              }}
+            </h2>
+            <div class="form-grid">
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.firstNameRequired }}</label>
+                <input
+                  [(ngModel)]="seller.vorname"
+                  name="sellerVorname"
+                  [required]="!bulkMode"
+                  (ngModelChange)="updateSignerName()"
+                  autocomplete="off"
+                />
+              </div>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.lastNameRequired }}</label>
+                <input
+                  [(ngModel)]="seller.nachname"
+                  name="sellerNachname"
+                  [required]="!bulkMode"
+                  (ngModelChange)="updateSignerName()"
+                  autocomplete="off"
+                />
+              </div>
+              <div class="field full" *ngIf="bulkMode">
+                <label>{{ t.storeName }} *</label>
+                <input
+                  [(ngModel)]="seller.nachname"
+                  name="sellerStore"
+                  [required]="bulkMode"
+                  [placeholder]="t.storeNamePlaceholder"
+                  list="storeNameList"
+                  autocomplete="off"
+                />
+                <datalist id="storeNameList">
+                  <option *ngFor="let s of storeNames" [value]="s"></option>
+                </datalist>
+              </div>
+              <div class="field full" *ngIf="!bulkMode">
+                <label>{{ t.searchAddress }}</label>
+                <app-address-autocomplete
+                  placeholder="z.B. Bissierstraße 16, Freiburg"
+                  (addressSelected)="onSellerAddressSelected($event)"
+                ></app-address-autocomplete>
+                <small class="hint">{{ t.addressHint }}</small>
+              </div>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.street }}</label>
+                <input [(ngModel)]="seller.strasse" name="sellerStrasse" />
+              </div>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.houseNumber }}</label>
+                <input [(ngModel)]="seller.hausnummer" name="sellerHausnr" />
+              </div>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.postalCode }}</label>
+                <input [(ngModel)]="seller.plz" name="sellerPlz" />
+              </div>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.city }}</label>
+                <input [(ngModel)]="seller.stadt" name="sellerStadt" />
+              </div>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.phone }}</label>
+                <input [(ngModel)]="seller.telefon" name="sellerTel" />
+              </div>
+              <div class="field" *ngIf="!bulkMode">
+                <label>{{ t.email }}</label>
+                <input
+                  type="email"
+                  [(ngModel)]="seller.email"
+                  name="sellerEmail"
+                />
               </div>
             </div>
           </div>
