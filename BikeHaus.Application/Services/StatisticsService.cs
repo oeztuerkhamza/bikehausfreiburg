@@ -44,9 +44,10 @@ public class StatisticsService : IStatisticsService
 
         var totalPurchaseAmount = purchases.Sum(p => p.Preis);
         var totalSaleAmount = sales.Sum(s => s.Preis);
-        var totalExpenseAmount = expenses.Sum(e => e.Betrag);
+        var totalOperationalExpenseAmount = expenses.Sum(e => e.Betrag);
+        var totalExpenseAmount = totalOperationalExpenseAmount + totalPurchaseAmount;
         var profit = totalSaleAmount - totalPurchaseAmount;
-        var netProfit = profit - totalExpenseAmount;
+        var netProfit = totalSaleAmount - totalExpenseAmount;
 
         // Calculate averages
         var avgPurchase = purchases.Count > 0 ? totalPurchaseAmount / purchases.Count : 0;
@@ -64,19 +65,20 @@ public class StatisticsService : IStatisticsService
                 var dayExpenses = expenses.Where(e => e.Datum.Date == date).ToList();
                 var dayPurchaseAmount = dayPurchases.Sum(p => p.Preis);
                 var daySaleAmount = daySales.Sum(s => s.Preis);
-                var dayExpenseAmount = dayExpenses.Sum(e => e.Betrag);
+                var dayOperationalExpenseAmount = dayExpenses.Sum(e => e.Betrag);
+                var dayExpenseAmount = dayOperationalExpenseAmount + dayPurchaseAmount;
                 var dayProfit = daySaleAmount - dayPurchaseAmount;
 
                 return new DailyStatsDto(
                     Date: date,
                     PurchaseCount: dayPurchases.Count,
                     SaleCount: daySales.Count,
-                    ExpenseCount: dayExpenses.Count,
+                    ExpenseCount: dayExpenses.Count + dayPurchases.Count,
                     PurchaseAmount: dayPurchaseAmount,
                     SaleAmount: daySaleAmount,
                     ExpenseAmount: dayExpenseAmount,
                     DailyProfit: dayProfit,
-                    DailyNetProfit: dayProfit - dayExpenseAmount
+                    DailyNetProfit: daySaleAmount - dayExpenseAmount
                 );
             })
             .ToList();
@@ -102,6 +104,18 @@ public class StatisticsService : IStatisticsService
                 Count: g.Count(),
                 TotalAmount: g.Sum(e => e.Betrag)
             ))
+            .ToList();
+
+        if (purchases.Count > 0)
+        {
+            expensesByCategory.Add(new ExpenseByCategoryDto(
+                Category: "Ankauf",
+                Count: purchases.Count,
+                TotalAmount: totalPurchaseAmount
+            ));
+        }
+
+        expensesByCategory = expensesByCategory
             .OrderByDescending(c => c.TotalAmount)
             .ToList();
 
@@ -110,7 +124,7 @@ public class StatisticsService : IStatisticsService
             EndDate: endDate,
             PurchaseCount: purchases.Count,
             SaleCount: sales.Count,
-            ExpenseCount: expenses.Count,
+            ExpenseCount: expenses.Count + purchases.Count,
             TotalPurchaseAmount: totalPurchaseAmount,
             TotalSaleAmount: totalSaleAmount,
             TotalExpenseAmount: totalExpenseAmount,

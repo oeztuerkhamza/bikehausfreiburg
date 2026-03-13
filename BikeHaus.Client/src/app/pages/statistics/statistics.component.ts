@@ -131,7 +131,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
               {{ stats.netProfit | currency: 'EUR' }}
             </div>
             <div class="avg">
-              {{ t.profit }}: {{ stats.profit | currency: 'EUR' }} −
+              {{ t.sales }}: {{ stats.totalSaleAmount | currency: 'EUR' }} −
               {{ t.expenses }}: {{ stats.totalExpenseAmount | currency: 'EUR' }}
             </div>
           </div>
