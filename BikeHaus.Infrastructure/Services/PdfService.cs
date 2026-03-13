@@ -373,6 +373,8 @@ public class PdfService : IPdfService
         var sale = await _saleRepository.GetWithDetailsAsync(saleId)
             ?? throw new KeyNotFoundException($"Sale with ID {saleId} not found.");
 
+        var matchedPurchase = await ResolvePurchaseForSaleAsync(sale);
+
         var shop = await GetShopInfoAsync();
 
         QuestPDF.Settings.License = LicenseType.Community;
@@ -473,9 +475,9 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Kauf Beleg Nr.").FontSize(9).FontColor(Colors.Grey.Darken2);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Column(c =>
                         {
-                            c.Item().Text(sale.Purchase?.BelegNummer ?? "-").FontSize(10);
-                            if (includeAnkaufPreis && sale.Purchase != null)
-                                c.Item().Text($"Ankaufpreis: {sale.Purchase.Preis:N2} €").FontSize(8).FontColor(Colors.Grey.Darken2);
+                            c.Item().Text(matchedPurchase?.BelegNummer ?? "-").FontSize(10);
+                            if (includeAnkaufPreis && matchedPurchase != null)
+                                c.Item().Text($"Ankaufpreis: {matchedPurchase.Preis:N2} €").FontSize(8).FontColor(Colors.Grey.Darken2);
                         });
 
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Fahrradtyp").FontSize(9).FontColor(Colors.Grey.Darken2);
@@ -693,6 +695,39 @@ public class PdfService : IPdfService
         });
 
         return document.GeneratePdf();
+    }
+
+    private async Task<Purchase?> ResolvePurchaseForSaleAsync(Sale sale)
+    {
+        // Primary source: loaded navigation from Sale details.
+        if (sale.Purchase != null)
+            return sale.Purchase;
+
+        // Fallback 1: explicit PurchaseId link.
+        if (sale.PurchaseId.HasValue)
+        {
+            var byPurchaseId = await _purchaseRepository.GetByIdAsync(sale.PurchaseId.Value);
+            if (byPurchaseId != null)
+                return byPurchaseId;
+        }
+
+        // Fallback 2: relation by BicycleId.
+        var byBicycleId = await _purchaseRepository.GetByBicycleIdAsync(sale.BicycleId);
+        if (byBicycleId != null)
+            return byBicycleId;
+
+        // Fallback 3: relation by Rahmennummer if available.
+        var rahmennummer = sale.Bicycle?.Rahmennummer?.Trim();
+        if (string.IsNullOrWhiteSpace(rahmennummer))
+            return null;
+
+        var matches = await _purchaseRepository.FindAsync(p =>
+            p.Bicycle.Rahmennummer != null &&
+            p.Bicycle.Rahmennummer.ToLower() == rahmennummer.ToLower());
+
+        return matches
+            .OrderByDescending(p => p.Kaufdatum)
+            .FirstOrDefault();
     }
 
     public async Task<byte[]> GenerateRueckgabebelegAsync(int returnId)
