@@ -148,22 +148,22 @@ import { AddressSuggestion } from '../../services/address.service';
                       <option value="Karte">{{ t.bankTransfer }}</option>
                     </select>
                     <ng-container *ngIf="!isAccessoryOnlySale">
-                    <input
-                      type="number"
-                      step="0.01"
-                      [(ngModel)]="z.betrag"
-                      [name]="'zBetrag' + i"
-                      placeholder="Betrag"
-                    />
-                    <span class="zahlung-euro">€</span>
-                    <button
-                      type="button"
-                      class="btn btn-icon btn-danger"
-                      (click)="removeZahlung(i)"
-                      *ngIf="zahlungen.length > 1"
-                    >
-                      🗑️
-                    </button>
+                      <input
+                        type="number"
+                        step="0.01"
+                        [(ngModel)]="z.betrag"
+                        [name]="'zBetrag' + i"
+                        placeholder="Betrag"
+                      />
+                      <span class="zahlung-euro">€</span>
+                      <button
+                        type="button"
+                        class="btn btn-icon btn-danger"
+                        (click)="removeZahlung(i)"
+                        *ngIf="zahlungen.length > 1"
+                      >
+                        🗑️
+                      </button>
                     </ng-container>
                   </div>
                   <button
@@ -677,7 +677,10 @@ export class SaleEditComponent implements OnInit {
   }
 
   get effectiveGrandTotal(): number {
-    return Math.max(0, this.effectiveSalePrice + this.accessoriesTotal - this.rabatt);
+    return Math.max(
+      0,
+      this.effectiveSalePrice + this.accessoriesTotal - this.rabatt,
+    );
   }
 
   constructor(

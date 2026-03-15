@@ -11,6 +11,19 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
 {
     public SaleRepository(BikeHausDbContext context) : base(context) { }
 
+    private static int ExtractBelegNumber(string? belegNummer)
+    {
+        if (string.IsNullOrWhiteSpace(belegNummer))
+        {
+            return 0;
+        }
+
+        var match = Regex.Match(belegNummer, @"(\d+)$");
+        return match.Success && int.TryParse(match.Groups[1].Value, out var parsed)
+            ? parsed
+            : 0;
+    }
+
     public async Task<Sale?> GetWithDetailsAsync(int id)
     {
         return await _dbSet
@@ -101,18 +114,25 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
 
     public async Task<IEnumerable<Sale>> GetSalesWithoutPurchaseAsync()
     {
-        return await _dbSet
+        var sales = await _dbSet
             .Include(s => s.Bicycle)
             .Include(s => s.Buyer)
             .Where(s => s.Bicycle.Purchase == null)
-            .OrderByDescending(s => s.Verkaufsdatum)
+            .Where(s => !string.IsNullOrEmpty(s.Bicycle.Rahmennummer))
+            .Where(s => !s.Bicycle.Rahmennummer!.StartsWith("ACC-"))
             .ToListAsync();
+
+        return sales
+            .OrderByDescending(s => ExtractBelegNumber(s.BelegNummer))
+            .ThenByDescending(s => s.Verkaufsdatum);
     }
 
     public async Task<int> GetSalesWithoutPurchaseCountAsync()
     {
         return await _dbSet
             .Where(s => s.Bicycle.Purchase == null)
+            .Where(s => !string.IsNullOrEmpty(s.Bicycle.Rahmennummer))
+            .Where(s => !s.Bicycle.Rahmennummer!.StartsWith("ACC-"))
             .CountAsync();
     }
 }
