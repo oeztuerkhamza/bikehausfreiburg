@@ -558,7 +558,7 @@ public class PdfService : IPdfService
                                 c.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(5).Text(sale.Zahlungsart.ToString()).FontSize(13).Bold();
                             }
 
-                            if (sale.Accessories.Any() || sale.Rabatt > 0)
+                            if (!isAccessoryOnlySale && (sale.Accessories.Any() || sale.Rabatt > 0))
                             {
                                 c.Item().PaddingTop(4).Text("Preisübersicht:").FontSize(9).FontColor(Colors.Grey.Darken1);
                                 c.Item().Text($"Fahrrad: {sale.Preis:N2} €").FontSize(10);
@@ -616,87 +616,148 @@ public class PdfService : IPdfService
                         });
                     }
 
-                    // KÄUFER (left) + VERKÄUFER with signature (right) at bottom
-                    col.Item().PaddingTop(8).Row(row =>
+                    // Seller / Buyer / Google layout
+                    if (isAccessoryOnlySale)
                     {
-                        // KÄUFER - left side
-                        if (hasBuyerName && !isAccessoryOnlySale)
+                        col.Item().PaddingTop(8).Row(row =>
                         {
-                            row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(buyerCol =>
+                            // VERKÄUFER - left side
+                            row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(sellerCol =>
                             {
-                                buyerCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KÄUFER").FontSize(10).Bold().FontColor(AccentColor).AlignCenter();
-                                buyerCol.Item().PaddingTop(3).Text(sale.Buyer.FullName).FontSize(11).Bold();
-                                buyerCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(10);
-                                buyerCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(10);
-                                if (!string.IsNullOrEmpty(sale.Buyer.Telefon))
-                                    buyerCol.Item().PaddingTop(2).Text($"Tel: {sale.Buyer.Telefon}").FontSize(9);
-                                if (!string.IsNullOrEmpty(sale.Buyer.Email))
-                                    buyerCol.Item().Text($"E-Mail: {sale.Buyer.Email}").FontSize(9);
+                                sellerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
+                                sellerCol.Item().PaddingTop(3).Text("Unterschrift Verkäufer").FontSize(9).FontColor(Colors.Grey.Darken1);
+                                if (sale.SellerSignature != null && !string.IsNullOrEmpty(sale.SellerSignature.SignatureData))
+                                {
+                                    try
+                                    {
+                                        var imageData = Convert.FromBase64String(
+                                            sale.SellerSignature.SignatureData.Replace("data:image/png;base64,", ""));
+                                        sellerCol.Item().Height(35).Image(imageData);
+                                    }
+                                    catch { sellerCol.Item().Height(35); }
+                                }
+                                else if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
+                                {
+                                    try
+                                    {
+                                        var sigData = shop.OwnerSignatureBase64;
+                                        if (sigData.Contains(","))
+                                            sigData = sigData.Substring(sigData.IndexOf(",") + 1);
+                                        var imageData = Convert.FromBase64String(sigData);
+                                        sellerCol.Item().Height(35).Image(imageData);
+                                    }
+                                    catch { sellerCol.Item().Height(35); }
+                                }
+                                else
+                                {
+                                    sellerCol.Item().Height(35);
+                                }
+                                sellerCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                                sellerCol.Item().PaddingTop(2).Text(sale.SellerSignature?.SignerName ?? shop.OwnerName).FontSize(9);
                             });
-                        }
-                        else
-                        {
-                            row.RelativeItem();
-                        }
 
-                        row.ConstantItem(8);
+                            row.ConstantItem(8);
 
-                        // VERKÄUFER - right side with signature
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(sellerCol =>
+                            // Google Review - right side
+                            row.RelativeItem().Border(1).BorderColor(PrimaryColor).Padding(8).Row(reviewRow =>
+                            {
+                                reviewRow.ConstantItem(80).Column(qrCol =>
+                                {
+                                    var qrBytes = GenerateQrCode(shop.GoogleReviewUrl ?? GoogleReviewUrl);
+                                    qrCol.Item().Height(72).Width(72).Image(qrBytes);
+                                });
+
+                                reviewRow.ConstantItem(10);
+
+                                reviewRow.RelativeItem().AlignMiddle().Column(infoCol =>
+                                {
+                                    infoCol.Item().Text("Bewerten Sie uns auf Google!").FontSize(13).Bold().FontColor(PrimaryColor);
+                                    infoCol.Item().PaddingTop(2).Text("Ihre Meinung ist uns wichtig! Scannen Sie den QR-Code").FontSize(9).FontColor(Colors.Grey.Darken3);
+                                    infoCol.Item().Text("und teilen Sie Ihre Erfahrung mit uns.").FontSize(9).FontColor(Colors.Grey.Darken3);
+                                });
+                            });
+                        });
+                    }
+                    else
+                    {
+                        // KÄUFER (left) + VERKÄUFER (right)
+                        col.Item().PaddingTop(8).Row(row =>
                         {
-                            sellerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
-                            sellerCol.Item().PaddingTop(3).Text("Unterschrift Verkäufer").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            if (sale.SellerSignature != null && !string.IsNullOrEmpty(sale.SellerSignature.SignatureData))
+                            if (hasBuyerName)
                             {
-                                try
+                                row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(buyerCol =>
                                 {
-                                    var imageData = Convert.FromBase64String(
-                                        sale.SellerSignature.SignatureData.Replace("data:image/png;base64,", ""));
-                                    sellerCol.Item().Height(35).Image(imageData);
-                                }
-                                catch { sellerCol.Item().Height(35); }
-                            }
-                            else if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
-                            {
-                                try
-                                {
-                                    var sigData = shop.OwnerSignatureBase64;
-                                    if (sigData.Contains(","))
-                                        sigData = sigData.Substring(sigData.IndexOf(",") + 1);
-                                    var imageData = Convert.FromBase64String(sigData);
-                                    sellerCol.Item().Height(35).Image(imageData);
-                                }
-                                catch { sellerCol.Item().Height(35); }
+                                    buyerCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KÄUFER").FontSize(10).Bold().FontColor(AccentColor).AlignCenter();
+                                    buyerCol.Item().PaddingTop(3).Text(sale.Buyer.FullName).FontSize(11).Bold();
+                                    buyerCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(10);
+                                    buyerCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(10);
+                                    if (!string.IsNullOrEmpty(sale.Buyer.Telefon))
+                                        buyerCol.Item().PaddingTop(2).Text($"Tel: {sale.Buyer.Telefon}").FontSize(9);
+                                    if (!string.IsNullOrEmpty(sale.Buyer.Email))
+                                        buyerCol.Item().Text($"E-Mail: {sale.Buyer.Email}").FontSize(9);
+                                });
                             }
                             else
                             {
-                                sellerCol.Item().Height(35);
+                                row.RelativeItem();
                             }
-                            sellerCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            sellerCol.Item().PaddingTop(2).Text(sale.SellerSignature?.SignerName ?? shop.OwnerName).FontSize(9);
-                        });
-                    });
 
-                    // Google Review & Shop Info Section
-                    col.Item().PaddingTop(8).Border(1).BorderColor(PrimaryColor).Padding(8).Row(reviewRow =>
-                    {
-                        // QR Code
-                        reviewRow.ConstantItem(80).Column(qrCol =>
+                            row.ConstantItem(8);
+
+                            row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(sellerCol =>
+                            {
+                                sellerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERKÄUFER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
+                                sellerCol.Item().PaddingTop(3).Text("Unterschrift Verkäufer").FontSize(9).FontColor(Colors.Grey.Darken1);
+                                if (sale.SellerSignature != null && !string.IsNullOrEmpty(sale.SellerSignature.SignatureData))
+                                {
+                                    try
+                                    {
+                                        var imageData = Convert.FromBase64String(
+                                            sale.SellerSignature.SignatureData.Replace("data:image/png;base64,", ""));
+                                        sellerCol.Item().Height(35).Image(imageData);
+                                    }
+                                    catch { sellerCol.Item().Height(35); }
+                                }
+                                else if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
+                                {
+                                    try
+                                    {
+                                        var sigData = shop.OwnerSignatureBase64;
+                                        if (sigData.Contains(","))
+                                            sigData = sigData.Substring(sigData.IndexOf(",") + 1);
+                                        var imageData = Convert.FromBase64String(sigData);
+                                        sellerCol.Item().Height(35).Image(imageData);
+                                    }
+                                    catch { sellerCol.Item().Height(35); }
+                                }
+                                else
+                                {
+                                    sellerCol.Item().Height(35);
+                                }
+                                sellerCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                                sellerCol.Item().PaddingTop(2).Text(sale.SellerSignature?.SignerName ?? shop.OwnerName).FontSize(9);
+                            });
+                        });
+
+                        // Google Review & Shop Info Section
+                        col.Item().PaddingTop(8).Border(1).BorderColor(PrimaryColor).Padding(8).Row(reviewRow =>
                         {
-                            var qrBytes = GenerateQrCode(shop.GoogleReviewUrl ?? GoogleReviewUrl);
-                            qrCol.Item().Height(72).Width(72).Image(qrBytes);
-                        });
+                            reviewRow.ConstantItem(80).Column(qrCol =>
+                            {
+                                var qrBytes = GenerateQrCode(shop.GoogleReviewUrl ?? GoogleReviewUrl);
+                                qrCol.Item().Height(72).Width(72).Image(qrBytes);
+                            });
 
-                        reviewRow.ConstantItem(10);
+                            reviewRow.ConstantItem(10);
 
-                        // Review text
-                        reviewRow.RelativeItem().AlignMiddle().Column(infoCol =>
-                        {
-                            infoCol.Item().Text("Bewerten Sie uns auf Google!").FontSize(13).Bold().FontColor(PrimaryColor);
-                            infoCol.Item().PaddingTop(2).Text("Ihre Meinung ist uns wichtig! Scannen Sie den QR-Code").FontSize(9).FontColor(Colors.Grey.Darken3);
-                            infoCol.Item().Text("und teilen Sie Ihre Erfahrung mit uns.").FontSize(9).FontColor(Colors.Grey.Darken3);
+                            reviewRow.RelativeItem().AlignMiddle().Column(infoCol =>
+                            {
+                                infoCol.Item().Text("Bewerten Sie uns auf Google!").FontSize(13).Bold().FontColor(PrimaryColor);
+                                infoCol.Item().PaddingTop(2).Text("Ihre Meinung ist uns wichtig! Scannen Sie den QR-Code").FontSize(9).FontColor(Colors.Grey.Darken3);
+                                infoCol.Item().Text("und teilen Sie Ihre Erfahrung mit uns.").FontSize(9).FontColor(Colors.Grey.Darken3);
+                            });
                         });
-                    });
+                    }
                 });
 
                 // Footer

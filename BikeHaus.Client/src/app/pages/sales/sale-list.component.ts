@@ -174,7 +174,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             >
               <td class="mono">{{ s.belegNummer }}</td>
               <td>{{ s.bikeInfo }}</td>
-              <td class="mono" style="text-transform: uppercase">{{ s.rahmennummer || '–' }}</td>
+              <td class="mono" style="text-transform: uppercase">{{ s.rahmennummer?.startsWith('ACC-') ? '–' : (s.rahmennummer || '–') }}</td>
               <td>{{ s.buyerName }}</td>
               <td>{{ s.preis | number: '1.2-2' }} €</td>
               <td>{{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}</td>
