@@ -162,9 +162,24 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 <span class="badge" [class]="'badge-' + b.status.toLowerCase()">
                   {{ statusLabel(b.status) }}
                 </span>
-                <span class="publish-icon" *ngIf="b.isPublishedOnWebsite" title="Website">🌐</span>
-                <span class="publish-icon" *ngIf="b.isPublishedOnKleinanzeigen" title="Kleinanzeigen">📢</span>
-                <span class="publish-icon ka-nr" *ngIf="b.kleinanzeigenAnzeigeNr" [title]="'KA: ' + b.kleinanzeigenAnzeigeNr">🔖</span>
+                <span
+                  class="publish-icon"
+                  *ngIf="b.isPublishedOnWebsite"
+                  title="Website"
+                  >🌐</span
+                >
+                <span
+                  class="publish-icon"
+                  *ngIf="b.isPublishedOnKleinanzeigen"
+                  title="Kleinanzeigen"
+                  >📢</span
+                >
+                <span
+                  class="publish-icon ka-nr"
+                  *ngIf="b.kleinanzeigenAnzeigeNr"
+                  [title]="'KA: ' + b.kleinanzeigenAnzeigeNr"
+                  >🔖</span
+                >
               </td>
               <td class="actions-cell">
                 <span class="action-icon">⋮</span>
@@ -185,7 +200,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                     <span class="popup-icon">💰</span>
                     {{ t.sell }}
                   </button>
-                  <button
+                  <!-- <button
                     *ngIf="b.status === 'Available'"
                     class="popup-item popup-item-publish"
                     (click)="togglePublishWebsite(b)"
@@ -200,7 +215,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                   >
                     <span class="popup-icon">📢</span>
                     {{ b.isPublishedOnKleinanzeigen ? t.unpublishFromKleinanzeigen : t.publishOnKleinanzeigen }}
-                  </button>
+                  </button> -->
                   <button
                     *ngIf="b.kleinanzeigenAnzeigeNr"
                     class="popup-item popup-item-danger"
@@ -619,16 +634,26 @@ export class BicycleListComponent implements OnInit, OnDestroy {
 
     // Listen for Kleinanzeigen ad number from Chrome extension
     this.messageHandler = (event: MessageEvent) => {
-      if (event.data?.type === 'BIKEHAUS_KA_AD_SAVED' && event.data.bicycleId && event.data.anzeigeNr) {
-        this.bicycleService.setKleinanzeigenAnzeigeNr(event.data.bicycleId, event.data.anzeigeNr).subscribe({
-          next: () => {
-            this.notificationService.success(`Kleinanzeigen Anzeige-Nr ${event.data.anzeigeNr} gespeichert`);
-            this.load();
-          },
-          error: () => {
-            this.notificationService.error('Fehler beim Speichern der Anzeige-Nr');
-          }
-        });
+      if (
+        event.data?.type === 'BIKEHAUS_KA_AD_SAVED' &&
+        event.data.bicycleId &&
+        event.data.anzeigeNr
+      ) {
+        this.bicycleService
+          .setKleinanzeigenAnzeigeNr(event.data.bicycleId, event.data.anzeigeNr)
+          .subscribe({
+            next: () => {
+              this.notificationService.success(
+                `Kleinanzeigen Anzeige-Nr ${event.data.anzeigeNr} gespeichert`,
+              );
+              this.load();
+            },
+            error: () => {
+              this.notificationService.error(
+                'Fehler beim Speichern der Anzeige-Nr',
+              );
+            },
+          });
       }
     };
     window.addEventListener('message', this.messageHandler);
@@ -724,7 +749,9 @@ export class BicycleListComponent implements OnInit, OnDestroy {
     this.bicycleService.togglePublishWebsite(b.id).subscribe({
       next: (updated) => {
         this.notificationService.success(
-          updated.isPublishedOnWebsite ? this.t.publishedOnWebsite : this.t.unpublishedFromWebsite
+          updated.isPublishedOnWebsite
+            ? this.t.publishedOnWebsite
+            : this.t.unpublishedFromWebsite,
         );
         this.load();
       },
@@ -739,37 +766,43 @@ export class BicycleListComponent implements OnInit, OnDestroy {
     this.bicycleService.togglePublishKleinanzeigen(b.id).subscribe({
       next: (updated) => {
         this.notificationService.success(
-          updated.isPublishedOnKleinanzeigen ? this.t.publishedOnKleinanzeigen : this.t.unpublishedFromKleinanzeigen
+          updated.isPublishedOnKleinanzeigen
+            ? this.t.publishedOnKleinanzeigen
+            : this.t.unpublishedFromKleinanzeigen,
         );
         if (updated.isPublishedOnKleinanzeigen) {
           // Fetch full bike details including images, then send to Chrome extension
           this.bicycleService.getById(b.id).subscribe({
             next: (fullBike) => {
               // Determine API base URL for image serving
-              const apiBaseUrl = window.location.hostname === 'localhost'
-                ? 'http://localhost:5196/api'
-                : `${window.location.protocol}//api.${window.location.hostname.replace('admin.', '')}/api`;
+              const apiBaseUrl =
+                window.location.hostname === 'localhost'
+                  ? 'http://localhost:5196/api'
+                  : `${window.location.protocol}//api.${window.location.hostname.replace('admin.', '')}/api`;
 
               // Send bicycle data to Chrome extension via postMessage
-              window.postMessage({
-                type: 'BIKEHAUS_KA_PUBLISH',
-                bicycle: {
-                  id: fullBike.id,
-                  marke: fullBike.marke,
-                  modell: fullBike.modell,
-                  fahrradtyp: fullBike.fahrradtyp,
-                  art: fullBike.art,
-                  rahmengroesse: fullBike.rahmengroesse,
-                  reifengroesse: fullBike.reifengroesse,
-                  farbe: fullBike.farbe,
-                  zustand: fullBike.zustand,
-                  beschreibung: fullBike.beschreibung,
-                  verkaufspreisVorschlag: fullBike.verkaufspreisVorschlag,
-                  images: fullBike.images || [],
-                  apiBaseUrl: apiBaseUrl
-                }
-              }, '*');
-            }
+              window.postMessage(
+                {
+                  type: 'BIKEHAUS_KA_PUBLISH',
+                  bicycle: {
+                    id: fullBike.id,
+                    marke: fullBike.marke,
+                    modell: fullBike.modell,
+                    fahrradtyp: fullBike.fahrradtyp,
+                    art: fullBike.art,
+                    rahmengroesse: fullBike.rahmengroesse,
+                    reifengroesse: fullBike.reifengroesse,
+                    farbe: fullBike.farbe,
+                    zustand: fullBike.zustand,
+                    beschreibung: fullBike.beschreibung,
+                    verkaufspreisVorschlag: fullBike.verkaufspreisVorschlag,
+                    images: fullBike.images || [],
+                    apiBaseUrl: apiBaseUrl,
+                  },
+                },
+                '*',
+              );
+            },
           });
         } else {
           this.load();
@@ -820,15 +853,21 @@ export class BicycleListComponent implements OnInit, OnDestroy {
     this.closeMenu();
     if (!b.kleinanzeigenAnzeigeNr) return;
     this.dialogService
-      .danger('KA-Anzeige löschen', `Anzeige ${b.kleinanzeigenAnzeigeNr} auf Kleinanzeigen löschen?`)
+      .danger(
+        'KA-Anzeige löschen',
+        `Anzeige ${b.kleinanzeigenAnzeigeNr} auf Kleinanzeigen löschen?`,
+      )
       .then((confirmed) => {
         if (confirmed) {
           // Send delete request to Chrome extension
-          window.postMessage({
-            type: 'BIKEHAUS_KA_DELETE',
-            bicycleId: b.id,
-            anzeigeNr: b.kleinanzeigenAnzeigeNr
-          }, '*');
+          window.postMessage(
+            {
+              type: 'BIKEHAUS_KA_DELETE',
+              bicycleId: b.id,
+              anzeigeNr: b.kleinanzeigenAnzeigeNr,
+            },
+            '*',
+          );
           // Clear the Anzeige-Nr in the backend
           this.bicycleService.setKleinanzeigenAnzeigeNr(b.id, '').subscribe({
             next: () => {
@@ -836,9 +875,11 @@ export class BicycleListComponent implements OnInit, OnDestroy {
               if (b.isPublishedOnKleinanzeigen) {
                 this.bicycleService.togglePublishKleinanzeigen(b.id).subscribe({
                   next: () => {
-                    this.notificationService.success('KA-Anzeige gelöscht & Veröffentlichung aufgehoben');
+                    this.notificationService.success(
+                      'KA-Anzeige gelöscht & Veröffentlichung aufgehoben',
+                    );
                     this.load();
-                  }
+                  },
                 });
               } else {
                 this.notificationService.success('KA-Anzeige-Nr entfernt');
@@ -846,8 +887,10 @@ export class BicycleListComponent implements OnInit, OnDestroy {
               }
             },
             error: () => {
-              this.notificationService.error('Fehler beim Entfernen der Anzeige-Nr');
-            }
+              this.notificationService.error(
+                'Fehler beim Entfernen der Anzeige-Nr',
+              );
+            },
           });
         }
       });
