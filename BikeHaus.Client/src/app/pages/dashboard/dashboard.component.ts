@@ -285,7 +285,9 @@ import { TranslationService } from '../../services/translation.service';
                   </td>
                   <td>{{ s.bikeInfo }}</td>
                   <td>{{ s.buyerName }}</td>
-                  <td class="price">{{ s.preis | number: '1.2-2' }} €</td>
+                  <td class="price">
+                    {{ s.gesamtbetrag | number: '1.2-2' }} €
+                  </td>
                   <td class="date">
                     {{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}
                   </td>
