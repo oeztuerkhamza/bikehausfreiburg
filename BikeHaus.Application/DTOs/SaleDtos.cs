@@ -76,6 +76,7 @@ public record SaleListDto(
     string? Rahmennummer,
     string BuyerName,
     decimal Preis,
+    decimal Gesamtbetrag,
     decimal Rabatt,
     PaymentMethod Zahlungsart,
     List<SalePaymentDto> Zahlungen,

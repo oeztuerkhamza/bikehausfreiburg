@@ -151,6 +151,7 @@ public static class MappingExtensions
         entity.Bicycle.Rahmennummer,
         entity.Buyer.FullName,
         entity.Preis,
+        entity.Gesamtbetrag,
         entity.Rabatt,
         entity.Zahlungsart,
         entity.Zahlungen.Select(z => z.ToDto()).ToList(),

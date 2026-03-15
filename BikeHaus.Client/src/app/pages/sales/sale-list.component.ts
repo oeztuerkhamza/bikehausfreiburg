@@ -182,7 +182,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 }}
               </td>
               <td>{{ s.buyerName }}</td>
-              <td>{{ s.preis | number: '1.2-2' }} €</td>
+              <td>{{ s.gesamtbetrag | number: '1.2-2' }} €</td>
               <td>{{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}</td>
               <td class="actions-cell">
                 <span class="action-icon">⋮</span>
@@ -641,7 +641,7 @@ export class SaleListComponent implements OnInit {
         { key: 'belegNummer', header: 'Beleg-Nr.' },
         { key: 'bikeInfo', header: 'Fahrrad' },
         { key: 'buyerName', header: 'Käufer' },
-        { key: 'preis', header: 'Preis (€)' },
+        { key: 'gesamtbetrag', header: 'Gesamtbetrag (€)' },
         { key: 'zahlungsart', header: 'Zahlungsart' },
         { key: 'verkaufsdatum', header: 'Verkaufsdatum' },
         { key: 'garantie', header: 'Garantie' },

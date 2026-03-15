@@ -279,6 +279,7 @@ export interface SaleList {
   rahmennummer?: string;
   buyerName: string;
   preis: number;
+  gesamtbetrag: number;
   rabatt: number;
   zahlungsart: PaymentMethod;
   zahlungen: SalePayment[];

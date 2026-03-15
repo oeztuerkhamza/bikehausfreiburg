@@ -39,7 +39,7 @@ import { AddressSuggestion } from '../../services/address.service';
       <form *ngIf="sale && !loading" (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <!-- Bicycle info (read-only) -->
-          <div class="form-card">
+          <div class="form-card" *ngIf="!isAccessoryOnlySale">
             <h2>{{ t.bicycle }}</h2>
             <div class="bike-info" *ngIf="sale.bicycle">
               <div class="info-row">
@@ -70,7 +70,7 @@ import { AddressSuggestion } from '../../services/address.service';
           </div>
 
           <!-- Buyer info -->
-          <div class="form-card">
+          <div class="form-card" *ngIf="!isAccessoryOnlySale">
             <h2>Käufer</h2>
             <div class="form-grid">
               <div class="field">
@@ -126,7 +126,7 @@ import { AddressSuggestion } from '../../services/address.service';
                 <label>{{ t.receiptNo }}</label>
                 <input [(ngModel)]="belegNummer" name="belegNummer" />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!isAccessoryOnlySale">
                 <label>Preis (€)</label>
                 <input
                   type="number"
@@ -147,6 +147,7 @@ import { AddressSuggestion } from '../../services/address.service';
                       <option value="PayPal">{{ t.paypal }}</option>
                       <option value="Karte">{{ t.bankTransfer }}</option>
                     </select>
+                    <ng-container *ngIf="!isAccessoryOnlySale">
                     <input
                       type="number"
                       step="0.01"
@@ -163,11 +164,13 @@ import { AddressSuggestion } from '../../services/address.service';
                     >
                       🗑️
                     </button>
+                    </ng-container>
                   </div>
                   <button
                     type="button"
                     class="btn btn-outline btn-sm"
                     (click)="addZahlung()"
+                    *ngIf="!isAccessoryOnlySale"
                   >
                     + Weitere Zahlungsart
                   </button>
@@ -182,7 +185,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   required
                 />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!isAccessoryOnlySale">
                 <label>{{ t.warranty }}</label>
                 <div class="warranty-display">
                   {{ garantieBedingungen }}
@@ -298,8 +301,8 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
             </div>
 
-            <div class="grand-total" *ngIf="preis > 0">
-              <div class="total-row">
+            <div class="grand-total" *ngIf="effectiveGrandTotal > 0">
+              <div class="total-row" *ngIf="!isAccessoryOnlySale && preis > 0">
                 <span>{{ t.bicyclePrice }}:</span>
                 <span>{{ preis | number: '1.2-2' }} €</span>
               </div>
@@ -315,12 +318,7 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="total-row grand">
                 <span>{{ t.grandTotal }}:</span>
-                <strong
-                  >{{
-                    preis + accessoriesTotal - rabatt | number: '1.2-2'
-                  }}
-                  €</strong
-                >
+                <strong>{{ effectiveGrandTotal | number: '1.2-2' }} €</strong>
               </div>
             </div>
           </div>
@@ -663,6 +661,25 @@ export class SaleEditComponent implements OnInit {
     );
   }
 
+  get isAccessoryOnlySale(): boolean {
+    const bike = this.sale?.bicycle;
+    if (!bike) return false;
+
+    return (
+      bike.marke === 'Zubehör' &&
+      bike.modell === 'Direktverkauf' &&
+      !!bike.rahmennummer?.startsWith('ACC-')
+    );
+  }
+
+  get effectiveSalePrice(): number {
+    return this.isAccessoryOnlySale ? 0 : this.preis;
+  }
+
+  get effectiveGrandTotal(): number {
+    return Math.max(0, this.effectiveSalePrice + this.accessoriesTotal - this.rabatt);
+  }
+
   constructor(
     private saleService: SaleService,
     private router: Router,
@@ -786,15 +803,28 @@ export class SaleEditComponent implements OnInit {
 
   submit() {
     if (!this.sale) return;
+
+    if (this.isAccessoryOnlySale) {
+      this.preis = 0;
+      this.zahlungen = [
+        {
+          zahlungsart: this.zahlungen[0]?.zahlungsart || PaymentMethod.Bar,
+          betrag: this.effectiveGrandTotal,
+        },
+      ];
+    }
+
     this.submitting = true;
 
     const update: SaleUpdate = {
       buyer: this.buyer,
-      preis: this.preis,
+      preis: this.effectiveSalePrice,
       zahlungsart: this.zahlungen[0]?.zahlungsart || this.zahlungsart,
       verkaufsdatum: this.verkaufsdatum,
-      garantie: this.garantie,
-      garantieBedingungen: this.garantieBedingungen || undefined,
+      garantie: this.isAccessoryOnlySale ? false : this.garantie,
+      garantieBedingungen: this.isAccessoryOnlySale
+        ? undefined
+        : this.garantieBedingungen || undefined,
       notizen: this.notizen || undefined,
       accessories:
         this.accessories.length > 0
