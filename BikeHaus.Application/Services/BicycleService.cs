@@ -21,15 +21,31 @@ public class BicycleService : IBicycleService
         _settingsRepository = settingsRepository;
     }
 
+    private static bool IsAccessoryOnlySystemBike(Domain.Entities.Bicycle bike)
+    {
+        return bike.Marke == "Zubehör" &&
+               bike.Modell == "Direktverkauf" &&
+               !string.IsNullOrWhiteSpace(bike.Rahmennummer) &&
+               bike.Rahmennummer.StartsWith("ACC-");
+    }
+
     public async Task<IEnumerable<BicycleDto>> GetAllAsync()
     {
-        var bicycles = await _repository.GetAllAsync();
+        var bicycles = await _repository.FindAsync(b =>
+            !(b.Marke == "Zubehör" &&
+              b.Modell == "Direktverkauf" &&
+              b.Rahmennummer != null &&
+              b.Rahmennummer.StartsWith("ACC-")));
         return bicycles.Select(b => b.ToDto());
     }
 
     public async Task<PaginatedResult<BicycleDto>> GetPaginatedAsync(PaginationParams paginationParams)
     {
-        Expression<Func<Domain.Entities.Bicycle, bool>>? predicate = null;
+        Expression<Func<Domain.Entities.Bicycle, bool>>? predicate = b =>
+                !(b.Marke == "Zubehör" &&
+                    b.Modell == "Direktverkauf" &&
+                    b.Rahmennummer != null &&
+                    b.Rahmennummer.StartsWith("ACC-"));
 
         // Status filter
         if (!string.IsNullOrEmpty(paginationParams.Status) &&
@@ -116,7 +132,9 @@ public class BicycleService : IBicycleService
     public async Task<IEnumerable<BicycleDto>> GetAvailableAsync()
     {
         var bicycles = await _repository.GetAvailableBicyclesAsync();
-        return bicycles.Select(b => b.ToDto());
+        return bicycles
+            .Where(b => !IsAccessoryOnlySystemBike(b))
+            .Select(b => b.ToDto());
     }
 
     public async Task<BicycleDto> CreateAsync(BicycleCreateDto dto)
@@ -176,6 +194,10 @@ public class BicycleService : IBicycleService
     {
         var lowerTerm = searchTerm.ToLower();
         var bicycles = await _repository.FindAsync(b =>
+                        !(b.Marke == "Zubehör" &&
+                            b.Modell == "Direktverkauf" &&
+                            b.Rahmennummer != null &&
+                            b.Rahmennummer.StartsWith("ACC-")) &&
             b.Status != BikeStatus.Sold && (
             b.Marke.Contains(searchTerm) ||
             b.Modell.Contains(searchTerm) ||
