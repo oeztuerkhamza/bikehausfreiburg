@@ -34,10 +34,16 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            set -e
             cd /opt/bikehaus
-            git fetch origin master
+            echo "Current server commit: $(git rev-parse --short HEAD || echo unknown)"
+            git fetch --prune origin master
+            git checkout master
             git reset --hard origin/master
-            docker compose up -d --build
+            echo "Deploying commit: $(git rev-parse --short HEAD)"
+            docker compose build --pull bikehaus
+            docker compose up -d --force-recreate bikehaus nginx
+            docker compose ps
             docker image prune -f
             echo "Deploy complete!"
 
