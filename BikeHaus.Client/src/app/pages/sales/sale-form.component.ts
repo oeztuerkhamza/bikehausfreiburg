@@ -314,7 +314,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   placeholder="z.B. VB-20260219-001"
                 />
               </div>
-              <div class="field">
+              <div class="field" *ngIf="!isAccessoryOnly">
                 <label>Preis (€)</label>
                 <input
                   type="number"
@@ -335,27 +335,30 @@ import { AddressSuggestion } from '../../services/address.service';
                       <option value="PayPal">{{ t.paypal }}</option>
                       <option value="Karte">{{ t.bankTransfer }}</option>
                     </select>
-                    <input
-                      type="number"
-                      step="0.01"
-                      [(ngModel)]="z.betrag"
-                      [name]="'zBetrag' + i"
-                      placeholder="Betrag"
-                    />
-                    <span class="zahlung-euro">€</span>
-                    <button
-                      type="button"
-                      class="btn btn-icon btn-danger"
-                      (click)="removeZahlung(i)"
-                      *ngIf="zahlungen.length > 1"
-                    >
-                      🗑️
-                    </button>
+                    <ng-container *ngIf="!isAccessoryOnly">
+                      <input
+                        type="number"
+                        step="0.01"
+                        [(ngModel)]="z.betrag"
+                        [name]="'zBetrag' + i"
+                        placeholder="Betrag"
+                      />
+                      <span class="zahlung-euro">€</span>
+                      <button
+                        type="button"
+                        class="btn btn-icon btn-danger"
+                        (click)="removeZahlung(i)"
+                        *ngIf="zahlungen.length > 1"
+                      >
+                        🗑️
+                      </button>
+                    </ng-container>
                   </div>
                   <button
                     type="button"
                     class="btn btn-outline btn-sm"
                     (click)="addZahlung()"
+                    *ngIf="!isAccessoryOnly"
                   >
                     + Weitere Zahlungsart
                   </button>
@@ -505,8 +508,8 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
             </div>
 
-            <div class="grand-total" *ngIf="preis > 0">
-              <div class="total-row">
+            <div class="grand-total" *ngIf="effectiveGrandTotal > 0">
+              <div class="total-row" *ngIf="!isAccessoryOnly && preis > 0">
                 <span>{{ t.bicyclePrice }}:</span>
                 <span>{{ preis | number: '1.2-2' }} €</span>
               </div>
@@ -522,12 +525,7 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="total-row grand">
                 <span>{{ t.grandTotal }}:</span>
-                <strong
-                  >{{
-                    preis + accessoriesTotal - rabatt | number: '1.2-2'
-                  }}
-                  €</strong
-                >
+                <strong>{{ effectiveGrandTotal | number: '1.2-2' }} €</strong>
               </div>
             </div>
           </div>
@@ -1236,6 +1234,17 @@ export class SaleFormComponent implements OnInit {
     );
   }
 
+  get effectiveSalePrice(): number {
+    return this.isAccessoryOnly ? 0 : this.preis;
+  }
+
+  get effectiveGrandTotal(): number {
+    return Math.max(
+      0,
+      this.effectiveSalePrice + this.accessoriesTotal - this.rabatt,
+    );
+  }
+
   constructor(
     private saleService: SaleService,
     private bicycleService: BicycleService,
@@ -1493,11 +1502,23 @@ export class SaleFormComponent implements OnInit {
   }
 
   onAccessoryOnlyChange() {
-    if (!this.isAccessoryOnly) return;
+    if (this.isAccessoryOnly) {
+      this.selectedBike = null;
+      this.isQuickAddMode = false;
+      this.purchaseId = undefined;
+      this.preis = 0;
+      this.zahlungen = [
+        {
+          zahlungsart: this.zahlungen[0]?.zahlungsart || PaymentMethod.Bar,
+          betrag: this.effectiveGrandTotal,
+        },
+      ];
+      return;
+    }
 
-    this.selectedBike = null;
-    this.isQuickAddMode = false;
-    this.purchaseId = undefined;
+    if (this.zahlungen.length === 0) {
+      this.zahlungen = [{ zahlungsart: PaymentMethod.Bar, betrag: 0 }];
+    }
   }
 
   private createAccessoryOnlyBikeThenSale() {
@@ -1527,6 +1548,16 @@ export class SaleFormComponent implements OnInit {
 
   submit() {
     if (!this.isAccessoryOnly && !this.selectedBike) return;
+
+    if (this.isAccessoryOnly) {
+      this.preis = 0;
+      this.zahlungen = [
+        {
+          zahlungsart: this.zahlungen[0]?.zahlungsart || PaymentMethod.Bar,
+          betrag: this.effectiveGrandTotal,
+        },
+      ];
+    }
 
     if (!this.verkaufsdatum || this.zahlungen.every((z) => z.betrag <= 0)) {
       alert('Bitte Zahlungsart/Betrag und Verkaufsdatum ausfüllen.');
@@ -1637,7 +1668,7 @@ export class SaleFormComponent implements OnInit {
       bicycleId: this.selectedBike!.id,
       purchaseId: this.purchaseId,
       buyer: saleBuyer,
-      preis: this.preis,
+      preis: this.effectiveSalePrice,
       zahlungsart: this.zahlungen[0]?.zahlungsart || this.zahlungsart,
       verkaufsdatum: this.verkaufsdatum,
       garantie: !this.isAccessoryOnly,
