@@ -3,15 +3,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
+import { DocumentService } from '../../services/document.service';
+import { BicycleService } from '../../services/bicycle.service';
 import { CustomerService } from '../../services/customer.service';
 import { TranslationService } from '../../services/translation.service';
 import {
   PurchaseCreateForExistingBike,
   PaymentMethod,
   BikeCondition,
+  DocumentType,
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { AddressSuggestion } from '../../services/address.service';
+import { forkJoin, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-missing-purchase-form',
@@ -205,6 +209,92 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
             </div>
           </div>
+
+          <!-- Verkaufsfotos (for Website & Kleinanzeigen) -->
+          <div class="form-card">
+            <h2>📸 {{ t.salesPhotos }}</h2>
+            <p class="hint-text">
+              {{ t.salesPhotosHint }}
+            </p>
+            <div class="upload-area">
+              <input
+                type="file"
+                #galleryInput
+                (change)="onGalleryFilesSelected($event)"
+                accept="image/*"
+                multiple
+                style="display: none"
+              />
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="galleryInput.click()"
+              >
+                📷 {{ t.selectPhotos }}
+              </button>
+              <span class="file-count" *ngIf="galleryFiles.length > 0">
+                {{ galleryFiles.length }} {{ t.photosSelected }}
+              </span>
+            </div>
+            <div class="preview-grid" *ngIf="galleryPreviewUrls.length > 0">
+              <div
+                class="preview-item"
+                *ngFor="let url of galleryPreviewUrls; let i = index"
+              >
+                <img [src]="url" alt="Galerie Vorschau" />
+                <button
+                  type="button"
+                  class="remove-btn"
+                  (click)="removeGalleryFile(i)"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Einkaufsfotos (internal documentation) -->
+          <div class="form-card">
+            <h2>📄 {{ t.purchasePhotos }}</h2>
+            <p class="hint-text">
+              {{ t.purchasePhotosHint }}
+            </p>
+            <div class="upload-area">
+              <input
+                type="file"
+                #fileInput
+                (change)="onFilesSelected($event)"
+                accept="image/*"
+                multiple
+                style="display: none"
+              />
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="fileInput.click()"
+              >
+                📷 {{ t.selectPhotos }}
+              </button>
+              <span class="file-count" *ngIf="selectedFiles.length > 0">
+                {{ selectedFiles.length }} {{ t.photosSelected }}
+              </span>
+            </div>
+            <div class="preview-grid" *ngIf="previewUrls.length > 0">
+              <div
+                class="preview-item"
+                *ngFor="let url of previewUrls; let i = index"
+              >
+                <img [src]="url" alt="Vorschau" />
+                <button
+                  type="button"
+                  class="remove-btn"
+                  (click)="removeFile(i)"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="form-actions">
@@ -299,6 +389,59 @@ import { AddressSuggestion } from '../../services/address.service';
         cursor: not-allowed;
       }
 
+      .hint-text {
+        margin: 0 0 12px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+      }
+
+      .upload-area {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .file-count {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+      }
+
+      .preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 10px;
+      }
+
+      .preview-item {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid var(--border-light);
+      }
+
+      .preview-item img {
+        width: 100%;
+        height: 90px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .remove-btn {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 20px;
+        height: 20px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.65);
+        color: #fff;
+        cursor: pointer;
+        line-height: 20px;
+        padding: 0;
+      }
+
       .form-actions {
         display: flex;
         justify-content: flex-end;
@@ -357,12 +500,15 @@ import { AddressSuggestion } from '../../services/address.service';
 })
 export class MissingPurchaseFormComponent implements OnInit {
   private purchaseService = inject(PurchaseService);
+  private documentService = inject(DocumentService);
+  private bicycleService = inject(BicycleService);
   private customerService = inject(CustomerService);
   private translationService = inject(TranslationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
   PaymentMethod = PaymentMethod;
+  DocumentType = DocumentType;
 
   // Bicycle info from query params (read-only)
   bicycleId = 0;
@@ -399,6 +545,10 @@ export class MissingPurchaseFormComponent implements OnInit {
 
   firstNames: string[] = [];
   lastNames: string[] = [];
+  selectedFiles: File[] = [];
+  previewUrls: string[] = [];
+  galleryFiles: File[] = [];
+  galleryPreviewUrls: string[] = [];
 
   get t() {
     return this.translationService.translations();
@@ -468,6 +618,46 @@ export class MissingPurchaseFormComponent implements OnInit {
     );
   }
 
+  onFilesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      for (const file of Array.from(input.files)) {
+        this.selectedFiles.push(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.previewUrls.push(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    input.value = '';
+  }
+
+  removeFile(index: number) {
+    this.selectedFiles.splice(index, 1);
+    this.previewUrls.splice(index, 1);
+  }
+
+  onGalleryFilesSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      for (const file of Array.from(input.files)) {
+        this.galleryFiles.push(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.galleryPreviewUrls.push(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+    input.value = '';
+  }
+
+  removeGalleryFile(index: number) {
+    this.galleryFiles.splice(index, 1);
+    this.galleryPreviewUrls.splice(index, 1);
+  }
+
   submit() {
     if (!this.canSubmit() || this.submitting) return;
     this.submitting = true;
@@ -503,8 +693,40 @@ export class MissingPurchaseFormComponent implements OnInit {
     };
 
     this.purchaseService.createForExistingBike(dto).subscribe({
-      next: () => {
-        this.router.navigate(['/purchases/missing']);
+      next: (result) => {
+        const allUploads: Observable<any>[] = [];
+
+        if (this.selectedFiles.length > 0 && result.id) {
+          const docUploads = this.selectedFiles.map((file) =>
+            this.documentService.upload(
+              file,
+              DocumentType.Screenshot,
+              result.bicycle.id,
+              result.id,
+            ),
+          );
+          allUploads.push(...docUploads);
+        }
+
+        if (this.galleryFiles.length > 0 && result.bicycle?.id) {
+          const galleryUploads = this.galleryFiles.map((file) =>
+            this.bicycleService.uploadGalleryImage(result.bicycle.id, file),
+          );
+          allUploads.push(...galleryUploads);
+        }
+
+        if (allUploads.length > 0) {
+          forkJoin(allUploads).subscribe({
+            next: () => {
+              this.router.navigate(['/purchases/missing']);
+            },
+            error: () => {
+              this.router.navigate(['/purchases/missing']);
+            },
+          });
+        } else {
+          this.router.navigate(['/purchases/missing']);
+        }
       },
       error: () => {
         this.submitting = false;
