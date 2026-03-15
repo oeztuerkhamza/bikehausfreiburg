@@ -36,6 +36,8 @@ public class DashboardService : IDashboardService
 
         var recentPurchases = await _purchaseRepository.GetRecentPurchasesAsync(5);
         var recentSales = await _saleRepository.GetRecentSalesAsync(5);
+        var totalSaleAmount = saleList.Sum(s => s.Gesamtbetrag);
+        var totalPurchaseAmount = purchaseList.Sum(p => p.Preis);
 
         return new DashboardDto(
             TotalBicycles: totalBicycles,
@@ -43,9 +45,9 @@ public class DashboardService : IDashboardService
             SoldBicycles: soldBicycles,
             TotalPurchases: purchaseList.Count,
             TotalSales: saleList.Count,
-            TotalPurchaseAmount: purchaseList.Sum(p => p.Preis),
-            TotalSaleAmount: saleList.Sum(s => s.Preis),
-            Profit: saleList.Sum(s => s.Preis) - purchaseList.Sum(p => p.Preis),
+            TotalPurchaseAmount: totalPurchaseAmount,
+            TotalSaleAmount: totalSaleAmount,
+            Profit: totalSaleAmount - totalPurchaseAmount,
             RecentPurchases: recentPurchases.Select(p => p.ToListDto()),
             RecentSales: recentSales.Select(s => s.ToListDto())
         );

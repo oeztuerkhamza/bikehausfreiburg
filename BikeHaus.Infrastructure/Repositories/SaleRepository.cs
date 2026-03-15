@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Interfaces;
 using BikeHaus.Infrastructure.Data;
@@ -45,18 +46,24 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
 
     public async Task<string> GenerateBelegNummerAsync()
     {
-        var lastBeleg = await _dbSet
-            .OrderByDescending(s => s.BelegNummer)
+        var allBelegNummern = await _dbSet
             .Select(s => s.BelegNummer)
-            .FirstOrDefaultAsync();
+            .Where(b => !string.IsNullOrWhiteSpace(b))
+            .ToListAsync();
 
-        var nextNumber = 1;
-        if (!string.IsNullOrEmpty(lastBeleg) && int.TryParse(lastBeleg, out var parsed))
+        var maxNumber = 0;
+        foreach (var beleg in allBelegNummern)
         {
-            nextNumber = parsed + 1;
+            var match = Regex.Match(beleg, @"(\d+)$");
+            if (!match.Success) continue;
+
+            if (int.TryParse(match.Groups[1].Value, out var parsed) && parsed > maxNumber)
+            {
+                maxNumber = parsed;
+            }
         }
 
-        return $"{nextNumber:D3}";
+        return $"{maxNumber + 1:D3}";
     }
 
     public override async Task<IEnumerable<Sale>> GetAllAsync()

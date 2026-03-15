@@ -43,243 +43,265 @@ import { AddressSuggestion } from '../../services/address.service';
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
-          <!-- Bicycle selection -->
-          <div class="form-card">
-            <h2>{{ t.selectBicycle }}</h2>
-            <app-bike-selector
-              [bikes]="availableBikes"
-              [(selectedBike)]="selectedBike"
-              [allowQuickAdd]="true"
-              (bikeSelected)="onBikeSelected($event)"
-              (quickAddRequested)="onQuickAddBike()"
-            ></app-bike-selector>
-          </div>
+          <ng-container *ngIf="!isAccessoryOnly">
+            <!-- Bicycle selection -->
+            <div class="form-card">
+              <h2>{{ t.selectBicycle }}</h2>
+              <app-bike-selector
+                [bikes]="availableBikes"
+                [(selectedBike)]="selectedBike"
+                [allowQuickAdd]="true"
+                (bikeSelected)="onBikeSelected($event)"
+                (quickAddRequested)="onQuickAddBike()"
+              ></app-bike-selector>
+            </div>
 
-          <!-- Bicycle details edit form -->
-          <div class="form-card" *ngIf="selectedBike">
-            <div class="card-header-row">
-              <h2>
-                <span *ngIf="isQuickAddMode" class="quick-add-badge"
-                  >🆕 {{ t.newBicycle }}</span
-                >
-                <span *ngIf="!isQuickAddMode">{{ t.bicycleDetails }}</span>
-                <span
-                  *ngIf="hasBikeErrors && !bikeEditExpanded"
-                  class="bike-error-badge"
-                  >{{ t.requiredFieldsMissing }}</span
-                >
-              </h2>
-              <button
-                type="button"
-                class="btn btn-sm btn-outline"
-                [class.btn-error]="hasBikeErrors && !bikeEditExpanded"
-                (click)="bikeEditExpanded = !bikeEditExpanded"
-                *ngIf="!isQuickAddMode"
-              >
-                {{ bikeEditExpanded ? '▲ ' + t.collapse : '▼ ' + t.expand }}
-              </button>
-            </div>
-            <div
-              class="bike-summary"
-              *ngIf="!bikeEditExpanded && !isQuickAddMode"
-            >
-              <span
-                ><strong
-                  >{{ bikeEdit.marke }} {{ bikeEdit.modell }}</strong
-                ></span
-              >
-              <span
-                *ngIf="bikeEdit.rahmennummer"
-                style="text-transform: uppercase"
-                >{{ t.frameNumber }}: {{ bikeEdit.rahmennummer }}</span
-              >
-              <span *ngIf="bikeEdit.rahmengroesse"
-                >{{ t.frameSize }}: {{ bikeEdit.rahmengroesse }}</span
-              >
-              <span>{{ bikeEdit.farbe }} | {{ bikeEdit.reifengroesse }}"</span>
-            </div>
-            <div class="form-grid" *ngIf="bikeEditExpanded || isQuickAddMode">
-              <!-- Rahmennummer first with autocomplete dropdown -->
-              <div
-                class="field full rahmen-autocomplete-wrapper"
-                [class.field-error]="bikeErrors['rahmennummer']"
-              >
-                <label>{{ t.frameNumber }} *</label>
-                <input
-                  [(ngModel)]="bikeEdit.rahmennummer"
-                  name="bikeRahmen"
-                  (ngModelChange)="
-                    bikeErrors['rahmennummer'] = false;
-                    onRahmennummerChange($event)
-                  "
-                  (focus)="onRahmennummerChange(bikeEdit.rahmennummer)"
-                  (blur)="hideRahmenDropdown()"
-                  style="text-transform: uppercase"
-                  placeholder="Rahmennummer eingeben..."
-                  autocomplete="off"
-                />
-                <span class="error-msg" *ngIf="bikeErrors['rahmennummer']">{{
-                  t.requiredField
-                }}</span>
-                <!-- Autocomplete dropdown -->
-                <div
-                  class="rahmen-dropdown"
-                  *ngIf="rahmenSearchResults.length > 0 && showRahmenDropdown"
-                >
-                  <div
-                    class="rahmen-dropdown-item"
-                    *ngFor="let bike of rahmenSearchResults"
-                    (mousedown)="selectRahmenBike(bike)"
+            <!-- Bicycle details edit form -->
+            <div class="form-card" *ngIf="selectedBike">
+              <div class="card-header-row">
+                <h2>
+                  <span *ngIf="isQuickAddMode" class="quick-add-badge"
+                    >🆕 {{ t.newBicycle }}</span
                   >
-                    <span class="rahmen-nr">{{ bike.rahmennummer }}</span>
-                    <span class="rahmen-info"
-                      >{{ bike.marke }} {{ bike.modell }}</span
+                  <span *ngIf="!isQuickAddMode">{{ t.bicycleDetails }}</span>
+                  <span
+                    *ngIf="hasBikeErrors && !bikeEditExpanded"
+                    class="bike-error-badge"
+                    >{{ t.requiredFieldsMissing }}</span
+                  >
+                </h2>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline"
+                  [class.btn-error]="hasBikeErrors && !bikeEditExpanded"
+                  (click)="bikeEditExpanded = !bikeEditExpanded"
+                  *ngIf="!isQuickAddMode"
+                >
+                  {{ bikeEditExpanded ? '▲ ' + t.collapse : '▼ ' + t.expand }}
+                </button>
+              </div>
+              <div
+                class="bike-summary"
+                *ngIf="!bikeEditExpanded && !isQuickAddMode"
+              >
+                <span
+                  ><strong
+                    >{{ bikeEdit.marke }} {{ bikeEdit.modell }}</strong
+                  ></span
+                >
+                <span
+                  *ngIf="bikeEdit.rahmennummer"
+                  style="text-transform: uppercase"
+                  >{{ t.frameNumber }}: {{ bikeEdit.rahmennummer }}</span
+                >
+                <span *ngIf="bikeEdit.rahmengroesse"
+                  >{{ t.frameSize }}: {{ bikeEdit.rahmengroesse }}</span
+                >
+                <span
+                  >{{ bikeEdit.farbe }} | {{ bikeEdit.reifengroesse }}"</span
+                >
+              </div>
+              <div class="form-grid" *ngIf="bikeEditExpanded || isQuickAddMode">
+                <!-- Rahmennummer first with autocomplete dropdown -->
+                <div
+                  class="field full rahmen-autocomplete-wrapper"
+                  [class.field-error]="bikeErrors['rahmennummer']"
+                >
+                  <label>{{ t.frameNumber }} *</label>
+                  <input
+                    [(ngModel)]="bikeEdit.rahmennummer"
+                    name="bikeRahmen"
+                    (ngModelChange)="
+                      bikeErrors['rahmennummer'] = false;
+                      onRahmennummerChange($event)
+                    "
+                    (focus)="onRahmennummerChange(bikeEdit.rahmennummer)"
+                    (blur)="hideRahmenDropdown()"
+                    style="text-transform: uppercase"
+                    placeholder="Rahmennummer eingeben..."
+                    autocomplete="off"
+                  />
+                  <span class="error-msg" *ngIf="bikeErrors['rahmennummer']">{{
+                    t.requiredField
+                  }}</span>
+                  <!-- Autocomplete dropdown -->
+                  <div
+                    class="rahmen-dropdown"
+                    *ngIf="rahmenSearchResults.length > 0 && showRahmenDropdown"
+                  >
+                    <div
+                      class="rahmen-dropdown-item"
+                      *ngFor="let bike of rahmenSearchResults"
+                      (mousedown)="selectRahmenBike(bike)"
                     >
-                    <span
-                      class="rahmen-badge"
-                      *ngIf="bike.status === 'Available'"
-                      >Verfügbar</span
-                    >
-                    <span
-                      class="rahmen-badge sold"
-                      *ngIf="bike.status === 'Sold'"
-                      >Verkauft</span
-                    >
+                      <span class="rahmen-nr">{{ bike.rahmennummer }}</span>
+                      <span class="rahmen-info"
+                        >{{ bike.marke }} {{ bike.modell }}</span
+                      >
+                      <span
+                        class="rahmen-badge"
+                        *ngIf="bike.status === 'Available'"
+                        >Verfügbar</span
+                      >
+                      <span
+                        class="rahmen-badge sold"
+                        *ngIf="bike.status === 'Sold'"
+                        >Verkauft</span
+                      >
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="field" [class.field-error]="bikeErrors['marke']">
-                <label>{{ t.brand }} *</label>
-                <input
-                  [(ngModel)]="bikeEdit.marke"
-                  name="bikeMarke"
-                  list="brandList"
-                  autocomplete="off"
-                  (ngModelChange)="bikeErrors['marke'] = false"
-                />
-                <datalist id="brandList">
-                  <option *ngFor="let b of brands" [value]="b"></option>
-                </datalist>
-                <span class="error-msg" *ngIf="bikeErrors['marke']">{{
-                  t.requiredField
-                }}</span>
-              </div>
-              <div class="field">
-                <label>{{ t.model }}</label>
-                <input
-                  [(ngModel)]="bikeEdit.modell"
-                  name="bikeModell"
-                  list="modelList"
-                  autocomplete="off"
-                />
-                <datalist id="modelList">
-                  <option *ngFor="let m of models" [value]="m"></option>
-                </datalist>
-              </div>
-              <div class="field">
-                <label>{{ t.frameSize }}</label>
-                <input
-                  [(ngModel)]="bikeEdit.rahmengroesse"
-                  name="bikeRahmengroesse"
-                  placeholder="z.B. 52, 56, M, L"
-                />
-              </div>
-              <div class="field" [class.field-error]="bikeErrors['farbe']">
-                <label>{{ t.color }} *</label>
-                <div class="color-chips">
-                  <button
-                    type="button"
-                    *ngFor="let c of colorOptions"
-                    class="color-chip"
-                    [class.selected]="isColorSelected(bikeEdit.farbe, c.value)"
-                    [style.--chip-color]="c.hex"
-                    (click)="
-                      bikeEdit.farbe = toggleColor(bikeEdit.farbe, c.value);
-                      bikeErrors['farbe'] = false
-                    "
-                  >
-                    <span class="chip-dot"></span>
-                    {{ c.label }}
-                  </button>
+                <div class="field" [class.field-error]="bikeErrors['marke']">
+                  <label>{{ t.brand }} *</label>
+                  <input
+                    [(ngModel)]="bikeEdit.marke"
+                    name="bikeMarke"
+                    list="brandList"
+                    autocomplete="off"
+                    (ngModelChange)="bikeErrors['marke'] = false"
+                  />
+                  <datalist id="brandList">
+                    <option *ngFor="let b of brands" [value]="b"></option>
+                  </datalist>
+                  <span class="error-msg" *ngIf="bikeErrors['marke']">{{
+                    t.requiredField
+                  }}</span>
                 </div>
-                <span class="error-msg" *ngIf="bikeErrors['farbe']">{{
-                  t.requiredField
-                }}</span>
-              </div>
-              <div
-                class="field"
-                [class.field-error]="bikeErrors['reifengroesse']"
-              >
-                <label>{{ t.wheelSize }} *</label>
-                <span class="error-msg" *ngIf="bikeErrors['reifengroesse']">{{
-                  t.requiredField
-                }}</span>
-                <select
-                  [(ngModel)]="bikeEdit.reifengroesse"
-                  name="bikeReifen"
-                  (ngModelChange)="bikeErrors['reifengroesse'] = false"
+                <div class="field">
+                  <label>{{ t.model }}</label>
+                  <input
+                    [(ngModel)]="bikeEdit.modell"
+                    name="bikeModell"
+                    list="modelList"
+                    autocomplete="off"
+                  />
+                  <datalist id="modelList">
+                    <option *ngFor="let m of models" [value]="m"></option>
+                  </datalist>
+                </div>
+                <div class="field">
+                  <label>{{ t.frameSize }}</label>
+                  <input
+                    [(ngModel)]="bikeEdit.rahmengroesse"
+                    name="bikeRahmengroesse"
+                    placeholder="z.B. 52, 56, M, L"
+                  />
+                </div>
+                <div class="field" [class.field-error]="bikeErrors['farbe']">
+                  <label>{{ t.color }} *</label>
+                  <div class="color-chips">
+                    <button
+                      type="button"
+                      *ngFor="let c of colorOptions"
+                      class="color-chip"
+                      [class.selected]="
+                        isColorSelected(bikeEdit.farbe, c.value)
+                      "
+                      [style.--chip-color]="c.hex"
+                      (click)="
+                        bikeEdit.farbe = toggleColor(bikeEdit.farbe, c.value);
+                        bikeErrors['farbe'] = false
+                      "
+                    >
+                      <span class="chip-dot"></span>
+                      {{ c.label }}
+                    </button>
+                  </div>
+                  <span class="error-msg" *ngIf="bikeErrors['farbe']">{{
+                    t.requiredField
+                  }}</span>
+                </div>
+                <div
+                  class="field"
+                  [class.field-error]="bikeErrors['reifengroesse']"
                 >
-                  <option value="">-- {{ t.selectOption }} --</option>
-                  <option value="12">12"</option>
-                  <option value="14">14"</option>
-                  <option value="16">16"</option>
-                  <option value="18">18"</option>
-                  <option value="20">20"</option>
-                  <option value="24">24"</option>
-                  <option value="26">26"</option>
-                  <option value="27.5">27.5"</option>
-                  <option value="28">28"</option>
-                  <option value="29">29"</option>
-                </select>
-              </div>
-              <div class="field" [class.field-error]="bikeErrors['fahrradtyp']">
-                <label>{{ t.bicycleType }} *</label>
-                <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']">{{
-                  t.requiredField
-                }}</span>
-                <select
-                  [(ngModel)]="bikeEdit.fahrradtyp"
-                  name="bikeFahrradtyp"
-                  (ngModelChange)="bikeErrors['fahrradtyp'] = false"
+                  <label>{{ t.wheelSize }} *</label>
+                  <span class="error-msg" *ngIf="bikeErrors['reifengroesse']">{{
+                    t.requiredField
+                  }}</span>
+                  <select
+                    [(ngModel)]="bikeEdit.reifengroesse"
+                    name="bikeReifen"
+                    (ngModelChange)="bikeErrors['reifengroesse'] = false"
+                  >
+                    <option value="">-- {{ t.selectOption }} --</option>
+                    <option value="12">12"</option>
+                    <option value="14">14"</option>
+                    <option value="16">16"</option>
+                    <option value="18">18"</option>
+                    <option value="20">20"</option>
+                    <option value="24">24"</option>
+                    <option value="26">26"</option>
+                    <option value="27.5">27.5"</option>
+                    <option value="28">28"</option>
+                    <option value="29">29"</option>
+                  </select>
+                </div>
+                <div
+                  class="field"
+                  [class.field-error]="bikeErrors['fahrradtyp']"
                 >
-                  <option value="">-- {{ t.selectOption }} --</option>
-                  <option value="E-Bike">E-Bike</option>
-                  <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
-                  <option value="Trekking">Trekking</option>
-                  <option value="City">City</option>
-                  <option value="MTB">Mountainbike (MTB)</option>
-                  <option value="Rennrad">Rennrad</option>
-                  <option value="Kinderfahrrad">Kinderfahrrad</option>
-                  <option value="Lastenrad">Lastenrad</option>
-                  <option value="Sonstige">Sonstige</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>{{ t.condition }} *</label>
-                <select
-                  [(ngModel)]="bikeEdit.zustand"
-                  name="bikeZustand"
-                  required
-                >
-                  <option value="Gebraucht">{{ t.usedCondition }}</option>
-                  <option value="Neu">{{ t.newCondition }}</option>
-                </select>
-              </div>
-              <div class="field full">
-                <label>{{ t.descriptionEquipment }}</label>
-                <textarea
-                  [(ngModel)]="bikeEdit.beschreibung"
-                  name="bikeBeschr"
-                  rows="3"
-                ></textarea>
+                  <label>{{ t.bicycleType }} *</label>
+                  <span class="error-msg" *ngIf="bikeErrors['fahrradtyp']">{{
+                    t.requiredField
+                  }}</span>
+                  <select
+                    [(ngModel)]="bikeEdit.fahrradtyp"
+                    name="bikeFahrradtyp"
+                    (ngModelChange)="bikeErrors['fahrradtyp'] = false"
+                  >
+                    <option value="">-- {{ t.selectOption }} --</option>
+                    <option value="E-Bike">E-Bike</option>
+                    <option value="E-Trekking Pedelec">
+                      E-Trekking Pedelec
+                    </option>
+                    <option value="Trekking">Trekking</option>
+                    <option value="City">City</option>
+                    <option value="MTB">Mountainbike (MTB)</option>
+                    <option value="Rennrad">Rennrad</option>
+                    <option value="Kinderfahrrad">Kinderfahrrad</option>
+                    <option value="Lastenrad">Lastenrad</option>
+                    <option value="Sonstige">Sonstige</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>{{ t.condition }} *</label>
+                  <select
+                    [(ngModel)]="bikeEdit.zustand"
+                    name="bikeZustand"
+                    required
+                  >
+                    <option value="Gebraucht">{{ t.usedCondition }}</option>
+                    <option value="Neu">{{ t.newCondition }}</option>
+                  </select>
+                </div>
+                <div class="field full">
+                  <label>{{ t.descriptionEquipment }}</label>
+                  <textarea
+                    [(ngModel)]="bikeEdit.beschreibung"
+                    name="bikeBeschr"
+                    rows="3"
+                  ></textarea>
+                </div>
               </div>
             </div>
-          </div>
+          </ng-container>
 
           <!-- Sale details -->
           <div class="form-card">
             <h2>{{ t.saleData }}</h2>
             <div class="form-grid">
+              <div class="field full">
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="isAccessoryOnly"
+                    name="isAccessoryOnly"
+                    (ngModelChange)="onAccessoryOnlyChange()"
+                  />
+                  Nur Zubehörverkauf (ohne Fahrrad)
+                </label>
+              </div>
               <div class="field">
                 <label>{{ t.receiptNo }}</label>
                 <input
@@ -507,7 +529,7 @@ import { AddressSuggestion } from '../../services/address.service';
           </div>
 
           <!-- Buyer info -->
-          <div class="form-card">
+          <div class="form-card" *ngIf="showBuyerFields">
             <h2>Käufer</h2>
             <div class="form-grid">
               <div class="field">
@@ -1040,6 +1062,10 @@ import { AddressSuggestion } from '../../services/address.service';
 })
 export class SaleFormComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private readonly defaultBuyer = {
+    vorname: 'Lauf',
+    nachname: 'Kunde',
+  };
 
   colorOptions = [
     { value: 'Schwarz', label: 'Schwarz', hex: '#1a1a1a' },
@@ -1074,8 +1100,8 @@ export class SaleFormComponent implements OnInit {
   selectedBike: Bicycle | null = null;
 
   buyer = {
-    vorname: '',
-    nachname: '',
+    vorname: this.defaultBuyer.vorname,
+    nachname: this.defaultBuyer.nachname,
     strasse: '',
     hausnummer: '',
     plz: '',
@@ -1094,6 +1120,8 @@ export class SaleFormComponent implements OnInit {
   sellerSignatureData = '';
   sellerSignerName = '';
   submitting = false;
+  isAccessoryOnly = false;
+  showBuyerFields = false;
   accessories: SaleAccessoryCreate[] = [];
   rabatt = 0;
   purchaseId: number | undefined = undefined;
@@ -1383,13 +1411,63 @@ export class SaleFormComponent implements OnInit {
     return Object.keys(this.bikeErrors).length === 0;
   }
 
+  onAccessoryOnlyChange() {
+    if (!this.isAccessoryOnly) return;
+
+    this.selectedBike = null;
+    this.isQuickAddMode = false;
+    this.purchaseId = undefined;
+  }
+
+  private createAccessoryOnlyBikeThenSale() {
+    const syntheticRahmenNummer = `ACC-${Date.now()}`;
+    const accessoryBike = {
+      marke: 'Zubehör',
+      modell: 'Direktverkauf',
+      rahmennummer: syntheticRahmenNummer,
+      farbe: 'Schwarz',
+      reifengroesse: '28',
+      fahrradtyp: 'Sonstige',
+      beschreibung: 'Automatisch erstellt für Zubehörverkauf',
+      zustand: BikeCondition.Neu,
+    };
+
+    this.bicycleService.create(accessoryBike).subscribe({
+      next: (createdBike) => {
+        this.selectedBike = createdBike;
+        this.createSale();
+      },
+      error: () => {
+        this.submitting = false;
+        alert('Fehler beim Erstellen des Zubehör-Verkaufs');
+      },
+    });
+  }
+
   submit() {
-    if (!this.selectedBike) return;
-    if (!this.validateBike()) {
+    if (!this.isAccessoryOnly && !this.selectedBike) return;
+
+    if (!this.verkaufsdatum || this.zahlungen.every((z) => z.betrag <= 0)) {
+      alert('Bitte Zahlungsart/Betrag und Verkaufsdatum ausfüllen.');
+      return;
+    }
+
+    if (this.isAccessoryOnly && this.accessories.length === 0) {
+      alert('Bitte mindestens ein Zubehör hinzufügen.');
+      return;
+    }
+
+    if (!this.isAccessoryOnly && !this.validateBike()) {
       this.bikeEditExpanded = true;
       return;
     }
+
     this.submitting = true;
+
+    if (this.isAccessoryOnly) {
+      this.createAccessoryOnlyBikeThenSale();
+      return;
+    }
 
     // If in quick add mode, create the bike first
     if (this.isQuickAddMode) {
@@ -1449,6 +1527,17 @@ export class SaleFormComponent implements OnInit {
   }
 
   private createSale() {
+    const hasBuyerName =
+      !!this.buyer.vorname?.trim() && !!this.buyer.nachname?.trim();
+
+    const saleBuyer = hasBuyerName
+      ? this.buyer
+      : {
+          ...this.buyer,
+          vorname: this.defaultBuyer.vorname,
+          nachname: this.defaultBuyer.nachname,
+        };
+
     const sellerSig: SignatureCreate | undefined = this.sellerSignatureData
       ? {
           signatureData: this.sellerSignatureData,
@@ -1460,13 +1549,14 @@ export class SaleFormComponent implements OnInit {
     const sale: SaleCreate = {
       bicycleId: this.selectedBike!.id,
       purchaseId: this.purchaseId,
-      buyer: this.buyer,
+      buyer: saleBuyer,
       preis: this.preis,
       zahlungsart: this.zahlungen[0]?.zahlungsart || this.zahlungsart,
       verkaufsdatum: this.verkaufsdatum,
-      garantie: true,
-      garantieBedingungen:
-        this.selectedBike!.zustand === 'Neu'
+      garantie: !this.isAccessoryOnly,
+      garantieBedingungen: this.isAccessoryOnly
+        ? undefined
+        : this.selectedBike!.zustand === 'Neu'
           ? '2 Jahre Gewährleistung gemäß § 437 BGB'
           : '3 Monate Garantie auf das Fahrrad',
       notizen: this.notizen || undefined,
