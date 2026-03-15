@@ -1499,6 +1499,12 @@ export class SaleFormComponent implements OnInit {
     }
 
     // Otherwise update the existing bicycle
+    const selectedBike = this.selectedBike;
+    if (!selectedBike) {
+      this.submitting = false;
+      return;
+    }
+
     const bikeUpdate: BicycleUpdate = {
       marke: this.bikeEdit.marke,
       modell: this.bikeEdit.modell,
@@ -1508,12 +1514,12 @@ export class SaleFormComponent implements OnInit {
       reifengroesse: this.bikeEdit.reifengroesse,
       fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
       beschreibung: this.bikeEdit.beschreibung || undefined,
-      status: this.selectedBike.status,
+      status: selectedBike.status,
       zustand: this.bikeEdit.zustand,
     };
 
     // Update bicycle first, then create sale
-    this.bicycleService.update(this.selectedBike.id, bikeUpdate).subscribe({
+    this.bicycleService.update(selectedBike.id, bikeUpdate).subscribe({
       next: () => {
         // Update local selectedBike to reflect changes (for warranty calculation)
         this.selectedBike!.zustand = this.bikeEdit.zustand;
