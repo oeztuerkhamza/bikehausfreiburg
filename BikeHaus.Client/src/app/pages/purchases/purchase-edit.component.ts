@@ -441,12 +441,6 @@ import { forkJoin } from 'rxjs';
         border: 1.5px solid var(--border-light, #e2e8f0);
         box-shadow: var(--shadow-sm);
       }
-      .bicycle-card {
-        order: 1;
-      }
-      .seller-card {
-        order: 2;
-      }
       .form-card h2 {
         font-size: 1.1rem;
         font-weight: 700;
