@@ -52,6 +52,7 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
         return await _dbSet
             .Include(s => s.Bicycle)
             .Include(s => s.Buyer)
+            .Include(s => s.Accessories)
             .OrderByDescending(s => s.BelegNummer)
             .Take(count)
             .ToListAsync();
@@ -84,6 +85,8 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
         return await _dbSet
             .Include(s => s.Bicycle)
             .Include(s => s.Buyer)
+            .Include(s => s.Accessories)
+            .Include(s => s.Zahlungen)
             .OrderByDescending(s => s.BelegNummer)
             .ToListAsync();
     }
@@ -95,6 +98,7 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
         var query = _dbSet
             .Include(s => s.Bicycle)
             .Include(s => s.Buyer)
+            .Include(s => s.Accessories)
             .Include(s => s.Zahlungen)
             .AsQueryable();
 
