@@ -215,49 +215,6 @@ import { forkJoin, Observable } from 'rxjs';
             </div>
           </div>
 
-          <!-- Verkaufsfotos (for Website & Kleinanzeigen) -->
-          <div class="form-card" *ngIf="!bulkMode">
-            <h2>📸 {{ t.salesPhotos }}</h2>
-            <p class="hint-text">
-              {{ t.salesPhotosHint }}
-            </p>
-            <div class="upload-area">
-              <input
-                type="file"
-                #galleryInput
-                (change)="onGalleryFilesSelected($event)"
-                accept="image/*"
-                multiple
-                style="display: none"
-              />
-              <button
-                type="button"
-                class="btn btn-outline"
-                (click)="galleryInput.click()"
-              >
-                📷 {{ t.selectPhotos }}
-              </button>
-              <span class="file-count" *ngIf="galleryFiles.length > 0">
-                {{ galleryFiles.length }} {{ t.photosSelected }}
-              </span>
-            </div>
-            <div class="preview-grid" *ngIf="galleryPreviewUrls.length > 0">
-              <div
-                class="preview-item"
-                *ngFor="let url of galleryPreviewUrls; let i = index"
-              >
-                <img [src]="url" alt="Galerie Vorschau" />
-                <button
-                  type="button"
-                  class="remove-btn"
-                  (click)="removeGalleryFile(i)"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          </div>
-
           <!-- Purchase details -->
           <div class="form-card">
             <h2>{{ t.purchaseData }}</h2>
@@ -416,6 +373,49 @@ import { forkJoin, Observable } from 'rxjs';
                   [(ngModel)]="seller.email"
                   name="sellerEmail"
                 />
+              </div>
+            </div>
+          </div>
+
+          <!-- Verkaufsfotos (for Website & Kleinanzeigen) -->
+          <div class="form-card" *ngIf="!bulkMode">
+            <h2>📸 {{ t.salesPhotos }}</h2>
+            <p class="hint-text">
+              {{ t.salesPhotosHint }}
+            </p>
+            <div class="upload-area">
+              <input
+                type="file"
+                #galleryInput
+                (change)="onGalleryFilesSelected($event)"
+                accept="image/*"
+                multiple
+                style="display: none"
+              />
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="galleryInput.click()"
+              >
+                📷 {{ t.selectPhotos }}
+              </button>
+              <span class="file-count" *ngIf="galleryFiles.length > 0">
+                {{ galleryFiles.length }} {{ t.photosSelected }}
+              </span>
+            </div>
+            <div class="preview-grid" *ngIf="galleryPreviewUrls.length > 0">
+              <div
+                class="preview-item"
+                *ngFor="let url of galleryPreviewUrls; let i = index"
+              >
+                <img [src]="url" alt="Galerie Vorschau" />
+                <button
+                  type="button"
+                  class="remove-btn"
+                  (click)="removeGalleryFile(i)"
+                >
+                  ×
+                </button>
               </div>
             </div>
           </div>

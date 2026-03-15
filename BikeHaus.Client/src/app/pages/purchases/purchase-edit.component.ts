@@ -159,65 +159,6 @@ import { forkJoin } from 'rxjs';
             </div>
           </div>
 
-          <!-- Seller info -->
-          <div class="form-card seller-card">
-            <h2>{{ t.seller }} ({{ t.customer }})</h2>
-            <div class="form-grid">
-              <div class="field">
-                <label>{{ t.firstNameRequired }}</label>
-                <input
-                  [(ngModel)]="seller.vorname"
-                  name="sellerVorname"
-                  required
-                />
-              </div>
-              <div class="field">
-                <label>{{ t.lastNameRequired }}</label>
-                <input
-                  [(ngModel)]="seller.nachname"
-                  name="sellerNachname"
-                  required
-                />
-              </div>
-              <div class="field full">
-                <label>{{ t.searchAddress }}</label>
-                <app-address-autocomplete
-                  placeholder="z.B. Bissierstraße 16, Freiburg"
-                  (addressSelected)="onSellerAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint">{{ t.addressHint }}</small>
-              </div>
-              <div class="field">
-                <label>{{ t.street }}</label>
-                <input [(ngModel)]="seller.strasse" name="sellerStrasse" />
-              </div>
-              <div class="field">
-                <label>{{ t.houseNumber }}</label>
-                <input [(ngModel)]="seller.hausnummer" name="sellerHausnr" />
-              </div>
-              <div class="field">
-                <label>{{ t.postalCode }}</label>
-                <input [(ngModel)]="seller.plz" name="sellerPlz" />
-              </div>
-              <div class="field">
-                <label>{{ t.city }}</label>
-                <input [(ngModel)]="seller.stadt" name="sellerStadt" />
-              </div>
-              <div class="field">
-                <label>{{ t.phone }}</label>
-                <input [(ngModel)]="seller.telefon" name="sellerTel" />
-              </div>
-              <div class="field">
-                <label>{{ t.email }}</label>
-                <input
-                  type="email"
-                  [(ngModel)]="seller.email"
-                  name="sellerEmail"
-                />
-              </div>
-            </div>
-          </div>
-
           <!-- Purchase details -->
           <div class="form-card">
             <h2>{{ t.purchaseData }}</h2>
@@ -278,6 +219,65 @@ import { forkJoin } from 'rxjs';
                   name="notizen"
                   rows="2"
                 ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seller info -->
+          <div class="form-card seller-card">
+            <h2>{{ t.seller }} ({{ t.customer }})</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>{{ t.firstNameRequired }}</label>
+                <input
+                  [(ngModel)]="seller.vorname"
+                  name="sellerVorname"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.lastNameRequired }}</label>
+                <input
+                  [(ngModel)]="seller.nachname"
+                  name="sellerNachname"
+                  required
+                />
+              </div>
+              <div class="field full">
+                <label>{{ t.searchAddress }}</label>
+                <app-address-autocomplete
+                  placeholder="z.B. Bissierstraße 16, Freiburg"
+                  (addressSelected)="onSellerAddressSelected($event)"
+                ></app-address-autocomplete>
+                <small class="hint">{{ t.addressHint }}</small>
+              </div>
+              <div class="field">
+                <label>{{ t.street }}</label>
+                <input [(ngModel)]="seller.strasse" name="sellerStrasse" />
+              </div>
+              <div class="field">
+                <label>{{ t.houseNumber }}</label>
+                <input [(ngModel)]="seller.hausnummer" name="sellerHausnr" />
+              </div>
+              <div class="field">
+                <label>{{ t.postalCode }}</label>
+                <input [(ngModel)]="seller.plz" name="sellerPlz" />
+              </div>
+              <div class="field">
+                <label>{{ t.city }}</label>
+                <input [(ngModel)]="seller.stadt" name="sellerStadt" />
+              </div>
+              <div class="field">
+                <label>{{ t.phone }}</label>
+                <input [(ngModel)]="seller.telefon" name="sellerTel" />
+              </div>
+              <div class="field">
+                <label>{{ t.email }}</label>
+                <input
+                  type="email"
+                  [(ngModel)]="seller.email"
+                  name="sellerEmail"
+                />
               </div>
             </div>
           </div>

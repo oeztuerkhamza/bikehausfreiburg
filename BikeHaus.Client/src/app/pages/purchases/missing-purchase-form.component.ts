@@ -79,6 +79,67 @@ import { AddressSuggestion } from '../../services/address.service';
             </div>
           </div>
 
+          <!-- Purchase Details -->
+          <div class="form-card">
+            <h2>{{ t.purchases }}</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>{{ t.receiptNo }}</label>
+                <input [(ngModel)]="belegNummer" name="belegNummer" />
+              </div>
+              <div class="field">
+                <label>{{ t.bicyclePrice }} *</label>
+                <input
+                  [(ngModel)]="preis"
+                  name="preis"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.plannedSellingPrice }}</label>
+                <input
+                  [(ngModel)]="verkaufspreisVorschlag"
+                  name="verkaufspreisVorschlag"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.paymentMethodRequired }}</label>
+                <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
+                  <option [value]="PaymentMethod.Bar">{{ t.cash }}</option>
+                  <option [value]="PaymentMethod.PayPal">
+                    {{ t.paypal }}
+                  </option>
+                  <option [value]="PaymentMethod.Karte">
+                    {{ t.bankTransfer }}
+                  </option>
+                </select>
+              </div>
+              <div class="field">
+                <label>{{ t.purchaseDate }} *</label>
+                <input
+                  [(ngModel)]="kaufdatum"
+                  name="kaufdatum"
+                  type="date"
+                  required
+                />
+              </div>
+              <div class="field full">
+                <label>{{ t.notes }}</label>
+                <textarea
+                  [(ngModel)]="notizen"
+                  name="notizen"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
           <!-- Seller info -->
           <div class="form-card">
             <h2>{{ t.seller }} ({{ t.customer }})</h2>
@@ -141,67 +202,6 @@ import { AddressSuggestion } from '../../services/address.service';
                   name="sellerEmail"
                   type="email"
                 />
-              </div>
-            </div>
-          </div>
-
-          <!-- Purchase Details -->
-          <div class="form-card">
-            <h2>{{ t.purchases }}</h2>
-            <div class="form-grid">
-              <div class="field">
-                <label>{{ t.receiptNo }}</label>
-                <input [(ngModel)]="belegNummer" name="belegNummer" />
-              </div>
-              <div class="field">
-                <label>{{ t.bicyclePrice }} *</label>
-                <input
-                  [(ngModel)]="preis"
-                  name="preis"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                />
-              </div>
-              <div class="field">
-                <label>{{ t.plannedSellingPrice }}</label>
-                <input
-                  [(ngModel)]="verkaufspreisVorschlag"
-                  name="verkaufspreisVorschlag"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-              <div class="field">
-                <label>{{ t.paymentMethodRequired }}</label>
-                <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
-                  <option [value]="PaymentMethod.Bar">{{ t.cash }}</option>
-                  <option [value]="PaymentMethod.PayPal">
-                    {{ t.paypal }}
-                  </option>
-                  <option [value]="PaymentMethod.Karte">
-                    {{ t.bankTransfer }}
-                  </option>
-                </select>
-              </div>
-              <div class="field">
-                <label>{{ t.purchaseDate }} *</label>
-                <input
-                  [(ngModel)]="kaufdatum"
-                  name="kaufdatum"
-                  type="date"
-                  required
-                />
-              </div>
-              <div class="field full">
-                <label>{{ t.notes }}</label>
-                <textarea
-                  [(ngModel)]="notizen"
-                  name="notizen"
-                  rows="3"
-                ></textarea>
               </div>
             </div>
           </div>
