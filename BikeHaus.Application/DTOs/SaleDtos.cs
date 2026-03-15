@@ -53,6 +53,7 @@ public record SaleDto(
 
 public record SaleCreateDto(
     int BicycleId,
+    bool IsAccessoryOnly,
     int? PurchaseId,
     CustomerCreateDto Buyer,
     decimal Preis,

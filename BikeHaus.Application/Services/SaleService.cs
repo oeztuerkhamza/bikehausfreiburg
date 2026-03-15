@@ -9,6 +9,7 @@ namespace BikeHaus.Application.Services;
 
 public class SaleService : ISaleService
 {
+    private const string AccessoryOnlyRahmennummer = "ACC-ACCESSORY-ONLY";
     private readonly ISaleRepository _saleRepository;
     private readonly IBicycleRepository _bicycleRepository;
     private readonly ICustomerRepository _customerRepository;
@@ -85,12 +86,20 @@ public class SaleService : ISaleService
 
     public async Task<SaleDto> CreateAsync(SaleCreateDto dto)
     {
-        // Verify bicycle exists and is available
-        var bicycle = await _bicycleRepository.GetByIdAsync(dto.BicycleId)
-            ?? throw new KeyNotFoundException($"Bicycle with ID {dto.BicycleId} not found.");
+        Bicycle bicycle;
+        if (dto.IsAccessoryOnly)
+        {
+            bicycle = await GetOrCreateAccessoryOnlyBicycleAsync();
+        }
+        else
+        {
+            // Verify bicycle exists and is available
+            bicycle = await _bicycleRepository.GetByIdAsync(dto.BicycleId)
+                ?? throw new KeyNotFoundException($"Bicycle with ID {dto.BicycleId} not found.");
 
-        if (bicycle.Status != BikeStatus.Available)
-            throw new InvalidOperationException("This bicycle is not available for sale.");
+            if (bicycle.Status != BikeStatus.Available)
+                throw new InvalidOperationException("This bicycle is not available for sale.");
+        }
 
         // Create or find Buyer
         var buyer = dto.Buyer.ToEntity();
@@ -99,7 +108,7 @@ public class SaleService : ISaleService
         // Create Sale
         var sale = new Sale
         {
-            BicycleId = dto.BicycleId,
+            BicycleId = bicycle.Id,
             BuyerId = buyer.Id,
             PurchaseId = dto.PurchaseId,
             Preis = dto.Preis,
@@ -153,13 +162,47 @@ public class SaleService : ISaleService
 
         var created = await _saleRepository.AddAsync(sale);
 
-        // Update bicycle status
-        bicycle.Status = BikeStatus.Sold;
-        bicycle.UpdatedAt = DateTime.UtcNow;
-        await _bicycleRepository.UpdateAsync(bicycle);
+        if (!dto.IsAccessoryOnly)
+        {
+            // Update bicycle status
+            bicycle.Status = BikeStatus.Sold;
+            bicycle.UpdatedAt = DateTime.UtcNow;
+            await _bicycleRepository.UpdateAsync(bicycle);
+        }
 
         var result = await _saleRepository.GetWithDetailsAsync(created.Id);
         return result!.ToDto();
+    }
+
+    private async Task<Bicycle> GetOrCreateAccessoryOnlyBicycleAsync()
+    {
+        var existing = await _bicycleRepository.FindAsync(b =>
+            b.Marke == "Zubehör" &&
+            b.Modell == "Direktverkauf" &&
+            b.Rahmennummer != null &&
+            b.Rahmennummer.StartsWith("ACC-"));
+
+        var accessoryBike = existing.FirstOrDefault();
+        if (accessoryBike != null)
+        {
+            return accessoryBike;
+        }
+
+        return await _bicycleRepository.AddAsync(new Bicycle
+        {
+            Marke = "Zubehör",
+            Modell = "Direktverkauf",
+            Rahmennummer = AccessoryOnlyRahmennummer,
+            Farbe = "Schwarz",
+            Reifengroesse = "28",
+            Fahrradtyp = "Sonstige",
+            Art = "Unisex",
+            Beschreibung = "System-Fahrrad für Zubehör-Direktverkäufe",
+            Status = BikeStatus.Available,
+            Zustand = BikeCondition.Neu,
+            IsPublishedOnWebsite = false,
+            IsPublishedOnKleinanzeigen = false
+        });
     }
 
     public async Task<SaleDto> UpdateAsync(int id, SaleUpdateDto dto)

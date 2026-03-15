@@ -1521,31 +1521,6 @@ export class SaleFormComponent implements OnInit {
     }
   }
 
-  private createAccessoryOnlyBikeThenSale() {
-    const syntheticRahmenNummer = `ACC-${Date.now()}`;
-    const accessoryBike = {
-      marke: 'Zubehör',
-      modell: 'Direktverkauf',
-      rahmennummer: syntheticRahmenNummer,
-      farbe: 'Schwarz',
-      reifengroesse: '28',
-      fahrradtyp: 'Sonstige',
-      beschreibung: 'Automatisch erstellt für Zubehörverkauf',
-      zustand: BikeCondition.Neu,
-    };
-
-    this.bicycleService.create(accessoryBike).subscribe({
-      next: (createdBike) => {
-        this.selectedBike = createdBike;
-        this.createSale();
-      },
-      error: () => {
-        this.submitting = false;
-        alert('Fehler beim Erstellen des Zubehör-Verkaufs');
-      },
-    });
-  }
-
   submit() {
     if (!this.isAccessoryOnly && !this.selectedBike) return;
 
@@ -1577,7 +1552,7 @@ export class SaleFormComponent implements OnInit {
     this.submitting = true;
 
     if (this.isAccessoryOnly) {
-      this.createAccessoryOnlyBikeThenSale();
+      this.createSale();
       return;
     }
 
@@ -1665,7 +1640,8 @@ export class SaleFormComponent implements OnInit {
       : undefined;
 
     const sale: SaleCreate = {
-      bicycleId: this.selectedBike!.id,
+      bicycleId: this.isAccessoryOnly ? 0 : this.selectedBike!.id,
+      isAccessoryOnly: this.isAccessoryOnly,
       purchaseId: this.purchaseId,
       buyer: saleBuyer,
       preis: this.effectiveSalePrice,

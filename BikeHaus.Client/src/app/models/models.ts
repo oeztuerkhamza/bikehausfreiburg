@@ -289,6 +289,7 @@ export interface SaleList {
 
 export interface SaleCreate {
   bicycleId: number;
+  isAccessoryOnly?: boolean;
   purchaseId?: number;
   buyer: CustomerCreate;
   preis: number;
