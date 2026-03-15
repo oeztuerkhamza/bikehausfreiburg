@@ -1,4 +1,11 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import {
+  Injectable,
+  PLATFORM_ID,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 
 export type Language = 'de' | 'en' | 'fr' | 'tr';
 
@@ -2021,6 +2028,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
 @Injectable({ providedIn: 'root' })
 export class TranslationService {
+  private platformId = inject(PLATFORM_ID);
+  private document = inject(DOCUMENT);
+  private isBrowser = isPlatformBrowser(this.platformId);
+
   private _currentLanguage = signal<Language>(this.getStoredLanguage());
 
   currentLanguage = this._currentLanguage.asReadonly();
@@ -2028,11 +2039,17 @@ export class TranslationService {
 
   setLanguage(language: Language): void {
     this._currentLanguage.set(language);
-    localStorage.setItem('bikehaus-homepage-language', language);
-    document.documentElement.lang = language;
+    if (this.isBrowser) {
+      localStorage.setItem('bikehaus-homepage-language', language);
+      this.document.documentElement.lang = language;
+    }
   }
 
   private getStoredLanguage(): Language {
+    if (!this.isBrowser) {
+      return 'de';
+    }
+
     const stored = localStorage.getItem('bikehaus-homepage-language');
     if (stored && ['de', 'en', 'fr', 'tr'].includes(stored)) {
       return stored as Language;

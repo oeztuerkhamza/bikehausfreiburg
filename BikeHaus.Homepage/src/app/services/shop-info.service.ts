@@ -1,4 +1,5 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
 import { ApiService } from './api.service';
 import { PublicShopInfo } from '../models/models';
 
@@ -7,6 +8,8 @@ import { PublicShopInfo } from '../models/models';
 })
 export class ShopInfoService {
   private apiService = inject(ApiService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
   // Cached shop info
   shopInfo = signal<PublicShopInfo | null>(null);
@@ -14,7 +17,13 @@ export class ShopInfoService {
   loaded = signal(false);
 
   constructor() {
-    this.loadShopInfo();
+    if (this.isBrowser) {
+      this.loadShopInfo();
+      return;
+    }
+
+    // Server render uses static fallback logo and skips remote API call.
+    this.loaded.set(true);
   }
 
   private loadShopInfo(): void {

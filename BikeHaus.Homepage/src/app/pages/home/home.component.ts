@@ -1,5 +1,12 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
-import { CommonModule, DOCUMENT } from '@angular/common';
+import {
+  Component,
+  PLATFORM_ID,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+} from '@angular/core';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
@@ -66,10 +73,13 @@ interface Testimonial {
                   >{{ t().ctaSecondary }}</a
                 >
               </div>
-              <div class="hero-stats fade-in d4" *ngIf="shopInfo()">
+              <div
+                class="hero-stats fade-in d4"
+                [class.hero-stats-hidden]="!shopInfo()"
+              >
                 <div class="h-stat">
                   <span class="h-stat-n">{{
-                    shopInfo()!.totalActiveListings
+                    shopInfo()?.totalActiveListings ?? '—'
                   }}</span>
                   <span class="h-stat-l">{{ t().bikesAvailable }}</span>
                 </div>
@@ -1467,6 +1477,10 @@ interface Testimonial {
         display: flex;
         justify-content: center;
         gap: 3.5rem;
+
+        .hero-stats-hidden {
+          visibility: hidden;
+        }
       }
 
       .h-stat {
@@ -2781,6 +2795,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private titleService = inject(Title);
   private metaService = inject(Meta);
   private document = inject(DOCUMENT);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -2948,10 +2964,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Add Review/Rating Schema for SEO
     this.addReviewSchema();
 
-    // Start service carousel
-    this.startCarouselTimer();
+    if (this.isBrowser) {
+      // Browser-only behavior: timers and API subscriptions
+      this.startCarouselTimer();
+      this.loadData();
+      return;
+    }
 
-    this.loadData();
+    // Server render should not block on client API calls.
+    this.loading.set(false);
   }
 
   private addReviewSchema(): void {

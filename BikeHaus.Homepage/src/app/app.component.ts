@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { Component, PLATFORM_ID, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavbarComponent } from './components/navbar/navbar.component';
@@ -37,11 +38,16 @@ export class AppComponent implements OnInit {
   private title = inject(Title);
   private meta = inject(Meta);
   private translationService = inject(TranslationService);
+  private platformId = inject(PLATFORM_ID);
+  private document = inject(DOCUMENT);
 
   ngOnInit(): void {
     const t = this.translationService.translations();
     this.title.setTitle(t.metaTitle);
     this.meta.updateTag({ name: 'description', content: t.metaDescription });
-    document.documentElement.lang = this.translationService.currentLanguage();
+    if (isPlatformBrowser(this.platformId)) {
+      this.document.documentElement.lang =
+        this.translationService.currentLanguage();
+    }
   }
 }
