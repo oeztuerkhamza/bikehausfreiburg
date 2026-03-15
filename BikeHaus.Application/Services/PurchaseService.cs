@@ -55,6 +55,7 @@ public class PurchaseService : IPurchaseService
                 (p.BelegNummer != null && p.BelegNummer.ToLower().Contains(term)) ||
                 p.Bicycle.Marke.ToLower().Contains(term) ||
                 p.Bicycle.Modell.ToLower().Contains(term) ||
+                (p.Bicycle.Rahmennummer != null && p.Bicycle.Rahmennummer.ToLower().Contains(term)) ||
 
                 p.Seller.Vorname.ToLower().Contains(term) ||
                 p.Seller.Nachname.ToLower().Contains(term)) &&

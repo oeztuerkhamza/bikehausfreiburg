@@ -38,7 +38,18 @@ import { AddressSuggestion } from '../../services/address.service';
     <div class="page">
       <div class="page-header">
         <h1>{{ t.newSaleTitle }}</h1>
-        <a routerLink="/sales" class="btn btn-outline">{{ t.back }}</a>
+        <div class="page-header-actions">
+          <label class="checkbox-label accessory-toggle">
+            <input
+              type="checkbox"
+              [(ngModel)]="isAccessoryOnly"
+              name="isAccessoryOnly"
+              (ngModelChange)="onAccessoryOnlyChange()"
+            />
+            Nur Zubehörverkauf (ohne Fahrrad)
+          </label>
+          <a routerLink="/sales" class="btn btn-outline">{{ t.back }}</a>
+        </div>
       </div>
 
       <form (ngSubmit)="submit()" #f="ngForm">
@@ -291,17 +302,6 @@ import { AddressSuggestion } from '../../services/address.service';
           <div class="form-card">
             <h2>{{ t.saleData }}</h2>
             <div class="form-grid">
-              <div class="field full">
-                <label class="checkbox-label">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="isAccessoryOnly"
-                    name="isAccessoryOnly"
-                    (ngModelChange)="onAccessoryOnlyChange()"
-                  />
-                  Nur Zubehörverkauf (ohne Fahrrad)
-                </label>
-              </div>
               <div class="field">
                 <label>{{ t.receiptNo }}</label>
                 <input
@@ -605,10 +605,36 @@ import { AddressSuggestion } from '../../services/address.service';
         align-items: center;
         margin-bottom: 22px;
       }
+      .page-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .accessory-toggle {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        white-space: nowrap;
+      }
       .page-header h1 {
         font-size: 1.5rem;
         font-weight: 800;
         color: var(--text-primary);
+      }
+      @media (max-width: 900px) {
+        .page-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .page-header-actions {
+          width: 100%;
+          justify-content: space-between;
+        }
+        .accessory-toggle {
+          white-space: normal;
+        }
       }
       .form-sections {
         display: flex;
