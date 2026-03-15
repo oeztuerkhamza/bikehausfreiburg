@@ -39,14 +39,18 @@ import { AddressSuggestion } from '../../services/address.service';
       <div class="page-header">
         <h1>{{ t.newSaleTitle }}</h1>
         <div class="page-header-actions">
-          <label class="checkbox-label accessory-toggle">
+          <label
+            class="checkbox-label accessory-toggle"
+            [class.active]="isAccessoryOnly"
+          >
             <input
               type="checkbox"
               [(ngModel)]="isAccessoryOnly"
               name="isAccessoryOnly"
               (ngModelChange)="onAccessoryOnlyChange()"
             />
-            Nur Zubehörverkauf (ohne Fahrrad)
+            <span class="accessory-toggle-indicator">✓</span>
+            <span>Nur Zubehörverkauf (ohne Fahrrad)</span>
           </label>
           <a routerLink="/sales" class="btn btn-outline">{{ t.back }}</a>
         </div>
@@ -612,10 +616,53 @@ import { AddressSuggestion } from '../../services/address.service';
         flex-wrap: wrap;
       }
       .accessory-toggle {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 14px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 10px;
+        background: var(--bg-card, #fff);
         font-size: 0.9rem;
         font-weight: 600;
         color: var(--text-secondary, #64748b);
         white-space: nowrap;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.18s ease;
+      }
+      .accessory-toggle:hover {
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--text-primary);
+      }
+      .accessory-toggle input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .accessory-toggle-indicator {
+        width: 18px;
+        height: 18px;
+        border-radius: 5px;
+        border: 1.5px solid var(--border-light, #cbd5e1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        line-height: 1;
+        color: transparent;
+        background: transparent;
+        transition: all 0.18s ease;
+      }
+      .accessory-toggle.active {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.1));
+        color: var(--text-primary);
+      }
+      .accessory-toggle.active .accessory-toggle-indicator {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary, #6366f1);
+        color: #fff;
       }
       .page-header h1 {
         font-size: 1.5rem;
@@ -1201,6 +1248,14 @@ export class SaleFormComponent implements OnInit {
   ngOnInit() {
     const _d = new Date();
     this.verkaufsdatum = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`;
+
+    const accessoryOnlyParam =
+      this.route.snapshot.queryParamMap.get('accessoryOnly');
+    if (accessoryOnlyParam === 'true') {
+      this.isAccessoryOnly = true;
+      this.onAccessoryOnlyChange();
+    }
+
     this.bicycleService.getAvailable().subscribe((bikes) => {
       this.availableBikes = bikes;
       const preselect = this.route.snapshot.queryParamMap.get('bicycleId');

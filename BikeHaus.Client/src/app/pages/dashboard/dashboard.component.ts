@@ -142,6 +142,41 @@ import { TranslationService } from '../../services/translation.service';
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </a>
+        <a
+          routerLink="/sales/new"
+          [queryParams]="{ accessoryOnly: 'true' }"
+          class="shortcut-card card-accent"
+        >
+          <div class="shortcut-icon-wrap accent-amber">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="7" width="18" height="13" rx="2" />
+              <path d="M7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+            </svg>
+          </div>
+          <div class="shortcut-info">
+            <div class="shortcut-label">Zubehörverkauf</div>
+            <div class="shortcut-desc">Nur Zubehör ohne Fahrrad</div>
+          </div>
+          <svg
+            class="shortcut-arrow"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </a>
       </div>
 
       <div class="recent-sections">
@@ -164,7 +199,7 @@ import { TranslationService } from '../../services/translation.service';
           </div>
           <div
             class="table-wrap"
-            *ngIf="data.recentPurchases?.length; else noPurchases"
+            *ngIf="data.recentPurchases.length; else noPurchases"
           >
             <table>
               <thead>
@@ -228,10 +263,7 @@ import { TranslationService } from '../../services/translation.service';
               </svg>
             </a>
           </div>
-          <div
-            class="table-wrap"
-            *ngIf="data.recentSales?.length; else noSales"
-          >
+          <div class="table-wrap" *ngIf="data.recentSales.length; else noSales">
             <table>
               <thead>
                 <tr>

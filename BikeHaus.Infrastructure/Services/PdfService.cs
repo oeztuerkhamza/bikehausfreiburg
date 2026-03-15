@@ -382,6 +382,10 @@ public class PdfService : IPdfService
         // Determine warranty text based on bike condition
         var isNeu = sale.Bicycle.Zustand == BikeCondition.Neu;
         var warrantyText = isNeu ? NeuWarrantyText : GebrauchtWarrantyText;
+        var isAccessoryOnlySale =
+            string.Equals(sale.Bicycle.Marke, "Zubehör", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(sale.Bicycle.Modell, "Direktverkauf", StringComparison.OrdinalIgnoreCase) &&
+            (sale.Bicycle.Rahmennummer?.StartsWith("ACC-", StringComparison.OrdinalIgnoreCase) ?? false);
 
         var document = QuestPDF.Fluent.Document.Create(container =>
         {
@@ -447,54 +451,57 @@ public class PdfService : IPdfService
                 {
                     var hasBuyerName = !string.IsNullOrWhiteSpace(sale.Buyer.Vorname) || !string.IsNullOrWhiteSpace(sale.Buyer.Nachname);
 
-                    // Bicycle Info Section - print-friendly with price
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRAD-DETAILS");
-                    col.Item().Table(table =>
+                    // Bicycle Info Section - hidden for accessory-only receipts
+                    if (!isAccessoryOnlySale)
                     {
-                        table.ColumnsDefinition(columns =>
+                        col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRAD-DETAILS");
+                        col.Item().Table(table =>
                         {
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                            });
+
+                            // Header row - border style instead of filled
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Marke").FontSize(9).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Marke).FontSize(10).Bold();
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennummer").FontSize(9).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Rahmennummer).FontSize(10).Bold();
+
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Modell").FontSize(9).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Modell).FontSize(10);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Farbe").FontSize(9).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Farbe).FontSize(10);
+
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Reifengröße").FontSize(9).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Reifengroesse).FontSize(10);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Kauf Beleg Nr.").FontSize(9).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Column(c =>
+                            {
+                                c.Item().Text(matchedPurchase?.BelegNummer ?? "-").FontSize(10);
+                                if (includeAnkaufPreis && matchedPurchase != null)
+                                    c.Item().Text($"Ankaufpreis: {matchedPurchase.Preis:N2} €").FontSize(8).FontColor(Colors.Grey.Darken2);
+                            });
+
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Fahrradtyp").FontSize(9).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Fahrradtyp ?? "-").FontSize(10);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Zustand").FontSize(9).FontColor(Colors.Grey.Darken2);
+                            if (isNeu)
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("NEU").FontSize(10).Bold().FontColor("#155724");
+                            else
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("GEBRAUCHT").FontSize(10).Bold().FontColor("#856404");
+
+                            // Empty cells for alignment
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("").FontSize(9);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("").FontSize(9);
+                            // Price row - right side
+                            table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text("Preis").FontSize(9).Bold().FontColor(AccentColor);
+                            table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{sale.Preis:N2} €").FontSize(10).Bold().FontColor(AccentColor);
                         });
-
-                        // Header row - border style instead of filled
-                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Marke").FontSize(9).Bold().FontColor(PrimaryColor);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Marke).FontSize(10).Bold();
-                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennummer").FontSize(9).Bold().FontColor(PrimaryColor);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Rahmennummer).FontSize(10).Bold();
-
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Modell").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Modell).FontSize(10);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Farbe").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Farbe).FontSize(10);
-
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Reifengröße").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Reifengroesse).FontSize(10);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Kauf Beleg Nr.").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Column(c =>
-                        {
-                            c.Item().Text(matchedPurchase?.BelegNummer ?? "-").FontSize(10);
-                            if (includeAnkaufPreis && matchedPurchase != null)
-                                c.Item().Text($"Ankaufpreis: {matchedPurchase.Preis:N2} €").FontSize(8).FontColor(Colors.Grey.Darken2);
-                        });
-
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Fahrradtyp").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(sale.Bicycle.Fahrradtyp ?? "-").FontSize(10);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Zustand").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        if (isNeu)
-                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("NEU").FontSize(10).Bold().FontColor("#155724");
-                        else
-                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("GEBRAUCHT").FontSize(10).Bold().FontColor("#856404");
-
-                        // Empty cells for alignment
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("").FontSize(9);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("").FontSize(9);
-                        // Price row - right side
-                        table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text("Preis").FontSize(9).Bold().FontColor(AccentColor);
-                        table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{sale.Preis:N2} €").FontSize(10).Bold().FontColor(AccentColor);
-                    });
+                    }
 
                     // Accessories if any
                     if (sale.Accessories.Any())
@@ -571,30 +578,33 @@ public class PdfService : IPdfService
                         });
                     });
 
-                    // Warranty Section - only show the relevant condition
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("GARANTIEBEDINGUNGEN");
-                    col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(wCol =>
+                    // Warranty Section - only for bicycle sales
+                    if (!isAccessoryOnlySale)
                     {
-                        wCol.Item().Row(wRow =>
+                        col.Item().PaddingTop(6).Element(SectionHeader).Text("GARANTIEBEDINGUNGEN");
+                        col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(wCol =>
                         {
-                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
-                            wRow.RelativeItem().Text(text =>
+                            wCol.Item().Row(wRow =>
                             {
-                                if (isNeu)
+                                wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
+                                wRow.RelativeItem().Text(text =>
                                 {
-                                    text.Span("NEU: ").Bold().FontSize(9);
-                                    text.Span(NeuWarrantyText).FontSize(9).FontColor(Colors.Grey.Darken3);
-                                }
-                                else
-                                {
-                                    text.Span("GEBRAUCHT: ").Bold().FontSize(9);
-                                    text.Span(GebrauchtWarrantyText).FontSize(9).FontColor(Colors.Grey.Darken3);
-                                }
+                                    if (isNeu)
+                                    {
+                                        text.Span("NEU: ").Bold().FontSize(9);
+                                        text.Span(NeuWarrantyText).FontSize(9).FontColor(Colors.Grey.Darken3);
+                                    }
+                                    else
+                                    {
+                                        text.Span("GEBRAUCHT: ").Bold().FontSize(9);
+                                        text.Span(GebrauchtWarrantyText).FontSize(9).FontColor(Colors.Grey.Darken3);
+                                    }
+                                });
                             });
-                        });
 
-                        wCol.Item().PaddingTop(3).Text(RepairNote).FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
-                    });
+                            wCol.Item().PaddingTop(3).Text(RepairNote).FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
+                        });
+                    }
 
                     // Notes if present
                     if (!string.IsNullOrEmpty(sale.Notizen))
@@ -610,7 +620,7 @@ public class PdfService : IPdfService
                     col.Item().PaddingTop(8).Row(row =>
                     {
                         // KÄUFER - left side
-                        if (hasBuyerName)
+                        if (hasBuyerName && !isAccessoryOnlySale)
                         {
                             row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(buyerCol =>
                             {
