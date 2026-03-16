@@ -79,44 +79,9 @@ import { AddressSuggestion } from '../../services/address.service';
                     >🆕 {{ t.newBicycle }}</span
                   >
                   <span *ngIf="!isQuickAddMode">{{ t.bicycleDetails }}</span>
-                  <span
-                    *ngIf="hasBikeErrors && !bikeEditExpanded"
-                    class="bike-error-badge"
-                    >{{ t.requiredFieldsMissing }}</span
-                  >
                 </h2>
-                <button
-                  type="button"
-                  class="btn btn-sm btn-outline"
-                  [class.btn-error]="hasBikeErrors && !bikeEditExpanded"
-                  (click)="bikeEditExpanded = !bikeEditExpanded"
-                  *ngIf="!isQuickAddMode"
-                >
-                  {{ bikeEditExpanded ? '▲ ' + t.collapse : '▼ ' + t.expand }}
-                </button>
               </div>
-              <div
-                class="bike-summary"
-                *ngIf="!bikeEditExpanded && !isQuickAddMode"
-              >
-                <span
-                  ><strong
-                    >{{ bikeEdit.marke }} {{ bikeEdit.modell }}</strong
-                  ></span
-                >
-                <span
-                  *ngIf="bikeEdit.rahmennummer"
-                  style="text-transform: uppercase"
-                  >{{ t.frameNumber }}: {{ bikeEdit.rahmennummer }}</span
-                >
-                <span *ngIf="bikeEdit.rahmengroesse"
-                  >{{ t.frameSize }}: {{ bikeEdit.rahmengroesse }}</span
-                >
-                <span
-                  >{{ bikeEdit.farbe }} | {{ bikeEdit.reifengroesse }}"</span
-                >
-              </div>
-              <div class="form-grid" *ngIf="bikeEditExpanded || isQuickAddMode">
+              <div class="form-grid">
                 <!-- Rahmennummer first with autocomplete dropdown -->
                 <div
                   class="field full rahmen-autocomplete-wrapper"
@@ -290,6 +255,21 @@ import { AddressSuggestion } from '../../services/address.service';
                     <option value="Neu">{{ t.newCondition }}</option>
                   </select>
                 </div>
+                <div class="field" [class.field-error]="bikeErrors['preis']">
+                  <label>Preis (€) *</label>
+                  <span class="error-msg" *ngIf="bikeErrors['preis']">{{
+                    t.requiredField
+                  }}</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    [(ngModel)]="preis"
+                    name="preis"
+                    required
+                    (ngModelChange)="bikeErrors['preis'] = false"
+                  />
+                </div>
                 <div class="field full">
                   <label>{{ t.descriptionEquipment }}</label>
                   <textarea
@@ -313,56 +293,6 @@ import { AddressSuggestion } from '../../services/address.service';
                   name="belegNummer"
                   placeholder="z.B. VB-20260219-001"
                 />
-              </div>
-              <div class="field" *ngIf="!isAccessoryOnly">
-                <label>Preis (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="preis"
-                  name="preis"
-                />
-              </div>
-              <div class="field">
-                <label>{{ t.paymentMethodRequired }}</label>
-                <div class="zahlungen-list">
-                  <div
-                    class="zahlung-item"
-                    *ngFor="let z of zahlungen; let i = index"
-                  >
-                    <select [(ngModel)]="z.zahlungsart" [name]="'zArt' + i">
-                      <option value="Bar">{{ t.cash }}</option>
-                      <option value="PayPal">{{ t.paypal }}</option>
-                      <option value="Karte">{{ t.bankTransfer }}</option>
-                    </select>
-                    <ng-container *ngIf="!isAccessoryOnly">
-                      <input
-                        type="number"
-                        step="0.01"
-                        [(ngModel)]="z.betrag"
-                        [name]="'zBetrag' + i"
-                        placeholder="Betrag"
-                      />
-                      <span class="zahlung-euro">€</span>
-                      <button
-                        type="button"
-                        class="btn btn-icon btn-danger"
-                        (click)="removeZahlung(i)"
-                        *ngIf="zahlungen.length > 1"
-                      >
-                        🗑️
-                      </button>
-                    </ng-container>
-                  </div>
-                  <button
-                    type="button"
-                    class="btn btn-outline btn-sm"
-                    (click)="addZahlung()"
-                    *ngIf="!isAccessoryOnly"
-                  >
-                    + Weitere Zahlungsart
-                  </button>
-                </div>
               </div>
               <div class="field">
                 <label>{{ t.saleDateRequired }}</label>
@@ -507,27 +437,6 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
             </div>
-
-            <div class="grand-total" *ngIf="effectiveGrandTotal > 0">
-              <div class="total-row" *ngIf="!isAccessoryOnly && preis > 0">
-                <span>{{ t.bicyclePrice }}:</span>
-                <span>{{ preis | number: '1.2-2' }} €</span>
-              </div>
-              <div class="total-row" *ngIf="accessories.length > 0">
-                <span>{{ t.accessories }}:</span>
-                <span>{{ accessoriesTotal | number: '1.2-2' }} €</span>
-              </div>
-              <div class="total-row discount" *ngIf="rabatt > 0">
-                <span>{{ t.discount }}:</span>
-                <span class="discount-value"
-                  >- {{ rabatt | number: '1.2-2' }} €</span
-                >
-              </div>
-              <div class="total-row grand">
-                <span>{{ t.grandTotal }}:</span>
-                <strong>{{ effectiveGrandTotal | number: '1.2-2' }} €</strong>
-              </div>
-            </div>
           </div>
 
           <!-- Buyer info -->
@@ -567,6 +476,90 @@ import { AddressSuggestion } from '../../services/address.service';
               <div class="field">
                 <label>Stadt</label>
                 <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2>Preisübersicht</h2>
+            <table class="price-summary-table">
+              <tr *ngIf="!isAccessoryOnly">
+                <th>Fahrradpreis</th>
+                <td>{{ preis | number: '1.2-2' }} €</td>
+              </tr>
+              <tr>
+                <th>Zubehörpreis</th>
+                <td>{{ accessoriesTotal | number: '1.2-2' }} €</td>
+              </tr>
+              <tr>
+                <th>Rabatt</th>
+                <td>- {{ rabatt | number: '1.2-2' }} €</td>
+              </tr>
+              <tr class="table-total-row">
+                <th>Gesamt</th>
+                <td>{{ effectiveGrandTotal | number: '1.2-2' }} €</td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="form-card">
+            <h2>Ödeme Bilgileri</h2>
+            <div class="zahlungen-list">
+              <div
+                class="zahlung-item"
+                *ngFor="let z of zahlungen; let i = index"
+              >
+                <select [(ngModel)]="z.zahlungsart" [name]="'zArt' + i">
+                  <option value="Bar">{{ t.cash }}</option>
+                  <option value="PayPal">{{ t.paypal }}</option>
+                  <option value="Karte">{{ t.bankTransfer }}</option>
+                </select>
+                <input
+                  type="number"
+                  step="0.01"
+                  [(ngModel)]="z.betrag"
+                  [name]="'zBetrag' + i"
+                  placeholder="Betrag"
+                />
+                <span class="zahlung-euro">€</span>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm"
+                  (click)="fillRemaining(i)"
+                  *ngIf="remainingAmount > 0"
+                >
+                  Kalanı Ekle
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-icon btn-danger"
+                  (click)="removeZahlung(i)"
+                  *ngIf="zahlungen.length > 1"
+                >
+                  🗑️
+                </button>
+              </div>
+              <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                (click)="addZahlung()"
+              >
+                + Weitere Zahlungsart
+              </button>
+            </div>
+
+            <div class="payment-status">
+              <div class="total-row">
+                <span>Ödenen</span>
+                <span>{{ paidAmount | number: '1.2-2' }} €</span>
+              </div>
+              <div class="total-row remaining" *ngIf="remainingAmount > 0">
+                <span>Kalan</span>
+                <strong>{{ remainingAmount | number: '1.2-2' }} €</strong>
+              </div>
+              <div class="total-row" *ngIf="remainingAmount === 0">
+                <span>Kalan</span>
+                <strong>0.00 €</strong>
               </div>
             </div>
           </div>
@@ -1002,6 +995,35 @@ import { AddressSuggestion } from '../../services/address.service';
         padding-top: 8px;
         border-top: 1px dashed var(--border-light, #e2e8f0);
       }
+      .price-summary-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .price-summary-table th,
+      .price-summary-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+        text-align: left;
+      }
+      .price-summary-table td {
+        text-align: right;
+        font-weight: 600;
+      }
+      .table-total-row th,
+      .table-total-row td {
+        font-weight: 800;
+        font-size: 1.02rem;
+      }
+      .payment-status {
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 10px;
+        background: var(--bg-secondary, #f8fafc);
+        border: 1px solid var(--border-light, #e2e8f0);
+      }
+      .payment-status .remaining {
+        color: var(--accent-danger, #ef4444);
+      }
       .seller-signature-section {
         margin-top: 16px;
         padding-top: 16px;
@@ -1134,8 +1156,8 @@ import { AddressSuggestion } from '../../services/address.service';
 export class SaleFormComponent implements OnInit {
   private translationService = inject(TranslationService);
   private readonly defaultBuyer = {
-    vorname: 'Lauf',
-    nachname: 'Kunde',
+    vorname: '',
+    nachname: '',
   };
 
   colorOptions = [
@@ -1198,7 +1220,7 @@ export class SaleFormComponent implements OnInit {
   purchaseId: number | undefined = undefined;
 
   // Bicycle edit
-  bikeEditExpanded = false;
+  bikeEditExpanded = true;
   isQuickAddMode = false;
   bikeErrors: { [key: string]: boolean } = {};
   rahmenMatchBike: Bicycle | null = null;
@@ -1243,6 +1265,14 @@ export class SaleFormComponent implements OnInit {
       0,
       this.effectiveSalePrice + this.accessoriesTotal - this.rabatt,
     );
+  }
+
+  get paidAmount(): number {
+    return this.zahlungen.reduce((sum, z) => sum + (z.betrag || 0), 0);
+  }
+
+  get remainingAmount(): number {
+    return Math.max(0, this.effectiveGrandTotal - this.paidAmount);
   }
 
   constructor(
@@ -1488,6 +1518,12 @@ export class SaleFormComponent implements OnInit {
     this.zahlungen.push({ zahlungsart: PaymentMethod.Bar, betrag: 0 });
   }
 
+  fillRemaining(index: number) {
+    if (this.remainingAmount <= 0) return;
+    this.zahlungen[index].betrag =
+      (this.zahlungen[index].betrag || 0) + this.remainingAmount;
+  }
+
   removeZahlung(index: number) {
     this.zahlungen.splice(index, 1);
   }
@@ -1500,6 +1536,7 @@ export class SaleFormComponent implements OnInit {
     if (!this.bikeEdit.farbe) this.bikeErrors['farbe'] = true;
     if (!this.bikeEdit.reifengroesse) this.bikeErrors['reifengroesse'] = true;
     if (!this.bikeEdit.fahrradtyp) this.bikeErrors['fahrradtyp'] = true;
+    if (this.preis <= 0) this.bikeErrors['preis'] = true;
     return Object.keys(this.bikeErrors).length === 0;
   }
 
@@ -1514,7 +1551,7 @@ export class SaleFormComponent implements OnInit {
       this.zahlungen = [
         {
           zahlungsart: this.zahlungen[0]?.zahlungsart || PaymentMethod.Bar,
-          betrag: this.effectiveGrandTotal,
+          betrag: 0,
         },
       ];
       return;
@@ -1533,13 +1570,33 @@ export class SaleFormComponent implements OnInit {
       this.zahlungen = [
         {
           zahlungsart: this.zahlungen[0]?.zahlungsart || PaymentMethod.Bar,
-          betrag: this.effectiveGrandTotal,
+          betrag: 0,
         },
       ];
     }
 
-    if (!this.verkaufsdatum || this.zahlungen.every((z) => z.betrag <= 0)) {
-      alert('Bitte Zahlungsart/Betrag und Verkaufsdatum ausfüllen.');
+    // If payment is not split, use the first selected payment method for full amount.
+    if (this.zahlungen.length === 1 && this.effectiveGrandTotal > 0) {
+      this.zahlungen[0].betrag = this.effectiveGrandTotal;
+    }
+
+    if (!this.verkaufsdatum) {
+      alert('Bitte Verkaufsdatum ausfüllen.');
+      return;
+    }
+
+    if (
+      this.effectiveGrandTotal > 0 &&
+      this.zahlungen.every((z) => z.betrag <= 0)
+    ) {
+      alert('Bitte mindestens eine Zahlung eintragen.');
+      return;
+    }
+
+    if (this.remainingAmount > 0.009) {
+      alert(
+        `Es bleibt ein Restbetrag von ${this.remainingAmount.toFixed(2)} €. Bitte vollständig bezahlen.`,
+      );
       return;
     }
 
@@ -1579,7 +1636,19 @@ export class SaleFormComponent implements OnInit {
         next: (createdBike) => {
           this.selectedBike = createdBike;
           this.isQuickAddMode = false;
-          this.createSale();
+          const bikeUpdate = this.buildBikeUpdate(createdBike.status);
+          this.bicycleService.update(createdBike.id, bikeUpdate).subscribe({
+            next: () => {
+              this.selectedBike!.zustand = this.bikeEdit.zustand;
+              this.selectedBike!.verkaufspreisVorschlag =
+                bikeUpdate.verkaufspreisVorschlag;
+              this.createSale();
+            },
+            error: () => {
+              this.submitting = false;
+              alert('Fehler beim Aktualisieren des Fahrrads');
+            },
+          });
         },
         error: () => {
           this.submitting = false;
@@ -1596,7 +1665,26 @@ export class SaleFormComponent implements OnInit {
       return;
     }
 
-    const bikeUpdate: BicycleUpdate = {
+    const bikeUpdate = this.buildBikeUpdate(selectedBike.status);
+
+    // Update bicycle first, then create sale
+    this.bicycleService.update(selectedBike.id, bikeUpdate).subscribe({
+      next: () => {
+        // Update local selectedBike to reflect changes (for warranty calculation)
+        this.selectedBike!.zustand = this.bikeEdit.zustand;
+        this.selectedBike!.verkaufspreisVorschlag =
+          bikeUpdate.verkaufspreisVorschlag;
+        this.createSale();
+      },
+      error: () => {
+        this.submitting = false;
+        alert('Fehler beim Aktualisieren des Fahrrads');
+      },
+    });
+  }
+
+  private buildBikeUpdate(status: Bicycle['status']): BicycleUpdate {
+    return {
       marke: this.bikeEdit.marke,
       modell: this.bikeEdit.modell,
       rahmennummer: this.bikeEdit.rahmennummer || undefined,
@@ -1605,22 +1693,10 @@ export class SaleFormComponent implements OnInit {
       reifengroesse: this.bikeEdit.reifengroesse,
       fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
       beschreibung: this.bikeEdit.beschreibung || undefined,
-      status: selectedBike.status,
+      status,
       zustand: this.bikeEdit.zustand,
+      verkaufspreisVorschlag: this.preis > 0 ? this.preis : undefined,
     };
-
-    // Update bicycle first, then create sale
-    this.bicycleService.update(selectedBike.id, bikeUpdate).subscribe({
-      next: () => {
-        // Update local selectedBike to reflect changes (for warranty calculation)
-        this.selectedBike!.zustand = this.bikeEdit.zustand;
-        this.createSale();
-      },
-      error: () => {
-        this.submitting = false;
-        alert('Fehler beim Aktualisieren des Fahrrads');
-      },
-    });
   }
 
   private createSale() {

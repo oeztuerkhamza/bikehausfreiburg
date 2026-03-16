@@ -275,6 +275,8 @@ export interface Sale {
 export interface SaleList {
   id: number;
   belegNummer: string;
+  bicycleId: number;
+  purchaseId?: number;
   bikeInfo: string;
   rahmennummer?: string;
   buyerName: string;

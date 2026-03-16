@@ -73,6 +73,8 @@ public record SaleCreateDto(
 public record SaleListDto(
     int Id,
     string BelegNummer,
+    int BicycleId,
+    int? PurchaseId,
     string BikeInfo,
     string? Rahmennummer,
     string BuyerName,

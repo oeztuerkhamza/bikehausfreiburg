@@ -147,6 +147,8 @@ public static class MappingExtensions
     public static SaleListDto ToListDto(this Sale entity) => new(
         entity.Id,
         entity.BelegNummer,
+        entity.BicycleId,
+        entity.PurchaseId,
         $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
         entity.Bicycle.Rahmennummer,
         entity.Buyer.FullName,

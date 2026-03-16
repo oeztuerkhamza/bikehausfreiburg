@@ -9,11 +9,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SaleService } from '../../services/sale.service';
+import { PurchaseService } from '../../services/purchase.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
-import { SaleList, PaginatedResult } from '../../models/models';
+import {
+  SaleList,
+  PaginatedResult,
+  PurchaseCreateForExistingBike,
+} from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
@@ -170,6 +175,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <tr
               *ngFor="let s of paginatedResult?.items"
               class="clickable-row"
+              [class.row-with-purchase]="hasPurchase(s)"
               (click)="toggleMenu($event, s)"
             >
               <td class="mono">{{ s.belegNummer }}</td>
@@ -207,6 +213,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                     <span class="popup-icon">⬇️</span>
                     {{ t.download }}
                   </button>
+                  <button
+                    class="popup-item"
+                    *ngIf="canAddPurchase(s)"
+                    (click)="openAddPurchaseDialog(s)"
+                  >
+                    <span class="popup-icon">🧾</span>
+                    Ankauf detail hinzufügen
+                  </button>
                   <div class="popup-divider"></div>
                   <button
                     class="popup-item popup-item-danger"
@@ -232,6 +246,47 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           (pageChange)="onPageChange($event)"
           (pageSizeChange)="onPageSizeChange($event)"
         ></app-pagination>
+      </div>
+
+      <div
+        class="purchase-dialog-backdrop"
+        *ngIf="showAddPurchaseDialog"
+        (click)="closeAddPurchaseDialog()"
+      >
+        <div class="purchase-dialog" (click)="$event.stopPropagation()">
+          <h3>Ankauf detail hinzufügen</h3>
+          <div class="form-grid">
+            <div class="field">
+              <label>Ankauf Beleg-Nr.</label>
+              <input [(ngModel)]="purchaseDialog.belegNummer" />
+            </div>
+            <div class="field">
+              <label>Preis (€) *</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                [(ngModel)]="purchaseDialog.preis"
+              />
+            </div>
+            <div class="field full">
+              <label>Datum *</label>
+              <input type="date" [(ngModel)]="purchaseDialog.kaufdatum" />
+            </div>
+          </div>
+          <div class="dialog-actions">
+            <button class="btn btn-outline" (click)="closeAddPurchaseDialog()">
+              Abbrechen
+            </button>
+            <button
+              class="btn btn-primary"
+              [disabled]="savingPurchase"
+              (click)="savePurchaseDetails()"
+            >
+              {{ savingPurchase ? 'Speichern...' : 'Speichern' }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -396,6 +451,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .clickable-row:hover td {
         background: var(--table-hover, #f1f5f9);
       }
+      .row-with-purchase td {
+        background: rgba(16, 185, 129, 0.09);
+      }
+      .row-with-purchase:hover td {
+        background: rgba(16, 185, 129, 0.16);
+      }
       .actions-cell {
         position: relative;
         text-align: center;
@@ -452,6 +513,58 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .popup-icon {
         font-size: 1rem;
       }
+      .purchase-dialog-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 16px;
+      }
+      .purchase-dialog {
+        width: min(560px, 100%);
+        background: var(--bg-card, #fff);
+        border-radius: 14px;
+        border: 1px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-lg);
+        padding: 20px;
+      }
+      .purchase-dialog h3 {
+        margin: 0 0 14px;
+        color: var(--text-primary);
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .field.full {
+        grid-column: 1 / -1;
+      }
+      .field label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+      }
+      .field input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 10px;
+        background: var(--bg-card);
+        color: var(--text-primary);
+      }
+      .dialog-actions {
+        margin-top: 16px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
       .badge {
         display: inline-block;
         padding: 4px 11px;
@@ -485,6 +598,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 })
 export class SaleListComponent implements OnInit {
   private saleService = inject(SaleService);
+  private purchaseService = inject(PurchaseService);
   private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
   private notificationService = inject(NotificationService);
@@ -509,6 +623,14 @@ export class SaleListComponent implements OnInit {
   pageSize = 20;
   showFilters = false;
   activeMenuId: number | null = null;
+  showAddPurchaseDialog = false;
+  savingPurchase = false;
+  selectedSaleForPurchase: SaleList | null = null;
+  purchaseDialog = {
+    belegNummer: '',
+    preis: 0,
+    kaufdatum: '',
+  };
 
   get t() {
     return this.translationService.translations();
@@ -622,6 +744,78 @@ export class SaleListComponent implements OnInit {
   toggleMenu(event: MouseEvent, s: SaleList) {
     event.stopPropagation();
     this.activeMenuId = this.activeMenuId === s.id ? null : s.id;
+  }
+
+  hasPurchase(s: SaleList): boolean {
+    return !!s.purchaseId;
+  }
+
+  isAccessoryOnlySale(s: SaleList): boolean {
+    return !!s.rahmennummer?.startsWith('ACC-');
+  }
+
+  canAddPurchase(s: SaleList): boolean {
+    return (
+      !this.hasPurchase(s) && !this.isAccessoryOnlySale(s) && !!s.bicycleId
+    );
+  }
+
+  openAddPurchaseDialog(s: SaleList) {
+    this.closeMenu();
+    this.selectedSaleForPurchase = s;
+    this.purchaseDialog = {
+      belegNummer: '',
+      preis: s.preis || 0,
+      kaufdatum: new Date().toISOString().slice(0, 10),
+    };
+    this.showAddPurchaseDialog = true;
+  }
+
+  closeAddPurchaseDialog() {
+    if (this.savingPurchase) return;
+    this.showAddPurchaseDialog = false;
+    this.selectedSaleForPurchase = null;
+  }
+
+  savePurchaseDetails() {
+    const sale = this.selectedSaleForPurchase;
+    if (!sale) return;
+    if (!this.purchaseDialog.kaufdatum || this.purchaseDialog.preis <= 0) {
+      this.notificationService.error(
+        'Bitte Ankaufdatum und einen Preis größer als 0 eingeben.',
+      );
+      return;
+    }
+
+    const payload: PurchaseCreateForExistingBike = {
+      bicycleId: sale.bicycleId,
+      seller: {
+        vorname: 'Unbekannt',
+        nachname: 'Verkaeufer',
+      },
+      preis: this.purchaseDialog.preis,
+      verkaufspreisVorschlag: sale.preis,
+      zahlungsart: 'Bar' as any,
+      kaufdatum: this.purchaseDialog.kaufdatum,
+      belegNummer: this.purchaseDialog.belegNummer || undefined,
+    };
+
+    this.savingPurchase = true;
+    this.purchaseService.createForExistingBike(payload).subscribe({
+      next: (created) => {
+        sale.purchaseId = created.id;
+        this.savingPurchase = false;
+        this.showAddPurchaseDialog = false;
+        this.selectedSaleForPurchase = null;
+        this.notificationService.success('Ankauf erfolgreich gespeichert.');
+      },
+      error: (err) => {
+        this.savingPurchase = false;
+        this.notificationService.error(
+          err?.error?.error || 'Ankauf konnte nicht gespeichert werden.',
+        );
+      },
+    });
   }
 
   closeMenu() {
