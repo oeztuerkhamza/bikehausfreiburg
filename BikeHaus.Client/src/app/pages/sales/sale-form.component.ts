@@ -1192,7 +1192,7 @@ export class SaleFormComponent implements OnInit {
   sellerSignerName = '';
   submitting = false;
   isAccessoryOnly = false;
-  showBuyerFields = false;
+  showBuyerFields = true;
   accessories: SaleAccessoryCreate[] = [];
   rabatt = 0;
   purchaseId: number | undefined = undefined;
@@ -1264,6 +1264,8 @@ export class SaleFormComponent implements OnInit {
       this.isAccessoryOnly = true;
       this.onAccessoryOnlyChange();
     }
+
+    this.showBuyerFields = !this.isAccessoryOnly;
 
     this.bicycleService.getAvailable().subscribe((bikes) => {
       this.availableBikes = bikes;
@@ -1502,6 +1504,8 @@ export class SaleFormComponent implements OnInit {
   }
 
   onAccessoryOnlyChange() {
+    this.showBuyerFields = !this.isAccessoryOnly;
+
     if (this.isAccessoryOnly) {
       this.selectedBike = null;
       this.isQuickAddMode = false;
