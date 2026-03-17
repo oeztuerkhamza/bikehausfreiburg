@@ -236,19 +236,23 @@ public class PurchaseService : IPurchaseService
         var bicycleId = purchase.BicycleId;
         var bicycle = purchase.Bicycle;
 
-        // Check if bicycle has a sale - if yes, cannot delete purchase
+        // If sales exist, unlink this purchase from those sales first.
+        var hasLinkedSales = false;
         if (bicycle?.Sales != null && bicycle.Sales.Any())
         {
-            throw new InvalidOperationException(
-                "Ankauf kann nicht gelöscht werden. Das Fahrrad hat einen verknüpften Verkauf. " +
-                "Bitte löschen Sie zuerst den Verkauf.");
+            foreach (var sale in bicycle.Sales.Where(s => s.PurchaseId == id))
+            {
+                sale.PurchaseId = null;
+                await _saleRepository.UpdateAsync(sale);
+                hasLinkedSales = true;
+            }
         }
 
         // Delete purchase first (removes FK constraint)
         await _purchaseRepository.DeleteAsync(id);
 
-        // Then delete the bicycle if it exists
-        if (bicycleId > 0)
+        // Only delete bicycle when no linked sale exists.
+        if (bicycleId > 0 && !hasLinkedSales)
         {
             await _bicycleRepository.DeleteAsync(bicycleId);
         }
