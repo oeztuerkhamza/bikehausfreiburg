@@ -628,7 +628,7 @@ export class SaleListComponent implements OnInit {
   selectedSaleForPurchase: SaleList | null = null;
   purchaseDialog = {
     belegNummer: '',
-    preis: 0,
+    preis: null as number | null,
     kaufdatum: '',
   };
 
@@ -765,8 +765,8 @@ export class SaleListComponent implements OnInit {
     this.selectedSaleForPurchase = s;
     this.purchaseDialog = {
       belegNummer: '',
-      preis: s.preis || 0,
-      kaufdatum: new Date().toISOString().slice(0, 10),
+      preis: null,
+      kaufdatum: '',
     };
     this.showAddPurchaseDialog = true;
   }
@@ -780,7 +780,11 @@ export class SaleListComponent implements OnInit {
   savePurchaseDetails() {
     const sale = this.selectedSaleForPurchase;
     if (!sale) return;
-    if (!this.purchaseDialog.kaufdatum || this.purchaseDialog.preis <= 0) {
+    if (
+      !this.purchaseDialog.kaufdatum ||
+      !this.purchaseDialog.preis ||
+      this.purchaseDialog.preis <= 0
+    ) {
       this.notificationService.error(
         'Bitte Ankaufdatum und einen Preis größer als 0 eingeben.',
       );
