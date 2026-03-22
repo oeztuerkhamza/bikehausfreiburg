@@ -216,6 +216,25 @@ export interface Translations {
   bikeRentalPageTitle: string;
   bikeRentalIntro: string;
   bikeRentalPricesTitle: string;
+  bikeRentalHeroPrice: string;
+  bikeRentalTierShort: string;
+  bikeRentalTierPopular: string;
+  bikeRentalTierTop: string;
+  bikeRentalTierLong: string;
+  bikeRentalTierBest: string;
+  bikeRentalTierAddon: string;
+  bikeRentalDurationDay1: string;
+  bikeRentalDurationDay3: string;
+  bikeRentalDurationDay7: string;
+  bikeRentalDurationDay14: string;
+  bikeRentalDurationDay30: string;
+  bikeRentalDurationFromDay10: string;
+  bikeRentalPriceDay1: string;
+  bikeRentalPriceDay3: string;
+  bikeRentalPriceDay7: string;
+  bikeRentalPriceDay14: string;
+  bikeRentalPriceDay30: string;
+  bikeRentalPriceAddon: string;
   bikeRentalDay1: string;
   bikeRentalDay7: string;
   bikeRentalDay8Plus: string;
@@ -589,11 +608,30 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalPageTitle: 'Fahrradverleih – Einfach und flexibel',
     bikeRentalIntro:
       'Entdecken Sie Freiburg bequem mit dem Fahrrad. Mieten Sie bei uns Fahrräder zu günstigen Preisen und ohne Aufwand.',
-    bikeRentalPricesTitle: 'Preise',
-    bikeRentalDay1: '1 Tag: 10 €',
-    bikeRentalDay7: '7 Tage: 50 €',
-    bikeRentalDay8Plus: 'Ab dem 8. Tag: 5 € pro Tag',
-    bikeRentalMonth: '1 Monat: 120 €',
+    bikeRentalPricesTitle: 'Fahrradmiete Preise',
+    bikeRentalHeroPrice: '1 Tag -> 12 €',
+    bikeRentalTierShort: 'Kurzzeit',
+    bikeRentalTierPopular: 'Beliebt',
+    bikeRentalTierTop: 'Am beliebtesten',
+    bikeRentalTierLong: 'Langzeit',
+    bikeRentalTierBest: 'Bestes Angebot',
+    bikeRentalTierAddon: 'Zusatz',
+    bikeRentalDurationDay1: '1 Tag',
+    bikeRentalDurationDay3: '3 Tage',
+    bikeRentalDurationDay7: '7 Tage',
+    bikeRentalDurationDay14: '14 Tage',
+    bikeRentalDurationDay30: '30 Tage',
+    bikeRentalDurationFromDay10: 'Ab 10 Tagen',
+    bikeRentalPriceDay1: '12 €',
+    bikeRentalPriceDay3: '30 €',
+    bikeRentalPriceDay7: '55 €',
+    bikeRentalPriceDay14: '95 €',
+    bikeRentalPriceDay30: '160 €',
+    bikeRentalPriceAddon: '6,50 € / Tag',
+    bikeRentalDay1: '1 Tag: 12 €',
+    bikeRentalDay7: '7 Tage: 55 €',
+    bikeRentalDay8Plus: 'Ab 10 Tagen: 6,50 € / Tag',
+    bikeRentalMonth: '30 Tage: 160 €',
     bikeRentalDepositTitle: 'Kaution',
     bikeRentalDepositText:
       'Der Kaufpreis des Fahrrads wird vorab als Kaution hinterlegt. Bei Rückgabe wird der Mietpreis abgezogen und der Restbetrag erstattet.',
@@ -995,11 +1033,30 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalPageTitle: 'Bike Rental – Simple and Flexible',
     bikeRentalIntro:
       'Discover Freiburg comfortably by bike. Rent bicycles from us at affordable prices with no hassle.',
-    bikeRentalPricesTitle: 'Prices',
-    bikeRentalDay1: '1 Day: 10 €',
-    bikeRentalDay7: '7 Days: 50 €',
-    bikeRentalDay8Plus: 'From day 8: 5 € per day',
-    bikeRentalMonth: '1 Month: 120 €',
+    bikeRentalPricesTitle: 'Bike Rental Prices',
+    bikeRentalHeroPrice: '1 day -> 12 €',
+    bikeRentalTierShort: 'Short-term',
+    bikeRentalTierPopular: 'Popular',
+    bikeRentalTierTop: 'Most popular',
+    bikeRentalTierLong: 'Long-term',
+    bikeRentalTierBest: 'Best deal',
+    bikeRentalTierAddon: 'Add-on',
+    bikeRentalDurationDay1: '1 day',
+    bikeRentalDurationDay3: '3 days',
+    bikeRentalDurationDay7: '7 days',
+    bikeRentalDurationDay14: '14 days',
+    bikeRentalDurationDay30: '30 days',
+    bikeRentalDurationFromDay10: 'From 10 days',
+    bikeRentalPriceDay1: '12 €',
+    bikeRentalPriceDay3: '30 €',
+    bikeRentalPriceDay7: '55 €',
+    bikeRentalPriceDay14: '95 €',
+    bikeRentalPriceDay30: '160 €',
+    bikeRentalPriceAddon: '6.50 € / day',
+    bikeRentalDay1: '1 Day: 12 €',
+    bikeRentalDay7: '7 Days: 55 €',
+    bikeRentalDay8Plus: 'From day 10: 6.50 € per day',
+    bikeRentalMonth: '30 Days: 160 €',
     bikeRentalDepositTitle: 'Deposit',
     bikeRentalDepositText:
       'The purchase price of the bicycle is deposited as a security deposit in advance. Upon return, the rental fee is deducted and the remaining amount is refunded.',
@@ -1391,11 +1448,30 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalPageTitle: 'Location de vélos – Simple et flexible',
     bikeRentalIntro:
       'Découvrez Fribourg confortablement à vélo. Louez des vélos chez nous à des prix abordables et sans complications.',
-    bikeRentalPricesTitle: 'Tarifs',
-    bikeRentalDay1: '1 Jour : 10 €',
-    bikeRentalDay7: '7 Jours : 50 €',
-    bikeRentalDay8Plus: 'À partir du 8e jour : 5 € par jour',
-    bikeRentalMonth: '1 Mois : 120 €',
+    bikeRentalPricesTitle: 'Tarifs location de vélos',
+    bikeRentalHeroPrice: '1 jour -> 12 €',
+    bikeRentalTierShort: 'Court terme',
+    bikeRentalTierPopular: 'Populaire',
+    bikeRentalTierTop: 'Le plus populaire',
+    bikeRentalTierLong: 'Long terme',
+    bikeRentalTierBest: 'Meilleure offre',
+    bikeRentalTierAddon: 'Supplément',
+    bikeRentalDurationDay1: '1 jour',
+    bikeRentalDurationDay3: '3 jours',
+    bikeRentalDurationDay7: '7 jours',
+    bikeRentalDurationDay14: '14 jours',
+    bikeRentalDurationDay30: '30 jours',
+    bikeRentalDurationFromDay10: 'À partir de 10 jours',
+    bikeRentalPriceDay1: '12 €',
+    bikeRentalPriceDay3: '30 €',
+    bikeRentalPriceDay7: '55 €',
+    bikeRentalPriceDay14: '95 €',
+    bikeRentalPriceDay30: '160 €',
+    bikeRentalPriceAddon: '6,50 € / jour',
+    bikeRentalDay1: '1 Jour : 12 €',
+    bikeRentalDay7: '7 Jours : 55 €',
+    bikeRentalDay8Plus: 'À partir du 10e jour : 6,50 € par jour',
+    bikeRentalMonth: '30 Jours : 160 €',
     bikeRentalDepositTitle: 'Caution',
     bikeRentalDepositText:
       "Le prix d'achat du vélo est déposé en avance comme caution. Lors du retour, le prix de location est déduit et le montant restant est remboursé.",
@@ -1803,11 +1879,30 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalPageTitle: 'Bisiklet Kiralama – Kolay ve Esnek',
     bikeRentalIntro:
       "Freiburg'u bisikletle keşfedin. Bizden uygun fiyatlı ve kolay bir şekilde bisiklet kiralayabilirsiniz.",
-    bikeRentalPricesTitle: 'Fiyatlar',
-    bikeRentalDay1: '1 Gün: 10 €',
-    bikeRentalDay7: '7 Gün: 50 €',
-    bikeRentalDay8Plus: '8. günden itibaren: günlük 5 €',
-    bikeRentalMonth: '1 Ay: 120 €',
+    bikeRentalPricesTitle: 'Bisiklet Kiralama Fiyatları',
+    bikeRentalHeroPrice: '1 Gün -> 12 €',
+    bikeRentalTierShort: 'Kısa süre',
+    bikeRentalTierPopular: 'Popüler',
+    bikeRentalTierTop: 'En popüler',
+    bikeRentalTierLong: 'Uzun süre',
+    bikeRentalTierBest: 'En iyi teklif',
+    bikeRentalTierAddon: 'Ek ücret',
+    bikeRentalDurationDay1: '1 gün',
+    bikeRentalDurationDay3: '3 gün',
+    bikeRentalDurationDay7: '7 gün',
+    bikeRentalDurationDay14: '14 gün',
+    bikeRentalDurationDay30: '30 gün',
+    bikeRentalDurationFromDay10: '10 günden itibaren',
+    bikeRentalPriceDay1: '12 €',
+    bikeRentalPriceDay3: '30 €',
+    bikeRentalPriceDay7: '55 €',
+    bikeRentalPriceDay14: '95 €',
+    bikeRentalPriceDay30: '160 €',
+    bikeRentalPriceAddon: '6,50 € / gün',
+    bikeRentalDay1: '1 Gün: 12 €',
+    bikeRentalDay7: '7 Gün: 55 €',
+    bikeRentalDay8Plus: '10 günden itibaren: günlük 6,50 €',
+    bikeRentalMonth: '30 Gün: 160 €',
     bikeRentalDepositTitle: 'Depozito',
     bikeRentalDepositText:
       'Bisikletin satın alma fiyatı peşin olarak depozito olarak bırakılır. Bisiklet iade edildiğinde kiralama bedeli düşülür ve kalan tutar geri ödenir.',

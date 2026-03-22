@@ -43,9 +43,9 @@ import { TranslationService } from '../../services/translation.service';
           </div>
           <div class="intro-visual">
             <div class="visual-card">
-              <div class="visual-price">10€</div>
+              <div class="visual-price">{{ t().bikeRentalPriceDay1 }}</div>
               <div class="visual-content">
-                <p class="visual-tagline">{{ t().bikeRentalDay1 }}</p>
+                <p class="visual-tagline">{{ t().bikeRentalHeroPrice }}</p>
               </div>
             </div>
           </div>
@@ -73,8 +73,33 @@ import { TranslationService } from '../../services/translation.service';
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
               </div>
-              <span class="price-duration">1</span>
-              <span class="price-amount">10 €</span>
+              <span class="price-label">{{ t().bikeRentalTierShort }}</span>
+              <span class="price-duration">{{
+                t().bikeRentalDurationDay1
+              }}</span>
+              <span class="price-amount">{{ t().bikeRentalPriceDay1 }}</span>
+            </div>
+            <div class="price-card popular">
+              <div class="price-icon">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <span class="price-label">{{ t().bikeRentalTierPopular }}</span>
+              <span class="price-duration">{{
+                t().bikeRentalDurationDay3
+              }}</span>
+              <span class="price-amount">{{ t().bikeRentalPriceDay3 }}</span>
             </div>
             <div class="price-card featured">
               <div class="price-icon">
@@ -92,8 +117,11 @@ import { TranslationService } from '../../services/translation.service';
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
               </div>
-              <span class="price-duration">7</span>
-              <span class="price-amount">50 €</span>
+              <span class="price-label">{{ t().bikeRentalTierTop }}</span>
+              <span class="price-duration">{{
+                t().bikeRentalDurationDay7
+              }}</span>
+              <span class="price-amount">{{ t().bikeRentalPriceDay7 }}</span>
             </div>
             <div class="price-card">
               <div class="price-icon">
@@ -111,8 +139,33 @@ import { TranslationService } from '../../services/translation.service';
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
               </div>
-              <span class="price-duration">8+</span>
-              <span class="price-amount">5 € / Tag</span>
+              <span class="price-label">{{ t().bikeRentalTierLong }}</span>
+              <span class="price-duration">{{
+                t().bikeRentalDurationDay14
+              }}</span>
+              <span class="price-amount">{{ t().bikeRentalPriceDay14 }}</span>
+            </div>
+            <div class="price-card deal">
+              <div class="price-icon">
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <span class="price-label">{{ t().bikeRentalTierBest }}</span>
+              <span class="price-duration">{{
+                t().bikeRentalDurationDay30
+              }}</span>
+              <span class="price-amount">{{ t().bikeRentalPriceDay30 }}</span>
             </div>
             <div class="price-card">
               <div class="price-icon">
@@ -130,8 +183,11 @@ import { TranslationService } from '../../services/translation.service';
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
               </div>
-              <span class="price-duration">30</span>
-              <span class="price-amount">120 €</span>
+              <span class="price-label">{{ t().bikeRentalTierAddon }}</span>
+              <span class="price-duration small">{{
+                t().bikeRentalDurationFromDay10
+              }}</span>
+              <span class="price-amount">{{ t().bikeRentalPriceAddon }}</span>
             </div>
           </div>
         </section>
@@ -426,7 +482,7 @@ import { TranslationService } from '../../services/translation.service';
 
       .prices-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 1.25rem;
       }
 
@@ -455,6 +511,19 @@ import { TranslationService } from '../../services/translation.service';
         );
       }
 
+      .price-card.deal {
+        border-color: rgba(255, 152, 0, 0.6);
+        background: linear-gradient(
+          135deg,
+          var(--color-surface) 0%,
+          rgba(255, 152, 0, 0.08) 100%
+        );
+      }
+
+      .price-card.popular .price-label {
+        color: var(--color-accent);
+      }
+
       .price-icon {
         width: 44px;
         height: 44px;
@@ -477,6 +546,12 @@ import { TranslationService } from '../../services/translation.service';
         letter-spacing: -0.02em;
       }
 
+      .price-duration.small {
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+
       .price-card.featured .price-duration {
         color: var(--color-accent);
       }
@@ -485,6 +560,21 @@ import { TranslationService } from '../../services/translation.service';
         font-size: 0.9rem;
         font-weight: 600;
         color: var(--color-text-secondary);
+      }
+
+      .price-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text-secondary);
+        background: rgba(255, 255, 255, 0.04);
+        margin-bottom: 0.6rem;
       }
 
       /* ── Info Cards ── */
