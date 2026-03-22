@@ -69,7 +69,7 @@ jobs:
         run: npm ci
 
       - name: Build production
-        run: npm run build -- --configuration production
+        run: npm run build
 
       - name: Clean target directory
         uses: appleboy/ssh-action@v1
