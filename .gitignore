@@ -12,6 +12,7 @@ obj/
 .vscode/
 *.userprefs
 
+
 # ASP.NET
 appsettings.*.local.json
 *.pfx
