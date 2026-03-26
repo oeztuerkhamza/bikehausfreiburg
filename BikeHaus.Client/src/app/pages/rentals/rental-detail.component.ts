@@ -19,7 +19,6 @@ import { Rental, RentalUpdate } from '../../models/models';
           <a
             [routerLink]="['/rentals/edit', rental.id]"
             class="btn btn-outline"
-            *ngIf="rental.status === 'Active'"
           >
             ✏️ Bearbeiten
           </a>

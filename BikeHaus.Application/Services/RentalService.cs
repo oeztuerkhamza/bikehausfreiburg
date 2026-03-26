@@ -135,9 +135,6 @@ public class RentalService : IRentalService
         var rental = await _rentalRepository.GetWithDetailsAsync(id)
             ?? throw new KeyNotFoundException($"Mietvertrag mit ID {id} nicht gefunden.");
 
-        if (rental.Status != RentalStatus.Active)
-            throw new InvalidOperationException("Nur aktive Mietverträge können bearbeitet werden.");
-
         // Update customer if provided
         if (dto.Customer != null)
         {

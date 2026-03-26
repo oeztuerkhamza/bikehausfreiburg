@@ -113,7 +113,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                   {{ getStatusText(r.status) }}
                 </span>
               </td>
-
             </tr>
           </tbody>
         </table>
