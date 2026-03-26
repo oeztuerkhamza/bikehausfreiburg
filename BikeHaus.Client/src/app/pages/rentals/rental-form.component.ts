@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
 import { BicycleService } from '../../services/bicycle.service';
-import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import {
   RentalCreate,
@@ -118,10 +117,7 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="field">
                 <label>Ausweis-Nr.</label>
-                <input
-                  [(ngModel)]="ausweisnNr"
-                  name="ausweisnNr"
-                />
+                <input [(ngModel)]="ausweisnNr" name="ausweisnNr" />
               </div>
             </div>
           </div>
@@ -223,8 +219,14 @@ import { AddressSuggestion } from '../../services/address.service';
         animation: fadeIn 0.4s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
@@ -255,8 +257,14 @@ import { AddressSuggestion } from '../../services/address.service';
         grid-template-columns: 1fr 1fr;
         gap: 16px;
       }
-      .field { display: flex; flex-direction: column; gap: 6px; }
-      .field.full { grid-column: 1 / -1; }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .field.full {
+        grid-column: 1 / -1;
+      }
       label {
         font-size: 0.82rem;
         font-weight: 600;
@@ -264,7 +272,9 @@ import { AddressSuggestion } from '../../services/address.service';
         text-transform: uppercase;
         letter-spacing: 0.03em;
       }
-      input, select, textarea {
+      input,
+      select,
+      textarea {
         padding: 10px 14px;
         border: 1.5px solid var(--border-color);
         border-radius: var(--radius-md, 10px);
@@ -273,12 +283,17 @@ import { AddressSuggestion } from '../../services/address.service';
         font-size: 0.92rem;
         transition: all 0.2s;
       }
-      input:focus, select:focus, textarea:focus {
+      input:focus,
+      select:focus,
+      textarea:focus {
         outline: none;
         border-color: var(--accent-primary);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.08));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.08));
       }
-      textarea { resize: vertical; }
+      textarea {
+        resize: vertical;
+      }
       .form-actions {
         display: flex;
         justify-content: flex-end;
@@ -321,7 +336,9 @@ import { AddressSuggestion } from '../../services/address.service';
         background: var(--bg-secondary, #f1f5f9);
       }
       @media (max-width: 640px) {
-        .form-grid { grid-template-columns: 1fr; }
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
       }
     `,
   ],

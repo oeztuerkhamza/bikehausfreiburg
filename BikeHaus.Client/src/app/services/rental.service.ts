@@ -33,10 +33,9 @@ export class RentalService {
     if (status) params = params.set('status', status);
     if (search) params = params.set('search', search);
 
-    return this.http.get<PaginatedResult<RentalList>>(
-      `${this.url}/paginated`,
-      { params },
-    );
+    return this.http.get<PaginatedResult<RentalList>>(`${this.url}/paginated`, {
+      params,
+    });
   }
 
   getById(id: number): Observable<Rental> {

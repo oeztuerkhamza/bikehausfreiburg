@@ -4,14 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
 import { ExcelExportService } from '../../services/excel-export.service';
-import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
-import {
-  RentalList,
-  RentalStatus,
-  PaginatedResult,
-} from '../../models/models';
+import { RentalList, RentalStatus, PaginatedResult } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
@@ -127,10 +122,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                   >
                     📄
                   </button>
-                  <div
-                    class="dropdown-menu"
-                    *ngIf="openDropdownId === r.id"
-                  >
+                  <div class="dropdown-menu" *ngIf="openDropdownId === r.id">
                     <button (click)="previewMietvertrag(r.id)">
                       📋 Mietvertrag Vorschau
                     </button>
@@ -231,8 +223,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         animation: fadeIn 0.4s ease;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .page-header {
         display: flex;
@@ -248,7 +246,9 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         align-items: center;
         flex-shrink: 0;
       }
-      .header-actions .btn { white-space: nowrap; }
+      .header-actions .btn {
+        white-space: nowrap;
+      }
       .filter-bar {
         display: flex;
         gap: 12px;
@@ -256,8 +256,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         flex-wrap: wrap;
         align-items: center;
       }
-      .filter-group { position: relative; }
-      .search-group { flex: 1; min-width: 200px; max-width: 350px; }
+      .filter-group {
+        position: relative;
+      }
+      .search-group {
+        flex: 1;
+        min-width: 200px;
+        max-width: 350px;
+      }
       .filter-input {
         padding: 10px 14px;
         border: 1.5px solid var(--border-color);
@@ -270,14 +276,26 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .filter-input:focus {
         outline: none;
         border-color: var(--accent-primary);
-        box-shadow: 0 0 0 3px var(--accent-primary-light, rgba(99,102,241,0.08));
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.08));
       }
-      .search-input { width: 100%; padding-left: 40px; }
+      .search-input {
+        width: 100%;
+        padding-left: 40px;
+      }
       .search-icon {
-        position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-        color: var(--text-muted); pointer-events: none; display: flex;
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+        display: flex;
       }
-      select.filter-input { min-width: 160px; cursor: pointer; }
+      select.filter-input {
+        min-width: 160px;
+        cursor: pointer;
+      }
       .table-wrap {
         overflow-x: auto;
         background: var(--bg-card);
@@ -285,117 +303,262 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         border: 1px solid var(--border-light);
         box-shadow: var(--shadow-sm);
       }
-      table { width: 100%; border-collapse: collapse; }
-      th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border-light); }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-light);
+      }
       th {
-        font-weight: 600; font-size: 0.75rem; text-transform: uppercase;
-        letter-spacing: 0.05em; color: var(--text-muted); background: var(--table-stripe, #f8fafc);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        background: var(--table-stripe, #f8fafc);
       }
-      td { font-size: 0.88rem; color: var(--text-secondary); }
-      tr:hover td { background: var(--table-hover, #f1f5f9); }
+      td {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+      }
+      tr:hover td {
+        background: var(--table-hover, #f1f5f9);
+      }
       .mono {
-        font-family: 'SF Mono', 'Consolas', monospace; font-size: 0.82rem;
-        color: var(--accent-primary); background: var(--accent-primary-light, rgba(99,102,241,0.08));
-        padding: 2px 8px; border-radius: 6px; font-weight: 600;
+        font-family: 'SF Mono', 'Consolas', monospace;
+        font-size: 0.82rem;
+        color: var(--accent-primary);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-weight: 600;
       }
-      .overdue-row { background: var(--accent-danger-light, rgba(239,68,68,0.04)); }
-      .overdue-date { color: var(--accent-danger, #ef4444); font-weight: 600; }
+      .overdue-row {
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.04));
+      }
+      .overdue-date {
+        color: var(--accent-danger, #ef4444);
+        font-weight: 600;
+      }
       .overdue-badge {
-        display: inline-flex; align-items: center; justify-content: center;
-        background: var(--accent-danger, #ef4444); color: white;
-        border-radius: 50%; width: 18px; height: 18px;
-        font-size: 0.7rem; font-weight: 700; margin-left: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent-danger, #ef4444);
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-left: 6px;
       }
       .status-badge {
-        display: inline-block; padding: 4px 11px; border-radius: 50px;
-        font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em;
+        display: inline-block;
+        padding: 4px 11px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
       }
       .status-active {
-        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
         color: var(--accent-success, #10b981);
       }
-      .status-returned { background: rgba(59,130,246,0.08); color: #3b82f6; }
-      .status-cancelled { background: rgba(100,116,139,0.08); color: #64748b; }
-      .actions-cell { display: flex; gap: 6px; flex-wrap: wrap; }
-      .btn {
-        padding: 8px 16px; border-radius: var(--radius-md, 10px); font-weight: 600;
-        font-size: 0.85rem; cursor: pointer; border: none; transition: var(--transition-fast);
-        display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+      .status-returned {
+        background: rgba(59, 130, 246, 0.08);
+        color: #3b82f6;
       }
-      .btn-primary { background: var(--accent-primary, #6366f1); color: white; }
-      .btn-primary:hover { background: var(--accent-primary-hover, #4f46e5); box-shadow: var(--shadow-sm); }
+      .status-cancelled {
+        background: rgba(100, 116, 139, 0.08);
+        color: #64748b;
+      }
+      .actions-cell {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        padding: 8px 16px;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border: none;
+        transition: var(--transition-fast);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+      }
+      .btn-primary {
+        background: var(--accent-primary, #6366f1);
+        color: white;
+      }
+      .btn-primary:hover {
+        background: var(--accent-primary-hover, #4f46e5);
+        box-shadow: var(--shadow-sm);
+      }
       .btn-outline {
-        background: transparent; border: 1.5px solid var(--border-color);
+        background: transparent;
+        border: 1.5px solid var(--border-color);
         color: var(--text-primary);
       }
-      .btn-outline:hover { background: var(--bg-secondary, #f1f5f9); }
+      .btn-outline:hover {
+        background: var(--bg-secondary, #f1f5f9);
+      }
       .btn-sm {
-        padding: 5px 10px; font-size: 0.78rem;
-        background: var(--bg-secondary, #f1f5f9); color: var(--text-primary);
+        padding: 5px 10px;
+        font-size: 0.78rem;
+        background: var(--bg-secondary, #f1f5f9);
+        color: var(--text-primary);
         border-radius: var(--radius-sm, 6px);
       }
-      .btn-sm:hover { background: var(--border-light, #e2e8f0); }
+      .btn-sm:hover {
+        background: var(--border-light, #e2e8f0);
+      }
       .btn-danger {
-        background: var(--accent-danger-light, rgba(239,68,68,0.08));
+        background: var(--accent-danger-light, rgba(239, 68, 68, 0.08));
         color: var(--accent-danger, #ef4444);
       }
-      .btn-danger:hover { background: rgba(239,68,68,0.15); }
-      .btn-warning { background: rgba(245,158,11,0.08); color: #f59e0b; }
-      .btn-warning:hover { background: rgba(245,158,11,0.15); }
+      .btn-danger:hover {
+        background: rgba(239, 68, 68, 0.15);
+      }
+      .btn-warning {
+        background: rgba(245, 158, 11, 0.08);
+        color: #f59e0b;
+      }
+      .btn-warning:hover {
+        background: rgba(245, 158, 11, 0.15);
+      }
       .btn-success {
-        background: var(--accent-success-light, rgba(16,185,129,0.08));
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.08));
         color: var(--accent-success, #10b981);
       }
-      .btn-success:hover { background: rgba(16,185,129,0.15); }
+      .btn-success:hover {
+        background: rgba(16, 185, 129, 0.15);
+      }
 
       /* Dropdown */
-      .dropdown { position: relative; display: inline-block; }
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
       .dropdown-menu {
-        position: absolute; top: 100%; right: 0; z-index: 100;
-        background: var(--bg-card, #fff); border: 1px solid var(--border-light);
-        border-radius: var(--radius-md, 10px); box-shadow: var(--shadow-lg);
-        min-width: 220px; padding: 6px 0; margin-top: 4px;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        z-index: 100;
+        background: var(--bg-card, #fff);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md, 10px);
+        box-shadow: var(--shadow-lg);
+        min-width: 220px;
+        padding: 6px 0;
+        margin-top: 4px;
       }
       .dropdown-menu button {
-        display: block; width: 100%; text-align: left; padding: 8px 16px;
-        background: none; border: none; cursor: pointer;
-        font-size: 0.85rem; color: var(--text-primary); transition: background 0.15s;
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 8px 16px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        transition: background 0.15s;
       }
-      .dropdown-menu button:hover { background: var(--bg-secondary, #f1f5f9); }
+      .dropdown-menu button:hover {
+        background: var(--bg-secondary, #f1f5f9);
+      }
       .dropdown-divider {
-        height: 1px; margin: 4px 0;
+        height: 1px;
+        margin: 4px 0;
         background: var(--border-light, #e2e8f0);
       }
 
       /* Modal */
       .modal-backdrop {
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
-        display: flex; align-items: center; justify-content: center;
-        z-index: 1000; animation: fadeIn 0.2s ease;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.2s ease;
       }
       .modal {
-        background: var(--bg-card, #fff); border-radius: var(--radius-xl, 20px);
-        width: 90%; max-width: 420px; overflow: hidden; box-shadow: var(--shadow-xl);
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-xl, 20px);
+        width: 90%;
+        max-width: 420px;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
         animation: scaleIn 0.25s ease;
       }
-      .modal-lg { max-width: 900px; height: 85vh; display: flex; flex-direction: column; }
+      .modal-lg {
+        max-width: 900px;
+        height: 85vh;
+        display: flex;
+        flex-direction: column;
+      }
       .modal-header {
-        padding: 18px 22px; border-bottom: 1.5px solid var(--border-light, #e2e8f0);
-        display: flex; justify-content: space-between; align-items: center;
+        padding: 18px 22px;
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
-      .modal-header h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+      .modal-header h3 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
       .modal-close {
-        background: none; border: none; font-size: 1.2rem; cursor: pointer;
-        color: var(--text-muted); padding: 4px 8px; border-radius: 6px;
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--text-muted);
+        padding: 4px 8px;
+        border-radius: 6px;
       }
-      .modal-close:hover { background: var(--bg-secondary); }
-      .modal-body { padding: 22px; }
-      .pdf-preview-body { flex: 1; padding: 0; overflow: hidden; }
-      .pdf-iframe { width: 100%; height: 100%; border: none; }
+      .modal-close:hover {
+        background: var(--bg-secondary);
+      }
+      .modal-body {
+        padding: 22px;
+      }
+      .pdf-preview-body {
+        flex: 1;
+        padding: 0;
+        overflow: hidden;
+      }
+      .pdf-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+      }
       @keyframes scaleIn {
-        from { transform: scale(0.95); opacity: 0; }
-        to { transform: scale(1); opacity: 1; }
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
       }
     `,
   ],
@@ -585,7 +748,9 @@ export class RentalListComponent implements OnInit {
         if (confirmed) {
           this.rentalService.returnBicycle(rental.id).subscribe({
             next: () => {
-              this.notificationService.success('Fahrrad erfolgreich zurückgegeben');
+              this.notificationService.success(
+                'Fahrrad erfolgreich zurückgegeben',
+              );
               this.loadRentals();
             },
             error: (err) =>
@@ -611,7 +776,9 @@ export class RentalListComponent implements OnInit {
               this.loadRentals();
             },
             error: (err) =>
-              this.notificationService.error(err.error?.error || 'Fehler beim Stornieren'),
+              this.notificationService.error(
+                err.error?.error || 'Fehler beim Stornieren',
+              ),
           });
         }
       });
@@ -619,7 +786,10 @@ export class RentalListComponent implements OnInit {
 
   confirmDelete(rental: RentalList) {
     this.dialogService
-      .danger('Löschen', `Möchten Sie die Vermietung "${rental.mietvertragNummer}" wirklich löschen?`)
+      .danger(
+        'Löschen',
+        `Möchten Sie die Vermietung "${rental.mietvertragNummer}" wirklich löschen?`,
+      )
       .then((confirmed) => {
         if (confirmed) {
           this.rentalService.delete(rental.id).subscribe({
@@ -628,7 +798,9 @@ export class RentalListComponent implements OnInit {
               this.loadRentals();
             },
             error: (err) =>
-              this.notificationService.error(err.error?.error || 'Fehler beim Löschen'),
+              this.notificationService.error(
+                err.error?.error || 'Fehler beim Löschen',
+              ),
           });
         }
       });

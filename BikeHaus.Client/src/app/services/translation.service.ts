@@ -1222,8 +1222,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     // Archive
     archive: 'Archiv',
     archiveSearch: 'Fahrrad-Archiv durchsuchen',
-    archiveSearchPlaceholder:
-      'Beleg-Nr., Marke, Modell oder Rahmennummer...',
+    archiveSearchPlaceholder: 'Beleg-Nr., Marke, Modell oder Rahmennummer...',
     archiveSearchHint:
       'Geben Sie eine Beleg-Nr., Marke, Modell oder Rahmennummer ein, um die komplette Fahrradhistorie einzusehen.',
     archiveNoResults: 'Keine Ergebnisse gefunden',
@@ -1912,8 +1911,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     // Archive
     archive: 'Arşiv',
     archiveSearch: 'Bisiklet arşivini ara',
-    archiveSearchPlaceholder:
-      'Belge No., Marka, Model veya Şase No...',
+    archiveSearchPlaceholder: 'Belge No., Marka, Model veya Şase No...',
     archiveSearchHint:
       'Belge numarası, marka, model veya şase numarası girerek bisikletin tüm geçmişini görüntüleyin.',
     archiveNoResults: 'Sonuç bulunamadı',
