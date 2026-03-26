@@ -89,6 +89,12 @@ import { Rental, RentalUpdate } from '../../models/models';
             <span>Gesamtmiete:</span
             ><strong>{{ rental.gesamtmiete | number: '1.2-2' }} €</strong>
           </div>
+          <div class="info-row" *ngIf="rental.rabatt > 0">
+            <span>Rabatt:</span
+            ><strong style="color: var(--accent-success, #10b981)"
+              >- {{ rental.rabatt | number: '1.2-2' }} €</strong
+            >
+          </div>
           <div class="info-row">
             <span>Kaution:</span
             ><strong>{{ rental.kaution | number: '1.2-2' }} €</strong>

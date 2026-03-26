@@ -440,6 +440,7 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.MietvertragNummer).IsRequired().HasMaxLength(30);
             entity.Property(e => e.AusweisnNr).HasMaxLength(50);
             entity.Property(e => e.Gesamtmiete).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Rabatt).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Kaution).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Notizen).HasMaxLength(1000);
 

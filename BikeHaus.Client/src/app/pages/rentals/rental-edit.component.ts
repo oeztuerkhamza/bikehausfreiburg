@@ -16,7 +16,12 @@ import { AddressSuggestion } from '../../services/address.service';
 @Component({
   selector: 'app-rental-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AddressAutocompleteComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    AddressAutocompleteComponent,
+  ],
   template: `
     <div class="page">
       <div class="page-header">
@@ -36,8 +41,7 @@ import { AddressSuggestion } from '../../services/address.service';
               <div class="info-row">
                 <span class="label">Marke/Modell:</span>
                 <span
-                  >{{ rental.bicycle.marke }}
-                  {{ rental.bicycle.modell }}</span
+                  >{{ rental.bicycle.marke }} {{ rental.bicycle.modell }}</span
                 >
               </div>
               <div class="info-row">
@@ -130,6 +134,7 @@ import { AddressSuggestion } from '../../services/address.service';
                   [(ngModel)]="startDatum"
                   name="startDatum"
                   required
+                  (ngModelChange)="onDatesChanged()"
                 />
               </div>
               <div class="field">
@@ -139,8 +144,28 @@ import { AddressSuggestion } from '../../services/address.service';
                   [(ngModel)]="endDatum"
                   name="endDatum"
                   required
+                  (ngModelChange)="onDatesChanged()"
                 />
               </div>
+            </div>
+
+            <!-- Price calculation info -->
+            <div class="price-calc" *ngIf="rentalDays > 0">
+              <div class="calc-header">
+                <span class="calc-days"
+                  >{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span
+                >
+                <span class="calc-price"
+                  >Berechneter Preis:
+                  {{ berechneterPreis | number: '1.2-2' }} €</span
+                >
+              </div>
+              <div class="calc-breakdown" *ngIf="preisInfo">
+                <span class="calc-info">{{ preisInfo }}</span>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-top: 12px;">
               <div class="field">
                 <label>Gesamtmiete (€)</label>
                 <input
@@ -148,6 +173,17 @@ import { AddressSuggestion } from '../../services/address.service';
                   step="0.01"
                   [(ngModel)]="gesamtmiete"
                   name="gesamtmiete"
+                />
+              </div>
+              <div class="field">
+                <label>Rabatt (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  [(ngModel)]="rabatt"
+                  name="rabatt"
+                  min="0"
+                  (ngModelChange)="onRabattChanged()"
                 />
               </div>
               <div class="field">
@@ -364,6 +400,33 @@ import { AddressSuggestion } from '../../services/address.service';
         padding: 12px 32px;
         font-size: 1.05rem;
       }
+      .price-calc {
+        margin-top: 12px;
+        padding: 12px 16px;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
+        border-radius: var(--radius-md, 10px);
+        border: 1.5px solid var(--accent-primary, #6366f1);
+      }
+      .calc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--accent-primary, #6366f1);
+      }
+      .calc-days {
+        background: var(--accent-primary, #6366f1);
+        color: white;
+        padding: 2px 10px;
+        border-radius: 50px;
+        font-size: 0.82rem;
+      }
+      .calc-breakdown {
+        margin-top: 6px;
+        font-size: 0.82rem;
+        color: var(--text-secondary, #64748b);
+      }
     `,
   ],
 })
@@ -390,6 +453,10 @@ export class RentalEditComponent implements OnInit {
   startDatum = '';
   endDatum = '';
   gesamtmiete = 0;
+  rabatt = 0;
+  berechneterPreis = 0;
+  rentalDays = 0;
+  preisInfo = '';
   kaution = 0;
   zahlungsart: string = PaymentMethod.Bar;
   zustandBeiUebergabe = 'Gut';
@@ -443,6 +510,7 @@ export class RentalEditComponent implements OnInit {
 
     this.ausweisnNr = rental.ausweisnNr || '';
     this.gesamtmiete = rental.gesamtmiete;
+    this.rabatt = rental.rabatt || 0;
     this.kaution = rental.kaution;
     this.zahlungsart = rental.zahlungsart || PaymentMethod.Bar;
     this.zustandBeiUebergabe = rental.zustandBeiUebergabe || 'Gut';
@@ -457,6 +525,20 @@ export class RentalEditComponent implements OnInit {
       const d = new Date(rental.endDatum);
       this.endDatum = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     }
+
+    // Calculate days and price info
+    this.recalcDays();
+  }
+
+  private recalcDays() {
+    if (!this.startDatum || !this.endDatum) return;
+    const start = new Date(this.startDatum);
+    const end = new Date(this.endDatum);
+    const diffMs = end.getTime() - start.getTime();
+    this.rentalDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    if (this.rentalDays > 0) {
+      this.berechneterPreis = this.calculatePrice(this.rentalDays);
+    }
   }
 
   onAddressSelected(address: AddressSuggestion) {
@@ -464,6 +546,57 @@ export class RentalEditComponent implements OnInit {
     this.mieter.hausnummer = address.hausnummer;
     this.mieter.plz = address.plz;
     this.mieter.stadt = address.stadt;
+  }
+
+  onDatesChanged() {
+    if (!this.startDatum || !this.endDatum) return;
+    const start = new Date(this.startDatum);
+    const end = new Date(this.endDatum);
+    const diffMs = end.getTime() - start.getTime();
+    this.rentalDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    if (this.rentalDays > 0) {
+      this.berechneterPreis = this.calculatePrice(this.rentalDays);
+      this.gesamtmiete = Math.max(
+        0,
+        this.berechneterPreis - (this.rabatt || 0),
+      );
+    }
+  }
+
+  onRabattChanged() {
+    if (this.berechneterPreis > 0) {
+      this.gesamtmiete = Math.max(
+        0,
+        this.berechneterPreis - (this.rabatt || 0),
+      );
+    }
+  }
+
+  calculatePrice(days: number): number {
+    if (days <= 1) {
+      this.preisInfo = '1 Tag = 12,00 €';
+      return 12;
+    }
+    if (days <= 3) {
+      this.preisInfo = '3 Tage-Paket = 30,00 €';
+      return 30;
+    }
+    if (days <= 7) {
+      this.preisInfo = '7 Tage-Paket = 55,00 €';
+      return 55;
+    }
+    if (days <= 14) {
+      this.preisInfo = '14 Tage-Paket = 95,00 €';
+      return 95;
+    }
+    if (days <= 30) {
+      this.preisInfo = '30 Tage-Paket = 160,00 €';
+      return 160;
+    }
+    const extraDays = days - 30;
+    const price = 160 + extraDays * 6.5;
+    this.preisInfo = `30 Tage (160,00 €) + ${extraDays} Tag(e) × 6,50 € = ${price.toFixed(2)} €`;
+    return Math.round(price * 100) / 100;
   }
 
   submit() {
@@ -476,6 +609,7 @@ export class RentalEditComponent implements OnInit {
       startDatum: this.startDatum,
       endDatum: this.endDatum,
       gesamtmiete: this.gesamtmiete,
+      rabatt: this.rabatt || 0,
       kaution: this.kaution,
       zahlungsart: this.zahlungsart as PaymentMethod,
       zustandBeiUebergabe: this.zustandBeiUebergabe as BikeConditionAtHandover,

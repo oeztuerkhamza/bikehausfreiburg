@@ -110,6 +110,7 @@ public class RentalService : IRentalService
             StartDatum = dto.StartDatum,
             EndDatum = dto.EndDatum,
             Gesamtmiete = dto.Gesamtmiete,
+            Rabatt = dto.Rabatt,
             Kaution = dto.Kaution,
             Zahlungsart = dto.Zahlungsart,
             ZustandBeiUebergabe = dto.ZustandBeiUebergabe,
@@ -161,6 +162,8 @@ public class RentalService : IRentalService
             rental.EndDatum = dto.EndDatum.Value;
         if (dto.Gesamtmiete.HasValue)
             rental.Gesamtmiete = dto.Gesamtmiete.Value;
+        if (dto.Rabatt.HasValue)
+            rental.Rabatt = dto.Rabatt.Value;
         if (dto.Kaution.HasValue)
             rental.Kaution = dto.Kaution.Value;
         if (dto.KautionZurueckgegeben.HasValue)

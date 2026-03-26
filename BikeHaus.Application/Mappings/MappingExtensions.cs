@@ -281,6 +281,7 @@ public static class MappingExtensions
         entity.StartDatum,
         entity.EndDatum,
         entity.Gesamtmiete,
+        entity.Rabatt,
         entity.Kaution,
         entity.KautionZurueckgegeben,
         entity.Zahlungsart,
@@ -298,6 +299,7 @@ public static class MappingExtensions
         entity.StartDatum,
         entity.EndDatum,
         entity.Gesamtmiete,
+        entity.Rabatt,
         entity.Kaution,
         entity.Status,
         entity.EndDatum < DateTime.UtcNow && entity.Status == Domain.Enums.RentalStatus.Active

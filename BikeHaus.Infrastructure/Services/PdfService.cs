@@ -1298,6 +1298,9 @@ public class PdfService : IPdfService
             _ => "Bar"
         };
 
+        var mietTage = (rental.EndDatum - rental.StartDatum).Days;
+        var berechneterPreis = rental.Gesamtmiete + rental.Rabatt;
+
         var document = QuestPDF.Fluent.Document.Create(container =>
         {
             container.Page(page =>
@@ -1428,10 +1431,22 @@ public class PdfService : IPdfService
                         table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Mietende").FontSize(9).Bold().FontColor(PrimaryColor);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{rental.EndDatum:dd.MM.yyyy}").FontSize(10).Bold();
 
-                        table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text("Gesamtmiete").FontSize(9).Bold().FontColor(AccentColor);
-                        table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{rental.Gesamtmiete:N2} €").FontSize(10).Bold().FontColor(AccentColor);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Mietdauer").FontSize(9).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{mietTage} Tag{(mietTage != 1 ? "e" : "")}").FontSize(10).Bold();
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Zahlungsart").FontSize(9).FontColor(Colors.Grey.Darken2);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(zahlungsartText).FontSize(10).Bold();
+
+                        if (rental.Rabatt > 0)
+                        {
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Mietpreis").FontSize(9).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{berechneterPreis:N2} €").FontSize(10);
+                            table.Cell().Border(0.5f).BorderColor("#10b981").Padding(3).Text("Rabatt").FontSize(9).Bold().FontColor("#10b981");
+                            table.Cell().Border(0.5f).BorderColor("#10b981").Padding(3).Text($"- {rental.Rabatt:N2} €").FontSize(10).Bold().FontColor("#10b981");
+                        }
+
+                        table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text("Gesamtmiete").FontSize(9).Bold().FontColor(AccentColor);
+                        table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{rental.Gesamtmiete:N2} €").FontSize(10).Bold().FontColor(AccentColor);
+                        table.Cell().ColumnSpan(2).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("inkl. MwSt.").FontSize(9).FontColor(Colors.Grey.Darken2);
                     });
 
                     // KAUTION Section

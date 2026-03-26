@@ -20,6 +20,7 @@ public class Rental : BaseEntity
 
     // Mietpreis
     public decimal Gesamtmiete { get; set; }  // Total rent (incl. MwSt.)
+    public decimal Rabatt { get; set; }  // Discount
 
     // Kaution
     public decimal Kaution { get; set; }
