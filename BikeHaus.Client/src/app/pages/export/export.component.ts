@@ -59,6 +59,11 @@ import { TranslationService } from '../../services/translation.service';
             <span class="folder-name">Rechnungen/</span>
             <span class="folder-hint">– {{ t.invoices }}</span>
           </div>
+          <div class="folder-item">
+            <span class="folder-icon">📁</span>
+            <span class="folder-name">Mietvertraege/</span>
+            <span class="folder-hint">– Mietverträge + Kautionsquittungen</span>
+          </div>
         </div>
 
         <div class="date-range">

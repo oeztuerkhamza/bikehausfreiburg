@@ -73,6 +73,7 @@ public static class DependencyInjection
                 sp.GetRequiredService<IReturnRepository>(),
                 sp.GetRequiredService<IExpenseRepository>(),
                 sp.GetRequiredService<IInvoiceRepository>(),
+                sp.GetRequiredService<IRentalRepository>(),
                 sp.GetRequiredService<IPdfService>(),
                 uploadsPath);
         });

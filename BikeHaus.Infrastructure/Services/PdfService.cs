@@ -1503,10 +1503,9 @@ public class PdfService : IPdfService
                         });
                     }
 
-                    // Signatures
+                    // Signature (Vermieter only)
                     col.Item().PaddingTop(16).Row(row =>
                     {
-                        // VERMIETER - left
                         row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(sellerCol =>
                         {
                             sellerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERMIETER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
@@ -1531,17 +1530,7 @@ public class PdfService : IPdfService
                             sellerCol.Item().PaddingTop(2).Text(shop.OwnerName).FontSize(9);
                         });
 
-                        row.ConstantItem(20);
-
-                        // MIETER - right
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(buyerCol =>
-                        {
-                            buyerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("MIETER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
-                            buyerCol.Item().PaddingTop(3).Text("Unterschrift Mieter").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            buyerCol.Item().Height(35);
-                            buyerCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            buyerCol.Item().PaddingTop(2).Text(rental.Customer.FullName).FontSize(9);
-                        });
+                        row.RelativeItem();
                     });
                 });
 
@@ -1720,10 +1709,9 @@ public class PdfService : IPdfService
                         });
                     });
 
-                    // Signatures
+                    // Signature (Vermieter only)
                     col.Item().PaddingTop(16).Row(row =>
                     {
-                        // VERMIETER
                         row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(sellerCol =>
                         {
                             sellerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("VERMIETER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
@@ -1748,17 +1736,7 @@ public class PdfService : IPdfService
                             sellerCol.Item().PaddingTop(2).Text(shop.OwnerName).FontSize(9);
                         });
 
-                        row.ConstantItem(20);
-
-                        // MIETER
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(buyerCol =>
-                        {
-                            buyerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("MIETER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
-                            buyerCol.Item().PaddingTop(3).Text("Unterschrift Mieter").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            buyerCol.Item().Height(35);
-                            buyerCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            buyerCol.Item().PaddingTop(2).Text(rental.Customer.FullName).FontSize(9);
-                        });
+                        row.RelativeItem();
                     });
                 });
 
