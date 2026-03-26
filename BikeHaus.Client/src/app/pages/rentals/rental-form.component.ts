@@ -9,6 +9,8 @@ import { TranslationService } from '../../services/translation.service';
 import {
   RentalCreate,
   Bicycle,
+  BicycleUpdate,
+  BikeCondition,
   CustomerCreate,
   BikeConditionAtHandover,
   PaymentMethod,
@@ -58,6 +60,55 @@ import { AddressSuggestion } from '../../services/address.service';
                     name="bikeRahmen"
                     style="text-transform: uppercase"
                     required
+                  />
+                </div>
+                <div class="field">
+                  <label>Marke *</label>
+                  <input
+                    [(ngModel)]="bikeEdit.marke"
+                    name="bikeMarke"
+                    required
+                  />
+                </div>
+                <div class="field">
+                  <label>Modell *</label>
+                  <input
+                    [(ngModel)]="bikeEdit.modell"
+                    name="bikeModell"
+                    required
+                  />
+                </div>
+                <div class="field">
+                  <label>Farbe</label>
+                  <input [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" />
+                </div>
+                <div class="field">
+                  <label>Reifengröße</label>
+                  <input
+                    [(ngModel)]="bikeEdit.reifengroesse"
+                    name="bikeReifen"
+                  />
+                </div>
+                <div class="field">
+                  <label>Fahrradtyp</label>
+                  <input
+                    [(ngModel)]="bikeEdit.fahrradtyp"
+                    name="bikeFahrradtyp"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit selected bike -->
+            <div class="bike-edit-form" *ngIf="selectedBike && !isQuickAddMode">
+              <h3>🚲 Fahrrad-Details</h3>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Rahmennummer</label>
+                  <input
+                    [(ngModel)]="bikeEdit.rahmennummer"
+                    name="bikeRahmen"
+                    style="text-transform: uppercase"
                   />
                 </div>
                 <div class="field">
@@ -441,6 +492,19 @@ import { AddressSuggestion } from '../../services/address.service';
         font-weight: 700;
         color: var(--accent-success, #10b981);
       }
+      .bike-edit-form {
+        margin-top: 16px;
+        padding: 16px;
+        background: var(--bg-secondary, #f8fafc);
+        border-radius: var(--radius-md, 10px);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+      }
+      .bike-edit-form h3 {
+        margin: 0 0 12px 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--accent-primary, #6366f1);
+      }
       .price-calc {
         margin-top: 12px;
         padding: 12px 16px;
@@ -529,6 +593,15 @@ export class RentalFormComponent implements OnInit {
   onBikeSelected(bike: Bicycle) {
     this.selectedBike = bike;
     this.isQuickAddMode = false;
+    // Populate bikeEdit from selected bike
+    this.bikeEdit = {
+      rahmennummer: bike.rahmennummer || '',
+      marke: bike.marke || '',
+      modell: bike.modell || '',
+      farbe: bike.farbe || '',
+      reifengroesse: bike.reifengroesse || '',
+      fahrradtyp: bike.fahrradtyp || '',
+    };
   }
 
   onQuickAddBike() {
@@ -641,7 +714,26 @@ export class RentalFormComponent implements OnInit {
     } else {
       if (!this.selectedBike) return;
       this.submitting = true;
-      this.createRental(this.selectedBike.id);
+      // Update bike details first, then create rental
+      const bikeUpdate: BicycleUpdate = {
+        marke: this.bikeEdit.marke,
+        modell: this.bikeEdit.modell,
+        rahmennummer: this.bikeEdit.rahmennummer || undefined,
+        farbe: this.bikeEdit.farbe || undefined,
+        reifengroesse: this.bikeEdit.reifengroesse || '',
+        fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
+        status: this.selectedBike.status as any,
+        zustand: (this.selectedBike.zustand || 'Gebraucht') as BikeCondition,
+      };
+      this.bicycleService.update(this.selectedBike.id, bikeUpdate).subscribe({
+        next: () => this.createRental(this.selectedBike!.id),
+        error: (err) => {
+          this.submitting = false;
+          this.notificationService.error(
+            err.error?.error || 'Fehler beim Aktualisieren des Fahrrads',
+          );
+        },
+      });
     }
   }
 
