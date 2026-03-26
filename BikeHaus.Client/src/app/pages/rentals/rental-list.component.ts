@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { NotificationService } from '../../services/notification.service';
@@ -77,13 +77,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <th>Miete</th>
               <th>Kaution</th>
               <th>Status</th>
-              <th>Aktionen</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="paginatedResult?.items?.length === 0">
               <td
-                colspan="9"
+                colspan="8"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 Keine Vermietungen vorhanden.
@@ -92,6 +91,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <tr
               *ngFor="let r of paginatedResult?.items"
               [class.overdue-row]="r.isOverdue && r.status === 'Active'"
+              class="clickable-row"
+              (click)="goToDetail(r.id)"
             >
               <td class="mono">{{ r.mietvertragNummer }}</td>
               <td>{{ r.bikeInfo }}</td>
@@ -112,77 +113,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                   {{ getStatusText(r.status) }}
                 </span>
               </td>
-              <td class="actions-cell">
-                <!-- PDF dropdown -->
-                <div class="dropdown" *ngIf="r.status !== 'Cancelled'">
-                  <button
-                    class="btn btn-sm"
-                    title="PDF Dokumente"
-                    (click)="toggleDropdown(r.id)"
-                  >
-                    📄
-                  </button>
-                  <div class="dropdown-menu" *ngIf="openDropdownId === r.id">
-                    <button (click)="previewMietvertrag(r.id)">
-                      📋 Mietvertrag Vorschau
-                    </button>
-                    <button (click)="downloadMietvertrag(r.id)">
-                      📥 Mietvertrag Download
-                    </button>
-                    <button (click)="printMietvertrag(r.id)">
-                      🖨️ Mietvertrag Drucken
-                    </button>
-                    <div class="dropdown-divider"></div>
-                    <button (click)="previewKaution(r.id)">
-                      📋 Kautionsquittung Vorschau
-                    </button>
-                    <button (click)="downloadKaution(r.id)">
-                      📥 Kautionsquittung Download
-                    </button>
-                    <button (click)="printKaution(r.id)">
-                      🖨️ Kautionsquittung Drucken
-                    </button>
-                  </div>
-                </div>
-                <button
-                  *ngIf="r.status === 'Active'"
-                  class="btn btn-sm btn-success"
-                  title="Fahrrad zurückgeben"
-                  (click)="confirmReturn(r)"
-                >
-                  ✅
-                </button>
-                <button
-                  *ngIf="r.status === 'Active'"
-                  class="btn btn-sm btn-warning"
-                  title="Stornieren"
-                  (click)="confirmCancel(r)"
-                >
-                  ✖
-                </button>
-                <a
-                  [routerLink]="['/rentals', r.id]"
-                  class="btn btn-sm"
-                  title="Details"
-                >
-                  👁
-                </a>
-                <a
-                  *ngIf="r.status === 'Active'"
-                  [routerLink]="['/rentals/edit', r.id]"
-                  class="btn btn-sm"
-                  title="Bearbeiten"
-                >
-                  ✏️
-                </a>
-                <button
-                  class="btn btn-sm btn-danger"
-                  title="Löschen"
-                  (click)="confirmDelete(r)"
-                >
-                  🗑
-                </button>
-              </td>
+
             </tr>
           </tbody>
         </table>
@@ -199,27 +130,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         (pageChange)="onPageChange($event)"
         (pageSizeChange)="onPageSizeChange($event)"
       ></app-pagination>
-    </div>
-
-    <!-- PDF Preview Modal -->
-    <div
-      class="modal-backdrop"
-      *ngIf="showPdfPreview"
-      (click)="closePdfPreview()"
-    >
-      <div class="modal modal-lg" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>{{ pdfPreviewTitle }}</h3>
-          <button class="modal-close" (click)="closePdfPreview()">✕</button>
-        </div>
-        <div class="modal-body pdf-preview-body">
-          <iframe
-            *ngIf="pdfPreviewUrl"
-            [src]="pdfPreviewUrl"
-            class="pdf-iframe"
-          ></iframe>
-        </div>
-      </div>
     </div>
   `,
   styles: [
@@ -335,6 +245,9 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
       tr:hover td {
         background: var(--table-hover, #f1f5f9);
+      }
+      .clickable-row {
+        cursor: pointer;
       }
       .mono {
         font-family: 'SF Mono', 'Consolas', monospace;
@@ -576,6 +489,7 @@ export class RentalListComponent implements OnInit {
   private excelExportService = inject(ExcelExportService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
+  private router = inject(Router);
 
   paginatedResult: PaginatedResult<RentalList> | null = null;
   searchText = '';
@@ -583,17 +497,12 @@ export class RentalListComponent implements OnInit {
   currentPage = 1;
   pageSize = 20;
 
-  openDropdownId: number | null = null;
-  showPdfPreview = false;
-  pdfPreviewUrl: any = null;
-  pdfPreviewTitle = '';
-
   ngOnInit() {
     this.loadRentals();
-    // Close dropdown on outside click
-    document.addEventListener('click', () => {
-      this.openDropdownId = null;
-    });
+  }
+
+  goToDetail(id: number) {
+    this.router.navigate(['/rentals', id]);
   }
 
   loadRentals() {
@@ -647,171 +556,6 @@ export class RentalListComponent implements OnInit {
       Cancelled: 'Storniert',
     };
     return map[status] || status;
-  }
-
-  toggleDropdown(id: number) {
-    event?.stopPropagation();
-    this.openDropdownId = this.openDropdownId === id ? null : id;
-  }
-
-  // ── PDF Actions ──
-  previewMietvertrag(id: number) {
-    this.openDropdownId = null;
-    this.rentalService.downloadMietvertragPdf(id).subscribe({
-      next: (blob) => {
-        this.pdfPreviewUrl = URL.createObjectURL(blob);
-        this.pdfPreviewTitle = 'Mietvertrag Vorschau';
-        this.showPdfPreview = true;
-      },
-      error: () => this.notificationService.error('Fehler beim Laden des PDF'),
-    });
-  }
-
-  downloadMietvertrag(id: number) {
-    this.openDropdownId = null;
-    this.rentalService.downloadMietvertragPdf(id).subscribe({
-      next: (blob) => this.downloadBlob(blob, `Mietvertrag-${id}.pdf`),
-      error: () => this.notificationService.error('Fehler beim Download'),
-    });
-  }
-
-  printMietvertrag(id: number) {
-    this.openDropdownId = null;
-    this.rentalService.downloadMietvertragPdf(id).subscribe({
-      next: (blob) => this.printBlob(blob),
-      error: () => this.notificationService.error('Fehler beim Drucken'),
-    });
-  }
-
-  previewKaution(id: number) {
-    this.openDropdownId = null;
-    this.rentalService.downloadKautionsquittungPdf(id).subscribe({
-      next: (blob) => {
-        this.pdfPreviewUrl = URL.createObjectURL(blob);
-        this.pdfPreviewTitle = 'Kautionsquittung Vorschau';
-        this.showPdfPreview = true;
-      },
-      error: () => this.notificationService.error('Fehler beim Laden des PDF'),
-    });
-  }
-
-  downloadKaution(id: number) {
-    this.openDropdownId = null;
-    this.rentalService.downloadKautionsquittungPdf(id).subscribe({
-      next: (blob) => this.downloadBlob(blob, `Kautionsquittung-${id}.pdf`),
-      error: () => this.notificationService.error('Fehler beim Download'),
-    });
-  }
-
-  printKaution(id: number) {
-    this.openDropdownId = null;
-    this.rentalService.downloadKautionsquittungPdf(id).subscribe({
-      next: (blob) => this.printBlob(blob),
-      error: () => this.notificationService.error('Fehler beim Drucken'),
-    });
-  }
-
-  closePdfPreview() {
-    if (this.pdfPreviewUrl) {
-      URL.revokeObjectURL(this.pdfPreviewUrl);
-    }
-    this.pdfPreviewUrl = null;
-    this.showPdfPreview = false;
-  }
-
-  private downloadBlob(blob: Blob, filename: string) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  private printBlob(blob: Blob) {
-    const url = URL.createObjectURL(blob);
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = url;
-    document.body.appendChild(iframe);
-    iframe.onload = () => {
-      iframe.contentWindow?.print();
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-        URL.revokeObjectURL(url);
-      }, 1000);
-    };
-  }
-
-  // ── Actions ──
-  confirmReturn(rental: RentalList) {
-    this.dialogService
-      .confirm({
-        title: 'Fahrrad zurückgeben',
-        message: `Möchten Sie das Fahrrad "${rental.bikeInfo}" als zurückgegeben markieren?`,
-        type: 'confirm',
-        confirmText: 'Zurückgeben',
-      })
-      .then((confirmed) => {
-        if (confirmed) {
-          this.rentalService.returnBicycle(rental.id).subscribe({
-            next: () => {
-              this.notificationService.success(
-                'Fahrrad erfolgreich zurückgegeben',
-              );
-              this.loadRentals();
-            },
-            error: (err) =>
-              this.notificationService.error(err.error?.error || 'Fehler'),
-          });
-        }
-      });
-  }
-
-  confirmCancel(rental: RentalList) {
-    this.dialogService
-      .confirm({
-        title: 'Vermietung stornieren',
-        message: `Möchten Sie die Vermietung "${rental.mietvertragNummer}" stornieren?`,
-        type: 'danger',
-        confirmText: 'Stornieren',
-      })
-      .then((confirmed) => {
-        if (confirmed) {
-          this.rentalService.cancel(rental.id).subscribe({
-            next: () => {
-              this.notificationService.success('Vermietung storniert');
-              this.loadRentals();
-            },
-            error: (err) =>
-              this.notificationService.error(
-                err.error?.error || 'Fehler beim Stornieren',
-              ),
-          });
-        }
-      });
-  }
-
-  confirmDelete(rental: RentalList) {
-    this.dialogService
-      .danger(
-        'Löschen',
-        `Möchten Sie die Vermietung "${rental.mietvertragNummer}" wirklich löschen?`,
-      )
-      .then((confirmed) => {
-        if (confirmed) {
-          this.rentalService.delete(rental.id).subscribe({
-            next: () => {
-              this.notificationService.success('Vermietung gelöscht');
-              this.loadRentals();
-            },
-            error: (err) =>
-              this.notificationService.error(
-                err.error?.error || 'Fehler beim Löschen',
-              ),
-          });
-        }
-      });
   }
 
   exportExcel() {

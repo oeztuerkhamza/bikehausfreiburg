@@ -23,11 +23,11 @@ import { Rental, RentalUpdate } from '../../models/models';
           >
             ✏️ Bearbeiten
           </a>
-          <button class="btn btn-outline" (click)="previewMietvertrag()">
-            📋 Mietvertrag
+          <button class="btn btn-outline" (click)="printMietvertrag()">
+            🖨️ Mietvertrag drucken
           </button>
-          <button class="btn btn-outline" (click)="previewKaution()">
-            📋 Kautionsquittung
+          <button class="btn btn-outline" (click)="printKaution()">
+            🖨️ Kautionsquittung drucken
           </button>
           <a routerLink="/rentals" class="btn btn-outline">Zurück</a>
         </div>
@@ -156,6 +156,13 @@ import { Rental, RentalUpdate } from '../../models/models';
       <div class="info-card" *ngIf="rental.notizen" style="margin-top: 20px;">
         <h3>Notizen</h3>
         <p>{{ rental.notizen }}</p>
+      </div>
+
+      <!-- Delete -->
+      <div class="action-bar" style="margin-top: 20px;">
+        <button class="btn btn-danger" (click)="deleteRental()">
+          🗑 Löschen
+        </button>
       </div>
     </div>
 
@@ -536,6 +543,22 @@ export class RentalDetailComponent implements OnInit {
   }
 
   // ── PDF ──
+  printMietvertrag() {
+    if (!this.rental) return;
+    this.rentalService.downloadMietvertragPdf(this.rental.id).subscribe({
+      next: (blob) => this.printBlob(blob),
+      error: () => this.notificationService.error('Fehler beim Drucken'),
+    });
+  }
+
+  printKaution() {
+    if (!this.rental) return;
+    this.rentalService.downloadKautionsquittungPdf(this.rental.id).subscribe({
+      next: (blob) => this.printBlob(blob),
+      error: () => this.notificationService.error('Fehler beim Drucken'),
+    });
+  }
+
   previewMietvertrag() {
     if (!this.rental) return;
     this.rentalService.downloadMietvertragPdf(this.rental.id).subscribe({
@@ -595,5 +618,43 @@ export class RentalDetailComponent implements OnInit {
     this.pdfPreviewUrl = null;
     this.showPdfPreview = false;
     this.currentPdfBlob = null;
+  }
+
+  deleteRental() {
+    if (!this.rental) return;
+    this.dialogService
+      .danger(
+        'Löschen',
+        `Möchten Sie die Vermietung "${this.rental.mietvertragNummer}" wirklich löschen?`,
+      )
+      .then((ok) => {
+        if (ok) {
+          this.rentalService.delete(this.rental!.id).subscribe({
+            next: () => {
+              this.notificationService.success('Vermietung gelöscht');
+              this.router.navigate(['/rentals']);
+            },
+            error: (err) =>
+              this.notificationService.error(
+                err.error?.error || 'Fehler beim Löschen',
+              ),
+          });
+        }
+      });
+  }
+
+  private printBlob(blob: Blob) {
+    const url = URL.createObjectURL(blob);
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = url;
+    document.body.appendChild(iframe);
+    iframe.onload = () => {
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+        URL.revokeObjectURL(url);
+      }, 1000);
+    };
   }
 }
