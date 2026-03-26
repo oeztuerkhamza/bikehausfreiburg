@@ -1,0 +1,41 @@
+using BikeHaus.Domain.Enums;
+
+namespace BikeHaus.Domain.Entities;
+
+public class Rental : BaseEntity
+{
+    // Mietvertrag-Nummer
+    public string MietvertragNummer { get; set; } = string.Empty;
+
+    // Mieter (Renter)
+    public int CustomerId { get; set; }
+    public string? AusweisnNr { get; set; }  // ID number
+
+    // Fahrrad
+    public int BicycleId { get; set; }
+
+    // Mietdauer
+    public DateTime StartDatum { get; set; }
+    public DateTime EndDatum { get; set; }
+
+    // Mietpreis
+    public decimal Gesamtmiete { get; set; }  // Total rent (incl. MwSt.)
+
+    // Kaution
+    public decimal Kaution { get; set; }
+    public string? KautionInWorten { get; set; }  // Deposit in words
+    public bool KautionZurueckgegeben { get; set; } = false;
+
+    // Zustand bei Übergabe
+    public BikeConditionAtHandover ZustandBeiUebergabe { get; set; } = BikeConditionAtHandover.Gut;
+
+    // Status
+    public RentalStatus Status { get; set; } = RentalStatus.Active;
+
+    // Notizen
+    public string? Notizen { get; set; }
+
+    // Navigation Properties
+    public Customer Customer { get; set; } = null!;
+    public Bicycle Bicycle { get; set; } = null!;
+}

@@ -10,6 +10,7 @@ export interface Translations {
   purchases: string;
   sales: string;
   returns: string;
+  rentals: string;
   statistics: string;
   settings: string;
   skipToMain: string;
@@ -690,6 +691,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     purchases: 'Ankäufe',
     sales: 'Verkäufe',
     returns: 'Rückgaben',
+    rentals: 'Miete',
     statistics: 'Statistiken',
     settings: 'Einstellungen',
     skipToMain: 'Zum Hauptinhalt springen',
@@ -1380,6 +1382,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     purchases: 'Alımlar',
     sales: 'Satışlar',
     returns: 'İadeler',
+    rentals: 'Kiralama',
     statistics: 'İstatistikler',
     settings: 'Ayarlar',
     skipToMain: 'Ana içeriğe atla',

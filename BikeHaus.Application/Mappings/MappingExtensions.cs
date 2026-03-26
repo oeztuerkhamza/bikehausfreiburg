@@ -270,4 +270,36 @@ public static class MappingExtensions
         entity.Status,
         entity.AblaufDatum < DateTime.UtcNow && entity.Status == Domain.Enums.ReservationStatus.Active
     );
+
+    // ── Rental Mappings ──
+    public static RentalDto ToDto(this Rental entity) => new(
+        entity.Id,
+        entity.MietvertragNummer,
+        entity.Bicycle.ToDto(),
+        entity.Customer.ToDto(),
+        entity.AusweisnNr,
+        entity.StartDatum,
+        entity.EndDatum,
+        entity.Gesamtmiete,
+        entity.Kaution,
+        entity.KautionInWorten,
+        entity.KautionZurueckgegeben,
+        entity.ZustandBeiUebergabe,
+        entity.Status,
+        entity.Notizen,
+        entity.CreatedAt
+    );
+
+    public static RentalListDto ToListDto(this Rental entity) => new(
+        entity.Id,
+        entity.MietvertragNummer,
+        $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
+        entity.Customer.FullName,
+        entity.StartDatum,
+        entity.EndDatum,
+        entity.Gesamtmiete,
+        entity.Kaution,
+        entity.Status,
+        entity.EndDatum < DateTime.UtcNow && entity.Status == Domain.Enums.RentalStatus.Active
+    );
 }

@@ -3,6 +3,7 @@ export enum BikeStatus {
   Available = 'Available',
   Sold = 'Sold',
   Reserved = 'Reserved',
+  Rented = 'Rented',
 }
 
 export enum BikeCondition {
@@ -684,4 +685,71 @@ export interface PurchaseCreateForExistingBike {
   fahrradtyp?: string;
   art?: string;
   zustand?: BikeCondition;
+}
+
+// ── Rental (Miete) ──
+export enum RentalStatus {
+  Active = 'Active',
+  Returned = 'Returned',
+  Cancelled = 'Cancelled',
+}
+
+export enum BikeConditionAtHandover {
+  SehrGut = 'SehrGut',
+  Gut = 'Gut',
+  Gebrauchsspuren = 'Gebrauchsspuren',
+}
+
+export interface Rental {
+  id: number;
+  mietvertragNummer: string;
+  bicycle: Bicycle;
+  customer: Customer;
+  ausweisnNr?: string;
+  startDatum: string;
+  endDatum: string;
+  gesamtmiete: number;
+  kaution: number;
+  kautionInWorten?: string;
+  kautionZurueckgegeben: boolean;
+  zustandBeiUebergabe: BikeConditionAtHandover;
+  status: RentalStatus;
+  notizen?: string;
+  createdAt: string;
+}
+
+export interface RentalList {
+  id: number;
+  mietvertragNummer: string;
+  bikeInfo: string;
+  customerName: string;
+  startDatum: string;
+  endDatum: string;
+  gesamtmiete: number;
+  kaution: number;
+  status: RentalStatus;
+  isOverdue: boolean;
+}
+
+export interface RentalCreate {
+  bicycleId: number;
+  customer: CustomerCreate;
+  ausweisnNr?: string;
+  startDatum: string;
+  endDatum: string;
+  gesamtmiete: number;
+  kaution: number;
+  kautionInWorten?: string;
+  zustandBeiUebergabe: BikeConditionAtHandover;
+  notizen?: string;
+}
+
+export interface RentalUpdate {
+  endDatum?: string;
+  gesamtmiete?: number;
+  kaution?: number;
+  kautionInWorten?: string;
+  kautionZurueckgegeben?: boolean;
+  zustandBeiUebergabe?: BikeConditionAtHandover;
+  notizen?: string;
 }

@@ -20,4 +20,5 @@ public class Customer : BaseEntity
     public ICollection<Sale> Sales { get; set; } = new List<Sale>();
     public ICollection<Return> Returns { get; set; } = new List<Return>();
     public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+    public ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 }

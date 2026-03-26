@@ -229,5 +229,29 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'rentals',
+    loadComponent: () =>
+      import('./pages/rentals/rental-list.component').then(
+        (m) => m.RentalListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'rentals/new',
+    loadComponent: () =>
+      import('./pages/rentals/rental-form.component').then(
+        (m) => m.RentalFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'rentals/:id',
+    loadComponent: () =>
+      import('./pages/rentals/rental-detail.component').then(
+        (m) => m.RentalDetailComponent,
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];

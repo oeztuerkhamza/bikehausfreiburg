@@ -228,6 +228,28 @@ import { DialogComponent } from './components/dialog/dialog.component';
             </span>
             <span class="nav-label">{{ t.returns }}</span>
           </a>
+          <a
+            routerLink="/rentals"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <span class="nav-icon">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            </span>
+            <span class="nav-label">{{ t.rentals }}</span>
+          </a>
 
           <div class="nav-divider"></div>
           <div class="nav-section-label">Extras</div>

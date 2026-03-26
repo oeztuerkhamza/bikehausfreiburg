@@ -31,6 +31,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<HomepageAccessory> HomepageAccessories => Set<HomepageAccessory>();
     public DbSet<HomepageAccessoryImage> HomepageAccessoryImages => Set<HomepageAccessoryImage>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<Rental> Rentals => Set<Rental>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -430,6 +431,30 @@ public class BikeHausDbContext : DbContext
                 .WithMany(a => a.Images)
                 .HasForeignKey(e => e.HomepageAccessoryId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── Rental Configuration ──
+        modelBuilder.Entity<Rental>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.MietvertragNummer).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.AusweisnNr).HasMaxLength(50);
+            entity.Property(e => e.Gesamtmiete).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Kaution).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.KautionInWorten).HasMaxLength(200);
+            entity.Property(e => e.Notizen).HasMaxLength(1000);
+
+            entity.HasOne(e => e.Bicycle)
+                .WithMany(b => b.Rentals)
+                .HasForeignKey(e => e.BicycleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.Rentals)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.MietvertragNummer).IsUnique();
         });
     }
 }

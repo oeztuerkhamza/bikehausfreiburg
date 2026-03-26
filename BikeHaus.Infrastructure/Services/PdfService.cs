@@ -17,6 +17,7 @@ public class PdfService : IPdfService
     private readonly IShopSettingsRepository _shopSettingsRepository;
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly IExpenseRepository _expenseRepository;
+    private readonly IRentalRepository _rentalRepository;
 
     // Print-Friendly Colors (optimized for less ink consumption)
     private static readonly string PrimaryColor = "#2c5282";       // Medium blue (for text)
@@ -64,7 +65,8 @@ public class PdfService : IPdfService
         IReturnRepository returnRepository,
         IShopSettingsRepository shopSettingsRepository,
         IInvoiceRepository invoiceRepository,
-        IExpenseRepository expenseRepository)
+        IExpenseRepository expenseRepository,
+        IRentalRepository rentalRepository)
     {
         _purchaseRepository = purchaseRepository;
         _saleRepository = saleRepository;
@@ -72,6 +74,7 @@ public class PdfService : IPdfService
         _shopSettingsRepository = shopSettingsRepository;
         _invoiceRepository = invoiceRepository;
         _expenseRepository = expenseRepository;
+        _rentalRepository = rentalRepository;
     }
 
     // Helper to get shop info from DB settings or use defaults
@@ -1261,6 +1264,207 @@ public class PdfService : IPdfService
 
                     // Footer
                     col.Item().PaddingTop(30).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}").FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
+                });
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // MIETVERTRAG (Rental Contract) PDF
+    // ══════════════════════════════════════════════════════════════
+    public async Task<byte[]> GenerateMietvertragAsync(int rentalId)
+    {
+        var rental = await _rentalRepository.GetWithDetailsAsync(rentalId)
+            ?? throw new KeyNotFoundException($"Mietvertrag mit ID {rentalId} nicht gefunden.");
+
+        var shop = await GetShopInfoAsync();
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var zustandText = rental.ZustandBeiUebergabe switch
+        {
+            Domain.Enums.BikeConditionAtHandover.SehrGut => "Sehr gut",
+            Domain.Enums.BikeConditionAtHandover.Gut => "Gut",
+            Domain.Enums.BikeConditionAtHandover.Gebrauchsspuren => "Gebrauchsspuren",
+            _ => "Gut"
+        };
+
+        var document = QuestPDF.Fluent.Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(1.5f, Unit.Centimetre);
+                page.DefaultTextStyle(x => x.FontSize(10).FontColor(Colors.Grey.Darken4));
+
+                page.Content().Column(col =>
+                {
+                    // Title
+                    col.Item().AlignCenter().Text($"{shop.ShopName} - MIETVERTRAG FAHRRAD")
+                        .FontSize(16).Bold().FontColor(PrimaryColor);
+
+                    col.Item().PaddingTop(10).Text($"Vermieter: {shop.ShopName}")
+                        .FontSize(10);
+
+                    col.Item().PaddingTop(5).Text($"Mietvertrag-Nr.: {rental.MietvertragNummer}")
+                        .FontSize(10).Bold();
+
+                    // ── MIETER Section ──
+                    col.Item().PaddingTop(15).Text("MIETER:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text($"Name: {rental.Customer.FullName}").FontSize(10);
+                    if (rental.Customer.FullAddress != null)
+                        col.Item().Text($"Adresse: {rental.Customer.FullAddress}").FontSize(10);
+                    if (!string.IsNullOrEmpty(rental.Customer.Telefon))
+                        col.Item().Text($"Telefon: {rental.Customer.Telefon}").FontSize(10);
+                    if (!string.IsNullOrEmpty(rental.AusweisnNr))
+                        col.Item().Text($"Ausweis-Nr.: {rental.AusweisnNr}").FontSize(10);
+
+                    // ── MIETGEGENSTAND Section ──
+                    col.Item().PaddingTop(15).Text("MIETGEGENSTAND:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text($"Fahrrad (Marke/Modell): {rental.Bicycle.Marke} {rental.Bicycle.Modell}").FontSize(10);
+                    if (!string.IsNullOrEmpty(rental.Bicycle.Rahmennummer))
+                        col.Item().Text($"Rahmennummer: {rental.Bicycle.Rahmennummer}").FontSize(10);
+
+                    // ── MIETDAUER Section ──
+                    col.Item().PaddingTop(15).Text("MIETDAUER:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text($"Von: {rental.StartDatum:dd.MM.yyyy}  Bis: {rental.EndDatum:dd.MM.yyyy}").FontSize(10);
+
+                    // ── MIETPREIS Section ──
+                    col.Item().PaddingTop(15).Text("MIETPREIS:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text($"Gesamtmiete: {rental.Gesamtmiete:N2} EUR (inkl. MwSt.)").FontSize(10);
+
+                    // ── KAUTION Section ──
+                    col.Item().PaddingTop(15).Text("KAUTION:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text($"Kaution: {rental.Kaution:N2} EUR").FontSize(10);
+
+                    col.Item().PaddingTop(8).Text("Die Kaution wird bei ordnungsgemäßer Rückgabe zurückerstattet.")
+                        .FontSize(9).Italic();
+                    col.Item().Text("Bei Schäden oder Verlust kann die Kaution einbehalten werden.")
+                        .FontSize(9).Italic();
+
+                    // ── ZUSTAND BEI ÜBERGABE Section ──
+                    col.Item().PaddingTop(15).Text("ZUSTAND BEI ÜBERGABE:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text(zustandText).FontSize(10);
+
+                    // ── HAFTUNG Section ──
+                    col.Item().PaddingTop(15).Text("HAFTUNG:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text("Der Mieter haftet für Schäden, Verlust und Diebstahl.").FontSize(10);
+
+                    // ── RÜCKGABE Section ──
+                    col.Item().PaddingTop(15).Text("RÜCKGABE:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text("Spätestens zum vereinbarten Zeitpunkt.").FontSize(10);
+
+                    // ── Signatures ──
+                    col.Item().PaddingTop(30).Text($"Ort, Datum: Freiburg, {DateTime.Now:dd.MM.yyyy}").FontSize(10);
+
+                    col.Item().PaddingTop(25).Row(row =>
+                    {
+                        row.RelativeItem().Column(sigCol =>
+                        {
+                            sigCol.Item().BorderBottom(0.5f).BorderColor(Colors.Grey.Darken1).PaddingBottom(30).Text("").FontSize(10);
+                            sigCol.Item().PaddingTop(3).Text("Unterschrift Vermieter").FontSize(8).FontColor(Colors.Grey.Darken1);
+                        });
+                        row.ConstantItem(40);
+                        row.RelativeItem().Column(sigCol =>
+                        {
+                            sigCol.Item().BorderBottom(0.5f).BorderColor(Colors.Grey.Darken1).PaddingBottom(30).Text("").FontSize(10);
+                            sigCol.Item().PaddingTop(3).Text("Unterschrift Mieter").FontSize(8).FontColor(Colors.Grey.Darken1);
+                        });
+                    });
+
+                    // Footer
+                    col.Item().PaddingTop(30).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}")
+                        .FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
+                });
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // KAUTIONSQUITTUNG (Deposit Receipt) PDF
+    // ══════════════════════════════════════════════════════════════
+    public async Task<byte[]> GenerateKautionsquittungAsync(int rentalId)
+    {
+        var rental = await _rentalRepository.GetWithDetailsAsync(rentalId)
+            ?? throw new KeyNotFoundException($"Mietvertrag mit ID {rentalId} nicht gefunden.");
+
+        var shop = await GetShopInfoAsync();
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = QuestPDF.Fluent.Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(1.5f, Unit.Centimetre);
+                page.DefaultTextStyle(x => x.FontSize(10).FontColor(Colors.Grey.Darken4));
+
+                page.Content().Column(col =>
+                {
+                    // Title
+                    col.Item().AlignCenter().Text("KAUTIONSQUITTUNG (DEPOZITO MAKBUZU)")
+                        .FontSize(16).Bold().FontColor(PrimaryColor);
+
+                    col.Item().PaddingTop(10).Text(shop.ShopName).FontSize(11).Bold();
+
+                    col.Item().PaddingTop(5).Text($"Mietvertrag-Nr.: {rental.MietvertragNummer}")
+                        .FontSize(10);
+
+                    // ── Kunde Section ──
+                    col.Item().PaddingTop(20).Text("Kunde:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text($"Name: {rental.Customer.FullName}").FontSize(10);
+                    if (rental.Customer.FullAddress != null)
+                        col.Item().Text($"Adresse: {rental.Customer.FullAddress}").FontSize(10);
+                    if (!string.IsNullOrEmpty(rental.Customer.Telefon))
+                        col.Item().Text($"Telefon: {rental.Customer.Telefon}").FontSize(10);
+
+                    // ── Fahrrad Section ──
+                    col.Item().PaddingTop(20).Text("Fahrrad:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text($"Marke/Modell: {rental.Bicycle.Marke} {rental.Bicycle.Modell}").FontSize(10);
+                    if (!string.IsNullOrEmpty(rental.Bicycle.Rahmennummer))
+                        col.Item().Text($"Rahmennummer: {rental.Bicycle.Rahmennummer}").FontSize(10);
+
+                    // ── Kaution Betrag ──
+                    col.Item().PaddingTop(20).Text($"Kaution Betrag: {rental.Kaution:N2} EUR")
+                        .FontSize(12).Bold();
+
+                    if (!string.IsNullOrEmpty(rental.KautionInWorten))
+                        col.Item().PaddingTop(3).Text($"(in Worten: {rental.KautionInWorten})").FontSize(10);
+
+                    // ── Zweck ──
+                    col.Item().PaddingTop(20).Text("Zweck:").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(3).Text("Diese Kaution dient als Sicherheit für die Fahrradvermietung.").FontSize(10);
+
+                    col.Item().PaddingTop(10).Text(
+                        "Die Kaution wird bei ordnungsgemäßer Rückgabe des Fahrrads vollständig zurückerstattet, " +
+                        "sofern kein Schaden, Verlust oder Diebstahl vorliegt.")
+                        .FontSize(9).Italic();
+
+                    // ── Date ──
+                    col.Item().PaddingTop(25).Text($"Datum: {DateTime.Now:dd.MM.yyyy}").FontSize(10);
+
+                    // ── Signatures ──
+                    col.Item().PaddingTop(25).Row(row =>
+                    {
+                        row.RelativeItem().Column(sigCol =>
+                        {
+                            sigCol.Item().BorderBottom(0.5f).BorderColor(Colors.Grey.Darken1).PaddingBottom(30).Text("").FontSize(10);
+                            sigCol.Item().PaddingTop(3).Text("Unterschrift Vermieter").FontSize(8).FontColor(Colors.Grey.Darken1);
+                        });
+                        row.ConstantItem(40);
+                        row.RelativeItem().Column(sigCol =>
+                        {
+                            sigCol.Item().BorderBottom(0.5f).BorderColor(Colors.Grey.Darken1).PaddingBottom(30).Text("").FontSize(10);
+                            sigCol.Item().PaddingTop(3).Text("Unterschrift Mieter").FontSize(8).FontColor(Colors.Grey.Darken1);
+                        });
+                    });
+
+                    // Footer
+                    col.Item().PaddingTop(30).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}")
+                        .FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
                 });
             });
         });
