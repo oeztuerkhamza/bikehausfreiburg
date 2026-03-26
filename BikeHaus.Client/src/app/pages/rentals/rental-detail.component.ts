@@ -16,6 +16,13 @@ import { Rental, RentalUpdate } from '../../models/models';
       <div class="page-header">
         <h1>Mietvertrag {{ rental.mietvertragNummer }}</h1>
         <div class="header-actions">
+          <a
+            [routerLink]="['/rentals/edit', rental.id]"
+            class="btn btn-outline"
+            *ngIf="rental.status === 'Active'"
+          >
+            ✏️ Bearbeiten
+          </a>
           <button class="btn btn-outline" (click)="previewMietvertrag()">
             📋 Mietvertrag
           </button>
@@ -86,9 +93,9 @@ import { Rental, RentalUpdate } from '../../models/models';
             <span>Kaution:</span
             ><strong>{{ rental.kaution | number: '1.2-2' }} €</strong>
           </div>
-          <div class="info-row" *ngIf="rental.kautionInWorten">
-            <span>Kaution (Worten):</span
-            ><span>{{ rental.kautionInWorten }}</span>
+          <div class="info-row">
+            <span>Zahlungsart:</span
+            ><span>{{ getZahlungsartText(rental.zahlungsart) }}</span>
           </div>
           <div class="info-row">
             <span>Kaution zurück:</span>
@@ -439,6 +446,15 @@ export class RentalDetailComponent implements OnInit {
       Cancelled: 'Storniert',
     };
     return map[status] || status;
+  }
+
+  getZahlungsartText(z: string): string {
+    const map: Record<string, string> = {
+      Bar: 'Bar',
+      PayPal: 'PayPal',
+      Karte: 'Karte',
+    };
+    return map[z] || z;
   }
 
   returnBicycle() {

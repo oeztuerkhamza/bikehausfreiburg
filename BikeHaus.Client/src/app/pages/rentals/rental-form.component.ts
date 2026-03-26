@@ -5,11 +5,13 @@ import { Router, RouterLink } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
+import { TranslationService } from '../../services/translation.service';
 import {
   RentalCreate,
   Bicycle,
   CustomerCreate,
   BikeConditionAtHandover,
+  PaymentMethod,
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
@@ -40,8 +42,52 @@ import { AddressSuggestion } from '../../services/address.service';
             <app-bike-selector
               [bikes]="availableBikes"
               [(selectedBike)]="selectedBike"
+              [allowQuickAdd]="true"
               (bikeSelected)="onBikeSelected($event)"
+              (quickAddRequested)="onQuickAddBike()"
             ></app-bike-selector>
+
+            <!-- Quick-add bike form -->
+            <div class="quick-add-form" *ngIf="isQuickAddMode">
+              <h3>🆕 Neues Fahrrad</h3>
+              <div class="form-grid">
+                <div class="field">
+                  <label>Rahmennummer *</label>
+                  <input
+                    [(ngModel)]="bikeEdit.rahmennummer"
+                    name="bikeRahmen"
+                    style="text-transform: uppercase"
+                    required
+                  />
+                </div>
+                <div class="field">
+                  <label>Marke *</label>
+                  <input [(ngModel)]="bikeEdit.marke" name="bikeMarke" required />
+                </div>
+                <div class="field">
+                  <label>Modell *</label>
+                  <input [(ngModel)]="bikeEdit.modell" name="bikeModell" required />
+                </div>
+                <div class="field">
+                  <label>Farbe</label>
+                  <input [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" />
+                </div>
+                <div class="field">
+                  <label>Reifengröße</label>
+                  <input
+                    [(ngModel)]="bikeEdit.reifengroesse"
+                    name="bikeReifen"
+                  />
+                </div>
+                <div class="field">
+                  <label>Fahrradtyp</label>
+                  <input
+                    [(ngModel)]="bikeEdit.fahrradtyp"
+                    name="bikeFahrradtyp"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Mieter (Renter) info -->
@@ -167,12 +213,16 @@ import { AddressSuggestion } from '../../services/address.service';
                 />
               </div>
               <div class="field">
-                <label>Kaution in Worten</label>
-                <input
-                  [(ngModel)]="kautionInWorten"
-                  name="kautionInWorten"
-                  placeholder="z.B. Einhundert"
-                />
+                <label>Zahlungsart *</label>
+                <select
+                  [(ngModel)]="zahlungsart"
+                  name="zahlungsart"
+                  required
+                >
+                  <option value="Bar">Bar</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Karte">Karte</option>
+                </select>
               </div>
               <div class="field">
                 <label>Zustand bei Übergabe *</label>
@@ -203,7 +253,7 @@ import { AddressSuggestion } from '../../services/address.service';
           <button
             type="submit"
             class="btn btn-primary"
-            [disabled]="submitting || !selectedBike || !f.form.valid"
+            [disabled]="submitting || (!selectedBike && !isQuickAddMode) || !f.form.valid"
           >
             {{ submitting ? 'Wird erstellt...' : 'Vermietung anlegen' }}
           </button>
@@ -340,6 +390,19 @@ import { AddressSuggestion } from '../../services/address.service';
           grid-template-columns: 1fr;
         }
       }
+      .quick-add-form {
+        margin-top: 16px;
+        padding: 16px;
+        background: var(--accent-success-light, rgba(16, 185, 129, 0.04));
+        border-radius: var(--radius-md, 10px);
+        border: 1.5px dashed var(--accent-success, #10b981);
+      }
+      .quick-add-form h3 {
+        margin: 0 0 12px 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--accent-success, #10b981);
+      }
     `,
   ],
 })
@@ -348,9 +411,20 @@ export class RentalFormComponent implements OnInit {
   private bicycleService = inject(BicycleService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
+  private translationService = inject(TranslationService);
 
   availableBikes: Bicycle[] = [];
   selectedBike: Bicycle | null = null;
+  isQuickAddMode = false;
+
+  bikeEdit = {
+    rahmennummer: '',
+    marke: '',
+    modell: '',
+    farbe: '',
+    reifengroesse: '',
+    fahrradtyp: '',
+  };
 
   customer: CustomerCreate = {
     vorname: '',
@@ -368,7 +442,7 @@ export class RentalFormComponent implements OnInit {
   endDatum = '';
   gesamtmiete: number = 0;
   kaution: number = 0;
-  kautionInWorten = '';
+  zahlungsart: PaymentMethod = PaymentMethod.Bar;
   zustandBeiUebergabe = 'Gut';
   notizen = '';
   submitting = false;
@@ -385,6 +459,20 @@ export class RentalFormComponent implements OnInit {
 
   onBikeSelected(bike: Bicycle) {
     this.selectedBike = bike;
+    this.isQuickAddMode = false;
+  }
+
+  onQuickAddBike() {
+    this.isQuickAddMode = true;
+    this.selectedBike = null;
+    this.bikeEdit = {
+      rahmennummer: '',
+      marke: '',
+      modell: '',
+      farbe: '',
+      reifengroesse: '',
+      fahrradtyp: '',
+    };
   }
 
   onAddressSelected(addr: AddressSuggestion) {
@@ -395,19 +483,49 @@ export class RentalFormComponent implements OnInit {
   }
 
   submit() {
-    if (!this.selectedBike || this.submitting) return;
+    if (this.submitting) return;
 
-    this.submitting = true;
+    // Quick-add mode: create bicycle first
+    if (this.isQuickAddMode) {
+      if (!this.bikeEdit.rahmennummer || !this.bikeEdit.marke || !this.bikeEdit.modell) {
+        this.notificationService.error('Bitte Rahmennummer, Marke und Modell ausfüllen');
+        return;
+      }
+      this.submitting = true;
+      this.bicycleService.create({
+        rahmennummer: this.bikeEdit.rahmennummer.toUpperCase(),
+        marke: this.bikeEdit.marke,
+        modell: this.bikeEdit.modell,
+        farbe: this.bikeEdit.farbe || undefined,
+        reifengroesse: this.bikeEdit.reifengroesse || undefined,
+        fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
+        status: 'Available',
+      } as any).subscribe({
+        next: (bike) => {
+          this.createRental(bike.id);
+        },
+        error: (err) => {
+          this.submitting = false;
+          this.notificationService.error(err.error?.error || 'Fehler beim Erstellen des Fahrrads');
+        },
+      });
+    } else {
+      if (!this.selectedBike) return;
+      this.submitting = true;
+      this.createRental(this.selectedBike.id);
+    }
+  }
 
+  private createRental(bicycleId: number) {
     const rental: RentalCreate = {
-      bicycleId: this.selectedBike.id,
+      bicycleId,
       customer: this.customer,
       ausweisnNr: this.ausweisnNr || undefined,
       startDatum: this.startDatum,
       endDatum: this.endDatum,
       gesamtmiete: this.gesamtmiete,
       kaution: this.kaution,
-      kautionInWorten: this.kautionInWorten || undefined,
+      zahlungsart: this.zahlungsart,
       zustandBeiUebergabe: this.zustandBeiUebergabe as BikeConditionAtHandover,
       notizen: this.notizen || undefined,
     };

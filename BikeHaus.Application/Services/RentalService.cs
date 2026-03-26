@@ -111,7 +111,7 @@ public class RentalService : IRentalService
             EndDatum = dto.EndDatum,
             Gesamtmiete = dto.Gesamtmiete,
             Kaution = dto.Kaution,
-            KautionInWorten = dto.KautionInWorten,
+            Zahlungsart = dto.Zahlungsart,
             ZustandBeiUebergabe = dto.ZustandBeiUebergabe,
             Notizen = dto.Notizen,
             Status = RentalStatus.Active,
@@ -137,16 +137,36 @@ public class RentalService : IRentalService
         if (rental.Status != RentalStatus.Active)
             throw new InvalidOperationException("Nur aktive Mietverträge können bearbeitet werden.");
 
+        // Update customer if provided
+        if (dto.Customer != null)
+        {
+            var customer = rental.Customer;
+            customer.Vorname = dto.Customer.Vorname;
+            customer.Nachname = dto.Customer.Nachname;
+            customer.Strasse = dto.Customer.Strasse;
+            customer.Hausnummer = dto.Customer.Hausnummer;
+            customer.PLZ = dto.Customer.PLZ;
+            customer.Stadt = dto.Customer.Stadt;
+            customer.Telefon = dto.Customer.Telefon;
+            customer.Email = dto.Customer.Email;
+            customer.UpdatedAt = DateTime.UtcNow;
+            await _customerRepository.UpdateAsync(customer);
+        }
+
+        if (dto.AusweisnNr != null)
+            rental.AusweisnNr = dto.AusweisnNr;
+        if (dto.StartDatum.HasValue)
+            rental.StartDatum = dto.StartDatum.Value;
         if (dto.EndDatum.HasValue)
             rental.EndDatum = dto.EndDatum.Value;
         if (dto.Gesamtmiete.HasValue)
             rental.Gesamtmiete = dto.Gesamtmiete.Value;
         if (dto.Kaution.HasValue)
             rental.Kaution = dto.Kaution.Value;
-        if (dto.KautionInWorten != null)
-            rental.KautionInWorten = dto.KautionInWorten;
         if (dto.KautionZurueckgegeben.HasValue)
             rental.KautionZurueckgegeben = dto.KautionZurueckgegeben.Value;
+        if (dto.Zahlungsart.HasValue)
+            rental.Zahlungsart = dto.Zahlungsart.Value;
         if (dto.ZustandBeiUebergabe.HasValue)
             rental.ZustandBeiUebergabe = dto.ZustandBeiUebergabe.Value;
         if (dto.Notizen != null)

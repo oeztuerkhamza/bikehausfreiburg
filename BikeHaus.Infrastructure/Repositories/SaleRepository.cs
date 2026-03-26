@@ -9,7 +9,12 @@ namespace BikeHaus.Infrastructure.Repositories;
 
 public class SaleRepository : Repository<Sale>, ISaleRepository
 {
-    public SaleRepository(BikeHausDbContext context) : base(context) { }
+    private readonly BikeHausDbContext _dbContext;
+
+    public SaleRepository(BikeHausDbContext context) : base(context)
+    {
+        _dbContext = context;
+    }
 
     private static int ExtractBelegNumber(string? belegNummer)
     {
@@ -75,6 +80,19 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
             {
                 maxNumber = parsed;
             }
+        }
+
+        // Also check rental MietvertragNummern (shared sequence)
+        var rentalNummern = await _dbContext.Rentals
+            .Select(r => r.MietvertragNummer)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .ToListAsync();
+
+        foreach (var nummer in rentalNummern)
+        {
+            var match = Regex.Match(nummer, @"(\d+)$");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var parsed) && parsed > maxNumber)
+                maxNumber = parsed;
         }
 
         return $"{maxNumber + 1:D3}";

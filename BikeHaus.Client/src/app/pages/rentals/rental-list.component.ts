@@ -167,6 +167,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 >
                   👁
                 </a>
+                <a
+                  *ngIf="r.status === 'Active'"
+                  [routerLink]="['/rentals/edit', r.id]"
+                  class="btn btn-sm"
+                  title="Bearbeiten"
+                >
+                  ✏️
+                </a>
                 <button
                   class="btn btn-sm btn-danger"
                   title="Löschen"

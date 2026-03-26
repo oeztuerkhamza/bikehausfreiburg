@@ -246,6 +246,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'rentals/edit/:id',
+    loadComponent: () =>
+      import('./pages/rentals/rental-edit.component').then(
+        (m) => m.RentalEditComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'rentals/:id',
     loadComponent: () =>
       import('./pages/rentals/rental-detail.component').then(

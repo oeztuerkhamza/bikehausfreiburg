@@ -23,8 +23,10 @@ public class Rental : BaseEntity
 
     // Kaution
     public decimal Kaution { get; set; }
-    public string? KautionInWorten { get; set; }  // Deposit in words
     public bool KautionZurueckgegeben { get; set; } = false;
+
+    // Zahlungsart
+    public PaymentMethod Zahlungsart { get; set; } = PaymentMethod.Bar;
 
     // Zustand bei Übergabe
     public BikeConditionAtHandover ZustandBeiUebergabe { get; set; } = BikeConditionAtHandover.Gut;

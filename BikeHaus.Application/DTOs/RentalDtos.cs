@@ -12,8 +12,8 @@ public record RentalDto(
     DateTime EndDatum,
     decimal Gesamtmiete,
     decimal Kaution,
-    string? KautionInWorten,
     bool KautionZurueckgegeben,
+    PaymentMethod Zahlungsart,
     BikeConditionAtHandover ZustandBeiUebergabe,
     RentalStatus Status,
     string? Notizen,
@@ -41,17 +41,20 @@ public record RentalCreateDto(
     DateTime EndDatum,
     decimal Gesamtmiete,
     decimal Kaution,
-    string? KautionInWorten,
+    PaymentMethod Zahlungsart,
     BikeConditionAtHandover ZustandBeiUebergabe,
     string? Notizen
 );
 
 public record RentalUpdateDto(
+    CustomerCreateDto? Customer,
+    string? AusweisnNr,
+    DateTime? StartDatum,
     DateTime? EndDatum,
     decimal? Gesamtmiete,
     decimal? Kaution,
-    string? KautionInWorten,
     bool? KautionZurueckgegeben,
+    PaymentMethod? Zahlungsart,
     BikeConditionAtHandover? ZustandBeiUebergabe,
     string? Notizen
 );

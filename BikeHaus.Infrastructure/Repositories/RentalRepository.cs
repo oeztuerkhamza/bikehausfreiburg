@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
@@ -9,7 +10,12 @@ namespace BikeHaus.Infrastructure.Repositories;
 
 public class RentalRepository : Repository<Rental>, IRentalRepository
 {
-    public RentalRepository(BikeHausDbContext context) : base(context) { }
+    private readonly BikeHausDbContext _dbContext;
+
+    public RentalRepository(BikeHausDbContext context) : base(context)
+    {
+        _dbContext = context;
+    }
 
     public async Task<Rental?> GetWithDetailsAsync(int id)
     {
@@ -29,10 +35,34 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
 
     public async Task<string> GenerateMietvertragNummerAsync()
     {
-        var today = DateTime.UtcNow;
-        var prefix = $"MV-{today:yyyyMMdd}";
-        var count = await _dbSet.CountAsync(r => r.MietvertragNummer.StartsWith(prefix));
-        return $"{prefix}-{(count + 1):D3}";
+        // Get max number from Sale BelegNummern
+        var saleBelegNummern = await _dbContext.Sales
+            .Select(s => s.BelegNummer)
+            .Where(b => !string.IsNullOrWhiteSpace(b))
+            .ToListAsync();
+
+        var maxNumber = 0;
+        foreach (var beleg in saleBelegNummern)
+        {
+            var match = Regex.Match(beleg, @"(\d+)$");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var parsed) && parsed > maxNumber)
+                maxNumber = parsed;
+        }
+
+        // Also check existing rental MietvertragNummern
+        var rentalNummern = await _dbSet
+            .Select(r => r.MietvertragNummer)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .ToListAsync();
+
+        foreach (var nummer in rentalNummern)
+        {
+            var match = Regex.Match(nummer, @"(\d+)$");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var parsed) && parsed > maxNumber)
+                maxNumber = parsed;
+        }
+
+        return $"{maxNumber + 1:D3}";
     }
 
     public override async Task<IEnumerable<Rental>> GetAllAsync()
