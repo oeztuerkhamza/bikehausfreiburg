@@ -233,8 +233,9 @@ public class PdfService : IPdfService
                         // Ankaufbeleg box - right
                         row.ConstantItem(150).AlignMiddle().Border(1).BorderColor(PrimaryColor).Padding(6).Column(box =>
                         {
-                            box.Item().Text("ANKAUFSBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                            box.Item().Text("RECHNUNGSNUMMER").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
                             box.Item().Text(purchase.BelegNummer).FontSize(14).Bold().FontColor(PrimaryColor).AlignCenter();
+                            box.Item().Text("RECHNUNGSDATUM").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
                             box.Item().Text($"{purchase.Kaufdatum:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
                         });
                     });
@@ -268,14 +269,7 @@ public class PdfService : IPdfService
                                 c.Item().Text($"Steuernummer: {shop.Steuernummer}").FontSize(9);
                         });
 
-                        row.ConstantItem(10);
 
-                        // Kaufdatum - right side
-                        row.ConstantItem(130).AlignTop().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(c =>
-                        {
-                            c.Item().Text("Kaufdatum").FontSize(8).FontColor(Colors.Grey.Darken1);
-                            c.Item().Text($"{purchase.Kaufdatum:dd.MM.yyyy}").FontSize(12).Bold().FontColor(PrimaryColor);
-                        });
                     });
 
                     // AnzeigeNr if present (separate row)
@@ -370,7 +364,7 @@ public class PdfService : IPdfService
 
                         row.ConstantItem(160).Border(2).BorderColor(PrimaryColor).Padding(12).Column(c =>
                         {
-                            c.Item().Text("ANKAUFBETRAG").FontSize(10).FontColor(PrimaryColor).AlignCenter();
+                            c.Item().Text("BRUTTOBETRAG").FontSize(10).FontColor(PrimaryColor).AlignCenter();
                             c.Item().Text("(inkl. MwSt.)").FontSize(8).FontColor(Colors.Grey.Darken2).AlignCenter();
                             c.Item().PaddingTop(3).Text($"{purchase.Preis:N2} €").FontSize(25).Bold().FontColor(PrimaryColor).AlignCenter();
                         });
