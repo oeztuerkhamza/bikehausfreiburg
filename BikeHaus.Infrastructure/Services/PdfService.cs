@@ -475,7 +475,7 @@ public class PdfService : IPdfService
                         // Verkaufsbeleg box - right
                         row.ConstantItem(150).AlignMiddle().Border(1).BorderColor(PrimaryColor).Padding(6).Column(box =>
                         {
-                            box.Item().Text("VERKAUFSBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                            box.Item().Text("RECHNUNGSNUMMER").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
                             box.Item().Text(sale.BelegNummer).FontSize(14).Bold().FontColor(PrimaryColor).AlignCenter();
                             box.Item().Text($"{sale.Verkaufsdatum:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
                         });
