@@ -243,7 +243,7 @@ public class PdfService : IPdfService
                     col.Item().Border(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(2).PaddingHorizontal(6).Row(row =>
                     {
                         row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(7).FontColor(Colors.Grey.Darken2);
-                        row.RelativeItem().AlignRight().Text("Kaufvertrag nach §25a UStG – Kein gesonderter Ausweis der Umsatzsteuer").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text("Rechnung nach §25a UStG – Kein gesonderter Ausweis der Umsatzsteuer").FontSize(7).FontColor(Colors.Grey.Darken2);
                     });
                 });
 
@@ -486,7 +486,7 @@ public class PdfService : IPdfService
                     col.Item().Border(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(2).PaddingHorizontal(6).Row(row =>
                     {
                         row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(7).FontColor(Colors.Grey.Darken2);
-                        row.RelativeItem().AlignRight().Text("Kaufvertrag nach §25a UStG – Kein gesonderter Ausweis der Umsatzsteuer").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text("Rechnung nach §25a UStG – Kein gesonderter Ausweis der Umsatzsteuer").FontSize(7).FontColor(Colors.Grey.Darken2);
                     });
                 });
 
