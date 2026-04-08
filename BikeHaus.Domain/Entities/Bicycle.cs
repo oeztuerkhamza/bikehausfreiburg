@@ -6,7 +6,14 @@ public class Bicycle : BaseEntity
 {
     public string Marke { get; set; } = string.Empty;          // Brand
     public string Modell { get; set; } = string.Empty;         // Model
-    public string? Rahmennummer { get; set; }                   // Frame Number (Serienummer)
+
+    private string? _rahmennummer;
+    public string? Rahmennummer                                 // Frame Number (Serienummer)
+    {
+        get => _rahmennummer;
+        set => _rahmennummer = value?.ToUpperInvariant();
+    }
+
     public string? Rahmengroesse { get; set; }                   // Frame Size (Rahmengröße)
     public string? Farbe { get; set; }                          // Color (Rahmenfarbe)
     public string Reifengroesse { get; set; } = string.Empty;  // Tire Size (Zoll)

@@ -55,6 +55,7 @@ import { forkJoin, Observable } from 'rxjs';
                   [(ngModel)]="bikeRahmennummer"
                   name="bikeRahmennummer"
                   required
+                  style="text-transform: uppercase"
                 />
               </div>
               <div class="field">
