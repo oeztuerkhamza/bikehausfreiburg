@@ -251,7 +251,10 @@ public class PdfService : IPdfService
                 // Content
                 page.Content().PaddingTop(4).Column(col =>
                 {
-                    // KÄUFER (HÄNDLER) and Kaufdatum row
+                    // Big KAUFBELEG title
+                    col.Item().PaddingTop(2).PaddingBottom(4).Text("KAUFBELEG").FontSize(18).Bold().FontColor(PrimaryColor);
+
+                    // KÄUFER (left) and VERKÄUFER (right) side by side
                     col.Item().Row(row =>
                     {
                         // Buyer Info (Shop Owner) - left side
@@ -269,7 +272,20 @@ public class PdfService : IPdfService
                                 c.Item().Text($"Steuernummer: {shop.Steuernummer}").FontSize(9);
                         });
 
+                        row.ConstantItem(8);
 
+                        // Seller Info (Vorbesitzer) - right side
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(c =>
+                        {
+                            c.Item().Text("VERKÄUFER (VORBESITZER)").FontSize(9).Bold().FontColor(PrimaryColor);
+                            c.Item().PaddingTop(4).Text(purchase.Seller.FullName ?? "-").FontSize(10).Bold();
+                            if (!string.IsNullOrEmpty(purchase.Seller.FullAddress))
+                                c.Item().Text(purchase.Seller.FullAddress).FontSize(9);
+                            if (!string.IsNullOrEmpty(purchase.Seller.Telefon))
+                                c.Item().Text($"Tel: {purchase.Seller.Telefon}").FontSize(9);
+                            if (!string.IsNullOrEmpty(purchase.Seller.Email))
+                                c.Item().Text(purchase.Seller.Email).FontSize(9);
+                        });
                     });
 
                     // AnzeigeNr if present (separate row)
@@ -319,35 +335,6 @@ public class PdfService : IPdfService
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("NEU").FontSize(10).Bold().FontColor("#155724");
                         else
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("GEBRAUCHT").FontSize(10).Bold().FontColor("#856404");
-                    });
-
-                    // Section: Seller Info
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("VERKÄUFER (VORBESITZER)");
-                    col.Item().Table(table =>
-                    {
-                        table.ColumnsDefinition(columns =>
-                        {
-                            columns.ConstantColumn(100);
-                            columns.RelativeColumn();
-                        });
-
-                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Name").FontSize(9).Bold().FontColor(PrimaryColor);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(purchase.Seller.FullName ?? "-").FontSize(10).Bold();
-                        if (!string.IsNullOrEmpty(purchase.Seller.FullAddress))
-                        {
-                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Adresse").FontSize(9).FontColor(Colors.Grey.Darken2);
-                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(purchase.Seller.FullAddress).FontSize(10);
-                        }
-                        if (!string.IsNullOrEmpty(purchase.Seller.Telefon))
-                        {
-                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Telefon").FontSize(9).FontColor(Colors.Grey.Darken2);
-                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(purchase.Seller.Telefon).FontSize(10);
-                        }
-                        if (!string.IsNullOrEmpty(purchase.Seller.Email))
-                        {
-                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("E-Mail").FontSize(9).FontColor(Colors.Grey.Darken2);
-                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(purchase.Seller.Email).FontSize(10);
-                        }
                     });
 
                     // Section: Purchase Details
