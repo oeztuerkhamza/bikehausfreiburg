@@ -495,23 +495,6 @@ public class PdfService : IPdfService
                 {
                     var hasBuyerName = !string.IsNullOrWhiteSpace(sale.Buyer.Vorname) || !string.IsNullOrWhiteSpace(sale.Buyer.Nachname);
 
-                    // Prominent RECHNUNG title for accounting platform OCR recognition
-                    col.Item().PaddingTop(2).PaddingBottom(2).Row(row =>
-                    {
-                        row.RelativeItem().Column(addrCol =>
-                        {
-                            addrCol.Item().Text("RECHNUNG").FontSize(16).Bold().FontColor(PrimaryColor);
-                            if (hasBuyerName)
-                            {
-                                addrCol.Item().PaddingTop(2).Text("Rechnungsempfänger:").FontSize(8).FontColor(Colors.Grey.Darken1);
-                                addrCol.Item().Text(sale.Buyer.FullName).FontSize(10).Bold();
-                                addrCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(9);
-                                addrCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(9);
-                            }
-                        });
-                        row.RelativeItem();
-                    });
-
                     // Bicycle Info Section - hidden for accessory-only receipts
                     if (!isAccessoryOnlySale)
                     {
@@ -748,7 +731,7 @@ public class PdfService : IPdfService
                             {
                                 row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(buyerCol =>
                                 {
-                                    buyerCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KUNDE").FontSize(10).Bold().FontColor(AccentColor).AlignCenter();
+                                    buyerCol.Item().Border(1).BorderColor(AccentColor).Padding(3).Text("KÄUFER").FontSize(10).Bold().FontColor(AccentColor).AlignCenter();
                                     buyerCol.Item().PaddingTop(3).Text(sale.Buyer.FullName).FontSize(11).Bold();
                                     buyerCol.Item().Text($"{sale.Buyer.Strasse} {sale.Buyer.Hausnummer}").FontSize(10);
                                     buyerCol.Item().Text($"{sale.Buyer.PLZ} {sale.Buyer.Stadt}").FontSize(10);

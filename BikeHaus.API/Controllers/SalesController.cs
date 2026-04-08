@@ -100,7 +100,7 @@ public class SalesController : ControllerBase
     public async Task<IActionResult> DownloadVerkaufsbeleg(int id)
     {
         var pdfBytes = await _pdfService.GenerateVerkaufsbelegAsync(id);
-        return File(pdfBytes, "application/pdf", $"Rechnung_{id}.pdf");
+        return File(pdfBytes, "application/pdf", $"Verkaufsbeleg_{id}.pdf");
     }
 
     [HttpDelete("{id}")]
