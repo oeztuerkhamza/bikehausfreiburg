@@ -158,7 +158,8 @@ public static class MappingExtensions
         entity.Zahlungsart,
         entity.Zahlungen.Select(z => z.ToDto()).ToList(),
         entity.Verkaufsdatum,
-        entity.Garantie
+        entity.Garantie,
+        entity.Bicycle.Zustand
     );
 
     // ── SaleAccessory Mappings ──

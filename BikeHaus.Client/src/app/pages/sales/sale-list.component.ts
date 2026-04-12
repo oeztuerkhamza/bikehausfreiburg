@@ -769,9 +769,7 @@ export class SaleListComponent implements OnInit {
   }
 
   isNewBikeSale(s: SaleList): boolean {
-    return (
-      !this.hasPurchase(s) && !this.isAccessoryOnlySale(s) && !!s.bicycleId
-    );
+    return s.zustand === 'Neu' && !this.isAccessoryOnlySale(s);
   }
 
   canAddPurchase(s: SaleList): boolean {

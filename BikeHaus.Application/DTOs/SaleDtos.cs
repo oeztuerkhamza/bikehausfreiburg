@@ -84,7 +84,8 @@ public record SaleListDto(
     PaymentMethod Zahlungsart,
     List<SalePaymentDto> Zahlungen,
     DateTime Verkaufsdatum,
-    bool Garantie
+    bool Garantie,
+    BikeCondition Zustand
 );
 
 // Update DTO - for editing existing sales

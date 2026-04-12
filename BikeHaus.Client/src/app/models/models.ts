@@ -289,6 +289,7 @@ export interface SaleList {
   zahlungen: SalePayment[];
   verkaufsdatum: string;
   garantie: boolean;
+  zustand: BikeCondition;
 }
 
 export interface SaleCreate {
