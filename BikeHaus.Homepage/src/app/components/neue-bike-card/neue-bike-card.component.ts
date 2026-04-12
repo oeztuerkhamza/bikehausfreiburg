@@ -21,6 +21,8 @@ import { environment } from '../../../environments/environment';
           [src]="getImageUrl(bike.images[0].filePath)"
           [alt]="bike.titel + ' — Bike Haus Freiburg'"
           loading="lazy"
+          width="400"
+          height="300"
           (error)="onImageError($event)"
         />
         <div *ngIf="!bike.images.length" class="card-placeholder">

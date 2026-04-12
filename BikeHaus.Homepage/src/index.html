@@ -133,6 +133,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <!-- Google Fonts — non-blocking with preload + swap -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      />
+    </noscript>
+
     <!-- AI/LLM Crawler Info (llmstxt.org standard) -->
     <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM Info" />
 
@@ -237,7 +256,7 @@
         },
         "sameAs": [
           "https://wa.me/4915566300011",
-          "https://maps.app.goo.gl/bikehausfreiburg"
+          "https://www.google.com/maps/place/Heckerstra%C3%9Fe+27,+79114+Freiburg+im+Breisgau"
         ],
         "aggregateRating": {
           "@type": "AggregateRating",

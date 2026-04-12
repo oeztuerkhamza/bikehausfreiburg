@@ -58,6 +58,9 @@ import { environment } from '../../../environments/environment';
                 [src]="listing()!.images[selectedImage()].imageUrl"
                 [alt]="listing()!.title"
                 class="main-img"
+                width="800"
+                height="600"
+                fetchpriority="high"
                 (error)="onImageError($event)"
               />
               <div *ngIf="listing()!.images.length === 0" class="no-image">
@@ -125,7 +128,7 @@ import { environment } from '../../../environments/environment';
                 [class.active]="selectedImage() === i"
                 (click)="selectedImage.set(i)"
               >
-                <img [src]="img.imageUrl" [alt]="''" loading="lazy" />
+                <img [src]="img.imageUrl" [alt]="''" loading="lazy" width="120" height="90" />
               </button>
             </div>
           </div>

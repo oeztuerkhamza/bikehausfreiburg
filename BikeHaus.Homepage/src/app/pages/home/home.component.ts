@@ -299,6 +299,8 @@ interface Testimonial {
                       [src]="getAngebotImageUrl(bike.images[0].filePath)"
                       [alt]="bike.titel"
                       loading="lazy"
+                      width="400"
+                      height="300"
                     />
                     <div
                       *ngIf="!bike.images.length"
@@ -695,6 +697,8 @@ interface Testimonial {
               [src]="photo"
               [alt]="'Bike Haus Freiburg - Foto ' + (i + 1)"
               loading="lazy"
+              width="400"
+              height="300"
             />
             <div class="gallery-overlay">
               <svg
@@ -744,6 +748,8 @@ interface Testimonial {
         [src]="shopPhotos[lightboxIndex]"
         [alt]="'Bike Haus Freiburg - Foto ' + (lightboxIndex + 1)"
         class="lightbox-img"
+        width="1200"
+        height="800"
         (click)="$event.stopPropagation()"
       />
       <button
@@ -1107,6 +1113,8 @@ interface Testimonial {
                   "
                   [alt]="repairShowcases()[repairActiveIndex].titel"
                   loading="lazy"
+                  width="800"
+                  height="500"
                 />
                 <!-- Image counter -->
                 @if (repairShowcases()[repairActiveIndex].images.length > 1) {
@@ -1143,6 +1151,8 @@ interface Testimonial {
                         [src]="getRepairImageUrl(showcase.images[0].filePath)"
                         [alt]="showcase.titel"
                         loading="lazy"
+                        width="120"
+                        height="70"
                       />
                     }
                     <span class="repair-thumb-label">{{ showcase.titel }}</span>

@@ -20,6 +20,8 @@ import { TranslationService } from '../../services/translation.service';
           [src]="listing.images[0].imageUrl"
           [alt]="listing.title + t().bikeAltSuffix"
           loading="lazy"
+          width="400"
+          height="300"
           (error)="onImageError($event)"
         />
         <div *ngIf="!listing.images.length" class="card-placeholder">
