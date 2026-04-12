@@ -397,10 +397,10 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         background: var(--table-hover, #f1f5f9);
       }
       .row-with-sale td {
-        background: rgba(236, 72, 153, 0.09);
+        background: rgba(236, 72, 153, 0.22);
       }
       .row-with-sale:hover td {
-        background: rgba(236, 72, 153, 0.16);
+        background: rgba(236, 72, 153, 0.32);
       }
       .actions-cell {
         position: relative;

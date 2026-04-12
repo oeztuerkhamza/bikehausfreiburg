@@ -454,16 +454,16 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         background: var(--table-hover, #f1f5f9);
       }
       .row-with-purchase td {
-        background: rgba(16, 185, 129, 0.09);
+        background: rgba(16, 185, 129, 0.22);
       }
       .row-with-purchase:hover td {
-        background: rgba(16, 185, 129, 0.16);
+        background: rgba(16, 185, 129, 0.32);
       }
       .row-new-bike td {
-        background: rgba(59, 130, 246, 0.09);
+        background: rgba(59, 130, 246, 0.22);
       }
       .row-new-bike:hover td {
-        background: rgba(59, 130, 246, 0.16);
+        background: rgba(59, 130, 246, 0.32);
       }
       .actions-cell {
         position: relative;
