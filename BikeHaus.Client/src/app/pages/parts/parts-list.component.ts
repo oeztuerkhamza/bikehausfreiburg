@@ -21,9 +21,6 @@ import {
       <div class="page-header">
         <h1>{{ t.accessoryCatalog }}</h1>
         <div class="header-actions">
-          <button class="btn btn-outline" (click)="exportExcel()">
-            📥 {{ t.excelExport }}
-          </button>
           <button class="btn btn-primary" (click)="openAddDialog()">
             + {{ t.newAccessory }}
           </button>

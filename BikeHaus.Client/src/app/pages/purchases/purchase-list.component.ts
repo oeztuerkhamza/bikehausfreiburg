@@ -32,9 +32,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           >
             ⚠️ {{ t.missingPurchases }} ({{ missingCount }})
           </a>
-          <button class="btn btn-outline" (click)="exportExcel()">
-            📥 {{ t.excelExport }}
-          </button>
+
           <a routerLink="/purchases/new" class="btn btn-primary"
             >+ {{ t.newPurchase }}</a
           >

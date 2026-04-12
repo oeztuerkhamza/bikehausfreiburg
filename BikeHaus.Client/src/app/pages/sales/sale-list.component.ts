@@ -30,9 +30,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       <div class="page-header">
         <h1>{{ t.sales }}</h1>
         <div class="header-actions">
-          <button class="btn btn-outline" (click)="exportExcel()">
-            📥 {{ t.excelExport }}
-          </button>
           <a routerLink="/sales/new" class="btn btn-primary"
             >+ {{ t.newSale }}</a
           >

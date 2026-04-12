@@ -19,9 +19,6 @@ import { AddressSuggestion } from '../../services/address.service';
       <div class="page-header">
         <h1>{{ t.customerManagement }}</h1>
         <div class="header-actions">
-          <button class="btn btn-outline" (click)="exportExcel()">
-            📥 {{ t.excelExport }}
-          </button>
           <button class="btn btn-primary" (click)="showForm = !showForm">
             {{ showForm ? t.cancel : '+ ' + t.newCustomer }}
           </button>
