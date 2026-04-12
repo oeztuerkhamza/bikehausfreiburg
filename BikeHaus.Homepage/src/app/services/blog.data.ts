@@ -862,4 +862,607 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       },
     },
   },
+
+  // ─── Article 6: Kinderfahrrad Größe ───
+  {
+    slug: 'kinderfahrrad-groesse',
+    coverImage: 'assets/blog/kinderfahrrad-groesse.jpg',
+    date: '2026-04-12',
+    readingTime: 7,
+    category: 'ratgeber',
+    tags: [
+      'kinderfahrrad',
+      'größe',
+      'alter',
+      'tabelle',
+      'kinderfahrrad freiburg',
+    ],
+    relatedSlugs: [
+      'welches-fahrrad-passt-zu-mir',
+      'fahrrad-rahmengroesse-berechnen',
+    ],
+    translations: {
+      de: {
+        title: 'Kinderfahrrad Größe — Welche Größe für welches Alter?',
+        metaTitle:
+          'Kinderfahrrad Größe — Tabelle nach Alter & Körpergröße | Bike Haus Freiburg',
+        metaDescription:
+          'Welche Kinderfahrrad-Größe passt? Größentabelle nach Alter & Körpergröße ✓ 12 bis 26 Zoll ✓ Tipps vom Fachhändler aus Freiburg.',
+        excerpt:
+          'Die richtige Fahrradgröße ist entscheidend für Sicherheit und Spaß. Unsere Tabelle zeigt, welches Rad zu welchem Alter passt.',
+        tldr: 'Kinderfahrräder gibt es von 12 bis 26 Zoll. Entscheidend ist die Körpergröße, nicht nur das Alter. Ab 95 cm → 12 Zoll, ab 105 cm → 16 Zoll, ab 120 cm → 20 Zoll, ab 135 cm → 24 Zoll, ab 140 cm → 26 Zoll. Bei Bike Haus Freiburg können Kinder Probe fahren.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Warum ist die richtige Fahrradgröße so wichtig?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Ein zu großes oder zu kleines Fahrrad ist nicht nur unbequem — es ist auch unsicher. Kinder, die nicht sicher mit den Füßen den Boden erreichen, können bei Gefahrensituationen nicht richtig reagieren. Gleichzeitig führt ein zu kleines Rad zu einer verkrampften Haltung und macht keinen Spaß.',
+          },
+          {
+            type: 'heading',
+            content: 'Größentabelle: Kinderfahrrad nach Körpergröße',
+          },
+          {
+            type: 'list',
+            items: [
+              '12 Zoll: Körpergröße 95–105 cm (ca. 2–4 Jahre)',
+              '14 Zoll: Körpergröße 100–110 cm (ca. 3–5 Jahre)',
+              '16 Zoll: Körpergröße 105–120 cm (ca. 4–6 Jahre)',
+              '18 Zoll: Körpergröße 110–125 cm (ca. 5–7 Jahre)',
+              '20 Zoll: Körpergröße 120–135 cm (ca. 6–9 Jahre)',
+              '24 Zoll: Körpergröße 135–145 cm (ca. 8–12 Jahre)',
+              '26 Zoll: Körpergröße ab 140 cm (ca. 10–14 Jahre)',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              'Tipp: Messen Sie die Innenbeinlänge Ihres Kindes (Schrittlänge). Das Kind sollte mit beiden Fußballen den Boden berühren, wenn es auf dem Sattel sitzt.',
+          },
+          {
+            type: 'heading',
+            content: 'Worauf beim Kinderfahrrad-Kauf achten?',
+          },
+          {
+            type: 'list',
+            items: [
+              'Rücktrittbremse: Bis ca. 6 Jahre empfohlen, da kleinere Hände oft nicht genug Kraft für Handbremsen haben.',
+              'Gewicht: Ein leichtes Rad lässt sich besser kontrollieren. Faustregel: max. 30–40 % des Körpergewichts.',
+              'Stützräder: Von Experten nicht empfohlen — besser mit einem Laufrad starten.',
+              'Beleuchtung: Ab Teilnahme am Straßenverkehr Pflicht nach StVZO.',
+              'Schutzbleche & Kettenschutz: Schützen Kleidung und sorgen für Sicherheit.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Kinderfahrräder bei Bike Haus Freiburg',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Wir führen neue und gebrauchte Kinderfahrräder von 12 bis 26 Zoll. Jedes gebrauchte Rad wird geprüft und kommt mit 3 Monaten Garantie. Ihr Kind kann vor dem Kauf eine Probefahrt machen — so finden wir gemeinsam die perfekte Größe.',
+          },
+          {
+            type: 'cta',
+            content: 'Kinderfahrräder im Showroom ansehen',
+            link: '/showroom',
+            linkText: 'Zum Showroom',
+          },
+        ],
+      },
+      en: {
+        title: "Children's Bike Size — Which Size for Which Age?",
+        metaTitle:
+          "Children's Bike Size Guide — Chart by Age & Height | Bike Haus Freiburg",
+        metaDescription:
+          "Which children's bike size fits? Size chart by age & height ✓ 12 to 26 inch ✓ Expert tips from Freiburg's bike shop.",
+        excerpt:
+          'The right bike size is crucial for safety and fun. Our chart shows which bike fits which age.',
+        tldr: 'Children\'s bikes range from 12 to 26 inches. Body height matters more than age. From 95 cm → 12", 105 cm → 16", 120 cm → 20", 135 cm → 24", 140 cm → 26". Test rides available at Bike Haus Freiburg.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Why is the right bike size so important?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              "A bike that's too big or too small is not only uncomfortable — it's also unsafe. Children who can't safely touch the ground with their feet can't react properly in dangerous situations.",
+          },
+          {
+            type: 'heading',
+            content: "Size Chart: Children's Bikes by Height",
+          },
+          {
+            type: 'list',
+            items: [
+              '12 inch: Height 95–105 cm (approx. 2–4 years)',
+              '16 inch: Height 105–120 cm (approx. 4–6 years)',
+              '20 inch: Height 120–135 cm (approx. 6–9 years)',
+              '24 inch: Height 135–145 cm (approx. 8–12 years)',
+              '26 inch: Height from 140 cm (approx. 10–14 years)',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              "Tip: Measure your child's inseam length. The child should be able to touch the ground with both balls of their feet while sitting on the saddle.",
+          },
+          {
+            type: 'cta',
+            content: "Browse children's bikes in our showroom",
+            link: '/showroom',
+            linkText: 'To Showroom',
+          },
+        ],
+      },
+      fr: {
+        title: 'Taille de vélo enfant — Quelle taille pour quel âge\u00a0?',
+        metaTitle:
+          'Taille vélo enfant — Tableau par âge & taille | Bike Haus Freiburg',
+        metaDescription:
+          'Quelle taille de vélo pour votre enfant? Tableau de tailles par âge et taille ✓ 12 à 26 pouces ✓ Conseils experts de Freiburg.',
+        excerpt:
+          'La bonne taille de vélo est essentielle pour la sécurité et le plaisir. Notre tableau montre quel vélo convient à quel âge.',
+        tldr: 'Les vélos enfants vont de 12 à 26 pouces. La taille du corps est plus importante que l\'âge. Dès 95 cm → 12", 105 cm → 16", 120 cm → 20", 135 cm → 24". Essais chez Bike Haus Freiburg.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Pourquoi la bonne taille de vélo est-elle si importante?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Un vélo trop grand ou trop petit n'est pas seulement inconfortable — il est aussi dangereux. Les enfants qui ne peuvent pas toucher le sol ne peuvent pas réagir correctement en cas de danger.",
+          },
+          {
+            type: 'cta',
+            content: 'Voir les vélos enfants dans notre showroom',
+            link: '/showroom',
+            linkText: 'Vers le Showroom',
+          },
+        ],
+      },
+      tr: {
+        title: 'Çocuk Bisikleti Beden — Hangi Yaş İçin Hangi Beden?',
+        metaTitle:
+          'Çocuk Bisikleti Beden Tablosu — Yaş & Boya Göre | Bike Haus Freiburg',
+        metaDescription:
+          "Çocuğunuza hangi bisiklet bedeni uyar? Yaş ve boya göre beden tablosu ✓ 12'den 26 inç'e ✓ Freiburg'dan uzman tavsiyeleri.",
+        excerpt:
+          'Doğru bisiklet bedeni güvenlik ve eğlence için çok önemli. Tablomuz hangi bisikletin hangi yaşa uyduğunu gösterir.',
+        tldr: 'Çocuk bisikletleri 12\'den 26 inç\'e kadar. Boy uzunluğu yaştan daha önemli. 95 cm → 12", 105 cm → 16", 120 cm → 20", 135 cm → 24". Bike Haus Freiburg\'da deneme sürüşü yapılabilir.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Doğru bisiklet bedeni neden bu kadar önemli?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Çok büyük veya çok küçük bir bisiklet yalnızca rahatsız değil, aynı zamanda güvensizdir. Ayaklarıyla yere basamayan çocuklar tehlikeli durumlarda doğru tepki veremez.',
+          },
+          {
+            type: 'cta',
+            content: "Showroom'daki çocuk bisikletlerini görüntüle",
+            link: '/showroom',
+            linkText: "Showroom'a Git",
+          },
+        ],
+      },
+    },
+  },
+
+  // ─── Article 7: Fahrrad Inspektion — Kosten & Ablauf ───
+  {
+    slug: 'fahrrad-inspektion-kosten',
+    coverImage: 'assets/blog/fahrrad-inspektion.jpg',
+    date: '2026-04-12',
+    readingTime: 6,
+    category: 'ratgeber',
+    tags: [
+      'fahrrad inspektion',
+      'wartung',
+      'kosten',
+      'reparatur',
+      'fahrrad check',
+    ],
+    relatedSlugs: ['gebrauchtes-fahrrad-kaufen-tipps', 'fahrradladen-freiburg'],
+    translations: {
+      de: {
+        title: 'Fahrrad Inspektion — Was wird gemacht & was kostet es?',
+        metaTitle:
+          'Fahrrad Inspektion — Kosten, Ablauf & Checkliste | Bike Haus Freiburg',
+        metaDescription:
+          'Was kostet eine Fahrrad Inspektion? Was wird geprüft? Ablauf, Kosten (30–80 €) und Checkliste ✓ Tipps vom Fahrradladen in Freiburg.',
+        excerpt:
+          'Eine regelmäßige Inspektion hält Ihr Fahrrad sicher und verhindert teure Reparaturen. Hier erfahren Sie, was geprüft wird und was es kostet.',
+        tldr: 'Eine Fahrrad-Inspektion kostet je nach Umfang 30–80 €. Geprüft werden Bremsen, Schaltung, Reifen, Kette, Lager, Beleuchtung und Speichenspannung. Empfohlen: 1× pro Jahr oder alle 2.000 km.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Warum ist eine Fahrrad-Inspektion wichtig?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Verschleiß an Bremsen, Kette und Reifen passiert schleichend. Wer regelmäßig warten lässt, fährt sicher und vermeidet teure Folgeschäden. Eine Inspektion pro Jahr reicht für Gelegenheitsfahrer — Pendler sollten alle 6 Monate eine machen lassen.',
+          },
+          {
+            type: 'heading',
+            content: 'Was wird bei einer Fahrrad-Inspektion geprüft?',
+          },
+          {
+            type: 'list',
+            items: [
+              'Bremsen: Bremsbeläge, Bremszüge, Bremsleistung prüfen und einstellen.',
+              'Schaltung: Schaltzüge, Umwerfer und Schaltwerk justieren.',
+              'Reifen: Profil, Zustand und Luftdruck kontrollieren.',
+              'Kette: Kettenverschleiß messen. Ab 0,75 % Längung → Kette tauschen.',
+              'Lager: Steuersatz, Tretlager und Naben auf Spiel prüfen.',
+              'Beleuchtung: Vorder- und Rücklicht, Reflektoren (StVZO-Pflicht).',
+              'Speichen: Spannung prüfen, Achter richten.',
+              'Schrauben: Alle Verschraubungen auf festen Sitz kontrollieren.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Was kostet eine Fahrrad-Inspektion?',
+          },
+          {
+            type: 'list',
+            items: [
+              'Basis-Check (Bremsen + Schaltung + Luft): ca. 20–30 €',
+              'Standard-Inspektion (alle Komponenten): ca. 40–60 €',
+              'Große Inspektion (inkl. Reinigung + Nachfetten): ca. 60–80 €',
+              'E-Bike Inspektion (+ Akku & Motor-Diagnose): ca. 70–100 €',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              'Tipp: Bringen Sie Ihr Fahrrad im Frühling zur Inspektion — vor der Hauptsaison. So haben Werkstätten kürzere Wartezeiten und Ihr Rad ist rechtzeitig fit.',
+          },
+          {
+            type: 'heading',
+            content: 'DIY-Checkliste: Das können Sie selbst prüfen',
+          },
+          {
+            type: 'list',
+            items: [
+              'Reifendruck: Mindestens 1× pro Monat prüfen (Angabe steht auf der Reifenflanke).',
+              'Kette ölen: Alle 200–300 km mit speziellem Kettenöl schmieren.',
+              'Bremsen testen: Vor jeder Fahrt kurz beide Bremsen prüfen.',
+              'Licht prüfen: Vor jeder Abendfahrt Vorder- und Rücklicht testen.',
+              'Schrauben: Lenker, Sattel und Achsen gelegentlich nachziehen.',
+            ],
+          },
+          {
+            type: 'cta',
+            content:
+              'Inspektion fällig? Kommen Sie bei Bike Haus Freiburg vorbei!',
+            link: '/contact',
+            linkText: 'Kontakt & Anfahrt',
+          },
+        ],
+      },
+      en: {
+        title: 'Bike Inspection — What Gets Checked & What Does It Cost?',
+        metaTitle:
+          'Bike Inspection — Costs, Process & Checklist | Bike Haus Freiburg',
+        metaDescription:
+          'How much does a bike inspection cost? What gets checked? Process, costs (€30–80), and checklist ✓ Tips from a bike shop in Freiburg.',
+        excerpt:
+          'A regular inspection keeps your bike safe and prevents expensive repairs. Learn what gets checked and what it costs.',
+        tldr: 'A bike inspection costs €30–80 depending on scope. Brakes, gears, tires, chain, bearings, lights and spoke tension are checked. Recommended: once a year or every 2,000 km.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Why is a bike inspection important?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Wear on brakes, chain and tires happens gradually. Regular maintenance keeps you safe and prevents expensive follow-up damage. One inspection per year is enough for occasional riders — commuters should have one every 6 months.',
+          },
+          {
+            type: 'heading',
+            content: 'What gets checked during a bike inspection?',
+          },
+          {
+            type: 'list',
+            items: [
+              'Brakes: Check and adjust brake pads, cables, and performance.',
+              'Gears: Adjust cables, derailleur, and shifting.',
+              'Tires: Check tread, condition, and pressure.',
+              'Chain: Measure chain wear. Replace at 0.75% stretch.',
+              'Bearings: Check headset, bottom bracket, and hubs for play.',
+              'Lights: Front and rear lights, reflectors.',
+              'Spokes: Check tension, true wheels.',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              'Tip: Bring your bike for inspection in spring — before peak season. Workshops have shorter wait times and your bike is ready in time.',
+          },
+          {
+            type: 'cta',
+            content: 'Need an inspection? Visit Bike Haus Freiburg!',
+            link: '/contact',
+            linkText: 'Contact & Directions',
+          },
+        ],
+      },
+      fr: {
+        title:
+          "Révision vélo — Qu'est-ce qui est vérifié et combien ça coûte\u00a0?",
+        metaTitle:
+          'Révision vélo — Coûts, déroulement & checklist | Bike Haus Freiburg',
+        metaDescription:
+          'Combien coûte une révision vélo? Que vérifie-t-on? Déroulement, coûts (30–80 €) et checklist ✓ Conseils du vélociste à Freiburg.',
+        excerpt:
+          'Une révision régulière garde votre vélo en sécurité et évite les réparations coûteuses.',
+        tldr: 'Une révision vélo coûte entre 30 et 80 €. Freins, vitesses, pneus, chaîne, roulements et éclairage sont vérifiés. Recommandé : 1× par an.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Pourquoi une révision vélo est-elle importante\u00a0?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              "L'usure des freins, de la chaîne et des pneus se fait progressivement. Un entretien régulier vous garde en sécurité et évite des dommages coûteux.",
+          },
+          {
+            type: 'cta',
+            content: "Besoin d'une révision? Passez chez Bike Haus Freiburg!",
+            link: '/contact',
+            linkText: 'Contact & Itinéraire',
+          },
+        ],
+      },
+      tr: {
+        title: 'Bisiklet Bakımı — Neler Kontrol Edilir & Ne Kadara Mal Olur?',
+        metaTitle:
+          'Bisiklet Bakımı — Maliyet, Süreç & Kontrol Listesi | Bike Haus Freiburg',
+        metaDescription:
+          'Bisiklet bakımı ne kadara mal olur? Neler kontrol edilir? Süreç, maliyetler (30–80 €) ve kontrol listesi ✓ Freiburg bisikletçisinden ipuçları.',
+        excerpt:
+          'Düzenli bakım bisikletinizi güvende tutar ve pahalı tamirleri önler.',
+        tldr: "Bisiklet bakımı 30–80 € arası. Frenler, vitesler, lastikler, zincir, rulmanlar ve ışıklar kontrol edilir. Önerilen: yılda 1 kez veya 2.000 km'de bir.",
+        sections: [
+          {
+            type: 'heading',
+            content: 'Bisiklet bakımı neden bu kadar önemli?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Fren, zincir ve lastiklerdeki aşınma yavaş yavaş gerçekleşir. Düzenli bakım güvenliğinizi sağlar ve pahalı hasarları önler.',
+          },
+          {
+            type: 'cta',
+            content: "Bakım zamanı mı? Bike Haus Freiburg'a gelin!",
+            link: '/contact',
+            linkText: 'İletişim & Yol Tarifi',
+          },
+        ],
+      },
+    },
+  },
+
+  // ─── Article 8: Fahrrad für Pendler — Die besten Stadträder ───
+  {
+    slug: 'fahrrad-pendler-stadtraeder',
+    coverImage: 'assets/blog/fahrrad-pendler.jpg',
+    date: '2026-04-12',
+    readingTime: 7,
+    category: 'ratgeber',
+    tags: [
+      'pendler',
+      'stadtrad',
+      'cityrad',
+      'fahrrad arbeit',
+      'pendlerrad freiburg',
+    ],
+    relatedSlugs: ['welches-fahrrad-passt-zu-mir', 'e-bike-gebraucht-kaufen'],
+    translations: {
+      de: {
+        title: 'Fahrrad für Pendler — Die besten Stadträder 2026',
+        metaTitle:
+          'Pendlerfahrrad — Die besten Stadträder & Tipps | Bike Haus Freiburg',
+        metaDescription:
+          'Das beste Fahrrad für Pendler: Citybike, Trekkingrad oder E-Bike? Vergleich, Tipps & Empfehlungen 2026 ✓ Vom Fahrradladen in Freiburg.',
+        excerpt:
+          'Wer täglich mit dem Rad zur Arbeit fährt, braucht ein zuverlässiges, bequemes und wartungsarmes Fahrrad. Wir zeigen die besten Optionen.',
+        tldr: 'Für Pendler empfehlen wir Citybikes (Kurzstrecke bis 5 km), Trekkingräder (5–15 km) oder E-Bikes (ab 10 km oder Steigungen). Wichtig: Nabenschaltung, Nabendynamo, Schutzbleche, Gepäckträger. Bei Bike Haus Freiburg finden Sie geprüfte Pendlerräder ab 199 €.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Welches Fahrrad eignet sich zum Pendeln?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Das ideale Pendlerfahrrad ist zuverlässig, bequem und wartungsarm. Je nach Strecke, Gelände und persönlichen Vorlieben kommen unterschiedliche Radtypen in Frage:',
+          },
+          {
+            type: 'heading',
+            content: 'Citybike — Für kurze Strecken (bis 5 km)',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Citybikes sind kompakt, leicht und perfekt für die Stadt. Vorteile: aufrechte Sitzposition, Nabenschaltung (wartungsarm), oft mit Licht und Schutzblechen. Ideal für flache Strecken innerhalb der Stadt.',
+          },
+          {
+            type: 'heading',
+            content: 'Trekkingrad — Der Allrounder (5–15 km)',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Das Trekkingrad ist der beliebteste Pendlertyp: stabil, komfortabel, schnell. Es kommt mit Schutzblechen, Gepäckträger, Lichtanlage und ist ideal für mittlere Distanzen — auch auf Schotter oder Waldwegen.',
+          },
+          {
+            type: 'heading',
+            content: 'E-Bike — Für lange Strecken & Steigungen',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Ab 10 km Pendelstrecke oder bei Steigungen lohnt sich ein E-Bike. Sie kommen entspannt und ohne zu schwitzen an. In Freiburg besonders beliebt: E-Trekkingräder mit Bosch- oder Shimano-Motor.',
+          },
+          {
+            type: 'heading',
+            content: 'Checkliste: Das muss ein gutes Pendlerrad haben',
+          },
+          {
+            type: 'list',
+            items: [
+              'Nabenschaltung: Weniger Verschleiß, schaltet auch im Stand.',
+              'Nabendynamo + LED-Licht: Immer helles Licht, ohne Akku-Stress.',
+              'Schutzbleche: Pflicht bei Regen und nassem Untergrund.',
+              'Gepäckträger: Für Taschen, Korb oder Kindersitz.',
+              'Pannensichere Reifen: Z.B. Schwalbe Marathon Plus — spart Nerven.',
+              'Kettenschutz oder Riemenantrieb: Schützt die Kleidung.',
+              'Guter Sattel: Auf langen Strecken entscheidend für Komfort.',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              'Tipp für Freiburg: Die Stadt hat über 420 km Radwege. Mit einem guten Pendlerrad sind die meisten Arbeitswege unter 20 Minuten. Nutzen Sie auch den Fahrradparkplatz am Hauptbahnhof für Bahn+Rad-Kombis.',
+          },
+          {
+            type: 'heading',
+            content: 'Pendlerräder bei Bike Haus Freiburg',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'In unserem Showroom finden Sie eine große Auswahl an neuen und gebrauchten Trekkingrädern, Citybikes und E-Bikes. Jedes gebrauchte Rad wird geprüft und hat 3 Monate Garantie. Lassen Sie sich beraten — wir finden das perfekte Pendlerrad für Ihren Arbeitsweg.',
+          },
+          {
+            type: 'cta',
+            content: 'Pendlerräder im Showroom ansehen',
+            link: '/showroom',
+            linkText: 'Zum Showroom',
+          },
+        ],
+      },
+      en: {
+        title: 'Bikes for Commuters — The Best City Bikes 2026',
+        metaTitle:
+          'Commuter Bike — Best City Bikes & Tips | Bike Haus Freiburg',
+        metaDescription:
+          'The best bike for commuters: City bike, trekking bike or e-bike? Comparison, tips & recommendations 2026 ✓ From a bike shop in Freiburg.',
+        excerpt:
+          'If you ride to work every day, you need a reliable, comfortable and low-maintenance bike. We show you the best options.',
+        tldr: 'For commuters we recommend: City bikes (short distances up to 5 km), trekking bikes (5–15 km), or e-bikes (10+ km or hills). Key features: internal gears, hub dynamo, fenders, rack. Tested commuter bikes from €199 at Bike Haus Freiburg.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Which bike is best for commuting?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'The ideal commuter bike is reliable, comfortable, and low-maintenance. Depending on distance, terrain, and personal preferences, different bike types come into question.',
+          },
+          {
+            type: 'heading',
+            content: 'City Bike — For short distances (up to 5 km)',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'City bikes are compact, light and perfect for urban riding. Benefits: upright position, internal gears (low maintenance), often with lights and fenders.',
+          },
+          {
+            type: 'heading',
+            content: 'Trekking Bike — The all-rounder (5–15 km)',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'The trekking bike is the most popular commuter type: stable, comfortable, fast. Comes with fenders, rack, lights — ideal for medium distances.',
+          },
+          {
+            type: 'heading',
+            content: 'E-Bike — For long distances & hills',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'From 10 km commute distance or with hills, an e-bike is worth it. You arrive relaxed and without sweating.',
+          },
+          {
+            type: 'cta',
+            content: 'Browse commuter bikes in our showroom',
+            link: '/showroom',
+            linkText: 'To Showroom',
+          },
+        ],
+      },
+      fr: {
+        title: 'Vélo pour pendulaires — Les meilleurs vélos de ville 2026',
+        metaTitle:
+          'Vélo pendulaire — Meilleurs vélos de ville & conseils | Bike Haus Freiburg',
+        metaDescription:
+          'Le meilleur vélo pour pendulaires: vélo de ville, VTC ou VAE? Comparaison, conseils & recommandations 2026 ✓ Du vélociste à Freiburg.',
+        excerpt:
+          "Si vous pédalez au travail tous les jours, vous avez besoin d'un vélo fiable, confortable et facile à entretenir.",
+        tldr: "Pour les pendulaires: vélos de ville (jusqu'à 5 km), VTC (5–15 km) ou VAE (10+ km ou côtes). Important: moyeu à vitesses intégrées, dynamo moyeu, garde-boue, porte-bagages. Vélos testés à partir de 199 € chez Bike Haus Freiburg.",
+        sections: [
+          {
+            type: 'heading',
+            content: 'Quel vélo pour aller au travail?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Le vélo pendulaire idéal est fiable, confortable et nécessite peu d'entretien. Selon la distance et le terrain, différents types de vélos conviennent.",
+          },
+          {
+            type: 'cta',
+            content: 'Voir les vélos pendulaires dans notre showroom',
+            link: '/showroom',
+            linkText: 'Vers le Showroom',
+          },
+        ],
+      },
+      tr: {
+        title: 'İşe Gidiş İçin Bisiklet — 2026 En İyi Şehir Bisikletleri',
+        metaTitle:
+          'İşe Gidiş Bisikleti — En İyi Şehir Bisikletleri & İpuçları | Bike Haus Freiburg',
+        metaDescription:
+          'İşe gitmek için en iyi bisiklet: Şehir bisikleti, trekking bisikleti veya e-bisiklet? Karşılaştırma, ipuçları & 2026 önerileri ✓ Freiburg bisikletçisinden.',
+        excerpt:
+          'Her gün bisikletle işe gidiyorsanız, güvenilir, rahat ve bakımı kolay bir bisiklete ihtiyacınız var.',
+        tldr: "İşe gidişte önerilerimiz: Şehir bisikletleri (5 km'ye kadar), trekking bisikletleri (5–15 km) veya e-bisikletler (10+ km veya yokuşlar). Önemli: iç vites, jant dinamo, çamurluk, bagaj. Bike Haus Freiburg'da 199 €'dan itibaren test edilmiş bisikletler.",
+        sections: [
+          {
+            type: 'heading',
+            content: 'Hangi bisiklet işe gitmek için en uygun?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'İdeal işe gidiş bisikleti güvenilir, rahat ve bakımı kolaydır. Mesafeye, araziye ve kişisel tercihlere göre farklı bisiklet türleri uygundur.',
+          },
+          {
+            type: 'cta',
+            content: "Showroom'daki işe gidiş bisikletlerini görüntüle",
+            link: '/showroom',
+            linkText: "Showroom'a Git",
+          },
+        ],
+      },
+    },
+  },
 ];

@@ -3,6 +3,7 @@ using BikeHaus.Application.Interfaces;
 using BikeHaus.Infrastructure;
 using BikeHaus.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -63,6 +64,20 @@ builder.Services.AddAuthorization();
 // Infrastructure DI
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// Response Compression (Brotli + Gzip for API responses)
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+        new[] { "application/json", "application/xml", "text/xml" });
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
 // Kleinanzeigen background sync service (runs every 4 hours)
 builder.Services.AddHostedService<BikeHaus.Infrastructure.Services.KleinanzeigenSyncBackgroundService>();
 
@@ -76,6 +91,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAngular");
+app.UseResponseCompression();
 
 // Ensure uploads directory exists
 var uploadsPath = app.Environment.IsDevelopment()

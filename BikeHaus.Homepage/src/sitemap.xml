@@ -129,6 +129,36 @@
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/de/ratgeber/kinderfahrrad-groesse</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/kinderfahrrad-groesse"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/kinderfahrrad-groesse"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/kinderfahrrad-groesse"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/kinderfahrrad-groesse"/>
+    <lastmod>2026-04-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/de/ratgeber/fahrrad-inspektion-kosten</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-inspektion-kosten"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/fahrrad-inspektion-kosten"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/fahrrad-inspektion-kosten"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrrad-inspektion-kosten"/>
+    <lastmod>2026-04-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/de/ratgeber/fahrrad-pendler-stadtraeder</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-pendler-stadtraeder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/fahrrad-pendler-stadtraeder"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/fahrrad-pendler-stadtraeder"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrrad-pendler-stadtraeder"/>
+    <lastmod>2026-04-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 
   <!-- Neue Fahrräder -->
   <url>

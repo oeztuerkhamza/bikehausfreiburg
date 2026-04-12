@@ -6,7 +6,7 @@ Allow: /
 
 # Sitemaps
 Sitemap: https://bikehausfreiburg.com/sitemap.xml
-Sitemap: https://api.bikehausfreiburg.com/api/public/sitemap-products.xml
+Sitemap: https://bikehausfreiburg.com/sitemap-products.xml
 
 # LLM/AI Crawler Info
 # https://llmstxt.org

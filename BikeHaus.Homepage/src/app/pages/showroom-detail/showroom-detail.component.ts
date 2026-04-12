@@ -292,6 +292,82 @@ import { environment } from '../../../environments/environment';
             [innerHTML]="formatDescription(listing()!.description!)"
           ></div>
         </section>
+
+        <!-- ── Ähnliche Fahrräder (Internal Linking) ── -->
+        <section *ngIf="relatedListings().length" class="related-section">
+          <h2>{{ t().relatedBikes || 'Ähnliche Fahrräder' }}</h2>
+          <div class="related-grid">
+            <a
+              *ngFor="let rel of relatedListings()"
+              [routerLink]="['/' + lang(), 'showroom', rel.id]"
+              class="related-card"
+            >
+              <div class="related-img-wrap">
+                <img
+                  *ngIf="rel.images.length"
+                  [src]="rel.images[0].imageUrl"
+                  [alt]="rel.title"
+                  loading="lazy"
+                  width="280"
+                  height="210"
+                />
+              </div>
+              <div class="related-info">
+                <span class="related-title">{{ rel.title }}</span>
+                <span *ngIf="rel.price" class="related-price"
+                  >{{ rel.price }} €</span
+                >
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- ── Ratgeber-Empfehlung (Blog Internal Link) ── -->
+        <section class="blog-cta-section">
+          <h2>{{ t().ratgeberTitle || 'Ratgeber & Tipps' }}</h2>
+          <div class="blog-cta-grid">
+            <a
+              [routerLink]="[
+                '/' + lang(),
+                'ratgeber',
+                'gebrauchtes-fahrrad-kaufen-tipps',
+              ]"
+              class="blog-cta-card"
+            >
+              <span class="blog-cta-icon">📋</span>
+              <span class="blog-cta-text">{{
+                t().blogCta1 ||
+                  'Gebrauchtes Fahrrad kaufen — Tipps & Checkliste'
+              }}</span>
+            </a>
+            <a
+              [routerLink]="[
+                '/' + lang(),
+                'ratgeber',
+                'welches-fahrrad-passt-zu-mir',
+              ]"
+              class="blog-cta-card"
+            >
+              <span class="blog-cta-icon">🚲</span>
+              <span class="blog-cta-text">{{
+                t().blogCta2 || 'Welches Fahrrad passt zu mir?'
+              }}</span>
+            </a>
+            <a
+              [routerLink]="[
+                '/' + lang(),
+                'ratgeber',
+                'fahrrad-inspektion-kosten',
+              ]"
+              class="blog-cta-card"
+            >
+              <span class="blog-cta-icon">🔧</span>
+              <span class="blog-cta-text">{{
+                t().blogCta3 || 'Fahrrad Inspektion — Was kostet es?'
+              }}</span>
+            </a>
+          </div>
+        </section>
       </div>
 
       <!-- Not Found -->
@@ -776,6 +852,128 @@ import { environment } from '../../../environments/environment';
         word-break: break-word;
       }
 
+      /* ── Related Bikes ── */
+      .related-section {
+        margin-top: 3rem;
+        padding-top: 2.5rem;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .related-section h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 1.25rem;
+      }
+
+      .related-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+      }
+
+      .related-card {
+        text-decoration: none;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        transition:
+          border-color 0.25s,
+          transform 0.15s;
+      }
+
+      .related-card:hover {
+        border-color: var(--color-accent);
+        transform: translateY(-2px);
+      }
+
+      .related-img-wrap {
+        aspect-ratio: 4/3;
+        overflow: hidden;
+        background: #0d0d0d;
+      }
+
+      .related-img-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .related-info {
+        padding: 0.75rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .related-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--color-text);
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .related-price {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--color-accent);
+      }
+
+      /* ── Blog CTA Section ── */
+      .blog-cta-section {
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .blog-cta-section h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 1rem;
+      }
+
+      .blog-cta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .blog-cta-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        text-decoration: none;
+        transition:
+          border-color 0.25s,
+          background 0.2s;
+      }
+
+      .blog-cta-card:hover {
+        border-color: var(--color-accent);
+        background: rgba(255, 87, 34, 0.05);
+      }
+
+      .blog-cta-icon {
+        font-size: 1.3rem;
+        flex-shrink: 0;
+      }
+
+      .blog-cta-text {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--color-text);
+        line-height: 1.35;
+      }
+
       /* ── Not Found ── */
       .not-found-wrap {
         text-align: center;
@@ -851,6 +1049,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   lang = this.translationService.currentLanguage;
 
   listing = signal<KleinanzeigenListing | null>(null);
+  relatedListings = signal<KleinanzeigenListing[]>([]);
   loading = signal(true);
   selectedImage = signal(0);
   userWhatsappMessage = '';
@@ -914,6 +1113,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
           this.listing.set(listing);
           this.loading.set(false);
           this.updateSeoMeta(listing, id);
+          this.loadRelated(listing);
         },
         error: () => this.loading.set(false),
       });
@@ -924,10 +1124,40 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
           this.listing.set(data);
           this.loading.set(false);
           this.updateSeoMeta(data, id);
+          this.loadRelated(data);
         },
         error: () => this.loading.set(false),
       });
     }
+  }
+
+  private loadRelated(current: KleinanzeigenListing): void {
+    this.apiService.getListings().subscribe({
+      next: (all) => {
+        const category = current.category?.toLowerCase() || '';
+        const related = all
+          .filter(
+            (l) =>
+              l.id !== current.id &&
+              l.category?.toLowerCase() === category &&
+              l.images.length > 0,
+          )
+          .slice(0, 4);
+        // If not enough in same category, fill with random others
+        if (related.length < 4) {
+          const others = all
+            .filter(
+              (l) =>
+                l.id !== current.id &&
+                !related.find((r) => r.id === l.id) &&
+                l.images.length > 0,
+            )
+            .slice(0, 4 - related.length);
+          related.push(...others);
+        }
+        this.relatedListings.set(related);
+      },
+    });
   }
 
   private convertBicycleToListing(

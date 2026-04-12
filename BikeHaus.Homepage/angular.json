@@ -58,7 +58,9 @@
             "styles": ["src/styles.scss"],
             "scripts": [],
             "server": "src/main.server.ts",
-            "prerender": false,
+            "prerender": {
+              "routesFile": "prerender-routes.txt"
+            },
             "ssr": {
               "entry": "server.ts"
             }

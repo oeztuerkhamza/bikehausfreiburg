@@ -477,6 +477,12 @@ export interface Translations {
   cityOpenMap: string;
   cityViewShowroom: string;
   footerLocations: string;
+
+  // Showroom detail — internal linking
+  relatedBikes: string;
+  blogCta1: string;
+  blogCta2: string;
+  blogCta3: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -984,6 +990,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityOpenMap: 'Route in Google Maps öffnen →',
     cityViewShowroom: 'Showroom ansehen',
     footerLocations: 'Standorte',
+
+    relatedBikes: 'Ähnliche Fahrräder',
+    blogCta1: 'Gebrauchtes Fahrrad kaufen — Tipps & Checkliste',
+    blogCta2: 'Welches Fahrrad passt zu mir?',
+    blogCta3: 'Fahrrad Inspektion — Was kostet es?',
   },
 
   en: {
@@ -1466,6 +1477,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityOpenMap: 'Open route in Google Maps →',
     cityViewShowroom: 'View Showroom',
     footerLocations: 'Locations',
+
+    relatedBikes: 'Similar Bikes',
+    blogCta1: 'Buying a Used Bike — Tips & Checklist',
+    blogCta2: 'Which Bike Fits Me?',
+    blogCta3: 'Bike Inspection — What Does It Cost?',
   },
 
   fr: {
@@ -1972,6 +1988,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityOpenMap: "Ouvrir l'itinéraire dans Google Maps →",
     cityViewShowroom: 'Voir le showroom',
     footerLocations: 'Emplacements',
+
+    relatedBikes: 'Vélos similaires',
+    blogCta1: "Acheter un vélo d'occasion — Conseils & Checklist",
+    blogCta2: 'Quel vélo me convient?',
+    blogCta3: 'Révision vélo — Combien ça coûte?',
   },
 
   tr: {
@@ -2475,6 +2496,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityOpenMap: "Google Maps'ta rotayı aç →",
     cityViewShowroom: "Showroom'u Gör",
     footerLocations: 'Konumlar',
+
+    relatedBikes: 'Benzer Bisikletler',
+    blogCta1: 'İkinci El Bisiklet Alma — İpuçları & Kontrol Listesi',
+    blogCta2: 'Hangi Bisiklet Bana Uyar?',
+    blogCta3: 'Bisiklet Bakımı — Ne Kadara Mal Olur?',
   },
 };
 
