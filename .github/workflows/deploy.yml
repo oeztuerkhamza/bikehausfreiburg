@@ -32,11 +32,13 @@ jobs:
         env:
           INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY }}
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
+          GOOGLE_PLACES_PLACE_ID: ${{ secrets.GOOGLE_PLACES_PLACE_ID }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: INDEXNOW_API_KEY,JWT_SECRET_KEY
+          envs: INDEXNOW_API_KEY,JWT_SECRET_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID
           script: |
             set -e
             cd /opt/bikehaus
@@ -48,6 +50,8 @@ jobs:
             # Write secrets to .env file for docker compose
             echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" > .env
             echo "INDEXNOW_API_KEY=${INDEXNOW_API_KEY}" >> .env
+            echo "GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}" >> .env
+            echo "GOOGLE_PLACES_PLACE_ID=${GOOGLE_PLACES_PLACE_ID}" >> .env
             chmod 600 .env
             docker compose build --pull bikehaus
             docker compose up -d --force-recreate bikehaus nginx

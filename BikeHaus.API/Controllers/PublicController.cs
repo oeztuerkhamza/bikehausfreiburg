@@ -12,6 +12,7 @@ public class PublicController : ControllerBase
     private readonly IBicycleService _bicycleService;
     private readonly IRepairShowcaseService _repairShowcaseService;
     private readonly IHomepageAccessoryService _homepageAccessoryService;
+    private readonly IGoogleReviewsService _googleReviewsService;
     private readonly IWebHostEnvironment _env;
     private readonly IConfiguration _config;
 
@@ -21,6 +22,7 @@ public class PublicController : ControllerBase
         IBicycleService bicycleService,
         IRepairShowcaseService repairShowcaseService,
         IHomepageAccessoryService homepageAccessoryService,
+        IGoogleReviewsService googleReviewsService,
         IWebHostEnvironment env,
         IConfiguration config)
     {
@@ -29,6 +31,7 @@ public class PublicController : ControllerBase
         _bicycleService = bicycleService;
         _repairShowcaseService = repairShowcaseService;
         _homepageAccessoryService = homepageAccessoryService;
+        _googleReviewsService = googleReviewsService;
         _env = env;
         _config = config;
     }
@@ -228,6 +231,19 @@ public class PublicController : ControllerBase
     {
         var categories = await _homepageAccessoryService.GetCategoriesAsync();
         return Ok(categories);
+    }
+
+    // ═══ Google Reviews ═══
+
+    /// <summary>
+    /// Get cached Google Reviews for the shop
+    /// </summary>
+    [HttpGet("google-reviews")]
+    public async Task<IActionResult> GetGoogleReviews()
+    {
+        var reviews = await _googleReviewsService.GetReviewsAsync();
+        if (reviews == null) return Ok(new { rating = 0, totalReviews = 0, reviews = Array.Empty<object>(), placeUrl = "" });
+        return Ok(reviews);
     }
 
     /// <summary>

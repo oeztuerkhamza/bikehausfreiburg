@@ -20,6 +20,8 @@ import {
   PublicShopInfo,
   NeueFahrrad,
   RepairShowcase,
+  GoogleReview,
+  GoogleReviewsResponse,
 } from '../../models/models';
 
 interface Testimonial {
@@ -1165,7 +1167,7 @@ interface Testimonial {
       </section>
     }
 
-    <!-- ═══ Section 8 — TESTIMONIALS ═══ -->
+    <!-- ═══ Section 8 — GOOGLE REVIEWS ═══ -->
     <section
       class="testimonials-section"
       aria-labelledby="testimonials-heading"
@@ -1177,38 +1179,106 @@ interface Testimonial {
         </h2>
         <p class="section-sub fade-in d2">{{ t().testimonialsSub }}</p>
 
-        <div class="testimonials-grid">
-          <article
-            class="testimonial-card fade-in d1"
-            *ngFor="let review of testimonials; let i = index"
-          >
-            <div
-              class="testimonial-stars"
-              [attr.aria-label]="t().ariaStarsRating"
-            >
-              <svg
-                *ngFor="let s of [1, 2, 3, 4, 5]"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                />
-              </svg>
-            </div>
-            <blockquote class="testimonial-text">
-              "{{ review.text }}"
-            </blockquote>
-            <footer class="testimonial-author">
-              <div class="author-avatar">{{ review.initials }}</div>
-              <div class="author-info">
-                <cite class="author-name">{{ review.name }}</cite>
-                <span class="author-detail">{{ review.detail }}</span>
+        <!-- Google Rating Badge -->
+        @if (googleRating() > 0) {
+          <div class="google-rating-badge fade-in d2">
+            <svg class="google-icon" viewBox="0 0 24 24" width="28" height="28">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <div class="google-rating-info">
+              <div class="google-rating-stars">
+                <span class="google-rating-value">{{ googleRating().toFixed(1) }}</span>
+                <div class="google-stars-row">
+                  @for (s of [1, 2, 3, 4, 5]; track s) {
+                    <svg width="16" height="16" viewBox="0 0 24 24"
+                      [attr.fill]="s <= googleRating() ? '#f59e0b' : '#4b5563'">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  }
+                </div>
               </div>
-            </footer>
-          </article>
+              <span class="google-review-count">{{ googleTotalReviews() }} Google {{ t().reviewCountLabel }}</span>
+            </div>
+            @if (googlePlaceUrl()) {
+              <a [href]="googlePlaceUrl()" target="_blank" rel="noopener" class="google-review-link">
+                {{ t().reviewCta }}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                </svg>
+              </a>
+            }
+          </div>
+        }
+
+        <div class="testimonials-grid">
+          <!-- Google Reviews (real) -->
+          @if (googleReviews().length > 0) {
+            @for (review of googleReviews(); track review.time) {
+              @if (review.text) {
+                <article class="testimonial-card fade-in d1">
+                  <div class="testimonial-stars" [attr.aria-label]="review.rating + ' von 5 Sternen'">
+                    @for (s of [1, 2, 3, 4, 5]; track s) {
+                      <svg width="18" height="18" viewBox="0 0 24 24"
+                        [attr.fill]="s <= review.rating ? '#f59e0b' : '#4b5563'">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    }
+                  </div>
+                  <blockquote class="testimonial-text">
+                    "{{ review.text }}"
+                  </blockquote>
+                  <footer class="testimonial-author">
+                    @if (review.authorPhotoUrl) {
+                      <img [src]="review.authorPhotoUrl" [alt]="review.authorName"
+                        class="author-photo" width="44" height="44" loading="lazy" referrerpolicy="no-referrer">
+                    } @else {
+                      <div class="author-avatar">{{ getInitials(review.authorName) }}</div>
+                    }
+                    <div class="author-info">
+                      <cite class="author-name">{{ review.authorName }}</cite>
+                      <span class="author-detail">{{ review.relativeTime }}</span>
+                    </div>
+                  </footer>
+                </article>
+              }
+            }
+          } @else {
+            <!-- Fallback: hardcoded testimonials -->
+            <article
+              class="testimonial-card fade-in d1"
+              *ngFor="let review of testimonials; let i = index"
+            >
+              <div
+                class="testimonial-stars"
+                [attr.aria-label]="t().ariaStarsRating"
+              >
+                <svg
+                  *ngFor="let s of [1, 2, 3, 4, 5]"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                  />
+                </svg>
+              </div>
+              <blockquote class="testimonial-text">
+                "{{ review.text }}"
+              </blockquote>
+              <footer class="testimonial-author">
+                <div class="author-avatar">{{ review.initials }}</div>
+                <div class="author-info">
+                  <cite class="author-name">{{ review.name }}</cite>
+                  <span class="author-detail">{{ review.detail }}</span>
+                </div>
+              </footer>
+            </article>
+          }
         </div>
 
         <div class="trust-badges fade-in d3">
@@ -2085,10 +2155,83 @@ interface Testimonial {
         letter-spacing: 0.03em;
       }
 
-      /* ═══ TESTIMONIALS SECTION ═══ */
+      /* ═══ TESTIMONIALS / GOOGLE REVIEWS SECTION ═══ */
       .testimonials-section {
         padding: 6rem 0;
         background: var(--color-bg);
+      }
+
+      .google-rating-badge {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 1.25rem 1.75rem;
+        margin-top: 2rem;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .google-icon {
+        flex-shrink: 0;
+      }
+
+      .google-rating-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+
+      .google-rating-stars {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .google-rating-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-text);
+      }
+
+      .google-stars-row {
+        display: flex;
+        gap: 2px;
+      }
+
+      .google-review-count {
+        font-size: 0.85rem;
+        color: var(--color-text-secondary);
+      }
+
+      .google-review-link {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-left: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: var(--color-accent);
+        color: white;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: opacity 0.2s;
+      }
+
+      .google-review-link:hover {
+        opacity: 0.9;
+      }
+
+      .author-photo {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
       }
 
       .testimonials-grid {
@@ -2709,6 +2852,15 @@ interface Testimonial {
       }
 
       @media (max-width: 768px) {
+        .google-rating-badge {
+          flex-wrap: wrap;
+          justify-content: center;
+          padding: 1rem;
+        }
+        .google-review-link {
+          margin-left: 0;
+          margin-top: 0.5rem;
+        }
         .svc-slide-inner {
           padding: 5.5rem 1.25rem 3rem;
         }
@@ -2907,7 +3059,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   lightboxOpen = false;
   lightboxIndex = 0;
 
-  // Testimonials for SEO and social proof
+  // Google Reviews
+  googleReviews = signal<GoogleReview[]>([]);
+  googleRating = signal(0);
+  googleTotalReviews = signal(0);
+  googlePlaceUrl = signal('');
+
+  // Testimonials for SEO and social proof (fallback when Google API not configured)
   testimonials: Testimonial[] = [
     {
       name: 'Thomas M.',
@@ -2990,26 +3148,32 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private addReviewSchema(): void {
-    const reviews = this.testimonials.map((t) => ({
-      '@type': 'Review',
-      author: {
-        '@type': 'Person',
-        name: t.name,
-      },
-      reviewRating: {
-        '@type': 'Rating',
-        ratingValue: t.rating,
-        bestRating: 5,
-      },
-      reviewBody: t.text,
-    }));
+    const googleReviews = this.googleReviews();
+    const useGoogle = googleReviews.length > 0;
+
+    const reviews = useGoogle
+      ? googleReviews.filter(r => r.text).map((r) => ({
+          '@type': 'Review',
+          author: { '@type': 'Person', name: r.authorName },
+          reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5 },
+          reviewBody: r.text,
+        }))
+      : this.testimonials.map((t) => ({
+          '@type': 'Review',
+          author: { '@type': 'Person', name: t.name },
+          reviewRating: { '@type': 'Rating', ratingValue: t.rating, bestRating: 5 },
+          reviewBody: t.text,
+        }));
+
+    const ratingValue = useGoogle ? this.googleRating().toFixed(1) : '4.9';
+    const reviewCount = useGoogle ? this.googleTotalReviews().toString() : this.testimonials.length.toString();
 
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'LocalBusiness',
       '@id': 'https://bikehausfreiburg.com/#localbusiness',
       name: 'Bike Haus Freiburg',
-      image: 'https://bikehausfreiburg.com/assets/og-image.jpg',
+      image: 'https://bikehausfreiburg.com/assets/logo.png',
       url: 'https://bikehausfreiburg.com',
       telephone: '+49-155-66300011',
       address: {
@@ -3026,8 +3190,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       aggregateRating: {
         '@type': 'AggregateRating',
-        ratingValue: '4.9',
-        reviewCount: this.testimonials.length.toString(),
+        ratingValue,
+        reviewCount,
         bestRating: '5',
         worstRating: '1',
       },
@@ -3036,18 +3200,35 @@ export class HomeComponent implements OnInit, OnDestroy {
       openingHoursSpecification: [
         {
           '@type': 'OpeningHoursSpecification',
-          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-          opens: '10:00',
+          dayOfWeek: ['Monday', 'Tuesday', 'Thursday'],
+          opens: '11:00',
+          closes: '18:00',
+        },
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: 'Friday',
+          opens: '11:00',
+          closes: '13:00',
+        },
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: 'Friday',
+          opens: '15:00',
           closes: '18:00',
         },
         {
           '@type': 'OpeningHoursSpecification',
           dayOfWeek: 'Saturday',
-          opens: '10:00',
-          closes: '14:00',
+          opens: '11:30',
+          closes: '17:00',
         },
       ],
     };
+
+    // Remove old schema element if exists (e.g. after Google reviews load)
+    if (this.reviewSchemaElement) {
+      this.reviewSchemaElement.remove();
+    }
 
     this.reviewSchemaElement = this.document.createElement('script');
     this.reviewSchemaElement.type = 'application/ld+json';
@@ -3084,6 +3265,19 @@ export class HomeComponent implements OnInit, OnDestroy {
         }
       },
     });
+
+    this.apiService.getGoogleReviews().subscribe({
+      next: (data) => {
+        if (data.reviews?.length) {
+          this.googleReviews.set(data.reviews);
+          this.googleRating.set(data.rating);
+          this.googleTotalReviews.set(data.totalReviews);
+          this.googlePlaceUrl.set(data.placeUrl);
+          // Re-inject schema with real Google data
+          this.addReviewSchema();
+        }
+      },
+    });
   }
 
   ngOnDestroy(): void {
@@ -3094,6 +3288,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   // ── Repair Showcase Slideshow ──
   getRepairImageUrl(path: string): string {
     return `${environment.apiUrl.replace('/api/public', '')}${path}`;
+  }
+
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
   }
 
   private startRepairSlideshow(): void {

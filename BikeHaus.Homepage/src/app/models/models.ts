@@ -143,3 +143,19 @@ export interface HomepageAccessoryCategory {
   name: string;
   count: number;
 }
+
+export interface GoogleReview {
+  authorName: string;
+  authorPhotoUrl: string;
+  rating: number;
+  text: string;
+  relativeTime: string;
+  time: number;
+}
+
+export interface GoogleReviewsResponse {
+  rating: number;
+  totalReviews: number;
+  reviews: GoogleReview[];
+  placeUrl: string;
+}

@@ -299,6 +299,7 @@ export interface Translations {
   reviewTitle: string;
   reviewDesc: string;
   reviewCta: string;
+  reviewCountLabel: string;
   ankaufMessage: string;
 
   // About page extended
@@ -753,6 +754,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     reviewDesc:
       'Ihre Bewertung auf Google hilft uns und anderen Kunden. Vielen Dank!',
     reviewCta: 'Google Bewertung schreiben',
+    reviewCountLabel: 'Bewertungen',
     ankaufMessage:
       'Hallo, ich möchte mein Fahrrad verkaufen.\n\nMarke/Modell:\nZustand:\nWunschpreis:\n\n(Bitte Fotos anhängen)',
 
@@ -1250,6 +1252,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     reviewTitle: 'Happy with us? Leave a review!',
     reviewDesc: 'Your Google review helps us and other customers. Thank you!',
     reviewCta: 'Write a Google Review',
+    reviewCountLabel: 'Reviews',
     ankaufMessage:
       'Hello, I would like to sell my bike.\n\nBrand/Model:\nCondition:\nAsking price:\n\n(Please attach photos)',
 
@@ -1742,6 +1745,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     reviewDesc:
       'Votre avis Google nous aide ainsi que les autres clients. Merci!',
     reviewCta: 'Écrire un avis Google',
+    reviewCountLabel: 'Avis',
     ankaufMessage:
       'Bonjour, je souhaite vendre mon vélo.\n\nMarque/Modèle :\nÉtat :\nPrix souhaité :\n\n(Veuillez joindre des photos)',
 
@@ -2243,6 +2247,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     reviewDesc:
       'Google değerlendirmeniz bize ve diğer müşterilere yardımcı olur. Teşekkürler!',
     reviewCta: 'Google Değerlendirmesi Yaz',
+    reviewCountLabel: 'Değerlendirme',
     ankaufMessage:
       'Merhaba, bisikletimi satmak istiyorum.\n\nMarka/Model:\nDurum:\nİstenen fiyat:\n\n(Lütfen fotoğraf ekleyin)',
 

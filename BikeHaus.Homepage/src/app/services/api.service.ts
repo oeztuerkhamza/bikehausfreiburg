@@ -12,6 +12,7 @@ import {
   RepairShowcase,
   HomepageAccessory,
   HomepageAccessoryCategory,
+  GoogleReviewsResponse,
 } from '../models/models';
 
 @Injectable({
@@ -115,6 +116,14 @@ export class ApiService {
   getHomepageAccessoryCategories(): Observable<HomepageAccessoryCategory[]> {
     return this.http.get<HomepageAccessoryCategory[]>(
       `${this.baseUrl}/homepage-accessories/categories`,
+    );
+  }
+
+  // ── Google Reviews ──
+
+  getGoogleReviews(): Observable<GoogleReviewsResponse> {
+    return this.http.get<GoogleReviewsResponse>(
+      `${this.baseUrl}/google-reviews`,
     );
   }
 }
