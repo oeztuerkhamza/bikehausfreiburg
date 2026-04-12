@@ -13,7 +13,7 @@ export class ShopInfoService {
 
   // Cached shop info
   shopInfo = signal<PublicShopInfo | null>(null);
-  logoUrl = signal<string>('assets/logo.svg'); // Default fallback
+  logoUrl = signal<string>('assets/logo.png'); // Default fallback
   loaded = signal(false);
 
   constructor() {

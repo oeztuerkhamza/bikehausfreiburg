@@ -50,7 +50,9 @@ import { environment } from '../../../environments/environment';
         <span class="card-condition is-new">{{ t().conditionNew }}</span>
 
         <!-- Angebot Badge -->
-        <span *ngIf="bike.angebot && bike.angebot > 0" class="card-angebot">ANGEBOT</span>
+        <span *ngIf="bike.angebot && bike.angebot > 0" class="card-angebot"
+          >ANGEBOT</span
+        >
 
         <!-- Image Count -->
         <span *ngIf="bike.images && bike.images.length > 1" class="card-count">
@@ -98,9 +100,15 @@ import { environment } from '../../../environments/environment';
             class="card-price"
             *ngIf="bike.preisText || bike.preis; else noPrice"
           >
-            <ng-container *ngIf="bike.angebot && bike.angebot > 0; else normalPrice">
-              <span class="price-old">{{ bike.preis | number: '1.0-0' }} €</span>
-              <span class="price-new">{{ bike.preis - bike.angebot | number: '1.0-0' }} €</span>
+            <ng-container
+              *ngIf="bike.angebot && bike.angebot > 0; else normalPrice"
+            >
+              <span class="price-old"
+                >{{ bike.preis | number: '1.0-0' }} €</span
+              >
+              <span class="price-new"
+                >{{ bike.preis - bike.angebot | number: '1.0-0' }} €</span
+              >
             </ng-container>
             <ng-template #normalPrice>
               {{ bike.preisText || (bike.preis | number: '1.0-0') + ' €' }}

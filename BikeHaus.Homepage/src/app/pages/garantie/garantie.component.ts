@@ -42,9 +42,7 @@ import { TranslationService } from '../../services/translation.service';
           </section>
 
           <section class="warranty-note">
-            <p>
-              <strong>*</strong> {{ t().warrantyRepairNote }}
-            </p>
+            <p><strong>*</strong> {{ t().warrantyRepairNote }}</p>
           </section>
         </article>
 

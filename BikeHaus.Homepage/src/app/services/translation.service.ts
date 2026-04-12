@@ -750,7 +750,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ankaufCta: 'Angebot senden',
     ankaufHint: 'Fotos + Wunschpreis per WhatsApp',
     reviewTitle: 'Zufrieden mit uns? Bewerten Sie uns!',
-    reviewDesc: 'Ihre Bewertung auf Google hilft uns und anderen Kunden. Vielen Dank!',
+    reviewDesc:
+      'Ihre Bewertung auf Google hilft uns und anderen Kunden. Vielen Dank!',
     reviewCta: 'Google Bewertung schreiben',
     ankaufMessage:
       'Hallo, ich möchte mein Fahrrad verkaufen.\n\nMarke/Modell:\nZustand:\nWunschpreis:\n\n(Bitte Fotos anhängen)',
@@ -892,9 +893,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberNav: 'Ratgeber',
     ratgeberLabel: 'Wissen & Tipps',
     ratgeberTitle: 'Fahrrad Ratgeber',
-    ratgeberSub: 'Tipps, Checklisten und Wissenswertes rund ums Fahrrad — von Ihrem Fahrradhändler in Freiburg.',
+    ratgeberSub:
+      'Tipps, Checklisten und Wissenswertes rund ums Fahrrad — von Ihrem Fahrradhändler in Freiburg.',
     ratgeberMetaTitle: 'Fahrrad Ratgeber — Tipps & Wissen | Bike Haus Freiburg',
-    ratgeberMetaDescription: 'Fahrrad Ratgeber: Gebrauchtes Fahrrad kaufen, Rahmengröße berechnen, E-Bike Tipps und mehr. Expertenwissen von Bike Haus Freiburg.',
+    ratgeberMetaDescription:
+      'Fahrrad Ratgeber: Gebrauchtes Fahrrad kaufen, Rahmengröße berechnen, E-Bike Tipps und mehr. Expertenwissen von Bike Haus Freiburg.',
     ratgeberReadMore: 'Weiterlesen',
     ratgeberReadTime: 'Lesezeit',
     ratgeberTip: 'Tipp von Bike Haus',
@@ -902,37 +905,52 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberRelated: 'Weitere Ratgeber',
     ratgeberBackToList: 'Alle Ratgeber anzeigen',
     faqMetaTitle: 'FAQ — Häufige Fragen | Bike Haus Freiburg',
-    faqMetaDescription: 'Häufig gestellte Fragen zu Fahrradkauf, Garantie, E-Bikes, Probefahrt und Zahlungsmethoden bei Bike Haus Freiburg.',
+    faqMetaDescription:
+      'Häufig gestellte Fragen zu Fahrradkauf, Garantie, E-Bikes, Probefahrt und Zahlungsmethoden bei Bike Haus Freiburg.',
     bikeRentalMetaTitle: 'Fahrradverleih — Bike Haus Freiburg',
-    bikeRentalMetaDescription: 'Fahrradverleih bei Bike Haus Freiburg. Mieten Sie Fahrräder zu günstigen Preisen — ab 10 € pro Tag.',
+    bikeRentalMetaDescription:
+      'Fahrradverleih bei Bike Haus Freiburg. Mieten Sie Fahrräder zu günstigen Preisen — ab 10 € pro Tag.',
     garantieMetaTitle: 'Garantiebedingungen — Bike Haus Freiburg',
-    garantieMetaDescription: 'Garantiebedingungen für neue und gebrauchte Fahrräder bei Bike Haus Freiburg. 2 Jahre für Neuräder, 3 Monate für Gebrauchträder.',
+    garantieMetaDescription:
+      'Garantiebedingungen für neue und gebrauchte Fahrräder bei Bike Haus Freiburg. 2 Jahre für Neuräder, 3 Monate für Gebrauchträder.',
     impressumMetaTitle: 'Impressum — Bike Haus Freiburg',
-    impressumMetaDescription: 'Impressum und rechtliche Angaben von Bike Haus Freiburg gemäß § 5 TMG.',
+    impressumMetaDescription:
+      'Impressum und rechtliche Angaben von Bike Haus Freiburg gemäß § 5 TMG.',
     datenschutzMetaTitle: 'Datenschutz — Bike Haus Freiburg',
-    datenschutzMetaDescription: 'Datenschutzerklärung von Bike Haus Freiburg. Informationen zur Verarbeitung Ihrer personenbezogenen Daten.',
+    datenschutzMetaDescription:
+      'Datenschutzerklärung von Bike Haus Freiburg. Informationen zur Verarbeitung Ihrer personenbezogenen Daten.',
     faqCtaText: 'Noch Fragen? Kontaktieren Sie uns!',
     faqCtaButton: 'Kontakt aufnehmen',
     faqQ1: 'Wo kann ich ein Fahrrad in Freiburg kaufen?',
-    faqA1: 'Bei Bike Haus Freiburg in der Heckerstraße 27, 79114 Freiburg im Breisgau. Wir haben über 100 neue und gebrauchte Fahrräder vorrätig — einfach vorbeikommen, kein Termin nötig.',
+    faqA1:
+      'Bei Bike Haus Freiburg in der Heckerstraße 27, 79114 Freiburg im Breisgau. Wir haben über 100 neue und gebrauchte Fahrräder vorrätig — einfach vorbeikommen, kein Termin nötig.',
     faqQ2: 'Kann ich ein Fahrrad vor dem Kauf probefahren?',
-    faqA2: 'Ja! Alle Fahrräder können während unserer Öffnungszeiten vor Ort probegefahren werden — ohne Termin, einfach vorbeikommen.',
+    faqA2:
+      'Ja! Alle Fahrräder können während unserer Öffnungszeiten vor Ort probegefahren werden — ohne Termin, einfach vorbeikommen.',
     faqQ3: 'Bieten Sie Garantie auf Gebrauchträder?',
-    faqA3: 'Jedes Gebrauchtrad wird technisch geprüft. Sie erhalten 3 Tage Rückgaberecht und 3 Monate Garantie auf alle Gebrauchträder. Neue Fahrräder haben 24 Monate Garantie.',
+    faqA3:
+      'Jedes Gebrauchtrad wird technisch geprüft. Sie erhalten 3 Tage Rückgaberecht und 3 Monate Garantie auf alle Gebrauchträder. Neue Fahrräder haben 24 Monate Garantie.',
     faqQ4: 'Was kostet ein gebrauchtes Fahrrad?',
-    faqA4: 'Gebrauchte Fahrräder beginnen ab ca. 80 €. Gebrauchte E-Bikes ab ca. 800 €. Alle Preise sind fair kalkuliert.',
+    faqA4:
+      'Gebrauchte Fahrräder beginnen ab ca. 80 €. Gebrauchte E-Bikes ab ca. 800 €. Alle Preise sind fair kalkuliert.',
     faqQ5: 'Gibt es gebrauchte E-Bikes?',
-    faqA5: 'Ja, wir bieten hochwertige gebrauchte E-Bikes mit dokumentiertem Akku-Zustand und Garantie an. Alle E-Bikes werden vor dem Verkauf geprüft.',
+    faqA5:
+      'Ja, wir bieten hochwertige gebrauchte E-Bikes mit dokumentiertem Akku-Zustand und Garantie an. Alle E-Bikes werden vor dem Verkauf geprüft.',
     faqQ6: 'Welche Zahlungsmethoden akzeptieren Sie?',
-    faqA6: 'Wir akzeptieren Barzahlung, EC-Karte, Kreditkarte, PayPal und Überweisung.',
+    faqA6:
+      'Wir akzeptieren Barzahlung, EC-Karte, Kreditkarte, PayPal und Überweisung.',
     faqQ7: 'Kaufen Sie auch Fahrräder an?',
-    faqA7: 'Ja, wir kaufen gebrauchte Fahrräder in gutem Zustand zu fairen Preisen an. Bringen Sie Ihr Fahrrad einfach vorbei.',
+    faqA7:
+      'Ja, wir kaufen gebrauchte Fahrräder in gutem Zustand zu fairen Preisen an. Bringen Sie Ihr Fahrrad einfach vorbei.',
     faqQ8: 'Welche Fahrradtypen führen Sie?',
-    faqA8: 'Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder, Hollandräder und Rennräder — sowohl neu als auch gebraucht.',
+    faqA8:
+      'Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder, Hollandräder und Rennräder — sowohl neu als auch gebraucht.',
     faqQ9: 'Was sind Ihre Öffnungszeiten?',
-    faqA9: 'Montag bis Freitag: 10:00–18:00 Uhr. Samstag: 10:00–14:00 Uhr. Sonntag: geschlossen.',
+    faqA9:
+      'Montag bis Freitag: 10:00–18:00 Uhr. Samstag: 10:00–14:00 Uhr. Sonntag: geschlossen.',
     faqQ10: 'Kann ich mein altes Fahrrad in Zahlung geben?',
-    faqA10: 'Ja, in Einzelfällen ist eine Inzahlungnahme möglich. Sprechen Sie uns einfach an — wir finden eine Lösung.',
+    faqA10:
+      'Ja, in Einzelfällen ist eine Inzahlungnahme möglich. Sprechen Sie uns einfach an — wir finden eine Lösung.',
 
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Fahrrad Reparatur',
@@ -1359,9 +1377,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberNav: 'Guide',
     ratgeberLabel: 'Knowledge & Tips',
     ratgeberTitle: 'Bike Guide',
-    ratgeberSub: 'Tips, checklists and everything you need to know about bikes — from your Freiburg bike dealer.',
+    ratgeberSub:
+      'Tips, checklists and everything you need to know about bikes — from your Freiburg bike dealer.',
     ratgeberMetaTitle: 'Bike Guide — Tips & Knowledge | Bike Haus Freiburg',
-    ratgeberMetaDescription: 'Bike guide: buying used bikes, frame size calculator, e-bike tips and more. Expert knowledge from Bike Haus Freiburg.',
+    ratgeberMetaDescription:
+      'Bike guide: buying used bikes, frame size calculator, e-bike tips and more. Expert knowledge from Bike Haus Freiburg.',
     ratgeberReadMore: 'Read more',
     ratgeberReadTime: 'read',
     ratgeberTip: 'Tip from Bike Haus',
@@ -1369,37 +1389,51 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberRelated: 'Related guides',
     ratgeberBackToList: 'Back to all guides',
     faqMetaTitle: 'FAQ — Frequently Asked Questions | Bike Haus Freiburg',
-    faqMetaDescription: 'Frequently asked questions about buying bikes, warranty, e-bikes, test rides and payment methods at Bike Haus Freiburg.',
+    faqMetaDescription:
+      'Frequently asked questions about buying bikes, warranty, e-bikes, test rides and payment methods at Bike Haus Freiburg.',
     bikeRentalMetaTitle: 'Bike Rental — Bike Haus Freiburg',
-    bikeRentalMetaDescription: 'Rent bicycles at Bike Haus Freiburg. Affordable bike rentals starting from €10 per day.',
+    bikeRentalMetaDescription:
+      'Rent bicycles at Bike Haus Freiburg. Affordable bike rentals starting from €10 per day.',
     garantieMetaTitle: 'Warranty Terms — Bike Haus Freiburg',
-    garantieMetaDescription: 'Warranty terms for new and used bicycles at Bike Haus Freiburg. 2 years for new bikes, 3 months for used bikes.',
+    garantieMetaDescription:
+      'Warranty terms for new and used bicycles at Bike Haus Freiburg. 2 years for new bikes, 3 months for used bikes.',
     impressumMetaTitle: 'Legal Notice — Bike Haus Freiburg',
-    impressumMetaDescription: 'Legal notice and business information of Bike Haus Freiburg according to § 5 TMG.',
+    impressumMetaDescription:
+      'Legal notice and business information of Bike Haus Freiburg according to § 5 TMG.',
     datenschutzMetaTitle: 'Privacy Policy — Bike Haus Freiburg',
-    datenschutzMetaDescription: 'Privacy policy of Bike Haus Freiburg. Information about the processing of your personal data.',
+    datenschutzMetaDescription:
+      'Privacy policy of Bike Haus Freiburg. Information about the processing of your personal data.',
     faqCtaText: 'Still have questions? Contact us!',
     faqCtaButton: 'Get in touch',
     faqQ1: 'Where can I buy a bike in Freiburg?',
-    faqA1: 'At Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg im Breisgau. We have over 100 new and used bikes in stock — just stop by, no appointment needed.',
+    faqA1:
+      'At Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg im Breisgau. We have over 100 new and used bikes in stock — just stop by, no appointment needed.',
     faqQ2: 'Can I test ride a bike before buying?',
-    faqA2: 'Yes! All bikes can be test ridden during our opening hours — no appointment required.',
+    faqA2:
+      'Yes! All bikes can be test ridden during our opening hours — no appointment required.',
     faqQ3: 'Do you offer warranty on used bikes?',
-    faqA3: 'Every used bike is technically inspected. You get 3 days return policy and 3 months warranty on all used bikes. New bikes come with 24 months warranty.',
+    faqA3:
+      'Every used bike is technically inspected. You get 3 days return policy and 3 months warranty on all used bikes. New bikes come with 24 months warranty.',
     faqQ4: 'How much does a used bike cost?',
-    faqA4: 'Used bikes start from approx. €80. Used e-bikes from approx. €800. All prices are fairly calculated.',
+    faqA4:
+      'Used bikes start from approx. €80. Used e-bikes from approx. €800. All prices are fairly calculated.',
     faqQ5: 'Do you have used e-bikes?',
-    faqA5: 'Yes, we offer high-quality used e-bikes with documented battery condition and warranty.',
+    faqA5:
+      'Yes, we offer high-quality used e-bikes with documented battery condition and warranty.',
     faqQ6: 'What payment methods do you accept?',
     faqA6: 'We accept cash, debit card, credit card, PayPal and bank transfer.',
     faqQ7: 'Do you buy used bikes?',
-    faqA7: 'Yes, we buy used bikes in good condition at fair prices. Just bring your bike by.',
+    faqA7:
+      'Yes, we buy used bikes in good condition at fair prices. Just bring your bike by.',
     faqQ8: 'What bike types do you carry?',
-    faqA8: 'City bikes, trekking bikes, mountain bikes, e-bikes, children\'s bikes, Dutch bikes and road bikes — both new and used.',
+    faqA8:
+      "City bikes, trekking bikes, mountain bikes, e-bikes, children's bikes, Dutch bikes and road bikes — both new and used.",
     faqQ9: 'What are your opening hours?',
-    faqA9: 'Monday to Friday: 10:00–18:00. Saturday: 10:00–14:00. Sunday: closed.',
+    faqA9:
+      'Monday to Friday: 10:00–18:00. Saturday: 10:00–14:00. Sunday: closed.',
     faqQ10: 'Can I trade in my old bike?',
-    faqA10: 'Yes, trade-ins are possible in individual cases. Just talk to us — we\'ll find a solution.',
+    faqA10:
+      "Yes, trade-ins are possible in individual cases. Just talk to us — we'll find a solution.",
 
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Bicycle Repair',
@@ -1705,7 +1739,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ankaufCta: 'Envoyer une offre',
     ankaufHint: 'Photos + prix souhaité via WhatsApp',
     reviewTitle: 'Satisfait de notre service? Laissez un avis!',
-    reviewDesc: 'Votre avis Google nous aide ainsi que les autres clients. Merci!',
+    reviewDesc:
+      'Votre avis Google nous aide ainsi que les autres clients. Merci!',
     reviewCta: 'Écrire un avis Google',
     ankaufMessage:
       'Bonjour, je souhaite vendre mon vélo.\n\nMarque/Modèle :\nÉtat :\nPrix souhaité :\n\n(Veuillez joindre des photos)',
@@ -1847,9 +1882,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberNav: 'Conseils',
     ratgeberLabel: 'Savoir & Conseils',
     ratgeberTitle: 'Guide Vélo',
-    ratgeberSub: 'Conseils, checklists et tout ce qu\'il faut savoir sur les vélos — par votre vélociste à Freiburg.',
+    ratgeberSub:
+      "Conseils, checklists et tout ce qu'il faut savoir sur les vélos — par votre vélociste à Freiburg.",
     ratgeberMetaTitle: 'Guide Vélo — Conseils & Savoir | Bike Haus Freiburg',
-    ratgeberMetaDescription: 'Guide vélo : acheter un vélo d\'occasion, calculer la taille du cadre, conseils VAE et plus.',
+    ratgeberMetaDescription:
+      "Guide vélo : acheter un vélo d'occasion, calculer la taille du cadre, conseils VAE et plus.",
     ratgeberReadMore: 'Lire la suite',
     ratgeberReadTime: 'de lecture',
     ratgeberTip: 'Conseil de Bike Haus',
@@ -1857,37 +1894,49 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberRelated: 'Autres guides',
     ratgeberBackToList: 'Retour aux guides',
     faqMetaTitle: 'FAQ — Questions fréquentes | Bike Haus Freiburg',
-    faqMetaDescription: 'Questions fréquentes sur l\'achat de vélos, la garantie, les VAE, les essais et les moyens de paiement chez Bike Haus Freiburg.',
+    faqMetaDescription:
+      "Questions fréquentes sur l'achat de vélos, la garantie, les VAE, les essais et les moyens de paiement chez Bike Haus Freiburg.",
     bikeRentalMetaTitle: 'Location de vélos — Bike Haus Freiburg',
-    bikeRentalMetaDescription: 'Location de vélos chez Bike Haus Freiburg. Louez un vélo à partir de 10 € par jour.',
+    bikeRentalMetaDescription:
+      'Location de vélos chez Bike Haus Freiburg. Louez un vélo à partir de 10 € par jour.',
     garantieMetaTitle: 'Conditions de garantie — Bike Haus Freiburg',
-    garantieMetaDescription: 'Conditions de garantie pour les vélos neufs et d\'occasion chez Bike Haus Freiburg. 2 ans pour les neufs, 3 mois pour les occasions.',
+    garantieMetaDescription:
+      "Conditions de garantie pour les vélos neufs et d'occasion chez Bike Haus Freiburg. 2 ans pour les neufs, 3 mois pour les occasions.",
     impressumMetaTitle: 'Mentions légales — Bike Haus Freiburg',
-    impressumMetaDescription: 'Mentions légales et informations juridiques de Bike Haus Freiburg conformément au § 5 TMG.',
+    impressumMetaDescription:
+      'Mentions légales et informations juridiques de Bike Haus Freiburg conformément au § 5 TMG.',
     datenschutzMetaTitle: 'Politique de confidentialité — Bike Haus Freiburg',
-    datenschutzMetaDescription: 'Politique de confidentialité de Bike Haus Freiburg. Informations sur le traitement de vos données personnelles.',
+    datenschutzMetaDescription:
+      'Politique de confidentialité de Bike Haus Freiburg. Informations sur le traitement de vos données personnelles.',
     faqCtaText: 'Encore des questions ? Contactez-nous !',
     faqCtaButton: 'Nous contacter',
     faqQ1: 'Où acheter un vélo à Freiburg ?',
-    faqA1: 'Chez Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Plus de 100 vélos neufs et occasion en stock — venez sans rendez-vous.',
-    faqQ2: 'Puis-je essayer un vélo avant l\'achat ?',
-    faqA2: 'Oui ! Tous les vélos peuvent être testés pendant nos heures d\'ouverture — sans rendez-vous.',
-    faqQ3: 'Offrez-vous une garantie sur les vélos d\'occasion ?',
-    faqA3: 'Chaque vélo d\'occasion est contrôlé. Vous bénéficiez de 3 jours de droit de retour et 3 mois de garantie. Les vélos neufs ont 24 mois de garantie.',
-    faqQ4: 'Combien coûte un vélo d\'occasion ?',
-    faqA4: 'Les vélos d\'occasion commencent à env. 80 €. Les VAE d\'occasion à env. 800 €.',
-    faqQ5: 'Avez-vous des VAE d\'occasion ?',
-    faqA5: 'Oui, nous proposons des VAE d\'occasion contrôlés avec état de batterie documenté et garantie.',
+    faqA1:
+      'Chez Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Plus de 100 vélos neufs et occasion en stock — venez sans rendez-vous.',
+    faqQ2: "Puis-je essayer un vélo avant l'achat ?",
+    faqA2:
+      "Oui ! Tous les vélos peuvent être testés pendant nos heures d'ouverture — sans rendez-vous.",
+    faqQ3: "Offrez-vous une garantie sur les vélos d'occasion ?",
+    faqA3:
+      "Chaque vélo d'occasion est contrôlé. Vous bénéficiez de 3 jours de droit de retour et 3 mois de garantie. Les vélos neufs ont 24 mois de garantie.",
+    faqQ4: "Combien coûte un vélo d'occasion ?",
+    faqA4:
+      "Les vélos d'occasion commencent à env. 80 €. Les VAE d'occasion à env. 800 €.",
+    faqQ5: "Avez-vous des VAE d'occasion ?",
+    faqA5:
+      "Oui, nous proposons des VAE d'occasion contrôlés avec état de batterie documenté et garantie.",
     faqQ6: 'Quels modes de paiement acceptez-vous ?',
     faqA6: 'Espèces, carte bancaire, carte de crédit, PayPal et virement.',
     faqQ7: 'Rachetez-vous des vélos ?',
     faqA7: 'Oui, nous rachetons les vélos en bon état à des prix justes.',
     faqQ8: 'Quels types de vélos proposez-vous ?',
-    faqA8: 'Vélos de ville, trekking, VTT, VAE, vélos enfants, hollandais et vélos de route — neufs et occasion.',
+    faqA8:
+      'Vélos de ville, trekking, VTT, VAE, vélos enfants, hollandais et vélos de route — neufs et occasion.',
     faqQ9: 'Quels sont vos horaires ?',
     faqA9: 'Lundi au vendredi : 10h–18h. Samedi : 10h–14h. Dimanche : fermé.',
     faqQ10: 'Puis-je échanger mon ancien vélo ?',
-    faqA10: 'Oui, la reprise est possible au cas par cas. Parlez-nous en — nous trouverons une solution.',
+    faqA10:
+      'Oui, la reprise est possible au cas par cas. Parlez-nous en — nous trouverons une solution.',
 
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Réparation de vélos',
@@ -1916,7 +1965,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityWarrantyIncl: 'Garantie incl.',
     cityMin: 'min.',
     cityDirectionsFrom: 'Itinéraire depuis',
-    cityOpenMap: 'Ouvrir l\'itinéraire dans Google Maps →',
+    cityOpenMap: "Ouvrir l'itinéraire dans Google Maps →",
     cityViewShowroom: 'Voir le showroom',
     footerLocations: 'Emplacements',
   },
@@ -2191,7 +2240,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ankaufCta: 'Teklif gönder',
     ankaufHint: 'Fotoğraf + istenen fiyat WhatsApp ile',
     reviewTitle: 'Bizi beğendiniz mi? Değerlendirin!',
-    reviewDesc: 'Google değerlendirmeniz bize ve diğer müşterilere yardımcı olur. Teşekkürler!',
+    reviewDesc:
+      'Google değerlendirmeniz bize ve diğer müşterilere yardımcı olur. Teşekkürler!',
     reviewCta: 'Google Değerlendirmesi Yaz',
     ankaufMessage:
       'Merhaba, bisikletimi satmak istiyorum.\n\nMarka/Model:\nDurum:\nİstenen fiyat:\n\n(Lütfen fotoğraf ekleyin)',
@@ -2334,9 +2384,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberNav: 'Rehber',
     ratgeberLabel: 'Bilgi & İpuçları',
     ratgeberTitle: 'Bisiklet Rehberi',
-    ratgeberSub: 'İpuçları, kontrol listeleri ve bisiklet hakkında bilmeniz gereken her şey.',
-    ratgeberMetaTitle: 'Bisiklet Rehberi — İpuçları & Bilgi | Bike Haus Freiburg',
-    ratgeberMetaDescription: 'Bisiklet rehberi: ikinci el bisiklet alma, kadro boyu hesaplama, e-bisiklet ipuçları ve daha fazlası.',
+    ratgeberSub:
+      'İpuçları, kontrol listeleri ve bisiklet hakkında bilmeniz gereken her şey.',
+    ratgeberMetaTitle:
+      'Bisiklet Rehberi — İpuçları & Bilgi | Bike Haus Freiburg',
+    ratgeberMetaDescription:
+      'Bisiklet rehberi: ikinci el bisiklet alma, kadro boyu hesaplama, e-bisiklet ipuçları ve daha fazlası.',
     ratgeberReadMore: 'Devamını oku',
     ratgeberReadTime: 'okuma',
     ratgeberTip: 'Bike Haus İpucu',
@@ -2344,37 +2397,51 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberRelated: 'İlgili rehberler',
     ratgeberBackToList: 'Tüm rehberlere dön',
     faqMetaTitle: 'SSS — Sık Sorulan Sorular | Bike Haus Freiburg',
-    faqMetaDescription: 'Bisiklet alımı, garanti, e-bisiklet, deneme sürüşü ve ödeme yöntemleri hakkında sık sorulan sorular.',
+    faqMetaDescription:
+      'Bisiklet alımı, garanti, e-bisiklet, deneme sürüşü ve ödeme yöntemleri hakkında sık sorulan sorular.',
     bikeRentalMetaTitle: 'Bisiklet Kiralama — Bike Haus Freiburg',
-    bikeRentalMetaDescription: 'Bike Haus Freiburg\'da bisiklet kiralama. Günlük 10 €\'dan başlayan fiyatlarla bisiklet kiralayın.',
+    bikeRentalMetaDescription:
+      "Bike Haus Freiburg'da bisiklet kiralama. Günlük 10 €'dan başlayan fiyatlarla bisiklet kiralayın.",
     garantieMetaTitle: 'Garanti Koşulları — Bike Haus Freiburg',
-    garantieMetaDescription: 'Bike Haus Freiburg\'da yeni ve ikinci el bisikletler için garanti koşulları. Yeni bisikletlerde 2 yıl, ikinci elde 3 ay garanti.',
+    garantieMetaDescription:
+      "Bike Haus Freiburg'da yeni ve ikinci el bisikletler için garanti koşulları. Yeni bisikletlerde 2 yıl, ikinci elde 3 ay garanti.",
     impressumMetaTitle: 'Yasal Bildirim — Bike Haus Freiburg',
-    impressumMetaDescription: 'Bike Haus Freiburg\'un § 5 TMG uyarınca yasal bilgi ve künye bilgileri.',
+    impressumMetaDescription:
+      "Bike Haus Freiburg'un § 5 TMG uyarınca yasal bilgi ve künye bilgileri.",
     datenschutzMetaTitle: 'Gizlilik Politikası — Bike Haus Freiburg',
-    datenschutzMetaDescription: 'Bike Haus Freiburg gizlilik politikası. Kişisel verilerinizin işlenmesi hakkında bilgiler.',
+    datenschutzMetaDescription:
+      'Bike Haus Freiburg gizlilik politikası. Kişisel verilerinizin işlenmesi hakkında bilgiler.',
     faqCtaText: 'Başka sorunuz mu var? Bize ulaşın!',
     faqCtaButton: 'İletişime geçin',
     faqQ1: "Freiburg'da bisiklet nereden alabilirim?",
-    faqA1: 'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. 100+ yeni ve ikinci el bisiklet stokta — randevusuz gelin.',
+    faqA1:
+      'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. 100+ yeni ve ikinci el bisiklet stokta — randevusuz gelin.',
     faqQ2: 'Satın almadan önce bisikleti deneyebilir miyim?',
-    faqA2: 'Evet! Tüm bisikletler çalışma saatlerinde denenebilir — randevu gerekmez.',
+    faqA2:
+      'Evet! Tüm bisikletler çalışma saatlerinde denenebilir — randevu gerekmez.',
     faqQ3: 'İkinci el bisikletlerde garanti var mı?',
-    faqA3: 'Her ikinci el bisiklet teknik kontrolden geçer. 3 gün iade hakkı ve 3 ay garanti. Yeni bisikletlerde 24 ay garanti.',
+    faqA3:
+      'Her ikinci el bisiklet teknik kontrolden geçer. 3 gün iade hakkı ve 3 ay garanti. Yeni bisikletlerde 24 ay garanti.',
     faqQ4: 'İkinci el bisiklet ne kadar?',
-    faqA4: 'İkinci el bisikletler yaklaşık 80 €\'dan başlar. İkinci el e-bisikletler yaklaşık 800 €\'dan.',
+    faqA4:
+      "İkinci el bisikletler yaklaşık 80 €'dan başlar. İkinci el e-bisikletler yaklaşık 800 €'dan.",
     faqQ5: 'İkinci el e-bisikletiniz var mı?',
-    faqA5: 'Evet, belgelenmiş akü durumu ve garantili kontrollü ikinci el e-bisikletler sunuyoruz.',
+    faqA5:
+      'Evet, belgelenmiş akü durumu ve garantili kontrollü ikinci el e-bisikletler sunuyoruz.',
     faqQ6: 'Hangi ödeme yöntemlerini kabul ediyorsunuz?',
     faqA6: 'Nakit, banka kartı, kredi kartı, PayPal ve havale kabul ediyoruz.',
     faqQ7: 'Bisiklet satın alıyor musunuz?',
-    faqA7: 'Evet, iyi durumda ikinci el bisikletleri adil fiyatla satın alıyoruz.',
+    faqA7:
+      'Evet, iyi durumda ikinci el bisikletleri adil fiyatla satın alıyoruz.',
     faqQ8: 'Hangi bisiklet tiplerini satıyorsunuz?',
-    faqA8: 'Şehir, trekking, dağ, e-bisiklet, çocuk, Hollanda ve yol bisikletleri — yeni ve ikinci el.',
+    faqA8:
+      'Şehir, trekking, dağ, e-bisiklet, çocuk, Hollanda ve yol bisikletleri — yeni ve ikinci el.',
     faqQ9: 'Çalışma saatleriniz nedir?',
-    faqA9: 'Pazartesi–Cuma: 10:00–18:00. Cumartesi: 10:00–14:00. Pazar: kapalı.',
+    faqA9:
+      'Pazartesi–Cuma: 10:00–18:00. Cumartesi: 10:00–14:00. Pazar: kapalı.',
     faqQ10: 'Eski bisikletimi takas edebilir miyim?',
-    faqA10: 'Evet, bireysel durumlarda takas mümkündür. Bize danışın — bir çözüm buluruz.',
+    faqA10:
+      'Evet, bireysel durumlarda takas mümkündür. Bize danışın — bir çözüm buluruz.',
 
     svcRepairBadge: 'Servis',
     svcRepairTitle: 'Bisiklet Tamiri',
@@ -2400,8 +2467,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityWarrantyIncl: 'Garanti dahil',
     cityMin: 'dk.',
     cityDirectionsFrom: 'Yol tarifi:',
-    cityOpenMap: 'Google Maps\'ta rotayı aç →',
-    cityViewShowroom: 'Showroom\'u Gör',
+    cityOpenMap: "Google Maps'ta rotayı aç →",
+    cityViewShowroom: "Showroom'u Gör",
     footerLocations: 'Konumlar',
   },
 };

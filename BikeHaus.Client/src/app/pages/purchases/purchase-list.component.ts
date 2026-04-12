@@ -137,7 +137,9 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             >
               <td class="mono">{{ p.belegNummer }}</td>
               <td>{{ p.bikeInfo }}</td>
-              <td class="mono" style="text-transform: uppercase">{{ p.rahmennummer || '–' }}</td>
+              <td class="mono" style="text-transform: uppercase">
+                {{ p.rahmennummer || '–' }}
+              </td>
               <td>{{ p.sellerName }}</td>
               <td>{{ p.preis | number: '1.2-2' }} €</td>
               <td>{{ p.kaufdatum | date: 'dd.MM.yyyy' }}</td>

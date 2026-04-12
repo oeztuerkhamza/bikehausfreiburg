@@ -128,7 +128,13 @@ import { environment } from '../../../environments/environment';
                 [class.active]="selectedImage() === i"
                 (click)="selectedImage.set(i)"
               >
-                <img [src]="img.imageUrl" [alt]="''" loading="lazy" width="120" height="90" />
+                <img
+                  [src]="img.imageUrl"
+                  [alt]="''"
+                  loading="lazy"
+                  width="120"
+                  height="90"
+                />
               </button>
             </div>
           </div>

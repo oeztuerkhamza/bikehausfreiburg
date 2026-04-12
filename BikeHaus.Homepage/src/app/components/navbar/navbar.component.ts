@@ -19,7 +19,13 @@ import { ShopInfoService } from '../../services/shop-info.service';
           class="brand"
           aria-label="Bike Haus Freiburg Home"
         >
-          <img [src]="logoUrl()" alt="Bike Haus Freiburg" class="brand-logo" width="40" height="40" />
+          <img
+            [src]="logoUrl()"
+            alt="Bike Haus Freiburg"
+            class="brand-logo"
+            width="40"
+            height="40"
+          />
           <span class="brand-name"
             >Bike Haus<span class="brand-city">Freiburg</span></span
           >

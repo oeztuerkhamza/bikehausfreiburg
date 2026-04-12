@@ -20,9 +20,12 @@ export function app(): express.Express {
   // Example Express Rest API endpoints
   // server.get('/api/**', (req, res) => { });
   // Serve static files from /browser
-  server.get('*.*', express.static(browserDistFolder, {
-    maxAge: '1y'
-  }));
+  server.get(
+    '*.*',
+    express.static(browserDistFolder, {
+      maxAge: '1y',
+    }),
+  );
 
   // All regular routes use the Angular engine
   server.get('*', (req, res, next) => {
@@ -38,7 +41,10 @@ export function app(): express.Express {
       })
       .then((html) => {
         // Cache SSR responses for 5 minutes, stale-while-revalidate for 1 hour
-        res.set('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');
+        res.set(
+          'Cache-Control',
+          'public, max-age=300, s-maxage=300, stale-while-revalidate=3600',
+        );
         res.send(html);
       })
       .catch((err) => next(err));
