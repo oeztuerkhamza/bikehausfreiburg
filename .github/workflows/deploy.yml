@@ -97,7 +97,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: 'BikeHaus.Homepage/dist/bike-haus.homepage/browser/'
           target: '/opt/bikehaus/homepage-dist'
-          strip_components: 4
+          strip_components: 3
           rm: false
 
       - name: Fix permissions and restart nginx
