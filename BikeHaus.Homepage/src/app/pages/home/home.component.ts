@@ -2967,8 +2967,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       content: this.t().metaTitle,
     });
     this.metaService.updateTag({
+      property: 'og:description',
+      content: this.t().metaDescription,
+    });
+    this.metaService.updateTag({
       property: 'og:url',
-      content: 'https://bikehausfreiburg.com',
+      content: `https://bikehausfreiburg.com/${this.lang()}`,
     });
 
     // Add Review/Rating Schema for SEO

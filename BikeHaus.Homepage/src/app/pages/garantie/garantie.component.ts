@@ -221,6 +221,6 @@ export class GarantieComponent implements OnInit {
       name: 'description',
       content: t.garantieMetaDescription,
     });
-    this.metaService.updateTag({ name: 'robots', content: 'noindex, follow' });
+    this.metaService.updateTag({ name: 'robots', content: 'index, follow' });
   }
 }

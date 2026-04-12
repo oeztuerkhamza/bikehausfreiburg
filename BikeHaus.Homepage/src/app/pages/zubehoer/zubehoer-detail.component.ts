@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
 import { TranslationService } from '../../services/translation.service';
 import { HomepageAccessory } from '../../models/models';
@@ -367,6 +368,8 @@ export class ZubehoerDetailComponent implements OnInit {
   private api = inject(ApiService);
   private route = inject(ActivatedRoute);
   private translationService = inject(TranslationService);
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -382,6 +385,15 @@ export class ZubehoerDetailComponent implements OnInit {
         next: (item) => {
           this.item.set(item);
           this.loading.set(false);
+          // SEO meta tags
+          const title = `${item.titel} | Bike Haus Freiburg`;
+          const desc = item.beschreibung
+            ? item.beschreibung.substring(0, 160)
+            : `${item.titel} — Fahrradzubehör bei Bike Haus Freiburg kaufen.`;
+          this.titleService.setTitle(title);
+          this.metaService.updateTag({ name: 'description', content: desc });
+          this.metaService.updateTag({ property: 'og:title', content: title });
+          this.metaService.updateTag({ property: 'og:description', content: desc });
         },
         error: () => {
           this.loading.set(false);
