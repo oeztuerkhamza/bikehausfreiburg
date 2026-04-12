@@ -214,6 +214,7 @@ export interface Translations {
   paymentMethodRequired: string;
   cash: string;
   bankTransfer: string;
+  wireTransfer: string;
   paypal: string;
   warranty: string;
   warrantyNew: string;
@@ -901,6 +902,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     paymentMethodRequired: 'Zahlungsart *',
     cash: 'Bar',
     bankTransfer: 'Karte',
+    wireTransfer: 'Überweisung',
     paypal: 'PayPal',
     warranty: 'Garantie',
     warrantyNew: '2 Jahre Gewährleistung',
@@ -1589,6 +1591,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     paymentMethodRequired: 'Ödeme Yöntemi *',
     cash: 'Nakit',
     bankTransfer: 'Kart',
+    wireTransfer: 'Havale',
     paypal: 'PayPal',
     warranty: 'Garanti',
     warrantyNew: '2 Yıl Garanti',

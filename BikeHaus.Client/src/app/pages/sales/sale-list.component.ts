@@ -107,6 +107,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <option value="Bar">{{ t.cash }}</option>
             <option value="Karte">{{ t.bankTransfer }}</option>
             <option value="PayPal">{{ t.paypal }}</option>
+            <option value="Überweisung">{{ t.wireTransfer }}</option>
           </select>
         </div>
         <div class="filter-item">
@@ -585,6 +586,10 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         background: var(--accent-warning-light, rgba(245, 158, 11, 0.08));
         color: var(--accent-warning, #f59e0b);
       }
+      .badge-Überweisung {
+        background: rgba(139, 92, 246, 0.08);
+        color: #8b5cf6;
+      }
       @media (max-width: 640px) {
         .filters {
           flex-direction: column;
@@ -703,6 +708,8 @@ export class SaleListComponent implements OnInit {
         return this.t.bankTransfer;
       case 'PayPal':
         return this.t.paypal;
+      case 'Überweisung':
+        return this.t.wireTransfer;
       default:
         return method;
     }

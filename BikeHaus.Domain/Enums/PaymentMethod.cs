@@ -2,7 +2,8 @@ namespace BikeHaus.Domain.Enums;
 
 public enum PaymentMethod
 {
-    Bar,       // Cash
+    Bar,            // Cash
     PayPal,
-    Karte // Card
+    Karte,          // Card
+    Überweisung     // Bank transfer
 }

@@ -465,6 +465,7 @@ export class RentalDetailComponent implements OnInit {
       Bar: 'Bar',
       PayPal: 'PayPal',
       Karte: 'Karte',
+      Überweisung: 'Überweisung',
     };
     return map[z] || z;
   }

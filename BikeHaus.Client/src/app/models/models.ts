@@ -15,6 +15,7 @@ export enum PaymentMethod {
   Bar = 'Bar',
   PayPal = 'PayPal',
   Karte = 'Karte',
+  Überweisung = 'Überweisung',
 }
 
 export enum DocumentType {

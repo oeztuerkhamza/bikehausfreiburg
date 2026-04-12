@@ -196,6 +196,7 @@ import {
                 <option value="Bar">Bar</option>
                 <option value="PayPal">PayPal</option>
                 <option value="Karte">Karte</option>
+                <option value="Überweisung">Überweisung</option>
               </select>
             </div>
             <div class="field">

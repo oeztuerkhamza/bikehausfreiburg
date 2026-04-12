@@ -187,6 +187,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">PayPal</option>
                   <option value="Karte">{{ t.bankTransfer }}</option>
+                  <option value="Überweisung">{{ t.wireTransfer }}</option>
                 </select>
               </div>
               <div class="field full">
