@@ -4,6 +4,9 @@
 FROM node:20-alpine AS frontend-build
 WORKDIR /app/client
 
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
 COPY BikeHaus.Client/package*.json ./
 RUN npm ci
 

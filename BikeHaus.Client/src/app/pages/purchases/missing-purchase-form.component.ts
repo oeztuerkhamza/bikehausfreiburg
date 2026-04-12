@@ -123,7 +123,7 @@ import { forkJoin, Observable } from 'rxjs';
                   <option [value]="PaymentMethod.Karte">
                     {{ t.bankTransfer }}
                   </option>
-                  <option [value]="PaymentMethod.Überweisung">
+                  <option [value]="PaymentMethod.Ueberweisung">
                     {{ t.wireTransfer }}
                   </option>
                 </select>
