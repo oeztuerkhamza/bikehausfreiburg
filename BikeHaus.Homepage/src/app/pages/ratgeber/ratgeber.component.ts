@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, computed } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
@@ -131,7 +131,9 @@ import { BLOG_ARTICLES, BlogArticle } from '../../services/blog.data';
         overflow: hidden;
         text-decoration: none;
         color: inherit;
-        transition: transform 0.2s, border-color 0.2s;
+        transition:
+          transform 0.2s,
+          border-color 0.2s;
       }
       .article-card:hover {
         transform: translateY(-4px);
@@ -247,9 +249,18 @@ export class RatgeberComponent implements OnInit {
     const url = `https://bikehausfreiburg.com/${lang}/ratgeber`;
 
     this.titleService.setTitle(t.ratgeberMetaTitle);
-    this.metaService.updateTag({ name: 'description', content: t.ratgeberMetaDescription });
-    this.metaService.updateTag({ property: 'og:title', content: t.ratgeberMetaTitle });
-    this.metaService.updateTag({ property: 'og:description', content: t.ratgeberMetaDescription });
+    this.metaService.updateTag({
+      name: 'description',
+      content: t.ratgeberMetaDescription,
+    });
+    this.metaService.updateTag({
+      property: 'og:title',
+      content: t.ratgeberMetaTitle,
+    });
+    this.metaService.updateTag({
+      property: 'og:description',
+      content: t.ratgeberMetaDescription,
+    });
     this.metaService.updateTag({ property: 'og:url', content: url });
     this.metaService.updateTag({ name: 'robots', content: 'index, follow' });
   }

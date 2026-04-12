@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  
+
   <!-- Homepage German (Default) -->
   <url>
     <loc>https://bikehausfreiburg.com/de</loc>
@@ -14,7 +14,7 @@
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-  
+
   <!-- Showroom German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/showroom</loc>
@@ -25,7 +25,7 @@
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
-  
+
   <!-- About German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/about</loc>
@@ -36,7 +36,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
   <!-- Contact German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/contact</loc>
@@ -47,7 +47,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
+
   <!-- Impressum German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/impressum</loc>
@@ -55,7 +55,7 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
-  
+
   <!-- Datenschutz German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/datenschutz</loc>
@@ -63,7 +63,7 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
-  
+
   <!-- Ratgeber (Blog) German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber</loc>
@@ -87,7 +87,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
+
   <!-- Blog Articles German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-tipps</loc>
@@ -130,7 +130,7 @@
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-  
+
   <!-- Zubehör German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/zubehoer</loc>
@@ -141,7 +141,7 @@
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-  
+
   <!-- Fahrradverleih German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/fahrradverleih</loc>
@@ -152,7 +152,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
   <!-- Garantie German -->
   <url>
     <loc>https://bikehausfreiburg.com/de/garantie</loc>
@@ -192,7 +192,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
-  
+
   <!-- French Pages -->
   <url>
     <loc>https://bikehausfreiburg.com/fr</loc>
@@ -212,7 +212,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
+
   <!-- Turkish Pages -->
   <url>
     <loc>https://bikehausfreiburg.com/tr</loc>

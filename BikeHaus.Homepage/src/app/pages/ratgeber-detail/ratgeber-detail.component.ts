@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  OnInit,
-  OnDestroy,
-  signal,
-} from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
@@ -13,7 +7,6 @@ import {
   BLOG_ARTICLES,
   BlogArticle,
   BlogArticleTranslation,
-  BlogSection,
 } from '../../services/blog.data';
 
 @Component({
@@ -27,9 +20,7 @@ import {
         <div class="container">
           <a [routerLink]="['/' + lang()]">{{ t().home }}</a>
           <span class="sep">/</span>
-          <a [routerLink]="['/' + lang(), 'ratgeber']">{{
-            t().ratgeberNav
-          }}</a>
+          <a [routerLink]="['/' + lang(), 'ratgeber']">{{ t().ratgeberNav }}</a>
           <span class="sep">/</span>
           <span class="current">{{ translation()?.title }}</span>
         </div>
@@ -55,8 +46,15 @@ import {
           @if (translation()?.tldr; as tldr) {
             <div class="tldr-box" role="region" aria-label="Zusammenfassung">
               <div class="tldr-header">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                 </svg>
                 <span>{{ t().ratgeberTldr }}</span>
               </div>
@@ -245,7 +243,11 @@ import {
 
       /* TL;DR box — AI-optimized summary */
       .tldr-box {
-        background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(76, 175, 80, 0.04) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(76, 175, 80, 0.08) 0%,
+          rgba(76, 175, 80, 0.04) 100%
+        );
         border: 1px solid rgba(76, 175, 80, 0.3);
         border-radius: 12px;
         padding: 1.25rem 1.5rem;
@@ -565,7 +567,12 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
       wordCount: this.estimateWordCount(trans),
       speakable: {
         '@type': 'SpeakableSpecification',
-        cssSelector: ['.article-header h1', '.excerpt', '.tldr-box p', '.tip-box p'],
+        cssSelector: [
+          '.article-header h1',
+          '.excerpt',
+          '.tldr-box p',
+          '.tip-box p',
+        ],
       },
     };
 
@@ -623,8 +630,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
     let words = 0;
     for (const section of trans.sections) {
       if (section.content) words += section.content.split(/\s+/).length;
-      if (section.items)
-        words += section.items.join(' ').split(/\s+/).length;
+      if (section.items) words += section.items.join(' ').split(/\s+/).length;
     }
     return words;
   }

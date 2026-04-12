@@ -288,8 +288,17 @@ import { PublicShopInfo } from '../../models/models';
               rel="noopener"
               class="review-btn"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polygon
+                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                />
               </svg>
               {{ t().reviewCta }}
             </a>
@@ -534,7 +543,9 @@ import { PublicShopInfo } from '../../models/models';
       }
 
       /* Google Review CTA */
-      .review-section { margin-bottom: 2rem; }
+      .review-section {
+        margin-bottom: 2rem;
+      }
       .review-card {
         background: var(--color-surface);
         border: 1px solid var(--color-border);
@@ -573,7 +584,9 @@ import { PublicShopInfo } from '../../models/models';
         font-size: 0.9rem;
         transition: opacity 0.2s;
       }
-      .review-btn:hover { opacity: 0.9; }
+      .review-btn:hover {
+        opacity: 0.9;
+      }
     `,
   ],
 })
