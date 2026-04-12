@@ -133,6 +133,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <tr
               *ngFor="let p of paginatedResult?.items"
               class="clickable-row"
+              [class.row-with-sale]="p.hasSale"
               (click)="toggleMenu($event, p)"
             >
               <td class="mono">{{ p.belegNummer }}</td>
@@ -394,6 +395,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
       .clickable-row:hover td {
         background: var(--table-hover, #f1f5f9);
+      }
+      .row-with-sale td {
+        background: rgba(236, 72, 153, 0.09);
+      }
+      .row-with-sale:hover td {
+        background: rgba(236, 72, 153, 0.16);
       }
       .actions-cell {
         position: relative;

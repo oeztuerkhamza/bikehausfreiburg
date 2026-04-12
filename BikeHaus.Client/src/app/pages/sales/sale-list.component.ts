@@ -177,6 +177,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               *ngFor="let s of paginatedResult?.items"
               class="clickable-row"
               [class.row-with-purchase]="hasPurchase(s)"
+              [class.row-new-bike]="isNewBikeSale(s)"
               (click)="toggleMenu($event, s)"
             >
               <td class="mono">{{ s.belegNummer }}</td>
@@ -457,6 +458,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
       .row-with-purchase:hover td {
         background: rgba(16, 185, 129, 0.16);
+      }
+      .row-new-bike td {
+        background: rgba(59, 130, 246, 0.09);
+      }
+      .row-new-bike:hover td {
+        background: rgba(59, 130, 246, 0.16);
       }
       .actions-cell {
         position: relative;
@@ -759,6 +766,10 @@ export class SaleListComponent implements OnInit {
 
   isAccessoryOnlySale(s: SaleList): boolean {
     return !!s.rahmennummer?.startsWith('ACC-');
+  }
+
+  isNewBikeSale(s: SaleList): boolean {
+    return !this.hasPurchase(s) && !this.isAccessoryOnlySale(s) && !!s.bicycleId;
   }
 
   canAddPurchase(s: SaleList): boolean {
