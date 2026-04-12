@@ -328,8 +328,6 @@ export class NavbarComponent {
       label: () => this.t().bikeRental,
       exact: false,
     },
-    { path: 'ratgeber', label: () => this.t().ratgeberNav, exact: false },
-    { path: 'faq', label: () => this.t().faqTitle, exact: false },
     { path: 'about', label: () => this.t().about, exact: false },
     { path: 'contact', label: () => this.t().contact, exact: false },
   ];
