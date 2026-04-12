@@ -175,6 +175,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               class="clickable-row"
               [class.row-with-purchase]="hasPurchase(s)"
               [class.row-new-bike]="isNewBikeSale(s)"
+              [class.row-accessory]="isAccessoryOnlySale(s)"
               (click)="toggleMenu($event, s)"
             >
               <td class="mono">{{ s.belegNummer }}</td>
@@ -464,6 +465,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
       .row-new-bike:hover td {
         background: rgba(59, 130, 246, 0.32);
+      }
+      .row-accessory td {
+        background: rgba(180, 150, 0, 0.25);
+      }
+      .row-accessory:hover td {
+        background: rgba(180, 150, 0, 0.35);
       }
       .actions-cell {
         position: relative;
