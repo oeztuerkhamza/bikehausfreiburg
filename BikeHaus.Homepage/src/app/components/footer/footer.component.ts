@@ -26,6 +26,9 @@ import { ShopInfoService } from '../../services/shop-info.service';
           <nav aria-label="Footer navigation">
             <a [routerLink]="['/' + lang()]">{{ t().home }}</a>
             <a [routerLink]="['/' + lang(), 'showroom']">{{ t().showroom }}</a>
+            <a [routerLink]="['/' + lang(), 'neue-fahrraeder']">{{ t().neueFahrraeder }}</a>
+            <a [routerLink]="['/' + lang(), 'zubehoer']">{{ t().accessories }}</a>
+            <a [routerLink]="['/' + lang(), 'fahrradverleih']">{{ t().bikeRental }}</a>
             <a [routerLink]="['/' + lang(), 'ratgeber']">{{ t().ratgeberNav }}</a>
             <a [routerLink]="['/' + lang(), 'faq']">{{ t().faqTitle }}</a>
             <a [routerLink]="['/' + lang(), 'about']">{{ t().about }}</a>

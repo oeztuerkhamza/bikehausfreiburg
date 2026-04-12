@@ -36,7 +36,11 @@ export function app(): express.Express {
         publicPath: browserDistFolder,
         providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
       })
-      .then((html) => res.send(html))
+      .then((html) => {
+        // Cache SSR responses for 5 minutes, stale-while-revalidate for 1 hour
+        res.set('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=3600');
+        res.send(html);
+      })
       .catch((err) => next(err));
   });
 

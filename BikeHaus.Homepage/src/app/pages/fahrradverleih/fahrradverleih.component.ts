@@ -849,11 +849,11 @@ export class FahrradverleihComponent implements OnInit {
   lang = this.translationService.currentLanguage;
 
   ngOnInit(): void {
-    this.titleService.setTitle('Fahrradverleih — Bike Haus Freiburg');
+    const t = this.t();
+    this.titleService.setTitle(t.bikeRentalMetaTitle);
     this.metaService.updateTag({
       name: 'description',
-      content:
-        'Fahrradverleih bei Bike Haus Freiburg. Mieten Sie Fahrräder zu günstigen Preisen — ab 10 € pro Tag.',
+      content: t.bikeRentalMetaDescription,
     });
   }
 

@@ -7,67 +7,72 @@
   <url>
     <loc>https://bikehausfreiburg.com/de</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de"/>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- Showroom German -->
+  <!-- Showroom -->
   <url>
     <loc>https://bikehausfreiburg.com/de/showroom</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/showroom"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/showroom"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/showroom"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/showroom"/>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
 
-  <!-- About German -->
+  <!-- About -->
   <url>
     <loc>https://bikehausfreiburg.com/de/about</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/about"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/about"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/about"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/about"/>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
-  <!-- Contact German -->
+  <!-- Contact -->
   <url>
     <loc>https://bikehausfreiburg.com/de/contact</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/contact"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/contact"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/contact"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/contact"/>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
-  <!-- Impressum German -->
+  <!-- Impressum -->
   <url>
     <loc>https://bikehausfreiburg.com/de/impressum</loc>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
-  <!-- Datenschutz German -->
+  <!-- Datenschutz -->
   <url>
     <loc>https://bikehausfreiburg.com/de/datenschutz</loc>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
-  <!-- Ratgeber (Blog) German -->
+  <!-- Ratgeber (Blog) -->
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/ratgeber"/>
@@ -76,10 +81,11 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- FAQ Page -->
+  <!-- FAQ -->
   <url>
     <loc>https://bikehausfreiburg.com/de/faq</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/faq"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/faq"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/faq"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/faq"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/faq"/>
@@ -88,42 +94,63 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Blog Articles German -->
+  <!-- Blog Articles -->
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-tipps</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/welches-fahrrad-passt-zu-mir</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/welches-fahrrad-passt-zu-mir"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/welches-fahrrad-passt-zu-mir"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/welches-fahrrad-passt-zu-mir"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/welches-fahrrad-passt-zu-mir"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/fahrrad-rahmengroesse-berechnen</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-rahmengroesse-berechnen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/fahrrad-rahmengroesse-berechnen"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/fahrrad-rahmengroesse-berechnen"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrrad-rahmengroesse-berechnen"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/e-bike-gebraucht-kaufen</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/e-bike-gebraucht-kaufen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/e-bike-gebraucht-kaufen"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/e-bike-gebraucht-kaufen"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/e-bike-gebraucht-kaufen"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/fahrradladen-freiburg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrradladen-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/fahrradladen-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/fahrradladen-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrradladen-freiburg"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
 
-  <!-- Neue Fahrräder German -->
+  <!-- Neue Fahrräder -->
   <url>
     <loc>https://bikehausfreiburg.com/de/neue-fahrraeder</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/neue-fahrraeder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/neue-fahrraeder"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/neue-fahrraeder"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/neue-fahrraeder"/>
     <lastmod>2026-04-12</lastmod>
@@ -131,10 +158,11 @@
     <priority>0.9</priority>
   </url>
 
-  <!-- Zubehör German -->
+  <!-- Zubehör -->
   <url>
     <loc>https://bikehausfreiburg.com/de/zubehoer</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/zubehoer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/zubehoer"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/zubehoer"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/zubehoer"/>
     <lastmod>2026-04-12</lastmod>
@@ -142,10 +170,11 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Fahrradverleih German -->
+  <!-- Fahrradverleih -->
   <url>
     <loc>https://bikehausfreiburg.com/de/fahrradverleih</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
     <lastmod>2026-04-12</lastmod>
@@ -153,9 +182,13 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Garantie German -->
+  <!-- Garantie -->
   <url>
     <loc>https://bikehausfreiburg.com/de/garantie</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/garantie"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/garantie"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/garantie"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/garantie"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
@@ -164,51 +197,91 @@
   <!-- City Landing Pages (Local SEO) -->
   <url>
     <loc>https://bikehausfreiburg.com/de/fahrrad-emmendingen</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrrad-emmendingen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrrad-emmendingen"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrrad-emmendingen"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrrad-emmendingen"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/de/fahrrad-bad-krozingen</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrrad-bad-krozingen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrrad-bad-krozingen"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrrad-bad-krozingen"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrrad-bad-krozingen"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/de/fahrrad-breisach</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrrad-breisach"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrrad-breisach"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrrad-breisach"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrrad-breisach"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/de/fahrrad-gundelfingen</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrrad-gundelfingen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrrad-gundelfingen"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrrad-gundelfingen"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrrad-gundelfingen"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/de/fahrrad-march</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrrad-march"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrrad-march"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrrad-march"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrrad-march"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
+  <!-- English Pages -->
+  <url>
+    <loc>https://bikehausfreiburg.com/en</loc>
+    <lastmod>2026-04-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/showroom</loc>
+    <lastmod>2026-04-12</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/contact</loc>
+    <lastmod>2026-04-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- French Pages -->
   <url>
     <loc>https://bikehausfreiburg.com/fr</loc>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/fr/showroom</loc>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/fr/contact</loc>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -216,19 +289,19 @@
   <!-- Turkish Pages -->
   <url>
     <loc>https://bikehausfreiburg.com/tr</loc>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/tr/showroom</loc>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://bikehausfreiburg.com/tr/contact</loc>
-    <lastmod>2026-03-02</lastmod>
+    <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

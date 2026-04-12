@@ -5,6 +5,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { TranslationService } from './services/translation.service';
+import { SeoService } from './services/seo.service';
 
 @Component({
   selector: 'app-root',
@@ -38,6 +39,7 @@ export class AppComponent implements OnInit {
   private title = inject(Title);
   private meta = inject(Meta);
   private translationService = inject(TranslationService);
+  private seoService = inject(SeoService);
   private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
 
@@ -48,6 +50,7 @@ export class AppComponent implements OnInit {
     if (isPlatformBrowser(this.platformId)) {
       this.document.documentElement.lang =
         this.translationService.currentLanguage();
+      this.seoService.init();
     }
   }
 }

@@ -301,11 +301,11 @@ export class ImpressumComponent implements OnInit {
     this.apiService.getShopInfo().subscribe({
       next: (data) => this.shopInfo.set(data),
     });
-    this.titleService.setTitle('Impressum — Bike Haus Freiburg');
+    const t = this.t();
+    this.titleService.setTitle(t.impressumMetaTitle);
     this.metaService.updateTag({
       name: 'description',
-      content:
-        'Impressum und rechtliche Angaben von Bike Haus Freiburg gemäß § 5 TMG.',
+      content: t.impressumMetaDescription,
     });
     this.metaService.updateTag({ name: 'robots', content: 'noindex, follow' });
   }

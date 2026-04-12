@@ -438,6 +438,14 @@ export interface Translations {
   ratgeberBackToList: string;
   faqMetaTitle: string;
   faqMetaDescription: string;
+  bikeRentalMetaTitle: string;
+  bikeRentalMetaDescription: string;
+  garantieMetaTitle: string;
+  garantieMetaDescription: string;
+  impressumMetaTitle: string;
+  impressumMetaDescription: string;
+  datenschutzMetaTitle: string;
+  datenschutzMetaDescription: string;
   faqCtaText: string;
   faqCtaButton: string;
   faqQ1: string;
@@ -895,6 +903,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberBackToList: 'Alle Ratgeber anzeigen',
     faqMetaTitle: 'FAQ — Häufige Fragen | Bike Haus Freiburg',
     faqMetaDescription: 'Häufig gestellte Fragen zu Fahrradkauf, Garantie, E-Bikes, Probefahrt und Zahlungsmethoden bei Bike Haus Freiburg.',
+    bikeRentalMetaTitle: 'Fahrradverleih — Bike Haus Freiburg',
+    bikeRentalMetaDescription: 'Fahrradverleih bei Bike Haus Freiburg. Mieten Sie Fahrräder zu günstigen Preisen — ab 10 € pro Tag.',
+    garantieMetaTitle: 'Garantiebedingungen — Bike Haus Freiburg',
+    garantieMetaDescription: 'Garantiebedingungen für neue und gebrauchte Fahrräder bei Bike Haus Freiburg. 2 Jahre für Neuräder, 3 Monate für Gebrauchträder.',
+    impressumMetaTitle: 'Impressum — Bike Haus Freiburg',
+    impressumMetaDescription: 'Impressum und rechtliche Angaben von Bike Haus Freiburg gemäß § 5 TMG.',
+    datenschutzMetaTitle: 'Datenschutz — Bike Haus Freiburg',
+    datenschutzMetaDescription: 'Datenschutzerklärung von Bike Haus Freiburg. Informationen zur Verarbeitung Ihrer personenbezogenen Daten.',
     faqCtaText: 'Noch Fragen? Kontaktieren Sie uns!',
     faqCtaButton: 'Kontakt aufnehmen',
     faqQ1: 'Wo kann ich ein Fahrrad in Freiburg kaufen?',
@@ -1354,6 +1370,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberBackToList: 'Back to all guides',
     faqMetaTitle: 'FAQ — Frequently Asked Questions | Bike Haus Freiburg',
     faqMetaDescription: 'Frequently asked questions about buying bikes, warranty, e-bikes, test rides and payment methods at Bike Haus Freiburg.',
+    bikeRentalMetaTitle: 'Bike Rental — Bike Haus Freiburg',
+    bikeRentalMetaDescription: 'Rent bicycles at Bike Haus Freiburg. Affordable bike rentals starting from €10 per day.',
+    garantieMetaTitle: 'Warranty Terms — Bike Haus Freiburg',
+    garantieMetaDescription: 'Warranty terms for new and used bicycles at Bike Haus Freiburg. 2 years for new bikes, 3 months for used bikes.',
+    impressumMetaTitle: 'Legal Notice — Bike Haus Freiburg',
+    impressumMetaDescription: 'Legal notice and business information of Bike Haus Freiburg according to § 5 TMG.',
+    datenschutzMetaTitle: 'Privacy Policy — Bike Haus Freiburg',
+    datenschutzMetaDescription: 'Privacy policy of Bike Haus Freiburg. Information about the processing of your personal data.',
     faqCtaText: 'Still have questions? Contact us!',
     faqCtaButton: 'Get in touch',
     faqQ1: 'Where can I buy a bike in Freiburg?',
@@ -1834,6 +1858,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberBackToList: 'Retour aux guides',
     faqMetaTitle: 'FAQ — Questions fréquentes | Bike Haus Freiburg',
     faqMetaDescription: 'Questions fréquentes sur l\'achat de vélos, la garantie, les VAE, les essais et les moyens de paiement chez Bike Haus Freiburg.',
+    bikeRentalMetaTitle: 'Location de vélos — Bike Haus Freiburg',
+    bikeRentalMetaDescription: 'Location de vélos chez Bike Haus Freiburg. Louez un vélo à partir de 10 € par jour.',
+    garantieMetaTitle: 'Conditions de garantie — Bike Haus Freiburg',
+    garantieMetaDescription: 'Conditions de garantie pour les vélos neufs et d\'occasion chez Bike Haus Freiburg. 2 ans pour les neufs, 3 mois pour les occasions.',
+    impressumMetaTitle: 'Mentions légales — Bike Haus Freiburg',
+    impressumMetaDescription: 'Mentions légales et informations juridiques de Bike Haus Freiburg conformément au § 5 TMG.',
+    datenschutzMetaTitle: 'Politique de confidentialité — Bike Haus Freiburg',
+    datenschutzMetaDescription: 'Politique de confidentialité de Bike Haus Freiburg. Informations sur le traitement de vos données personnelles.',
     faqCtaText: 'Encore des questions ? Contactez-nous !',
     faqCtaButton: 'Nous contacter',
     faqQ1: 'Où acheter un vélo à Freiburg ?',
@@ -2313,6 +2345,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberBackToList: 'Tüm rehberlere dön',
     faqMetaTitle: 'SSS — Sık Sorulan Sorular | Bike Haus Freiburg',
     faqMetaDescription: 'Bisiklet alımı, garanti, e-bisiklet, deneme sürüşü ve ödeme yöntemleri hakkında sık sorulan sorular.',
+    bikeRentalMetaTitle: 'Bisiklet Kiralama — Bike Haus Freiburg',
+    bikeRentalMetaDescription: 'Bike Haus Freiburg\'da bisiklet kiralama. Günlük 10 €\'dan başlayan fiyatlarla bisiklet kiralayın.',
+    garantieMetaTitle: 'Garanti Koşulları — Bike Haus Freiburg',
+    garantieMetaDescription: 'Bike Haus Freiburg\'da yeni ve ikinci el bisikletler için garanti koşulları. Yeni bisikletlerde 2 yıl, ikinci elde 3 ay garanti.',
+    impressumMetaTitle: 'Yasal Bildirim — Bike Haus Freiburg',
+    impressumMetaDescription: 'Bike Haus Freiburg\'un § 5 TMG uyarınca yasal bilgi ve künye bilgileri.',
+    datenschutzMetaTitle: 'Gizlilik Politikası — Bike Haus Freiburg',
+    datenschutzMetaDescription: 'Bike Haus Freiburg gizlilik politikası. Kişisel verilerinizin işlenmesi hakkında bilgiler.',
     faqCtaText: 'Başka sorunuz mu var? Bize ulaşın!',
     faqCtaButton: 'İletişime geçin',
     faqQ1: "Freiburg'da bisiklet nereden alabilirim?",

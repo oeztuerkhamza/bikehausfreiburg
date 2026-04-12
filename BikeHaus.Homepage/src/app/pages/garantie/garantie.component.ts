@@ -217,11 +217,11 @@ export class GarantieComponent implements OnInit {
   lang = this.translationService.currentLanguage;
 
   ngOnInit(): void {
-    this.titleService.setTitle('Garantiebedingungen — Bike Haus Freiburg');
+    const t = this.t();
+    this.titleService.setTitle(t.garantieMetaTitle);
     this.metaService.updateTag({
       name: 'description',
-      content:
-        'Garantiebedingungen für neue und gebrauchte Fahrräder bei Bike Haus Freiburg. 2 Jahre Garantie für Neuräder, 3 Monate für Gebrauchträder.',
+      content: t.garantieMetaDescription,
     });
     this.metaService.updateTag({ name: 'robots', content: 'noindex, follow' });
   }
