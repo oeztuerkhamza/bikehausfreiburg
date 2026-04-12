@@ -19,7 +19,7 @@ public class IndexNowService : IIndexNowService
     {
         _httpClientFactory = httpClientFactory;
         _logger = logger;
-        _apiKey = configuration["IndexNow:ApiKey"] ?? "b7e4c8a1d3f54e89a2c6b0d7f1e3a5c9";
+        _apiKey = configuration["IndexNow:ApiKey"] ?? throw new InvalidOperationException("IndexNow:ApiKey is not configured.");
         _host = configuration["IndexNow:Host"] ?? "bikehausfreiburg.com";
     }
 

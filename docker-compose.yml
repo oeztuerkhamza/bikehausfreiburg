@@ -12,6 +12,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - Jwt__Key=${JWT_SECRET_KEY:-BikeHausFreiburgProductionKey2024SuperSecret!@#}
+      - IndexNow__ApiKey=${INDEXNOW_API_KEY}
       - PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
     networks:
       - bikehaus-network
