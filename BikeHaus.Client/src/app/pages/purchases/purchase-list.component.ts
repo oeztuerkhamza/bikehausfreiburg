@@ -351,10 +351,13 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         border: 1px solid var(--border-light);
         padding: 0;
         box-shadow: var(--shadow-sm);
-        overflow: visible;
+        overflow-x: auto;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
       }
       table {
         width: 100%;
+        min-width: 700px;
         border-collapse: collapse;
       }
       th {

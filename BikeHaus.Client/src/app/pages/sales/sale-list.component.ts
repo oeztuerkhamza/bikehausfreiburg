@@ -407,11 +407,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         background: var(--bg-card);
         border-radius: var(--radius-lg, 14px);
         border: 1px solid var(--border-light);
-        overflow: visible;
+        overflow-x: auto;
+        overflow-y: visible;
         box-shadow: var(--shadow-sm);
+        -webkit-overflow-scrolling: touch;
       }
       table {
         width: 100%;
+        min-width: 700px;
         border-collapse: collapse;
       }
       th {
