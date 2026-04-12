@@ -125,7 +125,7 @@ import { environment } from '../../../environments/environment';
                 [class.active]="selectedImage() === i"
                 (click)="selectedImage.set(i)"
               >
-                <img [src]="getImageUrl(img.filePath)" alt="" loading="lazy" />
+                <img [src]="getImageUrl(img.filePath)" [alt]="bike()!.titel + ' — Bild ' + (i + 1)" loading="lazy" />
               </button>
             </div>
           </div>

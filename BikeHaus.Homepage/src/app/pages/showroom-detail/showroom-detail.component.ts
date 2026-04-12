@@ -130,7 +130,7 @@ import { environment } from '../../../environments/environment';
               >
                 <img
                   [src]="img.imageUrl"
-                  [alt]="''"
+                  [alt]="listing()!.title + ' — Bild ' + (i + 1)"
                   loading="lazy"
                   width="120"
                   height="90"
@@ -1240,11 +1240,11 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'Product',
-      '@id': `https://bikehausfreiburg.com/showroom/${id}#product`,
+      '@id': `https://bikehausfreiburg.com/${this.lang()}/showroom/${id}#product`,
       name: data.title,
       description: data.description || data.title,
       image: data.images?.map((img) => img.imageUrl) || [],
-      url: `https://bikehausfreiburg.com/showroom/${id}`,
+      url: `https://bikehausfreiburg.com/${this.lang()}/showroom/${id}`,
       brand: {
         '@type': 'Brand',
         name: 'Bike Haus Freiburg',
@@ -1256,7 +1256,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
       },
       offers: {
         '@type': 'Offer',
-        url: `https://bikehausfreiburg.com/showroom/${id}`,
+        url: `https://bikehausfreiburg.com/${this.lang()}/showroom/${id}`,
         priceCurrency: 'EUR',
         price: data.price || 0,
         priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)

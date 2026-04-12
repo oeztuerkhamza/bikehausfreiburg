@@ -497,7 +497,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     about: 'Über uns',
     contact: 'Kontakt',
 
-    heroH1: 'Dein nächstes Fahrrad wartet.',
+    heroH1: 'Fahrräder in Freiburg — neu & gebraucht.',
     heroSub:
       'Neue und geprüfte Gebrauchträder in Freiburg — fair bewertet, nachhaltig aufbereitet, persönlich beraten.',
     ctaPrimary: 'Neue Fahrräder entdecken',
@@ -1008,7 +1008,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     about: 'About',
     contact: 'Contact',
 
-    heroH1: 'Your next bike is waiting.',
+    heroH1: 'Bikes in Freiburg — new & used.',
     heroSub:
       'New and certified used bikes in Freiburg — fair prices, sustainable refurbishment, personal advice.',
     ctaPrimary: 'Discover New Bikes',
@@ -1495,7 +1495,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     about: 'À propos',
     contact: 'Contact',
 
-    heroH1: 'Votre prochain vélo vous attend.',
+    heroH1: 'Vélos à Fribourg — neufs & occasion.',
     heroSub:
       "Vélos neufs et d'occasion certifiés à Fribourg — prix transparents, remise en état durable, conseil personnalisé.",
     ctaPrimary: 'Découvrir les nouveaux vélos',
@@ -2006,7 +2006,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     about: 'Hakkımızda',
     contact: 'İletişim',
 
-    heroH1: 'Bir sonraki bisikletin seni bekliyor.',
+    heroH1: "Freiburg'da Bisikletler — yeni & ikinci el.",
     heroSub:
       "Freiburg'da yeni ve kontrol edilmiş ikinci el bisikletler — adil fiyat, sürdürülebilir bakım, kişisel danışmanlık.",
     ctaPrimary: 'Yeni Bisikletleri Keşfet',
