@@ -61,6 +61,8 @@ public static class DependencyInjection
         services.AddScoped<IArchiveService, BikeHaus.Application.Services.ArchiveService>();
         services.AddScoped<IAuthService, BikeHaus.Infrastructure.Services.AuthService>();
         services.AddScoped<IPdfService, PdfService>();
+        services.AddHttpClient("IndexNow");
+        services.AddScoped<IIndexNowService, IndexNowService>();
         services.AddScoped<IExportService>(sp =>
         {
             var uploadsPath = configuration["FileStorage:BasePath"]

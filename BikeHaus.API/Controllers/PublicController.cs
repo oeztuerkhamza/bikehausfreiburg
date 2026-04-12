@@ -260,4 +260,146 @@ public class PublicController : ControllerBase
             : "image/jpeg";
         return PhysicalFile(fullPath, contentType);
     }
+
+    /// <summary>
+    /// Dynamic sitemap with all product URLs for SEO
+    /// </summary>
+    [HttpGet("sitemap-products.xml")]
+    [Produces("application/xml")]
+    public async Task<IActionResult> GetProductSitemap()
+    {
+        var baseUrl = "https://bikehausfreiburg.com";
+        var now = DateTime.UtcNow.ToString("yyyy-MM-dd");
+        var langs = new[] { "de", "fr", "tr" };
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"");
+        sb.AppendLine("        xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"");
+        sb.AppendLine("        xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\">");
+
+        // Gebrauchte Fahrräder (used bikes in showroom)
+        var usedBikes = await _bicycleService.GetPublishedOnWebsiteAsync();
+        if (usedBikes != null)
+        {
+            foreach (var bike in usedBikes)
+            {
+                foreach (var lang in langs)
+                {
+                    sb.AppendLine("  <url>");
+                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/showroom/{bike.Id}</loc>");
+                    foreach (var altLang in langs)
+                    {
+                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/showroom/{bike.Id}\"/>");
+                    }
+                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
+                    sb.AppendLine("    <changefreq>weekly</changefreq>");
+                    sb.AppendLine("    <priority>0.8</priority>");
+                    sb.AppendLine("  </url>");
+                }
+            }
+        }
+
+        // Neue Fahrräder (new bikes)
+        var newBikes = await _neueFahrradService.GetAllActiveAsync();
+        if (newBikes != null)
+        {
+            foreach (var bike in newBikes)
+            {
+                foreach (var lang in langs)
+                {
+                    sb.AppendLine("  <url>");
+                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/neue-fahrraeder/{bike.Id}</loc>");
+                    foreach (var altLang in langs)
+                    {
+                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/neue-fahrraeder/{bike.Id}\"/>");
+                    }
+                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
+                    sb.AppendLine("    <changefreq>weekly</changefreq>");
+                    sb.AppendLine("    <priority>0.8</priority>");
+                    sb.AppendLine("  </url>");
+                }
+            }
+        }
+
+        // Homepage Accessories
+        var accessories = await _homepageAccessoryService.GetAllActiveAsync();
+        if (accessories != null)
+        {
+            foreach (var acc in accessories)
+            {
+                foreach (var lang in langs)
+                {
+                    sb.AppendLine("  <url>");
+                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/zubehoer/{acc.Id}</loc>");
+                    foreach (var altLang in langs)
+                    {
+                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/zubehoer/{acc.Id}\"/>");
+                    }
+                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
+                    sb.AppendLine("    <changefreq>weekly</changefreq>");
+                    sb.AppendLine("    <priority>0.7</priority>");
+                    sb.AppendLine("  </url>");
+                }
+            }
+        }
+
+        sb.AppendLine("</urlset>");
+
+        return Content(sb.ToString(), "application/xml", System.Text.Encoding.UTF8);
+    }
+
+    /// <summary>
+    /// IndexNow API key verification file
+    /// </summary>
+    [HttpGet("indexnow-key")]
+    public IActionResult GetIndexNowKey()
+    {
+        var key = _config["IndexNow:ApiKey"] ?? "b7e4c8a1d3f54e89a2c6b0d7f1e3a5c9";
+        return Content(key, "text/plain");
+    }
+
+    /// <summary>
+    /// Manually trigger IndexNow submission for recent product URLs
+    /// </summary>
+    [HttpPost("notify-indexnow")]
+    public async Task<IActionResult> NotifyIndexNow([FromServices] IIndexNowService indexNowService)
+    {
+        var baseUrl = "https://bikehausfreiburg.com";
+        var langs = new[] { "de", "fr", "tr" };
+        var urls = new List<string>();
+
+        // Static pages
+        foreach (var lang in langs)
+        {
+            urls.Add($"{baseUrl}/{lang}");
+            urls.Add($"{baseUrl}/{lang}/showroom");
+            urls.Add($"{baseUrl}/{lang}/neue-fahrraeder");
+            urls.Add($"{baseUrl}/{lang}/zubehoer");
+            urls.Add($"{baseUrl}/{lang}/ratgeber");
+        }
+
+        // Dynamic product pages
+        var usedBikes = await _bicycleService.GetPublishedOnWebsiteAsync();
+        if (usedBikes != null)
+        {
+            foreach (var bike in usedBikes)
+            {
+                urls.Add($"{baseUrl}/de/showroom/{bike.Id}");
+            }
+        }
+
+        var newBikes = await _neueFahrradService.GetAllActiveAsync();
+        if (newBikes != null)
+        {
+            foreach (var bike in newBikes)
+            {
+                urls.Add($"{baseUrl}/de/neue-fahrraeder/{bike.Id}");
+            }
+        }
+
+        await indexNowService.SubmitUrlsAsync(urls);
+
+        return Ok(new { submitted = urls.Count, message = "IndexNow notification sent" });
+    }
 }

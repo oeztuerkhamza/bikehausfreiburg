@@ -107,6 +107,32 @@ export const routes: Routes = [
             (m) => m.FahrradverleihComponent,
           ),
       },
+      {
+        path: 'ratgeber',
+        loadComponent: () =>
+          import('./pages/ratgeber/ratgeber.component').then(
+            (m) => m.RatgeberComponent,
+          ),
+      },
+      {
+        path: 'ratgeber/:slug',
+        loadComponent: () =>
+          import('./pages/ratgeber-detail/ratgeber-detail.component').then(
+            (m) => m.RatgeberDetailComponent,
+          ),
+      },
+      {
+        path: 'faq',
+        loadComponent: () =>
+          import('./pages/faq/faq.component').then((m) => m.FaqComponent),
+      },
+      {
+        path: 'fahrrad-:city',
+        loadComponent: () =>
+          import('./pages/fahrrad-stadt/fahrrad-stadt.component').then(
+            (m) => m.FahrradStadtComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: 'de' },

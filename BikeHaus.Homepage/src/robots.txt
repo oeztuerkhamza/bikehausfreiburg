@@ -6,6 +6,11 @@ Allow: /
 
 # Sitemaps
 Sitemap: https://bikehausfreiburg.com/sitemap.xml
+Sitemap: https://api.bikehausfreiburg.com/api/public/sitemap-products.xml
+
+# LLM/AI Crawler Info
+# https://llmstxt.org
+# AI crawlers can find structured info at /llms.txt
 
 # Crawl-delay (optional, be friendly to search engines)
 Crawl-delay: 1
@@ -18,3 +23,5 @@ Disallow: /assets/icons/
 # Allow important assets
 Allow: /assets/logo.svg
 Allow: /assets/og-image.jpg
+Allow: /llms.txt
+Allow: /llms-full.txt

@@ -16,6 +16,20 @@ services:
     networks:
       - bikehaus-network
 
+  homepage:
+    build:
+      context: ./BikeHaus.Homepage
+      dockerfile: Dockerfile
+    container_name: bikehaus-homepage
+    restart: unless-stopped
+    ports:
+      - '4000:4000'
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    networks:
+      - bikehaus-network
+
   nginx:
     image: nginx:alpine
     container_name: bikehaus-nginx
@@ -31,6 +45,7 @@ services:
       - ./homepage-dist:/usr/share/nginx/html/homepage:ro
     depends_on:
       - bikehaus
+      - homepage
     networks:
       - bikehaus-network
 

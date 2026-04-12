@@ -50,7 +50,10 @@
               "src/assets",
               "src/robots.txt",
               "src/sitemap.xml",
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              "src/llms.txt",
+              "src/llms-full.txt",
+              "src/b7e4c8a1d3f54e89a2c6b0d7f1e3a5c9.txt"
             ],
             "styles": ["src/styles.scss"],
             "scripts": [],

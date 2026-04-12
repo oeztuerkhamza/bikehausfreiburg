@@ -26,6 +26,8 @@ import { ShopInfoService } from '../../services/shop-info.service';
           <nav aria-label="Footer navigation">
             <a [routerLink]="['/' + lang()]">{{ t().home }}</a>
             <a [routerLink]="['/' + lang(), 'showroom']">{{ t().showroom }}</a>
+            <a [routerLink]="['/' + lang(), 'ratgeber']">{{ t().ratgeberNav }}</a>
+            <a [routerLink]="['/' + lang(), 'faq']">{{ t().faqTitle }}</a>
             <a [routerLink]="['/' + lang(), 'about']">{{ t().about }}</a>
             <a [routerLink]="['/' + lang(), 'contact']">{{ t().contact }}</a>
           </nav>
@@ -44,6 +46,18 @@ import { ShopInfoService } from '../../services/shop-info.service';
             <a [routerLink]="['/' + lang(), 'garantie']">{{
               t().warrantyTerms
             }}</a>
+          </nav>
+        </div>
+
+        <!-- Standorte -->
+        <div class="footer-col">
+          <h4>{{ t().footerLocations }}</h4>
+          <nav [attr.aria-label]="t().footerLocations">
+            <a [routerLink]="['/' + lang(), 'fahrrad-emmendingen']">Fahrrad Emmendingen</a>
+            <a [routerLink]="['/' + lang(), 'fahrrad-bad-krozingen']">Fahrrad Bad Krozingen</a>
+            <a [routerLink]="['/' + lang(), 'fahrrad-breisach']">Fahrrad Breisach</a>
+            <a [routerLink]="['/' + lang(), 'fahrrad-gundelfingen']">Fahrrad Gundelfingen</a>
+            <a [routerLink]="['/' + lang(), 'fahrrad-march']">Fahrrad March</a>
           </nav>
         </div>
 
@@ -84,7 +98,7 @@ import { ShopInfoService } from '../../services/shop-info.service';
 
       .footer-grid {
         display: grid;
-        grid-template-columns: 1.5fr 1fr 1fr 1fr;
+        grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
         gap: 3rem;
         padding: 4rem 0 3rem;
       }

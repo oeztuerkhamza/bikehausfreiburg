@@ -296,6 +296,9 @@ export interface Translations {
   ankaufDesc: string;
   ankaufCta: string;
   ankaufHint: string;
+  reviewTitle: string;
+  reviewDesc: string;
+  reviewCta: string;
   ankaufMessage: string;
 
   // About page extended
@@ -419,6 +422,52 @@ export interface Translations {
   neueFahrraederNoItems: string;
   neueFahrraederContactUs: string;
   neueFahrraederInterested: string;
+
+  // Ratgeber / Blog
+  ratgeberNav: string;
+  ratgeberLabel: string;
+  ratgeberTitle: string;
+  ratgeberSub: string;
+  ratgeberMetaTitle: string;
+  ratgeberMetaDescription: string;
+  ratgeberReadMore: string;
+  ratgeberReadTime: string;
+  ratgeberTip: string;
+  ratgeberTldr: string;
+  ratgeberRelated: string;
+  ratgeberBackToList: string;
+  faqMetaTitle: string;
+  faqMetaDescription: string;
+  faqCtaText: string;
+  faqCtaButton: string;
+  faqQ1: string;
+  faqA1: string;
+  faqQ2: string;
+  faqA2: string;
+  faqQ3: string;
+  faqA3: string;
+  faqQ4: string;
+  faqA4: string;
+  faqQ5: string;
+  faqA5: string;
+  faqQ6: string;
+  faqA6: string;
+  faqQ7: string;
+  faqA7: string;
+  faqQ8: string;
+  faqA8: string;
+  faqQ9: string;
+  faqA9: string;
+  faqQ10: string;
+  faqA10: string;
+
+  // City landing pages
+  cityWarrantyIncl: string;
+  cityMin: string;
+  cityDirectionsFrom: string;
+  cityOpenMap: string;
+  cityViewShowroom: string;
+  footerLocations: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -692,6 +741,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Wir kaufen Ihr gebrauchtes Fahrrad! Schicken Sie uns einfach Fotos und Ihren Wunschpreis per WhatsApp.',
     ankaufCta: 'Angebot senden',
     ankaufHint: 'Fotos + Wunschpreis per WhatsApp',
+    reviewTitle: 'Zufrieden mit uns? Bewerten Sie uns!',
+    reviewDesc: 'Ihre Bewertung auf Google hilft uns und anderen Kunden. Vielen Dank!',
+    reviewCta: 'Google Bewertung schreiben',
     ankaufMessage:
       'Hallo, ich möchte mein Fahrrad verkaufen.\n\nMarke/Modell:\nZustand:\nWunschpreis:\n\n(Bitte Fotos anhängen)',
 
@@ -827,6 +879,45 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederNoItems: 'Aktuell keine neuen Fahrräder verfügbar.',
     neueFahrraederContactUs: 'Kontaktieren Sie uns',
     neueFahrraederInterested: 'Interesse an diesem Fahrrad?',
+
+    // Ratgeber / Blog
+    ratgeberNav: 'Ratgeber',
+    ratgeberLabel: 'Wissen & Tipps',
+    ratgeberTitle: 'Fahrrad Ratgeber',
+    ratgeberSub: 'Tipps, Checklisten und Wissenswertes rund ums Fahrrad — von Ihrem Fahrradhändler in Freiburg.',
+    ratgeberMetaTitle: 'Fahrrad Ratgeber — Tipps & Wissen | Bike Haus Freiburg',
+    ratgeberMetaDescription: 'Fahrrad Ratgeber: Gebrauchtes Fahrrad kaufen, Rahmengröße berechnen, E-Bike Tipps und mehr. Expertenwissen von Bike Haus Freiburg.',
+    ratgeberReadMore: 'Weiterlesen',
+    ratgeberReadTime: 'Lesezeit',
+    ratgeberTip: 'Tipp von Bike Haus',
+    ratgeberTldr: 'Zusammenfassung',
+    ratgeberRelated: 'Weitere Ratgeber',
+    ratgeberBackToList: 'Alle Ratgeber anzeigen',
+    faqMetaTitle: 'FAQ — Häufige Fragen | Bike Haus Freiburg',
+    faqMetaDescription: 'Häufig gestellte Fragen zu Fahrradkauf, Garantie, E-Bikes, Probefahrt und Zahlungsmethoden bei Bike Haus Freiburg.',
+    faqCtaText: 'Noch Fragen? Kontaktieren Sie uns!',
+    faqCtaButton: 'Kontakt aufnehmen',
+    faqQ1: 'Wo kann ich ein Fahrrad in Freiburg kaufen?',
+    faqA1: 'Bei Bike Haus Freiburg in der Heckerstraße 27, 79114 Freiburg im Breisgau. Wir haben über 100 neue und gebrauchte Fahrräder vorrätig — einfach vorbeikommen, kein Termin nötig.',
+    faqQ2: 'Kann ich ein Fahrrad vor dem Kauf probefahren?',
+    faqA2: 'Ja! Alle Fahrräder können während unserer Öffnungszeiten vor Ort probegefahren werden — ohne Termin, einfach vorbeikommen.',
+    faqQ3: 'Bieten Sie Garantie auf Gebrauchträder?',
+    faqA3: 'Jedes Gebrauchtrad wird technisch geprüft. Sie erhalten 3 Tage Rückgaberecht und 3 Monate Garantie auf alle Gebrauchträder. Neue Fahrräder haben 24 Monate Garantie.',
+    faqQ4: 'Was kostet ein gebrauchtes Fahrrad?',
+    faqA4: 'Gebrauchte Fahrräder beginnen ab ca. 80 €. Gebrauchte E-Bikes ab ca. 800 €. Alle Preise sind fair kalkuliert.',
+    faqQ5: 'Gibt es gebrauchte E-Bikes?',
+    faqA5: 'Ja, wir bieten hochwertige gebrauchte E-Bikes mit dokumentiertem Akku-Zustand und Garantie an. Alle E-Bikes werden vor dem Verkauf geprüft.',
+    faqQ6: 'Welche Zahlungsmethoden akzeptieren Sie?',
+    faqA6: 'Wir akzeptieren Barzahlung, EC-Karte, Kreditkarte, PayPal und Überweisung.',
+    faqQ7: 'Kaufen Sie auch Fahrräder an?',
+    faqA7: 'Ja, wir kaufen gebrauchte Fahrräder in gutem Zustand zu fairen Preisen an. Bringen Sie Ihr Fahrrad einfach vorbei.',
+    faqQ8: 'Welche Fahrradtypen führen Sie?',
+    faqA8: 'Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder, Hollandräder und Rennräder — sowohl neu als auch gebraucht.',
+    faqQ9: 'Was sind Ihre Öffnungszeiten?',
+    faqA9: 'Montag bis Freitag: 10:00–18:00 Uhr. Samstag: 10:00–14:00 Uhr. Sonntag: geschlossen.',
+    faqQ10: 'Kann ich mein altes Fahrrad in Zahlung geben?',
+    faqA10: 'Ja, in Einzelfällen ist eine Inzahlungnahme möglich. Sprechen Sie uns einfach an — wir finden eine Lösung.',
+
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Fahrrad Reparatur',
     svcRepairSub:
@@ -850,6 +941,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcAngeboteSub:
       'Neue Fahrräder zum reduzierten Preis – nur solange der Vorrat reicht.',
     svcAngeboteCta: 'Alle neuen Fahrräder',
+
+    cityWarrantyIncl: 'Garantie inkl.',
+    cityMin: 'Min.',
+    cityDirectionsFrom: 'Anfahrt von',
+    cityOpenMap: 'Route in Google Maps öffnen →',
+    cityViewShowroom: 'Showroom ansehen',
+    footerLocations: 'Standorte',
   },
 
   en: {
@@ -1115,6 +1213,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'We buy your used bike! Just send us photos and your asking price via WhatsApp.',
     ankaufCta: 'Send Offer',
     ankaufHint: 'Photos + asking price via WhatsApp',
+    reviewTitle: 'Happy with us? Leave a review!',
+    reviewDesc: 'Your Google review helps us and other customers. Thank you!',
+    reviewCta: 'Write a Google Review',
     ankaufMessage:
       'Hello, I would like to sell my bike.\n\nBrand/Model:\nCondition:\nAsking price:\n\n(Please attach photos)',
 
@@ -1237,6 +1338,45 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederNoItems: 'No new bikes available at the moment.',
     neueFahrraederContactUs: 'Contact Us',
     neueFahrraederInterested: 'Interested in this bike?',
+
+    // Ratgeber / Blog
+    ratgeberNav: 'Guide',
+    ratgeberLabel: 'Knowledge & Tips',
+    ratgeberTitle: 'Bike Guide',
+    ratgeberSub: 'Tips, checklists and everything you need to know about bikes — from your Freiburg bike dealer.',
+    ratgeberMetaTitle: 'Bike Guide — Tips & Knowledge | Bike Haus Freiburg',
+    ratgeberMetaDescription: 'Bike guide: buying used bikes, frame size calculator, e-bike tips and more. Expert knowledge from Bike Haus Freiburg.',
+    ratgeberReadMore: 'Read more',
+    ratgeberReadTime: 'read',
+    ratgeberTip: 'Tip from Bike Haus',
+    ratgeberTldr: 'Summary',
+    ratgeberRelated: 'Related guides',
+    ratgeberBackToList: 'Back to all guides',
+    faqMetaTitle: 'FAQ — Frequently Asked Questions | Bike Haus Freiburg',
+    faqMetaDescription: 'Frequently asked questions about buying bikes, warranty, e-bikes, test rides and payment methods at Bike Haus Freiburg.',
+    faqCtaText: 'Still have questions? Contact us!',
+    faqCtaButton: 'Get in touch',
+    faqQ1: 'Where can I buy a bike in Freiburg?',
+    faqA1: 'At Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg im Breisgau. We have over 100 new and used bikes in stock — just stop by, no appointment needed.',
+    faqQ2: 'Can I test ride a bike before buying?',
+    faqA2: 'Yes! All bikes can be test ridden during our opening hours — no appointment required.',
+    faqQ3: 'Do you offer warranty on used bikes?',
+    faqA3: 'Every used bike is technically inspected. You get 3 days return policy and 3 months warranty on all used bikes. New bikes come with 24 months warranty.',
+    faqQ4: 'How much does a used bike cost?',
+    faqA4: 'Used bikes start from approx. €80. Used e-bikes from approx. €800. All prices are fairly calculated.',
+    faqQ5: 'Do you have used e-bikes?',
+    faqA5: 'Yes, we offer high-quality used e-bikes with documented battery condition and warranty.',
+    faqQ6: 'What payment methods do you accept?',
+    faqA6: 'We accept cash, debit card, credit card, PayPal and bank transfer.',
+    faqQ7: 'Do you buy used bikes?',
+    faqA7: 'Yes, we buy used bikes in good condition at fair prices. Just bring your bike by.',
+    faqQ8: 'What bike types do you carry?',
+    faqA8: 'City bikes, trekking bikes, mountain bikes, e-bikes, children\'s bikes, Dutch bikes and road bikes — both new and used.',
+    faqQ9: 'What are your opening hours?',
+    faqA9: 'Monday to Friday: 10:00–18:00. Saturday: 10:00–14:00. Sunday: closed.',
+    faqQ10: 'Can I trade in my old bike?',
+    faqA10: 'Yes, trade-ins are possible in individual cases. Just talk to us — we\'ll find a solution.',
+
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Bicycle Repair',
     svcRepairSub: 'Professional maintenance & repairs – fast, reliable, fair.',
@@ -1258,6 +1398,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcAngeboteTitle: 'Current Offers',
     svcAngeboteSub: 'New bikes at reduced prices – while stocks last.',
     svcAngeboteCta: 'All New Bikes',
+
+    cityWarrantyIncl: 'Warranty incl.',
+    cityMin: 'min.',
+    cityDirectionsFrom: 'Directions from',
+    cityOpenMap: 'Open route in Google Maps →',
+    cityViewShowroom: 'View Showroom',
+    footerLocations: 'Locations',
   },
 
   fr: {
@@ -1533,6 +1680,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
       "Nous achetons votre vélo d'occasion ! Envoyez-nous simplement des photos et votre prix souhaité via WhatsApp.",
     ankaufCta: 'Envoyer une offre',
     ankaufHint: 'Photos + prix souhaité via WhatsApp',
+    reviewTitle: 'Satisfait de notre service? Laissez un avis!',
+    reviewDesc: 'Votre avis Google nous aide ainsi que les autres clients. Merci!',
+    reviewCta: 'Écrire un avis Google',
     ankaufMessage:
       'Bonjour, je souhaite vendre mon vélo.\n\nMarque/Modèle :\nÉtat :\nPrix souhaité :\n\n(Veuillez joindre des photos)',
 
@@ -1668,6 +1818,45 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederNoItems: 'Aucun vélo neuf disponible actuellement.',
     neueFahrraederContactUs: 'Contactez-nous',
     neueFahrraederInterested: 'Intéressé par ce vélo ?',
+
+    // Ratgeber / Blog
+    ratgeberNav: 'Conseils',
+    ratgeberLabel: 'Savoir & Conseils',
+    ratgeberTitle: 'Guide Vélo',
+    ratgeberSub: 'Conseils, checklists et tout ce qu\'il faut savoir sur les vélos — par votre vélociste à Freiburg.',
+    ratgeberMetaTitle: 'Guide Vélo — Conseils & Savoir | Bike Haus Freiburg',
+    ratgeberMetaDescription: 'Guide vélo : acheter un vélo d\'occasion, calculer la taille du cadre, conseils VAE et plus.',
+    ratgeberReadMore: 'Lire la suite',
+    ratgeberReadTime: 'de lecture',
+    ratgeberTip: 'Conseil de Bike Haus',
+    ratgeberTldr: 'Résumé',
+    ratgeberRelated: 'Autres guides',
+    ratgeberBackToList: 'Retour aux guides',
+    faqMetaTitle: 'FAQ — Questions fréquentes | Bike Haus Freiburg',
+    faqMetaDescription: 'Questions fréquentes sur l\'achat de vélos, la garantie, les VAE, les essais et les moyens de paiement chez Bike Haus Freiburg.',
+    faqCtaText: 'Encore des questions ? Contactez-nous !',
+    faqCtaButton: 'Nous contacter',
+    faqQ1: 'Où acheter un vélo à Freiburg ?',
+    faqA1: 'Chez Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Plus de 100 vélos neufs et occasion en stock — venez sans rendez-vous.',
+    faqQ2: 'Puis-je essayer un vélo avant l\'achat ?',
+    faqA2: 'Oui ! Tous les vélos peuvent être testés pendant nos heures d\'ouverture — sans rendez-vous.',
+    faqQ3: 'Offrez-vous une garantie sur les vélos d\'occasion ?',
+    faqA3: 'Chaque vélo d\'occasion est contrôlé. Vous bénéficiez de 3 jours de droit de retour et 3 mois de garantie. Les vélos neufs ont 24 mois de garantie.',
+    faqQ4: 'Combien coûte un vélo d\'occasion ?',
+    faqA4: 'Les vélos d\'occasion commencent à env. 80 €. Les VAE d\'occasion à env. 800 €.',
+    faqQ5: 'Avez-vous des VAE d\'occasion ?',
+    faqA5: 'Oui, nous proposons des VAE d\'occasion contrôlés avec état de batterie documenté et garantie.',
+    faqQ6: 'Quels modes de paiement acceptez-vous ?',
+    faqA6: 'Espèces, carte bancaire, carte de crédit, PayPal et virement.',
+    faqQ7: 'Rachetez-vous des vélos ?',
+    faqA7: 'Oui, nous rachetons les vélos en bon état à des prix justes.',
+    faqQ8: 'Quels types de vélos proposez-vous ?',
+    faqA8: 'Vélos de ville, trekking, VTT, VAE, vélos enfants, hollandais et vélos de route — neufs et occasion.',
+    faqQ9: 'Quels sont vos horaires ?',
+    faqA9: 'Lundi au vendredi : 10h–18h. Samedi : 10h–14h. Dimanche : fermé.',
+    faqQ10: 'Puis-je échanger mon ancien vélo ?',
+    faqA10: 'Oui, la reprise est possible au cas par cas. Parlez-nous en — nous trouverons une solution.',
+
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Réparation de vélos',
     svcRepairSub:
@@ -1691,6 +1880,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcAngeboteSub:
       'Vélos neufs à prix réduit – dans la limite des stocks disponibles.',
     svcAngeboteCta: 'Tous les vélos neufs',
+
+    cityWarrantyIncl: 'Garantie incl.',
+    cityMin: 'min.',
+    cityDirectionsFrom: 'Itinéraire depuis',
+    cityOpenMap: 'Ouvrir l\'itinéraire dans Google Maps →',
+    cityViewShowroom: 'Voir le showroom',
+    footerLocations: 'Emplacements',
   },
 
   tr: {
@@ -1962,6 +2158,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'İkinci el bisikletinizi satın alıyoruz! Bize WhatsApp üzerinden fotoğraf ve istediğiniz fiyatı gönderin.',
     ankaufCta: 'Teklif gönder',
     ankaufHint: 'Fotoğraf + istenen fiyat WhatsApp ile',
+    reviewTitle: 'Bizi beğendiniz mi? Değerlendirin!',
+    reviewDesc: 'Google değerlendirmeniz bize ve diğer müşterilere yardımcı olur. Teşekkürler!',
+    reviewCta: 'Google Değerlendirmesi Yaz',
     ankaufMessage:
       'Merhaba, bisikletimi satmak istiyorum.\n\nMarka/Model:\nDurum:\nİstenen fiyat:\n\n(Lütfen fotoğraf ekleyin)',
 
@@ -2098,6 +2297,45 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederNoItems: 'Şu anda yeni bisiklet mevcut değil.',
     neueFahrraederContactUs: 'Bize Ulaşın',
     neueFahrraederInterested: 'Bu bisikletle ilgileniyor musunuz?',
+
+    // Ratgeber / Blog
+    ratgeberNav: 'Rehber',
+    ratgeberLabel: 'Bilgi & İpuçları',
+    ratgeberTitle: 'Bisiklet Rehberi',
+    ratgeberSub: 'İpuçları, kontrol listeleri ve bisiklet hakkında bilmeniz gereken her şey.',
+    ratgeberMetaTitle: 'Bisiklet Rehberi — İpuçları & Bilgi | Bike Haus Freiburg',
+    ratgeberMetaDescription: 'Bisiklet rehberi: ikinci el bisiklet alma, kadro boyu hesaplama, e-bisiklet ipuçları ve daha fazlası.',
+    ratgeberReadMore: 'Devamını oku',
+    ratgeberReadTime: 'okuma',
+    ratgeberTip: 'Bike Haus İpucu',
+    ratgeberTldr: 'Özet',
+    ratgeberRelated: 'İlgili rehberler',
+    ratgeberBackToList: 'Tüm rehberlere dön',
+    faqMetaTitle: 'SSS — Sık Sorulan Sorular | Bike Haus Freiburg',
+    faqMetaDescription: 'Bisiklet alımı, garanti, e-bisiklet, deneme sürüşü ve ödeme yöntemleri hakkında sık sorulan sorular.',
+    faqCtaText: 'Başka sorunuz mu var? Bize ulaşın!',
+    faqCtaButton: 'İletişime geçin',
+    faqQ1: "Freiburg'da bisiklet nereden alabilirim?",
+    faqA1: 'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. 100+ yeni ve ikinci el bisiklet stokta — randevusuz gelin.',
+    faqQ2: 'Satın almadan önce bisikleti deneyebilir miyim?',
+    faqA2: 'Evet! Tüm bisikletler çalışma saatlerinde denenebilir — randevu gerekmez.',
+    faqQ3: 'İkinci el bisikletlerde garanti var mı?',
+    faqA3: 'Her ikinci el bisiklet teknik kontrolden geçer. 3 gün iade hakkı ve 3 ay garanti. Yeni bisikletlerde 24 ay garanti.',
+    faqQ4: 'İkinci el bisiklet ne kadar?',
+    faqA4: 'İkinci el bisikletler yaklaşık 80 €\'dan başlar. İkinci el e-bisikletler yaklaşık 800 €\'dan.',
+    faqQ5: 'İkinci el e-bisikletiniz var mı?',
+    faqA5: 'Evet, belgelenmiş akü durumu ve garantili kontrollü ikinci el e-bisikletler sunuyoruz.',
+    faqQ6: 'Hangi ödeme yöntemlerini kabul ediyorsunuz?',
+    faqA6: 'Nakit, banka kartı, kredi kartı, PayPal ve havale kabul ediyoruz.',
+    faqQ7: 'Bisiklet satın alıyor musunuz?',
+    faqA7: 'Evet, iyi durumda ikinci el bisikletleri adil fiyatla satın alıyoruz.',
+    faqQ8: 'Hangi bisiklet tiplerini satıyorsunuz?',
+    faqA8: 'Şehir, trekking, dağ, e-bisiklet, çocuk, Hollanda ve yol bisikletleri — yeni ve ikinci el.',
+    faqQ9: 'Çalışma saatleriniz nedir?',
+    faqA9: 'Pazartesi–Cuma: 10:00–18:00. Cumartesi: 10:00–14:00. Pazar: kapalı.',
+    faqQ10: 'Eski bisikletimi takas edebilir miyim?',
+    faqA10: 'Evet, bireysel durumlarda takas mümkündür. Bize danışın — bir çözüm buluruz.',
+
     svcRepairBadge: 'Servis',
     svcRepairTitle: 'Bisiklet Tamiri',
     svcRepairSub: 'Profesyonel bakım & tamir – hızlı, güvenilir, adil.',
@@ -2118,6 +2356,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcAngeboteTitle: 'Güncel Fırsatlar',
     svcAngeboteSub: 'İndirimli yeni bisikletler – stoklar tükenene kadar.',
     svcAngeboteCta: 'Tüm Yeni Bisikletler',
+
+    cityWarrantyIncl: 'Garanti dahil',
+    cityMin: 'dk.',
+    cityDirectionsFrom: 'Yol tarifi:',
+    cityOpenMap: 'Google Maps\'ta rotayı aç →',
+    cityViewShowroom: 'Showroom\'u Gör',
+    footerLocations: 'Konumlar',
   },
 };
 

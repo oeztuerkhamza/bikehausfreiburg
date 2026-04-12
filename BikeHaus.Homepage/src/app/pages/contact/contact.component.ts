@@ -275,6 +275,26 @@ import { PublicShopInfo } from '../../models/models';
             <span class="ankauf-hint">{{ t().ankaufHint }}</span>
           </div>
         </section>
+
+        <!-- Google Bewertung -->
+        <section class="review-section">
+          <div class="review-card">
+            <div class="review-stars">★★★★★</div>
+            <h3>{{ t().reviewTitle }}</h3>
+            <p>{{ t().reviewDesc }}</p>
+            <a
+              href="https://g.page/r/bikehausfreiburg/review"
+              target="_blank"
+              rel="noopener"
+              class="review-btn"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              {{ t().reviewCta }}
+            </a>
+          </div>
+        </section>
       </div>
     </div>
   `,
@@ -512,6 +532,48 @@ import { PublicShopInfo } from '../../models/models';
           grid-template-columns: 1fr;
         }
       }
+
+      /* Google Review CTA */
+      .review-section { margin-bottom: 2rem; }
+      .review-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+      }
+      .review-stars {
+        font-size: 1.8rem;
+        color: #fbbc04;
+        letter-spacing: 4px;
+        margin-bottom: 0.75rem;
+      }
+      .review-card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin: 0 0 0.5rem;
+      }
+      .review-card p {
+        font-size: 0.9rem;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+        margin: 0 0 1.25rem;
+      }
+      .review-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.7rem 1.5rem;
+        background: var(--color-accent, #ff5722);
+        color: #fff;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: opacity 0.2s;
+      }
+      .review-btn:hover { opacity: 0.9; }
     `,
   ],
 })
