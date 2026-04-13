@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using BikeHaus.Domain.Entities;
+using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
 using BikeHaus.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -142,6 +143,7 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
             .Where(s => s.Bicycle.Purchase == null)
             .Where(s => !string.IsNullOrEmpty(s.Bicycle.Rahmennummer))
             .Where(s => !s.Bicycle.Rahmennummer!.StartsWith("ACC-"))
+            .Where(s => s.Bicycle.Zustand == BikeCondition.Gebraucht)
             .ToListAsync();
 
         return sales
@@ -155,6 +157,7 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
             .Where(s => s.Bicycle.Purchase == null)
             .Where(s => !string.IsNullOrEmpty(s.Bicycle.Rahmennummer))
             .Where(s => !s.Bicycle.Rahmennummer!.StartsWith("ACC-"))
+            .Where(s => s.Bicycle.Zustand == BikeCondition.Gebraucht)
             .CountAsync();
     }
 }
