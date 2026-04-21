@@ -16,14 +16,12 @@ import {
   SaleList,
   PaymentMethod,
   ReturnReason,
-  SignatureCreate,
 } from '../../models/models';
-import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 
 @Component({
   selector: 'app-return-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, SignaturePadComponent],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="page">
       <div class="page-header">
@@ -198,20 +196,6 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                   rows="2"
                 ></textarea>
               </div>
-            </div>
-          </div>
-
-          <!-- Shop Signature -->
-          <div class="form-card">
-            <h2>{{ t.shopSignature }}</h2>
-            <app-signature-pad
-              [label]="t.shopSignature"
-              [(ngModel)]="shopSignatureData"
-              name="shopSig"
-            ></app-signature-pad>
-            <div class="field" style="margin-top:8px;">
-              <label>{{ t.shopEmployeeName }}</label>
-              <input [(ngModel)]="shopSignerName" name="shopSignerName" />
             </div>
           </div>
         </div>
@@ -519,9 +503,6 @@ export class ReturnFormComponent implements OnInit {
   notizen = '';
   belegNummer = '';
 
-  shopSignatureData = '';
-  shopSignerName = '';
-
   constructor(
     private returnService: ReturnService,
     private saleService: SaleService,
@@ -581,14 +562,6 @@ export class ReturnFormComponent implements OnInit {
   submit() {
     if (!this.selectedSaleId || !this.grund) return;
 
-    const shopSig: SignatureCreate | undefined = this.shopSignatureData
-      ? {
-          signatureData: this.shopSignatureData,
-          signerName: this.shopSignerName,
-          signatureType: 'ShopOwner' as any,
-        }
-      : undefined;
-
     const dto: ReturnCreate = {
       saleId: +this.selectedSaleId,
       rueckgabedatum: this.rueckgabedatum || undefined,
@@ -597,7 +570,6 @@ export class ReturnFormComponent implements OnInit {
       erstattungsbetrag: this.erstattungsbetrag,
       zahlungsart: this.zahlungsart,
       notizen: this.notizen || undefined,
-      shopSignature: shopSig,
       belegNummer: this.belegNummer || undefined,
     };
 

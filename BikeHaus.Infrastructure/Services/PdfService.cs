@@ -1059,65 +1059,6 @@ public class PdfService : IPdfService
                         c.Item().Text("Das Fahrrad ist nun wieder zum Verkauf verfügbar.").FontSize(9);
                     });
 
-                    col.Item().PaddingTop(8).Row(row =>
-                    {
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(customerCol =>
-                        {
-                            customerCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("RÜCKGEBER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
-                            customerCol.Item().PaddingTop(3).Text("Unterschrift Kunde").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            if (ret.CustomerSignature != null && !string.IsNullOrEmpty(ret.CustomerSignature.SignatureData))
-                            {
-                                try
-                                {
-                                    var imageData = Convert.FromBase64String(ret.CustomerSignature.SignatureData.Replace("data:image/png;base64,", ""));
-                                    customerCol.Item().Height(35).Image(imageData);
-                                }
-                                catch { customerCol.Item().Height(35); }
-                            }
-                            else
-                            {
-                                customerCol.Item().Height(35);
-                            }
-                            customerCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            customerCol.Item().PaddingTop(2).Text(hasCustomerName ? ret.Customer.FullName : "-").FontSize(9).AlignCenter();
-                        });
-
-                        row.ConstantItem(8);
-
-                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(shopCol =>
-                        {
-                            shopCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("HÄNDLER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
-                            shopCol.Item().PaddingTop(3).Text("Unterschrift Händler").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            if (ret.ShopSignature != null && !string.IsNullOrEmpty(ret.ShopSignature.SignatureData))
-                            {
-                                try
-                                {
-                                    var imageData = Convert.FromBase64String(ret.ShopSignature.SignatureData.Replace("data:image/png;base64,", ""));
-                                    shopCol.Item().Height(35).Image(imageData);
-                                }
-                                catch { shopCol.Item().Height(35); }
-                            }
-                            else if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
-                            {
-                                try
-                                {
-                                    var sigData = shop.OwnerSignatureBase64;
-                                    if (sigData.Contains(","))
-                                        sigData = sigData.Substring(sigData.IndexOf(",") + 1);
-                                    var imageData = Convert.FromBase64String(sigData);
-                                    shopCol.Item().Height(35).Image(imageData);
-                                }
-                                catch { shopCol.Item().Height(35); }
-                            }
-                            else
-                            {
-                                shopCol.Item().Height(35);
-                            }
-                            shopCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
-                            shopCol.Item().PaddingTop(2).Text(shop.OwnerName).FontSize(9).AlignCenter();
-                        });
-                    });
-
                     col.Item().PaddingTop(6).Text($"Bank: {shop.BankName} | Kontoinhaber: {shop.BankAccountHolder} | IBAN: {shop.IBAN}").FontSize(8).FontColor(Colors.Grey.Darken2);
                 });
             });
