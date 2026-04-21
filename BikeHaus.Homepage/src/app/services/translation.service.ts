@@ -955,7 +955,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder, Hollandräder und Rennräder — sowohl neu als auch gebraucht.',
     faqQ9: 'Was sind Ihre Öffnungszeiten?',
     faqA9:
-      'Montag bis Freitag: 10:00–18:00 Uhr. Samstag: 10:00–14:00 Uhr. Sonntag: geschlossen.',
+      'Mo, Di, Do: 11:00–17:30 Uhr. Mittwoch: 14:00–17:30 Uhr. Freitag: 11:00–13:00 & 15:00–18:00 Uhr. Samstag: 11:30–17:00 Uhr. Sonn- und feiertags geschlossen.',
     faqQ10: 'Kann ich mein altes Fahrrad in Zahlung geben?',
     faqA10:
       'Ja, in Einzelfällen ist eine Inzahlungnahme möglich. Sprechen Sie uns einfach an — wir finden eine Lösung.',
@@ -1444,7 +1444,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       "City bikes, trekking bikes, mountain bikes, e-bikes, children's bikes, Dutch bikes and road bikes — both new and used.",
     faqQ9: 'What are your opening hours?',
     faqA9:
-      'Monday to Friday: 10:00–18:00. Saturday: 10:00–14:00. Sunday: closed.',
+      'Monday, Tuesday, Thursday: 11:00–17:30. Wednesday: 14:00–17:30. Friday: 11:00–13:00 & 15:00–18:00. Saturday: 11:30–17:00. Sunday and holidays: closed.',
     faqQ10: 'Can I trade in my old bike?',
     faqA10:
       "Yes, trade-ins are possible in individual cases. Just talk to us — we'll find a solution.",
@@ -1953,7 +1953,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     faqA8:
       'Vélos de ville, trekking, VTT, VAE, vélos enfants, hollandais et vélos de route — neufs et occasion.',
     faqQ9: 'Quels sont vos horaires ?',
-    faqA9: 'Lundi au vendredi : 10h–18h. Samedi : 10h–14h. Dimanche : fermé.',
+    faqA9:
+      'Lundi, mardi, jeudi : 11:00–17:30. Mercredi : 14:00–17:30. Vendredi : 11:00–13:00 & 15:00–18:00. Samedi : 11:30–17:00. Dimanche et jours fériés : fermé.',
     faqQ10: 'Puis-je échanger mon ancien vélo ?',
     faqA10:
       'Oui, la reprise est possible au cas par cas. Parlez-nous en — nous trouverons une solution.',
@@ -2464,7 +2465,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Şehir, trekking, dağ, e-bisiklet, çocuk, Hollanda ve yol bisikletleri — yeni ve ikinci el.',
     faqQ9: 'Çalışma saatleriniz nedir?',
     faqA9:
-      'Pazartesi–Cuma: 10:00–18:00. Cumartesi: 10:00–14:00. Pazar: kapalı.',
+      'Pazartesi, Salı, Perşembe: 11:00–17:30. Çarşamba: 14:00–17:30. Cuma: 11:00–13:00 & 15:00–18:00. Cumartesi: 11:30–17:00. Pazar ve tatil günleri: kapalı.',
     faqQ10: 'Eski bisikletimi takas edebilir miyim?',
     faqA10:
       'Evet, bireysel durumlarda takas mümkündür. Bize danışın — bir çözüm buluruz.',
