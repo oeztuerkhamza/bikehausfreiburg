@@ -85,7 +85,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
                   <div class="sale-option-header">
                     <span class="sale-beleg">{{ s.belegNummer }}</span>
                     <span class="sale-price"
-                      >{{ s.preis | number: '1.2-2' }} €</span
+                      >{{ s.gesamtbetrag | number: '1.2-2' }} €</span
                     >
                   </div>
                   <div class="sale-option-detail">🚲 {{ s.bikeInfo }}</div>
@@ -114,8 +114,8 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
               <span>{{ t.bicycle }}: {{ selectedSale.bikeInfo }}</span>
               <span>{{ t.buyer }}: {{ selectedSale.buyerName }}</span>
               <span
-                >{{ t.price }}:
-                {{ selectedSale.preis | number: '1.2-2' }} €</span
+                >{{ t.grandTotal }}:
+                {{ selectedSale.gesamtbetrag | number: '1.2-2' }} €</span
               >
               <span
                 >{{ t.soldOn }}:
@@ -564,7 +564,7 @@ export class ReturnFormComponent implements OnInit {
   selectSale(s: SaleList) {
     this.selectedSaleId = s.id;
     this.selectedSale = s;
-    this.erstattungsbetrag = s.preis;
+    this.erstattungsbetrag = s.gesamtbetrag;
     this.saleSearchText = `${s.belegNummer} – ${s.bikeInfo}`;
     this.saleDropdownOpen = false;
   }
