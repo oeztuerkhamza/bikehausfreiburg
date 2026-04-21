@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="header">
+      <h1>🚲 BikeHaus Bulk Editor</h1>
+      <p>Kleinanzeigen Toplu Düzenleme</p>
+    </div>
+
+    <div class="content">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="tab-ids">Anzeigen IDs</button>
+        <button class="tab" data-tab="tab-template">Beschreibung</button>
+        <button class="tab" data-tab="tab-progress">Fortschritt</button>
+      </div>
+
+      <!-- Tab 1: Ad IDs -->
+      <div id="tab-ids" class="tab-content active">
+        <div class="api-section">
+          <label>API Adresse:</label>
+          <div class="api-row">
+            <input
+              type="text"
+              id="api-url"
+              value="https://api.bikehausfreiburg.com"
+              placeholder="https://api.bikehausfreiburg.com"
+            />
+            <button id="btn-fetch-api" class="btn btn-secondary btn-sm">
+              🔄 API'den Çek
+            </button>
+          </div>
+          <div id="api-status" class="api-status"></div>
+        </div>
+
+        <div
+          class="listing-table-container"
+          id="listing-table-container"
+          style="display: none"
+        >
+          <div class="listing-toolbar">
+            <button id="btn-select-all" class="btn btn-secondary btn-sm">
+              ☑ Tümünü Seç
+            </button>
+            <button id="btn-deselect-all" class="btn btn-secondary btn-sm">
+              ☐ Seçimi Kaldır
+            </button>
+            <span class="selected-count"
+              >Seçili: <strong id="selected-count">0</strong></span
+            >
+          </div>
+          <div class="listing-list" id="listing-list"></div>
+        </div>
+
+        <details class="manual-entry">
+          <summary>Manuel ID girişi</summary>
+          <label>Anzeigen-IDs oder URLs (eine pro Zeile):</label>
+          <textarea
+            id="ad-ids"
+            placeholder="3382970843
+3382970844
+https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=3382970845"
+          ></textarea>
+        </details>
+
+        <div class="info-text">
+          Toplam: <span id="ad-count">0</span> Anzeige(n)
+        </div>
+      </div>
+
+      <!-- Tab 2: Description Template -->
+      <div id="tab-template" class="tab-content">
+        <div class="mode-selector">
+          <label>Modus:</label>
+          <select id="edit-mode">
+            <option value="replace-all">Beschreibung komplett ersetzen</option>
+            <option value="find-replace">Suchen & Ersetzen</option>
+            <option value="append">Am Ende anhängen</option>
+            <option value="prepend">Am Anfang einfügen</option>
+          </select>
+        </div>
+
+        <!-- Replace All Mode -->
+        <div id="mode-replace-all" class="mode-content active">
+          <label>Neue Beschreibung:</label>
+          <textarea
+            id="new-description"
+            class="desc-textarea"
+            placeholder="Neue Beschreibung eingeben..."
+          ></textarea>
+          <button id="btn-load-template" class="btn btn-secondary btn-sm">
+            📋 Standard-Vorlage laden
+          </button>
+        </div>
+
+        <!-- Find & Replace Mode -->
+        <div id="mode-find-replace" class="mode-content">
+          <label>Suchen:</label>
+          <textarea
+            id="find-text"
+            class="small-textarea"
+            placeholder="Text der ersetzt werden soll..."
+          ></textarea>
+          <label>Ersetzen mit:</label>
+          <textarea
+            id="replace-text"
+            class="small-textarea"
+            placeholder="Neuer Text..."
+          ></textarea>
+        </div>
+
+        <!-- Append Mode -->
+        <div id="mode-append" class="mode-content">
+          <label>Text zum Anhängen:</label>
+          <textarea
+            id="append-text"
+            class="desc-textarea"
+            placeholder="Wird am Ende der Beschreibung hinzugefügt..."
+          ></textarea>
+        </div>
+
+        <!-- Prepend Mode -->
+        <div id="mode-prepend" class="mode-content">
+          <label>Text zum Einfügen:</label>
+          <textarea
+            id="prepend-text"
+            class="desc-textarea"
+            placeholder="Wird am Anfang der Beschreibung eingefügt..."
+          ></textarea>
+        </div>
+
+        <div class="options">
+          <label class="checkbox-label">
+            <input type="checkbox" id="auto-save" checked />
+            Automatisch speichern (Weiter-Button klicken)
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="auto-close" checked />
+            Tab nach Speichern schließen
+          </label>
+          <label>Wartezeit zwischen Anzeigen (Sek.):</label>
+          <input
+            type="number"
+            id="delay"
+            value="3"
+            min="1"
+            max="30"
+            class="delay-input"
+          />
+        </div>
+      </div>
+
+      <!-- Tab 3: Progress -->
+      <div id="tab-progress" class="tab-content">
+        <div id="progress-info" class="progress-info">Bereit zum Starten.</div>
+        <div class="progress-bar-container">
+          <div id="progress-bar" class="progress-bar" style="width: 0%"></div>
+        </div>
+        <div id="progress-stats" class="progress-stats">
+          <span id="stat-done">0</span> /
+          <span id="stat-total">0</span> erledigt &nbsp;|&nbsp;
+          <span id="stat-fail" class="text-red">0</span> Fehler
+        </div>
+        <div id="progress-log" class="progress-log"></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="actions">
+        <button id="btn-start" class="btn btn-primary">
+          ▶ Bulk-Edit starten
+        </button>
+        <button id="btn-stop" class="btn btn-danger" style="display: none">
+          ⏹ Stoppen
+        </button>
+      </div>
+    </div>
+  </body>
+  <script src="popup.js"></script>
+</html>

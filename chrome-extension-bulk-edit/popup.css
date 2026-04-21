@@ -1,0 +1,387 @@
+/* ============================================
+   BikeHaus Bulk Editor - Popup Styles
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 420px;
+  max-height: 580px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #fff;
+  color: #333;
+  font-size: 13px;
+}
+
+.header {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+  padding: 14px 18px;
+}
+.header h1 {
+  font-size: 15px;
+  font-weight: 700;
+}
+.header p {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.content {
+  padding: 12px 16px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 12px;
+  background: #f1f1f1;
+  border-radius: 8px;
+  padding: 3px;
+}
+.tab {
+  flex: 1;
+  padding: 7px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.tab.active {
+  background: #fff;
+  color: #333;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.tab:hover:not(.active) {
+  color: #333;
+}
+
+/* Tab content */
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+
+/* Labels */
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+  margin-top: 8px;
+}
+label:first-child {
+  margin-top: 0;
+}
+
+/* Textareas & Inputs */
+textarea,
+input[type='text'],
+input[type='number'],
+select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: #fafafa;
+}
+textarea:focus,
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #e74c3c;
+  background: #fff;
+}
+
+#ad-ids {
+  height: 120px;
+  resize: vertical;
+}
+.desc-textarea {
+  height: 140px;
+  resize: vertical;
+}
+.small-textarea {
+  height: 60px;
+  resize: vertical;
+}
+
+.info-text {
+  font-size: 11px;
+  color: #888;
+  margin-top: 6px;
+}
+
+/* API Section */
+.api-section {
+  margin-bottom: 10px;
+}
+.api-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.api-row input {
+  flex: 1;
+}
+.api-row .btn-sm {
+  white-space: nowrap;
+  margin-top: 0;
+}
+.api-status {
+  font-size: 11px;
+  margin-top: 4px;
+  min-height: 16px;
+}
+.api-status.success {
+  color: #27ae60;
+}
+.api-status.error {
+  color: #e74c3c;
+}
+
+/* Listing Table */
+.listing-table-container {
+  margin-top: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.listing-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+}
+.listing-toolbar .btn-sm {
+  margin-top: 0;
+  padding: 4px 8px;
+}
+.selected-count {
+  font-size: 11px;
+  color: #555;
+  margin-left: auto;
+}
+.listing-list {
+  max-height: 220px;
+  overflow-y: auto;
+}
+.listing-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-weight: normal;
+  margin: 0;
+}
+.listing-row:hover {
+  background: #f8f9fa;
+}
+.listing-row:last-child {
+  border-bottom: none;
+}
+.listing-check {
+  width: auto;
+  margin: 0;
+  flex-shrink: 0;
+}
+.listing-id {
+  font-size: 10px;
+  color: #999;
+  min-width: 80px;
+  font-family: monospace;
+}
+.listing-title {
+  flex: 1;
+  font-size: 11px;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.listing-price {
+  font-size: 11px;
+  font-weight: 600;
+  color: #27ae60;
+  min-width: 50px;
+  text-align: right;
+}
+.listing-cat {
+  font-size: 10px;
+  color: #888;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* Manual entry */
+.manual-entry {
+  margin-top: 8px;
+}
+.manual-entry summary {
+  font-size: 11px;
+  color: #888;
+  cursor: pointer;
+  margin-bottom: 4px;
+}
+.manual-entry textarea {
+  height: 60px;
+}
+
+/* Mode selector */
+.mode-selector {
+  margin-bottom: 8px;
+}
+.mode-content {
+  display: none;
+}
+.mode-content.active {
+  display: block;
+}
+
+/* Options */
+.options {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+.checkbox-label input[type='checkbox'] {
+  width: auto;
+  margin: 0;
+}
+.delay-input {
+  width: 60px !important;
+  display: inline-block;
+}
+
+/* Buttons */
+.btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #c0392b, #a93226);
+}
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+.btn-danger {
+  background: #2c3e50;
+  color: #fff;
+}
+.btn-danger:hover {
+  background: #1a252f;
+}
+.btn-secondary {
+  background: #ecf0f1;
+  color: #333;
+  border: 1px solid #ddd;
+}
+.btn-secondary:hover {
+  background: #dfe6e9;
+}
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 11px;
+  width: auto;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.actions {
+  margin-top: 14px;
+}
+
+/* Progress */
+.progress-info {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: #ecf0f1;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #e74c3c, #e67e22);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.progress-stats {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 10px;
+}
+.text-red {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+.progress-log {
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 11px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 8px;
+  background: #fafafa;
+}
+.log-entry {
+  padding: 2px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.log-entry:last-child {
+  border-bottom: none;
+}
+.log-time {
+  color: #999;
+  margin-right: 6px;
+}
