@@ -268,7 +268,8 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
         name: c.cityName,
       },
       openingHoursSpecification: [
-        { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Thursday'], opens: '11:00', closes: '18:00' },
+        { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Thursday'], opens: '11:00', closes: '17:30' },
+        { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Wednesday', opens: '14:00', closes: '17:30' },
         { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Friday', opens: '11:00', closes: '13:00' },
         { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Friday', opens: '15:00', closes: '18:00' },
         { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Saturday', opens: '11:30', closes: '17:00' },

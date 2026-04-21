@@ -758,9 +758,11 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              'Montag – Freitag: 10:00 – 18:00 Uhr',
-              'Samstag: 10:00 – 14:00 Uhr',
-              'Sonntag: geschlossen',
+              'Mo, Di, Do: 11:00 – 17:30 Uhr',
+              'Mittwoch: 14:00 – 17:30 Uhr',
+              'Freitag: 11:00 – 13:00 & 15:00 – 18:00 Uhr',
+              'Samstag: 11:30 – 17:00 Uhr',
+              'Sonn- und feiertags geschlossen',
               'WhatsApp: +49 155 6630 0011',
               'E-Mail: bikehausfreiburg@gmail.com',
             ],

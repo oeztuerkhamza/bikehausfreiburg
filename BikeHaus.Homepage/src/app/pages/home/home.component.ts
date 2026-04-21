@@ -3202,7 +3202,13 @@ export class HomeComponent implements OnInit, OnDestroy {
           '@type': 'OpeningHoursSpecification',
           dayOfWeek: ['Monday', 'Tuesday', 'Thursday'],
           opens: '11:00',
-          closes: '18:00',
+          closes: '17:30',
+        },
+        {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: 'Wednesday',
+          opens: '14:00',
+          closes: '17:30',
         },
         {
           '@type': 'OpeningHoursSpecification',
