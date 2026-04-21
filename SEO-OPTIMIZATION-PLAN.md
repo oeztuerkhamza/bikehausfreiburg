@@ -207,7 +207,7 @@ Mevcut FAQ şemasını genişlet + ayrı bir `/de/faq` sayfası oluştur:
 ## Über uns
 Bike Haus Freiburg ist ein Fahrradgeschäft in der Heckerstraße 27, 79114 Freiburg.
 Wir verkaufen neue und gebrauchte Fahrräder mit Garantie.
-Öffnungszeiten: Mo-Fr 10-18, Sa 10-14 Uhr.
+Öffnungszeiten: Mo, Di, Do 11:00–17:30 | Mi 14:00–17:30 | Fr 11:00–13:00 & 15:00–18:00 | Sa 11:30–17:00 Uhr.
 
 ## Angebot
 - Neue Fahrräder (Citybikes, Trekkingräder, Mountainbikes, E-Bikes)

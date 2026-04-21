@@ -12,11 +12,11 @@ const STANDARD_TEMPLATE = `Bike Haus Freiburg – Ihr gebrauchte Fahrradladen in
 
 Adresse & Öffnungszeiten:
 Heckerstraße 27, Freiburg
-Mo 11:00–17:00
-Di 11:00–17:00
-Mi 14:00–17:00
-Do 11:00–17:00
-Fr 14:00–17:00
+Mo 11:00–17:30
+Di 11:00–17:30
+Mi 14:00–17:30
+Do 11:00–17:30
+Fr 11:00–13:00 & 15:00–18:00
 Sa 11:30–17:00
 
 Ankauf:
