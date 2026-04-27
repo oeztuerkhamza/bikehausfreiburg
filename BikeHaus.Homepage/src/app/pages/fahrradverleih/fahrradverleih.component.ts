@@ -289,7 +289,7 @@ import { environment } from '../../../environments/environment';
 
           <!-- Bike Grid -->
           <div class="bikes-grid" *ngIf="!bikesLoading() && bikes().length > 0">
-            <div class="bike-card" *ngFor="let bike of bikes()">
+            <div class="bike-card" *ngFor="let bike of bikes()" (click)="openBikeDetail(bike)">
               <div class="bike-img-wrap">
                 <img
                   *ngIf="bike.images.length > 0"
@@ -305,6 +305,10 @@ import { environment } from '../../../environments/environment';
                   </svg>
                 </div>
                 <div class="bike-type-badge" *ngIf="bike.fahrradtyp">{{ bike.fahrradtyp }}</div>
+                <div class="bike-img-count" *ngIf="bike.images.length > 1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  {{ bike.images.length }}
+                </div>
               </div>
               <div class="bike-info">
                 <div class="bike-name">{{ bike.marke }} {{ bike.modell }}</div>
@@ -336,7 +340,7 @@ import { environment } from '../../../environments/environment';
                     <span class="pill-price">{{ bike.preise.day30 | number:'1.0-0' }} €</span>
                   </div>
                 </div>
-                <button class="btn-book btn-anfragen" (click)="openBookingModal(bike)">
+                <button class="btn-book btn-anfragen" (click)="$event.stopPropagation(); openBookingModal(bike)">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                     <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
@@ -348,6 +352,124 @@ import { environment } from '../../../environments/environment';
             </div>
           </div>
         </section>
+
+        <!-- Bike Detail Overlay -->
+        <div class="detail-overlay" *ngIf="bikeDetailOpen()" (click)="closeBikeDetail()">
+          <div class="detail-box" (click)="$event.stopPropagation()">
+
+            <!-- Close -->
+            <button class="detail-close" (click)="closeBikeDetail()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+
+            <div class="detail-inner" *ngIf="detailBike()">
+
+              <!-- Gallery -->
+              <div class="detail-gallery">
+                <div class="detail-main-img">
+                  <img
+                    *ngIf="detailBike()!.images.length > 0"
+                    [src]="getImageUrl(detailBike()!.images[detailImageIndex()].filePath)"
+                    [alt]="detailBike()!.marke + ' ' + detailBike()!.modell"
+                  />
+                  <div class="detail-img-placeholder" *ngIf="detailBike()!.images.length === 0">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                      <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+                      <path d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"/>
+                    </svg>
+                  </div>
+                  <!-- Arrows -->
+                  <button class="gallery-arrow gallery-prev" *ngIf="detailBike()!.images.length > 1" (click)="detailPrevImage()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                  </button>
+                  <button class="gallery-arrow gallery-next" *ngIf="detailBike()!.images.length > 1" (click)="detailNextImage()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                  </button>
+                  <!-- Counter -->
+                  <div class="gallery-counter" *ngIf="detailBike()!.images.length > 1">
+                    {{ detailImageIndex() + 1 }} / {{ detailBike()!.images.length }}
+                  </div>
+                </div>
+
+                <!-- Thumbnails -->
+                <div class="detail-thumbs" *ngIf="detailBike()!.images.length > 1">
+                  <button
+                    *ngFor="let img of detailBike()!.images; let i = index"
+                    class="detail-thumb"
+                    [class.active]="i === detailImageIndex()"
+                    (click)="detailImageIndex.set(i)"
+                  >
+                    <img [src]="getImageUrl(img.filePath)" [alt]="'Foto ' + (i+1)" />
+                  </button>
+                </div>
+              </div>
+
+              <!-- Info -->
+              <div class="detail-info">
+                <div class="detail-badge" *ngIf="detailBike()!.fahrradtyp">{{ detailBike()!.fahrradtyp }}</div>
+                <h2 class="detail-name">{{ detailBike()!.marke }} {{ detailBike()!.modell }}</h2>
+
+                <div class="detail-specs">
+                  <div class="spec-item" *ngIf="detailBike()!.rahmengroesse">
+                    <span class="spec-label">Rahmen</span>
+                    <span class="spec-value">{{ detailBike()!.rahmengroesse }}</span>
+                  </div>
+                  <div class="spec-item" *ngIf="detailBike()!.reifengroesse">
+                    <span class="spec-label">Reifen</span>
+                    <span class="spec-value">{{ detailBike()!.reifengroesse }}"</span>
+                  </div>
+                  <div class="spec-item" *ngIf="detailBike()!.farbe">
+                    <span class="spec-label">Farbe</span>
+                    <span class="spec-value">{{ detailBike()!.farbe }}</span>
+                  </div>
+                  <div class="spec-item" *ngIf="detailBike()!.art">
+                    <span class="spec-label">Art</span>
+                    <span class="spec-value">{{ detailBike()!.art }}</span>
+                  </div>
+                </div>
+
+                <p class="detail-desc" *ngIf="detailBike()!.beschreibung">{{ detailBike()!.beschreibung }}</p>
+
+                <!-- Prices -->
+                <div class="detail-prices">
+                  <div class="detail-price-row" *ngIf="detailBike()!.preise.day1">
+                    <span>1 {{ t().bikeRentalDay }}</span>
+                    <strong>{{ detailBike()!.preise.day1 | number:'1.0-0' }} €</strong>
+                  </div>
+                  <div class="detail-price-row" *ngIf="detailBike()!.preise.day3">
+                    <span>3 {{ t().bikeRentalDays }}</span>
+                    <strong>{{ detailBike()!.preise.day3 | number:'1.0-0' }} €</strong>
+                  </div>
+                  <div class="detail-price-row featured" *ngIf="detailBike()!.preise.day7">
+                    <span>7 {{ t().bikeRentalDays }}</span>
+                    <strong>{{ detailBike()!.preise.day7 | number:'1.0-0' }} €</strong>
+                  </div>
+                  <div class="detail-price-row" *ngIf="detailBike()!.preise.day14">
+                    <span>14 {{ t().bikeRentalDays }}</span>
+                    <strong>{{ detailBike()!.preise.day14 | number:'1.0-0' }} €</strong>
+                  </div>
+                  <div class="detail-price-row" *ngIf="detailBike()!.preise.day30">
+                    <span>30 {{ t().bikeRentalDays }}</span>
+                    <strong>{{ detailBike()!.preise.day30 | number:'1.0-0' }} €</strong>
+                  </div>
+                  <div class="detail-price-row per-day" *ngIf="detailBike()!.preise.perDayFrom10">
+                    <span>Ab 10 {{ t().bikeRentalDays }}</span>
+                    <strong>{{ detailBike()!.preise.perDayFrom10 | number:'1.0-0' }} € / {{ t().bikeRentalDay }}</strong>
+                  </div>
+                </div>
+
+                <button class="btn-book btn-anfragen detail-book-btn" (click)="openBookingFromDetail()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  {{ t().bikeRentalBookBtn }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Booking Modal -->
         <div class="modal-overlay" *ngIf="modalOpen()" (click)="closeModal()">
@@ -867,6 +989,180 @@ import { environment } from '../../../environments/environment';
         color: var(--color-text-secondary) !important;
       }
 
+      .bike-img-count {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        background: rgba(0,0,0,0.6);
+        color: #fff;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        backdrop-filter: blur(4px);
+      }
+
+      /* ── Bike Detail Overlay ── */
+      .detail-overlay {
+        position: fixed; inset: 0; z-index: 8900;
+        background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+        display: flex; align-items: center; justify-content: center;
+        padding: 1rem; animation: fadeOverlay 0.2s ease;
+      }
+
+      .detail-box {
+        position: relative;
+        background: var(--color-surface); border: 1px solid var(--color-border);
+        border-radius: 22px; width: 100%; max-width: 900px;
+        max-height: 92vh; overflow-y: auto;
+        animation: slideUp 0.25s ease;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      }
+
+      .detail-close {
+        position: absolute; top: 14px; right: 14px; z-index: 10;
+        background: rgba(0,0,0,0.35); border: none; border-radius: 50%;
+        width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; color: #fff; transition: background 0.15s;
+      }
+      .detail-close:hover { background: rgba(0,0,0,0.6); }
+
+      .detail-inner {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+      }
+
+      /* Gallery */
+      .detail-gallery {
+        display: flex; flex-direction: column; gap: 10px;
+        padding: 20px 16px 20px 20px;
+        border-right: 1px solid var(--color-border);
+      }
+
+      .detail-main-img {
+        position: relative;
+        width: 100%; aspect-ratio: 4/3;
+        border-radius: 14px; overflow: hidden;
+        background: var(--color-bg);
+      }
+
+      .detail-main-img img {
+        width: 100%; height: 100%; object-fit: cover;
+        transition: opacity 0.2s;
+      }
+
+      .detail-img-placeholder {
+        width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+        color: var(--color-text-secondary); opacity: 0.3;
+      }
+
+      .gallery-arrow {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 50%;
+        width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: background 0.15s; backdrop-filter: blur(4px);
+      }
+      .gallery-arrow:hover { background: rgba(0,0,0,0.8); }
+      .gallery-prev { left: 10px; }
+      .gallery-next { right: 10px; }
+
+      .gallery-counter {
+        position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+        background: rgba(0,0,0,0.55); color: #fff; font-size: 0.72rem; font-weight: 600;
+        padding: 3px 10px; border-radius: 999px; backdrop-filter: blur(4px);
+      }
+
+      .detail-thumbs {
+        display: flex; gap: 8px; flex-wrap: wrap;
+      }
+
+      .detail-thumb {
+        width: 60px; height: 60px; border-radius: 8px; overflow: hidden;
+        border: 2px solid transparent; cursor: pointer; padding: 0;
+        background: var(--color-bg); transition: border-color 0.15s;
+        flex-shrink: 0;
+      }
+      .detail-thumb.active { border-color: var(--color-accent); }
+      .detail-thumb:hover { border-color: rgba(255,87,34,0.5); }
+      .detail-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+      /* Info Panel */
+      .detail-info {
+        padding: 24px 24px 28px 20px;
+        display: flex; flex-direction: column; gap: 14px;
+        overflow-y: auto;
+      }
+
+      .detail-badge {
+        display: inline-flex; align-items: center;
+        padding: 3px 12px; border-radius: 999px;
+        background: rgba(255,87,34,0.12); color: var(--color-accent);
+        font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.08em; align-self: flex-start;
+      }
+
+      .detail-name {
+        font-size: 1.4rem; font-weight: 800; color: var(--color-text);
+        margin: 0; letter-spacing: -0.02em; line-height: 1.2;
+      }
+
+      .detail-specs {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      }
+
+      .spec-item {
+        display: flex; flex-direction: column; gap: 2px;
+        padding: 8px 12px; border-radius: 10px;
+        background: rgba(255,255,255,0.04); border: 1px solid var(--color-border);
+      }
+
+      .spec-label {
+        font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.08em; color: var(--color-text-secondary);
+      }
+
+      .spec-value {
+        font-size: 0.9rem; font-weight: 600; color: var(--color-text);
+      }
+
+      .detail-desc {
+        font-size: 0.9rem; color: var(--color-text-secondary);
+        line-height: 1.7; margin: 0;
+      }
+
+      .detail-prices {
+        display: flex; flex-direction: column; gap: 0;
+        border: 1px solid var(--color-border); border-radius: 12px; overflow: hidden;
+      }
+
+      .detail-price-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 9px 14px; font-size: 0.88rem; color: var(--color-text);
+        border-bottom: 1px solid var(--color-border);
+        transition: background 0.15s;
+      }
+      .detail-price-row:last-child { border-bottom: none; }
+      .detail-price-row:hover { background: rgba(255,255,255,0.03); }
+      .detail-price-row span { color: var(--color-text-secondary); }
+      .detail-price-row strong { font-weight: 700; }
+      .detail-price-row.featured { background: rgba(255,87,34,0.06); }
+      .detail-price-row.featured span { color: var(--color-accent); }
+      .detail-price-row.featured strong { color: var(--color-accent); font-size: 1rem; }
+      .detail-price-row.per-day span { font-style: italic; }
+
+      .detail-book-btn { margin-top: 4px; }
+
+      @media (max-width: 700px) {
+        .detail-inner { grid-template-columns: 1fr; }
+        .detail-gallery { border-right: none; border-bottom: 1px solid var(--color-border); padding: 16px; }
+        .detail-info { padding: 16px; }
+        .detail-name { font-size: 1.2rem; }
+      }
+
       /* ── Note Banner ── */
       .note-banner {
         display: flex;
@@ -1034,6 +1330,7 @@ import { environment } from '../../../environments/environment';
         border-radius: 16px;
         overflow: hidden;
         transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
       }
 
       .bike-card:hover {
@@ -1421,6 +1718,11 @@ export class FahrradverleihComponent implements OnInit {
   bikes = signal<PublicRentalBicycle[]>([]);
   bikesLoading = signal(true);
 
+  // Bike detail overlay
+  bikeDetailOpen = signal(false);
+  detailBike = signal<PublicRentalBicycle | null>(null);
+  detailImageIndex = signal(0);
+
   // Modal state
   modalOpen = signal(false);
   selectedBike = signal<PublicRentalBicycle | null>(null);
@@ -1452,6 +1754,37 @@ export class FahrradverleihComponent implements OnInit {
       next: (bikes) => { this.bikes.set(bikes); this.bikesLoading.set(false); },
       error: () => this.bikesLoading.set(false),
     });
+  }
+
+  openBikeDetail(bike: PublicRentalBicycle): void {
+    this.detailBike.set(bike);
+    this.detailImageIndex.set(0);
+    this.bikeDetailOpen.set(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeBikeDetail(): void {
+    this.bikeDetailOpen.set(false);
+    document.body.style.overflow = '';
+  }
+
+  detailNextImage(): void {
+    const bike = this.detailBike();
+    if (!bike || bike.images.length === 0) return;
+    this.detailImageIndex.set((this.detailImageIndex() + 1) % bike.images.length);
+  }
+
+  detailPrevImage(): void {
+    const bike = this.detailBike();
+    if (!bike || bike.images.length === 0) return;
+    this.detailImageIndex.set((this.detailImageIndex() - 1 + bike.images.length) % bike.images.length);
+  }
+
+  openBookingFromDetail(): void {
+    const bike = this.detailBike();
+    if (!bike) return;
+    this.closeBikeDetail();
+    this.openBookingModal(bike);
   }
 
   openBookingModal(bike: PublicRentalBicycle): void {
