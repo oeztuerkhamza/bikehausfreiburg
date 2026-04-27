@@ -57,7 +57,13 @@ jobs:
             echo "INDEXNOW_API_KEY=${INDEXNOW_API_KEY}" >> .env
             echo "GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}" >> .env
             echo "GOOGLE_PLACES_PLACE_ID=${GOOGLE_PLACES_PLACE_ID}" >> .env
+            echo "SMTP_HOST=mail.bikehausfreiburg.com" >> .env
+            echo "SMTP_PORT=25" >> .env
+            echo "SMTP_USERNAME=" >> .env
             echo "SMTP_PASSWORD=${SMTP_PASSWORD}" >> .env
+            echo "SMTP_USE_SSL=false" >> .env
+            echo "SMTP_FROM_EMAIL=no-reply@bikehausfreiburg.com" >> .env
+            echo "SMTP_FROM_NAME=Bike Haus Freiburg" >> .env
             chmod 600 .env
             docker compose build --pull bikehaus
             docker compose up -d --force-recreate bikehaus nginx

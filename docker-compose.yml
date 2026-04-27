@@ -18,7 +18,7 @@ services:
       - PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
       - Smtp__Host=${SMTP_HOST:-mail.bikehausfreiburg.com}
       - Smtp__Port=${SMTP_PORT:-587}
-      - Smtp__Username=${SMTP_USERNAME:-no-reply@bikehausfreiburg.com}
+      - Smtp__Username=${SMTP_USERNAME-no-reply@bikehausfreiburg.com}
       - Smtp__Password=${SMTP_PASSWORD}
       - Smtp__UseSsl=${SMTP_USE_SSL:-false}
       - Smtp__FromEmail=${SMTP_FROM_EMAIL:-no-reply@bikehausfreiburg.com}
