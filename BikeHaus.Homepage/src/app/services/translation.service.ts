@@ -247,6 +247,12 @@ export interface Translations {
   bikeRentalIncluded1: string;
   bikeRentalIncluded2: string;
   bikeRentalIncludedNote: string;
+  bikeRentalAvailableLabel: string;
+  bikeRentalAvailableTitle: string;
+  bikeRentalNoBikes: string;
+  bikeRentalBookBtn: string;
+  bikeRentalDay: string;
+  bikeRentalDays: string;
 
   // General
   loading: string;
@@ -706,6 +712,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalIncluded1: 'Faltschloss',
     bikeRentalIncluded2: 'Fahrradkorb',
     bikeRentalIncludedNote: 'Diese werden kostenlos am Fahrrad montiert.',
+    bikeRentalAvailableLabel: 'VERFÜGBARE FAHRRÄDER',
+    bikeRentalAvailableTitle: 'Unsere Mietfahrräder',
+    bikeRentalNoBikes: 'Derzeit keine Fahrräder verfügbar. Bitte kontaktieren Sie uns.',
+    bikeRentalBookBtn: 'Jetzt anfragen',
+    bikeRentalDay: 'Tag',
+    bikeRentalDays: 'Tage',
 
     loading: 'Wird geladen...',
     error: 'Ein Fehler ist aufgetreten.',
@@ -1212,6 +1224,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalIncluded1: 'Folding lock',
     bikeRentalIncluded2: 'Bicycle basket',
     bikeRentalIncludedNote: 'These are mounted on the bicycle free of charge.',
+    bikeRentalAvailableLabel: 'AVAILABLE BICYCLES',
+    bikeRentalAvailableTitle: 'Our Rental Bikes',
+    bikeRentalNoBikes: 'No bicycles currently available. Please contact us.',
+    bikeRentalBookBtn: 'Enquire now',
+    bikeRentalDay: 'Day',
+    bikeRentalDays: 'Days',
 
     loading: 'Loading...',
     error: 'An error occurred.',
@@ -1706,6 +1724,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalIncluded1: 'Antivol pliable',
     bikeRentalIncluded2: 'Panier de vélo',
     bikeRentalIncludedNote: 'Ceux-ci sont montés gratuitement sur le vélo.',
+    bikeRentalAvailableLabel: 'VÉLOS DISPONIBLES',
+    bikeRentalAvailableTitle: 'Nos vélos de location',
+    bikeRentalNoBikes: 'Aucun vélo disponible pour le moment. Veuillez nous contacter.',
+    bikeRentalBookBtn: 'Demander maintenant',
+    bikeRentalDay: 'Jour',
+    bikeRentalDays: 'Jours',
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
@@ -2216,6 +2240,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalIncluded1: 'Katlanabilir kilit',
     bikeRentalIncluded2: 'Bisiklet sepeti',
     bikeRentalIncludedNote: 'Bunlar bisiklete ücretsiz olarak monte edilir.',
+    bikeRentalAvailableLabel: 'MEVCUT BİSİKLETLER',
+    bikeRentalAvailableTitle: 'Kiralık Bisikletlerimiz',
+    bikeRentalNoBikes: 'Şu anda mevcut bisiklet yok. Lütfen bizimle iletişime geçin.',
+    bikeRentalBookBtn: 'Şimdi sorgula',
+    bikeRentalDay: 'Gün',
+    bikeRentalDays: 'Gün',
 
     loading: 'Yükleniyor...',
     error: 'Bir hata oluştu.',

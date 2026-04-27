@@ -103,6 +103,44 @@ export interface PublicBicycle {
   images: PublicBicycleImage[];
 }
 
+// ── Rental Bikes (Public) ──
+export interface RentalBikeImage {
+  id: number;
+  bicycleId: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface RentalPrice {
+  day1?: number;
+  day3?: number;
+  day7?: number;
+  day14?: number;
+  day30?: number;
+  perDayFrom10?: number;
+}
+
+export interface PublicRentalBicycle {
+  id: number;
+  marke: string;
+  modell: string;
+  farbe?: string;
+  reifengroesse?: string;
+  fahrradtyp?: string;
+  art?: string;
+  beschreibung?: string;
+  rahmengroesse?: string;
+  images: RentalBikeImage[];
+  preise: RentalPrice;
+}
+
+export interface RentalAccessoryPublic {
+  id: number;
+  bezeichnung: string;
+  tagespreis: number;
+  aktiv: boolean;
+}
+
 // ── Repair Showcases ──
 export interface RepairShowcaseImage {
   id: number;

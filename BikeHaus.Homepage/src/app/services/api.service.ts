@@ -13,6 +13,8 @@ import {
   HomepageAccessory,
   HomepageAccessoryCategory,
   GoogleReviewsResponse,
+  PublicRentalBicycle,
+  RentalAccessoryPublic,
 } from '../models/models';
 
 @Injectable({
@@ -125,5 +127,15 @@ export class ApiService {
     return this.http.get<GoogleReviewsResponse>(
       `${this.baseUrl}/google-reviews`,
     );
+  }
+
+  // ── Rental Bikes ──
+
+  getRentableBikes(): Observable<PublicRentalBicycle[]> {
+    return this.http.get<PublicRentalBicycle[]>(`${this.baseUrl}/rentals/bikes`);
+  }
+
+  getRentalAccessories(): Observable<RentalAccessoryPublic[]> {
+    return this.http.get<RentalAccessoryPublic[]>(`${this.baseUrl}/rentals/accessories`);
   }
 }

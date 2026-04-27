@@ -1,8 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
+import { ApiService } from '../../services/api.service';
+import { PublicRentalBicycle } from '../../models/models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-fahrradverleih',
@@ -258,6 +261,87 @@ import { TranslationService } from '../../services/translation.service';
                 </li>
               </ul>
               <p class="included-note">{{ t().bikeRentalIncludedNote }}</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Available Bikes -->
+        <section class="bikes-section">
+          <div class="section-header">
+            <span class="section-label">{{ t().bikeRentalAvailableLabel }}</span>
+            <h2 class="bikes-title">{{ t().bikeRentalAvailableTitle }}</h2>
+          </div>
+
+          <!-- Loading -->
+          <div class="bikes-loading" *ngIf="bikesLoading()">
+            <div class="bike-skeleton" *ngFor="let i of [1,2,3]"></div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="bikes-empty" *ngIf="!bikesLoading() && bikes().length === 0">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+              <path d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"/>
+            </svg>
+            <p>{{ t().bikeRentalNoBikes }}</p>
+          </div>
+
+          <!-- Bike Grid -->
+          <div class="bikes-grid" *ngIf="!bikesLoading() && bikes().length > 0">
+            <div class="bike-card" *ngFor="let bike of bikes()">
+              <div class="bike-img-wrap">
+                <img
+                  *ngIf="bike.images.length > 0"
+                  [src]="getImageUrl(bike.images[0].filePath)"
+                  [alt]="bike.marke + ' ' + bike.modell"
+                  loading="lazy"
+                  class="bike-img"
+                />
+                <div class="bike-img-placeholder" *ngIf="bike.images.length === 0">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                    <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
+                    <path d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"/>
+                  </svg>
+                </div>
+                <div class="bike-type-badge" *ngIf="bike.fahrradtyp">{{ bike.fahrradtyp }}</div>
+              </div>
+              <div class="bike-info">
+                <div class="bike-name">{{ bike.marke }} {{ bike.modell }}</div>
+                <div class="bike-meta">
+                  <span *ngIf="bike.rahmengroesse">{{ bike.rahmengroesse }}</span>
+                  <span *ngIf="bike.reifengroesse">{{ bike.reifengroesse }}"</span>
+                  <span *ngIf="bike.farbe">{{ bike.farbe }}</span>
+                </div>
+                <p class="bike-desc" *ngIf="bike.beschreibung">{{ bike.beschreibung }}</p>
+                <div class="bike-prices">
+                  <div class="price-pill" *ngIf="bike.preise.day1">
+                    <span class="pill-duration">1 {{ t().bikeRentalDay }}</span>
+                    <span class="pill-price">{{ bike.preise.day1 | number:'1.0-0' }} €</span>
+                  </div>
+                  <div class="price-pill" *ngIf="bike.preise.day3">
+                    <span class="pill-duration">3 {{ t().bikeRentalDays }}</span>
+                    <span class="pill-price">{{ bike.preise.day3 | number:'1.0-0' }} €</span>
+                  </div>
+                  <div class="price-pill featured" *ngIf="bike.preise.day7">
+                    <span class="pill-duration">7 {{ t().bikeRentalDays }}</span>
+                    <span class="pill-price">{{ bike.preise.day7 | number:'1.0-0' }} €</span>
+                  </div>
+                  <div class="price-pill" *ngIf="bike.preise.day14">
+                    <span class="pill-duration">14 {{ t().bikeRentalDays }}</span>
+                    <span class="pill-price">{{ bike.preise.day14 | number:'1.0-0' }} €</span>
+                  </div>
+                  <div class="price-pill" *ngIf="bike.preise.day30">
+                    <span class="pill-duration">30 {{ t().bikeRentalDays }}</span>
+                    <span class="pill-price">{{ bike.preise.day30 | number:'1.0-0' }} €</span>
+                  </div>
+                </div>
+                <a [href]="getWhatsappBikeLink(bike)" target="_blank" rel="noopener" class="btn-book">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  {{ t().bikeRentalBookBtn }}
+                </a>
+              </div>
             </div>
           </div>
         </section>
@@ -763,6 +847,225 @@ import { TranslationService } from '../../services/translation.service';
         color: #25d366;
       }
 
+      /* ── Available Bikes ── */
+      .bikes-section {
+        margin-bottom: 3.5rem;
+      }
+
+      .bikes-title {
+        font-size: clamp(1.25rem, 3vw, 1.6rem);
+        font-weight: 800;
+        color: var(--color-text);
+        margin: 0.5rem 0 1.5rem;
+        letter-spacing: -0.02em;
+      }
+
+      .bikes-loading {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .bike-skeleton {
+        height: 340px;
+        border-radius: 16px;
+        background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-border) 50%, var(--color-surface) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      .bikes-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 3rem 2rem;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        color: var(--color-text-secondary);
+        text-align: center;
+      }
+
+      .bikes-empty svg {
+        opacity: 0.4;
+      }
+
+      .bikes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .bike-card {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      }
+
+      .bike-card:hover {
+        border-color: var(--color-accent);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .bike-img-wrap {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        background: var(--color-bg);
+      }
+
+      .bike-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s;
+      }
+
+      .bike-card:hover .bike-img {
+        transform: scale(1.04);
+      }
+
+      .bike-img-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-text-secondary);
+        opacity: 0.3;
+      }
+
+      .bike-type-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        padding: 0.25rem 0.7rem;
+        background: rgba(0, 0, 0, 0.65);
+        color: #fff;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        backdrop-filter: blur(4px);
+      }
+
+      .bike-info {
+        padding: 1.25rem 1.25rem 1.5rem;
+      }
+
+      .bike-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 0.35rem;
+      }
+
+      .bike-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .bike-meta span {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--color-text-secondary);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        padding: 0.15rem 0.55rem;
+      }
+
+      .bike-desc {
+        font-size: 0.85rem;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+        margin: 0 0 0.9rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .bike-prices {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .price-pill {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.4rem 0.7rem;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        min-width: 56px;
+      }
+
+      .price-pill.featured {
+        border-color: var(--color-accent);
+        background: rgba(255, 87, 34, 0.08);
+      }
+
+      .pill-duration {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .price-pill.featured .pill-duration {
+        color: var(--color-accent);
+      }
+
+      .pill-price {
+        font-size: 0.92rem;
+        font-weight: 800;
+        color: var(--color-text);
+        margin-top: 1px;
+      }
+
+      .price-pill.featured .pill-price {
+        color: var(--color-accent);
+      }
+
+      .btn-book {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1.25rem;
+        background: #25d366;
+        color: #fff;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 700;
+        transition: background 0.2s, transform 0.2s;
+        width: 100%;
+        justify-content: center;
+      }
+
+      .btn-book:hover {
+        background: #1da851;
+        transform: translateY(-1px);
+        text-decoration: none;
+        color: #fff;
+      }
+
       /* ── CTA ── */
       .rental-cta {
         display: flex;
@@ -844,9 +1147,13 @@ export class FahrradverleihComponent implements OnInit {
   private translationService = inject(TranslationService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
+  private apiService = inject(ApiService);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+
+  bikes = signal<PublicRentalBicycle[]>([]);
+  bikesLoading = signal(true);
 
   ngOnInit(): void {
     const t = this.t();
@@ -855,9 +1162,28 @@ export class FahrradverleihComponent implements OnInit {
       name: 'description',
       content: t.bikeRentalMetaDescription,
     });
+
+    this.apiService.getRentableBikes().subscribe({
+      next: (bikes) => {
+        this.bikes.set(bikes);
+        this.bikesLoading.set(false);
+      },
+      error: () => this.bikesLoading.set(false),
+    });
   }
 
   getWhatsappLink(): string {
     return 'https://wa.me/4915566300011';
+  }
+
+  getWhatsappBikeLink(bike: PublicRentalBicycle): string {
+    const text = encodeURIComponent(
+      `Hallo, ich möchte das Fahrrad "${bike.marke} ${bike.modell}" mieten.`,
+    );
+    return `https://wa.me/4915566300011?text=${text}`;
+  }
+
+  getImageUrl(path: string): string {
+    return `${environment.apiUrl.replace('/api/public', '')}${path}`;
   }
 }
