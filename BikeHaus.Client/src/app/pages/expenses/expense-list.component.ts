@@ -66,6 +66,7 @@ import { TranslationService } from '../../services/translation.service';
                 <option value="Miete">Miete</option>
                 <option value="Versicherung">Versicherung</option>
                 <option value="Marketing">Marketing</option>
+                <option value="Fahrrad">Fahrrad</option>
                 <option value="Sonstiges">Sonstiges</option>
               </select>
             </div>
@@ -109,7 +110,10 @@ import { TranslationService } from '../../services/translation.service';
             <div class="form-group full-width">
               <label>{{ t.document }}</label>
               <label class="file-upload-btn">
-                <span>📎 {{ selectedFile ? selectedFile.name : t.chooseFile }}</span>
+                <span
+                  >📎
+                  {{ selectedFile ? selectedFile.name : t.chooseFile }}</span
+                >
                 <input
                   type="file"
                   accept="image/*,.pdf"
@@ -195,15 +199,13 @@ import { TranslationService } from '../../services/translation.service';
                   [class.unpaid]="!expense.bezahlt"
                   (click)="toggleBezahlt(expense)"
                 >
-                  {{
-                    expense.bezahlt
-                      ? t.paid
-                      : t.unpaid
-                  }}
+                  {{ expense.bezahlt ? t.paid : t.unpaid }}
                 </span>
               </td>
               <td>
-                <span class="badge" *ngIf="expense.zahlungsart">{{ expense.zahlungsart }}</span>
+                <span class="badge" *ngIf="expense.zahlungsart">{{
+                  expense.zahlungsart
+                }}</span>
               </td>
               <td class="doc-cell">
                 <span
