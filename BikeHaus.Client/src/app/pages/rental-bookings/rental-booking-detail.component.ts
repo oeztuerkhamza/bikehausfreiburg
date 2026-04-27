@@ -25,6 +25,20 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
             {{ t.rentalBookingApprove }}
           </button>
           <button
+            class="btn btn-success"
+            (click)="convertToContract()"
+            *ngIf="booking.status !== BookingStatus.Cancelled"
+            title="Mietanfrage als Mietvertrag anlegen"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 5px">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+            In Mietvertrag umwandeln
+          </button>
+          <button
             class="btn btn-danger"
             (click)="cancelBooking()"
             *ngIf="booking.status !== BookingStatus.Cancelled"
@@ -291,6 +305,15 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
       .btn-primary:hover {
         opacity: 0.9;
       }
+      .btn-success {
+        background: #10b981;
+        color: #fff;
+        border-color: #10b981;
+      }
+      .btn-success:hover {
+        background: #059669;
+        border-color: #059669;
+      }
       .btn-danger {
         background: var(--accent-danger, #ef4444);
         color: #fff;
@@ -374,6 +397,13 @@ export class RentalBookingDetailComponent implements OnInit {
             },
           });
       });
+  }
+
+  convertToContract() {
+    if (!this.booking) return;
+    this.router.navigate(['/rentals/new'], {
+      queryParams: { bookingId: this.booking.id },
+    });
   }
 
   cancelBooking() {

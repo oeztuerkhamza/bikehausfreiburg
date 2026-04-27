@@ -1,19 +1,20 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
+import { RentalBookingService } from '../../services/rental-booking.service';
 import {
-  RentalCreate,
-  Bicycle,
-  BicycleUpdate,
-  BikeCondition,
-  CustomerCreate,
-  BikeConditionAtHandover,
-  PaymentMethod,
+    RentalCreate,
+    Bicycle,
+    BicycleUpdate,
+    BikeCondition,
+    CustomerCreate,
+    BikeConditionAtHandover,
+    PaymentMethod,
 } from '../../models/models';
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
@@ -32,8 +33,14 @@ import { AddressSuggestion } from '../../services/address.service';
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>Neue Vermietung</h1>
+        <h1>{{ fromBookingId ? 'Mietvertrag aus Anfrage' : 'Neue Vermietung' }}</h1>
         <a routerLink="/rentals" class="btn btn-outline">Zurück</a>
+      </div>
+
+      <div class="from-booking-banner" *ngIf="fromBookingId">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Felder wurden aus Mietanfrage vorausgefüllt. Bitte überprüfen und ergänzen.
+        <a [routerLink]="['/rental-bookings', fromBookingId]" class="booking-link">→ Anfrage ansehen</a>
       </div>
 
       <form (ngSubmit)="submit()" #f="ngForm">
@@ -374,6 +381,25 @@ import { AddressSuggestion } from '../../services/address.service';
         align-items: center;
         margin-bottom: 24px;
       }
+      .from-booking-banner {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(99, 102, 241, 0.08);
+        border: 1.5px solid rgba(99, 102, 241, 0.25);
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-size: 0.88rem;
+        color: var(--accent-primary, #6366f1);
+        margin-bottom: 20px;
+      }
+      .booking-link {
+        margin-left: auto;
+        font-weight: 600;
+        color: var(--accent-primary, #6366f1);
+        text-decoration: none;
+      }
+      .booking-link:hover { text-decoration: underline; }
       .form-sections {
         display: flex;
         flex-direction: column;
@@ -540,8 +566,12 @@ export class RentalFormComponent implements OnInit {
   private rentalService = inject(RentalService);
   private bicycleService = inject(BicycleService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
+  private bookingService = inject(RentalBookingService);
+
+  fromBookingId: number | null = null;
 
   availableBikes: Bicycle[] = [];
   selectedBike: Bicycle | null = null;
@@ -585,6 +615,57 @@ export class RentalFormComponent implements OnInit {
     this.bicycleService.getAll().subscribe({
       next: (bikes) => {
         this.availableBikes = bikes.filter((b) => b.status === 'Available');
+
+        // Pre-fill from booking if bookingId param is present
+        const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
+        if (bookingId) {
+          this.fromBookingId = Number(bookingId);
+          this.bookingService.getById(this.fromBookingId).subscribe({
+            next: (booking) => {
+              // Pre-fill customer
+              this.customer.vorname = booking.vorname;
+              this.customer.nachname = booking.nachname;
+              this.customer.telefon = booking.telefon || '';
+              this.customer.email = booking.email || '';
+
+              // Pre-fill dates
+              this.startDatum = booking.startDatum.split('T')[0];
+              this.endDatum = booking.endDatum.split('T')[0];
+              this.onDatesChanged();
+
+              // Pre-fill price from booking if set
+              if (booking.gesamtpreis) {
+                this.gesamtmiete = booking.gesamtpreis;
+              }
+
+              // Pre-fill notes
+              this.notizen = booking.notizen || '';
+
+              // Pre-select the bike if it's in available list
+              const match = this.availableBikes.find(
+                (b) => b.id === booking.bicycle.id,
+              );
+              if (match) {
+                this.onBikeSelected(match);
+              } else {
+                // Bike may be rented; still pre-fill bike edit fields
+                this.isQuickAddMode = false;
+                this.selectedBike = booking.bicycle as Bicycle;
+                this.bikeEdit = {
+                  rahmennummer: booking.bicycle.rahmennummer || '',
+                  marke: booking.bicycle.marke || '',
+                  modell: booking.bicycle.modell || '',
+                  farbe: booking.bicycle.farbe || '',
+                  reifengroesse: booking.bicycle.reifengroesse || '',
+                  fahrradtyp: booking.bicycle.fahrradtyp || '',
+                };
+              }
+            },
+            error: () => {
+              this.notificationService.error('Buchung konnte nicht geladen werden');
+            },
+          });
+        }
       },
     });
     // Set default start date to today
