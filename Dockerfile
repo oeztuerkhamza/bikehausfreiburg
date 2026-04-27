@@ -1,80 +1,77 @@
 # =============================================
-# Stage 1: Build Angular Frontend
+# Stage 1a: Frontend Dependencies
 # =============================================
-FROM node:20-alpine AS frontend-build
+FROM node:20-alpine AS frontend-deps
 WORKDIR /app/client
-
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
-
 COPY BikeHaus.Client/package*.json ./
-RUN npm ci
+RUN npm ci --prefer-offline --no-audit
 
+# =============================================
+# Stage 1b: Build Angular Frontend
+# =============================================
+FROM frontend-deps AS frontend-build
 COPY BikeHaus.Client/ ./
 RUN npm run build -- --configuration production
 
 # =============================================
-# Stage 2: Build .NET API
+# Stage 2a: .NET Dependencies
 # =============================================
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS api-build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS dotnet-deps
 WORKDIR /src
-
-# Copy solution and project files first (for better caching)
 COPY BikeHausFreiburg.sln ./
 COPY BikeHaus.API/BikeHaus.API.csproj BikeHaus.API/
 COPY BikeHaus.Application/BikeHaus.Application.csproj BikeHaus.Application/
 COPY BikeHaus.Domain/BikeHaus.Domain.csproj BikeHaus.Domain/
 COPY BikeHaus.Infrastructure/BikeHaus.Infrastructure.csproj BikeHaus.Infrastructure/
-
 RUN dotnet restore
 
-# Copy all source code and publish
+# =============================================
+# Stage 2b: Build .NET API
+# =============================================
+FROM dotnet-deps AS api-build
 COPY . .
 RUN dotnet publish BikeHaus.API/BikeHaus.API.csproj -c Release -o /app/publish --no-restore
 
-# Install Playwright browsers in SDK stage (Chromium only)
+# =============================================
+# Stage 2c: Playwright Browsers (Slim)
+# =============================================
+FROM api-build AS playwright-setup
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/pw-browsers
-RUN pwsh /app/publish/playwright.ps1 install chromium
+RUN pwsh /app/publish/playwright.ps1 install chromium --with-deps
 
 # =============================================
 # Stage 3: Final Runtime Image
 # =============================================
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS runtime
 WORKDIR /app
 
-# Install curl for health checks + Playwright/Chromium dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install only minimal runtime dependencies for Playwright + curl
+RUN apk add --no-cache \
     curl \
-    # Playwright Chromium dependencies
-    libnss3 \
-    libnspr4 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libdrm2 \
-    libdbus-1-3 \
-    libxkbcommon0 \
-    libatspi2.0-0 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxfixes3 \
-    libxrandr2 \
-    libgbm1 \
-    libpango-1.0-0 \
-    libcairo2 \
-    libasound2 \
-    libwayland-client0 \
-    fonts-liberation \
-    xdg-utils \
-    wget \
-    && rm -rf /var/lib/apt/lists/*
+    libunwind \
+    icu-libs \
+    libstdc++ \
+    libnss \
+    nspr \
+    atk \
+    dbus-libs \
+    libxkbcommon \
+    libxcomposite \
+    libxdamage \
+    libxfixes \
+    libxrandr \
+    libgbm \
+    pango \
+    cairo \
+    alsa-lib \
+    mesa-gbm
 
 # Copy published API
-COPY --from=api-build /app/publish .
+COPY --from=playwright-setup /app/publish .
 
-# Copy Playwright browsers from SDK stage
+# Copy Playwright browsers from setup stage
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
-COPY --from=api-build /app/pw-browsers /app/.playwright
+COPY --from=playwright-setup /app/pw-browsers /app/.playwright
 
 # Copy Angular build output to wwwroot (admin panel)
 COPY --from=frontend-build /app/client/dist/bike-haus.client/browser ./wwwroot
