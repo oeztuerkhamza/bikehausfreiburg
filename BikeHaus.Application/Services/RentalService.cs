@@ -182,7 +182,14 @@ public class RentalService : IRentalService
         if (dto.Kaution.HasValue)
             rental.Kaution = dto.Kaution.Value;
         if (dto.KautionZurueckgegeben.HasValue)
+        {
+            if (dto.KautionZurueckgegeben.Value && string.IsNullOrWhiteSpace(dto.KautionRueckgabeUnterschrift))
+                throw new InvalidOperationException("Für die Kautionsrückgabe ist eine Unterschrift erforderlich.");
+
             rental.KautionZurueckgegeben = dto.KautionZurueckgegeben.Value;
+        }
+        if (dto.KautionRueckgabeUnterschrift != null)
+            rental.KautionRueckgabeUnterschrift = dto.KautionRueckgabeUnterschrift;
         if (dto.Zahlungsart.HasValue)
             rental.Zahlungsart = dto.Zahlungsart.Value;
         if (dto.ZustandBeiUebergabe.HasValue)

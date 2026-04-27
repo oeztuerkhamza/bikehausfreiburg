@@ -740,6 +740,7 @@ export interface Rental {
   rabatt: number;
   kaution: number;
   kautionZurueckgegeben: boolean;
+  kautionRueckgabeUnterschrift?: string;
   zahlungsart: PaymentMethod;
   zustandBeiUebergabe: BikeConditionAtHandover;
   status: RentalStatus;
@@ -809,6 +810,7 @@ export interface RentalUpdate {
   rabatt?: number;
   kaution?: number;
   kautionZurueckgegeben?: boolean;
+  kautionRueckgabeUnterschrift?: string;
   zahlungsart?: PaymentMethod;
   zustandBeiUebergabe?: BikeConditionAtHandover;
   notizen?: string;
@@ -837,6 +839,7 @@ export interface RentalAccessoryList {
   tagespreis: number;
   verlustgebuehr?: number;
   aktiv: boolean;
+  createdAt: string;
 }
 
 export interface RentalAccessoryCreate {

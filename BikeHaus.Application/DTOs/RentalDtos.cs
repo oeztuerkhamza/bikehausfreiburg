@@ -37,6 +37,7 @@ public record RentalDto(
     decimal Rabatt,
     decimal Kaution,
     bool KautionZurueckgegeben,
+    string? KautionRueckgabeUnterschrift,
     PaymentMethod Zahlungsart,
     BikeConditionAtHandover ZustandBeiUebergabe,
     RentalStatus Status,
@@ -83,6 +84,7 @@ public record RentalUpdateDto(
     decimal? Rabatt,
     decimal? Kaution,
     bool? KautionZurueckgegeben,
+    string? KautionRueckgabeUnterschrift,
     PaymentMethod? Zahlungsart,
     BikeConditionAtHandover? ZustandBeiUebergabe,
     string? Notizen

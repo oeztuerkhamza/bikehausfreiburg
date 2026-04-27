@@ -166,7 +166,11 @@ import { Rental, RentalUpdate } from '../../models/models';
     </div>
 
     <!-- Signature Modal for Kaution Return -->
-    <div class="modal-backdrop" *ngIf="showSignatureModal" (click)="closeSignatureModal()">
+    <div
+      class="modal-backdrop"
+      *ngIf="showSignatureModal"
+      (click)="closeSignatureModal()"
+    >
       <div class="modal modal-sig" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h3>💰 Kaution zurückgeben</h3>
@@ -174,25 +178,39 @@ import { Rental, RentalUpdate } from '../../models/models';
         </div>
         <div class="modal-body sig-body">
           <p class="sig-info">
-            Kaution: <strong>{{ rental?.kaution | number:'1.2-2' }} €</strong> wird an
-            <strong>{{ rental?.customer?.fullName }}</strong> zurückgegeben.<br>
+            Kaution:
+            <strong>{{ rental?.kaution | number: '1.2-2' }} €</strong> wird an
+            <strong>{{ rental?.customer?.fullName }}</strong>
+            zurückgegeben.<br />
             Bitte Unterschrift des Mieters zur Bestätigung.
           </p>
           <div class="sig-canvas-wrap">
-            <canvas id="kautionSignatureCanvas" width="460" height="160"
+            <canvas
+              id="kautionSignatureCanvas"
+              width="460"
+              height="160"
               (mousedown)="onSigMouseDown($event)"
               (mousemove)="onSigMouseMove($event)"
               (mouseup)="onSigEnd()"
               (mouseleave)="onSigEnd()"
               (touchstart)="onSigTouchStart($event)"
               (touchmove)="onSigTouchMove($event)"
-              (touchend)="onSigEnd()">
+              (touchend)="onSigEnd()"
+            >
             </canvas>
-            <span class="sig-placeholder" *ngIf="sigIsEmpty">Hier unterschreiben ...</span>
+            <span class="sig-placeholder" *ngIf="sigIsEmpty"
+              >Hier unterschreiben ...</span
+            >
           </div>
           <div class="sig-actions">
-            <button class="btn btn-outline" (click)="clearSignature()">🗑 Löschen</button>
-            <button class="btn btn-success" (click)="confirmKautionReturn()" [disabled]="sigIsEmpty">
+            <button class="btn btn-outline" (click)="clearSignature()">
+              🗑 Löschen
+            </button>
+            <button
+              class="btn btn-success"
+              (click)="confirmKautionReturn()"
+              [disabled]="sigIsEmpty"
+            >
               ✅ Kaution bestätigt
             </button>
           </div>
@@ -436,11 +454,20 @@ import { Rental, RentalUpdate } from '../../models/models';
         height: 100%;
         border: none;
       }
-      .modal-sig { max-width: 540px; }
-      .sig-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+      .modal-sig {
+        max-width: 540px;
+      }
+      .sig-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
       .sig-info {
-        font-size: 0.9rem; color: var(--text-secondary);
-        line-height: 1.7; margin: 0;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin: 0;
       }
       .sig-canvas-wrap {
         position: relative;
@@ -457,13 +484,19 @@ import { Rental, RentalUpdate } from '../../models/models';
         touch-action: none;
       }
       .sig-placeholder {
-        position: absolute; inset: 0;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.9rem; color: #94a3b8;
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: #94a3b8;
         pointer-events: none;
       }
       .sig-actions {
-        display: flex; gap: 10px; justify-content: flex-end;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
       }
     `,
   ],
@@ -574,7 +607,9 @@ export class RentalDetailComponent implements OnInit {
   }
 
   private getSigCanvas(): HTMLCanvasElement {
-    return document.getElementById('kautionSignatureCanvas') as HTMLCanvasElement;
+    return document.getElementById(
+      'kautionSignatureCanvas',
+    ) as HTMLCanvasElement;
   }
 
   clearSignature() {
@@ -608,30 +643,45 @@ export class RentalDetailComponent implements OnInit {
     ctx.stroke();
   }
 
-  onSigEnd() { this.sigDrawing = false; }
+  onSigEnd() {
+    this.sigDrawing = false;
+  }
 
   onSigTouchStart(e: TouchEvent) {
     e.preventDefault();
     const t = e.touches[0];
-    this.onSigMouseDown({ clientX: t.clientX, clientY: t.clientY } as MouseEvent);
+    this.onSigMouseDown({
+      clientX: t.clientX,
+      clientY: t.clientY,
+    } as MouseEvent);
   }
 
   onSigTouchMove(e: TouchEvent) {
     e.preventDefault();
     const t = e.touches[0];
-    this.onSigMouseMove({ clientX: t.clientX, clientY: t.clientY } as MouseEvent);
+    this.onSigMouseMove({
+      clientX: t.clientX,
+      clientY: t.clientY,
+    } as MouseEvent);
   }
 
   confirmKautionReturn() {
     if (this.sigIsEmpty || !this.rental) return;
+    const signatureData = this.getSigCanvas().toDataURL('image/png');
     this.closeSignatureModal();
-    const update: RentalUpdate = { kautionZurueckgegeben: true };
+    const update: RentalUpdate = {
+      kautionZurueckgegeben: true,
+      kautionRueckgabeUnterschrift: signatureData,
+    };
     this.rentalService.update(this.rental.id, update).subscribe({
       next: (r) => {
         this.rental = r;
-        this.notificationService.success('Kaution zurückgegeben – Unterschrift erfasst');
+        this.notificationService.success(
+          'Kaution zurückgegeben – Unterschrift erfasst',
+        );
       },
-      error: (err) => this.notificationService.error(err.error?.error || 'Fehler'),
+      error: (err) =>
+        this.notificationService.error(err.error?.error || 'Fehler'),
     });
   }
 

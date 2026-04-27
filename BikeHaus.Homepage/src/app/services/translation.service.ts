@@ -714,7 +714,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalIncludedNote: 'Diese werden kostenlos am Fahrrad montiert.',
     bikeRentalAvailableLabel: 'VERFÜGBARE FAHRRÄDER',
     bikeRentalAvailableTitle: 'Unsere Mietfahrräder',
-    bikeRentalNoBikes: 'Derzeit keine Fahrräder verfügbar. Bitte kontaktieren Sie uns.',
+    bikeRentalNoBikes:
+      'Derzeit keine Fahrräder verfügbar. Bitte kontaktieren Sie uns.',
     bikeRentalBookBtn: 'Fahrrad reservieren',
     bikeRentalDay: 'Tag',
     bikeRentalDays: 'Tage',
@@ -1726,7 +1727,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalIncludedNote: 'Ceux-ci sont montés gratuitement sur le vélo.',
     bikeRentalAvailableLabel: 'VÉLOS DISPONIBLES',
     bikeRentalAvailableTitle: 'Nos vélos de location',
-    bikeRentalNoBikes: 'Aucun vélo disponible pour le moment. Veuillez nous contacter.',
+    bikeRentalNoBikes:
+      'Aucun vélo disponible pour le moment. Veuillez nous contacter.',
     bikeRentalBookBtn: 'Demander maintenant',
     bikeRentalDay: 'Jour',
     bikeRentalDays: 'Jours',
@@ -2242,8 +2244,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalIncludedNote: 'Bunlar bisiklete ücretsiz olarak monte edilir.',
     bikeRentalAvailableLabel: 'MEVCUT BİSİKLETLER',
     bikeRentalAvailableTitle: 'Kiralık Bisikletlerimiz',
-    bikeRentalNoBikes: 'Şu anda mevcut bisiklet yok. Lütfen bizimle iletişime geçin.',
-    bikeRentalBookBtn: 'Şimdi sorgula',
+    bikeRentalNoBikes:
+      'Şu anda mevcut bisiklet yok. Lütfen bizimle iletişime geçin.',
+    bikeRentalBookBtn: 'Bisikletini rezerve edin',
     bikeRentalDay: 'Gün',
     bikeRentalDays: 'Gün',
 
@@ -2515,7 +2518,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRentalItem2: 'Dağ Bisikletleri mevcut',
     svcRentalItem3: 'Günlük & Haftalık Kiralama',
     svcRentalItem4: 'Kilit & Kask dahil',
-    svcRentalCta: 'Bisiklet Kirala',
+    svcRentalCta: 'Bisikletini rezerve edin',
     svcAngeboteBadge: 'Fırsatlar',
     svcAngeboteTitle: 'Güncel Fırsatlar',
     svcAngeboteSub: 'İndirimli yeni bisikletler – stoklar tükenene kadar.',

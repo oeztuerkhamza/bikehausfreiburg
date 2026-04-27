@@ -25,6 +25,7 @@ public class Rental : BaseEntity
     // Kaution
     public decimal Kaution { get; set; }
     public bool KautionZurueckgegeben { get; set; } = false;
+    public string? KautionRueckgabeUnterschrift { get; set; }
 
     // Zahlungsart
     public PaymentMethod Zahlungsart { get; set; } = PaymentMethod.Bar;

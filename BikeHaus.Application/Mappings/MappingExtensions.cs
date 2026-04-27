@@ -311,7 +311,8 @@ public static class MappingExtensions
         entity.Bezeichnung,
         entity.Tagespreis,
         entity.Verlustgebuehr,
-        entity.Aktiv
+        entity.Aktiv,
+        entity.CreatedAt
     );
 
     // ── RentalBooking Mappings ──
@@ -390,6 +391,7 @@ public static class MappingExtensions
         entity.Rabatt,
         entity.Kaution,
         entity.KautionZurueckgegeben,
+        entity.KautionRueckgabeUnterschrift,
         entity.Zahlungsart,
         entity.ZustandBeiUebergabe,
         entity.Status,

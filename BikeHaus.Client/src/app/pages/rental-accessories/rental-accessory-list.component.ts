@@ -82,10 +82,17 @@ import {
               <td>{{ item.bezeichnung }}</td>
               <td>{{ item.tagespreis | number: '1.2-2' }} €</td>
               <td>
-                <span *ngIf="item.verlustgebuehr" style="color:#ef4444;font-weight:600;">
+                <span
+                  *ngIf="item.verlustgebuehr"
+                  style="color:#ef4444;font-weight:600;"
+                >
                   {{ item.verlustgebuehr | number: '1.2-2' }} €
                 </span>
-                <span *ngIf="!item.verlustgebuehr" style="color:var(--text-muted)">–</span>
+                <span
+                  *ngIf="!item.verlustgebuehr"
+                  style="color:var(--text-muted)"
+                  >–</span
+                >
               </td>
               <td>
                 <span
@@ -472,7 +479,11 @@ export class RentalAccessoryListComponent implements OnInit {
 
   loadItems() {
     this.service.getAll().subscribe((items) => {
-      this.items = items;
+      this.items = [...items].sort(
+        (left, right) =>
+          new Date(right.createdAt).getTime() -
+          new Date(left.createdAt).getTime(),
+      );
       this.filterItems();
     });
   }

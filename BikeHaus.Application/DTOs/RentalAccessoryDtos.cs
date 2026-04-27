@@ -15,7 +15,8 @@ public record RentalAccessoryListDto(
     string Bezeichnung,
     decimal Tagespreis,
     decimal? Verlustgebuehr,
-    bool Aktiv
+    bool Aktiv,
+    DateTime CreatedAt
 );
 
 public record RentalAccessoryCreateDto(

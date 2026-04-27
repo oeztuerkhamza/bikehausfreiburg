@@ -18,7 +18,9 @@ public class RentalAccessoryService : IRentalAccessoryService
     public async Task<IEnumerable<RentalAccessoryListDto>> GetAllAsync()
     {
         var items = await _repository.GetAllAsync();
-        return items.Select(a => a.ToListDto()).OrderBy(a => a.Bezeichnung);
+        return items
+            .Select(a => a.ToListDto())
+            .OrderByDescending(a => a.CreatedAt);
     }
 
     public async Task<IEnumerable<RentalAccessoryListDto>> GetActiveAsync()

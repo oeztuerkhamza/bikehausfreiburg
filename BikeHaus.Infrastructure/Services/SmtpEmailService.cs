@@ -21,8 +21,8 @@ public class SmtpEmailService : IEmailService
     public Task SendRentalBookingApprovedAsync(RentalBookingEmailModel model)
     {
         var subject = model.Language == "en"
-            ? $"Booking confirmed - {model.BuchungsNummer} | Bike Haus Freiburg"
-            : $"Buchung bestaetigt - {model.BuchungsNummer} | Bike Haus Freiburg";
+            ? $"Rental contract confirmed - {model.BuchungsNummer} | Bike Haus Freiburg"
+            : $"Mietvertrag bestaetigt - {model.BuchungsNummer} | Bike Haus Freiburg";
 
         var body = model.Language == "en"
             ? BuildApprovedBodyEn(model)
@@ -34,8 +34,8 @@ public class SmtpEmailService : IEmailService
     public Task SendRentalBookingCancelledAsync(RentalBookingEmailModel model)
     {
         var subject = model.Language == "en"
-            ? $"Booking cancelled - {model.BuchungsNummer} | Bike Haus Freiburg"
-            : $"Buchung storniert - {model.BuchungsNummer} | Bike Haus Freiburg";
+            ? $"Rental contract cancelled - {model.BuchungsNummer} | Bike Haus Freiburg"
+            : $"Mietvertrag storniert - {model.BuchungsNummer} | Bike Haus Freiburg";
 
         var body = model.Language == "en"
             ? BuildCancelledBodyEn(model)
@@ -47,8 +47,8 @@ public class SmtpEmailService : IEmailService
     public Task SendRentalBookingReceivedAsync(RentalBookingEmailModel model)
     {
         var subject = model.Language == "en"
-            ? $"Booking request received - {model.BuchungsNummer} | Bike Haus Freiburg"
-            : $"Buchungsanfrage eingegangen - {model.BuchungsNummer} | Bike Haus Freiburg";
+            ? $"Rental request received - {model.BuchungsNummer} | Bike Haus Freiburg"
+            : $"Mietanfrage eingegangen - {model.BuchungsNummer} | Bike Haus Freiburg";
 
         var body = model.Language == "en"
             ? BuildReceivedBodyEn(model)
@@ -107,9 +107,9 @@ public class SmtpEmailService : IEmailService
     {
         return $@"Hallo {m.ToName},
 
-Ihre Buchung wurde bestaetigt.
+Ihre Mietanfrage wurde bestaetigt. Ihr Mietvertrag ist vorbereitet.
 
-Buchung: {m.BuchungsNummer}
+Buchung / Mietvertrag: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
 Rahmennummer: {m.FrameNumber ?? "-"}
 Rahmengroesse: {m.FrameSize ?? "-"}
@@ -126,6 +126,7 @@ Abholung/Rueckgabe: {m.PickupLocation}
 Zahlung: vor Ort im Laden
 
 Bitte bringen Sie einen gueltigen Ausweis mit.
+Bitte unterschreiben Sie den Mietvertrag bei Abholung.
 Bei Fragen antworten Sie einfach auf diese E-Mail.
 
 Viele Gruesse
@@ -139,9 +140,9 @@ Bike Haus Freiburg
     {
         return $@"Hello {m.ToName},
 
-Your booking has been confirmed.
+Your rental request has been confirmed. Your rental contract is prepared.
 
-Booking: {m.BuchungsNummer}
+Booking / rental contract: {m.BuchungsNummer}
 Bike: {m.BikeBrand} {m.BikeModel}
 Frame No.: {m.FrameNumber ?? "-"}
 Frame Size: {m.FrameSize ?? "-"}
@@ -158,6 +159,7 @@ Pickup/Return: {m.PickupLocation}
 Payment: in store only
 
 Please bring a valid ID.
+Please sign the rental contract when picking up the bike.
 If you have questions, just reply to this email.
 
 Best regards
@@ -171,9 +173,9 @@ Bike Haus Freiburg
     {
         return $@"Hallo {m.ToName},
 
-Ihre Buchung wurde storniert.
+Ihr Mietvertrag wurde storniert.
 
-Buchung: {m.BuchungsNummer}
+Buchung / Mietvertrag: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
 Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy}
 
@@ -190,9 +192,9 @@ Bike Haus Freiburg
     {
         return $@"Hello {m.ToName},
 
-Your booking has been cancelled.
+Your rental contract has been cancelled.
 
-Booking: {m.BuchungsNummer}
+Booking / rental contract: {m.BuchungsNummer}
 Bike: {m.BikeBrand} {m.BikeModel}
 Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy}
 
@@ -209,7 +211,7 @@ Bike Haus Freiburg
     {
         return $@"Hallo {m.ToName},
 
-vielen Dank fuer Ihre Buchungsanfrage! Wir haben Ihre Anfrage erhalten und werden sie so schnell wie moeglich bearbeiten.
+vielen Dank fuer Ihre Mietanfrage. Wir haben Ihre Angaben erhalten und pruefen jetzt die Vertragsdaten.
 
 Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
@@ -221,7 +223,7 @@ Zubehoer:
 
 Was passiert als naechstes?
 Wir pruefen Ihre Anfrage und melden uns innerhalb von 24 Stunden bei Ihnen.
-Sie erhalten eine Bestaetigung per E-Mail, sobald Ihre Buchung bestaetigt oder abgelehnt wurde.
+Sie erhalten eine Bestaetigung per E-Mail, sobald Ihr Mietvertrag freigegeben oder abgelehnt wurde.
 
 Abholung/Rueckgabe: {m.PickupLocation}
 
@@ -238,7 +240,7 @@ Bike Haus Freiburg
     {
         return $@"Hello {m.ToName},
 
-thank you for your booking request! We have received your request and will process it as soon as possible.
+thank you for your rental request. We have received your details and are reviewing the contract information now.
 
 Booking number: {m.BuchungsNummer}
 Bike: {m.BikeBrand} {m.BikeModel}
@@ -250,7 +252,7 @@ Accessories:
 
 What happens next?
 We will review your request and get back to you within 24 hours.
-You will receive a confirmation email once your booking is confirmed or declined.
+You will receive a confirmation email once your rental contract is approved or declined.
 
 Pickup/Return: {m.PickupLocation}
 
