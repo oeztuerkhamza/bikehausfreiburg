@@ -3,7 +3,8 @@
     "allow": [
       "Bash(taskkill /PID 10500 /F)",
       "PowerShell(Stop-Process -Id 10500 -Force -ErrorAction SilentlyContinue)",
-      "PowerShell(\"done\")"
+      "PowerShell(\"done\")",
+      "Bash(dotnet build *)"
     ]
   }
 }
