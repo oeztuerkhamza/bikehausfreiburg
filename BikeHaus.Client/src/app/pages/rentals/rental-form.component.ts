@@ -7,8 +7,11 @@ import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
 import { RentalBookingService } from '../../services/rental-booking.service';
+import { RentalAccessoryService } from '../../services/rental-accessory.service';
 import {
     RentalCreate,
+    RentalAccessoryItemCreate,
+    RentalAccessoryList,
     Bicycle,
     BicycleUpdate,
     BikeCondition,
@@ -19,6 +22,13 @@ import {
 import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
 import { AddressSuggestion } from '../../services/address.service';
+
+interface AccessoryLine {
+  rentalAccessoryId?: number;
+  bezeichnung: string;
+  tagespreis: number;
+  menge: number;
+}
 
 @Component({
   selector: 'app-rental-form',
@@ -234,6 +244,104 @@ import { AddressSuggestion } from '../../services/address.service';
             </div>
           </div>
 
+          <!-- Zubehör -->
+          <div class="form-card">
+            <div class="section-header">
+              <h2>Zubehör</h2>
+              <div class="accessory-actions">
+                <select
+                  class="accessory-picker"
+                  (change)="onAccessoryPicked($event)"
+                  [disabled]="availableAccessories.length === 0"
+                >
+                  <option value="">+ Zubehör hinzufügen...</option>
+                  <option
+                    *ngFor="let a of availableAccessories"
+                    [value]="a.id"
+                  >
+                    {{ a.bezeichnung }} ({{ a.tagespreis | number:'1.2-2' }} €/Tag)
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm"
+                  (click)="addCustomAccessory()"
+                >
+                  Manuell eingeben
+                </button>
+              </div>
+            </div>
+
+            <div class="accessory-empty" *ngIf="accessories.length === 0">
+              Kein Zubehör hinzugefügt (z. B. Helm, Schloss, Anhänger)
+            </div>
+
+            <div class="accessory-list" *ngIf="accessories.length > 0">
+              <div class="accessory-header-row">
+                <span>Bezeichnung</span>
+                <span>Tagespreis</span>
+                <span>Menge</span>
+                <span>Gesamt/Tag</span>
+                <span></span>
+              </div>
+              <div
+                class="accessory-row"
+                *ngFor="let acc of accessories; let i = index"
+              >
+                <input
+                  [(ngModel)]="acc.bezeichnung"
+                  [name]="'accBez_' + i"
+                  placeholder="Bezeichnung"
+                  required
+                />
+                <div class="price-input">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    [(ngModel)]="acc.tagespreis"
+                    [name]="'accPreis_' + i"
+                    (ngModelChange)="recalcPrice()"
+                  />
+                  <span class="unit">€</span>
+                </div>
+                <div class="qty-input">
+                  <button
+                    type="button"
+                    class="qty-btn"
+                    (click)="changeQty(i, -1)"
+                  >−</button>
+                  <input
+                    type="number"
+                    min="1"
+                    [(ngModel)]="acc.menge"
+                    [name]="'accMenge_' + i"
+                    (ngModelChange)="recalcPrice()"
+                  />
+                  <button
+                    type="button"
+                    class="qty-btn"
+                    (click)="changeQty(i, 1)"
+                  >+</button>
+                </div>
+                <span class="acc-total">{{ acc.tagespreis * acc.menge | number:'1.2-2' }} €</span>
+                <button
+                  type="button"
+                  class="btn-remove"
+                  (click)="removeAccessory(i)"
+                  title="Entfernen"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+
+              <div class="accessory-total-row">
+                <span>Zubehör gesamt (pro Tag):</span>
+                <span class="acc-total-sum">{{ accessoryTotalPerDay | number:'1.2-2' }} €</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Mietdetails -->
           <div class="form-card">
             <h2>Mietdetails</h2>
@@ -273,6 +381,11 @@ import { AddressSuggestion } from '../../services/address.service';
               </div>
               <div class="calc-breakdown" *ngIf="preisInfo">
                 <span class="calc-info">{{ preisInfo }}</span>
+              </div>
+              <div class="calc-breakdown" *ngIf="accessories.length > 0">
+                <span class="calc-info">
+                  Zubehör: {{ accessoryTotalPerDay | number:'1.2-2' }} €/Tag × {{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }} = {{ accessoryTotalPerDay * rentalDays | number:'1.2-2' }} €
+                </span>
               </div>
             </div>
 
@@ -418,6 +531,184 @@ import { AddressSuggestion } from '../../services/address.service';
         margin: 0 0 16px 0;
         color: var(--text-primary);
       }
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .section-header h2 {
+        margin: 0;
+      }
+      .accessory-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .accessory-picker {
+        padding: 8px 12px;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card);
+        color: var(--text-primary);
+        font-size: 0.88rem;
+        min-width: 220px;
+        cursor: pointer;
+      }
+      .btn-sm {
+        padding: 7px 14px;
+        font-size: 0.82rem;
+      }
+      .accessory-empty {
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        padding: 12px 0;
+        text-align: center;
+        border: 1.5px dashed var(--border-light);
+        border-radius: var(--radius-md, 10px);
+      }
+      .accessory-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .accessory-header-row {
+        display: grid;
+        grid-template-columns: 1fr 110px 120px 90px 36px;
+        gap: 8px;
+        padding: 0 4px 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid var(--border-light);
+      }
+      .accessory-row {
+        display: grid;
+        grid-template-columns: 1fr 110px 120px 90px 36px;
+        gap: 8px;
+        align-items: center;
+      }
+      .accessory-row input {
+        padding: 8px 10px;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card);
+        color: var(--text-primary);
+        font-size: 0.88rem;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .accessory-row input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+      }
+      .price-input {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        overflow: hidden;
+        background: var(--bg-card);
+      }
+      .price-input input {
+        border: none;
+        border-radius: 0;
+        padding: 8px 6px;
+        flex: 1;
+        min-width: 0;
+      }
+      .price-input input:focus {
+        outline: none;
+        border-color: transparent;
+        box-shadow: none;
+      }
+      .unit {
+        padding: 0 8px;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .qty-input {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        overflow: hidden;
+        background: var(--bg-card);
+      }
+      .qty-input input {
+        border: none;
+        border-radius: 0;
+        padding: 8px 4px;
+        text-align: center;
+        flex: 1;
+        min-width: 0;
+      }
+      .qty-input input:focus {
+        outline: none;
+      }
+      .qty-btn {
+        padding: 0 10px;
+        height: 36px;
+        border: none;
+        background: var(--bg-secondary, #f1f5f9);
+        color: var(--text-primary);
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 700;
+        transition: background 0.15s;
+        flex-shrink: 0;
+      }
+      .qty-btn:hover {
+        background: var(--border-color);
+      }
+      .acc-total {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-align: right;
+        white-space: nowrap;
+      }
+      .btn-remove {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 1.5px solid var(--border-color);
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        flex-shrink: 0;
+      }
+      .btn-remove:hover {
+        border-color: var(--accent-danger, #ef4444);
+        color: var(--accent-danger, #ef4444);
+        background: rgba(239, 68, 68, 0.06);
+      }
+      .accessory-total-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 16px;
+        margin-top: 4px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border-light);
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+      }
+      .acc-total-sum {
+        color: var(--accent-primary, #6366f1);
+        font-size: 0.95rem;
+      }
       .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -505,6 +796,10 @@ import { AddressSuggestion } from '../../services/address.service';
         .form-grid {
           grid-template-columns: 1fr;
         }
+        .accessory-header-row,
+        .accessory-row {
+          grid-template-columns: 1fr 90px 100px 70px 32px;
+        }
       }
       .quick-add-form {
         margin-top: 16px;
@@ -570,6 +865,7 @@ export class RentalFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
   private bookingService = inject(RentalBookingService);
+  private accessoryService = inject(RentalAccessoryService);
 
   fromBookingId: number | null = null;
 
@@ -611,7 +907,15 @@ export class RentalFormComponent implements OnInit {
   notizen = '';
   submitting = false;
 
+  availableAccessories: RentalAccessoryList[] = [];
+  accessories: AccessoryLine[] = [];
+  accessoryTotalPerDay: number = 0;
+
   ngOnInit() {
+    this.accessoryService.getActive().subscribe({
+      next: (list) => (this.availableAccessories = list),
+    });
+
     this.bicycleService.getAll().subscribe({
       next: (bikes) => {
         this.availableBikes = bikes.filter((b) => b.status === 'Available');
@@ -640,6 +944,16 @@ export class RentalFormComponent implements OnInit {
 
               // Pre-fill notes
               this.notizen = booking.notizen || '';
+
+              // Pre-fill accessories from booking
+              if (booking.accessories && booking.accessories.length > 0) {
+                this.accessories = booking.accessories.map((a) => ({
+                  bezeichnung: a.bezeichnung,
+                  tagespreis: a.tagespreis,
+                  menge: a.menge,
+                }));
+                this.recalcPrice();
+              }
 
               // Pre-select the bike if it's in available list
               const match = this.availableBikes.find(
@@ -706,6 +1020,54 @@ export class RentalFormComponent implements OnInit {
     this.customer.stadt = addr.stadt || '';
   }
 
+  onAccessoryPicked(event: Event) {
+    const id = Number((event.target as HTMLSelectElement).value);
+    (event.target as HTMLSelectElement).value = '';
+    if (!id) return;
+    const found = this.availableAccessories.find((a) => a.id === id);
+    if (!found) return;
+    const existing = this.accessories.find((a) => a.rentalAccessoryId === id);
+    if (existing) {
+      existing.menge++;
+    } else {
+      this.accessories.push({
+        rentalAccessoryId: found.id,
+        bezeichnung: found.bezeichnung,
+        tagespreis: found.tagespreis,
+        menge: 1,
+      });
+    }
+    this.recalcPrice();
+  }
+
+  addCustomAccessory() {
+    this.accessories.push({ bezeichnung: '', tagespreis: 0, menge: 1 });
+  }
+
+  removeAccessory(index: number) {
+    this.accessories.splice(index, 1);
+    this.recalcPrice();
+  }
+
+  changeQty(index: number, delta: number) {
+    const line = this.accessories[index];
+    line.menge = Math.max(1, (line.menge || 1) + delta);
+    this.recalcPrice();
+  }
+
+  recalcPrice() {
+    this.accessoryTotalPerDay = this.accessories.reduce(
+      (sum, a) => sum + (a.tagespreis || 0) * (a.menge || 1),
+      0,
+    );
+    if (this.rentalDays > 0) {
+      const bikePrice = this.calculatePrice(this.rentalDays);
+      const accTotal = this.accessoryTotalPerDay * this.rentalDays;
+      this.berechneterPreis = bikePrice + accTotal;
+      this.gesamtmiete = Math.max(0, this.berechneterPreis - (this.rabatt || 0));
+    }
+  }
+
   onDatesChanged() {
     if (!this.startDatum || !this.endDatum) return;
     const start = new Date(this.startDatum);
@@ -713,8 +1075,7 @@ export class RentalFormComponent implements OnInit {
     const diffMs = end.getTime() - start.getTime();
     this.rentalDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
     if (this.rentalDays > 0) {
-      this.berechneterPreis = this.calculatePrice(this.rentalDays);
-      this.gesamtmiete = Math.max(0, this.berechneterPreis - this.rabatt);
+      this.recalcPrice();
     }
   }
 
@@ -835,6 +1196,15 @@ export class RentalFormComponent implements OnInit {
   }
 
   private createRental(bicycleId: number) {
+    const accessoriesPayload: RentalAccessoryItemCreate[] = this.accessories
+      .filter((a) => a.bezeichnung.trim())
+      .map((a) => ({
+        rentalAccessoryId: a.rentalAccessoryId,
+        bezeichnung: a.bezeichnung,
+        tagespreis: a.tagespreis,
+        menge: a.menge,
+      }));
+
     const rental: RentalCreate = {
       bicycleId,
       customer: this.customer,
@@ -847,6 +1217,7 @@ export class RentalFormComponent implements OnInit {
       zahlungsart: this.zahlungsart,
       zustandBeiUebergabe: this.zustandBeiUebergabe as BikeConditionAtHandover,
       notizen: this.notizen || undefined,
+      accessories: accessoriesPayload.length > 0 ? accessoriesPayload : undefined,
     };
 
     this.rentalService.create(rental).subscribe({

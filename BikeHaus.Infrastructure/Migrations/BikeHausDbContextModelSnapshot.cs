@@ -861,6 +861,44 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("RentalAccessories");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RentalAccessoryItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Bezeichnung")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Menge")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("RentalAccessoryId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RentalId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Tagespreis")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RentalAccessoryId");
+
+                    b.HasIndex("RentalId");
+
+                    b.ToTable("RentalAccessoryItems");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.RentalBooking", b =>
                 {
                     b.Property<int>("Id")
@@ -1597,6 +1635,24 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Customer");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RentalAccessoryItem", b =>
+                {
+                    b.HasOne("BikeHaus.Domain.Entities.RentalAccessory", "RentalAccessory")
+                        .WithMany()
+                        .HasForeignKey("RentalAccessoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BikeHaus.Domain.Entities.Rental", "Rental")
+                        .WithMany("Accessories")
+                        .HasForeignKey("RentalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Rental");
+
+                    b.Navigation("RentalAccessory");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.RentalBooking", b =>
                 {
                     b.HasOne("BikeHaus.Domain.Entities.Bicycle", "Bicycle")
@@ -1826,6 +1882,11 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Sale");
 
                     b.Navigation("Signature");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.Rental", b =>
+                {
+                    b.Navigation("Accessories");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.RentalBooking", b =>

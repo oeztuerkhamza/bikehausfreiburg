@@ -121,6 +121,23 @@ public class RentalService : IRentalService
 
         var created = await _rentalRepository.AddAsync(rental);
 
+        // Add accessories
+        if (dto.Accessories != null && dto.Accessories.Count > 0)
+        {
+            foreach (var accessoryDto in dto.Accessories)
+            {
+                created.Accessories.Add(new RentalAccessoryItem
+                {
+                    RentalId = created.Id,
+                    RentalAccessoryId = accessoryDto.RentalAccessoryId,
+                    Bezeichnung = accessoryDto.Bezeichnung,
+                    Tagespreis = accessoryDto.Tagespreis,
+                    Menge = accessoryDto.Menge
+                });
+            }
+            await _rentalRepository.UpdateAsync(created);
+        }
+
         // Update bicycle status to Rented
         bicycle.Status = BikeStatus.Rented;
         bicycle.UpdatedAt = DateTime.UtcNow;

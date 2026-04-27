@@ -745,6 +745,7 @@ export interface Rental {
   status: RentalStatus;
   notizen?: string;
   createdAt: string;
+  accessories: RentalAccessoryItem[];
 }
 
 export interface RentalList {
@@ -761,6 +762,21 @@ export interface RentalList {
   isOverdue: boolean;
 }
 
+export interface RentalAccessoryItemCreate {
+  rentalAccessoryId?: number;
+  bezeichnung: string;
+  tagespreis: number;
+  menge: number;
+}
+
+export interface RentalAccessoryItem {
+  id: number;
+  bezeichnung: string;
+  tagespreis: number;
+  menge: number;
+  gesamtpreis: number;
+}
+
 export interface RentalCreate {
   bicycleId: number;
   customer: CustomerCreate;
@@ -773,6 +789,7 @@ export interface RentalCreate {
   zahlungsart: PaymentMethod;
   zustandBeiUebergabe: BikeConditionAtHandover;
   notizen?: string;
+  accessories?: RentalAccessoryItemCreate[];
 }
 
 export interface RentalUpdate {

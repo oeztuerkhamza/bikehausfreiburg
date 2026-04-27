@@ -5,7 +5,8 @@
       "PowerShell(Stop-Process -Id 10500 -Force -ErrorAction SilentlyContinue)",
       "PowerShell(\"done\")",
       "Bash(dotnet build *)",
-      "Bash(npm start *)"
+      "Bash(npm start *)",
+      "Bash(dotnet ef *)"
     ]
   }
 }

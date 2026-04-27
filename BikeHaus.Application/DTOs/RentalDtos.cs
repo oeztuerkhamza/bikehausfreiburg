@@ -2,6 +2,21 @@ using BikeHaus.Domain.Enums;
 
 namespace BikeHaus.Application.DTOs;
 
+public record RentalAccessoryItemDto(
+    int Id,
+    string Bezeichnung,
+    decimal Tagespreis,
+    int Menge,
+    decimal Gesamtpreis
+);
+
+public record RentalAccessoryItemCreateDto(
+    int? RentalAccessoryId,
+    string Bezeichnung,
+    decimal Tagespreis,
+    int Menge
+);
+
 public record RentalDto(
     int Id,
     string MietvertragNummer,
@@ -18,7 +33,8 @@ public record RentalDto(
     BikeConditionAtHandover ZustandBeiUebergabe,
     RentalStatus Status,
     string? Notizen,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    List<RentalAccessoryItemDto> Accessories
 );
 
 public record RentalListDto(
@@ -46,7 +62,8 @@ public record RentalCreateDto(
     decimal Kaution,
     PaymentMethod Zahlungsart,
     BikeConditionAtHandover ZustandBeiUebergabe,
-    string? Notizen
+    string? Notizen,
+    List<RentalAccessoryItemCreateDto>? Accessories
 );
 
 public record RentalUpdateDto(

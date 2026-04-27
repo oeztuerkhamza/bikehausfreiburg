@@ -367,6 +367,14 @@ public static class MappingExtensions
     );
 
     // ── Rental Mappings ──
+    public static RentalAccessoryItemDto ToDto(this RentalAccessoryItem entity) => new(
+        entity.Id,
+        entity.Bezeichnung,
+        entity.Tagespreis,
+        entity.Menge,
+        entity.Tagespreis * entity.Menge
+    );
+
     public static RentalDto ToDto(this Rental entity) => new(
         entity.Id,
         entity.MietvertragNummer,
@@ -383,7 +391,8 @@ public static class MappingExtensions
         entity.ZustandBeiUebergabe,
         entity.Status,
         entity.Notizen,
-        entity.CreatedAt
+        entity.CreatedAt,
+        entity.Accessories.Select(a => a.ToDto()).ToList()
     );
 
     public static RentalListDto ToListDto(this Rental entity) => new(

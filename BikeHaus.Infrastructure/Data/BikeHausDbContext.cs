@@ -35,6 +35,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<RentalAccessory> RentalAccessories => Set<RentalAccessory>();
     public DbSet<RentalBooking> RentalBookings => Set<RentalBooking>();
     public DbSet<RentalBookingAccessory> RentalBookingAccessories => Set<RentalBookingAccessory>();
+    public DbSet<RentalAccessoryItem> RentalAccessoryItems => Set<RentalAccessoryItem>();
     public DbSet<RenovationCost> RenovationCosts => Set<RenovationCost>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -514,6 +515,24 @@ public class BikeHausDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(e => e.MietvertragNummer).IsUnique();
+        });
+
+        // ── RentalAccessoryItem Configuration ──
+        modelBuilder.Entity<RentalAccessoryItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Bezeichnung).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Tagespreis).HasColumnType("decimal(18,2)");
+
+            entity.HasOne(e => e.Rental)
+                .WithMany(r => r.Accessories)
+                .HasForeignKey(e => e.RentalId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.RentalAccessory)
+                .WithMany()
+                .HasForeignKey(e => e.RentalAccessoryId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

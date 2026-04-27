@@ -22,6 +22,7 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         return await _dbSet
             .Include(r => r.Bicycle)
             .Include(r => r.Customer)
+            .Include(r => r.Accessories)
             .FirstOrDefaultAsync(r => r.Id == id);
     }
 
@@ -30,6 +31,7 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         return await _dbSet
             .Include(r => r.Bicycle)
             .Include(r => r.Customer)
+            .Include(r => r.Accessories)
             .FirstOrDefaultAsync(r => r.BicycleId == bicycleId && r.Status == RentalStatus.Active);
     }
 

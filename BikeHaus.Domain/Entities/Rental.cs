@@ -41,4 +41,5 @@ public class Rental : BaseEntity
     // Navigation Properties
     public Customer Customer { get; set; } = null!;
     public Bicycle Bicycle { get; set; } = null!;
+    public ICollection<RentalAccessoryItem> Accessories { get; set; } = new List<RentalAccessoryItem>();
 }
