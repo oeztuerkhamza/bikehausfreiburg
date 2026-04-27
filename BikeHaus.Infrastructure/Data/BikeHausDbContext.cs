@@ -35,6 +35,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<RentalAccessory> RentalAccessories => Set<RentalAccessory>();
     public DbSet<RentalBooking> RentalBookings => Set<RentalBooking>();
     public DbSet<RentalBookingAccessory> RentalBookingAccessories => Set<RentalBookingAccessory>();
+    public DbSet<RenovationCost> RenovationCosts => Set<RenovationCost>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

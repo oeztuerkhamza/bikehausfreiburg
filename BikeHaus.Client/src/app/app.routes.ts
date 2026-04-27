@@ -309,5 +309,13 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'renovation-costs',
+    loadComponent: () =>
+      import('./pages/renovation-costs/renovation-cost-list.component').then(
+        (m) => m.RenovationCostListComponent,
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];
