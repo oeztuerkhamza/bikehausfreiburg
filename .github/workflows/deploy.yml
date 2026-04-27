@@ -34,14 +34,19 @@ jobs:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
           GOOGLE_PLACES_PLACE_ID: ${{ secrets.GOOGLE_PLACES_PLACE_ID }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: INDEXNOW_API_KEY,JWT_SECRET_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID
+          envs: INDEXNOW_API_KEY,JWT_SECRET_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID,SMTP_PASSWORD
           script: |
             set -e
             cd /opt/bikehaus
+            if [ -z "${SMTP_PASSWORD}" ]; then
+              echo "ERROR: SMTP_PASSWORD secret is missing."
+              exit 1
+            fi
             echo "Current server commit: $(git rev-parse --short HEAD || echo unknown)"
             git fetch --prune origin master
             git checkout master
@@ -52,6 +57,7 @@ jobs:
             echo "INDEXNOW_API_KEY=${INDEXNOW_API_KEY}" >> .env
             echo "GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}" >> .env
             echo "GOOGLE_PLACES_PLACE_ID=${GOOGLE_PLACES_PLACE_ID}" >> .env
+            echo "SMTP_PASSWORD=${SMTP_PASSWORD}" >> .env
             chmod 600 .env
             docker compose build --pull bikehaus
             docker compose up -d --force-recreate bikehaus nginx

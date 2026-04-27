@@ -61,14 +61,14 @@ public class SmtpEmailService : IEmailService
     {
         if (string.IsNullOrWhiteSpace(_options.Host))
         {
-            _logger.LogWarning("SMTP host is not configured. Email to {To} was not sent.", toEmail);
-            return;
+            _logger.LogError("SMTP host is not configured. Email to {To} cannot be sent.", toEmail);
+            throw new InvalidOperationException("SMTP host is not configured.");
         }
 
         if (string.IsNullOrWhiteSpace(_options.Password))
         {
-            _logger.LogWarning("SMTP password is empty. Email to {To} was not sent.", toEmail);
-            return;
+            _logger.LogError("SMTP password is empty. Email to {To} cannot be sent.", toEmail);
+            throw new InvalidOperationException("SMTP password is empty.");
         }
 
         try

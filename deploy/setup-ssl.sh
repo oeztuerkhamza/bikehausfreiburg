@@ -2,7 +2,7 @@
 # ============================================
 # SSL Setup with Let's Encrypt
 # Run AFTER the app is running on port 80
-# Sets up SSL for all 3 domains
+# Sets up SSL for all domains including mail subdomain
 # ============================================
 
 set -e
@@ -11,7 +11,7 @@ DOMAIN="bikehausfreiburg.com"
 EMAIL="${1:-info@bikehausfreiburg.com}"
 
 echo "=== Setting up SSL for BikeHaus Freiburg ==="
-echo "Domains: $DOMAIN, admin.$DOMAIN, api.$DOMAIN"
+echo "Domains: $DOMAIN, www.$DOMAIN, admin.$DOMAIN, api.$DOMAIN, mail.$DOMAIN"
 
 cd /opt/bikehaus
 
@@ -29,7 +29,8 @@ docker compose run --rm certbot certonly \
     -d "$DOMAIN" \
     -d "www.$DOMAIN" \
     -d "admin.$DOMAIN" \
-    -d "api.$DOMAIN"
+    -d "api.$DOMAIN" \
+    -d "mail.$DOMAIN"
 
 # Update nginx config with SSL
 echo ">> Updating nginx configuration..."
@@ -50,4 +51,5 @@ echo "Verify SSL:"
 echo "  curl -I https://bikehausfreiburg.com"
 echo "  curl -I https://admin.bikehausfreiburg.com"
 echo "  curl -I https://api.bikehausfreiburg.com"
+echo "  curl -I https://mail.bikehausfreiburg.com"
 echo ""

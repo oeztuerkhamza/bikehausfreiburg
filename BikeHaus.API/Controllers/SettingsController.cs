@@ -2,7 +2,7 @@ using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 
 namespace BikeHaus.API.Controllers;
 
@@ -121,5 +121,7 @@ public class SettingsController : ControllerBase
 
 public class TestEmailDto
 {
+    [Required]
+    [EmailAddress]
     public string ToEmail { get; set; } = "";
 }
