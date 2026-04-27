@@ -35,6 +35,8 @@ public static class DependencyInjection
         services.AddScoped<IRepairShowcaseRepository, RepairShowcaseRepository>();
         services.AddScoped<IHomepageAccessoryRepository, HomepageAccessoryRepository>();
         services.AddScoped<IRentalRepository, RentalRepository>();
+        services.AddScoped<IRentalAccessoryRepository, RentalAccessoryRepository>();
+        services.AddScoped<IRentalBookingRepository, RentalBookingRepository>();
 
         // Services
         services.AddScoped<IBicycleService, BikeHaus.Application.Services.BicycleService>();
@@ -54,6 +56,8 @@ public static class DependencyInjection
         services.AddScoped<IRepairShowcaseService, BikeHaus.Application.Services.RepairShowcaseService>();
         services.AddScoped<IHomepageAccessoryService, BikeHaus.Application.Services.HomepageAccessoryService>();
         services.AddScoped<IRentalService, BikeHaus.Application.Services.RentalService>();
+        services.AddScoped<IRentalAccessoryService, BikeHaus.Application.Services.RentalAccessoryService>();
+        services.AddScoped<IRentalBookingService, BikeHaus.Application.Services.RentalBookingService>();
         services.AddScoped<IInvoiceRepository, BikeHaus.Infrastructure.Repositories.InvoiceRepository>();
         services.AddScoped<IInvoiceService, BikeHaus.Application.Services.InvoiceService>();
         services.AddScoped<IKleinanzeigenScraperService, KleinanzeigenScraperService>();
@@ -61,6 +65,8 @@ public static class DependencyInjection
         services.AddScoped<IArchiveService, BikeHaus.Application.Services.ArchiveService>();
         services.AddScoped<IAuthService, BikeHaus.Infrastructure.Services.AuthService>();
         services.AddScoped<IPdfService, PdfService>();
+        services.AddScoped<IEmailService, SmtpEmailService>();
+        services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));
         services.AddHttpClient("IndexNow");
         services.AddScoped<IIndexNowService, IndexNowService>();
         services.AddHttpClient("GooglePlaces");

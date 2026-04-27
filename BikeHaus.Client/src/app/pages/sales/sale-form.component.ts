@@ -1380,6 +1380,13 @@ export class SaleFormComponent implements OnInit {
       beschreibung: '',
       status: 'Verfügbar' as any,
       zustand: BikeCondition.Gebraucht,
+      isRentable: false,
+      rentalPriceDay1: undefined,
+      rentalPriceDay3: undefined,
+      rentalPriceDay7: undefined,
+      rentalPriceDay14: undefined,
+      rentalPriceDay30: undefined,
+      rentalPricePerDayFrom10: undefined,
     } as Bicycle;
 
     // Clear bikeEdit form for new bike
@@ -1631,6 +1638,13 @@ export class SaleFormComponent implements OnInit {
         beschreibung: this.bikeEdit.beschreibung || undefined,
         status: 'Verfügbar' as any,
         zustand: this.bikeEdit.zustand,
+        isRentable: false,
+        rentalPriceDay1: undefined,
+        rentalPriceDay3: undefined,
+        rentalPriceDay7: undefined,
+        rentalPriceDay14: undefined,
+        rentalPriceDay30: undefined,
+        rentalPricePerDayFrom10: undefined,
       };
 
       this.bicycleService.create(newBike).subscribe({
@@ -1697,6 +1711,13 @@ export class SaleFormComponent implements OnInit {
       status,
       zustand: this.bikeEdit.zustand,
       verkaufspreisVorschlag: this.preis > 0 ? this.preis : undefined,
+      isRentable: this.selectedBike?.isRentable ?? false,
+      rentalPriceDay1: this.selectedBike?.rentalPriceDay1,
+      rentalPriceDay3: this.selectedBike?.rentalPriceDay3,
+      rentalPriceDay7: this.selectedBike?.rentalPriceDay7,
+      rentalPriceDay14: this.selectedBike?.rentalPriceDay14,
+      rentalPriceDay30: this.selectedBike?.rentalPriceDay30,
+      rentalPricePerDayFrom10: this.selectedBike?.rentalPricePerDayFrom10,
     };
   }
 

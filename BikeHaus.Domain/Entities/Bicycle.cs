@@ -23,6 +23,15 @@ public class Bicycle : BaseEntity
     public BikeStatus Status { get; set; } = BikeStatus.Available;
     public BikeCondition Zustand { get; set; } = BikeCondition.Gebraucht; // Neu or Gebraucht
 
+    // Rental settings
+    public bool IsRentable { get; set; } = false;
+    public decimal? RentalPriceDay1 { get; set; }
+    public decimal? RentalPriceDay3 { get; set; }
+    public decimal? RentalPriceDay7 { get; set; }
+    public decimal? RentalPriceDay14 { get; set; }
+    public decimal? RentalPriceDay30 { get; set; }
+    public decimal? RentalPricePerDayFrom10 { get; set; }
+
     // Publishing flags
     public bool IsPublishedOnWebsite { get; set; } = false;
     public bool IsPublishedOnKleinanzeigen { get; set; } = false;

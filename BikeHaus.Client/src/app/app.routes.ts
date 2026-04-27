@@ -261,5 +261,29 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'rental-bookings',
+    loadComponent: () =>
+      import('./pages/rental-bookings/rental-booking-list.component').then(
+        (m) => m.RentalBookingListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'rental-bookings/:id',
+    loadComponent: () =>
+      import('./pages/rental-bookings/rental-booking-detail.component').then(
+        (m) => m.RentalBookingDetailComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'rental-accessories',
+    loadComponent: () =>
+      import('./pages/rental-accessories/rental-accessory-list.component').then(
+        (m) => m.RentalAccessoryListComponent,
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];

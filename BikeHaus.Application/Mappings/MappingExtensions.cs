@@ -19,6 +19,13 @@ public static class MappingExtensions
         entity.Beschreibung,
         entity.Status,
         entity.Zustand,
+        entity.IsRentable,
+        entity.RentalPriceDay1,
+        entity.RentalPriceDay3,
+        entity.RentalPriceDay7,
+        entity.RentalPriceDay14,
+        entity.RentalPriceDay30,
+        entity.RentalPricePerDayFrom10,
         entity.IsPublishedOnWebsite,
         entity.IsPublishedOnKleinanzeigen,
         entity.VerkaufspreisVorschlag,
@@ -61,8 +68,36 @@ public static class MappingExtensions
         Fahrradtyp = dto.Fahrradtyp,
         Art = dto.Art,
         Beschreibung = dto.Beschreibung,
-        Zustand = dto.Zustand
+        Zustand = dto.Zustand,
+        IsRentable = dto.IsRentable,
+        RentalPriceDay1 = dto.RentalPriceDay1,
+        RentalPriceDay3 = dto.RentalPriceDay3,
+        RentalPriceDay7 = dto.RentalPriceDay7,
+        RentalPriceDay14 = dto.RentalPriceDay14,
+        RentalPriceDay30 = dto.RentalPriceDay30,
+        RentalPricePerDayFrom10 = dto.RentalPricePerDayFrom10
     };
+
+    public static PublicRentalBicycleDto ToPublicRentalDto(this Bicycle entity) => new(
+        entity.Id,
+        entity.Marke,
+        entity.Modell,
+        entity.Farbe,
+        entity.Reifengroesse,
+        entity.Fahrradtyp,
+        entity.Art,
+        entity.Beschreibung,
+        entity.Rahmengroesse,
+        entity.Images?.Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>(),
+        new RentalPriceDto(
+            entity.RentalPriceDay1,
+            entity.RentalPriceDay3,
+            entity.RentalPriceDay7,
+            entity.RentalPriceDay14,
+            entity.RentalPriceDay30,
+            entity.RentalPricePerDayFrom10
+        )
+    );
 
     // ── Customer Mappings ──
     public static CustomerDto ToDto(this Customer entity) => new(
@@ -258,6 +293,65 @@ public static class MappingExtensions
         entity.SaleId,
         entity.CreatedAt,
         entity.AblaufDatum < DateTime.UtcNow && entity.Status == Domain.Enums.ReservationStatus.Active
+    );
+
+    // ── RentalAccessory Mappings ──
+    public static RentalAccessoryDto ToDto(this RentalAccessory entity) => new(
+        entity.Id,
+        entity.Bezeichnung,
+        entity.Tagespreis,
+        entity.Aktiv,
+        entity.Beschreibung,
+        entity.CreatedAt
+    );
+
+    public static RentalAccessoryListDto ToListDto(this RentalAccessory entity) => new(
+        entity.Id,
+        entity.Bezeichnung,
+        entity.Tagespreis,
+        entity.Aktiv
+    );
+
+    // ── RentalBooking Mappings ──
+    public static RentalBookingAccessoryDto ToDto(this RentalBookingAccessory entity) => new(
+        entity.Id,
+        entity.Bezeichnung,
+        entity.Tagespreis,
+        entity.Menge,
+        entity.Tagespreis * entity.Menge
+    );
+
+    public static RentalBookingDto ToDto(this RentalBooking entity) => new(
+        entity.Id,
+        entity.BuchungsNummer,
+        entity.Bicycle.ToDto(),
+        entity.StartDatum,
+        entity.EndDatum,
+        entity.Vorname,
+        entity.Nachname,
+        entity.Email,
+        entity.Telefon,
+        entity.Sprache,
+        entity.Notizen,
+        entity.AdminNotizen,
+        entity.Gesamtpreis,
+        entity.Status,
+        entity.CreatedAt,
+        entity.ApprovedAt,
+        entity.CancelledAt,
+        entity.Accessories.Select(a => a.ToDto()).ToList()
+    );
+
+    public static RentalBookingListDto ToListDto(this RentalBooking entity) => new(
+        entity.Id,
+        entity.BuchungsNummer,
+        $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
+        $"{entity.Vorname} {entity.Nachname}".Trim(),
+        entity.StartDatum,
+        entity.EndDatum,
+        entity.Gesamtpreis,
+        entity.Status,
+        entity.CreatedAt
     );
 
     public static ReservationListDto ToListDto(this Reservation entity) => new(

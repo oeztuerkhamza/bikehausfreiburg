@@ -162,6 +162,13 @@ public class BicycleService : IBicycleService
         entity.Status = dto.Status;
         entity.Zustand = dto.Zustand;
         entity.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
+        entity.IsRentable = dto.IsRentable;
+        entity.RentalPriceDay1 = dto.RentalPriceDay1;
+        entity.RentalPriceDay3 = dto.RentalPriceDay3;
+        entity.RentalPriceDay7 = dto.RentalPriceDay7;
+        entity.RentalPriceDay14 = dto.RentalPriceDay14;
+        entity.RentalPriceDay30 = dto.RentalPriceDay30;
+        entity.RentalPricePerDayFrom10 = dto.RentalPricePerDayFrom10;
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(entity);
@@ -257,6 +264,18 @@ public class BicycleService : IBicycleService
         var bicycle = await _repository.GetWithImagesAsync(id);
         if (bicycle == null || !bicycle.IsPublishedOnWebsite) return null;
         return bicycle.ToPublicDto();
+    }
+
+    public async Task<IEnumerable<PublicRentalBicycleDto>> GetRentableBicyclesAsync()
+    {
+        var bicycles = await _repository.GetRentableBicyclesAsync();
+        return bicycles.Select(b => b.ToPublicRentalDto());
+    }
+
+    public async Task<PublicRentalBicycleDto?> GetRentableBicycleByIdAsync(int id)
+    {
+        var bicycle = await _repository.GetRentableBicycleByIdAsync(id);
+        return bicycle?.ToPublicRentalDto();
     }
 
     public async Task<BicycleImageDto> AddImageAsync(int bicycleId, string filePath, int sortOrder)

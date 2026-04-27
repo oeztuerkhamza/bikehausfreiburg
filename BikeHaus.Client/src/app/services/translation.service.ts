@@ -11,6 +11,8 @@ export interface Translations {
   sales: string;
   returns: string;
   rentals: string;
+  rentalBookings: string;
+  rentalAccessories: string;
   statistics: string;
   settings: string;
   skipToMain: string;
@@ -174,6 +176,14 @@ export interface Translations {
   totalBicycles: string;
   bicycleReadonly: string;
   brandModel: string;
+  rentalSettings: string;
+  isRentable: string;
+  rentalPriceDay1: string;
+  rentalPriceDay3: string;
+  rentalPriceDay7: string;
+  rentalPriceDay14: string;
+  rentalPriceDay30: string;
+  rentalPricePerDayFrom10: string;
 
   // Customer
   firstName: string;
@@ -286,6 +296,12 @@ export interface Translations {
   accessoriesTotal: string;
   editAccessory: string;
   newAccessory: string;
+  rentalAccessoryDayPrice: string;
+  rentalAccessoryDescription: string;
+  rentalAccessoryActive: string;
+  rentalAccessoryNew: string;
+  rentalAccessoryEdit: string;
+  rentalAccessoryNoItems: string;
 
   // Returns
   newReturn: string;
@@ -337,6 +353,26 @@ export interface Translations {
   expired: string;
   cancelled: string;
   converted: string;
+
+  // Rental Booking (Homepage)
+  rentalBookingNumber: string;
+  rentalBookingPending: string;
+  rentalBookingApproved: string;
+  rentalBookingCancelled: string;
+  rentalBookingNoItems: string;
+  rentalBookingDetails: string;
+  rentalBookingApprove: string;
+  rentalBookingCancel: string;
+  rentalBookingAdminNotes: string;
+  rentalBookingNotes: string;
+  rentalBookingDates: string;
+  rentalBookingCreatedAt: string;
+  rentalBookingApprovedAt: string;
+  rentalBookingCancelledAt: string;
+  rentalBookingAccessories: string;
+  rentalBookingSearchPlaceholder: string;
+  rentalBookingApproveConfirm: string;
+  rentalBookingCancelConfirm: string;
 
   // Statistics
   loadingStatistics: string;
@@ -693,6 +729,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     sales: 'Verkäufe',
     returns: 'Rückgaben',
     rentals: 'Miete',
+    rentalBookings: 'Mietanfragen',
+    rentalAccessories: 'Mietzubehör',
     statistics: 'Statistiken',
     settings: 'Einstellungen',
     skipToMain: 'Zum Hauptinhalt springen',
@@ -862,6 +900,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     totalBicycles: 'Fahrräder gesamt',
     bicycleReadonly: 'Das Fahrrad kann nicht geändert werden.',
     brandModel: 'Marke/Modell',
+    rentalSettings: 'Mieteinstellungen',
+    isRentable: 'Für Vermietung aktiv',
+    rentalPriceDay1: 'Preis 1 Tag (€)',
+    rentalPriceDay3: 'Preis 3 Tage (€)',
+    rentalPriceDay7: 'Preis 7 Tage (€)',
+    rentalPriceDay14: 'Preis 14 Tage (€)',
+    rentalPriceDay30: 'Preis 30 Tage (€)',
+    rentalPricePerDayFrom10: 'Tagespreis ab 10 Tagen (€)',
 
     // Customer
     firstName: 'Vorname',
@@ -973,6 +1019,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     accessoriesTotal: 'Zubehör Summe',
     editAccessory: 'Zubehör bearbeiten',
     newAccessory: 'Neues Zubehör',
+    rentalAccessoryDayPrice: 'Tagespreis (€)',
+    rentalAccessoryDescription: 'Beschreibung',
+    rentalAccessoryActive: 'Aktiv',
+    rentalAccessoryNew: 'Neues Mietzubehör',
+    rentalAccessoryEdit: 'Mietzubehör bearbeiten',
+    rentalAccessoryNoItems: 'Kein Mietzubehör vorhanden.',
     discount: 'Rabatt',
     discountOptional: 'Rabatt (optional)',
 
@@ -1026,6 +1078,27 @@ const TRANSLATIONS: Record<Language, Translations> = {
     expired: 'Abgelaufen',
     cancelled: 'Storniert',
     converted: 'Umgewandelt',
+
+    // Rental Booking (Homepage)
+    rentalBookingNumber: 'Buchungs-Nr.',
+    rentalBookingPending: 'Ausstehend',
+    rentalBookingApproved: 'Bestätigt',
+    rentalBookingCancelled: 'Storniert',
+    rentalBookingNoItems: 'Keine Mietanfragen vorhanden.',
+    rentalBookingDetails: 'Mietanfrage',
+    rentalBookingApprove: 'Bestätigen',
+    rentalBookingCancel: 'Stornieren',
+    rentalBookingAdminNotes: 'Admin-Notizen',
+    rentalBookingNotes: 'Notizen',
+    rentalBookingDates: 'Zeitraum',
+    rentalBookingCreatedAt: 'Angelegt',
+    rentalBookingApprovedAt: 'Bestätigt am',
+    rentalBookingCancelledAt: 'Storniert am',
+    rentalBookingAccessories: 'Zubehör',
+    rentalBookingSearchPlaceholder:
+      'Suche nach Buchungs-Nr., Kunde, Fahrrad...',
+    rentalBookingApproveConfirm: 'Mietanfrage bestätigen?',
+    rentalBookingCancelConfirm: 'Mietanfrage stornieren?',
 
     // Statistics
     loadingStatistics: 'Lade Statistiken...',
@@ -1384,6 +1457,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     sales: 'Satışlar',
     returns: 'İadeler',
     rentals: 'Kiralama',
+    rentalBookings: 'Kiralama Talepleri',
+    rentalAccessories: 'Kiralama Aksesuarları',
     statistics: 'İstatistikler',
     settings: 'Ayarlar',
     skipToMain: 'Ana içeriğe atla',
@@ -1551,6 +1626,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     totalBicycles: 'Toplam bisiklet',
     bicycleReadonly: 'Bisiklet değiştirilemez.',
     brandModel: 'Marka/Model',
+    rentalSettings: 'Kiralama Ayarları',
+    isRentable: 'Kiralama için aktif',
+    rentalPriceDay1: '1 Gün Ücret (€)',
+    rentalPriceDay3: '3 Gün Ücret (€)',
+    rentalPriceDay7: '7 Gün Ücret (€)',
+    rentalPriceDay14: '14 Gün Ücret (€)',
+    rentalPriceDay30: '30 Gün Ücret (€)',
+    rentalPricePerDayFrom10: '10 Günden Sonra Günlük (€)',
 
     // Customer
     firstName: 'Ad',
@@ -1662,6 +1745,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     accessoriesTotal: 'Aksesuar toplamı',
     editAccessory: 'Aksesuar düzenle',
     newAccessory: 'Yeni aksesuar',
+    rentalAccessoryDayPrice: 'Günlük Ücret (€)',
+    rentalAccessoryDescription: 'Açıklama',
+    rentalAccessoryActive: 'Aktif',
+    rentalAccessoryNew: 'Yeni Kiralama Aksesuarı',
+    rentalAccessoryEdit: 'Kiralama Aksesuarı Düzenle',
+    rentalAccessoryNoItems: 'Kiralama aksesuarı yok.',
     discount: 'İndirim',
     discountOptional: 'İndirim (opsiyonel)',
 
@@ -1716,6 +1805,26 @@ const TRANSLATIONS: Record<Language, Translations> = {
     expired: 'Süresi Doldu',
     cancelled: 'İptal Edildi',
     converted: 'Dönüştürüldü',
+
+    // Rental Booking (Homepage)
+    rentalBookingNumber: 'Kiralama No.',
+    rentalBookingPending: 'Beklemede',
+    rentalBookingApproved: 'Onaylandı',
+    rentalBookingCancelled: 'İptal',
+    rentalBookingNoItems: 'Kiralama talebi yok.',
+    rentalBookingDetails: 'Kiralama Talebi',
+    rentalBookingApprove: 'Onayla',
+    rentalBookingCancel: 'İptal Et',
+    rentalBookingAdminNotes: 'Yönetici Notları',
+    rentalBookingNotes: 'Notlar',
+    rentalBookingDates: 'Tarih Aralığı',
+    rentalBookingCreatedAt: 'Oluşturma',
+    rentalBookingApprovedAt: 'Onaylandı',
+    rentalBookingCancelledAt: 'İptal edildi',
+    rentalBookingAccessories: 'Aksesuarlar',
+    rentalBookingSearchPlaceholder: 'No, müşteri, bisiklet ara...',
+    rentalBookingApproveConfirm: 'Kiralama talebi onaylansın mı?',
+    rentalBookingCancelConfirm: 'Kiralama talebi iptal edilsin mi?',
 
     // Statistics
     loadingStatistics: 'İstatistikler yükleniyor...',

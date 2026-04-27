@@ -54,6 +54,13 @@ export interface Bicycle {
   beschreibung?: string;
   status: BikeStatus;
   zustand: BikeCondition;
+  isRentable: boolean;
+  rentalPriceDay1?: number;
+  rentalPriceDay3?: number;
+  rentalPriceDay7?: number;
+  rentalPriceDay14?: number;
+  rentalPriceDay30?: number;
+  rentalPricePerDayFrom10?: number;
   isPublishedOnWebsite: boolean;
   isPublishedOnKleinanzeigen: boolean;
   verkaufspreisVorschlag?: number;
@@ -80,6 +87,13 @@ export interface BicycleCreate {
   art?: string;
   beschreibung?: string;
   zustand: BikeCondition;
+  isRentable: boolean;
+  rentalPriceDay1?: number;
+  rentalPriceDay3?: number;
+  rentalPriceDay7?: number;
+  rentalPriceDay14?: number;
+  rentalPriceDay30?: number;
+  rentalPricePerDayFrom10?: number;
 }
 
 export interface BicycleUpdate {
@@ -95,6 +109,13 @@ export interface BicycleUpdate {
   status: BikeStatus;
   zustand: BikeCondition;
   verkaufspreisVorschlag?: number;
+  isRentable: boolean;
+  rentalPriceDay1?: number;
+  rentalPriceDay3?: number;
+  rentalPriceDay7?: number;
+  rentalPriceDay14?: number;
+  rentalPriceDay30?: number;
+  rentalPricePerDayFrom10?: number;
 }
 
 // ── Customer ──
@@ -761,4 +782,89 @@ export interface RentalUpdate {
   zahlungsart?: PaymentMethod;
   zustandBeiUebergabe?: BikeConditionAtHandover;
   notizen?: string;
+}
+
+// ── Rental Booking (Homepage) ──
+export enum RentalBookingStatus {
+  Pending = 'Pending',
+  Approved = 'Approved',
+  Cancelled = 'Cancelled',
+}
+
+export interface RentalAccessory {
+  id: number;
+  bezeichnung: string;
+  tagespreis: number;
+  aktiv: boolean;
+  beschreibung?: string;
+  createdAt: string;
+}
+
+export interface RentalAccessoryList {
+  id: number;
+  bezeichnung: string;
+  tagespreis: number;
+  aktiv: boolean;
+}
+
+export interface RentalAccessoryCreate {
+  bezeichnung: string;
+  tagespreis: number;
+  beschreibung?: string;
+}
+
+export interface RentalAccessoryUpdate {
+  bezeichnung: string;
+  tagespreis: number;
+  beschreibung?: string;
+  aktiv: boolean;
+}
+
+export interface RentalBookingAccessory {
+  id: number;
+  bezeichnung: string;
+  tagespreis: number;
+  menge: number;
+  gesamtpreis: number;
+}
+
+export interface RentalBooking {
+  id: number;
+  buchungsNummer: string;
+  bicycle: Bicycle;
+  startDatum: string;
+  endDatum: string;
+  vorname: string;
+  nachname: string;
+  email?: string;
+  telefon?: string;
+  sprache?: string;
+  notizen?: string;
+  adminNotizen?: string;
+  gesamtpreis?: number;
+  status: RentalBookingStatus;
+  createdAt: string;
+  approvedAt?: string;
+  cancelledAt?: string;
+  accessories: RentalBookingAccessory[];
+}
+
+export interface RentalBookingList {
+  id: number;
+  buchungsNummer: string;
+  bikeInfo: string;
+  customerName: string;
+  startDatum: string;
+  endDatum: string;
+  gesamtpreis?: number;
+  status: RentalBookingStatus;
+  createdAt: string;
+}
+
+export interface RentalBookingApprove {
+  adminNotizen?: string;
+}
+
+export interface RentalBookingCancel {
+  adminNotizen?: string;
 }

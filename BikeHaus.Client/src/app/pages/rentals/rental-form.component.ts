@@ -700,6 +700,14 @@ export class RentalFormComponent implements OnInit {
           reifengroesse: this.bikeEdit.reifengroesse || undefined,
           fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
           status: 'Available',
+          zustand: BikeCondition.Gebraucht,
+          isRentable: false,
+          rentalPriceDay1: undefined,
+          rentalPriceDay3: undefined,
+          rentalPriceDay7: undefined,
+          rentalPriceDay14: undefined,
+          rentalPriceDay30: undefined,
+          rentalPricePerDayFrom10: undefined,
         } as any)
         .subscribe({
           next: (bike) => {
@@ -725,6 +733,13 @@ export class RentalFormComponent implements OnInit {
         fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
         status: this.selectedBike.status as any,
         zustand: (this.selectedBike.zustand || 'Gebraucht') as BikeCondition,
+        isRentable: this.selectedBike.isRentable,
+        rentalPriceDay1: this.selectedBike.rentalPriceDay1,
+        rentalPriceDay3: this.selectedBike.rentalPriceDay3,
+        rentalPriceDay7: this.selectedBike.rentalPriceDay7,
+        rentalPriceDay14: this.selectedBike.rentalPriceDay14,
+        rentalPriceDay30: this.selectedBike.rentalPriceDay30,
+        rentalPricePerDayFrom10: this.selectedBike.rentalPricePerDayFrom10,
       };
       this.bicycleService.update(this.selectedBike.id, bikeUpdate).subscribe({
         next: () => this.createRental(this.selectedBike!.id),

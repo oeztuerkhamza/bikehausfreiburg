@@ -95,6 +95,22 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Bicycle>> GetRentableBicyclesAsync()
+    {
+        return await _dbSet
+            .Include(b => b.Images)
+            .Where(b => b.IsRentable)
+            .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<Bicycle?> GetRentableBicycleByIdAsync(int id)
+    {
+        return await _dbSet
+            .Include(b => b.Images)
+            .FirstOrDefaultAsync(b => b.Id == id && b.IsRentable);
+    }
+
     public async Task<Bicycle?> GetWithImagesAsync(int id)
     {
         return await _dbSet

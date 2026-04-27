@@ -730,6 +730,13 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     beschreibung: '',
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
+    isRentable: false,
+    rentalPriceDay1: undefined as number | undefined,
+    rentalPriceDay3: undefined as number | undefined,
+    rentalPriceDay7: undefined as number | undefined,
+    rentalPriceDay14: undefined as number | undefined,
+    rentalPriceDay30: undefined as number | undefined,
+    rentalPricePerDayFrom10: undefined as number | undefined,
   };
 
   preis = 0;
@@ -948,6 +955,13 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
         zustand:
           (purchase.bicycle.zustand as BikeCondition) ||
           BikeCondition.Gebraucht,
+        isRentable: purchase.bicycle.isRentable,
+        rentalPriceDay1: purchase.bicycle.rentalPriceDay1,
+        rentalPriceDay3: purchase.bicycle.rentalPriceDay3,
+        rentalPriceDay7: purchase.bicycle.rentalPriceDay7,
+        rentalPriceDay14: purchase.bicycle.rentalPriceDay14,
+        rentalPriceDay30: purchase.bicycle.rentalPriceDay30,
+        rentalPricePerDayFrom10: purchase.bicycle.rentalPricePerDayFrom10,
       };
     }
 
