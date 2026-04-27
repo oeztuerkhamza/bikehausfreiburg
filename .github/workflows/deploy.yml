@@ -40,6 +40,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           envs: INDEXNOW_API_KEY,JWT_SECRET_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID,SMTP_PASSWORD
+          command_timeout: 30m
           script: |
             set -e
             cd /opt/bikehaus
@@ -65,7 +66,7 @@ jobs:
             echo "SMTP_FROM_EMAIL=no-reply@bikehausfreiburg.com" >> .env
             echo "SMTP_FROM_NAME=Bike Haus Freiburg" >> .env
             chmod 600 .env
-            docker compose build --pull bikehaus
+            docker compose build bikehaus
             docker compose up -d --force-recreate bikehaus nginx
             docker compose ps
             docker image prune -f
