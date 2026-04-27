@@ -1546,6 +1546,8 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   getImageUrl(path: string): string {
-    return `${environment.apiUrl.replace('/api/public', '')}${path}`;
+    const base = environment.apiUrl.replace('/api/public', '').replace(/\/$/, '');
+    const p = path.startsWith('/') ? path : `/${path}`;
+    return `${base}${p}`;
   }
 }
