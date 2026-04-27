@@ -15,8 +15,6 @@ import {
   Sale,
   Document as DocModel,
 } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
-import { AddressSuggestion } from '../../services/address.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -26,7 +24,6 @@ import { forkJoin } from 'rxjs';
     CommonModule,
     FormsModule,
     RouterLink,
-    AddressAutocompleteComponent,
   ],
   template: `
     <div class="page">
@@ -243,14 +240,6 @@ import { forkJoin } from 'rxjs';
                   name="sellerNachname"
                   required
                 />
-              </div>
-              <div class="field full">
-                <label>{{ t.searchAddress }}</label>
-                <app-address-autocomplete
-                  placeholder="z.B. Bissierstraße 16, Freiburg"
-                  (addressSelected)="onSellerAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint">{{ t.addressHint }}</small>
               </div>
               <div class="field">
                 <label>{{ t.street }}</label>
@@ -983,12 +972,6 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     this.belegNummer = purchase.belegNummer || '';
   }
 
-  onSellerAddressSelected(address: AddressSuggestion) {
-    this.seller.strasse = address.strasse;
-    this.seller.hausnummer = address.hausnummer;
-    this.seller.plz = address.plz;
-    this.seller.stadt = address.stadt;
-  }
 
   submit() {
     if (!this.purchase) return;

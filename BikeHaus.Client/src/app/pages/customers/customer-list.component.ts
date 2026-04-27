@@ -7,13 +7,11 @@ import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { Customer, CustomerCreate, CustomerUpdate } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
-import { AddressSuggestion } from '../../services/address.service';
 
 @Component({
   selector: 'app-customer-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, AddressAutocompleteComponent],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="page">
       <div class="page-header">
@@ -36,15 +34,6 @@ import { AddressSuggestion } from '../../services/address.service';
           <div class="field">
             <label>{{ t.lastNameRequired }}</label>
             <input [(ngModel)]="form.nachname" required />
-          </div>
-          <div class="field full">
-            <label>{{ t.searchAddress }}</label>
-            <app-address-autocomplete
-              [placeholder]="t.addressPlaceholder"
-              [initialValue]="getAddressInitialValue()"
-              (addressSelected)="onAddressSelected($event)"
-            ></app-address-autocomplete>
-            <small class="hint">{{ t.addressHint }}</small>
           </div>
           <div class="field">
             <label>{{ t.street }}</label>
@@ -383,20 +372,6 @@ export class CustomerListComponent implements OnInit {
       email: c.email,
     };
     this.showForm = true;
-  }
-
-  onAddressSelected(address: AddressSuggestion) {
-    this.form.strasse = address.strasse;
-    this.form.hausnummer = address.hausnummer;
-    this.form.plz = address.plz;
-    this.form.stadt = address.stadt;
-  }
-
-  getAddressInitialValue(): string {
-    if (this.form.strasse) {
-      return `${this.form.strasse} ${this.form.hausnummer || ''}`.trim();
-    }
-    return '';
   }
 
   saveCustomer() {

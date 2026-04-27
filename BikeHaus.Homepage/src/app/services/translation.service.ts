@@ -715,7 +715,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalAvailableLabel: 'VERFÜGBARE FAHRRÄDER',
     bikeRentalAvailableTitle: 'Unsere Mietfahrräder',
     bikeRentalNoBikes: 'Derzeit keine Fahrräder verfügbar. Bitte kontaktieren Sie uns.',
-    bikeRentalBookBtn: 'Jetzt anfragen',
+    bikeRentalBookBtn: 'Fahrrad reservieren',
     bikeRentalDay: 'Tag',
     bikeRentalDays: 'Tage',
 
@@ -1227,7 +1227,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalAvailableLabel: 'AVAILABLE BICYCLES',
     bikeRentalAvailableTitle: 'Our Rental Bikes',
     bikeRentalNoBikes: 'No bicycles currently available. Please contact us.',
-    bikeRentalBookBtn: 'Enquire now',
+    bikeRentalBookBtn: 'Reserve bike',
     bikeRentalDay: 'Day',
     bikeRentalDays: 'Days',
 

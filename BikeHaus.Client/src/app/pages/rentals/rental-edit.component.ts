@@ -10,8 +10,6 @@ import {
   PaymentMethod,
   BikeConditionAtHandover,
 } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
-import { AddressSuggestion } from '../../services/address.service';
 
 @Component({
   selector: 'app-rental-edit',
@@ -20,7 +18,6 @@ import { AddressSuggestion } from '../../services/address.service';
     CommonModule,
     FormsModule,
     RouterLink,
-    AddressAutocompleteComponent,
   ],
   template: `
     <div class="page">
@@ -77,16 +74,6 @@ import { AddressSuggestion } from '../../services/address.service';
                   name="mieterNachname"
                   required
                 />
-              </div>
-              <div class="field full">
-                <label>Adresse suchen</label>
-                <app-address-autocomplete
-                  placeholder="z.B. Bissierstraße 16, Freiburg"
-                  (addressSelected)="onAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint"
-                  >Tippen Sie eine Adresse ein für Vorschläge</small
-                >
               </div>
               <div class="field">
                 <label>Straße</label>
@@ -542,12 +529,7 @@ export class RentalEditComponent implements OnInit {
     }
   }
 
-  onAddressSelected(address: AddressSuggestion) {
-    this.mieter.strasse = address.strasse;
-    this.mieter.hausnummer = address.hausnummer;
-    this.mieter.plz = address.plz;
-    this.mieter.stadt = address.stadt;
-  }
+
 
   onDatesChanged() {
     if (!this.startDatum || !this.endDatum) return;

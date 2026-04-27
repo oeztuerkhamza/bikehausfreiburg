@@ -18,10 +18,8 @@ import {
   SalePaymentCreate,
   AccessoryCatalogList,
 } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
 import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
-import { AddressSuggestion } from '../../services/address.service';
 
 @Component({
   selector: 'app-sale-form',
@@ -30,7 +28,6 @@ import { AddressSuggestion } from '../../services/address.service';
     CommonModule,
     FormsModule,
     RouterLink,
-    AddressAutocompleteComponent,
     BikeSelectorComponent,
     AccessoryAutocompleteComponent,
   ],
@@ -450,16 +447,6 @@ import { AddressSuggestion } from '../../services/address.service';
               <div class="field">
                 <label>Nachname</label>
                 <input [(ngModel)]="buyer.nachname" name="buyerNachname" />
-              </div>
-              <div class="field full">
-                <label>Adresse suchen</label>
-                <app-address-autocomplete
-                  placeholder="z.B. Bissierstraße 16, Freiburg"
-                  (addressSelected)="onBuyerAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint"
-                  >Tippen Sie eine Adresse ein für Vorschläge</small
-                >
               </div>
               <div class="field">
                 <label>Straße</label>
@@ -1495,12 +1482,6 @@ export class SaleFormComponent implements OnInit {
     });
   }
 
-  onBuyerAddressSelected(address: AddressSuggestion) {
-    this.buyer.strasse = address.strasse;
-    this.buyer.hausnummer = address.hausnummer;
-    this.buyer.plz = address.plz;
-    this.buyer.stadt = address.stadt;
-  }
 
   addAccessory() {
     this.accessories.push({

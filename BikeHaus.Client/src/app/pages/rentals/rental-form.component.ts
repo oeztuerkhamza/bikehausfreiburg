@@ -20,9 +20,7 @@ import {
     BikeConditionAtHandover,
     PaymentMethod,
 } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
-import { AddressSuggestion } from '../../services/address.service';
 
 interface AccessoryLine {
   rentalAccessoryId?: number;
@@ -44,7 +42,6 @@ const MONTH_NAMES = [
     CommonModule,
     FormsModule,
     RouterLink,
-    AddressAutocompleteComponent,
     BikeSelectorComponent,
   ],
   template: `
@@ -148,13 +145,6 @@ const MONTH_NAMES = [
               <div class="field">
                 <label>Nachname *</label>
                 <input [(ngModel)]="customer.nachname" name="customerNachname" required />
-              </div>
-              <div class="field full">
-                <label>Adresse suchen</label>
-                <app-address-autocomplete
-                  placeholder="Adresse eingeben..."
-                  (addressSelected)="onAddressSelected($event)"
-                ></app-address-autocomplete>
               </div>
               <div class="field">
                 <label>Straße *</label>
@@ -1103,13 +1093,6 @@ export class RentalFormComponent implements OnInit {
     this.selectedBike = null;
     this.busyPeriods = [];
     this.bikeEdit = { rahmennummer: '', marke: '', modell: '', farbe: '', reifengroesse: '', fahrradtyp: '' };
-  }
-
-  onAddressSelected(addr: AddressSuggestion) {
-    this.customer.strasse = addr.strasse || '';
-    this.customer.hausnummer = addr.hausnummer || '';
-    this.customer.plz = addr.plz || '';
-    this.customer.stadt = addr.stadt || '';
   }
 
   onAccessoryPicked(event: Event) {

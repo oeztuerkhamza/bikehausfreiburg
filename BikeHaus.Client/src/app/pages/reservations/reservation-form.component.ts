@@ -10,9 +10,7 @@ import {
   Bicycle,
   CustomerCreate,
 } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
-import { AddressSuggestion } from '../../services/address.service';
 
 @Component({
   selector: 'app-reservation-form',
@@ -21,7 +19,6 @@ import { AddressSuggestion } from '../../services/address.service';
     CommonModule,
     FormsModule,
     RouterLink,
-    AddressAutocompleteComponent,
     BikeSelectorComponent,
   ],
   template: `
@@ -62,14 +59,6 @@ import { AddressSuggestion } from '../../services/address.service';
                   name="customerNachname"
                   required
                 />
-              </div>
-              <div class="field full">
-                <label>{{ t.searchAddress }}</label>
-                <app-address-autocomplete
-                  [placeholder]="t.addressPlaceholder"
-                  (addressSelected)="onAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint">{{ t.addressSuggestHint }}</small>
               </div>
               <div class="field">
                 <label>{{ t.street }} *</label>
@@ -469,12 +458,6 @@ export class ReservationFormComponent implements OnInit {
     this.selectedBike = bike;
   }
 
-  onAddressSelected(address: AddressSuggestion) {
-    this.customer.strasse = address.strasse || '';
-    this.customer.hausnummer = address.hausnummer || '';
-    this.customer.plz = address.plz || '';
-    this.customer.stadt = address.stadt || '';
-  }
 
   getExpirationDate(): string {
     const date = this.reservierungsDatum

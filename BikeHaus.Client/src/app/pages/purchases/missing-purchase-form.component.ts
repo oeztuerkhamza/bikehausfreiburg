@@ -13,8 +13,6 @@ import {
   BikeCondition,
   DocumentType,
 } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
-import { AddressSuggestion } from '../../services/address.service';
 import { forkJoin, Observable } from 'rxjs';
 
 @Component({
@@ -24,7 +22,6 @@ import { forkJoin, Observable } from 'rxjs';
     CommonModule,
     FormsModule,
     RouterLink,
-    AddressAutocompleteComponent,
   ],
   template: `
     <div class="page">
@@ -175,13 +172,6 @@ import { forkJoin, Observable } from 'rxjs';
                 <datalist id="lastNameList">
                   <option *ngFor="let n of lastNames" [value]="n"></option>
                 </datalist>
-              </div>
-              <div class="field full">
-                <label>{{ t.searchAddress }}</label>
-                <app-address-autocomplete
-                  placeholder="z.B. Bissierstraße 16, Freiburg"
-                  (addressSelected)="onAddressSelected($event)"
-                ></app-address-autocomplete>
               </div>
               <div class="field">
                 <label>{{ t.street }}</label>
@@ -604,12 +594,6 @@ export class MissingPurchaseFormComponent implements OnInit {
     });
   }
 
-  onAddressSelected(address: AddressSuggestion) {
-    this.seller.strasse = address.strasse;
-    this.seller.hausnummer = address.hausnummer;
-    this.seller.plz = address.plz;
-    this.seller.stadt = address.stadt;
-  }
 
   canSubmit(): boolean {
     return !!(

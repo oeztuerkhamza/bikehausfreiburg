@@ -165,6 +165,41 @@ import { Rental, RentalUpdate } from '../../models/models';
       </div>
     </div>
 
+    <!-- Signature Modal for Kaution Return -->
+    <div class="modal-backdrop" *ngIf="showSignatureModal" (click)="closeSignatureModal()">
+      <div class="modal modal-sig" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>💰 Kaution zurückgeben</h3>
+          <button class="modal-close" (click)="closeSignatureModal()">✕</button>
+        </div>
+        <div class="modal-body sig-body">
+          <p class="sig-info">
+            Kaution: <strong>{{ rental?.kaution | number:'1.2-2' }} €</strong> wird an
+            <strong>{{ rental?.customer?.fullName }}</strong> zurückgegeben.<br>
+            Bitte Unterschrift des Mieters zur Bestätigung.
+          </p>
+          <div class="sig-canvas-wrap">
+            <canvas id="kautionSignatureCanvas" width="460" height="160"
+              (mousedown)="onSigMouseDown($event)"
+              (mousemove)="onSigMouseMove($event)"
+              (mouseup)="onSigEnd()"
+              (mouseleave)="onSigEnd()"
+              (touchstart)="onSigTouchStart($event)"
+              (touchmove)="onSigTouchMove($event)"
+              (touchend)="onSigEnd()">
+            </canvas>
+            <span class="sig-placeholder" *ngIf="sigIsEmpty">Hier unterschreiben ...</span>
+          </div>
+          <div class="sig-actions">
+            <button class="btn btn-outline" (click)="clearSignature()">🗑 Löschen</button>
+            <button class="btn btn-success" (click)="confirmKautionReturn()" [disabled]="sigIsEmpty">
+              ✅ Kaution bestätigt
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- PDF Preview Modal -->
     <div
       class="modal-backdrop"
@@ -401,6 +436,35 @@ import { Rental, RentalUpdate } from '../../models/models';
         height: 100%;
         border: none;
       }
+      .modal-sig { max-width: 540px; }
+      .sig-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+      .sig-info {
+        font-size: 0.9rem; color: var(--text-secondary);
+        line-height: 1.7; margin: 0;
+      }
+      .sig-canvas-wrap {
+        position: relative;
+        border: 2px dashed var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: #fff;
+        cursor: crosshair;
+        overflow: hidden;
+      }
+      #kautionSignatureCanvas {
+        display: block;
+        width: 100%;
+        height: 160px;
+        touch-action: none;
+      }
+      .sig-placeholder {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.9rem; color: #94a3b8;
+        pointer-events: none;
+      }
+      .sig-actions {
+        display: flex; gap: 10px; justify-content: flex-end;
+      }
     `,
   ],
 })
@@ -417,6 +481,11 @@ export class RentalDetailComponent implements OnInit {
   pdfPreviewTitle = '';
   private currentPdfBlob: Blob | null = null;
   private currentPdfFilename = '';
+
+  // Signature modal
+  showSignatureModal = false;
+  sigIsEmpty = true;
+  private sigDrawing = false;
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id')!;
@@ -495,28 +564,75 @@ export class RentalDetailComponent implements OnInit {
 
   markKautionReturned() {
     if (!this.rental) return;
-    this.dialogService
-      .confirm({
-        title: 'Kaution zurückgeben',
-        message: `Möchten Sie die Kaution von ${this.rental.kaution.toFixed(2)} € als zurückgegeben markieren?`,
-        type: 'confirm',
-        confirmText: 'Kaution zurückgeben',
-      })
-      .then((ok) => {
-        if (ok) {
-          const update: RentalUpdate = { kautionZurueckgegeben: true };
-          this.rentalService.update(this.rental!.id, update).subscribe({
-            next: (r) => {
-              this.rental = r;
-              this.notificationService.success(
-                'Kaution als zurückgegeben markiert',
-              );
-            },
-            error: (err) =>
-              this.notificationService.error(err.error?.error || 'Fehler'),
-          });
-        }
-      });
+    this.showSignatureModal = true;
+    this.sigIsEmpty = true;
+    setTimeout(() => this.clearSignature());
+  }
+
+  closeSignatureModal() {
+    this.showSignatureModal = false;
+  }
+
+  private getSigCanvas(): HTMLCanvasElement {
+    return document.getElementById('kautionSignatureCanvas') as HTMLCanvasElement;
+  }
+
+  clearSignature() {
+    const c = this.getSigCanvas();
+    if (!c) return;
+    const ctx = c.getContext('2d')!;
+    ctx.clearRect(0, 0, c.width, c.height);
+    this.sigIsEmpty = true;
+    this.sigDrawing = false;
+  }
+
+  onSigMouseDown(e: MouseEvent) {
+    this.sigDrawing = true;
+    this.sigIsEmpty = false;
+    const c = this.getSigCanvas();
+    const ctx = c.getContext('2d')!;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#1e293b';
+    const r = c.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+  }
+
+  onSigMouseMove(e: MouseEvent) {
+    if (!this.sigDrawing) return;
+    const c = this.getSigCanvas();
+    const ctx = c.getContext('2d')!;
+    const r = c.getBoundingClientRect();
+    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+    ctx.stroke();
+  }
+
+  onSigEnd() { this.sigDrawing = false; }
+
+  onSigTouchStart(e: TouchEvent) {
+    e.preventDefault();
+    const t = e.touches[0];
+    this.onSigMouseDown({ clientX: t.clientX, clientY: t.clientY } as MouseEvent);
+  }
+
+  onSigTouchMove(e: TouchEvent) {
+    e.preventDefault();
+    const t = e.touches[0];
+    this.onSigMouseMove({ clientX: t.clientX, clientY: t.clientY } as MouseEvent);
+  }
+
+  confirmKautionReturn() {
+    if (this.sigIsEmpty || !this.rental) return;
+    this.closeSignatureModal();
+    const update: RentalUpdate = { kautionZurueckgegeben: true };
+    this.rentalService.update(this.rental.id, update).subscribe({
+      next: (r) => {
+        this.rental = r;
+        this.notificationService.success('Kaution zurückgegeben – Unterschrift erfasst');
+      },
+      error: (err) => this.notificationService.error(err.error?.error || 'Fehler'),
+    });
   }
 
   cancelRental() {

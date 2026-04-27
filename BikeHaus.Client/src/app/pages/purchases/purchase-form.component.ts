@@ -14,8 +14,6 @@ import {
   BikeCondition,
   DocumentType,
 } from '../../models/models';
-import { AddressAutocompleteComponent } from '../../components/address-autocomplete/address-autocomplete.component';
-import { AddressSuggestion } from '../../services/address.service';
 import { forkJoin, Observable } from 'rxjs';
 
 @Component({
@@ -25,7 +23,6 @@ import { forkJoin, Observable } from 'rxjs';
     CommonModule,
     FormsModule,
     RouterLink,
-    AddressAutocompleteComponent,
   ],
   template: `
     <div class="page">
@@ -338,14 +335,6 @@ import { forkJoin, Observable } from 'rxjs';
                 <datalist id="storeNameList">
                   <option *ngFor="let s of storeNames" [value]="s"></option>
                 </datalist>
-              </div>
-              <div class="field full" *ngIf="!bulkMode">
-                <label>{{ t.searchAddress }}</label>
-                <app-address-autocomplete
-                  placeholder="z.B. Bissierstraße 16, Freiburg"
-                  (addressSelected)="onSellerAddressSelected($event)"
-                ></app-address-autocomplete>
-                <small class="hint">{{ t.addressHint }}</small>
               </div>
               <div class="field" *ngIf="!bulkMode">
                 <label>{{ t.street }}</label>
@@ -1078,12 +1067,6 @@ export class PurchaseFormComponent implements OnInit {
     return baseValid;
   }
 
-  onSellerAddressSelected(address: AddressSuggestion) {
-    this.seller.strasse = address.strasse;
-    this.seller.hausnummer = address.hausnummer;
-    this.seller.plz = address.plz;
-    this.seller.stadt = address.stadt;
-  }
 
   updateSignerName() {
     const name = [this.seller.vorname, this.seller.nachname]

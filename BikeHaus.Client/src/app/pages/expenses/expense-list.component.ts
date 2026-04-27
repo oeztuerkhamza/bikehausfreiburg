@@ -750,6 +750,9 @@ export class ExpenseListComponent implements OnInit {
           (e.belegNummer && e.belegNummer.toLowerCase().includes(q)),
       );
     }
+    this.filteredExpenses.sort(
+      (a, b) => new Date(b.datum).getTime() - new Date(a.datum).getTime(),
+    );
   }
 
   resetForm() {
