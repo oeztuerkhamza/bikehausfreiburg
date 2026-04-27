@@ -11,29 +11,11 @@ public class SmtpEmailService : IEmailService
 {
     private readonly SmtpOptions _options;
     private readonly ILogger<SmtpEmailService> _logger;
-    private const int MaxRetries = 3;
-    private const int InitialDelayMs = 1000;
 
     public SmtpEmailService(IOptions<SmtpOptions> options, ILogger<SmtpEmailService> logger)
     {
         _options = options.Value;
         _logger = logger;
-        ValidateConfiguration();
-    }
-
-    private void ValidateConfiguration()
-    {
-        if (string.IsNullOrWhiteSpace(_options.Host))
-            throw new InvalidOperationException("SMTP Host is not configured");
-
-        if (string.IsNullOrWhiteSpace(_options.Password))
-            throw new InvalidOperationException("SMTP Password is not configured");
-
-        if (string.IsNullOrWhiteSpace(_options.FromEmail))
-            throw new InvalidOperationException("SMTP FromEmail is not configured");
-
-        _logger.LogInformation("SMTP configured: Host={Host}, Port={Port}, SSL={UseSsl}",
-            _options.Host, _options.Port, _options.UseSsl);
     }
 
     public Task SendRentalBookingApprovedAsync(RentalBookingEmailModel model)
@@ -77,74 +59,48 @@ public class SmtpEmailService : IEmailService
 
     private async Task SendAsync(string toEmail, string toName, string subject, string body)
     {
-        if (string.IsNullOrWhiteSpace(toEmail))
-            throw new ArgumentNullException(nameof(toEmail));
-
-        _logger.LogInformation("Sending email to {To}, subject: {Subject}", toEmail, subject);
-
-        var lastException = (Exception?)null;
-        for (int attempt = 1; attempt <= MaxRetries; attempt++)
+        if (string.IsNullOrWhiteSpace(_options.Host))
         {
-            try
-            {
-                await SendInternalAsync(toEmail, toName, subject, body);
-                _logger.LogInformation("Email sent successfully to {To} (attempt {Attempt})", toEmail, attempt);
-                return;
-            }
-            catch (Exception ex)
-            {
-                lastException = ex;
-                _logger.LogWarning(ex,
-                    "Email send failed to {To} (attempt {Attempt}/{MaxRetries}): {Message}",
-                    toEmail, attempt, MaxRetries, ex.Message);
-
-                // Don't retry if credentials are invalid
-                if (ex.Message.Contains("authentication", StringComparison.OrdinalIgnoreCase) ||
-                    ex.Message.Contains("credentials", StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogError(ex, "Authentication error - not retrying");
-                    throw;
-                }
-
-                // Exponential backoff: 1s, 2s, 4s
-                if (attempt < MaxRetries)
-                {
-                    int delayMs = InitialDelayMs * (int)Math.Pow(2, attempt - 1);
-                    _logger.LogInformation("Retrying in {DelayMs}ms", delayMs);
-                    await Task.Delay(delayMs);
-                }
-            }
+            _logger.LogError("SMTP host is not configured. Email to {To} cannot be sent.", toEmail);
+            throw new InvalidOperationException("SMTP host is not configured.");
         }
 
-        _logger.LogError(lastException,
-            "Failed to send email to {To} after {MaxRetries} attempts via {Host}:{Port}",
-            toEmail, MaxRetries, _options.Host, _options.Port);
-        throw new InvalidOperationException(
-            $"Failed to send email to {toEmail} after {MaxRetries} attempts", lastException);
-    }
-
-    private async Task SendInternalAsync(string toEmail, string toName, string subject, string body)
-    {
-        using var message = new MailMessage
+        if (string.IsNullOrWhiteSpace(_options.Password))
         {
-            From = new MailAddress(_options.FromEmail, _options.FromName),
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = false
-        };
-        message.To.Add(new MailAddress(toEmail, toName));
+            _logger.LogError("SMTP password is empty. Email to {To} cannot be sent.", toEmail);
+            throw new InvalidOperationException("SMTP password is empty.");
+        }
 
-        using var client = new SmtpClient(_options.Host, _options.Port)
+        try
         {
-            EnableSsl = _options.UseSsl,
-            DeliveryMethod = SmtpDeliveryMethod.Network,
-            Timeout = 30000  // Increased from 20s to 30s
-        };
+            using var message = new MailMessage
+            {
+                From = new MailAddress(_options.FromEmail, _options.FromName),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = false
+            };
+            message.To.Add(new MailAddress(toEmail, toName));
 
-        if (!string.IsNullOrWhiteSpace(_options.Username))
-            client.Credentials = new NetworkCredential(_options.Username, _options.Password);
+            using var client = new SmtpClient(_options.Host, _options.Port)
+            {
+                EnableSsl = _options.UseSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Timeout = 20000
+            };
 
-        await client.SendMailAsync(message);
+            if (!string.IsNullOrWhiteSpace(_options.Username))
+                client.Credentials = new NetworkCredential(_options.Username, _options.Password);
+
+            _logger.LogInformation("Sending email to {To}, subject: {Subject}", toEmail, subject);
+            await client.SendMailAsync(message);
+            _logger.LogInformation("Email sent successfully to {To}", toEmail);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send email to {To} via {Host}:{Port}", toEmail, _options.Host, _options.Port);
+            throw;
+        }
     }
 
     private static string BuildApprovedBodyDe(RentalBookingEmailModel m)

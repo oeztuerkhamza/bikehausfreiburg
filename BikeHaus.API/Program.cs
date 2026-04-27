@@ -126,26 +126,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 // Auto-migrate database and seed default user
-try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<BikeHausDbContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-    logger.LogInformation("Starting database migration...");
     db.Database.Migrate();
-    logger.LogInformation("Database migration completed successfully");
 
-    logger.LogInformation("Seeding default user...");
     var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
     await authService.SeedDefaultUserAsync();
-    logger.LogInformation("Default user seeded successfully");
-}
-catch (Exception ex)
-{
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogError(ex, "An error occurred during database migration or seeding. Application will not start.");
-    throw;
 }
 
 await app.RunAsync();

@@ -34,82 +34,43 @@ jobs:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
           GOOGLE_PLACES_PLACE_ID: ${{ secrets.GOOGLE_PLACES_PLACE_ID }}
-          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME || 'no-reply@bikehausfreiburg.com' }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: INDEXNOW_API_KEY,JWT_SECRET_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID,SMTP_USERNAME,SMTP_PASSWORD
-          command_timeout: 20m
+          envs: INDEXNOW_API_KEY,JWT_SECRET_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID,SMTP_PASSWORD
+          command_timeout: 30m
           script: |
             set -e
             cd /opt/bikehaus
-            
-            # Validate required secrets
             if [ -z "${SMTP_PASSWORD}" ]; then
               echo "ERROR: SMTP_PASSWORD secret is missing."
               exit 1
             fi
-            if [ -z "${SMTP_USERNAME}" ]; then
-              echo "ERROR: SMTP_USERNAME secret is missing."
-              exit 1
-            fi
-            
-            echo "Deployment started at $(date)"
             echo "Current server commit: $(git rev-parse --short HEAD || echo unknown)"
-            
-            # Fast git sync
-            git fetch origin master
+            git fetch --prune origin master
+            git checkout master
             git reset --hard origin/master
-            DEPLOY_COMMIT=$(git rev-parse --short HEAD)
-            echo "Deploying commit: $DEPLOY_COMMIT"
-            
-            # Write secrets to .env file (ensure smtp credentials are set)
-            cat > .env << EOF
-JWT_SECRET_KEY=${JWT_SECRET_KEY}
-INDEXNOW_API_KEY=${INDEXNOW_API_KEY}
-GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}
-GOOGLE_PLACES_PLACE_ID=${GOOGLE_PLACES_PLACE_ID}
-SMTP_HOST=mail.bikehausfreiburg.com
-SMTP_PORT=587
-SMTP_USERNAME=${SMTP_USERNAME}
-SMTP_PASSWORD=${SMTP_PASSWORD}
-SMTP_USE_SSL=false
-SMTP_FROM_EMAIL=no-reply@bikehausfreiburg.com
-SMTP_FROM_NAME=Bike Haus Freiburg
-EOF
+            echo "Deploying commit: $(git rev-parse --short HEAD)"
+            # Write secrets to .env file for docker compose
+            echo "JWT_SECRET_KEY=${JWT_SECRET_KEY}" > .env
+            echo "INDEXNOW_API_KEY=${INDEXNOW_API_KEY}" >> .env
+            echo "GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}" >> .env
+            echo "GOOGLE_PLACES_PLACE_ID=${GOOGLE_PLACES_PLACE_ID}" >> .env
+            echo "SMTP_HOST=mail.bikehausfreiburg.com" >> .env
+            echo "SMTP_PORT=25" >> .env
+            echo "SMTP_USERNAME=" >> .env
+            echo "SMTP_PASSWORD=${SMTP_PASSWORD}" >> .env
+            echo "SMTP_USE_SSL=false" >> .env
+            echo "SMTP_FROM_EMAIL=no-reply@bikehausfreiburg.com" >> .env
+            echo "SMTP_FROM_NAME=Bike Haus Freiburg" >> .env
             chmod 600 .env
-            
-            echo "Building Docker image..."
-            docker compose build --pull bikehaus || {
-              echo "ERROR: Docker build failed"
-              exit 1
-            }
-            
-            echo "Deploying containers..."
-            docker compose up -d --force-recreate bikehaus nginx || {
-              echo "ERROR: Container deployment failed"
-              exit 1
-            }
-            
-            echo "Waiting for API to be ready..."
-            sleep 5
-            
+            docker compose build bikehaus
+            docker compose up -d --force-recreate bikehaus nginx
             docker compose ps
-            
-            # Run deployment validation
-            if [ -f deploy/validate-deployment.sh ]; then
-              echo "Running deployment validation..."
-              bash deploy/validate-deployment.sh || {
-                echo "WARNING: Deployment validation had issues, but continuing"
-              }
-            fi
-            
-            # Cleanup old images
-            docker image prune -af --filter "dangling=true" || true
-            
-            echo "Deployment completed successfully at $(date)"
+            docker image prune -f
+            echo "Deploy complete!"
 
   deploy-homepage:
     needs: changes
@@ -175,62 +136,20 @@ EOF
     needs: [deploy-api, deploy-homepage]
     if: always() && needs.deploy-api.result == 'success'
     steps:
-      - name: Comprehensive health check
+      - name: Health check endpoints
         run: |
-          # Wait for services to be fully ready
-          echo "Waiting 10s for services to stabilize..."
-          sleep 10
-          
-          # Test configuration
-          MAX_ATTEMPTS=5
-          ATTEMPT_INTERVAL=3
-          
-          # Test endpoints
-          test_endpoint() {
-            local url=$1
-            local expected_code=$2
-            local attempt=1
-            
-            while [ $attempt -le $MAX_ATTEMPTS ]; do
-              echo "Testing $url (attempt $attempt/$MAX_ATTEMPTS)"
-              code=$(curl -s -w "%{http_code}" -o /dev/null "$url" || echo "000")
-              
-              if [[ "$code" == "$expected_code" || "$code" == "200" ]]; then
-                echo "✓ $url returned $code"
-                return 0
-              fi
-              
-              if [ $attempt -lt $MAX_ATTEMPTS ]; then
-                echo "  Status: $code (retrying in ${ATTEMPT_INTERVAL}s)"
-                sleep $ATTEMPT_INTERVAL
-              fi
-              attempt=$((attempt + 1))
-            done
-            
-            echo "✗ FAILED: $url returned $code (expected $expected_code)"
-            return 1
-          }
-          
-          # Array of endpoints to test
-          declare -a endpoints=(
-            "https://bikehausfreiburg.com:200"
-            "https://admin.bikehausfreiburg.com:200"
-            "https://api.bikehausfreiburg.com/api/public/neue-fahrraeder:200"
-            "https://api.bikehausfreiburg.com/api/public/accessories:200"
+          urls=(
+            "https://bikehausfreiburg.com"
+            "https://admin.bikehausfreiburg.com"
+            "https://api.bikehausfreiburg.com/api/public/neue-fahrraeder"
+            "https://api.bikehausfreiburg.com/api/public/accessories"
           )
-          
-          failed=0
-          for endpoint in "${endpoints[@]}"; do
-            url="${endpoint%:*}"
-            expected="${endpoint##*:}"
-            test_endpoint "$url" "$expected" || failed=$((failed + 1))
+          for url in "${urls[@]}"; do
+            echo "Checking $url"
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+            if [[ "$code" != "200" ]]; then
+              echo "Health check failed for $url (status $code)"
+              exit 1
+            fi
           done
-          
-          if [ $failed -gt 0 ]; then
-            echo ""
-            echo "❌ Health check FAILED: $failed endpoint(s) not responding"
-            exit 1
-          fi
-          
-          echo ""
-          echo "✅ All endpoints healthy!"
+          echo "All endpoints healthy!"
