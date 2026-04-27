@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Mail;
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BikeHaus.Infrastructure.Services;
@@ -9,10 +10,12 @@ namespace BikeHaus.Infrastructure.Services;
 public class SmtpEmailService : IEmailService
 {
     private readonly SmtpOptions _options;
+    private readonly ILogger<SmtpEmailService> _logger;
 
-    public SmtpEmailService(IOptions<SmtpOptions> options)
+    public SmtpEmailService(IOptions<SmtpOptions> options, ILogger<SmtpEmailService> logger)
     {
         _options = options.Value;
+        _logger = logger;
     }
 
     public Task SendRentalBookingApprovedAsync(RentalBookingEmailModel model)
@@ -54,31 +57,50 @@ public class SmtpEmailService : IEmailService
         return SendAsync(model.ToEmail, model.ToName, subject, body);
     }
 
-    private Task SendAsync(string toEmail, string toName, string subject, string body)
+    private async Task SendAsync(string toEmail, string toName, string subject, string body)
     {
         if (string.IsNullOrWhiteSpace(_options.Host))
-            return Task.CompletedTask;
-
-        using var message = new MailMessage
         {
-            From = new MailAddress(_options.FromEmail, _options.FromName),
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = false
-        };
-        message.To.Add(new MailAddress(toEmail, toName));
-
-        using var client = new SmtpClient(_options.Host, _options.Port)
-        {
-            EnableSsl = _options.UseSsl
-        };
-
-        if (!string.IsNullOrWhiteSpace(_options.Username))
-        {
-            client.Credentials = new NetworkCredential(_options.Username, _options.Password);
+            _logger.LogWarning("SMTP host is not configured. Email to {To} was not sent.", toEmail);
+            return;
         }
 
-        return client.SendMailAsync(message);
+        if (string.IsNullOrWhiteSpace(_options.Password))
+        {
+            _logger.LogWarning("SMTP password is empty. Email to {To} was not sent.", toEmail);
+            return;
+        }
+
+        try
+        {
+            using var message = new MailMessage
+            {
+                From = new MailAddress(_options.FromEmail, _options.FromName),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = false
+            };
+            message.To.Add(new MailAddress(toEmail, toName));
+
+            using var client = new SmtpClient(_options.Host, _options.Port)
+            {
+                EnableSsl = _options.UseSsl,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Timeout = 20000
+            };
+
+            if (!string.IsNullOrWhiteSpace(_options.Username))
+                client.Credentials = new NetworkCredential(_options.Username, _options.Password);
+
+            _logger.LogInformation("Sending email to {To}, subject: {Subject}", toEmail, subject);
+            await client.SendMailAsync(message);
+            _logger.LogInformation("Email sent successfully to {To}", toEmail);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send email to {To} via {Host}:{Port}", toEmail, _options.Host, _options.Port);
+            throw;
+        }
     }
 
     private static string BuildApprovedBodyDe(RentalBookingEmailModel m)

@@ -2,6 +2,7 @@ using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace BikeHaus.API.Controllers;
 
@@ -10,10 +11,12 @@ namespace BikeHaus.API.Controllers;
 public class SettingsController : ControllerBase
 {
     private readonly IShopSettingsService _settingsService;
+    private readonly IEmailService _emailService;
 
-    public SettingsController(IShopSettingsService settingsService)
+    public SettingsController(IShopSettingsService settingsService, IEmailService emailService)
     {
         _settingsService = settingsService;
+        _emailService = emailService;
     }
 
     [HttpGet]
@@ -80,4 +83,39 @@ public class SettingsController : ControllerBase
         await _settingsService.DeleteOwnerSignatureAsync();
         return NoContent();
     }
+
+    [Authorize]
+    [HttpPost("test-email")]
+    public async Task<IActionResult> TestEmail([FromBody] TestEmailDto dto)
+    {
+        try
+        {
+            await _emailService.SendRentalBookingReceivedAsync(new RentalBookingEmailModel
+            {
+                ToEmail = dto.ToEmail,
+                ToName = "Test",
+                BuchungsNummer = "TEST-001",
+                BikeBrand = "Test",
+                BikeModel = "Fahrrad",
+                StartDate = DateTime.Today,
+                EndDate = DateTime.Today.AddDays(3),
+                Days = 3,
+                AccessoriesText = "-",
+                PickupLocation = "Bike Haus Freiburg, Freiburg",
+                ShopPhone = "",
+                ShopEmail = "no-reply@bikehausfreiburg.com",
+                Language = "de"
+            });
+            return Ok(new { message = $"Test-E-Mail wurde an {dto.ToEmail} gesendet." });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+}
+
+public class TestEmailDto
+{
+    public string ToEmail { get; set; } = "";
 }

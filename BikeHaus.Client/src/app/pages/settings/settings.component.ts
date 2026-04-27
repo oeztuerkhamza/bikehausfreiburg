@@ -1,18 +1,20 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { SettingsService, ShopSettings } from '../../services/settings.service';
+import { environment } from '../../../environments/environment';
 import { ThemeService } from '../../services/theme.service';
 import {
-  TranslationService,
-  Language,
+    TranslationService,
+    Language,
 } from '../../services/translation.service';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { BackupService } from '../../services/backup.service';
 import {
-  KleinanzeigenService,
-  KleinanzeigenSyncResult,
+    KleinanzeigenService,
+    KleinanzeigenSyncResult,
 } from '../../services/kleinanzeigen.service';
 
 @Component({
@@ -520,6 +522,40 @@ import {
           </div>
         </section>
 
+        <!-- Email Test Section -->
+        <section class="settings-section">
+          <h2>📧 E-Mail Test</h2>
+          <div class="settings-card">
+            <div class="backup-section">
+              <div class="backup-info">
+                <div class="backup-icon">✉️</div>
+                <div class="backup-text">
+                  <h3>SMTP Verbindung testen</h3>
+                  <p>Schickt eine Test-E-Mail, um die SMTP-Konfiguration zu prüfen.</p>
+                </div>
+              </div>
+              <div class="email-test-row">
+                <input
+                  type="email"
+                  [(ngModel)]="testEmailAddress"
+                  name="testEmailAddress"
+                  placeholder="test@example.com"
+                  class="email-test-input"
+                />
+                <button
+                  class="btn btn-primary"
+                  [disabled]="sendingTestEmail || !testEmailAddress"
+                  (click)="sendTestEmail()"
+                >
+                  {{ sendingTestEmail ? 'Sende...' : 'Test senden' }}
+                </button>
+              </div>
+              <div class="success-msg" *ngIf="testEmailSuccess">{{ testEmailSuccess }}</div>
+              <div class="error-msg" *ngIf="testEmailError">{{ testEmailError }}</div>
+            </div>
+          </div>
+        </section>
+
         <!-- Backup & Restore Section -->
         <section class="settings-section">
           <h2>{{ t.backupRestore }}</h2>
@@ -1013,6 +1049,26 @@ import {
       .backup-section:last-child {
         padding-bottom: 0;
       }
+      .email-test-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .email-test-input {
+        flex: 1;
+        min-width: 220px;
+        padding: 9px 14px;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card);
+        color: var(--text-primary);
+        font-size: 0.92rem;
+      }
+      .email-test-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+      }
       .backup-info {
         display: flex;
         gap: 16px;
@@ -1136,6 +1192,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private settingsService = inject(SettingsService);
   private backupService = inject(BackupService);
   private kleinanzeigenService = inject(KleinanzeigenService);
+  private http = inject(HttpClient);
   themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
   private authService = inject(AuthService);
@@ -1160,6 +1217,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   restoreError = '';
   showRestoreConfirm = false;
   selectedRestoreFile: File | null = null;
+
+  // Email test
+  testEmailAddress = '';
+  sendingTestEmail = false;
+  testEmailSuccess = '';
+  testEmailError = '';
 
   // User account
   currentUser: UserInfo | null = null;
@@ -1498,6 +1561,26 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   changeLanguage(lang: Language): void {
     this.translationService.setLanguage(lang);
+  }
+
+  // ── Email Test ──
+
+  sendTestEmail(): void {
+    if (!this.testEmailAddress) return;
+    this.sendingTestEmail = true;
+    this.testEmailSuccess = '';
+    this.testEmailError = '';
+
+    this.http.post<{ message: string }>(`${environment.apiUrl}/settings/test-email`, { toEmail: this.testEmailAddress }).subscribe({
+      next: (res) => {
+        this.testEmailSuccess = res.message;
+        this.sendingTestEmail = false;
+      },
+      error: (err) => {
+        this.testEmailError = err.error?.error || 'E-Mail konnte nicht gesendet werden. SMTP-Konfiguration prüfen.';
+        this.sendingTestEmail = false;
+      },
+    });
   }
 
   // ── Backup & Restore ──
