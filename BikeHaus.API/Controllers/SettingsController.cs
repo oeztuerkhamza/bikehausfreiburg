@@ -90,22 +90,26 @@ public class SettingsController : ControllerBase
     {
         try
         {
-            await _emailService.SendRentalBookingReceivedAsync(new RentalBookingEmailModel
-            {
-                ToEmail = dto.ToEmail,
-                ToName = "Test",
-                BuchungsNummer = "TEST-001",
-                BikeBrand = "Test",
-                BikeModel = "Fahrrad",
-                StartDate = DateTime.Today,
-                EndDate = DateTime.Today.AddDays(3),
-                Days = 3,
-                AccessoriesText = "-",
-                PickupLocation = "Bike Haus Freiburg, Freiburg",
-                ShopPhone = "",
-                ShopEmail = "no-reply@bikehausfreiburg.com",
-                Language = "de"
-            });
+            await _emailService.SendRentalBookingReceivedAsync(new RentalBookingEmailModel(
+                ToEmail: dto.ToEmail,
+                ToName: "Test",
+                BuchungsNummer: "TEST-001",
+                BikeBrand: "Test",
+                BikeModel: "Fahrrad",
+                FrameNumber: null,
+                FrameSize: null,
+                Color: null,
+                StartDate: DateTime.Today,
+                EndDate: DateTime.Today.AddDays(3),
+                Days: 3,
+                TotalPrice: null,
+                Deposit: null,
+                AccessoriesText: "-",
+                PickupLocation: "Bike Haus Freiburg, Freiburg",
+                ShopPhone: "",
+                ShopEmail: "no-reply@bikehausfreiburg.com",
+                Language: "de"
+            ));
             return Ok(new { message = $"Test-E-Mail wurde an {dto.ToEmail} gesendet." });
         }
         catch (Exception ex)
