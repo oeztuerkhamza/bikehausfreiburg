@@ -1582,8 +1582,9 @@ public class PdfService : IPdfService
                         {
                             c.Item().Text("Kaution:").FontSize(9).FontColor(Colors.Grey.Darken1);
                             c.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(5).Text($"{rental.Kaution:N2} €").FontSize(13).Bold();
-                            c.Item().PaddingTop(3).Text("Die Kaution wird bei ordnungsgemäßer Rückgabe zurückerstattet.").FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
-                            c.Item().Text("Bei Schäden oder Verlust kann die Kaution einbehalten werden.").FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
+                            c.Item().PaddingTop(3).Text("Die Mietgebühr wird im Voraus bezahlt.").FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
+                            c.Item().Text($"Zusätzlich ist pro Fahrrad eine Kaution in Höhe von {rental.Kaution:N2} € in bar zu hinterlegen.").FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
+                            c.Item().Text("Bei ordnungsgemäßer Rückgabe ohne Schäden oder Verluste wird die Kaution vollständig erstattet.").FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
                         });
 
                         // Grand Total box
@@ -1604,6 +1605,33 @@ public class PdfService : IPdfService
                             wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
                             wRow.RelativeItem().Text(text =>
                             {
+                                text.Span("MIETZAHLUNG: ").Bold().FontSize(9);
+                                text.Span("Die Mietgebühr wird im Voraus bezahlt.").FontSize(9).FontColor(Colors.Grey.Darken3);
+                            });
+                        });
+                        wCol.Item().PaddingTop(3).Row(wRow =>
+                        {
+                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
+                            wRow.RelativeItem().Text(text =>
+                            {
+                                text.Span("KAUTION: ").Bold().FontSize(9);
+                                text.Span($"Pro Fahrrad ist eine Kaution in Höhe von {rental.Kaution:N2} € in bar zu hinterlegen. Bei ordnungsgemäßer Rückgabe wird sie erstattet.").FontSize(9).FontColor(Colors.Grey.Darken3);
+                            });
+                        });
+                        wCol.Item().PaddingTop(3).Row(wRow =>
+                        {
+                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
+                            wRow.RelativeItem().Text(text =>
+                            {
+                                text.Span("ÜBERGABE & RÜCKGABE: ").Bold().FontSize(9);
+                                text.Span("Die Fahrradübergabe ist täglich ab 10:00 Uhr möglich. Die Rückgabe muss bis spätestens 18:00 Uhr erfolgen.").FontSize(9).FontColor(Colors.Grey.Darken3);
+                            });
+                        });
+                        wCol.Item().Row(wRow =>
+                        {
+                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
+                            wRow.RelativeItem().Text(text =>
+                            {
                                 text.Span("HAFTUNG: ").Bold().FontSize(9);
                                 text.Span("Der Mieter haftet für Schäden, Verlust und Diebstahl des gemieteten Fahrrads.").FontSize(9).FontColor(Colors.Grey.Darken3);
                             });
@@ -1613,8 +1641,17 @@ public class PdfService : IPdfService
                             wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
                             wRow.RelativeItem().Text(text =>
                             {
-                                text.Span("RÜCKGABE: ").Bold().FontSize(9);
-                                text.Span("Das Fahrrad ist spätestens zum vereinbarten Zeitpunkt zurückzugeben.").FontSize(9).FontColor(Colors.Grey.Darken3);
+                                text.Span("VERSPÄTETE RÜCKGABE: ").Bold().FontSize(9);
+                                text.Span("Bei verspäteter Rückgabe wird eine Gebühr von 12 € pro angefangenem Tag berechnet.").FontSize(9).FontColor(Colors.Grey.Darken3);
+                            });
+                        });
+                        wCol.Item().PaddingTop(3).Row(wRow =>
+                        {
+                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
+                            wRow.RelativeItem().Text(text =>
+                            {
+                                text.Span("ZUBEHÖR: ").Bold().FontSize(9);
+                                text.Span("Für verlorenes oder beschädigtes Zubehör (Schloss, Helm oder Korb) werden jeweils 30 € berechnet.").FontSize(9).FontColor(Colors.Grey.Darken3);
                             });
                         });
                     });

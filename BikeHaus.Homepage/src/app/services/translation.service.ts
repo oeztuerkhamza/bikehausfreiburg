@@ -704,14 +704,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalMonth: '30 Tage: 160 €',
     bikeRentalDepositTitle: 'Kaution',
     bikeRentalDepositText:
-      'Der Kaufpreis des Fahrrads wird vorab als Kaution hinterlegt. Bei Rückgabe wird der Mietpreis abgezogen und der Restbetrag erstattet.',
+      'Die Mietgebühr wird im Voraus bezahlt. Zusätzlich ist pro Fahrrad eine Kaution in Höhe von 300 € in bar zu hinterlegen. Bei ordnungsgemäßer Rückgabe ohne Schäden oder Verluste wird die Kaution vollständig erstattet.',
     bikeRentalNoteTitle: 'Hinweis',
     bikeRentalNoteText:
-      'Bei Schäden durch normale Nutzung kann eine kleine Reparaturgebühr anfallen.',
+      'Die Übergabe ist täglich ab 10:00 Uhr möglich, die Rückgabe spätestens bis 18:00 Uhr. Bei verspäteter Rückgabe berechnen wir 12 € pro angefangenem Tag.',
     bikeRentalIncludedTitle: 'Inklusive',
     bikeRentalIncluded1: 'Faltschloss',
     bikeRentalIncluded2: 'Fahrradkorb',
-    bikeRentalIncludedNote: 'Diese werden kostenlos am Fahrrad montiert.',
+    bikeRentalIncludedNote:
+      'Verlorenes oder beschädigtes Zubehör (Schloss, Helm oder Korb) wird mit jeweils 30 € berechnet.',
     bikeRentalAvailableLabel: 'VERFÜGBARE FAHRRÄDER',
     bikeRentalAvailableTitle: 'Unsere Mietfahrräder',
     bikeRentalNoBikes:
@@ -1217,14 +1218,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalMonth: '30 Days: 160 €',
     bikeRentalDepositTitle: 'Deposit',
     bikeRentalDepositText:
-      'The purchase price of the bicycle is deposited as a security deposit in advance. Upon return, the rental fee is deducted and the remaining amount is refunded.',
+      'The rental fee is paid in advance. In addition, a cash deposit of 300 € is required per bicycle. If the bicycle is returned properly without damage or loss, the deposit is fully refunded.',
     bikeRentalNoteTitle: 'Note',
     bikeRentalNoteText:
-      'A small repair fee may be charged for damage caused by normal use.',
+      'Handover is possible daily from 10:00, and return must be completed by 18:00 at the latest. A late return fee of 12 € per started day will be charged.',
     bikeRentalIncludedTitle: 'Included',
     bikeRentalIncluded1: 'Folding lock',
     bikeRentalIncluded2: 'Bicycle basket',
-    bikeRentalIncludedNote: 'These are mounted on the bicycle free of charge.',
+    bikeRentalIncludedNote:
+      'Lost or damaged accessories (lock, helmet or basket) are charged at 30 € each.',
     bikeRentalAvailableLabel: 'AVAILABLE BICYCLES',
     bikeRentalAvailableTitle: 'Our Rental Bikes',
     bikeRentalNoBikes: 'No bicycles currently available. Please contact us.',
@@ -1717,14 +1719,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalMonth: '30 Jours : 160 €',
     bikeRentalDepositTitle: 'Caution',
     bikeRentalDepositText:
-      "Le prix d'achat du vélo est déposé en avance comme caution. Lors du retour, le prix de location est déduit et le montant restant est remboursé.",
+      "Le prix de location est payé à l'avance. En plus, une caution en espèces de 300 € est exigée par vélo. Si le vélo est retourné correctement, sans dommage ni perte, la caution est remboursée intégralement.",
     bikeRentalNoteTitle: 'Remarque',
     bikeRentalNoteText:
-      'Des frais de réparation minimes peuvent être facturés en cas de dommages liés à une utilisation normale.',
+      'La remise du vélo est possible tous les jours à partir de 10:00 et le retour doit être effectué au plus tard à 18:00. En cas de retour tardif, des frais de 12 € par jour entamé sont facturés.',
     bikeRentalIncludedTitle: 'Inclus',
     bikeRentalIncluded1: 'Antivol pliable',
     bikeRentalIncluded2: 'Panier de vélo',
-    bikeRentalIncludedNote: 'Ceux-ci sont montés gratuitement sur le vélo.',
+    bikeRentalIncludedNote:
+      'Les accessoires perdus ou endommagés (antivol, casque ou panier) sont facturés 30 € chacun.',
     bikeRentalAvailableLabel: 'VÉLOS DISPONIBLES',
     bikeRentalAvailableTitle: 'Nos vélos de location',
     bikeRentalNoBikes:
@@ -2234,14 +2237,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalMonth: '30 Gün: 160 €',
     bikeRentalDepositTitle: 'Depozito',
     bikeRentalDepositText:
-      'Bisikletin satın alma fiyatı peşin olarak depozito olarak bırakılır. Bisiklet iade edildiğinde kiralama bedeli düşülür ve kalan tutar geri ödenir.',
+      'Kiralama ücreti peşin ödenir. Buna ek olarak her bisiklet için 300 € nakit depozito alınır. Bisiklet hasar veya kayıp olmadan düzgün şekilde iade edilirse depozito tamamen geri ödenir.',
     bikeRentalNoteTitle: 'Not',
     bikeRentalNoteText:
-      'Normal kullanımdan kaynaklanan hasarlarda küçük bir onarım ücreti alınabilir.',
+      "Teslimat her gün 10:00'dan itibaren mümkündür, iade ise en geç 18:00'e kadar yapılmalıdır. Geç iade için başlayan her gün başına 12 € ücret alınır.",
     bikeRentalIncludedTitle: 'Dahil',
     bikeRentalIncluded1: 'Katlanabilir kilit',
     bikeRentalIncluded2: 'Bisiklet sepeti',
-    bikeRentalIncludedNote: 'Bunlar bisiklete ücretsiz olarak monte edilir.',
+    bikeRentalIncludedNote:
+      'Kaybolan veya hasar gören aksesuarlar (kilit, kask veya sepet) için ayrı ayrı 30 € ücret alınır.',
     bikeRentalAvailableLabel: 'MEVCUT BİSİKLETLER',
     bikeRentalAvailableTitle: 'Kiralık Bisikletlerimiz',
     bikeRentalNoBikes:
