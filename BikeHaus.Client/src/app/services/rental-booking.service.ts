@@ -50,4 +50,8 @@ export class RentalBookingService {
   getPendingCount(): Observable<{ count: number }> {
     return this.http.get<{ count: number }>(`${this.url}/pending-count`);
   }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
 }

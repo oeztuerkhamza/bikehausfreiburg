@@ -413,6 +413,7 @@ export interface Translations {
   customerAddress: string;
   searchInvoicePlaceholder: string;
   deleteConfirmInvoice: string;
+  deleteConfirmRentalBooking: string;
   invoiceCount: string;
   invoiceTotal: string;
 
@@ -1168,6 +1169,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     customerAddress: 'Kundenadresse',
     searchInvoicePlaceholder: 'Suche nach Rechnungsnr., Bezeichnung, Kunde...',
     deleteConfirmInvoice: 'Rechnung wirklich löschen?',
+    deleteConfirmRentalBooking: 'Mietanfrage wirklich löschen?',
     invoiceCount: 'Anzahl',
     invoiceTotal: 'Gesamtbetrag',
 
@@ -1923,6 +1925,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     customerAddress: 'Müşteri adresi',
     searchInvoicePlaceholder: 'Fatura no, açıklama, müşteri ara...',
     deleteConfirmInvoice: 'Bu faturayı silmek istediğinize emin misiniz?',
+    deleteConfirmRentalBooking: 'Bu mietanfrage\'yi silmek istediğinize emin misiniz?',
     invoiceCount: 'Adet',
     invoiceTotal: 'Toplam tutar',
 

@@ -69,6 +69,14 @@ public class RentalBookingsController : ControllerBase
         }
     }
 
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var success = await _service.DeleteAsync(id);
+        if (!success) return NotFound();
+        return NoContent();
+    }
+
     [HttpPost("{id}/cancel")]
     public async Task<ActionResult<RentalBookingDto>> Cancel(int id, [FromBody] RentalBookingCancelDto dto)
     {

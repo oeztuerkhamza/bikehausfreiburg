@@ -238,6 +238,14 @@ public class RentalBookingService : IRentalBookingService
         return _bookingRepository.CountAsync(b => b.Status == RentalBookingStatus.Pending);
     }
 
+    public async Task<bool> DeleteAsync(int id)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(id);
+        if (booking == null) return false;
+        await _bookingRepository.DeleteAsync(id);
+        return true;
+    }
+
     private static string NormalizeLanguage(string lang)
     {
         if (string.IsNullOrWhiteSpace(lang)) return "de";

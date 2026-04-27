@@ -115,6 +115,18 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 >
                   {{ t.rentalBookingCancel }}
                 </button>
+                <button
+                  class="btn btn-sm btn-delete"
+                  (click)="deleteBooking(booking)"
+                  title="{{ t.delete }}"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                    <path d="M10 11v6M14 11v6"/>
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                  </svg>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -299,6 +311,19 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         color: #fff;
         border-color: var(--accent-danger, #ef4444);
       }
+      .btn-delete {
+        background: transparent;
+        color: var(--text-secondary, #64748b);
+        border-color: var(--border-light, #e2e8f0);
+        padding: 5px 8px;
+        display: inline-flex;
+        align-items: center;
+      }
+      .btn-delete:hover {
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
+        border-color: #ef4444;
+      }
       .mono {
         font-family:
           ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas,
@@ -398,6 +423,23 @@ export class RentalBookingListComponent implements OnInit {
             this.notificationService.error(
               err.error?.error || this.t.saveError,
             );
+          },
+        });
+      });
+  }
+
+  deleteBooking(booking: RentalBookingList) {
+    this.dialogService
+      .danger(this.t.delete, this.t.deleteConfirmRentalBooking)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.service.delete(booking.id).subscribe({
+          next: () => {
+            this.notificationService.success(this.t.deleteSuccess);
+            this.loadBookings();
+          },
+          error: () => {
+            this.notificationService.error(this.t.saveError);
           },
         });
       });

@@ -11,4 +11,5 @@ public interface IRentalBookingService
     Task<RentalBookingDto> CancelAsync(int id, RentalBookingCancelDto dto);
     Task<IEnumerable<RentalBookingRangeDto>> GetApprovedRangesAsync(int bicycleId);
     Task<int> GetPendingCountAsync();
+    Task<bool> DeleteAsync(int id);
 }
