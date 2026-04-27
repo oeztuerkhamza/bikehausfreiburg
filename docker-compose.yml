@@ -45,7 +45,7 @@ services:
     container_name: bikehaus-nginx
     restart: unless-stopped
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     ports:
       - '80:80'
       - '443:443'
