@@ -49,7 +49,7 @@ import { TranslationService } from '../../services/translation.service';
           <h2>{{ editingExpense ? t.editExpense : t.newExpense }}</h2>
           <div class="form-grid">
             <div class="form-group full-width">
-              <label>{{ t.designation }} *</label>
+              <label>Satıcı Firma *</label>
               <input
                 type="text"
                 [(ngModel)]="form.bezeichnung"

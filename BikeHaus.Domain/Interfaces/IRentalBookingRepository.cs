@@ -12,4 +12,5 @@ public interface IRentalBookingRepository : IRepository<RentalBooking>
         int pageSize,
         Expression<Func<RentalBooking, bool>>? predicate = null);
     Task<IEnumerable<RentalBooking>> GetApprovedByBicycleIdAsync(int bicycleId);
+    Task<bool> ExistsApprovedOverlapAsync(int bicycleId, DateTime start, DateTime end, int? excludeBookingId = null);
 }

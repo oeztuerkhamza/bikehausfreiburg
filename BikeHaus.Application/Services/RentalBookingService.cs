@@ -95,6 +95,13 @@ public class RentalBookingService : IRentalBookingService
         if (dto.EndDatum.Date < dto.StartDatum.Date)
             throw new InvalidOperationException("End date must be after start date.");
 
+        var hasApprovedOverlap = await _bookingRepository.ExistsApprovedOverlapAsync(
+            dto.BicycleId,
+            dto.StartDatum.Date,
+            dto.EndDatum.Date);
+        if (hasApprovedOverlap)
+            throw new InvalidOperationException("Dieses Fahrrad ist im ausgewaehlten Zeitraum bereits bestaetigt gebucht.");
+
         var bicycle = await _bicycleRepository.GetByIdAsync(dto.BicycleId)
             ?? throw new KeyNotFoundException($"Bicycle with ID {dto.BicycleId} not found.");
 
@@ -155,6 +162,14 @@ public class RentalBookingService : IRentalBookingService
     {
         var booking = await _bookingRepository.GetWithDetailsAsync(id)
             ?? throw new KeyNotFoundException($"Booking with ID {id} not found.");
+
+        var hasApprovedOverlap = await _bookingRepository.ExistsApprovedOverlapAsync(
+            booking.BicycleId,
+            booking.StartDatum.Date,
+            booking.EndDatum.Date,
+            booking.Id);
+        if (hasApprovedOverlap)
+            throw new InvalidOperationException("Diese Buchung kann nicht bestaetigt werden, da der Zeitraum bereits durch eine andere bestaetigte Buchung belegt ist.");
 
         if (booking.Status == RentalBookingStatus.Cancelled)
             throw new InvalidOperationException("Stornierte Buchungen koennen nicht bestaetigt werden.");

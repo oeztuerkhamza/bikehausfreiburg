@@ -58,4 +58,18 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .OrderBy(b => b.StartDatum)
             .ToListAsync();
     }
+
+    public async Task<bool> ExistsApprovedOverlapAsync(int bicycleId, DateTime start, DateTime end, int? excludeBookingId = null)
+    {
+        var query = _dbSet.Where(b =>
+            b.BicycleId == bicycleId &&
+            b.Status == RentalBookingStatus.Approved &&
+            b.StartDatum.Date <= end.Date &&
+            b.EndDatum.Date >= start.Date);
+
+        if (excludeBookingId.HasValue)
+            query = query.Where(b => b.Id != excludeBookingId.Value);
+
+        return await query.AnyAsync();
+    }
 }
