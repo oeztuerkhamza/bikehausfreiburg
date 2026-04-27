@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -514,15 +514,43 @@ import { environment } from '../../../environments/environment';
             <div class="modal-form" *ngIf="!bookingSuccess()">
               <h3 class="modal-title">Mietanfrage stellen</h3>
 
-              <!-- Dates -->
-              <div class="form-row">
-                <div class="form-field">
-                  <label>Von *</label>
-                  <input type="date" [(ngModel)]="bookingForm.startDatum" (change)="onDatesChange()" [min]="today" />
+              <!-- Custom Calendar -->
+              <div class="booking-calendar">
+                <div class="bc-header">
+                  <button type="button" class="bc-nav" (click)="prevMonth()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                  </button>
+                  <span class="bc-month-title">{{ calMonthLabel() }}</span>
+                  <button type="button" class="bc-nav" (click)="nextMonth()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                  </button>
                 </div>
-                <div class="form-field">
-                  <label>Bis *</label>
-                  <input type="date" [(ngModel)]="bookingForm.endDatum" (change)="onDatesChange()" [min]="bookingForm.startDatum || today" />
+                <div class="bc-weekdays">
+                  <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
+                </div>
+                <div class="bc-grid">
+                  <div *ngFor="let day of calendarDays()"
+                       class="bc-cell"
+                       [class.bc-empty]="!day"
+                       [class.bc-past]="day && isPast(day)"
+                       [class.bc-busy]="day && !isPast(day) && isDayBusy(day)"
+                       [class.bc-today]="day && isToday(day)"
+                       [class.bc-start]="day && isStart(day)"
+                       [class.bc-end]="day && isEnd(day)"
+                       [class.bc-range]="day && isInRange(day)"
+                       [class.bc-clickable]="day && !isPast(day) && !isDayBusy(day)"
+                       (click)="day && !isPast(day) && !isDayBusy(day) && onCalDayClick(day)">
+                    <span *ngIf="day">{{ day.getDate() }}</span>
+                  </div>
+                </div>
+                <div class="bc-legend">
+                  <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-busy"></span>Belegt</span>
+                  <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-sel"></span>Ausgewählt</span>
+                </div>
+                <div class="bc-info" *ngIf="calendarStart()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <span *ngIf="!calendarEnd()">{{ formatCalDay(calendarStart()!) }} → Enddatum wählen</span>
+                  <span *ngIf="calendarEnd()">{{ formatCalDay(calendarStart()!) }} – {{ formatCalDay(calendarEnd()!) }}</span>
                 </div>
               </div>
 
@@ -1597,6 +1625,110 @@ import { environment } from '../../../environments/environment';
       }
       @keyframes spin { to { transform: rotate(360deg); } }
 
+      /* ── Booking Calendar ── */
+      .booking-calendar {
+        border: 1.5px solid var(--color-border);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--color-bg);
+      }
+
+      .bc-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 14px;
+        background: rgba(255,255,255,0.03);
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .bc-month-title {
+        font-size: 0.88rem; font-weight: 700; color: var(--color-text);
+        text-transform: capitalize;
+      }
+
+      .bc-nav {
+        background: none; border: none; cursor: pointer;
+        color: var(--color-text-secondary); padding: 4px 8px;
+        border-radius: 6px; display: flex; transition: all 0.15s;
+      }
+      .bc-nav:hover { background: rgba(255,255,255,0.08); color: var(--color-text); }
+
+      .bc-weekdays {
+        display: grid; grid-template-columns: repeat(7, 1fr);
+        padding: 6px 10px 2px;
+      }
+      .bc-weekdays span {
+        text-align: center; font-size: 0.67rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        color: var(--color-text-secondary); padding: 4px 0;
+      }
+
+      .bc-grid {
+        display: grid; grid-template-columns: repeat(7, 1fr);
+        padding: 4px 10px 10px; gap: 2px;
+      }
+
+      .bc-cell {
+        aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+        border-radius: 8px; font-size: 0.82rem; font-weight: 500;
+        color: var(--color-text); transition: all 0.12s; position: relative;
+        user-select: none;
+      }
+
+      .bc-empty { pointer-events: none; }
+      .bc-clickable { cursor: pointer; }
+      .bc-clickable:hover:not(.bc-start):not(.bc-end) { background: rgba(255,255,255,0.08); }
+
+      .bc-past { opacity: 0.28; pointer-events: none; }
+
+      .bc-busy {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        cursor: not-allowed;
+      }
+
+      .bc-today::after {
+        content: ''; position: absolute;
+        bottom: 3px; left: 50%; transform: translateX(-50%);
+        width: 4px; height: 4px; border-radius: 50%;
+        background: var(--color-accent);
+      }
+
+      .bc-start, .bc-end {
+        background: var(--color-accent) !important;
+        color: #fff !important;
+        font-weight: 700;
+      }
+
+      .bc-range {
+        background: rgba(255, 87, 34, 0.18);
+        border-radius: 0;
+      }
+
+      .bc-legend {
+        display: flex; gap: 16px; padding: 6px 14px 8px;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .bc-legend-item {
+        display: flex; align-items: center; gap: 5px;
+        font-size: 0.7rem; color: var(--color-text-secondary);
+      }
+
+      .bc-leg-dot {
+        width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+      }
+      .bc-leg-busy { background: rgba(239, 68, 68, 0.4); }
+      .bc-leg-sel { background: var(--color-accent); }
+
+      .bc-info {
+        display: flex; align-items: center; gap: 7px;
+        padding: 8px 14px;
+        background: rgba(255, 87, 34, 0.08);
+        border-top: 1px solid rgba(255, 87, 34, 0.2);
+        font-size: 0.82rem; color: var(--color-text);
+      }
+      .bc-info svg { color: var(--color-accent); flex-shrink: 0; }
+
       .modal-note {
         font-size: 0.78rem; color: var(--color-text-secondary); line-height: 1.6;
         text-align: center; margin: 0;
@@ -1746,6 +1878,30 @@ export class FahrradverleihComponent implements OnInit {
   calculatedDays = signal(0);
   calculatedPrice = signal<number | null>(null);
 
+  // Calendar state
+  busyPeriods = signal<{ start: Date; end: Date }[]>([]);
+  calendarCurrentDate = signal(new Date());
+  calendarStart = signal<Date | null>(null);
+  calendarEnd = signal<Date | null>(null);
+
+  calMonthLabel = computed(() => {
+    const d = this.calendarCurrentDate();
+    return d.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+  });
+
+  calendarDays = computed(() => {
+    const d = this.calendarCurrentDate();
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const offset = (firstDay.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days: (Date | null)[] = [];
+    for (let i = 0; i < offset; i++) days.push(null);
+    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
+    return days;
+  });
+
   ngOnInit(): void {
     const t = this.t();
     this.titleService.setTitle(t.bikeRentalMetaTitle);
@@ -1797,6 +1953,19 @@ export class FahrradverleihComponent implements OnInit {
       startDatum: '', endDatum: '', vorname: '', nachname: '',
       email: '', telefon: '', sprache: 'de', notizen: '',
     };
+    this.calendarStart.set(null);
+    this.calendarEnd.set(null);
+    this.calendarCurrentDate.set(new Date());
+    this.busyPeriods.set([]);
+    this.apiService.getBusyPeriods(bike.id).subscribe({
+      next: (periods) => {
+        this.busyPeriods.set(periods.map(p => {
+          const toLocal = (s: string) => { const d = new Date(s); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+          return { start: toLocal(p.start), end: toLocal(p.end) };
+        }));
+      },
+      error: () => {},
+    });
     this.modalOpen.set(true);
     document.body.style.overflow = 'hidden';
   }
@@ -1825,6 +1994,92 @@ export class FahrradverleihComponent implements OnInit {
     else if (days > 10 && p.perDayFrom10 != null) price = p.perDayFrom10 * days;
     else if (p.day1 != null) price = p.day1 * days;
     this.calculatedPrice.set(price);
+  }
+
+  prevMonth(): void {
+    const d = this.calendarCurrentDate();
+    this.calendarCurrentDate.set(new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  }
+
+  nextMonth(): void {
+    const d = this.calendarCurrentDate();
+    this.calendarCurrentDate.set(new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  }
+
+  isDayBusy(date: Date): boolean {
+    const t = date.getTime();
+    return this.busyPeriods().some(p => t >= p.start.getTime() && t <= p.end.getTime());
+  }
+
+  isPast(date: Date): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  }
+
+  isToday(date: Date): boolean {
+    const now = new Date();
+    return date.getFullYear() === now.getFullYear() &&
+           date.getMonth() === now.getMonth() &&
+           date.getDate() === now.getDate();
+  }
+
+  isStart(date: Date): boolean {
+    const s = this.calendarStart();
+    return !!s && date.getTime() === s.getTime();
+  }
+
+  isEnd(date: Date): boolean {
+    const e = this.calendarEnd();
+    return !!e && date.getTime() === e.getTime();
+  }
+
+  isInRange(date: Date): boolean {
+    const s = this.calendarStart();
+    const e = this.calendarEnd();
+    if (!s || !e) return false;
+    return date > s && date < e;
+  }
+
+  onCalDayClick(date: Date): void {
+    const s = this.calendarStart();
+    const e = this.calendarEnd();
+    if (!s || (s && e) || date < s) {
+      this.calendarStart.set(date);
+      this.calendarEnd.set(null);
+      this.bookingForm.startDatum = this.toIsoDate(date);
+      this.bookingForm.endDatum = '';
+      this.calculatedDays.set(0);
+      this.calculatedPrice.set(null);
+      this.bookingError.set(null);
+    } else {
+      const hasBusy = this.busyPeriods().some(
+        p => p.start.getTime() <= date.getTime() && p.end.getTime() >= s.getTime()
+      );
+      if (hasBusy) {
+        this.calendarStart.set(date);
+        this.calendarEnd.set(null);
+        this.bookingForm.startDatum = this.toIsoDate(date);
+        this.bookingForm.endDatum = '';
+        this.bookingError.set('Dieser Zeitraum enthält bereits gebuchte Tage. Bitte wählen Sie einen anderen Zeitraum.');
+        return;
+      }
+      this.bookingError.set(null);
+      this.calendarEnd.set(date);
+      this.bookingForm.endDatum = this.toIsoDate(date);
+      this.onDatesChange();
+    }
+  }
+
+  toIsoDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  formatCalDay(date: Date): string {
+    return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   submitBooking(): void {

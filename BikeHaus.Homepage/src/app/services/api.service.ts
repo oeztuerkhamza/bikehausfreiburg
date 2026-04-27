@@ -148,4 +148,10 @@ export class ApiService {
   getRentalBikeBookings(bikeId: number): Observable<{ startDatum: string; endDatum: string }[]> {
     return this.http.get<{ startDatum: string; endDatum: string }[]>(`${this.baseUrl}/rentals/bikes/${bikeId}/bookings`);
   }
+
+  getBusyPeriods(bikeId: number): Observable<{ start: string; end: string; type: string }[]> {
+    return this.http.get<{ start: string; end: string; type: string }[]>(
+      `${this.baseUrl}/rentals/bikes/${bikeId}/busy-periods`
+    );
+  }
 }

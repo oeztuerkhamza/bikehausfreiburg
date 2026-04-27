@@ -44,6 +44,13 @@ public class PublicRentalsController : ControllerBase
         return Ok(ranges);
     }
 
+    [HttpGet("bikes/{id}/busy-periods")]
+    public async Task<ActionResult<IEnumerable<BusyPeriodDto>>> GetBusyPeriods(int id)
+    {
+        var periods = await _bicycleService.GetBusyPeriodsAsync(id);
+        return Ok(periods);
+    }
+
     [HttpGet("accessories")]
     public async Task<ActionResult<IEnumerable<RentalAccessoryListDto>>> GetAccessories()
     {

@@ -6,7 +6,8 @@
       "PowerShell(\"done\")",
       "Bash(dotnet build *)",
       "Bash(npm start *)",
-      "Bash(dotnet ef *)"
+      "Bash(dotnet ef *)",
+      "Bash(xargs grep *)"
     ]
   }
 }
