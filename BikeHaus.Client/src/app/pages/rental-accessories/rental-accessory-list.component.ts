@@ -69,17 +69,24 @@ import {
             <tr>
               <th>{{ t.designation }}</th>
               <th>{{ t.rentalAccessoryDayPrice }}</th>
+              <th>Verlustgebühr</th>
               <th>{{ t.status }}</th>
               <th>{{ t.actions }}</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="filteredItems.length === 0">
-              <td colspan="4" class="empty">{{ t.rentalAccessoryNoItems }}</td>
+              <td colspan="5" class="empty">{{ t.rentalAccessoryNoItems }}</td>
             </tr>
             <tr *ngFor="let item of filteredItems">
               <td>{{ item.bezeichnung }}</td>
               <td>{{ item.tagespreis | number: '1.2-2' }} €</td>
+              <td>
+                <span *ngIf="item.verlustgebuehr" style="color:#ef4444;font-weight:600;">
+                  {{ item.verlustgebuehr | number: '1.2-2' }} €
+                </span>
+                <span *ngIf="!item.verlustgebuehr" style="color:var(--text-muted)">–</span>
+              </td>
               <td>
                 <span
                   class="status-badge"
@@ -124,6 +131,16 @@ import {
               step="0.01"
               min="0"
               [(ngModel)]="formData.tagespreis"
+            />
+          </div>
+          <div class="field">
+            <label>Verlustgebühr (€)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              [(ngModel)]="formData.verlustgebuehr"
+              placeholder="z. B. 25.00"
             />
           </div>
           <div class="field">
@@ -439,6 +456,7 @@ export class RentalAccessoryListComponent implements OnInit {
   formData = {
     bezeichnung: '',
     tagespreis: 0,
+    verlustgebuehr: undefined as number | undefined,
     beschreibung: '',
     aktiv: true,
   };
@@ -482,6 +500,7 @@ export class RentalAccessoryListComponent implements OnInit {
     this.formData = {
       bezeichnung: '',
       tagespreis: 0,
+      verlustgebuehr: undefined,
       beschreibung: '',
       aktiv: true,
     };
@@ -495,6 +514,7 @@ export class RentalAccessoryListComponent implements OnInit {
         this.formData = {
           bezeichnung: full.bezeichnung,
           tagespreis: full.tagespreis,
+          verlustgebuehr: full.verlustgebuehr,
           beschreibung: full.beschreibung || '',
           aktiv: full.aktiv,
         };
@@ -518,6 +538,7 @@ export class RentalAccessoryListComponent implements OnInit {
       const update: RentalAccessoryUpdate = {
         bezeichnung: this.formData.bezeichnung,
         tagespreis: this.formData.tagespreis,
+        verlustgebuehr: this.formData.verlustgebuehr || undefined,
         beschreibung: this.formData.beschreibung || undefined,
         aktiv: this.formData.aktiv,
       };
@@ -537,6 +558,7 @@ export class RentalAccessoryListComponent implements OnInit {
       const create: RentalAccessoryCreate = {
         bezeichnung: this.formData.bezeichnung,
         tagespreis: this.formData.tagespreis,
+        verlustgebuehr: this.formData.verlustgebuehr || undefined,
         beschreibung: this.formData.beschreibung || undefined,
       };
       this.service.create(create).subscribe({

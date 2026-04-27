@@ -7,6 +7,7 @@ public class RentalAccessoryItem : BaseEntity
 
     public string Bezeichnung { get; set; } = string.Empty;
     public decimal Tagespreis { get; set; }
+    public decimal? Verlustgebuehr { get; set; }
     public int Menge { get; set; } = 1;
 
     public Rental Rental { get; set; } = null!;

@@ -230,6 +230,7 @@ public class BikeHausDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Bezeichnung).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Tagespreis).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Verlustgebuehr).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Beschreibung).HasMaxLength(1000);
         });
 
@@ -523,6 +524,7 @@ public class BikeHausDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Bezeichnung).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Tagespreis).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Verlustgebuehr).HasColumnType("decimal(18,2)");
 
             entity.HasOne(e => e.Rental)
                 .WithMany(r => r.Accessories)

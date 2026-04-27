@@ -300,6 +300,7 @@ public static class MappingExtensions
         entity.Id,
         entity.Bezeichnung,
         entity.Tagespreis,
+        entity.Verlustgebuehr,
         entity.Aktiv,
         entity.Beschreibung,
         entity.CreatedAt
@@ -309,6 +310,7 @@ public static class MappingExtensions
         entity.Id,
         entity.Bezeichnung,
         entity.Tagespreis,
+        entity.Verlustgebuehr,
         entity.Aktiv
     );
 
@@ -371,6 +373,7 @@ public static class MappingExtensions
         entity.Id,
         entity.Bezeichnung,
         entity.Tagespreis,
+        entity.Verlustgebuehr,
         entity.Menge,
         entity.Tagespreis * entity.Menge
     );

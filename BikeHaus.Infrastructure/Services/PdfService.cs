@@ -1389,7 +1389,7 @@ public class PdfService : IPdfService
             _ => "Bar"
         };
 
-        var mietTage = (rental.EndDatum - rental.StartDatum).Days;
+        var mietTage = (rental.EndDatum - rental.StartDatum).Days + 1;
         var berechneterPreis = rental.Gesamtmiete + rental.Rabatt;
 
         var document = QuestPDF.Fluent.Document.Create(container =>
@@ -1539,6 +1539,41 @@ public class PdfService : IPdfService
                         table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{rental.Gesamtmiete:N2} €").FontSize(10).Bold().FontColor(AccentColor);
                         table.Cell().ColumnSpan(2).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("inkl. MwSt.").FontSize(9).FontColor(Colors.Grey.Darken2);
                     });
+
+                    // ZUBEHÖR Section (only if accessories present)
+                    if (rental.Accessories.Any())
+                    {
+                        col.Item().PaddingTop(6).Element(SectionHeader).Text("MITGEGEBENES ZUBEHÖR (INKLUSIVE)");
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(3);
+                                columns.ConstantColumn(40);
+                                columns.RelativeColumn(1);
+                            });
+
+                            // Header row
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Bezeichnung").FontSize(9).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).AlignCenter().Text("Menge").FontSize(9).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(1).BorderColor("#ef4444").Padding(4).AlignRight().Text("Verlustgebühr").FontSize(9).Bold().FontColor("#ef4444");
+
+                            foreach (var acc in rental.Accessories)
+                            {
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(acc.Bezeichnung).FontSize(9);
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(acc.Menge.ToString()).FontSize(9);
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignRight()
+                                    .Text(acc.Verlustgebuehr.HasValue ? $"{acc.Verlustgebuehr.Value:N2} €" : "–")
+                                    .FontSize(9).Bold()
+                                    .FontColor(acc.Verlustgebuehr.HasValue ? "#ef4444" : Colors.Grey.Darken1);
+                            }
+                        });
+                        col.Item().PaddingTop(3).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(text =>
+                        {
+                            text.Span("Hinweis: ").Bold().FontSize(8);
+                            text.Span("Das Zubehör ist im Mietpreis inklusive. Bei Verlust oder Beschädigung wird die angegebene Verlustgebühr in Rechnung gestellt.").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        });
+                    }
 
                     // KAUTION Section
                     col.Item().PaddingTop(6).Row(row =>

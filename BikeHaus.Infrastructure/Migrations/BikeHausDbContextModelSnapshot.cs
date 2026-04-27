@@ -856,6 +856,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal?>("Verlustgebuehr")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("Id");
 
                     b.ToTable("RentalAccessories");
@@ -889,6 +892,9 @@ namespace BikeHaus.Infrastructure.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("Verlustgebuehr")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

@@ -772,6 +772,7 @@ export interface RentalAccessoryItemCreate {
   rentalAccessoryId?: number;
   bezeichnung: string;
   tagespreis: number;
+  verlustgebuehr?: number;
   menge: number;
 }
 
@@ -779,6 +780,7 @@ export interface RentalAccessoryItem {
   id: number;
   bezeichnung: string;
   tagespreis: number;
+  verlustgebuehr?: number;
   menge: number;
   gesamtpreis: number;
 }
@@ -823,6 +825,7 @@ export interface RentalAccessory {
   id: number;
   bezeichnung: string;
   tagespreis: number;
+  verlustgebuehr?: number;
   aktiv: boolean;
   beschreibung?: string;
   createdAt: string;
@@ -832,18 +835,21 @@ export interface RentalAccessoryList {
   id: number;
   bezeichnung: string;
   tagespreis: number;
+  verlustgebuehr?: number;
   aktiv: boolean;
 }
 
 export interface RentalAccessoryCreate {
   bezeichnung: string;
   tagespreis: number;
+  verlustgebuehr?: number;
   beschreibung?: string;
 }
 
 export interface RentalAccessoryUpdate {
   bezeichnung: string;
   tagespreis: number;
+  verlustgebuehr?: number;
   beschreibung?: string;
   aktiv: boolean;
 }

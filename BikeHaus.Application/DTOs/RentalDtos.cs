@@ -12,6 +12,7 @@ public record RentalAccessoryItemDto(
     int Id,
     string Bezeichnung,
     decimal Tagespreis,
+    decimal? Verlustgebuehr,
     int Menge,
     decimal Gesamtpreis
 );
@@ -20,6 +21,7 @@ public record RentalAccessoryItemCreateDto(
     int? RentalAccessoryId,
     string Bezeichnung,
     decimal Tagespreis,
+    decimal? Verlustgebuehr,
     int Menge
 );
 

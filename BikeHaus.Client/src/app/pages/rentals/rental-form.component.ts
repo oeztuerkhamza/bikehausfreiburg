@@ -28,6 +28,7 @@ interface AccessoryLine {
   rentalAccessoryId?: number;
   bezeichnung: string;
   tagespreis: number;
+  verlustgebuehr?: number;
   menge: number;
 }
 
@@ -214,30 +215,24 @@ const MONTH_NAMES = [
             <div class="accessory-list" *ngIf="accessories.length > 0">
               <div class="accessory-header-row">
                 <span>Bezeichnung</span>
-                <span>Tagespreis</span>
+                <span>Verlustgebühr</span>
                 <span>Menge</span>
-                <span>Gesamt/Tag</span>
                 <span></span>
               </div>
               <div class="accessory-row" *ngFor="let acc of accessories; let i = index">
-                <input [(ngModel)]="acc.bezeichnung" [name]="'accBez_' + i" placeholder="Bezeichnung" required />
-                <div class="price-input">
-                  <input type="number" step="0.01" min="0" [(ngModel)]="acc.tagespreis" [name]="'accPreis_' + i" (ngModelChange)="recalcPrice()" />
+                <input [(ngModel)]="acc.bezeichnung" [name]="'accBez_' + i" placeholder="z. B. Helm, Schloss" required />
+                <div class="price-input loss-fee">
+                  <input type="number" step="0.01" min="0" [(ngModel)]="acc.verlustgebuehr" [name]="'accVerlust_' + i" placeholder="–" />
                   <span class="unit">€</span>
                 </div>
                 <div class="qty-input">
                   <button type="button" class="qty-btn" (click)="changeQty(i, -1)">−</button>
-                  <input type="number" min="1" [(ngModel)]="acc.menge" [name]="'accMenge_' + i" (ngModelChange)="recalcPrice()" />
+                  <input type="number" min="1" [(ngModel)]="acc.menge" [name]="'accMenge_' + i" />
                   <button type="button" class="qty-btn" (click)="changeQty(i, 1)">+</button>
                 </div>
-                <span class="acc-total">{{ acc.tagespreis * acc.menge | number:'1.2-2' }} €</span>
                 <button type="button" class="btn-remove" (click)="removeAccessory(i)" title="Entfernen">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
-              </div>
-              <div class="accessory-total-row">
-                <span>Zubehör gesamt (pro Tag):</span>
-                <span class="acc-total-sum">{{ accessoryTotalPerDay | number:'1.2-2' }} €</span>
               </div>
             </div>
           </div>
@@ -331,11 +326,6 @@ const MONTH_NAMES = [
               </div>
               <div class="calc-breakdown" *ngIf="preisInfo">
                 <span class="calc-info">{{ preisInfo }}</span>
-              </div>
-              <div class="calc-breakdown" *ngIf="accessories.length > 0">
-                <span class="calc-info">
-                  Zubehör: {{ accessoryTotalPerDay | number:'1.2-2' }} €/Tag × {{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }} = {{ accessoryTotalPerDay * rentalDays | number:'1.2-2' }} €
-                </span>
               </div>
             </div>
 
@@ -714,7 +704,7 @@ const MONTH_NAMES = [
     .accessory-list { display: flex; flex-direction: column; gap: 8px; }
     .accessory-header-row {
       display: grid;
-      grid-template-columns: 1fr 110px 120px 90px 36px;
+      grid-template-columns: 1fr 130px 110px 36px;
       gap: 8px;
       padding: 0 4px 6px;
       font-size: 0.75rem;
@@ -726,10 +716,13 @@ const MONTH_NAMES = [
     }
     .accessory-row {
       display: grid;
-      grid-template-columns: 1fr 110px 120px 90px 36px;
+      grid-template-columns: 1fr 130px 110px 36px;
       gap: 8px;
       align-items: center;
     }
+    .loss-fee { border-color: rgba(239,68,68,0.4) !important; }
+    .loss-fee input { color: #ef4444 !important; font-weight: 600; }
+    .loss-fee .unit { color: #ef4444; }
     .accessory-row input {
       padding: 8px 10px;
       border: 1.5px solid var(--border-color);
@@ -895,7 +888,6 @@ export class RentalFormComponent implements OnInit {
 
   availableAccessories: RentalAccessoryList[] = [];
   accessories: AccessoryLine[] = [];
-  accessoryTotalPerDay = 0;
 
   // ── Calendar ──
   readonly weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
@@ -1059,6 +1051,7 @@ export class RentalFormComponent implements OnInit {
                 this.accessories = booking.accessories.map((a) => ({
                   bezeichnung: a.bezeichnung,
                   tagespreis: a.tagespreis,
+                  verlustgebuehr: undefined,
                   menge: a.menge,
                 }));
                 this.recalcPrice();
@@ -1127,11 +1120,19 @@ export class RentalFormComponent implements OnInit {
     if (!found) return;
     const existing = this.accessories.find((a) => a.rentalAccessoryId === id);
     if (existing) { existing.menge++; }
-    else { this.accessories.push({ rentalAccessoryId: found.id, bezeichnung: found.bezeichnung, tagespreis: found.tagespreis, menge: 1 }); }
+    else {
+      this.accessories.push({
+        rentalAccessoryId: found.id,
+        bezeichnung: found.bezeichnung,
+        tagespreis: found.tagespreis,
+        verlustgebuehr: found.verlustgebuehr,
+        menge: 1,
+      });
+    }
     this.recalcPrice();
   }
 
-  addCustomAccessory() { this.accessories.push({ bezeichnung: '', tagespreis: 0, menge: 1 }); }
+  addCustomAccessory() { this.accessories.push({ bezeichnung: '', tagespreis: 0, verlustgebuehr: undefined, menge: 1 }); }
 
   removeAccessory(index: number) { this.accessories.splice(index, 1); this.recalcPrice(); }
 
@@ -1142,11 +1143,8 @@ export class RentalFormComponent implements OnInit {
   }
 
   recalcPrice() {
-    this.accessoryTotalPerDay = this.accessories.reduce(
-      (sum, a) => sum + (a.tagespreis || 0) * (a.menge || 1), 0);
     if (this.rentalDays > 0) {
-      const bikePrice = this.calculatePrice(this.rentalDays);
-      this.berechneterPreis = bikePrice + this.accessoryTotalPerDay * this.rentalDays;
+      this.berechneterPreis = this.calculatePrice(this.rentalDays);
       this.gesamtmiete = Math.max(0, this.berechneterPreis - (this.rabatt || 0));
     }
   }
@@ -1155,8 +1153,8 @@ export class RentalFormComponent implements OnInit {
     if (!this.startDatum || !this.endDatum) { this.rentalDays = 0; return; }
     const start = new Date(this.startDatum);
     const end = new Date(this.endDatum);
-    const diffMs = end.getTime() - start.getTime();
-    this.rentalDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    const diffDays = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    this.rentalDays = Math.max(0, diffDays + 1); // both start and end day count
     if (this.rentalDays > 0) this.recalcPrice();
   }
 
@@ -1236,7 +1234,13 @@ export class RentalFormComponent implements OnInit {
   private createRental(bicycleId: number) {
     const accessoriesPayload: RentalAccessoryItemCreate[] = this.accessories
       .filter((a) => a.bezeichnung.trim())
-      .map((a) => ({ rentalAccessoryId: a.rentalAccessoryId, bezeichnung: a.bezeichnung, tagespreis: a.tagespreis, menge: a.menge }));
+      .map((a) => ({
+        rentalAccessoryId: a.rentalAccessoryId,
+        bezeichnung: a.bezeichnung,
+        tagespreis: a.tagespreis,
+        verlustgebuehr: a.verlustgebuehr,
+        menge: a.menge,
+      }));
 
     const rental: RentalCreate = {
       bicycleId,

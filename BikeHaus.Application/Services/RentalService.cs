@@ -132,6 +132,7 @@ public class RentalService : IRentalService
                     RentalAccessoryId = accessoryDto.RentalAccessoryId,
                     Bezeichnung = accessoryDto.Bezeichnung,
                     Tagespreis = accessoryDto.Tagespreis,
+                    Verlustgebuehr = accessoryDto.Verlustgebuehr,
                     Menge = accessoryDto.Menge
                 });
             }
