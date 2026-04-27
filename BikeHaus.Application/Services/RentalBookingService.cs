@@ -211,6 +211,11 @@ public class RentalBookingService : IRentalBookingService
         return bookings.Select(b => new RentalBookingRangeDto(b.StartDatum, b.EndDatum));
     }
 
+    public Task<int> GetPendingCountAsync()
+    {
+        return _bookingRepository.CountAsync(b => b.Status == RentalBookingStatus.Pending);
+    }
+
     private static string NormalizeLanguage(string lang)
     {
         if (string.IsNullOrWhiteSpace(lang)) return "de";

@@ -418,8 +418,13 @@ export interface Dashboard {
   totalPurchaseAmount: number;
   totalSaleAmount: number;
   profit: number;
+  activeRentals: number;
+  overdueRentals: number;
+  pendingBookings: number;
   recentPurchases: PurchaseList[];
   recentSales: SaleList[];
+  recentRentals: RentalList[];
+  recentPendingBookings: RentalBookingList[];
 }
 
 // ── AccessoryCatalog ──

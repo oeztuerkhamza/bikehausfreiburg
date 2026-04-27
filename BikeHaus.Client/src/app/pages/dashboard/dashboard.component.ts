@@ -177,6 +177,79 @@ import { TranslationService } from '../../services/translation.service';
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </a>
+        <a routerLink="/rentals/new" class="shortcut-card card-accent">
+          <div class="shortcut-icon-wrap accent-sky">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div class="shortcut-info">
+            <div class="shortcut-label">Neue Vermietung</div>
+            <div class="shortcut-desc">Fahrrad vermieten</div>
+          </div>
+          <svg
+            class="shortcut-arrow"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </a>
+      </div>
+
+      <!-- Rental Stats -->
+      <div class="rental-stats" *ngIf="data.activeRentals > 0 || data.pendingBookings > 0 || data.overdueRentals > 0">
+        <div class="stat-card" *ngIf="data.activeRentals > 0">
+          <div class="stat-icon accent-sky">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value">{{ data.activeRentals }}</div>
+            <div class="stat-label">Aktive Vermietungen</div>
+          </div>
+          <a routerLink="/rentals" class="stat-link">→</a>
+        </div>
+        <div class="stat-card stat-warning" *ngIf="data.overdueRentals > 0">
+          <div class="stat-icon accent-rose">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value">{{ data.overdueRentals }}</div>
+            <div class="stat-label">Überfällig</div>
+          </div>
+          <a routerLink="/rentals" class="stat-link">→</a>
+        </div>
+        <div class="stat-card stat-pending" *ngIf="data.pendingBookings > 0">
+          <div class="stat-icon accent-amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>
+              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value">{{ data.pendingBookings }}</div>
+            <div class="stat-label">Ausstehende Buchungen</div>
+          </div>
+          <a routerLink="/rental-bookings" class="stat-link">→</a>
+        </div>
       </div>
 
       <div class="recent-sections">
@@ -311,6 +384,77 @@ import { TranslationService } from '../../services/translation.service';
               <p>{{ t.noSalesFound }}</p>
             </div>
           </ng-template>
+        </div>
+      </div>
+
+      <!-- Rental Sections -->
+      <div class="recent-sections" *ngIf="data.recentRentals.length || data.recentPendingBookings.length">
+        <!-- Active Rentals -->
+        <div class="recent-section" *ngIf="data.recentRentals.length">
+          <div class="section-header">
+            <h2>Aktive Vermietungen</h2>
+            <a routerLink="/rentals" class="view-all">Alle anzeigen
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nr.</th>
+                  <th>Fahrrad</th>
+                  <th>Mieter</th>
+                  <th>Bis</th>
+                  <th>Betrag</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of data.recentRentals" class="clickable-row" (click)="navigateTo('/rentals/' + r.id)">
+                  <td><span class="badge-mono">{{ r.mietvertragNummer }}</span></td>
+                  <td>{{ r.bikeInfo }}</td>
+                  <td>{{ r.customerName }}</td>
+                  <td class="date" [class.overdue]="isOverdue(r.endDatum)">{{ r.endDatum | date: 'dd.MM.yyyy' }}</td>
+                  <td class="price">{{ r.gesamtmiete | number: '1.2-2' }} €</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pending Bookings -->
+        <div class="recent-section" *ngIf="data.recentPendingBookings.length">
+          <div class="section-header">
+            <h2>Ausstehende Buchungen</h2>
+            <a routerLink="/rental-bookings" class="view-all">Alle anzeigen
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nr.</th>
+                  <th>Fahrrad</th>
+                  <th>Kunde</th>
+                  <th>Von</th>
+                  <th>Bis</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let b of data.recentPendingBookings" class="clickable-row" (click)="navigateTo('/rental-bookings/' + b.id)">
+                  <td><span class="badge-mono badge-pending">{{ b.buchungsNummer }}</span></td>
+                  <td>{{ b.bikeInfo }}</td>
+                  <td>{{ b.customerName }}</td>
+                  <td class="date">{{ b.startDatum | date: 'dd.MM.yyyy' }}</td>
+                  <td class="date">{{ b.endDatum | date: 'dd.MM.yyyy' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -786,6 +930,77 @@ import { TranslationService } from '../../services/translation.service';
       .context-menu button svg {
         color: var(--accent-primary, #6366f1);
       }
+
+      /* ── Rental Stats ── */
+      .rental-stats {
+        display: flex;
+        gap: 14px;
+        margin-bottom: 36px;
+        flex-wrap: wrap;
+      }
+      .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg, 14px);
+        flex: 1;
+        min-width: 200px;
+        transition: all 0.2s;
+      }
+      .stat-card.stat-warning {
+        border-color: rgba(244, 63, 94, 0.25);
+        background: rgba(244, 63, 94, 0.04);
+      }
+      .stat-card.stat-pending {
+        border-color: rgba(251, 191, 36, 0.25);
+        background: rgba(251, 191, 36, 0.04);
+      }
+      .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .stat-body {
+        flex: 1;
+      }
+      .stat-value {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--text-heading);
+        line-height: 1;
+      }
+      .stat-label {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        margin-top: 3px;
+      }
+      .stat-link {
+        color: var(--accent-primary);
+        font-size: 1.1rem;
+        text-decoration: none;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+      .stat-link:hover {
+        text-decoration: none;
+      }
+
+      td.overdue {
+        color: #f43f5e;
+        font-weight: 600;
+      }
+
+      .badge-pending {
+        background: rgba(251, 191, 36, 0.12);
+        color: #d97706;
+      }
     `,
   ],
 })
@@ -908,5 +1123,13 @@ export class DashboardComponent implements OnInit {
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
     });
+  }
+
+  navigateTo(path: string) {
+    this.router.navigate([path]);
+  }
+
+  isOverdue(endDatum: string): boolean {
+    return new Date(endDatum) < new Date();
   }
 }

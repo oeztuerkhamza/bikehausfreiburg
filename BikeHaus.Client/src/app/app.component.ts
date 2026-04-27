@@ -6,6 +6,7 @@ import { AuthService } from './services/auth.service';
 import { SettingsService, ShopSettings } from './services/settings.service';
 import { ThemeService } from './services/theme.service';
 import { PurchaseService } from './services/purchase.service';
+import { RentalBookingService } from './services/rental-booking.service';
 import { NotificationComponent } from './components/notification/notification.component';
 import { DialogComponent } from './components/dialog/dialog.component';
 
@@ -275,6 +276,9 @@ import { DialogComponent } from './components/dialog/dialog.component';
               </svg>
             </span>
             <span class="nav-label">{{ t.rentalBookings }}</span>
+            <span class="nav-badge" *ngIf="pendingBookingsCount() > 0">{{
+              pendingBookingsCount()
+            }}</span>
           </a>
           <a
             routerLink="/rental-accessories"
@@ -964,6 +968,7 @@ export class AppComponent implements OnInit {
   private translationService = inject(TranslationService);
   private settingsService = inject(SettingsService);
   private purchaseService = inject(PurchaseService);
+  private rentalBookingService = inject(RentalBookingService);
   authService = inject(AuthService);
   themeService = inject(ThemeService);
 
@@ -973,17 +978,26 @@ export class AppComponent implements OnInit {
   hasCustomLogo = signal(false);
   ownerDisplayName = signal('');
   missingPurchasesCount = signal(0);
+  pendingBookingsCount = signal(0);
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.loadSettings();
       this.loadMissingPurchasesCount();
+      this.loadPendingBookingsCount();
     }
   }
 
   private loadMissingPurchasesCount(): void {
     this.purchaseService.getMissingSalesCount().subscribe({
       next: (res) => this.missingPurchasesCount.set(res.count),
+      error: () => {},
+    });
+  }
+
+  private loadPendingBookingsCount(): void {
+    this.rentalBookingService.getPendingCount().subscribe({
+      next: (res) => this.pendingBookingsCount.set(res.count),
       error: () => {},
     });
   }

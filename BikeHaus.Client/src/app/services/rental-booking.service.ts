@@ -46,4 +46,8 @@ export class RentalBookingService {
   cancel(id: number, dto: RentalBookingCancel): Observable<RentalBooking> {
     return this.http.post<RentalBooking>(`${this.url}/${id}/cancel`, dto);
   }
+
+  getPendingCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.url}/pending-count`);
+  }
 }

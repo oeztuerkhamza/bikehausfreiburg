@@ -36,6 +36,13 @@ public class RentalBookingsController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("pending-count")]
+    public async Task<ActionResult> GetPendingCount()
+    {
+        var count = await _service.GetPendingCountAsync();
+        return Ok(new { count });
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<RentalBookingDto>> GetById(int id)
     {
