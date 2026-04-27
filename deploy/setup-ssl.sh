@@ -18,14 +18,17 @@ cd /opt/bikehaus
 # Make sure containers are running
 docker compose up -d
 
-# Use webroot method with certbot container
+# Use webroot method and bypass service entrypoint (which runs renew loop)
 echo ">> Obtaining SSL certificate..."
-docker compose run --rm certbot certonly \
+docker compose run --rm --entrypoint certbot certbot certonly \
     --webroot \
     --webroot-path=/var/lib/letsencrypt \
     --email "$EMAIL" \
     --agree-tos \
     --no-eff-email \
+    --cert-name "$DOMAIN" \
+    --expand \
+    --force-renewal \
     -d "$DOMAIN" \
     -d "www.$DOMAIN" \
     -d "admin.$DOMAIN" \
