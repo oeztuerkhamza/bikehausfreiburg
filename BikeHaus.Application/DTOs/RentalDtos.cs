@@ -2,6 +2,12 @@ using BikeHaus.Domain.Enums;
 
 namespace BikeHaus.Application.DTOs;
 
+public record BusyPeriodDto(
+    DateTime Start,
+    DateTime End,
+    string Type  // "rental" | "booking"
+);
+
 public record RentalAccessoryItemDto(
     int Id,
     string Bezeichnung,

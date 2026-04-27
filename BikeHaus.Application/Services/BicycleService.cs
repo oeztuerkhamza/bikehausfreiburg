@@ -13,12 +13,21 @@ public class BicycleService : IBicycleService
     private readonly IBicycleRepository _repository;
     private readonly IPurchaseRepository _purchaseRepository;
     private readonly IShopSettingsRepository _settingsRepository;
+    private readonly IRentalRepository _rentalRepository;
+    private readonly IRentalBookingRepository _bookingRepository;
 
-    public BicycleService(IBicycleRepository repository, IPurchaseRepository purchaseRepository, IShopSettingsRepository settingsRepository)
+    public BicycleService(
+        IBicycleRepository repository,
+        IPurchaseRepository purchaseRepository,
+        IShopSettingsRepository settingsRepository,
+        IRentalRepository rentalRepository,
+        IRentalBookingRepository bookingRepository)
     {
         _repository = repository;
         _purchaseRepository = purchaseRepository;
         _settingsRepository = settingsRepository;
+        _rentalRepository = rentalRepository;
+        _bookingRepository = bookingRepository;
     }
 
     private static bool IsAccessoryOnlySystemBike(Domain.Entities.Bicycle bike)
@@ -323,5 +332,24 @@ public class BicycleService : IBicycleService
 
         return bicycle.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto())
             ?? Enumerable.Empty<BicycleImageDto>();
+    }
+
+    public async Task<IEnumerable<BusyPeriodDto>> GetBusyPeriodsAsync(int bicycleId)
+    {
+        var result = new List<BusyPeriodDto>();
+
+        // Active rentals (Mietvertrag)
+        var allRentals = await _rentalRepository.GetAllAsync();
+        var activeRentals = allRentals
+            .Where(r => r.BicycleId == bicycleId && r.Status == RentalStatus.Active);
+        result.AddRange(activeRentals.Select(r =>
+            new BusyPeriodDto(r.StartDatum.Date, r.EndDatum.Date, "rental")));
+
+        // Approved bookings (Mietanfragen)
+        var approvedBookings = await _bookingRepository.GetApprovedByBicycleIdAsync(bicycleId);
+        result.AddRange(approvedBookings.Select(b =>
+            new BusyPeriodDto(b.StartDatum.Date, b.EndDatum.Date, "booking")));
+
+        return result;
     }
 }

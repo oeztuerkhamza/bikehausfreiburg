@@ -7,6 +7,7 @@ import {
   BicycleCreate,
   BicycleImage,
   BicycleUpdate,
+  BusyPeriod,
   PaginatedResult,
 } from '../models/models';
 
@@ -71,6 +72,10 @@ export class BicycleService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
+  getBusyPeriods(id: number): Observable<BusyPeriod[]> {
+    return this.http.get<BusyPeriod[]>(`${this.url}/${id}/busy-periods`);
   }
 
   getBrands(): Observable<string[]> {

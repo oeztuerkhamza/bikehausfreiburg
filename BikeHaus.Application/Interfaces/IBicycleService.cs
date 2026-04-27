@@ -24,4 +24,5 @@ public interface IBicycleService
     Task<BicycleImageDto> AddImageAsync(int bicycleId, string filePath, int sortOrder);
     Task DeleteImageAsync(int bicycleId, int imageId);
     Task<IEnumerable<BicycleImageDto>> GetImagesAsync(int bicycleId);
+    Task<IEnumerable<BusyPeriodDto>> GetBusyPeriodsAsync(int bicycleId);
 }

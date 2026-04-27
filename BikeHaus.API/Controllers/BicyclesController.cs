@@ -71,6 +71,14 @@ public class BicyclesController : ControllerBase
         return Ok(bicycles);
     }
 
+    [Authorize]
+    [HttpGet("{id}/busy-periods")]
+    public async Task<ActionResult<IEnumerable<BusyPeriodDto>>> GetBusyPeriods(int id)
+    {
+        var periods = await _bicycleService.GetBusyPeriodsAsync(id);
+        return Ok(periods);
+    }
+
     [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<BicycleDto>>> Search([FromQuery] string term)
     {

@@ -762,6 +762,12 @@ export interface RentalList {
   isOverdue: boolean;
 }
 
+export interface BusyPeriod {
+  start: string; // ISO date string
+  end: string;
+  type: 'rental' | 'booking';
+}
+
 export interface RentalAccessoryItemCreate {
   rentalAccessoryId?: number;
   bezeichnung: string;
