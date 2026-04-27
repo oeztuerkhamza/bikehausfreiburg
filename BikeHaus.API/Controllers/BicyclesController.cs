@@ -36,7 +36,8 @@ public class BicyclesController : ControllerBase
         [FromQuery] string? zustand = null,
         [FromQuery] string? fahrradtyp = null,
         [FromQuery] string? reifengroesse = null,
-        [FromQuery] string? marke = null)
+        [FromQuery] string? marke = null,
+        [FromQuery] bool? isRentable = null)
     {
         var paginationParams = new PaginationParams
         {
@@ -47,7 +48,8 @@ public class BicyclesController : ControllerBase
             Zustand = zustand,
             Fahrradtyp = fahrradtyp,
             Reifengroesse = reifengroesse,
-            Marke = marke
+            Marke = marke,
+            IsRentable = isRentable
         };
         var result = await _bicycleService.GetPaginatedAsync(paginationParams);
         return Ok(result);

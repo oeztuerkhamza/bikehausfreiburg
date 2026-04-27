@@ -1,16 +1,17 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
-import { PublicRentalBicycle } from '../../models/models';
+import { PublicRentalBicycle, RentalBookingCreate } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-fahrradverleih',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="rental-page">
       <!-- Header -->
@@ -335,16 +336,141 @@ import { environment } from '../../../environments/environment';
                     <span class="pill-price">{{ bike.preise.day30 | number:'1.0-0' }} €</span>
                   </div>
                 </div>
-                <a [href]="getWhatsappBikeLink(bike)" target="_blank" rel="noopener" class="btn-book">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                <button class="btn-book btn-anfragen" (click)="openBookingModal(bike)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
                   </svg>
                   {{ t().bikeRentalBookBtn }}
-                </a>
+                </button>
               </div>
             </div>
           </div>
         </section>
+
+        <!-- Booking Modal -->
+        <div class="modal-overlay" *ngIf="modalOpen()" (click)="closeModal()">
+          <div class="modal-box" (click)="$event.stopPropagation()">
+
+            <!-- Header -->
+            <div class="modal-header">
+              <div class="modal-bike-info" *ngIf="selectedBike()">
+                <div class="modal-bike-img">
+                  <img *ngIf="selectedBike()!.images.length > 0" [src]="getImageUrl(selectedBike()!.images[0].filePath)" [alt]="selectedBike()!.marke" />
+                  <svg *ngIf="selectedBike()!.images.length === 0" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h2"/></svg>
+                </div>
+                <div>
+                  <div class="modal-bike-name">{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</div>
+                  <div class="modal-bike-meta">
+                    <span *ngIf="selectedBike()!.rahmengroesse">{{ selectedBike()!.rahmengroesse }}</span>
+                    <span *ngIf="selectedBike()!.farbe">{{ selectedBike()!.farbe }}</span>
+                  </div>
+                </div>
+              </div>
+              <button class="modal-close" (click)="closeModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            <!-- Success state -->
+            <div class="modal-success" *ngIf="bookingSuccess()">
+              <div class="success-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <h3>Buchungsanfrage gesendet!</h3>
+              <p>Wir haben Ihre Anfrage erhalten und melden uns so schnell wie möglich. Eine Bestätigung wurde an <strong>{{ bookingForm.email }}</strong> gesendet.</p>
+              <div class="success-booking-nr">
+                Buchungsnummer: <strong>{{ confirmedBookingNr() }}</strong>
+              </div>
+              <button class="btn-close-success" (click)="closeModal()">Schließen</button>
+            </div>
+
+            <!-- Form -->
+            <div class="modal-form" *ngIf="!bookingSuccess()">
+              <h3 class="modal-title">Mietanfrage stellen</h3>
+
+              <!-- Dates -->
+              <div class="form-row">
+                <div class="form-field">
+                  <label>Von *</label>
+                  <input type="date" [(ngModel)]="bookingForm.startDatum" (change)="onDatesChange()" [min]="today" />
+                </div>
+                <div class="form-field">
+                  <label>Bis *</label>
+                  <input type="date" [(ngModel)]="bookingForm.endDatum" (change)="onDatesChange()" [min]="bookingForm.startDatum || today" />
+                </div>
+              </div>
+
+              <!-- Price Preview -->
+              <div class="price-preview" *ngIf="calculatedDays() > 0 && calculatedPrice() !== null">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                <span>{{ calculatedDays() }} Tage · geschätzter Preis:</span>
+                <strong>{{ calculatedPrice() | number:'1.0-0' }} €</strong>
+              </div>
+              <div class="price-preview warn" *ngIf="calculatedDays() > 0 && calculatedPrice() === null">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>{{ calculatedDays() }} Tage · Preis auf Anfrage</span>
+              </div>
+
+              <!-- Name row -->
+              <div class="form-row">
+                <div class="form-field">
+                  <label>Vorname *</label>
+                  <input type="text" [(ngModel)]="bookingForm.vorname" placeholder="Max" />
+                </div>
+                <div class="form-field">
+                  <label>Nachname *</label>
+                  <input type="text" [(ngModel)]="bookingForm.nachname" placeholder="Mustermann" />
+                </div>
+              </div>
+
+              <!-- Email + Phone -->
+              <div class="form-row">
+                <div class="form-field">
+                  <label>E-Mail *</label>
+                  <input type="email" [(ngModel)]="bookingForm.email" placeholder="max&#64;example.com" />
+                </div>
+                <div class="form-field">
+                  <label>Telefon</label>
+                  <input type="tel" [(ngModel)]="bookingForm.telefon" placeholder="+49 ..." />
+                </div>
+              </div>
+
+              <!-- Language -->
+              <div class="form-field">
+                <label>Kommunikationssprache</label>
+                <div class="lang-toggle">
+                  <button type="button" [class.active]="bookingForm.sprache === 'de'" (click)="bookingForm.sprache = 'de'">Deutsch</button>
+                  <button type="button" [class.active]="bookingForm.sprache === 'en'" (click)="bookingForm.sprache = 'en'">English</button>
+                </div>
+              </div>
+
+              <!-- Notes -->
+              <div class="form-field">
+                <label>Anmerkungen (optional)</label>
+                <textarea [(ngModel)]="bookingForm.notizen" rows="2" placeholder="Besondere Wünsche, Fragen..."></textarea>
+              </div>
+
+              <!-- Error -->
+              <div class="form-error" *ngIf="bookingError()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                {{ bookingError() }}
+              </div>
+
+              <!-- Submit -->
+              <button class="btn-submit" (click)="submitBooking()" [disabled]="bookingSubmitting()">
+                <svg *ngIf="!bookingSubmitting()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <div *ngIf="bookingSubmitting()" class="submit-spinner"></div>
+                {{ bookingSubmitting() ? 'Wird gesendet...' : 'Anfrage senden' }}
+              </button>
+
+              <p class="modal-note">Nach Eingang Ihrer Anfrage erhalten Sie eine Bestätigungs-E-Mail. Die endgültige Buchung erfolgt nach Bestätigung durch unser Team.</p>
+            </div>
+          </div>
+        </div>
 
         <!-- Note -->
         <section class="note-banner">
@@ -1048,22 +1174,162 @@ import { environment } from '../../../environments/environment';
         align-items: center;
         gap: 0.5rem;
         padding: 0.65rem 1.25rem;
-        background: #25d366;
-        color: #fff;
         border-radius: 10px;
-        text-decoration: none;
         font-size: 0.88rem;
         font-weight: 700;
         transition: background 0.2s, transform 0.2s;
         width: 100%;
         justify-content: center;
+        cursor: pointer;
+        border: none;
       }
 
-      .btn-book:hover {
-        background: #1da851;
-        transform: translateY(-1px);
-        text-decoration: none;
+      .btn-anfragen {
+        background: var(--color-accent);
         color: #fff;
+      }
+
+      .btn-anfragen:hover {
+        opacity: 0.88;
+        transform: translateY(-1px);
+      }
+
+      /* ── Booking Modal ── */
+      .modal-overlay {
+        position: fixed; inset: 0; z-index: 9000;
+        background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+        display: flex; align-items: center; justify-content: center;
+        padding: 1rem; animation: fadeOverlay 0.2s ease;
+      }
+      @keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+      .modal-box {
+        background: var(--color-surface); border: 1px solid var(--color-border);
+        border-radius: 20px; width: 100%; max-width: 520px;
+        max-height: 92vh; overflow-y: auto;
+        animation: slideUp 0.25s ease;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+      }
+      @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+      .modal-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-border);
+        gap: 1rem;
+      }
+      .modal-bike-info { display: flex; align-items: center; gap: 12px; }
+      .modal-bike-img {
+        width: 52px; height: 52px; border-radius: 10px; overflow: hidden;
+        background: var(--color-bg); display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; border: 1px solid var(--color-border);
+      }
+      .modal-bike-img img { width: 100%; height: 100%; object-fit: cover; }
+      .modal-bike-img svg { opacity: 0.4; }
+      .modal-bike-name { font-size: 0.95rem; font-weight: 700; color: var(--color-text); }
+      .modal-bike-meta { display: flex; gap: 6px; margin-top: 3px; }
+      .modal-bike-meta span {
+        font-size: 0.72rem; padding: 1px 7px; border-radius: 999px;
+        background: rgba(255,255,255,0.05); border: 1px solid var(--color-border);
+        color: var(--color-text-secondary);
+      }
+      .modal-close {
+        background: none; border: none; cursor: pointer; color: var(--color-text-secondary);
+        padding: 6px; border-radius: 8px; display: flex; transition: background 0.15s;
+        flex-shrink: 0;
+      }
+      .modal-close:hover { background: rgba(255,255,255,0.06); color: var(--color-text); }
+
+      .modal-form { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+      .modal-title { margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 800; color: var(--color-text); }
+
+      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .form-field { display: flex; flex-direction: column; gap: 5px; }
+      .form-field label {
+        font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+        letter-spacing: 0.06em; color: var(--color-text-secondary);
+      }
+      .form-field input, .form-field textarea, .form-field select {
+        padding: 10px 12px; border: 1.5px solid var(--color-border);
+        border-radius: 10px; background: var(--color-bg); color: var(--color-text);
+        font-size: 0.9rem; transition: border-color 0.2s; resize: vertical;
+      }
+      .form-field input:focus, .form-field textarea:focus {
+        outline: none; border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(255,87,34,0.1);
+      }
+
+      .price-preview {
+        display: flex; align-items: center; gap: 8px;
+        padding: 10px 14px; border-radius: 10px;
+        background: rgba(255,87,34,0.08); border: 1px solid rgba(255,87,34,0.2);
+        font-size: 0.88rem; color: var(--color-text);
+      }
+      .price-preview svg { color: var(--color-accent); flex-shrink: 0; }
+      .price-preview strong { color: var(--color-accent); font-size: 1rem; margin-left: auto; }
+      .price-preview.warn { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); }
+      .price-preview.warn svg { color: #f59e0b; }
+
+      .lang-toggle { display: flex; gap: 8px; }
+      .lang-toggle button {
+        padding: 7px 18px; border-radius: 8px; border: 1.5px solid var(--color-border);
+        background: transparent; color: var(--color-text-secondary); font-size: 0.85rem;
+        font-weight: 600; cursor: pointer; transition: all 0.15s;
+      }
+      .lang-toggle button.active {
+        background: var(--color-accent); border-color: var(--color-accent); color: #fff;
+      }
+
+      .form-error {
+        display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+        border-radius: 10px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+        font-size: 0.85rem; color: #ef4444;
+      }
+
+      .btn-submit {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%; padding: 13px; border-radius: 12px;
+        background: var(--color-accent); color: #fff; border: none;
+        font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+        margin-top: 4px;
+      }
+      .btn-submit:hover:not(:disabled) { opacity: 0.88; }
+      .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+      .submit-spinner {
+        width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4);
+        border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .modal-note {
+        font-size: 0.78rem; color: var(--color-text-secondary); line-height: 1.6;
+        text-align: center; margin: 0;
+      }
+
+      .modal-success {
+        padding: 2.5rem 2rem; text-align: center; display: flex;
+        flex-direction: column; align-items: center; gap: 12px;
+      }
+      .success-icon {
+        width: 64px; height: 64px; border-radius: 50%;
+        background: rgba(16,185,129,0.12); color: #10b981;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .modal-success h3 { margin: 0; font-size: 1.2rem; font-weight: 800; color: var(--color-text); }
+      .modal-success p { margin: 0; font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.6; max-width: 360px; }
+      .success-booking-nr {
+        font-size: 0.88rem; padding: 8px 20px; border-radius: 8px;
+        background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+        color: var(--color-text);
+      }
+      .btn-close-success {
+        margin-top: 8px; padding: 10px 28px; border-radius: 10px;
+        background: var(--color-accent); color: #fff; border: none;
+        font-weight: 700; cursor: pointer; font-size: 0.9rem;
+      }
+
+      @media (max-width: 480px) {
+        .form-row { grid-template-columns: 1fr; }
+        .modal-box { border-radius: 16px; }
       }
 
       /* ── CTA ── */
@@ -1155,32 +1421,128 @@ export class FahrradverleihComponent implements OnInit {
   bikes = signal<PublicRentalBicycle[]>([]);
   bikesLoading = signal(true);
 
+  // Modal state
+  modalOpen = signal(false);
+  selectedBike = signal<PublicRentalBicycle | null>(null);
+  bookingSubmitting = signal(false);
+  bookingSuccess = signal(false);
+  bookingError = signal<string | null>(null);
+  confirmedBookingNr = signal<string>('');
+
+  bookingForm = {
+    startDatum: '',
+    endDatum: '',
+    vorname: '',
+    nachname: '',
+    email: '',
+    telefon: '',
+    sprache: 'de',
+    notizen: '',
+  };
+
+  today = new Date().toISOString().split('T')[0];
+  calculatedDays = signal(0);
+  calculatedPrice = signal<number | null>(null);
+
   ngOnInit(): void {
     const t = this.t();
     this.titleService.setTitle(t.bikeRentalMetaTitle);
-    this.metaService.updateTag({
-      name: 'description',
-      content: t.bikeRentalMetaDescription,
-    });
-
+    this.metaService.updateTag({ name: 'description', content: t.bikeRentalMetaDescription });
     this.apiService.getRentableBikes().subscribe({
-      next: (bikes) => {
-        this.bikes.set(bikes);
-        this.bikesLoading.set(false);
-      },
+      next: (bikes) => { this.bikes.set(bikes); this.bikesLoading.set(false); },
       error: () => this.bikesLoading.set(false),
+    });
+  }
+
+  openBookingModal(bike: PublicRentalBicycle): void {
+    this.selectedBike.set(bike);
+    this.bookingSuccess.set(false);
+    this.bookingError.set(null);
+    this.calculatedDays.set(0);
+    this.calculatedPrice.set(null);
+    this.bookingForm = {
+      startDatum: '', endDatum: '', vorname: '', nachname: '',
+      email: '', telefon: '', sprache: 'de', notizen: '',
+    };
+    this.modalOpen.set(true);
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeModal(): void {
+    this.modalOpen.set(false);
+    document.body.style.overflow = '';
+  }
+
+  onDatesChange(): void {
+    this.bookingError.set(null);
+    const { startDatum, endDatum } = this.bookingForm;
+    if (!startDatum || !endDatum) { this.calculatedDays.set(0); this.calculatedPrice.set(null); return; }
+    const days = Math.floor((new Date(endDatum).getTime() - new Date(startDatum).getTime()) / 86400000) + 1;
+    if (days <= 0) { this.calculatedDays.set(0); this.calculatedPrice.set(null); return; }
+    this.calculatedDays.set(days);
+    const bike = this.selectedBike();
+    if (!bike) { this.calculatedPrice.set(null); return; }
+    const p = bike.preise;
+    let price: number | null = null;
+    if (days <= 1 && p.day1 != null) price = p.day1;
+    else if (days <= 3 && p.day3 != null) price = p.day3;
+    else if (days <= 7 && p.day7 != null) price = p.day7;
+    else if (days <= 14 && p.day14 != null) price = p.day14;
+    else if (days <= 30 && p.day30 != null) price = p.day30;
+    else if (days > 10 && p.perDayFrom10 != null) price = p.perDayFrom10 * days;
+    else if (p.day1 != null) price = p.day1 * days;
+    this.calculatedPrice.set(price);
+  }
+
+  submitBooking(): void {
+    const f = this.bookingForm;
+    if (!f.startDatum || !f.endDatum) {
+      this.bookingError.set('Bitte wählen Sie einen Zeitraum aus.'); return;
+    }
+    if (new Date(f.endDatum) < new Date(f.startDatum)) {
+      this.bookingError.set('Das Enddatum darf nicht vor dem Startdatum liegen.'); return;
+    }
+    if (!f.vorname.trim() || !f.nachname.trim()) {
+      this.bookingError.set('Bitte geben Sie Ihren vollständigen Namen ein.'); return;
+    }
+    if (!f.email.trim() || !f.email.includes('@')) {
+      this.bookingError.set('Bitte geben Sie eine gültige E-Mail-Adresse ein.'); return;
+    }
+
+    const bike = this.selectedBike();
+    if (!bike) return;
+
+    this.bookingSubmitting.set(true);
+    this.bookingError.set(null);
+
+    const dto: RentalBookingCreate = {
+      bicycleId: bike.id,
+      startDatum: f.startDatum,
+      endDatum: f.endDatum,
+      vorname: f.vorname.trim(),
+      nachname: f.nachname.trim(),
+      email: f.email.trim(),
+      telefon: f.telefon.trim() || undefined,
+      sprache: f.sprache,
+      notizen: f.notizen.trim() || undefined,
+    };
+
+    this.apiService.createRentalBooking(dto).subscribe({
+      next: (res) => {
+        this.confirmedBookingNr.set(res.buchungsNummer);
+        this.bookingSuccess.set(true);
+        this.bookingSubmitting.set(false);
+      },
+      error: (err) => {
+        const msg = err?.error?.error || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+        this.bookingError.set(msg);
+        this.bookingSubmitting.set(false);
+      },
     });
   }
 
   getWhatsappLink(): string {
     return 'https://wa.me/4915566300011';
-  }
-
-  getWhatsappBikeLink(bike: PublicRentalBicycle): string {
-    const text = encodeURIComponent(
-      `Hallo, ich möchte das Fahrrad "${bike.marke} ${bike.modell}" mieten.`,
-    );
-    return `https://wa.me/4915566300011?text=${text}`;
   }
 
   getImageUrl(path: string): string {

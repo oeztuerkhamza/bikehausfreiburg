@@ -41,6 +41,19 @@ public class SmtpEmailService : IEmailService
         return SendAsync(model.ToEmail, model.ToName, subject, body);
     }
 
+    public Task SendRentalBookingReceivedAsync(RentalBookingEmailModel model)
+    {
+        var subject = model.Language == "en"
+            ? $"Booking request received - {model.BuchungsNummer} | Bike Haus Freiburg"
+            : $"Buchungsanfrage eingegangen - {model.BuchungsNummer} | Bike Haus Freiburg";
+
+        var body = model.Language == "en"
+            ? BuildReceivedBodyEn(model)
+            : BuildReceivedBodyDe(model);
+
+        return SendAsync(model.ToEmail, model.ToName, subject, body);
+    }
+
     private Task SendAsync(string toEmail, string toName, string subject, string body)
     {
         if (string.IsNullOrWhiteSpace(_options.Host))
@@ -162,6 +175,64 @@ Bike: {m.BikeBrand} {m.BikeModel}
 Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy}
 
 If you want to book a new date, please reply to this email.
+
+Best regards
+Bike Haus Freiburg
+{m.ShopPhone}
+{m.ShopEmail}
+";
+    }
+
+    private static string BuildReceivedBodyDe(RentalBookingEmailModel m)
+    {
+        return $@"Hallo {m.ToName},
+
+vielen Dank fuer Ihre Buchungsanfrage! Wir haben Ihre Anfrage erhalten und werden sie so schnell wie moeglich bearbeiten.
+
+Buchungsnummer: {m.BuchungsNummer}
+Fahrrad: {m.BikeBrand} {m.BikeModel}
+Gewuenschter Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)
+Geschaetzter Mietpreis: {(m.TotalPrice.HasValue ? m.TotalPrice.Value.ToString("0.00") + " EUR" : "wird berechnet")}
+
+Zubehoer:
+{m.AccessoriesText}
+
+Was passiert als naechstes?
+Wir pruefen Ihre Anfrage und melden uns innerhalb von 24 Stunden bei Ihnen.
+Sie erhalten eine Bestaetigung per E-Mail, sobald Ihre Buchung bestaetigt oder abgelehnt wurde.
+
+Abholung/Rueckgabe: {m.PickupLocation}
+
+Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen uns an.
+
+Viele Gruesse
+Bike Haus Freiburg
+{m.ShopPhone}
+{m.ShopEmail}
+";
+    }
+
+    private static string BuildReceivedBodyEn(RentalBookingEmailModel m)
+    {
+        return $@"Hello {m.ToName},
+
+thank you for your booking request! We have received your request and will process it as soon as possible.
+
+Booking number: {m.BuchungsNummer}
+Bike: {m.BikeBrand} {m.BikeModel}
+Requested period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days)
+Estimated rental price: {(m.TotalPrice.HasValue ? m.TotalPrice.Value.ToString("0.00") + " EUR" : "to be calculated")}
+
+Accessories:
+{m.AccessoriesText}
+
+What happens next?
+We will review your request and get back to you within 24 hours.
+You will receive a confirmation email once your booking is confirmed or declined.
+
+Pickup/Return: {m.PickupLocation}
+
+If you have any questions, just reply to this email or give us a call.
 
 Best regards
 Bike Haus Freiburg

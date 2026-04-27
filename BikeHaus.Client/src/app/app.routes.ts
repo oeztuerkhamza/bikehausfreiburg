@@ -230,6 +230,30 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'mietfahrraeder',
+    loadComponent: () =>
+      import('./pages/mietfahrraeder/mietfahrrad-list.component').then(
+        (m) => m.MietfahrradListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'mietfahrraeder/new',
+    loadComponent: () =>
+      import('./pages/mietfahrraeder/mietfahrrad-form.component').then(
+        (m) => m.MietfahrradFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'mietfahrraeder/edit/:id',
+    loadComponent: () =>
+      import('./pages/mietfahrraeder/mietfahrrad-form.component').then(
+        (m) => m.MietfahrradFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'rentals',
     loadComponent: () =>
       import('./pages/rentals/rental-list.component').then(

@@ -82,6 +82,13 @@ public class BicycleService : IBicycleService
             predicate = CombineAnd(predicate, b => b.Marke.ToLower() == marke);
         }
 
+        // IsRentable filter
+        if (paginationParams.IsRentable.HasValue)
+        {
+            var rentable = paginationParams.IsRentable.Value;
+            predicate = CombineAnd(predicate, b => b.IsRentable == rentable);
+        }
+
         // Search filter
         if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
         {

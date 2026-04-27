@@ -15,6 +15,8 @@ import {
   GoogleReviewsResponse,
   PublicRentalBicycle,
   RentalAccessoryPublic,
+  RentalBookingCreate,
+  RentalBookingResponse,
 } from '../models/models';
 
 @Injectable({
@@ -137,5 +139,13 @@ export class ApiService {
 
   getRentalAccessories(): Observable<RentalAccessoryPublic[]> {
     return this.http.get<RentalAccessoryPublic[]>(`${this.baseUrl}/rentals/accessories`);
+  }
+
+  createRentalBooking(dto: RentalBookingCreate): Observable<RentalBookingResponse> {
+    return this.http.post<RentalBookingResponse>(`${this.baseUrl}/rentals/bookings`, dto);
+  }
+
+  getRentalBikeBookings(bikeId: number): Observable<{ startDatum: string; endDatum: string }[]> {
+    return this.http.get<{ startDatum: string; endDatum: string }[]>(`${this.baseUrl}/rentals/bikes/${bikeId}/bookings`);
   }
 }

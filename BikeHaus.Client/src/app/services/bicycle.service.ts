@@ -29,6 +29,7 @@ export class BicycleService {
     fahrradtyp?: string,
     reifengroesse?: string,
     marke?: string,
+    isRentable?: boolean,
   ): Observable<PaginatedResult<Bicycle>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -40,6 +41,7 @@ export class BicycleService {
     if (fahrradtyp) params = params.set('fahrradtyp', fahrradtyp);
     if (reifengroesse) params = params.set('reifengroesse', reifengroesse);
     if (marke) params = params.set('marke', marke);
+    if (isRentable !== undefined) params = params.set('isRentable', isRentable.toString());
 
     return this.http.get<PaginatedResult<Bicycle>>(`${this.url}/paginated`, {
       params,

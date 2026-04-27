@@ -141,6 +141,33 @@ export interface RentalAccessoryPublic {
   aktiv: boolean;
 }
 
+export interface RentalBookingAccessoryCreate {
+  rentalAccessoryId: number;
+  menge: number;
+}
+
+export interface RentalBookingCreate {
+  bicycleId: number;
+  startDatum: string;
+  endDatum: string;
+  vorname: string;
+  nachname: string;
+  email: string;
+  telefon?: string;
+  sprache: string;
+  notizen?: string;
+  accessories?: RentalBookingAccessoryCreate[];
+}
+
+export interface RentalBookingResponse {
+  id: number;
+  buchungsNummer: string;
+  status: string;
+  gesamtpreis?: number;
+  startDatum: string;
+  endDatum: string;
+}
+
 // ── Repair Showcases ──
 export interface RepairShowcaseImage {
   id: number;

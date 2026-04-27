@@ -141,7 +141,14 @@ public class RentalBookingService : IRentalBookingService
 
         var created = await _bookingRepository.AddAsync(booking);
         var withDetails = await _bookingRepository.GetWithDetailsAsync(created.Id);
-        return withDetails!.ToDto();
+
+        if (!string.IsNullOrWhiteSpace(withDetails!.Email))
+        {
+            var emailModel = await BuildEmailModelAsync(withDetails, bicycle);
+            await _emailService.SendRentalBookingReceivedAsync(emailModel);
+        }
+
+        return withDetails.ToDto();
     }
 
     public async Task<RentalBookingDto> ApproveAsync(int id, RentalBookingApproveDto dto)

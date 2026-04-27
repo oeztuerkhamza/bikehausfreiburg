@@ -13,6 +13,7 @@ export interface Translations {
   rentals: string;
   rentalBookings: string;
   rentalAccessories: string;
+  mietfahrraeder: string;
   statistics: string;
   settings: string;
   skipToMain: string;
@@ -717,6 +718,34 @@ export interface Translations {
   homepageAccessoryDeleteConfirm: string;
   homepageAccessoryUploadPhotos: string;
   homepageAccessorySelectCategory: string;
+
+  // Mietfahrräder
+  mietfahrradList: string;
+  mietfahrradNew: string;
+  mietfahrradEdit: string;
+  mietfahrradBrand: string;
+  mietfahrradModel: string;
+  mietfahrradType: string;
+  mietfahrradSize: string;
+  mietfahrradColor: string;
+  mietfahrradActive: string;
+  mietfahrradNoItems: string;
+  mietfahrradDeleteConfirm: string;
+  mietfahrradPhotos: string;
+  mietfahrradUploadPhotos: string;
+  mietfahrradRentalPrices: string;
+  mietfahrradPriceDay1: string;
+  mietfahrradPriceDay3: string;
+  mietfahrradPriceDay7: string;
+  mietfahrradPriceDay14: string;
+  mietfahrradPriceDay30: string;
+  mietfahrradPricePerDay: string;
+  mietfahrradDescription: string;
+  mietfahrradFrameSize: string;
+  mietfahrradIsRentable: string;
+  mietfahrradToggleRentable: string;
+  mietfahrradBasicInfo: string;
+  mietfahrradSaveSuccess: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -728,9 +757,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     purchases: 'Ankäufe',
     sales: 'Verkäufe',
     returns: 'Rückgaben',
-    rentals: 'Miete',
+    rentals: 'Mietverträge',
     rentalBookings: 'Mietanfragen',
     rentalAccessories: 'Mietzubehör',
+    mietfahrraeder: 'Mietfahrräder',
     statistics: 'Statistiken',
     settings: 'Einstellungen',
     skipToMain: 'Zum Hauptinhalt springen',
@@ -1447,6 +1477,34 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homepageAccessoryDeleteConfirm: 'Zubehör wirklich löschen?',
     homepageAccessoryUploadPhotos: 'Fotos hochladen',
     homepageAccessorySelectCategory: 'Kategorie wählen',
+
+    // Mietfahrräder
+    mietfahrradList: 'Mietfahrräder',
+    mietfahrradNew: 'Neues Mietfahrrad',
+    mietfahrradEdit: 'Mietfahrrad bearbeiten',
+    mietfahrradBrand: 'Marke',
+    mietfahrradModel: 'Modell',
+    mietfahrradType: 'Fahrradtyp',
+    mietfahrradSize: 'Reifengröße',
+    mietfahrradColor: 'Farbe',
+    mietfahrradActive: 'Aktiv für Verleih',
+    mietfahrradNoItems: 'Keine Mietfahrräder vorhanden.',
+    mietfahrradDeleteConfirm: 'Fahrrad aus dem Verleih entfernen?',
+    mietfahrradPhotos: 'Fotos',
+    mietfahrradUploadPhotos: 'Fotos hochladen',
+    mietfahrradRentalPrices: 'Mietpreise',
+    mietfahrradPriceDay1: '1 Tag',
+    mietfahrradPriceDay3: '3 Tage',
+    mietfahrradPriceDay7: '7 Tage',
+    mietfahrradPriceDay14: '14 Tage',
+    mietfahrradPriceDay30: '30 Tage',
+    mietfahrradPricePerDay: 'Pro Tag (ab 10 Tage)',
+    mietfahrradDescription: 'Beschreibung',
+    mietfahrradFrameSize: 'Rahmengröße',
+    mietfahrradIsRentable: 'Für Verleih aktiv',
+    mietfahrradToggleRentable: 'Verleih aktivieren/deaktivieren',
+    mietfahrradBasicInfo: 'Grundinformationen',
+    mietfahrradSaveSuccess: 'Mietfahrrad gespeichert',
   },
   tr: {
     // Navigation
@@ -1456,9 +1514,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     purchases: 'Alımlar',
     sales: 'Satışlar',
     returns: 'İadeler',
-    rentals: 'Kiralama',
+    rentals: 'Kira Sözleşmeleri',
     rentalBookings: 'Kiralama Talepleri',
     rentalAccessories: 'Kiralama Aksesuarları',
+    mietfahrraeder: 'Kiralık Bisikletler',
     statistics: 'İstatistikler',
     settings: 'Ayarlar',
     skipToMain: 'Ana içeriğe atla',
@@ -2174,6 +2233,34 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Bu aksesuarı silmek istediğinize emin misiniz?',
     homepageAccessoryUploadPhotos: 'Fotoğraf yükle',
     homepageAccessorySelectCategory: 'Kategori seçin',
+
+    // Mietfahrräder
+    mietfahrradList: 'Kiralık Bisikletler',
+    mietfahrradNew: 'Yeni Kiralık Bisiklet',
+    mietfahrradEdit: 'Kiralık Bisikleti Düzenle',
+    mietfahrradBrand: 'Marka',
+    mietfahrradModel: 'Model',
+    mietfahrradType: 'Bisiklet Tipi',
+    mietfahrradSize: 'Lastik Boyutu',
+    mietfahrradColor: 'Renk',
+    mietfahrradActive: 'Kiralama için aktif',
+    mietfahrradNoItems: 'Kiralık bisiklet bulunamadı.',
+    mietfahrradDeleteConfirm: 'Bisiklet kiralama listesinden çıkarılsın mı?',
+    mietfahrradPhotos: 'Fotoğraflar',
+    mietfahrradUploadPhotos: 'Fotoğraf yükle',
+    mietfahrradRentalPrices: 'Kiralama Fiyatları',
+    mietfahrradPriceDay1: '1 Gün',
+    mietfahrradPriceDay3: '3 Gün',
+    mietfahrradPriceDay7: '7 Gün',
+    mietfahrradPriceDay14: '14 Gün',
+    mietfahrradPriceDay30: '30 Gün',
+    mietfahrradPricePerDay: 'Günlük (10 günden itibaren)',
+    mietfahrradDescription: 'Açıklama',
+    mietfahrradFrameSize: 'Çerçeve Boyutu',
+    mietfahrradIsRentable: 'Kiralama aktif',
+    mietfahrradToggleRentable: 'Kiralamayı aç/kapat',
+    mietfahrradBasicInfo: 'Temel Bilgiler',
+    mietfahrradSaveSuccess: 'Kiralık bisiklet kaydedildi',
   },
 };
 
