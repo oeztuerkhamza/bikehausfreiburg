@@ -1,13 +1,9 @@
-node_modules/
-dist/
-.angular/
-.git
-.gitignore
-.vscode/
-.vs/
-**/Thumbs.db
-**/*.user
-**/*.suo
-README.md
-Dockerfile
-.dockerignore
+# Build context only needs the prebuilt dist/ folder.
+# Everything else is excluded; Dockerfile copies dist/ explicitly.
+*
+!dist/
+!Dockerfile
+
+# Even within dist/, exclude things the runtime doesn't need
+dist/**/.angular
+dist/**/*.map
