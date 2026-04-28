@@ -209,37 +209,116 @@ jobs:
             docker compose ps client
 
   # ───────────────────────────────────────────────────────────────
-  # Deploy Homepage (Angular SSR) — runs after Client
+  # Build Homepage on the runner (fast: 16GB RAM, 4 vCPU, npm cache).
+  # The SSR bundle Angular emits is fully self-contained, so the
+  # container only needs the dist/ folder + Node at runtime.
+  # ───────────────────────────────────────────────────────────────
+  build-homepage:
+    needs: changes
+    if: |
+      needs.changes.outputs.homepage == 'true' ||
+      needs.changes.outputs.infra == 'true' ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BikeHaus.Homepage
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: BikeHaus.Homepage/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production (SSR + prerender)
+        run: npm run build
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: homepage-dist
+          path: BikeHaus.Homepage/dist/
+          retention-days: 1
+          if-no-files-found: error
+
+  # ───────────────────────────────────────────────────────────────
+  # Deploy Homepage — runs after Client. Downloads the prebuilt
+  # dist artifact, ships it to the server via SCP, then rebuilds
+  # the (lightweight) container which only copies the dist in.
   # ───────────────────────────────────────────────────────────────
   deploy-homepage:
-    needs: [changes, sync-server, deploy-client]
+    needs: [changes, sync-server, deploy-client, build-homepage]
     if: |
       always() &&
       needs.sync-server.result == 'success' &&
+      needs.build-homepage.result == 'success' &&
       needs.deploy-client.result != 'failure' &&
-      needs.deploy-client.result != 'cancelled' &&
-      (
-        needs.changes.outputs.homepage == 'true' ||
-        needs.changes.outputs.infra == 'true' ||
-        github.event_name == 'workflow_dispatch'
-      )
+      needs.deploy-client.result != 'cancelled'
     runs-on: ubuntu-latest
     steps:
-      - name: Build and recreate Homepage container
+      - name: Download homepage dist
+        uses: actions/download-artifact@v4
+        with:
+          name: homepage-dist
+          path: homepage-dist/
+
+      - name: Verify artifact contents
+        run: |
+          set -euo pipefail
+          if [ ! -f homepage-dist/bike-haus.homepage/server/server.mjs ]; then
+            echo "ERROR: server.mjs not found in artifact"
+            ls -R homepage-dist/ | head -50
+            exit 1
+          fi
+          echo "Artifact OK: $(du -sh homepage-dist | cut -f1)"
+
+      - name: Ship dist to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: 'homepage-dist/'
+          target: '/opt/bikehaus/BikeHaus.Homepage/dist-staging'
+          strip_components: 1
+          rm: true
+
+      - name: Promote staging dist and recreate container
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          command_timeout: 20m
+          command_timeout: 10m
           script: |
             set -euo pipefail
-            cd /opt/bikehaus
+            cd /opt/bikehaus/BikeHaus.Homepage
+
+            STAGING=/opt/bikehaus/BikeHaus.Homepage/dist-staging
+            LIVE=/opt/bikehaus/BikeHaus.Homepage/dist
+
+            if [ ! -f "${STAGING}/bike-haus.homepage/server/server.mjs" ]; then
+              echo "ERROR: staged dist missing server.mjs — aborting"
+              exit 1
+            fi
+
+            echo "==> Promoting staged dist (atomic swap)"
+            rm -rf "${LIVE}.old" 2>/dev/null || true
+            if [ -d "${LIVE}" ]; then
+              mv "${LIVE}" "${LIVE}.old"
+            fi
+            mv "${STAGING}" "${LIVE}"
 
             echo "==> Pulling base image"
             docker pull node:20-alpine
 
-            echo "==> Building Homepage image"
+            echo "==> Building Homepage image (just copies prebuilt dist)"
+            cd /opt/bikehaus
             docker compose build homepage
 
             echo "==> Recreating Homepage container"
@@ -317,7 +396,7 @@ jobs:
             "https://bikehausfreiburg.com"
             "https://admin.bikehausfreiburg.com"
             "https://api.bikehausfreiburg.com/api/public/neue-fahrraeder"
-            "https://api.bikehausfreiburg.com/api/public/accessories"
+            "https://api.bikehausfreiburg.com/api/public/homepage-accessories"
           )
           failed=0
           for url in "${urls[@]}"; do
