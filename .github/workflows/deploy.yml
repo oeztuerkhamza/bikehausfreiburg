@@ -94,6 +94,13 @@ jobs:
             SMTP_FROM_NAME=Bike Haus Freiburg
             EOF
             chmod 600 .env
+            echo "Pre-pulling base images to keep SSH session alive..."
+            docker pull node:20-alpine &
+            docker pull mcr.microsoft.com/dotnet/sdk:9.0 &
+            docker pull mcr.microsoft.com/playwright/dotnet:v1.49.0-noble &
+            docker pull mcr.microsoft.com/dotnet/aspnet:9.0 &
+            wait
+            echo "Base images ready."
             docker compose build bikehaus
             docker compose up -d --force-recreate bikehaus nginx
             docker compose ps
