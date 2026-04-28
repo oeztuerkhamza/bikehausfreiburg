@@ -1,4 +1,6 @@
+using System.IO;
 using System.Net.Security;
+using System.Net.Sockets;
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain.Entities;
@@ -14,6 +16,7 @@ namespace BikeHaus.Infrastructure.Services;
 
 public class SmtpEmailService : IEmailService
 {
+    private const int MaxSendAttempts = 3;
     private readonly SmtpOptions _options;
     private readonly ILogger<SmtpEmailService> _logger;
     private readonly BikeHausDbContext _db;
@@ -92,41 +95,68 @@ public class SmtpEmailService : IEmailService
             throw new InvalidOperationException("SMTP password is empty.");
         }
 
-        try
-        {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(fromName, fromEmail));
-            message.To.Add(new MailboxAddress(toName, toEmail));
-            message.Subject = subject;
-            message.Body = new TextPart("plain") { Text = body };
+        Exception? lastException = null;
 
-            using var client = new SmtpClient
+        for (var attempt = 1; attempt <= MaxSendAttempts; attempt++)
+        {
+            try
             {
-                Timeout = 20000,
-                ServerCertificateValidationCallback = (_, _, _, sslPolicyErrors) =>
-                    sslPolicyErrors == SslPolicyErrors.None || sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors
-            };
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(fromName, fromEmail));
+                message.To.Add(new MailboxAddress(toName, toEmail));
+                message.Subject = subject;
+                message.Body = new TextPart("plain") { Text = body };
 
-            var socketOptions = useSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
+                using var client = new SmtpClient
+                {
+                    Timeout = 20000,
+                    ServerCertificateValidationCallback = (_, _, _, sslPolicyErrors) =>
+                        sslPolicyErrors == SslPolicyErrors.None || sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors
+                };
 
-            _logger.LogInformation("Sending email to {To}, subject: {Subject}", toEmail, subject);
-            await client.ConnectAsync(host, port, socketOptions);
+                var socketOptions = useSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
 
-            if (!string.IsNullOrWhiteSpace(username))
-                await client.AuthenticateAsync(username, password);
+                _logger.LogInformation(
+                    "Sending email to {To}, subject: {Subject}, attempt {Attempt}/{MaxAttempts}",
+                    toEmail,
+                    subject,
+                    attempt,
+                    MaxSendAttempts);
+                await client.ConnectAsync(host, port, socketOptions);
 
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
-            _logger.LogInformation("Email sent successfully to {To}", toEmail);
+                if (!string.IsNullOrWhiteSpace(username))
+                    await client.AuthenticateAsync(username, password);
 
-            await LogEmailAsync(toEmail, toName, subject, emailType, "Gesendet", null, dbAccount?.Id);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+                _logger.LogInformation("Email sent successfully to {To}", toEmail);
+
+                await LogEmailAsync(toEmail, toName, subject, emailType, "Gesendet", null, dbAccount?.Id);
+                return;
+            }
+            catch (Exception ex) when (attempt < MaxSendAttempts && IsTransientFailure(ex) && !IsAuthenticationFailure(ex))
+            {
+                lastException = ex;
+                _logger.LogWarning(
+                    ex,
+                    "Transient SMTP failure while sending email to {To} via {Host}:{Port}. Retrying attempt {NextAttempt}/{MaxAttempts}",
+                    toEmail,
+                    host,
+                    port,
+                    attempt + 1,
+                    MaxSendAttempts);
+                await Task.Delay(TimeSpan.FromSeconds(attempt));
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+                break;
+            }
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to send email to {To} via {Host}:{Port}", toEmail, host, port);
-            await LogEmailAsync(toEmail, toName, subject, emailType, "Fehler", ex.Message, dbAccount?.Id);
-            throw;
-        }
+
+        _logger.LogError(lastException, "Failed to send email to {To} via {Host}:{Port}", toEmail, host, port);
+        await LogEmailAsync(toEmail, toName, subject, emailType, "Fehler", lastException?.Message, dbAccount?.Id);
+        throw lastException ?? new InvalidOperationException("SMTP send failed without an exception.");
     }
 
     private static string FirstConfigured(params string?[] values)
@@ -138,6 +168,28 @@ public class SmtpEmailService : IEmailService
         }
 
         return string.Empty;
+    }
+
+    private static bool IsAuthenticationFailure(Exception ex)
+    {
+        return ex.Message.Contains("authentication failed", StringComparison.OrdinalIgnoreCase)
+            || ex.Message.Contains("auth failed", StringComparison.OrdinalIgnoreCase)
+            || ex.Message.Contains("535", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsTransientFailure(Exception ex)
+    {
+        return ex switch
+        {
+            TimeoutException => true,
+            IOException => true,
+            SocketException => true,
+            SmtpProtocolException => true,
+            SmtpCommandException smtpCommandException => (int)smtpCommandException.StatusCode >= 400
+                && (int)smtpCommandException.StatusCode < 500,
+            _ when ex.Message.Contains("try again later", StringComparison.OrdinalIgnoreCase) => true,
+            _ => false
+        };
     }
 
     private async Task LogEmailAsync(string toEmail, string toName, string subject, string emailType, string status, string? error, int? accountId)
