@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslationService } from './services/translation.service';
@@ -616,9 +616,19 @@ import { DialogComponent } from './components/dialog/dialog.component';
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
             </button>
-            <div class="user-info">
+            <div class="user-info" (click)="userMenuOpen = !userMenuOpen" [class.open]="userMenuOpen">
               <div class="user-avatar">{{ getInitials() }}</div>
               <span class="user-name">{{ ownerDisplayName() }}</span>
+              <div class="user-dropdown" *ngIf="userMenuOpen" (click)="$event.stopPropagation()">
+                <button class="dropdown-item dropdown-logout" (click)="logout(); userMenuOpen = false">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  Abmelden
+                </button>
+              </div>
             </div>
           </div>
         </header>
@@ -877,6 +887,50 @@ import { DialogComponent } from './components/dialog/dialog.component';
         display: flex;
         align-items: center;
         gap: 10px;
+        position: relative;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 10px;
+        transition: background 0.15s;
+      }
+      .user-info:hover {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+      }
+      .user-dropdown {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-light);
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        min-width: 160px;
+        z-index: 200;
+        overflow: hidden;
+      }
+      .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 11px 16px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        transition: background 0.15s;
+        text-align: left;
+      }
+      .dropdown-item:hover {
+        background: var(--bg-hover, rgba(0,0,0,0.04));
+      }
+      .dropdown-logout {
+        color: #ef4444;
+      }
+      .dropdown-logout:hover {
+        background: rgba(239, 68, 68, 0.08);
       }
       .user-avatar {
         width: 36px;
@@ -994,6 +1048,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
 export class AppComponent implements OnInit {
   title = 'BikeHaus.Client';
   sidebarOpen = false;
+  userMenuOpen = false;
   private translationService = inject(TranslationService);
   private settingsService = inject(SettingsService);
   private purchaseService = inject(PurchaseService);
@@ -1078,6 +1133,11 @@ export class AppComponent implements OnInit {
       .join('')
       .toUpperCase()
       .substring(0, 2);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.userMenuOpen = false;
   }
 
   closeSidebar() {
