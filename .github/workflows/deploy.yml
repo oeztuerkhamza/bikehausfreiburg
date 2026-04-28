@@ -128,11 +128,12 @@ jobs:
             chmod 600 .env
 
   # ───────────────────────────────────────────────────────────────
-  # Deploy API (.NET backend)
+  # Deploy API (.NET backend) — runs first, heaviest build
   # ───────────────────────────────────────────────────────────────
   deploy-api:
     needs: [changes, sync-server]
     if: |
+      always() &&
       needs.sync-server.result == 'success' &&
       (
         needs.changes.outputs.api == 'true' ||
@@ -152,11 +153,10 @@ jobs:
             set -euo pipefail
             cd /opt/bikehaus
 
-            echo "==> Pre-pulling base images"
-            docker pull mcr.microsoft.com/dotnet/sdk:9.0 &
-            docker pull mcr.microsoft.com/playwright/dotnet:v1.49.0-noble &
-            docker pull mcr.microsoft.com/dotnet/aspnet:9.0 &
-            wait
+            echo "==> Pulling base images (sequential to avoid memory pressure)"
+            docker pull mcr.microsoft.com/dotnet/sdk:9.0
+            docker pull mcr.microsoft.com/playwright/dotnet:v1.49.0-noble
+            docker pull mcr.microsoft.com/dotnet/aspnet:9.0
 
             echo "==> Building API image"
             docker compose build bikehaus
@@ -168,12 +168,15 @@ jobs:
             docker compose ps bikehaus
 
   # ───────────────────────────────────────────────────────────────
-  # Deploy Client (Angular admin SPA)
+  # Deploy Client (Angular admin SPA) — runs after API
   # ───────────────────────────────────────────────────────────────
   deploy-client:
-    needs: [changes, sync-server]
+    needs: [changes, sync-server, deploy-api]
     if: |
+      always() &&
       needs.sync-server.result == 'success' &&
+      needs.deploy-api.result != 'failure' &&
+      needs.deploy-api.result != 'cancelled' &&
       (
         needs.changes.outputs.client == 'true' ||
         needs.changes.outputs.infra == 'true' ||
@@ -192,10 +195,9 @@ jobs:
             set -euo pipefail
             cd /opt/bikehaus
 
-            echo "==> Pre-pulling base images"
-            docker pull node:20-alpine &
-            docker pull nginx:alpine &
-            wait
+            echo "==> Pulling base images (sequential)"
+            docker pull node:20-alpine
+            docker pull nginx:alpine
 
             echo "==> Building Client image"
             docker compose build client
@@ -207,12 +209,15 @@ jobs:
             docker compose ps client
 
   # ───────────────────────────────────────────────────────────────
-  # Deploy Homepage (Angular SSR public site)
+  # Deploy Homepage (Angular SSR) — runs after Client
   # ───────────────────────────────────────────────────────────────
   deploy-homepage:
-    needs: [changes, sync-server]
+    needs: [changes, sync-server, deploy-client]
     if: |
+      always() &&
       needs.sync-server.result == 'success' &&
+      needs.deploy-client.result != 'failure' &&
+      needs.deploy-client.result != 'cancelled' &&
       (
         needs.changes.outputs.homepage == 'true' ||
         needs.changes.outputs.infra == 'true' ||
@@ -231,9 +236,8 @@ jobs:
             set -euo pipefail
             cd /opt/bikehaus
 
-            echo "==> Pre-pulling base images"
-            docker pull node:20-alpine &
-            wait
+            echo "==> Pulling base image"
+            docker pull node:20-alpine
 
             echo "==> Building Homepage image"
             docker compose build homepage
@@ -245,8 +249,7 @@ jobs:
             docker compose ps homepage
 
   # ───────────────────────────────────────────────────────────────
-  # Reload nginx after dependent services are recreated.
-  # Runs even if some service jobs were skipped.
+  # Reload nginx after the service chain finishes
   # ───────────────────────────────────────────────────────────────
   reload-nginx:
     needs: [changes, sync-server, deploy-api, deploy-client, deploy-homepage]
@@ -256,6 +259,9 @@ jobs:
       needs.deploy-api.result != 'failure' &&
       needs.deploy-client.result != 'failure' &&
       needs.deploy-homepage.result != 'failure' &&
+      needs.deploy-api.result != 'cancelled' &&
+      needs.deploy-client.result != 'cancelled' &&
+      needs.deploy-homepage.result != 'cancelled' &&
       (
         needs.deploy-api.result == 'success' ||
         needs.deploy-client.result == 'success' ||
