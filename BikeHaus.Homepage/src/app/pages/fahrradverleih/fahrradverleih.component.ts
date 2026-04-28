@@ -269,55 +269,105 @@ import { environment } from '../../../environments/environment';
         <!-- Seat-Map: Fahrrad wählen -->
         <section class="bikes-section" id="fahrrad-waehlen">
           <div class="section-header">
-            <span class="section-label">{{ t().bikeRentalAvailableLabel }}</span>
+            <span class="section-label">{{
+              t().bikeRentalAvailableLabel
+            }}</span>
             <h2 class="bikes-title">{{ t().bikeRentalAvailableTitle }}</h2>
-            <p class="bikes-subtitle">Fahrrad auswählen und direkt Ihren Wunschzeitraum buchen</p>
+            <p class="bikes-subtitle">
+              Fahrrad auswählen und direkt Ihren Wunschzeitraum buchen
+            </p>
           </div>
 
           <!-- Loading -->
           <div class="seat-map" *ngIf="bikesLoading()">
-            <div class="seat-skeleton" *ngFor="let i of [1,2,3,4]"></div>
+            <div class="seat-skeleton" *ngFor="let i of [1, 2, 3, 4]"></div>
           </div>
 
           <!-- Empty -->
-          <div class="bikes-empty" *ngIf="!bikesLoading() && bikes().length === 0">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
-              <path d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"/>
+          <div
+            class="bikes-empty"
+            *ngIf="!bikesLoading() && bikes().length === 0"
+          >
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <circle cx="5.5" cy="17.5" r="3.5" />
+              <circle cx="18.5" cy="17.5" r="3.5" />
+              <path
+                d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"
+              />
             </svg>
             <p>{{ t().bikeRentalNoBikes }}</p>
           </div>
 
           <!-- Seat cards -->
           <div class="seat-map" *ngIf="!bikesLoading() && bikes().length > 0">
-            <div class="seat-card"
-                 *ngFor="let bike of bikes()"
-                 [class.seat-selected]="selectedBike()?.id === bike.id"
-                 (click)="selectBike(bike)">
+            <div
+              class="seat-card"
+              *ngFor="let bike of bikes()"
+              [class.seat-selected]="selectedBike()?.id === bike.id"
+              (click)="selectBike(bike)"
+            >
               <div class="seat-img-wrap">
-                <img *ngIf="bike.images.length > 0"
-                     [src]="getImageUrl(bike.images[0].filePath)"
-                     [alt]="bike.marke + ' ' + bike.modell"
-                     loading="lazy" />
-                <div class="seat-img-placeholder" *ngIf="bike.images.length === 0">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
-                    <path d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"/>
+                <img
+                  *ngIf="bike.images.length > 0"
+                  [src]="getImageUrl(bike.images[0].filePath)"
+                  [alt]="bike.marke + ' ' + bike.modell"
+                  loading="lazy"
+                />
+                <div
+                  class="seat-img-placeholder"
+                  *ngIf="bike.images.length === 0"
+                >
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <circle cx="5.5" cy="17.5" r="3.5" />
+                    <circle cx="18.5" cy="17.5" r="3.5" />
+                    <path
+                      d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"
+                    />
                   </svg>
                 </div>
-                <span class="seat-type-badge" *ngIf="bike.fahrradtyp">{{ bike.fahrradtyp }}</span>
+                <span class="seat-type-badge" *ngIf="bike.fahrradtyp">{{
+                  bike.fahrradtyp
+                }}</span>
               </div>
               <div class="seat-info">
                 <div class="seat-name">{{ bike.marke }} {{ bike.modell }}</div>
                 <div class="seat-specs">
-                  <span *ngIf="bike.rahmengroesse">{{ bike.rahmengroesse }}</span>
+                  <span *ngIf="bike.rahmengroesse">{{
+                    bike.rahmengroesse
+                  }}</span>
                   <span *ngIf="bike.farbe">· {{ bike.farbe }}</span>
                 </div>
-                <div class="seat-price-from" *ngIf="getMinPrice(bike) as minP">ab {{ minP | number:'1.0-0' }} €</div>
+                <div class="seat-price-from" *ngIf="getMinPrice(bike) as minP">
+                  ab {{ minP | number: '1.0-0' }} €
+                </div>
               </div>
-              <div class="seat-check-mark" *ngIf="selectedBike()?.id === bike.id">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12"/>
+              <div
+                class="seat-check-mark"
+                *ngIf="selectedBike()?.id === bike.id"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                >
+                  <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
             </div>
@@ -325,30 +375,63 @@ import { environment } from '../../../environments/environment';
         </section>
 
         <!-- Inline Booking Panel -->
-        <section class="booking-panel" *ngIf="selectedBike()" id="booking-panel">
-
+        <section
+          class="booking-panel"
+          *ngIf="selectedBike()"
+          id="booking-panel"
+        >
           <!-- Panel header: selected bike + change button -->
           <div class="bp-bike-bar">
             <div class="bp-bike-thumb">
-              <img *ngIf="selectedBike()!.images.length > 0"
-                   [src]="getImageUrl(selectedBike()!.images[0].filePath)"
-                   [alt]="selectedBike()!.marke" />
-              <svg *ngIf="selectedBike()!.images.length === 0" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/>
-                <path d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"/>
+              <img
+                *ngIf="selectedBike()!.images.length > 0"
+                [src]="getImageUrl(selectedBike()!.images[0].filePath)"
+                [alt]="selectedBike()!.marke"
+              />
+              <svg
+                *ngIf="selectedBike()!.images.length === 0"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <circle cx="5.5" cy="17.5" r="3.5" />
+                <circle cx="18.5" cy="17.5" r="3.5" />
+                <path
+                  d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"
+                />
               </svg>
             </div>
             <div class="bp-bike-details">
-              <span class="bp-bike-name">{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</span>
+              <span class="bp-bike-name"
+                >{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</span
+              >
               <span class="bp-bike-meta">
-                <span *ngIf="selectedBike()!.rahmengroesse">{{ selectedBike()!.rahmengroesse }}</span>
-                <span *ngIf="selectedBike()!.farbe"> · {{ selectedBike()!.farbe }}</span>
+                <span *ngIf="selectedBike()!.rahmengroesse">{{
+                  selectedBike()!.rahmengroesse
+                }}</span>
+                <span *ngIf="selectedBike()!.farbe">
+                  · {{ selectedBike()!.farbe }}</span
+                >
               </span>
             </div>
             <button class="bp-change-btn" (click)="deselectBike()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                />
+                <path
+                  d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                />
               </svg>
               Ändern
             </button>
@@ -357,23 +440,50 @@ import { environment } from '../../../environments/environment';
           <!-- Success state -->
           <div class="bp-success" *ngIf="bookingSuccess()">
             <div class="bp-success-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              <svg
+                width="40"
+                height="40"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
             <h3>Buchungsanfrage gesendet!</h3>
-            <p>Wir haben Ihre Anfrage erhalten und melden uns so schnell wie möglich.<br>Eine Bestätigung wurde an <strong>{{ bookingForm.email }}</strong> gesendet.</p>
-            <div class="bp-booking-nr">Buchungsnummer: <strong>{{ confirmedBookingNr() }}</strong></div>
-            <button class="bp-new-btn" (click)="deselectBike()">Neue Anfrage stellen</button>
+            <p>
+              Wir haben Ihre Anfrage erhalten und melden uns so schnell wie
+              möglich.<br />Eine Bestätigung wurde an
+              <strong>{{ bookingForm.email }}</strong> gesendet.
+            </p>
+            <div class="bp-booking-nr">
+              Buchungsnummer: <strong>{{ confirmedBookingNr() }}</strong>
+            </div>
+            <button class="bp-new-btn" (click)="deselectBike()">
+              Neue Anfrage stellen
+            </button>
           </div>
 
           <!-- Booking body: calendar + form -->
           <div class="bp-body" *ngIf="!bookingSuccess()">
-
             <!-- Calendar column -->
             <div class="bp-cal-col">
               <h3 class="bp-col-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
                 Zeitraum wählen
               </h3>
 
@@ -386,55 +496,146 @@ import { environment } from '../../../environments/environment';
               <div class="booking-calendar" *ngIf="!busyPeriodsLoading()">
                 <div class="bc-header">
                   <button type="button" class="bc-nav" (click)="prevMonth()">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
                   </button>
                   <span class="bc-month-title">{{ calMonthLabel() }}</span>
                   <button type="button" class="bc-nav" (click)="nextMonth()">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
                   </button>
                 </div>
                 <div class="bc-weekdays">
-                  <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
+                  <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span
+                  ><span>Fr</span><span>Sa</span><span>So</span>
                 </div>
                 <div class="bc-grid">
-                  <div *ngFor="let day of calendarDays()"
-                       class="bc-cell"
-                       [class.bc-empty]="!day"
-                       [class.bc-past]="day && isPast(day)"
-                       [class.bc-busy]="day && !isPast(day) && getDayBusyType(day) === 'booking'"
-                       [class.bc-pending]="day && !isPast(day) && getDayBusyType(day) === 'pending'"
-                       [class.bc-today]="day && isToday(day)"
-                       [class.bc-start]="day && isStart(day)"
-                       [class.bc-end]="day && isEnd(day)"
-                       [class.bc-range]="day && isInRange(day)"
-                       [class.bc-clickable]="day && !isPast(day) && !isDayBusy(day)"
-                       (click)="day && !isPast(day) && !isDayBusy(day) && onCalDayClick(day)">
+                  <div
+                    *ngFor="let day of calendarDays()"
+                    class="bc-cell"
+                    [class.bc-empty]="!day"
+                    [class.bc-past]="day && isPast(day)"
+                    [class.bc-busy]="
+                      day && !isPast(day) && getDayBusyType(day) === 'booking'
+                    "
+                    [class.bc-pending]="
+                      day && !isPast(day) && getDayBusyType(day) === 'pending'
+                    "
+                    [class.bc-today]="day && isToday(day)"
+                    [class.bc-start]="day && isStart(day)"
+                    [class.bc-end]="day && isEnd(day)"
+                    [class.bc-range]="day && isInRange(day)"
+                    [class.bc-clickable]="
+                      day && !isPast(day) && !isDayBusy(day)
+                    "
+                    (click)="
+                      day &&
+                        !isPast(day) &&
+                        !isDayBusy(day) &&
+                        onCalDayClick(day)
+                    "
+                  >
                     <span *ngIf="day">{{ day.getDate() }}</span>
-                    <div class="bc-busy-tip" *ngIf="day && !isPast(day) && isDayBusy(day)">
-                      {{ getDayBusyType(day) === 'pending' ? 'In Prüfung' : 'Belegt' }}
+                    <div
+                      class="bc-busy-tip"
+                      *ngIf="day && !isPast(day) && isDayBusy(day)"
+                    >
+                      {{
+                        getDayBusyType(day) === 'pending'
+                          ? 'In Prüfung'
+                          : 'Belegt'
+                      }}
                     </div>
                   </div>
                 </div>
                 <div class="bc-legend">
-                  <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-busy"></span>Belegt</span>
-                  <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-pending"></span>In Prüfung</span>
-                  <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-sel"></span>Ausgewählt</span>
+                  <span class="bc-legend-item"
+                    ><span class="bc-leg-dot bc-leg-busy"></span>Belegt</span
+                  >
+                  <span class="bc-legend-item"
+                    ><span class="bc-leg-dot bc-leg-pending"></span>In
+                    Prüfung</span
+                  >
+                  <span class="bc-legend-item"
+                    ><span class="bc-leg-dot bc-leg-sel"></span>Ausgewählt</span
+                  >
                 </div>
                 <div class="bc-info" *ngIf="calendarStart()">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                  <span *ngIf="!calendarEnd()">{{ formatCalDay(calendarStart()!) }} → Enddatum wählen</span>
-                  <span *ngIf="calendarEnd()">{{ formatCalDay(calendarStart()!) }} – {{ formatCalDay(calendarEnd()!) }}</span>
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="3" y="4" width="18" height="18" rx="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
+                  <span *ngIf="!calendarEnd()"
+                    >{{ formatCalDay(calendarStart()!) }} → Enddatum
+                    wählen</span
+                  >
+                  <span *ngIf="calendarEnd()"
+                    >{{ formatCalDay(calendarStart()!) }} –
+                    {{ formatCalDay(calendarEnd()!) }}</span
+                  >
                 </div>
               </div>
 
               <!-- Price preview -->
-              <div class="price-preview" *ngIf="calculatedDays() > 0 && calculatedPrice() !== null">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              <div
+                class="price-preview"
+                *ngIf="calculatedDays() > 0 && calculatedPrice() !== null"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="12" y1="1" x2="12" y2="23" />
+                  <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                </svg>
                 <span>{{ calculatedDays() }} Tage · geschätzter Preis:</span>
-                <strong>{{ calculatedPrice() | number:'1.0-0' }} €</strong>
+                <strong>{{ calculatedPrice() | number: '1.0-0' }} €</strong>
               </div>
-              <div class="price-preview warn" *ngIf="calculatedDays() > 0 && calculatedPrice() === null">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <div
+                class="price-preview warn"
+                *ngIf="calculatedDays() > 0 && calculatedPrice() === null"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
                 <span>{{ calculatedDays() }} Tage · Preis auf Anfrage</span>
               </div>
             </div>
@@ -442,57 +643,130 @@ import { environment } from '../../../environments/environment';
             <!-- Form column -->
             <div class="bp-form-col">
               <h3 class="bp-col-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
                 Ihre Daten
               </h3>
 
               <div class="form-row">
                 <div class="form-field">
                   <label>Vorname *</label>
-                  <input type="text" [(ngModel)]="bookingForm.vorname" placeholder="Max" />
+                  <input
+                    type="text"
+                    [(ngModel)]="bookingForm.vorname"
+                    placeholder="Max"
+                  />
                 </div>
                 <div class="form-field">
                   <label>Nachname *</label>
-                  <input type="text" [(ngModel)]="bookingForm.nachname" placeholder="Mustermann" />
+                  <input
+                    type="text"
+                    [(ngModel)]="bookingForm.nachname"
+                    placeholder="Mustermann"
+                  />
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-field">
                   <label>E-Mail *</label>
-                  <input type="email" [(ngModel)]="bookingForm.email" placeholder="max&#64;example.com" />
+                  <input
+                    type="email"
+                    [(ngModel)]="bookingForm.email"
+                    placeholder="max&#64;example.com"
+                  />
                 </div>
                 <div class="form-field">
                   <label>Telefon</label>
-                  <input type="tel" [(ngModel)]="bookingForm.telefon" placeholder="+49 ..." />
+                  <input
+                    type="tel"
+                    [(ngModel)]="bookingForm.telefon"
+                    placeholder="+49 ..."
+                  />
                 </div>
               </div>
 
               <div class="form-field">
                 <label>Kommunikationssprache</label>
                 <div class="lang-toggle">
-                  <button type="button" [class.active]="bookingForm.sprache === 'de'" (click)="bookingForm.sprache = 'de'">Deutsch</button>
-                  <button type="button" [class.active]="bookingForm.sprache === 'en'" (click)="bookingForm.sprache = 'en'">English</button>
+                  <button
+                    type="button"
+                    [class.active]="bookingForm.sprache === 'de'"
+                    (click)="bookingForm.sprache = 'de'"
+                  >
+                    Deutsch
+                  </button>
+                  <button
+                    type="button"
+                    [class.active]="bookingForm.sprache === 'en'"
+                    (click)="bookingForm.sprache = 'en'"
+                  >
+                    English
+                  </button>
                 </div>
               </div>
 
               <div class="form-field">
                 <label>Anmerkungen (optional)</label>
-                <textarea [(ngModel)]="bookingForm.notizen" rows="3" placeholder="Besondere Wünsche, Fragen..."></textarea>
+                <textarea
+                  [(ngModel)]="bookingForm.notizen"
+                  rows="3"
+                  placeholder="Besondere Wünsche, Fragen..."
+                ></textarea>
               </div>
 
               <div class="form-error" *ngIf="bookingError()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
                 {{ bookingError() }}
               </div>
 
-              <button class="btn-submit" (click)="submitBooking()" [disabled]="bookingSubmitting()">
-                <svg *ngIf="!bookingSubmitting()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              <button
+                class="btn-submit"
+                (click)="submitBooking()"
+                [disabled]="bookingSubmitting()"
+              >
+                <svg
+                  *ngIf="!bookingSubmitting()"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
                 <div *ngIf="bookingSubmitting()" class="submit-spinner"></div>
-                {{ bookingSubmitting() ? 'Wird gesendet...' : 'Anfrage senden' }}
+                {{
+                  bookingSubmitting() ? 'Wird gesendet...' : 'Anfrage senden'
+                }}
               </button>
 
-              <p class="bp-note">Nach Eingang Ihrer Anfrage erhalten Sie eine Bestätigungs-E-Mail. Die endgültige Buchung erfolgt nach Bestätigung durch unser Team.</p>
+              <p class="bp-note">
+                Nach Eingang Ihrer Anfrage erhalten Sie eine
+                Bestätigungs-E-Mail. Die endgültige Buchung erfolgt nach
+                Bestätigung durch unser Team.
+              </p>
             </div>
           </div>
         </section>
@@ -900,7 +1174,7 @@ import { environment } from '../../../environments/environment';
         align-items: center;
         gap: 4px;
         padding: 3px 8px;
-        background: rgba(0,0,0,0.6);
+        background: rgba(0, 0, 0, 0.6);
         color: #fff;
         border-radius: 999px;
         font-size: 0.72rem;
@@ -1036,14 +1310,23 @@ import { environment } from '../../../environments/environment';
       .bike-skeleton {
         height: 340px;
         border-radius: 16px;
-        background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-border) 50%, var(--color-surface) 75%);
+        background: linear-gradient(
+          90deg,
+          var(--color-surface) 25%,
+          var(--color-border) 50%,
+          var(--color-surface) 75%
+        );
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
       }
 
       @keyframes shimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
       }
 
       .bikes-empty {
@@ -1080,12 +1363,24 @@ import { environment } from '../../../environments/environment';
       .seat-skeleton {
         height: 120px;
         border-radius: 14px;
-        background: linear-gradient(90deg, var(--color-surface) 25%, rgba(255,255,255,0.04) 50%, var(--color-surface) 75%);
+        background: linear-gradient(
+          90deg,
+          var(--color-surface) 25%,
+          rgba(255, 255, 255, 0.04) 50%,
+          var(--color-surface) 75%
+        );
         background-size: 200% 100%;
         animation: shimmer 1.4s infinite;
         border: 1px solid var(--color-border);
       }
-      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
 
       .seat-card {
         background: var(--color-surface);
@@ -1093,7 +1388,10 @@ import { environment } from '../../../environments/environment';
         border-radius: 14px;
         overflow: hidden;
         cursor: pointer;
-        transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        transition:
+          border-color 0.2s,
+          transform 0.2s,
+          box-shadow 0.2s;
         position: relative;
         display: flex;
         flex-direction: column;
@@ -1101,12 +1399,18 @@ import { environment } from '../../../environments/environment';
       .seat-card:hover {
         border-color: var(--color-accent);
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       }
       .seat-card.seat-selected {
         border-color: var(--color-accent);
-        box-shadow: 0 0 0 3px rgba(255,87,34,0.2), 0 8px 24px rgba(0,0,0,0.2);
-        background: linear-gradient(135deg, var(--color-surface) 0%, rgba(255,87,34,0.04) 100%);
+        box-shadow:
+          0 0 0 3px rgba(255, 87, 34, 0.2),
+          0 8px 24px rgba(0, 0, 0, 0.2);
+        background: linear-gradient(
+          135deg,
+          var(--color-surface) 0%,
+          rgba(255, 87, 34, 0.04) 100%
+        );
       }
 
       .seat-img-wrap {
@@ -1117,19 +1421,33 @@ import { environment } from '../../../environments/environment';
         flex-shrink: 0;
       }
       .seat-img-wrap img {
-        width: 100%; height: 100%; object-fit: cover;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
         transition: transform 0.3s;
       }
-      .seat-card:hover .seat-img-wrap img { transform: scale(1.05); }
+      .seat-card:hover .seat-img-wrap img {
+        transform: scale(1.05);
+      }
       .seat-img-placeholder {
-        width: 100%; height: 100%;
-        display: flex; align-items: center; justify-content: center;
-        color: var(--color-text-secondary); opacity: 0.3;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-text-secondary);
+        opacity: 0.3;
       }
       .seat-type-badge {
-        position: absolute; top: 8px; left: 8px;
-        padding: 2px 8px; background: rgba(0,0,0,0.65); color: #fff;
-        border-radius: 999px; font-size: 0.68rem; font-weight: 600;
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        padding: 2px 8px;
+        background: rgba(0, 0, 0, 0.65);
+        color: #fff;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 600;
         backdrop-filter: blur(4px);
       }
 
@@ -1138,24 +1456,41 @@ import { environment } from '../../../environments/environment';
         flex: 1;
       }
       .seat-name {
-        font-size: 0.88rem; font-weight: 700; color: var(--color-text);
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--color-text);
         margin-bottom: 3px;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .seat-specs {
-        font-size: 0.72rem; color: var(--color-text-secondary); margin-bottom: 6px;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        font-size: 0.72rem;
+        color: var(--color-text-secondary);
+        margin-bottom: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .seat-price-from {
-        font-size: 0.78rem; font-weight: 700; color: var(--color-accent);
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--color-accent);
       }
 
       .seat-check-mark {
-        position: absolute; top: 8px; right: 8px;
-        width: 24px; height: 24px; border-radius: 50%;
-        background: var(--color-accent); color: #fff;
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 2px 8px rgba(255,87,34,0.4);
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--color-accent);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(255, 87, 34, 0.4);
       }
 
       /* ── Inline Booking Panel ── */
@@ -1168,56 +1503,131 @@ import { environment } from '../../../environments/environment';
         animation: slideDown 0.3s ease;
         scroll-margin-top: 80px;
       }
-      @keyframes slideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
       .bp-bike-bar {
-        display: flex; align-items: center; gap: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
         padding: 1rem 1.5rem;
-        background: rgba(255,87,34,0.06);
-        border-bottom: 1px solid rgba(255,87,34,0.15);
+        background: rgba(255, 87, 34, 0.06);
+        border-bottom: 1px solid rgba(255, 87, 34, 0.15);
       }
       .bp-bike-thumb {
-        width: 48px; height: 48px; border-radius: 10px; overflow: hidden;
-        background: var(--color-bg); border: 1px solid var(--color-border);
-        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      }
-      .bp-bike-thumb img { width: 100%; height: 100%; object-fit: cover; }
-      .bp-bike-thumb svg { opacity: 0.4; }
-      .bp-bike-details { flex: 1; min-width: 0; }
-      .bp-bike-name { font-size: 1rem; font-weight: 700; color: var(--color-text); }
-      .bp-bike-meta { font-size: 0.78rem; color: var(--color-text-secondary); }
-      .bp-change-btn {
-        display: flex; align-items: center; gap: 6px; padding: 7px 14px;
-        border-radius: 8px; border: 1.5px solid var(--color-border);
-        background: transparent; color: var(--color-text-secondary);
-        font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
       }
-      .bp-change-btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+      .bp-bike-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .bp-bike-thumb svg {
+        opacity: 0.4;
+      }
+      .bp-bike-details {
+        flex: 1;
+        min-width: 0;
+      }
+      .bp-bike-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-text);
+      }
+      .bp-bike-meta {
+        font-size: 0.78rem;
+        color: var(--color-text-secondary);
+      }
+      .bp-change-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: 8px;
+        border: 1.5px solid var(--color-border);
+        background: transparent;
+        color: var(--color-text-secondary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        flex-shrink: 0;
+      }
+      .bp-change-btn:hover {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+      }
 
       .bp-success {
-        padding: 3rem 2rem; text-align: center;
-        display: flex; flex-direction: column; align-items: center; gap: 1rem;
+        padding: 3rem 2rem;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
       }
       .bp-success-icon {
-        width: 72px; height: 72px; border-radius: 50%;
-        background: rgba(16,185,129,0.1); color: #10b981;
-        display: flex; align-items: center; justify-content: center;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
-      .bp-success h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: var(--color-text); }
-      .bp-success p { margin: 0; font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.7; max-width: 420px; }
+      .bp-success h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--color-text);
+      }
+      .bp-success p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--color-text-secondary);
+        line-height: 1.7;
+        max-width: 420px;
+      }
       .bp-booking-nr {
-        padding: 8px 20px; border-radius: 8px;
-        background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
-        font-size: 0.88rem; color: var(--color-text);
+        padding: 8px 20px;
+        border-radius: 8px;
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        font-size: 0.88rem;
+        color: var(--color-text);
       }
       .bp-new-btn {
-        padding: 11px 28px; border-radius: 10px;
-        background: var(--color-accent); color: #fff; border: none;
-        font-weight: 700; cursor: pointer; font-size: 0.9rem;
+        padding: 11px 28px;
+        border-radius: 10px;
+        background: var(--color-accent);
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 0.9rem;
         transition: opacity 0.15s;
       }
-      .bp-new-btn:hover { opacity: 0.88; }
+      .bp-new-btn:hover {
+        opacity: 0.88;
+      }
 
       .bp-body {
         display: grid;
@@ -1232,92 +1642,198 @@ import { environment } from '../../../environments/environment';
 
       .bp-form-col {
         padding: 1.5rem;
-        display: flex; flex-direction: column; gap: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
       }
 
       .bp-col-title {
-        display: flex; align-items: center; gap: 8px;
-        margin: 0 0 1rem; font-size: 0.95rem; font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 1rem;
+        font-size: 0.95rem;
+        font-weight: 700;
         color: var(--color-text);
       }
-      .bp-col-title svg { color: var(--color-accent); flex-shrink: 0; }
+      .bp-col-title svg {
+        color: var(--color-accent);
+        flex-shrink: 0;
+      }
 
       .bp-cal-loading {
-        display: flex; align-items: center; gap: 10px;
-        padding: 2rem; color: var(--color-text-secondary); font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 2rem;
+        color: var(--color-text-secondary);
+        font-size: 0.88rem;
         justify-content: center;
       }
       .bp-spinner {
-        width: 18px; height: 18px; border: 2px solid var(--color-border);
-        border-top-color: var(--color-accent); border-radius: 50%;
-        animation: spin 0.7s linear infinite; flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--color-border);
+        border-top-color: var(--color-accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        flex-shrink: 0;
       }
 
       .bp-note {
-        font-size: 0.78rem; color: var(--color-text-secondary); line-height: 1.6;
+        font-size: 0.78rem;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
         margin: auto 0 0;
       }
 
-      .modal-form { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-      .modal-title { margin: 0 0 0.5rem; font-size: 1.1rem; font-weight: 800; color: var(--color-text); }
+      .modal-form {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .modal-title {
+        margin: 0 0 0.5rem;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--color-text);
+      }
 
-      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-      .form-field { display: flex; flex-direction: column; gap: 5px; }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
       .form-field label {
-        font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
-        letter-spacing: 0.06em; color: var(--color-text-secondary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--color-text-secondary);
       }
-      .form-field input, .form-field textarea, .form-field select {
-        padding: 10px 12px; border: 1.5px solid var(--color-border);
-        border-radius: 10px; background: var(--color-bg); color: var(--color-text);
-        font-size: 0.9rem; transition: border-color 0.2s; resize: vertical;
+      .form-field input,
+      .form-field textarea,
+      .form-field select {
+        padding: 10px 12px;
+        border: 1.5px solid var(--color-border);
+        border-radius: 10px;
+        background: var(--color-bg);
+        color: var(--color-text);
+        font-size: 0.9rem;
+        transition: border-color 0.2s;
+        resize: vertical;
       }
-      .form-field input:focus, .form-field textarea:focus {
-        outline: none; border-color: var(--color-accent);
-        box-shadow: 0 0 0 3px rgba(255,87,34,0.1);
+      .form-field input:focus,
+      .form-field textarea:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.1);
       }
 
       .price-preview {
-        display: flex; align-items: center; gap: 8px;
-        padding: 10px 14px; border-radius: 10px;
-        background: rgba(255,87,34,0.08); border: 1px solid rgba(255,87,34,0.2);
-        font-size: 0.88rem; color: var(--color-text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(255, 87, 34, 0.08);
+        border: 1px solid rgba(255, 87, 34, 0.2);
+        font-size: 0.88rem;
+        color: var(--color-text);
       }
-      .price-preview svg { color: var(--color-accent); flex-shrink: 0; }
-      .price-preview strong { color: var(--color-accent); font-size: 1rem; margin-left: auto; }
-      .price-preview.warn { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.2); }
-      .price-preview.warn svg { color: #f59e0b; }
+      .price-preview svg {
+        color: var(--color-accent);
+        flex-shrink: 0;
+      }
+      .price-preview strong {
+        color: var(--color-accent);
+        font-size: 1rem;
+        margin-left: auto;
+      }
+      .price-preview.warn {
+        background: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.2);
+      }
+      .price-preview.warn svg {
+        color: #f59e0b;
+      }
 
-      .lang-toggle { display: flex; gap: 8px; }
+      .lang-toggle {
+        display: flex;
+        gap: 8px;
+      }
       .lang-toggle button {
-        padding: 7px 18px; border-radius: 8px; border: 1.5px solid var(--color-border);
-        background: transparent; color: var(--color-text-secondary); font-size: 0.85rem;
-        font-weight: 600; cursor: pointer; transition: all 0.15s;
+        padding: 7px 18px;
+        border-radius: 8px;
+        border: 1.5px solid var(--color-border);
+        background: transparent;
+        color: var(--color-text-secondary);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
       }
       .lang-toggle button.active {
-        background: var(--color-accent); border-color: var(--color-accent); color: #fff;
+        background: var(--color-accent);
+        border-color: var(--color-accent);
+        color: #fff;
       }
 
       .form-error {
-        display: flex; align-items: center; gap: 8px; padding: 10px 14px;
-        border-radius: 10px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
-        font-size: 0.85rem; color: #ef4444;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        font-size: 0.85rem;
+        color: #ef4444;
       }
 
       .btn-submit {
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        width: 100%; padding: 13px; border-radius: 12px;
-        background: var(--color-accent); color: #fff; border: none;
-        font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 13px;
+        border-radius: 12px;
+        background: var(--color-accent);
+        color: #fff;
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s;
         margin-top: 4px;
       }
-      .btn-submit:hover:not(:disabled) { opacity: 0.88; }
-      .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-      .submit-spinner {
-        width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4);
-        border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
+      .btn-submit:hover:not(:disabled) {
+        opacity: 0.88;
       }
-      @keyframes spin { to { transform: rotate(360deg); } }
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .submit-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
 
       /* ── Booking Calendar ── */
       .booking-calendar {
@@ -1328,51 +1844,86 @@ import { environment } from '../../../environments/environment';
       }
 
       .bc-header {
-        display: flex; align-items: center; justify-content: space-between;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         padding: 10px 14px;
-        background: rgba(255,255,255,0.03);
+        background: rgba(255, 255, 255, 0.03);
         border-bottom: 1px solid var(--color-border);
       }
 
       .bc-month-title {
-        font-size: 0.88rem; font-weight: 700; color: var(--color-text);
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--color-text);
         text-transform: capitalize;
       }
 
       .bc-nav {
-        background: none; border: none; cursor: pointer;
-        color: var(--color-text-secondary); padding: 4px 8px;
-        border-radius: 6px; display: flex; transition: all 0.15s;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--color-text-secondary);
+        padding: 4px 8px;
+        border-radius: 6px;
+        display: flex;
+        transition: all 0.15s;
       }
-      .bc-nav:hover { background: rgba(255,255,255,0.08); color: var(--color-text); }
+      .bc-nav:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--color-text);
+      }
 
       .bc-weekdays {
-        display: grid; grid-template-columns: repeat(7, 1fr);
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
         padding: 6px 10px 2px;
       }
       .bc-weekdays span {
-        text-align: center; font-size: 0.67rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.06em;
-        color: var(--color-text-secondary); padding: 4px 0;
+        text-align: center;
+        font-size: 0.67rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--color-text-secondary);
+        padding: 4px 0;
       }
 
       .bc-grid {
-        display: grid; grid-template-columns: repeat(7, 1fr);
-        padding: 4px 10px 10px; gap: 2px;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        padding: 4px 10px 10px;
+        gap: 2px;
       }
 
       .bc-cell {
-        aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-        border-radius: 8px; font-size: 0.82rem; font-weight: 500;
-        color: var(--color-text); transition: all 0.12s; position: relative;
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--color-text);
+        transition: all 0.12s;
+        position: relative;
         user-select: none;
       }
 
-      .bc-empty { pointer-events: none; }
-      .bc-clickable { cursor: pointer; }
-      .bc-clickable:hover:not(.bc-start):not(.bc-end) { background: rgba(255,255,255,0.08); }
+      .bc-empty {
+        pointer-events: none;
+      }
+      .bc-clickable {
+        cursor: pointer;
+      }
+      .bc-clickable:hover:not(.bc-start):not(.bc-end) {
+        background: rgba(255, 255, 255, 0.08);
+      }
 
-      .bc-past { opacity: 0.28; pointer-events: none; }
+      .bc-past {
+        opacity: 0.28;
+        pointer-events: none;
+      }
 
       .bc-busy {
         background: rgba(239, 68, 68, 0.15);
@@ -1387,13 +1938,19 @@ import { environment } from '../../../environments/environment';
       }
 
       .bc-today::after {
-        content: ''; position: absolute;
-        bottom: 3px; left: 50%; transform: translateX(-50%);
-        width: 4px; height: 4px; border-radius: 50%;
+        content: '';
+        position: absolute;
+        bottom: 3px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
         background: var(--color-accent);
       }
 
-      .bc-start, .bc-end {
+      .bc-start,
+      .bc-end {
         background: var(--color-accent) !important;
         color: #fff !important;
         font-weight: 700;
@@ -1405,51 +1962,99 @@ import { environment } from '../../../environments/environment';
       }
 
       .bc-legend {
-        display: flex; gap: 16px; padding: 6px 14px 8px;
+        display: flex;
+        gap: 16px;
+        padding: 6px 14px 8px;
         border-top: 1px solid var(--color-border);
       }
 
       .bc-legend-item {
-        display: flex; align-items: center; gap: 5px;
-        font-size: 0.7rem; color: var(--color-text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.7rem;
+        color: var(--color-text-secondary);
       }
 
       .bc-leg-dot {
-        width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        flex-shrink: 0;
       }
-      .bc-leg-busy { background: rgba(239, 68, 68, 0.4); }
-      .bc-leg-pending { background: rgba(236, 72, 153, 0.5); }
-      .bc-leg-sel { background: var(--color-accent); }
+      .bc-leg-busy {
+        background: rgba(239, 68, 68, 0.4);
+      }
+      .bc-leg-pending {
+        background: rgba(236, 72, 153, 0.5);
+      }
+      .bc-leg-sel {
+        background: var(--color-accent);
+      }
 
       .bc-info {
-        display: flex; align-items: center; gap: 7px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
         padding: 8px 14px;
         background: rgba(255, 87, 34, 0.08);
         border-top: 1px solid rgba(255, 87, 34, 0.2);
-        font-size: 0.82rem; color: var(--color-text);
+        font-size: 0.82rem;
+        color: var(--color-text);
       }
-      .bc-info svg { color: var(--color-accent); flex-shrink: 0; }
+      .bc-info svg {
+        color: var(--color-accent);
+        flex-shrink: 0;
+      }
 
       .bc-busy-tip {
-        position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
-        background: #1e293b; color: #f87171; font-size: 0.65rem; font-weight: 700;
-        padding: 3px 7px; border-radius: 6px; white-space: nowrap;
-        pointer-events: none; opacity: 0; transition: opacity 0.15s;
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e293b;
+        color: #f87171;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 3px 7px;
+        border-radius: 6px;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s;
         z-index: 10;
       }
-      .bc-cell.bc-busy:hover .bc-busy-tip { opacity: 1; }
+      .bc-cell.bc-busy:hover .bc-busy-tip {
+        opacity: 1;
+      }
 
       @media (max-width: 900px) {
-        .bp-body { grid-template-columns: 1fr; }
-        .bp-cal-col { border-right: none; border-bottom: 1px solid var(--color-border); }
+        .bp-body {
+          grid-template-columns: 1fr;
+        }
+        .bp-cal-col {
+          border-right: none;
+          border-bottom: 1px solid var(--color-border);
+        }
       }
 
       @media (max-width: 600px) {
-        .seat-map { grid-template-columns: repeat(2, 1fr); }
-        .form-row { grid-template-columns: 1fr; }
-        .bp-bike-bar { padding: 0.75rem 1rem; }
-        .bp-cal-col, .bp-form-col { padding: 1rem; }
-        .booking-panel { border-radius: 14px; }
+        .seat-map {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+        .bp-bike-bar {
+          padding: 0.75rem 1rem;
+        }
+        .bp-cal-col,
+        .bp-form-col {
+          padding: 1rem;
+        }
+        .booking-panel {
+          border-radius: 14px;
+        }
       }
 
       /* ── CTA ── */
@@ -1591,9 +2196,15 @@ export class FahrradverleihComponent implements OnInit {
   ngOnInit(): void {
     const t = this.t();
     this.titleService.setTitle(t.bikeRentalMetaTitle);
-    this.metaService.updateTag({ name: 'description', content: t.bikeRentalMetaDescription });
+    this.metaService.updateTag({
+      name: 'description',
+      content: t.bikeRentalMetaDescription,
+    });
     this.apiService.getRentableBikes().subscribe({
-      next: (bikes) => { this.bikes.set(bikes); this.bikesLoading.set(false); },
+      next: (bikes) => {
+        this.bikes.set(bikes);
+        this.bikesLoading.set(false);
+      },
       error: () => this.bikesLoading.set(false),
     });
   }
@@ -1606,8 +2217,14 @@ export class FahrradverleihComponent implements OnInit {
     this.calculatedDays.set(0);
     this.calculatedPrice.set(null);
     this.bookingForm = {
-      startDatum: '', endDatum: '', vorname: '', nachname: '',
-      email: '', telefon: '', sprache: 'de', notizen: '',
+      startDatum: '',
+      endDatum: '',
+      vorname: '',
+      nachname: '',
+      email: '',
+      telefon: '',
+      sprache: 'de',
+      notizen: '',
     };
     this.calendarStart.set(null);
     this.calendarEnd.set(null);
@@ -1616,14 +2233,25 @@ export class FahrradverleihComponent implements OnInit {
     this.busyPeriodsLoading.set(true);
     this.apiService.getBusyPeriods(bike.id).subscribe({
       next: (periods) => {
-        const toLocal = (s: string) => { const d = new Date(s); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
-        this.busyPeriods.set(periods.map(p => ({ start: toLocal(p.start), end: toLocal(p.end), type: p.type })));
+        const toLocal = (s: string) => {
+          const d = new Date(s);
+          return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        };
+        this.busyPeriods.set(
+          periods.map((p) => ({
+            start: toLocal(p.start),
+            end: toLocal(p.end),
+            type: p.type,
+          })),
+        );
         this.busyPeriodsLoading.set(false);
       },
       error: () => this.busyPeriodsLoading.set(false),
     });
     setTimeout(() => {
-      document.getElementById('booking-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document
+        .getElementById('booking-panel')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 50);
   }
 
@@ -1640,19 +2268,36 @@ export class FahrradverleihComponent implements OnInit {
 
   getMinPrice(bike: PublicRentalBicycle): number | null {
     const p = bike.preise;
-    const prices = [p.day1, p.day3, p.day7, p.day14, p.day30].filter((v): v is number => v != null);
+    const prices = [p.day1, p.day3, p.day7, p.day14, p.day30].filter(
+      (v): v is number => v != null,
+    );
     return prices.length > 0 ? Math.min(...prices) : null;
   }
 
   onDatesChange(): void {
     this.bookingError.set(null);
     const { startDatum, endDatum } = this.bookingForm;
-    if (!startDatum || !endDatum) { this.calculatedDays.set(0); this.calculatedPrice.set(null); return; }
-    const days = Math.floor((new Date(endDatum).getTime() - new Date(startDatum).getTime()) / 86400000) + 1;
-    if (days <= 0) { this.calculatedDays.set(0); this.calculatedPrice.set(null); return; }
+    if (!startDatum || !endDatum) {
+      this.calculatedDays.set(0);
+      this.calculatedPrice.set(null);
+      return;
+    }
+    const days =
+      Math.floor(
+        (new Date(endDatum).getTime() - new Date(startDatum).getTime()) /
+          86400000,
+      ) + 1;
+    if (days <= 0) {
+      this.calculatedDays.set(0);
+      this.calculatedPrice.set(null);
+      return;
+    }
     this.calculatedDays.set(days);
     const bike = this.selectedBike();
-    if (!bike) { this.calculatedPrice.set(null); return; }
+    if (!bike) {
+      this.calculatedPrice.set(null);
+      return;
+    }
     const p = bike.preise;
     let price: number | null = null;
     if (days <= 1 && p.day1 != null) price = p.day1;
@@ -1667,12 +2312,16 @@ export class FahrradverleihComponent implements OnInit {
 
   prevMonth(): void {
     const d = this.calendarCurrentDate();
-    this.calendarCurrentDate.set(new Date(d.getFullYear(), d.getMonth() - 1, 1));
+    this.calendarCurrentDate.set(
+      new Date(d.getFullYear(), d.getMonth() - 1, 1),
+    );
   }
 
   nextMonth(): void {
     const d = this.calendarCurrentDate();
-    this.calendarCurrentDate.set(new Date(d.getFullYear(), d.getMonth() + 1, 1));
+    this.calendarCurrentDate.set(
+      new Date(d.getFullYear(), d.getMonth() + 1, 1),
+    );
   }
 
   isDayBusy(date: Date): boolean {
@@ -1682,10 +2331,11 @@ export class FahrradverleihComponent implements OnInit {
   getDayBusyType(date: Date): 'booking' | 'pending' | 'rental' | null {
     const t = date.getTime();
     const covering = this.busyPeriods().filter(
-      p => t >= p.start.getTime() && t <= p.end.getTime(),
+      (p) => t >= p.start.getTime() && t <= p.end.getTime(),
     );
     if (covering.length === 0) return null;
-    if (covering.some((p) => p.type === 'booking' || p.type === 'rental')) return 'booking';
+    if (covering.some((p) => p.type === 'booking' || p.type === 'rental'))
+      return 'booking';
     if (covering.some((p) => p.type === 'pending')) return 'pending';
     return 'booking';
   }
@@ -1698,9 +2348,11 @@ export class FahrradverleihComponent implements OnInit {
 
   isToday(date: Date): boolean {
     const now = new Date();
-    return date.getFullYear() === now.getFullYear() &&
-           date.getMonth() === now.getMonth() &&
-           date.getDate() === now.getDate();
+    return (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate()
+    );
   }
 
   isStart(date: Date): boolean {
@@ -1733,14 +2385,17 @@ export class FahrradverleihComponent implements OnInit {
       this.bookingError.set(null);
     } else {
       const hasBusy = this.busyPeriods().some(
-        p => p.start.getTime() <= date.getTime() && p.end.getTime() >= s.getTime()
+        (p) =>
+          p.start.getTime() <= date.getTime() && p.end.getTime() >= s.getTime(),
       );
       if (hasBusy) {
         this.calendarStart.set(date);
         this.calendarEnd.set(null);
         this.bookingForm.startDatum = this.toIsoDate(date);
         this.bookingForm.endDatum = '';
-        this.bookingError.set('Dieser Zeitraum enthält bereits gebuchte Tage. Bitte wählen Sie einen anderen Zeitraum.');
+        this.bookingError.set(
+          'Dieser Zeitraum enthält bereits gebuchte Tage. Bitte wählen Sie einen anderen Zeitraum.',
+        );
         return;
       }
       this.bookingError.set(null);
@@ -1758,22 +2413,32 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   formatCalDay(date: Date): string {
-    return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return date.toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
   }
 
   submitBooking(): void {
     const f = this.bookingForm;
     if (!f.startDatum || !f.endDatum) {
-      this.bookingError.set('Bitte wählen Sie einen Zeitraum aus.'); return;
+      this.bookingError.set('Bitte wählen Sie einen Zeitraum aus.');
+      return;
     }
     if (new Date(f.endDatum) < new Date(f.startDatum)) {
-      this.bookingError.set('Das Enddatum darf nicht vor dem Startdatum liegen.'); return;
+      this.bookingError.set(
+        'Das Enddatum darf nicht vor dem Startdatum liegen.',
+      );
+      return;
     }
     if (!f.vorname.trim() || !f.nachname.trim()) {
-      this.bookingError.set('Bitte geben Sie Ihren vollständigen Namen ein.'); return;
+      this.bookingError.set('Bitte geben Sie Ihren vollständigen Namen ein.');
+      return;
     }
     if (!f.email.trim() || !f.email.includes('@')) {
-      this.bookingError.set('Bitte geben Sie eine gültige E-Mail-Adresse ein.'); return;
+      this.bookingError.set('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+      return;
     }
 
     const bike = this.selectedBike();
@@ -1801,7 +2466,9 @@ export class FahrradverleihComponent implements OnInit {
         this.bookingSubmitting.set(false);
       },
       error: (err) => {
-        const msg = err?.error?.error || 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+        const msg =
+          err?.error?.error ||
+          'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
         this.bookingError.set(msg);
         this.bookingSubmitting.set(false);
       },
@@ -1813,7 +2480,9 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   getImageUrl(path: string): string {
-    const base = environment.apiUrl.replace('/api/public', '').replace(/\/$/, '');
+    const base = environment.apiUrl
+      .replace('/api/public', '')
+      .replace(/\/$/, '');
     const p = path.startsWith('/') ? path : `/${path}`;
     return `${base}${p}`;
   }

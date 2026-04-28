@@ -93,8 +93,8 @@ jobs:
             docker pull mcr.microsoft.com/dotnet/aspnet:9.0 &
             wait
             echo "Base images ready."
-            docker compose build bikehaus
-            docker compose up -d --force-recreate bikehaus nginx
+            docker compose build bikehaus homepage
+            docker compose up -d --force-recreate bikehaus homepage nginx
             docker compose ps
             docker image prune -f
             echo "Deploy complete!"
