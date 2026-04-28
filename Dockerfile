@@ -1,28 +1,12 @@
 # syntax=docker/dockerfile:1.7
 # =============================================
-# Stage 1: Build Angular Frontend
-# =============================================
-FROM node:20-alpine AS frontend-build
-WORKDIR /app/client
-
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
-
-# Cache npm packages — only re-downloads if package*.json changed
-COPY BikeHaus.Client/package*.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci
-
-COPY BikeHaus.Client/ ./
-RUN npm run build -- --configuration production
-
-# =============================================
-# Stage 2: Playwright Chromium — pulled from the official Playwright image.
+# Stage 1: Playwright Chromium — pulled from the official Playwright image.
 # No download at build time; Docker layer cache handles re-use automatically.
 # =============================================
 FROM mcr.microsoft.com/playwright/dotnet:v1.49.0-noble AS playwright-cache
 
 # =============================================
-# Stage 3: Build .NET API
+# Stage 2: Build .NET API
 # =============================================
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS api-build
 WORKDIR /src
@@ -36,17 +20,21 @@ COPY BikeHaus.Infrastructure/BikeHaus.Infrastructure.csproj BikeHaus.Infrastruct
 
 # Cache NuGet packages — only re-downloads if csproj files changed
 RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet restore -r linux-x64
+    dotnet restore BikeHaus.API/BikeHaus.API.csproj -r linux-x64
 
-# Copy all source code and publish
-COPY . .
+# Copy backend source only (Client lives in its own image)
+COPY BikeHaus.API/ BikeHaus.API/
+COPY BikeHaus.Application/ BikeHaus.Application/
+COPY BikeHaus.Domain/ BikeHaus.Domain/
+COPY BikeHaus.Infrastructure/ BikeHaus.Infrastructure/
+
 RUN --mount=type=cache,target=/root/.nuget/packages \
     dotnet publish BikeHaus.API/BikeHaus.API.csproj \
         -c Release -r linux-x64 --no-self-contained \
         -o /app/publish --no-restore
 
 # =============================================
-# Stage 4: Final Runtime Image
+# Stage 3: Final Runtime Image
 # =============================================
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
@@ -83,9 +71,6 @@ COPY --from=playwright-cache /ms-playwright /app/.playwright
 
 # Copy published API
 COPY --from=api-build /app/publish .
-
-# Copy Angular build output to wwwroot (admin panel)
-COPY --from=frontend-build /app/client/dist/bike-haus.client/browser ./wwwroot
 
 # Create data directory for SQLite and uploads
 RUN mkdir -p /app/data/uploads

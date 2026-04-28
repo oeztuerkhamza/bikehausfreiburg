@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.angular/
+.git
+.gitignore
+.vscode/
+.vs/
+**/Thumbs.db
+**/*.user
+**/*.suo
+README.md
+Dockerfile
+.dockerignore

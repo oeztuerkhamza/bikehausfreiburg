@@ -13,98 +13,81 @@ on:
         required: false
         default: false
         type: boolean
+      deploy_all:
+        description: Force deploy all services (api, client, homepage)
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: deploy-netcup
   cancel-in-progress: false
 
 jobs:
+  # ───────────────────────────────────────────────────────────────
+  # Detect which services changed. Each subsequent job is gated
+  # on its own filter, so unchanged services skip entirely.
+  # ───────────────────────────────────────────────────────────────
   changes:
     runs-on: ubuntu-latest
     outputs:
+      api: ${{ steps.filter.outputs.api }}
+      client: ${{ steps.filter.outputs.client }}
       homepage: ${{ steps.filter.outputs.homepage }}
+      infra: ${{ steps.filter.outputs.infra }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
+            api:
+              - 'BikeHaus.API/**'
+              - 'BikeHaus.Application/**'
+              - 'BikeHaus.Domain/**'
+              - 'BikeHaus.Infrastructure/**'
+              - 'BikeHausFreiburg.sln'
+              - 'Dockerfile'
+            client:
+              - 'BikeHaus.Client/**'
             homepage:
               - 'BikeHaus.Homepage/**'
+            infra:
+              - 'docker-compose.yml'
+              - 'nginx/**'
+              - '.github/workflows/deploy.yml'
 
-  build-homepage:
+  # ───────────────────────────────────────────────────────────────
+  # Sync repository on the server (always runs when anything is
+  # being deployed). Other jobs depend on this so they all see the
+  # same commit and the .env is up-to-date before any rebuild.
+  # ───────────────────────────────────────────────────────────────
+  sync-server:
     needs: changes
-    if: needs.changes.outputs.homepage == 'true' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: BikeHaus.Homepage
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: BikeHaus.Homepage/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build production
-        run: npm run build
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: homepage-dist
-          path: BikeHaus.Homepage/dist/bike-haus.homepage/browser/
-          retention-days: 1
-          if-no-files-found: error
-
-  deploy:
-    needs: [changes, build-homepage]
     if: |
-      always() &&
-      needs.changes.result == 'success' &&
-      (needs.build-homepage.result == 'success' || needs.build-homepage.result == 'skipped')
+      needs.changes.outputs.api == 'true' ||
+      needs.changes.outputs.client == 'true' ||
+      needs.changes.outputs.homepage == 'true' ||
+      needs.changes.outputs.infra == 'true' ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.deploy.outputs.sha }}
     steps:
-      - name: Download homepage artifact
-        if: needs.build-homepage.result == 'success'
-        uses: actions/download-artifact@v4
-        with:
-          name: homepage-dist
-          path: homepage-dist/
-
-      - name: Upload homepage to staging directory
-        if: needs.build-homepage.result == 'success'
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: 'homepage-dist/'
-          target: '/opt/bikehaus/homepage-staging'
-          strip_components: 1
-          rm: true
-
-      - name: Deploy via SSH
+      - id: deploy
+        name: Sync source and write .env
         uses: appleboy/ssh-action@v1
         env:
           FORCE_LOGOUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_logout || 'false' }}
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          HOMEPAGE_UPDATED: ${{ needs.build-homepage.result == 'success' }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: FORCE_LOGOUT,JWT_SECRET_KEY,INDEXNOW_API_KEY,SMTP_PASSWORD,HOMEPAGE_UPDATED
-          command_timeout: 30m
+          envs: FORCE_LOGOUT,JWT_SECRET_KEY,INDEXNOW_API_KEY,SMTP_PASSWORD
+          command_timeout: 10m
           script: |
             set -euo pipefail
             cd /opt/bikehaus
@@ -141,73 +124,190 @@ jobs:
             git reset --hard origin/master
             DEPLOY_SHA=$(git rev-parse --short HEAD)
             echo "Deploying commit: ${DEPLOY_SHA}"
+            echo "sha=${DEPLOY_SHA}" >> "$GITHUB_OUTPUT"
 
             echo "==> Writing .env"
             umask 077
             printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_PASSWORD=%s\n' \
               "${JWT_SECRET_KEY}" "${INDEXNOW_API_KEY}" "${GOOGLE_PLACES_API_KEY}" "${GOOGLE_PLACES_PLACE_ID}" "${SMTP_PASSWORD}" > .env
             chmod 600 .env
-            umask 022
 
-            if [ "${HOMEPAGE_UPDATED}" = "true" ]; then
-              echo "==> Promoting homepage build (atomic swap)"
-              if [ ! -d /opt/bikehaus/homepage-staging ] || [ -z "$(ls -A /opt/bikehaus/homepage-staging 2>/dev/null)" ]; then
-                echo "ERROR: staging directory empty — refusing to swap"
-                exit 1
-              fi
-              mkdir -p /opt/bikehaus/homepage-dist/browser
-              find /opt/bikehaus/homepage-staging -type d -exec chmod 755 {} \;
-              find /opt/bikehaus/homepage-staging -type f -exec chmod 644 {} \;
-              # Atomic swap: rename current → backup, staging → current
-              if [ -d /opt/bikehaus/homepage-dist/browser.old ]; then
-                rm -rf /opt/bikehaus/homepage-dist/browser.old
-              fi
-              if [ -d /opt/bikehaus/homepage-dist/browser ] && [ -n "$(ls -A /opt/bikehaus/homepage-dist/browser 2>/dev/null)" ]; then
-                mv /opt/bikehaus/homepage-dist/browser /opt/bikehaus/homepage-dist/browser.old
-              else
-                rm -rf /opt/bikehaus/homepage-dist/browser
-              fi
-              mv /opt/bikehaus/homepage-staging /opt/bikehaus/homepage-dist/browser
-            fi
+  # ───────────────────────────────────────────────────────────────
+  # Deploy API (.NET backend)
+  # ───────────────────────────────────────────────────────────────
+  deploy-api:
+    needs: [changes, sync-server]
+    if: |
+      needs.sync-server.result == 'success' &&
+      (
+        needs.changes.outputs.api == 'true' ||
+        needs.changes.outputs.infra == 'true' ||
+        github.event_name == 'workflow_dispatch'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and recreate API container
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+            cd /opt/bikehaus
 
             echo "==> Pre-pulling base images"
-            docker pull node:20-alpine &
             docker pull mcr.microsoft.com/dotnet/sdk:9.0 &
             docker pull mcr.microsoft.com/playwright/dotnet:v1.49.0-noble &
             docker pull mcr.microsoft.com/dotnet/aspnet:9.0 &
             wait
 
-            echo "==> Building images"
-            if [ "${HOMEPAGE_UPDATED}" = "true" ]; then
-              docker compose build bikehaus homepage
-            else
-              docker compose build bikehaus
-            fi
+            echo "==> Building API image"
+            docker compose build bikehaus
 
-            echo "==> Recreating containers"
-            if [ "${HOMEPAGE_UPDATED}" = "true" ]; then
-              docker compose up -d --force-recreate bikehaus homepage
-            else
-              docker compose up -d --force-recreate bikehaus
-            fi
+            echo "==> Recreating API container"
+            docker compose up -d --force-recreate bikehaus
 
-            echo "==> Reloading nginx (in-place, no downtime)"
-            if docker compose ps --status running --services | grep -q '^nginx$'; then
+            echo "==> API status"
+            docker compose ps bikehaus
+
+  # ───────────────────────────────────────────────────────────────
+  # Deploy Client (Angular admin SPA)
+  # ───────────────────────────────────────────────────────────────
+  deploy-client:
+    needs: [changes, sync-server]
+    if: |
+      needs.sync-server.result == 'success' &&
+      (
+        needs.changes.outputs.client == 'true' ||
+        needs.changes.outputs.infra == 'true' ||
+        github.event_name == 'workflow_dispatch'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and recreate Client container
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -euo pipefail
+            cd /opt/bikehaus
+
+            echo "==> Pre-pulling base images"
+            docker pull node:20-alpine &
+            docker pull nginx:alpine &
+            wait
+
+            echo "==> Building Client image"
+            docker compose build client
+
+            echo "==> Recreating Client container"
+            docker compose up -d --force-recreate client
+
+            echo "==> Client status"
+            docker compose ps client
+
+  # ───────────────────────────────────────────────────────────────
+  # Deploy Homepage (Angular SSR public site)
+  # ───────────────────────────────────────────────────────────────
+  deploy-homepage:
+    needs: [changes, sync-server]
+    if: |
+      needs.sync-server.result == 'success' &&
+      (
+        needs.changes.outputs.homepage == 'true' ||
+        needs.changes.outputs.infra == 'true' ||
+        github.event_name == 'workflow_dispatch'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build and recreate Homepage container
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -euo pipefail
+            cd /opt/bikehaus
+
+            echo "==> Pre-pulling base images"
+            docker pull node:20-alpine &
+            wait
+
+            echo "==> Building Homepage image"
+            docker compose build homepage
+
+            echo "==> Recreating Homepage container"
+            docker compose up -d --force-recreate homepage
+
+            echo "==> Homepage status"
+            docker compose ps homepage
+
+  # ───────────────────────────────────────────────────────────────
+  # Reload nginx after dependent services are recreated.
+  # Runs even if some service jobs were skipped.
+  # ───────────────────────────────────────────────────────────────
+  reload-nginx:
+    needs: [changes, sync-server, deploy-api, deploy-client, deploy-homepage]
+    if: |
+      always() &&
+      needs.sync-server.result == 'success' &&
+      needs.deploy-api.result != 'failure' &&
+      needs.deploy-client.result != 'failure' &&
+      needs.deploy-homepage.result != 'failure' &&
+      (
+        needs.deploy-api.result == 'success' ||
+        needs.deploy-client.result == 'success' ||
+        needs.deploy-homepage.result == 'success' ||
+        needs.changes.outputs.infra == 'true'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reload or recreate nginx
+        uses: appleboy/ssh-action@v1
+        env:
+          INFRA_CHANGED: ${{ needs.changes.outputs.infra }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: INFRA_CHANGED
+          command_timeout: 5m
+          script: |
+            set -euo pipefail
+            cd /opt/bikehaus
+
+            if [ "${INFRA_CHANGED:-false}" = "true" ]; then
+              echo "==> Infra changed — recreating nginx"
+              docker compose up -d --force-recreate nginx
+            elif docker compose ps --status running --services | grep -q '^nginx$'; then
+              echo "==> Reloading nginx in-place"
               docker compose exec -T nginx nginx -t
               docker compose exec -T nginx nginx -s reload
             else
+              echo "==> nginx not running — starting it"
               docker compose up -d nginx
             fi
 
-            echo "==> Status"
-            docker compose ps
+            echo "==> Pruning unused images"
             docker image prune -f
-            echo "Deploy complete: ${DEPLOY_SHA}"
 
+            echo "==> Final status"
+            docker compose ps
+
+  # ───────────────────────────────────────────────────────────────
+  # Healthcheck
+  # ───────────────────────────────────────────────────────────────
   healthcheck:
     runs-on: ubuntu-latest
-    needs: [deploy]
-    if: needs.deploy.result == 'success'
+    needs: [reload-nginx]
+    if: needs.reload-nginx.result == 'success'
     steps:
       - name: Health check endpoints
         run: |
