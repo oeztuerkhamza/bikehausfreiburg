@@ -17,13 +17,13 @@ services:
       - GooglePlaces__ApiKey=${GOOGLE_PLACES_API_KEY}
       - GooglePlaces__PlaceId=${GOOGLE_PLACES_PLACE_ID}
       - PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
-      - Smtp__Host=mail.bikehausfreiburg.com
-      - Smtp__Port=587
-      - Smtp__Username=no-reply@bikehausfreiburg.com
+      - Smtp__Host=${SMTP_HOST:-mail.bikehausfreiburg.com}
+      - Smtp__Port=${SMTP_PORT:-587}
+      - Smtp__Username=${SMTP_USERNAME:-no-reply@bikehausfreiburg.com}
       - Smtp__Password=${SMTP_PASSWORD}
-      - Smtp__UseSsl=false
-      - Smtp__FromEmail=no-reply@bikehausfreiburg.com
-      - Smtp__FromName=Bike Haus Freiburg
+      - Smtp__UseSsl=${SMTP_USESSL:-false}
+      - Smtp__FromEmail=${SMTP_FROMEMAIL:-no-reply@bikehausfreiburg.com}
+      - Smtp__FromName=${SMTP_FROMNAME:-Bike Haus Freiburg}
     networks:
       - bikehaus-network
 

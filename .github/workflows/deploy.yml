@@ -123,7 +123,7 @@ jobs:
 
             echo "==> Writing .env"
             umask 077
-            printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_PASSWORD=%s\n' \
+            printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_HOST=mail.bikehausfreiburg.com\nSMTP_PORT=587\nSMTP_USERNAME=no-reply@bikehausfreiburg.com\nSMTP_PASSWORD=%s\nSMTP_USESSL=false\nSMTP_FROMEMAIL=no-reply@bikehausfreiburg.com\nSMTP_FROMNAME=Bike Haus Freiburg\n' \
               "${JWT_SECRET_KEY}" "${INDEXNOW_API_KEY}" "${GOOGLE_PLACES_API_KEY}" "${GOOGLE_PLACES_PLACE_ID}" "${SMTP_PASSWORD}" > .env
             chmod 600 .env
 
