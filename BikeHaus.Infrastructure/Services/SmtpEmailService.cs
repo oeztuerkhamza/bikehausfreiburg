@@ -30,44 +30,57 @@ public class SmtpEmailService : IEmailService
 
     public Task SendRentalBookingApprovedAsync(RentalBookingEmailModel model)
     {
-        var subject = model.Language == "en"
-            ? $"Rental contract confirmed - {model.BuchungsNummer} | Bike Haus Freiburg"
-            : $"Anfrage bestaetigt - {model.BuchungsNummer} | Bike Haus Freiburg";
-
-        var body = model.Language == "en"
-            ? BuildApprovedBodyEn(model)
-            : BuildApprovedBodyDe(model);
-
+        var subject = $"Anfrage bestaetigt - {model.BuchungsNummer} | Bike Haus Freiburg";
+        var body = BuildApprovedBodyDe(model);
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietvertragBestaetigt");
     }
 
     public Task SendRentalBookingCancelledAsync(RentalBookingEmailModel model)
     {
-        var subject = model.Language == "en"
-            ? $"Rental contract cancelled - {model.BuchungsNummer} | Bike Haus Freiburg"
-            : $"Anfrage storniert - {model.BuchungsNummer} | Bike Haus Freiburg";
-
-        var body = model.Language == "en"
-            ? BuildCancelledBodyEn(model)
-            : BuildCancelledBodyDe(model);
-
+        var subject = $"Anfrage storniert - {model.BuchungsNummer} | Bike Haus Freiburg";
+        var body = BuildCancelledBodyDe(model);
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietvertragStorniert");
     }
 
     public Task SendRentalBookingReceivedAsync(RentalBookingEmailModel model)
     {
-        var subject = model.Language == "en"
-            ? $"Rental request received - {model.BuchungsNummer} | Bike Haus Freiburg"
-            : $"Talebiniz alindi - {model.BuchungsNummer} | Bike Haus Freiburg";
-
-        var body = model.Language == "en"
-            ? BuildReceivedBodyEn(model)
-            : BuildReceivedBodyDe(model);
-
+        var subject = $"Mietanfrage eingegangen - {model.BuchungsNummer} | Bike Haus Freiburg";
+        var body = BuildReceivedBodyDe(model);
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageEingegangen");
     }
 
-    private async Task SendAsync(string toEmail, string toName, string subject, string body, string emailType = "")
+    public Task SendSaleReceiptAsync(string toEmail, string toName, string belegNummer, byte[] pdfBytes)
+    {
+        var subject = $"Rechnung - {belegNummer} | Bike Haus Freiburg";
+        var body = $@"Hallo {toName},
+
+anbei erhalten Sie Ihre Rechnung zu Ihrem Kauf bei Bike Haus Freiburg.
+
+Belegnummer: {belegNummer}
+
+Vielen Dank fuer Ihren Einkauf.
+
+Viele Gruesse
+Bike Haus Freiburg";
+
+        return SendAsync(
+            toEmail,
+            toName,
+            subject,
+            body,
+            "Verkaufsrechnung",
+            pdfBytes,
+            $"Rechnung-{belegNummer}.pdf");
+    }
+
+    private async Task SendAsync(
+        string toEmail,
+        string toName,
+        string subject,
+        string body,
+        string emailType = "",
+        byte[]? attachmentBytes = null,
+        string? attachmentFileName = null)
     {
         var dbAccount = await _db.EmailAccounts
             .Where(a => a.IsDefault && a.IsActive)
@@ -105,7 +118,24 @@ public class SmtpEmailService : IEmailService
                 message.From.Add(new MailboxAddress(fromName, fromEmail));
                 message.To.Add(new MailboxAddress(toName, toEmail));
                 message.Subject = subject;
-                message.Body = new TextPart("plain") { Text = body };
+
+                if (attachmentBytes is { Length: > 0 } && !string.IsNullOrWhiteSpace(attachmentFileName))
+                {
+                    var multipart = new Multipart("mixed");
+                    multipart.Add(new TextPart("plain") { Text = body });
+                    multipart.Add(new MimePart("application", "pdf")
+                    {
+                        Content = new MimeContent(new MemoryStream(attachmentBytes), ContentEncoding.Default),
+                        ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                        ContentTransferEncoding = ContentEncoding.Base64,
+                        FileName = attachmentFileName
+                    });
+                    message.Body = multipart;
+                }
+                else
+                {
+                    message.Body = new TextPart("plain") { Text = body };
+                }
 
                 using var client = new SmtpClient
                 {
@@ -218,8 +248,7 @@ public class SmtpEmailService : IEmailService
     {
         return $@"Hallo {m.ToName},
 
-Ihre Mietanfrage wurde bestaetigt.
-Talebiniz onaylanmistir. Bike Haus Freiburg sizinle en kisa surede ilgilenecektir.
+Ihre Mietanfrage wurde bestaetigt. Wir freuen uns auf Ihren Besuch.
 
 Buchung / Mietvertrag: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
@@ -248,45 +277,11 @@ Bike Haus Freiburg
 ";
     }
 
-    private static string BuildApprovedBodyEn(RentalBookingEmailModel m)
-    {
-        return $@"Hello {m.ToName},
-
-Your rental request has been confirmed. Your rental contract is prepared.
-
-Booking / rental contract: {m.BuchungsNummer}
-Bike: {m.BikeBrand} {m.BikeModel}
-Frame No.: {m.FrameNumber ?? "-"}
-Frame Size: {m.FrameSize ?? "-"}
-Color: {m.Color ?? "-"}
-
-Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days, incl. pickup and return day)
-Total rental price: {(m.TotalPrice.HasValue ? m.TotalPrice.Value.ToString("0.00") + " EUR" : "-")}
-Deposit: {(m.Deposit.HasValue ? m.Deposit.Value.ToString("0.00") + " EUR" : "-")}
-
-Accessories:
-{m.AccessoriesText}
-
-Pickup/Return: {m.PickupLocation}
-Payment: in store only
-
-Please bring a valid ID.
-Please sign the rental contract when picking up the bike.
-If you have questions, just reply to this email.
-
-Best regards
-Bike Haus Freiburg
-{m.ShopPhone}
-{m.ShopEmail}
-";
-    }
-
     private static string BuildCancelledBodyDe(RentalBookingEmailModel m)
     {
         return $@"Hallo {m.ToName},
 
 Ihre Mietanfrage wurde storniert.
-Talebiniz su an icin storniert (iptal) edilmistir.
 
 Buchung / Mietvertrag: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
@@ -301,31 +296,11 @@ Bike Haus Freiburg
 ";
     }
 
-    private static string BuildCancelledBodyEn(RentalBookingEmailModel m)
-    {
-        return $@"Hello {m.ToName},
-
-Your rental contract has been cancelled.
-
-Booking / rental contract: {m.BuchungsNummer}
-Bike: {m.BikeBrand} {m.BikeModel}
-Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy}
-
-If you want to book a new date, please reply to this email.
-
-Best regards
-Bike Haus Freiburg
-{m.ShopPhone}
-{m.ShopEmail}
-";
-    }
-
     private static string BuildReceivedBodyDe(RentalBookingEmailModel m)
     {
         return $@"Hallo {m.ToName},
 
-vielen Dank fuer Ihre Mietanfrage.
-Talebiniz alinmistir. Bike Haus Freiburg ilgilenecektir.
+vielen Dank fuer Ihre Mietanfrage. Wir bestaetigen den Erhalt und werden uns schnellstmoeglich bei Ihnen melden.
 
 Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
@@ -344,35 +319,6 @@ Abholung/Rueckgabe: {m.PickupLocation}
 Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen uns an.
 
 Viele Gruesse
-Bike Haus Freiburg
-{m.ShopPhone}
-{m.ShopEmail}
-";
-    }
-
-    private static string BuildReceivedBodyEn(RentalBookingEmailModel m)
-    {
-        return $@"Hello {m.ToName},
-
-thank you for your rental request. We have received your details and are reviewing the contract information now.
-
-Booking number: {m.BuchungsNummer}
-Bike: {m.BikeBrand} {m.BikeModel}
-Requested period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days)
-Estimated rental price: {(m.TotalPrice.HasValue ? m.TotalPrice.Value.ToString("0.00") + " EUR" : "to be calculated")}
-
-Accessories:
-{m.AccessoriesText}
-
-What happens next?
-We will review your request and get back to you within 24 hours.
-You will receive a confirmation email once your rental contract is approved or declined.
-
-Pickup/Return: {m.PickupLocation}
-
-If you have any questions, just reply to this email or give us a call.
-
-Best regards
 Bike Haus Freiburg
 {m.ShopPhone}
 {m.ShopEmail}

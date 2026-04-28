@@ -7,4 +7,5 @@ public interface IEmailService
     Task SendRentalBookingApprovedAsync(RentalBookingEmailModel model);
     Task SendRentalBookingCancelledAsync(RentalBookingEmailModel model);
     Task SendRentalBookingReceivedAsync(RentalBookingEmailModel model);
+    Task SendSaleReceiptAsync(string toEmail, string toName, string belegNummer, byte[] pdfBytes);
 }

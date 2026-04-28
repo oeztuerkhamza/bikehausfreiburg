@@ -438,7 +438,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
 
           <!-- Buyer info -->
           <div class="form-card" *ngIf="showBuyerFields">
-            <h2>Käufer</h2>
+            <h2>Kundendaten</h2>
             <div class="form-grid">
               <div class="field">
                 <label>Vorname</label>
@@ -447,6 +447,19 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
               <div class="field">
                 <label>Nachname</label>
                 <input [(ngModel)]="buyer.nachname" name="buyerNachname" />
+              </div>
+              <div class="field">
+                <label>E-Mail</label>
+                <input
+                  type="email"
+                  [(ngModel)]="buyer.email"
+                  name="buyerEmail"
+                  placeholder="kunde@example.com"
+                />
+              </div>
+              <div class="field">
+                <label>Telefon</label>
+                <input [(ngModel)]="buyer.telefon" name="buyerTelefon" />
               </div>
               <div class="field">
                 <label>Straße</label>
@@ -1481,7 +1494,6 @@ export class SaleFormComponent implements OnInit {
       },
     });
   }
-
 
   addAccessory() {
     this.accessories.push({

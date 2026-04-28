@@ -4,6 +4,7 @@ using BikeHaus.Application.Mappings;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace BikeHaus.Application.Services;
 
@@ -14,17 +15,23 @@ public class SaleService : ISaleService
     private readonly IBicycleRepository _bicycleRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IPdfService _pdfService;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<SaleService> _logger;
 
     public SaleService(
         ISaleRepository saleRepository,
         IBicycleRepository bicycleRepository,
         ICustomerRepository customerRepository,
-        IPdfService pdfService)
+        IPdfService pdfService,
+        IEmailService emailService,
+        ILogger<SaleService> logger)
     {
         _saleRepository = saleRepository;
         _bicycleRepository = bicycleRepository;
         _customerRepository = customerRepository;
         _pdfService = pdfService;
+        _emailService = emailService;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<SaleListDto>> GetAllAsync()
@@ -171,7 +178,35 @@ public class SaleService : ISaleService
         }
 
         var result = await _saleRepository.GetWithDetailsAsync(created.Id);
+
+        if (result != null)
+            await TrySendSaleReceiptAsync(result);
+
         return result!.ToDto();
+    }
+
+    private async Task TrySendSaleReceiptAsync(Sale sale)
+    {
+        if (string.IsNullOrWhiteSpace(sale.Buyer.Email))
+            return;
+
+        try
+        {
+            var pdfBytes = await _pdfService.GenerateVerkaufsbelegAsync(sale.Id);
+            await _emailService.SendSaleReceiptAsync(
+                sale.Buyer.Email,
+                sale.Buyer.FullName,
+                sale.BelegNummer,
+                pdfBytes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to send sale receipt email for sale {SaleId} ({BelegNummer})",
+                sale.Id,
+                sale.BelegNummer);
+        }
     }
 
     private async Task<Bicycle> GetOrCreateAccessoryOnlyBicycleAsync()

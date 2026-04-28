@@ -6,15 +6,15 @@ import { SettingsService, ShopSettings } from '../../services/settings.service';
 import { environment } from '../../../environments/environment';
 import { ThemeService } from '../../services/theme.service';
 import {
-    TranslationService,
-    Language,
+  TranslationService,
+  Language,
 } from '../../services/translation.service';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { BackupService } from '../../services/backup.service';
 import {
-    KleinanzeigenService,
-    KleinanzeigenSyncResult,
+  KleinanzeigenService,
+  KleinanzeigenSyncResult,
 } from '../../services/kleinanzeigen.service';
 
 interface EmailAccount {
@@ -570,7 +570,10 @@ interface EmailAccountForm {
                 <div class="backup-icon">✉️</div>
                 <div class="backup-text">
                   <h3>SMTP Verbindung testen</h3>
-                  <p>Schickt eine Test-E-Mail, um die SMTP-Konfiguration zu prüfen.</p>
+                  <p>
+                    Schickt eine Test-E-Mail, um die SMTP-Konfiguration zu
+                    prüfen.
+                  </p>
                 </div>
               </div>
               <div class="email-test-row">
@@ -589,8 +592,12 @@ interface EmailAccountForm {
                   {{ sendingTestEmail ? 'Sende...' : 'Test senden' }}
                 </button>
               </div>
-              <div class="success-msg" *ngIf="testEmailSuccess">{{ testEmailSuccess }}</div>
-              <div class="error-msg" *ngIf="testEmailError">{{ testEmailError }}</div>
+              <div class="success-msg" *ngIf="testEmailSuccess">
+                {{ testEmailSuccess }}
+              </div>
+              <div class="error-msg" *ngIf="testEmailError">
+                {{ testEmailError }}
+              </div>
             </div>
           </div>
         </section>
@@ -600,10 +607,18 @@ interface EmailAccountForm {
           <h2>E-Mail-Verwaltung</h2>
 
           <div class="email-mgmt-tabs">
-            <button class="tab-btn" [class.active]="emailTab === 'accounts'" (click)="switchEmailTab('accounts')">
+            <button
+              class="tab-btn"
+              [class.active]="emailTab === 'accounts'"
+              (click)="switchEmailTab('accounts')"
+            >
               Konten
             </button>
-            <button class="tab-btn" [class.active]="emailTab === 'logs'" (click)="switchEmailTab('logs')">
+            <button
+              class="tab-btn"
+              [class.active]="emailTab === 'logs'"
+              (click)="switchEmailTab('logs')"
+            >
               Protokoll
             </button>
           </div>
@@ -611,21 +626,39 @@ interface EmailAccountForm {
           <!-- KONTEN TAB -->
           <div class="settings-card" *ngIf="emailTab === 'accounts'">
             <div class="section-header-row">
-              <p class="section-desc">Standard-Konto überschreibt die SMTP-Konfiguration aus den Systemeinstellungen.</p>
-              <button class="btn btn-primary btn-sm" (click)="openEmailAccountForm()">+ Neues Konto</button>
+              <p class="section-desc">
+                Standard-Konto überschreibt die SMTP-Konfiguration aus den
+                Systemeinstellungen.
+              </p>
+              <button
+                class="btn btn-primary btn-sm"
+                (click)="openEmailAccountForm()"
+              >
+                + Neues Konto
+              </button>
             </div>
 
             <!-- Create/Edit Form -->
             <div class="email-account-form-card" *ngIf="showingEmailForm">
-              <h3>{{ editingEmailAccountId ? 'Konto bearbeiten' : 'Neues Konto' }}</h3>
+              <h3>
+                {{ editingEmailAccountId ? 'Konto bearbeiten' : 'Neues Konto' }}
+              </h3>
               <div class="form-grid">
                 <div class="form-group">
                   <label>Name</label>
-                  <input type="text" [(ngModel)]="eaf.name" placeholder="z.B. Buchungsversand" />
+                  <input
+                    type="text"
+                    [(ngModel)]="eaf.name"
+                    placeholder="z.B. Buchungsversand"
+                  />
                 </div>
                 <div class="form-group">
                   <label>SMTP-Host</label>
-                  <input type="text" [(ngModel)]="eaf.host" placeholder="smtp.example.com" />
+                  <input
+                    type="text"
+                    [(ngModel)]="eaf.host"
+                    placeholder="smtp.example.com"
+                  />
                 </div>
                 <div class="form-group small">
                   <label>Port</label>
@@ -636,16 +669,32 @@ interface EmailAccountForm {
                   <input type="text" [(ngModel)]="eaf.username" />
                 </div>
                 <div class="form-group">
-                  <label>Passwort{{ editingEmailAccountId ? ' (leer = unverändert)' : '' }}</label>
-                  <input type="password" [(ngModel)]="eaf.password" autocomplete="new-password" />
+                  <label
+                    >Passwort{{
+                      editingEmailAccountId ? ' (leer = unverändert)' : ''
+                    }}</label
+                  >
+                  <input
+                    type="password"
+                    [(ngModel)]="eaf.password"
+                    autocomplete="new-password"
+                  />
                 </div>
                 <div class="form-group">
                   <label>Absender-E-Mail</label>
-                  <input type="email" [(ngModel)]="eaf.fromEmail" placeholder="info@example.com" />
+                  <input
+                    type="email"
+                    [(ngModel)]="eaf.fromEmail"
+                    placeholder="bikehausfreiburg@gmail.com"
+                  />
                 </div>
                 <div class="form-group">
                   <label>Absender-Name</label>
-                  <input type="text" [(ngModel)]="eaf.fromName" placeholder="Bike Haus Freiburg" />
+                  <input
+                    type="text"
+                    [(ngModel)]="eaf.fromName"
+                    placeholder="Bike Haus Freiburg"
+                  />
                 </div>
               </div>
               <div class="form-checkboxes">
@@ -662,18 +711,37 @@ interface EmailAccountForm {
                   Aktiv
                 </label>
               </div>
-              <div class="success-msg" *ngIf="emailAccountSuccess">{{ emailAccountSuccess }}</div>
-              <div class="error-msg" *ngIf="emailAccountError">{{ emailAccountError }}</div>
+              <div class="success-msg" *ngIf="emailAccountSuccess">
+                {{ emailAccountSuccess }}
+              </div>
+              <div class="error-msg" *ngIf="emailAccountError">
+                {{ emailAccountError }}
+              </div>
               <div class="form-actions">
-                <button class="btn btn-secondary" (click)="cancelEmailAccountForm()">Abbrechen</button>
-                <button class="btn btn-primary" [disabled]="savingEmailAccount" (click)="saveEmailAccount()">
+                <button
+                  class="btn btn-secondary"
+                  (click)="cancelEmailAccountForm()"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  class="btn btn-primary"
+                  [disabled]="savingEmailAccount"
+                  (click)="saveEmailAccount()"
+                >
                   {{ savingEmailAccount ? 'Speichern...' : 'Speichern' }}
                 </button>
               </div>
             </div>
 
-            <div class="email-accounts-empty" *ngIf="emailAccounts.length === 0 && !showingEmailForm">
-              <p>Keine E-Mail-Konten konfiguriert. Klicken Sie auf "+ Neues Konto" um zu beginnen.</p>
+            <div
+              class="email-accounts-empty"
+              *ngIf="emailAccounts.length === 0 && !showingEmailForm"
+            >
+              <p>
+                Keine E-Mail-Konten konfiguriert. Klicken Sie auf "+ Neues
+                Konto" um zu beginnen.
+              </p>
             </div>
 
             <table class="email-table" *ngIf="emailAccounts.length > 0">
@@ -690,34 +758,68 @@ interface EmailAccountForm {
                 <tr *ngFor="let acc of emailAccounts">
                   <td>
                     {{ acc.name }}
-                    <span class="badge badge-primary" *ngIf="acc.isDefault">Standard</span>
+                    <span class="badge badge-primary" *ngIf="acc.isDefault"
+                      >Standard</span
+                    >
                   </td>
                   <td class="text-muted">{{ acc.host }}:{{ acc.port }}</td>
                   <td>{{ acc.fromEmail }}</td>
                   <td>
-                    <span class="badge" [class.badge-success]="acc.isActive" [class.badge-muted]="!acc.isActive">
+                    <span
+                      class="badge"
+                      [class.badge-success]="acc.isActive"
+                      [class.badge-muted]="!acc.isActive"
+                    >
                       {{ acc.isActive ? 'Aktiv' : 'Inaktiv' }}
                     </span>
                   </td>
                   <td class="actions-cell">
-                    <button class="btn-icon" title="Bearbeiten" (click)="editEmailAccount(acc)">✏️</button>
-                    <button class="btn-icon btn-icon-danger" title="Löschen" (click)="confirmDeleteEmailAccount(acc)">🗑️</button>
+                    <button
+                      class="btn-icon"
+                      title="Bearbeiten"
+                      (click)="editEmailAccount(acc)"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      class="btn-icon btn-icon-danger"
+                      title="Löschen"
+                      (click)="confirmDeleteEmailAccount(acc)"
+                    >
+                      🗑️
+                    </button>
                   </td>
                 </tr>
               </tbody>
             </table>
 
-            <div class="restore-confirm" style="margin-top:16px" *ngIf="deletingEmailAccount">
+            <div
+              class="restore-confirm"
+              style="margin-top:16px"
+              *ngIf="deletingEmailAccount"
+            >
               <div class="restore-confirm-message">
                 <span class="warning-icon">⚠️</span>
                 <div>
                   <strong>Konto löschen?</strong>
-                  <p>Das Konto "{{ deletingEmailAccount.name }}" wird unwiderruflich gelöscht.</p>
+                  <p>
+                    Das Konto "{{ deletingEmailAccount.name }}" wird
+                    unwiderruflich gelöscht.
+                  </p>
                 </div>
               </div>
               <div class="restore-confirm-buttons">
-                <button class="btn btn-secondary" (click)="deletingEmailAccount = null">Abbrechen</button>
-                <button class="btn btn-danger" [disabled]="deletingEmailAccountLoading" (click)="deleteEmailAccount()">
+                <button
+                  class="btn btn-secondary"
+                  (click)="deletingEmailAccount = null"
+                >
+                  Abbrechen
+                </button>
+                <button
+                  class="btn btn-danger"
+                  [disabled]="deletingEmailAccountLoading"
+                  (click)="deleteEmailAccount()"
+                >
                   {{ deletingEmailAccountLoading ? 'Löschen...' : 'Löschen' }}
                 </button>
               </div>
@@ -728,7 +830,12 @@ interface EmailAccountForm {
           <div class="settings-card" *ngIf="emailTab === 'logs'">
             <div class="section-header-row">
               <p class="section-desc">Letzte 100 gesendeten E-Mails.</p>
-              <button class="btn btn-secondary btn-sm" (click)="loadEmailLogs()">Aktualisieren</button>
+              <button
+                class="btn btn-secondary btn-sm"
+                (click)="loadEmailLogs()"
+              >
+                Aktualisieren
+              </button>
             </div>
             <div class="email-accounts-empty" *ngIf="emailLogs.length === 0">
               <p>Noch keine E-Mails versendet.</p>
@@ -746,15 +853,21 @@ interface EmailAccountForm {
               </thead>
               <tbody>
                 <tr *ngFor="let log of emailLogs">
-                  <td class="text-muted">{{ log.createdAt | date:'dd.MM.yy HH:mm' }}</td>
+                  <td class="text-muted">
+                    {{ log.createdAt | date: 'dd.MM.yy HH:mm' }}
+                  </td>
                   <td>{{ log.toEmail }}</td>
                   <td>{{ log.subject }}</td>
                   <td class="text-muted">{{ log.emailType }}</td>
-                  <td class="text-muted">{{ log.accountName || 'appsettings' }}</td>
+                  <td class="text-muted">
+                    {{ log.accountName || 'appsettings' }}
+                  </td>
                   <td>
-                    <span class="badge"
+                    <span
+                      class="badge"
                       [class.badge-success]="log.status === 'Gesendet'"
-                      [class.badge-danger]="log.status === 'Fehler'">
+                      [class.badge-danger]="log.status === 'Fehler'"
+                    >
                       {{ log.status }}
                     </span>
                   </td>
@@ -1967,22 +2080,41 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.testEmailSuccess = '';
     this.testEmailError = '';
 
-    this.http.post<{ message: string }>(`${environment.apiUrl}/settings/test-email`, { toEmail: this.testEmailAddress }).subscribe({
-      next: (res) => {
-        this.testEmailSuccess = res.message;
-        this.sendingTestEmail = false;
-      },
-      error: (err) => {
-        this.testEmailError = err.error?.error || 'E-Mail konnte nicht gesendet werden. SMTP-Konfiguration prüfen.';
-        this.sendingTestEmail = false;
-      },
-    });
+    this.http
+      .post<{
+        message: string;
+      }>(`${environment.apiUrl}/settings/test-email`, {
+        toEmail: this.testEmailAddress,
+      })
+      .subscribe({
+        next: (res) => {
+          this.testEmailSuccess = res.message;
+          this.sendingTestEmail = false;
+        },
+        error: (err) => {
+          this.testEmailError =
+            err.error?.error ||
+            'E-Mail konnte nicht gesendet werden. SMTP-Konfiguration prüfen.';
+          this.sendingTestEmail = false;
+        },
+      });
   }
 
   // ── E-Mail-Verwaltung ──
 
   private defaultEmailForm(): EmailAccountForm {
-    return { name: '', host: '', port: 587, username: '', password: '', fromEmail: '', fromName: '', useSsl: true, isDefault: false, isActive: true };
+    return {
+      name: '',
+      host: '',
+      port: 587,
+      username: '',
+      password: '',
+      fromEmail: '',
+      fromName: '',
+      useSsl: true,
+      isDefault: false,
+      isActive: true,
+    };
   }
 
   switchEmailTab(tab: 'accounts' | 'logs'): void {
@@ -1991,17 +2123,25 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   loadEmailAccounts(): void {
-    this.http.get<EmailAccount[]>(`${environment.apiUrl}/email-accounts`).subscribe({
-      next: (accounts) => { this.emailAccounts = accounts; },
-      error: () => {},
-    });
+    this.http
+      .get<EmailAccount[]>(`${environment.apiUrl}/email-accounts`)
+      .subscribe({
+        next: (accounts) => {
+          this.emailAccounts = accounts;
+        },
+        error: () => {},
+      });
   }
 
   loadEmailLogs(): void {
-    this.http.get<EmailLog[]>(`${environment.apiUrl}/email-accounts/logs`).subscribe({
-      next: (logs) => { this.emailLogs = logs; },
-      error: () => {},
-    });
+    this.http
+      .get<EmailLog[]>(`${environment.apiUrl}/email-accounts/logs`)
+      .subscribe({
+        next: (logs) => {
+          this.emailLogs = logs;
+        },
+        error: () => {},
+      });
   }
 
   openEmailAccountForm(): void {
@@ -2014,7 +2154,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   editEmailAccount(acc: EmailAccount): void {
     this.editingEmailAccountId = acc.id;
-    this.eaf = { name: acc.name, host: acc.host, port: acc.port, username: acc.username, password: '', fromEmail: acc.fromEmail, fromName: acc.fromName, useSsl: acc.useSsl, isDefault: acc.isDefault, isActive: acc.isActive };
+    this.eaf = {
+      name: acc.name,
+      host: acc.host,
+      port: acc.port,
+      username: acc.username,
+      password: '',
+      fromEmail: acc.fromEmail,
+      fromName: acc.fromName,
+      useSsl: acc.useSsl,
+      isDefault: acc.isDefault,
+      isActive: acc.isActive,
+    };
     this.emailAccountSuccess = '';
     this.emailAccountError = '';
     this.showingEmailForm = true;
@@ -2034,8 +2185,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     const body = { ...this.eaf };
     const req = this.editingEmailAccountId
-      ? this.http.put<EmailAccount>(`${environment.apiUrl}/email-accounts/${this.editingEmailAccountId}`, body)
-      : this.http.post<EmailAccount>(`${environment.apiUrl}/email-accounts`, body);
+      ? this.http.put<EmailAccount>(
+          `${environment.apiUrl}/email-accounts/${this.editingEmailAccountId}`,
+          body,
+        )
+      : this.http.post<EmailAccount>(
+          `${environment.apiUrl}/email-accounts`,
+          body,
+        );
 
     req.subscribe({
       next: () => {
@@ -2059,14 +2216,20 @@ export class SettingsComponent implements OnInit, OnDestroy {
   deleteEmailAccount(): void {
     if (!this.deletingEmailAccount) return;
     this.deletingEmailAccountLoading = true;
-    this.http.delete(`${environment.apiUrl}/email-accounts/${this.deletingEmailAccount.id}`).subscribe({
-      next: () => {
-        this.deletingEmailAccountLoading = false;
-        this.deletingEmailAccount = null;
-        this.loadEmailAccounts();
-      },
-      error: () => { this.deletingEmailAccountLoading = false; },
-    });
+    this.http
+      .delete(
+        `${environment.apiUrl}/email-accounts/${this.deletingEmailAccount.id}`,
+      )
+      .subscribe({
+        next: () => {
+          this.deletingEmailAccountLoading = false;
+          this.deletingEmailAccount = null;
+          this.loadEmailAccounts();
+        },
+        error: () => {
+          this.deletingEmailAccountLoading = false;
+        },
+      });
   }
 
   // ── Backup & Restore ──
