@@ -251,7 +251,9 @@ import { DialogComponent } from './components/dialog/dialog.component';
               >
                 <circle cx="5.5" cy="17.5" r="3.5" />
                 <circle cx="18.5" cy="17.5" r="3.5" />
-                <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2" />
+                <path
+                  d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5V14l-3-3 4-3 2 3h2"
+                />
                 <line x1="12" y1="2" x2="12" y2="6" />
                 <line x1="10" y1="4" x2="14" y2="4" />
               </svg>
@@ -301,7 +303,9 @@ import { DialogComponent } from './components/dialog/dialog.component';
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path
+                  d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                />
                 <polyline points="14 2 14 8 20 8" />
                 <line x1="16" y1="13" x2="8" y2="13" />
                 <line x1="16" y1="17" x2="8" y2="17" />
@@ -616,15 +620,36 @@ import { DialogComponent } from './components/dialog/dialog.component';
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
               </svg>
             </button>
-            <div class="user-info" (click)="userMenuOpen = !userMenuOpen" [class.open]="userMenuOpen">
+            <div
+              class="user-info"
+              (click)="userMenuOpen = !userMenuOpen"
+              [class.open]="userMenuOpen"
+            >
               <div class="user-avatar">{{ getInitials() }}</div>
               <span class="user-name">{{ ownerDisplayName() }}</span>
-              <div class="user-dropdown" *ngIf="userMenuOpen" (click)="$event.stopPropagation()">
-                <button class="dropdown-item dropdown-logout" (click)="logout(); userMenuOpen = false">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                    <polyline points="16 17 21 12 16 7"/>
-                    <line x1="21" y1="12" x2="9" y2="12"/>
+              <div
+                class="user-dropdown"
+                *ngIf="userMenuOpen"
+                (click)="$event.stopPropagation()"
+              >
+                <button
+                  type="button"
+                  class="dropdown-item dropdown-logout"
+                  (click)="onLogoutClick($event)"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
                   </svg>
                   Abmelden
                 </button>
@@ -903,7 +928,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
         background: var(--bg-secondary);
         border: 1px solid var(--border-light);
         border-radius: 10px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         min-width: 160px;
         z-index: 200;
         overflow: hidden;
@@ -924,7 +949,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
         text-align: left;
       }
       .dropdown-item:hover {
-        background: var(--bg-hover, rgba(0,0,0,0.04));
+        background: var(--bg-hover, rgba(0, 0, 0, 0.04));
       }
       .dropdown-logout {
         color: #ef4444;
@@ -1146,5 +1171,11 @@ export class AppComponent implements OnInit {
 
   logout() {
     this.authService.logout();
+  }
+
+  onLogoutClick(event: MouseEvent) {
+    event.stopPropagation();
+    this.userMenuOpen = false;
+    this.logout();
   }
 }
