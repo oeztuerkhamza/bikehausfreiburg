@@ -1,12 +1,14 @@
-using System.Net;
-using System.Net.Mail;
+using System.Net.Security;
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Infrastructure.Data;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MimeKit;
 
 namespace BikeHaus.Infrastructure.Services;
 
@@ -68,13 +70,13 @@ public class SmtpEmailService : IEmailService
             .Where(a => a.IsDefault && a.IsActive)
             .FirstOrDefaultAsync();
 
-        var host = dbAccount?.Host ?? _options.Host;
-        var port = dbAccount?.Port ?? _options.Port;
-        var username = dbAccount?.Username ?? _options.Username;
-        var password = dbAccount?.Password ?? _options.Password;
+        var host = FirstConfigured(dbAccount?.Host, _options.Host);
+        var port = dbAccount?.Port > 0 ? dbAccount.Port : _options.Port;
+        var username = FirstConfigured(dbAccount?.Username, _options.Username);
+        var password = FirstConfigured(dbAccount?.Password, _options.Password);
         var useSsl = dbAccount?.UseSsl ?? _options.UseSsl;
-        var fromEmail = dbAccount?.FromEmail ?? _options.FromEmail;
-        var fromName = dbAccount?.FromName ?? _options.FromName;
+        var fromEmail = FirstConfigured(dbAccount?.FromEmail, _options.FromEmail);
+        var fromName = FirstConfigured(dbAccount?.FromName, _options.FromName);
 
         if (string.IsNullOrWhiteSpace(host))
         {
@@ -92,27 +94,29 @@ public class SmtpEmailService : IEmailService
 
         try
         {
-            using var message = new MailMessage
-            {
-                From = new MailAddress(fromEmail, fromName),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = false
-            };
-            message.To.Add(new MailAddress(toEmail, toName));
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(fromName, fromEmail));
+            message.To.Add(new MailboxAddress(toName, toEmail));
+            message.Subject = subject;
+            message.Body = new TextPart("plain") { Text = body };
 
-            using var client = new SmtpClient(host, port)
+            using var client = new SmtpClient
             {
-                EnableSsl = useSsl,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                Timeout = 20000
+                Timeout = 20000,
+                ServerCertificateValidationCallback = (_, _, _, sslPolicyErrors) =>
+                    sslPolicyErrors == SslPolicyErrors.None || sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors
             };
 
-            if (!string.IsNullOrWhiteSpace(username))
-                client.Credentials = new NetworkCredential(username, password);
+            var socketOptions = useSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
 
             _logger.LogInformation("Sending email to {To}, subject: {Subject}", toEmail, subject);
-            await client.SendMailAsync(message);
+            await client.ConnectAsync(host, port, socketOptions);
+
+            if (!string.IsNullOrWhiteSpace(username))
+                await client.AuthenticateAsync(username, password);
+
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
             _logger.LogInformation("Email sent successfully to {To}", toEmail);
 
             await LogEmailAsync(toEmail, toName, subject, emailType, "Gesendet", null, dbAccount?.Id);
@@ -123,6 +127,17 @@ public class SmtpEmailService : IEmailService
             await LogEmailAsync(toEmail, toName, subject, emailType, "Fehler", ex.Message, dbAccount?.Id);
             throw;
         }
+    }
+
+    private static string FirstConfigured(params string?[] values)
+    {
+        foreach (var value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+                return value;
+        }
+
+        return string.Empty;
     }
 
     private async Task LogEmailAsync(string toEmail, string toName, string subject, string emailType, string status, string? error, int? accountId)
