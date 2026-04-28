@@ -47,14 +47,27 @@ jobs:
           script: |
             set -e
             cd /opt/bikehaus
-            : "${JWT_SECRET_KEY:?JWT_SECRET_KEY secret is missing.}"
-            : "${INDEXNOW_API_KEY:?INDEXNOW_API_KEY secret is missing.}"
-            : "${GOOGLE_PLACES_API_KEY:?GOOGLE_PLACES_API_KEY secret is missing.}"
-            : "${GOOGLE_PLACES_PLACE_ID:?GOOGLE_PLACES_PLACE_ID secret is missing.}"
-            if [ -z "${SMTP_PASSWORD}" ]; then
-              echo "ERROR: SMTP_PASSWORD secret is missing."
-              exit 1
+
+            # JWT_SECRET_KEY: secret > existing .env > auto-generate (avoids forced logouts)
+            if [ -z "${JWT_SECRET_KEY}" ]; then
+              if [ -f .env ] && grep -q '^JWT_SECRET_KEY=' .env; then
+                JWT_SECRET_KEY=$(grep '^JWT_SECRET_KEY=' .env | cut -d'=' -f2-)
+                echo "JWT_SECRET_KEY: using existing value from server .env"
+              else
+                JWT_SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')
+                echo "JWT_SECRET_KEY: generated new value (first deploy)"
+              fi
             fi
+
+            # Optional secrets: read from existing .env if not provided via GitHub secret
+            _read_env() {
+              local key="$1"
+              [ -f .env ] && grep -q "^${key}=" .env && grep "^${key}=" .env | cut -d'=' -f2- || true
+            }
+            [ -z "${INDEXNOW_API_KEY}" ]       && INDEXNOW_API_KEY="$(_read_env INDEXNOW_API_KEY)"
+            [ -z "${GOOGLE_PLACES_API_KEY}" ]   && GOOGLE_PLACES_API_KEY="$(_read_env GOOGLE_PLACES_API_KEY)"
+            [ -z "${GOOGLE_PLACES_PLACE_ID}" ]  && GOOGLE_PLACES_PLACE_ID="$(_read_env GOOGLE_PLACES_PLACE_ID)"
+            [ -z "${SMTP_PASSWORD}" ]           && SMTP_PASSWORD="$(_read_env SMTP_PASSWORD)"
             echo "Current server commit: $(git rev-parse --short HEAD || echo unknown)"
             git fetch --prune origin master
             git checkout master
