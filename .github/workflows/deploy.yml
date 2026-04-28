@@ -148,11 +148,11 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 30m
           script: |
             chmod -R 755 /opt/bikehaus/homepage-dist/browser
             find /opt/bikehaus/homepage-dist/browser -type f -exec chmod 644 {} \;
             cd /opt/bikehaus
-            docker compose build --pull homepage
             docker compose up -d --force-recreate homepage nginx
             echo "Homepage deployed successfully!"
 
