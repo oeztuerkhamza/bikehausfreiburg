@@ -5,6 +5,7 @@ using BikeHaus.Application.Mappings;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace BikeHaus.Application.Services;
 
@@ -21,19 +22,22 @@ public class RentalBookingService : IRentalBookingService
     private readonly IRentalAccessoryRepository _accessoryRepository;
     private readonly IShopSettingsRepository _shopSettingsRepository;
     private readonly IEmailService _emailService;
+    private readonly ILogger<RentalBookingService> _logger;
 
     public RentalBookingService(
         IRentalBookingRepository bookingRepository,
         IBicycleRepository bicycleRepository,
         IRentalAccessoryRepository accessoryRepository,
         IShopSettingsRepository shopSettingsRepository,
-        IEmailService emailService)
+        IEmailService emailService,
+        ILogger<RentalBookingService> logger)
     {
         _bookingRepository = bookingRepository;
         _bicycleRepository = bicycleRepository;
         _accessoryRepository = accessoryRepository;
         _shopSettingsRepository = shopSettingsRepository;
         _emailService = emailService;
+        _logger = logger;
     }
 
     public async Task<PaginatedResult<RentalBookingListDto>> GetPaginatedAsync(PaginationParams paginationParams)
@@ -152,7 +156,18 @@ public class RentalBookingService : IRentalBookingService
         if (!string.IsNullOrWhiteSpace(withDetails!.Email))
         {
             var emailModel = await BuildEmailModelAsync(withDetails, bicycle);
-            await _emailService.SendRentalBookingReceivedAsync(emailModel);
+            try
+            {
+                await _emailService.SendRentalBookingReceivedAsync(emailModel);
+            }
+            catch (Exception ex)
+            {
+                // Do not fail booking creation when SMTP delivery fails.
+                _logger.LogError(
+                    ex,
+                    "Failed to send booking received email for booking {BookingNumber}",
+                    withDetails.BuchungsNummer);
+            }
         }
 
         return withDetails.ToDto();

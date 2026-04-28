@@ -401,7 +401,8 @@ import { environment } from '../../../environments/environment';
                        class="bc-cell"
                        [class.bc-empty]="!day"
                        [class.bc-past]="day && isPast(day)"
-                       [class.bc-busy]="day && !isPast(day) && isDayBusy(day)"
+                       [class.bc-busy]="day && !isPast(day) && getDayBusyType(day) === 'booking'"
+                       [class.bc-pending]="day && !isPast(day) && getDayBusyType(day) === 'pending'"
                        [class.bc-today]="day && isToday(day)"
                        [class.bc-start]="day && isStart(day)"
                        [class.bc-end]="day && isEnd(day)"
@@ -409,11 +410,14 @@ import { environment } from '../../../environments/environment';
                        [class.bc-clickable]="day && !isPast(day) && !isDayBusy(day)"
                        (click)="day && !isPast(day) && !isDayBusy(day) && onCalDayClick(day)">
                     <span *ngIf="day">{{ day.getDate() }}</span>
-                    <div class="bc-busy-tip" *ngIf="day && !isPast(day) && isDayBusy(day)">Belegt</div>
+                    <div class="bc-busy-tip" *ngIf="day && !isPast(day) && isDayBusy(day)">
+                      {{ getDayBusyType(day) === 'pending' ? 'In Prüfung' : 'Belegt' }}
+                    </div>
                   </div>
                 </div>
                 <div class="bc-legend">
                   <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-busy"></span>Belegt</span>
+                  <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-pending"></span>In Prüfung</span>
                   <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-sel"></span>Ausgewählt</span>
                 </div>
                 <div class="bc-info" *ngIf="calendarStart()">
@@ -1376,6 +1380,12 @@ import { environment } from '../../../environments/environment';
         cursor: not-allowed;
       }
 
+      .bc-pending {
+        background: rgba(236, 72, 153, 0.18);
+        color: #f9a8d4;
+        cursor: not-allowed;
+      }
+
       .bc-today::after {
         content: ''; position: absolute;
         bottom: 3px; left: 50%; transform: translateX(-50%);
@@ -1408,6 +1418,7 @@ import { environment } from '../../../environments/environment';
         width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
       }
       .bc-leg-busy { background: rgba(239, 68, 68, 0.4); }
+      .bc-leg-pending { background: rgba(236, 72, 153, 0.5); }
       .bc-leg-sel { background: var(--color-accent); }
 
       .bc-info {
@@ -1554,7 +1565,7 @@ export class FahrradverleihComponent implements OnInit {
   calculatedPrice = signal<number | null>(null);
 
   // Calendar state
-  busyPeriods = signal<{ start: Date; end: Date }[]>([]);
+  busyPeriods = signal<{ start: Date; end: Date; type: string }[]>([]);
   calendarCurrentDate = signal(new Date());
   calendarStart = signal<Date | null>(null);
   calendarEnd = signal<Date | null>(null);
@@ -1606,7 +1617,7 @@ export class FahrradverleihComponent implements OnInit {
     this.apiService.getBusyPeriods(bike.id).subscribe({
       next: (periods) => {
         const toLocal = (s: string) => { const d = new Date(s); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
-        this.busyPeriods.set(periods.map(p => ({ start: toLocal(p.start), end: toLocal(p.end) })));
+        this.busyPeriods.set(periods.map(p => ({ start: toLocal(p.start), end: toLocal(p.end), type: p.type })));
         this.busyPeriodsLoading.set(false);
       },
       error: () => this.busyPeriodsLoading.set(false),
@@ -1665,8 +1676,18 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   isDayBusy(date: Date): boolean {
+    return this.getDayBusyType(date) !== null;
+  }
+
+  getDayBusyType(date: Date): 'booking' | 'pending' | 'rental' | null {
     const t = date.getTime();
-    return this.busyPeriods().some(p => t >= p.start.getTime() && t <= p.end.getTime());
+    const covering = this.busyPeriods().filter(
+      p => t >= p.start.getTime() && t <= p.end.getTime(),
+    );
+    if (covering.length === 0) return null;
+    if (covering.some((p) => p.type === 'booking' || p.type === 'rental')) return 'booking';
+    if (covering.some((p) => p.type === 'pending')) return 'pending';
+    return 'booking';
   }
 
   isPast(date: Date): boolean {

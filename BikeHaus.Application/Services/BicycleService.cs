@@ -350,6 +350,11 @@ public class BicycleService : IBicycleService
         result.AddRange(approvedBookings.Select(b =>
             new BusyPeriodDto(b.StartDatum.Date, b.EndDatum.Date, "booking")));
 
+        // Pending booking requests (not processed yet)
+        var pendingBookings = await _bookingRepository.GetPendingByBicycleIdAsync(bicycleId);
+        result.AddRange(pendingBookings.Select(b =>
+            new BusyPeriodDto(b.StartDatum.Date, b.EndDatum.Date, "pending")));
+
         return result;
     }
 }

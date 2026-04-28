@@ -59,6 +59,14 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<RentalBooking>> GetPendingByBicycleIdAsync(int bicycleId)
+    {
+        return await _dbSet
+            .Where(b => b.BicycleId == bicycleId && b.Status == RentalBookingStatus.Pending)
+            .OrderBy(b => b.StartDatum)
+            .ToListAsync();
+    }
+
     public async Task<bool> ExistsApprovedOverlapAsync(int bicycleId, DateTime start, DateTime end, int? excludeBookingId = null)
     {
         var query = _dbSet.Where(b =>

@@ -27,7 +27,7 @@ public class SmtpEmailService : IEmailService
     {
         var subject = model.Language == "en"
             ? $"Rental contract confirmed - {model.BuchungsNummer} | Bike Haus Freiburg"
-            : $"Mietvertrag bestaetigt - {model.BuchungsNummer} | Bike Haus Freiburg";
+            : $"Anfrage bestaetigt - {model.BuchungsNummer} | Bike Haus Freiburg";
 
         var body = model.Language == "en"
             ? BuildApprovedBodyEn(model)
@@ -40,7 +40,7 @@ public class SmtpEmailService : IEmailService
     {
         var subject = model.Language == "en"
             ? $"Rental contract cancelled - {model.BuchungsNummer} | Bike Haus Freiburg"
-            : $"Mietvertrag storniert - {model.BuchungsNummer} | Bike Haus Freiburg";
+            : $"Anfrage storniert - {model.BuchungsNummer} | Bike Haus Freiburg";
 
         var body = model.Language == "en"
             ? BuildCancelledBodyEn(model)
@@ -53,7 +53,7 @@ public class SmtpEmailService : IEmailService
     {
         var subject = model.Language == "en"
             ? $"Rental request received - {model.BuchungsNummer} | Bike Haus Freiburg"
-            : $"Mietanfrage eingegangen - {model.BuchungsNummer} | Bike Haus Freiburg";
+            : $"Talebiniz alindi - {model.BuchungsNummer} | Bike Haus Freiburg";
 
         var body = model.Language == "en"
             ? BuildReceivedBodyEn(model)
@@ -151,7 +151,8 @@ public class SmtpEmailService : IEmailService
     {
         return $@"Hallo {m.ToName},
 
-Ihre Mietanfrage wurde bestaetigt. Ihr Mietvertrag ist vorbereitet.
+Ihre Mietanfrage wurde bestaetigt.
+Talebiniz onaylanmistir. Bike Haus Freiburg sizinle en kisa surede ilgilenecektir.
 
 Buchung / Mietvertrag: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
@@ -217,7 +218,8 @@ Bike Haus Freiburg
     {
         return $@"Hallo {m.ToName},
 
-Ihr Mietvertrag wurde storniert.
+Ihre Mietanfrage wurde storniert.
+Talebiniz su an icin storniert (iptal) edilmistir.
 
 Buchung / Mietvertrag: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
@@ -255,7 +257,8 @@ Bike Haus Freiburg
     {
         return $@"Hallo {m.ToName},
 
-vielen Dank fuer Ihre Mietanfrage. Wir haben Ihre Angaben erhalten und pruefen jetzt die Vertragsdaten.
+vielen Dank fuer Ihre Mietanfrage.
+Talebiniz alinmistir. Bike Haus Freiburg ilgilenecektir.
 
 Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
