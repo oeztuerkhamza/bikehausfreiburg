@@ -83,16 +83,8 @@ jobs:
             git checkout master
             git reset --hard origin/master
             echo "Deploying commit: $(git rev-parse --short HEAD)"
-            cat > .env <<EOF
-            JWT_SECRET_KEY=${JWT_SECRET_KEY}
-            INDEXNOW_API_KEY=${INDEXNOW_API_KEY}
-            GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}
-            GOOGLE_PLACES_PLACE_ID=${GOOGLE_PLACES_PLACE_ID}
-            SMTP_PASSWORD=${SMTP_PASSWORD}
-            SMTP_USE_SSL=false
-            SMTP_FROM_EMAIL=no-reply@bikehausfreiburg.com
-            SMTP_FROM_NAME=Bike Haus Freiburg
-            EOF
+            printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_PASSWORD=%s\n' \
+              "${JWT_SECRET_KEY}" "${INDEXNOW_API_KEY}" "${GOOGLE_PLACES_API_KEY}" "${GOOGLE_PLACES_PLACE_ID}" "${SMTP_PASSWORD}" > .env
             chmod 600 .env
             echo "Pre-pulling base images to keep SSH session alive..."
             docker pull node:20-alpine &
