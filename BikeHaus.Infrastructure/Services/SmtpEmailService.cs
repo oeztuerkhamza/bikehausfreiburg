@@ -2,6 +2,9 @@ using System.Net;
 using System.Net.Mail;
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
+using BikeHaus.Domain.Entities;
+using BikeHaus.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -11,11 +14,13 @@ public class SmtpEmailService : IEmailService
 {
     private readonly SmtpOptions _options;
     private readonly ILogger<SmtpEmailService> _logger;
+    private readonly BikeHausDbContext _db;
 
-    public SmtpEmailService(IOptions<SmtpOptions> options, ILogger<SmtpEmailService> logger)
+    public SmtpEmailService(IOptions<SmtpOptions> options, ILogger<SmtpEmailService> logger, BikeHausDbContext db)
     {
         _options = options.Value;
         _logger = logger;
+        _db = db;
     }
 
     public Task SendRentalBookingApprovedAsync(RentalBookingEmailModel model)
@@ -28,7 +33,7 @@ public class SmtpEmailService : IEmailService
             ? BuildApprovedBodyEn(model)
             : BuildApprovedBodyDe(model);
 
-        return SendAsync(model.ToEmail, model.ToName, subject, body);
+        return SendAsync(model.ToEmail, model.ToName, subject, body, "MietvertragBestaetigt");
     }
 
     public Task SendRentalBookingCancelledAsync(RentalBookingEmailModel model)
@@ -41,7 +46,7 @@ public class SmtpEmailService : IEmailService
             ? BuildCancelledBodyEn(model)
             : BuildCancelledBodyDe(model);
 
-        return SendAsync(model.ToEmail, model.ToName, subject, body);
+        return SendAsync(model.ToEmail, model.ToName, subject, body, "MietvertragStorniert");
     }
 
     public Task SendRentalBookingReceivedAsync(RentalBookingEmailModel model)
@@ -54,20 +59,34 @@ public class SmtpEmailService : IEmailService
             ? BuildReceivedBodyEn(model)
             : BuildReceivedBodyDe(model);
 
-        return SendAsync(model.ToEmail, model.ToName, subject, body);
+        return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageEingegangen");
     }
 
-    private async Task SendAsync(string toEmail, string toName, string subject, string body)
+    private async Task SendAsync(string toEmail, string toName, string subject, string body, string emailType = "")
     {
-        if (string.IsNullOrWhiteSpace(_options.Host))
+        var dbAccount = await _db.EmailAccounts
+            .Where(a => a.IsDefault && a.IsActive)
+            .FirstOrDefaultAsync();
+
+        var host = dbAccount?.Host ?? _options.Host;
+        var port = dbAccount?.Port ?? _options.Port;
+        var username = dbAccount?.Username ?? _options.Username;
+        var password = dbAccount?.Password ?? _options.Password;
+        var useSsl = dbAccount?.UseSsl ?? _options.UseSsl;
+        var fromEmail = dbAccount?.FromEmail ?? _options.FromEmail;
+        var fromName = dbAccount?.FromName ?? _options.FromName;
+
+        if (string.IsNullOrWhiteSpace(host))
         {
             _logger.LogError("SMTP host is not configured. Email to {To} cannot be sent.", toEmail);
+            await LogEmailAsync(toEmail, toName, subject, emailType, "Fehler", "SMTP host nicht konfiguriert.", dbAccount?.Id);
             throw new InvalidOperationException("SMTP host is not configured.");
         }
 
-        if (string.IsNullOrWhiteSpace(_options.Password))
+        if (string.IsNullOrWhiteSpace(password))
         {
             _logger.LogError("SMTP password is empty. Email to {To} cannot be sent.", toEmail);
+            await LogEmailAsync(toEmail, toName, subject, emailType, "Fehler", "SMTP Passwort fehlt.", dbAccount?.Id);
             throw new InvalidOperationException("SMTP password is empty.");
         }
 
@@ -75,31 +94,56 @@ public class SmtpEmailService : IEmailService
         {
             using var message = new MailMessage
             {
-                From = new MailAddress(_options.FromEmail, _options.FromName),
+                From = new MailAddress(fromEmail, fromName),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = false
             };
             message.To.Add(new MailAddress(toEmail, toName));
 
-            using var client = new SmtpClient(_options.Host, _options.Port)
+            using var client = new SmtpClient(host, port)
             {
-                EnableSsl = _options.UseSsl,
+                EnableSsl = useSsl,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 Timeout = 20000
             };
 
-            if (!string.IsNullOrWhiteSpace(_options.Username))
-                client.Credentials = new NetworkCredential(_options.Username, _options.Password);
+            if (!string.IsNullOrWhiteSpace(username))
+                client.Credentials = new NetworkCredential(username, password);
 
             _logger.LogInformation("Sending email to {To}, subject: {Subject}", toEmail, subject);
             await client.SendMailAsync(message);
             _logger.LogInformation("Email sent successfully to {To}", toEmail);
+
+            await LogEmailAsync(toEmail, toName, subject, emailType, "Gesendet", null, dbAccount?.Id);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send email to {To} via {Host}:{Port}", toEmail, _options.Host, _options.Port);
+            _logger.LogError(ex, "Failed to send email to {To} via {Host}:{Port}", toEmail, host, port);
+            await LogEmailAsync(toEmail, toName, subject, emailType, "Fehler", ex.Message, dbAccount?.Id);
             throw;
+        }
+    }
+
+    private async Task LogEmailAsync(string toEmail, string toName, string subject, string emailType, string status, string? error, int? accountId)
+    {
+        try
+        {
+            _db.EmailLogs.Add(new EmailLog
+            {
+                ToEmail = toEmail,
+                ToName = toName,
+                Subject = subject,
+                EmailType = emailType,
+                Status = status,
+                ErrorMessage = error,
+                EmailAccountId = accountId,
+            });
+            await _db.SaveChangesAsync();
+        }
+        catch (Exception logEx)
+        {
+            _logger.LogWarning(logEx, "Failed to log email to database.");
         }
     }
 

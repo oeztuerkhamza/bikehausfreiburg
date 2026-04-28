@@ -286,6 +286,116 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("Documents");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.EmailAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FromEmail")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FromName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Host")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("UseSsl")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailAccounts");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.EmailLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("EmailAccountId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("EmailType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ToEmail")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ToName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmailAccountId");
+
+                    b.ToTable("EmailLogs");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Expense", b =>
                 {
                     b.Property<int>("Id")
@@ -1576,6 +1686,16 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Sale");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.EmailLog", b =>
+                {
+                    b.HasOne("BikeHaus.Domain.Entities.EmailAccount", "EmailAccount")
+                        .WithMany("Logs")
+                        .HasForeignKey("EmailAccountId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("EmailAccount");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.HomepageAccessoryImage", b =>
                 {
                     b.HasOne("BikeHaus.Domain.Entities.HomepageAccessory", "Accessory")
@@ -1870,6 +1990,11 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("Returns");
 
                     b.Navigation("Sales");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.EmailAccount", b =>
+                {
+                    b.Navigation("Logs");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.HomepageAccessory", b =>

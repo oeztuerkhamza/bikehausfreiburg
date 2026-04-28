@@ -92,7 +92,7 @@ public class SettingsController : ControllerBase
         {
             await _emailService.SendRentalBookingReceivedAsync(new RentalBookingEmailModel(
                 ToEmail: dto.ToEmail,
-                ToName: "Test",
+                ToName: "Test (SMTP-Verbindungstest)",
                 BuchungsNummer: "TEST-001",
                 BikeBrand: "Test",
                 BikeModel: "Fahrrad",

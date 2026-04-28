@@ -68,6 +68,7 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, BikeHaus.Infrastructure.Services.AuthService>();
         services.AddScoped<IPdfService, PdfService>();
         services.AddScoped<IEmailService, SmtpEmailService>();
+        services.AddScoped<IEmailAccountService, EmailAccountService>();
         services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));
         services.AddHttpClient("IndexNow");
         services.AddScoped<IIndexNowService, IndexNowService>();

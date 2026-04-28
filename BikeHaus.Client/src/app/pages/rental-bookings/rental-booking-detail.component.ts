@@ -30,11 +30,21 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
             *ngIf="booking.status !== BookingStatus.Cancelled"
             title="Mietanfrage als Mietvertrag anlegen"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: middle; margin-right: 5px">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="12" y1="18" x2="12" y2="12"/>
-              <line x1="9" y1="15" x2="15" y2="15"/>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              style="vertical-align: middle; margin-right: 5px"
+            >
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+              />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="12" y1="18" x2="12" y2="12" />
+              <line x1="9" y1="15" x2="15" y2="15" />
             </svg>
             In Mietvertrag umwandeln
           </button>
@@ -125,45 +135,6 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
             <span>{{ booking.cancelledAt | date: 'dd.MM.yyyy HH:mm' }}</span>
           </div>
         </div>
-      </div>
-
-      <div class="info-card">
-        <h3>{{ t.rentalBookingAccessories }}</h3>
-        <table class="accessory-table" *ngIf="booking.accessories?.length">
-          <thead>
-            <tr>
-              <th>{{ t.designation }}</th>
-              <th>{{ t.price }}</th>
-              <th>{{ t.quantity }}</th>
-              <th>{{ t.total }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let acc of booking.accessories">
-              <td>{{ acc.bezeichnung }}</td>
-              <td>{{ acc.tagespreis | number: '1.2-2' }} €</td>
-              <td>{{ acc.menge }}</td>
-              <td>{{ acc.gesamtpreis | number: '1.2-2' }} €</td>
-            </tr>
-          </tbody>
-        </table>
-        <p *ngIf="!booking.accessories?.length" class="empty">
-          {{ t.noData }}
-        </p>
-      </div>
-
-      <div class="info-card" *ngIf="booking.notizen">
-        <h3>{{ t.rentalBookingNotes }}</h3>
-        <p>{{ booking.notizen }}</p>
-      </div>
-
-      <div class="info-card">
-        <h3>{{ t.rentalBookingAdminNotes }}</h3>
-        <textarea
-          rows="3"
-          [(ngModel)]="adminNotizen"
-          name="adminNotizen"
-        ></textarea>
       </div>
     </div>
   `,

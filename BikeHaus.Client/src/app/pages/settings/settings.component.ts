@@ -17,6 +17,45 @@ import {
     KleinanzeigenSyncResult,
 } from '../../services/kleinanzeigen.service';
 
+interface EmailAccount {
+  id: number;
+  name: string;
+  host: string;
+  port: number;
+  username: string;
+  fromEmail: string;
+  fromName: string;
+  useSsl: boolean;
+  isDefault: boolean;
+  isActive: boolean;
+  createdAt: string;
+}
+
+interface EmailLog {
+  id: number;
+  toEmail: string;
+  toName: string;
+  subject: string;
+  status: string;
+  errorMessage: string | null;
+  emailType: string;
+  accountName: string | null;
+  createdAt: string;
+}
+
+interface EmailAccountForm {
+  name: string;
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  fromEmail: string;
+  fromName: string;
+  useSsl: boolean;
+  isDefault: boolean;
+  isActive: boolean;
+}
+
 @Component({
   selector: 'app-settings',
   standalone: true,
@@ -553,6 +592,175 @@ import {
               <div class="success-msg" *ngIf="testEmailSuccess">{{ testEmailSuccess }}</div>
               <div class="error-msg" *ngIf="testEmailError">{{ testEmailError }}</div>
             </div>
+          </div>
+        </section>
+
+        <!-- E-Mail-Verwaltung Section -->
+        <section class="settings-section">
+          <h2>E-Mail-Verwaltung</h2>
+
+          <div class="email-mgmt-tabs">
+            <button class="tab-btn" [class.active]="emailTab === 'accounts'" (click)="switchEmailTab('accounts')">
+              Konten
+            </button>
+            <button class="tab-btn" [class.active]="emailTab === 'logs'" (click)="switchEmailTab('logs')">
+              Protokoll
+            </button>
+          </div>
+
+          <!-- KONTEN TAB -->
+          <div class="settings-card" *ngIf="emailTab === 'accounts'">
+            <div class="section-header-row">
+              <p class="section-desc">Standard-Konto überschreibt die SMTP-Konfiguration aus den Systemeinstellungen.</p>
+              <button class="btn btn-primary btn-sm" (click)="openEmailAccountForm()">+ Neues Konto</button>
+            </div>
+
+            <!-- Create/Edit Form -->
+            <div class="email-account-form-card" *ngIf="showingEmailForm">
+              <h3>{{ editingEmailAccountId ? 'Konto bearbeiten' : 'Neues Konto' }}</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Name</label>
+                  <input type="text" [(ngModel)]="eaf.name" placeholder="z.B. Buchungsversand" />
+                </div>
+                <div class="form-group">
+                  <label>SMTP-Host</label>
+                  <input type="text" [(ngModel)]="eaf.host" placeholder="smtp.example.com" />
+                </div>
+                <div class="form-group small">
+                  <label>Port</label>
+                  <input type="number" [(ngModel)]="eaf.port" />
+                </div>
+                <div class="form-group">
+                  <label>Benutzername</label>
+                  <input type="text" [(ngModel)]="eaf.username" />
+                </div>
+                <div class="form-group">
+                  <label>Passwort{{ editingEmailAccountId ? ' (leer = unverändert)' : '' }}</label>
+                  <input type="password" [(ngModel)]="eaf.password" autocomplete="new-password" />
+                </div>
+                <div class="form-group">
+                  <label>Absender-E-Mail</label>
+                  <input type="email" [(ngModel)]="eaf.fromEmail" placeholder="info@example.com" />
+                </div>
+                <div class="form-group">
+                  <label>Absender-Name</label>
+                  <input type="text" [(ngModel)]="eaf.fromName" placeholder="Bike Haus Freiburg" />
+                </div>
+              </div>
+              <div class="form-checkboxes">
+                <label class="checkbox-label">
+                  <input type="checkbox" [(ngModel)]="eaf.useSsl" />
+                  SSL/TLS verwenden
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" [(ngModel)]="eaf.isDefault" />
+                  Standard-Konto (überschreibt appsettings.json)
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" [(ngModel)]="eaf.isActive" />
+                  Aktiv
+                </label>
+              </div>
+              <div class="success-msg" *ngIf="emailAccountSuccess">{{ emailAccountSuccess }}</div>
+              <div class="error-msg" *ngIf="emailAccountError">{{ emailAccountError }}</div>
+              <div class="form-actions">
+                <button class="btn btn-secondary" (click)="cancelEmailAccountForm()">Abbrechen</button>
+                <button class="btn btn-primary" [disabled]="savingEmailAccount" (click)="saveEmailAccount()">
+                  {{ savingEmailAccount ? 'Speichern...' : 'Speichern' }}
+                </button>
+              </div>
+            </div>
+
+            <div class="email-accounts-empty" *ngIf="emailAccounts.length === 0 && !showingEmailForm">
+              <p>Keine E-Mail-Konten konfiguriert. Klicken Sie auf "+ Neues Konto" um zu beginnen.</p>
+            </div>
+
+            <table class="email-table" *ngIf="emailAccounts.length > 0">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Host</th>
+                  <th>Absender</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let acc of emailAccounts">
+                  <td>
+                    {{ acc.name }}
+                    <span class="badge badge-primary" *ngIf="acc.isDefault">Standard</span>
+                  </td>
+                  <td class="text-muted">{{ acc.host }}:{{ acc.port }}</td>
+                  <td>{{ acc.fromEmail }}</td>
+                  <td>
+                    <span class="badge" [class.badge-success]="acc.isActive" [class.badge-muted]="!acc.isActive">
+                      {{ acc.isActive ? 'Aktiv' : 'Inaktiv' }}
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <button class="btn-icon" title="Bearbeiten" (click)="editEmailAccount(acc)">✏️</button>
+                    <button class="btn-icon btn-icon-danger" title="Löschen" (click)="confirmDeleteEmailAccount(acc)">🗑️</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="restore-confirm" style="margin-top:16px" *ngIf="deletingEmailAccount">
+              <div class="restore-confirm-message">
+                <span class="warning-icon">⚠️</span>
+                <div>
+                  <strong>Konto löschen?</strong>
+                  <p>Das Konto "{{ deletingEmailAccount.name }}" wird unwiderruflich gelöscht.</p>
+                </div>
+              </div>
+              <div class="restore-confirm-buttons">
+                <button class="btn btn-secondary" (click)="deletingEmailAccount = null">Abbrechen</button>
+                <button class="btn btn-danger" [disabled]="deletingEmailAccountLoading" (click)="deleteEmailAccount()">
+                  {{ deletingEmailAccountLoading ? 'Löschen...' : 'Löschen' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROTOKOLL TAB -->
+          <div class="settings-card" *ngIf="emailTab === 'logs'">
+            <div class="section-header-row">
+              <p class="section-desc">Letzte 100 gesendeten E-Mails.</p>
+              <button class="btn btn-secondary btn-sm" (click)="loadEmailLogs()">Aktualisieren</button>
+            </div>
+            <div class="email-accounts-empty" *ngIf="emailLogs.length === 0">
+              <p>Noch keine E-Mails versendet.</p>
+            </div>
+            <table class="email-table" *ngIf="emailLogs.length > 0">
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>An</th>
+                  <th>Betreff</th>
+                  <th>Typ</th>
+                  <th>Konto</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let log of emailLogs">
+                  <td class="text-muted">{{ log.createdAt | date:'dd.MM.yy HH:mm' }}</td>
+                  <td>{{ log.toEmail }}</td>
+                  <td>{{ log.subject }}</td>
+                  <td class="text-muted">{{ log.emailType }}</td>
+                  <td class="text-muted">{{ log.accountName || 'appsettings' }}</td>
+                  <td>
+                    <span class="badge"
+                      [class.badge-success]="log.status === 'Gesendet'"
+                      [class.badge-danger]="log.status === 'Fehler'">
+                      {{ log.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -1181,6 +1389,180 @@ import {
       .btn-secondary:hover {
         background: var(--border-medium, #cbd5e1);
       }
+
+      /* E-Mail-Verwaltung */
+      .email-mgmt-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 16px;
+        background: var(--bg-secondary, #f1f5f9);
+        border-radius: var(--radius-md, 10px);
+        padding: 4px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 8px 16px;
+        border: none;
+        border-radius: var(--radius-sm, 8px);
+        background: transparent;
+        color: var(--text-secondary, #64748b);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition-fast);
+      }
+      .tab-btn.active {
+        background: var(--bg-card, #fff);
+        color: var(--accent-primary, #6366f1);
+        box-shadow: var(--shadow-sm);
+      }
+      .section-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .section-desc {
+        margin: 0;
+        font-size: 0.88rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .btn-sm {
+        padding: 7px 14px;
+        font-size: 0.85rem;
+      }
+      .email-account-form-card {
+        background: var(--bg-secondary, #f8fafc);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .email-account-form-card h3 {
+        margin: 0 0 16px 0;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .form-checkboxes {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin: 12px 0 16px;
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+      }
+      .checkbox-label input[type='checkbox'] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--accent-primary, #6366f1);
+        cursor: pointer;
+      }
+      .email-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        margin-top: 8px;
+      }
+      .email-table th {
+        padding: 8px 12px;
+        text-align: left;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
+      }
+      .email-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+        color: var(--text-primary);
+        vertical-align: middle;
+      }
+      .email-table tr:last-child td {
+        border-bottom: none;
+      }
+      .email-table .text-muted {
+        color: var(--text-secondary, #64748b);
+      }
+      .actions-cell {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+      .btn-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px 6px;
+        border-radius: var(--radius-sm, 6px);
+        font-size: 1rem;
+        transition: background 0.15s;
+      }
+      .btn-icon:hover {
+        background: var(--bg-secondary, #f1f5f9);
+      }
+      .btn-icon-danger:hover {
+        background: rgba(239, 68, 68, 0.08);
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 4px;
+      }
+      .badge-primary {
+        background: rgba(99, 102, 241, 0.12);
+        color: var(--accent-primary, #6366f1);
+      }
+      .badge-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--accent-success, #10b981);
+      }
+      .badge-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--accent-danger, #ef4444);
+      }
+      .badge-muted {
+        background: var(--border-light, #e2e8f0);
+        color: var(--text-secondary, #64748b);
+      }
+      .email-accounts-empty {
+        padding: 24px;
+        text-align: center;
+        color: var(--text-secondary, #64748b);
+        font-size: 0.9rem;
+      }
+      .btn-danger {
+        background: var(--accent-danger, #ef4444);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--radius-md, 10px);
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: var(--transition-fast);
+      }
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+      .btn-danger:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
     `,
   ],
 })
@@ -1223,6 +1605,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   sendingTestEmail = false;
   testEmailSuccess = '';
   testEmailError = '';
+
+  // E-Mail-Verwaltung
+  emailTab: 'accounts' | 'logs' = 'accounts';
+  emailAccounts: EmailAccount[] = [];
+  emailLogs: EmailLog[] = [];
+  showingEmailForm = false;
+  editingEmailAccountId: number | null = null;
+  savingEmailAccount = false;
+  emailAccountSuccess = '';
+  emailAccountError = '';
+  deletingEmailAccount: EmailAccount | null = null;
+  deletingEmailAccountLoading = false;
+  eaf: EmailAccountForm = this.defaultEmailForm();
 
   // User account
   currentUser: UserInfo | null = null;
@@ -1274,6 +1669,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.loadSettings();
     this.loadCurrentUser();
     this.loadLastSyncTime();
+    this.loadEmailAccounts();
   }
 
   loadLastSyncTime(): void {
@@ -1580,6 +1976,96 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.testEmailError = err.error?.error || 'E-Mail konnte nicht gesendet werden. SMTP-Konfiguration prüfen.';
         this.sendingTestEmail = false;
       },
+    });
+  }
+
+  // ── E-Mail-Verwaltung ──
+
+  private defaultEmailForm(): EmailAccountForm {
+    return { name: '', host: '', port: 587, username: '', password: '', fromEmail: '', fromName: '', useSsl: true, isDefault: false, isActive: true };
+  }
+
+  switchEmailTab(tab: 'accounts' | 'logs'): void {
+    this.emailTab = tab;
+    if (tab === 'logs') this.loadEmailLogs();
+  }
+
+  loadEmailAccounts(): void {
+    this.http.get<EmailAccount[]>(`${environment.apiUrl}/email-accounts`).subscribe({
+      next: (accounts) => { this.emailAccounts = accounts; },
+      error: () => {},
+    });
+  }
+
+  loadEmailLogs(): void {
+    this.http.get<EmailLog[]>(`${environment.apiUrl}/email-accounts/logs`).subscribe({
+      next: (logs) => { this.emailLogs = logs; },
+      error: () => {},
+    });
+  }
+
+  openEmailAccountForm(): void {
+    this.editingEmailAccountId = null;
+    this.eaf = this.defaultEmailForm();
+    this.emailAccountSuccess = '';
+    this.emailAccountError = '';
+    this.showingEmailForm = true;
+  }
+
+  editEmailAccount(acc: EmailAccount): void {
+    this.editingEmailAccountId = acc.id;
+    this.eaf = { name: acc.name, host: acc.host, port: acc.port, username: acc.username, password: '', fromEmail: acc.fromEmail, fromName: acc.fromName, useSsl: acc.useSsl, isDefault: acc.isDefault, isActive: acc.isActive };
+    this.emailAccountSuccess = '';
+    this.emailAccountError = '';
+    this.showingEmailForm = true;
+  }
+
+  cancelEmailAccountForm(): void {
+    this.showingEmailForm = false;
+    this.editingEmailAccountId = null;
+    this.emailAccountSuccess = '';
+    this.emailAccountError = '';
+  }
+
+  saveEmailAccount(): void {
+    this.savingEmailAccount = true;
+    this.emailAccountSuccess = '';
+    this.emailAccountError = '';
+
+    const body = { ...this.eaf };
+    const req = this.editingEmailAccountId
+      ? this.http.put<EmailAccount>(`${environment.apiUrl}/email-accounts/${this.editingEmailAccountId}`, body)
+      : this.http.post<EmailAccount>(`${environment.apiUrl}/email-accounts`, body);
+
+    req.subscribe({
+      next: () => {
+        this.savingEmailAccount = false;
+        this.emailAccountSuccess = 'Konto gespeichert.';
+        this.showingEmailForm = false;
+        this.loadEmailAccounts();
+        setTimeout(() => (this.emailAccountSuccess = ''), 3000);
+      },
+      error: (err) => {
+        this.emailAccountError = err.error?.message || 'Fehler beim Speichern.';
+        this.savingEmailAccount = false;
+      },
+    });
+  }
+
+  confirmDeleteEmailAccount(acc: EmailAccount): void {
+    this.deletingEmailAccount = acc;
+  }
+
+  deleteEmailAccount(): void {
+    if (!this.deletingEmailAccount) return;
+    this.deletingEmailAccountLoading = true;
+    this.http.delete(`${environment.apiUrl}/email-accounts/${this.deletingEmailAccount.id}`).subscribe({
+      next: () => {
+        this.deletingEmailAccountLoading = false;
+        this.deletingEmailAccount = null;
+        this.loadEmailAccounts();
+      },
+      error: () => { this.deletingEmailAccountLoading = false; },
     });
   }
 

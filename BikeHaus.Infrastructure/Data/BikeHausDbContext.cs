@@ -37,6 +37,8 @@ public class BikeHausDbContext : DbContext
     public DbSet<RentalBookingAccessory> RentalBookingAccessories => Set<RentalBookingAccessory>();
     public DbSet<RentalAccessoryItem> RentalAccessoryItems => Set<RentalAccessoryItem>();
     public DbSet<RenovationCost> RenovationCosts => Set<RenovationCost>();
+    public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
+    public DbSet<EmailLog> EmailLogs => Set<EmailLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -516,6 +518,33 @@ public class BikeHausDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(e => e.MietvertragNummer).IsUnique();
+        });
+
+        // ── EmailAccount Configuration ──
+        modelBuilder.Entity<EmailAccount>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Host).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Port).IsRequired();
+            entity.Property(e => e.Username).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Password).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.FromEmail).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.FromName).HasMaxLength(200);
+            entity.HasMany(e => e.Logs).WithOne(l => l.EmailAccount)
+                .HasForeignKey(l => l.EmailAccountId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ── EmailLog Configuration ──
+        modelBuilder.Entity<EmailLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ToEmail).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.ToName).HasMaxLength(200);
+            entity.Property(e => e.Subject).HasMaxLength(500);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(2000);
+            entity.Property(e => e.EmailType).HasMaxLength(100);
         });
 
         // ── RentalAccessoryItem Configuration ──
