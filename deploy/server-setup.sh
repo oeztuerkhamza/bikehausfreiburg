@@ -1,10 +1,5 @@
 #!/bin/bash
-# ============================================
-# BikeHaus Freiburg - Server Setup Script
-# Netcup VPS (Ubuntu/Debian)
-# ============================================
-
-set -e
+set -euo pipefail
 
 echo "=== BikeHaus Freiburg Server Setup ==="
 
@@ -59,28 +54,4 @@ mkdir -p /var/lib/letsencrypt
 
 echo ""
 echo "=== Setup Complete! ==="
-echo ""
-echo "Next steps:"
-echo ""
-echo "1. Clone main repo:"
-echo "   git clone -b master https://github.com/oeztuerkhamza/bikehausfreiburg.git /opt/bikehaus"
-echo ""
-echo "2. Start services (first time, without SSL):"
-echo "   cd /opt/bikehaus"
-echo "   docker compose up -d --build"
-echo ""
-echo "3. Setup SSL:"
-echo "   cd /opt/bikehaus/deploy"
-echo "   ./setup-ssl.sh"
-echo ""
-echo "4. Configure DNS (A records):"
-echo "   bikehausfreiburg.com     → 152.53.138.135"
-echo "   www.bikehausfreiburg.com → 152.53.138.135"
-echo "   admin.bikehausfreiburg.com → 152.53.138.135"
-echo "   api.bikehausfreiburg.com   → 152.53.138.135"
-echo ""
-echo "5. Configure GitHub Secrets in both repos:"
-echo "   SERVER_HOST:    152.53.138.135"
-echo "   SERVER_USER:    root"
-echo "   SERVER_SSH_KEY: (your SSH private key)"
-echo ""
+echo "Next: git clone, configure .env with JWT_SECRET_KEY, then run deploy/setup-ssl.sh"

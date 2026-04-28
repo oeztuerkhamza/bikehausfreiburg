@@ -69,39 +69,24 @@ Add these A records pointing to your server IP:
 - `admin.bikehausfreiburg.com` → 152.53.138.135
 - `api.bikehausfreiburg.com` → 152.53.138.135
 
-### 4. Initial Start (HTTP only)
+### 4. Initialize Secrets & Start Services
 
 ```bash
-# Use the initial nginx config (no SSL yet)
-cp nginx/nginx.conf.initial nginx/nginx.conf
+# Create .env file with required secrets (use strong values in production)
+cat > .env <<EOF
+JWT_SECRET_KEY=your-very-long-random-secret-key-min-32-chars
+INDEXNOW_API_KEY=your-indexnow-api-key
+GOOGLE_PLACES_API_KEY=your-google-places-key
+GOOGLE_PLACES_PLACE_ID=your-place-id
+SMTP_PASSWORD=your-smtp-password
+SMTP_USE_SSL=false
+SMTP_FROM_EMAIL=no-reply@bikehausfreiburg.com
+SMTP_FROM_NAME=Bike Haus Freiburg
+EOF
+chmod 600 .env
 
-# Start services
-docker compose up -d --build
-
-# Verify API is running
-curl http://localhost:5000/api/settings
-```
-
-### 5. Setup SSL Certificates
-
-```bash
-cd /opt/bikehaus/deploy
-chmod +x setup-ssl.sh
-./setup-ssl.sh
-
-# Restore HTTPS nginx config
-cp nginx/nginx.conf.https nginx/nginx.conf
-docker compose restart nginx
-```
-
-### 6. Deploy Homepage (First Time)
-
-```bash
-# Create homepage placeholder
-mkdir -p /opt/bikehaus/homepage-dist
-echo "<h1>Homepage coming soon</h1>" > /opt/bikehaus/homepage-dist/index.html
-
-# Homepage will be deployed via GitHub Actions when you push to homepage repo
+# Start services with SSL setup script
+deploy/setup-ssl.sh
 ```
 
 ---

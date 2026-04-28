@@ -1,58 +1,26 @@
 #!/bin/bash
-# ============================================
-# SSL Setup with Let's Encrypt
-# Run AFTER the app is running on port 80
-# Sets up SSL for all domains including mail subdomain
-# ============================================
-
-set -e
+set -euo pipefail
 
 DOMAIN="bikehausfreiburg.com"
 EMAIL="${1:-info@bikehausfreiburg.com}"
 
-echo "=== Setting up SSL for BikeHaus Freiburg ==="
-echo "Domains: $DOMAIN, www.$DOMAIN, admin.$DOMAIN, api.$DOMAIN, mail.$DOMAIN"
-
+echo "=== SSL Setup: $DOMAIN ==="
 cd /opt/bikehaus
 
-# Make sure containers are running
+# Verify .env exists with required secrets
+if [ ! -f .env ]; then
+  echo "ERROR: .env file not found. Run 'cat > .env << EOF' first with JWT_SECRET_KEY and other secrets."
+  exit 1
+fi
+
+# Start containers and obtain certificates
 docker compose up -d
-
-# Use webroot method and bypass service entrypoint (which runs renew loop)
-echo ">> Obtaining SSL certificate..."
 docker compose run --rm --entrypoint certbot certbot certonly \
-    --webroot \
-    --webroot-path=/var/lib/letsencrypt \
-    --email "$EMAIL" \
-    --agree-tos \
-    --no-eff-email \
-    --cert-name "$DOMAIN" \
-    --expand \
-    --force-renewal \
-    -d "$DOMAIN" \
-    -d "www.$DOMAIN" \
-    -d "admin.$DOMAIN" \
-    -d "api.$DOMAIN" \
-    -d "mail.$DOMAIN"
+  --webroot --webroot-path=/var/lib/letsencrypt \
+  --email "$EMAIL" --agree-tos --no-eff-email \
+  --cert-name "$DOMAIN" --expand --force-renewal \
+  -d "$DOMAIN" -d "www.$DOMAIN" \
+  -d "admin.$DOMAIN" -d "api.$DOMAIN"
 
-# Update nginx config with SSL
-echo ">> Updating nginx configuration..."
-
-# Backup original config
-cp nginx/nginx.conf nginx/nginx.conf.backup
-
-# Restart nginx to load new certificates
 docker compose restart nginx
-
-echo ""
-echo "=== SSL Certificate Obtained! ==="
-echo ""
-echo "Certificates are stored in Docker volume 'certbot-etc'"
-echo "Auto-renewal is handled by certbot container"
-echo ""
-echo "Verify SSL:"
-echo "  curl -I https://bikehausfreiburg.com"
-echo "  curl -I https://admin.bikehausfreiburg.com"
-echo "  curl -I https://api.bikehausfreiburg.com"
-echo "  curl -I https://mail.bikehausfreiburg.com"
-echo ""
+echo "✓ SSL certificate installed and nginx restarted"
