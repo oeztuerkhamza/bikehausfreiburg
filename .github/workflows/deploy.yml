@@ -34,16 +34,24 @@ jobs:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
           GOOGLE_PLACES_PLACE_ID: ${{ secrets.GOOGLE_PLACES_PLACE_ID }}
+          SMTP_HOST: mail.bikehausfreiburg.com
+          SMTP_PORT: '587'
+          SMTP_USERNAME: no-reply@bikehausfreiburg.com
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: INDEXNOW_API_KEY,JWT_SECRET_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID,SMTP_PASSWORD
+          envs: INDEXNOW_API_KEY,JWT_SECRET_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID,SMTP_HOST,SMTP_PORT,SMTP_USERNAME,SMTP_PASSWORD
           command_timeout: 30m
           script: |
             set -e
             cd /opt/bikehaus
+            : "${INDEXNOW_API_KEY:?INDEXNOW_API_KEY secret is missing.}"
+            : "${JWT_SECRET_KEY:?JWT_SECRET_KEY secret is missing.}"
+            : "${GOOGLE_PLACES_API_KEY:?GOOGLE_PLACES_API_KEY secret is missing.}"
+            : "${GOOGLE_PLACES_PLACE_ID:?GOOGLE_PLACES_PLACE_ID secret is missing.}"
+            : "${SMTP_USERNAME:?SMTP_USERNAME is missing.}"
             if [ -z "${SMTP_PASSWORD}" ]; then
               echo "ERROR: SMTP_PASSWORD secret is missing."
               exit 1
@@ -58,9 +66,9 @@ jobs:
             echo "INDEXNOW_API_KEY=${INDEXNOW_API_KEY}" >> .env
             echo "GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}" >> .env
             echo "GOOGLE_PLACES_PLACE_ID=${GOOGLE_PLACES_PLACE_ID}" >> .env
-            echo "SMTP_HOST=mail.bikehausfreiburg.com" >> .env
-            echo "SMTP_PORT=25" >> .env
-            echo "SMTP_USERNAME=" >> .env
+            echo "SMTP_HOST=${SMTP_HOST}" >> .env
+            echo "SMTP_PORT=${SMTP_PORT}" >> .env
+            echo "SMTP_USERNAME=${SMTP_USERNAME}" >> .env
             echo "SMTP_PASSWORD=${SMTP_PASSWORD}" >> .env
             echo "SMTP_USE_SSL=false" >> .env
             echo "SMTP_FROM_EMAIL=no-reply@bikehausfreiburg.com" >> .env
@@ -138,6 +146,7 @@ jobs:
     steps:
       - name: Health check endpoints
         run: |
+          set -e
           urls=(
             "https://bikehausfreiburg.com"
             "https://admin.bikehausfreiburg.com"
@@ -146,7 +155,7 @@ jobs:
           )
           for url in "${urls[@]}"; do
             echo "Checking $url"
-            code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+            code=$(curl --retry 5 --retry-delay 5 --connect-timeout 10 --max-time 30 -s -o /dev/null -w "%{http_code}" "$url")
             if [[ "$code" != "200" ]]; then
               echo "Health check failed for $url (status $code)"
               exit 1

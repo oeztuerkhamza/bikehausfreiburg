@@ -36,8 +36,8 @@
 
 | Repository                  | Content                            | CI/CD Trigger  |
 | --------------------------- | ---------------------------------- | -------------- |
-| `bikehausfreiburg`          | API + Admin Panel + Deploy configs | Push to `main` |
-| `bikehausfreiburg-homepage` | Public Homepage (Angular)          | Push to `main` |
+| `bikehausfreiburg`          | API + Admin Panel + Deploy configs | Push to `master` |
+| `bikehausfreiburg-homepage` | Public Homepage (Angular)          | Push to `master` |
 
 ---
 
@@ -50,13 +50,13 @@
 ssh root@152.53.138.135
 
 # Download and run setup script
-curl -sSL https://raw.githubusercontent.com/oeztuerkhamza/bikehausfreiburg/bikehaus-desktop/deploy/server-setup.sh | bash
+curl -sSL https://raw.githubusercontent.com/oeztuerkhamza/bikehausfreiburg/master/deploy/server-setup.sh | bash
 ```
 
 ### 2. Clone Main Repository
 
 ```bash
-git clone -b bikehaus-desktop https://github.com/oeztuerkhamza/bikehausfreiburg.git /opt/bikehaus
+git clone -b master https://github.com/oeztuerkhamza/bikehausfreiburg.git /opt/bikehaus
 cd /opt/bikehaus
 ```
 
