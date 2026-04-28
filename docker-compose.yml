@@ -9,6 +9,7 @@ services:
       - '5000:5000'
     volumes:
       - bikehaus-data:/app/data
+    env_file: .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - Jwt__Key=${JWT_SECRET_KEY}

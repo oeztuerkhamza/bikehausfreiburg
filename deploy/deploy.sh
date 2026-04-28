@@ -33,10 +33,10 @@ if [ ! -f .env ]; then
 fi
 
 echo "[1/5] Building API and homepage images..."
-docker compose build --pull bikehaus homepage
+docker compose --env-file .env build --pull bikehaus homepage
 
 echo "[2/5] Recreating API and homepage containers..."
-docker compose up -d --force-recreate bikehaus homepage
+docker compose --env-file .env up -d --force-recreate bikehaus homepage
 
 echo "[3/5] Syncing homepage static files for nginx..."
 mkdir -p homepage-dist
@@ -45,7 +45,7 @@ mkdir -p homepage-dist/browser
 docker compose cp homepage:/app/dist/bike-haus.homepage/browser/. ./homepage-dist/browser
 
 echo "[4/5] Recreating nginx with updated static files..."
-docker compose up -d --force-recreate nginx
+docker compose --env-file .env up -d --force-recreate nginx
 
 echo "[5/5] Running health checks..."
 retry_check "API" "http://localhost:5000/api/settings" 20 3
