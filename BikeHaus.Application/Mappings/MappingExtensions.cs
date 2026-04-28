@@ -60,7 +60,7 @@ public static class MappingExtensions
     public static Bicycle ToEntity(this BicycleCreateDto dto) => new()
     {
         Marke = dto.Marke,
-        Modell = dto.Modell,
+        Modell = dto.Modell!,
         Rahmennummer = dto.Rahmennummer,
         Rahmengroesse = dto.Rahmengroesse,
         Farbe = dto.Farbe,

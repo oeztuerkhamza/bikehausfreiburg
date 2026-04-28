@@ -1126,20 +1126,7 @@ interface EmailAccountForm {
       }
 
       .setting-row select {
-        padding: 9px 14px;
         min-width: 150px;
-        border: 1.5px solid var(--border-light, #e2e8f0);
-        border-radius: var(--radius-md, 10px);
-        background: var(--bg-card, #fff);
-        color: var(--text-primary);
-        font-size: 0.92rem;
-        transition: var(--transition-fast);
-      }
-      .setting-row select:focus {
-        outline: none;
-        border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px
-          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
 
       /* Logo Section */
@@ -1268,22 +1255,6 @@ interface EmailAccountForm {
       .form-group textarea,
       .form-group select {
         width: 100%;
-        padding: 9px 14px;
-        border: 1.5px solid var(--border-light, #e2e8f0);
-        border-radius: var(--radius-md, 10px);
-        background: var(--bg-card, #fff);
-        color: var(--text-primary);
-        font-size: 0.92rem;
-        transition: var(--transition-fast);
-      }
-
-      .form-group input:focus,
-      .form-group textarea:focus,
-      .form-group select:focus {
-        outline: none;
-        border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px
-          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
 
       .form-group textarea {
@@ -1379,16 +1350,6 @@ interface EmailAccountForm {
       .email-test-input {
         flex: 1;
         min-width: 220px;
-        padding: 9px 14px;
-        border: 1.5px solid var(--border-color);
-        border-radius: var(--radius-md, 10px);
-        background: var(--bg-card);
-        color: var(--text-primary);
-        font-size: 0.92rem;
-      }
-      .email-test-input:focus {
-        outline: none;
-        border-color: var(--accent-primary);
       }
       .backup-info {
         display: flex;

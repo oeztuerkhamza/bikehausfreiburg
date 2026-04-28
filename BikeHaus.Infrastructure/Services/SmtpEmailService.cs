@@ -86,13 +86,23 @@ Bike Haus Freiburg";
             .Where(a => a.IsDefault && a.IsActive)
             .FirstOrDefaultAsync();
 
-        var host = FirstConfigured(dbAccount?.Host, _options.Host);
+        var host = dbAccount is not null
+            ? FirstConfigured(dbAccount.Host, _options.Host)
+            : FirstConfigured(_options.Host);
         var port = dbAccount?.Port > 0 ? dbAccount.Port : _options.Port;
-        var username = FirstConfigured(dbAccount?.Username, _options.Username);
-        var password = FirstConfigured(dbAccount?.Password, _options.Password);
+        var username = dbAccount is not null
+            ? (dbAccount.Username ?? string.Empty).Trim()
+            : FirstConfigured(_options.Username);
+        var password = dbAccount is not null
+            ? dbAccount.Password ?? string.Empty
+            : FirstConfigured(_options.Password);
         var useSsl = dbAccount?.UseSsl ?? _options.UseSsl;
-        var fromEmail = FirstConfigured(dbAccount?.FromEmail, _options.FromEmail);
-        var fromName = FirstConfigured(dbAccount?.FromName, _options.FromName);
+        var fromEmail = dbAccount is not null
+            ? FirstConfigured(dbAccount.FromEmail, _options.FromEmail)
+            : FirstConfigured(_options.FromEmail);
+        var fromName = dbAccount is not null
+            ? FirstConfigured(dbAccount.FromName, _options.FromName)
+            : FirstConfigured(_options.FromName);
 
         if (string.IsNullOrWhiteSpace(host))
         {
@@ -101,7 +111,7 @@ Bike Haus Freiburg";
             throw new InvalidOperationException("SMTP host is not configured.");
         }
 
-        if (string.IsNullOrWhiteSpace(password))
+        if (!string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(password))
         {
             _logger.LogError("SMTP password is empty. Email to {To} cannot be sent.", toEmail);
             await LogEmailAsync(toEmail, toName, subject, emailType, "Fehler", "SMTP Passwort fehlt.", dbAccount?.Id);

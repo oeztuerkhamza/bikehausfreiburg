@@ -954,10 +954,6 @@ const MONTH_NAMES = [
         min-width: 220px;
         cursor: pointer;
       }
-      .btn-sm {
-        padding: 7px 14px;
-        font-size: 0.82rem;
-      }
       .accessory-empty {
         color: var(--text-muted);
         font-size: 0.88rem;
@@ -1120,40 +1116,6 @@ const MONTH_NAMES = [
         padding-top: 20px;
         border-top: 1px solid var(--border-light);
       }
-      .btn {
-        padding: 10px 20px;
-        border-radius: var(--radius-md, 10px);
-        font-weight: 600;
-        font-size: 0.88rem;
-        cursor: pointer;
-        border: none;
-        transition: var(--transition-fast);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-      }
-      .btn-primary {
-        background: var(--accent-primary, #6366f1);
-        color: white;
-      }
-      .btn-primary:hover {
-        background: var(--accent-primary-hover, #4f46e5);
-        box-shadow: var(--shadow-sm);
-      }
-      .btn-primary:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      .btn-outline {
-        background: transparent;
-        border: 1.5px solid var(--border-color);
-        color: var(--text-primary);
-      }
-      .btn-outline:hover {
-        background: var(--bg-secondary, #f1f5f9);
-      }
-
       .quick-add-form {
         margin-top: 16px;
         padding: 16px;
