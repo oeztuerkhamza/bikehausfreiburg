@@ -27,7 +27,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
       <router-outlet></router-outlet>
     </ng-container>
 
-    <!-- Authenticated layout -->
+    <!-- Authenti cated layout -->
     <div class="app-layout" *ngIf="authService.isLoggedIn()">
       <!-- Skip Link für Barrierefreiheit -->
       <a href="#main-content" class="skip-link">{{ t.skipToMain }}</a>

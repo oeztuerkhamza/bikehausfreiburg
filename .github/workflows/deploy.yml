@@ -71,11 +71,8 @@ jobs:
       needs.changes.outputs.infra == 'true' ||
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    outputs:
-      sha: ${{ steps.deploy.outputs.sha }}
     steps:
-      - id: deploy
-        name: Sync source and write .env
+      - name: Sync source and write .env
         uses: appleboy/ssh-action@v1
         env:
           FORCE_LOGOUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_logout || 'false' }}
@@ -122,9 +119,7 @@ jobs:
             git fetch --prune origin master
             git checkout master
             git reset --hard origin/master
-            DEPLOY_SHA=$(git rev-parse --short HEAD)
-            echo "Deploying commit: ${DEPLOY_SHA}"
-            echo "sha=${DEPLOY_SHA}" >> "$GITHUB_OUTPUT"
+            echo "Deploying commit: $(git rev-parse --short HEAD)"
 
             echo "==> Writing .env"
             umask 077
