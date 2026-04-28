@@ -16,21 +16,10 @@ COPY BikeHaus.Client/ ./
 RUN npm run build -- --configuration production
 
 # =============================================
-# Stage 2: Playwright Chromium download (cached separately)
-# Only re-runs if BikeHaus.Infrastructure.csproj changes (e.g. Playwright version bump)
+# Stage 2: Playwright Chromium — pulled from the official Playwright image.
+# No download at build time; Docker layer cache handles re-use automatically.
 # =============================================
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS playwright-cache
-WORKDIR /pw
-COPY BikeHaus.Infrastructure/BikeHaus.Infrastructure.csproj ./BikeHaus.Infrastructure.csproj
-# Build a tiny shim project that only references Playwright, so we can run playwright.ps1
-RUN dotnet new console -n PwShim -o shim --force \
-    && cd shim \
-    && PW_VER=$(grep -oP 'Microsoft\.Playwright" Version="\K[^"]+' /pw/BikeHaus.Infrastructure.csproj) \
-    && echo "Installing Playwright version: $PW_VER" \
-    && dotnet add package Microsoft.Playwright --version "$PW_VER" \
-    && dotnet build -c Release -o build
-ENV PLAYWRIGHT_BROWSERS_PATH=/pw-browsers
-RUN pwsh /pw/shim/build/playwright.ps1 install chromium
+FROM mcr.microsoft.com/playwright/dotnet:v1.49.0-noble AS playwright-cache
 
 # =============================================
 # Stage 3: Build .NET API
@@ -88,9 +77,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Playwright browsers (cached unless Infrastructure.csproj changes)
+# Copy Playwright browsers from the official Playwright image
 ENV PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
-COPY --from=playwright-cache /pw-browsers /app/.playwright
+COPY --from=playwright-cache /ms-playwright /app/.playwright
 
 # Copy published API
 COPY --from=api-build /app/publish .
