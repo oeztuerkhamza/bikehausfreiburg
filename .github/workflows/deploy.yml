@@ -16,7 +16,7 @@ on:
 
 concurrency:
   group: deploy-netcup
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   changes:
@@ -32,72 +32,7 @@ jobs:
             homepage:
               - 'BikeHaus.Homepage/**'
 
-  deploy-api:
-    needs: changes
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        env:
-          FORCE_LOGOUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_logout || 'false' }}
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: FORCE_LOGOUT,JWT_SECRET_KEY,INDEXNOW_API_KEY,SMTP_PASSWORD
-          command_timeout: 30m
-          script: |
-            set -e
-            cd /opt/bikehaus
-
-            # FORCE_LOGOUT rotates the JWT secret so all existing sessions become invalid.
-            if [ "${FORCE_LOGOUT:-false}" = "true" ]; then
-              JWT_SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')
-              echo "JWT_SECRET_KEY: forced rotation enabled"
-            elif [ -z "${JWT_SECRET_KEY}" ]; then
-              if [ -f .env ] && grep -q '^JWT_SECRET_KEY=' .env; then
-                JWT_SECRET_KEY=$(grep '^JWT_SECRET_KEY=' .env | cut -d'=' -f2-)
-                echo "JWT_SECRET_KEY: using existing value from server .env"
-              else
-                JWT_SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')
-                echo "JWT_SECRET_KEY: generated new value (first deploy)"
-              fi
-            fi
-
-            # Optional secrets: read from existing .env if not provided via GitHub secret
-            _read_env() {
-              local key="$1"
-              [ -f .env ] && grep -q "^${key}=" .env && grep "^${key}=" .env | cut -d'=' -f2- || true
-            }
-            [ -z "${INDEXNOW_API_KEY}" ] && INDEXNOW_API_KEY="$(_read_env INDEXNOW_API_KEY)"
-            GOOGLE_PLACES_API_KEY="$(_read_env GOOGLE_PLACES_API_KEY)"
-            GOOGLE_PLACES_PLACE_ID="$(_read_env GOOGLE_PLACES_PLACE_ID)"
-            [ -z "${SMTP_PASSWORD}" ] && SMTP_PASSWORD="$(_read_env SMTP_PASSWORD)"
-            echo "Current server commit: $(git rev-parse --short HEAD || echo unknown)"
-            git fetch --prune origin master
-            git checkout master
-            git reset --hard origin/master
-            echo "Deploying commit: $(git rev-parse --short HEAD)"
-            printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_PASSWORD=%s\n' \
-              "${JWT_SECRET_KEY}" "${INDEXNOW_API_KEY}" "${GOOGLE_PLACES_API_KEY}" "${GOOGLE_PLACES_PLACE_ID}" "${SMTP_PASSWORD}" > .env
-            chmod 600 .env
-            echo "Pre-pulling base images to keep SSH session alive..."
-            docker pull node:20-alpine &
-            docker pull mcr.microsoft.com/dotnet/sdk:9.0 &
-            docker pull mcr.microsoft.com/playwright/dotnet:v1.49.0-noble &
-            docker pull mcr.microsoft.com/dotnet/aspnet:9.0 &
-            wait
-            echo "Base images ready."
-            docker compose build bikehaus homepage
-            docker compose up -d --force-recreate bikehaus homepage nginx
-            docker compose ps
-            docker image prune -f
-            echo "Deploy complete!"
-
-  deploy-homepage:
+  build-homepage:
     needs: changes
     if: needs.changes.outputs.homepage == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
@@ -121,61 +56,180 @@ jobs:
       - name: Build production
         run: npm run build
 
-      - name: Clean target directory
-        uses: appleboy/ssh-action@v1
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            mkdir -p /opt/bikehaus/homepage-dist/browser
-            find /opt/bikehaus/homepage-dist/browser -mindepth 1 -delete
+          name: homepage-dist
+          path: BikeHaus.Homepage/dist/bike-haus.homepage/browser/
+          retention-days: 1
+          if-no-files-found: error
 
-      - name: Deploy to server
+  deploy:
+    needs: [changes, build-homepage]
+    if: |
+      always() &&
+      needs.changes.result == 'success' &&
+      (needs.build-homepage.result == 'success' || needs.build-homepage.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download homepage artifact
+        if: needs.build-homepage.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: homepage-dist
+          path: homepage-dist/
+
+      - name: Upload homepage to staging directory
+        if: needs.build-homepage.result == 'success'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          source: 'BikeHaus.Homepage/dist/bike-haus.homepage/browser/'
-          target: '/opt/bikehaus/homepage-dist/browser'
-          strip_components: 3
-          rm: false
+          source: 'homepage-dist/'
+          target: '/opt/bikehaus/homepage-staging'
+          strip_components: 1
+          rm: true
 
-      - name: Fix permissions and restart services
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
+        env:
+          FORCE_LOGOUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_logout || 'false' }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          HOMEPAGE_UPDATED: ${{ needs.build-homepage.result == 'success' }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: FORCE_LOGOUT,JWT_SECRET_KEY,INDEXNOW_API_KEY,SMTP_PASSWORD,HOMEPAGE_UPDATED
           command_timeout: 30m
           script: |
-            chmod -R 755 /opt/bikehaus/homepage-dist/browser
-            find /opt/bikehaus/homepage-dist/browser -type f -exec chmod 644 {} \;
+            set -euo pipefail
             cd /opt/bikehaus
-            docker compose up -d --force-recreate homepage nginx
-            echo "Homepage deployed successfully!"
+
+            echo "==> Resolving secrets"
+            if [ "${FORCE_LOGOUT:-false}" = "true" ]; then
+              JWT_SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')
+              echo "JWT_SECRET_KEY: forced rotation enabled"
+            elif [ -z "${JWT_SECRET_KEY:-}" ]; then
+              if [ -f .env ] && grep -q '^JWT_SECRET_KEY=' .env; then
+                JWT_SECRET_KEY=$(grep '^JWT_SECRET_KEY=' .env | cut -d'=' -f2-)
+                echo "JWT_SECRET_KEY: using existing value from server .env"
+              else
+                JWT_SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')
+                echo "JWT_SECRET_KEY: generated new value (first deploy)"
+              fi
+            fi
+
+            _read_env() {
+              local key="$1"
+              if [ -f .env ] && grep -q "^${key}=" .env; then
+                grep "^${key}=" .env | head -n1 | cut -d'=' -f2-
+              fi
+            }
+            [ -z "${INDEXNOW_API_KEY:-}" ] && INDEXNOW_API_KEY="$(_read_env INDEXNOW_API_KEY)"
+            GOOGLE_PLACES_API_KEY="$(_read_env GOOGLE_PLACES_API_KEY)"
+            GOOGLE_PLACES_PLACE_ID="$(_read_env GOOGLE_PLACES_PLACE_ID)"
+            [ -z "${SMTP_PASSWORD:-}" ] && SMTP_PASSWORD="$(_read_env SMTP_PASSWORD)"
+
+            echo "==> Updating source"
+            echo "Current server commit: $(git rev-parse --short HEAD || echo unknown)"
+            git fetch --prune origin master
+            git checkout master
+            git reset --hard origin/master
+            DEPLOY_SHA=$(git rev-parse --short HEAD)
+            echo "Deploying commit: ${DEPLOY_SHA}"
+
+            echo "==> Writing .env"
+            umask 077
+            printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_PASSWORD=%s\n' \
+              "${JWT_SECRET_KEY}" "${INDEXNOW_API_KEY}" "${GOOGLE_PLACES_API_KEY}" "${GOOGLE_PLACES_PLACE_ID}" "${SMTP_PASSWORD}" > .env
+            chmod 600 .env
+            umask 022
+
+            if [ "${HOMEPAGE_UPDATED}" = "true" ]; then
+              echo "==> Promoting homepage build (atomic swap)"
+              if [ ! -d /opt/bikehaus/homepage-staging ] || [ -z "$(ls -A /opt/bikehaus/homepage-staging 2>/dev/null)" ]; then
+                echo "ERROR: staging directory empty — refusing to swap"
+                exit 1
+              fi
+              mkdir -p /opt/bikehaus/homepage-dist/browser
+              find /opt/bikehaus/homepage-staging -type d -exec chmod 755 {} \;
+              find /opt/bikehaus/homepage-staging -type f -exec chmod 644 {} \;
+              # Atomic swap: rename current → backup, staging → current
+              if [ -d /opt/bikehaus/homepage-dist/browser.old ]; then
+                rm -rf /opt/bikehaus/homepage-dist/browser.old
+              fi
+              if [ -d /opt/bikehaus/homepage-dist/browser ] && [ -n "$(ls -A /opt/bikehaus/homepage-dist/browser 2>/dev/null)" ]; then
+                mv /opt/bikehaus/homepage-dist/browser /opt/bikehaus/homepage-dist/browser.old
+              else
+                rm -rf /opt/bikehaus/homepage-dist/browser
+              fi
+              mv /opt/bikehaus/homepage-staging /opt/bikehaus/homepage-dist/browser
+            fi
+
+            echo "==> Pre-pulling base images"
+            docker pull node:20-alpine &
+            docker pull mcr.microsoft.com/dotnet/sdk:9.0 &
+            docker pull mcr.microsoft.com/playwright/dotnet:v1.49.0-noble &
+            docker pull mcr.microsoft.com/dotnet/aspnet:9.0 &
+            wait
+
+            echo "==> Building images"
+            if [ "${HOMEPAGE_UPDATED}" = "true" ]; then
+              docker compose build bikehaus homepage
+            else
+              docker compose build bikehaus
+            fi
+
+            echo "==> Recreating containers"
+            if [ "${HOMEPAGE_UPDATED}" = "true" ]; then
+              docker compose up -d --force-recreate bikehaus homepage
+            else
+              docker compose up -d --force-recreate bikehaus
+            fi
+
+            echo "==> Reloading nginx (in-place, no downtime)"
+            if docker compose ps --status running --services | grep -q '^nginx$'; then
+              docker compose exec -T nginx nginx -t
+              docker compose exec -T nginx nginx -s reload
+            else
+              docker compose up -d nginx
+            fi
+
+            echo "==> Status"
+            docker compose ps
+            docker image prune -f
+            echo "Deploy complete: ${DEPLOY_SHA}"
 
   healthcheck:
     runs-on: ubuntu-latest
-    needs: [deploy-api, deploy-homepage]
-    if: always() && needs.deploy-api.result == 'success'
+    needs: [deploy]
+    if: needs.deploy.result == 'success'
     steps:
       - name: Health check endpoints
         run: |
-          set -e
+          set -euo pipefail
           urls=(
             "https://bikehausfreiburg.com"
             "https://admin.bikehausfreiburg.com"
             "https://api.bikehausfreiburg.com/api/public/neue-fahrraeder"
             "https://api.bikehausfreiburg.com/api/public/accessories"
           )
+          failed=0
           for url in "${urls[@]}"; do
             echo "Checking $url"
-            code=$(curl --retry 5 --retry-delay 5 --connect-timeout 10 --max-time 30 -s -o /dev/null -w "%{http_code}" "$url")
+            code=$(curl --retry 5 --retry-delay 5 --connect-timeout 10 --max-time 30 -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
             if [[ "$code" != "200" ]]; then
-              echo "Health check failed for $url (status $code)"
-              exit 1
+              echo "FAIL: $url (status $code)"
+              failed=1
+            else
+              echo "OK:   $url"
             fi
           done
+          if [ "$failed" -ne 0 ]; then
+            exit 1
+          fi
           echo "All endpoints healthy!"
