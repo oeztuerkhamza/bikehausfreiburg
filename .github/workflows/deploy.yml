@@ -7,6 +7,12 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+    inputs:
+      force_logout:
+        description: Rotate the JWT secret to log out all users
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: deploy-netcup
@@ -33,6 +39,7 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         env:
+          FORCE_LOGOUT: ${{ inputs.force_logout }}
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY }}
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
@@ -48,8 +55,11 @@ jobs:
             set -e
             cd /opt/bikehaus
 
-            # JWT_SECRET_KEY: secret > existing .env > auto-generate (avoids forced logouts)
-            if [ -z "${JWT_SECRET_KEY}" ]; then
+            # FORCE_LOGOUT rotates the JWT secret so all existing sessions become invalid.
+            if [ "${FORCE_LOGOUT:-false}" = "true" ]; then
+              JWT_SECRET_KEY=$(openssl rand -base64 64 | tr -d '\n')
+              echo "JWT_SECRET_KEY: forced rotation enabled"
+            elif [ -z "${JWT_SECRET_KEY}" ]; then
               if [ -f .env ] && grep -q '^JWT_SECRET_KEY=' .env; then
                 JWT_SECRET_KEY=$(grep '^JWT_SECRET_KEY=' .env | cut -d'=' -f2-)
                 echo "JWT_SECRET_KEY: using existing value from server .env"
