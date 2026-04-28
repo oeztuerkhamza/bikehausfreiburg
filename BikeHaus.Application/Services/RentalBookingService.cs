@@ -207,8 +207,18 @@ public class RentalBookingService : IRentalBookingService
 
         if (!string.IsNullOrWhiteSpace(booking.Email))
         {
-            var emailModel = await BuildEmailModelAsync(booking, bicycle);
-            await _emailService.SendRentalBookingApprovedAsync(emailModel);
+            try
+            {
+                var emailModel = await BuildEmailModelAsync(booking, bicycle);
+                await _emailService.SendRentalBookingApprovedAsync(emailModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to send booking approved email for booking {BookingNumber}",
+                    booking.BuchungsNummer);
+            }
         }
 
         return booking.ToDto();
@@ -233,10 +243,22 @@ public class RentalBookingService : IRentalBookingService
 
         if (!string.IsNullOrWhiteSpace(booking.Email))
         {
-            var bicycle = await _bicycleRepository.GetByIdAsync(booking.BicycleId)
-                ?? throw new KeyNotFoundException($"Bicycle with ID {booking.BicycleId} not found.");
-            var emailModel = await BuildEmailModelAsync(booking, bicycle);
-            await _emailService.SendRentalBookingCancelledAsync(emailModel);
+            var bicycle = await _bicycleRepository.GetByIdAsync(booking.BicycleId);
+            if (bicycle != null)
+            {
+                try
+                {
+                    var emailModel = await BuildEmailModelAsync(booking, bicycle);
+                    await _emailService.SendRentalBookingCancelledAsync(emailModel);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Failed to send booking cancelled email for booking {BookingNumber}",
+                        booking.BuchungsNummer);
+                }
+            }
         }
 
         return booking.ToDto();
