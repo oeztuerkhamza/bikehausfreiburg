@@ -52,10 +52,6 @@ RUN --mount=type=cache,target=/root/.nuget/packages \
 # Copy all source code and publish
 COPY . .
 RUN --mount=type=cache,target=/root/.nuget/packages \
-    --mount=type=cache,target=/src/BikeHaus.API/obj \
-    --mount=type=cache,target=/src/BikeHaus.Application/obj \
-    --mount=type=cache,target=/src/BikeHaus.Domain/obj \
-    --mount=type=cache,target=/src/BikeHaus.Infrastructure/obj \
     dotnet publish BikeHaus.API/BikeHaus.API.csproj \
         -c Release -r linux-x64 --no-self-contained \
         -o /app/publish --no-restore
