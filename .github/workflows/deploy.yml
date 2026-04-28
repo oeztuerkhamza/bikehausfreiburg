@@ -39,17 +39,15 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         env:
-          FORCE_LOGOUT: ${{ inputs.force_logout }}
+          FORCE_LOGOUT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_logout || 'false' }}
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY }}
-          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
-          GOOGLE_PLACES_PLACE_ID: ${{ secrets.GOOGLE_PLACES_PLACE_ID }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: JWT_SECRET_KEY,INDEXNOW_API_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID,SMTP_PASSWORD
+          envs: FORCE_LOGOUT,JWT_SECRET_KEY,INDEXNOW_API_KEY,SMTP_PASSWORD
           command_timeout: 30m
           script: |
             set -e
@@ -74,10 +72,10 @@ jobs:
               local key="$1"
               [ -f .env ] && grep -q "^${key}=" .env && grep "^${key}=" .env | cut -d'=' -f2- || true
             }
-            [ -z "${INDEXNOW_API_KEY}" ]       && INDEXNOW_API_KEY="$(_read_env INDEXNOW_API_KEY)"
-            [ -z "${GOOGLE_PLACES_API_KEY}" ]   && GOOGLE_PLACES_API_KEY="$(_read_env GOOGLE_PLACES_API_KEY)"
-            [ -z "${GOOGLE_PLACES_PLACE_ID}" ]  && GOOGLE_PLACES_PLACE_ID="$(_read_env GOOGLE_PLACES_PLACE_ID)"
-            [ -z "${SMTP_PASSWORD}" ]           && SMTP_PASSWORD="$(_read_env SMTP_PASSWORD)"
+            [ -z "${INDEXNOW_API_KEY}" ] && INDEXNOW_API_KEY="$(_read_env INDEXNOW_API_KEY)"
+            GOOGLE_PLACES_API_KEY="$(_read_env GOOGLE_PLACES_API_KEY)"
+            GOOGLE_PLACES_PLACE_ID="$(_read_env GOOGLE_PLACES_PLACE_ID)"
+            [ -z "${SMTP_PASSWORD}" ] && SMTP_PASSWORD="$(_read_env SMTP_PASSWORD)"
             echo "Current server commit: $(git rev-parse --short HEAD || echo unknown)"
             git fetch --prune origin master
             git checkout master
@@ -130,8 +128,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            mkdir -p /opt/bikehaus/homepage-dist
-            find /opt/bikehaus/homepage-dist -mindepth 1 -delete
+            mkdir -p /opt/bikehaus/homepage-dist/browser
+            find /opt/bikehaus/homepage-dist/browser -mindepth 1 -delete
 
       - name: Deploy to server
         uses: appleboy/scp-action@v0.1.7
@@ -140,7 +138,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: 'BikeHaus.Homepage/dist/bike-haus.homepage/browser/'
-          target: '/opt/bikehaus/homepage-dist'
+          target: '/opt/bikehaus/homepage-dist/browser'
           strip_components: 3
           rm: false
 
@@ -151,8 +149,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            chmod -R 755 /opt/bikehaus/homepage-dist
-            find /opt/bikehaus/homepage-dist -type f -exec chmod 644 {} \;
+            chmod -R 755 /opt/bikehaus/homepage-dist/browser
+            find /opt/bikehaus/homepage-dist/browser -type f -exec chmod 644 {} \;
             cd /opt/bikehaus
             docker compose build --pull homepage
             docker compose up -d --force-recreate homepage nginx

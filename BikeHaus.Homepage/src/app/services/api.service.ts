@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   KleinanzeigenListing,
@@ -47,7 +47,9 @@ export class ApiService {
   }
 
   getShopInfo(): Observable<PublicShopInfo> {
-    return this.http.get<PublicShopInfo>(`${this.baseUrl}/shop-info`);
+    return this.http
+      .get<PublicShopInfo>(`${this.baseUrl}/shop-info`)
+      .pipe(catchError(() => of({} as PublicShopInfo)));
   }
 
   getLastSync(): Observable<string | null> {
@@ -73,9 +75,9 @@ export class ApiService {
   }
 
   getNeueFahrraederCategories(): Observable<NeueFahrradCategory[]> {
-    return this.http.get<NeueFahrradCategory[]>(
-      `${this.baseUrl}/neue-fahrraeder/categories`,
-    );
+    return this.http
+      .get<NeueFahrradCategory[]>(`${this.baseUrl}/neue-fahrraeder/categories`)
+      .pipe(catchError(() => of([])));
   }
 
   // ── Gebrauchte Fahrräder (Published Used Bicycles) ──
@@ -134,24 +136,39 @@ export class ApiService {
   // ── Rental Bikes ──
 
   getRentableBikes(): Observable<PublicRentalBicycle[]> {
-    return this.http.get<PublicRentalBicycle[]>(`${this.baseUrl}/rentals/bikes`);
+    return this.http.get<PublicRentalBicycle[]>(
+      `${this.baseUrl}/rentals/bikes`,
+    );
   }
 
   getRentalAccessories(): Observable<RentalAccessoryPublic[]> {
-    return this.http.get<RentalAccessoryPublic[]>(`${this.baseUrl}/rentals/accessories`);
+    return this.http.get<RentalAccessoryPublic[]>(
+      `${this.baseUrl}/rentals/accessories`,
+    );
   }
 
-  createRentalBooking(dto: RentalBookingCreate): Observable<RentalBookingResponse> {
-    return this.http.post<RentalBookingResponse>(`${this.baseUrl}/rentals/bookings`, dto);
+  createRentalBooking(
+    dto: RentalBookingCreate,
+  ): Observable<RentalBookingResponse> {
+    return this.http.post<RentalBookingResponse>(
+      `${this.baseUrl}/rentals/bookings`,
+      dto,
+    );
   }
 
-  getRentalBikeBookings(bikeId: number): Observable<{ startDatum: string; endDatum: string }[]> {
-    return this.http.get<{ startDatum: string; endDatum: string }[]>(`${this.baseUrl}/rentals/bikes/${bikeId}/bookings`);
+  getRentalBikeBookings(
+    bikeId: number,
+  ): Observable<{ startDatum: string; endDatum: string }[]> {
+    return this.http.get<{ startDatum: string; endDatum: string }[]>(
+      `${this.baseUrl}/rentals/bikes/${bikeId}/bookings`,
+    );
   }
 
-  getBusyPeriods(bikeId: number): Observable<{ start: string; end: string; type: string }[]> {
+  getBusyPeriods(
+    bikeId: number,
+  ): Observable<{ start: string; end: string; type: string }[]> {
     return this.http.get<{ start: string; end: string; type: string }[]>(
-      `${this.baseUrl}/rentals/bikes/${bikeId}/busy-periods`
+      `${this.baseUrl}/rentals/bikes/${bikeId}/busy-periods`,
     );
   }
 }
