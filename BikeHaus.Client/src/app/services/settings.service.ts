@@ -31,7 +31,6 @@ export interface ShopSettings {
   zusatzinfo?: string;
   companyEmails?: string;
   fullAddress?: string;
-  companyEmails?: string;
 }
 
 export interface UpdateShopSettings {
@@ -55,6 +54,7 @@ export interface UpdateShopSettings {
   googleReviewUrl?: string;
   oeffnungszeiten?: string;
   zusatzinfo?: string;
+  companyEmails?: string;
 }
 
 export interface UploadLogo {

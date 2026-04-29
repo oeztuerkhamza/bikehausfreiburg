@@ -55,14 +55,16 @@ public class SmtpEmailService : IEmailService
         var subject = $"Rechnung - {belegNummer} | Bike Haus Freiburg";
         var body = $@"Hallo {toName},
 
-anbei erhalten Sie Ihre Rechnung zu Ihrem Kauf bei Bike Haus Freiburg.
+vielen Dank fuer deinen Einkauf bei uns.
+
+anbei schicken wir dir deine Rechnung als PDF.
 
 Belegnummer: {belegNummer}
 
-Vielen Dank fuer Ihren Einkauf.
+Wenn du noch Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
 
 Viele Gruesse
-Bike Haus Freiburg";
+Dein Team vom Bike Haus Freiburg";
 
         return SendAsync(
             toEmail,
@@ -86,7 +88,9 @@ Bike Haus Freiburg";
         var subject = $"Ihre Mietunterlagen - {mietvertragNummer} | Bike Haus Freiburg";
         var body = $@"Hallo {toName},
 
-anbei erhalten Sie Ihre Unterlagen zur Vermietung bei Bike Haus Freiburg.
+    deine Mietunterlagen sind da.
+
+    anbei findest du alle Dokumente zu deiner Buchung.
 
 Mietvertragsnummer: {mietvertragNummer}
 
@@ -94,10 +98,12 @@ Im Anhang finden Sie:
 - Mietvertrag
 - Kautionsquittung
 
-Vielen Dank und gute Fahrt.
+    Wenn du noch Fragen hast, melde dich jederzeit.
+
+    Wir wuenschen dir viel Spass und gute Fahrt.
 
 Viele Gruesse
-Bike Haus Freiburg";
+    Dein Team vom Bike Haus Freiburg";
 
         return SendAsync(
             toEmail,
@@ -303,51 +309,72 @@ Bike Haus Freiburg";
 
     private static string BuildApprovedBodyDe(RentalBookingEmailModel m)
     {
+        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "wird im Laden bestaetigt";
+        var depositAmount = m.Deposit ?? 300m;
+        var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
+            ? "Keine"
+            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+
         return $@"Hallo {m.ToName},
 
-Ihre Mietanfrage wurde bestaetigt. Wir freuen uns auf Ihren Besuch.
+gute Nachrichten: Deine Mietanfrage ist offiziell bestaetigt.
+Dein Bike ist fuer deinen Wunschzeitraum fest fuer dich reserviert.
 
-Buchung / Mietvertrag: {m.BuchungsNummer}
+Deine Buchungsdetails:
+
+Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
-Rahmennummer: {m.FrameNumber ?? "-"}
-Rahmengroesse: {m.FrameSize ?? "-"}
-Farbe: {m.Color ?? "-"}
+Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)
+Zubehoer (inklusive): {accessoriesText}
+Mietpreis: {totalPriceText}
 
-Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage, inkl. Abhol- und Rueckgabetag)
-Mietpreis gesamt: {(m.TotalPrice.HasValue ? m.TotalPrice.Value.ToString("0.00") + " EUR" : "-")}
-Kaution: {(m.Deposit.HasValue ? m.Deposit.Value.ToString("0.00") + " EUR" : "-")}
+Abholung und Rueckgabe:
+Dein Bike steht puenktlich an unserem Standort fuer dich bereit:
 
-Zubehoer:
-{m.AccessoriesText}
+Bike Haus Freiburg
+{m.PickupLocation}
 
-Abholung/Rueckgabe: {m.PickupLocation}
-Zahlung: vor Ort im Laden
+Wichtiger Hinweis:
+Bitte bring zur Abholung einen gueltigen Lichtbildausweis und {depositAmount:0.00} EUR in bar als Kaution mit.
 
-Bitte bringen Sie einen gueltigen Ausweis mit.
-Bitte unterschreiben Sie den Mietvertrag bei Abholung.
-Bei Fragen antworten Sie einfach auf diese E-Mail.
+Wir wuenschen dir jetzt schon eine richtig coole Tour.
+Wenn du noch Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
 
 Viele Gruesse
-Bike Haus Freiburg
+Dein Team vom Bike Haus Freiburg
+
 {m.ShopPhone}
+bikehausfreiburg.com
 {m.ShopEmail}
 ";
     }
 
     private static string BuildCancelledBodyDe(RentalBookingEmailModel m)
     {
+        var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
+            ? "Keine"
+            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+
         return $@"Hallo {m.ToName},
 
-Ihre Mietanfrage wurde storniert.
+vielen Dank fuer deine Anfrage.
 
-Buchung / Mietvertrag: {m.BuchungsNummer}
+leider muessen wir dir mitteilen, dass wir deine Mietanfrage aktuell nicht bestaetigen koennen.
+
+Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
 Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy}
+Zubehoer: {accessoriesText}
 
-Wenn Sie einen neuen Termin wuenschen, antworten Sie bitte auf diese E-Mail.
+Abholung und Rueckgabe:
+Bike Haus Freiburg
+{m.PickupLocation}
+
+Wenn du einen neuen Termin moechtest, antworte einfach auf diese E-Mail.
+Wir schauen gerne direkt nach einer passenden Alternative fuer dich.
 
 Viele Gruesse
-Bike Haus Freiburg
+Dein Team vom Bike Haus Freiburg
 {m.ShopPhone}
 {m.ShopEmail}
 ";
@@ -355,28 +382,35 @@ Bike Haus Freiburg
 
     private static string BuildReceivedBodyDe(RentalBookingEmailModel m)
     {
+        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "wird nach Pruefung bestaetigt";
+        var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
+            ? "Keine"
+            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+
         return $@"Hallo {m.ToName},
 
-vielen Dank fuer Ihre Mietanfrage. Wir bestaetigen den Erhalt und werden uns schnellstmoeglich bei Ihnen melden.
+vielen Dank fuer deine Mietanfrage.
+
+deine Anfrage ist erfolgreich bei uns eingegangen und wird gerade geprueft.
 
 Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
-Gewuenschter Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)
-Geschaetzter Mietpreis: {(m.TotalPrice.HasValue ? m.TotalPrice.Value.ToString("0.00") + " EUR" : "wird berechnet")}
+Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)
+Geschaetzter Mietpreis: {totalPriceText}
+Zubehoer: {accessoriesText}
 
-Zubehoer:
-{m.AccessoriesText}
+Wie geht es jetzt weiter?
+Wir geben dir schnellstmoeglich Rueckmeldung, in der Regel innerhalb von 24 Stunden.
+Sobald alles geprueft ist, bekommst du eine zweite E-Mail mit der finalen Bestaetigung.
 
-Was passiert als naechstes?
-Wir pruefen Ihre Anfrage und melden uns innerhalb von 24 Stunden bei Ihnen.
-Sie erhalten eine Bestaetigung per E-Mail, sobald Ihr Mietvertrag freigegeben oder abgelehnt wurde.
+Abholung und Rueckgabe:
+Bike Haus Freiburg
+{m.PickupLocation}
 
-Abholung/Rueckgabe: {m.PickupLocation}
-
-Bei Fragen antworten Sie einfach auf diese E-Mail oder rufen uns an.
+Wenn du Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
 
 Viele Gruesse
-Bike Haus Freiburg
+Dein Team vom Bike Haus Freiburg
 {m.ShopPhone}
 {m.ShopEmail}
 ";

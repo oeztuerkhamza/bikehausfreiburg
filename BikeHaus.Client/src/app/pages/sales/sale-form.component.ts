@@ -1206,7 +1206,7 @@ export class SaleFormComponent implements OnInit {
   };
   preis = 0;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
-  zahlungen: SalePaymentCreate[] = [{ zahlungsart: '' as any, betrag: 0 }];
+  zahlungen: SalePaymentCreate[] = [{ zahlungsart: null as any, betrag: 0 }];
   verkaufsdatum = '';
   notizen = '';
   belegNummer = '';
