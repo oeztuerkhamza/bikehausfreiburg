@@ -6,6 +6,7 @@ namespace BikeHaus.Domain.Interfaces;
 public interface IRentalBookingRepository : IRepository<RentalBooking>
 {
     Task<RentalBooking?> GetWithDetailsAsync(int id);
+    Task<RentalBooking?> GetByBookingNumberWithDetailsAsync(string bookingNumber);
     Task<string> GenerateBuchungsNummerAsync();
     Task<(IEnumerable<RentalBooking> Items, int TotalCount)> GetPaginatedAsync(
         int page,

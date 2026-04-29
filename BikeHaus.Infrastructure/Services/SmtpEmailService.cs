@@ -337,6 +337,10 @@ Bike Haus Freiburg
 Wichtiger Hinweis:
 Bitte bring zur Abholung einen gueltigen Lichtbildausweis und {depositAmount:0.00} EUR in bar als Kaution mit.
 
+Falls du doch nicht fahren kannst:
+Du kannst deine Buchung selbst stornieren ueber diesen Link:
+{m.SelfCancelUrl ?? "Bitte antworte auf diese E-Mail fuer eine Stornierung."}
+
 Wir wuenschen dir jetzt schon eine richtig coole Tour.
 Wenn du noch Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
 
@@ -406,6 +410,10 @@ Sobald alles geprueft ist, bekommst du eine zweite E-Mail mit der finalen Bestae
 Abholung und Rueckgabe:
 Bike Haus Freiburg
 {m.PickupLocation}
+
+Falls sich deine Plaene aendern:
+Du kannst deine Anfrage jederzeit selbst stornieren:
+{m.SelfCancelUrl ?? "Bitte antworte auf diese E-Mail fuer eine Stornierung."}
 
 Wenn du Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
 

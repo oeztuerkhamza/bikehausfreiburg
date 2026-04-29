@@ -19,6 +19,14 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .FirstOrDefaultAsync(b => b.Id == id);
     }
 
+    public async Task<RentalBooking?> GetByBookingNumberWithDetailsAsync(string bookingNumber)
+    {
+        return await _dbSet
+            .Include(b => b.Bicycle)
+            .Include(b => b.Accessories)
+            .FirstOrDefaultAsync(b => b.BuchungsNummer == bookingNumber);
+    }
+
     public async Task<string> GenerateBuchungsNummerAsync()
     {
         var today = DateTime.UtcNow;

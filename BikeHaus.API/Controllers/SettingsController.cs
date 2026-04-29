@@ -108,7 +108,8 @@ public class SettingsController : ControllerBase
                 PickupLocation: "Bike Haus Freiburg, Freiburg",
                 ShopPhone: "",
                 ShopEmail: "no-reply@bikehausfreiburg.com",
-                Language: "de"
+                Language: "de",
+                SelfCancelUrl: null
             ));
             return Ok(new { message = $"Test-E-Mail wurde an {dto.ToEmail} gesendet." });
         }

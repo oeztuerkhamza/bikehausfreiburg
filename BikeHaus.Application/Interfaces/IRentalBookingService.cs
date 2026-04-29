@@ -9,6 +9,7 @@ public interface IRentalBookingService
     Task<RentalBookingDto> CreateAsync(RentalBookingCreateDto dto);
     Task<RentalBookingDto> ApproveAsync(int id, RentalBookingApproveDto dto);
     Task<RentalBookingDto> CancelAsync(int id, RentalBookingCancelDto dto);
+    Task<RentalBookingDto> CancelByCustomerAsync(string bookingNumber, string email);
     Task<IEnumerable<RentalBookingRangeDto>> GetApprovedRangesAsync(int bicycleId);
     Task<int> GetPendingCountAsync();
     Task<bool> DeleteAsync(int id);

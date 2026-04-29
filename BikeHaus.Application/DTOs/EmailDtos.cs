@@ -18,5 +18,6 @@ public record RentalBookingEmailModel(
     string PickupLocation,
     string ShopPhone,
     string ShopEmail,
-    string Language
+    string Language,
+    string? SelfCancelUrl = null
 );

@@ -16,6 +16,7 @@ public class RentalBookingService : IRentalBookingService
     private const string DefaultShopCity = "79114 Freiburg";
     private const string DefaultShopPhone = "+49 155 6630 0011";
     private const string DefaultShopEmail = "bikehausfreiburg@gmail.com";
+    private const string DefaultPublicApiBaseUrl = "https://api.bikehausfreiburg.com/api/public";
 
     private readonly IRentalBookingRepository _bookingRepository;
     private readonly IBicycleRepository _bicycleRepository;
@@ -264,6 +265,54 @@ public class RentalBookingService : IRentalBookingService
         return booking.ToDto();
     }
 
+    public async Task<RentalBookingDto> CancelByCustomerAsync(string bookingNumber, string email)
+    {
+        var normalizedBookingNumber = bookingNumber?.Trim() ?? string.Empty;
+        var normalizedEmail = email?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(normalizedBookingNumber) || string.IsNullOrWhiteSpace(normalizedEmail))
+            throw new InvalidOperationException("Buchungsnummer und E-Mail sind erforderlich.");
+
+        var booking = await _bookingRepository.GetByBookingNumberWithDetailsAsync(normalizedBookingNumber)
+            ?? throw new KeyNotFoundException("Buchung nicht gefunden.");
+
+        if (!string.Equals(booking.Email?.Trim(), normalizedEmail, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Die E-Mail-Adresse passt nicht zur Buchung.");
+
+        if (booking.Status != RentalBookingStatus.Cancelled)
+        {
+            booking.Status = RentalBookingStatus.Cancelled;
+            booking.CancelledAt = DateTime.UtcNow;
+            booking.AdminNotizen = string.IsNullOrWhiteSpace(booking.AdminNotizen)
+                ? "Vom Kunden per Self-Storno storniert."
+                : $"{booking.AdminNotizen}\nVom Kunden per Self-Storno storniert.";
+            booking.UpdatedAt = DateTime.UtcNow;
+            await _bookingRepository.UpdateAsync(booking);
+        }
+
+        if (!string.IsNullOrWhiteSpace(booking.Email))
+        {
+            var bicycle = await _bicycleRepository.GetByIdAsync(booking.BicycleId);
+            if (bicycle != null)
+            {
+                try
+                {
+                    var emailModel = await BuildEmailModelAsync(booking, bicycle);
+                    await _emailService.SendRentalBookingCancelledAsync(emailModel);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Failed to send booking cancelled email for customer self-cancel {BookingNumber}",
+                        booking.BuchungsNummer);
+                }
+            }
+        }
+
+        return booking.ToDto();
+    }
+
     public async Task<IEnumerable<RentalBookingRangeDto>> GetApprovedRangesAsync(int bicycleId)
     {
         var bookings = await _bookingRepository.GetApprovedByBicycleIdAsync(bicycleId);
@@ -354,8 +403,16 @@ public class RentalBookingService : IRentalBookingService
             shop.PickupLocation,
             shop.Phone,
             shop.Email,
-            NormalizeLanguage(booking.Sprache ?? "de")
+            NormalizeLanguage(booking.Sprache ?? "de"),
+            BuildSelfCancelUrl(booking)
         );
+    }
+
+    private static string BuildSelfCancelUrl(RentalBooking booking)
+    {
+        var bookingNumber = Uri.EscapeDataString(booking.BuchungsNummer ?? string.Empty);
+        var email = Uri.EscapeDataString(booking.Email ?? string.Empty);
+        return $"{DefaultPublicApiBaseUrl}/rentals/bookings/cancel?bookingNumber={bookingNumber}&email={email}";
     }
 
     private static string BuildAccessoriesText(RentalBooking booking, string? language)
