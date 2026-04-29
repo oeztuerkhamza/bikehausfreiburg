@@ -384,12 +384,12 @@ import { environment } from '../../../environments/environment';
           <div class="bp-bike-bar">
             <div class="bp-bike-thumb">
               <img
-                *ngIf="selectedBike()!.images.length > 0"
-                [src]="getImageUrl(selectedBike()!.images[0].filePath)"
+                *ngIf="getSelectedBikeImagePath() as selectedImagePath"
+                [src]="getImageUrl(selectedImagePath)"
                 [alt]="selectedBike()!.marke"
               />
               <svg
-                *ngIf="selectedBike()!.images.length === 0"
+                *ngIf="!getSelectedBikeImagePath()"
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
@@ -435,6 +435,147 @@ import { environment } from '../../../environments/environment';
               </svg>
               Ändern
             </button>
+          </div>
+
+          <!-- Selected bike details + gallery -->
+          <div class="bp-bike-overview" *ngIf="!bookingSuccess()">
+            <div class="bp-gallery" *ngIf="selectedBike()!.images.length > 0">
+              <div class="bp-gallery-main">
+                <img
+                  *ngIf="getSelectedBikeImagePath() as selectedImagePath"
+                  [src]="getImageUrl(selectedImagePath)"
+                  [alt]="selectedBike()!.marke + ' ' + selectedBike()!.modell"
+                />
+              </div>
+
+              <div
+                class="bp-gallery-thumbs"
+                *ngIf="selectedBike()!.images.length > 1"
+              >
+                <button
+                  type="button"
+                  class="bp-thumb-btn"
+                  *ngFor="let image of selectedBike()!.images; let i = index"
+                  [class.active]="i === selectedBikeImageIndex()"
+                  (click)="selectBikeImage(i)"
+                >
+                  <img
+                    [src]="getImageUrl(image.filePath)"
+                    [alt]="
+                      selectedBike()!.marke +
+                      ' ' +
+                      selectedBike()!.modell +
+                      ' Bild ' +
+                      (i + 1)
+                    "
+                    loading="lazy"
+                  />
+                </button>
+              </div>
+            </div>
+
+            <div class="bp-bike-info-panel">
+              <h4>Fahrrad Details</h4>
+              <div class="bp-bike-facts">
+                <span class="bp-fact" *ngIf="selectedBike()!.fahrradtyp"
+                  >Typ: {{ selectedBike()!.fahrradtyp }}</span
+                >
+                <span class="bp-fact" *ngIf="selectedBike()!.art"
+                  >Kategorie: {{ selectedBike()!.art }}</span
+                >
+                <span class="bp-fact" *ngIf="selectedBike()!.rahmengroesse"
+                  >Rahmen: {{ selectedBike()!.rahmengroesse }}</span
+                >
+                <span class="bp-fact" *ngIf="selectedBike()!.reifengroesse"
+                  >Reifen: {{ selectedBike()!.reifengroesse }}</span
+                >
+                <span class="bp-fact" *ngIf="selectedBike()!.farbe"
+                  >Farbe: {{ selectedBike()!.farbe }}</span
+                >
+              </div>
+
+              <p
+                class="bp-bike-description"
+                *ngIf="selectedBike()!.beschreibung"
+              >
+                {{ selectedBike()!.beschreibung }}
+              </p>
+
+              <div class="bp-price-grid">
+                <div
+                  class="bp-price-item"
+                  *ngIf="selectedBike()!.preise.day1 != null"
+                >
+                  <span>1 Tag</span
+                  ><strong
+                    >{{
+                      selectedBike()!.preise.day1 | number: '1.0-0'
+                    }}
+                    €</strong
+                  >
+                </div>
+                <div
+                  class="bp-price-item"
+                  *ngIf="selectedBike()!.preise.day3 != null"
+                >
+                  <span>3 Tage</span
+                  ><strong
+                    >{{
+                      selectedBike()!.preise.day3 | number: '1.0-0'
+                    }}
+                    €</strong
+                  >
+                </div>
+                <div
+                  class="bp-price-item"
+                  *ngIf="selectedBike()!.preise.day7 != null"
+                >
+                  <span>7 Tage</span
+                  ><strong
+                    >{{
+                      selectedBike()!.preise.day7 | number: '1.0-0'
+                    }}
+                    €</strong
+                  >
+                </div>
+                <div
+                  class="bp-price-item"
+                  *ngIf="selectedBike()!.preise.day14 != null"
+                >
+                  <span>14 Tage</span
+                  ><strong
+                    >{{
+                      selectedBike()!.preise.day14 | number: '1.0-0'
+                    }}
+                    €</strong
+                  >
+                </div>
+                <div
+                  class="bp-price-item"
+                  *ngIf="selectedBike()!.preise.day30 != null"
+                >
+                  <span>30 Tage</span
+                  ><strong
+                    >{{
+                      selectedBike()!.preise.day30 | number: '1.0-0'
+                    }}
+                    €</strong
+                  >
+                </div>
+                <div
+                  class="bp-price-item"
+                  *ngIf="selectedBike()!.preise.perDayFrom10 != null"
+                >
+                  <span>ab 10 Tagen / Tag</span
+                  ><strong
+                    >{{
+                      selectedBike()!.preise.perDayFrom10 | number: '1.0-0'
+                    }}
+                    €</strong
+                  >
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Success state -->
@@ -1575,6 +1716,118 @@ import { environment } from '../../../environments/environment';
         color: var(--color-accent);
       }
 
+      .bp-bike-overview {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .bp-gallery-main {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+        background: var(--color-bg);
+      }
+
+      .bp-gallery-main img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .bp-gallery-thumbs {
+        margin-top: 0.6rem;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0.45rem;
+      }
+
+      .bp-thumb-btn {
+        border: 1.5px solid var(--color-border);
+        border-radius: 8px;
+        overflow: hidden;
+        padding: 0;
+        background: var(--color-bg);
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+
+      .bp-thumb-btn img {
+        width: 100%;
+        height: 58px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .bp-thumb-btn.active,
+      .bp-thumb-btn:hover {
+        border-color: var(--color-accent);
+      }
+
+      .bp-bike-info-panel {
+        min-width: 0;
+      }
+
+      .bp-bike-info-panel h4 {
+        margin: 0 0 0.65rem;
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: var(--color-text);
+      }
+
+      .bp-bike-facts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+      }
+
+      .bp-fact {
+        padding: 0.28rem 0.55rem;
+        border-radius: 999px;
+        background: rgba(255, 87, 34, 0.08);
+        border: 1px solid rgba(255, 87, 34, 0.2);
+        color: var(--color-text);
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .bp-bike-description {
+        margin: 0.75rem 0 0;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+        font-size: 0.85rem;
+      }
+
+      .bp-price-grid {
+        margin-top: 0.85rem;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.45rem;
+      }
+
+      .bp-price-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.6rem;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        font-size: 0.78rem;
+        color: var(--color-text-secondary);
+      }
+
+      .bp-price-item strong {
+        color: var(--color-text);
+        font-size: 0.8rem;
+      }
+
       .bp-success {
         padding: 3rem 2rem;
         text-align: center;
@@ -2029,6 +2282,10 @@ import { environment } from '../../../environments/environment';
       }
 
       @media (max-width: 900px) {
+        .bp-bike-overview {
+          grid-template-columns: 1fr;
+        }
+
         .bp-body {
           grid-template-columns: 1fr;
         }
@@ -2045,6 +2302,15 @@ import { environment } from '../../../environments/environment';
         .form-row {
           grid-template-columns: 1fr;
         }
+
+        .bp-price-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .bp-gallery-thumbs {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
         .bp-bike-bar {
           padding: 0.75rem 1rem;
         }
@@ -2148,6 +2414,7 @@ export class FahrradverleihComponent implements OnInit {
 
   // Inline booking state
   selectedBike = signal<PublicRentalBicycle | null>(null);
+  selectedBikeImageIndex = signal(0);
   busyPeriodsLoading = signal(false);
   bookingSubmitting = signal(false);
   bookingSuccess = signal(false);
@@ -2212,6 +2479,7 @@ export class FahrradverleihComponent implements OnInit {
   selectBike(bike: PublicRentalBicycle): void {
     if (this.selectedBike()?.id === bike.id) return;
     this.selectedBike.set(bike);
+    this.selectedBikeImageIndex.set(0);
     this.bookingSuccess.set(false);
     this.bookingError.set(null);
     this.calculatedDays.set(0);
@@ -2257,6 +2525,7 @@ export class FahrradverleihComponent implements OnInit {
 
   deselectBike(): void {
     this.selectedBike.set(null);
+    this.selectedBikeImageIndex.set(0);
     this.bookingSuccess.set(false);
     this.bookingError.set(null);
     this.calendarStart.set(null);
@@ -2272,6 +2541,22 @@ export class FahrradverleihComponent implements OnInit {
       (v): v is number => v != null,
     );
     return prices.length > 0 ? Math.min(...prices) : null;
+  }
+
+  selectBikeImage(index: number): void {
+    const bike = this.selectedBike();
+    if (!bike || index < 0 || index >= bike.images.length) return;
+    this.selectedBikeImageIndex.set(index);
+  }
+
+  getSelectedBikeImagePath(): string | null {
+    const bike = this.selectedBike();
+    if (!bike || bike.images.length === 0) return null;
+    const index = Math.min(
+      this.selectedBikeImageIndex(),
+      bike.images.length - 1,
+    );
+    return bike.images[index].filePath;
   }
 
   onDatesChange(): void {
