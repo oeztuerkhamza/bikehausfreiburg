@@ -4,6 +4,7 @@ using BikeHaus.Application.Mappings;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace BikeHaus.Application.Services;
 
@@ -12,15 +13,24 @@ public class RentalService : IRentalService
     private readonly IRentalRepository _rentalRepository;
     private readonly IBicycleRepository _bicycleRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IPdfService _pdfService;
+    private readonly IEmailService _emailService;
+    private readonly ILogger<RentalService> _logger;
 
     public RentalService(
         IRentalRepository rentalRepository,
         IBicycleRepository bicycleRepository,
-        ICustomerRepository customerRepository)
+        ICustomerRepository customerRepository,
+        IPdfService pdfService,
+        IEmailService emailService,
+        ILogger<RentalService> logger)
     {
         _rentalRepository = rentalRepository;
         _bicycleRepository = bicycleRepository;
         _customerRepository = customerRepository;
+        _pdfService = pdfService;
+        _emailService = emailService;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<RentalListDto>> GetAllAsync()
@@ -145,7 +155,38 @@ public class RentalService : IRentalService
         await _bicycleRepository.UpdateAsync(bicycle);
 
         var result = await _rentalRepository.GetWithDetailsAsync(created.Id);
+        if (result != null)
+            await TrySendRentalDocumentsAsync(result);
+
         return result!.ToDto();
+    }
+
+    private async Task TrySendRentalDocumentsAsync(Rental rental)
+    {
+        if (string.IsNullOrWhiteSpace(rental.Customer?.Email))
+            return;
+
+        try
+        {
+            var mietvertragPdf = await _pdfService.GenerateMietvertragAsync(rental.Id);
+            var kautionsquittungPdf = await _pdfService.GenerateKautionsquittungAsync(rental.Id);
+            var toName = $"{rental.Customer.Vorname} {rental.Customer.Nachname}".Trim();
+
+            await _emailService.SendRentalDocumentsAsync(
+                rental.Customer.Email,
+                string.IsNullOrWhiteSpace(toName) ? "Kunde" : toName,
+                rental.MietvertragNummer,
+                mietvertragPdf,
+                kautionsquittungPdf);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to send rental documents email for rental {RentalId} ({MietvertragNummer})",
+                rental.Id,
+                rental.MietvertragNummer);
+        }
     }
 
     public async Task<RentalDto> UpdateAsync(int id, RentalUpdateDto dto)

@@ -30,6 +30,8 @@ interface AccessoryLine {
   menge: number;
 }
 
+type PredefinedAccessoryKey = 'helm' | 'schloss' | 'korb';
+
 const MONTH_NAMES = [
   'Januar',
   'Februar',
@@ -257,10 +259,6 @@ const MONTH_NAMES = [
                   type="email"
                 />
               </div>
-              <div class="field">
-                <label>Ausweis-Nr.</label>
-                <input [(ngModel)]="ausweisnNr" name="ausweisnNr" />
-              </div>
             </div>
           </div>
 
@@ -268,32 +266,32 @@ const MONTH_NAMES = [
           <div class="form-card">
             <div class="section-header">
               <h2>Zubehör</h2>
-              <div class="accessory-actions">
-                <select
-                  class="accessory-picker"
-                  (change)="onAccessoryPicked($event)"
-                  [disabled]="availableAccessories.length === 0"
-                >
-                  <option value="">+ Zubehör hinzufügen...</option>
-                  <option *ngFor="let a of availableAccessories" [value]="a.id">
-                    {{ a.bezeichnung }} ({{
-                      a.tagespreis | number: '1.2-2'
-                    }}
-                    €/Tag)
-                  </option>
-                </select>
-                <button
-                  type="button"
-                  class="btn btn-outline btn-sm"
-                  (click)="addCustomAccessory()"
-                >
-                  Manuell eingeben
-                </button>
+              <div class="accessory-checklist">
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="selectedAccessories.helm"
+                    name="accessoryHelm"
+                  />
+                  Helm
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="selectedAccessories.schloss"
+                    name="accessorySchloss"
+                  />
+                  Schloss
+                </label>
+                <label class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="selectedAccessories.korb"
+                    name="accessoryKorb"
+                  />
+                  Korb
+                </label>
               </div>
-            </div>
-
-            <div class="accessory-empty" *ngIf="accessories.length === 0">
-              Kein Zubehör hinzugefügt (z. B. Helm, Schloss, Anhänger)
             </div>
           </div>
 
@@ -944,6 +942,26 @@ const MONTH_NAMES = [
         align-items: center;
         flex-wrap: wrap;
       }
+      .accessory-checklist {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .checkbox-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        text-transform: none;
+        letter-spacing: normal;
+      }
+      .checkbox-item input {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+      }
       .accessory-picker {
         padding: 8px 12px;
         border: 1.5px solid var(--border-color);
@@ -1193,7 +1211,6 @@ export class RentalFormComponent implements OnInit {
     email: '',
   };
 
-  ausweisnNr = '';
   startDatum = '';
   endDatum = '';
   gesamtmiete = 0;
@@ -1208,7 +1225,11 @@ export class RentalFormComponent implements OnInit {
   submitting = false;
 
   availableAccessories: RentalAccessoryList[] = [];
-  accessories: AccessoryLine[] = [];
+  selectedAccessories: Record<PredefinedAccessoryKey, boolean> = {
+    helm: false,
+    schloss: false,
+    korb: false,
+  };
 
   // ── Calendar ──
   readonly weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
@@ -1384,13 +1405,15 @@ export class RentalFormComponent implements OnInit {
               this.notizen = booking.notizen || '';
 
               if (booking.accessories && booking.accessories.length > 0) {
-                this.accessories = booking.accessories.map((a) => ({
-                  bezeichnung: a.bezeichnung,
-                  tagespreis: a.tagespreis,
-                  verlustgebuehr: undefined,
-                  menge: a.menge,
-                }));
-                this.recalcPrice();
+                this.selectedAccessories.helm = booking.accessories.some((a) =>
+                  this.matchesAccessoryKey(a.bezeichnung, 'helm'),
+                );
+                this.selectedAccessories.schloss = booking.accessories.some(
+                  (a) => this.matchesAccessoryKey(a.bezeichnung, 'schloss'),
+                );
+                this.selectedAccessories.korb = booking.accessories.some((a) =>
+                  this.matchesAccessoryKey(a.bezeichnung, 'korb'),
+                );
               }
 
               const match = this.availableBikes.find(
@@ -1452,45 +1475,44 @@ export class RentalFormComponent implements OnInit {
     };
   }
 
-  onAccessoryPicked(event: Event) {
-    const id = Number((event.target as HTMLSelectElement).value);
-    (event.target as HTMLSelectElement).value = '';
-    if (!id) return;
-    const found = this.availableAccessories.find((a) => a.id === id);
-    if (!found) return;
-    const existing = this.accessories.find((a) => a.rentalAccessoryId === id);
-    if (existing) {
-      existing.menge++;
-    } else {
-      this.accessories.push({
-        rentalAccessoryId: found.id,
-        bezeichnung: found.bezeichnung,
-        tagespreis: found.tagespreis,
-        verlustgebuehr: found.verlustgebuehr,
-        menge: 1,
-      });
-    }
-    this.recalcPrice();
+  private normalizeAccessoryName(value: string): string {
+    return (value || '')
+      .toLowerCase()
+      .replace(/ä/g, 'a')
+      .replace(/ö/g, 'o')
+      .replace(/ü/g, 'u')
+      .replace(/ß/g, 'ss')
+      .trim();
   }
 
-  addCustomAccessory() {
-    this.accessories.push({
-      bezeichnung: '',
-      tagespreis: 0,
-      verlustgebuehr: undefined,
+  private matchesAccessoryKey(
+    bezeichnung: string,
+    key: PredefinedAccessoryKey,
+  ): boolean {
+    const n = this.normalizeAccessoryName(bezeichnung);
+    if (key === 'helm') return n.includes('helm');
+    if (key === 'schloss') return n.includes('schloss');
+    return n.includes('korb');
+  }
+
+  private getDefaultAccessoryLabel(key: PredefinedAccessoryKey): string {
+    if (key === 'helm') return 'Helm';
+    if (key === 'schloss') return 'Schloss';
+    return 'Korb';
+  }
+
+  private buildAccessoryFromKey(key: PredefinedAccessoryKey): AccessoryLine {
+    const found = this.availableAccessories.find((a) =>
+      this.matchesAccessoryKey(a.bezeichnung, key),
+    );
+
+    return {
+      rentalAccessoryId: found?.id,
+      bezeichnung: found?.bezeichnung || this.getDefaultAccessoryLabel(key),
+      tagespreis: found?.tagespreis || 0,
+      verlustgebuehr: found?.verlustgebuehr,
       menge: 1,
-    });
-  }
-
-  removeAccessory(index: number) {
-    this.accessories.splice(index, 1);
-    this.recalcPrice();
-  }
-
-  changeQty(index: number, delta: number) {
-    const line = this.accessories[index];
-    line.menge = Math.max(1, (line.menge || 1) + delta);
-    this.recalcPrice();
+    };
   }
 
   recalcPrice() {
@@ -1621,20 +1643,23 @@ export class RentalFormComponent implements OnInit {
   }
 
   private createRental(bicycleId: number) {
-    const accessoriesPayload: RentalAccessoryItemCreate[] = this.accessories
-      .filter((a) => a.bezeichnung.trim())
-      .map((a) => ({
-        rentalAccessoryId: a.rentalAccessoryId,
-        bezeichnung: a.bezeichnung,
-        tagespreis: a.tagespreis,
-        verlustgebuehr: a.verlustgebuehr,
-        menge: a.menge,
-      }));
+    const accessoryKeys: PredefinedAccessoryKey[] = ['helm', 'schloss', 'korb'];
+    const accessoriesPayload: RentalAccessoryItemCreate[] = accessoryKeys
+      .filter((key) => this.selectedAccessories[key])
+      .map((key) => {
+        const accessory = this.buildAccessoryFromKey(key);
+        return {
+          rentalAccessoryId: accessory.rentalAccessoryId,
+          bezeichnung: accessory.bezeichnung,
+          tagespreis: accessory.tagespreis,
+          verlustgebuehr: accessory.verlustgebuehr,
+          menge: accessory.menge,
+        };
+      });
 
     const rental: RentalCreate = {
       bicycleId,
       customer: this.customer,
-      ausweisnNr: this.ausweisnNr || undefined,
       startDatum: this.startDatum,
       endDatum: this.endDatum,
       gesamtmiete: this.gesamtmiete,

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using System.Linq;
 
 namespace BikeHaus.Infrastructure.Services;
 
@@ -69,8 +70,46 @@ Bike Haus Freiburg";
             subject,
             body,
             "Verkaufsrechnung",
-            pdfBytes,
-            $"Rechnung-{belegNummer}.pdf");
+            new[]
+            {
+                (Bytes: pdfBytes, FileName: $"Rechnung-{belegNummer}.pdf")
+            });
+    }
+
+    public Task SendRentalDocumentsAsync(
+        string toEmail,
+        string toName,
+        string mietvertragNummer,
+        byte[] mietvertragPdfBytes,
+        byte[] kautionsquittungPdfBytes)
+    {
+        var subject = $"Ihre Mietunterlagen - {mietvertragNummer} | Bike Haus Freiburg";
+        var body = $@"Hallo {toName},
+
+anbei erhalten Sie Ihre Unterlagen zur Vermietung bei Bike Haus Freiburg.
+
+Mietvertragsnummer: {mietvertragNummer}
+
+Im Anhang finden Sie:
+- Mietvertrag
+- Kautionsquittung
+
+Vielen Dank und gute Fahrt.
+
+Viele Gruesse
+Bike Haus Freiburg";
+
+        return SendAsync(
+            toEmail,
+            toName,
+            subject,
+            body,
+            "Mietunterlagen",
+            new[]
+            {
+                (Bytes: mietvertragPdfBytes, FileName: $"Mietvertrag-{mietvertragNummer}.pdf"),
+                (Bytes: kautionsquittungPdfBytes, FileName: $"Kautionsquittung-{mietvertragNummer}.pdf")
+            });
     }
 
     private async Task SendAsync(
@@ -79,8 +118,7 @@ Bike Haus Freiburg";
         string subject,
         string body,
         string emailType = "",
-        byte[]? attachmentBytes = null,
-        string? attachmentFileName = null)
+        IEnumerable<(byte[] Bytes, string FileName)>? attachments = null)
     {
         var dbAccount = await _db.EmailAccounts
             .Where(a => a.IsDefault && a.IsActive)
@@ -124,22 +162,31 @@ Bike Haus Freiburg";
         {
             try
             {
+                var validAttachments = attachments?
+                    .Where(a => a.Bytes is { Length: > 0 } && !string.IsNullOrWhiteSpace(a.FileName))
+                    .ToList();
+
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress(fromName, fromEmail));
                 message.To.Add(new MailboxAddress(toName, toEmail));
                 message.Subject = subject;
 
-                if (attachmentBytes is { Length: > 0 } && !string.IsNullOrWhiteSpace(attachmentFileName))
+                if (validAttachments is { Count: > 0 })
                 {
                     var multipart = new Multipart("mixed");
                     multipart.Add(new TextPart("plain") { Text = body });
-                    multipart.Add(new MimePart("application", "pdf")
+
+                    foreach (var attachment in validAttachments)
                     {
-                        Content = new MimeContent(new MemoryStream(attachmentBytes), ContentEncoding.Default),
-                        ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
-                        ContentTransferEncoding = ContentEncoding.Base64,
-                        FileName = attachmentFileName
-                    });
+                        multipart.Add(new MimePart("application", "pdf")
+                        {
+                            Content = new MimeContent(new MemoryStream(attachment.Bytes), ContentEncoding.Default),
+                            ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                            ContentTransferEncoding = ContentEncoding.Base64,
+                            FileName = attachment.FileName
+                        });
+                    }
+
                     message.Body = multipart;
                 }
                 else

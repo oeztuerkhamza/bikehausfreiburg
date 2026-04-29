@@ -143,6 +143,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                     *ngFor="let z of zahlungen; let i = index"
                   >
                     <select [(ngModel)]="z.zahlungsart" [name]="'zArt' + i">
+                      <option value="">-- Zahlungsart wählen --</option>
                       <option value="Bar">{{ t.cash }}</option>
                       <option value="PayPal">{{ t.paypal }}</option>
                       <option value="Karte">{{ t.bankTransfer }}</option>
@@ -640,9 +641,7 @@ export class SaleEditComponent implements OnInit {
 
   preis = 0;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
-  zahlungen: SalePaymentCreate[] = [
-    { zahlungsart: PaymentMethod.Bar, betrag: 0 },
-  ];
+  zahlungen: SalePaymentCreate[] = [{ zahlungsart: '' as any, betrag: 0 }];
   verkaufsdatum = '';
   notizen = '';
   belegNummer = '';
@@ -791,7 +790,7 @@ export class SaleEditComponent implements OnInit {
   }
 
   addZahlung() {
-    this.zahlungen.push({ zahlungsart: PaymentMethod.Bar, betrag: 0 });
+    this.zahlungen.push({ zahlungsart: '' as any, betrag: 0 });
   }
 
   removeZahlung(index: number) {
@@ -801,11 +800,16 @@ export class SaleEditComponent implements OnInit {
   submit() {
     if (!this.sale) return;
 
+    if (this.zahlungen.some((z) => !z.zahlungsart || z.zahlungsart === '')) {
+      alert('Bitte Zahlungsart auswählen.');
+      return;
+    }
+
     if (this.isAccessoryOnlySale) {
       this.preis = 0;
       this.zahlungen = [
         {
-          zahlungsart: this.zahlungen[0]?.zahlungsart || PaymentMethod.Bar,
+          zahlungsart: this.zahlungen[0]?.zahlungsart || ('' as any),
           betrag: this.effectiveGrandTotal,
         },
       ];

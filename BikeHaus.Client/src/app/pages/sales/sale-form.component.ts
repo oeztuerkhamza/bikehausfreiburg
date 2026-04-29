@@ -510,6 +510,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                 *ngFor="let z of zahlungen; let i = index"
               >
                 <select [(ngModel)]="z.zahlungsart" [name]="'zArt' + i">
+                  <option value="">-- Zahlungsart wählen --</option>
                   <option value="Bar">{{ t.cash }}</option>
                   <option value="PayPal">{{ t.paypal }}</option>
                   <option value="Karte">{{ t.bankTransfer }}</option>
@@ -1205,9 +1206,7 @@ export class SaleFormComponent implements OnInit {
   };
   preis = 0;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
-  zahlungen: SalePaymentCreate[] = [
-    { zahlungsart: PaymentMethod.Bar, betrag: 0 },
-  ];
+  zahlungen: SalePaymentCreate[] = [{ zahlungsart: '' as any, betrag: 0 }];
   verkaufsdatum = '';
   notizen = '';
   belegNummer = '';
@@ -1551,7 +1550,7 @@ export class SaleFormComponent implements OnInit {
       this.preis = 0;
       this.zahlungen = [
         {
-          zahlungsart: this.zahlungen[0]?.zahlungsart || PaymentMethod.Bar,
+          zahlungsart: '' as any,
           betrag: 0,
         },
       ];
@@ -1559,7 +1558,7 @@ export class SaleFormComponent implements OnInit {
     }
 
     if (this.zahlungen.length === 0) {
-      this.zahlungen = [{ zahlungsart: PaymentMethod.Bar, betrag: 0 }];
+      this.zahlungen = [{ zahlungsart: '' as any, betrag: 0 }];
     }
   }
 
@@ -1570,7 +1569,7 @@ export class SaleFormComponent implements OnInit {
       this.preis = 0;
       this.zahlungen = [
         {
-          zahlungsart: this.zahlungen[0]?.zahlungsart || PaymentMethod.Bar,
+          zahlungsart: this.zahlungen[0]?.zahlungsart || ('' as any),
           betrag: 0,
         },
       ];
@@ -1583,6 +1582,11 @@ export class SaleFormComponent implements OnInit {
 
     if (!this.verkaufsdatum) {
       alert('Bitte Verkaufsdatum ausfüllen.');
+      return;
+    }
+
+    if (this.zahlungen.some((z) => !z.zahlungsart || z.zahlungsart === '')) {
+      alert('Bitte Zahlungsart auswählen.');
       return;
     }
 
