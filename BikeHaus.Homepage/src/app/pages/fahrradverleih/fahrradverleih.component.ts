@@ -1,5 +1,13 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  computed,
+  HostListener,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
@@ -440,13 +448,33 @@ import { environment } from '../../../environments/environment';
           <!-- Selected bike details + gallery -->
           <div class="bp-bike-overview" *ngIf="!bookingSuccess()">
             <div class="bp-gallery" *ngIf="selectedBike()!.images.length > 0">
-              <div class="bp-gallery-main">
+              <button
+                type="button"
+                class="bp-gallery-main"
+                (click)="openLightbox()"
+                aria-label="Bild vergrößern"
+              >
                 <img
                   *ngIf="getSelectedBikeImagePath() as selectedImagePath"
                   [src]="getImageUrl(selectedImagePath)"
                   [alt]="selectedBike()!.marke + ' ' + selectedBike()!.modell"
                 />
-              </div>
+                <span class="bp-zoom-hint" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3M11 8v6M8 11h6" />
+                  </svg>
+                </span>
+              </button>
 
               <div
                 class="bp-gallery-thumbs"
@@ -987,6 +1015,95 @@ import { environment } from '../../../environments/environment';
             {{ t().home }}
           </a>
         </section>
+      </div>
+
+      <!-- Lightbox / Image zoom overlay -->
+      <div
+        class="lightbox"
+        *ngIf="lightboxOpen() && selectedBike()"
+        (click)="closeLightbox()"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Bild vergrößert"
+      >
+        <button
+          type="button"
+          class="lightbox-close"
+          (click)="closeLightbox(); $event.stopPropagation()"
+          aria-label="Schließen"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="lightbox-nav lightbox-prev"
+          *ngIf="selectedBike()!.images.length > 1"
+          (click)="lightboxPrev(); $event.stopPropagation()"
+          aria-label="Vorheriges Bild"
+        >
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+
+        <div class="lightbox-stage" (click)="$event.stopPropagation()">
+          <img
+            *ngIf="getSelectedBikeImagePath() as p"
+            [src]="getImageUrl(p)"
+            [alt]="selectedBike()!.marke + ' ' + selectedBike()!.modell"
+            [class.zoomed]="lightboxZoomed()"
+            (click)="toggleLightboxZoom()"
+            draggable="false"
+          />
+        </div>
+
+        <button
+          type="button"
+          class="lightbox-nav lightbox-next"
+          *ngIf="selectedBike()!.images.length > 1"
+          (click)="lightboxNext(); $event.stopPropagation()"
+          aria-label="Nächstes Bild"
+        >
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+        </button>
+
+        <div
+          class="lightbox-counter"
+          *ngIf="selectedBike()!.images.length > 1"
+        >
+          {{ selectedBikeImageIndex() + 1 }} / {{ selectedBike()!.images.length }}
+        </div>
       </div>
     </div>
   `,
@@ -1731,6 +1848,10 @@ import { environment } from '../../../environments/environment';
         overflow: hidden;
         border: 1px solid var(--color-border);
         background: var(--color-bg);
+        position: relative;
+        padding: 0;
+        cursor: zoom-in;
+        display: block;
       }
 
       .bp-gallery-main img {
@@ -1738,6 +1859,148 @@ import { environment } from '../../../environments/environment';
         height: 100%;
         object-fit: cover;
         display: block;
+        transition: transform 0.3s ease;
+      }
+
+      .bp-gallery-main:hover img {
+        transform: scale(1.03);
+      }
+
+      .bp-zoom-hint {
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.55);
+        color: #fff;
+        border-radius: 8px;
+        backdrop-filter: blur(6px);
+        opacity: 0.85;
+        pointer-events: none;
+      }
+
+      /* Lightbox */
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: rgba(0, 0, 0, 0.92);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        animation: lightbox-fade 0.2s ease;
+      }
+
+      @keyframes lightbox-fade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .lightbox-stage {
+        flex: 1;
+        max-width: min(1400px, 100%);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+        touch-action: pinch-zoom;
+      }
+
+      .lightbox-stage img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        cursor: zoom-in;
+        user-select: none;
+        transition: transform 0.25s ease;
+        transform-origin: center center;
+      }
+
+      .lightbox-stage img.zoomed {
+        cursor: zoom-out;
+        transform: scale(2);
+        max-width: none;
+        max-height: none;
+      }
+
+      .lightbox-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        transition: background 0.2s;
+        z-index: 1;
+      }
+
+      .lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .lightbox-nav {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        cursor: pointer;
+        backdrop-filter: blur(8px);
+        flex-shrink: 0;
+        transition: background 0.2s;
+        margin: 0 0.5rem;
+      }
+
+      .lightbox-nav:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .lightbox-counter {
+        position: absolute;
+        bottom: 1.25rem;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 0.4rem 0.85rem;
+        border-radius: 999px;
+        backdrop-filter: blur(8px);
+      }
+
+      @media (max-width: 640px) {
+        .lightbox-nav {
+          width: 40px;
+          height: 40px;
+          margin: 0 0.25rem;
+        }
+        .lightbox-close {
+          top: 0.5rem;
+          right: 0.5rem;
+        }
       }
 
       .bp-gallery-thumbs {
@@ -2405,6 +2668,8 @@ export class FahrradverleihComponent implements OnInit {
   private titleService = inject(Title);
   private metaService = inject(Meta);
   private apiService = inject(ApiService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -2415,6 +2680,8 @@ export class FahrradverleihComponent implements OnInit {
   // Inline booking state
   selectedBike = signal<PublicRentalBicycle | null>(null);
   selectedBikeImageIndex = signal(0);
+  lightboxOpen = signal(false);
+  lightboxZoomed = signal(false);
   busyPeriodsLoading = signal(false);
   bookingSubmitting = signal(false);
   bookingSuccess = signal(false);
@@ -2547,6 +2814,56 @@ export class FahrradverleihComponent implements OnInit {
     const bike = this.selectedBike();
     if (!bike || index < 0 || index >= bike.images.length) return;
     this.selectedBikeImageIndex.set(index);
+  }
+
+  openLightbox(): void {
+    if (!this.selectedBike()) return;
+    this.lightboxZoomed.set(false);
+    this.lightboxOpen.set(true);
+    if (this.isBrowser) {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen.set(false);
+    this.lightboxZoomed.set(false);
+    if (this.isBrowser) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  toggleLightboxZoom(): void {
+    this.lightboxZoomed.update((v) => !v);
+  }
+
+  lightboxNext(): void {
+    const bike = this.selectedBike();
+    if (!bike) return;
+    const next = (this.selectedBikeImageIndex() + 1) % bike.images.length;
+    this.selectedBikeImageIndex.set(next);
+    this.lightboxZoomed.set(false);
+  }
+
+  lightboxPrev(): void {
+    const bike = this.selectedBike();
+    if (!bike) return;
+    const len = bike.images.length;
+    const prev = (this.selectedBikeImageIndex() - 1 + len) % len;
+    this.selectedBikeImageIndex.set(prev);
+    this.lightboxZoomed.set(false);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onLightboxKeydown(event: KeyboardEvent): void {
+    if (!this.lightboxOpen()) return;
+    if (event.key === 'Escape') {
+      this.closeLightbox();
+    } else if (event.key === 'ArrowRight') {
+      this.lightboxNext();
+    } else if (event.key === 'ArrowLeft') {
+      this.lightboxPrev();
+    }
   }
 
   getSelectedBikeImagePath(): string | null {
