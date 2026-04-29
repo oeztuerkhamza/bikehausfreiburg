@@ -1,0 +1,72 @@
+name: Mailcow Diagnostic
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run diagnostic on server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 5m
+          script: |
+            set +e
+
+            echo "=== 1. Running containers (mailcow / nginx) ==="
+            docker ps --format '{{.Names}}\t{{.Image}}\t{{.Ports}}' | grep -iE "mailcow|nginx" || echo "(no matching containers)"
+            echo ""
+
+            echo "=== 2. Mailcow location and key config ==="
+            MAILCOW_DIR=""
+            for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
+              if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
+                MAILCOW_DIR="$d"
+                echo "Found mailcow.conf at: $d"
+                break
+              fi
+            done
+            if [ -z "$MAILCOW_DIR" ]; then
+              echo "mailcow.conf not in common paths — searching..."
+              find / -name 'mailcow.conf' -type f 2>/dev/null | head -3
+            else
+              cd "$MAILCOW_DIR"
+              echo "--- mailcow.conf relevant settings ---"
+              grep -E '^(MAILCOW_HOSTNAME|ADDITIONAL_SERVER_NAMES|HTTP_PORT|HTTPS_PORT|HTTP_BIND|HTTPS_BIND|SKIP_HTTP_VERIFICATION|TRUSTED_NETWORK)=' mailcow.conf || echo "(no matches)"
+            fi
+            echo ""
+
+            echo "=== 3. curl to localhost:8081 (mail Host + Forwarded-Proto) ==="
+            curl -sI -H "Host: mail.bikehausfreiburg.com" -H "X-Forwarded-Proto: https" http://localhost:8081/ 2>&1 | head -15
+            echo ""
+
+            echo "=== 4. curl to other common Mailcow ports ==="
+            for p in 8080 8443 80 443; do
+              echo "--- Port $p (HTTP) ---"
+              curl -sI --max-time 5 -H "Host: mail.bikehausfreiburg.com" -H "X-Forwarded-Proto: https" "http://localhost:$p/" 2>&1 | head -3
+              echo ""
+            done
+
+            echo "=== 5. Mailcow nginx-mailcow logs ==="
+            if [ -n "$MAILCOW_DIR" ]; then
+              cd "$MAILCOW_DIR"
+              docker compose logs --tail=40 nginx-mailcow 2>&1 | tail -50 || echo "(no nginx-mailcow logs)"
+            fi
+            echo ""
+
+            echo "=== 6. What's listening on 8081? ==="
+            (ss -tlnp 2>/dev/null | grep ':8081' || netstat -tlnp 2>/dev/null | grep ':8081') | head -5
+            echo ""
+
+            echo "=== 7. bikehaus nginx — view actual mail server block ==="
+            docker compose -f /opt/bikehaus/docker-compose.yml exec -T nginx sh -c "nginx -T 2>/dev/null | awk '/server_name mail\\.bikehausfreiburg\\.com/,/^    }$/'" 2>&1 | head -50
+
+            echo ""
+            echo "=== DONE ==="
