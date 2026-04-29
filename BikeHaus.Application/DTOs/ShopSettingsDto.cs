@@ -1,5 +1,7 @@
 namespace BikeHaus.Application.DTOs;
 
+using System.ComponentModel.DataAnnotations;
+
 public class ShopSettingsDto
 {
     public int Id { get; set; }
@@ -66,4 +68,26 @@ public class UploadSignatureDto
 {
     public string SignatureBase64 { get; set; } = string.Empty;
     public string FileName { get; set; } = string.Empty;
+}
+
+public class CreateCompanyEmailDto
+{
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [MinLength(8)]
+    public string Password { get; set; } = string.Empty;
+}
+
+public class ChangeCompanyEmailPasswordDto
+{
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [MinLength(8)]
+    public string NewPassword { get; set; } = string.Empty;
 }

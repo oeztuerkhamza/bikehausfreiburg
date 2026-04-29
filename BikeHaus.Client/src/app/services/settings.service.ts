@@ -62,6 +62,16 @@ export interface UploadLogo {
   fileName: string;
 }
 
+export interface CreateCompanyEmailRequest {
+  email: string;
+  password: string;
+}
+
+export interface ChangeCompanyEmailPasswordRequest {
+  email: string;
+  newPassword: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -95,5 +105,18 @@ export class SettingsService {
 
   deleteOwnerSignature(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/owner-signature`);
+  }
+
+  createCompanyEmail(dto: CreateCompanyEmailRequest): Observable<ShopSettings> {
+    return this.http.post<ShopSettings>(`${this.apiUrl}/company-emails`, dto);
+  }
+
+  changeCompanyEmailPassword(
+    dto: ChangeCompanyEmailPasswordRequest,
+  ): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/company-emails/change-password`,
+      dto,
+    );
   }
 }

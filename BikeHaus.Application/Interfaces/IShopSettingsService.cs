@@ -6,6 +6,8 @@ public interface IShopSettingsService
 {
     Task<ShopSettingsDto?> GetSettingsAsync();
     Task<ShopSettingsDto> UpdateSettingsAsync(UpdateShopSettingsDto dto);
+    Task<ShopSettingsDto> CreateCompanyEmailAsync(CreateCompanyEmailDto dto);
+    Task ChangeCompanyEmailPasswordAsync(ChangeCompanyEmailPasswordDto dto);
     Task<ShopSettingsDto> UploadLogoAsync(UploadLogoDto dto);
     Task DeleteLogoAsync();
     Task<ShopSettingsDto> UploadOwnerSignatureAsync(UploadSignatureDto dto);

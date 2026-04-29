@@ -479,6 +479,14 @@ interface EmailAccountForm {
                     <span>{{ email }}</span>
                     <button
                       type="button"
+                      (click)="changeCompanyEmailPassword(email)"
+                      style="background: none; border: none; cursor: pointer; color: var(--accent-primary, #6366f1); font-size: 0.95rem; padding: 0; line-height: 1;"
+                      title="Passwort ändern"
+                    >
+                      🔑
+                    </button>
+                    <button
+                      type="button"
                       (click)="removeCompanyEmail(email)"
                       style="background: none; border: none; cursor: pointer; color: var(--accent-danger, #ef4444); font-size: 1.1rem; padding: 0; line-height: 1;"
                       title="Entfernen"
@@ -2362,13 +2370,60 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ) {
       return;
     }
-    this.companyEmailsList.push(email);
-    this.newCompanyEmail = '';
-    this.saveSettings();
+
+    const password = window.prompt(
+      `Passwort für ${email} eingeben (mindestens 8 Zeichen):`,
+    );
+    if (!password || password.length < 8) {
+      alert('Passwort muss mindestens 8 Zeichen haben.');
+      return;
+    }
+
+    this.settingsService.createCompanyEmail({ email, password }).subscribe({
+      next: (data) => {
+        this.settings = data;
+        if (data.companyEmails) {
+          try {
+            this.companyEmailsList = JSON.parse(data.companyEmails);
+          } catch {
+            this.companyEmailsList = [];
+          }
+        }
+        this.newCompanyEmail = '';
+        this.showSuccessMessage();
+      },
+      error: (err) => {
+        alert(
+          err.error?.error ||
+            'Mailbox konnte nicht erstellt werden. Provisioning prüfen.',
+        );
+      },
+    });
   }
 
   removeCompanyEmail(email: string): void {
     this.companyEmailsList = this.companyEmailsList.filter((e) => e !== email);
     this.saveSettings();
+  }
+
+  changeCompanyEmailPassword(email: string): void {
+    const newPassword = window.prompt(
+      `Neues Passwort für ${email} eingeben (mindestens 8 Zeichen):`,
+    );
+    if (!newPassword || newPassword.length < 8) {
+      alert('Passwort muss mindestens 8 Zeichen haben.');
+      return;
+    }
+
+    this.settingsService
+      .changeCompanyEmailPassword({ email, newPassword })
+      .subscribe({
+        next: () => {
+          alert('Passwort erfolgreich geändert.');
+        },
+        error: (err) => {
+          alert(err.error?.error || 'Passwort konnte nicht geändert werden.');
+        },
+      });
   }
 }

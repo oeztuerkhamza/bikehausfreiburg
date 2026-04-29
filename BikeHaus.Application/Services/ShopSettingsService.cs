@@ -2,16 +2,19 @@ using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Interfaces;
+using System.Text.Json;
 
 namespace BikeHaus.Application.Services;
 
 public class ShopSettingsService : IShopSettingsService
 {
     private readonly IShopSettingsRepository _repository;
+    private readonly IMailboxProvisioningService _mailboxProvisioningService;
 
-    public ShopSettingsService(IShopSettingsRepository repository)
+    public ShopSettingsService(IShopSettingsRepository repository, IMailboxProvisioningService mailboxProvisioningService)
     {
         _repository = repository;
+        _mailboxProvisioningService = mailboxProvisioningService;
     }
 
     public async Task<ShopSettingsDto?> GetSettingsAsync()
@@ -85,6 +88,39 @@ public class ShopSettingsService : IShopSettingsService
         }
 
         return MapToDto(settings);
+    }
+
+    public async Task<ShopSettingsDto> CreateCompanyEmailAsync(CreateCompanyEmailDto dto)
+    {
+        var email = dto.Email.Trim();
+        var password = dto.Password;
+
+        await _mailboxProvisioningService.CreateMailboxAsync(email, password);
+
+        var settings = await GetOrCreateSettingsAsync();
+        var emails = ParseCompanyEmails(settings.CompanyEmails);
+        if (!emails.Contains(email, StringComparer.OrdinalIgnoreCase))
+        {
+            emails.Add(email);
+            settings.CompanyEmails = JsonSerializer.Serialize(emails);
+            settings.UpdatedAt = DateTime.UtcNow;
+            await _repository.UpdateAsync(settings);
+        }
+
+        return MapToDto(settings);
+    }
+
+    public async Task ChangeCompanyEmailPasswordAsync(ChangeCompanyEmailPasswordDto dto)
+    {
+        var email = dto.Email.Trim();
+        var newPassword = dto.NewPassword;
+
+        var settings = await _repository.GetSettingsAsync();
+        var emails = ParseCompanyEmails(settings?.CompanyEmails);
+        if (!emails.Contains(email, StringComparer.OrdinalIgnoreCase))
+            throw new InvalidOperationException("E-Mail-Adresse ist nicht in den Unternehmenseinstellungen vorhanden.");
+
+        await _mailboxProvisioningService.ChangePasswordAsync(email, newPassword);
     }
 
     public async Task<ShopSettingsDto> UploadLogoAsync(UploadLogoDto dto)
@@ -193,5 +229,35 @@ public class ShopSettingsService : IShopSettingsService
             FullAddress = settings.FullAddress,
             CompanyEmails = settings.CompanyEmails
         };
+    }
+
+    private async Task<ShopSettings> GetOrCreateSettingsAsync()
+    {
+        var settings = await _repository.GetSettingsAsync();
+        if (settings != null) return settings;
+
+        settings = new ShopSettings
+        {
+            ShopName = "Bike Haus Freiburg",
+            FahrradNummerStart = 1
+        };
+
+        await _repository.AddAsync(settings);
+        return settings;
+    }
+
+    private static List<string> ParseCompanyEmails(string? companyEmailsJson)
+    {
+        if (string.IsNullOrWhiteSpace(companyEmailsJson))
+            return new List<string>();
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<string>>(companyEmailsJson) ?? new List<string>();
+        }
+        catch
+        {
+            return new List<string>();
+        }
     }
 }

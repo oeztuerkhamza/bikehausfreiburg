@@ -70,6 +70,8 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, SmtpEmailService>();
         services.AddScoped<IEmailAccountService, EmailAccountService>();
         services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));
+        services.Configure<MailboxProvisioningOptions>(configuration.GetSection("MailboxProvisioning"));
+        services.AddHttpClient<IMailboxProvisioningService, MailcowMailboxProvisioningService>();
         services.AddHttpClient("IndexNow");
         services.AddScoped<IIndexNowService, IndexNowService>();
         services.AddHttpClient("GooglePlaces");

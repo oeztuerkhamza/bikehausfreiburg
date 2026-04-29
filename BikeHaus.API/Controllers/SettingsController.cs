@@ -43,6 +43,36 @@ public class SettingsController : ControllerBase
     }
 
     [Authorize]
+    [HttpPost("company-emails")]
+    public async Task<ActionResult<ShopSettingsDto>> CreateCompanyEmail([FromBody] CreateCompanyEmailDto dto)
+    {
+        try
+        {
+            var settings = await _settingsService.CreateCompanyEmailAsync(dto);
+            return Ok(settings);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpPost("company-emails/change-password")]
+    public async Task<IActionResult> ChangeCompanyEmailPassword([FromBody] ChangeCompanyEmailPasswordDto dto)
+    {
+        try
+        {
+            await _settingsService.ChangeCompanyEmailPasswordAsync(dto);
+            return Ok(new { message = "Passwort erfolgreich aktualisiert." });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [Authorize]
     [HttpPost("logo")]
     public async Task<ActionResult<ShopSettingsDto>> UploadLogo([FromBody] UploadLogoDto dto)
     {
