@@ -1550,7 +1550,7 @@ export class SaleFormComponent implements OnInit {
       this.preis = 0;
       this.zahlungen = [
         {
-          zahlungsart: '' as any,
+          zahlungsart: null as any,
           betrag: 0,
         },
       ];
@@ -1558,7 +1558,7 @@ export class SaleFormComponent implements OnInit {
     }
 
     if (this.zahlungen.length === 0) {
-      this.zahlungen = [{ zahlungsart: '' as any, betrag: 0 }];
+      this.zahlungen = [{ zahlungsart: null as any, betrag: 0 }];
     }
   }
 
@@ -1569,7 +1569,7 @@ export class SaleFormComponent implements OnInit {
       this.preis = 0;
       this.zahlungen = [
         {
-          zahlungsart: this.zahlungen[0]?.zahlungsart || ('' as any),
+          zahlungsart: this.zahlungen[0]?.zahlungsart || (null as any),
           betrag: 0,
         },
       ];
@@ -1585,7 +1585,7 @@ export class SaleFormComponent implements OnInit {
       return;
     }
 
-    if (this.zahlungen.some((z) => !z.zahlungsart || z.zahlungsart === '')) {
+    if (this.zahlungen.some((z) => !z.zahlungsart)) {
       alert('Bitte Zahlungsart auswählen.');
       return;
     }

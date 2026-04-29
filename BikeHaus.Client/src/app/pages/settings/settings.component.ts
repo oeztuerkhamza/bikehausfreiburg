@@ -442,6 +442,62 @@ interface EmailAccountForm {
                 </div>
               </div>
 
+              <!-- Company Emails -->
+              <h3
+                style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
+              >
+                📧 Unternehmens-E-Mails
+              </h3>
+              <div class="form-grid full-width" style="flex-direction: column;">
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                  <input
+                    type="email"
+                    [(ngModel)]="newCompanyEmail"
+                    name="newCompanyEmail"
+                    placeholder="z.B. info@bikehausfreiburg.com"
+                    class="company-email-input"
+                    style="flex: 1; padding: 8px 12px; border: 1px solid var(--border-light, #e2e8f0); border-radius: 6px; font-size: 0.9rem;"
+                  />
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    (click)="addCompanyEmail()"
+                    [disabled]="!newCompanyEmail.trim()"
+                  >
+                    + Hinzufügen
+                  </button>
+                </div>
+
+                <div
+                  style="display: flex; flex-wrap: wrap; gap: 8px;"
+                  *ngIf="companyEmailsList.length > 0"
+                >
+                  <div
+                    *ngFor="let email of companyEmailsList"
+                    style="display: flex; align-items: center; gap: 8px; background: var(--accent-blue, rgba(99, 102, 241, 0.1)); padding: 6px 12px; border-radius: 20px; font-size: 0.9rem;"
+                  >
+                    <span>{{ email }}</span>
+                    <button
+                      type="button"
+                      (click)="removeCompanyEmail(email)"
+                      style="background: none; border: none; cursor: pointer; color: var(--accent-danger, #ef4444); font-size: 1.1rem; padding: 0; line-height: 1;"
+                      title="Entfernen"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                <p
+                  *ngIf="companyEmailsList.length === 0"
+                  style="color: var(--text-secondary, #64748b); font-size: 0.85rem; margin: 8px 0;"
+                >
+                  Keine E-Mail-Adressen hinzugefügt. Fügen Sie
+                  Unternehmens-E-Mails hinzu, um sie in Anwendungen zu
+                  verwenden.
+                </p>
+              </div>
+
               <!-- Kleinanzeigen Integration -->
               <h3
                 style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
@@ -1726,6 +1782,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     googleReviewUrl: '',
     oeffnungszeiten: '',
     zusatzinfo: '',
+    companyEmails: undefined,
     logoBase64: undefined,
     logoFileName: undefined,
     inhaberSignatureBase64: undefined,
@@ -1733,6 +1790,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   };
 
   ownerSignatureData = '';
+
+  // Company Emails Management
+  companyEmailsList: string[] = [];
+  newCompanyEmail = '';
+  addingCompanyEmail = false;
 
   get t() {
     return this.translationService.translations();
@@ -1888,8 +1950,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.settingsService.getSettings().subscribe({
       next: (data) => {
-        if (data) {
-          this.settings = data;
+        this.settings = data;
+        if (data.companyEmails) {
+          try {
+            this.companyEmailsList = JSON.parse(data.companyEmails);
+          } catch {
+            this.companyEmailsList = [];
+          }
         }
         this.loading = false;
       },
@@ -1924,6 +1991,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         googleReviewUrl: this.settings.googleReviewUrl,
         oeffnungszeiten: this.settings.oeffnungszeiten,
         zusatzinfo: this.settings.zusatzinfo,
+        companyEmails: JSON.stringify(this.companyEmailsList) || undefined,
       })
       .subscribe({
         next: (data) => {
@@ -2281,5 +2349,26 @@ export class SettingsComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.showSuccess = false;
     }, 3000);
+  }
+
+  // ── Company Emails Management ──
+
+  addCompanyEmail(): void {
+    const email = this.newCompanyEmail.trim();
+    if (!email) return;
+    if (
+      !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/) ||
+      this.companyEmailsList.includes(email)
+    ) {
+      return;
+    }
+    this.companyEmailsList.push(email);
+    this.newCompanyEmail = '';
+    this.saveSettings();
+  }
+
+  removeCompanyEmail(email: string): void {
+    this.companyEmailsList = this.companyEmailsList.filter((e) => e !== email);
+    this.saveSettings();
   }
 }

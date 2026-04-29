@@ -790,7 +790,7 @@ export class SaleEditComponent implements OnInit {
   }
 
   addZahlung() {
-    this.zahlungen.push({ zahlungsart: '' as any, betrag: 0 });
+    this.zahlungen.push({ zahlungsart: null as any, betrag: 0 });
   }
 
   removeZahlung(index: number) {
@@ -800,7 +800,7 @@ export class SaleEditComponent implements OnInit {
   submit() {
     if (!this.sale) return;
 
-    if (this.zahlungen.some((z) => !z.zahlungsart || z.zahlungsart === '')) {
+    if (this.zahlungen.some((z) => !z.zahlungsart)) {
       alert('Bitte Zahlungsart auswählen.');
       return;
     }
@@ -809,7 +809,7 @@ export class SaleEditComponent implements OnInit {
       this.preis = 0;
       this.zahlungen = [
         {
-          zahlungsart: this.zahlungen[0]?.zahlungsart || ('' as any),
+          zahlungsart: this.zahlungen[0]?.zahlungsart || (null as any),
           betrag: this.effectiveGrandTotal,
         },
       ];

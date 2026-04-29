@@ -28,6 +28,7 @@ public class ShopSettingsDto
     public string? Oeffnungszeiten { get; set; }
     public string? Zusatzinfo { get; set; }
     public string? FullAddress { get; set; }
+    public string? CompanyEmails { get; set; }
 }
 
 public class UpdateShopSettingsDto
@@ -52,6 +53,7 @@ public class UpdateShopSettingsDto
     public string? GoogleReviewUrl { get; set; }
     public string? Oeffnungszeiten { get; set; }
     public string? Zusatzinfo { get; set; }
+    public string? CompanyEmails { get; set; }
 }
 
 public class UploadLogoDto

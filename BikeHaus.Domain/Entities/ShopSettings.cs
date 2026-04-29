@@ -40,6 +40,9 @@ public class ShopSettings : BaseEntity
     public string? Oeffnungszeiten { get; set; }   // Opening Hours
     public string? Zusatzinfo { get; set; }        // Additional Info for documents
 
+    // Company Emails
+    public string? CompanyEmails { get; set; }     // JSON array of company email addresses
+
     public string FullAddress => !string.IsNullOrEmpty(Strasse)
         ? $"{Strasse} {Hausnummer}, {PLZ} {Stadt}"
         : string.Empty;
