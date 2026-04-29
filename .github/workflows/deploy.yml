@@ -324,6 +324,14 @@ jobs:
             echo "==> Recreating Homepage container"
             docker compose up -d --force-recreate homepage
 
+            echo "==> Syncing homepage-dist for nginx static serving"
+            # nginx serves /assets, .js, .css etc. directly from homepage-dist/browser
+            # (see nginx.conf). It must match the SSR bundle's hashed filenames,
+            # otherwise main-*.js returns 404 and client hydration breaks.
+            mkdir -p homepage-dist/browser
+            find homepage-dist/browser -mindepth 1 -delete
+            cp -a BikeHaus.Homepage/dist/bike-haus.homepage/browser/. homepage-dist/browser/
+
             echo "==> Homepage status"
             docker compose ps homepage
 
