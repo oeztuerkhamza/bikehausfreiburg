@@ -12,11 +12,13 @@ public class SalesController : ControllerBase
 {
     private readonly ISaleService _saleService;
     private readonly IPdfService _pdfService;
+    private readonly IEmailService _emailService;
 
-    public SalesController(ISaleService saleService, IPdfService pdfService)
+    public SalesController(ISaleService saleService, IPdfService pdfService, IEmailService emailService)
     {
         _saleService = saleService;
         _pdfService = pdfService;
+        _emailService = emailService;
     }
 
     [HttpGet]
@@ -101,6 +103,22 @@ public class SalesController : ControllerBase
     {
         var pdfBytes = await _pdfService.GenerateVerkaufsbelegAsync(id);
         return File(pdfBytes, "application/pdf", $"Verkaufsbeleg_{id}.pdf");
+    }
+
+    [HttpPost("{id}/send-receipt")]
+    public async Task<IActionResult> SendReceipt(int id, [FromQuery] string? overrideEmail = null)
+    {
+        var sale = await _saleService.GetByIdAsync(id);
+        if (sale == null)
+            return NotFound(new { error = "Verkauf nicht gefunden." });
+
+        var toEmail = overrideEmail ?? sale.Buyer.Email;
+        if (string.IsNullOrWhiteSpace(toEmail))
+            return BadRequest(new { error = "Keine E-Mail-Adresse für diesen Käufer hinterlegt." });
+
+        var pdfBytes = await _pdfService.GenerateVerkaufsbelegAsync(id);
+        await _emailService.SendSaleReceiptAsync(toEmail, sale.Buyer.FullName, sale.BelegNummer, pdfBytes);
+        return Ok(new { message = $"Rechnung {sale.BelegNummer} wurde an {toEmail} gesendet." });
     }
 
     [HttpDelete("{id}")]
