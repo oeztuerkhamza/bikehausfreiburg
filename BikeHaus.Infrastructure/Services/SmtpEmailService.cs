@@ -207,7 +207,15 @@ Viele Gruesse
                         sslPolicyErrors == SslPolicyErrors.None || sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors
                 };
 
-                var socketOptions = useSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
+                // Port-aware TLS selection. Mailcow (and most submission servers)
+                // reject plain auth on 587 — STARTTLS is mandatory. The legacy
+                // useSsl=false branch silently disabled encryption and broke auth.
+                SecureSocketOptions socketOptions = port switch
+                {
+                    465 => SecureSocketOptions.SslOnConnect,
+                    587 or 2525 => SecureSocketOptions.StartTls,
+                    _ => useSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto
+                };
 
                 _logger.LogInformation(
                     "Sending email to {To}, subject: {Subject}, attempt {Attempt}/{MaxAttempts}",

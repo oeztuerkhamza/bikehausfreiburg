@@ -151,24 +151,28 @@ public class RentalBookingService : IRentalBookingService
 
         booking.Gesamtpreis = CalculateTotalPrice(bicycle, booking);
 
+        if (string.IsNullOrWhiteSpace(booking.Email))
+            throw new InvalidOperationException("Bitte geben Sie eine gueltige E-Mail-Adresse an.");
+
         var created = await _bookingRepository.AddAsync(booking);
         var withDetails = await _bookingRepository.GetWithDetailsAsync(created.Id);
+        if (withDetails == null)
+            throw new InvalidOperationException("Buchung konnte nach dem Speichern nicht geladen werden.");
 
-        if (!string.IsNullOrWhiteSpace(withDetails!.Email))
+        try
         {
             var emailModel = await BuildEmailModelAsync(withDetails, bicycle);
-            try
-            {
-                await _emailService.SendRentalBookingReceivedAsync(emailModel);
-            }
-            catch (Exception ex)
-            {
-                // Do not fail booking creation when SMTP delivery fails.
-                _logger.LogError(
-                    ex,
-                    "Failed to send booking received email for booking {BookingNumber}",
-                    withDetails.BuchungsNummer);
-            }
+            await _emailService.SendRentalBookingReceivedAsync(emailModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to send booking received email for booking {BookingNumber}. Rolling back booking creation.",
+                withDetails?.BuchungsNummer ?? booking.BuchungsNummer);
+
+            await _bookingRepository.DeleteAsync(created.Id);
+            throw new InvalidOperationException("Buchung konnte nicht abgeschlossen werden, da die Bestaetigungs-E-Mail nicht gesendet werden konnte. Bitte erneut versuchen.");
         }
 
         return withDetails.ToDto();
