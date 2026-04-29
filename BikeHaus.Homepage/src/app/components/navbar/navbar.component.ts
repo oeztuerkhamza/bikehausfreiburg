@@ -1,5 +1,11 @@
-import { Component, inject, HostListener, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  inject,
+  HostListener,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
   TranslationService,
@@ -285,6 +291,8 @@ export class NavbarComponent {
   private translationService = inject(TranslationService);
   private router = inject(Router);
   private shopInfoService = inject(ShopInfoService);
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser = isPlatformBrowser(this.platformId);
 
   t = this.translationService.translations;
   currentLang = this.translationService.currentLanguage;
@@ -298,19 +306,15 @@ export class NavbarComponent {
 
   set menuOpen(value: boolean) {
     this._menuOpen = value;
-    // Prevent body scroll when menu is open
-    document.body.style.overflow = value ? 'hidden' : '';
+    if (this.isBrowser) {
+      document.body.style.overflow = value ? 'hidden' : '';
+    }
   }
 
   toggleMenu(): void {
-    if (!this._menuOpen) {
-      // Scroll to top first, then open menu
+    this.menuOpen = !this._menuOpen;
+    if (this._menuOpen && this.isBrowser) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => {
-        this.menuOpen = true;
-      }, 150);
-    } else {
-      this.menuOpen = false;
     }
   }
 
@@ -341,6 +345,7 @@ export class NavbarComponent {
 
   @HostListener('window:scroll')
   onScroll(): void {
+    if (!this.isBrowser) return;
     this.scrolled.set(window.scrollY > 40);
   }
 
