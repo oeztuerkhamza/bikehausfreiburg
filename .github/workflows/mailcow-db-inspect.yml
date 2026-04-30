@@ -10,13 +10,13 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect mailcow DB tables and domains
+      - name: Inspect rspamd DKIM volumes
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          command_timeout: 2m
+          command_timeout: 3m
           script: |
             set +e
             MAILCOW_DIR=""
@@ -29,16 +29,21 @@ jobs:
             cd "$MAILCOW_DIR"
             source mailcow.conf
 
-            echo "=== domain tablosu yapisi ==="
-            docker compose exec -T mysql-mailcow mysql \
-              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "DESCRIBE domain;"
+            echo "=== rspamd-mailcow volume/mount bilgisi ==="
+            docker inspect rspamd-mailcow 2>/dev/null | python3 -c "
+import json,sys
+d=json.load(sys.stdin)[0]
+mounts=d.get('Mounts',[])
+for m in mounts:
+    print(m.get('Source',''),'->',m.get('Destination',''))
+" || docker inspect rspamd-mailcow --format '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{println}}{{end}}' 2>/dev/null
 
             echo ""
-            echo "=== bikehausfreiburg.com DKIM bilgisi ==="
-            docker compose exec -T mysql-mailcow mysql \
-              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "SELECT domain, dkim_selector, LEFT(dkim_privatekey,50) as key_preview FROM domain WHERE domain='bikehausfreiburg.com';" 2>/dev/null || \
-            docker compose exec -T mysql-mailcow mysql \
-              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "SELECT * FROM domain WHERE domain='bikehausfreiburg.com'\G" 2>/dev/null | head -30
+            echo "=== rspamd icindeki DKIM dizinleri ==="
+            docker compose exec -T rspamd-mailcow find / -name "*.key" -o -name "*.txt" 2>/dev/null | grep -i dkim | head -20
+            docker compose exec -T rspamd-mailcow find /var/lib/rspamd -type d 2>/dev/null | head -10
+
+            echo ""
+            echo "=== Host uzerinde rspamd dkim ==="
+            find /var/lib/docker/volumes -path "*rspamd*dkim*" 2>/dev/null | head -10
+            find /opt -name "*.key" 2>/dev/null | grep -i dkim | head -10
