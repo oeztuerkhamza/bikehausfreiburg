@@ -1,0 +1,157 @@
+name: Mailcow Deliverability Check
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Diagnose why mail goes to spam
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 4m
+          script: |
+            set +e
+            MAILCOW_DIR=""
+            for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
+              if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
+                MAILCOW_DIR="$d"; break
+              fi
+            done
+            [ -z "$MAILCOW_DIR" ] && echo "ERROR: mailcow.conf bulunamadi" && exit 1
+            cd "$MAILCOW_DIR"
+            source mailcow.conf
+
+            DOMAIN="bikehausfreiburg.com"
+            HOSTNAME="${MAILCOW_HOSTNAME:-mail.$DOMAIN}"
+
+            # dig yoksa kur
+            command -v dig >/dev/null 2>&1 || apt-get install -y dnsutils >/dev/null 2>&1
+
+            echo "=========================================="
+            echo "1. SUNUCU IP + rDNS (PTR)"
+            echo "=========================================="
+            PUB4=$(curl -s4 https://ifconfig.me 2>/dev/null || curl -s4 https://api.ipify.org)
+            PUB6=$(curl -s6 https://ifconfig.me 2>/dev/null)
+            echo "IPv4: $PUB4"
+            echo "IPv6: ${PUB6:-(yok)}"
+            echo ""
+            echo "rDNS (PTR) IPv4: $(dig -x $PUB4 +short)"
+            [ -n "$PUB6" ] && echo "rDNS (PTR) IPv6: $(dig -x $PUB6 +short)"
+            echo ""
+            echo "MAILCOW_HOSTNAME: $HOSTNAME"
+            echo ""
+            echo "==> rDNS, MAILCOW_HOSTNAME ile AYNI olmali. Aksi halde Gmail spam'e atar."
+
+            echo ""
+            echo "=========================================="
+            echo "2. A / AAAA KAYITLARI"
+            echo "=========================================="
+            echo "$HOSTNAME -> A:    $(dig A $HOSTNAME +short)"
+            echo "$HOSTNAME -> AAAA: $(dig AAAA $HOSTNAME +short)"
+            echo "$DOMAIN   -> A:    $(dig A $DOMAIN +short)"
+
+            echo ""
+            echo "=========================================="
+            echo "3. MX KAYDI"
+            echo "=========================================="
+            dig MX $DOMAIN +short
+
+            echo ""
+            echo "=========================================="
+            echo "4. SPF KAYDI"
+            echo "=========================================="
+            SPF=$(dig TXT $DOMAIN +short | grep -i 'v=spf1')
+            if [ -z "$SPF" ]; then
+              echo "!!! SPF KAYDI YOK !!!"
+              echo "Onerilen: v=spf1 mx a:$HOSTNAME ip4:$PUB4 ${PUB6:+ip6:$PUB6 }-all"
+            else
+              echo "Mevcut: $SPF"
+              echo "$SPF" | grep -q "$PUB4" || echo "!!! SPF icinde sunucu IPv4 ($PUB4) YOK !!!"
+              [ -n "$PUB6" ] && { echo "$SPF" | grep -q "$PUB6" || echo "!!! SPF icinde sunucu IPv6 ($PUB6) YOK !!!"; }
+            fi
+
+            echo ""
+            echo "=========================================="
+            echo "5. DKIM KAYDI"
+            echo "=========================================="
+            DKIM=$(dig TXT dkim._domainkey.$DOMAIN +short)
+            if [ -z "$DKIM" ]; then
+              echo "!!! DKIM DNS KAYDI YOK !!! (Cloudflare'e ekledigine emin ol, propagasyon icin 1-5 dk bekle)"
+            else
+              echo "Mevcut: $DKIM" | head -c 200
+              echo "..."
+            fi
+
+            echo ""
+            echo "=========================================="
+            echo "6. DMARC KAYDI"
+            echo "=========================================="
+            DMARC=$(dig TXT _dmarc.$DOMAIN +short)
+            echo "Mevcut: $DMARC"
+            if echo "$DMARC" | grep -qi "p=reject"; then
+              echo "UYARI: p=reject cok katidir. DKIM/SPF tam oturana kadar p=quarantine veya p=none oner."
+            fi
+
+            echo ""
+            echo "=========================================="
+            echo "7. MTA-STS / TLS-RPT (opsiyonel ama puan etkiler)"
+            echo "=========================================="
+            echo "_mta-sts.$DOMAIN TXT: $(dig TXT _mta-sts.$DOMAIN +short)"
+            echo "_smtp._tls.$DOMAIN TXT: $(dig TXT _smtp._tls.$DOMAIN +short)"
+
+            echo ""
+            echo "=========================================="
+            echo "8. POSTFIX HELO / myhostname"
+            echo "=========================================="
+            docker compose exec -T postfix-mailcow postconf -n 2>/dev/null \
+              | grep -E "^(myhostname|mydomain|smtp_helo_name|smtpd_banner)"
+
+            echo ""
+            echo "=========================================="
+            echo "9. SON GMAIL TESLIMAT LOGLARI"
+            echo "=========================================="
+            docker compose logs --tail=200 postfix-mailcow 2>/dev/null \
+              | grep -iE "to=<.*@(gmail|googlemail)|550|421|reject|defer" \
+              | tail -20
+
+            echo ""
+            echo "=========================================="
+            echo "10. RSPAMD STAT (DKIM imzalama dogrulama)"
+            echo "=========================================="
+            docker compose exec -T rspamd-mailcow rspamadm dkim verify -v 2>&1 | head -20 || true
+
+            echo ""
+            echo "=========================================="
+            echo "11. IP BLACKLIST KONTROLU (Spamhaus + Barracuda)"
+            echo "=========================================="
+            REV4=$(echo $PUB4 | awk -F. '{print $4"."$3"."$2"."$1}')
+            for bl in zen.spamhaus.org bl.spamcop.net b.barracudacentral.org; do
+              R=$(dig +short A "$REV4.$bl")
+              if [ -n "$R" ]; then
+                echo "  $bl: LISTED ($R) <-- KOTU"
+              else
+                echo "  $bl: temiz"
+              fi
+            done
+
+            echo ""
+            echo "=========================================="
+            echo "OZET KONTROL LISTESI"
+            echo "=========================================="
+            echo "  [ ] rDNS (PTR), MAILCOW_HOSTNAME ile esit mi? (yukari bak)"
+            echo "  [ ] SPF kaydi var ve sunucu IP'sini iceriyor mu?"
+            echo "  [ ] DKIM DNS kaydi yayilmis mi? (dig sonucu yukarida)"
+            echo "  [ ] DMARC kaydi 'p=reject' yerine baslangicta 'p=quarantine' mi?"
+            echo "  [ ] postfix smtp_helo_name = MAILCOW_HOSTNAME mi?"
+            echo "  [ ] IP blacklistlerde temiz mi?"
+            echo ""
+            echo "Detayli skor icin: https://www.mail-tester.com adresine"
+            echo "verdigi adresine bir test mail gonder, link cik."
