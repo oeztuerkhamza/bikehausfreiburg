@@ -19,7 +19,6 @@ jobs:
           command_timeout: 2m
           script: |
             set +e
-
             MAILCOW_DIR=""
             for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
               if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
@@ -27,30 +26,19 @@ jobs:
                 break
               fi
             done
-
-            if [ -z "$MAILCOW_DIR" ]; then
-              echo "ERROR: mailcow.conf bulunamadı"
-              exit 1
-            fi
-
+            [ -z "$MAILCOW_DIR" ] && echo "ERROR: mailcow.conf bulunamadi" && exit 1
             cd "$MAILCOW_DIR"
             source mailcow.conf
 
-            echo "=== DKIM Public Key for bikehausfreiburg.com ==="
-            docker compose exec -T rspamd-mailcow sh -c \
-              "cat /var/lib/rspamd/dkim/bikehausfreiburg.com.*.txt 2>/dev/null || \
-               cat /var/lib/rspamd/dkim/*.txt 2>/dev/null || \
-               ls /var/lib/rspamd/dkim/ 2>/dev/null" 
-
-            echo ""
-            echo "=== Alternatif: DB'den DKIM selector ve key ==="
+            echo "=== DB'den DKIM kaydi ==="
             docker compose exec -T mysql-mailcow mysql \
               -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "SELECT domain, dkim_selector, SUBSTRING(dkim_privatekey,1,50) as key_preview FROM dkim WHERE domain='bikehausfreiburg.com';" 2>/dev/null
+              -e "SELECT domain, dkim_selector FROM dkim WHERE domain='bikehausfreiburg.com';"
 
             echo ""
-            echo "=== DKIM via mailcow API ==="
-            DKIM_JSON=$(docker compose exec -T nginx-mailcow sh -c \
-              "curl -s http://nginx/api/v1/get/dkim/bikehausfreiburg.com \
-               -H 'X-API-Key: \$(grep MAILCOW_API_KEY /etc/mailcow/api.conf 2>/dev/null || grep API_KEY /mailcow.conf 2>/dev/null)'" 2>/dev/null)
-            echo "$DKIM_JSON"
+            echo "=== rspamd DKIM dosyalari ==="
+            docker compose exec -T rspamd-mailcow ls -la /var/lib/rspamd/dkim/ 2>/dev/null || echo "(dizin yok)"
+
+            echo ""
+            echo "=== rspamd DKIM txt dosyasi ==="
+            docker compose exec -T rspamd-mailcow sh -c "cat /var/lib/rspamd/dkim/bikehausfreiburg.com.*.txt 2>/dev/null || cat /var/lib/rspamd/dkim/*.txt 2>/dev/null || echo 'dosya bulunamadi'"
