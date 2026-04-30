@@ -18,7 +18,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           command_timeout: 5m
           script: |
-            set -e
+            set +e
             MAILCOW_DIR=""
             for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
               if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
@@ -26,41 +26,28 @@ jobs:
                 break
               fi
             done
-            [ -z "$MAILCOW_DIR" ] && echo "ERROR: mailcow.conf bulunamadi" && exit 1
             cd "$MAILCOW_DIR"
             source mailcow.conf
 
             API_KEY=$(grep -E '^API_KEY=' mailcow.conf | cut -d'=' -f2 | tr -d '"' | tr -d "'" | tr -d '[:space:]')
-            echo "API Key (ilk 8): ${API_KEY:0:8}..."
 
-            # DB'deki API allow_from guncelle
-            echo "=== DB'deki API allow_from guncelleniyor ==="
-            docker compose exec -T mysql-mailcow mysql \
-              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "SELECT api_key, allow_from, active FROM api LIMIT 5;"
+            echo "=== rspamd mount noktalari ==="
+            docker inspect rspamd-mailcow --format '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{println}}{{end}}' 2>/dev/null
 
-            docker compose exec -T mysql-mailcow mysql \
-              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "UPDATE api SET allow_from='172.16.0.0/12,10.0.0.0/8,127.0.0.1,::1' WHERE api_key='$API_KEY';"
+            echo ""
+            echo "=== rspamd icindeki tumm dizinler ==="
+            docker compose exec -T rspamd-mailcow find /var/lib/rspamd -maxdepth 3 -type d 2>/dev/null
 
-            echo "Guncellendi. Yeni durum:"
-            docker compose exec -T mysql-mailcow mysql \
-              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "SELECT api_key, allow_from, active FROM api WHERE api_key='$API_KEY';"
+            echo ""
+            echo "=== rspamd dkim dosyalari (tum olasi yerler) ==="
+            docker compose exec -T rspamd-mailcow find / -name "*.key" -o -name "*dkim*.txt" 2>/dev/null | grep -v proc | head -20
 
-            sleep 2
+            echo ""
+            echo "=== Host dkim dosyalari ==="
+            find / -name "*dkim*" -not -path "*/proc/*" 2>/dev/null | head -20
 
-            echo "=== DKIM key olusturuluyor ==="
-            RESULT=$(curl -skL -X POST "https://127.0.0.1/api/v1/add/dkim" \
+            echo ""
+            echo "=== DKIM GET API ==="
+            curl -skL "https://127.0.0.1/api/v1/get/dkim/bikehausfreiburg.com" \
               -H "Host: $MAILCOW_HOSTNAME" \
-              -H "X-API-Key: $API_KEY" \
-              -H "Content-Type: application/json" \
-              -d '{"dkim_selector":"dkim","domain":["bikehausfreiburg.com"],"key_size":2048}')
-            echo "Add result: $RESULT"
-            sleep 2
-
-            echo "=== DKIM DNS kaydi ==="
-            DKIM_RESP=$(curl -skL "https://127.0.0.1/api/v1/get/dkim/bikehausfreiburg.com" \
-              -H "Host: $MAILCOW_HOSTNAME" \
-              -H "X-API-Key: $API_KEY")
-            echo "$DKIM_RESP"
+              -H "X-API-Key: $API_KEY"
