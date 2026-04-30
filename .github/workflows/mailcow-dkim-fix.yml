@@ -19,7 +19,6 @@ jobs:
           command_timeout: 5m
           script: |
             set -e
-
             MAILCOW_DIR=""
             for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
               if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
@@ -27,45 +26,19 @@ jobs:
                 break
               fi
             done
-
-            [ -z "$MAILCOW_DIR" ] && echo "ERROR: mailcow.conf bulunamadı" && exit 1
+            [ -z "$MAILCOW_DIR" ] && echo "ERROR: mailcow.conf bulunamadi" && exit 1
             cd "$MAILCOW_DIR"
             source mailcow.conf
-
             echo "=== Mailcow hostname: $MAILCOW_HOSTNAME ==="
-
-            # API key al
             API_KEY=$(grep -E '^API_KEY=' mailcow.conf | cut -d'=' -f2 | tr -d '"' | tr -d "'" | tr -d '[:space:]')
             echo "API Key (first 8 chars): ${API_KEY:0:8}..."
-
-            # DKIM oluştur
-            echo "=== DKIM key oluşturuluyor ==="
+            echo "=== DKIM key olusturuluyor ==="
             RESULT=$(curl -sk -X POST "https://$MAILCOW_HOSTNAME/api/v1/add/dkim" \
               -H "X-API-Key: $API_KEY" \
               -H "Content-Type: application/json" \
               -d '{"dkim_selector":"dkim","domain":["bikehausfreiburg.com"],"key_size":2048}')
             echo "Add DKIM result: $RESULT"
-
             sleep 2
-
-            # Public key'i al
-            echo "=== DKIM DNS kaydı ==="
-            DKIM_INFO=$(curl -sk "https://$MAILCOW_HOSTNAME/api/v1/get/dkim/bikehausfreiburg.com" \
-              -H "X-API-Key: $API_KEY")
-            echo "$DKIM_INFO"
-
-            # DNS kaydı için formatla
-            PUBKEY=$(echo "$DKIM_INFO" | python3 -c "
-import sys, json
-try:
-    d = json.load(sys.stdin)
-    pub = d.get('dkim_txt', d.get('public_key', ''))
-    sel = d.get('dkim_selector', 'dkim')
-    print(f'=== DNS TXT KAYDI ===')
-    print(f'Ad: {sel}._domainkey.bikehausfreiburg.com')
-    print(f'Değer: {pub}')
-except Exception as e:
-    print(f'Parse hatası: {e}')
-    print('Ham veri:', sys.stdin.read() if hasattr(sys.stdin, 'read') else '')
-" 2>/dev/null || echo "JSON parse başarısız")
-            echo "$PUBKEY"
+            echo "=== DKIM DNS kaydi ==="
+            curl -sk "https://$MAILCOW_HOSTNAME/api/v1/get/dkim/bikehausfreiburg.com" \
+              -H "X-API-Key: $API_KEY"
