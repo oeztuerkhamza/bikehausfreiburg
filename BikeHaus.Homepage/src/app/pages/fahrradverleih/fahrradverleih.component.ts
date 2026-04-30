@@ -706,17 +706,24 @@ import { environment } from '../../../environments/environment';
                     [class.bc-pending]="
                       day && !isPast(day) && getDayBusyType(day) === 'pending'
                     "
+                    [class.bc-closed]="
+                      day && !isPast(day) && !isDayBusy(day) && isClosedDay(day)
+                    "
                     [class.bc-today]="day && isToday(day)"
                     [class.bc-start]="day && isStart(day)"
                     [class.bc-end]="day && isEnd(day)"
                     [class.bc-range]="day && isInRange(day)"
                     [class.bc-clickable]="
-                      day && !isPast(day) && !isDayBusy(day)
+                      day &&
+                      !isPast(day) &&
+                      !isDayBusy(day) &&
+                      !isClosedDay(day)
                     "
                     (click)="
                       day &&
                         !isPast(day) &&
                         !isDayBusy(day) &&
+                        !isClosedDay(day) &&
                         onCalDayClick(day)
                     "
                   >
@@ -731,6 +738,17 @@ import { environment } from '../../../environments/environment';
                           : 'Belegt'
                       }}
                     </div>
+                    <div
+                      class="bc-busy-tip bc-closed-tip"
+                      *ngIf="
+                        day &&
+                        !isPast(day) &&
+                        !isDayBusy(day) &&
+                        isClosedDay(day)
+                      "
+                    >
+                      {{ day.getDay() === 0 ? 'Sonntag' : 'Feiertag' }}
+                    </div>
                   </div>
                 </div>
                 <div class="bc-legend">
@@ -740,6 +758,10 @@ import { environment } from '../../../environments/environment';
                   <span class="bc-legend-item"
                     ><span class="bc-leg-dot bc-leg-pending"></span>In
                     Prüfung</span
+                  >
+                  <span class="bc-legend-item"
+                    ><span class="bc-leg-dot bc-leg-closed"></span
+                    >Geschlossen</span
                   >
                   <span class="bc-legend-item"
                     ><span class="bc-leg-dot bc-leg-sel"></span>Ausgewählt</span
@@ -1098,11 +1120,9 @@ import { environment } from '../../../environments/environment';
           </svg>
         </button>
 
-        <div
-          class="lightbox-counter"
-          *ngIf="selectedBike()!.images.length > 1"
-        >
-          {{ selectedBikeImageIndex() + 1 }} / {{ selectedBike()!.images.length }}
+        <div class="lightbox-counter" *ngIf="selectedBike()!.images.length > 1">
+          {{ selectedBikeImageIndex() + 1 }} /
+          {{ selectedBike()!.images.length }}
         </div>
       </div>
     </div>
@@ -2453,6 +2473,19 @@ import { environment } from '../../../environments/environment';
         cursor: not-allowed;
       }
 
+      .bc-closed {
+        background: rgba(148, 163, 184, 0.12);
+        color: var(--color-text-secondary, #94a3b8);
+        cursor: not-allowed;
+        font-style: italic;
+      }
+      .bc-closed-tip {
+        background: #64748b !important;
+      }
+      .bc-closed-tip::after {
+        border-top-color: #64748b !important;
+      }
+
       .bc-today::after {
         content: '';
         position: absolute;
@@ -2503,6 +2536,9 @@ import { environment } from '../../../environments/environment';
       }
       .bc-leg-pending {
         background: rgba(236, 72, 153, 0.5);
+      }
+      .bc-leg-closed {
+        background: rgba(148, 163, 184, 0.5);
       }
       .bc-leg-sel {
         background: var(--color-accent);
@@ -2930,6 +2966,59 @@ export class FahrradverleihComponent implements OnInit {
     return this.getDayBusyType(date) !== null;
   }
 
+  private bwHolidayCache = new Map<number, Set<string>>();
+
+  private easterDate(year: number): Date {
+    const a = year % 19;
+    const b = Math.floor(year / 100);
+    const c = year % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month, day);
+  }
+
+  private getBWHolidays(year: number): Set<string> {
+    if (this.bwHolidayCache.has(year)) return this.bwHolidayCache.get(year)!;
+    const fmt = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const add = (d: Date, days: number) =>
+      new Date(d.getFullYear(), d.getMonth(), d.getDate() + days);
+    const easter = this.easterDate(year);
+    const holidays = new Set<string>([
+      fmt(new Date(year, 0, 1)), // Neujahr
+      fmt(new Date(year, 0, 6)), // Heilige Drei Könige (BW)
+      fmt(new Date(year, 4, 1)), // Tag der Arbeit
+      fmt(new Date(year, 9, 3)), // Tag der Deutschen Einheit
+      fmt(new Date(year, 10, 1)), // Allerheiligen (BW)
+      fmt(new Date(year, 11, 25)), // 1. Weihnachtstag
+      fmt(new Date(year, 11, 26)), // 2. Weihnachtstag
+      fmt(add(easter, -2)), // Karfreitag
+      fmt(easter), // Ostersonntag
+      fmt(add(easter, 1)), // Ostermontag
+      fmt(add(easter, 39)), // Christi Himmelfahrt
+      fmt(add(easter, 49)), // Pfingstsonntag
+      fmt(add(easter, 50)), // Pfingstmontag
+      fmt(add(easter, 60)), // Fronleichnam (BW)
+    ]);
+    this.bwHolidayCache.set(year, holidays);
+    return holidays;
+  }
+
+  isClosedDay(date: Date): boolean {
+    if (date.getDay() === 0) return true; // Sonntag
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return this.getBWHolidays(date.getFullYear()).has(key);
+  }
+
   getDayBusyType(date: Date): 'booking' | 'pending' | 'rental' | null {
     const t = date.getTime();
     const covering = this.busyPeriods().filter(
@@ -2975,6 +3064,7 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   onCalDayClick(date: Date): void {
+    if (this.isClosedDay(date)) return;
     const s = this.calendarStart();
     const e = this.calendarEnd();
     if (!s || (s && e) || date < s) {

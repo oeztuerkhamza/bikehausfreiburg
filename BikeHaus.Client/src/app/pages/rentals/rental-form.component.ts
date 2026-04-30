@@ -351,6 +351,7 @@ const MONTH_NAMES = [
                     class="cal-day"
                     [class.empty]="!day"
                     [class.busy]="day && isDayBusy(day)"
+                    [class.closed]="day && !isDayBusy(day) && isClosedDay(day)"
                     [class.range-start]="day && isDayRangeStart(day)"
                     [class.range-end]="day && isDayRangeEnd(day)"
                     [class.in-range]="day && isDayInRange(day)"
@@ -359,6 +360,7 @@ const MONTH_NAMES = [
                       pickingState === 'end' &&
                       day &&
                       !isDayBusy(day) &&
+                      !isClosedDay(day) &&
                       !isDayRangeStart(day)
                     "
                     (click)="day && onCalendarDayClick(day)"
@@ -367,12 +369,21 @@ const MONTH_NAMES = [
                     <div class="busy-tooltip" *ngIf="day && isDayBusy(day)">
                       Besetzt
                     </div>
+                    <div
+                      class="busy-tooltip closed-tooltip"
+                      *ngIf="day && !isDayBusy(day) && isClosedDay(day)"
+                    >
+                      {{ day.getDay() === 0 ? 'Sonntag' : 'Feiertag' }}
+                    </div>
                   </div>
                 </div>
 
                 <div class="cal-legend">
                   <span class="legend-item">
                     <span class="legend-dot busy-dot"></span> Besetzt
+                  </span>
+                  <span class="legend-item">
+                    <span class="legend-dot closed-dot"></span> Geschlossen
                   </span>
                   <span class="legend-item">
                     <span class="legend-dot selected-dot"></span> Ausgewählt
@@ -754,6 +765,24 @@ const MONTH_NAMES = [
         color: #ef4444;
         cursor: not-allowed;
         font-weight: 600;
+      }
+      .cal-day.closed {
+        background: rgba(148, 163, 184, 0.1);
+        color: var(--text-muted, #94a3b8);
+        cursor: not-allowed;
+        font-style: italic;
+      }
+      .cal-day.closed:hover .closed-tooltip {
+        display: block;
+      }
+      .closed-tooltip {
+        background: #64748b !important;
+      }
+      .closed-tooltip::after {
+        border-top-color: #64748b !important;
+      }
+      .closed-dot {
+        background: rgba(148, 163, 184, 0.5);
       }
       .cal-day.range-start,
       .cal-day.range-end {
@@ -1268,6 +1297,59 @@ export class RentalFormComponent implements OnInit {
     });
   }
 
+  private bwHolidayCache = new Map<number, Set<string>>();
+
+  private easterDate(year: number): Date {
+    const a = year % 19;
+    const b = Math.floor(year / 100);
+    const c = year % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month, day);
+  }
+
+  private getBWHolidays(year: number): Set<string> {
+    if (this.bwHolidayCache.has(year)) return this.bwHolidayCache.get(year)!;
+    const fmt = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const add = (d: Date, days: number) =>
+      new Date(d.getFullYear(), d.getMonth(), d.getDate() + days);
+    const easter = this.easterDate(year);
+    const holidays = new Set<string>([
+      fmt(new Date(year, 0, 1)), // Neujahr
+      fmt(new Date(year, 0, 6)), // Heilige Drei Könige (BW)
+      fmt(new Date(year, 4, 1)), // Tag der Arbeit
+      fmt(new Date(year, 9, 3)), // Tag der Deutschen Einheit
+      fmt(new Date(year, 10, 1)), // Allerheiligen (BW)
+      fmt(new Date(year, 11, 25)), // 1. Weihnachtstag
+      fmt(new Date(year, 11, 26)), // 2. Weihnachtstag
+      fmt(add(easter, -2)), // Karfreitag
+      fmt(easter), // Ostersonntag
+      fmt(add(easter, 1)), // Ostermontag
+      fmt(add(easter, 39)), // Christi Himmelfahrt
+      fmt(add(easter, 49)), // Pfingstsonntag
+      fmt(add(easter, 50)), // Pfingstmontag
+      fmt(add(easter, 60)), // Fronleichnam (BW)
+    ]);
+    this.bwHolidayCache.set(year, holidays);
+    return holidays;
+  }
+
+  isClosedDay(date: Date): boolean {
+    if (date.getDay() === 0) return true; // Sonntag
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return this.getBWHolidays(date.getFullYear()).has(key);
+  }
+
   isDayRangeStart(date: Date): boolean {
     return !!this.startDatum && this.toLocal(date) === this.startDatum;
   }
@@ -1310,6 +1392,7 @@ export class RentalFormComponent implements OnInit {
 
   onCalendarDayClick(date: Date) {
     if (this.isDayBusy(date)) return;
+    if (this.isClosedDay(date)) return;
     const dateStr = this.toLocal(date);
 
     if (this.pickingState === 'start' || (this.startDatum && this.endDatum)) {
