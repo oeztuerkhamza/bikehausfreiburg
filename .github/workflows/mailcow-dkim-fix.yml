@@ -31,18 +31,24 @@ jobs:
             source mailcow.conf
 
             API_KEY=$(grep -E '^API_KEY=' mailcow.conf | cut -d'=' -f2 | tr -d '"' | tr -d "'" | tr -d '[:space:]')
+            echo "API Key (ilk 8): ${API_KEY:0:8}..."
 
-            # API_ALLOW_FROM: docker bridge + localhost ekle
-            if grep -q '^API_ALLOW_FROM=' mailcow.conf; then
-              sed -i "s|^API_ALLOW_FROM=.*|API_ALLOW_FROM=127.0.0.1,::1,172.16.0.0/12,10.0.0.0/8|" mailcow.conf
-            else
-              echo "API_ALLOW_FROM=127.0.0.1,::1,172.16.0.0/12,10.0.0.0/8" >> mailcow.conf
-            fi
-            echo "API_ALLOW_FROM: $(grep '^API_ALLOW_FROM=' mailcow.conf)"
+            # DB'deki API allow_from guncelle
+            echo "=== DB'deki API allow_from guncelleniyor ==="
+            docker compose exec -T mysql-mailcow mysql \
+              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
+              -e "SELECT api_key, allow_from, active FROM api LIMIT 5;"
 
-            # nginx reload
-            docker compose exec -T nginx-mailcow nginx -s reload 2>/dev/null || true
-            sleep 5
+            docker compose exec -T mysql-mailcow mysql \
+              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
+              -e "UPDATE api SET allow_from='172.16.0.0/12,10.0.0.0/8,127.0.0.1,::1' WHERE api_key='$API_KEY';"
+
+            echo "Guncellendi. Yeni durum:"
+            docker compose exec -T mysql-mailcow mysql \
+              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
+              -e "SELECT api_key, allow_from, active FROM api WHERE api_key='$API_KEY';"
+
+            sleep 2
 
             echo "=== DKIM key olusturuluyor ==="
             RESULT=$(curl -skL -X POST "https://127.0.0.1/api/v1/add/dkim" \
