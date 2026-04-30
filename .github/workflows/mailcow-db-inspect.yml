@@ -29,16 +29,16 @@ jobs:
             cd "$MAILCOW_DIR"
             source mailcow.conf
 
-            echo "=== Tum tablolar ==="
+            echo "=== domain tablosu yapisi ==="
             docker compose exec -T mysql-mailcow mysql \
               -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "SHOW TABLES;"
+              -e "DESCRIBE domain;"
 
             echo ""
-            echo "=== Domain listesi ==="
+            echo "=== bikehausfreiburg.com DKIM bilgisi ==="
             docker compose exec -T mysql-mailcow mysql \
               -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "SELECT domain FROM domain LIMIT 20;" 2>/dev/null || \
+              -e "SELECT domain, dkim_selector, LEFT(dkim_privatekey,50) as key_preview FROM domain WHERE domain='bikehausfreiburg.com';" 2>/dev/null || \
             docker compose exec -T mysql-mailcow mysql \
               -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
-              -e "SELECT name FROM domains LIMIT 20;" 2>/dev/null || echo "(tablo bulunamadi)"
+              -e "SELECT * FROM domain WHERE domain='bikehausfreiburg.com'\G" 2>/dev/null | head -30
