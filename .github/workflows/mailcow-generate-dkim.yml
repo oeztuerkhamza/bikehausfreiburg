@@ -1,0 +1,83 @@
+name: Mailcow Generate DKIM
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-dkim:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate DKIM key and print DNS record
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 3m
+          script: |
+            set -e
+
+            MAILCOW_DIR=""
+            for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
+              if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
+                MAILCOW_DIR="$d"
+                break
+              fi
+            done
+
+            if [ -z "$MAILCOW_DIR" ]; then
+              echo "ERROR: mailcow.conf bulunamadı"
+              exit 1
+            fi
+
+            cd "$MAILCOW_DIR"
+            source mailcow.conf
+
+            # API key'i al
+            API_KEY=$(grep -E '^API_KEY=' mailcow.conf | cut -d'=' -f2 | tr -d '"' | tr -d "'")
+            if [ -z "$API_KEY" ]; then
+              API_KEY=$(grep -E '^MAILCOW_API_KEY=' mailcow.conf | cut -d'=' -f2 | tr -d '"' | tr -d "'")
+            fi
+
+            echo "=== API Key durumu ==="
+            if [ -z "$API_KEY" ]; then
+              echo "API key bulunamadı, direkt rspamd üzerinden DKIM oluşturuluyor..."
+
+              # rspamd üzerinden DKIM key oluştur
+              docker compose exec -T rspamd-mailcow sh -c "
+                mkdir -p /var/lib/rspamd/dkim
+                if [ ! -f /var/lib/rspamd/dkim/bikehausfreiburg.com.dkim.key ]; then
+                  rspamadm dkim_keygen -s 'dkim' -d 'bikehausfreiburg.com' \
+                    -k /var/lib/rspamd/dkim/bikehausfreiburg.com.dkim.key \
+                    > /var/lib/rspamd/dkim/bikehausfreiburg.com.dkim.txt 2>&1
+                  chown -R _rspamd:_rspamd /var/lib/rspamd/dkim/ 2>/dev/null || true
+                  echo 'DKIM key oluşturuldu.'
+                else
+                  echo 'DKIM key zaten mevcut.'
+                fi
+                echo '=== DNS TXT Kaydı ==='
+                cat /var/lib/rspamd/dkim/bikehausfreiburg.com.dkim.txt 2>/dev/null || \
+                cat /var/lib/rspamd/dkim/*.txt 2>/dev/null
+              "
+            else
+              echo "API key bulundu, mailcow API üzerinden DKIM oluşturuluyor..."
+              # mailcow API ile DKIM oluştur
+              curl -s -X POST "http://localhost/api/v1/add/dkim" \
+                -H "X-API-Key: $API_KEY" \
+                -H "Content-Type: application/json" \
+                -d '{"dkim_selector":"dkim","domain":["bikehausfreiburg.com"],"key_size":2048}' | python3 -m json.tool || true
+
+              sleep 2
+
+              # Public key'i al
+              echo "=== DKIM Public Key DNS kaydı ==="
+              curl -s "http://localhost/api/v1/get/dkim/bikehausfreiburg.com" \
+                -H "X-API-Key: $API_KEY" | python3 -m json.tool || true
+            fi
+
+            echo ""
+            echo "=== Mevcut DKIM dosyaları ==="
+            docker compose exec -T rspamd-mailcow ls -la /var/lib/rspamd/dkim/ 2>/dev/null || echo "(dizin yok)"
