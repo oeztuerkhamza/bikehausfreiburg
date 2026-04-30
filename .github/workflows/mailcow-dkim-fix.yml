@@ -29,16 +29,32 @@ jobs:
             [ -z "$MAILCOW_DIR" ] && echo "ERROR: mailcow.conf bulunamadi" && exit 1
             cd "$MAILCOW_DIR"
             source mailcow.conf
-            echo "=== Mailcow hostname: $MAILCOW_HOSTNAME ==="
+
             API_KEY=$(grep -E '^API_KEY=' mailcow.conf | cut -d'=' -f2 | tr -d '"' | tr -d "'" | tr -d '[:space:]')
-            echo "API Key (first 8 chars): ${API_KEY:0:8}..."
+
+            # API_ALLOW_FROM guncelle - 127.0.0.1 ekle
+            echo "=== API_ALLOW_FROM guncelleniyor ==="
+            CURRENT=$(grep -E '^API_ALLOW_FROM=' mailcow.conf || echo "API_ALLOW_FROM=")
+            echo "Mevcut: $CURRENT"
+            if grep -q '^API_ALLOW_FROM=' mailcow.conf; then
+              sed -i 's|^API_ALLOW_FROM=.*|API_ALLOW_FROM=127.0.0.1,::1|' mailcow.conf
+            else
+              echo 'API_ALLOW_FROM=127.0.0.1,::1' >> mailcow.conf
+            fi
+            echo "Yeni: $(grep -E '^API_ALLOW_FROM=' mailcow.conf)"
+
+            # nginx-mailcow reload (API_ALLOW_FROM icin)
+            docker compose exec -T nginx-mailcow nginx -s reload 2>/dev/null || docker compose restart nginx-mailcow
+            sleep 3
+
             echo "=== DKIM key olusturuluyor ==="
-            RESULT=$(curl -sk -X POST "https://$MAILCOW_HOSTNAME/api/v1/add/dkim" \
+            RESULT=$(curl -s -X POST "http://127.0.0.1/api/v1/add/dkim" \
               -H "X-API-Key: $API_KEY" \
               -H "Content-Type: application/json" \
               -d '{"dkim_selector":"dkim","domain":["bikehausfreiburg.com"],"key_size":2048}')
-            echo "Add DKIM result: $RESULT"
+            echo "Add result: $RESULT"
             sleep 2
+
             echo "=== DKIM DNS kaydi ==="
-            curl -sk "https://$MAILCOW_HOSTNAME/api/v1/get/dkim/bikehausfreiburg.com" \
+            curl -s "http://127.0.0.1/api/v1/get/dkim/bikehausfreiburg.com" \
               -H "X-API-Key: $API_KEY"
