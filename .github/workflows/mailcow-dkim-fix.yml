@@ -50,11 +50,21 @@ jobs:
             docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
               -e "SELECT domain, selector FROM dkim WHERE domain='$DOMAIN';" 2>&1 | sed 's/^/  /'
 
+            # Redis auth wrapper
+            RPASS="${REDISPASS:-}"
+            redis() {
+              if [ -n "$RPASS" ]; then
+                docker compose exec -T redis-mailcow redis-cli --no-auth-warning -a "$RPASS" "$@"
+              else
+                docker compose exec -T redis-mailcow redis-cli "$@"
+              fi
+            }
+
             echo ""
             echo "--- Redis DKIM hash'leri (mevcut anahtarlar) ---"
             for h in DKIM_PUB_KEYS DKIM_PRIV_KEYS DKIM_SELECTORS; do
               echo "  $h:"
-              docker compose exec -T redis-mailcow redis-cli HKEYS "$h" 2>/dev/null | sed 's/^/    /'
+              redis HKEYS "$h" 2>/dev/null | sed 's/^/    /'
             done
 
             echo ""
@@ -101,17 +111,33 @@ jobs:
             echo "=========================================="
             echo "3. REDIS'E YAZ (rspamd asil bunu okur)"
             echo "=========================================="
-            # Redis HSET — newline'lari korumak icin --pipe yerine -x kullan
-            printf '%s' "$PUB"  | docker compose exec -T redis-mailcow redis-cli -x HSET DKIM_PUB_KEYS  "${SELECTOR}.${DOMAIN}"
-            printf '%s' "$PRIV" | docker compose exec -T redis-mailcow redis-cli -x HSET DKIM_PRIV_KEYS "${SELECTOR}.${DOMAIN}"
-            printf '%s' "$SELECTOR" | docker compose exec -T redis-mailcow redis-cli -x HSET DKIM_SELECTORS "$DOMAIN"
+            # redis-cli -x stdin'den deger okur, auth flag'i ile birlikte kullan
+            if [ -n "$RPASS" ]; then
+              printf '%s' "$PUB"      | docker compose exec -T redis-mailcow redis-cli --no-auth-warning -a "$RPASS" -x HSET DKIM_PUB_KEYS  "${SELECTOR}.${DOMAIN}"
+              printf '%s' "$PRIV"     | docker compose exec -T redis-mailcow redis-cli --no-auth-warning -a "$RPASS" -x HSET DKIM_PRIV_KEYS "${SELECTOR}.${DOMAIN}"
+              printf '%s' "$SELECTOR" | docker compose exec -T redis-mailcow redis-cli --no-auth-warning -a "$RPASS" -x HSET DKIM_SELECTORS "$DOMAIN"
+            else
+              printf '%s' "$PUB"      | docker compose exec -T redis-mailcow redis-cli -x HSET DKIM_PUB_KEYS  "${SELECTOR}.${DOMAIN}"
+              printf '%s' "$PRIV"     | docker compose exec -T redis-mailcow redis-cli -x HSET DKIM_PRIV_KEYS "${SELECTOR}.${DOMAIN}"
+              printf '%s' "$SELECTOR" | docker compose exec -T redis-mailcow redis-cli -x HSET DKIM_SELECTORS "$DOMAIN"
+            fi
 
             echo ""
             echo "Redis sonrasi durum:"
             for h in DKIM_PUB_KEYS DKIM_PRIV_KEYS DKIM_SELECTORS; do
               echo "  $h:"
-              docker compose exec -T redis-mailcow redis-cli HKEYS "$h" 2>/dev/null | sed 's/^/    /'
+              redis HKEYS "$h" 2>/dev/null | sed 's/^/    /'
             done
+
+            # Public key'i Redis'ten okuyup dogrula (NOAUTH hatasi alirsa burada gorunur)
+            VERIFY=$(redis HGET DKIM_PUB_KEYS "${SELECTOR}.${DOMAIN}" 2>/dev/null)
+            echo ""
+            echo "Redis'ten okuma testi (ilk 60 char): ${VERIFY:0:60}..."
+            if echo "$VERIFY" | grep -qi "noauth\|auth"; then
+              echo "!!! REDIS AUTH HATASI - REDISPASS dogru gelmemis !!!"
+              echo "mailcow.conf icindeki REDISPASS degeri: ${RPASS:0:4}... (uzunluk: ${#RPASS})"
+              exit 1
+            fi
 
             echo ""
             echo "=========================================="

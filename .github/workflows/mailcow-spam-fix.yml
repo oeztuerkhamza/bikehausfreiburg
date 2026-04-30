@@ -34,11 +34,43 @@ jobs:
 
             PUB4=$(curl -s4 https://ifconfig.me 2>/dev/null)
             PUB6=$(curl -s6 https://ifconfig.me 2>/dev/null)
-            DKIM_PUB=$(docker compose exec -T redis-mailcow redis-cli HGET DKIM_PUB_KEYS "${SELECTOR}.${DOMAIN}" 2>/dev/null | tr -d '\r\n ')
 
-            if [ -z "$DKIM_PUB" ]; then
-              echo "HATA: Redis'te DKIM public key bulunamadi. Once 'Mailcow DKIM End-to-End' workflow'unu calistir."
-              exit 1
+            # Redis auth wrapper
+            RPASS="${REDISPASS:-}"
+            redis_get() {
+              if [ -n "$RPASS" ]; then
+                docker compose exec -T redis-mailcow redis-cli --no-auth-warning -a "$RPASS" "$@"
+              else
+                docker compose exec -T redis-mailcow redis-cli "$@"
+              fi
+            }
+
+            DKIM_PUB=$(redis_get HGET DKIM_PUB_KEYS "${SELECTOR}.${DOMAIN}" 2>/dev/null | tr -d '\r\n ')
+
+            # Eger Redis'te yoksa, dosyadan turetip Redis'e yaz
+            if [ -z "$DKIM_PUB" ] || echo "$DKIM_PUB" | grep -qi "noauth\|auth"; then
+              echo "Redis'te DKIM public key yok veya auth hatasi. Container icinden okuyup yaziyorum..."
+              KEY_PATH="/var/lib/rspamd/dkim/${DOMAIN}.${SELECTOR}.key"
+              EXISTS=$(docker compose exec -T rspamd-mailcow sh -c "[ -f $KEY_PATH ] && echo yes || echo no" 2>/dev/null | tr -d '\r\n ')
+              if [ "$EXISTS" != "yes" ]; then
+                echo "HATA: Container'da da DKIM key dosyasi yok ($KEY_PATH)."
+                echo "      Once 'Mailcow DKIM End-to-End' workflow'unu calistir."
+                exit 1
+              fi
+              PRIV=$(docker compose exec -T rspamd-mailcow cat "$KEY_PATH" 2>/dev/null)
+              DKIM_PUB=$(docker compose exec -T rspamd-mailcow sh -c "openssl rsa -in $KEY_PATH -pubout 2>/dev/null" \
+                        | sed -e '/-----BEGIN/d' -e '/-----END/d' | tr -d '\n\r ')
+              if [ -z "$DKIM_PUB" ]; then
+                echo "HATA: openssl ile public key cikarilamadi"
+                exit 1
+              fi
+              if [ -n "$RPASS" ]; then
+                printf '%s' "$DKIM_PUB"  | docker compose exec -T redis-mailcow redis-cli --no-auth-warning -a "$RPASS" -x HSET DKIM_PUB_KEYS  "${SELECTOR}.${DOMAIN}"
+                printf '%s' "$PRIV"      | docker compose exec -T redis-mailcow redis-cli --no-auth-warning -a "$RPASS" -x HSET DKIM_PRIV_KEYS "${SELECTOR}.${DOMAIN}"
+                printf '%s' "$SELECTOR"  | docker compose exec -T redis-mailcow redis-cli --no-auth-warning -a "$RPASS" -x HSET DKIM_SELECTORS "$DOMAIN"
+              fi
+              echo "Redis guncellendi"
+              docker compose restart rspamd-mailcow >/dev/null 2>&1
             fi
 
             echo ""
