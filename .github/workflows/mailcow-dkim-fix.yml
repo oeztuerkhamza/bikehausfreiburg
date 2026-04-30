@@ -10,7 +10,7 @@ jobs:
   fix-dkim:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate and register DKIM via mailcow API
+      - name: Find and generate DKIM key
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -29,25 +29,42 @@ jobs:
             cd "$MAILCOW_DIR"
             source mailcow.conf
 
-            API_KEY=$(grep -E '^API_KEY=' mailcow.conf | cut -d'=' -f2 | tr -d '"' | tr -d "'" | tr -d '[:space:]')
-
-            echo "=== rspamd mount noktalari ==="
-            docker inspect rspamd-mailcow --format '{{range .Mounts}}{{.Source}} -> {{.Destination}}{{println}}{{end}}' 2>/dev/null
-
-            echo ""
-            echo "=== rspamd icindeki tumm dizinler ==="
-            docker compose exec -T rspamd-mailcow find /var/lib/rspamd -maxdepth 3 -type d 2>/dev/null
+            echo "=== dkim_signing.conf icerigi ==="
+            cat "$MAILCOW_DIR/data/conf/rspamd/local.d/dkim_signing.conf" 2>/dev/null
+            cat "$MAILCOW_DIR/data/conf/rspamd/override.d/dkim_signing.conf" 2>/dev/null
 
             echo ""
-            echo "=== rspamd dkim dosyalari (tum olasi yerler) ==="
-            docker compose exec -T rspamd-mailcow find / -name "*.key" -o -name "*dkim*.txt" 2>/dev/null | grep -v proc | head -20
+            echo "=== rspamd data/conf/rspamd klasoru ==="
+            ls -la "$MAILCOW_DIR/data/conf/rspamd/" 2>/dev/null
 
             echo ""
-            echo "=== Host dkim dosyalari ==="
-            find / -name "*dkim*" -not -path "*/proc/*" 2>/dev/null | head -20
+            echo "=== DKIM klasoru (data/conf/rspamd/dkim/) ==="
+            ls -la "$MAILCOW_DIR/data/conf/rspamd/dkim/" 2>/dev/null || echo "(dizin yok)"
 
             echo ""
-            echo "=== DKIM GET API ==="
-            curl -skL "https://127.0.0.1/api/v1/get/dkim/bikehausfreiburg.com" \
-              -H "Host: $MAILCOW_HOSTNAME" \
-              -H "X-API-Key: $API_KEY"
+            echo "=== rspamadm ile DKIM olustur ==="
+            DKIM_DIR="$MAILCOW_DIR/data/conf/rspamd/dkim"
+            mkdir -p "$DKIM_DIR"
+            
+            if [ ! -f "$DKIM_DIR/bikehausfreiburg.com.dkim.key" ]; then
+              docker compose exec -T rspamd-mailcow rspamadm dkim_keygen \
+                -s dkim \
+                -d bikehausfreiburg.com \
+                -k /tmp/bikehausfreiburg.com.dkim.key \
+                > /tmp/bikehausfreiburg.com.dkim.txt 2>&1
+              
+              # Dosyayi host'a kopyala
+              docker compose cp rspamd-mailcow:/tmp/bikehausfreiburg.com.dkim.key "$DKIM_DIR/bikehausfreiburg.com.dkim.key" 2>/dev/null || \
+              docker compose exec -T rspamd-mailcow cat /tmp/bikehausfreiburg.com.dkim.key > "$DKIM_DIR/bikehausfreiburg.com.dkim.key"
+              
+              cat /tmp/bikehausfreiburg.com.dkim.txt 2>/dev/null || echo "txt dosya yok"
+              
+              echo "=== Olusturulan anahtar ==="
+              cat "$DKIM_DIR/bikehausfreiburg.com.dkim.key" 2>/dev/null | head -3
+            else
+              echo "DKIM key zaten mevcut"
+            fi
+
+            echo ""
+            echo "=== DKIM public key (DNS icin) ==="
+            docker compose exec -T rspamd-mailcow cat /tmp/bikehausfreiburg.com.dkim.txt 2>/dev/null
