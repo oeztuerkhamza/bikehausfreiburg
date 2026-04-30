@@ -1,4 +1,4 @@
-name: Mailcow DKIM Setup Fix
+name: Mailcow DKIM End-to-End
 
 permissions:
   contents: read
@@ -7,64 +7,140 @@ on:
   workflow_dispatch:
 
 jobs:
-  fix-dkim:
+  setup-dkim:
     runs-on: ubuntu-latest
     steps:
-      - name: Find and generate DKIM key
+      - name: Generate, store and publish DKIM key
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          command_timeout: 5m
+          command_timeout: 6m
           script: |
             set +e
             MAILCOW_DIR=""
             for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
               if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
-                MAILCOW_DIR="$d"
-                break
+                MAILCOW_DIR="$d"; break
               fi
             done
+            [ -z "$MAILCOW_DIR" ] && echo "ERROR: mailcow.conf bulunamadi" && exit 1
             cd "$MAILCOW_DIR"
             source mailcow.conf
 
-            echo "=== dkim_signing.conf icerigi ==="
-            cat "$MAILCOW_DIR/data/conf/rspamd/local.d/dkim_signing.conf" 2>/dev/null
-            cat "$MAILCOW_DIR/data/conf/rspamd/override.d/dkim_signing.conf" 2>/dev/null
+            DOMAIN="bikehausfreiburg.com"
+            SELECTOR="dkim"
+            KEY_PATH="/var/lib/rspamd/dkim/${DOMAIN}.${SELECTOR}.key"
+
+            echo "=========================================="
+            echo "1. ONCEKI DURUM"
+            echo "=========================================="
+
+            echo "--- dkim_signing.conf (local + override) ---"
+            for f in data/conf/rspamd/local.d/dkim_signing.conf data/conf/rspamd/override.d/dkim_signing.conf; do
+              echo "# $f"
+              cat "$f" 2>/dev/null | sed 's/^/  /'
+              echo ""
+            done
+
+            echo "--- MySQL dkim tablosu ---"
+            docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
+              -e "DESCRIBE dkim;" 2>&1 | sed 's/^/  /'
+            docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
+              -e "SELECT domain, selector FROM dkim WHERE domain='$DOMAIN';" 2>&1 | sed 's/^/  /'
 
             echo ""
-            echo "=== rspamd data/conf/rspamd klasoru ==="
-            ls -la "$MAILCOW_DIR/data/conf/rspamd/" 2>/dev/null
+            echo "--- Redis DKIM hash'leri (mevcut anahtarlar) ---"
+            for h in DKIM_PUB_KEYS DKIM_PRIV_KEYS DKIM_SELECTORS; do
+              echo "  $h:"
+              docker compose exec -T redis-mailcow redis-cli HKEYS "$h" 2>/dev/null | sed 's/^/    /'
+            done
 
             echo ""
-            echo "=== DKIM klasoru (data/conf/rspamd/dkim/) ==="
-            ls -la "$MAILCOW_DIR/data/conf/rspamd/dkim/" 2>/dev/null || echo "(dizin yok)"
+            echo "--- Container DKIM dizinleri ---"
+            for d in /var/lib/rspamd/dkim /var/lib/dkim /data/dkim; do
+              echo "  $d:"
+              docker compose exec -T rspamd-mailcow ls -la "$d" 2>/dev/null | sed 's/^/    /'
+            done
 
             echo ""
-            echo "=== rspamadm ile DKIM olustur ==="
-            DKIM_DIR="$MAILCOW_DIR/data/conf/rspamd/dkim"
-            mkdir -p "$DKIM_DIR"
-            
-            if [ ! -f "$DKIM_DIR/bikehausfreiburg.com.dkim.key" ]; then
-              docker compose exec -T rspamd-mailcow rspamadm dkim_keygen \
-                -s dkim \
-                -d bikehausfreiburg.com \
-                -k /tmp/bikehausfreiburg.com.dkim.key \
-                > /tmp/bikehausfreiburg.com.dkim.txt 2>&1
-              
-              # Dosyayi host'a kopyala
-              docker compose cp rspamd-mailcow:/tmp/bikehausfreiburg.com.dkim.key "$DKIM_DIR/bikehausfreiburg.com.dkim.key" 2>/dev/null || \
-              docker compose exec -T rspamd-mailcow cat /tmp/bikehausfreiburg.com.dkim.key > "$DKIM_DIR/bikehausfreiburg.com.dkim.key"
-              
-              cat /tmp/bikehausfreiburg.com.dkim.txt 2>/dev/null || echo "txt dosya yok"
-              
-              echo "=== Olusturulan anahtar ==="
-              cat "$DKIM_DIR/bikehausfreiburg.com.dkim.key" 2>/dev/null | head -3
-            else
-              echo "DKIM key zaten mevcut"
+            echo "=========================================="
+            echo "2. RSPAMADM ILE ANAHTAR URET"
+            echo "=========================================="
+            docker compose exec -T rspamd-mailcow sh -c "
+              mkdir -p /var/lib/rspamd/dkim
+              if [ ! -f '$KEY_PATH' ]; then
+                rspamadm dkim_keygen -s '$SELECTOR' -d '$DOMAIN' -b 2048 -k '$KEY_PATH'
+                chown _rspamd:_rspamd '$KEY_PATH' 2>/dev/null
+                chmod 440 '$KEY_PATH' 2>/dev/null
+                echo 'YENI key olusturuldu'
+              else
+                echo 'Mevcut key kullanilacak'
+              fi
+              ls -la '$KEY_PATH'
+            "
+
+            # Private key (PEM)
+            PRIV=$(docker compose exec -T rspamd-mailcow cat "$KEY_PATH" 2>/dev/null)
+
+            # Public key — base64-only, tek satir (DNS p= degeri icin)
+            PUB=$(docker compose exec -T rspamd-mailcow sh -c "openssl rsa -in '$KEY_PATH' -pubout 2>/dev/null" \
+                  | sed -e '/-----BEGIN/d' -e '/-----END/d' | tr -d '\n\r ')
+
+            echo ""
+            echo "Private key boyutu: ${#PRIV} byte"
+            echo "Public key boyutu: ${#PUB} byte"
+
+            if [ -z "$PRIV" ] || [ -z "$PUB" ]; then
+              echo "HATA: anahtar uretilemedi/okunamadi"
+              exit 1
             fi
 
             echo ""
-            echo "=== DKIM public key (DNS icin) ==="
-            docker compose exec -T rspamd-mailcow cat /tmp/bikehausfreiburg.com.dkim.txt 2>/dev/null
+            echo "=========================================="
+            echo "3. REDIS'E YAZ (rspamd asil bunu okur)"
+            echo "=========================================="
+            # Redis HSET — newline'lari korumak icin --pipe yerine -x kullan
+            printf '%s' "$PUB"  | docker compose exec -T redis-mailcow redis-cli -x HSET DKIM_PUB_KEYS  "${SELECTOR}.${DOMAIN}"
+            printf '%s' "$PRIV" | docker compose exec -T redis-mailcow redis-cli -x HSET DKIM_PRIV_KEYS "${SELECTOR}.${DOMAIN}"
+            printf '%s' "$SELECTOR" | docker compose exec -T redis-mailcow redis-cli -x HSET DKIM_SELECTORS "$DOMAIN"
+
+            echo ""
+            echo "Redis sonrasi durum:"
+            for h in DKIM_PUB_KEYS DKIM_PRIV_KEYS DKIM_SELECTORS; do
+              echo "  $h:"
+              docker compose exec -T redis-mailcow redis-cli HKEYS "$h" 2>/dev/null | sed 's/^/    /'
+            done
+
+            echo ""
+            echo "=========================================="
+            echo "4. RSPAMD YENIDEN BASLAT"
+            echo "=========================================="
+            docker compose restart rspamd-mailcow 2>&1 | tail -3
+            sleep 4
+            docker compose exec -T rspamd-mailcow rspamadm configtest 2>&1 | tail -5
+
+            echo ""
+            echo "=========================================="
+            echo "5. DNS'E EKLENECEK TXT KAYDI"
+            echo "=========================================="
+            echo ""
+            echo "DNS panelinde (Cloudflare vs.) su kaydi ekle:"
+            echo ""
+            echo "  Type:  TXT"
+            echo "  Name:  ${SELECTOR}._domainkey"
+            echo "  TTL:   3600 (Auto)"
+            echo "  Value: v=DKIM1; k=rsa; p=$PUB"
+            echo ""
+            echo "Tam FQDN: ${SELECTOR}._domainkey.${DOMAIN}"
+            echo ""
+            echo "=========================================="
+            echo "6. DOGRULAMA KOMUTU (DNS yayildiktan sonra)"
+            echo "=========================================="
+            echo ""
+            echo "  dig TXT ${SELECTOR}._domainkey.${DOMAIN} +short"
+            echo ""
+            echo "  # Test mail (Gmail'e gondermeden once):"
+            echo "  echo 'test' | mail -s 'DKIM test' check-auth@verifier.port25.com"
+            echo ""
