@@ -1,0 +1,185 @@
+name: Mailcow Spam Fix Helper
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output DNS records and add postmaster alias
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 4m
+          script: |
+            set +e
+            MAILCOW_DIR=""
+            for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
+              if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
+                MAILCOW_DIR="$d"; break
+              fi
+            done
+            cd "$MAILCOW_DIR"
+            source mailcow.conf
+
+            DOMAIN="bikehausfreiburg.com"
+            SELECTOR="dkim"
+            HOSTNAME="${MAILCOW_HOSTNAME:-mail.$DOMAIN}"
+
+            PUB4=$(curl -s4 https://ifconfig.me 2>/dev/null)
+            PUB6=$(curl -s6 https://ifconfig.me 2>/dev/null)
+            DKIM_PUB=$(docker compose exec -T redis-mailcow redis-cli HGET DKIM_PUB_KEYS "${SELECTOR}.${DOMAIN}" 2>/dev/null | tr -d '\r\n ')
+
+            if [ -z "$DKIM_PUB" ]; then
+              echo "HATA: Redis'te DKIM public key bulunamadi. Once 'Mailcow DKIM End-to-End' workflow'unu calistir."
+              exit 1
+            fi
+
+            echo ""
+            echo "##########################################################"
+            echo "#                                                        #"
+            echo "#   CLOUDFLARE'E EKLENECEK / GUNCELLENECEK DNS KAYITLARI #"
+            echo "#                                                        #"
+            echo "##########################################################"
+            echo ""
+            echo "----------------------------------------------------------"
+            echo "1) DKIM TXT kaydi (YENI EKLE)"
+            echo "----------------------------------------------------------"
+            echo "  Type:  TXT"
+            echo "  Name:  ${SELECTOR}._domainkey"
+            echo "  TTL:   Auto"
+            echo "  Proxy: DNS only (gri bulut)"
+            echo "  Value:"
+            echo "  v=DKIM1; k=rsa; p=$DKIM_PUB"
+            echo ""
+            echo "----------------------------------------------------------"
+            echo "2) SPF TXT kaydi (MEVCUTU GUNCELLE)"
+            echo "----------------------------------------------------------"
+            echo "  Type:  TXT"
+            echo "  Name:  @  (root)"
+            echo "  TTL:   Auto"
+            echo "  Eski deger:  v=spf1 mx ~all"
+            echo "  Yeni deger:"
+            echo "  v=spf1 mx a:$HOSTNAME ip4:$PUB4 ip6:$PUB6 ~all"
+            echo ""
+            echo "----------------------------------------------------------"
+            echo "3) DMARC TXT kaydi (MEVCUTU GUNCELLE - p=reject -> quarantine)"
+            echo "----------------------------------------------------------"
+            echo "  Type:  TXT"
+            echo "  Name:  _dmarc"
+            echo "  TTL:   Auto"
+            echo "  Yeni deger:"
+            echo "  v=DMARC1; p=quarantine; sp=quarantine; rua=mailto:postmaster@$DOMAIN; ruf=mailto:postmaster@$DOMAIN; adkim=r; aspf=r; pct=100; fo=1"
+            echo ""
+            echo "  NOT: 1-2 hafta gozlemledikten sonra p=reject'e geri donebilirsin."
+            echo ""
+            echo "----------------------------------------------------------"
+            echo "4) AAAA kaydi (YENI EKLE - IPv6 destegi icin)"
+            echo "----------------------------------------------------------"
+            echo "  Type:  AAAA"
+            echo "  Name:  mail"
+            echo "  TTL:   Auto"
+            echo "  Proxy: DNS only"
+            echo "  Value: $PUB6"
+            echo ""
+            echo "----------------------------------------------------------"
+            echo "5) MTA-STS (OPSIYONEL - puan artirir)"
+            echo "----------------------------------------------------------"
+            echo "  Type:  TXT"
+            echo "  Name:  _mta-sts"
+            echo "  Value: v=STSv1; id=$(date +%Y%m%d)01"
+            echo ""
+            echo "  Ayrica https://mta-sts.$DOMAIN/.well-known/mta-sts.txt yayinla:"
+            echo "    version: STSv1"
+            echo "    mode: testing"
+            echo "    mx: $HOSTNAME"
+            echo "    max_age: 86400"
+            echo ""
+            echo "##########################################################"
+            echo "#                                                        #"
+            echo "#   VPS SAGLAYICI PANELINDE YAPILACAK                    #"
+            echo "#                                                        #"
+            echo "##########################################################"
+            echo ""
+            echo "  rDNS / PTR kaydini DEGISTIR:"
+            echo "    IPv4 ($PUB4)  ->  $HOSTNAME"
+            echo "    IPv6 ($PUB6)  ->  $HOSTNAME"
+            echo ""
+            echo "  Mevcut PTR (yanlis): v2202603341647438020.bestsrv.de."
+            echo "  Hosting paneline gir, 'Reverse DNS' bolumunden degistir."
+            echo "  (bestsrv.de = Servercow/Netcup gibi gorunuyor)"
+            echo ""
+            echo "##########################################################"
+            echo "#                                                        #"
+            echo "#   SUNUCUDA YAPILANLAR (otomatik)                       #"
+            echo "#                                                        #"
+            echo "##########################################################"
+            echo ""
+
+            echo "--- postmaster@$DOMAIN alias ekle ---"
+            EXISTING_USER=$(docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" -N \
+              -e "SELECT username FROM mailbox WHERE domain='$DOMAIN' AND active=1 LIMIT 1;" 2>/dev/null | tr -d '\r')
+            echo "Hedef mailbox: $EXISTING_USER"
+
+            if [ -n "$EXISTING_USER" ]; then
+              # Alias yoksa ekle
+              EXISTS=$(docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" -N \
+                -e "SELECT COUNT(*) FROM alias WHERE address='postmaster@$DOMAIN';" 2>/dev/null | tr -d '\r')
+              if [ "$EXISTS" = "0" ]; then
+                docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
+                  -e "INSERT INTO alias (address, goto, domain, active, sogo_visible) VALUES ('postmaster@$DOMAIN', '$EXISTING_USER', '$DOMAIN', 1, 1);" 2>&1
+                echo "  postmaster@$DOMAIN -> $EXISTING_USER alias OLUSTURULDU"
+              else
+                echo "  postmaster@$DOMAIN alias zaten var"
+              fi
+
+              # abuse@ ve hostmaster@ da ekle (RFC 2142 - puan artirir)
+              for ALIAS in abuse hostmaster webmaster; do
+                E=$(docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" -N \
+                  -e "SELECT COUNT(*) FROM alias WHERE address='$ALIAS@$DOMAIN';" 2>/dev/null | tr -d '\r')
+                if [ "$E" = "0" ]; then
+                  docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
+                    -e "INSERT INTO alias (address, goto, domain, active, sogo_visible) VALUES ('$ALIAS@$DOMAIN', '$EXISTING_USER', '$DOMAIN', 1, 1);" 2>&1
+                  echo "  $ALIAS@$DOMAIN -> $EXISTING_USER alias OLUSTURULDU"
+                else
+                  echo "  $ALIAS@$DOMAIN alias zaten var"
+                fi
+              done
+            else
+              echo "  HATA: $DOMAIN icin aktif mailbox bulunamadi, alias eklenemedi"
+            fi
+
+            echo ""
+            echo "--- Mevcut alias'lar ---"
+            docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
+              -e "SELECT address, goto, active FROM alias WHERE domain='$DOMAIN';" 2>&1
+
+            echo ""
+            echo "##########################################################"
+            echo "#                                                        #"
+            echo "#                 KONTROL LISTESI                        #"
+            echo "#                                                        #"
+            echo "##########################################################"
+            echo ""
+            echo "  [ ] Cloudflare: DKIM TXT (1) eklendi"
+            echo "  [ ] Cloudflare: SPF TXT (2) guncellendi"
+            echo "  [ ] Cloudflare: DMARC TXT (3) p=quarantine'e cekildi"
+            echo "  [ ] Cloudflare: AAAA (4) eklendi"
+            echo "  [ ] VPS panel: rDNS -> $HOSTNAME yapildi"
+            echo "  [✓] Sunucu: postmaster/abuse/hostmaster alias'lari eklendi"
+            echo ""
+            echo "Hepsini yaptiktan sonra 5 dk bekle (DNS propagasyon),"
+            echo "sonra:"
+            echo ""
+            echo "  1. https://www.mail-tester.com adresinden test mail at, skoru gor"
+            echo "  2. https://mxtoolbox.com/blacklists.aspx ile IP'yi tara"
+            echo "  3. dig TXT ${SELECTOR}._domainkey.$DOMAIN +short  --> kaydi gormeli"
+            echo "  4. cevdet.akarsu@$DOMAIN -> hamzaozturk2418@gmail.com test mail"
+            echo "     (Gmail headers'da 'Authentication-Results' bolumunde"
+            echo "      spf=pass dkim=pass dmarc=pass gormeli)"
