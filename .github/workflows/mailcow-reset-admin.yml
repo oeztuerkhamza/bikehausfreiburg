@@ -1,0 +1,48 @@
+name: Mailcow Reset Admin Password
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  reset-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reset mailcow admin password via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 2m
+          script: |
+            set -e
+
+            MAILCOW_DIR=""
+            for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
+              if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
+                MAILCOW_DIR="$d"
+                break
+              fi
+            done
+
+            if [ -z "$MAILCOW_DIR" ]; then
+              echo "ERROR: mailcow.conf bulunamadı"
+              exit 1
+            fi
+
+            echo "Mailcow dizini: $MAILCOW_DIR"
+            cd "$MAILCOW_DIR"
+            source mailcow.conf
+
+            NEW_PASS='Ankara06!'
+
+            HASH=$(docker compose exec -T dovecot-mailcow doveadm pw -s SHA512-CRYPT -p "$NEW_PASS" | tr -d '\r\n')
+
+            docker compose exec -T mysql-mailcow mysql \
+              -u"$DBUSER" -p"$DBPASS" "$DBNAME" \
+              -e "UPDATE admin SET password='$HASH', active='1' WHERE username='admin';"
+
+            echo "Admin şifresi başarıyla güncellendi."
