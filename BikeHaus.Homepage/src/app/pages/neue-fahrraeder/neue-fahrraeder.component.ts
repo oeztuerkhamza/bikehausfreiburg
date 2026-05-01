@@ -1,10 +1,10 @@
 import {
-    Component,
-    inject,
-    OnInit,
-    OnDestroy,
-    signal,
-    computed,
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  computed,
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -766,7 +766,11 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
       .showroom-page {
         min-height: 100vh;
         background:
-          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 32%),
+          radial-gradient(
+            circle at top,
+            rgba(255, 87, 34, 0.08),
+            transparent 32%
+          ),
           linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%),
           var(--color-bg);
       }
@@ -814,7 +818,11 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
       .sidebar {
         padding: 1.35rem;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 24px;
@@ -848,7 +856,11 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
       .main-content {
         padding: 1.35rem;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 28px;

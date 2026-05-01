@@ -1635,7 +1635,7 @@ import { environment } from '../../../environments/environment';
           border-color 0.2s,
           transform 0.2s,
           box-shadow 0.2s;
-        overflow: hidden;
+        overflow: visible;
       }
       .pcard:hover {
         border-color: rgba(255, 255, 255, 0.22);
