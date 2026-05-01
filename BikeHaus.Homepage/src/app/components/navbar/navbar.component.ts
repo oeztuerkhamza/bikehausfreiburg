@@ -1,15 +1,15 @@
 import {
-  Component,
-  inject,
-  HostListener,
-  PLATFORM_ID,
-  signal,
+    Component,
+    inject,
+    HostListener,
+    PLATFORM_ID,
+    signal,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
-  TranslationService,
-  Language,
+    TranslationService,
+    Language,
 } from '../../services/translation.service';
 import { ShopInfoService } from '../../services/shop-info.service';
 
@@ -282,6 +282,70 @@ import { ShopInfoService } from '../../services/shop-info.service';
         .lang-switch button {
           font-size: 0.85rem;
           padding: 0.5rem 0.75rem;
+        }
+      }
+
+      .navbar {
+        padding: 1rem 0;
+      }
+
+      .nav-inner {
+        padding: 0.9rem 1.25rem;
+        border-radius: 999px;
+        background: rgba(10, 12, 18, 0.62);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+        backdrop-filter: blur(18px) saturate(160%);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+      }
+
+      .navbar.scrolled {
+        background: transparent;
+        border-bottom: none;
+      }
+
+      .navbar.scrolled .nav-inner {
+        background: rgba(8, 10, 16, 0.78);
+        box-shadow: 0 22px 44px rgba(0, 0, 0, 0.22);
+      }
+
+      .brand-logo {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .nav-menu a {
+        padding: 0.5rem 0;
+      }
+
+      .lang-switch {
+        margin-left: 0.9rem;
+        padding-left: 1.2rem;
+        border-left-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .lang-switch button.active {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+
+      @media (max-width: 768px) {
+        .navbar {
+          padding: 0.85rem 0;
+        }
+
+        .nav-inner {
+          padding: 0.8rem 1rem;
+          border-radius: 20px;
+        }
+
+        .nav-menu {
+          background:
+            radial-gradient(circle at top, rgba(255, 87, 34, 0.12), transparent 28%),
+            rgba(6, 8, 12, 0.98);
         }
       }
     `,

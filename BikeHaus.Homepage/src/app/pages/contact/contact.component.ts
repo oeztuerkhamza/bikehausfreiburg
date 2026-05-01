@@ -587,6 +587,59 @@ import { PublicShopInfo } from '../../models/models';
       .review-btn:hover {
         opacity: 0.9;
       }
+
+      .contact-page {
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
+          var(--color-bg);
+      }
+
+      .page-header {
+        position: relative;
+        padding: 7rem 0 3.2rem;
+        background: transparent;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .page-header h1 {
+        font-size: clamp(2.3rem, 5vw, 4.2rem);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+      }
+
+      .contact-card,
+      .ka-card,
+      .review-card,
+      .ankauf-card {
+        border-radius: 22px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
+      }
+
+      .contact-card:hover,
+      .ka-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 24px 54px rgba(0, 0, 0, 0.22);
+      }
+
+      .card-icon {
+        border-radius: 14px;
+        background: rgba(255, 87, 34, 0.12);
+      }
+
+      .map-container {
+        border-radius: 24px;
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 24px 54px rgba(0, 0, 0, 0.18);
+      }
+
+      .review-btn {
+        border-radius: 999px;
+      }
     `,
   ],
 })

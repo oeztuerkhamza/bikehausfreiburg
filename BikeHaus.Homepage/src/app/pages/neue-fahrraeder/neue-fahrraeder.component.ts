@@ -1,10 +1,10 @@
 import {
-  Component,
-  inject,
-  OnInit,
-  OnDestroy,
-  signal,
-  computed,
+    Component,
+    inject,
+    OnInit,
+    OnDestroy,
+    signal,
+    computed,
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -760,6 +760,118 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         }
         .sort-wrap {
           display: none;
+        }
+      }
+
+      .showroom-page {
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 32%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%),
+          var(--color-bg);
+      }
+
+      .page-header {
+        position: relative;
+        padding: 7.5rem 0 3.5rem;
+        background: transparent;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .page-header .container {
+        position: relative;
+        z-index: 1;
+        max-width: 920px;
+      }
+
+      .page-header h1 {
+        font-size: clamp(2.3rem, 5vw, 4.2rem);
+        letter-spacing: -0.04em;
+        line-height: 0.98;
+        margin-bottom: 0.9rem;
+        max-width: 10ch;
+      }
+
+      .header-sub {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1.05rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .shop-layout {
+        grid-template-columns: 300px minmax(0, 1fr);
+        gap: 1.5rem;
+        padding-top: 2.25rem;
+      }
+
+      .sidebar {
+        padding: 1.35rem;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+      }
+
+      .s-input,
+      .price-field,
+      .sort-select,
+      .clear-btn,
+      .filter-toggle {
+        border-color: rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        background: rgba(9, 11, 15, 0.72);
+      }
+
+      .checkbox-item {
+        border: 1px solid transparent;
+        border-radius: 12px;
+      }
+
+      .checkbox-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.06);
+      }
+
+      .checkbox-item.active {
+        border-color: rgba(255, 87, 34, 0.22);
+      }
+
+      .main-content {
+        padding: 1.35rem;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+      }
+
+      .toolbar {
+        padding: 1rem 1.05rem;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .active-pill {
+        border: 1px solid rgba(255, 87, 34, 0.18);
+      }
+
+      .result-count {
+        color: rgba(255, 255, 255, 0.58);
+      }
+
+      @media (max-width: 900px) {
+        .main-content {
+          padding: 1rem;
+          border-radius: 22px;
         }
       }
     `,

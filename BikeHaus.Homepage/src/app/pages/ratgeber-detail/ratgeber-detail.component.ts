@@ -4,9 +4,9 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import {
-  BLOG_ARTICLES,
-  BlogArticle,
-  BlogArticleTranslation,
+    BLOG_ARTICLES,
+    BlogArticle,
+    BlogArticleTranslation,
 } from '../../services/blog.data';
 
 @Component({
@@ -437,6 +437,61 @@ import {
         .related-grid {
           grid-template-columns: 1fr;
         }
+      }
+
+      .article-page {
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
+          var(--color-bg);
+      }
+
+      .breadcrumb {
+        padding: 6.5rem 0 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .article-header {
+        padding: 2.75rem 0 2.2rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      h1 {
+        font-size: clamp(2.1rem, 5vw, 3.8rem);
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+      }
+
+      .excerpt {
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .tldr-box,
+      .tip-box,
+      .cta-box,
+      .related-card {
+        border-radius: 20px;
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
+      }
+
+      .cta-box,
+      .related-card {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface, #111);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .category-badge,
+      .related-category {
+        border-radius: 999px;
+        border: 1px solid rgba(255, 87, 34, 0.18);
+        padding: 0.28rem 0.65rem;
+      }
+
+      .related-section,
+      .back-link {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
     `,
   ],

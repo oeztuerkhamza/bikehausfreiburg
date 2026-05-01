@@ -1,10 +1,10 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
-  Injectable,
-  PLATFORM_ID,
-  computed,
-  inject,
-  signal,
+    Injectable,
+    PLATFORM_ID,
+    computed,
+    inject,
+    signal,
 } from '@angular/core';
 
 export type Language = 'de' | 'en' | 'fr' | 'tr';
@@ -253,6 +253,39 @@ export interface Translations {
   bikeRentalBookBtn: string;
   bikeRentalDay: string;
   bikeRentalDays: string;
+
+  // Rental page booking form
+  rentalHeroTitle: string;
+  rentalHeroSub: string;
+  rentalHeroWaCta: string;
+  rentalHeroScrollCta: string;
+  rentalPricingTitle: string;
+  rentalPricingSub: string;
+  rentalBikesSub: string;
+  rentalFormPeriod: string;
+  rentalFormYourData: string;
+  rentalFormFirstName: string;
+  rentalFormLastName: string;
+  rentalFormPhone: string;
+  rentalFormLang: string;
+  rentalFormNotes: string;
+  rentalFormSubmit: string;
+  rentalFormSending: string;
+  rentalFormConfirmNote: string;
+  rentalSuccessTitle: string;
+  rentalSuccessText: string;
+  rentalSuccessBookingNr: string;
+  rentalSuccessNewRequest: string;
+  rentalBikeDetails: string;
+  rentalChangeBike: string;
+  rentalLoadingAvail: string;
+  rentalSelectEndDate: string;
+  rentalEstPrice: string;
+  rentalStatusBooked: string;
+  rentalStatusPending: string;
+  rentalStatusClosed: string;
+  rentalStatusSelected: string;
+  rentalSundayLabel: string;
 
   // General
   loading: string;
@@ -720,6 +753,43 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalBookBtn: 'Fahrrad reservieren',
     bikeRentalDay: 'Tag',
     bikeRentalDays: 'Tage',
+
+    rentalHeroTitle: 'Fahrrad mieten',
+    rentalHeroSub:
+      'Sofort verfügbar – fair, flexibel, ohne versteckte Kosten. Direkt bei uns in Freiburg abholen.',
+    rentalHeroWaCta: 'Jetzt reservieren (WhatsApp)',
+    rentalHeroScrollCta: 'Fahrrad auswählen',
+    rentalPricingTitle: 'Fair. Transparent. Ohne Extras.',
+    rentalPricingSub:
+      'Je länger, desto günstiger – Schloss und Helm immer inklusive.',
+    rentalBikesSub:
+      'Fahrrad auswählen und direkt Ihren Wunschzeitraum buchen.',
+    rentalFormPeriod: 'Zeitraum wählen',
+    rentalFormYourData: 'Ihre Daten',
+    rentalFormFirstName: 'Vorname',
+    rentalFormLastName: 'Nachname',
+    rentalFormPhone: 'Telefon',
+    rentalFormLang: 'Kommunikationssprache',
+    rentalFormNotes: 'Anmerkungen (optional)',
+    rentalFormSubmit: 'Anfrage senden',
+    rentalFormSending: 'Wird gesendet...',
+    rentalFormConfirmNote:
+      'Nach Eingang Ihrer Anfrage erhalten Sie eine Bestätigungs-E-Mail. Die endgültige Buchung erfolgt nach Bestätigung durch unser Team.',
+    rentalSuccessTitle: 'Buchungsanfrage gesendet!',
+    rentalSuccessText:
+      'Wir haben Ihre Anfrage erhalten und melden uns so schnell wie möglich.',
+    rentalSuccessBookingNr: 'Buchungsnummer',
+    rentalSuccessNewRequest: 'Neue Anfrage stellen',
+    rentalBikeDetails: 'Fahrrad Details',
+    rentalChangeBike: 'Ändern',
+    rentalLoadingAvail: 'Verfügbarkeit wird geladen...',
+    rentalSelectEndDate: 'Enddatum wählen',
+    rentalEstPrice: 'geschätzter Preis',
+    rentalStatusBooked: 'Belegt',
+    rentalStatusPending: 'In Prüfung',
+    rentalStatusClosed: 'Geschlossen',
+    rentalStatusSelected: 'Ausgewählt',
+    rentalSundayLabel: 'Sonntag',
 
     loading: 'Wird geladen...',
     error: 'Ein Fehler ist aufgetreten.',
@@ -1234,6 +1304,41 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalDay: 'Day',
     bikeRentalDays: 'Days',
 
+    rentalHeroTitle: 'Rent a bike',
+    rentalHeroSub:
+      'Available immediately – fair, flexible, no hidden costs. Pick up directly from us in Freiburg.',
+    rentalHeroWaCta: 'Reserve now (WhatsApp)',
+    rentalHeroScrollCta: 'Choose a bike',
+    rentalPricingTitle: 'Fair. Transparent. No extras.',
+    rentalPricingSub: 'The longer, the cheaper – lock and helmet always included.',
+    rentalBikesSub: 'Choose a bike and book your desired period directly.',
+    rentalFormPeriod: 'Select period',
+    rentalFormYourData: 'Your details',
+    rentalFormFirstName: 'First name',
+    rentalFormLastName: 'Last name',
+    rentalFormPhone: 'Phone',
+    rentalFormLang: 'Communication language',
+    rentalFormNotes: 'Notes (optional)',
+    rentalFormSubmit: 'Send request',
+    rentalFormSending: 'Sending...',
+    rentalFormConfirmNote:
+      'After receiving your request, you will get a confirmation email. The final booking is confirmed by our team.',
+    rentalSuccessTitle: 'Booking request sent!',
+    rentalSuccessText:
+      'We have received your request and will get back to you as soon as possible.',
+    rentalSuccessBookingNr: 'Booking number',
+    rentalSuccessNewRequest: 'New request',
+    rentalBikeDetails: 'Bike details',
+    rentalChangeBike: 'Change',
+    rentalLoadingAvail: 'Loading availability...',
+    rentalSelectEndDate: 'Select end date',
+    rentalEstPrice: 'estimated price',
+    rentalStatusBooked: 'Booked',
+    rentalStatusPending: 'Pending',
+    rentalStatusClosed: 'Closed',
+    rentalStatusSelected: 'Selected',
+    rentalSundayLabel: 'Sunday',
+
     loading: 'Loading...',
     error: 'An error occurred.',
     noResults: 'No results.',
@@ -1735,6 +1840,41 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalBookBtn: 'Demander maintenant',
     bikeRentalDay: 'Jour',
     bikeRentalDays: 'Jours',
+
+    rentalHeroTitle: 'Louer un vélo',
+    rentalHeroSub:
+      'Disponible immédiatement – juste, flexible, sans frais cachés. Récupérez directement chez nous à Fribourg.',
+    rentalHeroWaCta: 'Réserver maintenant (WhatsApp)',
+    rentalHeroScrollCta: 'Choisir un vélo',
+    rentalPricingTitle: 'Juste. Transparent. Sans suppléments.',
+    rentalPricingSub: "Plus c'est long, moins c'est cher – antivol et casque toujours inclus.",
+    rentalBikesSub: 'Choisissez un vélo et réservez directement votre période souhaitée.',
+    rentalFormPeriod: 'Choisir la période',
+    rentalFormYourData: 'Vos coordonnées',
+    rentalFormFirstName: 'Prénom',
+    rentalFormLastName: 'Nom de famille',
+    rentalFormPhone: 'Téléphone',
+    rentalFormLang: 'Langue de communication',
+    rentalFormNotes: 'Remarques (optionnel)',
+    rentalFormSubmit: 'Envoyer la demande',
+    rentalFormSending: 'Envoi en cours...',
+    rentalFormConfirmNote:
+      'Après réception de votre demande, vous recevrez un e-mail de confirmation. La réservation définitive est confirmée par notre équipe.',
+    rentalSuccessTitle: 'Demande de réservation envoyée !',
+    rentalSuccessText:
+      'Nous avons bien reçu votre demande et vous recontacterons dès que possible.',
+    rentalSuccessBookingNr: 'Numéro de réservation',
+    rentalSuccessNewRequest: 'Nouvelle demande',
+    rentalBikeDetails: 'Détails du vélo',
+    rentalChangeBike: 'Modifier',
+    rentalLoadingAvail: 'Chargement des disponibilités...',
+    rentalSelectEndDate: 'Sélectionner la date de fin',
+    rentalEstPrice: 'prix estimé',
+    rentalStatusBooked: 'Réservé',
+    rentalStatusPending: 'En attente',
+    rentalStatusClosed: 'Fermé',
+    rentalStatusSelected: 'Sélectionné',
+    rentalSundayLabel: 'Dimanche',
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
@@ -2253,6 +2393,41 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalBookBtn: 'Bisikletini rezerve edin',
     bikeRentalDay: 'Gün',
     bikeRentalDays: 'Gün',
+
+    rentalHeroTitle: 'Bisiklet Kirala',
+    rentalHeroSub:
+      "Hemen mevcut – adil, esnek, gizli maliyet yok. Doğrudan Freiburg'daki dükkânımızdan teslim alın.",
+    rentalHeroWaCta: 'Şimdi rezervasyon yap (WhatsApp)',
+    rentalHeroScrollCta: 'Bisiklet seç',
+    rentalPricingTitle: 'Adil. Şeffaf. Ekstra yok.',
+    rentalPricingSub: 'Ne kadar uzun, o kadar ucuz – kilit ve kask her zaman dahil.',
+    rentalBikesSub: 'Bir bisiklet seçin ve doğrudan istediğiniz dönemi rezerve edin.',
+    rentalFormPeriod: 'Dönem seç',
+    rentalFormYourData: 'Bilgileriniz',
+    rentalFormFirstName: 'Ad',
+    rentalFormLastName: 'Soyad',
+    rentalFormPhone: 'Telefon',
+    rentalFormLang: 'İletişim dili',
+    rentalFormNotes: 'Notlar (isteğe bağlı)',
+    rentalFormSubmit: 'Talep gönder',
+    rentalFormSending: 'Gönderiliyor...',
+    rentalFormConfirmNote:
+      'Talebiniz alındıktan sonra bir onay e-postası alacaksınız. Kesin rezervasyon ekibimizin onayıyla gerçekleşir.',
+    rentalSuccessTitle: 'Rezervasyon talebi gönderildi!',
+    rentalSuccessText:
+      'Talebinizi aldık, en kısa sürede size geri döneceğiz.',
+    rentalSuccessBookingNr: 'Rezervasyon numarası',
+    rentalSuccessNewRequest: 'Yeni talep oluştur',
+    rentalBikeDetails: 'Bisiklet Detayları',
+    rentalChangeBike: 'Değiştir',
+    rentalLoadingAvail: 'Müsaitlik yükleniyor...',
+    rentalSelectEndDate: 'Bitiş tarihi seç',
+    rentalEstPrice: 'tahmini fiyat',
+    rentalStatusBooked: 'Dolu',
+    rentalStatusPending: 'Beklemede',
+    rentalStatusClosed: 'Kapalı',
+    rentalStatusSelected: 'Seçildi',
+    rentalSundayLabel: 'Pazar',
 
     loading: 'Yükleniyor...',
     error: 'Bir hata oluştu.',

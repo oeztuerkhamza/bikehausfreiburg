@@ -361,6 +361,59 @@ import { environment } from '../../../environments/environment';
           font-size: 1.3rem;
         }
       }
+
+      .detail-page {
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
+          var(--color-bg);
+      }
+
+      .breadcrumb {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        padding: 0.85rem 1rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .main-image,
+      .no-image-large,
+      .info {
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 24px 54px rgba(0, 0, 0, 0.18);
+      }
+
+      .main-image,
+      .no-image-large {
+        overflow: hidden;
+      }
+
+      .info {
+        padding: 1.5rem;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+      }
+
+      .thumb {
+        border-radius: 14px;
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .category-badge,
+      .image-counter {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+      }
+
+      .price-block {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
     `,
   ],
 })

@@ -248,6 +248,68 @@ import { ShopInfoService } from '../../services/shop-info.service';
           text-align: center;
         }
       }
+
+      .footer {
+        position: relative;
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 34%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 18%),
+          var(--color-bg-secondary);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .footer::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 42%);
+        pointer-events: none;
+      }
+
+      .footer-grid {
+        position: relative;
+        z-index: 1;
+        gap: 2rem;
+        padding: 4.5rem 0 3.2rem;
+      }
+
+      .footer-brand,
+      .footer-col {
+        padding: 1.1rem 1.15rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .footer-logo {
+        margin-bottom: 1rem;
+      }
+
+      .logo-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .footer-col nav a,
+      .footer-langs a {
+        transition:
+          color 0.2s,
+          transform 0.2s;
+      }
+
+      .footer-col nav a:hover,
+      .footer-langs a:hover {
+        transform: translateX(3px);
+      }
+
+      .footer-bottom {
+        position: relative;
+        z-index: 1;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
     `,
   ],
 })

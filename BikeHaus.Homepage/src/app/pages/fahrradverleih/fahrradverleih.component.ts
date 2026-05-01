@@ -102,10 +102,27 @@ import { environment } from '../../../environments/environment';
                   stroke-width="3"
                 >
                   <polyline points="20 6 9 17 4 12" /></svg
-                >50 € Kaution (bar)</span
+                >300 € Kaution (bar)</span
               >
             </div>
             <div class="rental-hero-ctas">
+              <button
+                type="button"
+                class="hero-cta-scroll"
+                (click)="scrollToBikes()"
+              >
+                {{ t().rentalHeroScrollCta }}
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 5v14M5 12l7 7 7-7" />
+                </svg>
+              </button>
               <a
                 href="https://wa.me/491556630011"
                 target="_blank"
@@ -122,20 +139,7 @@ import { environment } from '../../../environments/environment';
                     d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"
                   />
                 </svg>
-                Jetzt reservieren (WhatsApp)
-              </a>
-              <a href="#fahrrad-waehlen" class="hero-cta-scroll">
-                Fahrrad auswählen
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M12 5v14M5 12l7 7 7-7" />
-                </svg>
+                {{ t().rentalHeroWaCta }}
               </a>
             </div>
           </div>
@@ -157,14 +161,36 @@ import { environment } from '../../../environments/environment';
       </header>
 
       <div class="container rental-body">
+        <section class="rental-signature-band" aria-label="Service Highlights">
+          <div class="signature-editorial">
+            <span class="section-label">Urban Rental System</span>
+            <p>
+              Entwickelt wie ein modernes Performance-Studio: schnelle
+              Reservierung, klare Preise und direkte Abholung ohne Reibung.
+            </p>
+          </div>
+          <div class="signature-stat-grid">
+            <article class="signature-stat-card">
+              <span class="signature-stat-value">6,80 €</span>
+              <span class="signature-stat-label">Bestpreis pro Tag</span>
+            </article>
+            <article class="signature-stat-card">
+              <span class="signature-stat-value">WhatsApp</span>
+              <span class="signature-stat-label">Reservierung in Minuten</span>
+            </article>
+            <article class="signature-stat-card">
+              <span class="signature-stat-value">Helm + Schloss</span>
+              <span class="signature-stat-label">Immer im Setup enthalten</span>
+            </article>
+          </div>
+        </section>
+
         <!-- ═══ PRICING SECTION ═══ -->
         <section class="pricing-section">
           <div class="pricing-header">
-            <span class="section-label">Preise &amp; Pakete</span>
-            <h2 class="pricing-title">Fair. Transparent. Ohne Extras.</h2>
-            <p class="pricing-sub">
-              Je länger, desto günstiger – Schloss und Helm immer inklusive.
-            </p>
+            <span class="section-label">{{ t().bikeRentalPricesTitle }}</span>
+            <h2 class="pricing-title">{{ t().rentalPricingTitle }}</h2>
+            <p class="pricing-sub">{{ t().rentalPricingSub }}</p>
           </div>
 
           <!-- 3 Main cards -->
@@ -321,7 +347,7 @@ import { environment } from '../../../environments/environment';
               </svg>
               <div>
                 <strong>Kaution</strong>
-                <span>50 € bar, wird bei Rückgabe erstattet</span>
+                <span>300 € bar, wird bei Rückgabe erstattet</span>
               </div>
             </div>
             <div class="pinfo-item">
@@ -372,7 +398,7 @@ import { environment } from '../../../environments/environment';
             }}</span>
             <h2 class="bikes-title">{{ t().bikeRentalAvailableTitle }}</h2>
             <p class="bikes-subtitle">
-              Fahrrad auswählen und direkt Ihren Wunschzeitraum buchen
+              {{ t().rentalBikesSub }}
             </p>
           </div>
 
@@ -531,7 +557,7 @@ import { environment } from '../../../environments/environment';
                   d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
                 />
               </svg>
-              Ändern
+              {{ t().rentalChangeBike }}
             </button>
           </div>
 
@@ -593,7 +619,7 @@ import { environment } from '../../../environments/environment';
             </div>
 
             <div class="bp-bike-info-panel">
-              <h4>Fahrrad Details</h4>
+              <h4>{{ t().rentalBikeDetails }}</h4>
               <div class="bp-bike-facts">
                 <span class="bp-fact" *ngIf="selectedBike()!.fahrradtyp"
                   >Typ: {{ selectedBike()!.fahrradtyp }}</span
@@ -711,17 +737,16 @@ import { environment } from '../../../environments/environment';
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <h3>Buchungsanfrage gesendet!</h3>
+            <h3>{{ t().rentalSuccessTitle }}</h3>
             <p>
-              Wir haben Ihre Anfrage erhalten und melden uns so schnell wie
-              möglich.<br />Eine Bestätigung wurde an
+              {{ t().rentalSuccessText }}<br />Eine Bestätigung wurde an
               <strong>{{ bookingForm.email }}</strong> gesendet.
             </p>
             <div class="bp-booking-nr">
-              Buchungsnummer: <strong>{{ confirmedBookingNr() }}</strong>
+              {{ t().rentalSuccessBookingNr }}: <strong>{{ confirmedBookingNr() }}</strong>
             </div>
             <button class="bp-new-btn" (click)="deselectBike()">
-              Neue Anfrage stellen
+              {{ t().rentalSuccessNewRequest }}
             </button>
           </div>
 
@@ -743,13 +768,13 @@ import { environment } from '../../../environments/environment';
                   <line x1="8" y1="2" x2="8" y2="6" />
                   <line x1="3" y1="10" x2="21" y2="10" />
                 </svg>
-                Zeitraum wählen
+                {{ t().rentalFormPeriod }}
               </h3>
 
               <!-- Busy loading -->
               <div class="bp-cal-loading" *ngIf="busyPeriodsLoading()">
                 <div class="bp-spinner"></div>
-                <span>Verfügbarkeit wird geladen...</span>
+                <span>{{ t().rentalLoadingAvail }}</span>
               </div>
 
               <div class="booking-calendar" *ngIf="!busyPeriodsLoading()">
@@ -824,8 +849,8 @@ import { environment } from '../../../environments/environment';
                     >
                       {{
                         getDayBusyType(day) === 'pending'
-                          ? 'In Prüfung'
-                          : 'Belegt'
+                          ? t().rentalStatusPending
+                          : t().rentalStatusBooked
                       }}
                     </div>
                     <div
@@ -837,24 +862,23 @@ import { environment } from '../../../environments/environment';
                         isClosedDay(day)
                       "
                     >
-                      {{ day.getDay() === 0 ? 'Sonntag' : 'Feiertag' }}
+                      {{ day.getDay() === 0 ? t().rentalSundayLabel : t().rentalStatusClosed }}
                     </div>
                   </div>
                 </div>
                 <div class="bc-legend">
                   <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-busy"></span>Belegt</span
+                    ><span class="bc-leg-dot bc-leg-busy"></span>{{ t().rentalStatusBooked }}</span
                   >
                   <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-pending"></span>In
-                    Prüfung</span
+                    ><span class="bc-leg-dot bc-leg-pending"></span>{{ t().rentalStatusPending }}</span
                   >
                   <span class="bc-legend-item"
                     ><span class="bc-leg-dot bc-leg-closed"></span
-                    >Geschlossen</span
+                    >{{ t().rentalStatusClosed }}</span
                   >
                   <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-sel"></span>Ausgewählt</span
+                    ><span class="bc-leg-dot bc-leg-sel"></span>{{ t().rentalStatusSelected }}</span
                   >
                 </div>
                 <div class="bc-info" *ngIf="calendarStart()">
@@ -872,8 +896,7 @@ import { environment } from '../../../environments/environment';
                     <line x1="3" y1="10" x2="21" y2="10" />
                   </svg>
                   <span *ngIf="!calendarEnd()"
-                    >{{ formatCalDay(calendarStart()!) }} → Enddatum
-                    wählen</span
+                    >{{ formatCalDay(calendarStart()!) }} → {{ t().rentalSelectEndDate }}</span
                   >
                   <span *ngIf="calendarEnd()"
                     >{{ formatCalDay(calendarStart()!) }} –
@@ -898,7 +921,7 @@ import { environment } from '../../../environments/environment';
                   <line x1="12" y1="1" x2="12" y2="23" />
                   <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
                 </svg>
-                <span>{{ calculatedDays() }} Tage · geschätzter Preis:</span>
+                <span>{{ calculatedDays() }} {{ t().bikeRentalDays }} · {{ t().rentalEstPrice }}:</span>
                 <strong>{{ calculatedPrice() | number: '1.0-0' }} €</strong>
               </div>
               <div
@@ -917,7 +940,7 @@ import { environment } from '../../../environments/environment';
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <span>{{ calculatedDays() }} Tage · Preis auf Anfrage</span>
+                <span>{{ calculatedDays() }} {{ t().bikeRentalDays }} · {{ t().priceOnRequest }}</span>
               </div>
             </div>
 
@@ -935,12 +958,12 @@ import { environment } from '../../../environments/environment';
                   <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
-                Ihre Daten
+                {{ t().rentalFormYourData }}
               </h3>
 
               <div class="form-row">
                 <div class="form-field">
-                  <label>Vorname *</label>
+                  <label>{{ t().rentalFormFirstName }} *</label>
                   <input
                     type="text"
                     [(ngModel)]="bookingForm.vorname"
@@ -948,7 +971,7 @@ import { environment } from '../../../environments/environment';
                   />
                 </div>
                 <div class="form-field">
-                  <label>Nachname *</label>
+                  <label>{{ t().rentalFormLastName }} *</label>
                   <input
                     type="text"
                     [(ngModel)]="bookingForm.nachname"
@@ -967,7 +990,7 @@ import { environment } from '../../../environments/environment';
                   />
                 </div>
                 <div class="form-field">
-                  <label>Telefon</label>
+                  <label>{{ t().rentalFormPhone }}</label>
                   <input
                     type="tel"
                     [(ngModel)]="bookingForm.telefon"
@@ -977,7 +1000,7 @@ import { environment } from '../../../environments/environment';
               </div>
 
               <div class="form-field">
-                <label>Kommunikationssprache</label>
+                <label>{{ t().rentalFormLang }}</label>
                 <div class="lang-toggle">
                   <button
                     type="button"
@@ -997,7 +1020,7 @@ import { environment } from '../../../environments/environment';
               </div>
 
               <div class="form-field">
-                <label>Anmerkungen (optional)</label>
+                <label>{{ t().rentalFormNotes }}</label>
                 <textarea
                   [(ngModel)]="bookingForm.notizen"
                   rows="3"
@@ -1039,15 +1062,11 @@ import { environment } from '../../../environments/environment';
                 </svg>
                 <div *ngIf="bookingSubmitting()" class="submit-spinner"></div>
                 {{
-                  bookingSubmitting() ? 'Wird gesendet...' : 'Anfrage senden'
+                  bookingSubmitting() ? t().rentalFormSending : t().rentalFormSubmit
                 }}
               </button>
 
-              <p class="bp-note">
-                Nach Eingang Ihrer Anfrage erhalten Sie eine
-                Bestätigungs-E-Mail. Die endgültige Buchung erfolgt nach
-                Bestätigung durch unser Team.
-              </p>
+              <p class="bp-note">{{ t().rentalFormConfirmNote }}</p>
             </div>
           </div>
         </section>
@@ -1219,6 +1238,81 @@ import { environment } from '../../../environments/environment';
   `,
   styles: [
     `
+      .rental-page {
+        --rental-display-font:
+          'Bahnschrift', 'Aptos Display', 'Segoe UI Variable Display',
+          'Trebuchet MS', sans-serif;
+        position: relative;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(255, 87, 34, 0.12),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 85% 18%,
+            rgba(255, 184, 0, 0.08),
+            transparent 22%
+          ),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.01),
+            rgba(255, 255, 255, 0)
+          );
+        font-family: var(--font-family);
+      }
+
+      .rental-page::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 72px 72px;
+        mask-image: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.35),
+          transparent 78%
+        );
+        pointer-events: none;
+        opacity: 0.16;
+      }
+
+      .rental-body,
+      .rental-hero-inner {
+        position: relative;
+        z-index: 1;
+      }
+
+      .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .section-label::before {
+        content: '';
+        width: 24px;
+        height: 1px;
+        background: linear-gradient(90deg, var(--color-accent), transparent);
+      }
+
+      .pricing-title,
+      .bikes-title,
+      .bp-bike-name,
+      .bp-success h3,
+      .rental-hero-h1,
+      .pcard-duration,
+      .rhpc-price {
+        font-family: var(--rental-display-font);
+      }
+
       /* ═══ RENTAL HERO ═══ */
       .rental-hero {
         position: relative;
@@ -1253,8 +1347,8 @@ import { environment } from '../../../environments/environment';
       .rental-hero-inner {
         position: relative;
         display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: 3rem;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 3.5rem;
         align-items: center;
       }
       .rental-hero-chip {
@@ -1276,33 +1370,40 @@ import { environment } from '../../../environments/environment';
         font-size: clamp(2rem, 5vw, 3.2rem);
         font-weight: 900;
         color: var(--color-text);
-        line-height: 1.1;
-        letter-spacing: -0.03em;
+        line-height: 0.96;
+        letter-spacing: -0.05em;
         margin: 0 0 1rem;
+        max-width: 8ch;
       }
       .rental-hero-accent {
         color: var(--color-accent);
+        text-shadow: 0 0 28px rgba(255, 87, 34, 0.16);
       }
       .rental-hero-sub {
-        font-size: 1rem;
-        color: var(--color-text-secondary);
-        line-height: 1.7;
-        margin: 0 0 1.5rem;
-        max-width: 520px;
+        font-size: 1.02rem;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.8;
+        margin: 0 0 1.75rem;
+        max-width: 580px;
       }
       .rental-hero-features {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.6rem 1rem;
-        margin-bottom: 1.75rem;
+        gap: 0.7rem;
+        margin-bottom: 2rem;
       }
       .rfeat {
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
-        font-size: 0.875rem;
+        gap: 0.45rem;
+        font-size: 0.84rem;
         font-weight: 600;
-        color: var(--color-text);
+        color: rgba(255, 255, 255, 0.9);
+        padding: 0.48rem 0.78rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        backdrop-filter: blur(10px);
       }
       .rfeat svg {
         color: #22c55e;
@@ -1314,38 +1415,43 @@ import { environment } from '../../../environments/environment';
         gap: 0.75rem;
         align-items: center;
       }
-      .hero-cta-wa {
+      .hero-cta-scroll {
         display: inline-flex;
         align-items: center;
         gap: 0.55rem;
-        background: #25d366;
+        background: linear-gradient(135deg, #ff5722, #e64a19);
         color: #fff;
         font-size: 0.95rem;
         font-weight: 700;
-        padding: 0.875rem 1.5rem;
+        padding: 0.95rem 1.55rem;
         border-radius: 3rem;
+        border: none;
+        cursor: pointer;
         text-decoration: none;
         transition:
           opacity 0.2s,
           transform 0.2s;
-        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+        box-shadow: 0 18px 40px rgba(255, 87, 34, 0.28);
       }
-      .hero-cta-wa:hover {
+      .hero-cta-scroll:hover {
         opacity: 0.9;
         transform: translateY(-1px);
       }
-      .hero-cta-scroll {
+      .hero-cta-wa {
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
         font-size: 0.875rem;
-        font-weight: 700;
-        color: var(--color-text-secondary);
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.62);
         text-decoration: none;
-        transition: color 0.2s;
+        transition:
+          color 0.2s,
+          gap 0.2s;
       }
-      .hero-cta-scroll:hover {
-        color: var(--color-text);
+      .hero-cta-wa:hover {
+        color: #fff;
+        gap: 0.6rem;
       }
       /* Hero right card */
       .rental-hero-right {
@@ -1354,15 +1460,19 @@ import { environment } from '../../../environments/environment';
       .rental-hero-price-card {
         background: linear-gradient(
           135deg,
-          rgba(255, 87, 34, 0.1) 0%,
-          rgba(255, 152, 0, 0.06) 100%
+          rgba(255, 87, 34, 0.14) 0%,
+          rgba(255, 152, 0, 0.08) 100%
         );
-        border: 2px solid var(--color-accent);
-        border-radius: 20px;
-        padding: 2rem 1.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 28px;
+        padding: 2.25rem 1.9rem;
         text-align: center;
         position: relative;
         overflow: hidden;
+        box-shadow:
+          0 20px 60px rgba(0, 0, 0, 0.26),
+          inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(18px);
       }
       .rental-hero-price-card::before {
         content: '';
@@ -1380,11 +1490,11 @@ import { environment } from '../../../environments/environment';
       }
       .rhpc-badge {
         display: inline-block;
-        background: var(--color-accent);
+        background: linear-gradient(90deg, #ff8a00, var(--color-accent));
         color: #fff;
         font-size: 0.72rem;
         font-weight: 700;
-        padding: 0.3rem 0.8rem;
+        padding: 0.38rem 0.9rem;
         border-radius: 3rem;
         margin-bottom: 1.25rem;
       }
@@ -1419,15 +1529,110 @@ import { environment } from '../../../environments/environment';
       .rhpc-features {
         display: flex;
         justify-content: center;
+        flex-wrap: wrap;
         gap: 0.75rem;
         font-size: 0.78rem;
         font-weight: 700;
         color: #22c55e;
       }
 
+      .rental-signature-band {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+        gap: 1.25rem;
+        margin: -1.2rem 0 2.75rem;
+        align-items: stretch;
+      }
+
+      .signature-editorial,
+      .signature-stat-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background:
+          linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.055),
+            rgba(255, 255, 255, 0.02)
+          ),
+          var(--color-surface);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+      }
+
+      .signature-editorial {
+        padding: 1.5rem 1.5rem 1.45rem;
+      }
+
+      .signature-editorial p {
+        margin: 1rem 0 0;
+        font-size: 0.95rem;
+        line-height: 1.8;
+        color: rgba(255, 255, 255, 0.72);
+        max-width: 44ch;
+      }
+
+      .signature-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1.25rem;
+      }
+
+      .signature-stat-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 132px;
+        padding: 1.35rem 1.2rem;
+      }
+
+      .signature-stat-card::before,
+      .pricing-section::before,
+      .bikes-section::before,
+      .booking-panel::before,
+      .whatsapp-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.08),
+          transparent 40%
+        );
+        pointer-events: none;
+      }
+
+      .signature-stat-value {
+        font-family: var(--rental-display-font);
+        font-size: 1.25rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #fff;
+      }
+
+      .signature-stat-label {
+        font-size: 0.78rem;
+        line-height: 1.55;
+        color: rgba(255, 255, 255, 0.64);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
       /* ═══ PRICING SECTION ═══ */
       .pricing-section {
-        padding: 4rem 0 2rem;
+        position: relative;
+        padding: 2rem 1.5rem 2rem;
+        margin-bottom: 2rem;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.04),
+            rgba(255, 255, 255, 0.015)
+          ),
+          var(--color-surface);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.16);
       }
       .pricing-header {
         text-align: center;
@@ -1442,7 +1647,7 @@ import { environment } from '../../../environments/environment';
       }
       .pricing-sub {
         font-size: 0.95rem;
-        color: var(--color-text-secondary);
+        color: rgba(255, 255, 255, 0.62);
         margin: 0;
       }
       /* Main 3 price cards */
@@ -1456,18 +1661,27 @@ import { environment } from '../../../environments/environment';
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        padding: 2rem 1.5rem 1.5rem;
-        border-radius: 18px;
-        border: 1.5px solid var(--color-border);
-        background: var(--color-surface);
+        padding: 2.1rem 1.55rem 1.5rem;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.018)
+          ),
+          var(--color-surface);
         position: relative;
         transition:
           border-color 0.2s,
-          transform 0.2s;
+          transform 0.2s,
+          box-shadow 0.2s;
+        overflow: hidden;
       }
       .pcard:hover {
-        border-color: rgba(255, 255, 255, 0.2);
-        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.22);
+        transform: translateY(-4px);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
       }
       .pcard-popular {
         border-color: var(--color-accent);
@@ -1481,8 +1695,8 @@ import { environment } from '../../../environments/environment';
         border-color: #f59e0b;
         background: linear-gradient(
           135deg,
-          var(--color-surface) 0%,
-          rgba(245, 158, 11, 0.06) 100%
+          rgba(255, 255, 255, 0.05) 0%,
+          rgba(245, 158, 11, 0.08) 100%
         );
       }
       .pcard-top-badge {
@@ -1507,7 +1721,7 @@ import { environment } from '../../../environments/environment';
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        color: var(--color-text-secondary);
+        color: rgba(255, 255, 255, 0.55);
         margin-top: 0.5rem;
       }
       .pcard-duration {
@@ -1534,7 +1748,7 @@ import { environment } from '../../../environments/environment';
       }
       .pcard-per-day {
         font-size: 0.85rem;
-        color: var(--color-text-secondary);
+        color: rgba(255, 255, 255, 0.62);
         font-weight: 600;
       }
       .pcard-features {
@@ -1593,7 +1807,7 @@ import { environment } from '../../../environments/environment';
         text-align: center;
         font-size: 0.78rem;
         font-weight: 600;
-        color: var(--color-text-secondary);
+        color: rgba(255, 255, 255, 0.62);
         text-decoration: none;
         padding: 0.4rem 0;
         transition: color 0.2s;
@@ -1609,13 +1823,15 @@ import { environment } from '../../../environments/environment';
         margin-bottom: 2rem;
       }
       .pextra-item {
+        position: relative;
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        padding: 0.875rem 1.25rem;
-        border: 1px solid var(--color-border);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.02);
+        padding: 1rem 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.025);
+        overflow: hidden;
       }
       .pextra-dur {
         font-size: 0.85rem;
@@ -1653,10 +1869,9 @@ import { environment } from '../../../environments/environment';
         grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
         padding: 1.5rem;
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 16px;
-        margin-bottom: 3rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
       }
       .pinfo-item {
         display: flex;
@@ -1704,15 +1919,21 @@ import { environment } from '../../../environments/environment';
 
       /* ── Note Banner ── */
       .note-banner {
+        position: relative;
         display: flex;
         gap: 0.75rem;
         align-items: flex-start;
-        padding: 1.25rem 1.5rem;
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
+        padding: 1.35rem 1.5rem;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 87, 34, 0.09),
+          rgba(255, 255, 255, 0.03)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-left: 4px solid var(--color-accent);
-        border-radius: 0 12px 12px 0;
+        border-radius: 18px;
         margin-bottom: 3rem;
+        overflow: hidden;
       }
 
       .note-banner svg {
@@ -1722,6 +1943,7 @@ import { environment } from '../../../environments/environment';
       }
 
       .note-banner strong {
+        font-family: var(--rental-display-font);
         display: block;
         font-size: 0.82rem;
         font-weight: 700;
@@ -1744,22 +1966,30 @@ import { environment } from '../../../environments/environment';
       }
 
       .whatsapp-card {
+        position: relative;
         display: flex;
         align-items: center;
         gap: 1.25rem;
-        padding: 1.5rem 2rem;
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 16px;
+        padding: 1.6rem 1.9rem;
+        background: linear-gradient(
+          135deg,
+          rgba(37, 211, 102, 0.08),
+          rgba(255, 255, 255, 0.03)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 22px;
         text-decoration: none;
         transition:
           border-color 0.3s,
-          transform 0.3s;
+          transform 0.3s,
+          box-shadow 0.3s;
+        overflow: hidden;
       }
 
       .whatsapp-card:hover {
         border-color: #25d366;
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
       }
 
       .wa-icon {
@@ -1810,7 +2040,20 @@ import { environment } from '../../../environments/environment';
 
       /* ── Available Bikes ── */
       .bikes-section {
-        margin-bottom: 3.5rem;
+        position: relative;
+        margin-bottom: 3rem;
+        padding: 2rem 1.5rem;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.015)
+          ),
+          var(--color-surface);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.14);
+        overflow: hidden;
       }
 
       .bikes-title {
@@ -1869,15 +2112,15 @@ import { environment } from '../../../environments/environment';
       /* ── Seat Map (Airline-style bike selector) ── */
       .bikes-subtitle {
         font-size: 0.9rem;
-        color: var(--color-text-secondary);
+        color: rgba(255, 255, 255, 0.6);
         margin: 0.5rem 0 0;
       }
 
       .seat-map {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-top: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(235px, 1fr));
+        gap: 1.1rem;
+        margin-top: 1.75rem;
       }
 
       .seat-skeleton {
@@ -1903,9 +2146,15 @@ import { environment } from '../../../environments/environment';
       }
 
       .seat-card {
-        background: var(--color-surface);
-        border: 2px solid var(--color-border);
-        border-radius: 14px;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.05),
+            rgba(255, 255, 255, 0.018)
+          ),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
         overflow: hidden;
         cursor: pointer;
         transition:
@@ -1918,24 +2167,44 @@ import { environment } from '../../../environments/environment';
       }
       .seat-card:hover {
         border-color: var(--color-accent);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 20px 38px rgba(0, 0, 0, 0.22);
       }
       .seat-card.seat-selected {
         border-color: var(--color-accent);
         box-shadow:
           0 0 0 3px rgba(255, 87, 34, 0.2),
-          0 8px 24px rgba(0, 0, 0, 0.2);
+          0 20px 38px rgba(0, 0, 0, 0.22);
         background: linear-gradient(
           135deg,
-          var(--color-surface) 0%,
-          rgba(255, 87, 34, 0.04) 100%
+          rgba(255, 255, 255, 0.05) 0%,
+          rgba(255, 87, 34, 0.08) 100%
         );
+      }
+
+      .seat-card::after {
+        content: '';
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--color-accent),
+          transparent
+        );
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .seat-card:hover::after,
+      .seat-card.seat-selected::after {
+        opacity: 1;
       }
 
       .seat-img-wrap {
         position: relative;
-        height: 110px;
+        height: 156px;
         overflow: hidden;
         background: var(--color-bg);
         flex-shrink: 0;
@@ -1960,50 +2229,53 @@ import { environment } from '../../../environments/environment';
       }
       .seat-type-badge {
         position: absolute;
-        top: 8px;
-        left: 8px;
-        padding: 2px 8px;
-        background: rgba(0, 0, 0, 0.65);
+        top: 12px;
+        left: 12px;
+        padding: 0.34rem 0.72rem;
+        background: rgba(7, 10, 15, 0.72);
         color: #fff;
         border-radius: 999px;
-        font-size: 0.68rem;
-        font-weight: 600;
-        backdrop-filter: blur(4px);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        backdrop-filter: blur(8px);
       }
 
       .seat-info {
-        padding: 10px 12px 12px;
+        padding: 1rem 1rem 1.05rem;
         flex: 1;
       }
       .seat-name {
-        font-size: 0.88rem;
+        font-size: 1rem;
         font-weight: 700;
         color: var(--color-text);
-        margin-bottom: 3px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        margin-bottom: 0.2rem;
       }
       .seat-specs {
-        font-size: 0.72rem;
-        color: var(--color-text-secondary);
-        margin-bottom: 6px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 0.78rem;
+        color: rgba(255, 255, 255, 0.58);
+        margin-bottom: 0.6rem;
       }
       .seat-price-from {
-        font-size: 0.78rem;
-        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.8rem;
+        font-weight: 800;
         color: var(--color-accent);
+        padding: 0.3rem 0.58rem;
+        border-radius: 999px;
+        background: rgba(255, 87, 34, 0.09);
+        width: fit-content;
       }
 
       .seat-check-mark {
         position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 24px;
-        height: 24px;
+        top: 12px;
+        right: 12px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
         background: var(--color-accent);
         color: #fff;
@@ -2015,13 +2287,21 @@ import { environment } from '../../../environments/environment';
 
       /* ── Inline Booking Panel ── */
       .booking-panel {
-        background: var(--color-surface);
-        border: 2px solid var(--color-accent);
-        border-radius: 20px;
+        position: relative;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.04),
+            rgba(255, 255, 255, 0.015)
+          ),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 28px;
         margin-bottom: 3rem;
         overflow: hidden;
         animation: slideDown 0.3s ease;
         scroll-margin-top: 80px;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18);
       }
       @keyframes slideDown {
         from {
@@ -2038,9 +2318,13 @@ import { environment } from '../../../environments/environment';
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 1rem 1.5rem;
-        background: rgba(255, 87, 34, 0.06);
-        border-bottom: 1px solid rgba(255, 87, 34, 0.15);
+        padding: 1.1rem 1.5rem;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 87, 34, 0.12),
+          rgba(255, 255, 255, 0.03)
+        );
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
       .bp-bike-thumb {
         width: 48px;
@@ -2079,13 +2363,13 @@ import { environment } from '../../../environments/environment';
         display: flex;
         align-items: center;
         gap: 6px;
-        padding: 7px 14px;
-        border-radius: 8px;
-        border: 1.5px solid var(--color-border);
-        background: transparent;
-        color: var(--color-text-secondary);
+        padding: 0.62rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgba(255, 255, 255, 0.7);
         font-size: 0.8rem;
-        font-weight: 600;
+        font-weight: 700;
         cursor: pointer;
         transition: all 0.15s;
         flex-shrink: 0;
@@ -2098,9 +2382,9 @@ import { environment } from '../../../environments/environment';
       .bp-bike-overview {
         display: grid;
         grid-template-columns: 320px 1fr;
-        gap: 1rem;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--color-border);
+        gap: 1.2rem;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .bp-gallery-main {
@@ -2300,8 +2584,10 @@ import { environment } from '../../../environments/environment';
 
       .bp-bike-info-panel h4 {
         margin: 0 0 0.65rem;
-        font-size: 0.98rem;
-        font-weight: 700;
+        font-size: 0.9rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
         color: var(--color-text);
       }
 
@@ -2312,10 +2598,10 @@ import { environment } from '../../../environments/environment';
       }
 
       .bp-fact {
-        padding: 0.28rem 0.55rem;
+        padding: 0.35rem 0.6rem;
         border-radius: 999px;
-        background: rgba(255, 87, 34, 0.08);
-        border: 1px solid rgba(255, 87, 34, 0.2);
+        background: rgba(255, 87, 34, 0.09);
+        border: 1px solid rgba(255, 87, 34, 0.18);
         color: var(--color-text);
         font-size: 0.75rem;
         font-weight: 600;
@@ -2340,12 +2626,12 @@ import { environment } from '../../../environments/environment';
         justify-content: space-between;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.45rem 0.6rem;
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.02);
+        padding: 0.55rem 0.68rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.025);
         font-size: 0.78rem;
-        color: var(--color-text-secondary);
+        color: rgba(255, 255, 255, 0.62);
       }
 
       .bp-price-item strong {
@@ -2415,7 +2701,7 @@ import { environment } from '../../../environments/environment';
 
       .bp-cal-col {
         padding: 1.5rem;
-        border-right: 1px solid var(--color-border);
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .bp-form-col {
@@ -2490,21 +2776,24 @@ import { environment } from '../../../environments/environment';
       }
       .form-field label {
         font-size: 0.75rem;
-        font-weight: 600;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--color-text-secondary);
+        letter-spacing: 0.1em;
+        color: rgba(255, 255, 255, 0.54);
       }
       .form-field input,
       .form-field textarea,
       .form-field select {
-        padding: 10px 12px;
-        border: 1.5px solid var(--color-border);
-        border-radius: 10px;
-        background: var(--color-bg);
+        padding: 0.85rem 0.95rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        background: rgba(7, 10, 15, 0.5);
         color: var(--color-text);
         font-size: 0.9rem;
-        transition: border-color 0.2s;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s,
+          background 0.2s;
         resize: vertical;
       }
       .form-field input:focus,
@@ -2547,13 +2836,13 @@ import { environment } from '../../../environments/environment';
         gap: 8px;
       }
       .lang-toggle button {
-        padding: 7px 18px;
-        border-radius: 8px;
-        border: 1.5px solid var(--color-border);
-        background: transparent;
-        color: var(--color-text-secondary);
+        padding: 0.65rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background: rgba(255, 255, 255, 0.03);
+        color: rgba(255, 255, 255, 0.68);
         font-size: 0.85rem;
-        font-weight: 600;
+        font-weight: 700;
         cursor: pointer;
         transition: all 0.15s;
       }
@@ -2581,19 +2870,24 @@ import { environment } from '../../../environments/environment';
         justify-content: center;
         gap: 8px;
         width: 100%;
-        padding: 13px;
-        border-radius: 12px;
-        background: var(--color-accent);
+        padding: 0.95rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--color-accent), #ff8a00);
         color: #fff;
         border: none;
         font-size: 0.95rem;
         font-weight: 700;
         cursor: pointer;
-        transition: opacity 0.2s;
+        transition:
+          opacity 0.2s,
+          transform 0.2s,
+          box-shadow 0.2s;
         margin-top: 4px;
+        box-shadow: 0 18px 34px rgba(255, 87, 34, 0.22);
       }
       .btn-submit:hover:not(:disabled) {
         opacity: 0.88;
+        transform: translateY(-1px);
       }
       .btn-submit:disabled {
         opacity: 0.6;
@@ -2615,19 +2909,20 @@ import { environment } from '../../../environments/environment';
 
       /* ── Booking Calendar ── */
       .booking-calendar {
-        border: 1.5px solid var(--color-border);
-        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
         overflow: hidden;
-        background: var(--color-bg);
+        background: rgba(7, 10, 15, 0.42);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
       }
 
       .bc-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 10px 14px;
+        padding: 0.8rem 0.95rem;
         background: rgba(255, 255, 255, 0.03);
-        border-bottom: 1px solid var(--color-border);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .bc-month-title {
@@ -2754,9 +3049,10 @@ import { environment } from '../../../environments/environment';
 
       .bc-legend {
         display: flex;
+        flex-wrap: wrap;
         gap: 16px;
         padding: 6px 14px 8px;
-        border-top: 1px solid var(--color-border);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .bc-legend-item {
@@ -2870,7 +3166,7 @@ import { environment } from '../../../environments/environment';
         align-items: center;
         gap: 2rem;
         padding-top: 2rem;
-        border-top: 1px solid var(--color-border);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .back-link {
@@ -2893,31 +3189,26 @@ import { environment } from '../../../environments/environment';
 
       /* ── Responsive ── */
       @media (max-width: 900px) {
-        .hero-intro {
+        .rental-signature-band {
           grid-template-columns: 1fr;
-          gap: 2rem;
         }
 
-        .intro-visual {
-          order: -1;
-          max-width: 280px;
+        .signature-stat-grid {
+          grid-template-columns: 1fr;
         }
 
-        .prices-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-
-      @media (max-width: 900px) {
         .rental-hero-inner {
           grid-template-columns: 1fr;
         }
+
         .rental-hero-right {
           display: none;
         }
+
         .pricing-main-grid {
           grid-template-columns: 1fr 1fr;
         }
+
         .pricing-extra-row,
         .pricing-info-bar {
           grid-template-columns: 1fr;
@@ -2929,14 +3220,56 @@ import { environment } from '../../../environments/environment';
           padding: 5rem 0 3rem;
         }
 
+        .pricing-section,
+        .bikes-section {
+          padding-left: 1rem;
+          padding-right: 1rem;
+          border-radius: 22px;
+        }
+
+        .rental-signature-band {
+          margin-top: -0.6rem;
+          margin-bottom: 2rem;
+        }
+
+        .signature-editorial,
+        .signature-stat-card {
+          border-radius: 18px;
+        }
+
         .pricing-main-grid {
           grid-template-columns: 1fr;
+        }
+
+        .seat-map {
+          grid-template-columns: 1fr 1fr;
         }
 
         .rental-cta {
           flex-direction: column;
           align-items: flex-start;
           gap: 1rem;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .seat-map,
+        .pricing-extra-row {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-cta-wa,
+        .hero-cta-scroll {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .whatsapp-card {
+          padding: 1.25rem;
+        }
+
+        .pcard-top-badge {
+          font-size: 0.62rem;
         }
       }
     `,
@@ -3005,6 +3338,14 @@ export class FahrradverleihComponent implements OnInit {
     for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
     return days;
   });
+
+  scrollToBikes(): void {
+    if (this.isBrowser) {
+      document
+        .getElementById('fahrrad-waehlen')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
 
   ngOnInit(): void {
     const t = this.t();

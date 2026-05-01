@@ -183,6 +183,22 @@ interface Testimonial {
             </ul>
             <div class="rental-ctas">
               <a
+                [routerLink]="['/' + lang(), 'fahrradverleih']"
+                class="rental-cta-primary"
+              >
+                Fahrrad auswählen &amp; buchen
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </a>
+              <a
                 href="https://wa.me/491556630011"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -198,23 +214,7 @@ interface Testimonial {
                     d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"
                   />
                 </svg>
-                Jetzt reservieren (WhatsApp)
-              </a>
-              <a
-                [routerLink]="['/' + lang(), 'fahrradverleih']"
-                class="rental-cta-link"
-              >
-                Alle Angebote ansehen
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
+                WhatsApp
               </a>
             </div>
           </div>
@@ -1383,6 +1383,93 @@ interface Testimonial {
   `,
   styles: [
     `
+      :host {
+        display: block;
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
+          var(--color-bg);
+      }
+
+      .section,
+      .repair-section,
+      .testimonials-section,
+      .faq-section,
+      .cta-section {
+        position: relative;
+      }
+
+      .section .container,
+      .repair-section .container,
+      .testimonials-section .container,
+      .faq-section .container,
+      .cta-inner {
+        position: relative;
+        z-index: 1;
+      }
+
+      .section {
+        padding: 1.4rem 0;
+      }
+
+      .section .container,
+      .repair-section .container,
+      .testimonials-section .container,
+      .faq-section .container {
+        padding: 2.2rem;
+        border-radius: 30px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          rgba(17, 20, 27, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 28px 70px rgba(0, 0, 0, 0.14);
+        overflow: hidden;
+      }
+
+      .section .container::before,
+      .repair-section .container::before,
+      .testimonials-section .container::before,
+      .faq-section .container::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 40%);
+        pointer-events: none;
+      }
+
+      .section-alt .container,
+      .repair-section .container,
+      .testimonials-section .container,
+      .faq-section .container {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+          rgba(12, 15, 21, 0.82);
+      }
+
+      .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.4rem 0.75rem;
+        border-radius: 999px;
+        background: rgba(255, 87, 34, 0.1);
+        border: 1px solid rgba(255, 87, 34, 0.18);
+      }
+
+      .section-title {
+        font-size: clamp(2rem, 4vw, 3.35rem);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        margin: 1rem 0 0.9rem;
+      }
+
+      .section-subtitle {
+        max-width: 720px;
+        font-size: 1rem;
+        line-height: 1.75;
+        color: rgba(255, 255, 255, 0.68);
+      }
+
       /* ═══ HERO ═══ */
       .hero {
         position: relative;
@@ -1423,33 +1510,38 @@ interface Testimonial {
         z-index: 1;
         text-align: center;
         padding: 8rem 1rem 6rem;
+        max-width: 980px;
       }
 
       .hero-label {
         display: inline-block;
         font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 0.15em;
+        font-weight: 700;
+        letter-spacing: 0.18em;
         text-transform: uppercase;
         color: var(--color-accent);
         margin-bottom: 1.5rem;
+        padding: 0.5rem 0.8rem;
+        border-radius: 999px;
+        background: rgba(255, 87, 34, 0.1);
+        border: 1px solid rgba(255, 87, 34, 0.16);
       }
 
       .hero-h1 {
-        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-size: clamp(3.2rem, 8vw, 6rem);
         font-weight: 800;
-        line-height: 1.1;
-        letter-spacing: -0.02em;
+        line-height: 0.94;
+        letter-spacing: -0.055em;
         color: var(--color-text);
-        margin: 0 auto 1.5rem;
-        max-width: 800px;
+        margin: 0 auto 1.35rem;
+        max-width: 980px;
       }
 
       .hero-sub {
-        font-size: clamp(1rem, 2vw, 1.25rem);
-        color: var(--color-text-secondary);
-        line-height: 1.7;
-        max-width: 600px;
+        font-size: clamp(1rem, 2vw, 1.2rem);
+        color: rgba(255, 255, 255, 0.72);
+        line-height: 1.8;
+        max-width: 720px;
         margin: 0 auto 2.5rem;
       }
 
@@ -1464,7 +1556,8 @@ interface Testimonial {
       .hero-stats {
         display: flex;
         justify-content: center;
-        gap: 3.5rem;
+        gap: 1rem;
+        flex-wrap: wrap;
 
         .hero-stats-hidden {
           visibility: hidden;
@@ -1475,10 +1568,16 @@ interface Testimonial {
         display: flex;
         flex-direction: column;
         align-items: center;
+        min-width: 170px;
+        padding: 1rem 1.2rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
       }
 
       .h-stat-n {
-        font-size: 2.25rem;
+        font-size: 2.4rem;
         font-weight: 800;
         color: var(--color-accent);
         line-height: 1;
@@ -1522,18 +1621,23 @@ interface Testimonial {
       }
 
       .value-card {
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 16px;
-        padding: 2rem 1.5rem;
+        position: relative;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 22px;
+        padding: 2rem 1.6rem;
         transition:
           border-color 0.3s,
-          transform 0.3s;
+          transform 0.3s,
+          box-shadow 0.3s;
       }
 
       .value-card:hover {
         border-color: var(--color-accent);
-        transform: translateY(-4px);
+        transform: translateY(-6px);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
       }
 
       .value-icon {
@@ -1568,6 +1672,7 @@ interface Testimonial {
         justify-content: space-between;
         align-items: flex-end;
         margin-bottom: 2.5rem;
+        gap: 1.25rem;
       }
 
       .view-all-btn {
@@ -1575,6 +1680,10 @@ interface Testimonial {
         align-items: center;
         gap: 0.4rem;
         flex-shrink: 0;
+        padding: 0.85rem 1.1rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .bike-grid {
@@ -1598,10 +1707,10 @@ interface Testimonial {
         display: flex;
         align-items: flex-start;
         gap: 1rem;
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 12px;
-        padding: 1.25rem 1.5rem;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 1.35rem 1.5rem;
       }
 
       .trust-check {
@@ -1622,6 +1731,7 @@ interface Testimonial {
         grid-template-columns: 1fr 1fr;
         gap: 4rem;
         align-items: start;
+        padding: 0.4rem;
       }
 
       .story-body {
@@ -1677,11 +1787,12 @@ interface Testimonial {
 
       .gallery-item {
         position: relative;
-        border-radius: 14px;
+        border-radius: 20px;
         overflow: hidden;
         cursor: pointer;
         aspect-ratio: 4 / 3;
-        border: 1px solid var(--color-border);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 16px 44px rgba(0, 0, 0, 0.14);
       }
 
       .gallery-item img {
@@ -1931,9 +2042,9 @@ interface Testimonial {
       }
 
       .bikecheck-card {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(255, 255, 255, 0.035);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
+        border-radius: 22px;
         padding: 2.5rem;
         transition:
           transform 0.3s ease,
@@ -2073,9 +2184,9 @@ interface Testimonial {
         display: flex;
         align-items: center;
         gap: 1rem;
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 22px;
         padding: 1.25rem 1.75rem;
         margin-top: 2rem;
         width: fit-content;
@@ -2150,9 +2261,9 @@ interface Testimonial {
       }
 
       .testimonial-card {
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 22px;
         padding: 1.75rem;
         transition:
           transform 0.3s ease,
@@ -2256,9 +2367,9 @@ interface Testimonial {
       }
 
       .faq-item {
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
         overflow: hidden;
         transition: all 0.3s ease;
       }
@@ -2316,11 +2427,13 @@ interface Testimonial {
         padding: 6rem 0;
         background: linear-gradient(
           135deg,
-          var(--color-surface-alt) 0%,
-          var(--color-bg) 100%
+          rgba(255, 255, 255, 0.04) 0%,
+          rgba(15, 18, 24, 0.95) 100%
         );
         text-align: center;
         overflow: hidden;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .cta-section::before {
@@ -2680,12 +2793,12 @@ interface Testimonial {
         gap: 0.6rem;
         margin-top: 0.75rem;
       }
-      .rental-cta-wa {
+      .rental-cta-primary {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        background: #25d366;
+        background: linear-gradient(135deg, #ff5722, #e64a19);
         color: #fff;
         font-size: 0.875rem;
         font-weight: 700;
@@ -2695,12 +2808,13 @@ interface Testimonial {
         transition:
           opacity 0.2s,
           transform 0.2s;
+        box-shadow: 0 8px 24px rgba(255, 87, 34, 0.3);
       }
-      .rental-cta-wa:hover {
-        opacity: 0.88;
+      .rental-cta-primary:hover {
+        opacity: 0.9;
         transform: translateY(-1px);
       }
-      .rental-cta-link {
+      .rental-cta-wa {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -2709,13 +2823,10 @@ interface Testimonial {
         font-size: 0.82rem;
         font-weight: 600;
         text-decoration: none;
-        transition:
-          color 0.2s,
-          gap 0.2s;
+        transition: color 0.2s;
       }
-      .rental-cta-link:hover {
+      .rental-cta-wa:hover {
         color: #fff;
-        gap: 0.6rem;
       }
 
       /* ═══ HERO (standalone) ═══ */
@@ -2732,6 +2843,13 @@ interface Testimonial {
 
       /* ═══ RESPONSIVE ═══ */
       @media (max-width: 1024px) {
+        .section .container,
+        .repair-section .container,
+        .testimonials-section .container,
+        .faq-section .container {
+          padding: 1.7rem;
+        }
+
         .values-grid {
           grid-template-columns: repeat(2, 1fr);
         }
@@ -2779,9 +2897,22 @@ interface Testimonial {
       }
 
       @media (max-width: 640px) {
+        .section .container,
+        .repair-section .container,
+        .testimonials-section .container,
+        .faq-section .container {
+          padding: 1.2rem;
+          border-radius: 22px;
+        }
+
         .hero-inner {
           padding: 7rem 1rem 5rem;
         }
+
+        .hero-h1 {
+          font-size: clamp(2.8rem, 15vw, 4rem);
+        }
+
         .values-grid {
           grid-template-columns: 1fr;
         }
@@ -2800,7 +2931,7 @@ interface Testimonial {
           grid-template-columns: 1fr;
         }
         .hero-stats {
-          gap: 2rem;
+          gap: 0.75rem;
         }
         .gallery-grid {
           grid-template-columns: 1fr;

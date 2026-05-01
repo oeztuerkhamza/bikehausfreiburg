@@ -996,6 +996,62 @@ import { PublicShopInfo } from '../../models/models';
           grid-template-columns: 1fr;
         }
       }
+
+      .about-page {
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
+          var(--color-bg);
+      }
+
+      .page-header {
+        position: relative;
+        padding: 7rem 0 3.2rem;
+        background: transparent;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .page-header h1,
+      .intro-headline {
+        letter-spacing: -0.04em;
+      }
+
+      .page-header h1 {
+        font-size: clamp(2.3rem, 5vw, 4.2rem);
+        line-height: 0.98;
+      }
+
+      .hero-intro,
+      .mission-section,
+      .sv-card,
+      .brand-card,
+      .shop-card,
+      .cta-card {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
+      }
+
+      .hero-intro {
+        padding: 1.8rem;
+        border-radius: 30px;
+      }
+
+      .visual-card,
+      .mission-section,
+      .sv-card,
+      .brand-card {
+        border-radius: 24px;
+      }
+
+      .sv-card:hover,
+      .brand-card:hover,
+      .shop-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(255, 87, 34, 0.18);
+      }
     `,
   ],
 })

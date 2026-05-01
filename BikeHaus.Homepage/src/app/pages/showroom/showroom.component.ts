@@ -1,10 +1,10 @@
 import {
-  Component,
-  inject,
-  OnInit,
-  OnDestroy,
-  signal,
-  computed,
+    Component,
+    inject,
+    OnInit,
+    OnDestroy,
+    signal,
+    computed,
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -546,45 +546,75 @@ const TYP_PATTERN =
     `
       .showroom-page {
         min-height: 60vh;
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 32%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%),
+          var(--color-bg);
       }
 
-      /* ── Header ── */
       .page-header {
-        padding: 7rem 0 3rem;
-        background: var(--color-bg);
-        border-bottom: 1px solid var(--color-border);
+        position: relative;
+        padding: 7.5rem 0 3.5rem;
+        background: transparent;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+
+      .page-header::before {
+        content: '';
+        position: absolute;
+        inset: -6rem 0 0;
+        background:
+          radial-gradient(circle at 20% 10%, rgba(255, 87, 34, 0.13), transparent 28%),
+          radial-gradient(circle at 80% 0%, rgba(255, 255, 255, 0.05), transparent 24%);
+        pointer-events: none;
+      }
+
+      .page-header .container {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
       }
 
       .page-header .section-label {
         display: block;
         font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.15em;
+        font-weight: 700;
+        letter-spacing: 0.18em;
         text-transform: uppercase;
         color: var(--color-accent);
-        margin-bottom: 0.75rem;
+        margin-bottom: 1rem;
       }
 
       .page-header h1 {
-        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-size: clamp(2.3rem, 5vw, 4.25rem);
         font-weight: 800;
         color: var(--color-text);
-        margin: 0 0 0.5rem;
-        letter-spacing: -0.02em;
+        margin: 0 0 0.9rem;
+        letter-spacing: -0.04em;
+        line-height: 0.98;
+        max-width: 10ch;
       }
 
       .header-sub {
-        font-size: 1rem;
-        color: var(--color-text-secondary);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.9rem 1.1rem;
+        font-size: 0.95rem;
+        color: rgba(255, 255, 255, 0.74);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
       }
 
-      /* ── Shop Layout ── */
       .shop-layout {
         display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 2rem;
-        padding-top: 2rem;
-        padding-bottom: 3rem;
+        grid-template-columns: 300px minmax(0, 1fr);
+        gap: 1.5rem;
+        padding-top: 2.25rem;
+        padding-bottom: 4rem;
         align-items: start;
       }
 
@@ -592,16 +622,27 @@ const TYP_PATTERN =
         grid-template-columns: 1fr;
       }
 
-      /* ── Sidebar ── */
       .sidebar {
         position: sticky;
         top: 5rem;
-        padding: 1.25rem;
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 16px;
+        padding: 1.35rem;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
         max-height: calc(100vh - 6rem);
         overflow-y: auto;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+      }
+
+      .sidebar::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 40%);
+        pointer-events: none;
       }
 
       .sidebar-close {
@@ -624,19 +665,22 @@ const TYP_PATTERN =
 
       .s-input {
         width: 100%;
-        padding: 0.6rem 0.75rem 0.6rem 2.25rem;
-        border: 1px solid var(--color-border);
-        border-radius: 10px;
-        background: var(--color-bg);
+        padding: 0.8rem 0.9rem 0.8rem 2.35rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        background: rgba(9, 11, 15, 0.72);
         color: var(--color-text);
         font-size: 0.85rem;
         font-family: var(--font-family);
         outline: none;
-        transition: border-color 0.2s;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
       }
 
       .s-input:focus {
         border-color: var(--color-accent);
+        box-shadow: 0 0 0 4px rgba(255, 87, 34, 0.1);
       }
       .s-input::placeholder {
         color: var(--color-text-muted);
@@ -644,7 +688,7 @@ const TYP_PATTERN =
 
       .sidebar-divider {
         border: none;
-        border-top: 1px solid var(--color-border);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
         margin: 1rem 0;
       }
 
@@ -657,12 +701,12 @@ const TYP_PATTERN =
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 700;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
         color: var(--color-text-muted);
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.85rem;
       }
 
       .filter-heading svg {
@@ -680,21 +724,24 @@ const TYP_PATTERN =
         display: flex;
         align-items: center;
         gap: 0.6rem;
-        padding: 0.45rem 0.65rem;
-        border-radius: 8px;
+        padding: 0.6rem 0.72rem;
+        border-radius: 12px;
         font-size: 0.85rem;
         color: var(--color-text-secondary);
         cursor: pointer;
         transition: all 0.2s;
+        border: 1px solid transparent;
       }
 
       .checkbox-item:hover {
-        background: var(--color-surface-hover);
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.06);
         color: var(--color-text);
       }
 
       .checkbox-item.active {
         background: rgba(255, 87, 34, 0.1);
+        border-color: rgba(255, 87, 34, 0.22);
         color: var(--color-accent);
       }
 
@@ -736,9 +783,9 @@ const TYP_PATTERN =
         font-size: 0.75rem;
         font-weight: 600;
         color: var(--color-text-muted);
-        background: var(--color-bg);
-        padding: 0.15rem 0.5rem;
-        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
       }
 
       .checkbox-item.active .filter-count {
@@ -765,7 +812,7 @@ const TYP_PATTERN =
         font-size: 0.65rem;
         font-weight: 600;
         color: var(--color-text-muted);
-        background: var(--color-surface);
+        background: rgba(14, 16, 22, 0.92);
         padding: 0 4px;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -773,19 +820,22 @@ const TYP_PATTERN =
 
       .price-field input {
         width: 100%;
-        padding: 0.6rem 1.5rem 0.6rem 0.65rem;
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        background: var(--color-bg);
+        padding: 0.7rem 1.6rem 0.7rem 0.7rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        background: rgba(9, 11, 15, 0.72);
         color: var(--color-text);
         font-size: 0.85rem;
         font-family: var(--font-family);
         outline: none;
-        transition: border-color 0.2s;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
       }
 
       .price-field input:focus {
         border-color: var(--color-accent);
+        box-shadow: 0 0 0 4px rgba(255, 87, 34, 0.1);
       }
 
       .price-field input::-webkit-outer-spin-button,
@@ -813,11 +863,11 @@ const TYP_PATTERN =
         align-items: center;
         gap: 0.4rem;
         width: 100%;
-        padding: 0.6rem 0.75rem;
+        padding: 0.8rem 0.9rem;
         margin-top: 1rem;
-        border: 1px solid var(--color-border);
-        border-radius: 10px;
-        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.02);
         color: var(--color-text-secondary);
         font-size: 0.82rem;
         font-family: var(--font-family);
@@ -830,28 +880,37 @@ const TYP_PATTERN =
         color: var(--color-accent);
       }
 
-      /* ── Main Content ── */
       .main-content {
         min-width: 0;
+        padding: 1.35rem;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
       }
 
-      /* ── Toolbar ── */
       .toolbar {
         display: flex;
         align-items: center;
         gap: 0.75rem;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.35rem;
         flex-wrap: wrap;
+        padding: 1rem 1.05rem;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.06);
       }
 
       .filter-toggle {
         display: none;
         align-items: center;
         gap: 0.4rem;
-        padding: 0.55rem 1rem;
-        border: 1px solid var(--color-border);
+        padding: 0.65rem 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 50px;
-        background: var(--color-surface);
+        background: rgba(255, 255, 255, 0.03);
         color: var(--color-text-secondary);
         font-size: 0.85rem;
         font-family: var(--font-family);
@@ -885,12 +944,13 @@ const TYP_PATTERN =
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
-        background: var(--color-accent-subtle);
+        background: rgba(255, 87, 34, 0.1);
         color: var(--color-accent);
         font-size: 0.78rem;
         font-weight: 600;
-        padding: 0.3rem 0.5rem 0.3rem 0.7rem;
+        padding: 0.42rem 0.6rem 0.42rem 0.8rem;
         border-radius: 50px;
+        border: 1px solid rgba(255, 87, 34, 0.18);
       }
 
       .pill-close {
@@ -929,10 +989,10 @@ const TYP_PATTERN =
       }
 
       .sort-select {
-        padding: 0.45rem 0.75rem;
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        background: var(--color-surface);
+        padding: 0.55rem 0.8rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
         color: var(--color-text);
         font-size: 0.82rem;
         font-family: var(--font-family);
@@ -947,7 +1007,7 @@ const TYP_PATTERN =
 
       .result-count {
         font-size: 0.82rem;
-        color: var(--color-text-muted);
+        color: rgba(255, 255, 255, 0.58);
         white-space: nowrap;
       }
 
@@ -955,11 +1015,10 @@ const TYP_PATTERN =
         display: none;
       }
 
-      /* ── Grid ── */
       .bike-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1.25rem;
+        gap: 1.4rem;
       }
 
       /* ── Skeleton ── */
@@ -1020,6 +1079,9 @@ const TYP_PATTERN =
       .no-results {
         text-align: center;
         padding: 4rem 1rem;
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.02);
       }
       .no-results svg {
         margin-bottom: 1rem;
@@ -1040,11 +1102,11 @@ const TYP_PATTERN =
       /* ── Footer ── */
       .last-updated {
         text-align: center;
-        padding: 1.5rem 0 0;
+        padding: 2rem 0 0;
         font-size: 0.8rem;
         color: var(--color-text-muted);
-        border-top: 1px solid var(--color-border);
-        margin-top: 2.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        margin-top: 3rem;
       }
 
       /* ── Responsive ── */
@@ -1065,6 +1127,11 @@ const TYP_PATTERN =
       @media (max-width: 900px) {
         .shop-layout {
           grid-template-columns: 1fr;
+        }
+
+        .main-content {
+          padding: 1rem;
+          border-radius: 22px;
         }
 
         .sidebar {
@@ -1127,11 +1194,22 @@ const TYP_PATTERN =
         .page-header {
           padding: 6rem 0 2rem;
         }
+
+        .page-header h1 {
+          max-width: none;
+        }
+
+        .header-sub {
+          padding: 0.75rem 0.95rem;
+          font-size: 0.88rem;
+        }
+
         .bike-grid {
           grid-template-columns: 1fr;
         }
         .toolbar {
           gap: 0.5rem;
+          padding: 0.8rem;
         }
       }
     `,

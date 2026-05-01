@@ -727,6 +727,75 @@ import { environment } from '../../../environments/environment';
           position: static;
         }
       }
+
+      .detail-page {
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 32%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%),
+          var(--color-bg);
+      }
+
+      .breadcrumb-bar {
+        padding: 6.75rem 0 1.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.9rem 1.05rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        text-decoration: none;
+      }
+
+      .main-image-wrap {
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
+      }
+
+      .g-nav,
+      .img-counter,
+      .thumb,
+      .condition-badge,
+      .cat-badge {
+        backdrop-filter: blur(12px);
+      }
+
+      .thumb {
+        border-radius: 14px;
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .details-inner {
+        padding: 2rem;
+        border-radius: 28px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+      }
+
+      .price-card {
+        border-radius: 20px;
+        background:
+          linear-gradient(135deg, rgba(255, 87, 34, 0.16), rgba(255, 87, 34, 0.05)),
+          rgba(255, 87, 34, 0.08);
+        border-color: rgba(255, 87, 34, 0.2);
+      }
+
+      .btn-whatsapp,
+      .btn-maps {
+        border-radius: 16px;
+      }
+
+      .description-section {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
     `,
   ],
 })

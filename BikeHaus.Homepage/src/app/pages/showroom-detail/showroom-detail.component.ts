@@ -456,24 +456,45 @@ import { environment } from '../../../environments/environment';
       /* ── Page ── */
       .detail-page {
         padding-bottom: 4rem;
+        background:
+          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 32%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%),
+          var(--color-bg);
       }
 
-      /* ── Breadcrumb ── */
       .breadcrumb-bar {
-        padding: 6.5rem 0 1.5rem;
-        border-bottom: 1px solid var(--color-border);
+        position: relative;
+        padding: 6.75rem 0 1.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         margin-bottom: 2.5rem;
+        overflow: hidden;
+      }
+
+      .breadcrumb-bar::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 12% 0%, rgba(255, 87, 34, 0.12), transparent 22%),
+          radial-gradient(circle at 88% 0%, rgba(255, 255, 255, 0.05), transparent 18%);
+        pointer-events: none;
       }
 
       .back-link {
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        color: var(--color-text-secondary);
+        position: relative;
+        z-index: 1;
+        color: rgba(255, 255, 255, 0.72);
         text-decoration: none;
         font-size: 0.88rem;
-        font-weight: 500;
+        font-weight: 600;
         transition: color 0.2s;
+        padding: 0.9rem 1.05rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .back-link:hover {
@@ -483,8 +504,8 @@ import { environment } from '../../../environments/environment';
       /* ── Layout ── */
       .detail-layout {
         display: grid;
-        grid-template-columns: 1fr 400px;
-        gap: 3rem;
+        grid-template-columns: minmax(0, 1fr) 420px;
+        gap: 2rem;
         align-items: start;
       }
 
@@ -495,12 +516,22 @@ import { environment } from '../../../environments/environment';
 
       .main-image-wrap {
         position: relative;
-        border-radius: 20px;
+        border-radius: 28px;
         overflow: hidden;
         background: #0d0d0d;
-        border: 1px solid var(--color-border);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         aspect-ratio: 4/3;
         margin: 0;
+        box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
+      }
+
+      .main-image-wrap::after {
+        content: '';
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 36%;
+        background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.45));
+        pointer-events: none;
       }
 
       .main-img {
@@ -582,23 +613,25 @@ import { environment } from '../../../environments/environment';
 
       .thumb {
         flex-shrink: 0;
-        width: 72px;
-        height: 54px;
-        border-radius: 10px;
+        width: 86px;
+        height: 62px;
+        border-radius: 14px;
         overflow: hidden;
-        border: 2px solid var(--color-border);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         cursor: pointer;
         padding: 0;
         background: none;
         transition:
           border-color 0.2s,
-          opacity 0.2s;
-        opacity: 0.6;
+          opacity 0.2s,
+          transform 0.2s;
+        opacity: 0.62;
       }
 
       .thumb.active {
         border-color: var(--color-accent);
         opacity: 1;
+        transform: translateY(-2px);
       }
 
       .thumb:hover {
@@ -619,10 +652,13 @@ import { environment } from '../../../environments/environment';
       }
 
       .details-inner {
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 20px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 28px;
         padding: 2rem;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
       }
 
       .badge-row {
@@ -635,14 +671,15 @@ import { environment } from '../../../environments/environment';
 
       .condition-badge {
         display: inline-block;
-        background: rgba(120, 120, 120, 0.25);
+        background: rgba(255, 255, 255, 0.05);
         color: var(--color-text-secondary);
         font-size: 0.72rem;
         font-weight: 700;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        padding: 0.35rem 0.9rem;
-        border-radius: 50px;
+        padding: 0.42rem 0.95rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .condition-badge.is-new {
@@ -656,45 +693,48 @@ import { environment } from '../../../environments/environment';
         color: var(--color-accent);
         font-size: 0.72rem;
         font-weight: 700;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        padding: 0.35rem 0.9rem;
-        border-radius: 50px;
+        padding: 0.42rem 0.95rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 87, 34, 0.18);
       }
 
       .title {
-        font-size: 1.35rem;
-        font-weight: 700;
+        font-size: clamp(1.65rem, 3vw, 2.35rem);
+        font-weight: 800;
         color: var(--color-text);
-        line-height: 1.35;
-        margin: 0 0 1.25rem;
-        letter-spacing: -0.01em;
+        line-height: 1.05;
+        margin: 0 0 1.35rem;
+        letter-spacing: -0.035em;
       }
 
-      /* Price */
       .price-card {
-        background: rgba(255, 87, 34, 0.08);
-        border: 1px solid rgba(255, 87, 34, 0.18);
-        border-radius: 14px;
-        padding: 1rem 1.25rem;
+        background:
+          linear-gradient(135deg, rgba(255, 87, 34, 0.16), rgba(255, 87, 34, 0.05)),
+          rgba(255, 87, 34, 0.08);
+        border: 1px solid rgba(255, 87, 34, 0.2);
+        border-radius: 20px;
+        padding: 1.15rem 1.3rem;
         margin-bottom: 1.5rem;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
       }
 
       .price-value {
-        font-size: 1.5rem;
+        font-size: clamp(1.7rem, 3vw, 2.4rem);
         font-weight: 800;
         color: var(--color-accent);
-        letter-spacing: -0.02em;
+        letter-spacing: -0.04em;
       }
 
       /* Meta */
       .meta-list {
         display: flex;
         flex-direction: column;
-        gap: 0.65rem;
-        margin-bottom: 1.75rem;
+        gap: 0.8rem;
+        margin-bottom: 1.8rem;
         padding-bottom: 1.5rem;
-        border-bottom: 1px solid var(--color-border);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .meta-row {
@@ -714,7 +754,8 @@ import { environment } from '../../../environments/environment';
         width: 100%;
         justify-content: center;
         text-decoration: none;
-        padding: 0.85rem 1.5rem;
+        padding: 0.95rem 1.5rem;
+        border-radius: 16px;
       }
 
       .btn-maps {
@@ -723,11 +764,11 @@ import { environment } from '../../../environments/environment';
         justify-content: center;
         gap: 0.5rem;
         width: 100%;
-        margin-top: 0.65rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        background: var(--color-bg);
-        border: 1px solid var(--color-border);
+        margin-top: 0.8rem;
+        padding: 0.9rem 1.5rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         color: var(--color-text-secondary);
         font-size: 0.88rem;
         font-weight: 600;
@@ -742,13 +783,12 @@ import { environment } from '../../../environments/environment';
         color: var(--color-accent);
       }
 
-      /* ── WhatsApp Contact ── */
       .whatsapp-contact {
-        margin-top: 1.5rem;
-        padding: 1rem;
-        border-radius: 12px;
-        background: var(--color-bg);
-        border: 1px solid var(--color-border);
+        margin-top: 1.6rem;
+        padding: 1.1rem;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .whatsapp-header {
@@ -765,9 +805,9 @@ import { environment } from '../../../environments/environment';
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
-        padding: 0.75rem;
-        background: var(--color-bg-card);
-        border-radius: 8px;
+        padding: 0.85rem;
+        background: rgba(0, 0, 0, 0.18);
+        border-radius: 14px;
         margin-bottom: 0.85rem;
         font-size: 0.85rem;
       }
@@ -784,10 +824,10 @@ import { environment } from '../../../environments/environment';
 
       .whatsapp-textarea {
         width: 100%;
-        padding: 0.75rem;
-        border-radius: 8px;
-        border: 1px solid var(--color-border);
-        background: var(--color-bg-card);
+        padding: 0.85rem;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.18);
         color: var(--color-text);
         font-size: 0.9rem;
         font-family: inherit;
@@ -812,8 +852,8 @@ import { environment } from '../../../environments/environment';
         justify-content: center;
         gap: 0.5rem;
         width: 100%;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
+        padding: 0.9rem 1rem;
+        border-radius: 14px;
         background: #25d366;
         color: #fff;
         font-size: 0.9rem;
@@ -829,11 +869,10 @@ import { environment } from '../../../environments/environment';
         transform: translateY(-1px);
       }
 
-      /* ── Description ── */
       .desc-section {
         margin-top: 3rem;
         padding-top: 2.5rem;
-        border-top: 1px solid var(--color-border);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
         max-width: 800px;
       }
 
@@ -852,11 +891,10 @@ import { environment } from '../../../environments/environment';
         word-break: break-word;
       }
 
-      /* ── Related Bikes ── */
       .related-section {
         margin-top: 3rem;
         padding-top: 2.5rem;
-        border-top: 1px solid var(--color-border);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .related-section h2 {
@@ -874,10 +912,12 @@ import { environment } from '../../../environments/environment';
 
       .related-card {
         text-decoration: none;
-        border-radius: 14px;
+        border-radius: 20px;
         overflow: hidden;
-        border: 1px solid var(--color-border);
-        background: var(--color-surface);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          var(--color-surface);
         transition:
           border-color 0.25s,
           transform 0.15s;
@@ -927,7 +967,7 @@ import { environment } from '../../../environments/environment';
       .blog-cta-section {
         margin-top: 2.5rem;
         padding-top: 2rem;
-        border-top: 1px solid var(--color-border);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .blog-cta-section h2 {
