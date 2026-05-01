@@ -782,6 +782,7 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         position: relative;
         z-index: 1;
         max-width: 920px;
+        text-align: left;
       }
 
       .page-header h1 {
@@ -790,6 +791,7 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
         line-height: 0.98;
         margin-bottom: 0.9rem;
         max-width: 10ch;
+        text-align: left;
       }
 
       .header-sub {
