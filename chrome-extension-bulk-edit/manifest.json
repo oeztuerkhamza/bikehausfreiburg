@@ -3,7 +3,14 @@
   "name": "BikeHaus Kleinanzeigen Bulk Editor",
   "description": "Toplu olarak Kleinanzeigen ilanlarının açıklama bölümünü düzenler",
   "version": "1.0.0",
-  "permissions": ["storage", "activeTab", "tabs", "scripting", "alarms"],
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "activeTab",
+    "tabs",
+    "scripting",
+    "alarms"
+  ],
   "host_permissions": [
     "https://www.kleinanzeigen.de/*",
     "https://api.bikehausfreiburg.com/*",

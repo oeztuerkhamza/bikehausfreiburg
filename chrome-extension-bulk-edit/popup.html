@@ -11,14 +11,13 @@
     </div>
 
     <div class="content">
-      <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" data-tab="tab-ids">Anzeigen IDs</button>
         <button class="tab" data-tab="tab-template">Beschreibung</button>
+        <button class="tab" data-tab="tab-photos">📷 Fotos</button>
         <button class="tab" data-tab="tab-progress">Fortschritt</button>
       </div>
 
-      <!-- Tab 1: Ad IDs -->
       <div id="tab-ids" class="tab-content active">
         <div class="api-section">
           <label>API Adresse:</label>
@@ -71,7 +70,6 @@ https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=3382970845"
         </div>
       </div>
 
-      <!-- Tab 2: Description Template -->
       <div id="tab-template" class="tab-content">
         <div class="mode-selector">
           <label>Modus:</label>
@@ -83,7 +81,6 @@ https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=3382970845"
           </select>
         </div>
 
-        <!-- Replace All Mode -->
         <div id="mode-replace-all" class="mode-content active">
           <label>Neue Beschreibung:</label>
           <textarea
@@ -96,7 +93,6 @@ https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=3382970845"
           </button>
         </div>
 
-        <!-- Find & Replace Mode -->
         <div id="mode-find-replace" class="mode-content">
           <label>Suchen:</label>
           <textarea
@@ -112,7 +108,6 @@ https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=3382970845"
           ></textarea>
         </div>
 
-        <!-- Append Mode -->
         <div id="mode-append" class="mode-content">
           <label>Text zum Anhängen:</label>
           <textarea
@@ -122,7 +117,6 @@ https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=3382970845"
           ></textarea>
         </div>
 
-        <!-- Prepend Mode -->
         <div id="mode-prepend" class="mode-content">
           <label>Text zum Einfügen:</label>
           <textarea
@@ -153,7 +147,49 @@ https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=3382970845"
         </div>
       </div>
 
-      <!-- Tab 3: Progress -->
+      <div id="tab-photos" class="tab-content">
+        <div class="photo-info-box">
+          📌 Seçilen fotoğraflar tüm ilanlarda
+          <strong>mevcut fotoğrafların arkasına eklenir</strong>.<br />
+          🔒 Maksimum <strong>5 fotoğraf</strong> seçebilirsiniz (extension
+          yuvası). Silme işlemi yalnızca bu son 5 fotoğrafı etkiler — önceki
+          fotoğraflara dokunulmaz.
+        </div>
+        <div class="photo-toolbar">
+          <button class="btn btn-secondary btn-sm" id="btn-select-photos">
+            📁 Fotoğraf Seç
+          </button>
+          <button
+            class="btn btn-danger btn-sm"
+            id="btn-clear-photos"
+            style="display: none"
+          >
+            🗑 Sil
+          </button>
+          <span class="photo-count-label" id="photo-count-label"
+            >0 fotoğraf seçili</span
+          >
+        </div>
+        <input
+          type="file"
+          id="photo-file-input"
+          accept="image/*"
+          multiple
+          style="display: none"
+        />
+        <div class="photo-preview-grid" id="photo-preview-grid"></div>
+        <div class="photo-warn" id="photo-warn" style="display: none">
+          ⚠️ Fotoğraflar çok büyük — daha az fotoğraf seçin.
+        </div>
+        <div class="photo-delete-section">
+          <label class="checkbox-label">
+            <input type="checkbox" id="delete-existing-photos" />
+            🗑 İlandaki son 5 fotoğrafı sil (extension yuvası — önceki
+            fotoğraflar korunur)
+          </label>
+        </div>
+      </div>
+
       <div id="tab-progress" class="tab-content">
         <div id="progress-info" class="progress-info">Bereit zum Starten.</div>
         <div class="progress-bar-container">
@@ -167,7 +203,6 @@ https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=3382970845"
         <div id="progress-log" class="progress-log"></div>
       </div>
 
-      <!-- Action Buttons -->
       <div class="actions">
         <button id="btn-start" class="btn btn-primary">
           ▶ Bulk-Edit starten

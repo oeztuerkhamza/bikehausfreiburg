@@ -306,8 +306,10 @@ async function processNext() {
   chrome.action.setBadgeText({ text: `${currentIndex + 1}` });
   chrome.action.setBadgeBackgroundColor({ color: '#3498db' });
 
-  // Safety timeout: if no Geschafft! in 45s → skip (0.75 min)
-  chrome.alarms.create('safetyTimeout', { delayInMinutes: 0.75 });
+  // Safety timeout: extend when photos need uploading (≈15s per photo + 45s base)
+  const photoCount = (settings.photos && settings.photos.length) || 0;
+  const safetyMinutes = photoCount > 0 ? Math.max(1.5, 0.75 + photoCount * 0.25) : 0.75;
+  chrome.alarms.create('safetyTimeout', { delayInMinutes: safetyMinutes });
 
   // Open edit page
   const url = `https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=${adId}`;

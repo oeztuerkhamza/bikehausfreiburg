@@ -41,366 +41,172 @@ interface Testimonial {
     NeueBikeCardComponent,
   ],
   template: `
-    <!-- ═══ HERO + SERVICE CAROUSEL ═══ -->
-    <section class="svc-carousel-section" aria-label="Service & Hero">
-      <div
-        class="svc-carousel-wrap"
-        (mouseenter)="pauseCarousel()"
-        (mouseleave)="resumeCarousel()"
-      >
-        <!-- Track -->
-        <div class="svc-track" [style.transform]="carouselTransform">
-          <!-- Slide 0: Hero -->
-          <div class="svc-slide slide-hero" aria-labelledby="hero-heading">
-            <div class="hero-bg" aria-hidden="true">
-              <div class="hero-grain"></div>
-              <div class="hero-radial"></div>
-            </div>
-            <div class="container hero-inner">
-              <span class="hero-label fade-in">Bike Haus Freiburg</span>
-              <h1 id="hero-heading" class="hero-h1 fade-in d1">
-                {{ t().heroH1 }}
-              </h1>
-              <p class="hero-sub fade-in d2">{{ t().heroSub }}</p>
-              <div class="hero-actions fade-in d3">
-                <a
-                  [routerLink]="['/' + lang(), 'neue-fahrraeder']"
-                  class="btn-primary"
-                  >{{ t().ctaPrimary }}</a
-                >
-                <a
-                  [routerLink]="['/' + lang(), 'showroom']"
-                  class="btn-secondary"
-                  >{{ t().ctaSecondary }}</a
-                >
-              </div>
-              <div
-                class="hero-stats fade-in d4"
-                [class.hero-stats-hidden]="!shopInfo()"
-              >
-                <div class="h-stat">
-                  <span class="h-stat-n">{{
-                    shopInfo()?.totalActiveListings ?? '—'
-                  }}</span>
-                  <span class="h-stat-l">{{ t().bikesAvailable }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="hero-scroll" aria-hidden="true">
+    <!-- ═══ HERO ═══ -->
+    <section class="slide-hero" aria-labelledby="hero-heading">
+      <div class="hero-bg" aria-hidden="true">
+        <div class="hero-grain"></div>
+        <div class="hero-radial"></div>
+      </div>
+      <div class="container hero-inner">
+        <span class="hero-label fade-in">Bike Haus Freiburg</span>
+        <h1 id="hero-heading" class="hero-h1 fade-in d1">
+          {{ t().heroH1 }}
+        </h1>
+        <p class="hero-sub fade-in d2">{{ t().heroSub }}</p>
+        <div class="hero-actions fade-in d3">
+          <a
+            [routerLink]="['/' + lang(), 'neue-fahrraeder']"
+            class="btn-primary"
+            >{{ t().ctaPrimary }}</a
+          >
+          <a [routerLink]="['/' + lang(), 'showroom']" class="btn-secondary">{{
+            t().ctaSecondary
+          }}</a>
+        </div>
+        <div
+          class="hero-stats fade-in d4"
+          [class.hero-stats-hidden]="!shopInfo()"
+        >
+          <div class="h-stat">
+            <span class="h-stat-n">{{
+              shopInfo()?.totalActiveListings ?? '—'
+            }}</span>
+            <span class="h-stat-l">{{ t().bikesAvailable }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-scroll" aria-hidden="true">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 5v14M5 12l7 7 7-7" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- ═══ SERVICE CARDS ═══ -->
+    <section class="svc-cards-section" aria-label="Services">
+      <div class="container">
+        <div class="svc-cards-grid">
+          <!-- Reparatur -->
+          <div class="svc-card svc-card-repair">
+            <div class="svc-card-icon">
               <svg
-                width="24"
-                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+                />
+              </svg>
+            </div>
+            <span class="svc-card-badge">{{ t().svcRepairBadge }}</span>
+            <h2 class="svc-card-title">Fahrrad Reparatur</h2>
+            <p class="svc-card-sub">
+              Schneller Service ohne lange Wartezeiten – direkt in Freiburg.
+            </p>
+            <ul class="svc-card-list">
+              <li>Bremsen-, Schaltungs- &amp; Reifenservice</li>
+              <li>Inspektion inkl. Sicherheitscheck</li>
+              <li>Sofortige Diagnose möglich</li>
+              <li>Viele Ersatzteile auf Lager</li>
+            </ul>
+            <a
+              href="https://wa.me/491556630011"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="svc-card-cta svc-card-cta-whatsapp"
+            >
+              Jetzt Termin sichern (WhatsApp)
+              <svg
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <path d="M12 5v14M5 12l7 7 7-7" />
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+          <!-- Verleih -->
+          <div class="svc-card svc-card-rental">
+            <div class="svc-card-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <circle cx="5.5" cy="17.5" r="3.5" />
+                <circle cx="18.5" cy="17.5" r="3.5" />
+                <path d="M15 6l-4 8h6l-2 3.5" />
+                <path d="M5.5 17.5L9 9h3" />
               </svg>
             </div>
+            <span class="svc-card-badge">{{ t().svcRentalBadge }}</span>
+            <h2 class="svc-card-title">{{ t().svcRentalTitle }}</h2>
+            <p class="svc-card-sub">{{ t().svcRentalSub }}</p>
+            <a
+              [routerLink]="['/' + lang(), 'fahrradverleih']"
+              class="svc-card-cta"
+            >
+              {{ t().svcRentalCta }}
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
           </div>
-
-          <!-- Slide 1: Reparatur -->
-          <div class="svc-slide slide-repair">
-            <div class="svc-slide-inner">
-              <div class="svc-content">
-                <span class="svc-badge">{{ t().svcRepairBadge }}</span>
-                <h2 class="svc-title">{{ t().svcRepairTitle }}</h2>
-                <p class="svc-sub">{{ t().svcRepairSub }}</p>
-                <ul class="svc-list">
-                  <li>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="20 6 9 17 4 12" /></svg
-                    >{{ t().svcRepairItem1 }}
-                  </li>
-                  <li>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="20 6 9 17 4 12" /></svg
-                    >{{ t().svcRepairItem2 }}
-                  </li>
-                  <li>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="20 6 9 17 4 12" /></svg
-                    >{{ t().svcRepairItem3 }}
-                  </li>
-                  <li>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="20 6 9 17 4 12" /></svg
-                    >{{ t().svcRepairItem4 }}
-                  </li>
-                </ul>
-                <a [routerLink]="['/' + lang(), 'kontakt']" class="svc-cta"
-                  >{{ t().svcRepairCta }}
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </a>
-              </div>
-              <div class="svc-icon-wrap">
-                <svg
-                  class="svc-big-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.2"
-                >
-                  <path
-                    d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
-                  />
-                </svg>
-              </div>
+          <!-- Angebote -->
+          <div class="svc-card svc-card-angebote">
+            <div class="svc-card-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+                />
+                <line x1="7" y1="7" x2="7.01" y2="7" />
+              </svg>
             </div>
+            <span class="svc-card-badge">{{ t().svcAngeboteBadge }}</span>
+            <h2 class="svc-card-title">{{ t().svcAngeboteTitle }}</h2>
+            <p class="svc-card-sub">{{ t().svcAngeboteSub }}</p>
+            <a
+              [routerLink]="['/' + lang(), 'neue-fahrraeder']"
+              class="svc-card-cta"
+            >
+              {{ t().svcAngeboteCta }}
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
           </div>
-
-          <!-- Slide 2: Verleih -->
-          <div class="svc-slide slide-rental">
-            <div class="svc-slide-inner">
-              <div class="svc-content">
-                <span class="svc-badge">{{ t().svcRentalBadge }}</span>
-                <h2 class="svc-title">{{ t().svcRentalTitle }}</h2>
-                <p class="svc-sub">{{ t().svcRentalSub }}</p>
-                <ul class="svc-list">
-                  <li>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="20 6 9 17 4 12" /></svg
-                    >{{ t().svcRentalItem1 }}
-                  </li>
-                  <li>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="20 6 9 17 4 12" /></svg
-                    >{{ t().svcRentalItem2 }}
-                  </li>
-                  <li>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="20 6 9 17 4 12" /></svg
-                    >{{ t().svcRentalItem3 }}
-                  </li>
-                  <li>
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="20 6 9 17 4 12" /></svg
-                    >{{ t().svcRentalItem4 }}
-                  </li>
-                </ul>
-                <a
-                  [routerLink]="['/' + lang(), 'fahrradverleih']"
-                  class="svc-cta"
-                  >{{ t().svcRentalCta }}
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </a>
-              </div>
-              <div class="svc-icon-wrap">
-                <svg
-                  class="svc-big-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.2"
-                >
-                  <circle cx="5.5" cy="17.5" r="3.5" />
-                  <circle cx="18.5" cy="17.5" r="3.5" />
-                  <path d="M15 6l-4 8h6l-2 3.5" />
-                  <path d="M5.5 17.5L9 9h3" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Slide 3: Angebote (only shown when bikes with angebot exist) -->
-          <div
-            class="svc-slide slide-angebote"
-            *ngIf="angebotBikes().length > 0"
-          >
-            <div class="svc-slide-inner angebote-inner">
-              <div class="angebote-header">
-                <span class="svc-badge">{{ t().svcAngeboteBadge }}</span>
-                <h2 class="svc-title">{{ t().svcAngeboteTitle }}</h2>
-                <p class="svc-sub">{{ t().svcAngeboteSub }}</p>
-              </div>
-              <div class="angebote-cards">
-                <a
-                  *ngFor="let bike of angebotBikes()"
-                  [routerLink]="['/' + lang(), 'neue-fahrraeder', bike.id]"
-                  class="angebot-card"
-                >
-                  <div class="angebot-img-wrap">
-                    <img
-                      *ngIf="bike.images.length"
-                      [src]="getAngebotImageUrl(bike.images[0].filePath)"
-                      [alt]="bike.titel"
-                      loading="lazy"
-                      width="400"
-                      height="300"
-                    />
-                    <div
-                      *ngIf="!bike.images.length"
-                      class="angebot-placeholder"
-                    >
-                      <svg
-                        width="36"
-                        height="36"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                      >
-                        <circle cx="5.5" cy="17.5" r="3.5" />
-                        <circle cx="18.5" cy="17.5" r="3.5" />
-                        <path d="M15 6l-4 8h6l-2 3.5" />
-                        <path d="M5.5 17.5L9 9h3" />
-                      </svg>
-                    </div>
-                    <span class="angebot-tag">ANGEBOT</span>
-                  </div>
-                  <div class="angebot-info">
-                    <span class="angebot-name">{{ bike.titel }}</span>
-                    <span class="angebot-prices">
-                      <span class="price-old"
-                        >{{ bike.preis | number: '1.0-0' }} €</span
-                      >
-                      <span class="price-new"
-                        >{{
-                          bike.preis - bike.angebot! | number: '1.0-0'
-                        }}
-                        €</span
-                      >
-                    </span>
-                  </div>
-                </a>
-              </div>
-              <a
-                [routerLink]="['/' + lang(), 'neue-fahrraeder']"
-                class="svc-cta angebote-cta"
-                >{{ t().svcAngeboteCta }}
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Prev / Next -->
-        <button
-          class="svc-nav svc-prev"
-          (click)="prevSlide()"
-          aria-label="Vorheriger Slide"
-        >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
-        </button>
-        <button
-          class="svc-nav svc-next"
-          (click)="nextSlide()"
-          aria-label="Nächster Slide"
-        >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
-            <path d="M9 18l6-6-6-6" />
-          </svg>
-        </button>
-
-        <!-- Dots -->
-        <div class="svc-dots" role="tablist">
-          <button
-            *ngFor="let i of slideIndices"
-            [class.active]="currentSlide === i"
-            (click)="goToSlide(i)"
-            [attr.aria-label]="'Slide ' + (i + 1)"
-            role="tab"
-          ></button>
         </div>
       </div>
     </section>
@@ -2597,36 +2403,148 @@ interface Testimonial {
         }
       }
 
-      /* ═══ SERVICE CAROUSEL ═══ */
-      .svc-carousel-section {
+      /* ═══ SERVICE CARDS ═══ */
+      .svc-cards-section {
         background: var(--color-bg);
-        padding: 0;
-        overflow: hidden;
+        padding: 0 0 4rem;
       }
-      .svc-carousel-wrap {
+      .svc-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+        padding-top: 2.5rem;
+      }
+      .svc-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 2rem 1.75rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        transition:
+          border-color 0.2s,
+          transform 0.2s;
         position: relative;
         overflow: hidden;
-        width: 100%;
       }
-      .svc-track {
-        display: flex;
-        transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
-        will-change: transform;
+      .svc-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
       }
-      .svc-slide {
-        min-width: 100%;
-        width: 100%;
-        flex-shrink: 0;
+      .svc-card-repair::before {
+        background: radial-gradient(
+          ellipse at top left,
+          rgba(255, 80, 20, 0.08) 0%,
+          transparent 60%
+        );
       }
-      .svc-slide-inner {
+      .svc-card-rental::before {
+        background: radial-gradient(
+          ellipse at top left,
+          rgba(20, 80, 255, 0.08) 0%,
+          transparent 60%
+        );
+      }
+      .svc-card-angebote::before {
+        background: radial-gradient(
+          ellipse at top left,
+          rgba(255, 150, 20, 0.08) 0%,
+          transparent 60%
+        );
+      }
+      .svc-card:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        transform: translateY(-3px);
+      }
+      .svc-card:hover::before {
+        opacity: 1;
+      }
+      .svc-card-icon {
+        width: 48px;
+        height: 48px;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 3rem;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 5rem 2rem;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        color: var(--color-accent);
+        margin-bottom: 0.25rem;
       }
+      .svc-card-icon svg {
+        width: 24px;
+        height: 24px;
+      }
+      .svc-card-badge {
+        display: inline-block;
+        background: var(--color-accent);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 0.25rem 0.65rem;
+        border-radius: 2rem;
+        width: fit-content;
+      }
+      .svc-card-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #ffffff;
+        line-height: 1.2;
+        margin: 0;
+      }
+      .svc-card-sub {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.55);
+        line-height: 1.6;
+        margin: 0;
+        flex: 1;
+      }
+      .svc-card-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--color-accent);
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-decoration: none;
+        margin-top: 0.5rem;
+        transition: gap 0.2s;
+      }
+      .svc-card-cta:hover {
+        gap: 0.65rem;
+      }
+      .svc-card-list {
+        list-style: none;
+        padding: 0;
+        margin: 0.25rem 0 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+      }
+      .svc-card-list li {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.75);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .svc-card-list li::before {
+        content: '✔';
+        color: var(--color-accent);
+        font-size: 0.75rem;
+        flex-shrink: 0;
+      }
+      .svc-card-cta-whatsapp {
+        color: #25d366;
+      }
+
+      /* ═══ HERO (standalone) ═══ */
       .slide-hero {
         position: relative;
         min-height: 100vh;
@@ -2636,252 +2554,6 @@ interface Testimonial {
         justify-content: center;
         background: var(--color-bg);
         overflow: hidden;
-      }
-      .slide-repair {
-        background: linear-gradient(135deg, #1a0a02 0%, #0f0f0f 60%);
-      }
-      .slide-rental {
-        background: linear-gradient(135deg, #020a1a 0%, #0f0f0f 60%);
-      }
-      .slide-angebote {
-        background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-      }
-      .svc-content {
-        flex: 1;
-        max-width: 540px;
-      }
-      .svc-badge {
-        display: inline-block;
-        background: var(--color-accent);
-        color: #fff;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        padding: 0.3rem 0.8rem;
-        border-radius: 2rem;
-        margin-bottom: 1rem;
-      }
-      .svc-title {
-        font-size: clamp(1.8rem, 4vw, 2.8rem);
-        font-weight: 800;
-        color: #ffffff;
-        line-height: 1.15;
-        margin: 0 0 0.75rem;
-      }
-      .svc-sub {
-        font-size: 1rem;
-        color: rgba(255, 255, 255, 0.6);
-        margin-bottom: 1.5rem;
-        line-height: 1.6;
-      }
-      .svc-list {
-        list-style: none;
-        padding: 0;
-        margin: 0 0 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-      }
-      .svc-list li {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.95rem;
-      }
-      .svc-list li svg {
-        color: var(--color-accent);
-        flex-shrink: 0;
-      }
-      .svc-cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: var(--color-accent);
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.95rem;
-        padding: 0.8rem 1.6rem;
-        border-radius: 3rem;
-        text-decoration: none;
-        transition:
-          opacity 0.2s,
-          transform 0.2s;
-      }
-      .svc-cta:hover {
-        opacity: 0.88;
-        transform: translateX(2px);
-      }
-      .svc-icon-wrap {
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0.12;
-      }
-      .svc-big-icon {
-        width: 220px;
-        height: 220px;
-        color: #fff;
-      }
-      /* Angebote slide */
-      .angebote-inner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1.5rem;
-      }
-      .angebote-header {
-        width: 100%;
-      }
-      .angebote-cards {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.25rem;
-        width: 100%;
-      }
-      .angebot-card {
-        display: flex;
-        flex-direction: column;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        overflow: hidden;
-        text-decoration: none;
-        transition:
-          transform 0.2s,
-          border-color 0.2s;
-      }
-      .angebot-card:hover {
-        transform: translateY(-3px);
-        border-color: var(--color-accent);
-      }
-      .angebot-img-wrap {
-        position: relative;
-        aspect-ratio: 4/3;
-        overflow: hidden;
-        background: rgba(255, 255, 255, 0.04);
-      }
-      .angebot-img-wrap img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s;
-      }
-      .angebot-card:hover .angebot-img-wrap img {
-        transform: scale(1.04);
-      }
-      .angebot-placeholder {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: rgba(255, 255, 255, 0.2);
-      }
-      .angebot-tag {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: var(--color-accent);
-        color: #fff;
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        padding: 0.25rem 0.6rem;
-        border-radius: 4px;
-      }
-      .angebot-info {
-        padding: 0.9rem 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-      }
-      .angebot-name {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #fff;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .angebot-prices {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      .price-old {
-        font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.4);
-        text-decoration: line-through;
-      }
-      .price-new {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--color-accent);
-      }
-      .angebote-cta {
-        margin-top: 0.25rem;
-      }
-      .no-angebote {
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 0.95rem;
-        padding: 2rem 0;
-      }
-      /* Nav arrows */
-      .svc-nav {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #fff;
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background 0.2s;
-        z-index: 10;
-      }
-      .svc-nav:hover {
-        background: var(--color-accent);
-        border-color: var(--color-accent);
-      }
-      .svc-prev {
-        left: 1.25rem;
-      }
-      .svc-next {
-        right: 1.25rem;
-      }
-      /* Dots */
-      .svc-dots {
-        position: absolute;
-        bottom: 1.25rem;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 0.5rem;
-        z-index: 10;
-      }
-      .svc-dots button {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        border: none;
-        background: rgba(255, 255, 255, 0.3);
-        cursor: pointer;
-        padding: 0;
-        transition:
-          background 0.2s,
-          width 0.2s;
-      }
-      .svc-dots button.active {
-        background: var(--color-accent);
-        width: 22px;
-        border-radius: 4px;
       }
 
       /* ═══ RESPONSIVE ═══ */
@@ -2902,7 +2574,7 @@ interface Testimonial {
         .gallery-grid {
           grid-template-columns: repeat(2, 1fr);
         }
-        .angebote-cards {
+        .svc-cards-grid {
           grid-template-columns: repeat(2, 1fr);
         }
       }
@@ -2917,36 +2589,12 @@ interface Testimonial {
           margin-left: 0;
           margin-top: 0.5rem;
         }
-        .svc-slide-inner {
-          padding: 5.5rem 1.25rem 3rem;
-        }
-        .angebote-inner {
-          padding: 5.5rem 1.25rem 3rem;
-        }
-        .svc-icon-wrap {
-          display: none;
-        }
-        .angebote-cards {
+        .svc-cards-grid {
           grid-template-columns: 1fr;
+          gap: 1rem;
         }
-        .svc-title {
-          font-size: 1.6rem;
-        }
-        .svc-nav {
-          width: 36px;
-          height: 36px;
-        }
-        .svc-prev {
-          left: 0.5rem;
-        }
-        .svc-next {
-          right: 0.5rem;
-        }
-        .bikecheck-grid {
-          grid-template-columns: 1fr;
-        }
-        .bikecheck-card {
-          padding: 2rem;
+        .svc-card {
+          padding: 1.5rem 1.25rem;
         }
         .repair-thumb {
           width: 90px;
@@ -3194,7 +2842,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     if (this.isBrowser) {
       // Browser-only behavior: timers and API subscriptions
-      this.startCarouselTimer();
       this.loadData();
       return;
     }

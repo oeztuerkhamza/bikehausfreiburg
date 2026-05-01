@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let allListings = []; // Fetched from API
   let selectedIds = new Set();
+  let selectedPhotos = []; // [{name, type, data: base64DataURL}]
 
   // ── Tab switching ──
   document.querySelectorAll('.tab').forEach((tab) => {
@@ -230,6 +231,9 @@ document.addEventListener('DOMContentLoaded', () => {
       autoSave: document.getElementById('auto-save').checked,
       autoClose: document.getElementById('auto-close').checked,
       delay: parseInt(document.getElementById('delay').value, 10) || 3,
+      photos: selectedPhotos,
+      deleteExistingPhotos:
+        document.getElementById('delete-existing-photos')?.checked || false,
     };
   }
 
@@ -251,7 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── Load state from storage ──
   function loadState() {
     chrome.storage.local.get(['bulkEditState', 'apiUrl'], (result) => {
       // Restore API URL
@@ -396,6 +399,126 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Initialize ──
   loadState();
+
+  // ── Photo tab handlers ──
+  const btnSelectPhotos = document.getElementById('btn-select-photos');
+  const btnClearPhotos = document.getElementById('btn-clear-photos');
+  const photoFileInput = document.getElementById('photo-file-input');
+  const photoCountLabel = document.getElementById('photo-count-label');
+  const photoPreviewGrid = document.getElementById('photo-preview-grid');
+  const photoWarn = document.getElementById('photo-warn');
+
+  function renderPhotosPreviews() {
+    photoPreviewGrid.innerHTML = '';
+    selectedPhotos.forEach((photo, idx) => {
+      const thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      const img = document.createElement('img');
+      img.src = photo.data;
+      img.alt = photo.name;
+      const nameEl = document.createElement('div');
+      nameEl.className = 'photo-thumb-name';
+      nameEl.textContent =
+        photo.name.length > 18
+          ? photo.name.substring(0, 15) + '...'
+          : photo.name;
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'photo-thumb-remove';
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', () => {
+        selectedPhotos.splice(idx, 1);
+        renderPhotosPreviews();
+        updatePhotoUI();
+        savePhotos();
+      });
+      thumb.appendChild(img);
+      thumb.appendChild(nameEl);
+      thumb.appendChild(removeBtn);
+      photoPreviewGrid.appendChild(thumb);
+    });
+  }
+
+  function updatePhotoUI() {
+    const count = selectedPhotos.length;
+    photoCountLabel.textContent = `${count} fotoğraf seçili`;
+    btnClearPhotos.style.display = count > 0 ? 'inline-block' : 'none';
+    // Warn if total size > 20 MB
+    const totalSize = selectedPhotos.reduce(
+      (sum, p) => sum + p.data.length * 0.75,
+      0,
+    );
+    photoWarn.style.display = totalSize > 20 * 1024 * 1024 ? 'block' : 'none';
+  }
+
+  function savePhotos() {
+    chrome.storage.local.set({ selectedPhotos });
+  }
+
+  if (btnSelectPhotos) {
+    btnSelectPhotos.addEventListener('click', () => photoFileInput.click());
+  }
+
+  if (photoFileInput) {
+    photoFileInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files || []);
+      let pending = files.length;
+      if (pending === 0) return;
+      const MAX_PHOTOS = 5;
+      files.forEach((file) => {
+        if (selectedPhotos.length >= MAX_PHOTOS) {
+          pending--;
+          if (pending === 0) {
+            renderPhotosPreviews();
+            updatePhotoUI();
+            savePhotos();
+          }
+          return; // slot full, ignore extra files
+        }
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          if (selectedPhotos.length < MAX_PHOTOS) {
+            selectedPhotos.push({
+              name: file.name,
+              type: file.type,
+              data: evt.target.result,
+            });
+          }
+          pending--;
+          if (pending === 0) {
+            if (selectedPhotos.length >= MAX_PHOTOS) {
+              alert(
+                'Maksimum 5 fotoğraf seçebilirsiniz. İlk 5 fotoğraf alındı.',
+              );
+            }
+            renderPhotosPreviews();
+            updatePhotoUI();
+            savePhotos();
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+      // Reset so same files can be selected again
+      photoFileInput.value = '';
+    });
+  }
+
+  if (btnClearPhotos) {
+    btnClearPhotos.addEventListener('click', () => {
+      selectedPhotos = [];
+      renderPhotosPreviews();
+      updatePhotoUI();
+      savePhotos();
+    });
+  }
+
+  // Load previously saved photos from storage
+  chrome.storage.local.get(['selectedPhotos'], (result) => {
+    if (result.selectedPhotos && Array.isArray(result.selectedPhotos)) {
+      selectedPhotos = result.selectedPhotos;
+      renderPhotosPreviews();
+      updatePhotoUI();
+    }
+  });
 
   // Check if already running
   chrome.runtime.sendMessage({ type: 'BULK_STATUS' }, (status) => {
