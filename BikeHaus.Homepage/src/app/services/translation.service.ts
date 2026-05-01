@@ -85,6 +85,13 @@ export interface Translations {
   svcRentalItem3: string;
   svcRentalItem4: string;
   svcRentalCta: string;
+  homeRentalCardTitle: string;
+  homeRentalBestBadge: string;
+  homeRentalPopularBadge: string;
+  homeRentalLock: string;
+  homeRentalHelmet: string;
+  homeRentalAvail: string;
+  homeRentalBookCta: string;
   svcAngeboteBadge: string;
   svcAngeboteTitle: string;
   svcAngeboteSub: string;
@@ -1061,6 +1068,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRentalItem3: 'Tages- & Wochenmiete',
     svcRentalItem4: 'Schloss & Helm inklusive',
     svcRentalCta: 'Fahrrad mieten',
+    homeRentalCardTitle: 'Fahrrad mieten',
+    homeRentalBestBadge: 'Bestes Angebot · Spare 30%',
+    homeRentalPopularBadge: 'Beliebt',
+    homeRentalLock: 'Schloss inklusive',
+    homeRentalHelmet: 'Helm kostenlos',
+    homeRentalAvail: 'Sofort verfügbar',
+    homeRentalBookCta: 'Fahrrad auswählen & jetzt reservieren',
     svcAngeboteBadge: 'Angebote',
     svcAngeboteTitle: 'Aktuelle Angebote',
     svcAngeboteSub:
@@ -1592,6 +1606,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRentalItem3: 'Daily & Weekly Rental',
     svcRentalItem4: 'Lock & Helmet included',
     svcRentalCta: 'Rent a Bike',
+    homeRentalCardTitle: 'Rent a Bike',
+    homeRentalBestBadge: 'Best Deal · Save 30%',
+    homeRentalPopularBadge: 'Popular',
+    homeRentalLock: 'Lock included',
+    homeRentalHelmet: 'Helmet free',
+    homeRentalAvail: 'Available immediately',
+    homeRentalBookCta: 'Choose a bike & reserve now',
     svcAngeboteBadge: 'Offers',
     svcAngeboteTitle: 'Current Offers',
     svcAngeboteSub: 'New bikes at reduced prices – while stocks last.',
@@ -2148,6 +2169,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRentalItem3: 'Location jour & semaine',
     svcRentalItem4: 'Antivol & casque inclus',
     svcRentalCta: 'Louer un vélo',
+    homeRentalCardTitle: 'Louer un vélo',
+    homeRentalBestBadge: 'Meilleure offre · Économisez 30%',
+    homeRentalPopularBadge: 'Populaire',
+    homeRentalLock: 'Antivol inclus',
+    homeRentalHelmet: 'Casque gratuit',
+    homeRentalAvail: 'Disponible immédiatement',
+    homeRentalBookCta: 'Choisir un vélo & réserver',
     svcAngeboteBadge: 'Offres',
     svcAngeboteTitle: 'Offres actuelles',
     svcAngeboteSub:
@@ -2701,6 +2729,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRentalItem3: 'Günlük & Haftalık Kiralama',
     svcRentalItem4: 'Kilit & Kask dahil',
     svcRentalCta: 'Bisikletini rezerve edin',
+    homeRentalCardTitle: 'Bisiklet Kirala',
+    homeRentalBestBadge: 'En İyi Teklif · %30 Tasarruf',
+    homeRentalPopularBadge: 'Popüler',
+    homeRentalLock: 'Kilit dahil',
+    homeRentalHelmet: 'Kask ücretsiz',
+    homeRentalAvail: 'Hemen müsait',
+    homeRentalBookCta: 'Bisiklet seç & hemen rezerve et',
     svcAngeboteBadge: 'Fırsatlar',
     svcAngeboteTitle: 'Güncel Fırsatlar',
     svcAngeboteSub: 'İndirimli yeni bisikletler – stoklar tükenene kadar.',

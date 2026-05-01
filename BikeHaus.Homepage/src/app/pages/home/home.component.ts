@@ -154,12 +154,12 @@ interface Testimonial {
                 </svg>
               </div>
               <span class="rental-best-badge"
-                >🔥 Bestes Angebot · Spare 30%</span
+                >🔥 {{ t().homeRentalBestBadge }}</span
               >
             </div>
-            <span class="svc-card-badge">Fahrradverleih</span>
+            <span class="svc-card-badge">{{ t().bikeRental }}</span>
             <h2 class="svc-card-title">
-              Fahrrad mieten<br /><span class="rental-price-inline"
+              {{ t().homeRentalCardTitle }}<br /><span class="rental-price-inline"
                 >ab <strong>6,80 €</strong> / Tag</span
               >
             </h2>
@@ -170,23 +170,23 @@ interface Testimonial {
                 <span class="pkg-day">7,85 € / Tag</span>
               </div>
               <div class="rental-pkg rental-pkg-highlight">
-                <span class="pkg-badge-top">Beliebt</span>
+                <span class="pkg-badge-top">{{ t().homeRentalPopularBadge }}</span>
                 <span class="pkg-days">14 Tage</span>
                 <span class="pkg-price">95 €</span>
                 <span class="pkg-day">6,80 € / Tag</span>
               </div>
             </div>
             <ul class="svc-card-list">
-              <li>Schloss inklusive</li>
-              <li>Helm kostenlos</li>
-              <li>Sofort verfügbar</li>
+              <li>{{ t().homeRentalLock }}</li>
+              <li>{{ t().homeRentalHelmet }}</li>
+              <li>{{ t().homeRentalAvail }}</li>
             </ul>
             <div class="rental-ctas">
               <a
                 [routerLink]="['/' + lang(), 'fahrradverleih']"
                 class="rental-cta-primary"
               >
-                Fahrrad auswählen &amp; buchen
+                {{ t().homeRentalBookCta }}
                 <svg
                   width="13"
                   height="13"
