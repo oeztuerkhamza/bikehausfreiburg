@@ -159,7 +159,8 @@ interface Testimonial {
             </div>
             <span class="svc-card-badge">{{ t().bikeRental }}</span>
             <h2 class="svc-card-title">
-              {{ t().homeRentalCardTitle }}<br /><span class="rental-price-inline"
+              {{ t().homeRentalCardTitle }}<br /><span
+                class="rental-price-inline"
                 >ab <strong>6,80 €</strong> / Tag</span
               >
             </h2>
@@ -170,7 +171,9 @@ interface Testimonial {
                 <span class="pkg-day">7,85 € / Tag</span>
               </div>
               <div class="rental-pkg rental-pkg-highlight">
-                <span class="pkg-badge-top">{{ t().homeRentalPopularBadge }}</span>
+                <span class="pkg-badge-top">{{
+                  t().homeRentalPopularBadge
+                }}</span>
                 <span class="pkg-days">14 Tage</span>
                 <span class="pkg-price">95 €</span>
                 <span class="pkg-day">6,80 € / Tag</span>
@@ -1386,7 +1389,11 @@ interface Testimonial {
       :host {
         display: block;
         background:
-          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          radial-gradient(
+            circle at top,
+            rgba(255, 87, 34, 0.08),
+            transparent 30%
+          ),
           linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
           var(--color-bg);
       }
@@ -1419,7 +1426,11 @@ interface Testimonial {
         padding: 2.2rem;
         border-radius: 30px;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           rgba(17, 20, 27, 0.7);
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 28px 70px rgba(0, 0, 0, 0.14);
@@ -1433,7 +1444,11 @@ interface Testimonial {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 40%);
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.05),
+          transparent 40%
+        );
         pointer-events: none;
       }
 
@@ -1442,7 +1457,11 @@ interface Testimonial {
       .testimonials-section .container,
       .faq-section .container {
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.05),
+            rgba(255, 255, 255, 0.02)
+          ),
           rgba(12, 15, 21, 0.82);
       }
 
@@ -1623,7 +1642,11 @@ interface Testimonial {
       .value-card {
         position: relative;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.05),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 22px;
