@@ -207,16 +207,30 @@ import { environment } from '../../../environments/environment';
                 <li>Helm kostenlos</li>
                 <li>Sofort verfügbar</li>
               </ul>
-              <button type="button" (click)="scrollToBikes()" class="pcard-cta-primary">
+              <button
+                type="button"
+                (click)="scrollToBikes()"
+                class="pcard-cta-primary"
+              >
                 Fahrrad auswählen &amp; jetzt reservieren
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 5v14M5 12l7 7 7-7" />
+                </svg>
               </button>
               <a
                 href="https://wa.me/491556630011"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="pcard-cta-wa"
-              >WhatsApp</a>
+                >WhatsApp</a
+              >
             </div>
 
             <!-- 14 Tage – best deal -->
@@ -233,16 +247,30 @@ import { environment } from '../../../environments/environment';
                 <li>Helm kostenlos</li>
                 <li>Sofort verfügbar</li>
               </ul>
-              <button type="button" (click)="scrollToBikes()" class="pcard-cta-primary">
+              <button
+                type="button"
+                (click)="scrollToBikes()"
+                class="pcard-cta-primary"
+              >
                 Fahrrad auswählen &amp; jetzt reservieren
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 5v14M5 12l7 7 7-7" />
+                </svg>
               </button>
               <a
                 href="https://wa.me/491556630011"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="pcard-cta-wa"
-              >WhatsApp</a>
+                >WhatsApp</a
+              >
             </div>
 
             <!-- 1 Tag -->
@@ -256,16 +284,30 @@ import { environment } from '../../../environments/environment';
                 <li>Helm kostenlos</li>
                 <li>Sofort verfügbar</li>
               </ul>
-              <button type="button" (click)="scrollToBikes()" class="pcard-cta-primary">
+              <button
+                type="button"
+                (click)="scrollToBikes()"
+                class="pcard-cta-primary"
+              >
                 Fahrrad auswählen &amp; jetzt reservieren
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 5v14M5 12l7 7 7-7" />
+                </svg>
               </button>
               <a
                 href="https://wa.me/491556630011"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="pcard-cta-wa"
-              >WhatsApp</a>
+                >WhatsApp</a
+              >
             </div>
           </div>
 
@@ -275,19 +317,37 @@ import { environment } from '../../../environments/environment';
               <span class="pextra-dur">3 Tage</span>
               <span class="pextra-price">28 €</span>
               <span class="pextra-day">9,33 € / Tag</span>
-              <button type="button" (click)="scrollToBikes()" class="pextra-cta">Buchen</button>
+              <button
+                type="button"
+                (click)="scrollToBikes()"
+                class="pextra-cta"
+              >
+                Buchen
+              </button>
             </div>
             <div class="pextra-item">
               <span class="pextra-dur">30 Tage</span>
               <span class="pextra-price">149 €</span>
               <span class="pextra-day">4,97 € / Tag</span>
-              <button type="button" (click)="scrollToBikes()" class="pextra-cta">Buchen</button>
+              <button
+                type="button"
+                (click)="scrollToBikes()"
+                class="pextra-cta"
+              >
+                Buchen
+              </button>
             </div>
             <div class="pextra-item">
               <span class="pextra-dur">ab 10 Tage / Tag</span>
               <span class="pextra-price">7 €</span>
               <span class="pextra-day">individuell</span>
-              <button type="button" (click)="scrollToBikes()" class="pextra-cta">Buchen</button>
+              <button
+                type="button"
+                (click)="scrollToBikes()"
+                class="pextra-cta"
+              >
+                Buchen
+              </button>
             </div>
           </div>
 
@@ -702,7 +762,8 @@ import { environment } from '../../../environments/environment';
               <strong>{{ bookingForm.email }}</strong> gesendet.
             </p>
             <div class="bp-booking-nr">
-              {{ t().rentalSuccessBookingNr }}: <strong>{{ confirmedBookingNr() }}</strong>
+              {{ t().rentalSuccessBookingNr }}:
+              <strong>{{ confirmedBookingNr() }}</strong>
             </div>
             <button class="bp-new-btn" (click)="deselectBike()">
               {{ t().rentalSuccessNewRequest }}
@@ -821,23 +882,30 @@ import { environment } from '../../../environments/environment';
                         isClosedDay(day)
                       "
                     >
-                      {{ day.getDay() === 0 ? t().rentalSundayLabel : t().rentalStatusClosed }}
+                      {{
+                        day.getDay() === 0
+                          ? t().rentalSundayLabel
+                          : t().rentalStatusClosed
+                      }}
                     </div>
                   </div>
                 </div>
                 <div class="bc-legend">
                   <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-busy"></span>{{ t().rentalStatusBooked }}</span
+                    ><span class="bc-leg-dot bc-leg-busy"></span
+                    >{{ t().rentalStatusBooked }}</span
                   >
                   <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-pending"></span>{{ t().rentalStatusPending }}</span
+                    ><span class="bc-leg-dot bc-leg-pending"></span
+                    >{{ t().rentalStatusPending }}</span
                   >
                   <span class="bc-legend-item"
                     ><span class="bc-leg-dot bc-leg-closed"></span
                     >{{ t().rentalStatusClosed }}</span
                   >
                   <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-sel"></span>{{ t().rentalStatusSelected }}</span
+                    ><span class="bc-leg-dot bc-leg-sel"></span
+                    >{{ t().rentalStatusSelected }}</span
                   >
                 </div>
                 <div class="bc-info" *ngIf="calendarStart()">
@@ -855,7 +923,8 @@ import { environment } from '../../../environments/environment';
                     <line x1="3" y1="10" x2="21" y2="10" />
                   </svg>
                   <span *ngIf="!calendarEnd()"
-                    >{{ formatCalDay(calendarStart()!) }} → {{ t().rentalSelectEndDate }}</span
+                    >{{ formatCalDay(calendarStart()!) }} →
+                    {{ t().rentalSelectEndDate }}</span
                   >
                   <span *ngIf="calendarEnd()"
                     >{{ formatCalDay(calendarStart()!) }} –
@@ -880,7 +949,10 @@ import { environment } from '../../../environments/environment';
                   <line x1="12" y1="1" x2="12" y2="23" />
                   <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
                 </svg>
-                <span>{{ calculatedDays() }} {{ t().bikeRentalDays }} · {{ t().rentalEstPrice }}:</span>
+                <span
+                  >{{ calculatedDays() }} {{ t().bikeRentalDays }} ·
+                  {{ t().rentalEstPrice }}:</span
+                >
                 <strong>{{ calculatedPrice() | number: '1.0-0' }} €</strong>
               </div>
               <div
@@ -899,7 +971,10 @@ import { environment } from '../../../environments/environment';
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <span>{{ calculatedDays() }} {{ t().bikeRentalDays }} · {{ t().priceOnRequest }}</span>
+                <span
+                  >{{ calculatedDays() }} {{ t().bikeRentalDays }} ·
+                  {{ t().priceOnRequest }}</span
+                >
               </div>
             </div>
 
@@ -1021,7 +1096,9 @@ import { environment } from '../../../environments/environment';
                 </svg>
                 <div *ngIf="bookingSubmitting()" class="submit-spinner"></div>
                 {{
-                  bookingSubmitting() ? t().rentalFormSending : t().rentalFormSubmit
+                  bookingSubmitting()
+                    ? t().rentalFormSending
+                    : t().rentalFormSubmit
                 }}
               </button>
 

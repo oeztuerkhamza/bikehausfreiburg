@@ -77,6 +77,7 @@ export interface Translations {
   svcRepairItem3: string;
   svcRepairItem4: string;
   svcRepairCta: string;
+  svcRepairWaCta: string;
   svcRentalBadge: string;
   svcRentalTitle: string;
   svcRentalSub: string;
@@ -1059,6 +1060,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRepairItem3: 'Fahrrad Diagnose & Wartung',
     svcRepairItem4: 'Ersatzteile auf Lager',
     svcRepairCta: 'Termin anfragen',
+    svcRepairWaCta: 'Termin via WhatsApp',
     svcRentalBadge: 'Verleih',
     svcRentalTitle: 'Fahrradverleih',
     svcRentalSub:
@@ -1075,10 +1077,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homeRentalHelmet: 'Helm kostenlos',
     homeRentalAvail: 'Sofort verfügbar',
     homeRentalBookCta: 'Fahrrad auswählen & jetzt reservieren',
-    svcAngeboteBadge: 'Angebote',
-    svcAngeboteTitle: 'Aktuelle Angebote',
-    svcAngeboteSub:
-      'Neue Fahrräder zum reduzierten Preis – nur solange der Vorrat reicht.',
+    svcAngeboteBadge: 'Neue Fahrräder',
+    svcAngeboteTitle: 'Neue Fahrräder',
+    svcAngeboteSub: 'Fabrikneue Räder mit 2 Jahren Händlergarantie – direkt aus Freiburg.',
     svcAngeboteCta: 'Alle neuen Fahrräder',
 
     cityWarrantyIncl: 'Garantie inkl.',
@@ -1597,6 +1598,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRepairItem3: 'Bike Diagnostics & Maintenance',
     svcRepairItem4: 'Spare Parts in Stock',
     svcRepairCta: 'Request Appointment',
+    svcRepairWaCta: 'Book via WhatsApp',
     svcRentalBadge: 'Rental',
     svcRentalTitle: 'Bike Rental',
     svcRentalSub:
@@ -1613,9 +1615,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homeRentalHelmet: 'Helmet free',
     homeRentalAvail: 'Available immediately',
     homeRentalBookCta: 'Choose a bike & reserve now',
-    svcAngeboteBadge: 'Offers',
-    svcAngeboteTitle: 'Current Offers',
-    svcAngeboteSub: 'New bikes at reduced prices – while stocks last.',
+    svcAngeboteBadge: 'New Bikes',
+    svcAngeboteTitle: 'New Bikes',
+    svcAngeboteSub: 'Brand-new bikes with 2-year dealer warranty – direct from Freiburg.',
     svcAngeboteCta: 'All New Bikes',
 
     cityWarrantyIncl: 'Warranty incl.',
@@ -2160,6 +2162,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRepairItem3: 'Diagnostic & entretien E-Bike',
     svcRepairItem4: 'Pièces détachées en stock',
     svcRepairCta: 'Prendre rendez-vous',
+    svcRepairWaCta: 'Réserver via WhatsApp',
     svcRentalBadge: 'Location',
     svcRentalTitle: 'Location de vélos',
     svcRentalSub:
@@ -2176,10 +2179,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homeRentalHelmet: 'Casque gratuit',
     homeRentalAvail: 'Disponible immédiatement',
     homeRentalBookCta: 'Choisir un vélo & réserver',
-    svcAngeboteBadge: 'Offres',
-    svcAngeboteTitle: 'Offres actuelles',
-    svcAngeboteSub:
-      'Vélos neufs à prix réduit – dans la limite des stocks disponibles.',
+    svcAngeboteBadge: 'Vélos neufs',
+    svcAngeboteTitle: 'Vélos neufs',
+    svcAngeboteSub: 'Vélos neufs de marque avec 2 ans de garantie revendeur – depuis Freiburg.',
     svcAngeboteCta: 'Tous les vélos neufs',
 
     cityWarrantyIncl: 'Garantie incl.',
@@ -2721,6 +2723,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRepairItem3: 'Bisiklet Tanı & Bakım',
     svcRepairItem4: 'Yedek Parça Stokta',
     svcRepairCta: 'Randevu Talep Et',
+    svcRepairWaCta: 'WhatsApp ile Randevu',
     svcRentalBadge: 'Kiralama',
     svcRentalTitle: 'Bisiklet Kiralama',
     svcRentalSub: 'Şehir, Trekking veya Dağ Bisikleti – günlük esnek kiralama.',
@@ -2736,9 +2739,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homeRentalHelmet: 'Kask ücretsiz',
     homeRentalAvail: 'Hemen müsait',
     homeRentalBookCta: 'Bisiklet seç & hemen rezerve et',
-    svcAngeboteBadge: 'Fırsatlar',
-    svcAngeboteTitle: 'Güncel Fırsatlar',
-    svcAngeboteSub: 'İndirimli yeni bisikletler – stoklar tükenene kadar.',
+    svcAngeboteBadge: 'Yeni Bisikletler',
+    svcAngeboteTitle: 'Yeni Bisikletler',
+    svcAngeboteSub: '2 yıl bayi garantili sıfır bisikletler – Freiburg\'dan direkt.',
     svcAngeboteCta: 'Tüm Yeni Bisikletler',
 
     cityWarrantyIncl: 'Garanti dahil',
