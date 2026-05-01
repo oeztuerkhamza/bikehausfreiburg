@@ -139,38 +139,84 @@ interface Testimonial {
           </div>
           <!-- Verleih -->
           <div class="svc-card svc-card-rental">
-            <div class="svc-card-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
+            <div class="rental-top-row">
+              <div class="svc-card-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <circle cx="5.5" cy="17.5" r="3.5" />
+                  <circle cx="18.5" cy="17.5" r="3.5" />
+                  <path d="M15 6l-4 8h6l-2 3.5" />
+                  <path d="M5.5 17.5L9 9h3" />
+                </svg>
+              </div>
+              <span class="rental-best-badge"
+                >🔥 Bestes Angebot · Spare 30%</span
               >
-                <circle cx="5.5" cy="17.5" r="3.5" />
-                <circle cx="18.5" cy="17.5" r="3.5" />
-                <path d="M15 6l-4 8h6l-2 3.5" />
-                <path d="M5.5 17.5L9 9h3" />
-              </svg>
             </div>
-            <span class="svc-card-badge">{{ t().svcRentalBadge }}</span>
-            <h2 class="svc-card-title">{{ t().svcRentalTitle }}</h2>
-            <p class="svc-card-sub">{{ t().svcRentalSub }}</p>
-            <a
-              [routerLink]="['/' + lang(), 'fahrradverleih']"
-              class="svc-card-cta"
-            >
-              {{ t().svcRentalCta }}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
+            <span class="svc-card-badge">Fahrradverleih</span>
+            <h2 class="svc-card-title">
+              Fahrrad mieten<br /><span class="rental-price-inline"
+                >ab <strong>6,80 €</strong> / Tag</span
               >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </a>
+            </h2>
+            <div class="rental-packages">
+              <div class="rental-pkg">
+                <span class="pkg-days">7 Tage</span>
+                <span class="pkg-price">55 €</span>
+                <span class="pkg-day">7,85 € / Tag</span>
+              </div>
+              <div class="rental-pkg rental-pkg-highlight">
+                <span class="pkg-badge-top">Beliebt</span>
+                <span class="pkg-days">14 Tage</span>
+                <span class="pkg-price">95 €</span>
+                <span class="pkg-day">6,80 € / Tag</span>
+              </div>
+            </div>
+            <ul class="svc-card-list">
+              <li>Schloss inklusive</li>
+              <li>Helm kostenlos</li>
+              <li>Sofort verfügbar</li>
+            </ul>
+            <div class="rental-ctas">
+              <a
+                href="https://wa.me/491556630011"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rental-cta-wa"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"
+                  />
+                </svg>
+                Jetzt reservieren (WhatsApp)
+              </a>
+              <a
+                [routerLink]="['/' + lang(), 'fahrradverleih']"
+                class="rental-cta-link"
+              >
+                Alle Angebote ansehen
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
           </div>
           <!-- Angebote -->
           <div class="svc-card svc-card-angebote">
@@ -2542,6 +2588,134 @@ interface Testimonial {
       }
       .svc-card-cta-whatsapp {
         color: #25d366;
+      }
+      /* ── Rental card ── */
+      .rental-top-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+      }
+      .rental-best-badge {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #ff9500;
+        background: rgba(255, 149, 0, 0.12);
+        border: 1px solid rgba(255, 149, 0, 0.25);
+        padding: 0.25rem 0.6rem;
+        border-radius: 2rem;
+        white-space: nowrap;
+      }
+      .rental-price-inline {
+        font-size: 1rem;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.55);
+        display: block;
+        margin-top: 0.2rem;
+      }
+      .rental-price-inline strong {
+        color: var(--color-accent);
+        font-size: 1.4rem;
+        font-weight: 800;
+      }
+      .rental-packages {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 0.75rem 0;
+      }
+      .rental-pkg {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        padding: 0.9rem 1rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .rental-pkg-highlight {
+        border-color: var(--color-accent);
+        background: rgba(255, 80, 20, 0.07);
+      }
+      .pkg-badge-top {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--color-accent);
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.15rem 0.55rem;
+        border-radius: 2rem;
+        white-space: nowrap;
+      }
+      .pkg-days {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .pkg-price {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+      }
+      .rental-pkg-highlight .pkg-price {
+        color: var(--color-accent);
+      }
+      .pkg-day {
+        font-size: 0.72rem;
+        color: rgba(255, 255, 255, 0.4);
+      }
+      .rental-ctas {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        margin-top: 0.75rem;
+      }
+      .rental-cta-wa {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: #25d366;
+        color: #fff;
+        font-size: 0.875rem;
+        font-weight: 700;
+        padding: 0.75rem 1.25rem;
+        border-radius: 3rem;
+        text-decoration: none;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+      }
+      .rental-cta-wa:hover {
+        opacity: 0.88;
+        transform: translateY(-1px);
+      }
+      .rental-cta-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+          color 0.2s,
+          gap 0.2s;
+      }
+      .rental-cta-link:hover {
+        color: #fff;
+        gap: 0.6rem;
       }
 
       /* ═══ HERO (standalone) ═══ */
