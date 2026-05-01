@@ -58,4 +58,5 @@ public class PublicShopInfoDto
     public string? KleinanzeigenUrl { get; set; }
     public string? Steuernummer { get; set; }
     public string? UstIdNr { get; set; }
+    public string? GoogleReviewUrl { get; set; }
 }

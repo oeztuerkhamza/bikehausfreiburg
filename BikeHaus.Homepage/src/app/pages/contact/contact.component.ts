@@ -279,13 +279,14 @@ import { PublicShopInfo } from '../../models/models';
         </section>
 
         <!-- Google Bewertung -->
+        @if (shopInfo()?.googleReviewUrl) {
         <section class="review-section">
           <div class="review-card">
             <div class="review-stars">★★★★★</div>
             <h3>{{ t().reviewTitle }}</h3>
             <p>{{ t().reviewDesc }}</p>
             <a
-              href="https://g.page/r/CRnu1n--kiIYEBM/review"
+              [href]="shopInfo()!.googleReviewUrl"
               target="_blank"
               rel="noopener"
               class="review-btn"
@@ -306,6 +307,7 @@ import { PublicShopInfo } from '../../models/models';
             </a>
           </div>
         </section>
+        }
       </div>
     </div>
   `,

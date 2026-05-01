@@ -89,7 +89,8 @@ public class KleinanzeigenService : IKleinanzeigenService
             TotalActiveListings = activeListings.Count(),
             KleinanzeigenUrl = settings.KleinanzeigenUrl,
             Steuernummer = settings.Steuernummer,
-            UstIdNr = settings.UstIdNr
+            UstIdNr = settings.UstIdNr,
+            GoogleReviewUrl = settings.GoogleReviewUrl
         };
     }
 

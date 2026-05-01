@@ -77,6 +77,7 @@ export interface PublicShopInfo {
   kleinanzeigenUrl?: string;
   steuernummer?: string;
   ustIdNr?: string;
+  googleReviewUrl?: string;
 }
 
 // ── Published Used Bicycles ──
