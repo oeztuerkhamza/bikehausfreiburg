@@ -757,7 +757,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalHeroTitle: 'Fahrrad mieten',
     rentalHeroSub:
       'Sofort verfügbar – fair, flexibel, ohne versteckte Kosten. Direkt bei uns in Freiburg abholen.',
-    rentalHeroWaCta: 'Jetzt reservieren (WhatsApp)',
+    rentalHeroWaCta: 'Fragen? WhatsApp',
     rentalHeroScrollCta: 'Fahrrad auswählen',
     rentalPricingTitle: 'Fair. Transparent. Ohne Extras.',
     rentalPricingSub:
@@ -1307,7 +1307,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalHeroTitle: 'Rent a bike',
     rentalHeroSub:
       'Available immediately – fair, flexible, no hidden costs. Pick up directly from us in Freiburg.',
-    rentalHeroWaCta: 'Reserve now (WhatsApp)',
+    rentalHeroWaCta: 'Questions? WhatsApp',
     rentalHeroScrollCta: 'Choose a bike',
     rentalPricingTitle: 'Fair. Transparent. No extras.',
     rentalPricingSub: 'The longer, the cheaper – lock and helmet always included.',
@@ -1844,7 +1844,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalHeroTitle: 'Louer un vélo',
     rentalHeroSub:
       'Disponible immédiatement – juste, flexible, sans frais cachés. Récupérez directement chez nous à Fribourg.',
-    rentalHeroWaCta: 'Réserver maintenant (WhatsApp)',
+    rentalHeroWaCta: 'Questions ? WhatsApp',
     rentalHeroScrollCta: 'Choisir un vélo',
     rentalPricingTitle: 'Juste. Transparent. Sans suppléments.',
     rentalPricingSub: "Plus c'est long, moins c'est cher – antivol et casque toujours inclus.",
@@ -2397,7 +2397,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalHeroTitle: 'Bisiklet Kirala',
     rentalHeroSub:
       "Hemen mevcut – adil, esnek, gizli maliyet yok. Doğrudan Freiburg'daki dükkânımızdan teslim alın.",
-    rentalHeroWaCta: 'Şimdi rezervasyon yap (WhatsApp)',
+    rentalHeroWaCta: 'Sorularınız? WhatsApp',
     rentalHeroScrollCta: 'Bisiklet seç',
     rentalPricingTitle: 'Adil. Şeffaf. Ekstra yok.',
     rentalPricingSub: 'Ne kadar uzun, o kadar ucuz – kilit ve kask her zaman dahil.',
