@@ -1079,7 +1079,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homeRentalBookCta: 'Fahrrad auswählen & jetzt reservieren',
     svcAngeboteBadge: 'Neue Fahrräder',
     svcAngeboteTitle: 'Neue Fahrräder',
-    svcAngeboteSub: 'Fabrikneue Räder mit 2 Jahren Händlergarantie – direkt aus Freiburg.',
+    svcAngeboteSub:
+      'Fabrikneue Räder mit 2 Jahren Händlergarantie – direkt aus Freiburg.',
     svcAngeboteCta: 'Alle neuen Fahrräder',
 
     cityWarrantyIncl: 'Garantie inkl.',
@@ -1617,7 +1618,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homeRentalBookCta: 'Choose a bike & reserve now',
     svcAngeboteBadge: 'New Bikes',
     svcAngeboteTitle: 'New Bikes',
-    svcAngeboteSub: 'Brand-new bikes with 2-year dealer warranty – direct from Freiburg.',
+    svcAngeboteSub:
+      'Brand-new bikes with 2-year dealer warranty – direct from Freiburg.',
     svcAngeboteCta: 'All New Bikes',
 
     cityWarrantyIncl: 'Warranty incl.',
@@ -2181,7 +2183,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homeRentalBookCta: 'Choisir un vélo & réserver',
     svcAngeboteBadge: 'Vélos neufs',
     svcAngeboteTitle: 'Vélos neufs',
-    svcAngeboteSub: 'Vélos neufs de marque avec 2 ans de garantie revendeur – depuis Freiburg.',
+    svcAngeboteSub:
+      'Vélos neufs de marque avec 2 ans de garantie revendeur – depuis Freiburg.',
     svcAngeboteCta: 'Tous les vélos neufs',
 
     cityWarrantyIncl: 'Garantie incl.',
@@ -2741,7 +2744,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     homeRentalBookCta: 'Bisiklet seç & hemen rezerve et',
     svcAngeboteBadge: 'Yeni Bisikletler',
     svcAngeboteTitle: 'Yeni Bisikletler',
-    svcAngeboteSub: '2 yıl bayi garantili sıfır bisikletler – Freiburg\'dan direkt.',
+    svcAngeboteSub:
+      "2 yıl bayi garantili sıfır bisikletler – Freiburg'dan direkt.",
     svcAngeboteCta: 'Tüm Yeni Bisikletler',
 
     cityWarrantyIncl: 'Garanti dahil',
