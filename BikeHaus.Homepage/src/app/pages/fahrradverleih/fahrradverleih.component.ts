@@ -208,7 +208,7 @@ import { environment } from '../../../environments/environment';
                 <li>Sofort verfügbar</li>
               </ul>
               <button type="button" (click)="scrollToBikes()" class="pcard-cta-primary">
-                Fahrrad wählen &amp; buchen
+                Fahrrad auswählen &amp; jetzt reservieren
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
               </button>
               <a
@@ -234,7 +234,7 @@ import { environment } from '../../../environments/environment';
                 <li>Sofort verfügbar</li>
               </ul>
               <button type="button" (click)="scrollToBikes()" class="pcard-cta-primary">
-                Fahrrad wählen &amp; buchen
+                Fahrrad auswählen &amp; jetzt reservieren
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
               </button>
               <a
@@ -257,7 +257,7 @@ import { environment } from '../../../environments/environment';
                 <li>Sofort verfügbar</li>
               </ul>
               <button type="button" (click)="scrollToBikes()" class="pcard-cta-primary">
-                Fahrrad wählen &amp; buchen
+                Fahrrad auswählen &amp; jetzt reservieren
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
               </button>
               <a

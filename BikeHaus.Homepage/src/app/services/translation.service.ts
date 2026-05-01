@@ -1,10 +1,10 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
-    Injectable,
-    PLATFORM_ID,
-    computed,
-    inject,
-    signal,
+  Injectable,
+  PLATFORM_ID,
+  computed,
+  inject,
+  signal,
 } from '@angular/core';
 
 export type Language = 'de' | 'en' | 'fr' | 'tr';
@@ -758,12 +758,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalHeroSub:
       'Sofort verfügbar – fair, flexibel, ohne versteckte Kosten. Direkt bei uns in Freiburg abholen.',
     rentalHeroWaCta: 'Fragen? WhatsApp',
-    rentalHeroScrollCta: 'Fahrrad auswählen',
+    rentalHeroScrollCta: 'Fahrrad auswählen & jetzt reservieren',
     rentalPricingTitle: 'Fair. Transparent. Ohne Extras.',
     rentalPricingSub:
       'Je länger, desto günstiger – Schloss und Helm immer inklusive.',
-    rentalBikesSub:
-      'Fahrrad auswählen und direkt Ihren Wunschzeitraum buchen.',
+    rentalBikesSub: 'Fahrrad auswählen und direkt Ihren Wunschzeitraum buchen.',
     rentalFormPeriod: 'Zeitraum wählen',
     rentalFormYourData: 'Ihre Daten',
     rentalFormFirstName: 'Vorname',
@@ -1308,9 +1307,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalHeroSub:
       'Available immediately – fair, flexible, no hidden costs. Pick up directly from us in Freiburg.',
     rentalHeroWaCta: 'Questions? WhatsApp',
-    rentalHeroScrollCta: 'Choose a bike',
+    rentalHeroScrollCta: 'Choose a bike & reserve now',
     rentalPricingTitle: 'Fair. Transparent. No extras.',
-    rentalPricingSub: 'The longer, the cheaper – lock and helmet always included.',
+    rentalPricingSub:
+      'The longer, the cheaper – lock and helmet always included.',
     rentalBikesSub: 'Choose a bike and book your desired period directly.',
     rentalFormPeriod: 'Select period',
     rentalFormYourData: 'Your details',
@@ -1845,10 +1845,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalHeroSub:
       'Disponible immédiatement – juste, flexible, sans frais cachés. Récupérez directement chez nous à Fribourg.',
     rentalHeroWaCta: 'Questions ? WhatsApp',
-    rentalHeroScrollCta: 'Choisir un vélo',
+    rentalHeroScrollCta: 'Choisir un vélo & réserver',
     rentalPricingTitle: 'Juste. Transparent. Sans suppléments.',
-    rentalPricingSub: "Plus c'est long, moins c'est cher – antivol et casque toujours inclus.",
-    rentalBikesSub: 'Choisissez un vélo et réservez directement votre période souhaitée.',
+    rentalPricingSub:
+      "Plus c'est long, moins c'est cher – antivol et casque toujours inclus.",
+    rentalBikesSub:
+      'Choisissez un vélo et réservez directement votre période souhaitée.',
     rentalFormPeriod: 'Choisir la période',
     rentalFormYourData: 'Vos coordonnées',
     rentalFormFirstName: 'Prénom',
@@ -2398,10 +2400,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalHeroSub:
       "Hemen mevcut – adil, esnek, gizli maliyet yok. Doğrudan Freiburg'daki dükkânımızdan teslim alın.",
     rentalHeroWaCta: 'Sorularınız? WhatsApp',
-    rentalHeroScrollCta: 'Bisiklet seç',
+    rentalHeroScrollCta: 'Bisiklet seç & hemen rezerve et',
     rentalPricingTitle: 'Adil. Şeffaf. Ekstra yok.',
-    rentalPricingSub: 'Ne kadar uzun, o kadar ucuz – kilit ve kask her zaman dahil.',
-    rentalBikesSub: 'Bir bisiklet seçin ve doğrudan istediğiniz dönemi rezerve edin.',
+    rentalPricingSub:
+      'Ne kadar uzun, o kadar ucuz – kilit ve kask her zaman dahil.',
+    rentalBikesSub:
+      'Bir bisiklet seçin ve doğrudan istediğiniz dönemi rezerve edin.',
     rentalFormPeriod: 'Dönem seç',
     rentalFormYourData: 'Bilgileriniz',
     rentalFormFirstName: 'Ad',
@@ -2414,8 +2418,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalFormConfirmNote:
       'Talebiniz alındıktan sonra bir onay e-postası alacaksınız. Kesin rezervasyon ekibimizin onayıyla gerçekleşir.',
     rentalSuccessTitle: 'Rezervasyon talebi gönderildi!',
-    rentalSuccessText:
-      'Talebinizi aldık, en kısa sürede size geri döneceğiz.',
+    rentalSuccessText: 'Talebinizi aldık, en kısa sürede size geri döneceğiz.',
     rentalSuccessBookingNr: 'Rezervasyon numarası',
     rentalSuccessNewRequest: 'Yeni talep oluştur',
     rentalBikeDetails: 'Bisiklet Detayları',
