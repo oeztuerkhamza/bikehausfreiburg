@@ -174,10 +174,7 @@ import { environment } from '../../../environments/environment';
               <span class="signature-stat-value">6,80 €</span>
               <span class="signature-stat-label">Bestpreis pro Tag</span>
             </article>
-            <article class="signature-stat-card">
-              <span class="signature-stat-value">WhatsApp</span>
-              <span class="signature-stat-label">Reservierung in Minuten</span>
-            </article>
+
             <article class="signature-stat-card">
               <span class="signature-stat-value">Helm + Schloss</span>
               <span class="signature-stat-label">Immer im Setup enthalten</span>
