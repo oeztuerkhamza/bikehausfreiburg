@@ -534,9 +534,9 @@ export interface Translations {
 
 const TRANSLATIONS: Record<Language, Translations> = {
   de: {
-    metaTitle: 'Bike Haus Freiburg — Neue & gebrauchte Fahrräder',
+    metaTitle: 'Fahrrad kaufen & mieten Freiburg | Bike Haus Freiburg',
     metaDescription:
-      'Ihr Fahrradhändler in Freiburg. Neue und geprüfte Gebrauchträder — City, Trekking, Mountain, E-Bike. Fair, nachhaltig, persönlich.',
+      'Fahrrad kaufen & mieten in Freiburg ✓ Über 100 geprüfte Räder ✓ City, Trekking, E-Bike ✓ 3 Monate Garantie ✓ Fahrradverleih ab 6,80 €/Tag. Persönlich & fair.',
 
     home: 'Start',
     showroom: 'Showroom',
@@ -928,9 +928,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     filterGears: 'Gänge',
     gearsUnit: 'Gänge',
     filterFrameSize: 'Rahmengröße (Size)',
-    showroomMetaTitle: 'Showroom — Bike Haus Freiburg | Alle Fahrräder',
+    showroomMetaTitle:
+      'Gebrauchte Fahrräder kaufen Freiburg | Showroom | Bike Haus Freiburg',
     showroomMetaDescription:
-      'Entdecken Sie über 100 neue und gebrauchte Fahrräder in unserem Showroom. City, Trekking, Mountain, E-Bike, Kinderfahrräder — fair bewertet, geprüft, sofort verfügbar.',
+      'Gebrauchte & neue Fahrräder kaufen in Freiburg ✓ Über 100 geprüfte Räder ✓ City, Trekking, Mountain, E-Bike ✓ 3 Monate Garantie ✓ Sofort abholbereit. Bike Haus Freiburg.',
 
     // Showroom detail
     detailMetaDescSuffix:
@@ -957,9 +958,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     catSonstige: 'Sonstige Fahrräder',
 
     // Accessories page
-    accessoriesMetaTitle: 'Zubehör — Bike Haus Freiburg',
+    accessoriesMetaTitle:
+      'Fahrradzubehör Freiburg | Helme, Taschen & Schlösser | Bike Haus',
     accessoriesMetaDescription:
-      'Fahrradzubehör bei Bike Haus Freiburg. Taschen, Helme, Schlösser und mehr.',
+      'Fahrradzubehör in Freiburg kaufen ✓ Helme, Taschen, Schlösser, Beleuchtung & mehr ✓ Direkt im Bike Haus Freiburg — Heckerstraße 27, 79114 Freiburg.',
     accessoriesTitle: 'Zubehör',
     accessoriesSub: 'Taschen, Helme, Schlösser und mehr für Ihr Fahrrad.',
     accessoriesNoItems: 'Derzeit keine Zubehörartikel verfügbar.',
@@ -970,9 +972,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Neue Fahrräder
     neueFahrraeder: 'Neue Fahrräder',
-    neueFahrraederMetaTitle: 'Neue Fahrräder — Bike Haus Freiburg',
+    neueFahrraederMetaTitle:
+      'Neue Fahrräder kaufen Freiburg | City, Trekking, E-Bike | Bike Haus',
     neueFahrraederMetaDescription:
-      'Fabrikneue Fahrräder bei Bike Haus Freiburg. City, Trekking, Mountain, E-Bike — mit 2 Jahren Geschäftsgarantie.',
+      'Neue Fahrräder in Freiburg kaufen ✓ City, Trekking, Mountain & E-Bikes ✓ 2 Jahre Garantie ✓ Sofort verfügbar ✓ Faire Preise. Jetzt im Showroom ansehen — Bike Haus Freiburg.',
     neueFahrraederTitle: 'Neue Fahrräder',
     neueFahrraederSub: 'Fabrikneue Räder mit 2 Jahren Geschäftsgarantie.',
     neueFahrraederBrand: 'Marke',
@@ -1003,12 +1006,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberTldr: 'Zusammenfassung',
     ratgeberRelated: 'Weitere Ratgeber',
     ratgeberBackToList: 'Alle Ratgeber anzeigen',
-    faqMetaTitle: 'FAQ — Häufige Fragen | Bike Haus Freiburg',
+    faqMetaTitle: 'FAQ Fahrrad Freiburg — Häufige Fragen | Bike Haus Freiburg',
     faqMetaDescription:
-      'Häufig gestellte Fragen zu Fahrradkauf, Garantie, E-Bikes, Probefahrt und Zahlungsmethoden bei Bike Haus Freiburg.',
-    bikeRentalMetaTitle: 'Fahrradverleih — Bike Haus Freiburg',
+      'Häufige Fragen zu Fahrrad kaufen & mieten in Freiburg: Garantie, E-Bikes, Probefahrt, Öffnungszeiten, Preise. Alle Antworten von Bike Haus Freiburg.',
+    bikeRentalMetaTitle:
+      'Fahrrad mieten Freiburg ab 6,80 €/Tag | Bike Haus Freiburg',
     bikeRentalMetaDescription:
-      'Fahrradverleih bei Bike Haus Freiburg. Mieten Sie Fahrräder zu günstigen Preisen — ab 10 € pro Tag.',
+      'Fahrradverleih Freiburg — Cityrad, Trekking & E-Bike mieten ab 6,80 €/Tag. Helm & Schloss inklusive. Sofort abholen, kein Vorausbezahlen. ✓ Bike Haus Freiburg.',
     garantieMetaTitle: 'Garantiebedingungen — Bike Haus Freiburg',
     garantieMetaDescription:
       'Garantiebedingungen für neue und gebrauchte Fahrräder bei Bike Haus Freiburg. 2 Jahre für Neuräder, 3 Monate für Gebrauchträder.',
@@ -1097,9 +1101,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
   },
 
   en: {
-    metaTitle: 'Bike Haus Freiburg — New & Used Bicycles',
+    metaTitle: 'Buy & Rent a Bike in Freiburg | Bike Haus Freiburg',
     metaDescription:
-      'Your bicycle shop in Freiburg. New and certified used bikes — city, trekking, mountain, e-bike. Fair, sustainable, personal.',
+      'Buy or rent a bike in Freiburg ✓ 100+ inspected bikes ✓ City, Trekking, E-Bike ✓ Bike rental from €6.80/day ✓ 3-month warranty. Your local bike shop in Freiburg.',
 
     home: 'Home',
     showroom: 'Showroom',
@@ -1475,9 +1479,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     filterGears: 'Gears',
     gearsUnit: 'gears',
     filterFrameSize: 'Frame Size',
-    showroomMetaTitle: 'Showroom — Bike Haus Freiburg | All Bikes',
+    showroomMetaTitle:
+      'Buy Used Bikes in Freiburg | Showroom | Bike Haus Freiburg',
     showroomMetaDescription:
-      'Discover over 100 new and used bikes in our showroom. City, trekking, mountain, e-bike, kids bikes — fairly priced, inspected, immediately available.',
+      'Buy used & new bikes in Freiburg ✓ 100+ inspected bikes ✓ City, Trekking, Mountain, E-Bike ✓ 3-month warranty ✓ Ready to ride. Bike Haus Freiburg.',
 
     detailMetaDescSuffix:
       'View now at Bike Haus Freiburg in 79114 Freiburg im Breisgau.',
@@ -1499,9 +1504,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     catRennrad: 'Road Bikes',
     catSonstige: 'Other Bikes',
 
-    accessoriesMetaTitle: 'Accessories — Bike Haus Freiburg',
+    accessoriesMetaTitle:
+      'Bike Accessories Freiburg | Helmets, Bags & Locks | Bike Haus',
     accessoriesMetaDescription:
-      'Bike accessories at Bike Haus Freiburg. Bags, helmets, locks, and more.',
+      'Buy bike accessories in Freiburg ✓ Helmets, bags, locks, lights & more ✓ In-store at Bike Haus Freiburg — Heckerstraße 27, 79114 Freiburg.',
     accessoriesTitle: 'Accessories',
     accessoriesSub: 'Bags, helmets, locks, and more for your bike.',
     accessoriesNoItems: 'No accessories available at the moment.',
@@ -1511,9 +1517,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     accessoriesPriceOnRequest: 'Price on request',
 
     neueFahrraeder: 'New Bikes',
-    neueFahrraederMetaTitle: 'New Bikes — Bike Haus Freiburg',
+    neueFahrraederMetaTitle:
+      'New Bikes Freiburg | City, Trekking & E-Bikes | Bike Haus Freiburg',
     neueFahrraederMetaDescription:
-      'Brand new bikes at Bike Haus Freiburg. City, trekking, mountain, e-bike — with 2 years shop warranty.',
+      'Buy new bikes in Freiburg ✓ City, Trekking, Mountain & E-Bikes ✓ 2-year warranty ✓ In stock & ready to ride ✓ Fair prices. Visit our showroom — Bike Haus Freiburg.',
     neueFahrraederTitle: 'New Bikes',
     neueFahrraederSub: 'Brand new bikes with 2 years shop warranty.',
     neueFahrraederBrand: 'Brand',
@@ -1544,12 +1551,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberTldr: 'Summary',
     ratgeberRelated: 'Related guides',
     ratgeberBackToList: 'Back to all guides',
-    faqMetaTitle: 'FAQ — Frequently Asked Questions | Bike Haus Freiburg',
+    faqMetaTitle:
+      'FAQ — Bike Shop Freiburg | Frequently Asked Questions | Bike Haus',
     faqMetaDescription:
-      'Frequently asked questions about buying bikes, warranty, e-bikes, test rides and payment methods at Bike Haus Freiburg.',
-    bikeRentalMetaTitle: 'Bike Rental — Bike Haus Freiburg',
+      'Frequently asked questions about buying & renting bikes in Freiburg: warranty, e-bikes, test rides, opening hours, prices. Answered by Bike Haus Freiburg.',
+    bikeRentalMetaTitle:
+      'Bike Rental Freiburg from €6.80/day | Bike Haus Freiburg',
     bikeRentalMetaDescription:
-      'Rent bicycles at Bike Haus Freiburg. Affordable bike rentals starting from €10 per day.',
+      'Rent a bike in Freiburg from €6.80/day. City bikes, trekking & e-bikes available. Helmet & lock included. Pick up same day — no prepayment. ✓ Bike Haus Freiburg.',
     garantieMetaTitle: 'Warranty Terms — Bike Haus Freiburg',
     garantieMetaDescription:
       'Warranty terms for new and used bicycles at Bike Haus Freiburg. 2 years for new bikes, 3 months for used bikes.',
@@ -1636,9 +1645,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
   },
 
   fr: {
-    metaTitle: "Bike Haus Freiburg — Vélos neufs & d'occasion",
+    metaTitle: 'Acheter & louer un vélo à Fribourg | Bike Haus Freiburg',
     metaDescription:
-      "Votre marchand de vélos à Fribourg. Vélos neufs et d'occasion certifiés — ville, trekking, VTT, vélo électrique. Honnête, durable, personnel.",
+      'Achetez ou louez un vélo à Fribourg-en-Brisgau ✓ 100+ vélos certifiés ✓ Ville, Trekking, VAE ✓ Location dès 6,80 €/jour ✓ 3 mois de garantie. Votre magasin de vélos à Fribourg.',
 
     home: 'Accueil',
     showroom: 'Showroom',
@@ -2034,9 +2043,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     filterGears: 'Vitesses',
     gearsUnit: 'vitesses',
     filterFrameSize: 'Taille de cadre',
-    showroomMetaTitle: 'Showroom — Bike Haus Freiburg | Tous les vélos',
+    showroomMetaTitle: 'Acheter vélo Fribourg | Showroom | Bike Haus Freiburg',
     showroomMetaDescription:
-      "Découvrez plus de 100 vélos neufs et d'occasion dans notre showroom. Ville, trekking, VTT, vélo électrique — évalués, vérifiés, disponibles immédiatement.",
+      "Achetez des vélos neufs et d'occasion à Fribourg-en-Brisgau ✓ 100+ vélos certifiés ✓ Ville, Trekking, VTT, VAE ✓ 3 mois de garantie ✓ Disponibles immédiatement.",
 
     // Showroom detail
     detailMetaDescSuffix:
@@ -2063,9 +2072,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     catSonstige: 'Autres vélos',
 
     // Accessories page
-    accessoriesMetaTitle: 'Accessoires — Bike Haus Freiburg',
+    accessoriesMetaTitle:
+      'Accessoires vélo Fribourg | Casques, Sacoches & Antivols | Bike Haus',
     accessoriesMetaDescription:
-      'Accessoires vélo chez Bike Haus Freiburg. Sacoches, casques, antivols et plus.',
+      'Achetez des accessoires vélo à Fribourg-en-Brisgau ✓ Casques, sacoches, antivols, éclairage & plus ✓ En magasin — Heckerstraße 27, 79114 Freiburg.',
     accessoriesTitle: 'Accessoires',
     accessoriesSub: 'Sacoches, casques, antivols et plus pour votre vélo.',
     accessoriesNoItems: 'Aucun accessoire disponible pour le moment.',
@@ -2076,9 +2086,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Neue Fahrräder
     neueFahrraeder: 'Vélos neufs',
-    neueFahrraederMetaTitle: 'Vélos neufs — Bike Haus Freiburg',
+    neueFahrraederMetaTitle:
+      'Acheter vélos neufs à Fribourg | City, Trekking, VAE | Bike Haus',
     neueFahrraederMetaDescription:
-      'Vélos neufs chez Bike Haus Freiburg. Ville, trekking, VTT, vélo électrique — avec 2 ans de garantie magasin.',
+      'Achetez des vélos neufs à Fribourg-en-Brisgau ✓ Vélos de ville, trekking, VTT & VAE ✓ 2 ans de garantie ✓ En stock immédiatement ✓ Prix honnêtes. Bike Haus Freiburg.',
     neueFahrraederTitle: 'Vélos neufs',
     neueFahrraederSub: 'Vélos neufs avec 2 ans de garantie magasin.',
     neueFahrraederBrand: 'Marque',
@@ -2109,12 +2120,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberTldr: 'Résumé',
     ratgeberRelated: 'Autres guides',
     ratgeberBackToList: 'Retour aux guides',
-    faqMetaTitle: 'FAQ — Questions fréquentes | Bike Haus Freiburg',
+    faqMetaTitle:
+      'FAQ — Magasin vélo Fribourg | Questions fréquentes | Bike Haus',
     faqMetaDescription:
-      "Questions fréquentes sur l'achat de vélos, la garantie, les VAE, les essais et les moyens de paiement chez Bike Haus Freiburg.",
-    bikeRentalMetaTitle: 'Location de vélos — Bike Haus Freiburg',
+      "Questions fréquentes sur l'achat et la location de vélos à Fribourg : garantie, VAE, essais, horaires, tarifs. Répondu par Bike Haus Freiburg.",
+    bikeRentalMetaTitle:
+      'Location vélo Freiburg dès 6,80 €/jour | Bike Haus Freiburg',
     bikeRentalMetaDescription:
-      'Location de vélos chez Bike Haus Freiburg. Louez un vélo à partir de 10 € par jour.',
+      'Louez un vélo à Freiburg dès 6,80 €/jour. Vélos city, trekking & VAE disponibles. Casque & antivol inclus. Départ immédiat sans prépaiement. ✓ Bike Haus Freiburg.',
     garantieMetaTitle: 'Conditions de garantie — Bike Haus Freiburg',
     garantieMetaDescription:
       "Conditions de garantie pour les vélos neufs et d'occasion chez Bike Haus Freiburg. 2 ans pour les neufs, 3 mois pour les occasions.",
@@ -2201,9 +2214,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
   },
 
   tr: {
-    metaTitle: 'Bike Haus Freiburg — Yeni & İkinci El Bisikletler',
+    metaTitle: "Freiburg'da Bisiklet Al & Kirala | Bike Haus Freiburg",
     metaDescription:
-      "Freiburg'daki bisiklet mağazanız. Yeni ve kontrol edilmiş ikinci el bisikletler — şehir, trekking, dağ, elektrikli. Adil, sürdürülebilir, kişisel.",
+      "Freiburg'da bisiklet satın alın veya kiralayın ✓ 100+ kontrollü bisiklet ✓ Şehir, Trekking, E-bisiklet ✓ Kiralama 6,80 €/gün'den ✓ 3 ay garanti. Freiburg bisiklet mağazanız.",
 
     home: 'Ana Sayfa',
     showroom: 'Showroom',
@@ -2595,9 +2608,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     filterGears: 'Vites',
     gearsUnit: 'Vites',
     filterFrameSize: 'Kadro Boyutu',
-    showroomMetaTitle: 'Showroom — Bike Haus Freiburg | Tüm Bisikletler',
+    showroomMetaTitle:
+      "Freiburg'da İkinci El & Yeni Bisiklet Al | Showroom | Bike Haus",
     showroomMetaDescription:
-      "Showroom'umuzda 100'den fazla yeni ve ikinci el bisikleti keşfedin. Şehir, trekking, dağ, elektrikli bisiklet — değerlendi, kontrol edildi, hemen mevcut.",
+      "Freiburg'da yeni ve ikinci el bisiklet satın alın ✓ 100+ kontrollü bisiklet ✓ Şehir, Trekking, Dağ, E-bisiklet ✓ 3 ay garanti ✓ Hemen teslim. Bike Haus Freiburg.",
 
     // Showroom detail
     detailMetaDescSuffix:
@@ -2624,9 +2638,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     catSonstige: 'Diğer Bisikletler',
 
     // Accessories page
-    accessoriesMetaTitle: 'Aksesuar — Bike Haus Freiburg',
+    accessoriesMetaTitle:
+      'Bisiklet Aksesuarları Freiburg | Kask, Çanta & Kilit | Bike Haus',
     accessoriesMetaDescription:
-      "Bike Haus Freiburg'da bisiklet aksesuarları. Çanta, kask, kilit ve daha fazlası.",
+      "Freiburg'da bisiklet aksesuarı satın alın ✓ Kask, çanta, kilit, aydınlatma & daha fazlası ✓ Bike Haus Freiburg — Heckerstraße 27, 79114 Freiburg.",
     accessoriesTitle: 'Aksesuar',
     accessoriesSub: 'Bisikletiniz için çanta, kask, kilit ve daha fazlası.',
     accessoriesNoItems: 'Şu anda mevcut aksesuar bulunmamaktadır.',
@@ -2637,9 +2652,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Neue Fahrräder
     neueFahrraeder: 'Yeni Bisikletler',
-    neueFahrraederMetaTitle: 'Yeni Bisikletler — Bike Haus Freiburg',
+    neueFahrraederMetaTitle:
+      "Freiburg'da Yeni Bisiklet Al | Şehir, Trekking, E-Bisiklet | Bike Haus",
     neueFahrraederMetaDescription:
-      "Bike Haus Freiburg'da sıfır bisikletler. Şehir, trekking, dağ, elektrikli — 2 yıl mağaza garantili.",
+      "Freiburg'da yeni bisiklet satın alın ✓ Şehir, Trekking, Dağ & E-bisiklet ✓ 2 yıl garanti ✓ Stokta & hemen teslim ✓ Uygun fiyat. Bike Haus Freiburg.",
     neueFahrraederTitle: 'Yeni Bisikletler',
     neueFahrraederSub: '2 yıl mağaza garantili sıfır bisikletler.',
     neueFahrraederBrand: 'Marka',
@@ -2671,12 +2687,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberTldr: 'Özet',
     ratgeberRelated: 'İlgili rehberler',
     ratgeberBackToList: 'Tüm rehberlere dön',
-    faqMetaTitle: 'SSS — Sık Sorulan Sorular | Bike Haus Freiburg',
+    faqMetaTitle:
+      'SSS — Freiburg Bisiklet Mağazası | Sık Sorulan Sorular | Bike Haus',
     faqMetaDescription:
-      'Bisiklet alımı, garanti, e-bisiklet, deneme sürüşü ve ödeme yöntemleri hakkında sık sorulan sorular.',
-    bikeRentalMetaTitle: 'Bisiklet Kiralama — Bike Haus Freiburg',
+      "Freiburg'da bisiklet alma ve kiralama hakkında sık sorulan sorular: garanti, e-bisiklet, deneme sürüşü, çalışma saatleri, fiyatlar. Bike Haus Freiburg.",
+    bikeRentalMetaTitle:
+      'Freiburg Bisiklet Kiralama 6,80 €/gün | Bike Haus Freiburg',
     bikeRentalMetaDescription:
-      "Bike Haus Freiburg'da bisiklet kiralama. Günlük 10 €'dan başlayan fiyatlarla bisiklet kiralayın.",
+      "Freiburg'da bisiklet kiralayın — 6,80 €/gün'den itibaren. Şehir, trekking ve e-bisiklet mevcut. Kask ve kilit dahil. Hemen teslim alın. ✓ Bike Haus Freiburg.",
     garantieMetaTitle: 'Garanti Koşulları — Bike Haus Freiburg',
     garantieMetaDescription:
       "Bike Haus Freiburg'da yeni ve ikinci el bisikletler için garanti koşulları. Yeni bisikletlerde 2 yıl, ikinci elde 3 ay garanti.",

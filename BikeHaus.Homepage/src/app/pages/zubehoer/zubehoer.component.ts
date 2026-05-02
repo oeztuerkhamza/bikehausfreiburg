@@ -539,7 +539,11 @@ import { environment } from '../../../environments/environment';
 
       .accessories-page {
         background:
-          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          radial-gradient(
+            circle at top,
+            rgba(255, 87, 34, 0.08),
+            transparent 30%
+          ),
           linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
           var(--color-bg);
       }
@@ -574,7 +578,11 @@ import { environment } from '../../../environments/environment';
         padding: 1.15rem;
         border-radius: 24px;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface);
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
@@ -599,7 +607,11 @@ import { environment } from '../../../environments/environment';
         position: relative;
         border-radius: 22px;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface);
         border-color: rgba(255, 255, 255, 0.08);
         box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
@@ -630,7 +642,11 @@ import { environment } from '../../../environments/environment';
       }
 
       .hover-overlay {
-        background: radial-gradient(circle at center, rgba(255, 87, 34, 0.14), rgba(0, 0, 0, 0.46));
+        background: radial-gradient(
+          circle at center,
+          rgba(255, 87, 34, 0.14),
+          rgba(0, 0, 0, 0.46)
+        );
       }
 
       .hover-overlay span {
@@ -690,11 +706,23 @@ export class ZubehoerComponent implements OnInit {
 
   ngOnInit() {
     const t = this.t();
+    const lang = this.lang();
+    const pageUrl = `https://bikehausfreiburg.com/${lang}/zubehoer`;
+
     this.titleService.setTitle(t.accessoriesMetaTitle);
     this.metaService.updateTag({
       name: 'description',
       content: t.accessoriesMetaDescription,
     });
+    this.metaService.updateTag({
+      property: 'og:title',
+      content: t.accessoriesMetaTitle,
+    });
+    this.metaService.updateTag({
+      property: 'og:description',
+      content: t.accessoriesMetaDescription,
+    });
+    this.metaService.updateTag({ property: 'og:url', content: pageUrl });
 
     this.api.getHomepageAccessories().subscribe({
       next: (items) => {

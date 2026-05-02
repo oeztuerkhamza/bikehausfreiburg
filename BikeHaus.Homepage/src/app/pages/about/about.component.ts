@@ -999,7 +999,11 @@ import { PublicShopInfo } from '../../models/models';
 
       .about-page {
         background:
-          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          radial-gradient(
+            circle at top,
+            rgba(255, 87, 34, 0.08),
+            transparent 30%
+          ),
           linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
           var(--color-bg);
       }
@@ -1028,7 +1032,11 @@ import { PublicShopInfo } from '../../models/models';
       .shop-card,
       .cta-card {
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface);
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
@@ -1078,6 +1086,9 @@ export class AboutComponent implements OnInit {
 
   ngOnInit(): void {
     // SEO
+    const lang = this.lang();
+    const pageUrl = `https://bikehausfreiburg.com/${lang}/about`;
+
     this.titleService.setTitle(this.t().aboutMetaTitle);
     this.metaService.updateTag({
       name: 'description',
@@ -1088,9 +1099,10 @@ export class AboutComponent implements OnInit {
       content: this.t().aboutMetaTitle,
     });
     this.metaService.updateTag({
-      property: 'og:url',
-      content: 'https://bikehausfreiburg.com/about',
+      property: 'og:description',
+      content: this.t().aboutMetaDescription,
     });
+    this.metaService.updateTag({ property: 'og:url', content: pageUrl });
 
     this.apiService.getShopInfo().subscribe({
       next: (data) => this.shopInfo.set(data),

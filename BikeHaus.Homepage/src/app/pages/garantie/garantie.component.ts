@@ -216,11 +216,23 @@ export class GarantieComponent implements OnInit {
 
   ngOnInit(): void {
     const t = this.t();
+    const lang = this.lang();
+    const pageUrl = `https://bikehausfreiburg.com/${lang}/garantie`;
+
     this.titleService.setTitle(t.garantieMetaTitle);
     this.metaService.updateTag({
       name: 'description',
       content: t.garantieMetaDescription,
     });
+    this.metaService.updateTag({
+      property: 'og:title',
+      content: t.garantieMetaTitle,
+    });
+    this.metaService.updateTag({
+      property: 'og:description',
+      content: t.garantieMetaDescription,
+    });
+    this.metaService.updateTag({ property: 'og:url', content: pageUrl });
     this.metaService.updateTag({ name: 'robots', content: 'index, follow' });
   }
 }

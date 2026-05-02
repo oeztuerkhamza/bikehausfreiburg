@@ -3379,11 +3379,39 @@ export class FahrradverleihComponent implements OnInit {
 
   ngOnInit(): void {
     const t = this.t();
+    const lang = this.lang();
+    const pageUrl = `https://bikehausfreiburg.com/${lang}/fahrradverleih`;
+
     this.titleService.setTitle(t.bikeRentalMetaTitle);
+
     this.metaService.updateTag({
       name: 'description',
       content: t.bikeRentalMetaDescription,
     });
+    this.metaService.updateTag({
+      property: 'og:title',
+      content: t.bikeRentalMetaTitle,
+    });
+    this.metaService.updateTag({
+      property: 'og:description',
+      content: t.bikeRentalMetaDescription,
+    });
+    this.metaService.updateTag({ property: 'og:url', content: pageUrl });
+    this.metaService.updateTag({ property: 'og:type', content: 'website' });
+
+    // Update canonical link
+    if (typeof document !== 'undefined') {
+      let canonical = document.querySelector<HTMLLinkElement>(
+        'link[rel="canonical"]',
+      );
+      if (canonical) {
+        canonical.href = pageUrl;
+      }
+    }
+
+    // Rental Service + FAQPage structured data
+    this.addRentalSchema(lang, pageUrl);
+
     this.apiService.getRentableBikes().subscribe({
       next: (bikes) => {
         this.bikes.set(bikes);
@@ -3391,6 +3419,200 @@ export class FahrradverleihComponent implements OnInit {
       },
       error: () => this.bikesLoading.set(false),
     });
+  }
+
+  private addRentalSchema(lang: string, pageUrl: string): void {
+    const existing = document.getElementById('rental-schema');
+    if (existing) existing.remove();
+
+    const faqDe = [
+      {
+        q: 'Was kostet Fahrrad mieten in Freiburg?',
+        a: 'Bei Bike Haus Freiburg mieten Sie ein Fahrrad ab 6,80 € pro Tag (14-Tage-Paket). Tagesmiete ab 12 €, Wochenpaket ab 55 €.',
+      },
+      {
+        q: 'Was ist im Fahrradverleih inklusive?',
+        a: 'Helm und Schloss sind immer im Mietpreis inklusive. Eine Kaution von 300 € (bar) wird bei Abholung hinterlegt.',
+      },
+      {
+        q: 'Wo kann ich das Fahrrad abholen?',
+        a: 'Die Abholung erfolgt direkt bei uns: Heckerstraße 27, 79114 Freiburg im Breisgau. Sofort verfügbar — kein Vorausbezahlen nötig.',
+      },
+      {
+        q: 'Welche Fahrräder kann ich in Freiburg mieten?',
+        a: 'Wir vermieten Citybikes, Trekkingräder und E-Bikes. Alle Räder sind geprüft und fahrbereit.',
+      },
+      {
+        q: 'Wie lange kann ich ein Fahrrad mieten?',
+        a: 'Kurzmiete ab 1 Tag, Woche, 14 Tage und Monatsmiete verfügbar. Ab 8 Tagen nur 8 € pro Tag.',
+      },
+    ];
+
+    const faqEn = [
+      {
+        q: 'How much does it cost to rent a bike in Freiburg?',
+        a: 'At Bike Haus Freiburg, bike rental starts from €6.80 per day (14-day package). Day rate from €12, weekly package from €55.',
+      },
+      {
+        q: 'What is included in the bike rental?',
+        a: 'Helmet and lock are always included in the rental price. A deposit of €300 (cash) is required upon pick-up.',
+      },
+      {
+        q: 'Where can I pick up the bike?',
+        a: 'Pick up directly at our shop: Heckerstraße 27, 79114 Freiburg im Breisgau. Available immediately — no prepayment required.',
+      },
+      {
+        q: 'Which bikes can I rent in Freiburg?',
+        a: 'We rent city bikes, trekking bikes and e-bikes. All bikes are inspected and ready to ride.',
+      },
+      {
+        q: 'How long can I rent a bike?',
+        a: 'Short rental from 1 day, weekly, 14 days and monthly rentals available. From 8 days only €8 per day.',
+      },
+    ];
+
+    const faqFr = [
+      {
+        q: 'Combien coûte la location de vélo à Fribourg-en-Brisgau ?',
+        a: 'Chez Bike Haus Freiburg, la location commence à 6,80 €/jour (forfait 14 jours). Tarif journalier à partir de 12 €, forfait semaine à partir de 55 €.',
+      },
+      {
+        q: "Qu'est-ce qui est inclus dans la location de vélo ?",
+        a: "Le casque et l'antivol sont toujours inclus. Un dépôt de 300 € (en espèces) est demandé à la prise en charge.",
+      },
+      {
+        q: 'Où récupérer le vélo ?',
+        a: 'Récupérez directement en magasin : Heckerstraße 27, 79114 Freiburg im Breisgau. Disponible immédiatement — sans prépaiement.',
+      },
+      {
+        q: 'Quels types de vélos peut-on louer à Fribourg ?',
+        a: 'Nous louons des vélos de ville, vélos de randonnée et VAE. Tous les vélos sont contrôlés et prêts à rouler.',
+      },
+    ];
+
+    const faqTr = [
+      {
+        q: "Freiburg'da bisiklet kiralama ne kadar tutar?",
+        a: "Bike Haus Freiburg'da bisiklet kiralama 6,80 €/gün'den başlar (14 günlük paket). Günlük ücret 12 €'dan, haftalık paket 55 €'dan başlar.",
+      },
+      {
+        q: 'Bisiklet kiralamaya neler dahildir?',
+        a: 'Kask ve kilit her zaman kiralama ücretine dahildir. Teslim alırken 300 € nakit depozito istenmektedir.',
+      },
+      {
+        q: 'Bisikleti nereden alabilirim?',
+        a: 'Bisikletinizi doğrudan mağazamızdan alabilirsiniz: Heckerstraße 27, 79114 Freiburg im Breisgau. Hemen mevcut — ön ödeme gerekmez.',
+      },
+      {
+        q: "Freiburg'da hangi bisikletler kiralanabilir?",
+        a: 'Şehir bisikletleri, trekking bisikletleri ve e-bisikletler kiralıyoruz. Tüm bisikletler kontrol edilmiş ve sürüşe hazır.',
+      },
+    ];
+
+    const faqMap: Record<string, Array<{ q: string; a: string }>> = {
+      de: faqDe,
+      en: faqEn,
+      fr: faqFr,
+      tr: faqTr,
+    };
+    const faqs = faqMap[lang] ?? faqDe;
+
+    const schema = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Service',
+          '@id': `${pageUrl}#service`,
+          name: 'Fahrradverleih Freiburg',
+          alternateName: [
+            'Bike Rental Freiburg',
+            'Location vélo Freiburg',
+            'Freiburg Bisiklet Kiralama',
+          ],
+          description:
+            'Fahrradverleih in Freiburg im Breisgau — Cityräder, Trekkingräder und E-Bikes mieten ab 6,80 € pro Tag. Helm und Schloss inklusive.',
+          provider: {
+            '@type': 'LocalBusiness',
+            '@id': 'https://bikehausfreiburg.com/#organization',
+            name: 'Bike Haus Freiburg',
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress: 'Heckerstraße 27',
+              addressLocality: 'Freiburg im Breisgau',
+              postalCode: '79114',
+              addressRegion: 'Baden-Württemberg',
+              addressCountry: 'DE',
+            },
+            telephone: '+49-155-66300011',
+            url: 'https://bikehausfreiburg.com/de',
+          },
+          areaServed: {
+            '@type': 'City',
+            name: 'Freiburg im Breisgau',
+          },
+          offers: [
+            {
+              '@type': 'Offer',
+              name: '1 Tag',
+              price: '12.00',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+            },
+            {
+              '@type': 'Offer',
+              name: '7 Tage',
+              price: '55.00',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+            },
+            {
+              '@type': 'Offer',
+              name: '14 Tage',
+              price: '95.00',
+              priceCurrency: 'EUR',
+              availability: 'https://schema.org/InStock',
+            },
+          ],
+          url: pageUrl,
+        },
+        {
+          '@type': 'FAQPage',
+          '@id': `${pageUrl}#faq`,
+          mainEntity: faqs.map((item) => ({
+            '@type': 'Question',
+            name: item.q,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: item.a,
+            },
+          })),
+        },
+        {
+          '@type': 'BreadcrumbList',
+          '@id': `${pageUrl}#breadcrumb`,
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Bike Haus Freiburg',
+              item: `https://bikehausfreiburg.com/${lang}`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Fahrradverleih',
+              item: pageUrl,
+            },
+          ],
+        },
+      ],
+    };
+
+    const script = document.createElement('script');
+    script.id = 'rental-schema';
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
   }
 
   selectBike(bike: PublicRentalBicycle): void {

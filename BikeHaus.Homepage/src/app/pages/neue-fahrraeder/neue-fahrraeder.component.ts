@@ -1006,11 +1006,28 @@ export class NeueFahrraederComponent implements OnInit, OnDestroy {
 
   private setSeo(): void {
     const t = this.t();
+    const lang = this.lang();
+    const pageUrl = `https://bikehausfreiburg.com/${lang}/neue-fahrraeder`;
+
     this.title.setTitle(t.neueFahrraederMetaTitle);
     this.meta.updateTag({
       name: 'description',
       content: t.neueFahrraederMetaDescription,
     });
+    this.meta.updateTag({
+      property: 'og:title',
+      content: t.neueFahrraederMetaTitle,
+    });
+    this.meta.updateTag({
+      property: 'og:description',
+      content: t.neueFahrraederMetaDescription,
+    });
+    this.meta.updateTag({ property: 'og:url', content: pageUrl });
+
+    const canonical = this.document.querySelector<HTMLLinkElement>(
+      'link[rel="canonical"]',
+    );
+    if (canonical) canonical.href = pageUrl;
   }
 
   onSearch(event: Event): void {

@@ -280,33 +280,33 @@ import { PublicShopInfo } from '../../models/models';
 
         <!-- Google Bewertung -->
         @if (shopInfo()?.googleReviewUrl) {
-        <section class="review-section">
-          <div class="review-card">
-            <div class="review-stars">★★★★★</div>
-            <h3>{{ t().reviewTitle }}</h3>
-            <p>{{ t().reviewDesc }}</p>
-            <a
-              [href]="shopInfo()!.googleReviewUrl"
-              target="_blank"
-              rel="noopener"
-              class="review-btn"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
+          <section class="review-section">
+            <div class="review-card">
+              <div class="review-stars">★★★★★</div>
+              <h3>{{ t().reviewTitle }}</h3>
+              <p>{{ t().reviewDesc }}</p>
+              <a
+                [href]="shopInfo()!.googleReviewUrl"
+                target="_blank"
+                rel="noopener"
+                class="review-btn"
               >
-                <polygon
-                  points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-                />
-              </svg>
-              {{ t().reviewCta }}
-            </a>
-          </div>
-        </section>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                  />
+                </svg>
+                {{ t().reviewCta }}
+              </a>
+            </div>
+          </section>
         }
       </div>
     </div>
@@ -594,7 +594,11 @@ import { PublicShopInfo } from '../../models/models';
 
       .contact-page {
         background:
-          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          radial-gradient(
+            circle at top,
+            rgba(255, 87, 34, 0.08),
+            transparent 30%
+          ),
           linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
           var(--color-bg);
       }
@@ -705,7 +709,11 @@ import { PublicShopInfo } from '../../models/models';
       .ankauf-card {
         border-radius: 22px;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface);
         border-color: rgba(255, 255, 255, 0.08);
         box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
@@ -746,6 +754,9 @@ export class ContactComponent implements OnInit {
 
   ngOnInit(): void {
     // SEO
+    const lang = this.lang();
+    const pageUrl = `https://bikehausfreiburg.com/${lang}/contact`;
+
     this.titleService.setTitle(this.t().contactMetaTitle);
     this.metaService.updateTag({
       name: 'description',
@@ -756,9 +767,10 @@ export class ContactComponent implements OnInit {
       content: this.t().contactMetaTitle,
     });
     this.metaService.updateTag({
-      property: 'og:url',
-      content: 'https://bikehausfreiburg.com/contact',
+      property: 'og:description',
+      content: this.t().contactMetaDescription,
     });
+    this.metaService.updateTag({ property: 'og:url', content: pageUrl });
 
     this.apiService.getShopInfo().subscribe({
       next: (data) => this.shopInfo.set(data),
