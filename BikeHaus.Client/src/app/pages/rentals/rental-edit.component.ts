@@ -14,11 +14,7 @@ import {
 @Component({
   selector: 'app-rental-edit',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterLink,
-  ],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="page">
       <div class="page-header">
@@ -522,21 +518,23 @@ export class RentalEditComponent implements OnInit {
     if (!this.startDatum || !this.endDatum) return;
     const start = new Date(this.startDatum);
     const end = new Date(this.endDatum);
-    const diffMs = end.getTime() - start.getTime();
-    this.rentalDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    const diffDays = Math.round(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    this.rentalDays = Math.max(0, diffDays + 1);
     if (this.rentalDays > 0) {
       this.berechneterPreis = this.calculatePrice(this.rentalDays);
     }
   }
 
-
-
   onDatesChanged() {
     if (!this.startDatum || !this.endDatum) return;
     const start = new Date(this.startDatum);
     const end = new Date(this.endDatum);
-    const diffMs = end.getTime() - start.getTime();
-    this.rentalDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    const diffDays = Math.round(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    this.rentalDays = Math.max(0, diffDays + 1);
     if (this.rentalDays > 0) {
       this.berechneterPreis = this.calculatePrice(this.rentalDays);
       this.gesamtmiete = Math.max(

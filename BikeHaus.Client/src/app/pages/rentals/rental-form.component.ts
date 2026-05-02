@@ -1404,8 +1404,8 @@ export class RentalFormComponent implements OnInit {
     }
 
     // Picking end
-    if (dateStr <= this.startDatum) {
-      // Clicked same or earlier than start → reset
+    if (dateStr < this.startDatum) {
+      // Clicked earlier than start → reset
       this.startDatum = dateStr;
       this.endDatum = '';
       this.pickingState = 'end';
