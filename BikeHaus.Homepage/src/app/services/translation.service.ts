@@ -295,6 +295,21 @@ export interface Translations {
   rentalStatusSelected: string;
   rentalSundayLabel: string;
 
+  // Rental Reviews
+  rentalReviewsTitle: string;
+  rentalReviewsSubtitle: string;
+  rentalReviewsNoReviews: string;
+  rentalReviewsFormTitle: string;
+  rentalReviewsFormName: string;
+  rentalReviewsFormEmail: string;
+  rentalReviewsFormStars: string;
+  rentalReviewsFormComment: string;
+  rentalReviewsFormSubmit: string;
+  rentalReviewsFormSending: string;
+  rentalReviewsFormSuccess: string;
+  rentalReviewsFormError: string;
+  rentalReviewsFormValidation: string;
+
   // General
   loading: string;
   error: string;
@@ -797,6 +812,20 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalStatusClosed: 'Geschlossen',
     rentalStatusSelected: 'Ausgewählt',
     rentalSundayLabel: 'Sonntag',
+
+    rentalReviewsTitle: 'Kundenbewertungen',
+    rentalReviewsSubtitle: 'Was unsere Kunden sagen',
+    rentalReviewsNoReviews: 'Noch keine Bewertungen vorhanden.',
+    rentalReviewsFormTitle: 'Bewertung hinterlassen',
+    rentalReviewsFormName: 'Ihr Name',
+    rentalReviewsFormEmail: 'E-Mail (optional)',
+    rentalReviewsFormStars: 'Bewertung',
+    rentalReviewsFormComment: 'Ihr Kommentar',
+    rentalReviewsFormSubmit: 'Bewertung absenden',
+    rentalReviewsFormSending: 'Wird gesendet...',
+    rentalReviewsFormSuccess: 'Danke! Ihre Bewertung wird nach Prüfung veröffentlicht.',
+    rentalReviewsFormError: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
+    rentalReviewsFormValidation: 'Bitte füllen Sie Name und Kommentar aus.',
 
     loading: 'Wird geladen...',
     error: 'Ein Fehler ist aufgetreten.',
@@ -1359,6 +1388,20 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalStatusSelected: 'Selected',
     rentalSundayLabel: 'Sunday',
 
+    rentalReviewsTitle: 'Customer Reviews',
+    rentalReviewsSubtitle: 'What our customers say',
+    rentalReviewsNoReviews: 'No reviews yet.',
+    rentalReviewsFormTitle: 'Leave a Review',
+    rentalReviewsFormName: 'Your name',
+    rentalReviewsFormEmail: 'Email (optional)',
+    rentalReviewsFormStars: 'Rating',
+    rentalReviewsFormComment: 'Your comment',
+    rentalReviewsFormSubmit: 'Submit review',
+    rentalReviewsFormSending: 'Sending...',
+    rentalReviewsFormSuccess: 'Thank you! Your review will be published after review.',
+    rentalReviewsFormError: 'An error occurred. Please try again.',
+    rentalReviewsFormValidation: 'Please fill in your name and comment.',
+
     loading: 'Loading...',
     error: 'An error occurred.',
     noResults: 'No results.',
@@ -1912,6 +1955,20 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalStatusClosed: 'Fermé',
     rentalStatusSelected: 'Sélectionné',
     rentalSundayLabel: 'Dimanche',
+
+    rentalReviewsTitle: 'Avis clients',
+    rentalReviewsSubtitle: 'Ce que disent nos clients',
+    rentalReviewsNoReviews: 'Aucun avis pour le moment.',
+    rentalReviewsFormTitle: 'Laisser un avis',
+    rentalReviewsFormName: 'Votre nom',
+    rentalReviewsFormEmail: 'E-mail (optionnel)',
+    rentalReviewsFormStars: 'Note',
+    rentalReviewsFormComment: 'Votre commentaire',
+    rentalReviewsFormSubmit: 'Envoyer l\'avis',
+    rentalReviewsFormSending: 'Envoi en cours...',
+    rentalReviewsFormSuccess: 'Merci ! Votre avis sera publié après vérification.',
+    rentalReviewsFormError: 'Une erreur est survenue. Veuillez réessayer.',
+    rentalReviewsFormValidation: 'Veuillez remplir votre nom et votre commentaire.',
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
@@ -2479,6 +2536,20 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalStatusClosed: 'Kapalı',
     rentalStatusSelected: 'Seçildi',
     rentalSundayLabel: 'Pazar',
+
+    rentalReviewsTitle: 'Müşteri Yorumları',
+    rentalReviewsSubtitle: 'Müşterilerimiz ne diyor',
+    rentalReviewsNoReviews: 'Henüz yorum yok.',
+    rentalReviewsFormTitle: 'Yorum Yaz',
+    rentalReviewsFormName: 'Adınız',
+    rentalReviewsFormEmail: 'E-posta (isteğe bağlı)',
+    rentalReviewsFormStars: 'Puan',
+    rentalReviewsFormComment: 'Yorumunuz',
+    rentalReviewsFormSubmit: 'Yorum gönder',
+    rentalReviewsFormSending: 'Gönderiliyor...',
+    rentalReviewsFormSuccess: 'Teşekkürler! Yorumunuz incelendikten sonra yayınlanacak.',
+    rentalReviewsFormError: 'Bir hata oluştu. Lütfen tekrar deneyin.',
+    rentalReviewsFormValidation: 'Lütfen adınızı ve yorumunuzu doldurun.',
 
     loading: 'Yükleniyor...',
     error: 'Bir hata oluştu.',

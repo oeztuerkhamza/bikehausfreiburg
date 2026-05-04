@@ -13,7 +13,7 @@ import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
-import { PublicRentalBicycle, RentalBookingCreate } from '../../models/models';
+import { PublicRentalBicycle, RentalBookingCreate, RentalReviewPublic, RentalReviewCreate } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -1161,6 +1161,91 @@ import { environment } from '../../../environments/environment';
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </a>
+        </section>
+
+        <!-- Customer Reviews -->
+        <section class="reviews-section" id="reviews">
+          <div class="reviews-header">
+            <span class="section-chip">★ {{ t().rentalReviewsTitle }}</span>
+            <h2 class="reviews-title">{{ t().rentalReviewsSubtitle }}</h2>
+          </div>
+
+          <!-- Reviews list -->
+          <div *ngIf="reviewsLoading()" class="reviews-loading">
+            <div class="reviews-spinner"></div>
+          </div>
+
+          <div *ngIf="!reviewsLoading() && reviews().length === 0 && !reviewFormSuccess()" class="reviews-empty">
+            {{ t().rentalReviewsNoReviews }}
+          </div>
+
+          <div class="reviews-grid" *ngIf="!reviewsLoading() && reviews().length > 0">
+            <div class="review-card" *ngFor="let r of reviews()">
+              <div class="rc-top">
+                <div class="rc-avatar">{{ r.ad.charAt(0).toUpperCase() }}</div>
+                <div class="rc-meta">
+                  <div class="rc-name">{{ r.ad }}</div>
+                  <div class="rc-stars">
+                    <span *ngFor="let s of starsArr(r.sterne)" class="rstar filled">★</span>
+                    <span *ngFor="let s of emptyStarsArr(r.sterne)" class="rstar empty">★</span>
+                  </div>
+                </div>
+                <div class="rc-date">{{ r.createdAt | date:'dd.MM.yyyy' }}</div>
+              </div>
+              <p class="rc-text">{{ r.yorum }}</p>
+            </div>
+          </div>
+
+          <!-- Write a review form -->
+          <div class="review-form-wrap">
+            <h3 class="review-form-title">{{ t().rentalReviewsFormTitle }}</h3>
+
+            <div *ngIf="reviewFormSuccess()" class="review-form-success">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              {{ t().rentalReviewsFormSuccess }}
+            </div>
+
+            <form *ngIf="!reviewFormSuccess()" class="review-form" (ngSubmit)="submitReview()">
+              <div class="rform-row">
+                <div class="rform-field">
+                  <label>{{ t().rentalReviewsFormName }} *</label>
+                  <input type="text" [(ngModel)]="reviewForm.ad" name="rvAd" placeholder="{{ t().rentalReviewsFormName }}" />
+                </div>
+                <div class="rform-field">
+                  <label>{{ t().rentalReviewsFormEmail }}</label>
+                  <input type="email" [(ngModel)]="reviewForm.email" name="rvEmail" placeholder="{{ t().rentalReviewsFormEmail }}" />
+                </div>
+              </div>
+
+              <div class="rform-field">
+                <label>{{ t().rentalReviewsFormStars }}</label>
+                <div class="star-picker">
+                  <button
+                    type="button"
+                    *ngFor="let n of [1,2,3,4,5]"
+                    class="star-btn"
+                    [class.selected]="reviewForm.sterne >= n"
+                    (click)="reviewForm.sterne = n"
+                    [attr.aria-label]="n + ' Sterne'"
+                  >★</button>
+                </div>
+              </div>
+
+              <div class="rform-field">
+                <label>{{ t().rentalReviewsFormComment }} *</label>
+                <textarea [(ngModel)]="reviewForm.yorum" name="rvYorum" rows="4" placeholder="{{ t().rentalReviewsFormComment }}"></textarea>
+              </div>
+
+              <div *ngIf="reviewFormError()" class="review-form-error">{{ reviewFormError() }}</div>
+
+              <button type="submit" class="rform-submit" [disabled]="reviewFormSending()">
+                <div *ngIf="reviewFormSending()" class="submit-spinner"></div>
+                {{ reviewFormSending() ? t().rentalReviewsFormSending : t().rentalReviewsFormSubmit }}
+              </button>
+            </form>
+          </div>
         </section>
 
         <!-- Back -->
@@ -3191,6 +3276,232 @@ import { environment } from '../../../environments/environment';
       }
 
       /* ── CTA ── */
+      /* ── Customer Reviews ── */
+      .reviews-section {
+        margin-top: 3rem;
+        padding: 2.5rem 0;
+        border-top: 1px solid rgba(255,255,255,0.08);
+      }
+      .reviews-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+      .reviews-header .section-chip {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        background: rgba(var(--color-accent-rgb, 99,102,241), 0.12);
+        border-radius: 50px;
+        padding: 4px 14px;
+        margin-bottom: 0.75rem;
+      }
+      .reviews-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--color-text);
+        margin: 0;
+      }
+      .reviews-loading {
+        display: flex;
+        justify-content: center;
+        padding: 2rem;
+      }
+      .reviews-spinner {
+        width: 28px;
+        height: 28px;
+        border: 3px solid rgba(255,255,255,0.1);
+        border-top-color: var(--color-accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      .reviews-empty {
+        text-align: center;
+        color: var(--color-text-secondary);
+        font-size: 0.95rem;
+        padding: 1.5rem;
+      }
+      .reviews-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+      }
+      .review-card {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 1.2rem 1.4rem;
+        transition: box-shadow 0.2s;
+      }
+      .review-card:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      }
+      .rc-top {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+      .rc-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--color-accent);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+      .rc-meta {
+        flex: 1;
+        min-width: 0;
+      }
+      .rc-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--color-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .rc-stars {
+        display: flex;
+        gap: 1px;
+        margin-top: 2px;
+      }
+      .rstar { font-size: 0.9rem; }
+      .rstar.filled { color: #f59e0b; }
+      .rstar.empty { color: rgba(255,255,255,0.15); }
+      .rc-date {
+        font-size: 0.75rem;
+        color: var(--color-text-secondary);
+        white-space: nowrap;
+      }
+      .rc-text {
+        font-size: 0.9rem;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      /* Review form */
+      .review-form-wrap {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 640px;
+        margin: 0 auto;
+      }
+      .review-form-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--color-text);
+        margin: 0 0 1.25rem;
+      }
+      .review-form-success {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: rgba(16,185,129,0.12);
+        color: #34d399;
+        border-radius: 10px;
+        padding: 0.9rem 1.1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+      .review-form-error {
+        background: rgba(239,68,68,0.1);
+        color: #f87171;
+        border-radius: 8px;
+        padding: 0.65rem 1rem;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+      }
+      .review-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .rform-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .rform-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .rform-field label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+      }
+      .rform-field input,
+      .rform-field textarea {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px;
+        color: var(--color-text);
+        font-size: 0.9rem;
+        padding: 0.65rem 0.9rem;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+        font-family: inherit;
+        resize: vertical;
+      }
+      .rform-field input:focus,
+      .rform-field textarea:focus {
+        outline: none;
+        border-color: var(--color-accent);
+      }
+      .rform-field input::placeholder,
+      .rform-field textarea::placeholder {
+        color: rgba(255,255,255,0.25);
+      }
+      .star-picker {
+        display: flex;
+        gap: 4px;
+      }
+      .star-btn {
+        background: none;
+        border: none;
+        font-size: 1.6rem;
+        color: rgba(255,255,255,0.2);
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        transition: color 0.15s, transform 0.1s;
+      }
+      .star-btn.selected { color: #f59e0b; }
+      .star-btn:hover { transform: scale(1.2); }
+      .rform-submit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: var(--color-accent);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        align-self: flex-start;
+      }
+      .rform-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+      .rform-submit:hover:not(:disabled) { opacity: 0.85; }
+
       .rental-cta {
         display: flex;
         align-items: center;
@@ -3301,6 +3612,13 @@ import { environment } from '../../../environments/environment';
         .pcard-top-badge {
           font-size: 0.62rem;
         }
+
+        .rform-row {
+          grid-template-columns: 1fr;
+        }
+        .reviews-grid {
+          grid-template-columns: 1fr;
+        }
       }
     `,
   ],
@@ -3344,6 +3662,14 @@ export class FahrradverleihComponent implements OnInit {
   today = new Date().toISOString().split('T')[0];
   calculatedDays = signal(0);
   calculatedPrice = signal<number | null>(null);
+
+  // Rental Reviews state
+  reviews = signal<RentalReviewPublic[]>([]);
+  reviewsLoading = signal(false);
+  reviewFormSuccess = signal(false);
+  reviewFormSending = signal(false);
+  reviewFormError = signal<string | null>(null);
+  reviewForm: RentalReviewCreate = { ad: '', email: '', sterne: 5, yorum: '' };
 
   // Calendar state
   busyPeriods = signal<{ start: Date; end: Date; type: string }[]>([]);
@@ -3419,6 +3745,52 @@ export class FahrradverleihComponent implements OnInit {
       },
       error: () => this.bikesLoading.set(false),
     });
+
+    this.loadReviews();
+  }
+
+  loadReviews(): void {
+    this.reviewsLoading.set(true);
+    this.apiService.getRentalReviews().subscribe({
+      next: (items) => {
+        this.reviews.set(items);
+        this.reviewsLoading.set(false);
+      },
+      error: () => this.reviewsLoading.set(false),
+    });
+  }
+
+  submitReview(): void {
+    const f = this.reviewForm;
+    if (!f.ad.trim() || !f.yorum.trim()) {
+      this.reviewFormError.set(this.t().rentalReviewsFormValidation);
+      return;
+    }
+    this.reviewFormError.set(null);
+    this.reviewFormSending.set(true);
+    this.apiService.createRentalReview({
+      ad: f.ad.trim(),
+      email: f.email?.trim() || undefined,
+      sterne: f.sterne,
+      yorum: f.yorum.trim(),
+    }).subscribe({
+      next: () => {
+        this.reviewFormSuccess.set(true);
+        this.reviewFormSending.set(false);
+      },
+      error: () => {
+        this.reviewFormError.set(this.t().rentalReviewsFormError);
+        this.reviewFormSending.set(false);
+      },
+    });
+  }
+
+  starsArr(n: number): number[] {
+    return Array(Math.min(5, Math.max(0, n))).fill(0);
+  }
+
+  emptyStarsArr(n: number): number[] {
+    return Array(Math.max(0, 5 - Math.min(5, n))).fill(0);
   }
 
   private addRentalSchema(lang: string, pageUrl: string): void {

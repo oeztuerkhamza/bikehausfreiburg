@@ -225,3 +225,19 @@ export interface GoogleReviewsResponse {
   reviews: GoogleReview[];
   placeUrl: string;
 }
+
+// ── Rental Reviews ──
+export interface RentalReviewPublic {
+  id: number;
+  ad: string;
+  sterne: number;
+  yorum: string;
+  createdAt: string;
+}
+
+export interface RentalReviewCreate {
+  ad: string;
+  email?: string;
+  sterne: number;
+  yorum: string;
+}
