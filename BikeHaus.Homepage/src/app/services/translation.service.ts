@@ -549,9 +549,10 @@ export interface Translations {
 
 const TRANSLATIONS: Record<Language, Translations> = {
   de: {
-    metaTitle: 'Fahrrad kaufen & mieten Freiburg | Bike Haus Freiburg',
+    metaTitle:
+      'Fahrradladen Freiburg — Fahrrad kaufen & mieten | Bike Haus Freiburg',
     metaDescription:
-      'Fahrrad kaufen & mieten in Freiburg ✓ Über 100 geprüfte Räder ✓ City, Trekking, E-Bike ✓ 3 Monate Garantie ✓ Fahrradverleih ab 6,80 €/Tag. Persönlich & fair.',
+      'Fahrradladen in Freiburg ✓ Gebrauchte & neue Räder ✓ City, Trekking, E-Bike, Kinderfahrrad ✓ 3 Monate Garantie ✓ Fahrradverleih ab 6,80 €/Tag ✓ Heckerstraße 27.',
 
     home: 'Start',
     showroom: 'Showroom',
@@ -823,8 +824,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalReviewsFormComment: 'Ihr Kommentar',
     rentalReviewsFormSubmit: 'Bewertung absenden',
     rentalReviewsFormSending: 'Wird gesendet...',
-    rentalReviewsFormSuccess: 'Danke! Ihre Bewertung wird nach Prüfung veröffentlicht.',
-    rentalReviewsFormError: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
+    rentalReviewsFormSuccess:
+      'Danke! Ihre Bewertung wird nach Prüfung veröffentlicht.',
+    rentalReviewsFormError:
+      'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
     rentalReviewsFormValidation: 'Bitte füllen Sie Name und Kommentar aus.',
 
     loading: 'Wird geladen...',
@@ -943,7 +946,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     contactWhatsappHint: 'Direkt schreiben',
     contactMetaTitle: 'Kontakt — Bike Haus Freiburg | Adresse & Öffnungszeiten',
     contactMetaDescription:
-      'Kontaktieren Sie Bike Haus Freiburg. Adresse, Öffnungszeiten, WhatsApp, Telefon. Besuchen Sie uns in 79114 Freiburg im Breisgau.',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Mo–Sa 11–17:30 Uhr ✓ WhatsApp: +49 155 6630 0011 ✓ Kein Termin nötig — einfach vorbeikommen!',
 
     // Home trust badges
     trustBadgeSince: 'Seit 2020 in Freiburg',
@@ -1398,7 +1401,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalReviewsFormComment: 'Your comment',
     rentalReviewsFormSubmit: 'Submit review',
     rentalReviewsFormSending: 'Sending...',
-    rentalReviewsFormSuccess: 'Thank you! Your review will be published after review.',
+    rentalReviewsFormSuccess:
+      'Thank you! Your review will be published after review.',
     rentalReviewsFormError: 'An error occurred. Please try again.',
     rentalReviewsFormValidation: 'Please fill in your name and comment.',
 
@@ -1510,7 +1514,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     contactWhatsappHint: 'Write directly',
     contactMetaTitle: 'Contact — Bike Haus Freiburg | Address & Hours',
     contactMetaDescription:
-      'Contact Bike Haus Freiburg. Address, opening hours, WhatsApp, phone. Visit us at 79114 Freiburg im Breisgau.',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Mon–Sat 11am–5:30pm ✓ WhatsApp: +49 155 6630 0011 ✓ No appointment needed — just drop by!',
 
     trustBadgeSince: 'In Freiburg since 2020',
     trustBadgeCustomers: '500+ satisfied customers',
@@ -1964,11 +1968,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalReviewsFormEmail: 'E-mail (optionnel)',
     rentalReviewsFormStars: 'Note',
     rentalReviewsFormComment: 'Votre commentaire',
-    rentalReviewsFormSubmit: 'Envoyer l\'avis',
+    rentalReviewsFormSubmit: "Envoyer l'avis",
     rentalReviewsFormSending: 'Envoi en cours...',
-    rentalReviewsFormSuccess: 'Merci ! Votre avis sera publié après vérification.',
+    rentalReviewsFormSuccess:
+      'Merci ! Votre avis sera publié après vérification.',
     rentalReviewsFormError: 'Une erreur est survenue. Veuillez réessayer.',
-    rentalReviewsFormValidation: 'Veuillez remplir votre nom et votre commentaire.',
+    rentalReviewsFormValidation:
+      'Veuillez remplir votre nom et votre commentaire.',
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
@@ -2087,7 +2093,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     contactWhatsappHint: 'Écrire directement',
     contactMetaTitle: 'Contact — Bike Haus Freiburg | Adresse & Horaires',
     contactMetaDescription:
-      "Contactez Bike Haus Freiburg. Adresse, horaires d'ouverture, WhatsApp, téléphone. Rendez-nous visite à 79114 Fribourg-en-Brisgau.",
+      'Bike Haus Freiburg ✓ Heckerstraße 27, Fribourg ✓ Lun–Sam 11h–17h30 ✓ WhatsApp: +49 155 6630 0011 ✓ Sans rendez-vous — venez nous rendre visite !',
 
     // Home trust badges
     trustBadgeSince: 'Depuis 2020 à Fribourg',
@@ -2547,7 +2553,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalReviewsFormComment: 'Yorumunuz',
     rentalReviewsFormSubmit: 'Yorum gönder',
     rentalReviewsFormSending: 'Gönderiliyor...',
-    rentalReviewsFormSuccess: 'Teşekkürler! Yorumunuz incelendikten sonra yayınlanacak.',
+    rentalReviewsFormSuccess:
+      'Teşekkürler! Yorumunuz incelendikten sonra yayınlanacak.',
     rentalReviewsFormError: 'Bir hata oluştu. Lütfen tekrar deneyin.',
     rentalReviewsFormValidation: 'Lütfen adınızı ve yorumunuzu doldurun.',
 
@@ -2667,7 +2674,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     contactMetaTitle:
       'İletişim — Bike Haus Freiburg | Adres & Çalışma Saatleri',
     contactMetaDescription:
-      "Bike Haus Freiburg ile iletişime geçin. Adres, çalışma saatleri, WhatsApp, telefon. 79114 Freiburg'da bizi ziyaret edin.",
+      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Pzt–Cmt 11:00–17:30 ✓ WhatsApp: +49 155 6630 0011 ✓ Randevu gerekmez — bizi ziyaret edin!',
 
     // Home trust badges
     trustBadgeSince: "2020'den beri Freiburg'da",

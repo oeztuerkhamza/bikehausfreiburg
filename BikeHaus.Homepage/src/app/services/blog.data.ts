@@ -1039,6 +1039,48 @@ export const BLOG_ARTICLES: BlogArticle[] = [
               "Tip: Measure your child's inseam length. The child should be able to touch the ground with both balls of their feet while sitting on the saddle.",
           },
           {
+            type: 'heading',
+            content: "What to look for when buying a children's bike?",
+          },
+          {
+            type: 'list',
+            items: [
+              'Coaster brake: Recommended up to age 6 — small hands often lack strength for hand brakes.',
+              "Weight: A lighter bike is easier to control. Rule of thumb: max. 30–40% of the child's body weight.",
+              'Training wheels: Not recommended by experts — better to start with a balance bike.',
+              'Lighting: Required by law for road use.',
+              'Mudguards & chain guard: Protect clothing and improve safety.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: "Frequently Asked Questions About Children's Bike Sizes",
+          },
+          {
+            type: 'paragraph',
+            content:
+              "How much growing room should a children's bike have? One size up is acceptable — the child should just be able to touch the ground. Going two sizes up is dangerous.",
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Should I buy new or used? Used children's bikes are a smart choice since children grow quickly. At Bike Haus Freiburg, every used bike is safety-checked and comes with a 3-month warranty.",
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Balance bike or bike with training wheels? Balance bikes (no pedals, no training wheels) teach natural balance. Children who start on a balance bike typically learn to ride a pedal bike within days.',
+          },
+          {
+            type: 'heading',
+            content: "Children's Bikes at Bike Haus Freiburg",
+          },
+          {
+            type: 'paragraph',
+            content:
+              "We stock new and used children's bikes from 12 to 26 inch. Every used bike is safety-checked and comes with a 3-month warranty. Your child can test ride before you buy — we'll find the perfect size together.",
+          },
+          {
             type: 'cta',
             content: "Browse children's bikes in our showroom",
             link: '/showroom',
@@ -1061,9 +1103,63 @@ export const BLOG_ARTICLES: BlogArticle[] = [
             content: 'Pourquoi la bonne taille de vélo est-elle si importante?',
           },
           {
+            type: 'heading',
+            content: 'Tableau des tailles : vélo enfant par taille corporelle',
+          },
+          {
+            type: 'list',
+            items: [
+              '12 pouces : Taille 95–105 cm (env. 2–4 ans)',
+              '14 pouces : Taille 100–110 cm (env. 3–5 ans)',
+              '16 pouces : Taille 105–120 cm (env. 4–6 ans)',
+              '18 pouces : Taille 110–125 cm (env. 5–7 ans)',
+              '20 pouces : Taille 120–135 cm (env. 6–9 ans)',
+              '24 pouces : Taille 135–145 cm (env. 8–12 ans)',
+              '26 pouces : Taille à partir de 140 cm (env. 10–14 ans)',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              "Conseil : Mesurez l'entrejambe de votre enfant. L'enfant doit pouvoir toucher le sol avec les deux pieds à plat lorsqu'il est assis sur la selle.",
+          },
+          {
+            type: 'heading',
+            content:
+              "À quoi faire attention lors de l'achat d'un vélo enfant\u00a0?",
+          },
+          {
+            type: 'list',
+            items: [
+              "Frein à rétropédalage : Recommandé jusqu'à 6 ans — les petites mains manquent souvent de force pour les freins à main.",
+              'Poids : Un vélo léger est plus facile à contrôler. Règle : max. 30–40 % du poids corporel.',
+              'Stabilisateurs : Non recommandés par les experts — mieux vaut commencer avec un vélo sans pédales.',
+              'Éclairage : Obligatoire pour la circulation routière.',
+              'Garde-boues & protection de chaîne : Protègent les vêtements.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Questions fréquentes sur les tailles de vélos enfants',
+          },
+          {
             type: 'paragraph',
             content:
-              "Un vélo trop grand ou trop petit n'est pas seulement inconfortable — il est aussi dangereux. Les enfants qui ne peuvent pas toucher le sol ne peuvent pas réagir correctement en cas de danger.",
+              "Combien de marge de croissance prévoir\u00a0? Une taille au-dessus est acceptable — l'enfant doit juste pouvoir toucher le sol. Deux tailles au-dessus, c'est dangereux.",
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Vélo d'équilibre ou stabilisateurs\u00a0? Le vélo d'équilibre (sans pédales ni stabilisateurs) apprend l'équilibre naturellement. Les enfants qui commencent par un vélo d'équilibre apprennent généralement à pédaler en quelques jours.",
+          },
+          {
+            type: 'heading',
+            content: 'Vélos enfants chez Bike Haus Freiburg',
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Nous proposons des vélos enfants neufs et d'occasion de 12 à 26 pouces. Chaque vélo d'occasion est contrôlé et livré avec 3 mois de garantie. Votre enfant peut faire un essai avant l'achat — nous trouverons ensemble la taille parfaite.",
           },
           {
             type: 'cta',
