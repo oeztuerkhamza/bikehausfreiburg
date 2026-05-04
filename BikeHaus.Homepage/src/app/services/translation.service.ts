@@ -552,7 +552,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     metaTitle:
       'Fahrradladen Freiburg — Fahrrad kaufen & mieten | Bike Haus Freiburg',
     metaDescription:
-      'Fahrradladen in Freiburg ✓ Gebrauchte & neue Räder ✓ City, Trekking, E-Bike, Kinderfahrrad ✓ 3 Monate Garantie ✓ Fahrradverleih ab 6,80 €/Tag ✓ Heckerstraße 27.',
+      'Ihr Fahrradladen in Freiburg Haid ✓ Neue & gebrauchte Räder kaufen ✓ E-Bike, City, Trekking, Kinderfahrrad ✓ Fahrradverleih ab 6,80 €/Tag ✓ 3 Monate Garantie. Kein Termin — Heckerstraße 27!',
 
     home: 'Start',
     showroom: 'Showroom',
@@ -898,9 +898,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     aboutQuote:
       'Jedes Fahrrad, das wir verkaufen, bringt Freude — und das ist der schönste Lohn.',
     aboutQuoteAuthor: '— Die Familie hinter Bike Haus',
-    aboutMetaTitle: 'Über uns — Bike Haus Freiburg | Ihr Fahrradhändler',
+    aboutMetaTitle: 'Über uns — Bike Haus Freiburg | Fahrradladen in Freiburg Haid',
     aboutMetaDescription:
-      'Lernen Sie Bike Haus Freiburg kennen. Fair, nachhaltig, persönlich — Ihr lokaler Fahrradhändler in Freiburg im Breisgau für neue und gebrauchte Fahrräder.',
+      'Bike Haus Freiburg in Haid — Ihr persönlicher Fahrradladen seit 2020. Über 500 zufriedene Kunden ✓ 3 Monate Garantie ✓ Neue & gebrauchte Räder. Lernen Sie uns kennen!',
 
     // Brands
     brandsLabel: 'MARKEN',
@@ -944,9 +944,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Contact extended
     contactWhatsappHint: 'Direkt schreiben',
-    contactMetaTitle: 'Kontakt — Bike Haus Freiburg | Adresse & Öffnungszeiten',
+    contactMetaTitle: 'Fahrradladen Freiburg — Kontakt, Adresse & Öffnungszeiten | Bike Haus',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Mo–Sa 11–17:30 Uhr ✓ WhatsApp: +49 155 6630 0011 ✓ Kein Termin nötig — einfach vorbeikommen!',
+      'Bike Haus Freiburg Haid — Heckerstraße 27, 79114 Freiburg ✓ Öffnungszeiten: Mo/Di/Do 11–17:30, Mi 14–17:30, Fr 11–13 & 15–18, Sa 11:30–17 ✓ WhatsApp: +49 155 6630 0011.',
 
     // Home trust badges
     trustBadgeSince: 'Seit 2020 in Freiburg',
@@ -1135,7 +1135,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
   en: {
     metaTitle: 'Buy & Rent a Bike in Freiburg | Bike Haus Freiburg',
     metaDescription:
-      'Buy or rent a bike in Freiburg ✓ 100+ inspected bikes ✓ City, Trekking, E-Bike ✓ Bike rental from €6.80/day ✓ 3-month warranty. Your local bike shop in Freiburg.',
+      'Bike shop in Freiburg Haid ✓ Buy or rent a bike ✓ 100+ inspected bikes ✓ City, Trekking, E-Bike ✓ Rental from €6.80/day ✓ 3-month warranty. No appointment needed — Heckerstraße 27!',
 
     home: 'Home',
     showroom: 'Showroom',
@@ -1695,7 +1695,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
   fr: {
     metaTitle: 'Acheter & louer un vélo à Fribourg | Bike Haus Freiburg',
     metaDescription:
-      'Achetez ou louez un vélo à Fribourg-en-Brisgau ✓ 100+ vélos certifiés ✓ Ville, Trekking, VAE ✓ Location dès 6,80 €/jour ✓ 3 mois de garantie. Votre magasin de vélos à Fribourg.',
+      'Votre magasin de vélos à Fribourg Haid ✓ Achat & location ✓ 100+ vélos contrôlés ✓ Ville, Trekking, VAE ✓ Location dès 6,80 €/jour ✓ 3 mois de garantie. Sans rendez-vous — Heckerstraße 27!',
 
     home: 'Accueil',
     showroom: 'Showroom',
@@ -2281,7 +2281,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
   tr: {
     metaTitle: "Freiburg'da Bisiklet Al & Kirala | Bike Haus Freiburg",
     metaDescription:
-      "Freiburg'da bisiklet satın alın veya kiralayın ✓ 100+ kontrollü bisiklet ✓ Şehir, Trekking, E-bisiklet ✓ Kiralama 6,80 €/gün'den ✓ 3 ay garanti. Freiburg bisiklet mağazanız.",
+      "Freiburg Haid'de bisiklet mağazanız ✓ Yeni & ikinci el bisiklet ✓ Kiralama 6,80 €/gün'den ✓ 3 ay garanti ✓ Randevu gerekmez — Heckerstraße 27, Freiburg!",
 
     home: 'Ana Sayfa',
     showroom: 'Showroom',

@@ -48,11 +48,11 @@ interface Testimonial {
         <div class="hero-radial"></div>
       </div>
       <div class="container hero-inner">
-        <span class="hero-label fade-in">Bike Haus Freiburg</span>
-        <h1 id="hero-heading" class="hero-h1 fade-in d1">
+        <span class="hero-label">Bike Haus Freiburg</span>
+        <h1 id="hero-heading" class="hero-h1">
           {{ t().heroH1 }}
         </h1>
-        <p class="hero-sub fade-in d2">{{ t().heroSub }}</p>
+        <p class="hero-sub">{{ t().heroSub }}</p>
         <div class="hero-actions fade-in d3">
           <a
             [routerLink]="['/' + lang(), 'neue-fahrraeder']"

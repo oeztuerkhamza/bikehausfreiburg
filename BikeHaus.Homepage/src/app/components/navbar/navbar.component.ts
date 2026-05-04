@@ -1,15 +1,15 @@
 import {
-    Component,
-    inject,
-    HostListener,
-    PLATFORM_ID,
-    signal,
+  Component,
+  inject,
+  HostListener,
+  PLATFORM_ID,
+  signal,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
-    TranslationService,
-    Language,
+  TranslationService,
+  Language,
 } from '../../services/translation.service';
 import { ShopInfoService } from '../../services/shop-info.service';
 
@@ -295,8 +295,19 @@ import { ShopInfoService } from '../../services/shop-info.service';
         background: rgba(10, 12, 18, 0.62);
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+        position: relative;
+        isolation: isolate;
+      }
+
+      .nav-inner::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
         backdrop-filter: blur(18px) saturate(160%);
         -webkit-backdrop-filter: blur(18px) saturate(160%);
+        z-index: -1;
+        pointer-events: none;
       }
 
       .navbar.scrolled {
@@ -344,7 +355,11 @@ import { ShopInfoService } from '../../services/shop-info.service';
 
         .nav-menu {
           background:
-            radial-gradient(circle at top, rgba(255, 87, 34, 0.12), transparent 28%),
+            radial-gradient(
+              circle at top,
+              rgba(255, 87, 34, 0.12),
+              transparent 28%
+            ),
             rgba(6, 8, 12, 0.98);
         }
       }

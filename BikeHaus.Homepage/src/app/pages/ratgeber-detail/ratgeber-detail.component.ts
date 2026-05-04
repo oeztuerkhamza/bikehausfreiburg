@@ -1,22 +1,22 @@
 import {
-  Component,
-  inject,
-  OnInit,
-  OnDestroy,
-  signal,
-  computed,
+    Component,
+    inject,
+    OnInit,
+    OnDestroy,
+    signal,
+    computed,
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import {
-  BLOG_ARTICLES,
-  BlogArticle,
-  BlogArticleTranslation,
-  findArticleBySlug,
-  getBlogBasePath,
-  getBlogSlug,
+    BLOG_ARTICLES,
+    BlogArticle,
+    BlogArticleTranslation,
+    findArticleBySlug,
+    getBlogBasePath,
+    getBlogSlug,
 } from '../../services/blog.data';
 
 @Component({
@@ -542,6 +542,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
 
   private articleSchemaElement: HTMLScriptElement | null = null;
   private breadcrumbSchemaElement: HTMLScriptElement | null = null;
+  private faqSchemaElement: HTMLScriptElement | null = null;
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -571,6 +572,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
         this.setMeta(found, trans, lang);
         this.addArticleSchema(found, trans, lang);
         this.addBreadcrumbSchema(found, trans, lang);
+        this.addFaqSchema(found);
       }
     });
   }
@@ -578,6 +580,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.removeSchema(this.articleSchemaElement);
     this.removeSchema(this.breadcrumbSchemaElement);
+    this.removeSchema(this.faqSchemaElement);
   }
 
   getTranslation(article: BlogArticle): BlogArticleTranslation {
@@ -620,6 +623,34 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
       name: 'robots',
       content: 'index, follow, max-snippet:-1',
     });
+
+    // Hreflang — set language-specific canonical alternate links for blog articles
+    this.document
+      .querySelectorAll('link[rel="alternate"][hreflang]')
+      .forEach((el) => el.remove());
+    const SUPPORTED_LANGS = ['de', 'en', 'fr', 'tr'];
+    for (const l of SUPPORTED_LANGS) {
+      const langSlug = getBlogSlug(article, l as any);
+      const langPath = getBlogBasePath(l as any);
+      const link = this.document.createElement('link');
+      link.rel = 'alternate';
+      link.setAttribute('hreflang', l);
+      link.href = `https://bikehausfreiburg.com/${l}/${langPath}/${langSlug}`;
+      this.document.head.appendChild(link);
+    }
+    const xLink = this.document.createElement('link');
+    xLink.rel = 'alternate';
+    xLink.setAttribute('hreflang', 'x-default');
+    xLink.href = `https://bikehausfreiburg.com/de/ratgeber/${getBlogSlug(article, 'de')}`;
+    this.document.head.appendChild(xLink);
+
+    // Canonical
+    let canonical = this.document.querySelector(
+      'link[rel="canonical"]',
+    ) as HTMLLinkElement | null;
+    if (canonical) {
+      canonical.href = url;
+    }
   }
 
   private addArticleSchema(
@@ -742,8 +773,71 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
     this.document.head.appendChild(this.breadcrumbSchemaElement);
   }
 
-  private removeSchema(element: HTMLScriptElement | null): void {
-    if (element && element.parentNode) {
+  private addFaqSchema(article: BlogArticle): void {
+    this.removeSchema(this.faqSchemaElement);
+
+    const faqMap: Record<string, { question: string; answer: string }[]> = {
+      'fahrrad-inspektion-kosten': [
+        {
+          question: 'Was kostet eine Fahrradinspektion?',
+          answer:
+            'Eine Fahrradinspektion kostet je nach Umfang 20–100 €. Ein einfacher Basis-Check (Bremsen, Schaltung, Luft) kostet ca. 20–30 €. Die Standard-Inspektion aller Komponenten liegt bei 40–60 €. Eine große Inspektion mit Reinigung und Nachfetten kostet 60–80 €. E-Bike Inspektionen kosten aufgrund der Elektronikdiagnose 70–100 €.',
+        },
+        {
+          question: 'Was wird bei einer Fahrrad-Inspektion geprüft?',
+          answer:
+            'Bei einer Fahrradinspektion werden Bremsen (Beläge, Züge, Bremsleistung), Schaltung (Schaltzüge, Umwerfer, Schaltwerk), Reifen (Profil, Zustand, Luftdruck), Kette (Kettenverschleiß), Lager (Steuersatz, Tretlager, Naben), Beleuchtung (Vorder- und Rücklicht, Reflektoren), Speichen (Spannung, Achter) sowie alle Verschraubungen geprüft.',
+        },
+        {
+          question: 'Wie oft sollte ich mein Fahrrad inspizieren lassen?',
+          answer:
+            'Empfohlen wird einmal jährlich oder alle 1.500–2.000 km. Pendler und Vielfahrer sollten alle 6 Monate eine Inspektion machen lassen. Nach jedem Winter ist eine Inspektion sinnvoll, da Salz und Nässe Kette, Züge und Lager stark belasten.',
+        },
+        {
+          question: 'Was kostet eine E-Bike Inspektion?',
+          answer:
+            'Eine E-Bike Inspektion kostet in der Regel 70–120 €. Neben der mechanischen Prüfung werden Akku-Kapazität, Motor, Display und Softwareversion geprüft. Der genaue Preis hängt vom Antriebssystem ab (Bosch, Shimano Steps, Brose usw.).',
+        },
+      ],
+      'kinderfahrrad-groesse': [
+        {
+          question: 'Welche Kinderfahrrad-Größe passt zu meinem Kind?',
+          answer:
+            'Die Kinderfahrrad-Größe richtet sich nach der Körpergröße: ab 95 cm → 12 Zoll, ab 100 cm → 14 Zoll, ab 105 cm → 16 Zoll, ab 110 cm → 18 Zoll, ab 120 cm → 20 Zoll, ab 135 cm → 24 Zoll, ab 140 cm → 26 Zoll. Entscheidend ist die Körpergröße, nicht das Alter.',
+        },
+        {
+          question: 'Welche Woom-Größe passt zu meinem Kind?',
+          answer:
+            'Woom 1 (12 Zoll) ab 85 cm, Woom 2 (14 Zoll) für 95–110 cm, Woom 3 (16 Zoll) für 105–120 cm, Woom 4 (20 Zoll) für 115–130 cm, Woom 5 (24 Zoll) für 125–145 cm, Woom 6 (26 Zoll) für 135–155 cm. Bei Bike Haus Freiburg führen wir gebrauchte Woom-Räder.',
+        },
+        {
+          question: 'Wie messe ich die richtige Fahrradgröße für mein Kind?',
+          answer:
+            'Messen Sie die Innenbeinlänge (Schrittlänge): Kind steht barfuß, ein Buch wird fest zwischen die Beine in Schritthöhe gehalten. Abstand von Buchoberkante bis Boden = Innenbeinlänge. Das Kind sollte mit beiden Fußballen den Boden berühren können, wenn es auf dem Sattel sitzt.',
+        },
+      ],
+    };
+
+    const faqs = faqMap[article.slug];
+    if (!faqs) return;
+
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer },
+      })),
+    };
+
+    this.faqSchemaElement = this.document.createElement('script');
+    this.faqSchemaElement.type = 'application/ld+json';
+    this.faqSchemaElement.text = JSON.stringify(schema);
+    this.document.head.appendChild(this.faqSchemaElement);
+  }
+
+  private removeSchema(element: HTMLScriptElement | null): void {    if (element && element.parentNode) {
       element.parentNode.removeChild(element);
     }
   }

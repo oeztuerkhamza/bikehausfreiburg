@@ -3,12 +3,15 @@ import { DOCUMENT } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { TranslationService, Language } from './translation.service';
-import { findArticleBySlug, getBlogBasePath, getBlogSlug } from './blog.data';
 
 const BASE_URL = 'https://bikehausfreiburg.com';
 const SUPPORTED_LANGS: Language[] = ['de', 'en', 'fr', 'tr'];
 // URL segments that indicate a blog route
 const BLOG_SEGMENTS = new Set(['guide', 'ratgeber']);
+// Inline helper – avoids pulling blog.data.ts into the initial bundle
+function getBlogBasePath(lang: Language): string {
+  return lang === 'de' || lang === 'tr' ? 'ratgeber' : 'guide';
+}
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {
@@ -53,23 +56,11 @@ export class SeoService {
       .forEach((el) => el.remove());
 
     // ── Blog article route: /:lang/(guide|ratgeber)/:slug ──
-    // Must generate language-specific slug + path for each lang
+    // Hreflang is handled by RatgeberDetailComponent (which already imports blog.data).
+    // Here we only update og:url and let the component set language-specific hreflang.
     if (pathSegments.length === 3 && BLOG_SEGMENTS.has(pathSegments[1])) {
-      const slug = pathSegments[2];
-      const article = findArticleBySlug(slug, currentLang);
-      if (article) {
-        for (const lang of SUPPORTED_LANGS) {
-          const href = `${BASE_URL}/${lang}/${getBlogBasePath(lang)}/${getBlogSlug(article, lang)}`;
-          this.addHreflangLink(lang, href);
-        }
-        const deSlug = getBlogSlug(article, 'de');
-        this.addHreflangLink(
-          'x-default',
-          `${BASE_URL}/de/${getBlogBasePath('de')}/${deSlug}`,
-        );
-        this.updateMetaProperty('og:url', canonicalUrl);
-        return;
-      }
+      this.updateMetaProperty('og:url', canonicalUrl);
+      return;
     }
 
     // ── Blog listing route: /:lang/(guide|ratgeber) ──

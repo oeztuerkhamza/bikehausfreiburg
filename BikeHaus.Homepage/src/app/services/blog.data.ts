@@ -932,9 +932,9 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       de: {
         title: 'Kinderfahrrad Größe — Welche Größe für welches Alter?',
         metaTitle:
-          'Kinderfahrrad Größe — Tabelle nach Alter & Körpergröße | Bike Haus Freiburg',
+          'Kinderfahrrad Größe: Tabelle 2026 — Welche Größe für welches Alter? | Bike Haus Freiburg',
         metaDescription:
-          'Welche Kinderfahrrad-Größe passt? Größentabelle nach Alter & Körpergröße ✓ 12 bis 26 Zoll ✓ Tipps vom Fachhändler aus Freiburg.',
+          'Kinderfahrrad Größe 2026: Tabelle nach Alter & Körpergröße ✓ 12–26 Zoll ✓ Woom, Cube, Trek ✓ Innenbeinlänge messen ✓ Probefahrt vor Ort — Bike Haus Freiburg Haid.',
         excerpt:
           'Die richtige Fahrradgröße ist entscheidend für Sicherheit und Spaß. Unsere Tabelle zeigt, welches Rad zu welchem Alter passt.',
         tldr: 'Kinderfahrräder gibt es von 12 bis 26 Zoll. Entscheidend ist die Körpergröße, nicht nur das Alter. Ab 95 cm → 12 Zoll, ab 105 cm → 16 Zoll, ab 120 cm → 20 Zoll, ab 135 cm → 24 Zoll, ab 140 cm → 26 Zoll. Bei Bike Haus Freiburg können Kinder Probe fahren.',
@@ -997,6 +997,35 @@ export const BLOG_ARTICLES: BlogArticle[] = [
             content: 'Kinderfahrräder im Showroom ansehen',
             link: '/showroom',
             linkText: 'Zum Showroom',
+          },
+          {
+            type: 'heading',
+            content: 'Woom Kinderfahrräder — Größenübersicht',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Woom ist eine der beliebtesten Kinderfahrrad-Marken — bekannt für geringes Gewicht und kindgerechte Ergonomie. Bei Bike Haus Freiburg führen wir gebrauchte Woom-Räder. Hier die passenden Modelle nach Körpergröße:',
+          },
+          {
+            type: 'list',
+            items: [
+              'Woom 1 (12 Zoll): Laufrad ab 85 cm Körpergröße, ab ca. 18 Monaten.',
+              'Woom 2 (14 Zoll): Körpergröße 95–110 cm, ca. 3–5 Jahre.',
+              'Woom 3 (16 Zoll): Körpergröße 105–120 cm, ca. 4–7 Jahre.',
+              'Woom 4 (20 Zoll): Körpergröße 115–130 cm, ca. 6–9 Jahre.',
+              'Woom 5 (24 Zoll): Körpergröße 125–145 cm, ca. 7–11 Jahre.',
+              'Woom 6 (26 Zoll): Körpergröße 135–155 cm, ca. 9–14 Jahre.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Innenbeinlänge messen — so geht es richtig',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Die Innenbeinlänge (Schrittlänge) ist präziser als das Alter. Messen Sie so: Kind steht barfuß mit Rücken zur Wand. Ein Buch wird fest zwischen die Beine in Schritthöhe gehalten (Buchrücken nach oben). Den Abstand von Buchoberkante bis zum Boden messen — das ist die Innenbeinlänge. Faustregel: Innenbeinlänge × 1,0 bis 1,06 = empfohlene Rahmenhöhe in cm.',
           },
         ],
       },
@@ -1222,9 +1251,9 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       de: {
         title: 'Fahrrad Inspektion — Was wird gemacht & was kostet es?',
         metaTitle:
-          'Fahrrad Inspektion — Kosten, Ablauf & Checkliste | Bike Haus Freiburg',
+          'Was kostet eine Fahrradinspektion 2026? Ablauf & Checkliste | Bike Haus Freiburg',
         metaDescription:
-          'Was kostet eine Fahrrad Inspektion? Was wird geprüft? Ablauf, Kosten (30–80 €) und Checkliste ✓ Tipps vom Fahrradladen in Freiburg.',
+          'Fahrradinspektion Kosten 2026: Basis 20–30 €, Standard 40–60 €, groß 60–80 €, E-Bike bis 100 €. Was wird geprüft? Ablauf & Checkliste vom Fahrradladen Freiburg.',
         excerpt:
           'Eine regelmäßige Inspektion hält Ihr Fahrrad sicher und verhindert teure Reparaturen. Hier erfahren Sie, was geprüft wird und was es kostet.',
         tldr: 'Eine Fahrrad-Inspektion kostet je nach Umfang 30–80 €. Geprüft werden Bremsen, Schaltung, Reifen, Kette, Lager, Beleuchtung und Speichenspannung. Empfohlen: 1× pro Jahr oder alle 2.000 km.',
@@ -1294,14 +1323,52 @@ export const BLOG_ARTICLES: BlogArticle[] = [
             link: '/contact',
             linkText: 'Kontakt & Anfahrt',
           },
+          {
+            type: 'heading',
+            content: 'Wann ist eine Fahrrad-Inspektion fällig?',
+          },
+          {
+            type: 'list',
+            items: [
+              'Einmal jährlich: Empfehlung für alle Freizeitfahrer.',
+              'Nach 1.500–2.000 km: Richtwert für Pendler und Vielfahrer.',
+              'Nach jedem Winter: Salz und Nässe belasten Kette, Züge und Lager besonders stark.',
+              'Vor langen Touren: Sicherheit geht vor — kurzer Check lohnt sich.',
+              'Nach einem Sturz: Rahmen und Gabel auf unsichtbare Schäden prüfen lassen.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Was kostet eine E-Bike Inspektion?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'E-Bikes erfordern zusätzlich zur mechanischen Prüfung eine Diagnose des Antriebssystems. Dabei werden Akku-Kapazität, Motor, Display und die Softwareversion geprüft. Eine vollständige E-Bike-Inspektion kostet in der Regel 70–120 €, abhängig vom Marken-System (Bosch, Shimano Steps, Brose usw.).',
+          },
+          {
+            type: 'heading',
+            content: 'Woran erkenne ich, dass mein Fahrrad eine Inspektion braucht?',
+          },
+          {
+            type: 'list',
+            items: [
+              'Bremsen quietschen oder greifen zu spät.',
+              'Schaltung springt oder schaltet nicht sauber durch.',
+              'Kette springt beim Treten unter Last.',
+              'Fahrrad knarzt, quietscht oder wackelt ungewöhnlich.',
+              'Lenkung oder Sattelstütze lassen sich schwer feststellen.',
+              'Licht flackert oder leuchtet nicht mehr.',
+            ],
+          },
         ],
       },
       en: {
         title: 'Bike Inspection — What Gets Checked & What Does It Cost?',
         metaTitle:
-          'Bike Inspection — Costs, Process & Checklist | Bike Haus Freiburg',
+          'How Much Does a Bike Inspection Cost 2026? Checklist | Bike Haus Freiburg',
         metaDescription:
-          'How much does a bike inspection cost? What gets checked? Process, costs (€30–80), and checklist ✓ Tips from a bike shop in Freiburg.',
+          'Bike inspection costs 2026: basic check €20–30, standard €40–60, full service €60–80, e-bike up to €100. What gets checked? Process & checklist from Freiburg bike shop.',
         excerpt:
           'A regular inspection keeps your bike safe and prevents expensive repairs. Learn what gets checked and what it costs.',
         tldr: 'A bike inspection costs €30–80 depending on scope. Brakes, gears, tires, chain, bearings, lights and spoke tension are checked. Recommended: once a year or every 2,000 km.',
