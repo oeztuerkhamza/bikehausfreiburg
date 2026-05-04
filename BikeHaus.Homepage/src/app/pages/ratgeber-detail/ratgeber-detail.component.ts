@@ -638,7 +638,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
       description: trans.metaDescription,
       image: {
         '@type': 'ImageObject',
-        url: 'https://bikehausfreiburg.com/assets/og-image.jpg',
+        url: 'https://bikehausfreiburg.com/assets/og-image.webp',
         width: 1200,
         height: 630,
       },
