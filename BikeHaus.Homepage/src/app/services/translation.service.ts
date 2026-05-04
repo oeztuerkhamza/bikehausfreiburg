@@ -1597,9 +1597,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     faqQ9: 'What are your opening hours?',
     faqA9:
       'Monday, Tuesday, Thursday: 11:00–17:30. Wednesday: 14:00–17:30. Friday: 11:00–13:00 & 15:00–18:00. Saturday: 11:30–17:00. Sunday and holidays: closed.',
-    faqQ10: 'Can I trade in my old bike?',
+    faqQ10: 'Can I rent a bike in Freiburg?',
     faqA10:
-      "Yes, trade-ins are possible in individual cases. Just talk to us — we'll find a solution.",
+      'Yes! Bike Haus Freiburg rents bikes from €6.80/day. Day rate €12, weekly €55, monthly €160. City bikes, trekking & e-bikes available. No reservation needed — just come by Heckerstraße 27.',
 
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Bicycle Repair',
@@ -2107,7 +2107,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrraederInterested: 'Intéressé par ce vélo ?',
 
     // Ratgeber / Blog
-    ratgeberNav: 'Conseils',
+    ratgeberNav: 'Guide',
     ratgeberLabel: 'Savoir & Conseils',
     ratgeberTitle: 'Guide Vélo',
     ratgeberSub:
@@ -2127,7 +2127,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     faqMetaDescription:
       "Questions fréquentes sur l'achat et la location de vélos à Fribourg : garantie, VAE, essais, horaires, tarifs. Répondu par Bike Haus Freiburg.",
     bikeRentalMetaTitle:
-      'Location vélo Freiburg dès 6,80 €/jour | Bike Haus Freiburg',
+      'Location vélo Fribourg dès 6,80 €/jour | Bike Haus Freiburg',
     bikeRentalMetaDescription:
       'Louez un vélo à Freiburg dès 6,80 €/jour. Vélos city, trekking & VAE disponibles. Casque & antivol inclus. Départ immédiat sans prépaiement. ✓ Bike Haus Freiburg.',
     garantieMetaTitle: 'Conditions de garantie — Bike Haus Freiburg',
@@ -2166,9 +2166,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     faqQ9: 'Quels sont vos horaires ?',
     faqA9:
       'Lundi, mardi, jeudi : 11:00–17:30. Mercredi : 14:00–17:30. Vendredi : 11:00–13:00 & 15:00–18:00. Samedi : 11:30–17:00. Dimanche et jours fériés : fermé.',
-    faqQ10: 'Puis-je échanger mon ancien vélo ?',
+    faqQ10: 'Louez-vous des vélos à Fribourg ?',
     faqA10:
-      'Oui, la reprise est possible au cas par cas. Parlez-nous en — nous trouverons une solution.',
+      "Oui ! Bike Haus Freiburg loue des vélos dès 6,80 €/jour. Tarif journée : 12 €, semaine : 55 €, mois : 160 €. Vélos city, trekking & VAE disponibles. Idéal pour explorer Fribourg et le Rhin à Vélo depuis l'Alsace. Sans réservation — venez directement Heckerstraße 27.",
 
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Réparation de vélos',

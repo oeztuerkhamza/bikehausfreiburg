@@ -629,31 +629,46 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
   ): void {
     this.removeSchema(this.articleSchemaElement);
 
+    const articleUrl = `https://bikehausfreiburg.com/${lang}/${getBlogBasePath(lang as any)}/${getBlogSlug(article, lang as any)}`;
     const schema = {
       '@context': 'https://schema.org',
-      '@type': 'Article',
-      '@id': `https://bikehausfreiburg.com/${lang}/${getBlogBasePath(lang as any)}/${getBlogSlug(article, lang as any)}#article`,
+      '@type': 'BlogPosting',
+      '@id': `${articleUrl}#article`,
       headline: trans.title,
       description: trans.metaDescription,
+      image: {
+        '@type': 'ImageObject',
+        url: 'https://bikehausfreiburg.com/assets/og-image.jpg',
+        width: 1200,
+        height: 630,
+      },
       datePublished: article.date,
-      dateModified: article.date,
+      dateModified: '2026-05-01',
       author: {
         '@type': 'Organization',
         name: 'Bike Haus Freiburg',
         url: 'https://bikehausfreiburg.com',
+        '@id': 'https://bikehausfreiburg.com/#organization',
       },
       publisher: {
         '@type': 'Organization',
         name: 'Bike Haus Freiburg',
         url: 'https://bikehausfreiburg.com',
+        '@id': 'https://bikehausfreiburg.com/#organization',
         logo: {
           '@type': 'ImageObject',
           url: 'https://bikehausfreiburg.com/assets/logo.svg',
+          width: 200,
+          height: 60,
         },
       },
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': `https://bikehausfreiburg.com/${lang}/${getBlogBasePath(lang as any)}/${getBlogSlug(article, lang as any)}`,
+        '@id': articleUrl,
+      },
+      isPartOf: {
+        '@type': 'WebSite',
+        '@id': 'https://bikehausfreiburg.com/#website',
       },
       inLanguage: lang,
       articleSection: article.category,
@@ -683,6 +698,19 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
   ): void {
     this.removeSchema(this.breadcrumbSchemaElement);
 
+    const homeNames: Record<string, string> = {
+      de: 'Startseite',
+      en: 'Home',
+      fr: 'Accueil',
+      tr: 'Anasayfa',
+    };
+    const blogListNames: Record<string, string> = {
+      de: 'Ratgeber',
+      en: 'Guide',
+      fr: 'Guide',
+      tr: 'Rehber',
+    };
+
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
@@ -690,14 +718,14 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
         {
           '@type': 'ListItem',
           position: 1,
-          name: 'Startseite',
+          name: homeNames[lang] ?? 'Startseite',
           item: `https://bikehausfreiburg.com/${lang}`,
         },
         {
           '@type': 'ListItem',
           position: 2,
-          name: 'Ratgeber',
-          item: `https://bikehausfreiburg.com/${lang}/ratgeber`,
+          name: blogListNames[lang] ?? 'Ratgeber',
+          item: `https://bikehausfreiburg.com/${lang}/${getBlogBasePath(lang as any)}`,
         },
         {
           '@type': 'ListItem',
