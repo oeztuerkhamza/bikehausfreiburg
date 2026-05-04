@@ -20,8 +20,7 @@ import { environment } from '../../../environments/environment';
           *ngIf="bike.images.length"
           [src]="getImageUrl(bike.images[0].filePath)"
           [alt]="bike.titel + ' — Bike Haus Freiburg'"
-          [attr.loading]="priority ? 'eager' : 'lazy'"
-          [attr.fetchpriority]="priority ? 'high' : 'auto'"
+          loading="lazy"
           width="400"
           height="300"
           (error)="onImageError($event)"
@@ -421,7 +420,6 @@ import { environment } from '../../../environments/environment';
 })
 export class NeueBikeCardComponent {
   @Input({ required: true }) bike!: NeueFahrrad;
-  @Input() priority = false;
 
   private translationService = inject(TranslationService);
   t = this.translationService.translations;

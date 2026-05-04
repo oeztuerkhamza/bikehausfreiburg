@@ -19,8 +19,7 @@ import { TranslationService } from '../../services/translation.service';
           *ngIf="listing.images.length"
           [src]="listing.images[0].imageUrl"
           [alt]="listing.title + t().bikeAltSuffix"
-          [attr.loading]="priority ? 'eager' : 'lazy'"
-          [attr.fetchpriority]="priority ? 'high' : 'auto'"
+          loading="lazy"
           width="400"
           height="300"
           (error)="onImageError($event)"
@@ -347,7 +346,6 @@ import { TranslationService } from '../../services/translation.service';
 })
 export class BikeCardComponent {
   @Input({ required: true }) listing!: KleinanzeigenListing;
-  @Input() priority = false;
 
   private translationService = inject(TranslationService);
   t = this.translationService.translations;

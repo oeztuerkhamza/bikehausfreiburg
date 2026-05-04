@@ -1,10 +1,10 @@
 import {
-    Component,
-    PLATFORM_ID,
-    inject,
-    OnInit,
-    OnDestroy,
-    signal,
+  Component,
+  PLATFORM_ID,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
 } from '@angular/core';
 import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -15,12 +15,12 @@ import { BikeCardComponent } from '../../components/bike-card/bike-card.componen
 import { NeueBikeCardComponent } from '../../components/neue-bike-card/neue-bike-card.component';
 import { environment } from '../../../environments/environment';
 import {
-    KleinanzeigenListing,
-    KleinanzeigenCategory,
-    PublicShopInfo,
-    NeueFahrrad,
-    RepairShowcase,
-    GoogleReview,
+  KleinanzeigenListing,
+  KleinanzeigenCategory,
+  PublicShopInfo,
+  NeueFahrrad,
+  RepairShowcase,
+  GoogleReview,
 } from '../../models/models';
 
 interface Testimonial {
@@ -358,9 +358,8 @@ interface Testimonial {
         </div>
         <div class="bike-grid">
           <app-bike-card
-            *ngFor="let bike of listings().slice(0, 6); index as i"
+            *ngFor="let bike of listings().slice(0, 6)"
             [listing]="bike"
-            [priority]="i === 0"
           ></app-bike-card>
         </div>
       </div>
@@ -399,9 +398,8 @@ interface Testimonial {
         </div>
         <div class="bike-grid">
           <app-neue-bike-card
-            *ngFor="let bike of neueFahrraeder().slice(0, 6); index as i"
+            *ngFor="let bike of neueFahrraeder().slice(0, 6)"
             [bike]="bike"
-            [priority]="i === 0"
           ></app-neue-bike-card>
         </div>
       </div>
