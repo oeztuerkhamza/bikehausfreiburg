@@ -12,15 +12,18 @@ public class PublicRentalsController : ControllerBase
     private readonly IBicycleService _bicycleService;
     private readonly IRentalAccessoryService _rentalAccessoryService;
     private readonly IRentalBookingService _rentalBookingService;
+    private readonly IRentalReviewService _rentalReviewService;
 
     public PublicRentalsController(
         IBicycleService bicycleService,
         IRentalAccessoryService rentalAccessoryService,
-        IRentalBookingService rentalBookingService)
+        IRentalBookingService rentalBookingService,
+        IRentalReviewService rentalReviewService)
     {
         _bicycleService = bicycleService;
         _rentalAccessoryService = rentalAccessoryService;
         _rentalBookingService = rentalBookingService;
+        _rentalReviewService = rentalReviewService;
     }
 
     [HttpGet("bikes")]
@@ -126,6 +129,28 @@ public class PublicRentalsController : ControllerBase
         {
             return Conflict(new { error = ex.Message });
         }
+    }
+
+    // ═══ Rental Reviews (public) ═══
+
+    [HttpGet("reviews")]
+    public async Task<ActionResult<IEnumerable<RentalReviewPublicDto>>> GetReviews()
+    {
+        var reviews = await _rentalReviewService.GetApprovedAsync();
+        return Ok(reviews);
+    }
+
+    [HttpPost("reviews")]
+    public async Task<ActionResult<RentalReviewPublicDto>> CreateReview([FromBody] RentalReviewCreateDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Ad) || string.IsNullOrWhiteSpace(dto.Yorum))
+            return BadRequest(new { error = "Name and comment are required." });
+
+        if (dto.Sterne < 1 || dto.Sterne > 5)
+            return BadRequest(new { error = "Stars must be between 1 and 5." });
+
+        var created = await _rentalReviewService.CreateAsync(dto);
+        return Ok(new RentalReviewPublicDto(created.Id, created.Ad, created.Sterne, created.Yorum, created.CreatedAt));
     }
 }
 

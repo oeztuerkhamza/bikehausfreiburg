@@ -546,7 +546,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     heroH1: 'Fahrräder in Freiburg — neu & gebraucht.',
     heroSub:
-      'Neue und geprüfte Gebrauchträder in Freiburg — fair bewertet, nachhaltig aufbereitet, persönlich beraten.',
+      'Über 100 geprüfte Fahrräder ✓ E-Bike, City & Trekking ✓ Fahrradverleih ab 6,80 €/Tag ✓ 3 Monate Garantie ✓ Sofort fahrbereit — Heckerstraße 27, Freiburg.',
     ctaPrimary: 'Neue Fahrräder entdecken',
     ctaSecondary: 'Showroom ansehen',
 
@@ -1113,7 +1113,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     heroH1: 'Bikes in Freiburg — new & used.',
     heroSub:
-      'New and certified used bikes in Freiburg — fair prices, sustainable refurbishment, personal advice.',
+      'Buy or rent a bike in Freiburg ✓ Inspected used bikes from €80 ✓ Bike rental from €6.80/day ✓ City, Trekking & E-Bikes ✓ Pick up same day.',
     ctaPrimary: 'Discover New Bikes',
     ctaSecondary: 'View Showroom',
 
@@ -1542,9 +1542,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberTitle: 'Bike Guide',
     ratgeberSub:
       'Tips, checklists and everything you need to know about bikes — from your Freiburg bike dealer.',
-    ratgeberMetaTitle: 'Bike Guide — Tips & Knowledge | Bike Haus Freiburg',
+    ratgeberMetaTitle:
+      'Bike Guide Freiburg — Tips, Checklists & Advice | Bike Haus Freiburg',
     ratgeberMetaDescription:
-      'Bike guide: buying used bikes, frame size calculator, e-bike tips and more. Expert knowledge from Bike Haus Freiburg.',
+      'Bike buying guides, rental tips, and cycling routes in Freiburg. Expert advice from your local bike shop — Bike Haus Freiburg.',
     ratgeberReadMore: 'Read more',
     ratgeberReadTime: 'read',
     ratgeberTip: 'Tip from Bike Haus',
@@ -1657,7 +1658,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     heroH1: 'Vélos à Fribourg — neufs & occasion.',
     heroSub:
-      "Vélos neufs et d'occasion certifiés à Fribourg — prix transparents, remise en état durable, conseil personnalisé.",
+      "Achetez ou louez votre vélo à Fribourg-en-Brisgau ✓ Vélos inspectés dès 80 € ✓ Location dès 6,80 €/jour ✓ Retrait immédiat ✓ À 25 km de l'Alsace.",
     ctaPrimary: 'Découvrir les nouveaux vélos',
     ctaSecondary: 'Voir le showroom',
 
@@ -2111,9 +2112,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     ratgeberTitle: 'Guide Vélo',
     ratgeberSub:
       "Conseils, checklists et tout ce qu'il faut savoir sur les vélos — par votre vélociste à Freiburg.",
-    ratgeberMetaTitle: 'Guide Vélo — Conseils & Savoir | Bike Haus Freiburg',
+    ratgeberMetaTitle:
+      'Guide Vélo Fribourg — Conseils & Astuces | Bike Haus Freiburg',
     ratgeberMetaDescription:
-      "Guide vélo : acheter un vélo d'occasion, calculer la taille du cadre, conseils VAE et plus.",
+      "Guides d'achat vélo, conseils location et itinéraires cyclables à Fribourg. Expertise de votre vélociste local — Bike Haus Freiburg.",
     ratgeberReadMore: 'Lire la suite',
     ratgeberReadTime: 'de lecture',
     ratgeberTip: 'Conseil de Bike Haus',

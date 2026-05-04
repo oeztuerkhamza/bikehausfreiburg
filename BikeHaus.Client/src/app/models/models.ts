@@ -823,6 +823,38 @@ export enum RentalBookingStatus {
   Cancelled = 'Cancelled',
 }
 
+// ── Rental Reviews ──
+export interface RentalReview {
+  id: number;
+  ad: string;
+  email?: string;
+  sterne: number;
+  yorum: string;
+  onaylandi: boolean;
+  adminNotiz?: string;
+  createdAt: string;
+}
+
+export interface RentalReviewPublic {
+  id: number;
+  ad: string;
+  sterne: number;
+  yorum: string;
+  createdAt: string;
+}
+
+export interface RentalReviewCreate {
+  ad: string;
+  email?: string;
+  sterne: number;
+  yorum: string;
+}
+
+export interface RentalReviewApprove {
+  onaylandi: boolean;
+  adminNotiz?: string;
+}
+
 export interface RentalAccessory {
   id: number;
   bezeichnung: string;
@@ -905,3 +937,4 @@ export interface RentalBookingApprove {
 export interface RentalBookingCancel {
   adminNotizen?: string;
 }
+

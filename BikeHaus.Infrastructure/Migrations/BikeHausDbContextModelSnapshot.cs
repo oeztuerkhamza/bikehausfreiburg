@@ -1137,6 +1137,49 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("RentalBookingAccessories");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RentalReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Ad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AdminNotiz")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Onaylandi")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Sterne")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Yorum")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Onaylandi");
+
+                    b.ToTable("RentalReviews");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.RepairShowcase", b =>
                 {
                     b.Property<int>("Id")

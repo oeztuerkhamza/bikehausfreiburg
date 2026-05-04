@@ -3,7 +3,12 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
-import { BLOG_ARTICLES, BlogArticle } from '../../services/blog.data';
+import {
+  BLOG_ARTICLES,
+  BlogArticle,
+  getBlogBasePath,
+  getBlogSlug,
+} from '../../services/blog.data';
 
 @Component({
   selector: 'app-ratgeber',
@@ -23,7 +28,11 @@ import { BLOG_ARTICLES, BlogArticle } from '../../services/blog.data';
         <div class="articles-grid">
           @for (article of articles; track article.slug) {
             <a
-              [routerLink]="['/' + lang(), 'ratgeber', article.slug]"
+              [routerLink]="[
+                '/' + lang(),
+                blogBasePath,
+                getArticleSlug(article),
+              ]"
               class="article-card"
             >
               <div class="card-image">
@@ -233,7 +242,11 @@ import { BLOG_ARTICLES, BlogArticle } from '../../services/blog.data';
 
       .ratgeber-page {
         background:
-          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          radial-gradient(
+            circle at top,
+            rgba(255, 87, 34, 0.08),
+            transparent 30%
+          ),
           linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
           var(--color-bg);
       }
@@ -269,7 +282,11 @@ import { BLOG_ARTICLES, BlogArticle } from '../../services/blog.data';
       .article-card {
         border-radius: 22px;
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface, #111);
         border-color: rgba(255, 255, 255, 0.08);
         box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
@@ -307,10 +324,19 @@ export class RatgeberComponent implements OnInit {
   lang = this.translationService.currentLanguage;
   articles = BLOG_ARTICLES;
 
+  get blogBasePath(): string {
+    return getBlogBasePath(this.lang() as any);
+  }
+
+  getArticleSlug(article: BlogArticle): string {
+    return getBlogSlug(article, this.lang() as any);
+  }
+
   ngOnInit(): void {
     const t = this.t();
     const lang = this.lang();
-    const url = `https://bikehausfreiburg.com/${lang}/ratgeber`;
+    const basePath = getBlogBasePath(lang as any);
+    const url = `https://bikehausfreiburg.com/${lang}/${basePath}`;
 
     this.titleService.setTitle(t.ratgeberMetaTitle);
     this.metaService.updateTag({

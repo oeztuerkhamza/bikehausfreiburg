@@ -317,5 +317,13 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'rental-reviews',
+    loadComponent: () =>
+      import('./pages/rental-reviews/rental-review-list.component').then(
+        (m) => m.RentalReviewListComponent,
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];

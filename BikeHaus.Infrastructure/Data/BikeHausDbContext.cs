@@ -39,6 +39,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<RenovationCost> RenovationCosts => Set<RenovationCost>();
     public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
     public DbSet<EmailLog> EmailLogs => Set<EmailLog>();
+    public DbSet<RentalReview> RentalReviews => Set<RentalReview>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -545,6 +546,17 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
             entity.Property(e => e.ErrorMessage).HasMaxLength(2000);
             entity.Property(e => e.EmailType).HasMaxLength(100);
+        });
+
+        // ── RentalReview Configuration ──
+        modelBuilder.Entity<RentalReview>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Ad).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Email).HasMaxLength(200);
+            entity.Property(e => e.Yorum).IsRequired().HasMaxLength(2000);
+            entity.Property(e => e.AdminNotiz).HasMaxLength(500);
+            entity.HasIndex(e => e.Onaylandi);
         });
 
         // ── RentalAccessoryItem Configuration ──

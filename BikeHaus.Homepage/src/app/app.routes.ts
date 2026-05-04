@@ -121,6 +121,21 @@ export const routes: Routes = [
             (m) => m.RatgeberDetailComponent,
           ),
       },
+      // EN/FR alias: /en/guide/:slug, /fr/guide/:slug
+      {
+        path: 'guide',
+        loadComponent: () =>
+          import('./pages/ratgeber/ratgeber.component').then(
+            (m) => m.RatgeberComponent,
+          ),
+      },
+      {
+        path: 'guide/:slug',
+        loadComponent: () =>
+          import('./pages/ratgeber-detail/ratgeber-detail.component').then(
+            (m) => m.RatgeberDetailComponent,
+          ),
+      },
       {
         path: 'faq',
         loadComponent: () =>

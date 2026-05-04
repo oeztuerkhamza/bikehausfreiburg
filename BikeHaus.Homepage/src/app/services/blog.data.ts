@@ -2,6 +2,7 @@ import { Language } from './translation.service';
 
 export interface BlogArticle {
   slug: string;
+  slugTranslations?: Partial<Record<Language, string>>;
   coverImage: string;
   date: string;
   readingTime: number;
@@ -9,6 +10,26 @@ export interface BlogArticle {
   tags: string[];
   relatedSlugs: string[];
   translations: Record<Language, BlogArticleTranslation>;
+}
+
+/** Returns the URL slug for the given language */
+export function getBlogSlug(article: BlogArticle, lang: Language): string {
+  return article.slugTranslations?.[lang] ?? article.slug;
+}
+
+/** Returns the URL path segment for blog listing per language */
+export function getBlogBasePath(lang: Language): string {
+  return lang === 'de' || lang === 'tr' ? 'ratgeber' : 'guide';
+}
+
+/** Finds an article by the slug for the given language */
+export function findArticleBySlug(
+  slug: string,
+  lang: Language,
+): BlogArticle | undefined {
+  return BLOG_ARTICLES.find(
+    (a) => a.slug === slug || a.slugTranslations?.[lang] === slug,
+  );
 }
 
 export interface BlogArticleTranslation {
@@ -32,6 +53,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   // ─── Article 1: Gebrauchtes Fahrrad kaufen ───
   {
     slug: 'gebrauchtes-fahrrad-kaufen-tipps',
+    slugTranslations: {
+      en: 'buying-used-bike-freiburg-tips',
+      fr: 'acheter-velo-occasion-fribourg-conseils',
+    },
     coverImage: 'assets/blog/gebrauchtes-fahrrad.jpg',
     date: '2026-04-12',
     readingTime: 8,
@@ -210,6 +235,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   // ─── Article 2: Welches Fahrrad passt zu mir? ───
   {
     slug: 'welches-fahrrad-passt-zu-mir',
+    slugTranslations: {
+      en: 'which-bike-is-right-for-me',
+      fr: 'quel-velo-me-convient',
+    },
     coverImage: 'assets/blog/welches-fahrrad.jpg',
     date: '2026-04-12',
     readingTime: 10,
@@ -387,6 +416,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   // ─── Article 3: Fahrrad Rahmengröße berechnen ───
   {
     slug: 'fahrrad-rahmengroesse-berechnen',
+    slugTranslations: {
+      en: 'bike-frame-size-calculator-guide',
+      fr: 'calculer-taille-cadre-velo',
+    },
     coverImage: 'assets/blog/rahmengroesse.jpg',
     date: '2026-04-12',
     readingTime: 6,
@@ -551,6 +584,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   // ─── Article 4: E-Bike gebraucht kaufen ───
   {
     slug: 'e-bike-gebraucht-kaufen',
+    slugTranslations: {
+      en: 'buying-used-e-bike-guide',
+      fr: 'acheter-velo-electrique-occasion',
+    },
     coverImage: 'assets/blog/ebike-gebraucht.jpg',
     date: '2026-04-12',
     readingTime: 7,
@@ -700,6 +737,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   // ─── Article 5: Fahrradladen Freiburg ───
   {
     slug: 'fahrradladen-freiburg',
+    slugTranslations: {
+      en: 'bike-shop-freiburg',
+      fr: 'magasin-velo-fribourg',
+    },
     coverImage: 'assets/blog/fahrradladen-freiburg.jpg',
     date: '2026-04-12',
     readingTime: 5,
@@ -868,6 +909,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   // ─── Article 6: Kinderfahrrad Größe ───
   {
     slug: 'kinderfahrrad-groesse',
+    slugTranslations: {
+      en: 'childrens-bike-size-guide',
+      fr: 'taille-velo-enfant-guide',
+    },
     coverImage: 'assets/blog/kinderfahrrad-groesse.jpg',
     date: '2026-04-12',
     readingTime: 7,
@@ -1061,6 +1106,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   // ─── Article 7: Fahrrad Inspektion — Kosten & Ablauf ───
   {
     slug: 'fahrrad-inspektion-kosten',
+    slugTranslations: {
+      en: 'bike-inspection-cost-freiburg',
+      fr: 'revision-velo-cout-fribourg',
+    },
     coverImage: 'assets/blog/fahrrad-inspektion.jpg',
     date: '2026-04-12',
     readingTime: 6,
@@ -1260,6 +1309,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
   // ─── Article 8: Fahrrad für Pendler — Die besten Stadträder ───
   {
     slug: 'fahrrad-pendler-stadtraeder',
+    slugTranslations: {
+      en: 'commuter-bike-freiburg-guide',
+      fr: 'velo-pendulaire-fribourg-guide',
+    },
     coverImage: 'assets/blog/fahrrad-pendler.jpg',
     date: '2026-04-12',
     readingTime: 7,
@@ -1462,6 +1515,707 @@ export const BLOG_ARTICLES: BlogArticle[] = [
             content: "Showroom'daki işe gidiş bisikletlerini görüntüle",
             link: '/showroom',
             linkText: "Showroom'a Git",
+          },
+        ],
+      },
+    },
+  },
+
+  // ─── Article 9: Bike Rental Freiburg (EN-first) ───
+  {
+    slug: 'bike-rental-freiburg-guide',
+    slugTranslations: {
+      en: 'bike-rental-freiburg-guide',
+      fr: 'location-velo-fribourg-guide',
+      de: 'fahrradverleih-freiburg-guide',
+    },
+    coverImage: 'assets/blog/fahrradverleih.jpg',
+    date: '2026-05-01',
+    readingTime: 7,
+    category: 'rental',
+    tags: [
+      'bike rental freiburg',
+      'rent a bike freiburg',
+      'bicycle hire freiburg',
+      'location vélo Fribourg',
+    ],
+    relatedSlugs: ['fahrradladen-freiburg', 'welches-fahrrad-passt-zu-mir'],
+    translations: {
+      de: {
+        title: 'Fahrrad mieten in Freiburg — Preise, Tipps & Buchung 2026',
+        metaTitle:
+          'Fahrrad mieten Freiburg 2026 — ab 6,80 €/Tag | Bike Haus Freiburg',
+        metaDescription:
+          'Fahrrad mieten in Freiburg ✓ Cityrad, Trekking & E-Bike ✓ Ab 6,80 €/Tag ✓ Schloss & Helm inklusive ✓ Sofort abholen ✓ Kein Vorausbezahlen. Bike Haus Freiburg.',
+        excerpt:
+          'Fahrrad mieten in Freiburg: faire Preise, sofort verfügbar, ohne versteckte Kosten. Alles was Sie wissen müssen.',
+        tldr: 'Bike Haus Freiburg vermietet Fahrräder ab 6,80 €/Tag. 1 Tag: 12 €, 7 Tage: 55 €, 30 Tage: 160 €. Schloss & Helm inklusive. Kaution: 300 € bar. Heckerstraße 27, 79114 Freiburg.',
+        sections: [
+          {
+            type: 'heading',
+            content: "Fahrrad mieten in Freiburg — So einfach geht's",
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Bike Haus Freiburg bietet Fahrradverleih zu fairen Preisen ohne versteckte Kosten. Kommen Sie einfach in der Heckerstraße 27 vorbei, wählen Sie Ihr Fahrrad und fahren Sie los.',
+          },
+          {
+            type: 'heading',
+            content: 'Preisübersicht Fahrradverleih Freiburg',
+          },
+          {
+            type: 'list',
+            items: [
+              '1 Tag: 12 €',
+              '3 Tage: 30 €',
+              '7 Tage: 55 €',
+              '14 Tage: 95 €',
+              '30 Tage: 160 €',
+              'Ab 10 Tagen: 6,50 €/Tag',
+            ],
+          },
+          { type: 'heading', content: 'Was ist inklusive?' },
+          {
+            type: 'list',
+            items: [
+              'Faltschloss',
+              'Fahrradkorb',
+              'Haftpflichtversicherung nicht inbegriffen (empfohlen)',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              'Tipp: Buchen Sie mindestens 7 Tage — so bezahlen Sie nur 7,85 €/Tag statt 12 €. Ideal für Urlauber und Touristen.',
+          },
+          { type: 'heading', content: 'Öffnungszeiten für Fahrradverleih' },
+          {
+            type: 'list',
+            items: [
+              'Mo, Di, Do: 11:00–17:30',
+              'Mittwoch: 14:00–17:30',
+              'Freitag: 11:00–13:00 & 15:00–18:00',
+              'Samstag: 11:30–17:00',
+            ],
+          },
+          {
+            type: 'cta',
+            content: 'Jetzt Fahrrad reservieren',
+            link: '/fahrradverleih',
+            linkText: 'Zur Reservierung',
+          },
+        ],
+      },
+      en: {
+        title: 'Bike Rental Freiburg — Prices, Tips & Booking 2026',
+        metaTitle:
+          'Bike Rental Freiburg 2026 — from €6.80/day | Bike Haus Freiburg',
+        metaDescription:
+          'Rent a bike in Freiburg ✓ City, Trekking & E-Bikes ✓ From €6.80/day ✓ Lock & helmet included ✓ Same-day pickup ✓ No prepayment. Bike Haus Freiburg.',
+        excerpt:
+          'Everything you need to know about bike rental in Freiburg: prices, pickup, included equipment and tips for exploring the city.',
+        tldr: 'Bike Haus Freiburg rents bikes from €6.80/day. 1 day: €12, 7 days: €55, 30 days: €160. Lock & helmet included. Deposit: €300 cash. Located at Heckerstraße 27, 79114 Freiburg.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Bike Rental in Freiburg — How It Works',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Bike Haus Freiburg offers bike rental at fair prices with no hidden costs. Just come to Heckerstraße 27, choose your bike and ride off. No reservation required for walk-ins — we have city bikes, trekking bikes and e-bikes ready to go.',
+          },
+          { type: 'heading', content: 'Bike Rental Prices in Freiburg' },
+          {
+            type: 'list',
+            items: [
+              '1 day: €12',
+              '3 days: €30',
+              '7 days: €55',
+              '14 days: €95',
+              '30 days: €160',
+              'From 10 days: €6.50/day',
+            ],
+          },
+          { type: 'heading', content: "What's included?" },
+          {
+            type: 'list',
+            items: [
+              'Folding lock',
+              'Bicycle basket',
+              'Deposit: €300 cash (fully refunded on return)',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              'Tourist tip: Book for 7 days to pay just €7.85/day — much cheaper than most rental shops in Freiburg city center. Perfect for exploring the Black Forest by bike.',
+          },
+          {
+            type: 'heading',
+            content: 'Where to pick up your rental bike in Freiburg',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Bike Haus Freiburg is located at Heckerstraße 27, 79114 Freiburg im Breisgau — in the Haslach district. Easily reachable by tram or car (free parking available). Opening hours: Mon, Tue, Thu 11:00–17:30 | Wed 14:00–17:30 | Fri 11:00–13:00 & 15:00–18:00 | Sat 11:30–17:00.',
+          },
+          {
+            type: 'heading',
+            content: 'Frequently Asked Questions — Bike Rental Freiburg',
+          },
+          {
+            type: 'list',
+            items: [
+              'Do I need to book in advance? No reservation needed — just walk in during opening hours.',
+              'Can I rent an e-bike? Yes, subject to availability. Contact us via WhatsApp to check.',
+              'Is there a helmet included? Yes, helmets are available free of charge.',
+              'What if I return the bike late? A late fee of €12 per started day is charged.',
+              'Can I rent for just a few hours? Minimum rental period is 1 day.',
+            ],
+          },
+          {
+            type: 'cta',
+            content: 'Book your rental bike now',
+            link: '/fahrradverleih',
+            linkText: 'Reserve a Bike',
+          },
+        ],
+      },
+      fr: {
+        title:
+          'Location de vélos à Fribourg — Tarifs, Conseils & Réservation 2026',
+        metaTitle:
+          'Location vélo Fribourg 2026 — dès 6,80 €/jour | Bike Haus Freiburg',
+        metaDescription:
+          "Louer un vélo à Fribourg-en-Brisgau ✓ Ville, VTC & VAE ✓ Dès 6,80 €/jour ✓ Cadenas & casque inclus ✓ Retrait immédiat ✓ À 25 km de l'Alsace. Bike Haus Freiburg.",
+        excerpt:
+          'Tout ce que vous devez savoir sur la location de vélos à Fribourg : tarifs, retrait, équipement inclus et conseils pour explorer la ville.',
+        tldr: 'Bike Haus Freiburg loue des vélos à partir de 6,80 €/jour. 1 jour : 12 €, 7 jours : 55 €, 30 jours : 160 €. Cadenas & casque inclus. Caution : 300 € en espèces. Heckerstraße 27, 79114 Fribourg.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Location de vélos à Fribourg — Comment ça marche',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Bike Haus Freiburg propose la location de vélos à des prix transparents, sans frais cachés. Venez simplement au Heckerstraße 27, choisissez votre vélo et partez. Pas de réservation obligatoire — vélos de ville, VTC et VAE disponibles immédiatement.',
+          },
+          { type: 'heading', content: 'Tarifs location vélo Fribourg' },
+          {
+            type: 'list',
+            items: [
+              '1 jour : 12 €',
+              '3 jours : 30 €',
+              '7 jours : 55 €',
+              '14 jours : 95 €',
+              '30 jours : 160 €',
+              'À partir de 10 jours : 6,50 €/jour',
+            ],
+          },
+          { type: 'heading', content: "Qu'est-ce qui est inclus ?" },
+          {
+            type: 'list',
+            items: [
+              'Cadenas pliable',
+              'Panier vélo',
+              'Caution : 300 € en espèces (intégralement remboursée au retour)',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              'Conseil pour les visiteurs alsaciens : Fribourg est à seulement 25 km de la frontière française. Louez un vélo chez nous et découvrez les pistes cyclables le long du Rhin, la Forêt-Noire ou le centre historique de Fribourg.',
+          },
+          {
+            type: 'heading',
+            content: 'Où récupérer votre vélo de location à Fribourg',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Bike Haus Freiburg se trouve au Heckerstraße 27, 79114 Fribourg-en-Brisgau, dans le quartier Haslach. Facilement accessible en tramway ou en voiture (parking gratuit). Horaires : lun, mar, jeu 11h00–17h30 | mer 14h00–17h30 | ven 11h00–13h00 & 15h00–18h00 | sam 11h30–17h00.',
+          },
+          { type: 'heading', content: 'FAQ — Location vélo Fribourg' },
+          {
+            type: 'list',
+            items: [
+              "Faut-il réserver à l'avance ? Non, venez simplement pendant les heures d'ouverture.",
+              'Peut-on louer un VAE (vélo électrique) ? Oui, sous réserve de disponibilité. Contactez-nous via WhatsApp.',
+              'Le casque est-il inclus ? Oui, casques disponibles gratuitement.',
+              "Que se passe-t-il si je rends le vélo en retard ? Des frais de 12 € par jour entamé s'appliquent.",
+            ],
+          },
+          {
+            type: 'cta',
+            content: 'Réserver votre vélo maintenant',
+            link: '/fahrradverleih',
+            linkText: 'Réserver un vélo',
+          },
+        ],
+      },
+      tr: {
+        title: "Freiburg'da Bisiklet Kiralama — Fiyatlar & Rezervasyon 2026",
+        metaTitle:
+          'Freiburg Bisiklet Kiralama 2026 — 6,80 €/günden | Bike Haus Freiburg',
+        metaDescription:
+          "Freiburg'da bisiklet kiralayın ✓ Şehir, trekking & e-bisiklet ✓ 6,80 €/günden ✓ Kilit & kask dahil ✓ Aynı gün teslim ✓ Bike Haus Freiburg.",
+        excerpt:
+          "Freiburg'da bisiklet kiralama hakkında bilmeniz gereken her şey: fiyatlar, teslim, dahil ekipman ve ipuçları.",
+        tldr: 'Bike Haus Freiburg 6,80 €/günden bisiklet kiralar. 1 gün: 12 €, 7 gün: 55 €, 30 gün: 160 €. Kilit & kask dahil. Depozito: 300 € nakit. Heckerstraße 27, 79114 Freiburg.',
+        sections: [
+          {
+            type: 'heading',
+            content: "Freiburg'da Bisiklet Kiralama — Nasıl Çalışır",
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Bike Haus Freiburg gizli masraf olmadan uygun fiyatlarla bisiklet kiralar. Heckerstraße 27'ye gelin, bisikletinizi seçin ve yola çıkın.",
+          },
+          {
+            type: 'cta',
+            content: 'Şimdi bisiklet rezervasyonu yapın',
+            link: '/fahrradverleih',
+            linkText: 'Rezervasyon',
+          },
+        ],
+      },
+    },
+  },
+
+  // ─── Article 10: Buy Used Bike Freiburg Expat Guide (EN-first) ───
+  {
+    slug: 'buy-used-bike-freiburg-expat',
+    slugTranslations: {
+      en: 'buy-used-bike-freiburg-expat',
+      fr: 'acheter-velo-occasion-fribourg-guide',
+      de: 'gebrauchtes-fahrrad-kaufen-freiburg-expat',
+    },
+    coverImage: 'assets/blog/gebrauchtes-fahrrad.jpg',
+    date: '2026-05-01',
+    readingTime: 6,
+    category: 'guide',
+    tags: [
+      'buy used bike freiburg',
+      'second hand bike freiburg',
+      'used bicycle freiburg',
+      'expat freiburg bike',
+      'acheter vélo Fribourg',
+    ],
+    relatedSlugs: [
+      'gebrauchtes-fahrrad-kaufen-tipps',
+      'bike-rental-freiburg-guide',
+    ],
+    translations: {
+      de: {
+        title:
+          'Gebrauchtes Fahrrad kaufen in Freiburg — Expat & Studenten Guide',
+        metaTitle:
+          'Gebrauchtes Fahrrad Freiburg kaufen — Expat Guide | Bike Haus Freiburg',
+        metaDescription:
+          'Gebrauchtes Fahrrad in Freiburg kaufen als Expat oder Student ✓ Über 100 Räder ✓ Ab 80 € ✓ 3 Monate Garantie ✓ Persönliche Beratung auf Englisch. Bike Haus Freiburg.',
+        excerpt:
+          'Als Expat oder Student in Freiburg? So finden Sie schnell und sicher ein gebrauchtes Fahrrad.',
+        tldr: 'Bike Haus Freiburg bietet über 100 geprüfte neue und gebrauchte Fahrräder ab 80 €. Englischsprachige Beratung möglich. 3 Monate Garantie. Heckerstraße 27.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Als Expat in Freiburg: Warum ein Fahrrad?',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Freiburg hat über 420 km Radwege — eines der besten Fahrradnetze Deutschlands. Als Expat oder Student ist ein Fahrrad das günstigste und schnellste Fortbewegungsmittel.',
+          },
+          {
+            type: 'cta',
+            content: 'Zum Showroom',
+            link: '/showroom',
+            linkText: 'Fahrräder ansehen',
+          },
+        ],
+      },
+      en: {
+        title: 'Buy a Used Bike in Freiburg — Expat & Student Guide 2026',
+        metaTitle:
+          'Buy Used Bike Freiburg — Expat & Student Guide | Bike Haus Freiburg',
+        metaDescription:
+          'Buy a used or new bike in Freiburg ✓ 100+ bikes in stock ✓ From €80 ✓ 3-month warranty ✓ English-speaking staff ✓ Test ride available. Bike Haus Freiburg.',
+        excerpt:
+          'Moving to Freiburg? This guide covers everything expats and students need to know about buying a used or new bike in Freiburg — without the headache.',
+        tldr: 'Bike Haus Freiburg has 100+ inspected bikes from €80. English-speaking staff available. 3-month warranty on used bikes, 24-month on new. Free test rides. Located at Heckerstraße 27, Freiburg.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Why Every Expat in Freiburg Needs a Bike',
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Freiburg has over 420 km of cycling paths — one of Germany's best cycling networks. As an expat or student, a bike is the fastest and cheapest way to get around the city, reach the university, or explore the Black Forest on weekends.",
+          },
+          { type: 'heading', content: 'Where to Buy a Used Bike in Freiburg' },
+          {
+            type: 'paragraph',
+            content:
+              'Bike Haus Freiburg at Heckerstraße 27 is the go-to shop for English-speaking residents. We carry 100+ new and used bikes, all technically inspected. English spoken — no appointment needed, just walk in.',
+          },
+          { type: 'heading', content: 'Used Bike Prices in Freiburg' },
+          {
+            type: 'list',
+            items: [
+              'Budget city bikes: from €80–€200',
+              'Quality trekking bikes: €200–€500',
+              'Used e-bikes: from €800',
+              'New bikes with 2-year warranty: from €350',
+            ],
+          },
+          { type: 'heading', content: 'Warranty & Returns' },
+          {
+            type: 'paragraph',
+            content:
+              'All used bikes come with a 3-month warranty covering chain, gears, dynamo, pedals and hydraulic brakes. 3-day return policy. New bikes carry a 24-month warranty.',
+          },
+          {
+            type: 'heading',
+            content: 'What to Bring When Buying a Bike in Germany',
+          },
+          {
+            type: 'list',
+            items: [
+              'ID or passport (for purchase contract)',
+              'Payment: cash, debit card, PayPal, or bank transfer accepted',
+              'No German bank account needed — cash is fine',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              'Tip: Freiburg is very flat in the city center but has hills heading toward the Black Forest. A trekking bike or e-bike is ideal if you live in districts like Günterstal, Kappel or Gundelfingen.',
+          },
+          {
+            type: 'heading',
+            content: 'FAQ — Buying a Bike in Freiburg as an Expat',
+          },
+          {
+            type: 'list',
+            items: [
+              "Do I need to register a bike in Germany? No, bikes don't need to be registered. But we recommend a frame number sticker for theft protection.",
+              'Is there a bike lock included? Locks are sold separately from €15. We have a great selection in-store.',
+              'Can I pay in cash? Yes. We also accept EC card, PayPal, and bank transfer.',
+              'Do you speak English? Yes — our staff can assist you in English.',
+            ],
+          },
+          {
+            type: 'cta',
+            content: 'Browse our bike showroom',
+            link: '/showroom',
+            linkText: 'View All Bikes',
+          },
+        ],
+      },
+      fr: {
+        title: 'Acheter un vélo à Fribourg — Guide pour francophones 2026',
+        metaTitle:
+          'Acheter vélo Fribourg — Guide complet 2026 | Bike Haus Freiburg',
+        metaDescription:
+          "Acheter un vélo neuf ou d'occasion à Fribourg-en-Brisgau ✓ 100+ vélos en stock ✓ Dès 80 € ✓ 3 mois de garantie ✓ Conseils en français. Bike Haus Freiburg.",
+        excerpt:
+          'Vous habitez ou visitez Fribourg ? Ce guide vous explique tout ce que les francophones doivent savoir pour acheter un vélo à Fribourg, sans complication.',
+        tldr: "Bike Haus Freiburg propose 100+ vélos inspectés dès 80 €. Garantie 3 mois sur les vélos d'occasion, 24 mois sur les neufs. Essais gratuits. Heckerstraße 27, Fribourg. À 25 km de l'Alsace.",
+        sections: [
+          { type: 'heading', content: 'Pourquoi acheter un vélo à Fribourg ?' },
+          {
+            type: 'paragraph',
+            content:
+              "Fribourg-en-Brisgau est l'une des villes les plus cyclables d'Allemagne, avec plus de 420 km de pistes cyclables. Que vous soyez alsacien, étudiant Erasmus ou résident francophone, un vélo est le moyen le plus pratique et économique pour vous déplacer.",
+          },
+          { type: 'heading', content: 'Où acheter un vélo à Fribourg ?' },
+          {
+            type: 'paragraph',
+            content:
+              "Bike Haus Freiburg, au Heckerstraße 27, est le magasin de référence pour les francophones à Fribourg. Nous disposons de 100+ vélos neufs et d'occasion, tous contrôlés techniquement. Pas de rendez-vous nécessaire — venez directement.",
+          },
+          { type: 'heading', content: 'Prix des vélos à Fribourg' },
+          {
+            type: 'list',
+            items: [
+              "Vélos de ville d'occasion : dès 80–200 €",
+              'VTC de qualité : 200–500 €',
+              "VAE (vélo électrique) d'occasion : dès 800 €",
+              'Vélos neufs avec garantie 2 ans : dès 350 €',
+            ],
+          },
+          { type: 'heading', content: 'Garantie & retours' },
+          {
+            type: 'paragraph',
+            content:
+              "Tous les vélos d'occasion sont garantis 3 mois (chaîne, vitesses, dynamo, pédales, freins hydrauliques). Droit de retour de 3 jours. Les vélos neufs bénéficient d'une garantie de 24 mois.",
+          },
+          {
+            type: 'tip',
+            content:
+              "Bon à savoir pour les Alsaciens : Fribourg n'est qu'à 25 km de la frontière française. Vous pouvez venir acheter votre vélo le matin et repartir à vélo l'après-midi !",
+          },
+          {
+            type: 'cta',
+            content: 'Voir notre sélection de vélos',
+            link: '/showroom',
+            linkText: 'Showroom',
+          },
+        ],
+      },
+      tr: {
+        title: "Freiburg'da İkinci El Bisiklet Al — Expat & Öğrenci Rehberi",
+        metaTitle:
+          "Freiburg'da İkinci El Bisiklet Alma — Expat Rehberi | Bike Haus Freiburg",
+        metaDescription:
+          "Freiburg'da ikinci el veya yeni bisiklet satın alın ✓ 100+ bisiklet ✓ 80 €'dan ✓ 3 ay garanti ✓ Türkçe konuşan personel. Bike Haus Freiburg.",
+        excerpt:
+          "Freiburg'a yeni mi taşındınız? Expat ve öğrenciler için Freiburg'da bisiklet alma rehberi.",
+        tldr: "Bike Haus Freiburg 80 €'dan 100+ kontrol edilmiş bisiklet sunuyor. İkinci el bisikletlerde 3 ay, yenilerde 24 ay garanti. Ücretsiz deneme sürüşü. Heckerstraße 27.",
+        sections: [
+          { type: 'heading', content: "Freiburg'da Neden Bisiklet?" },
+          {
+            type: 'paragraph',
+            content:
+              "Freiburg'un 420 km'den fazla bisiklet yolu var. Expat veya öğrenci olarak bisiklet en ucuz ve hızlı ulaşım aracıdır.",
+          },
+          {
+            type: 'cta',
+            content: 'Bisikletlere göz at',
+            link: '/showroom',
+            linkText: "Showroom'a Git",
+          },
+        ],
+      },
+    },
+  },
+
+  // ─── Article 11: Cycling in Freiburg — Routes & Rentals (EN-first) ───
+  {
+    slug: 'cycling-freiburg-routes-guide',
+    slugTranslations: {
+      en: 'cycling-freiburg-routes-guide',
+      fr: 'faire-velo-fribourg-itineraires-guide',
+      de: 'radfahren-freiburg-routen-guide',
+    },
+    coverImage: 'assets/blog/fahrradladen-freiburg.jpg',
+    date: '2026-05-01',
+    readingTime: 8,
+    category: 'guide',
+    tags: [
+      'cycling freiburg',
+      'bike routes freiburg',
+      'vélo Fribourg tourisme',
+      'Rhin à Vélo',
+      'schwarzwald radfahren',
+    ],
+    relatedSlugs: [
+      'bike-rental-freiburg-guide',
+      'buy-used-bike-freiburg-expat',
+    ],
+    translations: {
+      de: {
+        title: 'Radfahren in Freiburg — Die besten Routen & Tipps 2026',
+        metaTitle:
+          'Radfahren in Freiburg — Routen, Verleih & Tipps 2026 | Bike Haus Freiburg',
+        metaDescription:
+          'Die besten Fahrradrouten in Freiburg ✓ Schwarzwald, Rhein, Innenstadt ✓ Fahrradverleih ab 6,80 €/Tag ✓ Tipps für Touristen & Einwohner. Bike Haus Freiburg.',
+        excerpt:
+          'Freiburg ist eines der fahrradfreundlichsten Städte Deutschlands. Die besten Routen, Sehenswürdigkeiten und Verleih-Tipps.',
+        tldr: 'Freiburg hat 420+ km Radwege. Top-Routen: Schlossberg (2 km), Dreisam-Radweg (12 km), Rhein-Radweg EV15. Fahrrad mieten bei Bike Haus Freiburg ab 6,80 €/Tag.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Warum Freiburg ideal für Radfahrer ist',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Freiburg wurde mehrfach als fahrradfreundlichste Großstadt Deutschlands ausgezeichnet. Über 420 km Radwege, eine flache Innenstadt und hervorragende Anbindung an Schwarzwald und Rhein machen die Stadt zum Paradies für Radfahrer.',
+          },
+          {
+            type: 'heading',
+            content: 'Die besten Fahrradrouten in und um Freiburg',
+          },
+          {
+            type: 'list',
+            items: [
+              'Schlossberg-Rundtour (2 km): Einfache Tour mit herrlichem Blick über Freiburg.',
+              'Dreisam-Radweg (12 km): Entspannt entlang des Flusses nach Kirchzarten.',
+              'Rhein-Radweg EV15 (beliebig): Flaches Fahren entlang des Rheins Richtung Basel oder Breisach.',
+              'Kaiserstuhl-Runde (50 km): Wein, Natur und Aussicht — für Konditionierte.',
+              'Schwarzwald-Einstieg: Von Freiburg nach Staufen oder ins Münstertal.',
+            ],
+          },
+          {
+            type: 'cta',
+            content: 'Fahrrad für Ihre Tour mieten',
+            link: '/fahrradverleih',
+            linkText: 'Zum Verleih',
+          },
+        ],
+      },
+      en: {
+        title: 'Cycling in Freiburg — Best Routes, Rentals & Tips 2026',
+        metaTitle:
+          'Cycling in Freiburg 2026 — Routes, Bike Rental & Tips | Bike Haus Freiburg',
+        metaDescription:
+          'Best cycling routes in Freiburg ✓ Black Forest, Rhine, City ✓ Bike rental from €6.80/day ✓ Tips for tourists & residents. Your guide to cycling in Freiburg.',
+        excerpt:
+          "Freiburg is one of Germany's most bike-friendly cities. Discover the best cycling routes, how to rent a bike, and everything you need to explore the city on two wheels.",
+        tldr: 'Freiburg has 420+ km of cycling paths. Top routes: Schlossberg viewpoint (2 km), Dreisam river path (12 km), Rhine Cycle Route EV15. Rent a bike from Bike Haus Freiburg from €6.80/day.',
+        sections: [
+          {
+            type: 'heading',
+            content: "Why Freiburg is Germany's Best Cycling City",
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Freiburg has won the title of Germany's most bike-friendly city multiple times. With 420+ km of cycle paths, a flat city center, and stunning access to the Black Forest and Rhine, it's a paradise for cyclists of all levels.",
+          },
+          {
+            type: 'heading',
+            content: 'Best Cycling Routes in and around Freiburg',
+          },
+          {
+            type: 'list',
+            items: [
+              "Schlossberg Loop (2 km): Easy ride with a spectacular view over Freiburg's old town.",
+              'Dreisam River Path (12 km): Relaxed cycling along the river toward Kirchzarten.',
+              'Rhine Cycle Route EV15 (unlimited): Flat cycling along the Rhine toward Basel or Breisach.',
+              'Kaiserstuhl Circuit (50 km): Wine country, nature and views — for experienced cyclists.',
+              'Black Forest entry routes: From Freiburg toward Staufen or the Münstertal valley.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'How to Rent a Bike in Freiburg for Your Route',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Bike Haus Freiburg at Heckerstraße 27 is the ideal starting point for your cycling adventure. We offer city bikes, trekking bikes and e-bikes for rent from €6.80/day. Lock and basket included. No reservation required.',
+          },
+          { type: 'heading', content: 'Cycling Tips for Tourists in Freiburg' },
+          {
+            type: 'list',
+            items: [
+              'Helmets are not legally required but strongly recommended.',
+              'Most city routes are flat — a standard city bike is sufficient.',
+              'For Black Forest trails, consider a trekking bike or e-bike.',
+              'The Rhine Cycle Route (EV15) passes just 20 minutes from Freiburg.',
+              'Freiburg has excellent bike parking at the main train station (Fahrradstation).',
+            ],
+          },
+          {
+            type: 'tip',
+            content:
+              "Pro tip: The EuroVelo 15 (Rhine Cycle Route) is one of Europe's most scenic cycling routes. Pick up your bike at Bike Haus Freiburg and join the route at Breisach or Neuenburg — just 20–30 minutes away.",
+          },
+          {
+            type: 'cta',
+            content: 'Rent a bike for your Freiburg adventure',
+            link: '/fahrradverleih',
+            linkText: 'Rent a Bike',
+          },
+        ],
+      },
+      fr: {
+        title:
+          'Faire du vélo à Fribourg — Itinéraires, Location & Conseils 2026',
+        metaTitle:
+          'Vélo à Fribourg 2026 — Itinéraires, Location & Conseils | Bike Haus Freiburg',
+        metaDescription:
+          "Les meilleurs itinéraires vélo à Fribourg ✓ Forêt-Noire, Rhin, Centre-ville ✓ Location dès 6,80 €/jour ✓ Rhin à Vélo ✓ À 25 km de l'Alsace. Bike Haus Freiburg.",
+        excerpt:
+          "Fribourg-en-Brisgau est l'une des villes les plus cyclables d'Allemagne. Découvrez les meilleurs itinéraires, comment louer un vélo et tout ce qu'il faut savoir pour explorer la région à deux roues.",
+        tldr: 'Fribourg compte 420+ km de pistes cyclables. Itinéraires phares : tour du Schlossberg (2 km), piste cyclable de la Dreisam (12 km), Rhin à Vélo EV15. Location vélo chez Bike Haus Freiburg dès 6,80 €/jour.',
+        sections: [
+          {
+            type: 'heading',
+            content: 'Pourquoi Fribourg est la capitale allemande du vélo',
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Fribourg-en-Brisgau est régulièrement élue ville la plus cyclable d'Allemagne. Avec plus de 420 km de pistes cyclables, un centre-ville plat et un accès exceptionnel à la Forêt-Noire et au Rhin, c'est un paradis pour les cyclistes.",
+          },
+          {
+            type: 'heading',
+            content: 'Les meilleurs itinéraires vélo à Fribourg',
+          },
+          {
+            type: 'list',
+            items: [
+              'Tour du Schlossberg (2 km) : Balade facile avec une vue spectaculaire sur la vieille ville.',
+              'Piste cyclable de la Dreisam (12 km) : Balade tranquille le long de la rivière vers Kirchzarten.',
+              'Rhin à Vélo EV15 : Cyclisme à plat le long du Rhin vers Bâle ou Breisach.',
+              'Circuit du Kaiserstuhl (50 km) : Vignobles, nature et panoramas.',
+              'Accès à la Forêt-Noire : De Fribourg vers Staufen ou la vallée de Münster.',
+            ],
+          },
+          {
+            type: 'heading',
+            content: 'Comment louer un vélo à Fribourg pour votre itinéraire',
+          },
+          {
+            type: 'paragraph',
+            content:
+              'Bike Haus Freiburg au Heckerstraße 27 est le point de départ idéal pour votre aventure cycliste. Nous proposons des vélos de ville, VTC et VAE en location dès 6,80 €/jour. Cadenas et panier inclus. Pas de réservation obligatoire.',
+          },
+          {
+            type: 'heading',
+            content:
+              'Le Rhin à Vélo depuis Fribourg — Conseils pour les Alsaciens',
+          },
+          {
+            type: 'paragraph',
+            content:
+              "La piste cyclable EuroVelo 15 (Rhin à Vélo) est l'un des itinéraires les plus beaux d'Europe. Fribourg se trouve à 20 minutes à vélo du Rhin. Partez de chez nous, rejoignez Breisach ou Neuenburg et découvrez l'itinéraire rhénan franco-allemand.",
+          },
+          {
+            type: 'tip',
+            content:
+              "Idéal pour les Alsaciens : Louez votre vélo à Fribourg le matin, faites le Rhin à Vélo jusqu'à Breisach et rentrez en train avec votre vélo (vélos acceptés dans les trains régionaux). Une journée inoubliable !",
+          },
+          {
+            type: 'cta',
+            content: 'Louer un vélo pour votre aventure à Fribourg',
+            link: '/fahrradverleih',
+            linkText: 'Louer un vélo',
+          },
+        ],
+      },
+      tr: {
+        title: "Freiburg'da Bisiklet Rotaları — Kiralama & İpuçları 2026",
+        metaTitle:
+          'Freiburg Bisiklet Rotaları 2026 — Kiralama & Rehber | Bike Haus Freiburg',
+        metaDescription:
+          "Freiburg'da en iyi bisiklet rotaları ✓ Schwarzwald, Ren, Şehir Merkezi ✓ 6,80 €/günden kiralama ✓ Turist ve sakinler için ipuçları.",
+        excerpt:
+          "Freiburg, Almanya'nın en bisiklet dostu şehirlerinden biri. En iyi rotalar, bisiklet kiralama ve iki tekerlekle keşif rehberi.",
+        tldr: "Freiburg 420+ km bisiklet yoluna sahip. En iyi rotalar: Schlossberg (2 km), Dreisam nehir yolu (12 km), Ren Bisiklet Rotası EV15. Bike Haus Freiburg'da 6,80 €/günden kiralama.",
+        sections: [
+          {
+            type: 'heading',
+            content: "Freiburg Neden Almanya'nın En İyi Bisiklet Şehri?",
+          },
+          {
+            type: 'paragraph',
+            content:
+              "Freiburg 420+ km bisiklet yoluyla Almanya'nın en bisiklet dostu şehri unvanını defalarca kazanmıştır.",
+          },
+          {
+            type: 'cta',
+            content: 'Bisiklet kirala',
+            link: '/fahrradverleih',
+            linkText: 'Kiralama Sayfası',
           },
         ],
       },

@@ -747,6 +747,26 @@ export interface Translations {
   mietfahrradToggleRentable: string;
   mietfahrradBasicInfo: string;
   mietfahrradSaveSuccess: string;
+
+  // Rental Reviews
+  rentalReviews: string;
+  rentalReviewTitle: string;
+  rentalReviewAll: string;
+  rentalReviewPending: string;
+  rentalReviewApproved: string;
+  rentalReviewName: string;
+  rentalReviewStars: string;
+  rentalReviewComment: string;
+  rentalReviewDate: string;
+  rentalReviewStatus: string;
+  rentalReviewApprove: string;
+  rentalReviewReject: string;
+  rentalReviewDelete: string;
+  rentalReviewDeleteConfirm: string;
+  rentalReviewNoItems: string;
+  rentalReviewAdminNote: string;
+  rentalReviewSaved: string;
+  rentalReviewDeleted: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -1507,6 +1527,26 @@ const TRANSLATIONS: Record<Language, Translations> = {
     mietfahrradToggleRentable: 'Verleih aktivieren/deaktivieren',
     mietfahrradBasicInfo: 'Grundinformationen',
     mietfahrradSaveSuccess: 'Mietfahrrad gespeichert',
+
+    // Rental Reviews
+    rentalReviews: 'Kundenbewertungen',
+    rentalReviewTitle: 'Bewertungen verwalten',
+    rentalReviewAll: 'Alle',
+    rentalReviewPending: 'Ausstehend',
+    rentalReviewApproved: 'Genehmigt',
+    rentalReviewName: 'Name',
+    rentalReviewStars: 'Sterne',
+    rentalReviewComment: 'Kommentar',
+    rentalReviewDate: 'Datum',
+    rentalReviewStatus: 'Status',
+    rentalReviewApprove: 'Genehmigen',
+    rentalReviewReject: 'Ablehnen',
+    rentalReviewDelete: 'Löschen',
+    rentalReviewDeleteConfirm: 'Bewertung wirklich löschen?',
+    rentalReviewNoItems: 'Keine Bewertungen vorhanden.',
+    rentalReviewAdminNote: 'Admin-Notiz',
+    rentalReviewSaved: 'Bewertung gespeichert',
+    rentalReviewDeleted: 'Bewertung gelöscht',
   },
   tr: {
     // Navigation
@@ -2264,6 +2304,26 @@ const TRANSLATIONS: Record<Language, Translations> = {
     mietfahrradToggleRentable: 'Kiralamayı aç/kapat',
     mietfahrradBasicInfo: 'Temel Bilgiler',
     mietfahrradSaveSuccess: 'Kiralık bisiklet kaydedildi',
+
+    // Rental Reviews
+    rentalReviews: 'Müşteri Yorumları',
+    rentalReviewTitle: 'Yorumları Yönet',
+    rentalReviewAll: 'Tümü',
+    rentalReviewPending: 'Beklemede',
+    rentalReviewApproved: 'Onaylı',
+    rentalReviewName: 'İsim',
+    rentalReviewStars: 'Yıldız',
+    rentalReviewComment: 'Yorum',
+    rentalReviewDate: 'Tarih',
+    rentalReviewStatus: 'Durum',
+    rentalReviewApprove: 'Onayla',
+    rentalReviewReject: 'Reddet',
+    rentalReviewDelete: 'Sil',
+    rentalReviewDeleteConfirm: 'Bu yorum silinsin mi?',
+    rentalReviewNoItems: 'Henüz yorum bulunmuyor.',
+    rentalReviewAdminNote: 'Admin Notu',
+    rentalReviewSaved: 'Yorum kaydedildi',
+    rentalReviewDeleted: 'Yorum silindi',
   },
 };
 

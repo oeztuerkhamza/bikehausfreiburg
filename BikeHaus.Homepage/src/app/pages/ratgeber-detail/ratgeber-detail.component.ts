@@ -1,12 +1,22 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import {
-    BLOG_ARTICLES,
-    BlogArticle,
-    BlogArticleTranslation,
+  BLOG_ARTICLES,
+  BlogArticle,
+  BlogArticleTranslation,
+  findArticleBySlug,
+  getBlogBasePath,
+  getBlogSlug,
 } from '../../services/blog.data';
 
 @Component({
@@ -20,7 +30,9 @@ import {
         <div class="container">
           <a [routerLink]="['/' + lang()]">{{ t().home }}</a>
           <span class="sep">/</span>
-          <a [routerLink]="['/' + lang(), 'ratgeber']">{{ t().ratgeberNav }}</a>
+          <a [routerLink]="['/' + lang(), blogBasePath()]">{{
+            t().ratgeberNav
+          }}</a>
           <span class="sep">/</span>
           <span class="current">{{ translation()?.title }}</span>
         </div>
@@ -119,7 +131,11 @@ import {
               <div class="related-grid">
                 @for (rel of relatedArticles(); track rel.slug) {
                   <a
-                    [routerLink]="['/' + lang(), 'ratgeber', rel.slug]"
+                    [routerLink]="[
+                      '/' + lang(),
+                      blogBasePath(),
+                      getRelatedSlug(rel),
+                    ]"
                     class="related-card"
                   >
                     <span class="related-category">{{ rel.category }}</span>
@@ -441,7 +457,11 @@ import {
 
       .article-page {
         background:
-          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 30%),
+          radial-gradient(
+            circle at top,
+            rgba(255, 87, 34, 0.08),
+            transparent 30%
+          ),
           linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 22%),
           var(--color-bg);
       }
@@ -477,7 +497,11 @@ import {
       .cta-box,
       .related-card {
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface, #111);
         border-color: rgba(255, 255, 255, 0.08);
       }
@@ -510,13 +534,20 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
   translation = signal<BlogArticleTranslation | null>(null);
   relatedArticles = signal<BlogArticle[]>([]);
 
+  blogBasePath = computed(() => getBlogBasePath(this.lang() as any));
+
+  getRelatedSlug(article: BlogArticle): string {
+    return getBlogSlug(article, this.lang() as any);
+  }
+
   private articleSchemaElement: HTMLScriptElement | null = null;
   private breadcrumbSchemaElement: HTMLScriptElement | null = null;
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const slug = params.get('slug');
-      const found = BLOG_ARTICLES.find((a) => a.slug === slug);
+      const lang = this.lang();
+      const found = findArticleBySlug(slug ?? '', lang as any);
 
       if (found) {
         this.article.set(found);
@@ -525,8 +556,14 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
         this.translation.set(trans);
 
         // Related articles
-        const related = BLOG_ARTICLES.filter((a) =>
-          found.relatedSlugs.includes(a.slug),
+        const related = BLOG_ARTICLES.filter(
+          (a) =>
+            found.relatedSlugs.includes(a.slug) ||
+            found.relatedSlugs.some(
+              (s) =>
+                a.slugTranslations &&
+                Object.values(a.slugTranslations).includes(s),
+            ),
         );
         this.relatedArticles.set(related);
 
@@ -552,7 +589,9 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
     trans: BlogArticleTranslation,
     lang: string,
   ): void {
-    const url = `https://bikehausfreiburg.com/${lang}/ratgeber/${article.slug}`;
+    const basePath = getBlogBasePath(lang as any);
+    const articleSlug = getBlogSlug(article, lang as any);
+    const url = `https://bikehausfreiburg.com/${lang}/${basePath}/${articleSlug}`;
 
     this.titleService.setTitle(trans.metaTitle);
     this.metaService.updateTag({
@@ -593,7 +632,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'Article',
-      '@id': `https://bikehausfreiburg.com/${lang}/ratgeber/${article.slug}#article`,
+      '@id': `https://bikehausfreiburg.com/${lang}/${getBlogBasePath(lang as any)}/${getBlogSlug(article, lang as any)}#article`,
       headline: trans.title,
       description: trans.metaDescription,
       datePublished: article.date,
@@ -614,7 +653,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
       },
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': `https://bikehausfreiburg.com/${lang}/ratgeber/${article.slug}`,
+        '@id': `https://bikehausfreiburg.com/${lang}/${getBlogBasePath(lang as any)}/${getBlogSlug(article, lang as any)}`,
       },
       inLanguage: lang,
       articleSection: article.category,
@@ -664,7 +703,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
           '@type': 'ListItem',
           position: 3,
           name: trans.title,
-          item: `https://bikehausfreiburg.com/${lang}/ratgeber/${article.slug}`,
+          item: `https://bikehausfreiburg.com/${lang}/${getBlogBasePath(lang as any)}/${getBlogSlug(article, lang as any)}`,
         },
       ],
     };

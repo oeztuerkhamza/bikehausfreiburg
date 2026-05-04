@@ -103,8 +103,8 @@
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/fahrrad-rahmengroesse-berechnen</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-rahmengroesse-berechnen"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/fahrrad-rahmengroesse-berechnen"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/fahrrad-rahmengroesse-berechnen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-frame-size-calculator-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/calculer-taille-cadre-velo"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrrad-rahmengroesse-berechnen"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
@@ -113,8 +113,8 @@
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/e-bike-gebraucht-kaufen</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/e-bike-gebraucht-kaufen"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/e-bike-gebraucht-kaufen"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/e-bike-gebraucht-kaufen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/buying-used-e-bike-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/acheter-velo-electrique-occasion"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/e-bike-gebraucht-kaufen"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
@@ -123,8 +123,8 @@
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/fahrradladen-freiburg</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrradladen-freiburg"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/fahrradladen-freiburg"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/fahrradladen-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-shop-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/magasin-velo-fribourg"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrradladen-freiburg"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
@@ -133,8 +133,8 @@
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/kinderfahrrad-groesse</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/kinderfahrrad-groesse"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/kinderfahrrad-groesse"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/kinderfahrrad-groesse"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/childrens-bike-size-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/taille-velo-enfant-guide"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/kinderfahrrad-groesse"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
@@ -143,8 +143,8 @@
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/fahrrad-inspektion-kosten</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-inspektion-kosten"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/fahrrad-inspektion-kosten"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/fahrrad-inspektion-kosten"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-inspection-cost-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/revision-velo-cout-fribourg"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrrad-inspektion-kosten"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
@@ -153,12 +153,66 @@
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/fahrrad-pendler-stadtraeder</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-pendler-stadtraeder"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/fahrrad-pendler-stadtraeder"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/fahrrad-pendler-stadtraeder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/commuter-bike-freiburg-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/velo-pendulaire-fribourg-guide"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrrad-pendler-stadtraeder"/>
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+
+  <!-- Blog Articles 1-2 with correct EN/FR slugs -->
+  <url>
+    <loc>https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-tipps</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/buying-used-bike-freiburg-tips"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/acheter-velo-occasion-fribourg-conseils"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/de/ratgeber/welches-fahrrad-passt-zu-mir</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/welches-fahrrad-passt-zu-mir"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/which-bike-is-right-for-me"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/quel-velo-me-convient"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/welches-fahrrad-passt-zu-mir"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- New Articles 9-11 (DE) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/de/ratgeber/fahrradverleih-freiburg-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrradverleih-freiburg-guide"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-rental-freiburg-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/location-velo-fribourg-guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrradverleih-freiburg-guide"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-freiburg-expat</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-freiburg-expat"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/buy-used-bike-freiburg-expat"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/acheter-velo-occasion-fribourg-guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/gebrauchtes-fahrrad-kaufen-freiburg-expat"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/de/ratgeber/radfahren-freiburg-routen-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/radfahren-freiburg-routen-guide"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/cycling-freiburg-routes-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/faire-velo-fribourg-itineraires-guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/radfahren-freiburg-routen-guide"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.88</priority>
   </url>
 
   <!-- Neue Fahrräder -->
@@ -296,6 +350,128 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <!-- English Guide pages -->
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/ratgeber"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/buying-used-bike-freiburg-tips</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/buying-used-bike-freiburg-tips"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/acheter-velo-occasion-fribourg-conseils"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/which-bike-is-right-for-me</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/welches-fahrrad-passt-zu-mir"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/which-bike-is-right-for-me"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/quel-velo-me-convient"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/welches-fahrrad-passt-zu-mir"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/bike-frame-size-calculator-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-rahmengroesse-berechnen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-frame-size-calculator-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/calculer-taille-cadre-velo"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrrad-rahmengroesse-berechnen"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/buying-used-e-bike-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/e-bike-gebraucht-kaufen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/buying-used-e-bike-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/acheter-velo-electrique-occasion"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/e-bike-gebraucht-kaufen"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/bike-shop-freiburg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrradladen-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-shop-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/magasin-velo-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrradladen-freiburg"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/childrens-bike-size-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/kinderfahrrad-groesse"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/childrens-bike-size-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/taille-velo-enfant-guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/kinderfahrrad-groesse"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/bike-inspection-cost-freiburg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-inspektion-kosten"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-inspection-cost-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/revision-velo-cout-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrrad-inspektion-kosten"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/commuter-bike-freiburg-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-pendler-stadtraeder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/commuter-bike-freiburg-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/velo-pendulaire-fribourg-guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrrad-pendler-stadtraeder"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/bike-rental-freiburg-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrradverleih-freiburg-guide"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-rental-freiburg-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/location-velo-fribourg-guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/fahrradverleih-freiburg-guide"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/buy-used-bike-freiburg-expat</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-freiburg-expat"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/buy-used-bike-freiburg-expat"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/acheter-velo-occasion-fribourg-guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/gebrauchtes-fahrrad-kaufen-freiburg-expat"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/en/guide/cycling-freiburg-routes-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/radfahren-freiburg-routen-guide"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/cycling-freiburg-routes-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/faire-velo-fribourg-itineraires-guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/radfahren-freiburg-routen-guide"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.88</priority>
+  </url>
 
   <!-- French Pages -->
   <url>
@@ -328,6 +504,117 @@
     <lastmod>2026-04-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <!-- French Guide pages -->
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/ratgeber"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/acheter-velo-occasion-fribourg-conseils</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/buying-used-bike-freiburg-tips"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/acheter-velo-occasion-fribourg-conseils"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/quel-velo-me-convient</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/welches-fahrrad-passt-zu-mir"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/which-bike-is-right-for-me"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/quel-velo-me-convient"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/calculer-taille-cadre-velo</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-rahmengroesse-berechnen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-frame-size-calculator-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/calculer-taille-cadre-velo"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/acheter-velo-electrique-occasion</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/e-bike-gebraucht-kaufen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/buying-used-e-bike-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/acheter-velo-electrique-occasion"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/magasin-velo-fribourg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrradladen-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-shop-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/magasin-velo-fribourg"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/taille-velo-enfant-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/kinderfahrrad-groesse"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/childrens-bike-size-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/taille-velo-enfant-guide"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/revision-velo-cout-fribourg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-inspektion-kosten"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-inspection-cost-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/revision-velo-cout-fribourg"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/velo-pendulaire-fribourg-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-pendler-stadtraeder"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/commuter-bike-freiburg-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/velo-pendulaire-fribourg-guide"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/location-velo-fribourg-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrradverleih-freiburg-guide"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-rental-freiburg-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/location-velo-fribourg-guide"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/acheter-velo-occasion-fribourg-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-freiburg-expat"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/buy-used-bike-freiburg-expat"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/acheter-velo-occasion-fribourg-guide"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/guide/faire-velo-fribourg-itineraires-guide</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/radfahren-freiburg-routen-guide"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/cycling-freiburg-routes-guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide/faire-velo-fribourg-itineraires-guide"/>
+    <lastmod>2026-05-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.88</priority>
   </url>
 
   <!-- Turkish Pages -->

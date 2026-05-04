@@ -3194,12 +3194,14 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const schema = {
       '@context': 'https://schema.org',
-      '@type': 'LocalBusiness',
+      '@type': ['LocalBusiness', 'BikeStore'],
       '@id': 'https://bikehausfreiburg.com/#localbusiness',
       name: 'Bike Haus Freiburg',
       image: 'https://bikehausfreiburg.com/assets/logo.png',
       url: 'https://bikehausfreiburg.com',
       telephone: '+49-155-66300011',
+      email: 'bikehausfreiburg@gmail.com',
+      availableLanguage: ['German', 'English', 'French', 'Turkish'],
       address: {
         '@type': 'PostalAddress',
         streetAddress: 'Heckerstraße 27',
@@ -3221,6 +3223,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       review: reviews,
       priceRange: '€-€€€',
+      currenciesAccepted: 'EUR',
+      paymentAccepted: 'Cash, Credit Card, Debit Card, PayPal, Bank Transfer',
+      sameAs: [
+        'https://maps.app.goo.gl/Q1fXe7A6PRb8E5wV7',
+        'https://www.instagram.com/bikehausfreiburg',
+        'https://wa.me/4915566300011',
+      ],
       openingHoursSpecification: [
         {
           '@type': 'OpeningHoursSpecification',
