@@ -107,16 +107,31 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<decimal?>("RentalPriceDay1")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal?>("RentalPriceDay2")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("RentalPriceDay14")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("RentalPriceDay3")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal?>("RentalPriceDay4")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RentalPriceDay5")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RentalPriceDay6")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("RentalPriceDay30")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("RentalPriceDay7")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("RentalPriceAdditionalDayAfter7")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("RentalPricePerDayFrom10")

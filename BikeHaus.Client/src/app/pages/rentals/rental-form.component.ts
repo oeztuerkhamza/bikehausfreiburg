@@ -21,6 +21,7 @@ import {
   PaymentMethod,
 } from '../../models/models';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
+import { calculateRentalPrice } from '../../utils/rental-pricing';
 
 interface AccessoryLine {
   rentalAccessoryId?: number;
@@ -1631,30 +1632,15 @@ export class RentalFormComponent implements OnInit {
   }
 
   calculatePrice(days: number): number {
-    if (days <= 1) {
-      this.preisInfo = '1 Tag = 12,00 €';
-      return 12;
+    const config = this.selectedBike;
+    if (!config) {
+      this.preisInfo = '';
+      return 0;
     }
-    if (days <= 3) {
-      this.preisInfo = '3 Tage-Paket = 30,00 €';
-      return 30;
-    }
-    if (days <= 7) {
-      this.preisInfo = '7 Tage-Paket = 55,00 €';
-      return 55;
-    }
-    if (days <= 14) {
-      this.preisInfo = '14 Tage-Paket = 95,00 €';
-      return 95;
-    }
-    if (days <= 30) {
-      this.preisInfo = '30 Tage-Paket = 160,00 €';
-      return 160;
-    }
-    const extra = days - 30;
-    const price = 160 + extra * 6.5;
-    this.preisInfo = `30 Tage (160,00 €) + ${extra} Tag(e) × 6,50 € = ${price.toFixed(2)} €`;
-    return Math.round(price * 100) / 100;
+
+    const result = calculateRentalPrice(config, days);
+    this.preisInfo = result.info;
+    return result.total ?? 0;
   }
 
   submit() {
@@ -1707,11 +1693,14 @@ export class RentalFormComponent implements OnInit {
         zustand: (this.selectedBike.zustand || 'Gebraucht') as BikeCondition,
         isRentable: this.selectedBike.isRentable,
         rentalPriceDay1: this.selectedBike.rentalPriceDay1,
+        rentalPriceDay2: this.selectedBike.rentalPriceDay2,
         rentalPriceDay3: this.selectedBike.rentalPriceDay3,
+        rentalPriceDay4: this.selectedBike.rentalPriceDay4,
+        rentalPriceDay5: this.selectedBike.rentalPriceDay5,
+        rentalPriceDay6: this.selectedBike.rentalPriceDay6,
         rentalPriceDay7: this.selectedBike.rentalPriceDay7,
-        rentalPriceDay14: this.selectedBike.rentalPriceDay14,
-        rentalPriceDay30: this.selectedBike.rentalPriceDay30,
-        rentalPricePerDayFrom10: this.selectedBike.rentalPricePerDayFrom10,
+        rentalPriceAdditionalDayAfter7:
+          this.selectedBike.rentalPriceAdditionalDayAfter7,
       };
       this.bicycleService.update(this.selectedBike.id, bikeUpdate).subscribe({
         next: () => this.createRental(this.selectedBike!.id),

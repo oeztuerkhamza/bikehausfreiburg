@@ -56,8 +56,13 @@ export interface Bicycle {
   zustand: BikeCondition;
   isRentable: boolean;
   rentalPriceDay1?: number;
+  rentalPriceDay2?: number;
   rentalPriceDay3?: number;
+  rentalPriceDay4?: number;
+  rentalPriceDay5?: number;
+  rentalPriceDay6?: number;
   rentalPriceDay7?: number;
+  rentalPriceAdditionalDayAfter7?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
@@ -89,8 +94,13 @@ export interface BicycleCreate {
   zustand: BikeCondition;
   isRentable: boolean;
   rentalPriceDay1?: number;
+  rentalPriceDay2?: number;
   rentalPriceDay3?: number;
+  rentalPriceDay4?: number;
+  rentalPriceDay5?: number;
+  rentalPriceDay6?: number;
   rentalPriceDay7?: number;
+  rentalPriceAdditionalDayAfter7?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
@@ -111,8 +121,13 @@ export interface BicycleUpdate {
   verkaufspreisVorschlag?: number;
   isRentable: boolean;
   rentalPriceDay1?: number;
+  rentalPriceDay2?: number;
   rentalPriceDay3?: number;
+  rentalPriceDay4?: number;
+  rentalPriceDay5?: number;
+  rentalPriceDay6?: number;
   rentalPriceDay7?: number;
+  rentalPriceAdditionalDayAfter7?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
@@ -937,4 +952,3 @@ export interface RentalBookingApprove {
 export interface RentalBookingCancel {
   adminNotizen?: string;
 }
-

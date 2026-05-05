@@ -190,6 +190,17 @@ import {
               />
             </div>
             <div class="field">
+              <label>Preis 2 Tage (€)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                [(ngModel)]="form.rentalPriceDay2"
+                name="rentalPriceDay2"
+                [disabled]="!form.isRentable"
+              />
+            </div>
+            <div class="field">
               <label>{{ t.rentalPriceDay3 }}</label>
               <input
                 type="number"
@@ -197,6 +208,39 @@ import {
                 min="0"
                 [(ngModel)]="form.rentalPriceDay3"
                 name="rentalPriceDay3"
+                [disabled]="!form.isRentable"
+              />
+            </div>
+            <div class="field">
+              <label>Preis 4 Tage (€)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                [(ngModel)]="form.rentalPriceDay4"
+                name="rentalPriceDay4"
+                [disabled]="!form.isRentable"
+              />
+            </div>
+            <div class="field">
+              <label>Preis 5 Tage (€)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                [(ngModel)]="form.rentalPriceDay5"
+                name="rentalPriceDay5"
+                [disabled]="!form.isRentable"
+              />
+            </div>
+            <div class="field">
+              <label>Preis 6 Tage (€)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                [(ngModel)]="form.rentalPriceDay6"
+                name="rentalPriceDay6"
                 [disabled]="!form.isRentable"
               />
             </div>
@@ -212,35 +256,13 @@ import {
               />
             </div>
             <div class="field">
-              <label>{{ t.rentalPriceDay14 }}</label>
+              <label>Zusatz pro weiterem Tag ab Tag 8 (€)</label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
-                [(ngModel)]="form.rentalPriceDay14"
-                name="rentalPriceDay14"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPriceDay30 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPriceDay30"
-                name="rentalPriceDay30"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPricePerDayFrom10 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPricePerDayFrom10"
-                name="rentalPricePerDayFrom10"
+                [(ngModel)]="form.rentalPriceAdditionalDayAfter7"
+                name="rentalPriceAdditionalDayAfter7"
                 [disabled]="!form.isRentable"
               />
             </div>
@@ -810,11 +832,13 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
     zustand: BikeCondition.Gebraucht,
     isRentable: false,
     rentalPriceDay1: undefined,
+    rentalPriceDay2: undefined,
     rentalPriceDay3: undefined,
+    rentalPriceDay4: undefined,
+    rentalPriceDay5: undefined,
+    rentalPriceDay6: undefined,
     rentalPriceDay7: undefined,
-    rentalPriceDay14: undefined,
-    rentalPriceDay30: undefined,
-    rentalPricePerDayFrom10: undefined,
+    rentalPriceAdditionalDayAfter7: undefined,
   };
 
   purchaseForm = {
@@ -870,11 +894,13 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
         verkaufspreisVorschlag: b.verkaufspreisVorschlag,
         isRentable: b.isRentable,
         rentalPriceDay1: b.rentalPriceDay1,
+        rentalPriceDay2: b.rentalPriceDay2,
         rentalPriceDay3: b.rentalPriceDay3,
+        rentalPriceDay4: b.rentalPriceDay4,
+        rentalPriceDay5: b.rentalPriceDay5,
+        rentalPriceDay6: b.rentalPriceDay6,
         rentalPriceDay7: b.rentalPriceDay7,
-        rentalPriceDay14: b.rentalPriceDay14,
-        rentalPriceDay30: b.rentalPriceDay30,
-        rentalPricePerDayFrom10: b.rentalPricePerDayFrom10,
+        rentalPriceAdditionalDayAfter7: b.rentalPriceAdditionalDayAfter7,
       };
     });
 

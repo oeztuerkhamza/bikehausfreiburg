@@ -1381,11 +1381,13 @@ export class SaleFormComponent implements OnInit {
       zustand: BikeCondition.Gebraucht,
       isRentable: false,
       rentalPriceDay1: undefined,
+      rentalPriceDay2: undefined,
       rentalPriceDay3: undefined,
+      rentalPriceDay4: undefined,
+      rentalPriceDay5: undefined,
+      rentalPriceDay6: undefined,
       rentalPriceDay7: undefined,
-      rentalPriceDay14: undefined,
-      rentalPriceDay30: undefined,
-      rentalPricePerDayFrom10: undefined,
+      rentalPriceAdditionalDayAfter7: undefined,
     } as Bicycle;
 
     // Clear bikeEdit form for new bike
@@ -1637,11 +1639,13 @@ export class SaleFormComponent implements OnInit {
         zustand: this.bikeEdit.zustand,
         isRentable: false,
         rentalPriceDay1: undefined,
+        rentalPriceDay2: undefined,
         rentalPriceDay3: undefined,
+        rentalPriceDay4: undefined,
+        rentalPriceDay5: undefined,
+        rentalPriceDay6: undefined,
         rentalPriceDay7: undefined,
-        rentalPriceDay14: undefined,
-        rentalPriceDay30: undefined,
-        rentalPricePerDayFrom10: undefined,
+        rentalPriceAdditionalDayAfter7: undefined,
       };
 
       this.bicycleService.create(newBike).subscribe({
@@ -1710,11 +1714,14 @@ export class SaleFormComponent implements OnInit {
       verkaufspreisVorschlag: this.preis > 0 ? this.preis : undefined,
       isRentable: this.selectedBike?.isRentable ?? false,
       rentalPriceDay1: this.selectedBike?.rentalPriceDay1,
+      rentalPriceDay2: this.selectedBike?.rentalPriceDay2,
       rentalPriceDay3: this.selectedBike?.rentalPriceDay3,
+      rentalPriceDay4: this.selectedBike?.rentalPriceDay4,
+      rentalPriceDay5: this.selectedBike?.rentalPriceDay5,
+      rentalPriceDay6: this.selectedBike?.rentalPriceDay6,
       rentalPriceDay7: this.selectedBike?.rentalPriceDay7,
-      rentalPriceDay14: this.selectedBike?.rentalPriceDay14,
-      rentalPriceDay30: this.selectedBike?.rentalPriceDay30,
-      rentalPricePerDayFrom10: this.selectedBike?.rentalPricePerDayFrom10,
+      rentalPriceAdditionalDayAfter7:
+        this.selectedBike?.rentalPriceAdditionalDayAfter7,
     };
   }
 

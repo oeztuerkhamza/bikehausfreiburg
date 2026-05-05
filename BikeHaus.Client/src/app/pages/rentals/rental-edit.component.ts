@@ -10,6 +10,7 @@ import {
   PaymentMethod,
   BikeConditionAtHandover,
 } from '../../models/models';
+import { calculateRentalPrice } from '../../utils/rental-pricing';
 
 @Component({
   selector: 'app-rental-edit',
@@ -554,30 +555,15 @@ export class RentalEditComponent implements OnInit {
   }
 
   calculatePrice(days: number): number {
-    if (days <= 1) {
-      this.preisInfo = '1 Tag = 12,00 €';
-      return 12;
+    const bicycle = this.rental?.bicycle;
+    if (!bicycle) {
+      this.preisInfo = '';
+      return 0;
     }
-    if (days <= 3) {
-      this.preisInfo = '3 Tage-Paket = 30,00 €';
-      return 30;
-    }
-    if (days <= 7) {
-      this.preisInfo = '7 Tage-Paket = 55,00 €';
-      return 55;
-    }
-    if (days <= 14) {
-      this.preisInfo = '14 Tage-Paket = 95,00 €';
-      return 95;
-    }
-    if (days <= 30) {
-      this.preisInfo = '30 Tage-Paket = 160,00 €';
-      return 160;
-    }
-    const extraDays = days - 30;
-    const price = 160 + extraDays * 6.5;
-    this.preisInfo = `30 Tage (160,00 €) + ${extraDays} Tag(e) × 6,50 € = ${price.toFixed(2)} €`;
-    return Math.round(price * 100) / 100;
+
+    const result = calculateRentalPrice(bicycle, days);
+    this.preisInfo = result.info;
+    return result.total ?? 0;
   }
 
   submit() {

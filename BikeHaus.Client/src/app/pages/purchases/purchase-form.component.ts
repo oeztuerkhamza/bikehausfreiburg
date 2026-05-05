@@ -19,11 +19,7 @@ import { forkJoin, Observable } from 'rxjs';
 @Component({
   selector: 'app-purchase-form',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterLink,
-  ],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="page">
       <div class="page-header">
@@ -916,11 +912,13 @@ export class PurchaseFormComponent implements OnInit {
     zustand: BikeCondition.Gebraucht,
     isRentable: false,
     rentalPriceDay1: undefined as number | undefined,
+    rentalPriceDay2: undefined as number | undefined,
     rentalPriceDay3: undefined as number | undefined,
+    rentalPriceDay4: undefined as number | undefined,
+    rentalPriceDay5: undefined as number | undefined,
+    rentalPriceDay6: undefined as number | undefined,
     rentalPriceDay7: undefined as number | undefined,
-    rentalPriceDay14: undefined as number | undefined,
-    rentalPriceDay30: undefined as number | undefined,
-    rentalPricePerDayFrom10: undefined as number | undefined,
+    rentalPriceAdditionalDayAfter7: undefined as number | undefined,
   };
   preis = 0;
   verkaufspreisVorschlag: number | null = null;
@@ -1067,7 +1065,6 @@ export class PurchaseFormComponent implements OnInit {
     return baseValid;
   }
 
-
   updateSignerName() {
     const name = [this.seller.vorname, this.seller.nachname]
       .filter(Boolean)
@@ -1140,11 +1137,14 @@ export class PurchaseFormComponent implements OnInit {
         zustand: this.bicycle.zustand as BikeCondition,
         isRentable: this.bicycle.isRentable,
         rentalPriceDay1: this.bicycle.rentalPriceDay1,
+        rentalPriceDay2: this.bicycle.rentalPriceDay2,
         rentalPriceDay3: this.bicycle.rentalPriceDay3,
+        rentalPriceDay4: this.bicycle.rentalPriceDay4,
+        rentalPriceDay5: this.bicycle.rentalPriceDay5,
+        rentalPriceDay6: this.bicycle.rentalPriceDay6,
         rentalPriceDay7: this.bicycle.rentalPriceDay7,
-        rentalPriceDay14: this.bicycle.rentalPriceDay14,
-        rentalPriceDay30: this.bicycle.rentalPriceDay30,
-        rentalPricePerDayFrom10: this.bicycle.rentalPricePerDayFrom10,
+        rentalPriceAdditionalDayAfter7:
+          this.bicycle.rentalPriceAdditionalDayAfter7,
       },
       seller: {
         vorname: this.seller.vorname || this.seller.nachname,
