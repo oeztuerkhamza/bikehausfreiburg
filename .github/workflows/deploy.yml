@@ -165,37 +165,39 @@ jobs:
             docker compose up -d --force-recreate bikehaus
 
             echo "==> Ensuring rental pricing columns exist in SQLite"
-            docker run --rm --volumes-from bikehaus-app python:3.12-alpine sh -lc 'python - <<"PY"
-      import sqlite3
+            docker run --rm --volumes-from bikehaus-app python:3.12-alpine sh -lc '
+              python - <<"PY"
+import sqlite3
 
-      db_path = "/app/data/BikeHausFreiburg.db"
-      columns = {
-        "RentalPriceDay2": "REAL",
-        "RentalPriceDay4": "REAL",
-        "RentalPriceDay5": "REAL",
-        "RentalPriceDay6": "REAL",
-        "RentalPriceAdditionalDayAfter7": "REAL",
-      }
+db_path = "/app/data/BikeHausFreiburg.db"
+columns = {
+    "RentalPriceDay2": "REAL",
+    "RentalPriceDay4": "REAL",
+    "RentalPriceDay5": "REAL",
+    "RentalPriceDay6": "REAL",
+    "RentalPriceAdditionalDayAfter7": "REAL",
+}
 
-      conn = sqlite3.connect(db_path)
-      cur = conn.cursor()
-      cur.execute("PRAGMA table_info(Bicycles)")
-      existing = {row[1] for row in cur.fetchall()}
+conn = sqlite3.connect(db_path)
+cur = conn.cursor()
+cur.execute("PRAGMA table_info(Bicycles)")
+existing = {row[1] for row in cur.fetchall()}
 
-      added = []
-      for col, col_type in columns.items():
-        if col not in existing:
-          cur.execute(f"ALTER TABLE Bicycles ADD COLUMN {col} {col_type} NULL")
-          added.append(col)
+added = []
+for col, col_type in columns.items():
+    if col not in existing:
+        cur.execute(f"ALTER TABLE Bicycles ADD COLUMN {col} {col_type} NULL")
+        added.append(col)
 
-      conn.commit()
-      conn.close()
+conn.commit()
+conn.close()
 
-      if added:
-        print("Added columns:", ", ".join(added))
-      else:
-        print("Rental pricing columns already present")
-      PY'
+if added:
+    print("Added columns:", ", ".join(added))
+else:
+    print("Rental pricing columns already present")
+PY
+            '
 
             echo "==> Restarting API after schema ensure"
             docker compose restart bikehaus
