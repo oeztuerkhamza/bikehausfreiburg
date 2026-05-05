@@ -1,5 +1,5 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { Component, PLATFORM_ID, inject, OnInit } from '@angular/core';
+import { Component, PLATFORM_ID, inject, OnInit, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { NavbarComponent } from './components/navbar/navbar.component';
@@ -44,13 +44,36 @@ export class AppComponent implements OnInit {
   private document = inject(DOCUMENT);
 
   ngOnInit(): void {
+    // Set initial translations
+    this.updateMetaTags();
+
+    // Update meta tags whenever language changes
+    effect(() => {
+      this.translationService.currentLanguage();
+      this.updateMetaTags();
+    });
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.updateLanguageAttribute();
+      // Update language attribute whenever language changes
+      effect(() => {
+        this.translationService.currentLanguage();
+        this.updateLanguageAttribute();
+      });
+    }
+
+    // Initialize SEO service - it handles hreflang and canonical updates
+    this.seoService.init();
+  }
+
+  private updateMetaTags(): void {
     const t = this.translationService.translations();
     this.title.setTitle(t.metaTitle);
     this.meta.updateTag({ name: 'description', content: t.metaDescription });
-    if (isPlatformBrowser(this.platformId)) {
-      this.document.documentElement.lang =
-        this.translationService.currentLanguage();
-      this.seoService.init();
-    }
+  }
+
+  private updateLanguageAttribute(): void {
+    this.document.documentElement.lang =
+      this.translationService.currentLanguage();
   }
 }

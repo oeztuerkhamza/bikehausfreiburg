@@ -20,6 +20,11 @@ export class SeoService {
   private translationService = inject(TranslationService);
 
   init(): void {
+    // Update SEO for the current route immediately on init
+    const currentUrl = this.router.url || '/de';
+    this.updateCanonicalAndHreflang(currentUrl);
+
+    // Then listen for future navigation events
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe((e) => {
