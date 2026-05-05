@@ -190,7 +190,7 @@ import {
               />
             </div>
             <div class="field">
-              <label>Preis 2 Tage (€)</label>
+              <label>{{ t.rentalPriceDay2 }}</label>
               <input
                 type="number"
                 step="0.01"
@@ -212,7 +212,7 @@ import {
               />
             </div>
             <div class="field">
-              <label>Preis 4 Tage (€)</label>
+              <label>{{ t.rentalPriceDay4 }}</label>
               <input
                 type="number"
                 step="0.01"
@@ -223,7 +223,7 @@ import {
               />
             </div>
             <div class="field">
-              <label>Preis 5 Tage (€)</label>
+              <label>{{ t.rentalPriceDay5 }}</label>
               <input
                 type="number"
                 step="0.01"
@@ -234,7 +234,7 @@ import {
               />
             </div>
             <div class="field">
-              <label>Preis 6 Tage (€)</label>
+              <label>{{ t.rentalPriceDay6 }}</label>
               <input
                 type="number"
                 step="0.01"
@@ -256,7 +256,7 @@ import {
               />
             </div>
             <div class="field">
-              <label>Zusatz pro weiterem Tag ab Tag 8 (€)</label>
+              <label>{{ t.rentalPriceAdditionalDayAfter7 }}</label>
               <input
                 type="number"
                 step="0.01"

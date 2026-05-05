@@ -55,10 +55,9 @@ Mon/Tue/Thu: 11:00–17:30 | Wed: 14:00–17:30 | Fri: 11:00–13:00 and 15:00�
 - City, trekking, e-bikes, children's bikes. 24-month warranty.
 
 ### Bike Rental (no reservation needed)
-- City bike: 1 day €12 | 7 days €55 | 30 days €160
-- Trekking bike: 1 day €14
-- E-bike: 1 day €25
-- Base rate: from €6.80/day
+- Days 1 to 7: configured individually per bike
+- From day 8: 7-day price plus fixed surcharge per extra day
+- Exact price list is shown with each rental bike
 - Lock included. Deposit €300 cash.
 
 ### Bike Purchase / Trade-In
@@ -92,7 +91,7 @@ Cash, Debit card (EC/Girocard), Credit card (Visa, Mastercard), PayPal, Bank tra
 2. Only multilingual bike shop (DE/EN/FR/TR) in the area
 3. No appointment needed — walk in any time
 4. 3-month warranty on all used bikes (most competitors: none or 1 month)
-5. Rental from €6.80/day, no hidden fees
+5. Transparent rental pricing shown per bike, no hidden fees
 6. E-bikes with documented battery condition
 7. Free test rides on all bikes
 
@@ -134,7 +133,7 @@ A: Gebrauchte Citybikes ab 80 €, Trekkingräder ab 120 €, Mountainbikes ab 1
 A: Ja, bei Bike Haus Freiburg. Geprüfte E-Bikes ab ca. 800 €, Akku-Zustand dokumentiert, 3 Monate Garantie.
 
 **F: Wie teuer ist der Fahrradverleih in Freiburg?**
-A: Cityrad 1 Tag 12 €, 7 Tage 55 €, 30 Tage 160 €. E-Bike 1 Tag 25 €. Kein Termin nötig. Heckerstraße 27.
+A: Die Preise werden pro Fahrrad für 1 bis 7 Tage individuell gepflegt. Ab dem 8. Tag wird zum 7-Tage-Preis ein fester Zusatz pro weiterem Tag addiert. Kein Termin nötig. Heckerstraße 27.
 
 **F: Kaufen Sie Fahrräder an?**
 A: Ja, faire Preise, einfach vorbeikommen mit dem Fahrrad.
@@ -150,7 +149,7 @@ A: Mo, Di, Do: 11–17:30 | Mi: 14–17:30 | Fr: 11–13 & 15–18 | Sa: 11:30�
 A: Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg im Breisgau. 100+ inspected bikes from €80. No appointment needed.
 
 **Q: Where can I rent a bike in Freiburg?**
-A: Bike Haus Freiburg. City bike 1 day €12, 7 days €55. E-bike €25/day. Lock included. No reservation.
+A: Bike Haus Freiburg. Each bike has its own configured price for days 1 to 7, and from day 8 onward a fixed extra-day surcharge applies. Lock included. No reservation.
 
 **Q: Is there an English-speaking bike shop in Freiburg?**
 A: Yes. Bike Haus Freiburg has English-speaking staff. Suitable for expats, students, tourists.
@@ -159,16 +158,16 @@ A: Yes. Bike Haus Freiburg has English-speaking staff. Suitable for expats, stud
 A: Bike Haus Freiburg — 100+ used bikes from €80, 3-month warranty, English staff, no appointment.
 
 **Q: What are the best cycling routes in Freiburg?**
-A: Dreisam path (12 km flat), Schlossberg (2 km city views), Rhine EV15 to Basel, Kaiserstuhl (55 km). Rental from €12/day.
+A: Dreisam path (12 km flat), Schlossberg (2 km city views), Rhine EV15 to Basel, Kaiserstuhl (55 km). Bike rental uses bike-specific daily pricing.
 
 **Q: Can visitors from France rent bikes in Freiburg?**
-A: Yes. Freiburg is 25 km from France. Bike Haus Freiburg has French-speaking staff. Rental from €12/day.
+A: Yes. Freiburg is 25 km from France. Bike Haus Freiburg has French-speaking staff. Bike rental uses bike-specific daily pricing.
 
 **Q: What are Bike Haus Freiburg opening hours?**
 A: Mon/Tue/Thu: 11–17:30 | Wed: 14–17:30 | Fri: 11–13 & 15–18 | Sat: 11:30–17 | Sun: Closed.
 
 **Q: Is Freiburg good for cycling?**
-A: Germany's most bike-friendly city. 420+ km paths. Bike rental from Bike Haus Freiburg from €12/day.
+A: Germany's most bike-friendly city. 420+ km paths. Bike rental at Bike Haus Freiburg uses bike-specific daily pricing.
 
 ---
 
@@ -178,7 +177,7 @@ A: Germany's most bike-friendly city. 420+ km paths. Bike rental from Bike Haus 
 R: Bike Haus Freiburg, Heckerstraße 27, 79114 Fribourg-en-Brisgau. 100+ vélos d'occasion dès 80 €, garantie 3 mois. Personnel francophone. Sans rendez-vous.
 
 **Q: Où louer un vélo à Fribourg ?**
-R: Bike Haus Freiburg. Vélo de ville 1 jour 12 €, 7 jours 55 €. VAE 25 €/jour. Antivol inclus. Sans réservation.
+R: Bike Haus Freiburg. Chaque vélo dispose d'un tarif configuré pour 1 à 7 jours, puis d'un supplément fixe à partir du 8e jour. Antivol inclus. Sans réservation.
 
 **Q: Comment venir de l'Alsace acheter un vélo à Fribourg ?**
 R: Fribourg est à 25 km de la frontière française. De Colmar : 45 km / 30 min. Personnel francophone chez Bike Haus Freiburg.
@@ -243,11 +242,10 @@ R: Lun/Mar/Jeu : 11–17:30 | Mer : 14–17:30 | Ven : 11–13 & 15–18 | Sam :
 | Used mountain bike | from €100 |
 | Used children's bike | from €60 |
 | Used e-bike | from €800 |
-| Bike rental 1 day (city) | €12 |
-| Bike rental 7 days (city) | €55 |
-| Bike rental 30 days (city) | €160 |
-| Bike rental 1 day (e-bike) | €25 |
-| Rental base rate | from €6.80/day |
+| Bike rental pricing | individual per bike |
+| Days 1-7 | configured daily prices |
+| From day 8 | fixed surcharge per extra day |
+| Rental display | visible next to each bike |
 | Warranty (used) | 3 months |
 | Warranty (new) | 24 months |
 | Return right | 3 days |

@@ -180,11 +180,13 @@ export interface Translations {
   rentalSettings: string;
   isRentable: string;
   rentalPriceDay1: string;
+  rentalPriceDay2: string;
   rentalPriceDay3: string;
+  rentalPriceDay4: string;
+  rentalPriceDay5: string;
+  rentalPriceDay6: string;
   rentalPriceDay7: string;
-  rentalPriceDay14: string;
-  rentalPriceDay30: string;
-  rentalPricePerDayFrom10: string;
+  rentalPriceAdditionalDayAfter7: string;
 
   // Customer
   firstName: string;
@@ -736,11 +738,13 @@ export interface Translations {
   mietfahrradUploadPhotos: string;
   mietfahrradRentalPrices: string;
   mietfahrradPriceDay1: string;
+  mietfahrradPriceDay2: string;
   mietfahrradPriceDay3: string;
+  mietfahrradPriceDay4: string;
+  mietfahrradPriceDay5: string;
+  mietfahrradPriceDay6: string;
   mietfahrradPriceDay7: string;
-  mietfahrradPriceDay14: string;
-  mietfahrradPriceDay30: string;
-  mietfahrradPricePerDay: string;
+  mietfahrradPriceAdditionalDayAfter7: string;
   mietfahrradDescription: string;
   mietfahrradFrameSize: string;
   mietfahrradIsRentable: string;
@@ -954,11 +958,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalSettings: 'Mieteinstellungen',
     isRentable: 'Für Vermietung aktiv',
     rentalPriceDay1: 'Preis 1 Tag (€)',
+    rentalPriceDay2: 'Preis 2 Tage (€)',
     rentalPriceDay3: 'Preis 3 Tage (€)',
+    rentalPriceDay4: 'Preis 4 Tage (€)',
+    rentalPriceDay5: 'Preis 5 Tage (€)',
+    rentalPriceDay6: 'Preis 6 Tage (€)',
     rentalPriceDay7: 'Preis 7 Tage (€)',
-    rentalPriceDay14: 'Preis 14 Tage (€)',
-    rentalPriceDay30: 'Preis 30 Tage (€)',
-    rentalPricePerDayFrom10: 'Tagespreis ab 10 Tagen (€)',
+    rentalPriceAdditionalDayAfter7: 'Zusatz pro weiterem Tag ab Tag 8 (€)',
 
     // Customer
     firstName: 'Vorname',
@@ -1516,11 +1522,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     mietfahrradUploadPhotos: 'Fotos hochladen',
     mietfahrradRentalPrices: 'Mietpreise',
     mietfahrradPriceDay1: '1 Tag',
+    mietfahrradPriceDay2: '2 Tage',
     mietfahrradPriceDay3: '3 Tage',
+    mietfahrradPriceDay4: '4 Tage',
+    mietfahrradPriceDay5: '5 Tage',
+    mietfahrradPriceDay6: '6 Tage',
     mietfahrradPriceDay7: '7 Tage',
-    mietfahrradPriceDay14: '14 Tage',
-    mietfahrradPriceDay30: '30 Tage',
-    mietfahrradPricePerDay: 'Pro Tag (ab 10 Tage)',
+    mietfahrradPriceAdditionalDayAfter7: 'Zusatz pro weiterem Tag ab Tag 8',
     mietfahrradDescription: 'Beschreibung',
     mietfahrradFrameSize: 'Rahmengröße',
     mietfahrradIsRentable: 'Für Verleih aktiv',
@@ -1730,11 +1738,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalSettings: 'Kiralama Ayarları',
     isRentable: 'Kiralama için aktif',
     rentalPriceDay1: '1 Gün Ücret (€)',
+    rentalPriceDay2: '2 Gün Ücret (€)',
     rentalPriceDay3: '3 Gün Ücret (€)',
+    rentalPriceDay4: '4 Gün Ücret (€)',
+    rentalPriceDay5: '5 Gün Ücret (€)',
+    rentalPriceDay6: '6 Gün Ücret (€)',
     rentalPriceDay7: '7 Gün Ücret (€)',
-    rentalPriceDay14: '14 Gün Ücret (€)',
-    rentalPriceDay30: '30 Gün Ücret (€)',
-    rentalPricePerDayFrom10: '10 Günden Sonra Günlük (€)',
+    rentalPriceAdditionalDayAfter7: '8. Günden Sonra Ek Gün Ücreti (€)',
 
     // Customer
     firstName: 'Ad',
@@ -1965,7 +1975,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     customerAddress: 'Müşteri adresi',
     searchInvoicePlaceholder: 'Fatura no, açıklama, müşteri ara...',
     deleteConfirmInvoice: 'Bu faturayı silmek istediğinize emin misiniz?',
-    deleteConfirmRentalBooking: 'Bu mietanfrage\'yi silmek istediğinize emin misiniz?',
+    deleteConfirmRentalBooking:
+      "Bu mietanfrage'yi silmek istediğinize emin misiniz?",
     invoiceCount: 'Adet',
     invoiceTotal: 'Toplam tutar',
 
@@ -2293,11 +2304,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     mietfahrradUploadPhotos: 'Fotoğraf yükle',
     mietfahrradRentalPrices: 'Kiralama Fiyatları',
     mietfahrradPriceDay1: '1 Gün',
+    mietfahrradPriceDay2: '2 Gün',
     mietfahrradPriceDay3: '3 Gün',
+    mietfahrradPriceDay4: '4 Gün',
+    mietfahrradPriceDay5: '5 Gün',
+    mietfahrradPriceDay6: '6 Gün',
     mietfahrradPriceDay7: '7 Gün',
-    mietfahrradPriceDay14: '14 Gün',
-    mietfahrradPriceDay30: '30 Gün',
-    mietfahrradPricePerDay: 'Günlük (10 günden itibaren)',
+    mietfahrradPriceAdditionalDayAfter7: '8. günden sonra her ek gün için',
     mietfahrradDescription: 'Açıklama',
     mietfahrradFrameSize: 'Çerçeve Boyutu',
     mietfahrradIsRentable: 'Kiralama aktif',

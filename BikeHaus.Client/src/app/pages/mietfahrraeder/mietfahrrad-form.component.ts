@@ -210,7 +210,7 @@ interface RentalForm {
                   </div>
                 </div>
                 <div class="price-field">
-                  <label>2 Tage</label>
+                  <label>{{ t.mietfahrradPriceDay2 }}</label>
                   <div class="price-input-wrap">
                     <input
                       type="number"
@@ -238,7 +238,7 @@ interface RentalForm {
                   </div>
                 </div>
                 <div class="price-field">
-                  <label>4 Tage</label>
+                  <label>{{ t.mietfahrradPriceDay4 }}</label>
                   <div class="price-input-wrap">
                     <input
                       type="number"
@@ -252,7 +252,7 @@ interface RentalForm {
                   </div>
                 </div>
                 <div class="price-field">
-                  <label>5 Tage</label>
+                  <label>{{ t.mietfahrradPriceDay5 }}</label>
                   <div class="price-input-wrap">
                     <input
                       type="number"
@@ -266,7 +266,7 @@ interface RentalForm {
                   </div>
                 </div>
                 <div class="price-field">
-                  <label>6 Tage</label>
+                  <label>{{ t.mietfahrradPriceDay6 }}</label>
                   <div class="price-input-wrap">
                     <input
                       type="number"
@@ -294,7 +294,7 @@ interface RentalForm {
                   </div>
                 </div>
                 <div class="price-field">
-                  <label>Zusatz pro weiterem Tag ab Tag 8</label>
+                  <label>{{ t.mietfahrradPriceAdditionalDayAfter7 }}</label>
                   <div class="price-input-wrap">
                     <input
                       type="number"

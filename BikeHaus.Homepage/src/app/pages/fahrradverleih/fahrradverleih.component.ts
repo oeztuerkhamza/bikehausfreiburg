@@ -13,8 +13,17 @@ import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
-import { PublicRentalBicycle, RentalBookingCreate, RentalReviewPublic, RentalReviewCreate } from '../../models/models';
+import {
+  PublicRentalBicycle,
+  RentalBookingCreate,
+  RentalReviewPublic,
+  RentalReviewCreate,
+} from '../../models/models';
 import { environment } from '../../../environments/environment';
+import {
+  calculateRentalPrice,
+  getConfiguredRentalPriceLines,
+} from '../../utils/rental-pricing';
 
 @Component({
   selector: 'app-fahrradverleih',
@@ -48,12 +57,12 @@ import { environment } from '../../../environments/environment';
             </span>
             <h1 class="rental-hero-h1">
               Fahrrad mieten<br /><span class="rental-hero-accent"
-                >ab 6,80 € / Tag</span
+                >tagesgenau pro Fahrrad</span
               >
             </h1>
             <p class="rental-hero-sub">
-              Sofort verfügbar – fair, flexibel, ohne versteckte Kosten.<br />Direkt
-              bei uns in Freiburg abholen.
+              1 bis 7 Tage individuell je Fahrrad kalkuliert, ab Tag 8 mit
+              festem Zusatzpreis.<br />Direkt bei uns in Freiburg abholen.
             </p>
             <div class="rental-hero-features">
               <span class="rfeat"
@@ -145,11 +154,11 @@ import { environment } from '../../../environments/environment';
           </div>
           <div class="rental-hero-right">
             <div class="rental-hero-price-card">
-              <div class="rhpc-badge">🔥 Bestes Angebot · Spare 30%</div>
-              <div class="rhpc-duration">14 Tage</div>
-              <div class="rhpc-price">95 €</div>
-              <div class="rhpc-per-day">= nur 6,80 € / Tag</div>
-              <div class="rhpc-vs">statt 12 € / Tag einzeln</div>
+              <div class="rhpc-badge">Individuelle Preislogik</div>
+              <div class="rhpc-duration">1-7 Tage</div>
+              <div class="rhpc-price">pro Fahrrad separat</div>
+              <div class="rhpc-per-day">manuell im Admin gepflegt</div>
+              <div class="rhpc-vs">ab Tag 8 automatisch mit Zusatzpreis</div>
               <div class="rhpc-features">
                 <span>✔ Schloss</span>
                 <span>✔ Helm</span>
@@ -171,8 +180,8 @@ import { environment } from '../../../environments/environment';
           </div>
           <div class="signature-stat-grid">
             <article class="signature-stat-card">
-              <span class="signature-stat-value">6,80 €</span>
-              <span class="signature-stat-label">Bestpreis pro Tag</span>
+              <span class="signature-stat-value">1-7 Tage</span>
+              <span class="signature-stat-label">individuell pro Fahrrad</span>
             </article>
 
             <article class="signature-stat-card">
@@ -195,10 +204,10 @@ import { environment } from '../../../environments/environment';
             <!-- 7 Tage -->
             <div class="pcard pcard-popular">
               <div class="pcard-top-badge">🔥 Beliebt</div>
-              <div class="pcard-label">Woche</div>
-              <div class="pcard-duration">7 Tage</div>
-              <div class="pcard-price">55 €</div>
-              <div class="pcard-per-day">7,85 € / Tag</div>
+              <div class="pcard-label">Flexibel</div>
+              <div class="pcard-duration">1 bis 7 Tage</div>
+              <div class="pcard-price">Individuelle Tagespreise</div>
+              <div class="pcard-per-day">je Fahrrad separat gepflegt</div>
               <ul class="pcard-features">
                 <li>Schloss inklusive</li>
                 <li>Helm kostenlos</li>
@@ -230,15 +239,17 @@ import { environment } from '../../../environments/environment';
               >
             </div>
 
-            <!-- 14 Tage – best deal -->
+            <!-- Flexible extension -->
             <div class="pcard pcard-best">
               <div class="pcard-top-badge pcard-best-badge">
-                🏆 Bestes Angebot · Spare 30%
+                Individuelle Verlängerung
               </div>
-              <div class="pcard-label">2 Wochen</div>
-              <div class="pcard-duration">14 Tage</div>
-              <div class="pcard-price">95 €</div>
-              <div class="pcard-per-day">6,80 € / Tag</div>
+              <div class="pcard-label">Ab Tag 8</div>
+              <div class="pcard-duration">7-Tage-Basis + Aufschlag</div>
+              <div class="pcard-price">pro Fahrrad konfiguriert</div>
+              <div class="pcard-per-day">
+                jeder weitere Tag mit festem Zusatzpreis
+              </div>
               <ul class="pcard-features">
                 <li>Schloss inklusive</li>
                 <li>Helm kostenlos</li>
@@ -272,10 +283,10 @@ import { environment } from '../../../environments/environment';
 
             <!-- 1 Tag -->
             <div class="pcard">
-              <div class="pcard-label">Tagesmiete</div>
-              <div class="pcard-duration">1 Tag</div>
-              <div class="pcard-price">12 €</div>
-              <div class="pcard-per-day">12 € / Tag</div>
+              <div class="pcard-label">Verlängerung</div>
+              <div class="pcard-duration">ab Tag 8</div>
+              <div class="pcard-price">7-Tage-Preis + Zusatz</div>
+              <div class="pcard-per-day">fixer Aufschlag je weiterem Tag</div>
               <ul class="pcard-features">
                 <li>Schloss inklusive</li>
                 <li>Helm kostenlos</li>
@@ -311,9 +322,9 @@ import { environment } from '../../../environments/environment';
           <!-- Extra prices compact -->
           <div class="pricing-extra-row">
             <div class="pextra-item">
-              <span class="pextra-dur">3 Tage</span>
-              <span class="pextra-price">28 €</span>
-              <span class="pextra-day">9,33 € / Tag</span>
+              <span class="pextra-dur">Tag 1-3</span>
+              <span class="pextra-price">direkt am Fahrrad sichtbar</span>
+              <span class="pextra-day">ohne versteckte Pauschale</span>
               <button
                 type="button"
                 (click)="scrollToBikes()"
@@ -323,9 +334,9 @@ import { environment } from '../../../environments/environment';
               </button>
             </div>
             <div class="pextra-item">
-              <span class="pextra-dur">30 Tage</span>
-              <span class="pextra-price">149 €</span>
-              <span class="pextra-day">4,97 € / Tag</span>
+              <span class="pextra-dur">Tag 4-7</span>
+              <span class="pextra-price">ebenfalls separat pflegbar</span>
+              <span class="pextra-day">ideal für Wochenmiete</span>
               <button
                 type="button"
                 (click)="scrollToBikes()"
@@ -335,9 +346,9 @@ import { environment } from '../../../environments/environment';
               </button>
             </div>
             <div class="pextra-item">
-              <span class="pextra-dur">ab 10 Tage / Tag</span>
-              <span class="pextra-price">7 €</span>
-              <span class="pextra-day">individuell</span>
+              <span class="pextra-dur">ab Tag 8</span>
+              <span class="pextra-price">7-Tage-Preis + Zusatz</span>
+              <span class="pextra-day">pro weiterem Tag</span>
               <button
                 type="button"
                 (click)="scrollToBikes()"
@@ -493,6 +504,23 @@ import { environment } from '../../../environments/environment';
                 </div>
                 <div class="seat-price-from" *ngIf="getMinPrice(bike) as minP">
                   ab {{ minP | number: '1.0-0' }} €
+                </div>
+                <div
+                  class="seat-price-list"
+                  *ngIf="getPriceLines(bike).length > 0"
+                >
+                  <span
+                    class="seat-price-pill"
+                    *ngFor="let item of getPriceLines(bike)"
+                  >
+                    {{ item.shortLabel }} {{ item.price | number: '1.0-0' }}€
+                  </span>
+                  <span
+                    class="seat-price-pill seat-price-pill-accent"
+                    *ngIf="bike.preise.additionalDayAfter7 != null"
+                  >
+                    +1T {{ bike.preise.additionalDayAfter7 | number: '1.0-0' }}€
+                  </span>
                 </div>
               </div>
               <div
@@ -664,72 +692,20 @@ import { environment } from '../../../environments/environment';
               <div class="bp-price-grid">
                 <div
                   class="bp-price-item"
-                  *ngIf="selectedBike()!.preise.day1 != null"
+                  *ngFor="let item of getPriceLines(selectedBike()!)"
                 >
-                  <span>1 Tag</span
-                  ><strong
-                    >{{
-                      selectedBike()!.preise.day1 | number: '1.0-0'
-                    }}
-                    €</strong
-                  >
+                  <span>{{ item.label }}</span
+                  ><strong>{{ item.price | number: '1.0-0' }} €</strong>
                 </div>
                 <div
                   class="bp-price-item"
-                  *ngIf="selectedBike()!.preise.day3 != null"
+                  *ngIf="selectedBike()!.preise.additionalDayAfter7 != null"
                 >
-                  <span>3 Tage</span
+                  <span>Ab Tag 8 je weiterer Tag</span
                   ><strong
                     >{{
-                      selectedBike()!.preise.day3 | number: '1.0-0'
-                    }}
-                    €</strong
-                  >
-                </div>
-                <div
-                  class="bp-price-item"
-                  *ngIf="selectedBike()!.preise.day7 != null"
-                >
-                  <span>7 Tage</span
-                  ><strong
-                    >{{
-                      selectedBike()!.preise.day7 | number: '1.0-0'
-                    }}
-                    €</strong
-                  >
-                </div>
-                <div
-                  class="bp-price-item"
-                  *ngIf="selectedBike()!.preise.day14 != null"
-                >
-                  <span>14 Tage</span
-                  ><strong
-                    >{{
-                      selectedBike()!.preise.day14 | number: '1.0-0'
-                    }}
-                    €</strong
-                  >
-                </div>
-                <div
-                  class="bp-price-item"
-                  *ngIf="selectedBike()!.preise.day30 != null"
-                >
-                  <span>30 Tage</span
-                  ><strong
-                    >{{
-                      selectedBike()!.preise.day30 | number: '1.0-0'
-                    }}
-                    €</strong
-                  >
-                </div>
-                <div
-                  class="bp-price-item"
-                  *ngIf="selectedBike()!.preise.perDayFrom10 != null"
-                >
-                  <span>ab 10 Tagen / Tag</span
-                  ><strong
-                    >{{
-                      selectedBike()!.preise.perDayFrom10 | number: '1.0-0'
+                      selectedBike()!.preise.additionalDayAfter7
+                        | number: '1.0-0'
                     }}
                     €</strong
                   >
@@ -1175,22 +1151,42 @@ import { environment } from '../../../environments/environment';
             <div class="reviews-spinner"></div>
           </div>
 
-          <div *ngIf="!reviewsLoading() && reviews().length === 0 && !reviewFormSuccess()" class="reviews-empty">
+          <div
+            *ngIf="
+              !reviewsLoading() &&
+              reviews().length === 0 &&
+              !reviewFormSuccess()
+            "
+            class="reviews-empty"
+          >
             {{ t().rentalReviewsNoReviews }}
           </div>
 
-          <div class="reviews-grid" *ngIf="!reviewsLoading() && reviews().length > 0">
+          <div
+            class="reviews-grid"
+            *ngIf="!reviewsLoading() && reviews().length > 0"
+          >
             <div class="review-card" *ngFor="let r of reviews()">
               <div class="rc-top">
                 <div class="rc-avatar">{{ r.ad.charAt(0).toUpperCase() }}</div>
                 <div class="rc-meta">
                   <div class="rc-name">{{ r.ad }}</div>
                   <div class="rc-stars">
-                    <span *ngFor="let s of starsArr(r.sterne)" class="rstar filled">★</span>
-                    <span *ngFor="let s of emptyStarsArr(r.sterne)" class="rstar empty">★</span>
+                    <span
+                      *ngFor="let s of starsArr(r.sterne)"
+                      class="rstar filled"
+                      >★</span
+                    >
+                    <span
+                      *ngFor="let s of emptyStarsArr(r.sterne)"
+                      class="rstar empty"
+                      >★</span
+                    >
                   </div>
                 </div>
-                <div class="rc-date">{{ r.createdAt | date:'dd.MM.yyyy' }}</div>
+                <div class="rc-date">
+                  {{ r.createdAt | date: 'dd.MM.yyyy' }}
+                </div>
               </div>
               <p class="rc-text">{{ r.yorum }}</p>
             </div>
@@ -1201,21 +1197,42 @@ import { environment } from '../../../environments/environment';
             <h3 class="review-form-title">{{ t().rentalReviewsFormTitle }}</h3>
 
             <div *ngIf="reviewFormSuccess()" class="review-form-success">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="20 6 9 17 4 12"/>
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <polyline points="20 6 9 17 4 12" />
               </svg>
               {{ t().rentalReviewsFormSuccess }}
             </div>
 
-            <form *ngIf="!reviewFormSuccess()" class="review-form" (ngSubmit)="submitReview()">
+            <form
+              *ngIf="!reviewFormSuccess()"
+              class="review-form"
+              (ngSubmit)="submitReview()"
+            >
               <div class="rform-row">
                 <div class="rform-field">
                   <label>{{ t().rentalReviewsFormName }} *</label>
-                  <input type="text" [(ngModel)]="reviewForm.ad" name="rvAd" placeholder="{{ t().rentalReviewsFormName }}" />
+                  <input
+                    type="text"
+                    [(ngModel)]="reviewForm.ad"
+                    name="rvAd"
+                    placeholder="{{ t().rentalReviewsFormName }}"
+                  />
                 </div>
                 <div class="rform-field">
                   <label>{{ t().rentalReviewsFormEmail }}</label>
-                  <input type="email" [(ngModel)]="reviewForm.email" name="rvEmail" placeholder="{{ t().rentalReviewsFormEmail }}" />
+                  <input
+                    type="email"
+                    [(ngModel)]="reviewForm.email"
+                    name="rvEmail"
+                    placeholder="{{ t().rentalReviewsFormEmail }}"
+                  />
                 </div>
               </div>
 
@@ -1224,25 +1241,42 @@ import { environment } from '../../../environments/environment';
                 <div class="star-picker">
                   <button
                     type="button"
-                    *ngFor="let n of [1,2,3,4,5]"
+                    *ngFor="let n of [1, 2, 3, 4, 5]"
                     class="star-btn"
                     [class.selected]="reviewForm.sterne >= n"
                     (click)="reviewForm.sterne = n"
                     [attr.aria-label]="n + ' Sterne'"
-                  >★</button>
+                  >
+                    ★
+                  </button>
                 </div>
               </div>
 
               <div class="rform-field">
                 <label>{{ t().rentalReviewsFormComment }} *</label>
-                <textarea [(ngModel)]="reviewForm.yorum" name="rvYorum" rows="4" placeholder="{{ t().rentalReviewsFormComment }}"></textarea>
+                <textarea
+                  [(ngModel)]="reviewForm.yorum"
+                  name="rvYorum"
+                  rows="4"
+                  placeholder="{{ t().rentalReviewsFormComment }}"
+                ></textarea>
               </div>
 
-              <div *ngIf="reviewFormError()" class="review-form-error">{{ reviewFormError() }}</div>
+              <div *ngIf="reviewFormError()" class="review-form-error">
+                {{ reviewFormError() }}
+              </div>
 
-              <button type="submit" class="rform-submit" [disabled]="reviewFormSending()">
+              <button
+                type="submit"
+                class="rform-submit"
+                [disabled]="reviewFormSending()"
+              >
                 <div *ngIf="reviewFormSending()" class="submit-spinner"></div>
-                {{ reviewFormSending() ? t().rentalReviewsFormSending : t().rentalReviewsFormSubmit }}
+                {{
+                  reviewFormSending()
+                    ? t().rentalReviewsFormSending
+                    : t().rentalReviewsFormSubmit
+                }}
               </button>
             </form>
           </div>
@@ -3280,7 +3314,7 @@ import { environment } from '../../../environments/environment';
       .reviews-section {
         margin-top: 3rem;
         padding: 2.5rem 0;
-        border-top: 1px solid rgba(255,255,255,0.08);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
       .reviews-header {
         text-align: center;
@@ -3293,7 +3327,7 @@ import { environment } from '../../../environments/environment';
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--color-accent);
-        background: rgba(var(--color-accent-rgb, 99,102,241), 0.12);
+        background: rgba(var(--color-accent-rgb, 99, 102, 241), 0.12);
         border-radius: 50px;
         padding: 4px 14px;
         margin-bottom: 0.75rem;
@@ -3312,7 +3346,7 @@ import { environment } from '../../../environments/environment';
       .reviews-spinner {
         width: 28px;
         height: 28px;
-        border: 3px solid rgba(255,255,255,0.1);
+        border: 3px solid rgba(255, 255, 255, 0.1);
         border-top-color: var(--color-accent);
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
@@ -3330,14 +3364,14 @@ import { environment } from '../../../environments/environment';
         margin-bottom: 2.5rem;
       }
       .review-card {
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 14px;
         padding: 1.2rem 1.4rem;
         transition: box-shadow 0.2s;
       }
       .review-card:hover {
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
       }
       .rc-top {
         display: flex;
@@ -3375,9 +3409,15 @@ import { environment } from '../../../environments/environment';
         gap: 1px;
         margin-top: 2px;
       }
-      .rstar { font-size: 0.9rem; }
-      .rstar.filled { color: #f59e0b; }
-      .rstar.empty { color: rgba(255,255,255,0.15); }
+      .rstar {
+        font-size: 0.9rem;
+      }
+      .rstar.filled {
+        color: #f59e0b;
+      }
+      .rstar.empty {
+        color: rgba(255, 255, 255, 0.15);
+      }
       .rc-date {
         font-size: 0.75rem;
         color: var(--color-text-secondary);
@@ -3392,8 +3432,8 @@ import { environment } from '../../../environments/environment';
 
       /* Review form */
       .review-form-wrap {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 16px;
         padding: 2rem;
         max-width: 640px;
@@ -3409,7 +3449,7 @@ import { environment } from '../../../environments/environment';
         display: flex;
         align-items: center;
         gap: 0.6rem;
-        background: rgba(16,185,129,0.12);
+        background: rgba(16, 185, 129, 0.12);
         color: #34d399;
         border-radius: 10px;
         padding: 0.9rem 1.1rem;
@@ -3417,7 +3457,7 @@ import { environment } from '../../../environments/environment';
         font-weight: 600;
       }
       .review-form-error {
-        background: rgba(239,68,68,0.1);
+        background: rgba(239, 68, 68, 0.1);
         color: #f87171;
         border-radius: 8px;
         padding: 0.65rem 1rem;
@@ -3446,8 +3486,8 @@ import { environment } from '../../../environments/environment';
       }
       .rform-field input,
       .rform-field textarea {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 10px;
         color: var(--color-text);
         font-size: 0.9rem;
@@ -3465,7 +3505,7 @@ import { environment } from '../../../environments/environment';
       }
       .rform-field input::placeholder,
       .rform-field textarea::placeholder {
-        color: rgba(255,255,255,0.25);
+        color: rgba(255, 255, 255, 0.25);
       }
       .star-picker {
         display: flex;
@@ -3475,14 +3515,20 @@ import { environment } from '../../../environments/environment';
         background: none;
         border: none;
         font-size: 1.6rem;
-        color: rgba(255,255,255,0.2);
+        color: rgba(255, 255, 255, 0.2);
         cursor: pointer;
         padding: 0;
         line-height: 1;
-        transition: color 0.15s, transform 0.1s;
+        transition:
+          color 0.15s,
+          transform 0.1s;
       }
-      .star-btn.selected { color: #f59e0b; }
-      .star-btn:hover { transform: scale(1.2); }
+      .star-btn.selected {
+        color: #f59e0b;
+      }
+      .star-btn:hover {
+        transform: scale(1.2);
+      }
       .rform-submit {
         display: inline-flex;
         align-items: center;
@@ -3499,8 +3545,13 @@ import { environment } from '../../../environments/environment';
         transition: opacity 0.2s;
         align-self: flex-start;
       }
-      .rform-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-      .rform-submit:hover:not(:disabled) { opacity: 0.85; }
+      .rform-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .rform-submit:hover:not(:disabled) {
+        opacity: 0.85;
+      }
 
       .rental-cta {
         display: flex;
@@ -3768,21 +3819,23 @@ export class FahrradverleihComponent implements OnInit {
     }
     this.reviewFormError.set(null);
     this.reviewFormSending.set(true);
-    this.apiService.createRentalReview({
-      ad: f.ad.trim(),
-      email: f.email?.trim() || undefined,
-      sterne: f.sterne,
-      yorum: f.yorum.trim(),
-    }).subscribe({
-      next: () => {
-        this.reviewFormSuccess.set(true);
-        this.reviewFormSending.set(false);
-      },
-      error: () => {
-        this.reviewFormError.set(this.t().rentalReviewsFormError);
-        this.reviewFormSending.set(false);
-      },
-    });
+    this.apiService
+      .createRentalReview({
+        ad: f.ad.trim(),
+        email: f.email?.trim() || undefined,
+        sterne: f.sterne,
+        yorum: f.yorum.trim(),
+      })
+      .subscribe({
+        next: () => {
+          this.reviewFormSuccess.set(true);
+          this.reviewFormSending.set(false);
+        },
+        error: () => {
+          this.reviewFormError.set(this.t().rentalReviewsFormError);
+          this.reviewFormSending.set(false);
+        },
+      });
   }
 
   starsArr(n: number): number[] {
@@ -3794,13 +3847,17 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   private addRentalSchema(lang: string, pageUrl: string): void {
+    if (!this.isBrowser || typeof document === 'undefined') {
+      return;
+    }
+
     const existing = document.getElementById('rental-schema');
     if (existing) existing.remove();
 
     const faqDe = [
       {
         q: 'Was kostet Fahrrad mieten in Freiburg?',
-        a: 'Bei Bike Haus Freiburg mieten Sie ein Fahrrad ab 6,80 € pro Tag (14-Tage-Paket). Tagesmiete ab 12 €, Wochenpaket ab 55 €.',
+        a: 'Bei Bike Haus Freiburg werden die Preise je Fahrrad für 1 bis 7 Tage individuell gepflegt. Ab dem 8. Tag wird der 7-Tage-Preis plus ein fester Zusatz pro weiterem Tag berechnet.',
       },
       {
         q: 'Was ist im Fahrradverleih inklusive?',
@@ -3816,14 +3873,14 @@ export class FahrradverleihComponent implements OnInit {
       },
       {
         q: 'Wie lange kann ich ein Fahrrad mieten?',
-        a: 'Kurzmiete ab 1 Tag, Woche, 14 Tage und Monatsmiete verfügbar. Ab 8 Tagen nur 8 € pro Tag.',
+        a: 'Sie können Fahrräder ab 1 Tag mieten. Für 1 bis 7 Tage gibt es je Fahrrad eigene Preise, danach läuft die Berechnung mit dem 7-Tage-Preis plus Zusatz pro weiterem Tag.',
       },
     ];
 
     const faqEn = [
       {
         q: 'How much does it cost to rent a bike in Freiburg?',
-        a: 'At Bike Haus Freiburg, bike rental starts from €6.80 per day (14-day package). Day rate from €12, weekly package from €55.',
+        a: 'At Bike Haus Freiburg, each bike has its own configured price for days 1 to 7. From day 8 onward, pricing is based on the 7-day price plus a fixed surcharge for each additional day.',
       },
       {
         q: 'What is included in the bike rental?',
@@ -3839,14 +3896,14 @@ export class FahrradverleihComponent implements OnInit {
       },
       {
         q: 'How long can I rent a bike?',
-        a: 'Short rental from 1 day, weekly, 14 days and monthly rentals available. From 8 days only €8 per day.',
+        a: 'You can rent a bike from 1 day upward. Days 1 to 7 use per-bike configured prices, and from day 8 onward the system adds a fixed extra-day surcharge to the 7-day price.',
       },
     ];
 
     const faqFr = [
       {
         q: 'Combien coûte la location de vélo à Fribourg-en-Brisgau ?',
-        a: 'Chez Bike Haus Freiburg, la location commence à 6,80 €/jour (forfait 14 jours). Tarif journalier à partir de 12 €, forfait semaine à partir de 55 €.',
+        a: 'Chez Bike Haus Freiburg, chaque vélo dispose de tarifs configurés individuellement pour 1 à 7 jours. À partir du 8e jour, le calcul utilise le prix 7 jours plus un supplément fixe par jour ajouté.',
       },
       {
         q: "Qu'est-ce qui est inclus dans la location de vélo ?",
@@ -3865,7 +3922,7 @@ export class FahrradverleihComponent implements OnInit {
     const faqTr = [
       {
         q: "Freiburg'da bisiklet kiralama ne kadar tutar?",
-        a: "Bike Haus Freiburg'da bisiklet kiralama 6,80 €/gün'den başlar (14 günlük paket). Günlük ücret 12 €'dan, haftalık paket 55 €'dan başlar.",
+        a: "Bike Haus Freiburg'da fiyatlar her bisiklet için 1 ila 7 gün arasında ayrı ayrı tanımlanır. 8. günden sonra hesaplama, 7 günlük fiyatın üzerine her ek gün için sabit ücret eklenerek yapılır.",
       },
       {
         q: 'Bisiklet kiralamaya neler dahildir?',
@@ -3902,7 +3959,7 @@ export class FahrradverleihComponent implements OnInit {
             'Freiburg Bisiklet Kiralama',
           ],
           description:
-            'Fahrradverleih in Freiburg im Breisgau — Cityräder, Trekkingräder und E-Bikes mieten ab 6,80 € pro Tag. Helm und Schloss inklusive.',
+            'Fahrradverleih in Freiburg im Breisgau — Cityräder, Trekkingräder und E-Bikes mit individuell gepflegten Tagespreisen je Fahrrad. Helm und Schloss inklusive.',
           provider: {
             '@type': 'LocalBusiness',
             '@id': 'https://bikehausfreiburg.com/#organization',
@@ -3922,29 +3979,6 @@ export class FahrradverleihComponent implements OnInit {
             '@type': 'City',
             name: 'Freiburg im Breisgau',
           },
-          offers: [
-            {
-              '@type': 'Offer',
-              name: '1 Tag',
-              price: '12.00',
-              priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock',
-            },
-            {
-              '@type': 'Offer',
-              name: '7 Tage',
-              price: '55.00',
-              priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock',
-            },
-            {
-              '@type': 'Offer',
-              name: '14 Tage',
-              price: '95.00',
-              priceCurrency: 'EUR',
-              availability: 'https://schema.org/InStock',
-            },
-          ],
           url: pageUrl,
         },
         {
@@ -4047,11 +4081,14 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   getMinPrice(bike: PublicRentalBicycle): number | null {
-    const p = bike.preise;
-    const prices = [p.day1, p.day3, p.day7, p.day14, p.day30].filter(
-      (v): v is number => v != null,
+    const prices = getConfiguredRentalPriceLines(bike.preise).map(
+      (item) => item.price,
     );
     return prices.length > 0 ? Math.min(...prices) : null;
+  }
+
+  getPriceLines(bike: PublicRentalBicycle) {
+    return getConfiguredRentalPriceLines(bike.preise);
   }
 
   selectBikeImage(index: number): void {
@@ -4144,16 +4181,8 @@ export class FahrradverleihComponent implements OnInit {
       this.calculatedPrice.set(null);
       return;
     }
-    const p = bike.preise;
-    let price: number | null = null;
-    if (days <= 1 && p.day1 != null) price = p.day1;
-    else if (days <= 3 && p.day3 != null) price = p.day3;
-    else if (days <= 7 && p.day7 != null) price = p.day7;
-    else if (days <= 14 && p.day14 != null) price = p.day14;
-    else if (days <= 30 && p.day30 != null) price = p.day30;
-    else if (days > 10 && p.perDayFrom10 != null) price = p.perDayFrom10 * days;
-    else if (p.day1 != null) price = p.day1 * days;
-    this.calculatedPrice.set(price);
+    const result = calculateRentalPrice(bike.preise, days);
+    this.calculatedPrice.set(result.total);
   }
 
   prevMonth(): void {

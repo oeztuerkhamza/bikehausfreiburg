@@ -160,22 +160,22 @@ interface Testimonial {
             <h2 class="svc-card-title">
               {{ t().homeRentalCardTitle }}<br /><span
                 class="rental-price-inline"
-                >ab <strong>6,80 €</strong> / Tag</span
+                ><strong>1-7 Tage individuell</strong></span
               >
             </h2>
             <div class="rental-packages">
               <div class="rental-pkg">
-                <span class="pkg-days">7 Tage</span>
-                <span class="pkg-price">55 €</span>
-                <span class="pkg-day">7,85 € / Tag</span>
+                <span class="pkg-days">1-7 Tage</span>
+                <span class="pkg-price">pro Fahrrad</span>
+                <span class="pkg-day">tagesgenau konfiguriert</span>
               </div>
               <div class="rental-pkg rental-pkg-highlight">
                 <span class="pkg-badge-top">{{
                   t().homeRentalPopularBadge
                 }}</span>
-                <span class="pkg-days">14 Tage</span>
-                <span class="pkg-price">95 €</span>
-                <span class="pkg-day">6,80 € / Tag</span>
+                <span class="pkg-days">ab Tag 8</span>
+                <span class="pkg-price">7-Tage-Preis + Aufschlag</span>
+                <span class="pkg-day">je weiterer Tag fest hinterlegt</span>
               </div>
             </div>
             <ul class="svc-card-list">

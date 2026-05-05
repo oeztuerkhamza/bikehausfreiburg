@@ -131,13 +131,13 @@ Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder, Hollandräd
 
 ## English Information
 
-Bike Haus Freiburg is a bike shop at Heckerstraße 27, 79114 Freiburg im Breisgau, Germany. We sell new and used bikes — city bikes, trekking bikes, e-bikes, children's bikes — all technically inspected with 3-month warranty. English-speaking staff available. Bike rental from €6.80/day. Freiburg is 25 km from the French border (Alsace) and is one of Germany's most bike-friendly cities with 420+ km of cycling paths.
+Bike Haus Freiburg is a bike shop at Heckerstraße 27, 79114 Freiburg im Breisgau, Germany. We sell new and used bikes — city bikes, trekking bikes, e-bikes, children's bikes — all technically inspected with 3-month warranty. English-speaking staff available. Bike rental uses bike-specific daily pricing for days 1 to 7, plus a fixed surcharge for each extra day from day 8. Freiburg is 25 km from the French border (Alsace) and is one of Germany's most bike-friendly cities with 420+ km of cycling paths.
 
 **Where to buy a bike in Freiburg?**
 Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. 100+ bikes in stock. Walk-ins welcome, no appointment needed.
 
 **Bike rental in Freiburg — prices?**
-From €6.80/day. 1 day: €12, 7 days: €55, 30 days: €160. Lock and basket included. Deposit: €300 cash.
+Prices are configured per bike for days 1 to 7. From day 8 onward, the system adds a fixed extra-day surcharge to the 7-day base price. Lock and basket included. Deposit: €300 cash.
 
 **Do you speak English?**
 Yes. Our staff can assist you in English.
@@ -146,7 +146,7 @@ Yes. Our staff can assist you in English.
 Yes. We have 100+ inspected used bikes from €80 with 3-month warranty. English service available.
 
 **What are the best cycling routes in Freiburg?**
-Schlossberg (2 km city view), Dreisam river path (12 km), Rhine Cycle Route EV15 (flat, toward Basel). Rent bikes from Bike Haus Freiburg from €6.80/day.
+Schlossberg (2 km city view), Dreisam river path (12 km), Rhine Cycle Route EV15 (flat, toward Basel). Rent bikes from Bike Haus Freiburg with bike-specific daily pricing.
 
 ## Guide français (Blog)
 
@@ -164,13 +164,13 @@ Schlossberg (2 km city view), Dreisam river path (12 km), Rhine Cycle Route EV15
 
 ## Informations en français
 
-Bike Haus Freiburg est un magasin de vélos situé au Heckerstraße 27, 79114 Fribourg-en-Brisgau, Allemagne. Nous vendons des vélos neufs et d'occasion — vélos de ville, VTC, VAE, vélos enfants — tous contrôlés techniquement avec 3 mois de garantie. Location de vélos dès 6,80 €/jour. Fribourg est à 25 km de la frontière française (Alsace) et est l'une des villes les plus cyclables d'Allemagne avec 420+ km de pistes cyclables.
+Bike Haus Freiburg est un magasin de vélos situé au Heckerstraße 27, 79114 Fribourg-en-Brisgau, Allemagne. Nous vendons des vélos neufs et d'occasion — vélos de ville, VTC, VAE, vélos enfants — tous contrôlés techniquement avec 3 mois de garantie. La location suit des tarifs journaliers définis par vélo pour 1 à 7 jours, puis un supplément fixe à partir du 8e jour. Fribourg est à 25 km de la frontière française (Alsace) et est l'une des villes les plus cyclables d'Allemagne avec 420+ km de pistes cyclables.
 
 **Où acheter un vélo à Fribourg ?**
 Bike Haus Freiburg, Heckerstraße 27, 79114 Fribourg-en-Brisgau. 100+ vélos en stock. Pas de rendez-vous nécessaire.
 
 **Location vélo Fribourg — tarifs ?**
-Dès 6,80 €/jour. 1 jour : 12 €, 7 jours : 55 €, 30 jours : 160 €. Cadenas et panier inclus.
+Tarifs définis individuellement par vélo pour 1 à 7 jours. À partir du 8e jour, le prix 7 jours est prolongé par un supplément fixe par jour ajouté. Cadenas et panier inclus.
 
 **Rhin à Vélo depuis Fribourg ?**
 Fribourg est à 20 minutes à vélo du Rhin. Louez votre vélo chez nous et rejoignez l'EuroVelo 15 à Breisach ou Neuenburg.

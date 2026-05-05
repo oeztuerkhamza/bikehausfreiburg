@@ -1348,7 +1348,8 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           },
           {
             type: 'heading',
-            content: 'Woran erkenne ich, dass mein Fahrrad eine Inspektion braucht?',
+            content:
+              'Woran erkenne ich, dass mein Fahrrad eine Inspektion braucht?',
           },
           {
             type: 'list',
@@ -1707,12 +1708,12 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       de: {
         title: 'Fahrrad mieten in Freiburg — Preise, Tipps & Buchung 2026',
         metaTitle:
-          'Fahrrad mieten Freiburg 2026 — ab 6,80 €/Tag | Bike Haus Freiburg',
+          'Fahrrad mieten Freiburg 2026 — Tagespreise pro Fahrrad | Bike Haus Freiburg',
         metaDescription:
-          'Fahrrad mieten in Freiburg ✓ Cityrad, Trekking & E-Bike ✓ Ab 6,80 €/Tag ✓ Schloss & Helm inklusive ✓ Sofort abholen ✓ Kein Vorausbezahlen. Bike Haus Freiburg.',
+          'Fahrrad mieten in Freiburg ✓ 1 bis 7 Tage individuell pro Fahrrad ✓ ab Tag 8 mit Zusatzpreis ✓ Schloss & Helm inklusive ✓ Kein Vorausbezahlen. Bike Haus Freiburg.',
         excerpt:
           'Fahrrad mieten in Freiburg: faire Preise, sofort verfügbar, ohne versteckte Kosten. Alles was Sie wissen müssen.',
-        tldr: 'Bike Haus Freiburg vermietet Fahrräder ab 6,80 €/Tag. 1 Tag: 12 €, 7 Tage: 55 €, 30 Tage: 160 €. Schloss & Helm inklusive. Kaution: 300 € bar. Heckerstraße 27, 79114 Freiburg.',
+        tldr: 'Bike Haus Freiburg vermietet Fahrräder mit individuell gepflegten Tagespreisen pro Fahrrad. Für 1 bis 7 Tage gilt der jeweilige Fahrradpreis, danach der 7-Tage-Preis plus Zusatz pro weiterem Tag. Schloss & Helm inklusive. Kaution: 300 € bar.',
         sections: [
           {
             type: 'heading',
@@ -1730,12 +1731,9 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              '1 Tag: 12 €',
-              '3 Tage: 30 €',
-              '7 Tage: 55 €',
-              '14 Tage: 95 €',
-              '30 Tage: 160 €',
-              'Ab 10 Tagen: 6,50 €/Tag',
+              '1 bis 7 Tage: je Fahrrad individuell konfiguriert',
+              'Ab Tag 8: 7-Tage-Preis plus Zusatz pro weiterem Tag',
+              'Preisübersicht direkt am jeweiligen Fahrrad sichtbar',
             ],
           },
           { type: 'heading', content: 'Was ist inklusive?' },
@@ -1750,7 +1748,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'tip',
             content:
-              'Tipp: Buchen Sie mindestens 7 Tage — so bezahlen Sie nur 7,85 €/Tag statt 12 €. Ideal für Urlauber und Touristen.',
+              'Tipp: Vergleichen Sie die Preise direkt am gewünschten Fahrrad. Für längere Mieten sehen Sie dort sofort, wie sich der 7-Tage-Preis und der Zusatz pro Tag zusammensetzen.',
           },
           { type: 'heading', content: 'Öffnungszeiten für Fahrradverleih' },
           {
@@ -1773,12 +1771,12 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       en: {
         title: 'Bike Rental Freiburg — Prices, Tips & Booking 2026',
         metaTitle:
-          'Bike Rental Freiburg 2026 — from €6.80/day | Bike Haus Freiburg',
+          'Bike Rental Freiburg 2026 — Daily Pricing Per Bike | Bike Haus Freiburg',
         metaDescription:
-          'Rent a bike in Freiburg ✓ City, Trekking & E-Bikes ✓ From €6.80/day ✓ Lock & helmet included ✓ Same-day pickup ✓ No prepayment. Bike Haus Freiburg.',
+          'Rent a bike in Freiburg ✓ days 1 to 7 priced individually per bike ✓ fixed extra-day surcharge from day 8 ✓ lock & helmet included. Bike Haus Freiburg.',
         excerpt:
           'Everything you need to know about bike rental in Freiburg: prices, pickup, included equipment and tips for exploring the city.',
-        tldr: 'Bike Haus Freiburg rents bikes from €6.80/day. 1 day: €12, 7 days: €55, 30 days: €160. Lock & helmet included. Deposit: €300 cash. Located at Heckerstraße 27, 79114 Freiburg.',
+        tldr: 'Bike Haus Freiburg rents bikes with individually configured daily prices per bike. Days 1 to 7 use the bike-specific rate, and from day 8 onward the 7-day price is extended by a fixed extra-day surcharge. Lock & helmet included. Deposit: €300 cash.',
         sections: [
           {
             type: 'heading',
@@ -1793,12 +1791,9 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              '1 day: €12',
-              '3 days: €30',
-              '7 days: €55',
-              '14 days: €95',
-              '30 days: €160',
-              'From 10 days: €6.50/day',
+              'Days 1 to 7: individually configured per bike',
+              'From day 8: 7-day price plus fixed surcharge per extra day',
+              'Exact price list is shown next to each bike',
             ],
           },
           { type: 'heading', content: "What's included?" },
@@ -1813,7 +1808,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'tip',
             content:
-              'Tourist tip: Book for 7 days to pay just €7.85/day — much cheaper than most rental shops in Freiburg city center. Perfect for exploring the Black Forest by bike.',
+              'Tourist tip: check the exact day-by-day list on the bike you want. For longer rentals you will also see the fixed surcharge that applies after day 7.',
           },
           {
             type: 'heading',
@@ -1850,12 +1845,12 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         title:
           'Location de vélos à Fribourg — Tarifs, Conseils & Réservation 2026',
         metaTitle:
-          'Location vélo Fribourg 2026 — dès 6,80 €/jour | Bike Haus Freiburg',
+          'Location vélo Fribourg 2026 — Tarifs journaliers par vélo | Bike Haus Freiburg',
         metaDescription:
-          "Louer un vélo à Fribourg-en-Brisgau ✓ Ville, VTC & VAE ✓ Dès 6,80 €/jour ✓ Cadenas & casque inclus ✓ Retrait immédiat ✓ À 25 km de l'Alsace. Bike Haus Freiburg.",
+          'Louer un vélo à Fribourg-en-Brisgau ✓ tarifs 1 à 7 jours définis par vélo ✓ supplément fixe à partir du 8e jour ✓ cadenas & casque inclus. Bike Haus Freiburg.',
         excerpt:
           'Tout ce que vous devez savoir sur la location de vélos à Fribourg : tarifs, retrait, équipement inclus et conseils pour explorer la ville.',
-        tldr: 'Bike Haus Freiburg loue des vélos à partir de 6,80 €/jour. 1 jour : 12 €, 7 jours : 55 €, 30 jours : 160 €. Cadenas & casque inclus. Caution : 300 € en espèces. Heckerstraße 27, 79114 Fribourg.',
+        tldr: 'Bike Haus Freiburg loue des vélos avec des tarifs journaliers définis individuellement pour chaque vélo. De 1 à 7 jours, le prix dépend du vélo choisi, puis le tarif 7 jours est prolongé par un supplément fixe par jour ajouté. Cadenas & casque inclus. Caution : 300 € en espèces.',
         sections: [
           {
             type: 'heading',
@@ -1870,12 +1865,9 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              '1 jour : 12 €',
-              '3 jours : 30 €',
-              '7 jours : 55 €',
-              '14 jours : 95 €',
-              '30 jours : 160 €',
-              'À partir de 10 jours : 6,50 €/jour',
+              '1 à 7 jours : tarif configuré individuellement par vélo',
+              'À partir du 8e jour : prix 7 jours + supplément fixe par jour ajouté',
+              'La liste exacte des prix apparaît à côté de chaque vélo',
             ],
           },
           { type: 'heading', content: "Qu'est-ce qui est inclus ?" },
@@ -1922,12 +1914,12 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       tr: {
         title: "Freiburg'da Bisiklet Kiralama — Fiyatlar & Rezervasyon 2026",
         metaTitle:
-          'Freiburg Bisiklet Kiralama 2026 — 6,80 €/günden | Bike Haus Freiburg',
+          'Freiburg Bisiklet Kiralama 2026 — Bisiklet Bazlı Günlük Fiyat | Bike Haus Freiburg',
         metaDescription:
-          "Freiburg'da bisiklet kiralayın ✓ Şehir, trekking & e-bisiklet ✓ 6,80 €/günden ✓ Kilit & kask dahil ✓ Aynı gün teslim ✓ Bike Haus Freiburg.",
+          "Freiburg'da bisiklet kiralayın ✓ 1-7 gün için bisiklet bazlı fiyat ✓ 8. günden sonra sabit ek gün ücreti ✓ kilit & kask dahil ✓ Bike Haus Freiburg.",
         excerpt:
           "Freiburg'da bisiklet kiralama hakkında bilmeniz gereken her şey: fiyatlar, teslim, dahil ekipman ve ipuçları.",
-        tldr: 'Bike Haus Freiburg 6,80 €/günden bisiklet kiralar. 1 gün: 12 €, 7 gün: 55 €, 30 gün: 160 €. Kilit & kask dahil. Depozito: 300 € nakit. Heckerstraße 27, 79114 Freiburg.',
+        tldr: 'Bike Haus Freiburg her bisiklet için günlük fiyatları ayrı tanımlar. 1-7 gün arasında seçilen bisikletin fiyatı geçerlidir, 8. günden sonra ise 7 günlük fiyatın üstüne sabit ek gün ücreti eklenir. Kilit & kask dahil. Depozito: 300 € nakit.',
         sections: [
           {
             type: 'heading',
@@ -2187,10 +2179,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Radfahren in Freiburg — Routen, Verleih & Tipps 2026 | Bike Haus Freiburg',
         metaDescription:
-          'Die besten Fahrradrouten in Freiburg ✓ Schwarzwald, Rhein, Innenstadt ✓ Fahrradverleih ab 6,80 €/Tag ✓ Tipps für Touristen & Einwohner. Bike Haus Freiburg.',
+          'Die besten Fahrradrouten in Freiburg ✓ Schwarzwald, Rhein, Innenstadt ✓ Fahrradverleih mit individuellen Tagespreisen pro Fahrrad ✓ Tipps für Touristen & Einwohner. Bike Haus Freiburg.',
         excerpt:
           'Freiburg ist eines der fahrradfreundlichsten Städte Deutschlands. Die besten Routen, Sehenswürdigkeiten und Verleih-Tipps.',
-        tldr: 'Freiburg hat 420+ km Radwege. Top-Routen: Schlossberg (2 km), Dreisam-Radweg (12 km), Rhein-Radweg EV15. Fahrrad mieten bei Bike Haus Freiburg ab 6,80 €/Tag.',
+        tldr: 'Freiburg hat 420+ km Radwege. Top-Routen: Schlossberg (2 km), Dreisam-Radweg (12 km), Rhein-Radweg EV15. Fahrrad mieten bei Bike Haus Freiburg mit individuellen Tagespreisen pro Fahrrad.',
         sections: [
           {
             type: 'heading',
@@ -2228,10 +2220,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Cycling in Freiburg 2026 — Routes, Bike Rental & Tips | Bike Haus Freiburg',
         metaDescription:
-          'Best cycling routes in Freiburg ✓ Black Forest, Rhine, City ✓ Bike rental from €6.80/day ✓ Tips for tourists & residents. Your guide to cycling in Freiburg.',
+          'Best cycling routes in Freiburg ✓ Black Forest, Rhine, City ✓ Bike rental with daily pricing per bike ✓ Tips for tourists & residents. Your guide to cycling in Freiburg.',
         excerpt:
           "Freiburg is one of Germany's most bike-friendly cities. Discover the best cycling routes, how to rent a bike, and everything you need to explore the city on two wheels.",
-        tldr: 'Freiburg has 420+ km of cycling paths. Top routes: Schlossberg viewpoint (2 km), Dreisam river path (12 km), Rhine Cycle Route EV15. Rent a bike from Bike Haus Freiburg from €6.80/day.',
+        tldr: 'Freiburg has 420+ km of cycling paths. Top routes: Schlossberg viewpoint (2 km), Dreisam river path (12 km), Rhine Cycle Route EV15. Rent a bike from Bike Haus Freiburg with daily pricing configured per bike.',
         sections: [
           {
             type: 'heading',
@@ -2263,7 +2255,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'paragraph',
             content:
-              'Bike Haus Freiburg at Heckerstraße 27 is the ideal starting point for your cycling adventure. We offer city bikes, trekking bikes and e-bikes for rent from €6.80/day. Lock and basket included. No reservation required.',
+              'Bike Haus Freiburg at Heckerstraße 27 is the ideal starting point for your cycling adventure. We offer city bikes, trekking bikes and e-bikes with daily prices configured per bike. Lock and basket included. No reservation required.',
           },
           { type: 'heading', content: 'Cycling Tips for Tourists in Freiburg' },
           {
@@ -2295,10 +2287,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Vélo à Fribourg 2026 — Itinéraires, Location & Conseils | Bike Haus Freiburg',
         metaDescription:
-          "Les meilleurs itinéraires vélo à Fribourg ✓ Forêt-Noire, Rhin, Centre-ville ✓ Location dès 6,80 €/jour ✓ Rhin à Vélo ✓ À 25 km de l'Alsace. Bike Haus Freiburg.",
+          "Les meilleurs itinéraires vélo à Fribourg ✓ Forêt-Noire, Rhin, Centre-ville ✓ Location avec tarifs journaliers par vélo ✓ Rhin à Vélo ✓ À 25 km de l'Alsace. Bike Haus Freiburg.",
         excerpt:
           "Fribourg-en-Brisgau est l'une des villes les plus cyclables d'Allemagne. Découvrez les meilleurs itinéraires, comment louer un vélo et tout ce qu'il faut savoir pour explorer la région à deux roues.",
-        tldr: 'Fribourg compte 420+ km de pistes cyclables. Itinéraires phares : tour du Schlossberg (2 km), piste cyclable de la Dreisam (12 km), Rhin à Vélo EV15. Location vélo chez Bike Haus Freiburg dès 6,80 €/jour.',
+        tldr: 'Fribourg compte 420+ km de pistes cyclables. Itinéraires phares : tour du Schlossberg (2 km), piste cyclable de la Dreisam (12 km), Rhin à Vélo EV15. Location vélo chez Bike Haus Freiburg avec tarifs journaliers définis par vélo.',
         sections: [
           {
             type: 'heading',
@@ -2330,7 +2322,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'paragraph',
             content:
-              'Bike Haus Freiburg au Heckerstraße 27 est le point de départ idéal pour votre aventure cycliste. Nous proposons des vélos de ville, VTC et VAE en location dès 6,80 €/jour. Cadenas et panier inclus. Pas de réservation obligatoire.',
+              'Bike Haus Freiburg au Heckerstraße 27 est le point de départ idéal pour votre aventure cycliste. Nous proposons des vélos de ville, VTC et VAE avec des tarifs journaliers définis par vélo. Cadenas et panier inclus. Pas de réservation obligatoire.',
           },
           {
             type: 'heading',
@@ -2360,10 +2352,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Freiburg Bisiklet Rotaları 2026 — Kiralama & Rehber | Bike Haus Freiburg',
         metaDescription:
-          "Freiburg'da en iyi bisiklet rotaları ✓ Schwarzwald, Ren, Şehir Merkezi ✓ 6,80 €/günden kiralama ✓ Turist ve sakinler için ipuçları.",
+          "Freiburg'da en iyi bisiklet rotaları ✓ Schwarzwald, Ren, Şehir Merkezi ✓ bisiklet bazlı günlük kiralama fiyatları ✓ Turist ve sakinler için ipuçları.",
         excerpt:
           "Freiburg, Almanya'nın en bisiklet dostu şehirlerinden biri. En iyi rotalar, bisiklet kiralama ve iki tekerlekle keşif rehberi.",
-        tldr: "Freiburg 420+ km bisiklet yoluna sahip. En iyi rotalar: Schlossberg (2 km), Dreisam nehir yolu (12 km), Ren Bisiklet Rotası EV15. Bike Haus Freiburg'da 6,80 €/günden kiralama.",
+        tldr: "Freiburg 420+ km bisiklet yoluna sahip. En iyi rotalar: Schlossberg (2 km), Dreisam nehir yolu (12 km), Ren Bisiklet Rotası EV15. Bike Haus Freiburg'da bisiklet bazlı günlük fiyatlarla kiralama yapılır.",
         sections: [
           {
             type: 'heading',

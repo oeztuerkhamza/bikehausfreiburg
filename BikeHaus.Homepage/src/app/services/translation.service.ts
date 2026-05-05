@@ -552,7 +552,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     metaTitle:
       'Fahrradladen Freiburg — Fahrrad kaufen & mieten | Bike Haus Freiburg',
     metaDescription:
-      'Ihr Fahrradladen in Freiburg Haid ✓ Neue & gebrauchte Räder kaufen ✓ E-Bike, City, Trekking, Kinderfahrrad ✓ Fahrradverleih ab 6,80 €/Tag ✓ 3 Monate Garantie. Kein Termin — Heckerstraße 27!',
+      'Ihr Fahrradladen in Freiburg Haid ✓ Neue & gebrauchte Räder kaufen ✓ E-Bike, City, Trekking, Kinderfahrrad ✓ Fahrradverleih mit tagesgenauen Preisen pro Fahrrad ✓ 3 Monate Garantie. Kein Termin — Heckerstraße 27!',
 
     home: 'Start',
     showroom: 'Showroom',
@@ -562,7 +562,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     heroH1: 'Fahrräder in Freiburg — neu & gebraucht.',
     heroSub:
-      'Über 100 geprüfte Fahrräder ✓ E-Bike, City & Trekking ✓ Fahrradverleih ab 6,80 €/Tag ✓ 3 Monate Garantie ✓ Sofort fahrbereit — Heckerstraße 27, Freiburg.',
+      'Über 100 geprüfte Fahrräder ✓ E-Bike, City & Trekking ✓ Fahrradverleih mit individuellen Tagespreisen je Fahrrad ✓ 3 Monate Garantie ✓ Sofort fahrbereit — Heckerstraße 27, Freiburg.',
     ctaPrimary: 'Neue Fahrräder entdecken',
     ctaSecondary: 'Showroom ansehen',
 
@@ -736,7 +736,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalIntro:
       'Entdecken Sie Freiburg bequem mit dem Fahrrad. Mieten Sie bei uns Fahrräder zu günstigen Preisen und ohne Aufwand.',
     bikeRentalPricesTitle: 'Fahrradmiete Preise',
-    bikeRentalHeroPrice: '1 Tag -> 12 €',
+    bikeRentalHeroPrice: '1-7 Tage individuell',
     bikeRentalTierShort: 'Kurzzeit',
     bikeRentalTierPopular: 'Beliebt',
     bikeRentalTierTop: 'Am beliebtesten',
@@ -746,19 +746,19 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalDurationDay1: '1 Tag',
     bikeRentalDurationDay3: '3 Tage',
     bikeRentalDurationDay7: '7 Tage',
-    bikeRentalDurationDay14: '14 Tage',
-    bikeRentalDurationDay30: '30 Tage',
-    bikeRentalDurationFromDay10: 'Ab 10 Tagen',
-    bikeRentalPriceDay1: '12 €',
-    bikeRentalPriceDay3: '30 €',
-    bikeRentalPriceDay7: '55 €',
-    bikeRentalPriceDay14: '95 €',
-    bikeRentalPriceDay30: '160 €',
-    bikeRentalPriceAddon: '6,50 € / Tag',
-    bikeRentalDay1: '1 Tag: 12 €',
-    bikeRentalDay7: '7 Tage: 55 €',
-    bikeRentalDay8Plus: 'Ab 10 Tagen: 6,50 € / Tag',
-    bikeRentalMonth: '30 Tage: 160 €',
+    bikeRentalDurationDay14: 'Ab Tag 8',
+    bikeRentalDurationDay30: 'Langzeit',
+    bikeRentalDurationFromDay10: 'Zusatztag',
+    bikeRentalPriceDay1: 'manuell',
+    bikeRentalPriceDay3: 'je Fahrrad',
+    bikeRentalPriceDay7: '1-7 Tage',
+    bikeRentalPriceDay14: '7-Tage-Basis',
+    bikeRentalPriceDay30: '+ Zusatz',
+    bikeRentalPriceAddon: 'pro weiterem Tag',
+    bikeRentalDay1: '1-7 Tage: individuell',
+    bikeRentalDay7: '7 Tage: Basispreis',
+    bikeRentalDay8Plus: 'Ab Tag 8: fixer Zusatz pro Tag',
+    bikeRentalMonth: 'Langzeit: automatisch berechnet',
     bikeRentalDepositTitle: 'Kaution',
     bikeRentalDepositText:
       'Die Mietgebühr wird im Voraus bezahlt. Zusätzlich ist pro Fahrrad eine Kaution in Höhe von 300 € in bar zu hinterlegen. Bei ordnungsgemäßer Rückgabe ohne Schäden oder Verluste wird die Kaution vollständig erstattet.',
@@ -898,7 +898,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     aboutQuote:
       'Jedes Fahrrad, das wir verkaufen, bringt Freude — und das ist der schönste Lohn.',
     aboutQuoteAuthor: '— Die Familie hinter Bike Haus',
-    aboutMetaTitle: 'Über uns — Bike Haus Freiburg | Fahrradladen in Freiburg Haid',
+    aboutMetaTitle:
+      'Über uns — Bike Haus Freiburg | Fahrradladen in Freiburg Haid',
     aboutMetaDescription:
       'Bike Haus Freiburg in Haid — Ihr persönlicher Fahrradladen seit 2020. Über 500 zufriedene Kunden ✓ 3 Monate Garantie ✓ Neue & gebrauchte Räder. Lernen Sie uns kennen!',
 
@@ -944,7 +945,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     // Contact extended
     contactWhatsappHint: 'Direkt schreiben',
-    contactMetaTitle: 'Fahrradladen Freiburg — Kontakt, Adresse & Öffnungszeiten | Bike Haus',
+    contactMetaTitle:
+      'Fahrradladen Freiburg — Kontakt, Adresse & Öffnungszeiten | Bike Haus',
     contactMetaDescription:
       'Bike Haus Freiburg Haid — Heckerstraße 27, 79114 Freiburg ✓ Öffnungszeiten: Mo/Di/Do 11–17:30, Mi 14–17:30, Fr 11–13 & 15–18, Sa 11:30–17 ✓ WhatsApp: +49 155 6630 0011.',
 
@@ -1042,9 +1044,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     faqMetaDescription:
       'Häufige Fragen zu Fahrrad kaufen & mieten in Freiburg: Garantie, E-Bikes, Probefahrt, Öffnungszeiten, Preise. Alle Antworten von Bike Haus Freiburg.',
     bikeRentalMetaTitle:
-      'Fahrrad mieten Freiburg ab 6,80 €/Tag | Bike Haus Freiburg',
+      'Fahrrad mieten Freiburg | Tagespreise pro Fahrrad | Bike Haus Freiburg',
     bikeRentalMetaDescription:
-      'Fahrradverleih Freiburg — Cityrad, Trekking & E-Bike mieten ab 6,80 €/Tag. Helm & Schloss inklusive. Sofort abholen, kein Vorausbezahlen. ✓ Bike Haus Freiburg.',
+      'Fahrradverleih Freiburg — 1 bis 7 Tage pro Fahrrad individuell bepreist, ab Tag 8 mit festem Zusatzpreis. Helm & Schloss inklusive. Sofort abholen. ✓ Bike Haus Freiburg.',
     garantieMetaTitle: 'Garantiebedingungen — Bike Haus Freiburg',
     garantieMetaDescription:
       'Garantiebedingungen für neue und gebrauchte Fahrräder bei Bike Haus Freiburg. 2 Jahre für Neuräder, 3 Monate für Gebrauchträder.',
@@ -1135,7 +1137,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
   en: {
     metaTitle: 'Buy & Rent a Bike in Freiburg | Bike Haus Freiburg',
     metaDescription:
-      'Bike shop in Freiburg Haid ✓ Buy or rent a bike ✓ 100+ inspected bikes ✓ City, Trekking, E-Bike ✓ Rental from €6.80/day ✓ 3-month warranty. No appointment needed — Heckerstraße 27!',
+      'Bike shop in Freiburg Haid ✓ Buy or rent a bike ✓ 100+ inspected bikes ✓ City, Trekking, E-Bike ✓ Daily bike rental pricing per bike ✓ 3-month warranty. No appointment needed — Heckerstraße 27!',
 
     home: 'Home',
     showroom: 'Showroom',
@@ -1145,7 +1147,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     heroH1: 'Bikes in Freiburg — new & used.',
     heroSub:
-      'Buy or rent a bike in Freiburg ✓ Inspected used bikes from €80 ✓ Bike rental from €6.80/day ✓ City, Trekking & E-Bikes ✓ Pick up same day.',
+      'Buy or rent a bike in Freiburg ✓ Inspected used bikes from €80 ✓ Bike rental with per-bike daily pricing ✓ City, Trekking & E-Bikes ✓ Pick up same day.',
     ctaPrimary: 'Discover New Bikes',
     ctaSecondary: 'View Showroom',
 
@@ -1324,19 +1326,19 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalDurationDay1: '1 day',
     bikeRentalDurationDay3: '3 days',
     bikeRentalDurationDay7: '7 days',
-    bikeRentalDurationDay14: '14 days',
-    bikeRentalDurationDay30: '30 days',
-    bikeRentalDurationFromDay10: 'From 10 days',
-    bikeRentalPriceDay1: '12 €',
-    bikeRentalPriceDay3: '30 €',
-    bikeRentalPriceDay7: '55 €',
-    bikeRentalPriceDay14: '95 €',
-    bikeRentalPriceDay30: '160 €',
-    bikeRentalPriceAddon: '6.50 € / day',
-    bikeRentalDay1: '1 Day: 12 €',
-    bikeRentalDay7: '7 Days: 55 €',
-    bikeRentalDay8Plus: 'From day 10: 6.50 € per day',
-    bikeRentalMonth: '30 Days: 160 €',
+    bikeRentalDurationDay14: 'From day 8',
+    bikeRentalDurationDay30: 'Long rental',
+    bikeRentalDurationFromDay10: 'Extra day',
+    bikeRentalPriceDay1: 'manual',
+    bikeRentalPriceDay3: 'per bike',
+    bikeRentalPriceDay7: 'days 1-7',
+    bikeRentalPriceDay14: '7-day base',
+    bikeRentalPriceDay30: '+ surcharge',
+    bikeRentalPriceAddon: 'per added day',
+    bikeRentalDay1: '1-7 days: individual',
+    bikeRentalDay7: '7 days: base price',
+    bikeRentalDay8Plus: 'From day 8: fixed surcharge per day',
+    bikeRentalMonth: 'Long rental: automatic calculation',
     bikeRentalDepositTitle: 'Deposit',
     bikeRentalDepositText:
       'The rental fee is paid in advance. In addition, a cash deposit of 300 € is required per bicycle. If the bicycle is returned properly without damage or loss, the deposit is fully refunded.',
@@ -1604,9 +1606,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     faqMetaDescription:
       'Frequently asked questions about buying & renting bikes in Freiburg: warranty, e-bikes, test rides, opening hours, prices. Answered by Bike Haus Freiburg.',
     bikeRentalMetaTitle:
-      'Bike Rental Freiburg from €6.80/day | Bike Haus Freiburg',
+      'Bike Rental Freiburg | Daily Pricing Per Bike | Bike Haus Freiburg',
     bikeRentalMetaDescription:
-      'Rent a bike in Freiburg from €6.80/day. City bikes, trekking & e-bikes available. Helmet & lock included. Pick up same day — no prepayment. ✓ Bike Haus Freiburg.',
+      'Bike rental in Freiburg with daily pricing configured per bike for days 1 to 7, plus a fixed extra-day surcharge from day 8. Helmet & lock included. ✓ Bike Haus Freiburg.',
     garantieMetaTitle: 'Warranty Terms — Bike Haus Freiburg',
     garantieMetaDescription:
       'Warranty terms for new and used bicycles at Bike Haus Freiburg. 2 years for new bikes, 3 months for used bikes.',
@@ -1646,7 +1648,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Monday, Tuesday, Thursday: 11:00–17:30. Wednesday: 14:00–17:30. Friday: 11:00–13:00 & 15:00–18:00. Saturday: 11:30–17:00. Sunday and holidays: closed.',
     faqQ10: 'Can I rent a bike in Freiburg?',
     faqA10:
-      'Yes! Bike Haus Freiburg rents bikes from €6.80/day. Day rate €12, weekly €55, monthly €160. City bikes, trekking & e-bikes available. No reservation needed — just come by Heckerstraße 27.',
+      'Yes. Bike Haus Freiburg rents city bikes, trekking bikes and e-bikes with prices configured per bike for days 1 to 7. From day 8 onward, a fixed extra-day surcharge is added to the 7-day price. No reservation needed — just come by Heckerstraße 27.',
 
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Bicycle Repair',
@@ -1695,7 +1697,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
   fr: {
     metaTitle: 'Acheter & louer un vélo à Fribourg | Bike Haus Freiburg',
     metaDescription:
-      'Votre magasin de vélos à Fribourg Haid ✓ Achat & location ✓ 100+ vélos contrôlés ✓ Ville, Trekking, VAE ✓ Location dès 6,80 €/jour ✓ 3 mois de garantie. Sans rendez-vous — Heckerstraße 27!',
+      'Votre magasin de vélos à Fribourg Haid ✓ Achat & location ✓ 100+ vélos contrôlés ✓ Ville, Trekking, VAE ✓ Location avec tarifs journaliers par vélo ✓ 3 mois de garantie. Sans rendez-vous — Heckerstraße 27!',
 
     home: 'Accueil',
     showroom: 'Showroom',
@@ -1705,7 +1707,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
 
     heroH1: 'Vélos à Fribourg — neufs & occasion.',
     heroSub:
-      "Achetez ou louez votre vélo à Fribourg-en-Brisgau ✓ Vélos inspectés dès 80 € ✓ Location dès 6,80 €/jour ✓ Retrait immédiat ✓ À 25 km de l'Alsace.",
+      "Achetez ou louez votre vélo à Fribourg-en-Brisgau ✓ Vélos inspectés dès 80 € ✓ Location avec tarifs journaliers définis par vélo ✓ Retrait immédiat ✓ À 25 km de l'Alsace.",
     ctaPrimary: 'Découvrir les nouveaux vélos',
     ctaSecondary: 'Voir le showroom',
 
@@ -1891,19 +1893,19 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalDurationDay1: '1 jour',
     bikeRentalDurationDay3: '3 jours',
     bikeRentalDurationDay7: '7 jours',
-    bikeRentalDurationDay14: '14 jours',
-    bikeRentalDurationDay30: '30 jours',
-    bikeRentalDurationFromDay10: 'À partir de 10 jours',
-    bikeRentalPriceDay1: '12 €',
-    bikeRentalPriceDay3: '30 €',
-    bikeRentalPriceDay7: '55 €',
-    bikeRentalPriceDay14: '95 €',
-    bikeRentalPriceDay30: '160 €',
-    bikeRentalPriceAddon: '6,50 € / jour',
-    bikeRentalDay1: '1 Jour : 12 €',
-    bikeRentalDay7: '7 Jours : 55 €',
-    bikeRentalDay8Plus: 'À partir du 10e jour : 6,50 € par jour',
-    bikeRentalMonth: '30 Jours : 160 €',
+    bikeRentalDurationDay14: 'À partir du 8e jour',
+    bikeRentalDurationDay30: 'Longue durée',
+    bikeRentalDurationFromDay10: 'Jour supplémentaire',
+    bikeRentalPriceDay1: 'manuel',
+    bikeRentalPriceDay3: 'par vélo',
+    bikeRentalPriceDay7: 'jours 1-7',
+    bikeRentalPriceDay14: 'base 7 jours',
+    bikeRentalPriceDay30: '+ supplément',
+    bikeRentalPriceAddon: 'par jour ajouté',
+    bikeRentalDay1: '1 à 7 jours : individuel',
+    bikeRentalDay7: '7 jours : prix de base',
+    bikeRentalDay8Plus: 'À partir du 8e jour : supplément fixe par jour',
+    bikeRentalMonth: 'Longue durée : calcul automatique',
     bikeRentalDepositTitle: 'Caution',
     bikeRentalDepositText:
       "Le prix de location est payé à l'avance. En plus, une caution en espèces de 300 € est exigée par vélo. Si le vélo est retourné correctement, sans dommage ni perte, la caution est remboursée intégralement.",
@@ -2190,9 +2192,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     faqMetaDescription:
       "Questions fréquentes sur l'achat et la location de vélos à Fribourg : garantie, VAE, essais, horaires, tarifs. Répondu par Bike Haus Freiburg.",
     bikeRentalMetaTitle:
-      'Location vélo Fribourg dès 6,80 €/jour | Bike Haus Freiburg',
+      'Location vélo Fribourg | Tarifs journaliers par vélo | Bike Haus Freiburg',
     bikeRentalMetaDescription:
-      'Louez un vélo à Freiburg dès 6,80 €/jour. Vélos city, trekking & VAE disponibles. Casque & antivol inclus. Départ immédiat sans prépaiement. ✓ Bike Haus Freiburg.',
+      'Location vélo à Fribourg avec tarifs journaliers définis vélo par vélo pour 1 à 7 jours, puis supplément fixe à partir du 8e jour. Casque & antivol inclus. ✓ Bike Haus Freiburg.',
     garantieMetaTitle: 'Conditions de garantie — Bike Haus Freiburg',
     garantieMetaDescription:
       "Conditions de garantie pour les vélos neufs et d'occasion chez Bike Haus Freiburg. 2 ans pour les neufs, 3 mois pour les occasions.",
@@ -2231,7 +2233,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Lundi, mardi, jeudi : 11:00–17:30. Mercredi : 14:00–17:30. Vendredi : 11:00–13:00 & 15:00–18:00. Samedi : 11:30–17:00. Dimanche et jours fériés : fermé.',
     faqQ10: 'Louez-vous des vélos à Fribourg ?',
     faqA10:
-      "Oui ! Bike Haus Freiburg loue des vélos dès 6,80 €/jour. Tarif journée : 12 €, semaine : 55 €, mois : 160 €. Vélos city, trekking & VAE disponibles. Idéal pour explorer Fribourg et le Rhin à Vélo depuis l'Alsace. Sans réservation — venez directement Heckerstraße 27.",
+      'Oui. Bike Haus Freiburg loue des vélos city, trekking et VAE avec des tarifs configurés par vélo pour 1 à 7 jours. À partir du 8e jour, un supplément fixe est ajouté au prix 7 jours. Sans réservation — venez directement Heckerstraße 27.',
 
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Réparation de vélos',
@@ -2281,7 +2283,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
   tr: {
     metaTitle: "Freiburg'da Bisiklet Al & Kirala | Bike Haus Freiburg",
     metaDescription:
-      "Freiburg Haid'de bisiklet mağazanız ✓ Yeni & ikinci el bisiklet ✓ Kiralama 6,80 €/gün'den ✓ 3 ay garanti ✓ Randevu gerekmez — Heckerstraße 27, Freiburg!",
+      "Freiburg Haid'de bisiklet mağazanız ✓ Yeni & ikinci el bisiklet ✓ Bisiklet bazlı günlük kiralama fiyatları ✓ 3 ay garanti ✓ Randevu gerekmez — Heckerstraße 27, Freiburg!",
 
     home: 'Ana Sayfa',
     showroom: 'Showroom',
@@ -2475,19 +2477,19 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeRentalDurationDay1: '1 gün',
     bikeRentalDurationDay3: '3 gün',
     bikeRentalDurationDay7: '7 gün',
-    bikeRentalDurationDay14: '14 gün',
-    bikeRentalDurationDay30: '30 gün',
-    bikeRentalDurationFromDay10: '10 günden itibaren',
-    bikeRentalPriceDay1: '12 €',
-    bikeRentalPriceDay3: '30 €',
-    bikeRentalPriceDay7: '55 €',
-    bikeRentalPriceDay14: '95 €',
-    bikeRentalPriceDay30: '160 €',
-    bikeRentalPriceAddon: '6,50 € / gün',
-    bikeRentalDay1: '1 Gün: 12 €',
-    bikeRentalDay7: '7 Gün: 55 €',
-    bikeRentalDay8Plus: '10 günden itibaren: günlük 6,50 €',
-    bikeRentalMonth: '30 Gün: 160 €',
+    bikeRentalDurationDay14: '8. günden itibaren',
+    bikeRentalDurationDay30: 'Uzun kiralama',
+    bikeRentalDurationFromDay10: 'Ek gün',
+    bikeRentalPriceDay1: 'manuel',
+    bikeRentalPriceDay3: 'bisiklet bazlı',
+    bikeRentalPriceDay7: '1-7 gün',
+    bikeRentalPriceDay14: '7 günlük baz',
+    bikeRentalPriceDay30: '+ ek ücret',
+    bikeRentalPriceAddon: 'her ek gün için',
+    bikeRentalDay1: '1-7 gün: ayrı fiyat',
+    bikeRentalDay7: '7 gün: baz fiyat',
+    bikeRentalDay8Plus: '8. günden sonra: sabit ek gün fiyatı',
+    bikeRentalMonth: 'Uzun kiralama: otomatik hesaplanır',
     bikeRentalDepositTitle: 'Depozito',
     bikeRentalDepositText:
       'Kiralama ücreti peşin ödenir. Buna ek olarak her bisiklet için 300 € nakit depozito alınır. Bisiklet hasar veya kayıp olmadan düzgün şekilde iade edilirse depozito tamamen geri ödenir.',
@@ -2772,9 +2774,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     faqMetaDescription:
       "Freiburg'da bisiklet alma ve kiralama hakkında sık sorulan sorular: garanti, e-bisiklet, deneme sürüşü, çalışma saatleri, fiyatlar. Bike Haus Freiburg.",
     bikeRentalMetaTitle:
-      'Freiburg Bisiklet Kiralama 6,80 €/gün | Bike Haus Freiburg',
+      'Freiburg Bisiklet Kiralama | Bisiklet Bazlı Günlük Fiyat | Bike Haus Freiburg',
     bikeRentalMetaDescription:
-      "Freiburg'da bisiklet kiralayın — 6,80 €/gün'den itibaren. Şehir, trekking ve e-bisiklet mevcut. Kask ve kilit dahil. Hemen teslim alın. ✓ Bike Haus Freiburg.",
+      "Freiburg'da bisiklet kiralama: 1-7 gün için bisiklet bazlı günlük fiyatlar, 8. günden sonra sabit ek gün ücreti. Kask ve kilit dahil. ✓ Bike Haus Freiburg.",
     garantieMetaTitle: 'Garanti Koşulları — Bike Haus Freiburg',
     garantieMetaDescription:
       "Bike Haus Freiburg'da yeni ve ikinci el bisikletler için garanti koşulları. Yeni bisikletlerde 2 yıl, ikinci elde 3 ay garanti.",
