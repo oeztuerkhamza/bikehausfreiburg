@@ -165,39 +165,7 @@ jobs:
             docker compose up -d --force-recreate bikehaus
 
             echo "==> Ensuring rental pricing columns exist in SQLite"
-            docker run --rm --volumes-from bikehaus-app python:3.12-alpine sh -lc '
-              python - <<"PY"
-import sqlite3
-
-db_path = "/app/data/BikeHausFreiburg.db"
-columns = {
-    "RentalPriceDay2": "REAL",
-    "RentalPriceDay4": "REAL",
-    "RentalPriceDay5": "REAL",
-    "RentalPriceDay6": "REAL",
-    "RentalPriceAdditionalDayAfter7": "REAL",
-}
-
-conn = sqlite3.connect(db_path)
-cur = conn.cursor()
-cur.execute("PRAGMA table_info(Bicycles)")
-existing = {row[1] for row in cur.fetchall()}
-
-added = []
-for col, col_type in columns.items():
-    if col not in existing:
-        cur.execute(f"ALTER TABLE Bicycles ADD COLUMN {col} {col_type} NULL")
-        added.append(col)
-
-conn.commit()
-conn.close()
-
-if added:
-    print("Added columns:", ", ".join(added))
-else:
-    print("Rental pricing columns already present")
-PY
-            '
+            docker run --rm --volumes-from bikehaus-app python:3.12-alpine python -c 'import sqlite3; db="/app/data/BikeHausFreiburg.db"; cols=["RentalPriceDay2","RentalPriceDay4","RentalPriceDay5","RentalPriceDay6","RentalPriceAdditionalDayAfter7"]; conn=sqlite3.connect(db); cur=conn.cursor(); cur.execute("PRAGMA table_info(Bicycles)"); existing={r[1] for r in cur.fetchall()}; [cur.execute(f"ALTER TABLE Bicycles ADD COLUMN {c} REAL NULL") for c in cols if c not in existing]; conn.commit(); conn.close(); print("Schema ensure complete")'
 
             echo "==> Restarting API after schema ensure"
             docker compose restart bikehaus
