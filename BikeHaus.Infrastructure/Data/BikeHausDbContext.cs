@@ -57,11 +57,13 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Beschreibung).HasMaxLength(500);
             entity.Property(e => e.VerkaufspreisVorschlag).HasColumnType("decimal(18,2)");
             entity.Property(e => e.RentalPriceDay1).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.RentalPriceDay2).HasColumnType("decimal(18,2)");
             entity.Property(e => e.RentalPriceDay3).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.RentalPriceDay4).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.RentalPriceDay5).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.RentalPriceDay6).HasColumnType("decimal(18,2)");
             entity.Property(e => e.RentalPriceDay7).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.RentalPriceDay14).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.RentalPriceDay30).HasColumnType("decimal(18,2)");
-            entity.Property(e => e.RentalPricePerDayFrom10).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.RentalPriceAdditionalDayAfter7).HasColumnType("decimal(18,2)");
             entity.HasIndex(e => e.Rahmennummer);
             entity.HasMany(e => e.Images).WithOne(i => i.Bicycle)
                 .HasForeignKey(i => i.BicycleId).OnDelete(DeleteBehavior.Cascade);

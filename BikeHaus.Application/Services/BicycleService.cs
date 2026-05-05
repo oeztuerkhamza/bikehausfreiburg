@@ -180,11 +180,13 @@ public class BicycleService : IBicycleService
         entity.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
         entity.IsRentable = dto.IsRentable;
         entity.RentalPriceDay1 = dto.RentalPriceDay1;
+        entity.RentalPriceDay2 = dto.RentalPriceDay2;
         entity.RentalPriceDay3 = dto.RentalPriceDay3;
+        entity.RentalPriceDay4 = dto.RentalPriceDay4;
+        entity.RentalPriceDay5 = dto.RentalPriceDay5;
+        entity.RentalPriceDay6 = dto.RentalPriceDay6;
         entity.RentalPriceDay7 = dto.RentalPriceDay7;
-        entity.RentalPriceDay14 = dto.RentalPriceDay14;
-        entity.RentalPriceDay30 = dto.RentalPriceDay30;
-        entity.RentalPricePerDayFrom10 = dto.RentalPricePerDayFrom10;
+        entity.RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7;
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(entity);

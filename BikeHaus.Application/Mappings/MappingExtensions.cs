@@ -21,11 +21,13 @@ public static class MappingExtensions
         entity.Zustand,
         entity.IsRentable,
         entity.RentalPriceDay1,
+        entity.RentalPriceDay2,
         entity.RentalPriceDay3,
+        entity.RentalPriceDay4,
+        entity.RentalPriceDay5,
+        entity.RentalPriceDay6,
         entity.RentalPriceDay7,
-        entity.RentalPriceDay14,
-        entity.RentalPriceDay30,
-        entity.RentalPricePerDayFrom10,
+        entity.RentalPriceAdditionalDayAfter7,
         entity.IsPublishedOnWebsite,
         entity.IsPublishedOnKleinanzeigen,
         entity.VerkaufspreisVorschlag,
@@ -71,11 +73,13 @@ public static class MappingExtensions
         Zustand = dto.Zustand,
         IsRentable = dto.IsRentable,
         RentalPriceDay1 = dto.RentalPriceDay1,
+        RentalPriceDay2 = dto.RentalPriceDay2,
         RentalPriceDay3 = dto.RentalPriceDay3,
+        RentalPriceDay4 = dto.RentalPriceDay4,
+        RentalPriceDay5 = dto.RentalPriceDay5,
+        RentalPriceDay6 = dto.RentalPriceDay6,
         RentalPriceDay7 = dto.RentalPriceDay7,
-        RentalPriceDay14 = dto.RentalPriceDay14,
-        RentalPriceDay30 = dto.RentalPriceDay30,
-        RentalPricePerDayFrom10 = dto.RentalPricePerDayFrom10
+        RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7
     };
 
     public static PublicRentalBicycleDto ToPublicRentalDto(this Bicycle entity) => new(
@@ -91,11 +95,13 @@ public static class MappingExtensions
         entity.Images?.Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>(),
         new RentalPriceDto(
             entity.RentalPriceDay1,
+            entity.RentalPriceDay2,
             entity.RentalPriceDay3,
+            entity.RentalPriceDay4,
+            entity.RentalPriceDay5,
+            entity.RentalPriceDay6,
             entity.RentalPriceDay7,
-            entity.RentalPriceDay14,
-            entity.RentalPriceDay30,
-            entity.RentalPricePerDayFrom10
+            entity.RentalPriceAdditionalDayAfter7
         )
     );
 

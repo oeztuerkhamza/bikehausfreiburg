@@ -349,32 +349,10 @@ public class RentalBookingService : IRentalBookingService
         return Math.Max(1, days);
     }
 
-    private static decimal? CalculateBikePrice(Bicycle bicycle, int days)
-    {
-        if (days <= 1 && bicycle.RentalPriceDay1.HasValue)
-            return bicycle.RentalPriceDay1.Value;
-        if (days <= 3 && bicycle.RentalPriceDay3.HasValue)
-            return bicycle.RentalPriceDay3.Value;
-        if (days <= 7 && bicycle.RentalPriceDay7.HasValue)
-            return bicycle.RentalPriceDay7.Value;
-        if (days <= 14 && bicycle.RentalPriceDay14.HasValue)
-            return bicycle.RentalPriceDay14.Value;
-        if (days <= 30 && bicycle.RentalPriceDay30.HasValue)
-            return bicycle.RentalPriceDay30.Value;
-
-        if (days > 10 && bicycle.RentalPricePerDayFrom10.HasValue)
-            return bicycle.RentalPricePerDayFrom10.Value * days;
-
-        if (bicycle.RentalPriceDay1.HasValue)
-            return bicycle.RentalPriceDay1.Value * days;
-
-        return null;
-    }
-
     private static decimal? CalculateTotalPrice(Bicycle bicycle, RentalBooking booking)
     {
         var days = CalculateDaysInclusive(booking.StartDatum, booking.EndDatum);
-        var bikeTotal = CalculateBikePrice(bicycle, days);
+        var bikeTotal = RentalPricingCalculator.CalculateBikePrice(bicycle, days);
         var accessoryTotal = booking.Accessories.Sum(a => a.Tagespreis * a.Menge) * days;
 
         if (!bikeTotal.HasValue && accessoryTotal <= 0)

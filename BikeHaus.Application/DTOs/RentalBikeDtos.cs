@@ -2,11 +2,13 @@ namespace BikeHaus.Application.DTOs;
 
 public record RentalPriceDto(
     decimal? Day1,
+    decimal? Day2,
     decimal? Day3,
+    decimal? Day4,
+    decimal? Day5,
+    decimal? Day6,
     decimal? Day7,
-    decimal? Day14,
-    decimal? Day30,
-    decimal? PerDayFrom10
+    decimal? AdditionalDayAfter7
 );
 
 public record PublicRentalBicycleDto(

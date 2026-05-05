@@ -26,11 +26,13 @@ public class Bicycle : BaseEntity
     // Rental settings
     public bool IsRentable { get; set; } = false;
     public decimal? RentalPriceDay1 { get; set; }
+    public decimal? RentalPriceDay2 { get; set; }
     public decimal? RentalPriceDay3 { get; set; }
+    public decimal? RentalPriceDay4 { get; set; }
+    public decimal? RentalPriceDay5 { get; set; }
+    public decimal? RentalPriceDay6 { get; set; }
     public decimal? RentalPriceDay7 { get; set; }
-    public decimal? RentalPriceDay14 { get; set; }
-    public decimal? RentalPriceDay30 { get; set; }
-    public decimal? RentalPricePerDayFrom10 { get; set; }
+    public decimal? RentalPriceAdditionalDayAfter7 { get; set; }
 
     // Publishing flags
     public bool IsPublishedOnWebsite { get; set; } = false;

@@ -18,11 +18,13 @@ public record BicycleDto(
     BikeCondition Zustand,
     bool IsRentable,
     decimal? RentalPriceDay1,
+    decimal? RentalPriceDay2,
     decimal? RentalPriceDay3,
+    decimal? RentalPriceDay4,
+    decimal? RentalPriceDay5,
+    decimal? RentalPriceDay6,
     decimal? RentalPriceDay7,
-    decimal? RentalPriceDay14,
-    decimal? RentalPriceDay30,
-    decimal? RentalPricePerDayFrom10,
+    decimal? RentalPriceAdditionalDayAfter7,
     bool IsPublishedOnWebsite,
     bool IsPublishedOnKleinanzeigen,
     decimal? VerkaufspreisVorschlag,
@@ -44,11 +46,13 @@ public record BicycleCreateDto(
     BikeCondition Zustand = BikeCondition.Gebraucht,
     bool IsRentable = false,
     decimal? RentalPriceDay1 = null,
+    decimal? RentalPriceDay2 = null,
     decimal? RentalPriceDay3 = null,
+    decimal? RentalPriceDay4 = null,
+    decimal? RentalPriceDay5 = null,
+    decimal? RentalPriceDay6 = null,
     decimal? RentalPriceDay7 = null,
-    decimal? RentalPriceDay14 = null,
-    decimal? RentalPriceDay30 = null,
-    decimal? RentalPricePerDayFrom10 = null
+    decimal? RentalPriceAdditionalDayAfter7 = null
 );
 
 public record BicycleUpdateDto(
@@ -66,11 +70,13 @@ public record BicycleUpdateDto(
     decimal? VerkaufspreisVorschlag = null,
     bool IsRentable = false,
     decimal? RentalPriceDay1 = null,
+    decimal? RentalPriceDay2 = null,
     decimal? RentalPriceDay3 = null,
+    decimal? RentalPriceDay4 = null,
+    decimal? RentalPriceDay5 = null,
+    decimal? RentalPriceDay6 = null,
     decimal? RentalPriceDay7 = null,
-    decimal? RentalPriceDay14 = null,
-    decimal? RentalPriceDay30 = null,
-    decimal? RentalPricePerDayFrom10 = null
+    decimal? RentalPriceAdditionalDayAfter7 = null
 );
 
 public record BicycleImageDto(
