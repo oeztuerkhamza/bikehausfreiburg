@@ -44,7 +44,7 @@ import { TranslationService } from '../../services/translation.service';
               Bike Haus Freiburg<br />
               Heckerstraße 27<br />
               79114 Freiburg im Breisgau<br />
-              E-Mail: bikehausfreiburg&#64;gmail.com
+              E-Mail: info.bikehausfreiburg&#64;gmail.com
             </p>
           </section>
 
@@ -99,7 +99,7 @@ import { TranslationService } from '../../services/translation.service';
               Bike Haus Freiburg<br />
               Heckerstraße 27<br />
               79114 Freiburg im Breisgau<br />
-              E-Mail: bikehausfreiburg&#64;gmail.com<br />
+              E-Mail: info.bikehausfreiburg&#64;gmail.com<br />
               WhatsApp: +49 155 6630 0011
             </p>
             <p>
