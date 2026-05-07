@@ -3200,7 +3200,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       image: 'https://bikehausfreiburg.com/assets/logo.png',
       url: 'https://bikehausfreiburg.com',
       telephone: '+49-155-66300011',
-      email: 'bikehausfreiburg@gmail.com',
+      email: 'info.bikehausfreiburg@gmail.com',
       availableLanguage: ['German', 'English', 'French', 'Turkish'],
       address: {
         '@type': 'PostalAddress',

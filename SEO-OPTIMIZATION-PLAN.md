@@ -221,7 +221,7 @@ Wir verkaufen neue und gebrauchte Fahrräder mit Garantie.
 ## Kontakt
 - Adresse: Heckerstraße 27, 79114 Freiburg im Breisgau
 - WhatsApp: +49 155 6630 0011
-- E-Mail: bikehausfreiburg@gmail.com
+- E-Mail: info.bikehausfreiburg@gmail.com
 - Website: https://bikehausfreiburg.com
 
 ## Einzugsgebiet
@@ -343,7 +343,7 @@ Bike Haus Freiburg
 Heckerstraße 27
 79114 Freiburg im Breisgau
 +49 155 6630 0011
-bikehausfreiburg@gmail.com
+info.bikehausfreiburg@gmail.com
 https://bikehausfreiburg.com
 ```
 

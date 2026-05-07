@@ -749,7 +749,7 @@ interface EmailAccountForm {
                   <input
                     type="email"
                     [(ngModel)]="eaf.fromEmail"
-                    placeholder="bikehausfreiburg@gmail.com"
+                    placeholder="info.bikehausfreiburg@gmail.com"
                   />
                 </div>
                 <div class="form-group">

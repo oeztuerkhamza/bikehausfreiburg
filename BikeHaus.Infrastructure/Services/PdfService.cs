@@ -35,7 +35,7 @@ public class PdfService : IPdfService
     private const string DefaultUStIdNr = "DE437595861";
     private const string DefaultShopStreet = "Heckerstraße 27";
     private const string DefaultShopCity = "79114 Freiburg";
-    private const string DefaultShopEmail = "bikehausfreiburg@gmail.com";
+    private const string DefaultShopEmail = "info.bikehausfreiburg@gmail.com";
     private const string DefaultShopTelefon = "0 15566300011";
     private const string DefaultBankName = "Sparkasse";
     private const string DefaultBankAccountHolder = "Cevdet Akarsu";

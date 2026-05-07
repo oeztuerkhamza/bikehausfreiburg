@@ -805,7 +805,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
               'Samstag: 11:30 – 17:00 Uhr',
               'Sonn- und feiertags geschlossen',
               'WhatsApp: +49 155 6630 0011',
-              'E-Mail: bikehausfreiburg@gmail.com',
+              'E-Mail: info.bikehausfreiburg@gmail.com',
             ],
           },
           {

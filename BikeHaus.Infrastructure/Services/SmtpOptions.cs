@@ -7,6 +7,6 @@ public class SmtpOptions
     public string Username { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
     public bool UseSsl { get; set; } = true;
-    public string FromEmail { get; set; } = "bikehausfreiburg@gmail.com";
+    public string FromEmail { get; set; } = "info.bikehausfreiburg@gmail.com";
     public string FromName { get; set; } = "Bike Haus Freiburg";
 }

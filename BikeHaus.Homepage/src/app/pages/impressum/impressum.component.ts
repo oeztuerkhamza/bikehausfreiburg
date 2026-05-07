@@ -35,7 +35,7 @@ import { PublicShopInfo } from '../../models/models';
           <section>
             <h2>Kontakt</h2>
             <p>
-              E-Mail: {{ shopInfo()?.email || 'bikehausfreiburg@gmail.com'
+              E-Mail: {{ shopInfo()?.email || 'info.bikehausfreiburg@gmail.com'
               }}<br />
               Telefon / WhatsApp:
               {{ shopInfo()?.telefon || '+49 155 6630 0011' }}

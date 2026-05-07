@@ -15,7 +15,7 @@ public class RentalBookingService : IRentalBookingService
     private const string DefaultShopStreet = "Heckerstrasse 27";
     private const string DefaultShopCity = "79114 Freiburg";
     private const string DefaultShopPhone = "+49 155 6630 0011";
-    private const string DefaultShopEmail = "bikehausfreiburg@gmail.com";
+    private const string DefaultShopEmail = "info.bikehausfreiburg@gmail.com";
     private const string DefaultPublicApiBaseUrl = "https://api.bikehausfreiburg.com/api/public";
 
     private readonly IRentalBookingRepository _bookingRepository;
