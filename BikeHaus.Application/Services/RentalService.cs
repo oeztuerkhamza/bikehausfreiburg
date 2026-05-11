@@ -193,6 +193,7 @@ public class RentalService : IRentalService
     {
         var rental = await _rentalRepository.GetWithDetailsAsync(id)
             ?? throw new KeyNotFoundException($"Mietvertrag mit ID {id} nicht gefunden.");
+        var wasDepositRefunded = rental.KautionZurueckgegeben;
 
         // Update customer if provided
         if (dto.Customer != null)
@@ -241,8 +242,34 @@ public class RentalService : IRentalService
         rental.UpdatedAt = DateTime.UtcNow;
         await _rentalRepository.UpdateAsync(rental);
 
+        if (!wasDepositRefunded && rental.KautionZurueckgegeben)
+            await TrySendDepositRefundConfirmationAsync(rental);
+
         var updated = await _rentalRepository.GetWithDetailsAsync(id);
         return updated!.ToDto();
+    }
+
+    private async Task TrySendDepositRefundConfirmationAsync(Rental rental)
+    {
+        if (string.IsNullOrWhiteSpace(rental.Customer?.Email))
+            return;
+
+        try
+        {
+            var toName = $"{rental.Customer.Vorname} {rental.Customer.Nachname}".Trim();
+            await _emailService.SendDepositRefundConfirmationAsync(
+                rental.Customer.Email,
+                string.IsNullOrWhiteSpace(toName) ? "Kunde" : toName,
+                rental.MietvertragNummer);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Failed to send deposit refund confirmation email for rental {RentalId} ({MietvertragNummer})",
+                rental.Id,
+                rental.MietvertragNummer);
+        }
     }
 
     public async Task DeleteAsync(int id)

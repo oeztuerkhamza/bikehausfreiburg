@@ -148,7 +148,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Verspatete Ruckgabe',
-        answers: ['30 EUR Gebuhr pro zusatzlichem Tag'],
+        answers: ['12 EUR Gebuhr pro zusatzlichem Tag'],
       },
     ],
   },
@@ -294,7 +294,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Retour en retard',
-        answers: ['Frais de 30 EUR par jour supplementaire'],
+        answers: ['Frais de 12 EUR par jour supplementaire'],
       },
     ],
   },
@@ -367,7 +367,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Gec iade',
-        answers: ['Her ek gun icin 30 EUR ucret'],
+        answers: ['Her ek gun icin 12 EUR ucret'],
       },
     ],
   },
@@ -440,7 +440,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Devolucion tardia',
-        answers: ['Tarifa de 30 EUR por cada dia adicional'],
+        answers: ['Tarifa de 12 EUR por cada dia adicional'],
       },
     ],
   },
@@ -513,7 +513,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Riconsegna in ritardo',
-        answers: ['Costo di 30 EUR per ogni giorno aggiuntivo'],
+        answers: ['Costo di 12 EUR per ogni giorno aggiuntivo'],
       },
     ],
   },
@@ -656,7 +656,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Поздний возврат',
-        answers: ['Доплата 30 EUR за каждый дополнительный день'],
+        answers: ['Доплата 12 EUR за каждый дополнительный день'],
       },
     ],
   },
@@ -725,7 +725,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   de: {
     serviceHighlightsAria: 'Service Highlights',
     heroChip: 'Fahrradverleih Freiburg',
-    heroAccent: 'ab 12 €',
+    heroAccent: 'ab 7 €',
     heroDescription:
       '1 bis 7 Tage individuell je Fahrrad kalkuliert, ab Tag 8 mit festem Zusatzpreis. Direkt bei uns in Freiburg abholen.',
     heroFeatures: [
@@ -989,7 +989,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   fr: {
     serviceHighlightsAria: 'Points forts du service',
     heroChip: 'Location de velo Freiburg',
-    heroAccent: 'a partir de 12 €',
+    heroAccent: 'a partir de 7 €',
     heroDescription:
       'Les jours 1 a 7 sont calcules individuellement pour chaque velo, puis un supplement fixe s applique a partir du 8e jour. Retrait direct dans notre magasin a Freiburg.',
     heroFeatures: [
@@ -1134,7 +1134,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   tr: {
     serviceHighlightsAria: 'Servis öne çıkanlar',
     heroChip: 'Freiburg Bisiklet Kiralama',
-    heroAccent: '12 € ile başlayan fiyatlarla',
+    heroAccent: '7 € ile başlayan fiyatlarla',
     heroDescription:
       '1 ile 7 gün arası fiyat her bisiklet için ayrı hesaplanır, 8. günden itibaren sabit ek gün ücreti uygulanır. Teslim almayı doğrudan Freiburg mağazamızdan yapabilirsiniz.',
     heroFeatures: [

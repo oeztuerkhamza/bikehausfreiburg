@@ -188,7 +188,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalIntro:
       'Descubre Freiburg cómodamente en bicicleta. Alquila bicicletas en nuestro establecimiento a precios asequibles sin complicaciones.',
     bikeRentalPricesTitle: 'Precios de Alquiler de Bicicletas',
-    bikeRentalHeroPrice: '1 día -> 12 €',
+    bikeRentalHeroPrice: '1 día -> 7 €',
     bikeRentalTierShort: 'Corto Plazo',
     bikeRentalTierPopular: 'Popular',
     bikeRentalTierTop: 'Lo mas Popular',
@@ -216,7 +216,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'La tarifa de alquiler se paga por adelantado. Además, se requiere un depósito en efectivo de 300 € por bicicleta. Si la bicicleta se devuelve correctamente sin daños ni pérdidas, el depósito se reembolsa completamente.',
     bikeRentalNoteTitle: 'Nota',
     bikeRentalNoteText:
-      'La entrega es posible diariamente a partir de las 10:00 y la devolución debe realizarse como muy tarde a las 18:00. Los retrasos en la devolución se cobran a 12 € por día iniciado.',
+      'La entrega es posible diariamente a partir de las 10:00 y la devolución debe realizarse como muy tarde a las 18:00. Los retrasos en la devolución se cobran a 7 € por día iniciado.',
     bikeRentalIncludedTitle: 'Incluido',
     bikeRentalIncluded1: 'Candado plegable',
     bikeRentalIncluded2: 'Cesta de bicicleta',
@@ -742,7 +742,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalIntro:
       'Scopri Friburgo comodamente in bici. Noleggia biciclette da noi a prezzi convenienti senza complicazioni.',
     bikeRentalPricesTitle: 'Prezzi noleggio bici',
-    bikeRentalHeroPrice: '1 giorno -> 12 €',
+    bikeRentalHeroPrice: '1 giorno -> 7 €',
     bikeRentalTierShort: 'Breve termine',
     bikeRentalTierPopular: 'Popolare',
     bikeRentalTierTop: 'Più popolare',

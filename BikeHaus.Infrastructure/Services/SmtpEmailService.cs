@@ -18,6 +18,7 @@ namespace BikeHaus.Infrastructure.Services;
 public class SmtpEmailService : IEmailService
 {
     private const int MaxSendAttempts = 3;
+    private const string DefaultGoogleReviewUrl = "https://g.page/r/CQTjOCyqlXbGEBM/review";
     private readonly SmtpOptions _options;
     private readonly ILogger<SmtpEmailService> _logger;
     private readonly BikeHausDbContext _db;
@@ -60,6 +61,19 @@ public class SmtpEmailService : IEmailService
             subject,
             body,
             "MietanfrageAdminBenachrichtigung",
+            isHtml: true);
+    }
+
+    public Task SendDepositRefundConfirmationAsync(string toEmail, string toName, string mietvertragNummer)
+    {
+        var subject = $"Kaution zurueckgegeben - {mietvertragNummer} | Bike Haus Freiburg";
+        var body = BuildDepositRefundConfirmationBodyDe(toName, mietvertragNummer, DefaultGoogleReviewUrl);
+        return SendAsync(
+            toEmail,
+            toName,
+            subject,
+            body,
+            "KautionRueckgabeBestaetigung",
             isHtml: true);
     }
 
@@ -469,5 +483,19 @@ Bitte auf den folgenden Link klicken, um die Mietanfragen zu pruefen:<br />
 <a href=""{adminPortalUrl}"">{adminPortalUrl}</a>
 </p>
 <p>Diese Benachrichtigung wurde automatisch von no-reply@bikehausfreiburg.com gesendet.</p>";
+    }
+
+    private static string BuildDepositRefundConfirmationBodyDe(string toName, string mietvertragNummer, string googleReviewUrl)
+    {
+        return $@"<p>Hallo {toName},</p>
+<p>deine Kaution wurde erfolgreich zurueckgegeben.</p>
+<p>Vielen Dank, dass du bei Bike Haus Freiburg gemietet hast.</p>
+<p><strong>Mietvertragsnummer:</strong> {mietvertragNummer}</p>
+<p>
+Wenn du zufrieden warst, freuen wir uns sehr ueber eine kurze Google-Bewertung:<br />
+<a href=""{googleReviewUrl}"">{googleReviewUrl}</a>
+</p>
+<p>Vielen Dank und bis bald.<br />
+Dein Team vom Bike Haus Freiburg</p>";
     }
 }

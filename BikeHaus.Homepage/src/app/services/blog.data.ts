@@ -1906,7 +1906,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
               "Faut-il réserver à l'avance ? Non, venez simplement pendant les heures d'ouverture.",
               'Peut-on louer un VAE (vélo électrique) ? Oui, sous réserve de disponibilité. Contactez-nous via WhatsApp.',
               'Le casque est-il inclus ? Oui, casques disponibles gratuitement.',
-              "Que se passe-t-il si je rends le vélo en retard ? Des frais de 12 € par jour entamé s'appliquent.",
+              "Que se passe-t-il si je rends le vélo en retard ? Des frais de 7 € par jour entamé s'appliquent.",
             ],
           },
           {
