@@ -83,7 +83,7 @@
 
         <!-- Secondary CTA - GLASS STYLE -->
         <a
-          [routerLink]="['/' + lang(), 'fahrradverleih']"
+          [routerLink]="['/' + lang(), 'showroom']"
           class="btn btn-secondary"
           role="button"
           tabindex="0"
@@ -97,6 +97,25 @@
             stroke-width="2"
           >
             <path d="M9 19l-7-7m0 0l7-7m-7 7h16" />
+          </svg>
+        </a>
+
+        <!-- Rental CTA -->
+        <a
+          [routerLink]="['/' + lang(), 'fahrradverleih']"
+          class="btn btn-rental"
+          role="button"
+          tabindex="0"
+        >
+          <span class="btn-text">{{ t().ctaRental }}</span>
+          <svg
+            class="btn-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M13 7l5 5m0 0l-5 5m5-5H6" />
           </svg>
         </a>
       </div>

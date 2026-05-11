@@ -1,16 +1,16 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
-  Injectable,
-  PLATFORM_ID,
-  computed,
-  inject,
-  signal,
+    Injectable,
+    PLATFORM_ID,
+    computed,
+    inject,
+    signal,
 } from '@angular/core';
 import {
-  DEFAULT_LANGUAGE,
-  getLanguageDirection,
-  isSupportedLanguage,
-  type SupportedLanguageCode,
+    DEFAULT_LANGUAGE,
+    getLanguageDirection,
+    isSupportedLanguage,
+    type SupportedLanguageCode,
 } from './language-config';
 import { EXTENDED_TRANSLATION_OVERRIDES } from './translation-overrides';
 
@@ -34,6 +34,7 @@ export interface Translations {
   heroSub: string;
   ctaPrimary: string;
   ctaSecondary: string;
+  ctaRental: string;
   heroBannerAria: string;
   heroBadgeText: string;
   heroTitleLine1: string;
@@ -606,6 +607,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Über 100 geprüfte Fahrräder ✓ E-Bike, City & Trekking ✓ Fahrradverleih mit individuellen Tagespreisen je Fahrrad ✓ 3 Monate Garantie ✓ Sofort fahrbereit — Heckerstraße 27, Freiburg.',
     ctaPrimary: 'Neue Fahrräder entdecken',
     ctaSecondary: 'Showroom ansehen',
+    ctaRental: 'Fahrrad mieten',
     heroBannerAria: 'Hero-Bereich',
     heroBadgeText: 'Bike Haus Freiburg',
     heroTitleLine1: 'Die beste',
@@ -1224,6 +1226,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Buy or rent a bike in Freiburg ✓ Inspected used bikes from €180 ✓ Bike rental with per-bike daily pricing ✓ City, Trekking & E-Bikes ✓ Pick up same day.',
     ctaPrimary: 'Discover New Bikes',
     ctaSecondary: 'View Showroom',
+    ctaRental: 'Rent a Bike',
     heroBannerAria: 'Hero section',
     heroBadgeText: 'Bike Haus Freiburg',
     heroTitleLine1: 'The best',
@@ -1817,6 +1820,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "Achetez ou louez votre vélo à Fribourg-en-Brisgau ✓ Vélos inspectés dès 80 € ✓ Location avec tarifs journaliers définis par vélo ✓ Retrait immédiat ✓ À 25 km de l'Alsace.",
     ctaPrimary: 'Découvrir les nouveaux vélos',
     ctaSecondary: 'Voir le showroom',
+    ctaRental: 'Louer un vélo',
     heroBannerAria: 'Section hero',
     heroBadgeText: 'Bike Haus Freiburg',
     heroTitleLine1: 'La meilleure',
@@ -2436,6 +2440,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "Freiburg'da yeni ve kontrol edilmiş ikinci el bisikletler — adil fiyat, sürdürülebilir bakım, kişisel danışmanlık.",
     ctaPrimary: 'Yeni Bisikletleri Keşfet',
     ctaSecondary: "Showroom'u Gör",
+    ctaRental: 'Bisiklet Kirala',
     heroBannerAria: 'Hero bolumu',
     heroBadgeText: 'Bike Haus Freiburg',
     heroTitleLine1: 'En iyi',

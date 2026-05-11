@@ -1712,9 +1712,9 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     relatedSlugs: ['fahrradladen-freiburg', 'welches-fahrrad-passt-zu-mir'],
     translations: {
       de: {
-        title: 'Fahrrad mieten in Freiburg — Preise, Tipps & Buchung 2026',
+        title: 'Fahrradverleih Freiburg | Citybike, MTB & E-Bike mieten',
         metaTitle:
-          'Fahrrad mieten Freiburg 2026 — Tagespreise pro Fahrrad | Bike Haus Freiburg',
+          'Fahrradverleih Freiburg | Citybike, MTB & E-Bike mieten | Bike Haus Freiburg',
         metaDescription:
           'Fahrrad mieten in Freiburg ✓ 1 bis 7 Tage individuell pro Fahrrad ✓ ab Tag 8 mit Zusatzpreis ✓ Schloss & Helm inklusive ✓ Kein Vorausbezahlen. Bike Haus Freiburg.',
         excerpt:
