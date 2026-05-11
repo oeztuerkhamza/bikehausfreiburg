@@ -6,7 +6,7 @@ import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { TranslationService } from '../../services/translation.service';
-import { Bicycle, BicycleImage, PaginatedResult } from '../../models/models';
+import { Bicycle, PaginatedResult } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
 import { environment } from '../../../environments/environment';
@@ -591,7 +591,7 @@ export class MietfahrradListComponent implements OnInit {
   currentPage = 1;
   pageSize = 20;
   searchText = '';
-  showOnlyRentable = false;
+  showOnlyRentable = true;
 
   get t() {
     return this.translationService.translations();

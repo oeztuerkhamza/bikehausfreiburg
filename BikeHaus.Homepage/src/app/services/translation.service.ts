@@ -95,8 +95,15 @@ export interface Translations {
   svcRentalItem4: string;
   svcRentalCta: string;
   homeRentalCardTitle: string;
+  homeRentalInlinePrice: string;
   homeRentalBestBadge: string;
   homeRentalPopularBadge: string;
+  homeRentalPkgDays: string;
+  homeRentalPkgPrice: string;
+  homeRentalPkgSub: string;
+  homeRentalPkgFromDay8: string;
+  homeRentalPkgPlusPrice: string;
+  homeRentalPkgPlusSub: string;
   homeRentalLock: string;
   homeRentalHelmet: string;
   homeRentalAvail: string;
@@ -1117,8 +1124,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     svcRentalItem4: 'Schloss & Helm inklusive',
     svcRentalCta: 'Fahrrad mieten',
     homeRentalCardTitle: 'Fahrrad mieten',
+    homeRentalInlinePrice: '1-7 Tage individuell',
     homeRentalBestBadge: 'Bestes Angebot · Spare 30%',
     homeRentalPopularBadge: 'Beliebt',
+    homeRentalPkgDays: '1-7 Tage',
+    homeRentalPkgPrice: 'pro Fahrrad',
+    homeRentalPkgSub: 'tagesgenau konfiguriert',
+    homeRentalPkgFromDay8: 'ab Tag 8',
+    homeRentalPkgPlusPrice: '7-Tage-Preis + Aufschlag',
+    homeRentalPkgPlusSub: 'je weiterer Tag fest hinterlegt',
     homeRentalLock: 'Schloss inklusive',
     homeRentalHelmet: 'Helm kostenlos',
     homeRentalAvail: 'Sofort verfügbar',
@@ -1677,8 +1691,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     svcRentalItem4: 'Lock & Helmet included',
     svcRentalCta: 'Rent a Bike',
     homeRentalCardTitle: 'Rent a Bike',
+    homeRentalInlinePrice: '1-7 days, custom pricing',
     homeRentalBestBadge: 'Best Deal · Save 30%',
     homeRentalPopularBadge: 'Popular',
+    homeRentalPkgDays: 'Days 1-7',
+    homeRentalPkgPrice: 'per bike',
+    homeRentalPkgSub: 'configured by exact day',
+    homeRentalPkgFromDay8: 'From day 8',
+    homeRentalPkgPlusPrice: '7-day price + surcharge',
+    homeRentalPkgPlusSub: 'fixed for each extra day',
     homeRentalLock: 'Lock included',
     homeRentalHelmet: 'Helmet free',
     homeRentalAvail: 'Available immediately',
@@ -2263,8 +2284,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     svcRentalItem4: 'Antivol & casque inclus',
     svcRentalCta: 'Louer un vélo',
     homeRentalCardTitle: 'Louer un vélo',
+    homeRentalInlinePrice: '1-7 jours, prix individuel',
     homeRentalBestBadge: 'Meilleure offre · Économisez 30%',
     homeRentalPopularBadge: 'Populaire',
+    homeRentalPkgDays: 'Jours 1-7',
+    homeRentalPkgPrice: 'par vélo',
+    homeRentalPkgSub: 'configuré au jour près',
+    homeRentalPkgFromDay8: 'À partir du 8e jour',
+    homeRentalPkgPlusPrice: 'Prix 7 jours + supplément',
+    homeRentalPkgPlusSub: 'fixe pour chaque jour supplémentaire',
     homeRentalLock: 'Antivol inclus',
     homeRentalHelmet: 'Casque gratuit',
     homeRentalAvail: 'Disponible immédiatement',
@@ -2844,8 +2872,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     svcRentalItem4: 'Kilit & Kask dahil',
     svcRentalCta: 'Bisikletini rezerve edin',
     homeRentalCardTitle: 'Bisiklet Kirala',
+    homeRentalInlinePrice: '1-7 gün, esnek fiyat',
     homeRentalBestBadge: 'En İyi Teklif · %30 Tasarruf',
     homeRentalPopularBadge: 'Popüler',
+    homeRentalPkgDays: '1-7 gün',
+    homeRentalPkgPrice: 'bisiklet başına',
+    homeRentalPkgSub: 'güne göre yapılandırılır',
+    homeRentalPkgFromDay8: '8. günden itibaren',
+    homeRentalPkgPlusPrice: '7 günlük fiyat + ek ücret',
+    homeRentalPkgPlusSub: 'her ek gün için sabit',
     homeRentalLock: 'Kilit dahil',
     homeRentalHelmet: 'Kask ücretsiz',
     homeRentalAvail: 'Hemen müsait',

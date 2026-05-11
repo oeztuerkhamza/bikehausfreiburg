@@ -117,22 +117,22 @@ interface Testimonial {
             <h2 class="svc-card-title">
               {{ t().homeRentalCardTitle }}<br /><span
                 class="rental-price-inline"
-                ><strong>1-7 Tage individuell</strong></span
+                ><strong>{{ t().homeRentalInlinePrice }}</strong></span
               >
             </h2>
             <div class="rental-packages">
               <div class="rental-pkg">
-                <span class="pkg-days">1-7 Tage</span>
-                <span class="pkg-price">pro Fahrrad</span>
-                <span class="pkg-day">tagesgenau konfiguriert</span>
+                <span class="pkg-days">{{ t().homeRentalPkgDays }}</span>
+                <span class="pkg-price">{{ t().homeRentalPkgPrice }}</span>
+                <span class="pkg-day">{{ t().homeRentalPkgSub }}</span>
               </div>
               <div class="rental-pkg rental-pkg-highlight">
                 <span class="pkg-badge-top">{{
                   t().homeRentalPopularBadge
                 }}</span>
-                <span class="pkg-days">ab Tag 8</span>
-                <span class="pkg-price">7-Tage-Preis + Aufschlag</span>
-                <span class="pkg-day">je weiterer Tag fest hinterlegt</span>
+                <span class="pkg-days">{{ t().homeRentalPkgFromDay8 }}</span>
+                <span class="pkg-price">{{ t().homeRentalPkgPlusPrice }}</span>
+                <span class="pkg-day">{{ t().homeRentalPkgPlusSub }}</span>
               </div>
             </div>
             <ul class="svc-card-list">
@@ -2842,6 +2842,33 @@ interface Testimonial {
           margin-left: 0;
           margin-top: 0.5rem;
         }
+        .bikecheck-grid {
+          grid-template-columns: 1fr;
+          gap: 1.15rem;
+          margin-top: 2rem;
+        }
+        .bikecheck-card {
+          padding: 1.35rem;
+        }
+        .bikecheck-card-header {
+          margin-bottom: 1rem;
+        }
+        .bikecheck-list {
+          gap: 0.8rem;
+        }
+        .bikecheck-list li {
+          align-items: flex-start;
+          font-size: 0.95rem;
+          line-height: 1.45;
+        }
+        .bikecheck-badge {
+          max-width: 100%;
+          white-space: normal;
+          line-height: 1.25;
+          letter-spacing: 0.06em;
+          font-size: 0.62rem;
+          padding: 0.3rem 0.55rem;
+        }
         .svc-cards-grid {
           grid-template-columns: 1fr;
           gap: 1rem;
@@ -2908,10 +2935,14 @@ interface Testimonial {
           right: 0.75rem;
         }
         .bikecheck-card {
-          padding: 1.5rem;
+          padding: 1.2rem;
         }
         .bikecheck-card-header h3 {
           font-size: 1.15rem;
+        }
+        .bikecheck-badge {
+          font-size: 0.6rem;
+          padding: 0.28rem 0.5rem;
         }
         .bikecheck-note {
           flex-direction: column;
