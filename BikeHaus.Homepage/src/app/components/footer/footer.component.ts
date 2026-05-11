@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
 import { ShopInfoService } from '../../services/shop-info.service';
+import {
+  LANGUAGE_LABELS,
+  SUPPORTED_LANGUAGES,
+} from '../../services/language-config';
 
 @Component({
   selector: 'app-footer',
@@ -84,17 +88,11 @@ import { ShopInfoService } from '../../services/shop-info.service';
         <div class="footer-col">
           <h4>{{ t().languageLabel }}</h4>
           <div class="footer-langs">
-            <a [routerLink]="['/de']" [class.active]="lang() === 'de'"
-              >Deutsch</a
-            >
-            <a [routerLink]="['/en']" [class.active]="lang() === 'en'"
-              >English</a
-            >
-            <a [routerLink]="['/fr']" [class.active]="lang() === 'fr'"
-              >Français</a
-            >
-            <a [routerLink]="['/tr']" [class.active]="lang() === 'tr'"
-              >Türkçe</a
+            <a
+              *ngFor="let language of languages"
+              [routerLink]="['/' + language.code]"
+              [class.active]="lang() === language.code"
+              >{{ language.label }}</a
             >
           </div>
         </div>
@@ -406,5 +404,9 @@ export class FooterComponent {
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
   logoUrl = this.shopInfoService.logoUrl;
+  languages = SUPPORTED_LANGUAGES.map((code) => ({
+    code,
+    label: LANGUAGE_LABELS[code],
+  }));
   year = new Date().getFullYear();
 }

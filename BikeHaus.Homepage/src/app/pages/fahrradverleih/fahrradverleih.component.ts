@@ -11,7 +11,17 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
-import { TranslationService } from '../../services/translation.service';
+import {
+  Language,
+  TranslationService,
+} from '../../services/translation.service';
+import {
+  DEFAULT_LANGUAGE,
+  LANGUAGE_LABELS,
+  LOCALE_BY_LANGUAGE,
+  SUPPORTED_LANGUAGES,
+  isSupportedLanguage,
+} from '../../services/language-config';
 import { ApiService } from '../../services/api.service';
 import {
   PublicRentalBicycle,
@@ -24,6 +34,642 @@ import {
   calculateRentalPrice,
   getConfiguredRentalPriceLines,
 } from '../../utils/rental-pricing';
+import { EXTENDED_RENTAL_PAGE_COPY } from './rental-page-copy-extended';
+
+type RentalLangOption = { code: Language; label: string };
+
+type RentalPricingCardContent = {
+  className: string;
+  topBadge?: string;
+  topBadgeClass?: string;
+  label: string;
+  duration: string;
+  price: string;
+  perDay: string;
+  features: string[];
+  cta: string;
+  whatsapp: string;
+};
+
+type RentalExtraItemContent = {
+  duration: string;
+  price: string;
+  day: string;
+  cta: string;
+};
+
+type RentalInfoItemContent = {
+  title: string;
+  text: string;
+};
+
+const BOOKING_LANGUAGE_OPTIONS: RentalLangOption[] = SUPPORTED_LANGUAGES.map(
+  (code) => ({ code, label: LANGUAGE_LABELS[code] }),
+);
+
+type RentalPageCopy = {
+  serviceHighlightsAria: string;
+  heroChip: string;
+  heroAccent: string;
+  heroDescription: string;
+  heroFeatures: string[];
+  heroPriceCard: {
+    badge: string;
+    duration: string;
+    price: string;
+    perDay: string;
+    vs: string;
+    features: string[];
+  };
+  signatureLabel: string;
+  signatureText: string;
+  signatureStats: Array<{ value: string; label: string }>;
+  pricingCards: RentalPricingCardContent[];
+  pricingExtras: RentalExtraItemContent[];
+  pricingInfo: RentalInfoItemContent[];
+  bikePriceFrom: string;
+  extraDayShort: string;
+  zoomImageAriaLabel: string;
+  lightboxAriaLabel: string;
+  lightboxCloseAriaLabel: string;
+  lightboxPrevAriaLabel: string;
+  lightboxNextAriaLabel: string;
+  reviewStarAriaSuffix: string;
+  bikeFactLabels: {
+    type: string;
+    category: string;
+    frame: string;
+    tire: string;
+    color: string;
+  };
+  extraDayPriceLabel: string;
+  successEmailPrefix: string;
+  successEmailSuffix: string;
+  weekdays: string[];
+  emailLabel: string;
+  placeholders: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    notes: string;
+  };
+  bookingLanguages: RentalLangOption[];
+  whatsappTitle: string;
+  bookingErrors: {
+    busyRange: string;
+    choosePeriod: string;
+    invalidEnd: string;
+    fullName: string;
+    validEmail: string;
+    generic: string;
+  };
+};
+
+const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
+  de: {
+    serviceHighlightsAria: 'Service Highlights',
+    heroChip: 'Fahrradverleih Freiburg',
+    heroAccent: '1-7 Tage individuell',
+    heroDescription:
+      '1 bis 7 Tage individuell je Fahrrad kalkuliert, ab Tag 8 mit festem Zusatzpreis. Direkt bei uns in Freiburg abholen.',
+    heroFeatures: [
+      'Schloss inklusive',
+      'Helm kostenlos',
+      'Sofort verfugbar',
+      '300 EUR Kaution (bar)',
+    ],
+    heroPriceCard: {
+      badge: 'Individuelle Preislogik',
+      duration: '1-7 Tage',
+      price: 'pro Fahrrad separat',
+      perDay: 'manuell im Admin gepflegt',
+      vs: 'ab Tag 8 automatisch mit Zusatzpreis',
+      features: ['✔ Schloss', '✔ Helm', '✔ Sofort'],
+    },
+    signatureLabel: 'Urban Rental System',
+    signatureText:
+      'Entwickelt wie ein modernes Performance-Studio: schnelle Reservierung, klare Preise und direkte Abholung ohne Reibung.',
+    signatureStats: [
+      { value: '1-7 Tage', label: 'individuell pro Fahrrad' },
+      { value: 'Helm + Schloss', label: 'Immer im Setup enthalten' },
+    ],
+    pricingCards: [
+      {
+        className: 'pcard-popular',
+        topBadge: '🔥 Beliebt',
+        label: 'Flexibel',
+        duration: '1 bis 7 Tage',
+        price: 'Individuelle Tagespreise',
+        perDay: 'je Fahrrad separat gepflegt',
+        features: ['Schloss inklusive', 'Helm kostenlos', 'Sofort verfugbar'],
+        cta: 'Fahrrad auswahlen & jetzt reservieren',
+        whatsapp: 'WhatsApp',
+      },
+      {
+        className: 'pcard-best',
+        topBadge: 'Individuelle Verlangerung',
+        topBadgeClass: 'pcard-best-badge',
+        label: 'Ab Tag 8',
+        duration: '7-Tage-Basis + Aufschlag',
+        price: 'pro Fahrrad konfiguriert',
+        perDay: 'jeder weitere Tag mit festem Zusatzpreis',
+        features: ['Schloss inklusive', 'Helm kostenlos', 'Sofort verfugbar'],
+        cta: 'Fahrrad auswahlen & jetzt reservieren',
+        whatsapp: 'WhatsApp',
+      },
+      {
+        className: '',
+        label: 'Verlangerung',
+        duration: 'ab Tag 8',
+        price: '7-Tage-Preis + Zusatz',
+        perDay: 'fixer Aufschlag je weiterem Tag',
+        features: ['Schloss inklusive', 'Helm kostenlos', 'Sofort verfugbar'],
+        cta: 'Fahrrad auswahlen & jetzt reservieren',
+        whatsapp: 'WhatsApp',
+      },
+    ],
+    pricingExtras: [
+      {
+        duration: 'Tag 1-3',
+        price: 'direkt am Fahrrad sichtbar',
+        day: 'ohne versteckte Pauschale',
+        cta: 'Buchen',
+      },
+      {
+        duration: 'Tag 4-7',
+        price: 'ebenfalls separat pflegbar',
+        day: 'ideal fur Wochenmiete',
+        cta: 'Buchen',
+      },
+      {
+        duration: 'ab Tag 8',
+        price: '7-Tage-Preis + Zusatz',
+        day: 'pro weiterem Tag',
+        cta: 'Buchen',
+      },
+    ],
+    pricingInfo: [
+      { title: 'Kaution', text: '300 EUR bar, wird bei Ruckgabe erstattet' },
+      {
+        title: 'Immer dabei',
+        text: 'Schloss & Helm kostenlos - ohne Aufpreis',
+      },
+      {
+        title: 'Offnungszeiten',
+        text: 'Mo, Di, Do 11-17:30 · Mi 14-17:30 · Fr 11-13 & 15-18 · Sa 11:30-17',
+      },
+    ],
+    bikePriceFrom: 'ab',
+    extraDayShort: '+1T',
+    zoomImageAriaLabel: 'Bild vergrosern',
+    lightboxAriaLabel: 'Bild vergrosert',
+    lightboxCloseAriaLabel: 'Schliesen',
+    lightboxPrevAriaLabel: 'Vorheriges Bild',
+    lightboxNextAriaLabel: 'Nachstes Bild',
+    reviewStarAriaSuffix: 'Sterne',
+    bikeFactLabels: {
+      type: 'Typ',
+      category: 'Kategorie',
+      frame: 'Rahmen',
+      tire: 'Reifen',
+      color: 'Farbe',
+    },
+    extraDayPriceLabel: 'Ab Tag 8 je weiterer Tag',
+    successEmailPrefix: 'Eine Bestatigung wurde an',
+    successEmailSuffix: 'gesendet.',
+    weekdays: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
+    emailLabel: 'E-Mail',
+    placeholders: {
+      firstName: 'Max',
+      lastName: 'Mustermann',
+      email: 'max@example.com',
+      phone: '+49 ...',
+      notes: 'Besondere Wunsche, Fragen...',
+    },
+    bookingLanguages: BOOKING_LANGUAGE_OPTIONS,
+    whatsappTitle: 'WhatsApp',
+    bookingErrors: {
+      busyRange:
+        'Dieser Zeitraum enthalt bereits gebuchte Tage. Bitte wahlen Sie einen anderen Zeitraum.',
+      choosePeriod: 'Bitte wahlen Sie einen Zeitraum aus.',
+      invalidEnd: 'Das Enddatum darf nicht vor dem Startdatum liegen.',
+      fullName: 'Bitte geben Sie Ihren vollstandigen Namen ein.',
+      validEmail: 'Bitte geben Sie eine gultige E-Mail-Adresse ein.',
+      generic: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
+    },
+  },
+  en: {
+    serviceHighlightsAria: 'Service highlights',
+    heroChip: 'Bike Rental Freiburg',
+    heroAccent: '1-7 days individual',
+    heroDescription:
+      'Days 1 to 7 are priced individually per bike, from day 8 onward a fixed extra-day surcharge applies. Pick up directly at our Freiburg shop.',
+    heroFeatures: [
+      'Lock included',
+      'Helmet free of charge',
+      'Available immediately',
+      'EUR 300 deposit (cash)',
+    ],
+    heroPriceCard: {
+      badge: 'Individual pricing logic',
+      duration: '1-7 days',
+      price: 'configured per bike',
+      perDay: 'managed manually in admin',
+      vs: 'from day 8 with fixed surcharge',
+      features: ['✔ Lock', '✔ Helmet', '✔ Instant'],
+    },
+    signatureLabel: 'Urban Rental System',
+    signatureText:
+      'Designed like a modern performance studio: fast reservation, clear pricing and frictionless pick-up.',
+    signatureStats: [
+      { value: '1-7 days', label: 'individual per bike' },
+      { value: 'Helmet + Lock', label: 'Always included' },
+    ],
+    pricingCards: [
+      {
+        className: 'pcard-popular',
+        topBadge: '🔥 Popular',
+        label: 'Flexible',
+        duration: '1 to 7 days',
+        price: 'Individual daily pricing',
+        perDay: 'configured separately per bike',
+        features: ['Lock included', 'Helmet included', 'Available immediately'],
+        cta: 'Choose bike & reserve now',
+        whatsapp: 'WhatsApp',
+      },
+      {
+        className: 'pcard-best',
+        topBadge: 'Individual extension',
+        topBadgeClass: 'pcard-best-badge',
+        label: 'From day 8',
+        duration: '7-day base + surcharge',
+        price: 'configured per bike',
+        perDay: 'each extra day adds a fixed surcharge',
+        features: ['Lock included', 'Helmet included', 'Available immediately'],
+        cta: 'Choose bike & reserve now',
+        whatsapp: 'WhatsApp',
+      },
+      {
+        className: '',
+        label: 'Extension',
+        duration: 'from day 8',
+        price: '7-day price + add-on',
+        perDay: 'fixed surcharge for each extra day',
+        features: ['Lock included', 'Helmet included', 'Available immediately'],
+        cta: 'Choose bike & reserve now',
+        whatsapp: 'WhatsApp',
+      },
+    ],
+    pricingExtras: [
+      {
+        duration: 'Days 1-3',
+        price: 'shown directly on the bike',
+        day: 'no hidden flat fees',
+        cta: 'Book',
+      },
+      {
+        duration: 'Days 4-7',
+        price: 'also configurable separately',
+        day: 'ideal for weekly rentals',
+        cta: 'Book',
+      },
+      {
+        duration: 'From day 8',
+        price: '7-day price + surcharge',
+        day: 'per additional day',
+        cta: 'Book',
+      },
+    ],
+    pricingInfo: [
+      { title: 'Deposit', text: 'EUR 300 cash, refunded on return' },
+      {
+        title: 'Included',
+        text: 'Lock & helmet included at no extra charge',
+      },
+      {
+        title: 'Opening hours',
+        text: 'Mon, Tue, Thu 11-17:30 · Wed 14-17:30 · Fri 11-13 & 15-18 · Sat 11:30-17',
+      },
+    ],
+    bikePriceFrom: 'from',
+    extraDayShort: '+1d',
+    zoomImageAriaLabel: 'Zoom image',
+    lightboxAriaLabel: 'Image enlarged',
+    lightboxCloseAriaLabel: 'Close',
+    lightboxPrevAriaLabel: 'Previous image',
+    lightboxNextAriaLabel: 'Next image',
+    reviewStarAriaSuffix: 'stars',
+    bikeFactLabels: {
+      type: 'Type',
+      category: 'Category',
+      frame: 'Frame',
+      tire: 'Tire',
+      color: 'Color',
+    },
+    extraDayPriceLabel: 'From day 8 per extra day',
+    successEmailPrefix: 'A confirmation was sent to',
+    successEmailSuffix: '.',
+    weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    emailLabel: 'Email',
+    placeholders: {
+      firstName: 'Max',
+      lastName: 'Mustermann',
+      email: 'max@example.com',
+      phone: '+49 ...',
+      notes: 'Special requests, questions...',
+    },
+    bookingLanguages: BOOKING_LANGUAGE_OPTIONS,
+    whatsappTitle: 'WhatsApp',
+    bookingErrors: {
+      busyRange:
+        'This period already contains booked days. Please choose another period.',
+      choosePeriod: 'Please choose a rental period.',
+      invalidEnd: 'The end date must not be before the start date.',
+      fullName: 'Please enter your full name.',
+      validEmail: 'Please enter a valid email address.',
+      generic: 'An error occurred. Please try again.',
+    },
+  },
+  fr: {
+    serviceHighlightsAria: 'Points forts du service',
+    heroChip: 'Location de velo Freiburg',
+    heroAccent: '1-7 jours sur mesure',
+    heroDescription:
+      'Les jours 1 a 7 sont calcules individuellement pour chaque velo, puis un supplement fixe s applique a partir du 8e jour. Retrait direct dans notre magasin a Freiburg.',
+    heroFeatures: [
+      'Antivol inclus',
+      'Casque gratuit',
+      'Disponible immediatement',
+      'Depot de 300 EUR (especes)',
+    ],
+    heroPriceCard: {
+      badge: 'Logique tarifaire individuelle',
+      duration: '1-7 jours',
+      price: 'par velo separement',
+      perDay: 'gere manuellement dans l admin',
+      vs: 'a partir du 8e jour avec supplement fixe',
+      features: ['✔ Antivol', '✔ Casque', '✔ Immediat'],
+    },
+    signatureLabel: 'Systeme de location urbain',
+    signatureText:
+      'Concu comme un studio de performance moderne : reservation rapide, prix clairs et retrait sans friction.',
+    signatureStats: [
+      { value: '1-7 jours', label: 'individuel par velo' },
+      { value: 'Casque + antivol', label: 'Toujours inclus' },
+    ],
+    pricingCards: [
+      {
+        className: 'pcard-popular',
+        topBadge: '🔥 Populaire',
+        label: 'Flexible',
+        duration: '1 a 7 jours',
+        price: 'Tarifs journaliers individuels',
+        perDay: 'configures separement par velo',
+        features: [
+          'Antivol inclus',
+          'Casque inclus',
+          'Disponible immediatement',
+        ],
+        cta: 'Choisir un velo et reserver',
+        whatsapp: 'WhatsApp',
+      },
+      {
+        className: 'pcard-best',
+        topBadge: 'Prolongation individuelle',
+        topBadgeClass: 'pcard-best-badge',
+        label: 'A partir du 8e jour',
+        duration: 'Base 7 jours + supplement',
+        price: 'configure par velo',
+        perDay: 'chaque jour supplementaire ajoute un supplement fixe',
+        features: [
+          'Antivol inclus',
+          'Casque inclus',
+          'Disponible immediatement',
+        ],
+        cta: 'Choisir un velo et reserver',
+        whatsapp: 'WhatsApp',
+      },
+      {
+        className: '',
+        label: 'Prolongation',
+        duration: 'a partir du 8e jour',
+        price: 'Prix 7 jours + supplement',
+        perDay: 'supplement fixe par jour additionnel',
+        features: [
+          'Antivol inclus',
+          'Casque inclus',
+          'Disponible immediatement',
+        ],
+        cta: 'Choisir un velo et reserver',
+        whatsapp: 'WhatsApp',
+      },
+    ],
+    pricingExtras: [
+      {
+        duration: 'Jours 1-3',
+        price: 'visible directement sur le velo',
+        day: 'sans forfait cache',
+        cta: 'Reserver',
+      },
+      {
+        duration: 'Jours 4-7',
+        price: 'egalement parametrable separement',
+        day: 'ideal pour une semaine',
+        cta: 'Reserver',
+      },
+      {
+        duration: 'A partir du 8e jour',
+        price: 'Prix 7 jours + supplement',
+        day: 'par jour supplementaire',
+        cta: 'Reserver',
+      },
+    ],
+    pricingInfo: [
+      { title: 'Depot', text: '300 EUR en especes, rembourse au retour' },
+      {
+        title: 'Toujours inclus',
+        text: 'Antivol et casque inclus sans supplement',
+      },
+      {
+        title: 'Horaires',
+        text: 'Lun, Mar, Jeu 11-17:30 · Mer 14-17:30 · Ven 11-13 & 15-18 · Sam 11:30-17',
+      },
+    ],
+    bikePriceFrom: 'a partir de',
+    extraDayShort: '+1j',
+    zoomImageAriaLabel: 'Agrandir l image',
+    lightboxAriaLabel: 'Image agrandie',
+    lightboxCloseAriaLabel: 'Fermer',
+    lightboxPrevAriaLabel: 'Image precedente',
+    lightboxNextAriaLabel: 'Image suivante',
+    reviewStarAriaSuffix: 'etoiles',
+    bikeFactLabels: {
+      type: 'Type',
+      category: 'Categorie',
+      frame: 'Cadre',
+      tire: 'Pneu',
+      color: 'Couleur',
+    },
+    extraDayPriceLabel: 'A partir du 8e jour par jour supplementaire',
+    successEmailPrefix: 'Une confirmation a ete envoyee a',
+    successEmailSuffix: '.',
+    weekdays: ['Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa', 'Di'],
+    emailLabel: 'E-mail',
+    placeholders: {
+      firstName: 'Max',
+      lastName: 'Mustermann',
+      email: 'max@example.com',
+      phone: '+49 ...',
+      notes: 'Demandes speciales, questions...',
+    },
+    bookingLanguages: BOOKING_LANGUAGE_OPTIONS,
+    whatsappTitle: 'WhatsApp',
+    bookingErrors: {
+      busyRange:
+        'Cette periode contient deja des jours reserves. Veuillez choisir une autre periode.',
+      choosePeriod: 'Veuillez choisir une periode de location.',
+      invalidEnd:
+        'La date de fin ne peut pas etre anterieure a la date de debut.',
+      fullName: 'Veuillez saisir votre nom complet.',
+      validEmail: 'Veuillez saisir une adresse e-mail valide.',
+      generic: 'Une erreur est survenue. Veuillez reessayer.',
+    },
+  },
+  tr: {
+    serviceHighlightsAria: 'Servis one cikanlar',
+    heroChip: 'Freiburg Bisiklet Kiralama',
+    heroAccent: '1-7 gun bireysel',
+    heroDescription:
+      '1 ile 7 gun arasi fiyat her bisiklet icin ayri hesaplanir, 8. gunden itibaren sabit ek gun ucreti uygulanir. Teslim almayi dogrudan Freiburg magazamizdan yapabilirsiniz.',
+    heroFeatures: [
+      'Kilit dahil',
+      'Kask ucretsiz',
+      'Hemen mevcut',
+      '300 EUR depozito (nakit)',
+    ],
+    heroPriceCard: {
+      badge: 'Bireysel fiyat mantigi',
+      duration: '1-7 gun',
+      price: 'bisiklet bazinda ayri',
+      perDay: 'yonetim panelinden manuel girilir',
+      vs: '8. gunden sonra sabit ek ucret',
+      features: ['✔ Kilit', '✔ Kask', '✔ Hazir'],
+    },
+    signatureLabel: 'Sehir ici kiralama sistemi',
+    signatureText:
+      'Modern bir performans studiysi gibi tasarlandi: hizli rezervasyon, net fiyatlar ve sorunsuz teslim alma.',
+    signatureStats: [
+      { value: '1-7 gun', label: 'bisiklet bazinda bireysel' },
+      { value: 'Kask + kilit', label: 'Her zaman dahil' },
+    ],
+    pricingCards: [
+      {
+        className: 'pcard-popular',
+        topBadge: '🔥 Populer',
+        label: 'Esnek',
+        duration: '1 ila 7 gun',
+        price: 'Bireysel gunluk fiyatlar',
+        perDay: 'her bisiklet icin ayri tanimlanir',
+        features: ['Kilit dahil', 'Kask dahil', 'Hemen mevcut'],
+        cta: 'Bisiklet sec ve hemen rezerve et',
+        whatsapp: 'WhatsApp',
+      },
+      {
+        className: 'pcard-best',
+        topBadge: 'Bireysel uzatma',
+        topBadgeClass: 'pcard-best-badge',
+        label: '8. gunden itibaren',
+        duration: '7 gun taban + ek ucret',
+        price: 'bisiklet bazinda ayarlanir',
+        perDay: 'her ek gun icin sabit ek ucret',
+        features: ['Kilit dahil', 'Kask dahil', 'Hemen mevcut'],
+        cta: 'Bisiklet sec ve hemen rezerve et',
+        whatsapp: 'WhatsApp',
+      },
+      {
+        className: '',
+        label: 'Uzatma',
+        duration: '8. gunden itibaren',
+        price: '7 gunluk fiyat + ek',
+        perDay: 'her ek gun icin sabit ucret',
+        features: ['Kilit dahil', 'Kask dahil', 'Hemen mevcut'],
+        cta: 'Bisiklet sec ve hemen rezerve et',
+        whatsapp: 'WhatsApp',
+      },
+    ],
+    pricingExtras: [
+      {
+        duration: 'Gun 1-3',
+        price: 'dogrudan bisiklet uzerinde gorunur',
+        day: 'gizli sabit ucret yok',
+        cta: 'Rezerve et',
+      },
+      {
+        duration: 'Gun 4-7',
+        price: 'ayri ayri duzenlenebilir',
+        day: 'haftalik kiralama icin ideal',
+        cta: 'Rezerve et',
+      },
+      {
+        duration: '8. gunden itibaren',
+        price: '7 gunluk fiyat + ek',
+        day: 'her ek gun icin',
+        cta: 'Rezerve et',
+      },
+    ],
+    pricingInfo: [
+      { title: 'Depozito', text: '300 EUR nakit, iade sirasinda geri verilir' },
+      {
+        title: 'Dahil olanlar',
+        text: 'Kilit ve kask ekstra ucret olmadan dahildir',
+      },
+      {
+        title: 'Calisma saatleri',
+        text: 'Pzt, Sal, Per 11-17:30 · Cars 14-17:30 · Cum 11-13 & 15-18 · Cmt 11:30-17',
+      },
+    ],
+    bikePriceFrom: 'baslayan',
+    extraDayShort: '+1G',
+    zoomImageAriaLabel: 'Gorseli buyut',
+    lightboxAriaLabel: 'Buyutulmus gorsel',
+    lightboxCloseAriaLabel: 'Kapat',
+    lightboxPrevAriaLabel: 'Onceki gorsel',
+    lightboxNextAriaLabel: 'Sonraki gorsel',
+    reviewStarAriaSuffix: 'yildiz',
+    bikeFactLabels: {
+      type: 'Tip',
+      category: 'Kategori',
+      frame: 'Kadro',
+      tire: 'Lastik',
+      color: 'Renk',
+    },
+    extraDayPriceLabel: '8. gunden sonra her ek gun',
+    successEmailPrefix: 'Bir onay e-postasi su adrese gonderildi',
+    successEmailSuffix: '.',
+    weekdays: ['Pzt', 'Sal', 'Cars', 'Per', 'Cum', 'Cmt', 'Paz'],
+    emailLabel: 'E-posta',
+    placeholders: {
+      firstName: 'Ali',
+      lastName: 'Yilmaz',
+      email: 'ali@example.com',
+      phone: '+49 ...',
+      notes: 'Ozel istekleriniz, sorulariniz...',
+    },
+    bookingLanguages: BOOKING_LANGUAGE_OPTIONS,
+    whatsappTitle: 'WhatsApp',
+    bookingErrors: {
+      busyRange:
+        'Bu tarih araliginda zaten rezerve edilmis gunler var. Lutfen farkli bir aralik secin.',
+      choosePeriod: 'Lutfen bir kiralama araligi secin.',
+      invalidEnd: 'Bitis tarihi baslangic tarihinden once olamaz.',
+      fullName: 'Lutfen ad ve soyadinizi girin.',
+      validEmail: 'Lutfen gecerli bir e-posta adresi girin.',
+      generic: 'Bir hata olustu. Lutfen tekrar deneyin.',
+    },
+  },
+  ...EXTENDED_RENTAL_PAGE_COPY,
+};
 
 @Component({
   selector: 'app-fahrradverleih',
@@ -53,19 +699,20 @@ import {
                 <path d="M15 6l-4 8h6l-2 3.5" />
                 <path d="M5.5 17.5L9 9h3" />
               </svg>
-              Fahrradverleih Freiburg
+              {{ pageCopy().heroChip }}
             </span>
             <h1 class="rental-hero-h1">
-              Fahrrad mieten<br /><span class="rental-hero-accent"
-                >tagesgenau pro Fahrrad</span
-              >
+              {{ t().rentalHeroTitle }}<br /><span class="rental-hero-accent">{{
+                pageCopy().heroAccent
+              }}</span>
             </h1>
             <p class="rental-hero-sub">
-              1 bis 7 Tage individuell je Fahrrad kalkuliert, ab Tag 8 mit
-              festem Zusatzpreis.<br />Direkt bei uns in Freiburg abholen.
+              {{ pageCopy().heroDescription }}
             </p>
             <div class="rental-hero-features">
-              <span class="rfeat"
+              <span
+                class="rfeat"
+                *ngFor="let feature of pageCopy().heroFeatures"
                 ><svg
                   width="13"
                   height="13"
@@ -75,43 +722,7 @@ import {
                   stroke-width="3"
                 >
                   <polyline points="20 6 9 17 4 12" /></svg
-                >Schloss inklusive</span
-              >
-              <span class="rfeat"
-                ><svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"
-                >
-                  <polyline points="20 6 9 17 4 12" /></svg
-                >Helm kostenlos</span
-              >
-              <span class="rfeat"
-                ><svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"
-                >
-                  <polyline points="20 6 9 17 4 12" /></svg
-                >Sofort verfügbar</span
-              >
-              <span class="rfeat"
-                ><svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"
-                >
-                  <polyline points="20 6 9 17 4 12" /></svg
-                >300 € Kaution (bar)</span
+                >{{ feature }}</span
               >
             </div>
             <div class="rental-hero-ctas">
@@ -154,15 +765,20 @@ import {
           </div>
           <div class="rental-hero-right">
             <div class="rental-hero-price-card">
-              <div class="rhpc-badge">Individuelle Preislogik</div>
-              <div class="rhpc-duration">1-7 Tage</div>
-              <div class="rhpc-price">pro Fahrrad separat</div>
-              <div class="rhpc-per-day">manuell im Admin gepflegt</div>
-              <div class="rhpc-vs">ab Tag 8 automatisch mit Zusatzpreis</div>
+              <div class="rhpc-badge">{{ pageCopy().heroPriceCard.badge }}</div>
+              <div class="rhpc-duration">
+                {{ pageCopy().heroPriceCard.duration }}
+              </div>
+              <div class="rhpc-price">{{ pageCopy().heroPriceCard.price }}</div>
+              <div class="rhpc-per-day">
+                {{ pageCopy().heroPriceCard.perDay }}
+              </div>
+              <div class="rhpc-vs">{{ pageCopy().heroPriceCard.vs }}</div>
               <div class="rhpc-features">
-                <span>✔ Schloss</span>
-                <span>✔ Helm</span>
-                <span>✔ Sofort</span>
+                <span
+                  *ngFor="let feature of pageCopy().heroPriceCard.features"
+                  >{{ feature }}</span
+                >
               </div>
             </div>
           </div>
@@ -170,23 +786,21 @@ import {
       </header>
 
       <div class="container rental-body">
-        <section class="rental-signature-band" aria-label="Service Highlights">
+        <section
+          class="rental-signature-band"
+          [attr.aria-label]="pageCopy().serviceHighlightsAria"
+        >
           <div class="signature-editorial">
-            <span class="section-label">Urban Rental System</span>
-            <p>
-              Entwickelt wie ein modernes Performance-Studio: schnelle
-              Reservierung, klare Preise und direkte Abholung ohne Reibung.
-            </p>
+            <span class="section-label">{{ pageCopy().signatureLabel }}</span>
+            <p>{{ pageCopy().signatureText }}</p>
           </div>
           <div class="signature-stat-grid">
-            <article class="signature-stat-card">
-              <span class="signature-stat-value">1-7 Tage</span>
-              <span class="signature-stat-label">individuell pro Fahrrad</span>
-            </article>
-
-            <article class="signature-stat-card">
-              <span class="signature-stat-value">Helm + Schloss</span>
-              <span class="signature-stat-label">Immer im Setup enthalten</span>
+            <article
+              class="signature-stat-card"
+              *ngFor="let stat of pageCopy().signatureStats"
+            >
+              <span class="signature-stat-value">{{ stat.value }}</span>
+              <span class="signature-stat-label">{{ stat.label }}</span>
             </article>
           </div>
         </section>
@@ -201,66 +815,33 @@ import {
 
           <!-- 3 Main cards -->
           <div class="pricing-main-grid">
-            <!-- 7 Tage -->
-            <div class="pcard pcard-popular">
-              <div class="pcard-top-badge">🔥 Beliebt</div>
-              <div class="pcard-label">Flexibel</div>
-              <div class="pcard-duration">1 bis 7 Tage</div>
-              <div class="pcard-price">Individuelle Tagespreise</div>
-              <div class="pcard-per-day">je Fahrrad separat gepflegt</div>
-              <ul class="pcard-features">
-                <li>Schloss inklusive</li>
-                <li>Helm kostenlos</li>
-                <li>Sofort verfügbar</li>
-              </ul>
-              <button
-                type="button"
-                (click)="scrollToBikes()"
-                class="pcard-cta-primary"
+            <div
+              class="pcard"
+              *ngFor="let card of pageCopy().pricingCards"
+              [ngClass]="card.className"
+            >
+              <div
+                class="pcard-top-badge"
+                *ngIf="card.topBadge"
+                [class.pcard-best-badge]="
+                  card.topBadgeClass === 'pcard-best-badge'
+                "
               >
-                Fahrrad auswählen &amp; jetzt reservieren
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M12 5v14M5 12l7 7 7-7" />
-                </svg>
-              </button>
-              <a
-                href="https://wa.me/491556630011"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="pcard-cta-wa"
-                >WhatsApp</a
-              >
-            </div>
-
-            <!-- Flexible extension -->
-            <div class="pcard pcard-best">
-              <div class="pcard-top-badge pcard-best-badge">
-                Individuelle Verlängerung
+                {{ card.topBadge }}
               </div>
-              <div class="pcard-label">Ab Tag 8</div>
-              <div class="pcard-duration">7-Tage-Basis + Aufschlag</div>
-              <div class="pcard-price">pro Fahrrad konfiguriert</div>
-              <div class="pcard-per-day">
-                jeder weitere Tag mit festem Zusatzpreis
-              </div>
+              <div class="pcard-label">{{ card.label }}</div>
+              <div class="pcard-duration">{{ card.duration }}</div>
+              <div class="pcard-price">{{ card.price }}</div>
+              <div class="pcard-per-day">{{ card.perDay }}</div>
               <ul class="pcard-features">
-                <li>Schloss inklusive</li>
-                <li>Helm kostenlos</li>
-                <li>Sofort verfügbar</li>
+                <li *ngFor="let feature of card.features">{{ feature }}</li>
               </ul>
               <button
                 type="button"
                 (click)="scrollToBikes()"
                 class="pcard-cta-primary"
               >
-                Fahrrad auswählen &amp; jetzt reservieren
+                {{ card.cta }}
                 <svg
                   width="13"
                   height="13"
@@ -277,91 +858,36 @@ import {
                 target="_blank"
                 rel="noopener noreferrer"
                 class="pcard-cta-wa"
-                >WhatsApp</a
-              >
-            </div>
-
-            <!-- 1 Tag -->
-            <div class="pcard">
-              <div class="pcard-label">Verlängerung</div>
-              <div class="pcard-duration">ab Tag 8</div>
-              <div class="pcard-price">7-Tage-Preis + Zusatz</div>
-              <div class="pcard-per-day">fixer Aufschlag je weiterem Tag</div>
-              <ul class="pcard-features">
-                <li>Schloss inklusive</li>
-                <li>Helm kostenlos</li>
-                <li>Sofort verfügbar</li>
-              </ul>
-              <button
-                type="button"
-                (click)="scrollToBikes()"
-                class="pcard-cta-primary"
-              >
-                Fahrrad auswählen &amp; jetzt reservieren
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M12 5v14M5 12l7 7 7-7" />
-                </svg>
-              </button>
-              <a
-                href="https://wa.me/491556630011"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="pcard-cta-wa"
-                >WhatsApp</a
+                >{{ card.whatsapp }}</a
               >
             </div>
           </div>
 
           <!-- Extra prices compact -->
           <div class="pricing-extra-row">
-            <div class="pextra-item">
-              <span class="pextra-dur">Tag 1-3</span>
-              <span class="pextra-price">direkt am Fahrrad sichtbar</span>
-              <span class="pextra-day">ohne versteckte Pauschale</span>
+            <div
+              class="pextra-item"
+              *ngFor="let item of pageCopy().pricingExtras"
+            >
+              <span class="pextra-dur">{{ item.duration }}</span>
+              <span class="pextra-price">{{ item.price }}</span>
+              <span class="pextra-day">{{ item.day }}</span>
               <button
                 type="button"
                 (click)="scrollToBikes()"
                 class="pextra-cta"
               >
-                Buchen
-              </button>
-            </div>
-            <div class="pextra-item">
-              <span class="pextra-dur">Tag 4-7</span>
-              <span class="pextra-price">ebenfalls separat pflegbar</span>
-              <span class="pextra-day">ideal für Wochenmiete</span>
-              <button
-                type="button"
-                (click)="scrollToBikes()"
-                class="pextra-cta"
-              >
-                Buchen
-              </button>
-            </div>
-            <div class="pextra-item">
-              <span class="pextra-dur">ab Tag 8</span>
-              <span class="pextra-price">7-Tage-Preis + Zusatz</span>
-              <span class="pextra-day">pro weiterem Tag</span>
-              <button
-                type="button"
-                (click)="scrollToBikes()"
-                class="pextra-cta"
-              >
-                Buchen
+                {{ item.cta }}
               </button>
             </div>
           </div>
 
           <!-- Deposit & included info bar -->
           <div class="pricing-info-bar">
-            <div class="pinfo-item">
+            <div
+              class="pinfo-item"
+              *ngFor="let info of pageCopy().pricingInfo; let i = index"
+            >
               <svg
                 width="18"
                 height="18"
@@ -370,48 +896,24 @@ import {
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <ng-container [ngSwitch]="i">
+                  <path
+                    *ngSwitchCase="0"
+                    d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                  />
+                  <ng-container *ngSwitchCase="1">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </ng-container>
+                </ng-container>
               </svg>
               <div>
-                <strong>Kaution</strong>
-                <span>300 € bar, wird bei Rückgabe erstattet</span>
-              </div>
-            </div>
-            <div class="pinfo-item">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                <polyline points="22 4 12 14.01 9 11.01" />
-              </svg>
-              <div>
-                <strong>Immer dabei</strong>
-                <span>Schloss &amp; Helm kostenlos – ohne Aufpreis</span>
-              </div>
-            </div>
-            <div class="pinfo-item">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-              <div>
-                <strong>Öffnungszeiten</strong>
-                <span
-                  >Mo, Di, Do 11–17:30 · Mi 14–17:30 · Fr 11–13 &amp; 15–18 · Sa
-                  11:30–17</span
-                >
+                <strong>{{ info.title }}</strong>
+                <span>{{ info.text }}</span>
               </div>
             </div>
           </div>
@@ -503,7 +1005,7 @@ import {
                   <span *ngIf="bike.farbe">· {{ bike.farbe }}</span>
                 </div>
                 <div class="seat-price-from" *ngIf="getMinPrice(bike) as minP">
-                  ab {{ minP | number: '1.0-0' }} €
+                  {{ pageCopy().bikePriceFrom }} {{ minP | number: '1.0-0' }} €
                 </div>
                 <div
                   class="seat-price-list"
@@ -519,7 +1021,8 @@ import {
                     class="seat-price-pill seat-price-pill-accent"
                     *ngIf="bike.preise.additionalDayAfter7 != null"
                   >
-                    +1T {{ bike.preise.additionalDayAfter7 | number: '1.0-0' }}€
+                    {{ pageCopy().extraDayShort }}
+                    {{ bike.preise.additionalDayAfter7 | number: '1.0-0' }}€
                   </span>
                 </div>
               </div>
@@ -612,7 +1115,7 @@ import {
                 type="button"
                 class="bp-gallery-main"
                 (click)="openLightbox()"
-                aria-label="Bild vergrößern"
+                [attr.aria-label]="pageCopy().zoomImageAriaLabel"
               >
                 <img
                   *ngIf="getSelectedBikeImagePath() as selectedImagePath"
@@ -653,7 +1156,9 @@ import {
                       selectedBike()!.marke +
                       ' ' +
                       selectedBike()!.modell +
-                      ' Bild ' +
+                      ' ' +
+                      pageCopy().zoomImageAriaLabel +
+                      ' ' +
                       (i + 1)
                     "
                     loading="lazy"
@@ -666,19 +1171,24 @@ import {
               <h4>{{ t().rentalBikeDetails }}</h4>
               <div class="bp-bike-facts">
                 <span class="bp-fact" *ngIf="selectedBike()!.fahrradtyp"
-                  >Typ: {{ selectedBike()!.fahrradtyp }}</span
+                  >{{ pageCopy().bikeFactLabels.type }}:
+                  {{ selectedBike()!.fahrradtyp }}</span
                 >
                 <span class="bp-fact" *ngIf="selectedBike()!.art"
-                  >Kategorie: {{ selectedBike()!.art }}</span
+                  >{{ pageCopy().bikeFactLabels.category }}:
+                  {{ selectedBike()!.art }}</span
                 >
                 <span class="bp-fact" *ngIf="selectedBike()!.rahmengroesse"
-                  >Rahmen: {{ selectedBike()!.rahmengroesse }}</span
+                  >{{ pageCopy().bikeFactLabels.frame }}:
+                  {{ selectedBike()!.rahmengroesse }}</span
                 >
                 <span class="bp-fact" *ngIf="selectedBike()!.reifengroesse"
-                  >Reifen: {{ selectedBike()!.reifengroesse }}</span
+                  >{{ pageCopy().bikeFactLabels.tire }}:
+                  {{ selectedBike()!.reifengroesse }}</span
                 >
                 <span class="bp-fact" *ngIf="selectedBike()!.farbe"
-                  >Farbe: {{ selectedBike()!.farbe }}</span
+                  >{{ pageCopy().bikeFactLabels.color }}:
+                  {{ selectedBike()!.farbe }}</span
                 >
               </div>
 
@@ -701,7 +1211,7 @@ import {
                   class="bp-price-item"
                   *ngIf="selectedBike()!.preise.additionalDayAfter7 != null"
                 >
-                  <span>Ab Tag 8 je weiterer Tag</span
+                  <span>{{ pageCopy().extraDayPriceLabel }}</span
                   ><strong
                     >{{
                       selectedBike()!.preise.additionalDayAfter7
@@ -731,8 +1241,11 @@ import {
             </div>
             <h3>{{ t().rentalSuccessTitle }}</h3>
             <p>
-              {{ t().rentalSuccessText }}<br />Eine Bestätigung wurde an
-              <strong>{{ bookingForm.email }}</strong> gesendet.
+              {{ t().rentalSuccessText }}<br />{{
+                pageCopy().successEmailPrefix
+              }}
+              <strong>{{ bookingForm.email }}</strong>
+              {{ pageCopy().successEmailSuffix }}
             </p>
             <div class="bp-booking-nr">
               {{ t().rentalSuccessBookingNr }}:
@@ -799,8 +1312,9 @@ import {
                   </button>
                 </div>
                 <div class="bc-weekdays">
-                  <span>Mo</span><span>Di</span><span>Mi</span><span>Do</span
-                  ><span>Fr</span><span>Sa</span><span>So</span>
+                  <span *ngFor="let weekday of pageCopy().weekdays">{{
+                    weekday
+                  }}</span>
                 </div>
                 <div class="bc-grid">
                   <div
@@ -974,7 +1488,7 @@ import {
                   <input
                     type="text"
                     [(ngModel)]="bookingForm.vorname"
-                    placeholder="Max"
+                    [placeholder]="pageCopy().placeholders.firstName"
                   />
                 </div>
                 <div class="form-field">
@@ -982,18 +1496,18 @@ import {
                   <input
                     type="text"
                     [(ngModel)]="bookingForm.nachname"
-                    placeholder="Mustermann"
+                    [placeholder]="pageCopy().placeholders.lastName"
                   />
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-field">
-                  <label>E-Mail *</label>
+                  <label>{{ pageCopy().emailLabel }} *</label>
                   <input
                     type="email"
                     [(ngModel)]="bookingForm.email"
-                    placeholder="max&#64;example.com"
+                    [placeholder]="pageCopy().placeholders.email"
                   />
                 </div>
                 <div class="form-field">
@@ -1001,7 +1515,7 @@ import {
                   <input
                     type="tel"
                     [(ngModel)]="bookingForm.telefon"
-                    placeholder="+49 ..."
+                    [placeholder]="pageCopy().placeholders.phone"
                   />
                 </div>
               </div>
@@ -1010,18 +1524,12 @@ import {
                 <label>{{ t().rentalFormLang }}</label>
                 <div class="lang-toggle">
                   <button
+                    *ngFor="let option of pageCopy().bookingLanguages"
                     type="button"
-                    [class.active]="bookingForm.sprache === 'de'"
-                    (click)="bookingForm.sprache = 'de'"
+                    [class.active]="bookingForm.sprache === option.code"
+                    (click)="bookingForm.sprache = option.code"
                   >
-                    Deutsch
-                  </button>
-                  <button
-                    type="button"
-                    [class.active]="bookingForm.sprache === 'en'"
-                    (click)="bookingForm.sprache = 'en'"
-                  >
-                    English
+                    {{ option.label }}
                   </button>
                 </div>
               </div>
@@ -1031,7 +1539,7 @@ import {
                 <textarea
                   [(ngModel)]="bookingForm.notizen"
                   rows="3"
-                  placeholder="Besondere Wünsche, Fragen..."
+                  [placeholder]="pageCopy().placeholders.notes"
                 ></textarea>
               </div>
 
@@ -1121,7 +1629,7 @@ import {
               </svg>
             </div>
             <div class="wa-content">
-              <h3>WhatsApp</h3>
+              <h3>{{ pageCopy().whatsappTitle }}</h3>
               <p>+49 155 6630 0011</p>
               <span class="wa-hint">{{ t().contactWhatsappHint }}</span>
             </div>
@@ -1245,7 +1753,9 @@ import {
                     class="star-btn"
                     [class.selected]="reviewForm.sterne >= n"
                     (click)="reviewForm.sterne = n"
-                    [attr.aria-label]="n + ' Sterne'"
+                    [attr.aria-label]="
+                      n + ' ' + pageCopy().reviewStarAriaSuffix
+                    "
                   >
                     ★
                   </button>
@@ -1307,13 +1817,13 @@ import {
         (click)="closeLightbox()"
         role="dialog"
         aria-modal="true"
-        aria-label="Bild vergrößert"
+        [attr.aria-label]="pageCopy().lightboxAriaLabel"
       >
         <button
           type="button"
           class="lightbox-close"
           (click)="closeLightbox(); $event.stopPropagation()"
-          aria-label="Schließen"
+          [attr.aria-label]="pageCopy().lightboxCloseAriaLabel"
         >
           <svg
             width="24"
@@ -1333,7 +1843,7 @@ import {
           class="lightbox-nav lightbox-prev"
           *ngIf="selectedBike()!.images.length > 1"
           (click)="lightboxPrev(); $event.stopPropagation()"
-          aria-label="Vorheriges Bild"
+          [attr.aria-label]="pageCopy().lightboxPrevAriaLabel"
         >
           <svg
             width="28"
@@ -1365,7 +1875,7 @@ import {
           class="lightbox-nav lightbox-next"
           *ngIf="selectedBike()!.images.length > 1"
           (click)="lightboxNext(); $event.stopPropagation()"
-          aria-label="Nächstes Bild"
+          [attr.aria-label]="pageCopy().lightboxNextAriaLabel"
         >
           <svg
             width="28"
@@ -1689,11 +2199,40 @@ import {
       }
 
       .rental-signature-band {
+        position: relative;
         display: grid;
         grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
         gap: 1.25rem;
         margin: -1.2rem 0 2.75rem;
         align-items: stretch;
+        padding: 1.15rem;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background:
+          linear-gradient(
+            160deg,
+            rgba(255, 255, 255, 0.055),
+            rgba(255, 255, 255, 0.01)
+          ),
+          rgba(15, 23, 42, 0.28);
+        box-shadow:
+          0 18px 44px rgba(0, 0, 0, 0.12),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(18px) saturate(125%);
+        -webkit-backdrop-filter: blur(18px) saturate(125%);
+      }
+
+      .rental-signature-band::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(
+          circle at top left,
+          rgba(255, 255, 255, 0.08),
+          transparent 34%
+        );
+        pointer-events: none;
       }
 
       .signature-editorial,
@@ -1701,15 +2240,17 @@ import {
         position: relative;
         overflow: hidden;
         border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         background:
           linear-gradient(
             145deg,
-            rgba(255, 255, 255, 0.055),
-            rgba(255, 255, 255, 0.02)
+            rgba(255, 255, 255, 0.065),
+            rgba(255, 255, 255, 0.015)
           ),
-          var(--color-surface);
-        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+          rgba(30, 41, 59, 0.58);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
       }
 
       .signature-editorial {
@@ -3622,6 +4163,8 @@ import {
         .rental-signature-band {
           margin-top: -0.6rem;
           margin-bottom: 2rem;
+          padding: 0.8rem;
+          border-radius: 22px;
         }
 
         .signature-editorial,
@@ -3684,6 +4227,9 @@ export class FahrradverleihComponent implements OnInit {
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+  pageCopy = computed(
+    () => RENTAL_PAGE_COPY[this.getCurrentLanguage()] ?? RENTAL_PAGE_COPY.en!,
+  );
 
   bikes = signal<PublicRentalBicycle[]>([]);
   bikesLoading = signal(true);
@@ -3706,7 +4252,7 @@ export class FahrradverleihComponent implements OnInit {
     nachname: '',
     email: '',
     telefon: '',
-    sprache: 'de',
+    sprache: this.getCurrentLanguage(),
     notizen: '',
   };
 
@@ -3730,7 +4276,10 @@ export class FahrradverleihComponent implements OnInit {
 
   calMonthLabel = computed(() => {
     const d = this.calendarCurrentDate();
-    return d.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+    return d.toLocaleDateString(this.getLocaleForCurrentLanguage(), {
+      month: 'long',
+      year: 'numeric',
+    });
   });
 
   calendarDays = computed(() => {
@@ -3758,6 +4307,8 @@ export class FahrradverleihComponent implements OnInit {
     const t = this.t();
     const lang = this.lang();
     const pageUrl = `https://bikehausfreiburg.com/${lang}/fahrradverleih`;
+
+    this.bookingForm.sprache = this.getCurrentLanguage();
 
     this.titleService.setTitle(t.bikeRentalMetaTitle);
 
@@ -4036,7 +4587,7 @@ export class FahrradverleihComponent implements OnInit {
       nachname: '',
       email: '',
       telefon: '',
-      sprache: 'de',
+      sprache: this.getCurrentLanguage(),
       notizen: '',
     };
     this.calendarStart.set(null);
@@ -4322,9 +4873,7 @@ export class FahrradverleihComponent implements OnInit {
         this.calendarEnd.set(null);
         this.bookingForm.startDatum = this.toIsoDate(date);
         this.bookingForm.endDatum = '';
-        this.bookingError.set(
-          'Dieser Zeitraum enthält bereits gebuchte Tage. Bitte wählen Sie einen anderen Zeitraum.',
-        );
+        this.bookingError.set(this.pageCopy().bookingErrors.busyRange);
         return;
       }
       this.bookingError.set(null);
@@ -4342,7 +4891,7 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   formatCalDay(date: Date): string {
-    return date.toLocaleDateString('de-DE', {
+    return date.toLocaleDateString(this.getLocaleForCurrentLanguage(), {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -4352,21 +4901,19 @@ export class FahrradverleihComponent implements OnInit {
   submitBooking(): void {
     const f = this.bookingForm;
     if (!f.startDatum || !f.endDatum) {
-      this.bookingError.set('Bitte wählen Sie einen Zeitraum aus.');
+      this.bookingError.set(this.pageCopy().bookingErrors.choosePeriod);
       return;
     }
     if (new Date(f.endDatum) < new Date(f.startDatum)) {
-      this.bookingError.set(
-        'Das Enddatum darf nicht vor dem Startdatum liegen.',
-      );
+      this.bookingError.set(this.pageCopy().bookingErrors.invalidEnd);
       return;
     }
     if (!f.vorname.trim() || !f.nachname.trim()) {
-      this.bookingError.set('Bitte geben Sie Ihren vollständigen Namen ein.');
+      this.bookingError.set(this.pageCopy().bookingErrors.fullName);
       return;
     }
     if (!f.email.trim() || !f.email.includes('@')) {
-      this.bookingError.set('Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+      this.bookingError.set(this.pageCopy().bookingErrors.validEmail);
       return;
     }
 
@@ -4395,13 +4942,20 @@ export class FahrradverleihComponent implements OnInit {
         this.bookingSubmitting.set(false);
       },
       error: (err) => {
-        const msg =
-          err?.error?.error ||
-          'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.';
+        const msg = err?.error?.error || this.pageCopy().bookingErrors.generic;
         this.bookingError.set(msg);
         this.bookingSubmitting.set(false);
       },
     });
+  }
+
+  private getCurrentLanguage(): Language {
+    const lang = this.lang();
+    return isSupportedLanguage(lang) ? lang : DEFAULT_LANGUAGE;
+  }
+
+  private getLocaleForCurrentLanguage(): string {
+    return LOCALE_BY_LANGUAGE[this.getCurrentLanguage()];
   }
 
   getWhatsappLink(): string {

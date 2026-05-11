@@ -12,6 +12,10 @@ import {
   Language,
 } from '../../services/translation.service';
 import { ShopInfoService } from '../../services/shop-info.service';
+import {
+  LANGUAGE_LABELS,
+  SUPPORTED_LANGUAGES,
+} from '../../services/language-config';
 
 @Component({
   selector: 'app-navbar',
@@ -518,12 +522,9 @@ export class NavbarComponent {
     { path: 'contact', label: () => this.t().contact, exact: false },
   ];
 
-  languages: { code: Language; label: string }[] = [
-    { code: 'de', label: 'Deutsch' },
-    { code: 'en', label: 'English' },
-    { code: 'fr', label: 'Français' },
-    { code: 'tr', label: 'Türkçe' },
-  ];
+  languages: { code: Language; label: string }[] = SUPPORTED_LANGUAGES.map(
+    (code) => ({ code, label: LANGUAGE_LABELS[code] }),
+  );
 
   @HostListener('window:scroll')
   onScroll(): void {

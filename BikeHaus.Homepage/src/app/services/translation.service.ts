@@ -6,8 +6,16 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import {
+  DEFAULT_LANGUAGE,
+  getLanguageDirection,
+  isSupportedLanguage,
+  type SupportedLanguageCode,
+} from './language-config';
+import { EXTENDED_TRANSLATION_OVERRIDES } from './translation-overrides';
 
-export type Language = 'de' | 'en' | 'fr' | 'tr';
+export type Language = SupportedLanguageCode;
+type BaseLanguage = 'de' | 'en' | 'fr' | 'tr';
 
 export interface Translations {
   // Meta / SEO
@@ -547,7 +555,7 @@ export interface Translations {
   blogCta3: string;
 }
 
-const TRANSLATIONS: Record<Language, Translations> = {
+const TRANSLATIONS: Record<BaseLanguage, Translations> = {
   de: {
     metaTitle:
       'Fahrradladen Freiburg — Fahrrad kaufen & mieten | Bike Haus Freiburg',
@@ -2862,6 +2870,23 @@ const TRANSLATIONS: Record<Language, Translations> = {
   },
 };
 
+function getTranslations(language: Language): Translations {
+  if (language in TRANSLATIONS) {
+    return TRANSLATIONS[language as BaseLanguage];
+  }
+
+  const fallback = TRANSLATIONS.en;
+  const overrides =
+    EXTENDED_TRANSLATION_OVERRIDES[
+      language as keyof typeof EXTENDED_TRANSLATION_OVERRIDES
+    ] ?? {};
+
+  return {
+    ...fallback,
+    ...(overrides as Partial<Translations>),
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class TranslationService {
   private platformId = inject(PLATFORM_ID);
@@ -2871,29 +2896,30 @@ export class TranslationService {
   private _currentLanguage = signal<Language>(this.getStoredLanguage());
 
   currentLanguage = this._currentLanguage.asReadonly();
-  translations = computed(() => TRANSLATIONS[this._currentLanguage()]);
+  translations = computed(() => getTranslations(this._currentLanguage()));
 
   setLanguage(language: Language): void {
     this._currentLanguage.set(language);
+    this.document.documentElement.lang = language;
+    this.document.documentElement.dir = getLanguageDirection(language);
     if (this.isBrowser) {
       localStorage.setItem('bikehaus-homepage-language', language);
-      this.document.documentElement.lang = language;
     }
   }
 
   private getStoredLanguage(): Language {
     if (!this.isBrowser) {
-      return 'de';
+      return DEFAULT_LANGUAGE;
     }
 
     const stored = localStorage.getItem('bikehaus-homepage-language');
-    if (stored && ['de', 'en', 'fr', 'tr'].includes(stored)) {
-      return stored as Language;
+    if (isSupportedLanguage(stored)) {
+      return stored;
     }
     const browserLang = navigator.language.substring(0, 2);
-    if (['de', 'en', 'fr', 'tr'].includes(browserLang)) {
-      return browserLang as Language;
+    if (isSupportedLanguage(browserLang)) {
+      return browserLang;
     }
-    return 'de';
+    return DEFAULT_LANGUAGE;
   }
 }

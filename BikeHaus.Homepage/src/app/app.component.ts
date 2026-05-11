@@ -16,6 +16,10 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { TranslationService } from './services/translation.service';
 import { SeoService } from './services/seo.service';
+import {
+  HOME_ROUTE_REGEX,
+  getLanguageDirection,
+} from './services/language-config';
 
 @Component({
   selector: 'app-root',
@@ -222,13 +226,14 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private updateLanguageAttribute(): void {
-    this.document.documentElement.lang =
-      this.translationService.currentLanguage();
+    const currentLanguage = this.translationService.currentLanguage();
+    this.document.documentElement.lang = currentLanguage;
+    this.document.documentElement.dir = getLanguageDirection(currentLanguage);
   }
 
   private updateHomeRouteFlag(url: string): void {
     const cleanUrl = url.split('?')[0].split('#')[0];
-    this.isHomeRoute.set(/^\/(de|en|fr|tr)\/?$/.test(cleanUrl));
+    this.isHomeRoute.set(HOME_ROUTE_REGEX.test(cleanUrl));
   }
 
   ngOnDestroy(): void {

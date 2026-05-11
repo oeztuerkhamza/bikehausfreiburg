@@ -1,5 +1,11 @@
 import { Language } from './translation.service';
 
+type CityLandingTranslationMap = Record<
+  'de' | 'en' | 'fr' | 'tr',
+  CityLandingTranslation
+> &
+  Partial<Record<Language, CityLandingTranslation>>;
+
 export interface CityLandingTranslation {
   metaTitle: string;
   metaDescription: string;
@@ -21,7 +27,7 @@ export interface CityLanding {
   cityName: string;
   distanceKm: number;
   driveMinutes: number;
-  translations: Record<Language, CityLandingTranslation>;
+  translations: CityLandingTranslationMap;
 }
 
 export const CITY_LANDINGS: CityLanding[] = [
@@ -32,12 +38,16 @@ export const CITY_LANDINGS: CityLanding[] = [
     driveMinutes: 20,
     translations: {
       de: {
-        metaTitle: 'Fahrrad Emmendingen — Fahrräder kaufen bei Bike Haus Freiburg',
-        metaDescription: 'Fahrrad kaufen in Emmendingen? Bike Haus Freiburg ist nur 16 km entfernt. Über 100 neue & gebrauchte Fahrräder, E-Bikes mit Garantie. Probefahrt ohne Termin.',
+        metaTitle:
+          'Fahrrad Emmendingen — Fahrräder kaufen bei Bike Haus Freiburg',
+        metaDescription:
+          'Fahrrad kaufen in Emmendingen? Bike Haus Freiburg ist nur 16 km entfernt. Über 100 neue & gebrauchte Fahrräder, E-Bikes mit Garantie. Probefahrt ohne Termin.',
         heroTitle: 'Fahrrad kaufen in Emmendingen?',
-        heroSub: 'Bike Haus Freiburg — Ihr Fahrradladen nur 16 km von Emmendingen entfernt.',
+        heroSub:
+          'Bike Haus Freiburg — Ihr Fahrradladen nur 16 km von Emmendingen entfernt.',
         introHeading: 'Fahrräder für Emmendingen bei Bike Haus Freiburg',
-        introText: 'Sie suchen ein Fahrrad in Emmendingen? Bike Haus Freiburg in der Heckerstraße 27, Freiburg, ist nur 20 Minuten mit dem Auto entfernt. Bei uns finden Sie über 100 neue und gebrauchte Fahrräder — Citybikes, Trekkingräder, Mountainbikes, E-Bikes und Kinderfahrräder. Jedes Gebrauchtrad ist technisch geprüft und wird mit 3 Monaten Garantie verkauft.',
+        introText:
+          'Sie suchen ein Fahrrad in Emmendingen? Bike Haus Freiburg in der Heckerstraße 27, Freiburg, ist nur 20 Minuten mit dem Auto entfernt. Bei uns finden Sie über 100 neue und gebrauchte Fahrräder — Citybikes, Trekkingräder, Mountainbikes, E-Bikes und Kinderfahrräder. Jedes Gebrauchtrad ist technisch geprüft und wird mit 3 Monaten Garantie verkauft.',
         whyHeading: 'Warum Bike Haus Freiburg für Emmendinger?',
         whyItems: [
           'Nur 16 km / 20 Minuten über die B3 oder L187',
@@ -58,16 +68,21 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Fahrradzubehör: Schlösser, Helme, Beleuchtung, Körbe',
         ],
         ctaHeading: 'Jetzt vorbeikommen!',
-        ctaText: 'Besuchen Sie uns in der Heckerstraße 27, 79114 Freiburg. Geöffnet Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. Oder schreiben Sie uns auf WhatsApp: +49 155 6630 0011.',
-        directions: 'Von Emmendingen über die B3 Richtung Freiburg. In Freiburg auf die Heckerstraße abbiegen. Kostenlose Parkplätze vorhanden.',
+        ctaText:
+          'Besuchen Sie uns in der Heckerstraße 27, 79114 Freiburg. Geöffnet Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. Oder schreiben Sie uns auf WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Von Emmendingen über die B3 Richtung Freiburg. In Freiburg auf die Heckerstraße abbiegen. Kostenlose Parkplätze vorhanden.',
       },
       en: {
         metaTitle: 'Bicycle Emmendingen — Buy bikes at Bike Haus Freiburg',
-        metaDescription: 'Buy a bike in Emmendingen? Bike Haus Freiburg is only 16 km away. Over 100 new & used bicycles, e-bikes with warranty. Test ride without appointment.',
+        metaDescription:
+          'Buy a bike in Emmendingen? Bike Haus Freiburg is only 16 km away. Over 100 new & used bicycles, e-bikes with warranty. Test ride without appointment.',
         heroTitle: 'Buy a bicycle in Emmendingen?',
-        heroSub: 'Bike Haus Freiburg — your bike shop only 16 km from Emmendingen.',
+        heroSub:
+          'Bike Haus Freiburg — your bike shop only 16 km from Emmendingen.',
         introHeading: 'Bicycles for Emmendingen at Bike Haus Freiburg',
-        introText: 'Looking for a bike in Emmendingen? Bike Haus Freiburg at Heckerstraße 27, Freiburg, is only a 20-minute drive away. We have over 100 new and used bicycles — city bikes, trekking bikes, mountain bikes, e-bikes and children\'s bikes. Every used bike is technically inspected and comes with a 3-month warranty.',
+        introText:
+          "Looking for a bike in Emmendingen? Bike Haus Freiburg at Heckerstraße 27, Freiburg, is only a 20-minute drive away. We have over 100 new and used bicycles — city bikes, trekking bikes, mountain bikes, e-bikes and children's bikes. Every used bike is technically inspected and comes with a 3-month warranty.",
         whyHeading: 'Why Bike Haus Freiburg for Emmendingen residents?',
         whyItems: [
           'Only 16 km / 20 minutes via the B3 or L187',
@@ -84,54 +99,66 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Trekking bikes for commuters and leisure',
           'E-bikes from approx. €800 (used) — battery condition documented',
           'Mountain bikes for Black Forest trails',
-          'Children\'s bikes in all sizes',
+          "Children's bikes in all sizes",
           'Bike accessories: locks, helmets, lights, baskets',
         ],
         ctaHeading: 'Visit us now!',
-        ctaText: 'Visit us at Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. Or message us on WhatsApp: +49 155 6630 0011.',
-        directions: 'From Emmendingen via the B3 towards Freiburg. Turn onto Heckerstraße in Freiburg. Free parking available.',
+        ctaText:
+          'Visit us at Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. Or message us on WhatsApp: +49 155 6630 0011.',
+        directions:
+          'From Emmendingen via the B3 towards Freiburg. Turn onto Heckerstraße in Freiburg. Free parking available.',
       },
       fr: {
-        metaTitle: 'Vélo Emmendingen — Acheter des vélos chez Bike Haus Freiburg',
-        metaDescription: 'Acheter un vélo à Emmendingen? Bike Haus Freiburg n\'est qu\'à 16 km. Plus de 100 vélos neufs et d\'occasion, vélos électriques avec garantie.',
+        metaTitle:
+          'Vélo Emmendingen — Acheter des vélos chez Bike Haus Freiburg',
+        metaDescription:
+          "Acheter un vélo à Emmendingen? Bike Haus Freiburg n'est qu'à 16 km. Plus de 100 vélos neufs et d'occasion, vélos électriques avec garantie.",
         heroTitle: 'Acheter un vélo à Emmendingen?',
-        heroSub: 'Bike Haus Freiburg — votre magasin de vélos à seulement 16 km d\'Emmendingen.',
+        heroSub:
+          "Bike Haus Freiburg — votre magasin de vélos à seulement 16 km d'Emmendingen.",
         introHeading: 'Vélos pour Emmendingen chez Bike Haus Freiburg',
-        introText: 'Vous cherchez un vélo à Emmendingen? Bike Haus Freiburg, Heckerstraße 27, Freiburg, n\'est qu\'à 20 minutes en voiture. Nous proposons plus de 100 vélos neufs et d\'occasion — vélos de ville, VTC, VTT, vélos électriques et vélos pour enfants. Chaque vélo d\'occasion est contrôlé techniquement et vendu avec 3 mois de garantie.',
-        whyHeading: 'Pourquoi Bike Haus Freiburg pour les habitants d\'Emmendingen?',
+        introText:
+          "Vous cherchez un vélo à Emmendingen? Bike Haus Freiburg, Heckerstraße 27, Freiburg, n'est qu'à 20 minutes en voiture. Nous proposons plus de 100 vélos neufs et d'occasion — vélos de ville, VTC, VTT, vélos électriques et vélos pour enfants. Chaque vélo d'occasion est contrôlé techniquement et vendu avec 3 mois de garantie.",
+        whyHeading:
+          "Pourquoi Bike Haus Freiburg pour les habitants d'Emmendingen?",
         whyItems: [
           'Seulement 16 km / 20 minutes via la B3 ou L187',
           'Plus de 100 vélos en stock — sans attente',
-          'Vélos d\'occasion contrôlés avec 3 mois de garantie',
+          "Vélos d'occasion contrôlés avec 3 mois de garantie",
           'Vélos neufs avec 24 mois de garantie',
           'Essai sur place — sans rendez-vous',
-          'Prix justes — nettement moins cher que beaucoup de revendeurs d\'Emmendingen',
+          "Prix justes — nettement moins cher que beaucoup de revendeurs d'Emmendingen",
           'Conseils en allemand, anglais, français et turc',
         ],
         offerHeading: 'Notre offre',
         offerItems: [
-          'Vélos de ville à partir d\'env. 80 € (occasion) / 350 € (neuf)',
+          "Vélos de ville à partir d'env. 80 € (occasion) / 350 € (neuf)",
           'VTC pour les trajets et les loisirs',
-          'Vélos électriques à partir d\'env. 800 € (occasion) — état de la batterie documenté',
+          "Vélos électriques à partir d'env. 800 € (occasion) — état de la batterie documenté",
           'VTT pour les sentiers de la Forêt-Noire',
           'Vélos pour enfants dans toutes les tailles',
           'Accessoires vélo: antivols, casques, éclairage, paniers',
         ],
         ctaHeading: 'Venez nous voir!',
-        ctaText: 'Rendez-nous visite au Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. Ou écrivez-nous sur WhatsApp: +49 155 6630 0011.',
-        directions: 'Depuis Emmendingen via la B3 direction Freiburg. Tournez dans la Heckerstraße à Freiburg. Parking gratuit disponible.',
+        ctaText:
+          'Rendez-nous visite au Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. Ou écrivez-nous sur WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Depuis Emmendingen via la B3 direction Freiburg. Tournez dans la Heckerstraße à Freiburg. Parking gratuit disponible.',
       },
       tr: {
-        metaTitle: 'Bisiklet Emmendingen — Bike Haus Freiburg\'da bisiklet alın',
-        metaDescription: 'Emmendingen\'de bisiklet mi arıyorsunuz? Bike Haus Freiburg sadece 16 km uzaklıkta. 100\'den fazla yeni ve ikinci el bisiklet, e-bisiklet, garantili.',
-        heroTitle: 'Emmendingen\'de bisiklet mi arıyorsunuz?',
-        heroSub: 'Bike Haus Freiburg — Emmendingen\'den sadece 16 km uzaklıkta bisiklet mağazanız.',
+        metaTitle: "Bisiklet Emmendingen — Bike Haus Freiburg'da bisiklet alın",
+        metaDescription:
+          "Emmendingen'de bisiklet mi arıyorsunuz? Bike Haus Freiburg sadece 16 km uzaklıkta. 100'den fazla yeni ve ikinci el bisiklet, e-bisiklet, garantili.",
+        heroTitle: "Emmendingen'de bisiklet mi arıyorsunuz?",
+        heroSub:
+          "Bike Haus Freiburg — Emmendingen'den sadece 16 km uzaklıkta bisiklet mağazanız.",
         introHeading: 'Emmendingen için bisikletler — Bike Haus Freiburg',
-        introText: 'Emmendingen\'de bisiklet mi arıyorsunuz? Bike Haus Freiburg, Heckerstraße 27, Freiburg, arabayla sadece 20 dakika uzaklıkta. 100\'den fazla yeni ve ikinci el bisiklet — şehir bisikletleri, trekking bisikletleri, dağ bisikletleri, e-bisikletler ve çocuk bisikletleri. Her ikinci el bisiklet teknik olarak kontrol edilmiş ve 3 ay garantili.',
-        whyHeading: 'Emmendingen\'liler neden Bike Haus\'u tercih etmeli?',
+        introText:
+          "Emmendingen'de bisiklet mi arıyorsunuz? Bike Haus Freiburg, Heckerstraße 27, Freiburg, arabayla sadece 20 dakika uzaklıkta. 100'den fazla yeni ve ikinci el bisiklet — şehir bisikletleri, trekking bisikletleri, dağ bisikletleri, e-bisikletler ve çocuk bisikletleri. Her ikinci el bisiklet teknik olarak kontrol edilmiş ve 3 ay garantili.",
+        whyHeading: "Emmendingen'liler neden Bike Haus'u tercih etmeli?",
         whyItems: [
           'Sadece 16 km / 20 dakika B3 veya L187 üzerinden',
-          'Stokta 100\'den fazla bisiklet — bekleme yok',
+          "Stokta 100'den fazla bisiklet — bekleme yok",
           'Kontrol edilmiş ikinci el bisikletler, 3 ay garantili',
           'Yeni bisikletler 24 ay garantili',
           'Yerinde test sürüşü — randevusuz',
@@ -140,16 +167,18 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         offerHeading: 'Ürün Yelpazemiz',
         offerItems: [
-          'Şehir bisikletleri yaklaşık 80 €\'dan (ikinci el) / 350 €\'dan (yeni)',
+          "Şehir bisikletleri yaklaşık 80 €'dan (ikinci el) / 350 €'dan (yeni)",
           'İşe gidip gelme ve boş zaman için trekking bisikletleri',
-          'E-bisikletler yaklaşık 800 €\'dan (ikinci el) — akü durumu belgelenmiş',
+          "E-bisikletler yaklaşık 800 €'dan (ikinci el) — akü durumu belgelenmiş",
           'Schwarzwald parkurları için dağ bisikletleri',
           'Tüm bedenlerde çocuk bisikletleri',
           'Bisiklet aksesuarları: kilitler, kasklar, aydınlatma, sepetler',
         ],
         ctaHeading: 'Hemen gelin!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg adresine gelin. Açılış saatleri: Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. Ya da WhatsApp\'tan yazın: +49 155 6630 0011.',
-        directions: 'Emmendingen\'den B3 üzerinden Freiburg yönüne gidin. Freiburg\'da Heckerstraße\'ye dönün. Ücretsiz park yeri mevcut.',
+        ctaText:
+          "Heckerstraße 27, 79114 Freiburg adresine gelin. Açılış saatleri: Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. Ya da WhatsApp'tan yazın: +49 155 6630 0011.",
+        directions:
+          "Emmendingen'den B3 üzerinden Freiburg yönüne gidin. Freiburg'da Heckerstraße'ye dönün. Ücretsiz park yeri mevcut.",
       },
     },
   },
@@ -160,12 +189,16 @@ export const CITY_LANDINGS: CityLanding[] = [
     driveMinutes: 22,
     translations: {
       de: {
-        metaTitle: 'Fahrrad Bad Krozingen — Fahrräder kaufen bei Bike Haus Freiburg',
-        metaDescription: 'Fahrrad kaufen in Bad Krozingen? Bike Haus Freiburg: Nur 18 km entfernt. 100+ neue & gebrauchte Fahrräder, E-Bikes, Garantie, Probefahrt.',
+        metaTitle:
+          'Fahrrad Bad Krozingen — Fahrräder kaufen bei Bike Haus Freiburg',
+        metaDescription:
+          'Fahrrad kaufen in Bad Krozingen? Bike Haus Freiburg: Nur 18 km entfernt. 100+ neue & gebrauchte Fahrräder, E-Bikes, Garantie, Probefahrt.',
         heroTitle: 'Fahrrad kaufen in Bad Krozingen?',
-        heroSub: 'Bike Haus Freiburg — nur 18 km von Bad Krozingen. Über 100 Fahrräder mit Garantie.',
+        heroSub:
+          'Bike Haus Freiburg — nur 18 km von Bad Krozingen. Über 100 Fahrräder mit Garantie.',
         introHeading: 'Fahrräder für Bad Krozingen bei Bike Haus Freiburg',
-        introText: 'Bad Krozingen und Umgebung suchen ein gutes Fahrrad? Bike Haus Freiburg bietet Ihnen über 100 neue und gebrauchte Fahrräder — nur 22 Minuten Fahrt über die B3. Ob Citybike für den Alltag, E-Bike für die Hügel im Markgräflerland oder Trekkingrad für längere Touren — wir haben das passende Rad.',
+        introText:
+          'Bad Krozingen und Umgebung suchen ein gutes Fahrrad? Bike Haus Freiburg bietet Ihnen über 100 neue und gebrauchte Fahrräder — nur 22 Minuten Fahrt über die B3. Ob Citybike für den Alltag, E-Bike für die Hügel im Markgräflerland oder Trekkingrad für längere Touren — wir haben das passende Rad.',
         whyHeading: 'Warum von Bad Krozingen zu uns kommen?',
         whyItems: [
           'Nur 18 km / 22 Minuten über die B3',
@@ -184,16 +217,21 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Gebrauchte Fahrräder ab ca. 80 €',
         ],
         ctaHeading: 'Besuchen Sie uns!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
-        directions: 'Von Bad Krozingen über die B3 Richtung Freiburg-Süd. Dauer: ca. 22 Minuten. Kostenlose Parkplätze vor dem Geschäft.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Von Bad Krozingen über die B3 Richtung Freiburg-Süd. Dauer: ca. 22 Minuten. Kostenlose Parkplätze vor dem Geschäft.',
       },
       en: {
         metaTitle: 'Bicycle Bad Krozingen — Buy bikes at Bike Haus Freiburg',
-        metaDescription: 'Buy a bike in Bad Krozingen? Bike Haus Freiburg: Only 18 km away. 100+ new & used bicycles, e-bikes, warranty, test rides.',
+        metaDescription:
+          'Buy a bike in Bad Krozingen? Bike Haus Freiburg: Only 18 km away. 100+ new & used bicycles, e-bikes, warranty, test rides.',
         heroTitle: 'Buy a bicycle in Bad Krozingen?',
-        heroSub: 'Bike Haus Freiburg — only 18 km from Bad Krozingen. Over 100 bikes with warranty.',
+        heroSub:
+          'Bike Haus Freiburg — only 18 km from Bad Krozingen. Over 100 bikes with warranty.',
         introHeading: 'Bicycles for Bad Krozingen at Bike Haus Freiburg',
-        introText: 'Looking for a good bike in Bad Krozingen and the surrounding area? Bike Haus Freiburg offers over 100 new and used bicycles — just a 22-minute drive via the B3. Whether a city bike for everyday use, an e-bike for the Markgräflerland hills, or a trekking bike for longer tours — we have the right bike for you.',
+        introText:
+          'Looking for a good bike in Bad Krozingen and the surrounding area? Bike Haus Freiburg offers over 100 new and used bicycles — just a 22-minute drive via the B3. Whether a city bike for everyday use, an e-bike for the Markgräflerland hills, or a trekking bike for longer tours — we have the right bike for you.',
         whyHeading: 'Why come from Bad Krozingen to us?',
         whyItems: [
           'Only 18 km / 22 minutes via the B3',
@@ -208,25 +246,31 @@ export const CITY_LANDINGS: CityLanding[] = [
           'City bikes and Dutch bikes for everyday use',
           'E-bikes for the Markgräflerland hills',
           'Trekking bikes for the Dreisamtal cycle path',
-          'Children\'s bikes in all sizes',
+          "Children's bikes in all sizes",
           'Used bicycles from approx. €80',
         ],
         ctaHeading: 'Visit us!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
-        directions: 'From Bad Krozingen via the B3 towards Freiburg-Süd. Duration: approx. 22 minutes. Free parking in front of the shop.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'From Bad Krozingen via the B3 towards Freiburg-Süd. Duration: approx. 22 minutes. Free parking in front of the shop.',
       },
       fr: {
-        metaTitle: 'Vélo Bad Krozingen — Acheter des vélos chez Bike Haus Freiburg',
-        metaDescription: 'Acheter un vélo à Bad Krozingen? Bike Haus Freiburg: seulement 18 km. 100+ vélos neufs et d\'occasion, vélos électriques, garantie.',
+        metaTitle:
+          'Vélo Bad Krozingen — Acheter des vélos chez Bike Haus Freiburg',
+        metaDescription:
+          "Acheter un vélo à Bad Krozingen? Bike Haus Freiburg: seulement 18 km. 100+ vélos neufs et d'occasion, vélos électriques, garantie.",
         heroTitle: 'Acheter un vélo à Bad Krozingen?',
-        heroSub: 'Bike Haus Freiburg — à seulement 18 km de Bad Krozingen. Plus de 100 vélos avec garantie.',
+        heroSub:
+          'Bike Haus Freiburg — à seulement 18 km de Bad Krozingen. Plus de 100 vélos avec garantie.',
         introHeading: 'Vélos pour Bad Krozingen chez Bike Haus Freiburg',
-        introText: 'Vous cherchez un bon vélo à Bad Krozingen et ses environs? Bike Haus Freiburg vous propose plus de 100 vélos neufs et d\'occasion — à seulement 22 minutes en voiture via la B3. Vélo de ville, vélo électrique pour les collines du Markgräflerland ou VTC pour les longues randonnées — nous avons le vélo qu\'il vous faut.',
+        introText:
+          "Vous cherchez un bon vélo à Bad Krozingen et ses environs? Bike Haus Freiburg vous propose plus de 100 vélos neufs et d'occasion — à seulement 22 minutes en voiture via la B3. Vélo de ville, vélo électrique pour les collines du Markgräflerland ou VTC pour les longues randonnées — nous avons le vélo qu'il vous faut.",
         whyHeading: 'Pourquoi venir de Bad Krozingen chez nous?',
         whyItems: [
           'Seulement 18 km / 22 minutes via la B3',
           'Plus de 100 vélos immédiatement disponibles',
-          'Vélos d\'occasion contrôlés avec 3 mois de garantie',
+          "Vélos d'occasion contrôlés avec 3 mois de garantie",
           'Vélos électriques avec état de batterie documenté',
           'Essai gratuit — sans rendez-vous',
           'Prix justes et transparents',
@@ -237,23 +281,29 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Vélos électriques pour les collines du Markgräflerland',
           'VTC pour la piste cyclable du Dreisamtal',
           'Vélos pour enfants dans toutes les tailles',
-          'Vélos d\'occasion à partir d\'env. 80 €',
+          "Vélos d'occasion à partir d'env. 80 €",
         ],
         ctaHeading: 'Venez nous voir!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. WhatsApp: +49 155 6630 0011.',
-        directions: 'Depuis Bad Krozingen via la B3 direction Freiburg-Süd. Durée: env. 22 minutes. Parking gratuit devant le magasin.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Depuis Bad Krozingen via la B3 direction Freiburg-Süd. Durée: env. 22 minutes. Parking gratuit devant le magasin.',
       },
       tr: {
-        metaTitle: 'Bisiklet Bad Krozingen — Bike Haus Freiburg\'da bisiklet alın',
-        metaDescription: 'Bad Krozingen\'de bisiklet mi arıyorsunuz? Bike Haus Freiburg sadece 18 km uzaklıkta. 100+ yeni ve ikinci el bisiklet, garantili.',
-        heroTitle: 'Bad Krozingen\'de bisiklet mi arıyorsunuz?',
-        heroSub: 'Bike Haus Freiburg — Bad Krozingen\'den sadece 18 km. 100\'den fazla garantili bisiklet.',
+        metaTitle:
+          "Bisiklet Bad Krozingen — Bike Haus Freiburg'da bisiklet alın",
+        metaDescription:
+          "Bad Krozingen'de bisiklet mi arıyorsunuz? Bike Haus Freiburg sadece 18 km uzaklıkta. 100+ yeni ve ikinci el bisiklet, garantili.",
+        heroTitle: "Bad Krozingen'de bisiklet mi arıyorsunuz?",
+        heroSub:
+          "Bike Haus Freiburg — Bad Krozingen'den sadece 18 km. 100'den fazla garantili bisiklet.",
         introHeading: 'Bad Krozingen için bisikletler — Bike Haus Freiburg',
-        introText: 'Bad Krozingen ve çevresinde iyi bir bisiklet mi arıyorsunuz? Bike Haus Freiburg, B3 üzerinden sadece 22 dakika uzaklıkta, 100\'den fazla yeni ve ikinci el bisiklet sunuyor. Günlük kullanım için şehir bisikleti, Markgräflerland tepeleri için e-bisiklet veya uzun turlar için trekking bisikleti — sizin için doğru bisiklete sahibiz.',
-        whyHeading: 'Bad Krozingen\'den neden bize gelmeli?',
+        introText:
+          "Bad Krozingen ve çevresinde iyi bir bisiklet mi arıyorsunuz? Bike Haus Freiburg, B3 üzerinden sadece 22 dakika uzaklıkta, 100'den fazla yeni ve ikinci el bisiklet sunuyor. Günlük kullanım için şehir bisikleti, Markgräflerland tepeleri için e-bisiklet veya uzun turlar için trekking bisikleti — sizin için doğru bisiklete sahibiz.",
+        whyHeading: "Bad Krozingen'den neden bize gelmeli?",
         whyItems: [
           'Sadece 18 km / 22 dakika B3 üzerinden',
-          'Stokta 100\'den fazla bisiklet',
+          "Stokta 100'den fazla bisiklet",
           'Kontrol edilmiş ikinci el bisikletler, 3 ay garantili',
           'Akü durumu belgelenmiş e-bisikletler',
           'Ücretsiz test sürüşü — randevusuz',
@@ -265,11 +315,13 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Markgräflerland tepeleri için e-bisikletler',
           'Dreisamtal bisiklet yolu için trekking bisikletleri',
           'Tüm bedenlerde çocuk bisikletleri',
-          'İkinci el bisikletler yaklaşık 80 €\'dan',
+          "İkinci el bisikletler yaklaşık 80 €'dan",
         ],
         ctaHeading: 'Bizi ziyaret edin!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
-        directions: 'Bad Krozingen\'den B3 üzerinden Freiburg-Süd yönüne. Süre: yaklaşık 22 dakika. Mağaza önünde ücretsiz park yeri.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+        directions:
+          "Bad Krozingen'den B3 üzerinden Freiburg-Süd yönüne. Süre: yaklaşık 22 dakika. Mağaza önünde ücretsiz park yeri.",
       },
     },
   },
@@ -281,11 +333,14 @@ export const CITY_LANDINGS: CityLanding[] = [
     translations: {
       de: {
         metaTitle: 'Fahrrad Breisach — Fahrräder kaufen bei Bike Haus Freiburg',
-        metaDescription: 'Fahrrad kaufen in Breisach? Bike Haus Freiburg: 25 km entfernt, 100+ Fahrräder, E-Bikes, Garantie, Probefahrt ohne Termin.',
+        metaDescription:
+          'Fahrrad kaufen in Breisach? Bike Haus Freiburg: 25 km entfernt, 100+ Fahrräder, E-Bikes, Garantie, Probefahrt ohne Termin.',
         heroTitle: 'Fahrrad kaufen in Breisach?',
-        heroSub: 'Bike Haus Freiburg — die große Auswahl nur 25 km von Breisach entfernt.',
+        heroSub:
+          'Bike Haus Freiburg — die große Auswahl nur 25 km von Breisach entfernt.',
         introHeading: 'Fahrräder für Breisach bei Bike Haus Freiburg',
-        introText: 'In Breisach am Rhein und Umgebung gibt es wenige spezialisierte Fahrradhändler. Bike Haus Freiburg bietet Ihnen die Auswahl, die Sie verdienen: über 100 neue und gebrauchte Fahrräder mit Garantie, nur 28 Minuten entfernt.',
+        introText:
+          'In Breisach am Rhein und Umgebung gibt es wenige spezialisierte Fahrradhändler. Bike Haus Freiburg bietet Ihnen die Auswahl, die Sie verdienen: über 100 neue und gebrauchte Fahrräder mit Garantie, nur 28 Minuten entfernt.',
         whyHeading: 'Warum die kurze Fahrt lohnt',
         whyItems: [
           'Nur 25 km / 28 Minuten über die B31',
@@ -304,16 +359,21 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Kinderfahrräder für den Schulweg',
         ],
         ctaHeading: 'Kommen Sie vorbei!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
-        directions: 'Von Breisach über die B31 Richtung Freiburg. In ca. 28 Minuten bei uns. Parkplätze vorhanden.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Von Breisach über die B31 Richtung Freiburg. In ca. 28 Minuten bei uns. Parkplätze vorhanden.',
       },
       en: {
         metaTitle: 'Bicycle Breisach — Buy bikes at Bike Haus Freiburg',
-        metaDescription: 'Buy a bike in Breisach? Bike Haus Freiburg: 25 km away, 100+ bicycles, e-bikes, warranty, test ride without appointment.',
+        metaDescription:
+          'Buy a bike in Breisach? Bike Haus Freiburg: 25 km away, 100+ bicycles, e-bikes, warranty, test ride without appointment.',
         heroTitle: 'Buy a bicycle in Breisach?',
-        heroSub: 'Bike Haus Freiburg — the big selection only 25 km from Breisach.',
+        heroSub:
+          'Bike Haus Freiburg — the big selection only 25 km from Breisach.',
         introHeading: 'Bicycles for Breisach at Bike Haus Freiburg',
-        introText: 'There are few specialized bicycle dealers in Breisach am Rhein and the surrounding area. Bike Haus Freiburg offers you the selection you deserve: over 100 new and used bicycles with warranty, only 28 minutes away.',
+        introText:
+          'There are few specialized bicycle dealers in Breisach am Rhein and the surrounding area. Bike Haus Freiburg offers you the selection you deserve: over 100 new and used bicycles with warranty, only 28 minutes away.',
         whyHeading: 'Why the short drive is worth it',
         whyItems: [
           'Only 25 km / 28 minutes via the B31',
@@ -329,24 +389,29 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Trekking bikes for the Rhine cycle path',
           'E-bikes for trips between Breisach and Freiburg',
           'Mountain bikes for the Kaiserstuhl',
-          'Children\'s bikes for the school commute',
+          "Children's bikes for the school commute",
         ],
         ctaHeading: 'Come visit us!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
-        directions: 'From Breisach via the B31 towards Freiburg. About 28 minutes to reach us. Parking available.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'From Breisach via the B31 towards Freiburg. About 28 minutes to reach us. Parking available.',
       },
       fr: {
         metaTitle: 'Vélo Breisach — Acheter des vélos chez Bike Haus Freiburg',
-        metaDescription: 'Acheter un vélo à Breisach? Bike Haus Freiburg: 25 km, 100+ vélos, vélos électriques, garantie, essai sans rendez-vous.',
+        metaDescription:
+          'Acheter un vélo à Breisach? Bike Haus Freiburg: 25 km, 100+ vélos, vélos électriques, garantie, essai sans rendez-vous.',
         heroTitle: 'Acheter un vélo à Breisach?',
-        heroSub: 'Bike Haus Freiburg — le grand choix à seulement 25 km de Breisach.',
+        heroSub:
+          'Bike Haus Freiburg — le grand choix à seulement 25 km de Breisach.',
         introHeading: 'Vélos pour Breisach chez Bike Haus Freiburg',
-        introText: 'Il y a peu de marchands de vélos spécialisés à Breisach am Rhein et ses environs. Bike Haus Freiburg vous offre le choix que vous méritez: plus de 100 vélos neufs et d\'occasion avec garantie, à seulement 28 minutes.',
+        introText:
+          "Il y a peu de marchands de vélos spécialisés à Breisach am Rhein et ses environs. Bike Haus Freiburg vous offre le choix que vous méritez: plus de 100 vélos neufs et d'occasion avec garantie, à seulement 28 minutes.",
         whyHeading: 'Pourquoi le court trajet en vaut la peine',
         whyItems: [
           'Seulement 25 km / 28 minutes via la B31',
           'Plus grand choix de la région — plus de 100 vélos',
-          'Vélos d\'occasion avec garantie',
+          "Vélos d'occasion avec garantie",
           'Vélos électriques avec batterie contrôlée',
           'Essai sans rendez-vous',
           'Parking directement devant le magasin',
@@ -360,20 +425,25 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Vélos pour enfants pour le trajet scolaire',
         ],
         ctaHeading: 'Venez nous voir!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. WhatsApp: +49 155 6630 0011.',
-        directions: 'Depuis Breisach via la B31 direction Freiburg. En env. 28 minutes chez nous. Parking disponible.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Depuis Breisach via la B31 direction Freiburg. En env. 28 minutes chez nous. Parking disponible.',
       },
       tr: {
-        metaTitle: 'Bisiklet Breisach — Bike Haus Freiburg\'da bisiklet alın',
-        metaDescription: 'Breisach\'da bisiklet mi arıyorsunuz? Bike Haus Freiburg: 25 km uzaklıkta, 100+ bisiklet, garantili, randevusuz test sürüşü.',
-        heroTitle: 'Breisach\'da bisiklet mi arıyorsunuz?',
-        heroSub: 'Bike Haus Freiburg — Breisach\'dan sadece 25 km uzaklıkta geniş seçenek.',
+        metaTitle: "Bisiklet Breisach — Bike Haus Freiburg'da bisiklet alın",
+        metaDescription:
+          "Breisach'da bisiklet mi arıyorsunuz? Bike Haus Freiburg: 25 km uzaklıkta, 100+ bisiklet, garantili, randevusuz test sürüşü.",
+        heroTitle: "Breisach'da bisiklet mi arıyorsunuz?",
+        heroSub:
+          "Bike Haus Freiburg — Breisach'dan sadece 25 km uzaklıkta geniş seçenek.",
         introHeading: 'Breisach için bisikletler — Bike Haus Freiburg',
-        introText: 'Breisach am Rhein ve çevresinde uzmanlaşmış bisiklet satıcıları çok az. Bike Haus Freiburg size hak ettiğiniz seçeneği sunuyor: garantili 100\'den fazla yeni ve ikinci el bisiklet, sadece 28 dakika uzaklıkta.',
+        introText:
+          "Breisach am Rhein ve çevresinde uzmanlaşmış bisiklet satıcıları çok az. Bike Haus Freiburg size hak ettiğiniz seçeneği sunuyor: garantili 100'den fazla yeni ve ikinci el bisiklet, sadece 28 dakika uzaklıkta.",
         whyHeading: 'Kısa yolculuk neden buna değer',
         whyItems: [
           'Sadece 25 km / 28 dakika B31 üzerinden',
-          'Bölgenin en büyük seçimi — 100\'den fazla bisiklet',
+          "Bölgenin en büyük seçimi — 100'den fazla bisiklet",
           'Garantili ikinci el bisikletler',
           'Kontrol edilmiş akülü e-bisikletler',
           'Randevusuz test sürüşü',
@@ -388,8 +458,10 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Okul yolu için çocuk bisikletleri',
         ],
         ctaHeading: 'Bize uğrayın!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
-        directions: 'Breisach\'dan B31 üzerinden Freiburg yönüne. Yaklaşık 28 dakikada bizde. Park yeri mevcut.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+        directions:
+          "Breisach'dan B31 üzerinden Freiburg yönüne. Yaklaşık 28 dakikada bizde. Park yeri mevcut.",
       },
     },
   },
@@ -400,12 +472,16 @@ export const CITY_LANDINGS: CityLanding[] = [
     driveMinutes: 12,
     translations: {
       de: {
-        metaTitle: 'Fahrrad Gundelfingen — Fahrräder kaufen bei Bike Haus Freiburg',
-        metaDescription: 'Fahrrad kaufen in Gundelfingen? Bike Haus Freiburg: Nur 8 km entfernt! 100+ neue & gebrauchte Fahrräder, E-Bikes, Garantie.',
+        metaTitle:
+          'Fahrrad Gundelfingen — Fahrräder kaufen bei Bike Haus Freiburg',
+        metaDescription:
+          'Fahrrad kaufen in Gundelfingen? Bike Haus Freiburg: Nur 8 km entfernt! 100+ neue & gebrauchte Fahrräder, E-Bikes, Garantie.',
         heroTitle: 'Fahrrad kaufen in Gundelfingen?',
-        heroSub: 'Bike Haus Freiburg — Ihr Nachbar-Fahrradladen, nur 8 km entfernt.',
+        heroSub:
+          'Bike Haus Freiburg — Ihr Nachbar-Fahrradladen, nur 8 km entfernt.',
         introHeading: 'Fahrräder für Gundelfingen bei Bike Haus Freiburg',
-        introText: 'Gundelfingen liegt direkt nördlich von Freiburg — und Bike Haus Freiburg ist nur 12 Minuten mit dem Auto oder 25 Minuten mit dem Fahrrad entfernt. Perfekt für eine Probefahrt! Wir bieten über 100 neue und gebrauchte Fahrräder mit Garantie.',
+        introText:
+          'Gundelfingen liegt direkt nördlich von Freiburg — und Bike Haus Freiburg ist nur 12 Minuten mit dem Auto oder 25 Minuten mit dem Fahrrad entfernt. Perfekt für eine Probefahrt! Wir bieten über 100 neue und gebrauchte Fahrräder mit Garantie.',
         whyHeading: 'Warum Bike Haus für Gundelfinger?',
         whyItems: [
           'Nur 8 km / 12 Minuten mit dem Auto',
@@ -423,16 +499,21 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Gebrauchte Fahrräder ab ca. 80 €',
         ],
         ctaHeading: 'Jetzt vorbeikommen!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
-        directions: 'Von Gundelfingen über die Freiburger Landstraße Richtung Freiburg-Haslach. Nur 12 Minuten.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Von Gundelfingen über die Freiburger Landstraße Richtung Freiburg-Haslach. Nur 12 Minuten.',
       },
       en: {
         metaTitle: 'Bicycle Gundelfingen — Buy bikes at Bike Haus Freiburg',
-        metaDescription: 'Buy a bike in Gundelfingen? Bike Haus Freiburg: Only 8 km away! 100+ new & used bicycles, e-bikes, warranty.',
+        metaDescription:
+          'Buy a bike in Gundelfingen? Bike Haus Freiburg: Only 8 km away! 100+ new & used bicycles, e-bikes, warranty.',
         heroTitle: 'Buy a bicycle in Gundelfingen?',
-        heroSub: 'Bike Haus Freiburg — your neighbourhood bike shop, only 8 km away.',
+        heroSub:
+          'Bike Haus Freiburg — your neighbourhood bike shop, only 8 km away.',
         introHeading: 'Bicycles for Gundelfingen at Bike Haus Freiburg',
-        introText: 'Gundelfingen is located just north of Freiburg — and Bike Haus Freiburg is only a 12-minute drive or 25-minute bike ride away. Perfect for a test ride! We offer over 100 new and used bicycles with warranty.',
+        introText:
+          'Gundelfingen is located just north of Freiburg — and Bike Haus Freiburg is only a 12-minute drive or 25-minute bike ride away. Perfect for a test ride! We offer over 100 new and used bicycles with warranty.',
         whyHeading: 'Why Bike Haus for Gundelfingen residents?',
         whyItems: [
           'Only 8 km / 12 minutes by car',
@@ -446,26 +527,32 @@ export const CITY_LANDINGS: CityLanding[] = [
           'City bikes for commuting to Freiburg',
           'E-bikes for relaxed commuting',
           'Trekking bikes for leisure tours in the Dreisamtal',
-          'Children\'s bikes for all age groups',
+          "Children's bikes for all age groups",
           'Used bicycles from approx. €80',
         ],
         ctaHeading: 'Visit us now!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
-        directions: 'From Gundelfingen via Freiburger Landstraße towards Freiburg-Haslach. Only 12 minutes.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'From Gundelfingen via Freiburger Landstraße towards Freiburg-Haslach. Only 12 minutes.',
       },
       fr: {
-        metaTitle: 'Vélo Gundelfingen — Acheter des vélos chez Bike Haus Freiburg',
-        metaDescription: 'Acheter un vélo à Gundelfingen? Bike Haus Freiburg: seulement 8 km! 100+ vélos neufs et d\'occasion, vélos électriques, garantie.',
+        metaTitle:
+          'Vélo Gundelfingen — Acheter des vélos chez Bike Haus Freiburg',
+        metaDescription:
+          "Acheter un vélo à Gundelfingen? Bike Haus Freiburg: seulement 8 km! 100+ vélos neufs et d'occasion, vélos électriques, garantie.",
         heroTitle: 'Acheter un vélo à Gundelfingen?',
-        heroSub: 'Bike Haus Freiburg — votre magasin de vélos voisin, à seulement 8 km.',
+        heroSub:
+          'Bike Haus Freiburg — votre magasin de vélos voisin, à seulement 8 km.',
         introHeading: 'Vélos pour Gundelfingen chez Bike Haus Freiburg',
-        introText: 'Gundelfingen est situé juste au nord de Freiburg — et Bike Haus Freiburg n\'est qu\'à 12 minutes en voiture ou 25 minutes à vélo. Parfait pour un essai! Nous proposons plus de 100 vélos neufs et d\'occasion avec garantie.',
+        introText:
+          "Gundelfingen est situé juste au nord de Freiburg — et Bike Haus Freiburg n'est qu'à 12 minutes en voiture ou 25 minutes à vélo. Parfait pour un essai! Nous proposons plus de 100 vélos neufs et d'occasion avec garantie.",
         whyHeading: 'Pourquoi Bike Haus pour les habitants de Gundelfingen?',
         whyItems: [
           'Seulement 8 km / 12 minutes en voiture',
           'Aussi accessible en vélo (25 min) ou en tramway',
           'Plus de 100 vélos à essayer',
-          'Vélos d\'occasion avec 3 mois de garantie',
+          "Vélos d'occasion avec 3 mois de garantie",
           'Prix justes',
         ],
         offerHeading: 'Notre sélection',
@@ -474,38 +561,46 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Vélos électriques pour un trajet détendu',
           'VTC pour les randonnées dans le Dreisamtal',
           'Vélos pour enfants pour tous les âges',
-          'Vélos d\'occasion à partir d\'env. 80 €',
+          "Vélos d'occasion à partir d'env. 80 €",
         ],
         ctaHeading: 'Venez nous voir!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. WhatsApp: +49 155 6630 0011.',
-        directions: 'Depuis Gundelfingen via Freiburger Landstraße direction Freiburg-Haslach. Seulement 12 minutes.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Depuis Gundelfingen via Freiburger Landstraße direction Freiburg-Haslach. Seulement 12 minutes.',
       },
       tr: {
-        metaTitle: 'Bisiklet Gundelfingen — Bike Haus Freiburg\'da bisiklet alın',
-        metaDescription: 'Gundelfingen\'de bisiklet mi arıyorsunuz? Bike Haus Freiburg sadece 8 km uzaklıkta! 100+ yeni ve ikinci el bisiklet, garantili.',
-        heroTitle: 'Gundelfingen\'de bisiklet mi arıyorsunuz?',
-        heroSub: 'Bike Haus Freiburg — komşu bisiklet mağazanız, sadece 8 km uzaklıkta.',
+        metaTitle:
+          "Bisiklet Gundelfingen — Bike Haus Freiburg'da bisiklet alın",
+        metaDescription:
+          "Gundelfingen'de bisiklet mi arıyorsunuz? Bike Haus Freiburg sadece 8 km uzaklıkta! 100+ yeni ve ikinci el bisiklet, garantili.",
+        heroTitle: "Gundelfingen'de bisiklet mi arıyorsunuz?",
+        heroSub:
+          'Bike Haus Freiburg — komşu bisiklet mağazanız, sadece 8 km uzaklıkta.',
         introHeading: 'Gundelfingen için bisikletler — Bike Haus Freiburg',
-        introText: 'Gundelfingen, Freiburg\'un hemen kuzeyinde yer alıyor — ve Bike Haus Freiburg arabayla sadece 12 dakika veya bisikletle 25 dakika uzaklıkta. Test sürüşü için mükemmel! Garantili 100\'den fazla yeni ve ikinci el bisiklet sunuyoruz.',
-        whyHeading: 'Gundelfingen\'liler neden Bike Haus\'u tercih etmeli?',
+        introText:
+          "Gundelfingen, Freiburg'un hemen kuzeyinde yer alıyor — ve Bike Haus Freiburg arabayla sadece 12 dakika veya bisikletle 25 dakika uzaklıkta. Test sürüşü için mükemmel! Garantili 100'den fazla yeni ve ikinci el bisiklet sunuyoruz.",
+        whyHeading: "Gundelfingen'liler neden Bike Haus'u tercih etmeli?",
         whyItems: [
           'Sadece 8 km / 12 dakika arabayla',
           'Bisikletle (25 dk) veya tramvayla da ulaşılabilir',
-          'Test sürüşü yapılabilecek 100\'den fazla bisiklet',
+          "Test sürüşü yapılabilecek 100'den fazla bisiklet",
           '3 ay garantili ikinci el bisikletler',
           'Uygun fiyatlar',
         ],
         offerHeading: 'Ürün Seçimimiz',
         offerItems: [
-          'Freiburg\'a gidiş-geliş için şehir bisikletleri',
+          "Freiburg'a gidiş-geliş için şehir bisikletleri",
           'Rahat ulaşım için e-bisikletler',
-          'Dreisamtal\'da boş zaman turları için trekking bisikletleri',
+          "Dreisamtal'da boş zaman turları için trekking bisikletleri",
           'Tüm yaş grupları için çocuk bisikletleri',
-          'İkinci el bisikletler yaklaşık 80 €\'dan',
+          "İkinci el bisikletler yaklaşık 80 €'dan",
         ],
         ctaHeading: 'Hemen gelin!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
-        directions: 'Gundelfingen\'den Freiburger Landstraße üzerinden Freiburg-Haslach yönüne. Sadece 12 dakika.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+        directions:
+          "Gundelfingen'den Freiburger Landstraße üzerinden Freiburg-Haslach yönüne. Sadece 12 dakika.",
       },
     },
   },
@@ -517,11 +612,14 @@ export const CITY_LANDINGS: CityLanding[] = [
     translations: {
       de: {
         metaTitle: 'Fahrrad March — Fahrräder kaufen bei Bike Haus Freiburg',
-        metaDescription: 'Fahrrad kaufen in March? Bike Haus Freiburg: 10 km entfernt, 100+ Fahrräder, E-Bikes, Garantie, Probefahrt.',
+        metaDescription:
+          'Fahrrad kaufen in March? Bike Haus Freiburg: 10 km entfernt, 100+ Fahrräder, E-Bikes, Garantie, Probefahrt.',
         heroTitle: 'Fahrrad kaufen in March?',
-        heroSub: 'Bike Haus Freiburg — nur 10 km von March entfernt. Große Auswahl, faire Preise.',
+        heroSub:
+          'Bike Haus Freiburg — nur 10 km von March entfernt. Große Auswahl, faire Preise.',
         introHeading: 'Fahrräder für March bei Bike Haus Freiburg',
-        introText: 'March (Hugstetten, Neuershausen, Holzhausen) liegt westlich von Freiburg. Bike Haus Freiburg ist in nur 15 Minuten erreichbar und bietet Ihnen die größte Fahrradauswahl der Region — über 100 neue und gebrauchte Fahrräder mit Garantie.',
+        introText:
+          'March (Hugstetten, Neuershausen, Holzhausen) liegt westlich von Freiburg. Bike Haus Freiburg ist in nur 15 Minuten erreichbar und bietet Ihnen die größte Fahrradauswahl der Region — über 100 neue und gebrauchte Fahrräder mit Garantie.',
         whyHeading: 'Warum zu uns kommen?',
         whyItems: [
           'Nur 10 km / 15 Minuten mit dem Auto',
@@ -539,16 +637,21 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Gebrauchte Fahrräder ab ca. 80 €',
         ],
         ctaHeading: 'Besuchen Sie uns!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
-        directions: 'Von March über Hugstetten/Umkirch direkt nach Freiburg-Haslach. Nur 15 Minuten.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Von March über Hugstetten/Umkirch direkt nach Freiburg-Haslach. Nur 15 Minuten.',
       },
       en: {
         metaTitle: 'Bicycle March — Buy bikes at Bike Haus Freiburg',
-        metaDescription: 'Buy a bike in March? Bike Haus Freiburg: 10 km away, 100+ bicycles, e-bikes, warranty, test rides.',
+        metaDescription:
+          'Buy a bike in March? Bike Haus Freiburg: 10 km away, 100+ bicycles, e-bikes, warranty, test rides.',
         heroTitle: 'Buy a bicycle in March?',
-        heroSub: 'Bike Haus Freiburg — only 10 km from March. Large selection, fair prices.',
+        heroSub:
+          'Bike Haus Freiburg — only 10 km from March. Large selection, fair prices.',
         introHeading: 'Bicycles for March at Bike Haus Freiburg',
-        introText: 'March (Hugstetten, Neuershausen, Holzhausen) is located west of Freiburg. Bike Haus Freiburg is reachable in just 15 minutes and offers you the largest bicycle selection in the region — over 100 new and used bicycles with warranty.',
+        introText:
+          'March (Hugstetten, Neuershausen, Holzhausen) is located west of Freiburg. Bike Haus Freiburg is reachable in just 15 minutes and offers you the largest bicycle selection in the region — over 100 new and used bicycles with warranty.',
         whyHeading: 'Why come to us?',
         whyItems: [
           'Only 10 km / 15 minutes by car',
@@ -562,25 +665,30 @@ export const CITY_LANDINGS: CityLanding[] = [
           'City bikes for everyday use',
           'E-bikes for the March – Freiburg route',
           'Trekking bikes for tours in the Breisgau',
-          'Children\'s bikes',
+          "Children's bikes",
           'Used bicycles from approx. €80',
         ],
         ctaHeading: 'Visit us!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
-        directions: 'From March via Hugstetten/Umkirch directly to Freiburg-Haslach. Only 15 minutes.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'From March via Hugstetten/Umkirch directly to Freiburg-Haslach. Only 15 minutes.',
       },
       fr: {
         metaTitle: 'Vélo March — Acheter des vélos chez Bike Haus Freiburg',
-        metaDescription: 'Acheter un vélo à March? Bike Haus Freiburg: 10 km, 100+ vélos, vélos électriques, garantie, essai.',
+        metaDescription:
+          'Acheter un vélo à March? Bike Haus Freiburg: 10 km, 100+ vélos, vélos électriques, garantie, essai.',
         heroTitle: 'Acheter un vélo à March?',
-        heroSub: 'Bike Haus Freiburg — à seulement 10 km de March. Grand choix, prix justes.',
+        heroSub:
+          'Bike Haus Freiburg — à seulement 10 km de March. Grand choix, prix justes.',
         introHeading: 'Vélos pour March chez Bike Haus Freiburg',
-        introText: 'March (Hugstetten, Neuershausen, Holzhausen) est situé à l\'ouest de Freiburg. Bike Haus Freiburg est accessible en seulement 15 minutes et vous offre le plus grand choix de vélos de la région — plus de 100 vélos neufs et d\'occasion avec garantie.',
+        introText:
+          "March (Hugstetten, Neuershausen, Holzhausen) est situé à l'ouest de Freiburg. Bike Haus Freiburg est accessible en seulement 15 minutes et vous offre le plus grand choix de vélos de la région — plus de 100 vélos neufs et d'occasion avec garantie.",
         whyHeading: 'Pourquoi venir chez nous?',
         whyItems: [
           'Seulement 10 km / 15 minutes en voiture',
           'Plus de 100 vélos immédiatement disponibles',
-          'Vélos d\'occasion contrôlés avec garantie',
+          "Vélos d'occasion contrôlés avec garantie",
           'Vélos électriques avec état de batterie documenté',
           'Essai sans rendez-vous',
         ],
@@ -590,23 +698,28 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Vélos électriques pour le trajet March – Freiburg',
           'VTC pour les randonnées dans le Breisgau',
           'Vélos pour enfants',
-          'Vélos d\'occasion à partir d\'env. 80 €',
+          "Vélos d'occasion à partir d'env. 80 €",
         ],
         ctaHeading: 'Venez nous voir!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. WhatsApp: +49 155 6630 0011.',
-        directions: 'Depuis March via Hugstetten/Umkirch directement vers Freiburg-Haslach. Seulement 15 minutes.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Ouvert lun/mar/jeu 11h–18h, ven 11h–13h + 15h–18h, sam 11h30–17h. WhatsApp: +49 155 6630 0011.',
+        directions:
+          'Depuis March via Hugstetten/Umkirch directement vers Freiburg-Haslach. Seulement 15 minutes.',
       },
       tr: {
-        metaTitle: 'Bisiklet March — Bike Haus Freiburg\'da bisiklet alın',
-        metaDescription: 'March\'da bisiklet mi arıyorsunuz? Bike Haus Freiburg: 10 km uzaklıkta, 100+ bisiklet, garantili.',
-        heroTitle: 'March\'da bisiklet mi arıyorsunuz?',
-        heroSub: 'Bike Haus Freiburg — March\'dan sadece 10 km. Geniş seçenek, uygun fiyatlar.',
+        metaTitle: "Bisiklet March — Bike Haus Freiburg'da bisiklet alın",
+        metaDescription:
+          "March'da bisiklet mi arıyorsunuz? Bike Haus Freiburg: 10 km uzaklıkta, 100+ bisiklet, garantili.",
+        heroTitle: "March'da bisiklet mi arıyorsunuz?",
+        heroSub:
+          "Bike Haus Freiburg — March'dan sadece 10 km. Geniş seçenek, uygun fiyatlar.",
         introHeading: 'March için bisikletler — Bike Haus Freiburg',
-        introText: 'March (Hugstetten, Neuershausen, Holzhausen) Freiburg\'un batısında yer alıyor. Bike Haus Freiburg sadece 15 dakikada ulaşılabilir ve bölgenin en büyük bisiklet seçimini sunuyor — garantili 100\'den fazla yeni ve ikinci el bisiklet.',
+        introText:
+          "March (Hugstetten, Neuershausen, Holzhausen) Freiburg'un batısında yer alıyor. Bike Haus Freiburg sadece 15 dakikada ulaşılabilir ve bölgenin en büyük bisiklet seçimini sunuyor — garantili 100'den fazla yeni ve ikinci el bisiklet.",
         whyHeading: 'Neden bize gelmelisiniz?',
         whyItems: [
           'Sadece 10 km / 15 dakika arabayla',
-          'Stokta 100\'den fazla bisiklet',
+          "Stokta 100'den fazla bisiklet",
           'Garantili kontrol edilmiş ikinci el bisikletler',
           'Akü durumu belgelenmiş e-bisikletler',
           'Randevusuz test sürüşü',
@@ -615,13 +728,15 @@ export const CITY_LANDINGS: CityLanding[] = [
         offerItems: [
           'Günlük kullanım için şehir bisikletleri',
           'March – Freiburg güzergahı için e-bisikletler',
-          'Breisgau\'da turlar için trekking bisikletleri',
+          "Breisgau'da turlar için trekking bisikletleri",
           'Çocuk bisikletleri',
-          'İkinci el bisikletler yaklaşık 80 €\'dan',
+          "İkinci el bisikletler yaklaşık 80 €'dan",
         ],
         ctaHeading: 'Bizi ziyaret edin!',
-        ctaText: 'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
-        directions: 'March\'dan Hugstetten/Umkirch üzerinden doğrudan Freiburg-Haslach\'a. Sadece 15 dakika.',
+        ctaText:
+          'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+        directions:
+          "March'dan Hugstetten/Umkirch üzerinden doğrudan Freiburg-Haslach'a. Sadece 15 dakika.",
       },
     },
   },

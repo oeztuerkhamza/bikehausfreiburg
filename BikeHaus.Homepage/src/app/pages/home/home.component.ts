@@ -3158,7 +3158,16 @@ export class HomeComponent implements OnInit, OnDestroy {
       url: 'https://bikehausfreiburg.com',
       telephone: '+49-155-66300011',
       email: 'info.bikehausfreiburg@gmail.com',
-      availableLanguage: ['German', 'English', 'French', 'Turkish'],
+      availableLanguage: [
+        'German',
+        'English',
+        'French',
+        'Turkish',
+        'Spanish',
+        'Italian',
+        'Arabic',
+        'Russian',
+      ],
       address: {
         '@type': 'PostalAddress',
         streetAddress: 'Heckerstraße 27',

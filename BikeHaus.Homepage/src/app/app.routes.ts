@@ -2,22 +2,32 @@ import { Routes } from '@angular/router';
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { TranslationService, Language } from './services/translation.service';
-
-const SUPPORTED_LANGS = ['de', 'en', 'fr', 'tr'];
+import {
+  DEFAULT_LANGUAGE,
+  isSupportedLanguage,
+} from './services/language-config';
 
 export const languageGuard: CanActivateFn = (route) => {
   const lang = route.paramMap.get('lang');
-  if (lang && SUPPORTED_LANGS.includes(lang)) {
+  if (isSupportedLanguage(lang)) {
     inject(TranslationService).setLanguage(lang as Language);
     return true;
   }
-  return inject(Router).createUrlTree(['/de']);
+  return inject(Router).createUrlTree([`/${DEFAULT_LANGUAGE}`]);
 };
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'de', pathMatch: 'full' },
-  { path: 'showroom', redirectTo: 'de/showroom', pathMatch: 'full' },
-  { path: 'showroom/:id', redirectTo: 'de/showroom/:id', pathMatch: 'full' },
+  { path: '', redirectTo: DEFAULT_LANGUAGE, pathMatch: 'full' },
+  {
+    path: 'showroom',
+    redirectTo: `${DEFAULT_LANGUAGE}/showroom`,
+    pathMatch: 'full',
+  },
+  {
+    path: 'showroom/:id',
+    redirectTo: `${DEFAULT_LANGUAGE}/showroom/:id`,
+    pathMatch: 'full',
+  },
   {
     path: ':lang',
     canActivate: [languageGuard],

@@ -29,7 +29,7 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
           <span class="section-label">{{ t().neueFahrraeder }}</span>
           <h1>{{ t().neueFahrraederTitle }}</h1>
           <p class="header-sub" *ngIf="!loading()">
-            {{ filteredBikes().length }} {{ t().neueFahrraederSub }}
+            {{ t().neueFahrraederSub }}
           </p>
         </div>
       </header>

@@ -1,5 +1,11 @@
 ﻿import { Language } from './translation.service';
 
+type BlogTranslationMap = Record<
+  'de' | 'en' | 'fr' | 'tr',
+  BlogArticleTranslation
+> &
+  Partial<Record<Language, BlogArticleTranslation>>;
+
 export interface BlogArticle {
   slug: string;
   slugTranslations?: Partial<Record<Language, string>>;
@@ -9,7 +15,7 @@ export interface BlogArticle {
   category: string;
   tags: string[];
   relatedSlugs: string[];
-  translations: Record<Language, BlogArticleTranslation>;
+  translations: BlogTranslationMap;
 }
 
 /** Returns the URL slug for the given language */

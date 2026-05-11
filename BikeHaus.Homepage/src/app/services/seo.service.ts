@@ -3,9 +3,15 @@ import { DOCUMENT } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { TranslationService, Language } from './translation.service';
+import {
+  DEFAULT_LANGUAGE,
+  OG_LOCALE_BY_LANGUAGE,
+  SUPPORTED_LANGUAGES,
+  getLanguageDirection,
+  isSupportedLanguage,
+} from './language-config';
 
 const BASE_URL = 'https://bikehausfreiburg.com';
-const SUPPORTED_LANGS: Language[] = ['de', 'en', 'fr', 'tr'];
 // URL segments that indicate a blog route
 const BLOG_SEGMENTS = new Set(['guide', 'ratgeber']);
 // Inline helper – avoids pulling blog.data.ts into the initial bundle
@@ -35,7 +41,9 @@ export class SeoService {
 
   private updateCanonicalAndHreflang(url: string): void {
     const pathSegments = url.split('/').filter(Boolean);
-    const currentLang = pathSegments[0] as Language;
+    const currentLang = isSupportedLanguage(pathSegments[0])
+      ? pathSegments[0]
+      : DEFAULT_LANGUAGE;
     const pathWithoutLang = pathSegments.slice(1).join('/');
 
     // Update canonical
@@ -53,7 +61,9 @@ export class SeoService {
     }
 
     // Update html lang attribute
-    this.document.documentElement.lang = currentLang || 'de';
+    this.document.documentElement.lang = currentLang;
+    this.document.documentElement.dir = getLanguageDirection(currentLang);
+    this.updateOgLocaleTags(currentLang);
 
     // Remove existing hreflang links
     this.document
@@ -70,7 +80,7 @@ export class SeoService {
 
     // ── Blog listing route: /:lang/(guide|ratgeber) ──
     if (pathSegments.length === 2 && BLOG_SEGMENTS.has(pathSegments[1])) {
-      for (const lang of SUPPORTED_LANGS) {
+      for (const lang of SUPPORTED_LANGUAGES) {
         this.addHreflangLink(
           lang,
           `${BASE_URL}/${lang}/${getBlogBasePath(lang)}`,
@@ -78,22 +88,22 @@ export class SeoService {
       }
       this.addHreflangLink(
         'x-default',
-        `${BASE_URL}/de/${getBlogBasePath('de')}`,
+        `${BASE_URL}/${DEFAULT_LANGUAGE}/${getBlogBasePath(DEFAULT_LANGUAGE)}`,
       );
       this.updateMetaProperty('og:url', canonicalUrl);
       return;
     }
 
     // ── Default: simple language prefix swap ──
-    for (const lang of SUPPORTED_LANGS) {
+    for (const lang of SUPPORTED_LANGUAGES) {
       const href = pathWithoutLang
         ? `${BASE_URL}/${lang}/${pathWithoutLang}`
         : `${BASE_URL}/${lang}`;
       this.addHreflangLink(lang, href);
     }
     const xDefaultHref = pathWithoutLang
-      ? `${BASE_URL}/de/${pathWithoutLang}`
-      : `${BASE_URL}/de`;
+      ? `${BASE_URL}/${DEFAULT_LANGUAGE}/${pathWithoutLang}`
+      : `${BASE_URL}/${DEFAULT_LANGUAGE}`;
     this.addHreflangLink('x-default', xDefaultHref);
     this.updateMetaProperty('og:url', canonicalUrl);
   }
@@ -112,6 +122,31 @@ export class SeoService {
     ) as HTMLMetaElement;
     if (meta) {
       meta.content = content;
+      return;
+    }
+
+    meta = this.document.createElement('meta');
+    meta.setAttribute('property', property);
+    meta.content = content;
+    this.document.head.appendChild(meta);
+  }
+
+  private updateOgLocaleTags(currentLang: Language): void {
+    this.updateMetaProperty('og:locale', OG_LOCALE_BY_LANGUAGE[currentLang]);
+
+    this.document
+      .querySelectorAll('meta[property="og:locale:alternate"]')
+      .forEach((el) => el.remove());
+
+    for (const lang of SUPPORTED_LANGUAGES) {
+      if (lang === currentLang) {
+        continue;
+      }
+
+      const meta = this.document.createElement('meta');
+      meta.setAttribute('property', 'og:locale:alternate');
+      meta.content = OG_LOCALE_BY_LANGUAGE[lang];
+      this.document.head.appendChild(meta);
     }
   }
 }

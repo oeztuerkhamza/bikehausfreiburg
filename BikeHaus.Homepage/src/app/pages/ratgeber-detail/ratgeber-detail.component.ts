@@ -1,22 +1,23 @@
 import {
-    Component,
-    inject,
-    OnInit,
-    OnDestroy,
-    signal,
-    computed,
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  computed,
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
+import { BLOG_HREFLANG_LANGUAGES } from '../../services/language-config';
 import {
-    BLOG_ARTICLES,
-    BlogArticle,
-    BlogArticleTranslation,
-    findArticleBySlug,
-    getBlogBasePath,
-    getBlogSlug,
+  BLOG_ARTICLES,
+  BlogArticle,
+  BlogArticleTranslation,
+  findArticleBySlug,
+  getBlogBasePath,
+  getBlogSlug,
 } from '../../services/blog.data';
 
 @Component({
@@ -628,8 +629,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
     this.document
       .querySelectorAll('link[rel="alternate"][hreflang]')
       .forEach((el) => el.remove());
-    const SUPPORTED_LANGS = ['de', 'en', 'fr', 'tr'];
-    for (const l of SUPPORTED_LANGS) {
+    for (const l of BLOG_HREFLANG_LANGUAGES) {
       const langSlug = getBlogSlug(article, l as any);
       const langPath = getBlogBasePath(l as any);
       const link = this.document.createElement('link');
@@ -837,7 +837,8 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
     this.document.head.appendChild(this.faqSchemaElement);
   }
 
-  private removeSchema(element: HTMLScriptElement | null): void {    if (element && element.parentNode) {
+  private removeSchema(element: HTMLScriptElement | null): void {
+    if (element && element.parentNode) {
       element.parentNode.removeChild(element);
     }
   }
