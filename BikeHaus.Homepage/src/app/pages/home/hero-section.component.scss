@@ -179,9 +179,9 @@ $color-white-05: rgba(255, 255, 255, 0.05);
   // Dark overlay so text stays readable over any video frame
   background: linear-gradient(
     180deg,
-    rgba(15, 23, 42, 0.65) 0%,
-    rgba(15, 23, 42, 0.55) 60%,
-    rgba(15, 23, 42, 0.75) 100%
+    rgba(2, 6, 23, 0.76) 0%,
+    rgba(2, 6, 23, 0.66) 42%,
+    rgba(2, 6, 23, 0.8) 100%
   );
   z-index: 1;
 }
@@ -267,6 +267,15 @@ $color-white-05: rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  padding: clamp(1.25rem, 2vw, 1.75rem);
+  border-radius: 2rem;
+  background: linear-gradient(
+    180deg,
+    rgba(2, 6, 23, 0.22),
+    rgba(2, 6, 23, 0.08)
+  );
+  box-shadow: 0 30px 60px rgba(2, 6, 23, 0.2);
+  backdrop-filter: blur(6px);
   animation: fade-in 0.8s ease-out forwards;
 }
 
@@ -305,8 +314,9 @@ $color-white-05: rgba(255, 255, 255, 0.05);
 .badge-text {
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgba($color-emerald, 0.8);
+  color: rgba($color-white, 0.96);
   letter-spacing: 0.05em;
+  text-shadow: 0 2px 16px rgba(2, 6, 23, 0.45);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -319,6 +329,7 @@ $color-white-05: rgba(255, 255, 255, 0.05);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.02em;
+  text-shadow: 0 8px 30px rgba(2, 6, 23, 0.5);
 }
 
 .title-line {
@@ -339,6 +350,7 @@ $color-white-05: rgba(255, 255, 255, 0.05);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  filter: drop-shadow(0 8px 26px rgba(2, 6, 23, 0.38));
   animation: gradient-shift 3s ease infinite;
 }
 
@@ -349,11 +361,12 @@ $color-white-05: rgba(255, 255, 255, 0.05);
 .hero-subtitle {
   margin: 0;
   font-size: clamp(1rem, 2vw, 1.25rem);
-  color: $color-slate-300;
+  color: rgba(241, 245, 249, 0.92);
   line-height: 1.6;
   max-width: 700px;
   margin-left: auto;
   margin-right: auto;
+  text-shadow: 0 4px 18px rgba(2, 6, 23, 0.4);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -645,44 +658,43 @@ $color-white-05: rgba(255, 255, 255, 0.05);
 
 @media (prefers-color-scheme: light) {
   .hero-2026 {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f8fafc 100%);
-    color: $color-navy;
+    color: $color-white;
 
     .hero-title {
       .title-line {
-        color: $color-navy;
+        color: $color-white;
       }
     }
 
     .hero-subtitle {
-      color: #475569;
+      color: rgba(241, 245, 249, 0.92);
     }
 
     .hero-badge {
-      background: rgba($color-navy, 0.05);
-      border-color: rgba($color-navy, 0.1);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.18);
 
       &:hover {
-        background: rgba($color-navy, 0.1);
+        background: rgba(255, 255, 255, 0.16);
       }
     }
 
     .btn-secondary {
-      background: rgba($color-navy, 0.05);
-      border-color: rgba($color-navy, 0.1);
-      color: $color-navy;
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.18);
+      color: $color-white;
 
       &:hover {
-        background: rgba($color-navy, 0.1);
+        background: rgba(255, 255, 255, 0.16);
       }
     }
 
     .stat-card {
-      background: rgba($color-navy, 0.03);
-      border-color: rgba($color-navy, 0.1);
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
 
       &:hover {
-        background: rgba($color-navy, 0.08);
+        background: rgba(255, 255, 255, 0.1);
       }
     }
   }
