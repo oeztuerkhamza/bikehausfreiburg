@@ -237,6 +237,8 @@ import { ShopInfoService } from '../../services/shop-info.service';
       @media (max-width: 768px) {
         .menu-toggle {
           display: flex;
+          position: relative;
+          z-index: 2002;
         }
 
         .nav-menu {
@@ -246,13 +248,27 @@ import { ShopInfoService } from '../../services/shop-info.service';
           left: 0;
           right: 0;
           bottom: 0;
-          background: #000;
+          background:
+            radial-gradient(
+              circle at top,
+              rgba(255, 87, 34, 0.14),
+              transparent 22%
+            ),
+            radial-gradient(
+              circle at bottom,
+              rgba(16, 185, 129, 0.12),
+              transparent 24%
+            ),
+            rgba(5, 8, 13, 0.985);
+          backdrop-filter: blur(18px) saturate(140%);
+          -webkit-backdrop-filter: blur(18px) saturate(140%);
           flex-direction: column;
-          justify-content: flex-start;
+          justify-content: center;
           align-items: center;
-          gap: 0;
-          padding: 5rem 2rem 2rem;
-          z-index: 999;
+          gap: 0.8rem;
+          padding: 6.5rem 1.25rem 2rem;
+          overflow-y: auto;
+          z-index: 2001;
         }
 
         .nav-menu.open {
@@ -260,10 +276,11 @@ import { ShopInfoService } from '../../services/shop-info.service';
         }
 
         .nav-menu a {
-          font-size: 1.5rem;
+          font-size: 1.2rem;
           font-weight: 700;
-          padding: 1rem 0;
-          color: var(--color-text-secondary);
+          padding: 1rem 1.1rem;
+          color: #f8fafc;
+          line-height: 1.15;
         }
 
         .nav-menu a.active {
@@ -402,28 +419,19 @@ import { ShopInfoService } from '../../services/shop-info.service';
         }
 
         .nav-menu {
-          background:
-            radial-gradient(
-              circle at top,
-              rgba(255, 87, 34, 0.2),
-              transparent 24%
-            ),
-            radial-gradient(
-              circle at bottom,
-              rgba(16, 185, 129, 0.18),
-              transparent 28%
-            ),
-            rgba(6, 8, 12, 0.98);
+          padding-top: 7.5rem;
         }
 
         .nav-menu a {
-          width: min(560px, 92vw);
+          width: min(420px, 100%);
           text-align: center;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          background: rgba(255, 255, 255, 0.04);
-          border-radius: 14px;
-          margin: 0.2rem 0;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 18px;
+          margin: 0;
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.05),
+            0 16px 30px rgba(0, 0, 0, 0.18);
         }
 
         .nav-menu a.active {
@@ -445,10 +453,12 @@ import { ShopInfoService } from '../../services/shop-info.service';
         }
 
         .lang-switch {
+          width: min(420px, 100%);
           justify-content: center;
           flex-wrap: wrap;
           gap: 0.4rem;
           padding-top: 1.25rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .lang-switch button {
