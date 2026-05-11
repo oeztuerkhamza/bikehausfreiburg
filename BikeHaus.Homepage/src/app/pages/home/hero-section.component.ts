@@ -5,6 +5,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  inject,
   signal,
   computed,
   PLATFORM_ID,
@@ -13,6 +14,7 @@ import {
 import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-hero-section',
@@ -39,6 +41,9 @@ export class HeroSectionComponent implements OnInit, AfterViewInit, OnDestroy {
   private setupTimer?: ReturnType<typeof setTimeout>;
   private setupRetries = 0;
   private setupDone = false;
+  private translationService = inject(TranslationService);
+  t = this.translationService.translations;
+  lang = this.translationService.currentLanguage;
 
   constructor(@Inject(PLATFORM_ID) private platformId: object) {}
 

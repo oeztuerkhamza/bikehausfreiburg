@@ -34,6 +34,15 @@ export interface Translations {
   heroSub: string;
   ctaPrimary: string;
   ctaSecondary: string;
+  heroBannerAria: string;
+  heroBadgeText: string;
+  heroTitleLine1: string;
+  heroTitleGradient: string;
+  heroTitleLine3: string;
+  heroStatBikes: string;
+  heroStatYears: string;
+  heroStatRating: string;
+  heroScrollLabel: string;
 
   // Value Proposition
   valueLabel: string;
@@ -214,6 +223,14 @@ export interface Translations {
   // Footer
   footerTagline: string;
   quickLinks: string;
+  footerNavAria: string;
+  footerLogoAlt: string;
+  footerLogoText: string;
+  footerLocationEmmendingen: string;
+  footerLocationBadKrozingen: string;
+  footerLocationBreisach: string;
+  footerLocationGundelfingen: string;
+  footerLocationMarch: string;
   legalNotice: string;
   privacy: string;
   warrantyTerms: string;
@@ -328,6 +345,15 @@ export interface Translations {
   // General
   loading: string;
   error: string;
+  homeServicesAria: string;
+  homeGalleryImageAltPrefix: string;
+  homeLightboxCloseAria: string;
+  homeLightboxPrevAria: string;
+  homeLightboxNextAria: string;
+  navbarMainNavAria: string;
+  navbarHomeAria: string;
+  navbarLogoAlt: string;
+  navbarMenuAria: string;
   noResults: string;
   categories: string;
   ourShowroom: string;
@@ -580,6 +606,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Über 100 geprüfte Fahrräder ✓ E-Bike, City & Trekking ✓ Fahrradverleih mit individuellen Tagespreisen je Fahrrad ✓ 3 Monate Garantie ✓ Sofort fahrbereit — Heckerstraße 27, Freiburg.',
     ctaPrimary: 'Neue Fahrräder entdecken',
     ctaSecondary: 'Showroom ansehen',
+    heroBannerAria: 'Hero-Bereich',
+    heroBadgeText: 'Bike Haus Freiburg',
+    heroTitleLine1: 'Die beste',
+    heroTitleGradient: 'Fahrrad-Erfahrung',
+    heroTitleLine3: 'in Freiburg',
+    heroStatBikes: 'Fahrraeder',
+    heroStatYears: 'Jahre',
+    heroStatRating: 'Bewertung',
+    heroScrollLabel: 'Scrollen',
 
     valueLabel: 'WARUM WIR',
     valueTitle: 'Mehr als nur ein Fahrradladen.',
@@ -721,6 +756,14 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     footerTagline: 'Neue & gebrauchte Fahrräder in Freiburg.',
     quickLinks: 'Navigation',
+    footerNavAria: 'Footer-Navigation',
+    footerLogoAlt: 'Bike Haus Freiburg Logo',
+    footerLogoText: 'Bike Haus Freiburg',
+    footerLocationEmmendingen: 'Fahrrad Emmendingen',
+    footerLocationBadKrozingen: 'Fahrrad Bad Krozingen',
+    footerLocationBreisach: 'Fahrrad Breisach',
+    footerLocationGundelfingen: 'Fahrrad Gundelfingen',
+    footerLocationMarch: 'Fahrrad March',
     legalNotice: 'Impressum',
     privacy: 'Datenschutz',
     warrantyTerms: 'Garantiebedingungen',
@@ -847,6 +890,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     loading: 'Wird geladen...',
     error: 'Ein Fehler ist aufgetreten.',
+    homeServicesAria: 'Dienstleistungen',
+    homeGalleryImageAltPrefix: 'Bike Haus Freiburg - Foto',
+    homeLightboxCloseAria: 'Schliessen',
+    homeLightboxPrevAria: 'Vorheriges',
+    homeLightboxNextAria: 'Naechstes',
+    navbarMainNavAria: 'Hauptnavigation',
+    navbarHomeAria: 'Bike Haus Freiburg Startseite',
+    navbarLogoAlt: 'Bike Haus Freiburg',
+    navbarMenuAria: 'Menue',
     noResults: 'Keine Ergebnisse.',
     categories: 'Kategorien',
     ourShowroom: 'Showroom',
@@ -1172,6 +1224,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Buy or rent a bike in Freiburg ✓ Inspected used bikes from €80 ✓ Bike rental with per-bike daily pricing ✓ City, Trekking & E-Bikes ✓ Pick up same day.',
     ctaPrimary: 'Discover New Bikes',
     ctaSecondary: 'View Showroom',
+    heroBannerAria: 'Hero section',
+    heroBadgeText: 'Bike Haus Freiburg',
+    heroTitleLine1: 'The best',
+    heroTitleGradient: 'bike experience',
+    heroTitleLine3: 'in Freiburg',
+    heroStatBikes: 'Bikes',
+    heroStatYears: 'Years',
+    heroStatRating: 'Rating',
+    heroScrollLabel: 'Scroll',
 
     valueLabel: 'WHY US',
     valueTitle: 'More than just a bike shop.',
@@ -1308,6 +1369,14 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     footerTagline: 'New & used bikes in Freiburg.',
     quickLinks: 'Navigation',
+    footerNavAria: 'Footer navigation',
+    footerLogoAlt: 'Bike Haus Freiburg logo',
+    footerLogoText: 'Bike Haus Freiburg',
+    footerLocationEmmendingen: 'Bike Emmendingen',
+    footerLocationBadKrozingen: 'Bike Bad Krozingen',
+    footerLocationBreisach: 'Bike Breisach',
+    footerLocationGundelfingen: 'Bike Gundelfingen',
+    footerLocationMarch: 'Bike March',
     legalNotice: 'Legal Notice',
     privacy: 'Privacy Policy',
     warrantyTerms: 'Warranty Terms',
@@ -1432,6 +1501,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     loading: 'Loading...',
     error: 'An error occurred.',
+    homeServicesAria: 'Services',
+    homeGalleryImageAltPrefix: 'Bike Haus Freiburg - Photo',
+    homeLightboxCloseAria: 'Close',
+    homeLightboxPrevAria: 'Previous',
+    homeLightboxNextAria: 'Next',
+    navbarMainNavAria: 'Main navigation',
+    navbarHomeAria: 'Bike Haus Freiburg home',
+    navbarLogoAlt: 'Bike Haus Freiburg',
+    navbarMenuAria: 'Menu',
     noResults: 'No results.',
     categories: 'Categories',
     ourShowroom: 'Showroom',
@@ -1739,6 +1817,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "Achetez ou louez votre vélo à Fribourg-en-Brisgau ✓ Vélos inspectés dès 80 € ✓ Location avec tarifs journaliers définis par vélo ✓ Retrait immédiat ✓ À 25 km de l'Alsace.",
     ctaPrimary: 'Découvrir les nouveaux vélos',
     ctaSecondary: 'Voir le showroom',
+    heroBannerAria: 'Section hero',
+    heroBadgeText: 'Bike Haus Freiburg',
+    heroTitleLine1: 'La meilleure',
+    heroTitleGradient: 'experience velo',
+    heroTitleLine3: 'a Fribourg',
+    heroStatBikes: 'Velos',
+    heroStatYears: 'Annees',
+    heroStatRating: 'Note',
+    heroScrollLabel: 'Defiler',
 
     valueLabel: 'POURQUOI NOUS',
     valueTitle: "Plus qu'un simple magasin de vélos.",
@@ -1882,6 +1969,14 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     footerTagline: "Vélos neufs & d'occasion à Fribourg.",
     quickLinks: 'Navigation',
+    footerNavAria: 'Navigation pied de page',
+    footerLogoAlt: 'Logo Bike Haus Freiburg',
+    footerLogoText: 'Bike Haus Freiburg',
+    footerLocationEmmendingen: 'Velo Emmendingen',
+    footerLocationBadKrozingen: 'Velo Bad Krozingen',
+    footerLocationBreisach: 'Velo Breisach',
+    footerLocationGundelfingen: 'Velo Gundelfingen',
+    footerLocationMarch: 'Velo March',
     legalNotice: 'Mentions légales',
     privacy: 'Confidentialité',
     warrantyTerms: 'Conditions de garantie',
@@ -2009,6 +2104,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
+    homeServicesAria: 'Services',
+    homeGalleryImageAltPrefix: 'Bike Haus Freiburg - Photo',
+    homeLightboxCloseAria: 'Fermer',
+    homeLightboxPrevAria: 'Precedent',
+    homeLightboxNextAria: 'Suivant',
+    navbarMainNavAria: 'Navigation principale',
+    navbarHomeAria: 'Accueil Bike Haus Freiburg',
+    navbarLogoAlt: 'Bike Haus Freiburg',
+    navbarMenuAria: 'Menu',
     noResults: 'Aucun résultat.',
     categories: 'Catégories',
     ourShowroom: 'Showroom',
@@ -2332,6 +2436,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "Freiburg'da yeni ve kontrol edilmiş ikinci el bisikletler — adil fiyat, sürdürülebilir bakım, kişisel danışmanlık.",
     ctaPrimary: 'Yeni Bisikletleri Keşfet',
     ctaSecondary: "Showroom'u Gör",
+    heroBannerAria: 'Hero bolumu',
+    heroBadgeText: 'Bike Haus Freiburg',
+    heroTitleLine1: 'En iyi',
+    heroTitleGradient: 'bisiklet deneyimi',
+    heroTitleLine3: "Freiburg'da",
+    heroStatBikes: 'Bisiklet',
+    heroStatYears: 'Yil',
+    heroStatRating: 'Puan',
+    heroScrollLabel: 'Kaydir',
 
     valueLabel: 'NEDEN BİZ',
     valueTitle: 'Sıradan bir bisiklet dükkanından fazlası.',
@@ -2473,6 +2586,14 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     footerTagline: "Freiburg'da yeni & ikinci el bisikletler.",
     quickLinks: 'Navigasyon',
+    footerNavAria: 'Altbilgi navigasyonu',
+    footerLogoAlt: 'Bike Haus Freiburg logosu',
+    footerLogoText: 'Bike Haus Freiburg',
+    footerLocationEmmendingen: 'Bisiklet Emmendingen',
+    footerLocationBadKrozingen: 'Bisiklet Bad Krozingen',
+    footerLocationBreisach: 'Bisiklet Breisach',
+    footerLocationGundelfingen: 'Bisiklet Gundelfingen',
+    footerLocationMarch: 'Bisiklet March',
     legalNotice: 'Yasal Bildirim',
     privacy: 'Gizlilik',
     warrantyTerms: 'Garanti Şartları',
@@ -2598,6 +2719,15 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     loading: 'Yükleniyor...',
     error: 'Bir hata oluştu.',
+    homeServicesAria: 'Hizmetler',
+    homeGalleryImageAltPrefix: 'Bike Haus Freiburg - Fotograf',
+    homeLightboxCloseAria: 'Kapat',
+    homeLightboxPrevAria: 'Onceki',
+    homeLightboxNextAria: 'Sonraki',
+    navbarMainNavAria: 'Ana navigasyon',
+    navbarHomeAria: 'Bike Haus Freiburg ana sayfa',
+    navbarLogoAlt: 'Bike Haus Freiburg',
+    navbarMenuAria: 'Menu',
     noResults: 'Sonuç bulunamadı.',
     categories: 'Kategoriler',
     ourShowroom: 'Showroom',

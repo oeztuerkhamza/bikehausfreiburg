@@ -2,7 +2,7 @@
 <!-- HERO SECTION - 2026 MODERN DESIGN (Pure CSS + Tailwind Ready)   -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 
-<section class="hero-2026" role="banner" aria-label="Hero Section">
+<section class="hero-2026" role="banner" [attr.aria-label]="t().heroBannerAria">
   <!-- VIDEO BACKGROUND (performance-aware, lazy loaded) -->
   @if (videoEnabled()) {
     <div class="hero-video-wrapper">
@@ -45,32 +45,31 @@
       <!-- BADGE -->
       <div class="hero-badge">
         <span class="badge-dot"></span>
-        <span class="badge-text">🚴 Bike Haus Freiburg</span>
+        <span class="badge-text">🚴 {{ t().heroBadgeText }}</span>
       </div>
 
       <!-- MAIN HEADING - WITH GRADIENT -->
       <h1 class="hero-title">
-        <span class="title-line">Die beste</span>
-        <span class="title-gradient">Fahrrad-Erfahrung</span>
-        <span class="title-line">in Freiburg</span>
+        <span class="title-line">{{ t().heroTitleLine1 }}</span>
+        <span class="title-gradient">{{ t().heroTitleGradient }}</span>
+        <span class="title-line">{{ t().heroTitleLine3 }}</span>
       </h1>
 
       <!-- SUBTITLE -->
       <p class="hero-subtitle">
-        Verkauf • Service • Verleih. Alles aus einer Hand mit über 10+ Jahren
-        Erfahrung und persönlicher Beratung.
+        {{ t().heroSub }}
       </p>
 
       <!-- CTA BUTTONS - GLASSMORPHISM -->
       <div class="hero-cta-group">
         <!-- Primary CTA -->
         <a
-          routerLink="/de/neue-fahrraeder"
+          [routerLink]="['/' + lang(), 'neue-fahrraeder']"
           class="btn btn-primary"
           role="button"
           tabindex="0"
         >
-          <span class="btn-text">Jetzt Fahrrad kaufen</span>
+          <span class="btn-text">{{ t().ctaPrimary }}</span>
           <svg
             class="btn-icon"
             viewBox="0 0 24 24"
@@ -84,12 +83,12 @@
 
         <!-- Secondary CTA - GLASS STYLE -->
         <a
-          routerLink="/de/fahrradverleih"
+          [routerLink]="['/' + lang(), 'fahrradverleih']"
           class="btn btn-secondary"
           role="button"
           tabindex="0"
         >
-          <span class="btn-text">Zur Vermietung</span>
+          <span class="btn-text">{{ t().ctaSecondary }}</span>
           <svg
             class="btn-icon"
             viewBox="0 0 24 24"
@@ -107,19 +106,19 @@
         <!-- Stat Card 1 -->
         <div class="stat-card">
           <div class="stat-number">500+</div>
-          <div class="stat-label">Fahrräder</div>
+          <div class="stat-label">{{ t().heroStatBikes }}</div>
         </div>
 
         <!-- Stat Card 2 -->
         <div class="stat-card">
           <div class="stat-number">10+</div>
-          <div class="stat-label">Jahre</div>
+          <div class="stat-label">{{ t().heroStatYears }}</div>
         </div>
 
         <!-- Stat Card 3 -->
         <div class="stat-card">
           <div class="stat-number">⭐ 4.9</div>
-          <div class="stat-label">Rating</div>
+          <div class="stat-label">{{ t().heroStatRating }}</div>
         </div>
       </div>
     </div>
@@ -127,7 +126,7 @@
 
   <!-- SCROLL INDICATOR - ANIMATED -->
   <div class="hero-scroll-indicator">
-    <span class="scroll-label">Scroll</span>
+    <span class="scroll-label">{{ t().heroScrollLabel }}</span>
     <svg
       class="scroll-icon"
       viewBox="0 0 24 24"

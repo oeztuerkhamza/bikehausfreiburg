@@ -18,8 +18,8 @@ import {
         <!-- Brand -->
         <div class="footer-brand">
           <div class="footer-logo">
-            <img [src]="logoUrl()" alt="Bike Haus Freiburg" class="logo-img" />
-            <span class="logo-text">Bike Haus Freiburg</span>
+            <img [src]="logoUrl()" [alt]="t().footerLogoAlt" class="logo-img" />
+            <span class="logo-text">{{ t().footerLogoText }}</span>
           </div>
           <p class="footer-tagline">{{ t().footerTagline }}</p>
         </div>
@@ -27,7 +27,7 @@ import {
         <!-- Navigation -->
         <div class="footer-col">
           <h4>{{ t().quickLinks }}</h4>
-          <nav aria-label="Footer navigation">
+          <nav [attr.aria-label]="t().footerNavAria">
             <a [routerLink]="['/' + lang()]">{{ t().home }}</a>
             <a [routerLink]="['/' + lang(), 'showroom']">{{ t().showroom }}</a>
             <a [routerLink]="['/' + lang(), 'neue-fahrraeder']">{{
@@ -68,19 +68,21 @@ import {
         <div class="footer-col">
           <h4>{{ t().footerLocations }}</h4>
           <nav [attr.aria-label]="t().footerLocations">
-            <a [routerLink]="['/' + lang(), 'fahrrad-emmendingen']"
-              >Fahrrad Emmendingen</a
-            >
-            <a [routerLink]="['/' + lang(), 'fahrrad-bad-krozingen']"
-              >Fahrrad Bad Krozingen</a
-            >
-            <a [routerLink]="['/' + lang(), 'fahrrad-breisach']"
-              >Fahrrad Breisach</a
-            >
-            <a [routerLink]="['/' + lang(), 'fahrrad-gundelfingen']"
-              >Fahrrad Gundelfingen</a
-            >
-            <a [routerLink]="['/' + lang(), 'fahrrad-march']">Fahrrad March</a>
+            <a [routerLink]="['/' + lang(), 'fahrrad-emmendingen']">{{
+              t().footerLocationEmmendingen
+            }}</a>
+            <a [routerLink]="['/' + lang(), 'fahrrad-bad-krozingen']">{{
+              t().footerLocationBadKrozingen
+            }}</a>
+            <a [routerLink]="['/' + lang(), 'fahrrad-breisach']">{{
+              t().footerLocationBreisach
+            }}</a>
+            <a [routerLink]="['/' + lang(), 'fahrrad-gundelfingen']">{{
+              t().footerLocationGundelfingen
+            }}</a>
+            <a [routerLink]="['/' + lang(), 'fahrrad-march']">{{
+              t().footerLocationMarch
+            }}</a>
           </nav>
         </div>
 

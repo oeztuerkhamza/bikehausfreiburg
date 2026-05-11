@@ -47,7 +47,7 @@ interface Testimonial {
     <app-hero-section></app-hero-section>
 
     <!-- ═══ SERVICE CARDS ═══ -->
-    <section class="svc-cards-section" aria-label="Services">
+    <section class="svc-cards-section" [attr.aria-label]="t().homeServicesAria">
       <div class="container">
         <div class="svc-cards-grid">
           <!-- Reparatur -->
@@ -489,7 +489,7 @@ interface Testimonial {
           >
             <img
               [src]="photo"
-              [alt]="'Bike Haus Freiburg - Foto ' + (i + 1)"
+              [alt]="t().homeGalleryImageAltPrefix + ' ' + (i + 1)"
               loading="lazy"
               width="400"
               height="300"
@@ -518,14 +518,14 @@ interface Testimonial {
       <button
         class="lightbox-close"
         (click)="closeLightbox()"
-        aria-label="Close"
+        [attr.aria-label]="t().homeLightboxCloseAria"
       >
         &times;
       </button>
       <button
         class="lightbox-nav lightbox-prev"
         (click)="prevPhoto($event)"
-        aria-label="Previous"
+        [attr.aria-label]="t().homeLightboxPrevAria"
       >
         <svg
           width="32"
@@ -540,7 +540,7 @@ interface Testimonial {
       </button>
       <img
         [src]="shopPhotos[lightboxIndex]"
-        [alt]="'Bike Haus Freiburg - Foto ' + (lightboxIndex + 1)"
+        [alt]="t().homeGalleryImageAltPrefix + ' ' + (lightboxIndex + 1)"
         class="lightbox-img"
         width="1200"
         height="800"
@@ -549,7 +549,7 @@ interface Testimonial {
       <button
         class="lightbox-nav lightbox-next"
         (click)="nextPhoto($event)"
-        aria-label="Next"
+        [attr.aria-label]="t().homeLightboxNextAria"
       >
         <svg
           width="32"
@@ -1098,7 +1098,7 @@ interface Testimonial {
             <!-- Fallback: hardcoded testimonials -->
             <article
               class="testimonial-card fade-in d1"
-              *ngFor="let review of testimonials; let i = index"
+              *ngFor="let review of fallbackTestimonials(); let i = index"
             >
               <div
                 class="testimonial-stars"
@@ -3067,50 +3067,204 @@ export class HomeComponent implements OnInit, OnDestroy {
   googlePlaceUrl = signal('');
 
   // Testimonials for SEO and social proof (fallback when Google API not configured)
-  testimonials: Testimonial[] = [
-    {
-      name: 'Thomas M.',
-      initials: 'TM',
-      text: 'Habe hier mein Trekkingrad gekauft. Super Beratung, faire Preise und das Rad war top aufbereitet. Kann ich nur empfehlen!',
-      detail: 'Trekkingrad gekauft',
-      rating: 5,
-    },
-    {
-      name: 'Sandra K.',
-      initials: 'SK',
-      text: 'Endlich ein Fahrradladen in Freiburg, der ehrlich berät und keine überteuerten Preise hat. Mein Sohn liebt sein neues Kinderfahrrad!',
-      detail: 'Kinderfahrrad gekauft',
-      rating: 5,
-    },
-    {
-      name: 'Michael W.',
-      initials: 'MW',
-      text: 'Als Student war ich auf der Suche nach einem günstigen, zuverlässigen Fahrrad. Bei Bike Haus wurde ich fündig. Top Qualität zum fairen Preis!',
-      detail: 'Cityrad gekauft',
-      rating: 5,
-    },
-    {
-      name: 'Elena B.',
-      initials: 'EB',
-      text: 'Ich habe mein altes Fahrrad hier verkauft und gleich ein E-Bike mitgenommen. Unkompliziert und fair. Beste Fahrradhandlung in Freiburg!',
-      detail: 'E-Bike gekauft',
-      rating: 5,
-    },
-    {
-      name: 'Peter H.',
-      initials: 'PH',
-      text: 'Schnelle und unkomplizierte Abwicklung. Das gebrauchte Mountainbike war in einwandfreiem Zustand. Sehr zu empfehlen!',
-      detail: 'Mountainbike gekauft',
-      rating: 5,
-    },
-    {
-      name: 'Julia F.',
-      initials: 'JF',
-      text: 'Toller Service! Die Beratung war super und ich wurde nicht gedrängt. Mein neues Fahrrad macht mich jeden Tag glücklich.',
-      detail: 'Damenrad gekauft',
-      rating: 5,
-    },
-  ];
+  private readonly testimonialsByLanguage: Record<
+    'de' | 'en' | 'fr' | 'tr',
+    Testimonial[]
+  > = {
+    de: [
+      {
+        name: 'Thomas M.',
+        initials: 'TM',
+        text: 'Habe hier mein Trekkingrad gekauft. Super Beratung, faire Preise und das Rad war top aufbereitet. Kann ich nur empfehlen!',
+        detail: 'Trekkingrad gekauft',
+        rating: 5,
+      },
+      {
+        name: 'Sandra K.',
+        initials: 'SK',
+        text: 'Endlich ein Fahrradladen in Freiburg, der ehrlich berät und keine überteuerten Preise hat. Mein Sohn liebt sein neues Kinderfahrrad!',
+        detail: 'Kinderfahrrad gekauft',
+        rating: 5,
+      },
+      {
+        name: 'Michael W.',
+        initials: 'MW',
+        text: 'Als Student war ich auf der Suche nach einem günstigen, zuverlässigen Fahrrad. Bei Bike Haus wurde ich fündig. Top Qualität zum fairen Preis!',
+        detail: 'Cityrad gekauft',
+        rating: 5,
+      },
+      {
+        name: 'Elena B.',
+        initials: 'EB',
+        text: 'Ich habe mein altes Fahrrad hier verkauft und gleich ein E-Bike mitgenommen. Unkompliziert und fair. Beste Fahrradhandlung in Freiburg!',
+        detail: 'E-Bike gekauft',
+        rating: 5,
+      },
+      {
+        name: 'Peter H.',
+        initials: 'PH',
+        text: 'Schnelle und unkomplizierte Abwicklung. Das gebrauchte Mountainbike war in einwandfreiem Zustand. Sehr zu empfehlen!',
+        detail: 'Mountainbike gekauft',
+        rating: 5,
+      },
+      {
+        name: 'Julia F.',
+        initials: 'JF',
+        text: 'Toller Service! Die Beratung war super und ich wurde nicht gedrängt. Mein neues Fahrrad macht mich jeden Tag glücklich.',
+        detail: 'Damenrad gekauft',
+        rating: 5,
+      },
+    ],
+    en: [
+      {
+        name: 'Thomas M.',
+        initials: 'TM',
+        text: 'Bought my trekking bike here. Great advice, fair prices, and the bike was perfectly prepared. Highly recommended!',
+        detail: 'Bought a trekking bike',
+        rating: 5,
+      },
+      {
+        name: 'Sandra K.',
+        initials: 'SK',
+        text: 'Finally a bike shop in Freiburg that gives honest advice without inflated prices. My son loves his new kids bike!',
+        detail: 'Bought a kids bike',
+        rating: 5,
+      },
+      {
+        name: 'Michael W.',
+        initials: 'MW',
+        text: 'As a student, I was looking for an affordable and reliable bike. I found exactly that at Bike Haus. Great quality for a fair price!',
+        detail: 'Bought a city bike',
+        rating: 5,
+      },
+      {
+        name: 'Elena B.',
+        initials: 'EB',
+        text: 'I sold my old bike here and took home an e-bike right away. Easy process and fair offer. Best bike shop in Freiburg!',
+        detail: 'Bought an e-bike',
+        rating: 5,
+      },
+      {
+        name: 'Peter H.',
+        initials: 'PH',
+        text: 'Fast and hassle-free service. The used mountain bike was in excellent condition. Strong recommendation!',
+        detail: 'Bought a mountain bike',
+        rating: 5,
+      },
+      {
+        name: 'Julia F.',
+        initials: 'JF',
+        text: 'Excellent service! The consultation was great and never pushy. My new bike makes me happy every day.',
+        detail: "Bought a women's bike",
+        rating: 5,
+      },
+    ],
+    fr: [
+      {
+        name: 'Thomas M.',
+        initials: 'TM',
+        text: "J'ai acheté mon vélo de trekking ici. Excellents conseils, prix justes et vélo parfaitement préparé. Je recommande vivement !",
+        detail: 'Velo de trekking achete',
+        rating: 5,
+      },
+      {
+        name: 'Sandra K.',
+        initials: 'SK',
+        text: 'Enfin un magasin de vélos à Fribourg qui conseille honnêtement sans prix exagérés. Mon fils adore son nouveau vélo enfant !',
+        detail: 'Velo enfant achete',
+        rating: 5,
+      },
+      {
+        name: 'Michael W.',
+        initials: 'MW',
+        text: "En tant qu'étudiant, je cherchais un vélo fiable et abordable. Je l'ai trouvé chez Bike Haus. Très bon rapport qualité-prix !",
+        detail: 'Velo de ville achete',
+        rating: 5,
+      },
+      {
+        name: 'Elena B.',
+        initials: 'EB',
+        text: "J'ai vendu mon ancien vélo ici et je suis repartie avec un vélo électrique. Processus simple et offre équitable. Le meilleur magasin de vélos à Fribourg !",
+        detail: 'Velo electrique achete',
+        rating: 5,
+      },
+      {
+        name: 'Peter H.',
+        initials: 'PH',
+        text: "Service rapide et sans complication. Le VTT d'occasion était en excellent état. Je recommande !",
+        detail: 'VTT achete',
+        rating: 5,
+      },
+      {
+        name: 'Julia F.',
+        initials: 'JF',
+        text: 'Service impeccable ! Les conseils étaient excellents, sans pression. Mon nouveau vélo me rend heureuse chaque jour.',
+        detail: 'Velo femme achete',
+        rating: 5,
+      },
+    ],
+    tr: [
+      {
+        name: 'Thomas M.',
+        initials: 'TM',
+        text: 'Trekking bisikletimi buradan aldim. Harika danismanlik, adil fiyat ve bisiklet cok iyi hazirlanmisti. Kesinlikle tavsiye ederim!',
+        detail: 'Trekking bisikleti alindi',
+        rating: 5,
+      },
+      {
+        name: 'Sandra K.',
+        initials: 'SK',
+        text: "Sonunda Freiburg'da durust danismanlik yapan ve abartili fiyat uygulamayan bir bisiklet dukkani bulduk. Oglum yeni cocuk bisikletine bayildi!",
+        detail: 'Cocuk bisikleti alindi',
+        rating: 5,
+      },
+      {
+        name: 'Michael W.',
+        initials: 'MW',
+        text: "Ogrenci olarak uygun fiyatli ve guvenilir bir bisiklet ariyordum. Bike Haus'ta tam aradigimi buldum. Adil fiyata cok iyi kalite!",
+        detail: 'Sehir bisikleti alindi',
+        rating: 5,
+      },
+      {
+        name: 'Elena B.',
+        initials: 'EB',
+        text: "Eski bisikletimi burada sattim ve hemen bir e-bike aldim. Islem cok kolaydi ve teklif adildi. Freiburg'daki en iyi bisiklet dukkanlardan biri!",
+        detail: 'E-bike alindi',
+        rating: 5,
+      },
+      {
+        name: 'Peter H.',
+        initials: 'PH',
+        text: 'Hizli ve sorunsuz surec. Ikinci el dag bisikleti cok iyi durumdaydi. Kesinlikle tavsiye ederim!',
+        detail: 'Dag bisikleti alindi',
+        rating: 5,
+      },
+      {
+        name: 'Julia F.',
+        initials: 'JF',
+        text: 'Mukemmel servis! Danismanlik cok iyiydi ve hic baski hissetmedim. Yeni bisikletim beni her gun mutlu ediyor.',
+        detail: 'Kadin bisikleti alindi',
+        rating: 5,
+      },
+    ],
+  };
+
+  private getLocalizedTestimonials(): Testimonial[] {
+    const current = this.lang();
+    if (
+      current === 'de' ||
+      current === 'en' ||
+      current === 'fr' ||
+      current === 'tr'
+    ) {
+      return this.testimonialsByLanguage[current];
+    }
+    return this.testimonialsByLanguage.en;
+  }
+
+  fallbackTestimonials(): Testimonial[] {
+    return this.getLocalizedTestimonials();
+  }
 
   private reviewSchemaElement: HTMLScriptElement | null = null;
 
@@ -3164,7 +3318,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             },
             reviewBody: r.text,
           }))
-      : this.testimonials.map((t) => ({
+      : this.fallbackTestimonials().map((t) => ({
           '@type': 'Review',
           author: { '@type': 'Person', name: t.name },
           reviewRating: {
@@ -3178,7 +3332,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const ratingValue = useGoogle ? this.googleRating().toFixed(1) : '4.9';
     const reviewCount = useGoogle
       ? this.googleTotalReviews().toString()
-      : this.testimonials.length.toString();
+      : this.fallbackTestimonials().length.toString();
 
     const schema = {
       '@context': 'https://schema.org',

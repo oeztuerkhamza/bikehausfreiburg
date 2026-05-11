@@ -23,15 +23,18 @@ import {
   imports: [CommonModule, RouterModule],
   template: `
     <header class="navbar" [class.scrolled]="scrolled()" role="banner">
-      <nav class="container nav-inner" aria-label="Main navigation">
+      <nav
+        class="container nav-inner"
+        [attr.aria-label]="t().navbarMainNavAria"
+      >
         <a
           [routerLink]="['/' + currentLang()]"
           class="brand"
-          aria-label="Bike Haus Freiburg Home"
+          [attr.aria-label]="t().navbarHomeAria"
         >
           <img
             [src]="logoUrl()"
-            alt="Bike Haus Freiburg"
+            [alt]="t().navbarLogoAlt"
             class="brand-logo"
             width="40"
             height="40"
@@ -46,7 +49,7 @@ import {
           (click)="toggleMenu()"
           [class.active]="menuOpen"
           [attr.aria-expanded]="menuOpen"
-          aria-label="Menu"
+          [attr.aria-label]="t().navbarMenuAria"
         >
           <span></span><span></span><span></span>
         </button>
