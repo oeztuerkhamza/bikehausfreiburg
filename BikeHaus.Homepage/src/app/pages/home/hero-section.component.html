@@ -3,8 +3,27 @@
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 
 <section class="hero-2026" role="banner" aria-label="Hero Section">
-  <!-- ANIMATED BACKGROUND SHAPES -->
-  <div class="hero-bg-wrapper">
+  <!-- VIDEO BACKGROUND (performance-aware, lazy loaded) -->
+  @if (videoEnabled()) {
+    <div class="hero-video-wrapper">
+      <video
+        #heroVideo
+        class="hero-video-bg"
+        [src]="videoSrc()"
+        poster="assets/videos/hero-poster.webp"
+        autoplay
+        muted
+        playsinline
+        preload="none"
+        (ended)="onVideoEnded()"
+        aria-hidden="true"
+      ></video>
+      <div class="hero-video-overlay"></div>
+    </div>
+  }
+
+  <!-- ANIMATED BACKGROUND SHAPES (shown when no video / mobile) -->
+  <div class="hero-bg-wrapper" [class.hero-bg-behind-video]="videoEnabled()">
     <!-- Gradient Blob 1 -->
     <div class="blob blob-1"></div>
 

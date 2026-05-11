@@ -151,8 +151,47 @@ $color-white-05: rgba(255, 255, 255, 0.05);
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// BACKGROUND ANIMATION BLOBS
+// VIDEO BACKGROUND
 // ═══════════════════════════════════════════════════════════════════
+
+.hero-video-wrapper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  // GPU compositing layer — prevents repaints
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  // Dark overlay so text stays readable over any video frame
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.65) 0%,
+    rgba(15, 23, 42, 0.55) 60%,
+    rgba(15, 23, 42, 0.75) 100%
+  );
+  z-index: 1;
+}
+
+// When video is active, hide blobs (they're behind video anyway) but keep grid
+.hero-bg-behind-video {
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+}
 
 .hero-bg-wrapper {
   position: absolute;
