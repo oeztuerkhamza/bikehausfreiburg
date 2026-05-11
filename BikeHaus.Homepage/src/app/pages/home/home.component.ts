@@ -13,6 +13,7 @@ import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { BikeCardComponent } from '../../components/bike-card/bike-card.component';
 import { NeueBikeCardComponent } from '../../components/neue-bike-card/neue-bike-card.component';
+import { HeroSectionComponent } from './hero-section.component';
 import { environment } from '../../../environments/environment';
 import {
   KleinanzeigenListing,
@@ -39,55 +40,11 @@ interface Testimonial {
     RouterModule,
     BikeCardComponent,
     NeueBikeCardComponent,
+    HeroSectionComponent,
   ],
   template: `
-    <!-- ═══ HERO ═══ -->
-    <section class="slide-hero" aria-labelledby="hero-heading">
-      <div class="hero-bg" aria-hidden="true">
-        <div class="hero-grain"></div>
-        <div class="hero-radial"></div>
-      </div>
-      <div class="container hero-inner">
-        <span class="hero-label">Bike Haus Freiburg</span>
-        <h1 id="hero-heading" class="hero-h1">
-          {{ t().heroH1 }}
-        </h1>
-        <p class="hero-sub">{{ t().heroSub }}</p>
-        <div class="hero-actions fade-in d3">
-          <a
-            [routerLink]="['/' + lang(), 'neue-fahrraeder']"
-            class="btn-primary"
-            >{{ t().ctaPrimary }}</a
-          >
-          <a [routerLink]="['/' + lang(), 'showroom']" class="btn-secondary">{{
-            t().ctaSecondary
-          }}</a>
-        </div>
-        <div
-          class="hero-stats fade-in d4"
-          [class.hero-stats-hidden]="!shopInfo()"
-        >
-          <div class="h-stat">
-            <span class="h-stat-n">{{
-              shopInfo()?.totalActiveListings ?? '—'
-            }}</span>
-            <span class="h-stat-l">{{ t().bikesAvailable }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="hero-scroll" aria-hidden="true">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M12 5v14M5 12l7 7 7-7" />
-        </svg>
-      </div>
-    </section>
+    <!-- ═══ HERO SECTION 2026 ═══ -->
+    <app-hero-section></app-hero-section>
 
     <!-- ═══ SERVICE CARDS ═══ -->
     <section class="svc-cards-section" aria-label="Services">

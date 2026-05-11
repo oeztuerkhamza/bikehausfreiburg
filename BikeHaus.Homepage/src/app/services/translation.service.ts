@@ -658,7 +658,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckLabel: 'SERVICE',
     bikeCheckTitle: 'Kostenloser Fahrrad-Check!',
     bikeCheckSub:
-      'Reparatur nur nach Wunsch — faire Preise, transparente Beratung.',
+      'Service nur nach Wunsch — faire Preise, transparente Beratung.',
     bikeCheckFreeTitle: 'Kostenloser Check',
     bikeCheckBrakeCheck: 'Bremsenprüfung',
     bikeCheckGearTest: 'Schaltungstest',
@@ -667,7 +667,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     bikeCheckReflectorCheck: 'Reflektoren & Sichtbarkeit',
     bikeCheckBellCheck: 'Klingel & Hupe prüfen',
     bikeCheckSafetyCheck: 'Allgemeine Sicherheitsprüfung',
-    bikeCheckRepairTitle: 'Reparatur auf Wunsch',
+    bikeCheckRepairTitle: 'Service auf Wunsch',
     bikeCheckBrakeAdjust: 'Bremsen einstellen',
     bikeCheckChainCassette: 'Kette & Kassette tauschen',
     bikeCheckGearAdjust: 'Schaltung justieren',
@@ -1092,7 +1092,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Fahrrad Reparatur',
     svcRepairSub:
-      'Professionelle Wartung & Reparatur – schnell, zuverlässig, fair.',
+      'Professionelle Wartung & Service – schnell, zuverlässig, fair.',
     svcRepairItem1: 'Bremsen, Schaltung, Reifen',
     svcRepairItem2: 'Komplette Inspektion',
     svcRepairItem3: 'Fahrrad Diagnose & Wartung',
