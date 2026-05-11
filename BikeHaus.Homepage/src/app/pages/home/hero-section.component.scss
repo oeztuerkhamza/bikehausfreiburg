@@ -287,7 +287,7 @@ $color-white-05: rgba(255, 255, 255, 0.05);
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.1rem;
   background: $color-white-10;
   backdrop-filter: blur(12px);
   border: 1px solid $color-white-20;
@@ -308,12 +308,16 @@ $color-white-05: rgba(255, 255, 255, 0.05);
   height: 8px;
   background: $color-emerald;
   border-radius: 50%;
+  flex-shrink: 0;
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
 .badge-text {
+  display: inline-flex;
+  align-items: center;
   font-size: 0.875rem;
   font-weight: 500;
+  line-height: 1.1;
   color: rgba($color-white, 0.96);
   letter-spacing: 0.05em;
   text-shadow: 0 2px 16px rgba(2, 6, 23, 0.45);
