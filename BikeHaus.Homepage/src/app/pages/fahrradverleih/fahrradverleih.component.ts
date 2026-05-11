@@ -63,9 +63,604 @@ type RentalInfoItemContent = {
   text: string;
 };
 
+type RentalFaqItem = {
+  question: string;
+  answers: string[];
+};
+
+type RentalFaqContent = {
+  sectionLabel: string;
+  sectionTitle: string;
+  items: RentalFaqItem[];
+};
+
 const BOOKING_LANGUAGE_OPTIONS: RentalLangOption[] = SUPPORTED_LANGUAGES.map(
   (code) => ({ code, label: LANGUAGE_LABELS[code] }),
 );
+
+const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
+  de: {
+    sectionLabel: 'FAQ',
+    sectionTitle: 'Haufige Fragen',
+    items: [
+      {
+        question: 'Welche Fahrrader kann ich mieten?',
+        answers: [
+          'Citybikes',
+          'Mountainbikes (MTB)',
+          'Kinderfahrrader',
+          'E-Bikes (Heckmotor & Mittelmotor)',
+          'Rennrader & Gravelbikes',
+        ],
+      },
+      {
+        question: 'Abholung & Ruckgabe',
+        answers: [
+          'Abholung taglich ab 10:00 Uhr',
+          'Ruckgabe bis spatestens 18:00 Uhr',
+          'Sonn- und Feiertage geschlossen',
+        ],
+      },
+      {
+        question: 'Im Mietpreis inklusive',
+        answers: ['Schloss', 'Korb', 'Helm'],
+      },
+      {
+        question: 'Kaution',
+        answers: [
+          'Normale Fahrrader & einfache E-Bikes: 300 EUR',
+          'Mittelmotor E-Bikes: 700 EUR',
+          'Kaution nur in bar',
+        ],
+      },
+      {
+        question: 'Zahlungsmoglichkeiten',
+        answers: ['Miete: Bar oder Karte', 'Kaution: nur bar'],
+      },
+      {
+        question: 'Bei Diebstahl oder Schaden',
+        answers: [
+          'Fahrrad immer abschliesen',
+          'Der Mieter haftet laut Vertrag',
+          'Reparaturkosten tragt der Mieter',
+          'Kaution wird in solchen Fallen nicht zuruckerstattet',
+        ],
+      },
+      {
+        question: 'Reservierung & Stornierung',
+        answers: [
+          'Reservierung moglich und empfohlen',
+          'Kostenlose Stornierung bis 1 Tag vorher',
+        ],
+      },
+      {
+        question: 'Weitere Informationen',
+        answers: [
+          'Mietdauer kann verlangert werden',
+          'Fahrradwechsel bei falscher Grose moglich',
+          'Eigener Helm & Schloss konnen genutzt werden',
+          'Mietfahrrad kann spater gekauft werden',
+        ],
+      },
+      {
+        question: 'Kinderfahrrader verfugbar?',
+        answers: ['Modelle in 20", 24", 26", 27,5" und 29" verfugbar'],
+      },
+      {
+        question: 'Verspatete Ruckgabe',
+        answers: ['30 EUR Gebuhr pro zusatzlichem Tag'],
+      },
+    ],
+  },
+  en: {
+    sectionLabel: 'FAQ',
+    sectionTitle: 'Frequently Asked Questions',
+    items: [
+      {
+        question: 'Which bikes can I rent?',
+        answers: [
+          'City bikes',
+          'Mountain bikes (MTB)',
+          'Kids bikes',
+          'E-bikes (rear motor & mid-drive)',
+          'Road bikes & gravel bikes',
+        ],
+      },
+      {
+        question: 'Pickup & return',
+        answers: [
+          'Pickup daily from 10:00',
+          'Return no later than 18:00',
+          'Closed on Sundays and public holidays',
+        ],
+      },
+      {
+        question: 'Included in rental price',
+        answers: ['Lock', 'Basket', 'Helmet'],
+      },
+      {
+        question: 'Deposit',
+        answers: [
+          'Regular bikes & basic e-bikes: EUR 300',
+          'Mid-drive e-bikes: EUR 700',
+          'Deposit in cash only',
+        ],
+      },
+      {
+        question: 'Payment methods',
+        answers: ['Rental fee: cash or card', 'Deposit: cash only'],
+      },
+      {
+        question: 'In case of theft or damage',
+        answers: [
+          'Always lock the bike',
+          'Renter is liable according to contract',
+          'Repair costs are paid by the renter',
+          'Deposit is not refunded in such cases',
+        ],
+      },
+      {
+        question: 'Reservation & cancellation',
+        answers: [
+          'Reservation is possible and recommended',
+          'Free cancellation up to 1 day before',
+        ],
+      },
+      {
+        question: 'Additional information',
+        answers: [
+          'Rental period can be extended',
+          'Bike exchange possible if size is wrong',
+          'Own helmet and lock can be used',
+          'Rental bike can be purchased later',
+        ],
+      },
+      {
+        question: 'Are kids bikes available?',
+        answers: ['Models in 20", 24", 26", 27.5" and 29" are available'],
+      },
+      {
+        question: 'Late return',
+        answers: ['EUR 30 fee per additional day'],
+      },
+    ],
+  },
+  fr: {
+    sectionLabel: 'FAQ',
+    sectionTitle: 'Questions frequentes',
+    items: [
+      {
+        question: 'Quels velos puis-je louer ?',
+        answers: [
+          'Velos de ville',
+          'VTT (MTB)',
+          'Velos enfants',
+          'Velos electriques (moteur arriere & moteur central)',
+          'Velos de route & gravel',
+        ],
+      },
+      {
+        question: 'Retrait & retour',
+        answers: [
+          'Retrait tous les jours a partir de 10h00',
+          'Retour au plus tard a 18h00',
+          'Ferme les dimanches et jours feries',
+        ],
+      },
+      {
+        question: 'Inclus dans le prix de location',
+        answers: ['Antivol', 'Panier', 'Casque'],
+      },
+      {
+        question: 'Depot de garantie',
+        answers: [
+          'Velos classiques & e-bikes simples : 300 EUR',
+          'E-bikes moteur central : 700 EUR',
+          'Depot uniquement en especes',
+        ],
+      },
+      {
+        question: 'Moyens de paiement',
+        answers: ['Location : especes ou carte', 'Depot : especes uniquement'],
+      },
+      {
+        question: 'En cas de vol ou de dommages',
+        answers: [
+          'Toujours verrouiller le velo',
+          'Le locataire est responsable selon le contrat',
+          'Les frais de reparation sont a la charge du locataire',
+          'Le depot n est pas rembourse dans ces cas',
+        ],
+      },
+      {
+        question: 'Reservation & annulation',
+        answers: [
+          'Reservation possible et recommandee',
+          'Annulation gratuite jusqu a 1 jour avant',
+        ],
+      },
+      {
+        question: 'Informations supplementaires',
+        answers: [
+          'La duree de location peut etre prolongee',
+          'Changement de velo possible en cas de mauvaise taille',
+          'Casque et antivol personnels autorises',
+          'Le velo loue peut etre achete plus tard',
+        ],
+      },
+      {
+        question: 'Velos enfants disponibles ?',
+        answers: ['Modeles disponibles en 20", 24", 26", 27,5" et 29"'],
+      },
+      {
+        question: 'Retour en retard',
+        answers: ['Frais de 30 EUR par jour supplementaire'],
+      },
+    ],
+  },
+  tr: {
+    sectionLabel: 'SSS',
+    sectionTitle: 'Sikca Sorulan Sorular',
+    items: [
+      {
+        question: 'Hangi bisikletleri kiralayabilirim?',
+        answers: [
+          'Sehir bisikletleri',
+          'Dag bisikletleri (MTB)',
+          'Cocuk bisikletleri',
+          'E-bisikletler (arka motor & orta motor)',
+          'Yol bisikletleri ve gravel bisikletler',
+        ],
+      },
+      {
+        question: 'Teslim alma ve iade',
+        answers: [
+          'Teslim alma her gun 10:00 dan itibaren',
+          'Iade en gec 18:00 e kadar',
+          'Pazar ve resmi tatillerde kapali',
+        ],
+      },
+      {
+        question: 'Kiralama fiyatina dahil olanlar',
+        answers: ['Kilit', 'Sepet', 'Kask'],
+      },
+      {
+        question: 'Depozito',
+        answers: [
+          'Normal bisikletler ve temel e-bisikletler: 300 EUR',
+          'Orta motor e-bisikletler: 700 EUR',
+          'Depozito sadece nakit',
+        ],
+      },
+      {
+        question: 'Odeme yontemleri',
+        answers: ['Kira: nakit veya kart', 'Depozito: sadece nakit'],
+      },
+      {
+        question: 'Hirsizlik veya hasar durumunda',
+        answers: [
+          'Bisikleti her zaman kilitleyin',
+          'Kiraci sozlesmeye gore sorumludur',
+          'Onarim masraflari kiraciya aittir',
+          'Bu durumlarda depozito iade edilmez',
+        ],
+      },
+      {
+        question: 'Rezervasyon ve iptal',
+        answers: [
+          'Rezervasyon mumkun ve tavsiye edilir',
+          '1 gun oncesine kadar ucretsiz iptal',
+        ],
+      },
+      {
+        question: 'Ek bilgiler',
+        answers: [
+          'Kiralama suresi uzatilabilir',
+          'Yanlis beden durumunda bisiklet degisimi mumkun',
+          'Kendi kask ve kilidinizi kullanabilirsiniz',
+          'Kiralik bisiklet daha sonra satin alinabilir',
+        ],
+      },
+      {
+        question: 'Cocuk bisikletleri mevcut mu?',
+        answers: ['20", 24", 26", 27,5" ve 29" modeller mevcuttur'],
+      },
+      {
+        question: 'Gec iade',
+        answers: ['Her ek gun icin 30 EUR ucret'],
+      },
+    ],
+  },
+  es: {
+    sectionLabel: 'FAQ',
+    sectionTitle: 'Preguntas frecuentes',
+    items: [
+      {
+        question: 'Que bicicletas puedo alquilar?',
+        answers: [
+          'Bicicletas urbanas',
+          'Mountain bikes (MTB)',
+          'Bicicletas infantiles',
+          'E-bikes (motor trasero y motor central)',
+          'Bicicletas de carretera y gravel',
+        ],
+      },
+      {
+        question: 'Recogida y devolucion',
+        answers: [
+          'Recogida diaria a partir de las 10:00',
+          'Devolucion como maximo a las 18:00',
+          'Cerrado domingos y festivos',
+        ],
+      },
+      {
+        question: 'Incluido en el precio de alquiler',
+        answers: ['Candado', 'Cesta', 'Casco'],
+      },
+      {
+        question: 'Deposito',
+        answers: [
+          'Bicis normales y e-bikes basicas: 300 EUR',
+          'E-bikes de motor central: 700 EUR',
+          'Deposito solo en efectivo',
+        ],
+      },
+      {
+        question: 'Formas de pago',
+        answers: ['Alquiler: efectivo o tarjeta', 'Deposito: solo efectivo'],
+      },
+      {
+        question: 'En caso de robo o danos',
+        answers: [
+          'Cierre siempre la bicicleta',
+          'El cliente responde segun contrato',
+          'Los costes de reparacion los paga el cliente',
+          'El deposito no se devuelve en estos casos',
+        ],
+      },
+      {
+        question: 'Reserva y cancelacion',
+        answers: [
+          'La reserva es posible y recomendada',
+          'Cancelacion gratuita hasta 1 dia antes',
+        ],
+      },
+      {
+        question: 'Informacion adicional',
+        answers: [
+          'La duracion del alquiler se puede ampliar',
+          'Cambio de bici posible si la talla no encaja',
+          'Puede usar su propio casco y candado',
+          'La bici de alquiler puede comprarse despues',
+        ],
+      },
+      {
+        question: 'Hay bicicletas infantiles disponibles?',
+        answers: ['Modelos disponibles en 20", 24", 26", 27,5" y 29"'],
+      },
+      {
+        question: 'Devolucion tardia',
+        answers: ['Tarifa de 30 EUR por cada dia adicional'],
+      },
+    ],
+  },
+  it: {
+    sectionLabel: 'FAQ',
+    sectionTitle: 'Domande frequenti',
+    items: [
+      {
+        question: 'Quali biciclette posso noleggiare?',
+        answers: [
+          'City bike',
+          'Mountain bike (MTB)',
+          'Biciclette per bambini',
+          'E-bike (motore posteriore e motore centrale)',
+          'Bici da corsa e gravel',
+        ],
+      },
+      {
+        question: 'Ritiro e riconsegna',
+        answers: [
+          'Ritiro ogni giorno dalle 10:00',
+          'Riconsegna entro le 18:00',
+          'Chiuso domeniche e festivi',
+        ],
+      },
+      {
+        question: 'Incluso nel prezzo di noleggio',
+        answers: ['Lucchetto', 'Cestino', 'Casco'],
+      },
+      {
+        question: 'Cauzione',
+        answers: [
+          'Bici normali ed e-bike base: 300 EUR',
+          'E-bike con motore centrale: 700 EUR',
+          'Cauzione solo in contanti',
+        ],
+      },
+      {
+        question: 'Metodi di pagamento',
+        answers: ['Noleggio: contanti o carta', 'Cauzione: solo contanti'],
+      },
+      {
+        question: 'In caso di furto o danni',
+        answers: [
+          'Chiudere sempre la bici',
+          'Il noleggiante e responsabile secondo contratto',
+          'I costi di riparazione sono a carico del noleggiante',
+          'La cauzione non viene rimborsata in questi casi',
+        ],
+      },
+      {
+        question: 'Prenotazione e cancellazione',
+        answers: [
+          'Prenotazione possibile e consigliata',
+          'Cancellazione gratuita fino a 1 giorno prima',
+        ],
+      },
+      {
+        question: 'Ulteriori informazioni',
+        answers: [
+          'La durata del noleggio puo essere estesa',
+          'Cambio bici possibile in caso di taglia errata',
+          'E possibile usare casco e lucchetto propri',
+          'La bici a noleggio puo essere acquistata successivamente',
+        ],
+      },
+      {
+        question: 'Biciclette per bambini disponibili?',
+        answers: ['Modelli disponibili: 20", 24", 26", 27,5" e 29"'],
+      },
+      {
+        question: 'Riconsegna in ritardo',
+        answers: ['Costo di 30 EUR per ogni giorno aggiuntivo'],
+      },
+    ],
+  },
+  ar: {
+    sectionLabel: 'FAQ',
+    sectionTitle: 'الاسئلة الشائعة',
+    items: [
+      {
+        question: 'ما انواع الدراجات المتاحة للايجار؟',
+        answers: [
+          'دراجات مدينة',
+          'دراجات جبلية (MTB)',
+          'دراجات اطفال',
+          'دراجات كهربائية (محرك خلفي ومحرك وسطي)',
+          'دراجات طريق وغرavel',
+        ],
+      },
+      {
+        question: 'الاستلام والاعادة',
+        answers: [
+          'الاستلام يوميا من الساعة 10:00',
+          'الاعادة بحد اقصى الساعة 18:00',
+          'مغلق ايام الاحد والعطل الرسمية',
+        ],
+      },
+      {
+        question: 'المشمول في سعر الايجار',
+        answers: ['قفل', 'سلة', 'خوذة'],
+      },
+      {
+        question: 'التامين النقدي',
+        answers: [
+          'الدراجات العادية والكهربائية البسيطة: 300 يورو',
+          'الدراجات الكهربائية بمحرك وسطي: 700 يورو',
+          'التامين نقدا فقط',
+        ],
+      },
+      {
+        question: 'طرق الدفع',
+        answers: ['الايجار: نقدا او بطاقة', 'التامين: نقدا فقط'],
+      },
+      {
+        question: 'في حالة السرقة او الاضرار',
+        answers: [
+          'يجب قفل الدراجة دائما',
+          'المستاجر مسؤول حسب العقد',
+          'تكاليف الاصلاح يتحملها المستاجر',
+          'لا يتم ارجاع التامين في هذه الحالات',
+        ],
+      },
+      {
+        question: 'الحجز والالغاء',
+        answers: ['الحجز ممكن وموصى به', 'الغاء مجاني حتى قبل يوم واحد'],
+      },
+      {
+        question: 'معلومات اضافية',
+        answers: [
+          'يمكن تمديد مدة الايجار',
+          'يمكن تبديل الدراجة اذا كان المقاس غير مناسب',
+          'يمكن استخدام خوذة وقفل خاصين بك',
+          'يمكن شراء الدراجة المستاجرة لاحقا',
+        ],
+      },
+      {
+        question: 'هل تتوفر دراجات للاطفال؟',
+        answers: ['موديلات متوفرة بمقاسات 20 و24 و26 و27.5 و29 بوصة'],
+      },
+      {
+        question: 'الاعادة المتاخرة',
+        answers: ['رسوم 30 يورو لكل يوم اضافي'],
+      },
+    ],
+  },
+  ru: {
+    sectionLabel: 'FAQ',
+    sectionTitle: 'Часто задаваемые вопросы',
+    items: [
+      {
+        question: 'Какие велосипеды можно арендовать?',
+        answers: [
+          'Городские велосипеды',
+          'Горные велосипеды (MTB)',
+          'Детские велосипеды',
+          'Электровелосипеды (задний и средний мотор)',
+          'Шоссейные и гравийные велосипеды',
+        ],
+      },
+      {
+        question: 'Получение и возврат',
+        answers: [
+          'Получение ежедневно с 10:00',
+          'Возврат не позднее 18:00',
+          'По воскресеньям и праздникам закрыто',
+        ],
+      },
+      {
+        question: 'Что включено в стоимость аренды',
+        answers: ['Замок', 'Корзина', 'Шлем'],
+      },
+      {
+        question: 'Залог',
+        answers: [
+          'Обычные велосипеды и простые e-bike: 300 EUR',
+          'E-bike со средним мотором: 700 EUR',
+          'Залог только наличными',
+        ],
+      },
+      {
+        question: 'Способы оплаты',
+        answers: ['Аренда: наличные или карта', 'Залог: только наличные'],
+      },
+      {
+        question: 'В случае кражи или повреждений',
+        answers: [
+          'Всегда запирайте велосипед',
+          'Арендатор несет ответственность по договору',
+          'Расходы на ремонт оплачивает арендатор',
+          'Залог в таких случаях не возвращается',
+        ],
+      },
+      {
+        question: 'Бронирование и отмена',
+        answers: [
+          'Бронирование возможно и рекомендуется',
+          'Бесплатная отмена за 1 день',
+        ],
+      },
+      {
+        question: 'Дополнительная информация',
+        answers: [
+          'Срок аренды можно продлить',
+          'Возможна замена велосипеда при неверном размере',
+          'Можно использовать свой шлем и замок',
+          'Арендованный велосипед можно позже выкупить',
+        ],
+      },
+      {
+        question: 'Есть ли детские велосипеды?',
+        answers: ['Доступны модели 20", 24", 26", 27,5" и 29"'],
+      },
+      {
+        question: 'Поздний возврат',
+        answers: ['Доплата 30 EUR за каждый дополнительный день'],
+      },
+    ],
+  },
+};
 
 type RentalPageCopy = {
   serviceHighlightsAria: string;
@@ -130,7 +725,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   de: {
     serviceHighlightsAria: 'Service Highlights',
     heroChip: 'Fahrradverleih Freiburg',
-    heroAccent: '1-7 Tage individuell',
+    heroAccent: 'ab 12 €',
     heroDescription:
       '1 bis 7 Tage individuell je Fahrrad kalkuliert, ab Tag 8 mit festem Zusatzpreis. Direkt bei uns in Freiburg abholen.',
     heroFeatures: [
@@ -262,7 +857,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   en: {
     serviceHighlightsAria: 'Service highlights',
     heroChip: 'Bike Rental Freiburg',
-    heroAccent: '1-7 days individual',
+    heroAccent: 'from €12',
     heroDescription:
       'Days 1 to 7 are priced individually per bike, from day 8 onward a fixed extra-day surcharge applies. Pick up directly at our Freiburg shop.',
     heroFeatures: [
@@ -394,7 +989,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   fr: {
     serviceHighlightsAria: 'Points forts du service',
     heroChip: 'Location de velo Freiburg',
-    heroAccent: '1-7 jours sur mesure',
+    heroAccent: 'a partir de 12 €',
     heroDescription:
       'Les jours 1 a 7 sont calcules individuellement pour chaque velo, puis un supplement fixe s applique a partir du 8e jour. Retrait direct dans notre magasin a Freiburg.',
     heroFeatures: [
@@ -539,7 +1134,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   tr: {
     serviceHighlightsAria: 'Servis öne çıkanlar',
     heroChip: 'Freiburg Bisiklet Kiralama',
-    heroAccent: '1-7 gün bireysel',
+    heroAccent: '12 € ile başlayan fiyatlarla',
     heroDescription:
       '1 ile 7 gün arası fiyat her bisiklet için ayrı hesaplanır, 8. günden itibaren sabit ek gün ücreti uygulanır. Teslim almayı doğrudan Freiburg mağazamızdan yapabilirsiniz.',
     heroFeatures: [
@@ -763,7 +1358,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
               </a>
             </div>
           </div>
-          <div class="rental-hero-right">
+          <!-- <div class="rental-hero-right">
             <div class="rental-hero-price-card">
               <div class="rhpc-badge">{{ pageCopy().heroPriceCard.badge }}</div>
               <div class="rhpc-duration">
@@ -779,12 +1374,12 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
                 >
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </header>
 
       <div class="container rental-body">
-        <section
+        <!-- <section
           class="rental-signature-band"
           [attr.aria-label]="pageCopy().serviceHighlightsAria"
         >
@@ -801,121 +1396,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
               <span class="signature-stat-label">{{ stat.label }}</span>
             </article>
           </div>
-        </section>
-
-        <!-- ═══ PRICING SECTION ═══ -->
-        <section class="pricing-section">
-          <div class="pricing-header">
-            <span class="section-label">{{ t().bikeRentalPricesTitle }}</span>
-            <h2 class="pricing-title">{{ t().rentalPricingTitle }}</h2>
-            <p class="pricing-sub">{{ t().rentalPricingSub }}</p>
-          </div>
-
-          <!-- 3 Main cards -->
-          <div class="pricing-main-grid">
-            <div
-              class="pcard"
-              *ngFor="let card of pageCopy().pricingCards"
-              [ngClass]="card.className"
-            >
-              <div
-                class="pcard-top-badge"
-                *ngIf="card.topBadge"
-                [class.pcard-best-badge]="
-                  card.topBadgeClass === 'pcard-best-badge'
-                "
-              >
-                {{ card.topBadge }}
-              </div>
-              <div class="pcard-label">{{ card.label }}</div>
-              <div class="pcard-duration">{{ card.duration }}</div>
-              <div class="pcard-price">{{ card.price }}</div>
-              <div class="pcard-per-day">{{ card.perDay }}</div>
-              <ul class="pcard-features">
-                <li *ngFor="let feature of card.features">{{ feature }}</li>
-              </ul>
-              <button
-                type="button"
-                (click)="scrollToBikes()"
-                class="pcard-cta-primary"
-              >
-                {{ card.cta }}
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M12 5v14M5 12l7 7 7-7" />
-                </svg>
-              </button>
-              <a
-                href="https://wa.me/491556630011"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="pcard-cta-wa"
-                >{{ card.whatsapp }}</a
-              >
-            </div>
-          </div>
-
-          <!-- Extra prices compact -->
-          <div class="pricing-extra-row">
-            <div
-              class="pextra-item"
-              *ngFor="let item of pageCopy().pricingExtras"
-            >
-              <span class="pextra-dur">{{ item.duration }}</span>
-              <span class="pextra-price">{{ item.price }}</span>
-              <span class="pextra-day">{{ item.day }}</span>
-              <button
-                type="button"
-                (click)="scrollToBikes()"
-                class="pextra-cta"
-              >
-                {{ item.cta }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Deposit & included info bar -->
-          <div class="pricing-info-bar">
-            <div
-              class="pinfo-item"
-              *ngFor="let info of pageCopy().pricingInfo; let i = index"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <ng-container [ngSwitch]="i">
-                  <path
-                    *ngSwitchCase="0"
-                    d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                  />
-                  <ng-container *ngSwitchCase="1">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                  </ng-container>
-                  <ng-container *ngSwitchDefault>
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </ng-container>
-                </ng-container>
-              </svg>
-              <div>
-                <strong>{{ info.title }}</strong>
-                <span>{{ info.text }}</span>
-              </div>
-            </div>
-          </div>
-        </section>
+        </section> -->
 
         <!-- Seat-Map: Fahrrad wählen -->
         <section class="bikes-section" id="fahrrad-waehlen">
@@ -1040,6 +1521,28 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
                 </svg>
               </div>
             </div>
+          </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="rental-faq-section" aria-labelledby="rental-faq-title">
+          <div class="section-header">
+            <span class="section-label">{{ rentalFaq().sectionLabel }}</span>
+            <h2 class="bikes-title" id="rental-faq-title">
+              {{ rentalFaq().sectionTitle }}
+            </h2>
+          </div>
+
+          <div class="rental-faq-grid">
+            <article
+              class="rental-faq-card"
+              *ngFor="let item of rentalFaq().items"
+            >
+              <h3>{{ item.question }}</h3>
+              <ul>
+                <li *ngFor="let answer of item.answers">{{ answer }}</li>
+              </ul>
+            </article>
           </div>
         </section>
 
@@ -2744,6 +3247,57 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
         overflow: hidden;
       }
 
+      .rental-faq-section {
+        position: relative;
+        margin-bottom: 3rem;
+        padding: 2rem 1.5rem;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        background:
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.015)
+          ),
+          var(--color-surface);
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.14);
+        overflow: hidden;
+      }
+
+      .rental-faq-grid {
+        margin-top: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+      }
+
+      .rental-faq-card {
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1rem 1rem 0.9rem;
+      }
+
+      .rental-faq-card h3 {
+        margin: 0 0 0.6rem;
+        font-size: 0.95rem;
+        line-height: 1.35;
+        color: var(--color-text);
+      }
+
+      .rental-faq-card ul {
+        margin: 0;
+        padding-left: 1.1rem;
+        display: grid;
+        gap: 0.35rem;
+      }
+
+      .rental-faq-card li {
+        color: var(--color-text-secondary);
+        font-size: 0.84rem;
+        line-height: 1.45;
+      }
+
       .bikes-title {
         font-size: clamp(1.25rem, 3vw, 1.6rem);
         font-weight: 800;
@@ -4152,7 +4706,8 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
         }
 
         .pricing-section,
-        .bikes-section {
+        .bikes-section,
+        .rental-faq-section {
           padding-left: 1rem;
           padding-right: 1rem;
           border-radius: 22px;
@@ -4188,6 +4743,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       @media (max-width: 600px) {
         .seat-map,
         .pricing-extra-row {
+          grid-template-columns: 1fr;
+        }
+
+        .rental-faq-grid {
           grid-template-columns: 1fr;
         }
 
@@ -4227,6 +4786,10 @@ export class FahrradverleihComponent implements OnInit {
   lang = this.translationService.currentLanguage;
   pageCopy = computed(
     () => RENTAL_PAGE_COPY[this.getCurrentLanguage()] ?? RENTAL_PAGE_COPY.en!,
+  );
+  rentalFaq = computed(
+    () =>
+      RENTAL_FAQ_CONTENT[this.getCurrentLanguage()] ?? RENTAL_FAQ_CONTENT.en,
   );
 
   bikes = signal<PublicRentalBicycle[]>([]);
@@ -4403,97 +4966,8 @@ export class FahrradverleihComponent implements OnInit {
     const existing = document.getElementById('rental-schema');
     if (existing) existing.remove();
 
-    const faqDe = [
-      {
-        q: 'Was kostet Fahrrad mieten in Freiburg?',
-        a: 'Bei Bike Haus Freiburg werden die Preise je Fahrrad für 1 bis 7 Tage individuell gepflegt. Ab dem 8. Tag wird der 7-Tage-Preis plus ein fester Zusatz pro weiterem Tag berechnet.',
-      },
-      {
-        q: 'Was ist im Fahrradverleih inklusive?',
-        a: 'Helm und Schloss sind immer im Mietpreis inklusive. Eine Kaution von 300 € (bar) wird bei Abholung hinterlegt.',
-      },
-      {
-        q: 'Wo kann ich das Fahrrad abholen?',
-        a: 'Die Abholung erfolgt direkt bei uns: Heckerstraße 27, 79114 Freiburg im Breisgau. Sofort verfügbar — kein Vorausbezahlen nötig.',
-      },
-      {
-        q: 'Welche Fahrräder kann ich in Freiburg mieten?',
-        a: 'Wir vermieten Citybikes, Trekkingräder und E-Bikes. Alle Räder sind geprüft und fahrbereit.',
-      },
-      {
-        q: 'Wie lange kann ich ein Fahrrad mieten?',
-        a: 'Sie können Fahrräder ab 1 Tag mieten. Für 1 bis 7 Tage gibt es je Fahrrad eigene Preise, danach läuft die Berechnung mit dem 7-Tage-Preis plus Zusatz pro weiterem Tag.',
-      },
-    ];
-
-    const faqEn = [
-      {
-        q: 'How much does it cost to rent a bike in Freiburg?',
-        a: 'At Bike Haus Freiburg, each bike has its own configured price for days 1 to 7. From day 8 onward, pricing is based on the 7-day price plus a fixed surcharge for each additional day.',
-      },
-      {
-        q: 'What is included in the bike rental?',
-        a: 'Helmet and lock are always included in the rental price. A deposit of €300 (cash) is required upon pick-up.',
-      },
-      {
-        q: 'Where can I pick up the bike?',
-        a: 'Pick up directly at our shop: Heckerstraße 27, 79114 Freiburg im Breisgau. Available immediately — no prepayment required.',
-      },
-      {
-        q: 'Which bikes can I rent in Freiburg?',
-        a: 'We rent city bikes, trekking bikes and e-bikes. All bikes are inspected and ready to ride.',
-      },
-      {
-        q: 'How long can I rent a bike?',
-        a: 'You can rent a bike from 1 day upward. Days 1 to 7 use per-bike configured prices, and from day 8 onward the system adds a fixed extra-day surcharge to the 7-day price.',
-      },
-    ];
-
-    const faqFr = [
-      {
-        q: 'Combien coûte la location de vélo à Fribourg-en-Brisgau ?',
-        a: 'Chez Bike Haus Freiburg, chaque vélo dispose de tarifs configurés individuellement pour 1 à 7 jours. À partir du 8e jour, le calcul utilise le prix 7 jours plus un supplément fixe par jour ajouté.',
-      },
-      {
-        q: "Qu'est-ce qui est inclus dans la location de vélo ?",
-        a: "Le casque et l'antivol sont toujours inclus. Un dépôt de 300 € (en espèces) est demandé à la prise en charge.",
-      },
-      {
-        q: 'Où récupérer le vélo ?',
-        a: 'Récupérez directement en magasin : Heckerstraße 27, 79114 Freiburg im Breisgau. Disponible immédiatement — sans prépaiement.',
-      },
-      {
-        q: 'Quels types de vélos peut-on louer à Fribourg ?',
-        a: 'Nous louons des vélos de ville, vélos de randonnée et VAE. Tous les vélos sont contrôlés et prêts à rouler.',
-      },
-    ];
-
-    const faqTr = [
-      {
-        q: "Freiburg'da bisiklet kiralama ne kadar tutar?",
-        a: "Bike Haus Freiburg'da fiyatlar her bisiklet için 1 ila 7 gün arasında ayrı ayrı tanımlanır. 8. günden sonra hesaplama, 7 günlük fiyatın üzerine her ek gün için sabit ücret eklenerek yapılır.",
-      },
-      {
-        q: 'Bisiklet kiralamaya neler dahildir?',
-        a: 'Kask ve kilit her zaman kiralama ücretine dahildir. Teslim alırken 300 € nakit depozito istenmektedir.',
-      },
-      {
-        q: 'Bisikleti nereden alabilirim?',
-        a: 'Bisikletinizi doğrudan mağazamızdan alabilirsiniz: Heckerstraße 27, 79114 Freiburg im Breisgau. Hemen mevcut — ön ödeme gerekmez.',
-      },
-      {
-        q: "Freiburg'da hangi bisikletler kiralanabilir?",
-        a: 'Şehir bisikletleri, trekking bisikletleri ve e-bisikletler kiralıyoruz. Tüm bisikletler kontrol edilmiş ve sürüşe hazır.',
-      },
-    ];
-
-    const faqMap: Record<string, Array<{ q: string; a: string }>> = {
-      de: faqDe,
-      en: faqEn,
-      fr: faqFr,
-      tr: faqTr,
-    };
-    const faqs = faqMap[lang] ?? faqDe;
+    const schemaLang = isSupportedLanguage(lang) ? lang : DEFAULT_LANGUAGE;
+    const faqs = RENTAL_FAQ_CONTENT[schemaLang].items;
 
     const schema = {
       '@context': 'https://schema.org',
@@ -4535,10 +5009,10 @@ export class FahrradverleihComponent implements OnInit {
           '@id': `${pageUrl}#faq`,
           mainEntity: faqs.map((item) => ({
             '@type': 'Question',
-            name: item.q,
+            name: item.question,
             acceptedAnswer: {
               '@type': 'Answer',
-              text: item.a,
+              text: item.answers.join(' | '),
             },
           })),
         },

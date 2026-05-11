@@ -1,6 +1,6 @@
 import {
-  LANGUAGE_LABELS,
-  SUPPORTED_LANGUAGES,
+    LANGUAGE_LABELS,
+    SUPPORTED_LANGUAGES,
 } from '../../services/language-config';
 import { Language } from '../../services/translation.service';
 
@@ -16,7 +16,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   es: {
     serviceHighlightsAria: 'Aspectos destacados del servicio',
     heroChip: 'Alquiler de Bicicletas Freiburg',
-    heroAccent: '1-7 días personalizado',
+    heroAccent: 'ab 12 €',
     heroDescription:
       'Los días 1 a 7 se calculan individualmente para cada bicicleta, a partir del día 8 se aplica un complemento fijo. Retiro directo en nuestro establecimiento en Freiburg.',
     heroFeatures: [
@@ -160,7 +160,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   it: {
     serviceHighlightsAria: 'Punti forti del servizio',
     heroChip: 'Noleggio bici Friburgo',
-    heroAccent: '1-7 giorni personalizzati',
+    heroAccent: 'ab 12 €',
     heroDescription:
       'I giorni 1-7 sono calcolati individualmente per ogni bici, dal giorno 8 in poi si applica un supplemento fisso al giorno. Ritira direttamente presso il nostro negozio a Friburgo.',
     heroFeatures: [
@@ -292,7 +292,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   ar: {
     serviceHighlightsAria: 'نقاط قوة الخدمة',
     heroChip: 'استئجار الدراجات فرايبورج',
-    heroAccent: '1-7 أيام فردية',
+    heroAccent: 'ab 12 €',
     heroDescription:
       'يتم حساب الأيام من 1 إلى 7 بشكل فردي لكل دراجة، ثم يتم تطبيق رسم إضافي ثابت من اليوم 8. الاستلام المباشر من متجرنا في فرايبورج.',
     heroFeatures: [
@@ -432,7 +432,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   ru: {
     serviceHighlightsAria: 'Основные достоинства услуги',
     heroChip: 'Аренда велосипедов Фрайбург',
-    heroAccent: '1-7 дней по отдельности',
+    heroAccent: 'ab 12 €',
     heroDescription:
       'Дни 1-7 рассчитываются индивидуально для каждого велосипеда, с 8-го дня применяется фиксированная доплата. Самовывоз прямо в нашем магазине во Фрайбурге.',
     heroFeatures: [

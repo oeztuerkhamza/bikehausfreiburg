@@ -50,6 +50,19 @@ public class SmtpEmailService : IEmailService
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageEingegangen");
     }
 
+    public Task SendRentalBookingAdminPendingNotificationAsync(RentalBookingEmailModel model, string adminPortalUrl)
+    {
+        var subject = $"Neue Mietanfrage (Pending) - {model.BuchungsNummer} | Bike Haus Freiburg";
+        var body = BuildAdminPendingNotificationBodyDe(model, adminPortalUrl);
+        return SendAsync(
+            "info.bikehausfreiburg@gmail.com",
+            "Bike Haus Freiburg",
+            subject,
+            body,
+            "MietanfrageAdminBenachrichtigung",
+            isHtml: true);
+    }
+
     public Task SendSaleReceiptAsync(string toEmail, string toName, string belegNummer, byte[] pdfBytes)
     {
         var subject = $"Rechnung - {belegNummer} | Bike Haus Freiburg";
@@ -124,7 +137,8 @@ Viele Gruesse
         string subject,
         string body,
         string emailType = "",
-        IEnumerable<(byte[] Bytes, string FileName)>? attachments = null)
+        IEnumerable<(byte[] Bytes, string FileName)>? attachments = null,
+        bool isHtml = false)
     {
         var dbAccount = await _db.EmailAccounts
             .Where(a => a.IsDefault && a.IsActive)
@@ -180,7 +194,7 @@ Viele Gruesse
                 if (validAttachments is { Count: > 0 })
                 {
                     var multipart = new Multipart("mixed");
-                    multipart.Add(new TextPart("plain") { Text = body });
+                    multipart.Add(new TextPart(isHtml ? "html" : "plain") { Text = body });
 
                     foreach (var attachment in validAttachments)
                     {
@@ -197,7 +211,7 @@ Viele Gruesse
                 }
                 else
                 {
-                    message.Body = new TextPart("plain") { Text = body };
+                    message.Body = new TextPart(isHtml ? "html" : "plain") { Text = body };
                 }
 
                 using var client = new SmtpClient
@@ -430,5 +444,30 @@ Dein Team vom Bike Haus Freiburg
 {m.ShopPhone}
 {m.ShopEmail}
 ";
+    }
+
+    private static string BuildAdminPendingNotificationBodyDe(RentalBookingEmailModel m, string adminPortalUrl)
+    {
+        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "offen";
+        var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
+            ? "Keine"
+            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+
+        return $@"<p>Hallo Team,</p>
+<p>es ist eine neue Mietanfrage eingegangen und wartet auf Bearbeitung.</p>
+<p>
+<strong>Buchungsnummer:</strong> {m.BuchungsNummer}<br />
+<strong>Kunde:</strong> {m.ToName}<br />
+<strong>E-Mail:</strong> {m.ToEmail}<br />
+<strong>Fahrrad:</strong> {m.BikeBrand} {m.BikeModel}<br />
+<strong>Zeitraum:</strong> {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)<br />
+<strong>Geschaetzter Mietpreis:</strong> {totalPriceText}<br />
+<strong>Zubehoer:</strong> {accessoriesText}
+</p>
+<p>
+Bitte auf den folgenden Link klicken, um die Mietanfragen zu pruefen:<br />
+<a href=""{adminPortalUrl}"">{adminPortalUrl}</a>
+</p>
+<p>Diese Benachrichtigung wurde automatisch von no-reply@bikehausfreiburg.com gesendet.</p>";
     }
 }

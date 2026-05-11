@@ -16,6 +16,7 @@ public class RentalBookingService : IRentalBookingService
     private const string DefaultShopCity = "79114 Freiburg";
     private const string DefaultShopPhone = "+49 155 6630 0011";
     private const string DefaultShopEmail = "info.bikehausfreiburg@gmail.com";
+    private const string DefaultAdminRentalBookingsUrl = "https://admin.bikehausfreiburg.com/rental-bookings";
     private const string DefaultPublicApiBaseUrl = "https://api.bikehausfreiburg.com/api/public";
 
     private readonly IRentalBookingRepository _bookingRepository;
@@ -163,6 +164,9 @@ public class RentalBookingService : IRentalBookingService
         {
             var emailModel = await BuildEmailModelAsync(withDetails, bicycle);
             await _emailService.SendRentalBookingReceivedAsync(emailModel);
+            await _emailService.SendRentalBookingAdminPendingNotificationAsync(
+                emailModel,
+                DefaultAdminRentalBookingsUrl);
         }
         catch (Exception ex)
         {
