@@ -292,9 +292,20 @@ import { ShopInfoService } from '../../services/shop-info.service';
       .nav-inner {
         padding: 0.9rem 1.25rem;
         border-radius: 999px;
-        background: rgba(10, 12, 18, 0.62);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+        background:
+          radial-gradient(
+            circle at 8% 50%,
+            rgba(16, 185, 129, 0.16),
+            transparent 22%
+          ),
+          radial-gradient(
+            circle at 92% 50%,
+            rgba(249, 115, 22, 0.16),
+            transparent 24%
+          ),
+          rgba(10, 12, 18, 0.62);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 44px rgba(0, 0, 0, 0.22);
         position: relative;
         isolation: isolate;
       }
@@ -329,7 +340,22 @@ import { ShopInfoService } from '../../services/shop-info.service';
       }
 
       .nav-menu a {
-        padding: 0.5rem 0;
+        padding: 0.5rem 0.25rem;
+        color: rgba(241, 245, 249, 0.86);
+        font-weight: 600;
+        border-radius: 10px;
+      }
+
+      .nav-menu a:hover {
+        color: #fff;
+        text-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+      }
+
+      .nav-menu a.active {
+        color: #fff;
+        text-shadow:
+          0 0 14px rgba(16, 185, 129, 0.3),
+          0 0 22px rgba(249, 115, 22, 0.18);
       }
 
       .lang-switch {
@@ -339,8 +365,18 @@ import { ShopInfoService } from '../../services/shop-info.service';
       }
 
       .lang-switch button.active {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: rgba(255, 255, 255, 0.12);
+        background: linear-gradient(
+          135deg,
+          rgba(16, 185, 129, 0.26),
+          rgba(249, 115, 22, 0.22)
+        );
+        border-color: rgba(255, 255, 255, 0.22);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+      }
+
+      .lang-switch button:hover {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.16);
       }
 
       @media (max-width: 768px) {
@@ -357,10 +393,33 @@ import { ShopInfoService } from '../../services/shop-info.service';
           background:
             radial-gradient(
               circle at top,
-              rgba(255, 87, 34, 0.12),
+              rgba(255, 87, 34, 0.2),
+              transparent 24%
+            ),
+            radial-gradient(
+              circle at bottom,
+              rgba(16, 185, 129, 0.18),
               transparent 28%
             ),
             rgba(6, 8, 12, 0.98);
+        }
+
+        .nav-menu a {
+          width: min(560px, 92vw);
+          text-align: center;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: rgba(255, 255, 255, 0.02);
+          border-radius: 14px;
+          margin: 0.2rem 0;
+        }
+
+        .nav-menu a.active {
+          border-color: rgba(16, 185, 129, 0.34);
+          background: linear-gradient(
+            135deg,
+            rgba(16, 185, 129, 0.16),
+            rgba(249, 115, 22, 0.12)
+          );
         }
       }
     `,

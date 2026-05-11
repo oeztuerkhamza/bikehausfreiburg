@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   OnDestroy,
@@ -20,7 +21,7 @@ import { RouterModule } from '@angular/router';
   templateUrl: './hero-section.component.html',
   styleUrls: ['./hero-section.component.scss'],
 })
-export class HeroSectionComponent implements OnInit, OnDestroy {
+export class HeroSectionComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('heroVideo') videoRef!: ElementRef<HTMLVideoElement>;
 
   private readonly VIDEO_LIST = [
@@ -35,6 +36,9 @@ export class HeroSectionComponent implements OnInit, OnDestroy {
 
   private intersectionObserver?: IntersectionObserver;
   private visibilityHandler?: () => void;
+  private setupTimer?: ReturnType<typeof setTimeout>;
+  private setupRetries = 0;
+  private setupDone = false;
 
   constructor(@Inject(PLATFORM_ID) private platformId: object) {}
 
@@ -60,13 +64,34 @@ export class HeroSectionComponent implements OnInit, OnDestroy {
     }
 
     this.videoEnabled.set(true);
+
+    // Delay startup slightly so first paint/hydration can settle.
+    this.setupTimer = setTimeout(() => this.setupVideoPlayback(), 1200);
   }
 
   ngAfterViewInit(): void {
-    if (!isPlatformBrowser(this.platformId) || !this.videoEnabled()) return;
+    this.setupVideoPlayback();
+  }
+
+  private setupVideoPlayback(): void {
+    if (
+      !isPlatformBrowser(this.platformId) ||
+      !this.videoEnabled() ||
+      this.setupDone
+    )
+      return;
 
     const video = this.videoRef?.nativeElement;
-    if (!video) return;
+    if (!video) {
+      // On first load/hydration the @if block may render a tick later.
+      if (this.setupRetries < 12) {
+        this.setupRetries += 1;
+        setTimeout(() => this.setupVideoPlayback(), 200);
+      }
+      return;
+    }
+
+    this.setupDone = true;
 
     // Play only when hero is in the viewport
     this.intersectionObserver = new IntersectionObserver(
@@ -98,6 +123,15 @@ export class HeroSectionComponent implements OnInit, OnDestroy {
     document.addEventListener('visibilitychange', this.visibilityHandler);
   }
 
+  onVideoReady(): void {
+    const video = this.videoRef?.nativeElement;
+    if (!video) return;
+
+    if (this.isHeroVisible() && !document.hidden) {
+      video.play().catch(() => {});
+    }
+  }
+
   /** Cycle to next video when current one ends */
   onVideoEnded(): void {
     this.currentIndex.update((i) => (i + 1) % this.VIDEO_LIST.length);
@@ -127,6 +161,9 @@ export class HeroSectionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.setupTimer) {
+      clearTimeout(this.setupTimer);
+    }
     this.intersectionObserver?.disconnect();
     if (this.visibilityHandler) {
       document.removeEventListener('visibilitychange', this.visibilityHandler);

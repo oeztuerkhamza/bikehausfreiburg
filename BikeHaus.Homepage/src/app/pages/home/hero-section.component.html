@@ -15,6 +15,7 @@
         muted
         playsinline
         preload="none"
+        (loadeddata)="onVideoReady()"
         (ended)="onVideoEnded()"
         aria-hidden="true"
       ></video>

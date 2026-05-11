@@ -1429,11 +1429,12 @@ select {
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── Shared background image mixin pattern ────────────────── */
-@mixin section-bg($url, $overlay: rgba(15, 23, 42, 0.82)) {
+@mixin section-bg($url, $overlay: rgba(15, 23, 42, 0.72)) {
   position: relative;
   background-image: url($url);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   background-attachment: scroll;
 
   &::after {
@@ -1456,9 +1457,10 @@ select {
   @include section-bg(
     "assets/images/sections/bg-services.webp",
     linear-gradient(
-      135deg,
-      rgba(15, 23, 42, 0.88) 0%,
-      rgba(15, 23, 42, 0.78) 100%
+      130deg,
+      rgba(8, 20, 38, 0.66) 0%,
+      rgba(16, 185, 129, 0.28) 48%,
+      rgba(249, 115, 22, 0.24) 100%
     )
   );
 
@@ -1474,8 +1476,9 @@ select {
     "assets/images/sections/bg-values.webp",
     linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.88) 0%,
-      rgba(15, 23, 42, 0.8) 100%
+      rgba(15, 23, 42, 0.62) 0%,
+      rgba(16, 185, 129, 0.2) 56%,
+      rgba(249, 115, 22, 0.22) 100%
     )
   );
 }
@@ -1486,8 +1489,9 @@ select {
     "assets/images/sections/bg-showroom.webp",
     linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.86) 0%,
-      rgba(15, 23, 42, 0.78) 100%
+      rgba(15, 23, 42, 0.6) 0%,
+      rgba(16, 185, 129, 0.18) 50%,
+      rgba(15, 23, 42, 0.66) 100%
     )
   );
 }
@@ -1498,8 +1502,9 @@ select {
     "assets/images/sections/bg-neue-fahrraeder.webp",
     linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.87) 0%,
-      rgba(15, 23, 42, 0.79) 100%
+      rgba(15, 23, 42, 0.63) 0%,
+      rgba(249, 115, 22, 0.24) 52%,
+      rgba(15, 23, 42, 0.66) 100%
     )
   );
 }
@@ -1510,8 +1515,9 @@ select {
     "assets/images/sections/bg-trust.webp",
     linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.85) 0%,
-      rgba(15, 23, 42, 0.77) 100%
+      rgba(15, 23, 42, 0.62) 0%,
+      rgba(16, 185, 129, 0.24) 58%,
+      rgba(15, 23, 42, 0.64) 100%
     )
   );
 }
@@ -1522,8 +1528,9 @@ select {
     "assets/images/sections/bg-story.webp",
     linear-gradient(
       135deg,
-      rgba(15, 23, 42, 0.9) 0%,
-      rgba(15, 23, 42, 0.82) 100%
+      rgba(15, 23, 42, 0.66) 0%,
+      rgba(16, 185, 129, 0.2) 45%,
+      rgba(249, 115, 22, 0.2) 100%
     )
   );
 }
@@ -1534,8 +1541,9 @@ select {
     "assets/images/sections/bg-gallery.webp",
     linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.84) 0%,
-      rgba(15, 23, 42, 0.76) 100%
+      rgba(15, 23, 42, 0.58) 0%,
+      rgba(16, 185, 129, 0.2) 52%,
+      rgba(249, 115, 22, 0.2) 100%
     )
   );
 }
@@ -1546,8 +1554,9 @@ select {
     "assets/images/sections/bg-bikecheck.webp",
     linear-gradient(
       135deg,
-      rgba(15, 23, 42, 0.88) 0%,
-      rgba(15, 23, 42, 0.8) 100%
+      rgba(15, 23, 42, 0.62) 0%,
+      rgba(16, 185, 129, 0.22) 50%,
+      rgba(15, 23, 42, 0.66) 100%
     )
   );
 }
@@ -1558,8 +1567,9 @@ select {
     "assets/images/sections/bg-repair.webp",
     linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.88) 0%,
-      rgba(15, 23, 42, 0.82) 100%
+      rgba(15, 23, 42, 0.66) 0%,
+      rgba(249, 115, 22, 0.18) 55%,
+      rgba(15, 23, 42, 0.68) 100%
     )
   );
 }
@@ -1570,8 +1580,9 @@ select {
     "assets/images/sections/bg-reviews.webp",
     linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.88) 0%,
-      rgba(15, 23, 42, 0.8) 100%
+      rgba(15, 23, 42, 0.62) 0%,
+      rgba(16, 185, 129, 0.16) 46%,
+      rgba(249, 115, 22, 0.18) 100%
     )
   );
 }
@@ -1582,8 +1593,9 @@ select {
     "assets/images/sections/bg-faq.webp",
     linear-gradient(
       180deg,
-      rgba(15, 23, 42, 0.9) 0%,
-      rgba(15, 23, 42, 0.85) 100%
+      rgba(15, 23, 42, 0.7) 0%,
+      rgba(16, 185, 129, 0.14) 45%,
+      rgba(15, 23, 42, 0.72) 100%
     )
   );
 }
@@ -1594,8 +1606,9 @@ select {
     "assets/images/sections/bg-cta.webp",
     linear-gradient(
       135deg,
-      rgba(10, 20, 38, 0.88) 0%,
-      rgba(15, 23, 42, 0.8) 100%
+      rgba(10, 20, 38, 0.62) 0%,
+      rgba(249, 115, 22, 0.2) 50%,
+      rgba(16, 185, 129, 0.18) 100%
     )
   );
 }
@@ -1616,10 +1629,13 @@ select {
   .cta-section {
     background-position: center center;
 
-    /* Slightly darker overlay on small screens for better readability */
+    /* Keep contrast on mobile while still showing image color */
     &::after {
-      background: rgba(15, 23, 42, 0.9) !important;
+      background: linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.82) 0%,
+        rgba(15, 23, 42, 0.74) 100%
+      ) !important;
     }
   }
 }
-

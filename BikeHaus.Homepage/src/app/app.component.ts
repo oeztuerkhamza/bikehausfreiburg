@@ -4,11 +4,14 @@ import {
   PLATFORM_ID,
   inject,
   OnInit,
+  OnDestroy,
   effect,
   Injector,
+  signal,
 } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
+import { filter, Subscription } from 'rxjs';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { TranslationService } from './services/translation.service';
@@ -22,6 +25,10 @@ import { SeoService } from './services/seo.service';
     <div class="app-layout">
       <app-navbar></app-navbar>
       <main class="main-content" role="main">
+        @if (!isHomeRoute()) {
+          <div class="route-accent route-accent-left" aria-hidden="true"></div>
+          <div class="route-accent route-accent-right" aria-hidden="true"></div>
+        }
         <router-outlet></router-outlet>
       </main>
       <app-footer></app-footer>
@@ -37,12 +44,67 @@ import { SeoService } from './services/seo.service';
       }
 
       .main-content {
+        position: relative;
         flex: 1;
+      }
+
+      .route-accent {
+        position: fixed;
+        top: 12vh;
+        width: clamp(260px, 28vw, 430px);
+        aspect-ratio: 3 / 4;
+        border-radius: 28px;
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.32;
+        filter: saturate(1.18) contrast(1.05);
+        background-size: cover;
+        background-position: center;
+        box-shadow:
+          0 22px 72px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 255, 255, 0.08);
+      }
+
+      .route-accent-left {
+        left: clamp(-95px, -5vw, -35px);
+        transform: rotate(-6deg);
+        background-image:
+          linear-gradient(
+            165deg,
+            rgba(15, 23, 42, 0.46) 0%,
+            rgba(15, 23, 42, 0.14) 100%
+          ),
+          url('/assets/images/sections/bg-story.webp');
+      }
+
+      .route-accent-right {
+        right: clamp(-95px, -5vw, -35px);
+        transform: rotate(6deg);
+        background-image:
+          linear-gradient(
+            165deg,
+            rgba(15, 23, 42, 0.46) 0%,
+            rgba(15, 23, 42, 0.14) 100%
+          ),
+          url('/assets/images/sections/bg-trust.webp');
+      }
+
+      @media (max-width: 1200px) {
+        .route-accent {
+          opacity: 0.24;
+          width: clamp(220px, 24vw, 340px);
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .route-accent {
+          display: none;
+        }
       }
     `,
   ],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   private title = inject(Title);
   private meta = inject(Meta);
   private translationService = inject(TranslationService);
@@ -50,6 +112,10 @@ export class AppComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private document = inject(DOCUMENT);
   private injector = inject(Injector);
+  private router = inject(Router);
+  private routeSub?: Subscription;
+
+  isHomeRoute = signal(false);
 
   ngOnInit(): void {
     // Set initial translations
@@ -66,6 +132,15 @@ export class AppComponent implements OnInit {
 
     if (isPlatformBrowser(this.platformId)) {
       this.updateLanguageAttribute();
+
+      this.updateHomeRouteFlag(this.router.url);
+      this.routeSub = this.router.events
+        .pipe(filter((event) => event instanceof NavigationEnd))
+        .subscribe((event) => {
+          const nav = event as NavigationEnd;
+          this.updateHomeRouteFlag(nav.urlAfterRedirects);
+        });
+
       // Update language attribute whenever language changes
       effect(
         () => {
@@ -89,5 +164,14 @@ export class AppComponent implements OnInit {
   private updateLanguageAttribute(): void {
     this.document.documentElement.lang =
       this.translationService.currentLanguage();
+  }
+
+  private updateHomeRouteFlag(url: string): void {
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    this.isHomeRoute.set(/^\/(de|en|fr|tr)\/?$/.test(cleanUrl));
+  }
+
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
   }
 }

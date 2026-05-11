@@ -252,7 +252,16 @@ import { ShopInfoService } from '../../services/shop-info.service';
       .footer {
         position: relative;
         background:
-          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 34%),
+          radial-gradient(
+            circle at 15% -10%,
+            rgba(16, 185, 129, 0.14),
+            transparent 36%
+          ),
+          radial-gradient(
+            circle at 85% -12%,
+            rgba(249, 115, 22, 0.16),
+            transparent 40%
+          ),
           linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 18%),
           var(--color-bg-secondary);
         border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -262,7 +271,11 @@ import { ShopInfoService } from '../../services/shop-info.service';
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 42%);
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.04),
+          transparent 42%
+        );
         pointer-events: none;
       }
 
@@ -277,8 +290,19 @@ import { ShopInfoService } from '../../services/shop-info.service';
       .footer-col {
         padding: 1.1rem 1.15rem;
         border-radius: 20px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(4px);
+      }
+
+      .footer-brand {
+        background:
+          linear-gradient(
+            145deg,
+            rgba(16, 185, 129, 0.14) 0%,
+            rgba(249, 115, 22, 0.1) 100%
+          ),
+          rgba(255, 255, 255, 0.03);
       }
 
       .footer-logo {
@@ -297,12 +321,25 @@ import { ShopInfoService } from '../../services/shop-info.service';
       .footer-langs a {
         transition:
           color 0.2s,
-          transform 0.2s;
+          transform 0.2s,
+          background-color 0.2s,
+          border-color 0.2s;
+        border-radius: 10px;
+        padding: 0.26rem 0.48rem;
+        border: 1px solid transparent;
       }
 
       .footer-col nav a:hover,
       .footer-langs a:hover {
         transform: translateX(3px);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.12);
+        color: #fff;
+      }
+
+      .footer-col h4 {
+        color: rgba(255, 255, 255, 0.8);
+        letter-spacing: 0.11em;
       }
 
       .footer-bottom {
