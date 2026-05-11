@@ -2004,10 +2004,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Buy Used Bike Freiburg — Expat & Student Guide | Bike Haus Freiburg',
         metaDescription:
-          'Buy a used or new bike in Freiburg ✓ 100+ bikes in stock ✓ From €80 ✓ 3-month warranty ✓ English-speaking staff ✓ Test ride available. Bike Haus Freiburg.',
+          'Buy a used or new bike in Freiburg ✓ 100+ bikes in stock ✓ From €180 ✓ 3-month warranty ✓ English-speaking staff ✓ Test ride available. Bike Haus Freiburg.',
         excerpt:
           'Moving to Freiburg? This guide covers everything expats and students need to know about buying a used or new bike in Freiburg — without the headache.',
-        tldr: 'Bike Haus Freiburg has 100+ inspected bikes from €80. English-speaking staff available. 3-month warranty on used bikes, 24-month on new. Free test rides. Located at Heckerstraße 27, Freiburg.',
+        tldr: 'Bike Haus Freiburg has 100+ inspected bikes from €180. English-speaking staff available. 3-month warranty on used bikes, 24-month on new. Free test rides. Located at Heckerstraße 27, Freiburg.',
         sections: [
           {
             type: 'heading',
@@ -2028,7 +2028,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              'Budget city bikes: from €80–€200',
+              'Budget city bikes: from €180–€200',
               'Quality trekking bikes: €200–€500',
               'Used e-bikes: from €800',
               'New bikes with 2-year warranty: from €350',

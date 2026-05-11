@@ -185,7 +185,7 @@ Ana sayfada EN dilinde şu metinler **H2 seviyesinde** olmalı:
 
 **Önerilen EN `heroSub` (anahtar kelime zenginleştirilmiş):**
 
-> "Buy or rent a bike in Freiburg ✓ Inspected used bikes from €80 ✓ Bike rental from €6.80/day ✓ City, Trekking & E-Bikes ✓ Pick up same day."
+> "Buy or rent a bike in Freiburg ✓ Inspected used bikes from €180 ✓ Bike rental from €6.80/day ✓ City, Trekking & E-Bikes ✓ Pick up same day."
 
 ---
 

@@ -1221,7 +1221,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     heroH1: 'Bikes in Freiburg — new & used.',
     heroSub:
-      'Buy or rent a bike in Freiburg ✓ Inspected used bikes from €80 ✓ Bike rental with per-bike daily pricing ✓ City, Trekking & E-Bikes ✓ Pick up same day.',
+      'Buy or rent a bike in Freiburg ✓ Inspected used bikes from €180 ✓ Bike rental with per-bike daily pricing ✓ City, Trekking & E-Bikes ✓ Pick up same day.',
     ctaPrimary: 'Discover New Bikes',
     ctaSecondary: 'View Showroom',
     heroBannerAria: 'Hero section',
@@ -1731,7 +1731,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Every used bike is technically inspected. You get 3 days return policy and 3 months warranty on all used bikes. New bikes come with 24 months warranty.',
     faqQ4: 'How much does a used bike cost?',
     faqA4:
-      'Used bikes start from approx. €80. Used e-bikes from approx. €800. All prices are fairly calculated.',
+      'Used bikes start from approx. €180. Used e-bikes from approx. €800. All prices are fairly calculated.',
     faqQ5: 'Do you have used e-bikes?',
     faqA5:
       'Yes, we offer high-quality used e-bikes with documented battery condition and warranty.',

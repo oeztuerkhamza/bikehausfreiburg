@@ -95,7 +95,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         offerHeading: 'Our Range',
         offerItems: [
-          'City bikes from approx. €80 (used) / from €350 (new)',
+          'City bikes from approx. €180 (used) / from €350 (new)',
           'Trekking bikes for commuters and leisure',
           'E-bikes from approx. €800 (used) — battery condition documented',
           'Mountain bikes for Black Forest trails',
@@ -247,7 +247,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'E-bikes for the Markgräflerland hills',
           'Trekking bikes for the Dreisamtal cycle path',
           "Children's bikes in all sizes",
-          'Used bicycles from approx. €80',
+          'Used bicycles from approx. €180',
         ],
         ctaHeading: 'Visit us!',
         ctaText:
@@ -528,7 +528,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'E-bikes for relaxed commuting',
           'Trekking bikes for leisure tours in the Dreisamtal',
           "Children's bikes for all age groups",
-          'Used bicycles from approx. €80',
+          'Used bicycles from approx. €180',
         ],
         ctaHeading: 'Visit us now!',
         ctaText:
@@ -666,7 +666,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'E-bikes for the March – Freiburg route',
           'Trekking bikes for tours in the Breisgau',
           "Children's bikes",
-          'Used bicycles from approx. €80',
+          'Used bicycles from approx. €180',
         ],
         ctaHeading: 'Visit us!',
         ctaText:
