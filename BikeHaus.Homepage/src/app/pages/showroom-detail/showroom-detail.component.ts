@@ -457,7 +457,11 @@ import { environment } from '../../../environments/environment';
       .detail-page {
         padding-bottom: 4rem;
         background:
-          radial-gradient(circle at top, rgba(255, 87, 34, 0.08), transparent 32%),
+          radial-gradient(
+            circle at top,
+            rgba(255, 87, 34, 0.08),
+            transparent 32%
+          ),
           linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 24%),
           var(--color-bg);
       }
@@ -475,8 +479,16 @@ import { environment } from '../../../environments/environment';
         position: absolute;
         inset: 0;
         background:
-          radial-gradient(circle at 12% 0%, rgba(255, 87, 34, 0.12), transparent 22%),
-          radial-gradient(circle at 88% 0%, rgba(255, 255, 255, 0.05), transparent 18%);
+          radial-gradient(
+            circle at 12% 0%,
+            rgba(255, 87, 34, 0.12),
+            transparent 22%
+          ),
+          radial-gradient(
+            circle at 88% 0%,
+            rgba(255, 255, 255, 0.05),
+            transparent 18%
+          );
         pointer-events: none;
       }
 
@@ -653,7 +665,11 @@ import { environment } from '../../../environments/environment';
 
       .details-inner {
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 28px;
@@ -711,7 +727,11 @@ import { environment } from '../../../environments/environment';
 
       .price-card {
         background:
-          linear-gradient(135deg, rgba(255, 87, 34, 0.16), rgba(255, 87, 34, 0.05)),
+          linear-gradient(
+            135deg,
+            rgba(255, 87, 34, 0.16),
+            rgba(255, 87, 34, 0.05)
+          ),
           rgba(255, 87, 34, 0.08);
         border: 1px solid rgba(255, 87, 34, 0.2);
         border-radius: 20px;
@@ -916,7 +936,11 @@ import { environment } from '../../../environments/environment';
         overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.08);
         background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+          linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.015)
+          ),
           var(--color-surface);
         transition:
           border-color 0.25s,
@@ -1113,7 +1137,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
 
     const t = this.t();
     const priceText = listing.price ? ` - ${listing.price}€` : '';
-    const listingUrl = `https://bikehausfreiburg.com/showroom/${listing.id}`;
+    const listingUrl = `https://bikehausfreiburg.com/${this.lang()}/showroom/${listing.id}`;
     const baseText = `${listingUrl}\n\n${t.whatsappInterested}\n${listing.title}${priceText}\n\n`;
     const userMsg = this.userWhatsappMessage.trim();
     const fullText =

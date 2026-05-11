@@ -16,6 +16,8 @@ export const languageGuard: CanActivateFn = (route) => {
 
 export const routes: Routes = [
   { path: '', redirectTo: 'de', pathMatch: 'full' },
+  { path: 'showroom', redirectTo: 'de/showroom', pathMatch: 'full' },
+  { path: 'showroom/:id', redirectTo: 'de/showroom/:id', pathMatch: 'full' },
   {
     path: ':lang',
     canActivate: [languageGuard],
