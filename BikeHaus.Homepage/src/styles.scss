@@ -68,6 +68,7 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color-scheme: dark;
 }
 
 body {
@@ -1409,19 +1410,7 @@ select {
   }
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --color-bg: #f8f9fa;
-    --color-bg-secondary: #f0f2f5;
-    --color-surface: #ffffff;
-    --color-surface-alt: #f8f9fa;
-    --color-surface-glass: rgba(255, 255, 255, 0.9);
-    --color-text: #1a1a1a;
-    --color-text-secondary: #4a5568;
-    --color-text-muted: #a0aec0;
-    --color-border: rgba(0, 0, 0, 0.1);
-  }
-}
+/* prefers-color-scheme: light override removed — site uses dark theme only */
 
 /* ═══════════════════════════════════════════════════════════════════
    SECTION BACKGROUND IMAGES
