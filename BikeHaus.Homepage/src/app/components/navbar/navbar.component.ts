@@ -86,12 +86,15 @@ import {
         left: 0;
         right: 0;
         z-index: 1000;
-        padding: 1.25rem 0;
+        height: var(--navbar-height);
+        padding: 0;
+        display: flex;
+        align-items: center;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       .navbar.scrolled {
-        padding: 0.6rem 0;
+        padding: 0;
         background: rgba(10, 10, 10, 0.92);
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -310,7 +313,8 @@ import {
       }
 
       .navbar {
-        padding: 1rem 0;
+        height: var(--navbar-height);
+        padding: 0;
       }
 
       .nav-inner {
@@ -405,7 +409,8 @@ import {
 
       @media (max-width: 768px) {
         .navbar {
-          padding: 0.85rem 0;
+          height: var(--navbar-height-mobile);
+          padding: 0;
         }
 
         .nav-inner {

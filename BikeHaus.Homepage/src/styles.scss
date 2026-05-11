@@ -53,6 +53,10 @@
   --border-radius: 12px;
   --border-radius-lg: 20px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Shared navbar sizing for layout alignment */
+  --navbar-height: 108px;
+  --navbar-height-mobile: 92px;
 }
 
 *,
