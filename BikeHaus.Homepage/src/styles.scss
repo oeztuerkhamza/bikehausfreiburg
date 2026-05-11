@@ -1628,13 +1628,55 @@ select {
   .faq-section,
   .cta-section {
     background-position: center center;
+    background-size: cover;
 
     /* Keep contrast on mobile while still showing image color */
     &::after {
       background: linear-gradient(
         180deg,
-        rgba(15, 23, 42, 0.82) 0%,
-        rgba(15, 23, 42, 0.74) 100%
+        rgba(15, 23, 42, 0.72) 0%,
+        rgba(16, 185, 129, 0.12) 52%,
+        rgba(15, 23, 42, 0.68) 100%
+      ) !important;
+    }
+  }
+
+  .svc-cards-section {
+    background-position: 58% center;
+  }
+
+  [aria-labelledby="showroom-heading"],
+  [aria-labelledby="gallery-heading"],
+  [aria-labelledby="story-heading"] {
+    background-position: 62% center;
+  }
+
+  [aria-labelledby="neue-heading"],
+  .cta-section,
+  .repair-section {
+    background-position: 50% center;
+  }
+}
+
+@media (max-width: 480px) {
+  .svc-cards-section,
+  [aria-labelledby="values-heading"],
+  [aria-labelledby="showroom-heading"],
+  [aria-labelledby="neue-heading"],
+  [aria-labelledby="trust-heading"],
+  [aria-labelledby="story-heading"],
+  [aria-labelledby="gallery-heading"],
+  [aria-labelledby="bikecheck-heading"],
+  .repair-section,
+  .testimonials-section,
+  .faq-section,
+  .cta-section {
+    &::after {
+      background: linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.7) 0%,
+        rgba(249, 115, 22, 0.12) 50%,
+        rgba(15, 23, 42, 0.66) 100%
       ) !important;
     }
   }

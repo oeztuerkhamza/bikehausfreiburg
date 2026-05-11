@@ -226,6 +226,17 @@ import { ShopInfoService } from '../../services/shop-info.service';
         .footer-langs {
           align-items: center;
         }
+
+        .footer-brand,
+        .footer-col {
+          padding: 1rem;
+          border-radius: 18px;
+          background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.06),
+            rgba(255, 255, 255, 0.025)
+          );
+        }
       }
 
       @media (max-width: 480px) {
@@ -246,6 +257,45 @@ import { ShopInfoService } from '../../services/shop-info.service';
         .footer-bottom p {
           font-size: 0.75rem;
           text-align: center;
+        }
+
+        .footer {
+          background:
+            radial-gradient(
+              circle at 15% 0%,
+              rgba(16, 185, 129, 0.2),
+              transparent 34%
+            ),
+            radial-gradient(
+              circle at 85% 0%,
+              rgba(249, 115, 22, 0.22),
+              transparent 38%
+            ),
+            var(--color-bg-secondary);
+        }
+
+        .footer-grid {
+          padding: 2.4rem 0 1.6rem;
+        }
+
+        .footer-brand,
+        .footer-col {
+          background:
+            linear-gradient(
+              145deg,
+              rgba(16, 185, 129, 0.08),
+              rgba(249, 115, 22, 0.06)
+            ),
+            rgba(255, 255, 255, 0.04);
+          box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18);
+        }
+
+        .footer-col nav a,
+        .footer-langs a {
+          width: 100%;
+          justify-content: center;
+          text-align: center;
+          background: rgba(255, 255, 255, 0.03);
         }
       }
 

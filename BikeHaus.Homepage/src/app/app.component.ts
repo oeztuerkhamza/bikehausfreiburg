@@ -98,7 +98,67 @@ import { SeoService } from './services/seo.service';
 
       @media (max-width: 1024px) {
         .route-accent {
-          display: none;
+          display: block;
+          width: clamp(180px, 42vw, 260px);
+          opacity: 0.2;
+          top: auto;
+          bottom: 18vh;
+          border-radius: 24px;
+          filter: saturate(1.15) blur(0.4px);
+        }
+
+        .route-accent-left {
+          left: clamp(-72px, -10vw, -40px);
+          bottom: auto;
+          top: 11rem;
+          transform: rotate(-11deg);
+        }
+
+        .route-accent-right {
+          right: clamp(-72px, -10vw, -40px);
+          bottom: 5rem;
+          top: auto;
+          transform: rotate(11deg);
+        }
+
+        .main-content::before,
+        .main-content::after {
+          content: '';
+          position: fixed;
+          width: 42vw;
+          height: 42vw;
+          border-radius: 999px;
+          pointer-events: none;
+          z-index: 0;
+          filter: blur(48px);
+          opacity: 0.32;
+        }
+
+        .main-content::before {
+          top: 9rem;
+          left: -18vw;
+          background: rgba(16, 185, 129, 0.22);
+        }
+
+        .main-content::after {
+          bottom: 8rem;
+          right: -20vw;
+          background: rgba(249, 115, 22, 0.2);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .route-accent {
+          width: clamp(150px, 46vw, 220px);
+          opacity: 0.22;
+        }
+
+        .route-accent-left {
+          top: 9rem;
+        }
+
+        .route-accent-right {
+          bottom: 4.5rem;
         }
       }
     `,
