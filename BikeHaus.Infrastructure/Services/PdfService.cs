@@ -1633,7 +1633,7 @@ public class PdfService : IPdfService
                             wRow.RelativeItem().Text(text =>
                             {
                                 text.Span("HAFTUNG: ").Bold().FontSize(9);
-                                text.Span("Der Mieter haftet für Schäden, Verlust und Diebstahl des gemieteten Fahrrads.").FontSize(9).FontColor(Colors.Grey.Darken3);
+                                text.Span("Der Mieter haftet bei Verlust oder Diebstahl des Fahrrads.").FontSize(9).FontColor(Colors.Grey.Darken3);
                             });
                         });
                         wCol.Item().PaddingTop(3).Row(wRow =>
