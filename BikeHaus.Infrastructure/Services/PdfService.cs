@@ -40,7 +40,7 @@ public class PdfService : IPdfService
     private const string DefaultBankName = "Sparkasse";
     private const string DefaultBankAccountHolder = "Cevdet Akarsu";
     private const string DefaultIBAN = "DE28 6805 0101 00 14 5475 04";
-    private const string GoogleReviewUrl = "https://g.page/r/CQTjOCyqlXbGEBM/review";
+    private const string GoogleReviewUrl = "https://g.page/r/CRnu1n--kiIYEBM/review";
     private const string WebsiteUrl = "www.bikehausfreiburg.com";
 
     // Warranty Texts
