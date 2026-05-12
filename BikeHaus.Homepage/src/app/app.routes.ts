@@ -119,6 +119,14 @@ export const routes: Routes = [
             (m) => m.FahrradverleihComponent,
           ),
       },
+      // EN canonical alias: /en/bike-rental
+      {
+        path: 'bike-rental',
+        loadComponent: () =>
+          import('./pages/fahrradverleih/fahrradverleih.component').then(
+            (m) => m.FahrradverleihComponent,
+          ),
+      },
       {
         path: 'ratgeber',
         loadComponent: () =>

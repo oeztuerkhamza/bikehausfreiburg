@@ -1259,10 +1259,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Was kostet eine Fahrradinspektion 2026? Ablauf & Checkliste | Bike Haus Freiburg',
         metaDescription:
-          'Fahrradinspektion Kosten 2026: Basis 20–30 €, Standard 40–60 €, groß 60–80 €, E-Bike bis 100 €. Was wird geprüft? Ablauf & Checkliste vom Fahrradladen Freiburg.',
+          'Fahrradinspektion Kosten 2026: Basis 20–30 €, Standard 40–60 €, groß 60–180 €, E-Bike bis 100 €. Was wird geprüft? Ablauf & Checkliste vom Fahrradladen Freiburg.',
         excerpt:
           'Eine regelmäßige Inspektion hält Ihr Fahrrad sicher und verhindert teure Reparaturen. Hier erfahren Sie, was geprüft wird und was es kostet.',
-        tldr: 'Eine Fahrrad-Inspektion kostet je nach Umfang 30–80 €. Geprüft werden Bremsen, Schaltung, Reifen, Kette, Lager, Beleuchtung und Speichenspannung. Empfohlen: 1× pro Jahr oder alle 2.000 km.',
+        tldr: 'Eine Fahrrad-Inspektion kostet je nach Umfang 30–180 €. Geprüft werden Bremsen, Schaltung, Reifen, Kette, Lager, Beleuchtung und Speichenspannung. Empfohlen: 1× pro Jahr oder alle 2.000 km.',
         sections: [
           {
             type: 'heading',
@@ -1299,7 +1299,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
             items: [
               'Basis-Check (Bremsen + Schaltung + Luft): ca. 20–30 €',
               'Standard-Inspektion (alle Komponenten): ca. 40–60 €',
-              'Große Inspektion (inkl. Reinigung + Nachfetten): ca. 60–80 €',
+              'Große Inspektion (inkl. Reinigung + Nachfetten): ca. 60–180 €',
               'E-Bike Inspektion (+ Akku & Motor-Diagnose): ca. 70–100 €',
             ],
           },
@@ -1424,10 +1424,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Révision vélo — Coûts, déroulement & checklist | Bike Haus Freiburg',
         metaDescription:
-          'Combien coûte une révision vélo? Que vérifie-t-on? Déroulement, coûts (30–80 €) et checklist ✓ Conseils du vélociste à Freiburg.',
+          'Combien coûte une révision vélo? Que vérifie-t-on? Déroulement, coûts (30–180 €) et checklist ✓ Conseils du vélociste à Freiburg.',
         excerpt:
           'Une révision régulière garde votre vélo en sécurité et évite les réparations coûteuses.',
-        tldr: 'Une révision vélo coûte entre 30 et 80 €. Freins, vitesses, pneus, chaîne, roulements et éclairage sont vérifiés. Recommandé : 1× par an.',
+        tldr: 'Une révision vélo coûte entre 30 et 180 €. Freins, vitesses, pneus, chaîne, roulements et éclairage sont vérifiés. Recommandé : 1× par an.',
         sections: [
           {
             type: 'heading',
@@ -1451,10 +1451,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Bisiklet Bakımı — Maliyet, Süreç & Kontrol Listesi | Bike Haus Freiburg',
         metaDescription:
-          'Bisiklet bakımı ne kadara mal olur? Neler kontrol edilir? Süreç, maliyetler (30–80 €) ve kontrol listesi ✓ Freiburg bisikletçisinden ipuçları.',
+          'Bisiklet bakımı ne kadara mal olur? Neler kontrol edilir? Süreç, maliyetler (30–180 €) ve kontrol listesi ✓ Freiburg bisikletçisinden ipuçları.',
         excerpt:
           'Düzenli bakım bisikletinizi güvende tutar ve pahalı tamirleri önler.',
-        tldr: "Bisiklet bakımı 30–80 € arası. Frenler, vitesler, lastikler, zincir, rulmanlar ve ışıklar kontrol edilir. Önerilen: yılda 1 kez veya 2.000 km'de bir.",
+        tldr: "Bisiklet bakımı 30–180 € arası. Frenler, vitesler, lastikler, zincir, rulmanlar ve ışıklar kontrol edilir. Önerilen: yılda 1 kez veya 2.000 km'de bir.",
         sections: [
           {
             type: 'heading',
@@ -1977,10 +1977,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Gebrauchtes Fahrrad Freiburg kaufen — Expat Guide | Bike Haus Freiburg',
         metaDescription:
-          'Gebrauchtes Fahrrad in Freiburg kaufen als Expat oder Student ✓ Über 100 Räder ✓ Ab 80 € ✓ 3 Monate Garantie ✓ Persönliche Beratung auf Englisch. Bike Haus Freiburg.',
+          'Gebrauchtes Fahrrad in Freiburg kaufen als Expat oder Student ✓ Über 100 Räder ✓ Ab 180 € ✓ 3 Monate Garantie ✓ Persönliche Beratung auf Englisch. Bike Haus Freiburg.',
         excerpt:
           'Als Expat oder Student in Freiburg? So finden Sie schnell und sicher ein gebrauchtes Fahrrad.',
-        tldr: 'Bike Haus Freiburg bietet über 100 geprüfte neue und gebrauchte Fahrräder ab 80 €. Englischsprachige Beratung möglich. 3 Monate Garantie. Heckerstraße 27.',
+        tldr: 'Bike Haus Freiburg bietet über 100 geprüfte neue und gebrauchte Fahrräder ab 180 €. Englischsprachige Beratung möglich. 3 Monate Garantie. Heckerstraße 27.',
         sections: [
           {
             type: 'heading',
@@ -2083,10 +2083,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           'Acheter vélo Fribourg — Guide complet 2026 | Bike Haus Freiburg',
         metaDescription:
-          "Acheter un vélo neuf ou d'occasion à Fribourg-en-Brisgau ✓ 100+ vélos en stock ✓ Dès 80 € ✓ 3 mois de garantie ✓ Conseils en français. Bike Haus Freiburg.",
+          "Acheter un vélo neuf ou d'occasion à Fribourg-en-Brisgau ✓ 100+ vélos en stock ✓ Dès 180 € ✓ 3 mois de garantie ✓ Conseils en français. Bike Haus Freiburg.",
         excerpt:
           'Vous habitez ou visitez Fribourg ? Ce guide vous explique tout ce que les francophones doivent savoir pour acheter un vélo à Fribourg, sans complication.',
-        tldr: "Bike Haus Freiburg propose 100+ vélos inspectés dès 80 €. Garantie 3 mois sur les vélos d'occasion, 24 mois sur les neufs. Essais gratuits. Heckerstraße 27, Fribourg. À 25 km de l'Alsace.",
+        tldr: "Bike Haus Freiburg propose 100+ vélos inspectés dès 180 €. Garantie 3 mois sur les vélos d'occasion, 24 mois sur les neufs. Essais gratuits. Heckerstraße 27, Fribourg. À 25 km de l'Alsace.",
         sections: [
           { type: 'heading', content: 'Pourquoi acheter un vélo à Fribourg ?' },
           {
@@ -2106,7 +2106,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
             items: [
               "Vélos de ville d'occasion : dès 80–200 €",
               'VTC de qualité : 200–500 €',
-              "VAE (vélo électrique) d'occasion : dès 800 €",
+              "VAE (vélo électrique) d'occasion : dès 999 €",
               'Vélos neufs avec garantie 2 ans : dès 350 €',
             ],
           },
@@ -2134,10 +2134,10 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaTitle:
           "Freiburg'da İkinci El Bisiklet Alma — Expat Rehberi | Bike Haus Freiburg",
         metaDescription:
-          "Freiburg'da ikinci el veya yeni bisiklet satın alın ✓ 100+ bisiklet ✓ 80 €'dan ✓ 3 ay garanti ✓ Türkçe konuşan personel. Bike Haus Freiburg.",
+          "Freiburg'da ikinci el veya yeni bisiklet satın alın ✓ 100+ bisiklet ✓ 180 €'dan ✓ 3 ay garanti ✓ Türkçe konuşan personel. Bike Haus Freiburg.",
         excerpt:
           "Freiburg'a yeni mi taşındınız? Expat ve öğrenciler için Freiburg'da bisiklet alma rehberi.",
-        tldr: "Bike Haus Freiburg 80 €'dan 100+ kontrol edilmiş bisiklet sunuyor. İkinci el bisikletlerde 3 ay, yenilerde 24 ay garanti. Ücretsiz deneme sürüşü. Heckerstraße 27.",
+        tldr: "Bike Haus Freiburg 180 €'dan 100+ kontrol edilmiş bisiklet sunuyor. İkinci el bisikletlerde 3 ay, yenilerde 24 ay garanti. Ücretsiz deneme sürüşü. Heckerstraße 27.",
         sections: [
           { type: 'heading', content: "Freiburg'da Neden Bisiklet?" },
           {

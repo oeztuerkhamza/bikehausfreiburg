@@ -13,7 +13,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
 
     heroH1: 'Bicicletas en Freiburg — nuevas y usadas.',
     heroSub:
-      'Compra o alquila una bicicleta en Freiburg ✓ Bicicletas usadas inspeccionadas desde 80 € ✓ Alquiler con precios diarios configurables por bicicleta ✓ Ciudad, Trekking y E-Bikes ✓ Retiro el mismo día.',
+      'Compra o alquila una bicicleta en Freiburg ✓ Bicicletas usadas inspeccionadas desde 180 € ✓ Alquiler con precios diarios configurables por bicicleta ✓ Ciudad, Trekking y E-Bikes ✓ Retiro el mismo día.',
     ctaPrimary: 'Descubrir Bicicletas Nuevas',
     ctaSecondary: 'Ver Showroom',
     ctaRental: 'Alquilar Bicicleta',
@@ -508,7 +508,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'Cada bicicleta usada es inspeccionada técnicamente. Recibes política de devolución de 3 días y garantía de 3 meses en todas las bicicletas usadas. Las bicicletas nuevas tienen garantía de 24 meses.',
     faqQ4: '¿Cuánto cuesta una bicicleta usada?',
     faqA4:
-      'Las bicicletas usadas comienzan desde aprox. 80 €. Los e-bikes usados desde aprox. 800 €. Todos los precios están calculados justamente.',
+      'Las bicicletas usadas comienzan desde aprox. 180 €. Los e-bikes usados desde aprox. 999 €. Todos los precios están calculados justamente.',
     faqQ5: '¿Tienen e-bikes usados?',
     faqA5:
       'Sí, ofrecemos e-bikes usados de alta calidad con condición de batería documentada y garantía.',
@@ -583,7 +583,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     contact: 'Contatti',
     heroH1: 'Biciclette a Friburgo — nuove e usate.',
     heroSub:
-      'Acquista o noleggia una bici a Friburgo ✓ Bici usate controllate da 80 € ✓ Noleggio con prezzi giornalieri per bici ✓ City, Trekking ed E-Bike ✓ Ritiro immediato.',
+      'Acquista o noleggia una bici a Friburgo ✓ Bici usate controllate da 180 € ✓ Noleggio con prezzi giornalieri per bici ✓ City, Trekking ed E-Bike ✓ Ritiro immediato.',
     ctaPrimary: 'Scopri le nuove bici',
     ctaSecondary: 'Visualizza showroom',
     ctaRental: 'Noleggia una bici',
@@ -1040,7 +1040,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'Ogni bici usata viene controllata tecnicamente. Hai 3 giorni di diritto di restituzione e 3 mesi di garanzia su tutte le bici usate. Le bici nuove hanno 24 mesi di garanzia.',
     faqQ4: 'Quanto costa una bici usata?',
     faqA4:
-      'Le bici usate partono da circa 80 €. Le e-bike usate da circa 800 €.',
+      'Le bici usate partono da circa 180 €. Le e-bike usate da circa 999 €.',
     faqQ5: 'Avete e-bike usate?',
     faqA5:
       'Sì, offriamo e-bike usate di alta qualità con condizioni batteria documentata e garanzia.',
@@ -1618,7 +1618,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     contact: 'Контакты',
     heroH1: 'Велосипеды во Фрайбурге — новые и подержанные.',
     heroSub:
-      'Покупайте или арендуйте велосипед во Фрайбурге ✓ Проверенные подержанные велосипеды от 80 € ✓ Аренда с индивидуальными дневными ценами ✓ Городские, треккинг и электровелосипеды ✓ Самовывоз в день обращения.',
+      'Покупайте или арендуйте велосипед во Фрайбурге ✓ Проверенные подержанные велосипеды от 180 € ✓ Аренда с индивидуальными дневными ценами ✓ Городские, треккинг и электровелосипеды ✓ Самовывоз в день обращения.',
     ctaPrimary: 'Открыть новые велосипеды',
     ctaSecondary: 'Посмотреть выставочный зал',
     ctaRental: 'Арендовать велосипед',
@@ -2072,7 +2072,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'Каждый подержанный велосипед технически проверяется. Вы получаете 3 дня на возврат и 3 месяца гарантии на все подержанные велосипеды. Новые велосипеды имеют 24 месяца гарантии.',
     faqQ4: 'Сколько стоит подержанный велосипед?',
     faqA4:
-      'Подержанные велосипеды начинаются примерно с 80 €. Подержанные электровелосипеды — примерно с 800 €.',
+      'Подержанные велосипеды начинаются примерно с 180 €. Подержанные электровелосипеды — примерно с 999 €.',
     faqQ5: 'Есть ли у вас подержанные электровелосипеды?',
     faqA5:
       'Да, мы предлагаем высококачественные подержанные электровелосипеды с документированным состоянием батареи и гарантией.',

@@ -266,7 +266,7 @@ Rakipler bu pazarı **tamamen boş bırakmış**. Sen sahip çıkarsan rakibsiz 
 
 **Mevcut FR `metaDescription`:**
 
-> `Achetez ou louez un vélo à Fribourg-en-Brisgau ✓ 100+ vélos certifiés ✓ Ville, Trekking, VAE ✓ Location dès 6,80 €/jour ✓ 3 mois de garantie. Votre magasin de vélos à Fribourg.`
+> `Achetez ou louez un vélo à Fribourg-en-Brisgau ✓ 100+ vélos certifiés ✓ Ville, Trekking, VAE ✓ Location dès 6,180 €/jour ✓ 3 mois de garantie. Votre magasin de vélos à Fribourg.`
 
 ✅ İyi — değiştirme.
 
@@ -276,7 +276,7 @@ Rakipler bu pazarı **tamamen boş bırakmış**. Sen sahip çıkarsan rakibsiz 
 
 **Önerilen FR `heroSub` (anahtar kelime zenginleştirilmiş):**
 
-> "Achetez ou louez votre vélo à Fribourg-en-Brisgau ✓ Vélos inspectés dès 80 € ✓ Location dès 6,80 €/jour ✓ Retrait immédiat ✓ À 25 km de l'Alsace."
+> "Achetez ou louez votre vélo à Fribourg-en-Brisgau ✓ Vélos inspectés dès 180 € ✓ Location dès 6,180 €/jour ✓ Retrait immédiat ✓ À 25 km de l'Alsace."
 
 ---
 
@@ -491,7 +491,7 @@ Google Business Profile'ına **EN ve FR dil desteği** ekle:
 2. "Add language" → English ve French ekle
 3. Her dilde ayrı **Business Description** yaz:
    - EN: "Bike shop in Freiburg — buy, sell & rent bicycles. City bikes, trekking, e-bikes. From €6.80/day rental. 3-month warranty on used bikes."
-   - FR: "Magasin de vélos à Fribourg — achat, vente & location. Vélos de ville, VTT, VAE. Location dès 6,80 €/jour. À 25 km de l'Alsace."
+   - FR: "Magasin de vélos à Fribourg — achat, vente & location. Vélos de ville, VTT, VAE. Location dès 6,180 €/jour. À 25 km de l'Alsace."
 4. **Google Posts** yaz (haftada 1) — EN ve FR'de
 
 Google Business Profile EN/FR ziyaretçilerine doğrudan ulaşmanın en hızlı yoludur.

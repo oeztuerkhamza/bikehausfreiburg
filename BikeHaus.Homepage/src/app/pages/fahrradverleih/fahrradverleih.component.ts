@@ -154,10 +154,10 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
   },
   en: {
     sectionLabel: 'FAQ',
-    sectionTitle: 'Frequently Asked Questions',
+    sectionTitle: 'Frequently Asked Questions — Bike Rental Freiburg',
     items: [
       {
-        question: 'Which bikes can I rent?',
+        question: 'Which bikes can I rent in Freiburg?',
         answers: [
           'City bikes',
           'Mountain bikes (MTB)',
@@ -167,7 +167,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
         ],
       },
       {
-        question: 'Pickup & return',
+        question: 'How does pickup & return work for the bike rental?',
         answers: [
           'Pickup daily from 10:00',
           'Return no later than 18:00',
@@ -175,11 +175,11 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
         ],
       },
       {
-        question: 'Included in rental price',
+        question: 'What is included in the bike rental price?',
         answers: ['Lock', 'Basket', 'Helmet'],
       },
       {
-        question: 'Deposit',
+        question: 'How much is the deposit for renting a bike in Freiburg?',
         answers: [
           'Regular bikes & basic e-bikes: EUR 300',
           'Mid-drive e-bikes: EUR 700',
@@ -187,11 +187,11 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
         ],
       },
       {
-        question: 'Payment methods',
+        question: 'How can I pay for my bike rental?',
         answers: ['Rental fee: cash or card', 'Deposit: cash only'],
       },
       {
-        question: 'In case of theft or damage',
+        question: 'What happens if the rental bike is stolen or damaged?',
         answers: [
           'Always lock the bike',
           'Renter is liable according to contract',
@@ -200,14 +200,14 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
         ],
       },
       {
-        question: 'Reservation & cancellation',
+        question: 'How do I reserve a rental bike in Freiburg?',
         answers: [
           'Reservation is possible and recommended',
           'Free cancellation up to 1 day before',
         ],
       },
       {
-        question: 'Additional information',
+        question: 'Can I extend my bike rental period?',
         answers: [
           'Rental period can be extended',
           'Bike exchange possible if size is wrong',
@@ -216,11 +216,11 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
         ],
       },
       {
-        question: 'Are kids bikes available?',
+        question: 'Are kids\' bikes available to rent in Freiburg?',
         answers: ['Models in 20", 24", 26", 27.5" and 29" are available'],
       },
       {
-        question: 'Late return',
+        question: 'What is the fee for a late bike return?',
         answers: ['EUR 30 fee per additional day'],
       },
     ],
@@ -4867,7 +4867,8 @@ export class FahrradverleihComponent implements OnInit {
   ngOnInit(): void {
     const t = this.t();
     const lang = this.lang();
-    const pageUrl = `https://bikehausfreiburg.com/${lang}/fahrradverleih`;
+    const rentalSlug = lang === 'en' ? 'bike-rental' : 'fahrradverleih';
+    const pageUrl = `https://bikehausfreiburg.com/${lang}/${rentalSlug}`;
 
     this.bookingForm.sprache = this.getCurrentLanguage();
 
@@ -4969,20 +4970,39 @@ export class FahrradverleihComponent implements OnInit {
     const schemaLang = isSupportedLanguage(lang) ? lang : DEFAULT_LANGUAGE;
     const faqs = RENTAL_FAQ_CONTENT[schemaLang].items;
 
+    const serviceNameByLang: Record<string, string> = {
+      de: 'Fahrradverleih Freiburg',
+      en: 'Bike Rental Freiburg',
+      fr: 'Location vélo Fribourg',
+      tr: 'Freiburg Bisiklet Kiralama',
+    };
+    const serviceDescByLang: Record<string, string> = {
+      de: 'Fahrradverleih in Freiburg im Breisgau — Cityräder, Trekkingräder und E-Bikes mit individuell gepflegten Tagespreisen je Fahrrad. Helm und Schloss inklusive.',
+      en: 'Rent a bike in Freiburg — city bikes, trekking bikes and e-bikes with individual daily rates per bike. Helmet and lock included. No appointment needed.',
+      fr: 'Location de vélos à Fribourg — vélos de ville, VTT et VAE avec tarifs journaliers par vélo. Casque et antivol inclus.',
+      tr: "Freiburg'da bisiklet kiralama — city bisikletleri, trekking bisikletleri ve e-bisikletler. Kask ve kilit dahil.",
+    };
+    const breadcrumbNameByLang: Record<string, string> = {
+      de: 'Fahrradverleih',
+      en: 'Bike Rental',
+      fr: 'Location vélo',
+      tr: 'Bisiklet Kiralama',
+    };
+
     const schema = {
       '@context': 'https://schema.org',
       '@graph': [
         {
           '@type': 'Service',
           '@id': `${pageUrl}#service`,
-          name: 'Fahrradverleih Freiburg',
+          name: serviceNameByLang[schemaLang] ?? 'Fahrradverleih Freiburg',
           alternateName: [
             'Bike Rental Freiburg',
+            'Fahrradverleih Freiburg',
             'Location vélo Freiburg',
             'Freiburg Bisiklet Kiralama',
           ],
-          description:
-            'Fahrradverleih in Freiburg im Breisgau — Cityräder, Trekkingräder und E-Bikes mit individuell gepflegten Tagespreisen je Fahrrad. Helm und Schloss inklusive.',
+          description: serviceDescByLang[schemaLang] ?? serviceDescByLang['de'],
           provider: {
             '@type': 'LocalBusiness',
             '@id': 'https://bikehausfreiburg.com/#organization',
@@ -5029,7 +5049,7 @@ export class FahrradverleihComponent implements OnInit {
             {
               '@type': 'ListItem',
               position: 2,
-              name: 'Fahrradverleih',
+              name: breadcrumbNameByLang[schemaLang] ?? 'Fahrradverleih',
               item: pageUrl,
             },
           ],

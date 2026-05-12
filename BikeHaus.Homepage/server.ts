@@ -17,8 +17,21 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
 
-  // Example Express Rest API endpoints
-  // server.get('/api/**', (req, res) => { });
+  // www → non-www canonical redirect (301 Permanent)
+  server.use((req, res, next) => {
+    const host = req.headers.host ?? '';
+    if (host.startsWith('www.')) {
+      const canonicalHost = host.slice(4);
+      return res.redirect(301, `https://${canonicalHost}${req.url}`);
+    }
+    next();
+  });
+
+  // /en/fahrradverleih → /en/bike-rental (canonical EN slug)
+  server.get('/en/fahrradverleih', (_req, res) => {
+    res.redirect(301, '/en/bike-rental');
+  });
+
   // Serve static files from /browser
   server.get(
     '*.*',

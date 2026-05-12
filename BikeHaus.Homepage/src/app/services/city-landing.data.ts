@@ -60,9 +60,9 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         offerHeading: 'Unser Angebot',
         offerItems: [
-          'Citybikes ab ca. 80 € (gebraucht) / ab 350 € (neu)',
+          'Citybikes ab ca. 180 € (gebraucht) / ab 350 € (neu)',
           'Trekkingräder für Pendler und Freizeit',
-          'E-Bikes ab ca. 800 € (gebraucht) — Akku-Zustand dokumentiert',
+          'E-Bikes ab ca. 999 € (gebraucht) — Akku-Zustand dokumentiert',
           'Mountainbikes für Trails im Schwarzwald',
           'Kinderfahrräder in allen Größen',
           'Fahrradzubehör: Schlösser, Helme, Beleuchtung, Körbe',
@@ -132,9 +132,9 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         offerHeading: 'Notre offre',
         offerItems: [
-          "Vélos de ville à partir d'env. 80 € (occasion) / 350 € (neuf)",
+          "Vélos de ville à partir d'env. 180 € (occasion) / 350 € (neuf)",
           'VTC pour les trajets et les loisirs',
-          "Vélos électriques à partir d'env. 800 € (occasion) — état de la batterie documenté",
+          "Vélos électriques à partir d'env. 999 € (occasion) — état de la batterie documenté",
           'VTT pour les sentiers de la Forêt-Noire',
           'Vélos pour enfants dans toutes les tailles',
           'Accessoires vélo: antivols, casques, éclairage, paniers',
@@ -167,9 +167,9 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         offerHeading: 'Ürün Yelpazemiz',
         offerItems: [
-          "Şehir bisikletleri yaklaşık 80 €'dan (ikinci el) / 350 €'dan (yeni)",
+          "Şehir bisikletleri yaklaşık 180 €'dan (ikinci el) / 350 €'dan (yeni)",
           'İşe gidip gelme ve boş zaman için trekking bisikletleri',
-          "E-bisikletler yaklaşık 800 €'dan (ikinci el) — akü durumu belgelenmiş",
+          "E-bisikletler yaklaşık 999 €'dan (ikinci el) — akü durumu belgelenmiş",
           'Schwarzwald parkurları için dağ bisikletleri',
           'Tüm bedenlerde çocuk bisikletleri',
           'Bisiklet aksesuarları: kilitler, kasklar, aydınlatma, sepetler',
@@ -214,7 +214,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'E-Bikes für die Hügel im Markgräflerland',
           'Trekkingräder für den Dreisamtal-Radweg',
           'Kinderfahrräder in allen Größen',
-          'Gebrauchte Fahrräder ab ca. 80 €',
+          'Gebrauchte Fahrräder ab ca. 180 €',
         ],
         ctaHeading: 'Besuchen Sie uns!',
         ctaText:
@@ -281,7 +281,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Vélos électriques pour les collines du Markgräflerland',
           'VTC pour la piste cyclable du Dreisamtal',
           'Vélos pour enfants dans toutes les tailles',
-          "Vélos d'occasion à partir d'env. 80 €",
+          "Vélos d'occasion à partir d'env. 180 €",
         ],
         ctaHeading: 'Venez nous voir!',
         ctaText:
@@ -315,7 +315,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Markgräflerland tepeleri için e-bisikletler',
           'Dreisamtal bisiklet yolu için trekking bisikletleri',
           'Tüm bedenlerde çocuk bisikletleri',
-          "İkinci el bisikletler yaklaşık 80 €'dan",
+          "İkinci el bisikletler yaklaşık 180 €'dan",
         ],
         ctaHeading: 'Bizi ziyaret edin!',
         ctaText:
@@ -496,7 +496,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'E-Bikes für entspanntes Pendeln',
           'Trekkingräder für Freizeittouren im Dreisamtal',
           'Kinderfahrräder für alle Altersgruppen',
-          'Gebrauchte Fahrräder ab ca. 80 €',
+          'Gebrauchte Fahrräder ab ca. 180 €',
         ],
         ctaHeading: 'Jetzt vorbeikommen!',
         ctaText:
@@ -561,7 +561,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Vélos électriques pour un trajet détendu',
           'VTC pour les randonnées dans le Dreisamtal',
           'Vélos pour enfants pour tous les âges',
-          "Vélos d'occasion à partir d'env. 80 €",
+          "Vélos d'occasion à partir d'env. 180 €",
         ],
         ctaHeading: 'Venez nous voir!',
         ctaText:
@@ -594,7 +594,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Rahat ulaşım için e-bisikletler',
           "Dreisamtal'da boş zaman turları için trekking bisikletleri",
           'Tüm yaş grupları için çocuk bisikletleri',
-          "İkinci el bisikletler yaklaşık 80 €'dan",
+          "İkinci el bisikletler yaklaşık 180 €'dan",
         ],
         ctaHeading: 'Hemen gelin!',
         ctaText:
@@ -634,7 +634,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'E-Bikes für die Strecke March – Freiburg',
           'Trekkingräder für Touren im Breisgau',
           'Kinderfahrräder',
-          'Gebrauchte Fahrräder ab ca. 80 €',
+          'Gebrauchte Fahrräder ab ca. 180 €',
         ],
         ctaHeading: 'Besuchen Sie uns!',
         ctaText:
@@ -698,7 +698,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'Vélos électriques pour le trajet March – Freiburg',
           'VTC pour les randonnées dans le Breisgau',
           'Vélos pour enfants',
-          "Vélos d'occasion à partir d'env. 80 €",
+          "Vélos d'occasion à partir d'env. 180 €",
         ],
         ctaHeading: 'Venez nous voir!',
         ctaText:
@@ -730,7 +730,7 @@ export const CITY_LANDINGS: CityLanding[] = [
           'March – Freiburg güzergahı için e-bisikletler',
           "Breisgau'da turlar için trekking bisikletleri",
           'Çocuk bisikletleri',
-          "İkinci el bisikletler yaklaşık 80 €'dan",
+          "İkinci el bisikletler yaklaşık 180 €'dan",
         ],
         ctaHeading: 'Bizi ziyaret edin!',
         ctaText:

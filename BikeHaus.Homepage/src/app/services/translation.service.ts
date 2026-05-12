@@ -1,16 +1,16 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
-    Injectable,
-    PLATFORM_ID,
-    computed,
-    inject,
-    signal,
+  Injectable,
+  PLATFORM_ID,
+  computed,
+  inject,
+  signal,
 } from '@angular/core';
 import {
-    DEFAULT_LANGUAGE,
-    getLanguageDirection,
-    isSupportedLanguage,
-    type SupportedLanguageCode,
+  DEFAULT_LANGUAGE,
+  getLanguageDirection,
+  isSupportedLanguage,
+  type SupportedLanguageCode,
 } from './language-config';
 import { EXTENDED_TRANSLATION_OVERRIDES } from './translation-overrides';
 
@@ -1138,7 +1138,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Jedes Gebrauchtrad wird technisch geprüft. Sie erhalten 3 Tage Rückgaberecht und 3 Monate Garantie auf alle Gebrauchträder. Neue Fahrräder haben 24 Monate Garantie.',
     faqQ4: 'Was kostet ein gebrauchtes Fahrrad?',
     faqA4:
-      'Gebrauchte Fahrräder beginnen ab ca. 80 €. Gebrauchte E-Bikes ab ca. 800 €. Alle Preise sind fair kalkuliert.',
+      'Gebrauchte Fahrräder beginnen ab ca. 180 €. Gebrauchte E-Bikes ab ca. 999 €. Alle Preise sind fair kalkuliert.',
     faqQ5: 'Gibt es gebrauchte E-Bikes?',
     faqA5:
       'Ja, wir bieten hochwertige gebrauchte E-Bikes mit dokumentiertem Akku-Zustand und Garantie an. Alle E-Bikes werden vor dem Verkauf geprüft.',
@@ -1211,9 +1211,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
   },
 
   en: {
-    metaTitle: 'Buy & Rent a Bike in Freiburg | Bike Haus Freiburg',
+    metaTitle: 'Bike Shop Freiburg — Buy, Rent & Used Bikes | Bike Haus Freiburg',
     metaDescription:
-      'Bike shop in Freiburg Haid ✓ Buy or rent a bike ✓ 100+ inspected bikes ✓ City, Trekking, E-Bike ✓ Daily bike rental pricing per bike ✓ 3-month warranty. No appointment needed — Heckerstraße 27!',
+      'Bike shop in Freiburg — 100+ inspected used & new bikes ✓ City, E-Bike, Trekking, Kids ✓ Daily bike rental ✓ 3-month warranty. No appointment — Heckerstraße 27!',
 
     home: 'Home',
     showroom: 'Showroom',
@@ -1221,7 +1221,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     about: 'About',
     contact: 'Contact',
 
-    heroH1: 'Bikes in Freiburg — new & used.',
+    heroH1: 'Bike Shop in Freiburg — New & Used Bikes.',
     heroSub:
       'Buy or rent a bike in Freiburg ✓ Inspected used bikes from €180 ✓ Bike rental with per-bike daily pricing ✓ City, Trekking & E-Bikes ✓ Pick up same day.',
     ctaPrimary: 'Discover New Bikes',
@@ -1451,9 +1451,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalDay: 'Day',
     bikeRentalDays: 'Days',
 
-    rentalHeroTitle: 'Rent a bike',
+    rentalHeroTitle: 'Rent a Bike in Freiburg',
     rentalHeroSub:
-      'Available immediately – fair, flexible, no hidden costs. Pick up directly from us in Freiburg.',
+      'Rent a bike in Freiburg same day — fair daily rates, no hidden costs. City bikes, e-bikes & trekking. Pick up directly at Heckerstraße 27.',
     rentalHeroWaCta: 'Questions? WhatsApp',
     rentalHeroScrollCta: 'Choose a bike & reserve now',
     rentalPricingTitle: 'Fair. Transparent. No extras.',
@@ -1632,9 +1632,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     gearsUnit: 'gears',
     filterFrameSize: 'Frame Size',
     showroomMetaTitle:
-      'Buy Used Bikes in Freiburg | Showroom | Bike Haus Freiburg',
+      'Used & New Bikes Freiburg — Buy Second-Hand | Bike Haus Freiburg',
     showroomMetaDescription:
-      'Buy used & new bikes in Freiburg ✓ 100+ inspected bikes ✓ City, Trekking, Mountain, E-Bike ✓ 3-month warranty ✓ Ready to ride. Bike Haus Freiburg.',
+      'Buy used & new bikes in Freiburg — 100+ inspected second-hand bikes ✓ City, E-Bike, Trekking, Mountain ✓ 3-month warranty ✓ Ready to ride. Bike Haus Freiburg.',
 
     detailMetaDescSuffix:
       'View now at Bike Haus Freiburg in 79114 Freiburg im Breisgau.',
@@ -1709,9 +1709,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     faqMetaDescription:
       'Frequently asked questions about buying & renting bikes in Freiburg: warranty, e-bikes, test rides, opening hours, prices. Answered by Bike Haus Freiburg.',
     bikeRentalMetaTitle:
-      'Bike Rental Freiburg | Daily Pricing Per Bike | Bike Haus Freiburg',
+      'Rent a Bike in Freiburg — City, E-Bike & Trekking | Bike Haus',
     bikeRentalMetaDescription:
-      'Bike rental in Freiburg with daily pricing configured per bike for days 1 to 7, plus a fixed extra-day surcharge from day 8. Helmet & lock included. ✓ Bike Haus Freiburg.',
+      'Rent a bike in Freiburg — city bikes, e-bikes & trekking daily ✓ Helmet & lock included ✓ Pick up same day ✓ No hidden fees ✓ Heckerstraße 27, Freiburg.',
     garantieMetaTitle: 'Warranty Terms — Bike Haus Freiburg',
     garantieMetaDescription:
       'Warranty terms for new and used bicycles at Bike Haus Freiburg. 2 years for new bikes, 3 months for used bikes.',
@@ -1817,7 +1817,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     heroH1: 'Vélos à Fribourg — neufs & occasion.',
     heroSub:
-      "Achetez ou louez votre vélo à Fribourg-en-Brisgau ✓ Vélos inspectés dès 80 € ✓ Location avec tarifs journaliers définis par vélo ✓ Retrait immédiat ✓ À 25 km de l'Alsace.",
+      "Achetez ou louez votre vélo à Fribourg-en-Brisgau ✓ Vélos inspectés dès 180 € ✓ Location avec tarifs journaliers définis par vélo ✓ Retrait immédiat ✓ À 25 km de l'Alsace.",
     ctaPrimary: 'Découvrir les nouveaux vélos',
     ctaSecondary: 'Voir le showroom',
     ctaRental: 'Louer un vélo',
@@ -2354,7 +2354,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "Chaque vélo d'occasion est contrôlé. Vous bénéficiez de 3 jours de droit de retour et 3 mois de garantie. Les vélos neufs ont 24 mois de garantie.",
     faqQ4: "Combien coûte un vélo d'occasion ?",
     faqA4:
-      "Les vélos d'occasion commencent à env. 80 €. Les VAE d'occasion à env. 800 €.",
+      "Les vélos d'occasion commencent à env. 180 €. Les VAE d'occasion à env. 999 €.",
     faqQ5: "Avez-vous des VAE d'occasion ?",
     faqA5:
       "Oui, nous proposons des VAE d'occasion contrôlés avec état de batterie documenté et garantie.",
@@ -2970,7 +2970,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Her ikinci el bisiklet teknik kontrolden geçer. 3 gün iade hakkı ve 3 ay garanti. Yeni bisikletlerde 24 ay garanti.',
     faqQ4: 'İkinci el bisiklet ne kadar?',
     faqA4:
-      "İkinci el bisikletler yaklaşık 80 €'dan başlar. İkinci el e-bisikletler yaklaşık 800 €'dan.",
+      "İkinci el bisikletler yaklaşık 180 €'dan başlar. İkinci el e-bisikletler yaklaşık 999 €'dan.",
     faqQ5: 'İkinci el e-bisikletiniz var mı?',
     faqA5:
       'Evet, belgelenmiş akü durumu ve garantili kontrollü ikinci el e-bisikletler sunuyoruz.',

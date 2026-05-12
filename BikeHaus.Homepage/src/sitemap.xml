@@ -81,26 +81,6 @@
 
   <!-- Blog Articles -->
   <url>
-    <loc>https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-tipps</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/gebrauchtes-fahrrad-kaufen-tipps"/>
-    <lastmod>2026-04-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://bikehausfreiburg.com/de/ratgeber/welches-fahrrad-passt-zu-mir</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/welches-fahrrad-passt-zu-mir"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber/welches-fahrrad-passt-zu-mir"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber/welches-fahrrad-passt-zu-mir"/>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber/welches-fahrrad-passt-zu-mir"/>
-    <lastmod>2026-04-12</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber/fahrrad-rahmengroesse-berechnen</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber/fahrrad-rahmengroesse-berechnen"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide/bike-frame-size-calculator-guide"/>
@@ -241,15 +221,27 @@
     <priority>0.82</priority>
   </url>
 
-  <!-- Fahrradverleih -->
+  <!-- Fahrradverleih / Bike Rental -->
   <url>
     <loc>https://bikehausfreiburg.com/de/fahrradverleih</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <!-- EN canonical: /en/bike-rental -->
+  <url>
+    <loc>https://bikehausfreiburg.com/en/bike-rental</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <lastmod>2026-05-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>

@@ -781,7 +781,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
         {
           question: 'Was kostet eine Fahrradinspektion?',
           answer:
-            'Eine Fahrradinspektion kostet je nach Umfang 20–100 €. Ein einfacher Basis-Check (Bremsen, Schaltung, Luft) kostet ca. 20–30 €. Die Standard-Inspektion aller Komponenten liegt bei 40–60 €. Eine große Inspektion mit Reinigung und Nachfetten kostet 60–80 €. E-Bike Inspektionen kosten aufgrund der Elektronikdiagnose 70–100 €.',
+            'Eine Fahrradinspektion kostet je nach Umfang 20–100 €. Ein einfacher Basis-Check (Bremsen, Schaltung, Luft) kostet ca. 20–30 €. Die Standard-Inspektion aller Komponenten liegt bei 40–60 €. Eine große Inspektion mit Reinigung und Nachfetten kostet 60–180 €. E-Bike Inspektionen kosten aufgrund der Elektronikdiagnose 70–100 €.',
         },
         {
           question: 'Was wird bei einer Fahrrad-Inspektion geprüft?',

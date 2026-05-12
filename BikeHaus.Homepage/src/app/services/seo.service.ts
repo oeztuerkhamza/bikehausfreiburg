@@ -18,6 +18,11 @@ const BLOG_SEGMENTS = new Set(['guide', 'ratgeber']);
 function getBlogBasePath(lang: Language): string {
   return lang === 'de' || lang === 'tr' ? 'ratgeber' : 'guide';
 }
+// Rental page uses language-specific slugs
+const RENTAL_SEGMENTS = new Set(['bike-rental', 'fahrradverleih']);
+function getRentalPath(lang: string): string {
+  return lang === 'en' ? 'bike-rental' : 'fahrradverleih';
+}
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {
@@ -74,6 +79,17 @@ export class SeoService {
     // Hreflang is handled by RatgeberDetailComponent (which already imports blog.data).
     // Here we only update og:url and let the component set language-specific hreflang.
     if (pathSegments.length === 3 && BLOG_SEGMENTS.has(pathSegments[1])) {
+      this.updateMetaProperty('og:url', canonicalUrl);
+      return;
+    }
+
+    // ── Rental page: /:lang/(bike-rental|fahrradverleih) ──
+    // EN uses /en/bike-rental; all other langs use /xx/fahrradverleih
+    if (pathSegments.length === 2 && RENTAL_SEGMENTS.has(pathSegments[1])) {
+      for (const lang of SUPPORTED_LANGUAGES) {
+        this.addHreflangLink(lang, `${BASE_URL}/${lang}/${getRentalPath(lang)}`);
+      }
+      this.addHreflangLink('x-default', `${BASE_URL}/${DEFAULT_LANGUAGE}/fahrradverleih`);
       this.updateMetaProperty('og:url', canonicalUrl);
       return;
     }

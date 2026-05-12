@@ -3337,7 +3337,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     const schema = {
       '@context': 'https://schema.org',
       '@type': ['LocalBusiness', 'BikeStore'],
-      '@id': 'https://bikehausfreiburg.com/#localbusiness',
+      '@id': 'https://bikehausfreiburg.com/#organization',
       name: 'Bike Haus Freiburg',
       image: 'https://bikehausfreiburg.com/assets/logo.png',
       url: 'https://bikehausfreiburg.com',
