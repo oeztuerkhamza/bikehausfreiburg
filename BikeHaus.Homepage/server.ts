@@ -32,6 +32,11 @@ export function app(): express.Express {
     res.redirect(301, '/en/bike-rental');
   });
 
+  // /fr/fahrradverleih → /fr/location-velo (canonical FR slug)
+  server.get('/fr/fahrradverleih', (_req, res) => {
+    res.redirect(301, '/fr/location-velo');
+  });
+
   // Serve static files from /browser
   server.get(
     '*.*',

@@ -19,9 +19,11 @@ function getBlogBasePath(lang: Language): string {
   return lang === 'de' || lang === 'tr' ? 'ratgeber' : 'guide';
 }
 // Rental page uses language-specific slugs
-const RENTAL_SEGMENTS = new Set(['bike-rental', 'fahrradverleih']);
+const RENTAL_SEGMENTS = new Set(['bike-rental', 'fahrradverleih', 'location-velo']);
 function getRentalPath(lang: string): string {
-  return lang === 'en' ? 'bike-rental' : 'fahrradverleih';
+  if (lang === 'en') return 'bike-rental';
+  if (lang === 'fr') return 'location-velo';
+  return 'fahrradverleih';
 }
 
 @Injectable({ providedIn: 'root' })

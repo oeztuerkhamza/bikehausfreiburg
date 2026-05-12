@@ -4867,7 +4867,7 @@ export class FahrradverleihComponent implements OnInit {
   ngOnInit(): void {
     const t = this.t();
     const lang = this.lang();
-    const rentalSlug = lang === 'en' ? 'bike-rental' : 'fahrradverleih';
+    const rentalSlug = lang === 'en' ? 'bike-rental' : lang === 'fr' ? 'location-velo' : 'fahrradverleih';
     const pageUrl = `https://bikehausfreiburg.com/${lang}/${rentalSlug}`;
 
     this.bookingForm.sprache = this.getCurrentLanguage();

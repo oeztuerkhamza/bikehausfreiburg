@@ -142,7 +142,7 @@ interface Testimonial {
             </ul>
             <div class="rental-ctas">
               <a
-                [routerLink]="['/' + lang(), 'fahrradverleih']"
+                [routerLink]="['/' + lang(), rentalSlug()]"
                 class="rental-cta-primary"
               >
                 {{ t().homeRentalBookCta }}
@@ -2963,6 +2963,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+  rentalSlug = () => (this.lang() === 'en' ? 'bike-rental' : 'fahrradverleih');
 
   listings = signal<KleinanzeigenListing[]>([]);
   categories = signal<KleinanzeigenCategory[]>([]);

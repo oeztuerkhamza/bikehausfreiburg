@@ -2053,9 +2053,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalDay: 'Jour',
     bikeRentalDays: 'Jours',
 
-    rentalHeroTitle: 'Louer un vélo',
+    rentalHeroTitle: 'Louer un vélo à Fribourg',
     rentalHeroSub:
-      'Disponible immédiatement – juste, flexible, sans frais cachés. Récupérez directement chez nous à Fribourg.',
+      'Louer un vélo à Fribourg le jour même — tarifs journaliers équitables, sans frais cachés. Vélos de ville, VAE & trekking. Récupérez directement à Heckerstraße 27.',
     rentalHeroWaCta: 'Questions ? WhatsApp',
     rentalHeroScrollCta: 'Choisir un vélo & réserver',
     rentalPricingTitle: 'Juste. Transparent. Sans suppléments.',

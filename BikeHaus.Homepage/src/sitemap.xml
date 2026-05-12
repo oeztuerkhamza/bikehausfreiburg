@@ -226,7 +226,7 @@
     <loc>https://bikehausfreiburg.com/de/fahrradverleih</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
     <lastmod>2026-05-12</lastmod>
@@ -238,12 +238,24 @@
     <loc>https://bikehausfreiburg.com/en/bike-rental</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
     <lastmod>2026-05-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
+  </url>
+  <!-- FR canonical: /fr/location-velo -->
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/location-velo</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.92</priority>
   </url>
 
   <!-- Garantie -->
