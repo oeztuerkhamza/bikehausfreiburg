@@ -228,6 +228,17 @@ export interface GoogleReviewsResponse {
   placeUrl: string;
 }
 
+// ── Checkout / Payment ──
+export interface CheckoutRequest {
+  bikeId: number;
+  listingDisplayId: number;
+  lang: string;
+}
+
+export interface CheckoutSessionResponse {
+  checkoutUrl: string;
+}
+
 // ── Rental Reviews ──
 export interface RentalReviewPublic {
   id: number;

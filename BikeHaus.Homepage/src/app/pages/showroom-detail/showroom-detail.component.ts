@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -193,8 +193,9 @@ import { environment } from '../../../environments/environment';
                 </div>
               </div>
 
-              <!-- CTA -->
+              <!-- CTA: Kleinanzeigen link (only for external listings) -->
               <a
+                *ngIf="listing()!.externalUrl"
                 [href]="listing()!.externalUrl"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -214,6 +215,31 @@ import { environment } from '../../../environments/environment';
                   />
                 </svg>
               </a>
+
+              <!-- CTA: Buy Now (only for BikeHaus own bikes with a price) -->
+              <button
+                *ngIf="isBikeHausBike() && listing()!.price"
+                class="btn-buy-now"
+                [class.loading]="checkoutLoading()"
+                [disabled]="checkoutLoading()"
+                (click)="onBuyNow()"
+              >
+                <svg
+                  *ngIf="!checkoutLoading()"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
+                  <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6" />
+                </svg>
+                <span class="btn-buy-spinner" *ngIf="checkoutLoading()"></span>
+                {{ checkoutLoading() ? 'Weiterleitung...' : 'Jetzt kaufen — ' + listing()!.priceText }}
+              </button>
+              <p *ngIf="checkoutError()" class="checkout-error">{{ checkoutError() }}</p>
 
               <!-- Google Maps -->
               <a
@@ -889,6 +915,59 @@ import { environment } from '../../../environments/environment';
         transform: translateY(-1px);
       }
 
+      .btn-buy-now {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+        width: 100%;
+        margin-top: 0.8rem;
+        padding: 1rem 1.5rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--color-accent), #e64a00);
+        border: none;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 700;
+        font-family: var(--font-family);
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+        box-shadow: 0 4px 20px rgba(255, 87, 34, 0.35);
+        letter-spacing: -0.01em;
+      }
+
+      .btn-buy-now:hover:not(:disabled) {
+        opacity: 0.92;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(255, 87, 34, 0.45);
+      }
+
+      .btn-buy-now:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
+      .btn-buy-spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        flex-shrink: 0;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .checkout-error {
+        margin-top: 0.6rem;
+        font-size: 0.82rem;
+        color: #ff5252;
+        text-align: center;
+      }
+
       .desc-section {
         margin-top: 3rem;
         padding-top: 2.5rem;
@@ -1116,8 +1195,14 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   relatedListings = signal<KleinanzeigenListing[]>([]);
   loading = signal(true);
   selectedImage = signal(0);
+  checkoutLoading = signal(false);
+  checkoutError = signal<string | null>(null);
   userWhatsappMessage = '';
   private whatsappPhone = '4915566300011';
+
+  isBikeHausBike = computed(() =>
+    this.listing()?.externalId?.startsWith('bike-') ?? false,
+  );
 
   private static readonly NEW_PATTERN =
     /\b(neue?[smrn]?|nagelneu|brandneu|unbenutzt|originalverpackt|\bovp\b)\b/i;
@@ -1355,6 +1440,33 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.removeProductSchema();
+  }
+
+  onBuyNow(): void {
+    const listing = this.listing();
+    if (!listing || !this.isBikeHausBike()) return;
+
+    const realId = parseInt(listing.externalId.replace('bike-', ''), 10);
+    this.checkoutLoading.set(true);
+    this.checkoutError.set(null);
+
+    this.apiService
+      .createCheckoutSession({
+        bikeId: realId,
+        listingDisplayId: listing.id,
+        lang: this.lang(),
+      })
+      .subscribe({
+        next: (res) => {
+          window.location.href = res.checkoutUrl;
+        },
+        error: () => {
+          this.checkoutLoading.set(false);
+          this.checkoutError.set(
+            'Zahlung konnte nicht gestartet werden. Bitte versuche es erneut.',
+          );
+        },
+      });
   }
 
   prevImage(): void {

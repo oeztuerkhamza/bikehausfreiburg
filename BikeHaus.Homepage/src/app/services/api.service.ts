@@ -19,6 +19,8 @@ import {
   RentalBookingResponse,
   RentalReviewPublic,
   RentalReviewCreate,
+  CheckoutRequest,
+  CheckoutSessionResponse,
 } from '../models/models';
 
 @Injectable({
@@ -185,6 +187,15 @@ export class ApiService {
   createRentalReview(dto: RentalReviewCreate): Observable<RentalReviewPublic> {
     return this.http.post<RentalReviewPublic>(
       `${this.baseUrl}/rentals/reviews`,
+      dto,
+    );
+  }
+
+  // ── Checkout / Payment ──
+
+  createCheckoutSession(dto: CheckoutRequest): Observable<CheckoutSessionResponse> {
+    return this.http.post<CheckoutSessionResponse>(
+      `${this.baseUrl}/checkout/create-session`,
       dto,
     );
   }

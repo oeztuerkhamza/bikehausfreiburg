@@ -24,6 +24,11 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'showroom/danke',
+    redirectTo: `${DEFAULT_LANGUAGE}/showroom/danke`,
+    pathMatch: 'full',
+  },
+  {
     path: 'showroom/:id',
     redirectTo: `${DEFAULT_LANGUAGE}/showroom/:id`,
     pathMatch: 'full',
@@ -42,6 +47,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/showroom/showroom.component').then(
             (m) => m.ShowroomComponent,
+          ),
+      },
+      {
+        path: 'showroom/danke',
+        loadComponent: () =>
+          import('./pages/showroom/order-success.component').then(
+            (m) => m.OrderSuccessComponent,
           ),
       },
       {

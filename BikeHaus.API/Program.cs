@@ -1,4 +1,6 @@
 using System.Text;
+using Mollie.Api.Client;
+using Mollie.Api.Client.Abstract;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Infrastructure;
 using BikeHaus.Infrastructure.Data;
@@ -63,6 +65,10 @@ builder.Services.AddAuthorization();
 
 // Infrastructure DI
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Mollie payment
+var mollieApiKey = builder.Configuration["Mollie:ApiKey"] ?? "";
+builder.Services.AddTransient<IPaymentClient>(_ => new PaymentClient(mollieApiKey));
 
 // Response Compression (Brotli + Gzip for API responses)
 builder.Services.AddResponseCompression(options =>
