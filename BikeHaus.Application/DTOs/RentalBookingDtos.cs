@@ -15,10 +15,27 @@ public record RentalBookingAccessoryDto(
     decimal Gesamtpreis
 );
 
-public record RentalBookingCreateDto(
+public record RentalBookingBikeCreateDto(
     int BicycleId,
     DateTime StartDatum,
+    DateTime EndDatum
+);
+
+public record RentalBookingBikeDto(
+    int Id,
+    int BicycleId,
+    string Marke,
+    string Modell,
+    string? Farbe,
+    string? Rahmengroesse,
+    string? Art,
+    DateTime StartDatum,
     DateTime EndDatum,
+    decimal? Gesamtpreis
+);
+
+public record RentalBookingCreateDto(
+    List<RentalBookingBikeCreateDto> Bikes,
     string Vorname,
     string Nachname,
     string? Email,
@@ -31,7 +48,8 @@ public record RentalBookingCreateDto(
 public record RentalBookingDto(
     int Id,
     string BuchungsNummer,
-    BicycleDto Bicycle,
+    BicycleDto? Bicycle,
+    List<RentalBookingBikeDto> Bikes,
     DateTime StartDatum,
     DateTime EndDatum,
     string Vorname,

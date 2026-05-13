@@ -6,7 +6,7 @@ import { RentalBookingService } from '../../services/rental-booking.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { TranslationService } from '../../services/translation.service';
-import { RentalBooking, RentalBookingStatus } from '../../models/models';
+import { RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../models/models';
 
 @Component({
   selector: 'app-rental-booking-detail',
@@ -26,8 +26,8 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
           </button>
           <button
             class="btn btn-success"
-            (click)="convertToContract()"
-            *ngIf="booking.status !== BookingStatus.Cancelled"
+            (click)="convertToContract(getFirstBikeId())"
+            *ngIf="booking.status !== BookingStatus.Cancelled && booking.bikes.length <= 1"
             title="Mietanfrage als Mietvertrag anlegen"
           >
             <svg
@@ -82,23 +82,50 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
           </div>
         </div>
 
-        <div class="info-card">
+        <div class="info-card" *ngIf="booking.bikes && booking.bikes.length > 0">
+          <h3>{{ t.bicycle }} <span *ngIf="booking.bikes.length > 1" class="bike-count-badge">{{ booking.bikes.length }}</span></h3>
+          <div *ngFor="let bike of booking.bikes; let i = index" [class.bike-item]="booking.bikes.length > 1">
+            <div class="bike-item-header" *ngIf="booking.bikes.length > 1">
+              <strong>{{ i + 1 }}. Fahrrad</strong>
+              <button
+                class="btn btn-sm btn-success"
+                (click)="convertBikeToContract(bike)"
+                *ngIf="booking.status !== BookingStatus.Cancelled"
+                title="Mietvertrag für dieses Fahrrad"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:4px">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="12" y1="18" x2="12" y2="12"/>
+                  <line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
+                Mietvertrag
+              </button>
+            </div>
+            <div class="info-row">
+              <span>{{ t.brandModel }}:</span>
+              <strong>{{ bike.marke }} {{ bike.modell }}</strong>
+            </div>
+            <div class="info-row" *ngIf="booking.bikes.length > 1">
+              <span>{{ t.from }}:</span>
+              <strong>{{ bike.startDatum | date: 'dd.MM.yyyy' }}</strong>
+            </div>
+            <div class="info-row" *ngIf="booking.bikes.length > 1">
+              <span>{{ t.to }}:</span>
+              <strong>{{ bike.endDatum | date: 'dd.MM.yyyy' }}</strong>
+            </div>
+            <div class="info-row" *ngIf="bike.gesamtpreis && booking.bikes.length > 1">
+              <span>{{ t.total }}:</span>
+              <strong>{{ bike.gesamtpreis | number: '1.2-2' }} €</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card" *ngIf="!booking.bikes || booking.bikes.length === 0">
           <h3>{{ t.bicycle }}</h3>
-          <div class="info-row">
+          <div class="info-row" *ngIf="booking.bicycle">
             <span>{{ t.brandModel }}:</span>
-            <strong
-              >{{ booking.bicycle.marke }} {{ booking.bicycle.modell }}</strong
-            >
-          </div>
-          <div class="info-row" *ngIf="booking.bicycle.rahmennummer">
-            <span>{{ t.frameNumber }}:</span>
-            <span style="text-transform: uppercase">
-              {{ booking.bicycle.rahmennummer }}
-            </span>
-          </div>
-          <div class="info-row" *ngIf="booking.bicycle.farbe">
-            <span>{{ t.color }}:</span>
-            <span>{{ booking.bicycle.farbe }}</span>
+            <strong>{{ booking.bicycle.marke }} {{ booking.bicycle.modell }}</strong>
           </div>
         </div>
 
@@ -290,6 +317,40 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
         color: #fff;
         border-color: var(--accent-danger, #ef4444);
       }
+      .bike-count-badge {
+        display: inline-block;
+        background: var(--accent-primary, #6366f1);
+        color: #fff;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-align: center;
+        line-height: 20px;
+        vertical-align: middle;
+        margin-left: 4px;
+      }
+      .bike-item {
+        border-top: 1px solid var(--border-light, #e2e8f0);
+        padding-top: 8px;
+        margin-top: 8px;
+      }
+      .bike-item:first-child {
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
+      }
+      .bike-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .btn-sm {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+      }
     `,
   ],
 })
@@ -370,10 +431,23 @@ export class RentalBookingDetailComponent implements OnInit {
       });
   }
 
-  convertToContract() {
+  getFirstBikeId(): number | null {
+    if (!this.booking) return null;
+    if (this.booking.bikes?.length > 0) return this.booking.bikes[0].bicycleId;
+    return this.booking.bicycle?.id ?? null;
+  }
+
+  convertToContract(bicycleId?: number | null) {
+    if (!this.booking) return;
+    const params: Record<string, string | number> = { bookingId: this.booking.id };
+    if (bicycleId) params['bicycleId'] = bicycleId;
+    this.router.navigate(['/rentals/new'], { queryParams: params });
+  }
+
+  convertBikeToContract(bike: RentalBookingBike) {
     if (!this.booking) return;
     this.router.navigate(['/rentals/new'], {
-      queryParams: { bookingId: this.booking.id },
+      queryParams: { bookingId: this.booking.id, bicycleId: bike.bicycleId },
     });
   }
 

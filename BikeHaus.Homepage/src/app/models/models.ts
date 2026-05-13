@@ -149,10 +149,14 @@ export interface RentalBookingAccessoryCreate {
   menge: number;
 }
 
-export interface RentalBookingCreate {
+export interface RentalBookingBikeCreate {
   bicycleId: number;
   startDatum: string;
   endDatum: string;
+}
+
+export interface RentalBookingCreate {
+  bikes: RentalBookingBikeCreate[];
   vorname: string;
   nachname: string;
   email: string;

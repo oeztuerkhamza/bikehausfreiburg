@@ -104,13 +104,13 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal?>("RentalPriceAdditionalDayAfter7")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("RentalPriceDay1")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("RentalPriceDay2")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("RentalPriceDay14")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("RentalPriceDay3")
@@ -125,16 +125,7 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<decimal?>("RentalPriceDay6")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("RentalPriceDay30")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal?>("RentalPriceDay7")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("RentalPriceAdditionalDayAfter7")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("RentalPricePerDayFrom10")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Status")
@@ -1152,6 +1143,42 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("RentalBookingAccessories");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RentalBookingBike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BicycleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("EndDatum")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("Gesamtpreis")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("RentalBookingId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("StartDatum")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BicycleId");
+
+                    b.HasIndex("RentalBookingId");
+
+                    b.ToTable("RentalBookingBikes");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.RentalReview", b =>
                 {
                     b.Property<int>("Id")
@@ -1875,6 +1902,25 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Navigation("RentalBooking");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RentalBookingBike", b =>
+                {
+                    b.HasOne("BikeHaus.Domain.Entities.Bicycle", "Bicycle")
+                        .WithMany()
+                        .HasForeignKey("BicycleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BikeHaus.Domain.Entities.RentalBooking", "RentalBooking")
+                        .WithMany("Bikes")
+                        .HasForeignKey("RentalBookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bicycle");
+
+                    b.Navigation("RentalBooking");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.RepairShowcaseImage", b =>
                 {
                     b.HasOne("BikeHaus.Domain.Entities.RepairShowcase", "RepairShowcase")
@@ -2090,6 +2136,8 @@ namespace BikeHaus.Infrastructure.Migrations
             modelBuilder.Entity("BikeHaus.Domain.Entities.RentalBooking", b =>
                 {
                     b.Navigation("Accessories");
+
+                    b.Navigation("Bikes");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.RepairShowcase", b =>

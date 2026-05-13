@@ -1465,6 +1465,7 @@ export class RentalFormComponent implements OnInit {
         this.availableBikes = bikes.filter((b) => b.status === 'Available');
 
         const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
+        const bicycleIdParam = this.route.snapshot.queryParamMap.get('bicycleId');
         if (bookingId) {
           this.fromBookingId = Number(bookingId);
           this.bookingService.getById(this.fromBookingId).subscribe({
@@ -1474,18 +1475,30 @@ export class RentalFormComponent implements OnInit {
               this.customer.telefon = booking.telefon || '';
               this.customer.email = booking.email || '';
 
-              this.startDatum = booking.startDatum.split('T')[0];
-              this.endDatum = booking.endDatum.split('T')[0];
+              // For multi-bike bookings, find the specific bike by bicycleId param
+              const targetBikeId = bicycleIdParam ? Number(bicycleIdParam) : null;
+              const bookingBike = targetBikeId && booking.bikes?.length > 0
+                ? booking.bikes.find(bk => bk.bicycleId === targetBikeId)
+                : booking.bikes?.[0];
+
+              const bikeStartDatum = bookingBike?.startDatum ?? booking.startDatum;
+              const bikeEndDatum = bookingBike?.endDatum ?? booking.endDatum;
+
+              this.startDatum = bikeStartDatum.split('T')[0];
+              this.endDatum = bikeEndDatum.split('T')[0];
               this.pickingState = 'start';
 
-              // Navigate calendar to the booking start month
               const start = new Date(this.startDatum);
               this.calendarMonth = start.getMonth();
               this.calendarYear = start.getFullYear();
 
               this.onDatesChanged();
 
-              if (booking.gesamtpreis) this.gesamtmiete = booking.gesamtpreis;
+              if (bookingBike?.gesamtpreis) {
+                this.gesamtmiete = bookingBike.gesamtpreis;
+              } else if (booking.gesamtpreis) {
+                this.gesamtmiete = booking.gesamtpreis;
+              }
               this.notizen = booking.notizen || '';
 
               if (booking.accessories && booking.accessories.length > 0) {
@@ -1500,23 +1513,27 @@ export class RentalFormComponent implements OnInit {
                 );
               }
 
-              const match = this.availableBikes.find(
-                (b) => b.id === booking.bicycle.id,
-              );
-              if (match) {
-                this.onBikeSelected(match);
-              } else {
-                this.isQuickAddMode = false;
-                this.selectedBike = booking.bicycle as Bicycle;
-                this.bikeEdit = {
-                  rahmennummer: booking.bicycle.rahmennummer || '',
-                  marke: booking.bicycle.marke || '',
-                  modell: booking.bicycle.modell || '',
-                  farbe: booking.bicycle.farbe || '',
-                  reifengroesse: booking.bicycle.reifengroesse || '',
-                  fahrradtyp: booking.bicycle.fahrradtyp || '',
-                };
-                this.loadBusyPeriods(booking.bicycle.id);
+              const bikeId = targetBikeId ?? bookingBike?.bicycleId ?? booking.bicycle?.id;
+              if (bikeId) {
+                const match = this.availableBikes.find((b) => b.id === bikeId);
+                if (match) {
+                  this.onBikeSelected(match);
+                } else {
+                  this.isQuickAddMode = false;
+                  const srcBike = bookingBike ?? (booking.bicycle as any);
+                  if (srcBike) {
+                    this.selectedBike = { id: srcBike.bicycleId ?? srcBike.id } as Bicycle;
+                    this.bikeEdit = {
+                      rahmennummer: '',
+                      marke: srcBike.marke || '',
+                      modell: srcBike.modell || '',
+                      farbe: srcBike.farbe || '',
+                      reifengroesse: srcBike.reifengroesse || '',
+                      fahrradtyp: srcBike.fahrradtyp || '',
+                    };
+                    this.loadBusyPeriods(bikeId);
+                  }
+                }
               }
             },
             error: () => {

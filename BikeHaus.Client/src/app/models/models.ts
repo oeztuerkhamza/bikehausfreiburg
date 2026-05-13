@@ -912,10 +912,24 @@ export interface RentalBookingAccessory {
   gesamtpreis: number;
 }
 
+export interface RentalBookingBike {
+  id: number;
+  bicycleId: number;
+  marke: string;
+  modell: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  art?: string;
+  startDatum: string;
+  endDatum: string;
+  gesamtpreis?: number;
+}
+
 export interface RentalBooking {
   id: number;
   buchungsNummer: string;
-  bicycle: Bicycle;
+  bicycle?: Bicycle;
+  bikes: RentalBookingBike[];
   startDatum: string;
   endDatum: string;
   vorname: string;

@@ -350,12 +350,24 @@ public class BicycleService : IBicycleService
         // Approved bookings (Mietanfragen)
         var approvedBookings = await _bookingRepository.GetApprovedByBicycleIdAsync(bicycleId);
         result.AddRange(approvedBookings.Select(b =>
-            new BusyPeriodDto(b.StartDatum.Date, b.EndDatum.Date, "booking")));
+        {
+            var bk = b.Bikes.FirstOrDefault(bk => bk.BicycleId == bicycleId);
+            return new BusyPeriodDto(
+                (bk?.StartDatum ?? b.StartDatum).Date,
+                (bk?.EndDatum ?? b.EndDatum).Date,
+                "booking");
+        }));
 
         // Pending booking requests (not processed yet)
         var pendingBookings = await _bookingRepository.GetPendingByBicycleIdAsync(bicycleId);
         result.AddRange(pendingBookings.Select(b =>
-            new BusyPeriodDto(b.StartDatum.Date, b.EndDatum.Date, "pending")));
+        {
+            var bk = b.Bikes.FirstOrDefault(bk => bk.BicycleId == bicycleId);
+            return new BusyPeriodDto(
+                (bk?.StartDatum ?? b.StartDatum).Date,
+                (bk?.EndDatum ?? b.EndDatum).Date,
+                "pending");
+        }));
 
         return result;
     }

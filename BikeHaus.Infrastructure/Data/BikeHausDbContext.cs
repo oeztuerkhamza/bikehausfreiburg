@@ -34,6 +34,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<Rental> Rentals => Set<Rental>();
     public DbSet<RentalAccessory> RentalAccessories => Set<RentalAccessory>();
     public DbSet<RentalBooking> RentalBookings => Set<RentalBooking>();
+    public DbSet<RentalBookingBike> RentalBookingBikes => Set<RentalBookingBike>();
     public DbSet<RentalBookingAccessory> RentalBookingAccessories => Set<RentalBookingAccessory>();
     public DbSet<RentalAccessoryItem> RentalAccessoryItems => Set<RentalAccessoryItem>();
     public DbSet<RenovationCost> RenovationCosts => Set<RenovationCost>();
@@ -258,7 +259,24 @@ public class BikeHausDbContext : DbContext
                 .HasForeignKey(e => e.BicycleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            entity.HasMany(e => e.Bikes)
+                .WithOne(bk => bk.RentalBooking)
+                .HasForeignKey(bk => bk.RentalBookingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             entity.HasIndex(e => e.BuchungsNummer).IsUnique();
+        });
+
+        // ── RentalBookingBike Configuration ──
+        modelBuilder.Entity<RentalBookingBike>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Gesamtpreis).HasColumnType("decimal(18,2)");
+
+            entity.HasOne(e => e.Bicycle)
+                .WithMany()
+                .HasForeignKey(e => e.BicycleId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── RentalBookingAccessory Configuration ──

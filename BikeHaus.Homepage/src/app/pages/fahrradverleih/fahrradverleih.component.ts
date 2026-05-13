@@ -5343,42 +5343,31 @@ export class FahrradverleihComponent implements OnInit {
     this.bookingSubmitting.set(true);
     this.bookingError.set(null);
 
-    const dtos: RentalBookingCreate[] = slots.map((slot) => ({
-      bicycleId: slot.bike.id,
-      startDatum: slot.startDatum,
-      endDatum: slot.endDatum,
+    const dto: RentalBookingCreate = {
+      bikes: slots.map((slot) => ({
+        bicycleId: slot.bike.id,
+        startDatum: slot.startDatum,
+        endDatum: slot.endDatum,
+      })),
       vorname: f.vorname.trim(),
       nachname: f.nachname.trim(),
       email: f.email.trim(),
       telefon: f.telefon.trim() || undefined,
       sprache: f.sprache,
       notizen: f.notizen.trim() || undefined,
-    }));
+    };
 
-    const bookingNrs: string[] = [];
-    let completed = 0;
-    let hasError = false;
-
-    dtos.forEach((dto) => {
-      this.apiService.createRentalBooking(dto).subscribe({
-        next: (res) => {
-          bookingNrs.push(res.buchungsNummer);
-          completed++;
-          if (completed === dtos.length && !hasError) {
-            this.confirmedBookingNrs.set(bookingNrs);
-            this.bookingSuccess.set(true);
-            this.bookingSubmitting.set(false);
-          }
-        },
-        error: (err) => {
-          if (!hasError) {
-            hasError = true;
-            const msg = err?.error?.error || this.pageCopy().bookingErrors.generic;
-            this.bookingError.set(msg);
-            this.bookingSubmitting.set(false);
-          }
-        },
-      });
+    this.apiService.createRentalBooking(dto).subscribe({
+      next: (res) => {
+        this.confirmedBookingNrs.set([res.buchungsNummer]);
+        this.bookingSuccess.set(true);
+        this.bookingSubmitting.set(false);
+      },
+      error: (err) => {
+        const msg = err?.error?.error || this.pageCopy().bookingErrors.generic;
+        this.bookingError.set(msg);
+        this.bookingSubmitting.set(false);
+      },
     });
   }
 

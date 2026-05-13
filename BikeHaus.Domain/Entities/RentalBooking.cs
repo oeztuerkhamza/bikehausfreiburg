@@ -27,4 +27,5 @@ public class RentalBooking : BaseEntity
 
     public Bicycle Bicycle { get; set; } = null!;
     public ICollection<RentalBookingAccessory> Accessories { get; set; } = new List<RentalBookingAccessory>();
+    public ICollection<RentalBookingBike> Bikes { get; set; } = new List<RentalBookingBike>();
 }

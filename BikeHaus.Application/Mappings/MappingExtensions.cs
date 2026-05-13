@@ -330,38 +330,84 @@ public static class MappingExtensions
         entity.Tagespreis * entity.Menge
     );
 
-    public static RentalBookingDto ToDto(this RentalBooking entity) => new(
+    public static RentalBookingBikeDto ToDto(this RentalBookingBike entity) => new(
         entity.Id,
-        entity.BuchungsNummer,
-        entity.Bicycle.ToDto(),
+        entity.BicycleId,
+        entity.Bicycle?.Marke ?? string.Empty,
+        entity.Bicycle?.Modell ?? string.Empty,
+        entity.Bicycle?.Farbe,
+        entity.Bicycle?.Rahmengroesse,
+        entity.Bicycle?.Art,
         entity.StartDatum,
         entity.EndDatum,
-        entity.Vorname,
-        entity.Nachname,
-        entity.Email,
-        entity.Telefon,
-        entity.Sprache,
-        entity.Notizen,
-        entity.AdminNotizen,
-        entity.Gesamtpreis,
-        entity.Status,
-        entity.CreatedAt,
-        entity.ApprovedAt,
-        entity.CancelledAt,
-        entity.Accessories.Select(a => a.ToDto()).ToList()
+        entity.Gesamtpreis
     );
 
-    public static RentalBookingListDto ToListDto(this RentalBooking entity) => new(
-        entity.Id,
-        entity.BuchungsNummer,
-        $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
-        $"{entity.Vorname} {entity.Nachname}".Trim(),
-        entity.StartDatum,
-        entity.EndDatum,
-        entity.Gesamtpreis,
-        entity.Status,
-        entity.CreatedAt
-    );
+    public static RentalBookingDto ToDto(this RentalBooking entity)
+    {
+        var bikes = entity.Bikes.Any()
+            ? entity.Bikes.Select(bk => bk.ToDto()).ToList()
+            : new List<RentalBookingBikeDto>
+            {
+                new(0, entity.BicycleId,
+                    entity.Bicycle?.Marke ?? string.Empty,
+                    entity.Bicycle?.Modell ?? string.Empty,
+                    entity.Bicycle?.Farbe,
+                    entity.Bicycle?.Rahmengroesse,
+                    entity.Bicycle?.Art,
+                    entity.StartDatum,
+                    entity.EndDatum,
+                    entity.Gesamtpreis)
+            };
+
+        return new RentalBookingDto(
+            entity.Id,
+            entity.BuchungsNummer,
+            entity.Bicycle?.ToDto(),
+            bikes,
+            entity.StartDatum,
+            entity.EndDatum,
+            entity.Vorname,
+            entity.Nachname,
+            entity.Email,
+            entity.Telefon,
+            entity.Sprache,
+            entity.Notizen,
+            entity.AdminNotizen,
+            entity.Gesamtpreis,
+            entity.Status,
+            entity.CreatedAt,
+            entity.ApprovedAt,
+            entity.CancelledAt,
+            entity.Accessories.Select(a => a.ToDto()).ToList()
+        );
+    }
+
+    public static RentalBookingListDto ToListDto(this RentalBooking entity)
+    {
+        string bikeInfo;
+        if (entity.Bikes.Any())
+        {
+            bikeInfo = string.Join(" + ", entity.Bikes.Select(bk =>
+                $"{bk.Bicycle?.Marke ?? ""} {bk.Bicycle?.Modell ?? ""}".Trim()));
+        }
+        else
+        {
+            bikeInfo = $"{entity.Bicycle?.Marke ?? ""} {entity.Bicycle?.Modell ?? ""}".Trim();
+        }
+
+        return new RentalBookingListDto(
+            entity.Id,
+            entity.BuchungsNummer,
+            bikeInfo,
+            $"{entity.Vorname} {entity.Nachname}".Trim(),
+            entity.StartDatum,
+            entity.EndDatum,
+            entity.Gesamtpreis,
+            entity.Status,
+            entity.CreatedAt
+        );
+    }
 
     public static ReservationListDto ToListDto(this Reservation entity) => new(
         entity.Id,
