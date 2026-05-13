@@ -187,6 +187,7 @@ public class BicycleService : IBicycleService
         entity.RentalPriceDay6 = dto.RentalPriceDay6;
         entity.RentalPriceDay7 = dto.RentalPriceDay7;
         entity.RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7;
+        entity.Kaution = dto.Kaution;
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(entity);

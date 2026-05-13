@@ -28,6 +28,7 @@ public static class MappingExtensions
         entity.RentalPriceDay6,
         entity.RentalPriceDay7,
         entity.RentalPriceAdditionalDayAfter7,
+        entity.Kaution,
         entity.IsPublishedOnWebsite,
         entity.IsPublishedOnKleinanzeigen,
         entity.VerkaufspreisVorschlag,
@@ -79,19 +80,22 @@ public static class MappingExtensions
         RentalPriceDay5 = dto.RentalPriceDay5,
         RentalPriceDay6 = dto.RentalPriceDay6,
         RentalPriceDay7 = dto.RentalPriceDay7,
-        RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7
+        RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7,
+        Kaution = dto.Kaution
     };
 
     public static PublicRentalBicycleDto ToPublicRentalDto(this Bicycle entity) => new(
         entity.Id,
         entity.Marke,
         entity.Modell,
+        entity.Rahmennummer,
         entity.Farbe,
         entity.Reifengroesse,
         entity.Fahrradtyp,
         entity.Art,
         entity.Beschreibung,
         entity.Rahmengroesse,
+        entity.Kaution,
         entity.Images?.Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>(),
         new RentalPriceDto(
             entity.RentalPriceDay1,
@@ -335,9 +339,11 @@ public static class MappingExtensions
         entity.BicycleId,
         entity.Bicycle?.Marke ?? string.Empty,
         entity.Bicycle?.Modell ?? string.Empty,
-        entity.Bicycle?.Farbe,
+        entity.Rahmennummer,
+        entity.Farbe,
         entity.Bicycle?.Rahmengroesse,
         entity.Bicycle?.Art,
+        entity.Kaution,
         entity.StartDatum,
         entity.EndDatum,
         entity.Gesamtpreis
@@ -352,9 +358,11 @@ public static class MappingExtensions
                 new(0, entity.BicycleId,
                     entity.Bicycle?.Marke ?? string.Empty,
                     entity.Bicycle?.Modell ?? string.Empty,
+                    entity.Bicycle?.Rahmennummer,
                     entity.Bicycle?.Farbe,
                     entity.Bicycle?.Rahmengroesse,
                     entity.Bicycle?.Art,
+                    entity.Bicycle?.Kaution,
                     entity.StartDatum,
                     entity.EndDatum,
                     entity.Gesamtpreis)

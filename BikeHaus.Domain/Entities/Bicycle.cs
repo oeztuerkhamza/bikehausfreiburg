@@ -33,6 +33,7 @@ public class Bicycle : BaseEntity
     public decimal? RentalPriceDay6 { get; set; }
     public decimal? RentalPriceDay7 { get; set; }
     public decimal? RentalPriceAdditionalDayAfter7 { get; set; }
+    public decimal? Kaution { get; set; }
 
     // Publishing flags
     public bool IsPublishedOnWebsite { get; set; } = false;

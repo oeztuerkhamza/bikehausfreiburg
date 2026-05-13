@@ -28,6 +28,7 @@ interface RentalForm {
   rentalPriceDay6: number | null;
   rentalPriceDay7: number | null;
   rentalPriceAdditionalDayAfter7: number | null;
+  kaution: number | null;
 }
 
 @Component({
@@ -104,6 +105,14 @@ interface RentalForm {
                   />
                 </div>
                 <div class="field">
+                  <label>{{ t.frameNumber }}</label>
+                  <input
+                    [(ngModel)]="form.rahmennummer"
+                    name="rahmennummer"
+                    placeholder="z.B. BHF-2026-001"
+                  />
+                </div>
+                <div class="field">
                   <label>{{ t.mietfahrradType }}</label>
                   <select [(ngModel)]="form.fahrradtyp" name="fahrradtyp">
                     <option value="">Bitte wählen</option>
@@ -136,11 +145,19 @@ interface RentalForm {
                 </div>
                 <div class="field">
                   <label>{{ t.mietfahrradColor }}</label>
-                  <input
-                    [(ngModel)]="form.farbe"
-                    name="farbe"
-                    placeholder="z.B. Silber"
-                  />
+                  <div class="color-chips">
+                    <button
+                      type="button"
+                      *ngFor="let c of colorOptions"
+                      class="color-chip"
+                      [class.selected]="isColorSelected(form.farbe, c.value)"
+                      [style.--chip-color]="c.hex"
+                      (click)="form.farbe = toggleColor(form.farbe, c.value)"
+                    >
+                      <span class="chip-dot"></span>
+                      <span>{{ c.value }}</span>
+                    </button>
+                  </div>
                 </div>
                 <div class="field full">
                   <label>{{ t.mietfahrradDescription }}</label>
@@ -194,6 +211,20 @@ interface RentalForm {
                 Preise in € pro Tag für 1 bis 7 Tage. Danach wird der
                 Zusatzpreis pro weiterem Tag verwendet.
               </p>
+              <div class="price-field" style="margin-bottom: 14px;">
+                <label>Kaution (€)</label>
+                <div class="price-input-wrap">
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    [(ngModel)]="form.kaution"
+                    name="kaution"
+                    placeholder="z.B. 300"
+                  />
+                  <span class="currency">€</span>
+                </div>
+              </div>
               <div class="price-grid">
                 <div class="price-field">
                   <label>{{ t.mietfahrradPriceDay1 }}</label>
@@ -614,6 +645,40 @@ interface RentalForm {
           var(--accent-primary-light, rgba(99, 102, 241, 0.08));
       }
 
+      .color-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .color-chip {
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        border-radius: 999px;
+        padding: 6px 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        cursor: pointer;
+        color: var(--text-primary);
+        font-size: 0.8rem;
+        transition: border-color 0.2s ease;
+      }
+      .color-chip:hover {
+        border-color: var(--accent-primary);
+      }
+      .color-chip.selected {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+      }
+      .chip-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--chip-color, #ccc);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+      }
+
       .rentable-toggle {
         margin-top: 20px;
         padding-top: 20px;
@@ -953,7 +1018,19 @@ export class MietfahrradFormComponent implements OnInit {
     rentalPriceDay6: null,
     rentalPriceDay7: null,
     rentalPriceAdditionalDayAfter7: null,
+    kaution: null,
   };
+
+  colorOptions = [
+    { value: 'Schwarz', hex: '#111827' },
+    { value: 'Weiß', hex: '#f9fafb' },
+    { value: 'Silber', hex: '#9ca3af' },
+    { value: 'Grau', hex: '#6b7280' },
+    { value: 'Blau', hex: '#2563eb' },
+    { value: 'Rot', hex: '#dc2626' },
+    { value: 'Grün', hex: '#16a34a' },
+    { value: 'Gelb', hex: '#facc15' },
+  ];
 
   get t() {
     return this.translationService.translations();
@@ -994,6 +1071,7 @@ export class MietfahrradFormComponent implements OnInit {
           rentalPriceDay7: bike.rentalPriceDay7 ?? null,
           rentalPriceAdditionalDayAfter7:
             bike.rentalPriceAdditionalDayAfter7 ?? null,
+          kaution: bike.kaution ?? null,
         };
         this.images.set(bike.images ?? []);
         this.pageLoading.set(false);
@@ -1033,6 +1111,7 @@ export class MietfahrradFormComponent implements OnInit {
       rentalPriceDay7: this.form.rentalPriceDay7 || null,
       rentalPriceAdditionalDayAfter7:
         this.form.rentalPriceAdditionalDayAfter7 || null,
+      kaution: this.form.kaution || null,
     };
 
     if (this.isEdit) {
@@ -1114,5 +1193,18 @@ export class MietfahrradFormComponent implements OnInit {
 
   getPricePreview() {
     return getConfiguredRentalPriceLines(this.form);
+  }
+
+  isColorSelected(farbe: string, color: string): boolean {
+    if (!farbe) return false;
+    return farbe.split(/[,/]\s*/).includes(color);
+  }
+
+  toggleColor(farbe: string, color: string): string {
+    const colors = farbe ? farbe.split(/[,/]\s*/).filter(Boolean) : [];
+    const idx = colors.indexOf(color);
+    if (idx >= 0) colors.splice(idx, 1);
+    else colors.push(color);
+    return colors.join(', ');
   }
 }

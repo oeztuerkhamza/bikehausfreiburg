@@ -63,6 +63,7 @@ export interface Bicycle {
   rentalPriceDay6?: number;
   rentalPriceDay7?: number;
   rentalPriceAdditionalDayAfter7?: number;
+  kaution?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
@@ -101,6 +102,7 @@ export interface BicycleCreate {
   rentalPriceDay6?: number;
   rentalPriceDay7?: number;
   rentalPriceAdditionalDayAfter7?: number;
+  kaution?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
@@ -128,6 +130,7 @@ export interface BicycleUpdate {
   rentalPriceDay6?: number;
   rentalPriceDay7?: number;
   rentalPriceAdditionalDayAfter7?: number;
+  kaution?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;

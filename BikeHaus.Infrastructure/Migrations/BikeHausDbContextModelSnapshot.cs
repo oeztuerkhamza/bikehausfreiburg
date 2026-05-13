@@ -79,6 +79,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<bool>("IsRentable")
                         .HasColumnType("INTEGER");
 
+                    b.Property<decimal?>("Kaution")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("KleinanzeigenAnzeigeNr")
                         .HasColumnType("TEXT");
 
@@ -157,6 +160,10 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Farbe")
+                        .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FilePath")
@@ -1063,6 +1070,13 @@ namespace BikeHaus.Infrastructure.Migrations
 
                     b.Property<decimal?>("Gesamtpreis")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Kaution")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Rahmennummer")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Nachname")
                         .IsRequired()

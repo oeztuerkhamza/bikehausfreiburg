@@ -153,6 +153,13 @@ public class RentalBookingService : IRentalBookingService
             booking.Bikes.Add(new RentalBookingBike
             {
                 BicycleId = bikeDto.BicycleId,
+                Rahmennummer = string.IsNullOrWhiteSpace(bikeDto.Rahmennummer)
+                    ? bicycle.Rahmennummer
+                    : bikeDto.Rahmennummer.Trim(),
+                Farbe = string.IsNullOrWhiteSpace(bikeDto.Farbe)
+                    ? bicycle.Farbe
+                    : bikeDto.Farbe.Trim(),
+                Kaution = bikeDto.Kaution ?? bicycle.Kaution,
                 StartDatum = bikeDto.StartDatum.Date,
                 EndDatum = bikeDto.EndDatum.Date,
                 Gesamtpreis = bikePrice

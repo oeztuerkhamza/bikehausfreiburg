@@ -156,6 +156,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       validEmail: 'Por favor ingresa una dirección de correo válida.',
       generic: 'Ocurrió un error. Por favor intenta de nuevo.',
     },
+    addBikeLabel: 'Agregar bicicleta',
+    priceSummaryLabel: 'Resumen de precios',
+    totalRentalLabel: 'Alquiler total',
+    totalKautionLabel: 'Depósito total',
   },
   it: {
     serviceHighlightsAria: 'Punti forti del servizio',
@@ -288,6 +292,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       validEmail: 'Inserisci un indirizzo email valido.',
       generic: 'Si è verificato un errore. Riprova.',
     },
+    addBikeLabel: 'Aggiungi bici',
+    priceSummaryLabel: 'Riepilogo prezzi',
+    totalRentalLabel: 'Noleggio totale',
+    totalKautionLabel: 'Deposito totale',
   },
   ar: {
     serviceHighlightsAria: 'نقاط قوة الخدمة',
@@ -428,6 +436,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       validEmail: 'يرجى إدخال عنوان بريد إلكتروني صحيح.',
       generic: 'حدث خطأ. يرجى المحاولة مرة أخرى.',
     },
+    addBikeLabel: 'إضافة دراجة',
+    priceSummaryLabel: 'ملخص الأسعار',
+    totalRentalLabel: 'إجمالي الإيجار',
+    totalKautionLabel: 'إجمالي الوديعة',
   },
   ru: {
     serviceHighlightsAria: 'Основные достоинства услуги',
@@ -560,5 +572,9 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       validEmail: 'Пожалуйста, введите действительный адрес электронной почты.',
       generic: 'Произошла ошибка. Пожалуйста, попробуйте еще раз.',
     },
+    addBikeLabel: 'Добавить велосипед',
+    priceSummaryLabel: 'Обзор цен',
+    totalRentalLabel: 'Итого аренда',
+    totalKautionLabel: 'Итого залог',
   },
 };
