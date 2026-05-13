@@ -1,3 +1,5 @@
+using BikeHaus.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -5,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BikeHaus.Infrastructure.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(BikeHausDbContext))]
+    [Migration("20260514001500_AddBicycleKautionAndBookingBikeCapturedFields")]
     public partial class AddBicycleKautionAndBookingBikeCapturedFields : Migration
     {
         /// <inheritdoc />
