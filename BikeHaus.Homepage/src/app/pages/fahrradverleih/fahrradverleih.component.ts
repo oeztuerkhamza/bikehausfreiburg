@@ -1266,6 +1266,21 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   ...EXTENDED_RENTAL_PAGE_COPY,
 };
 
+interface BikeSlot {
+  slotId: number;
+  bike: PublicRentalBicycle;
+  busyPeriods: { start: Date; end: Date; type: string }[];
+  busyPeriodsLoading: boolean;
+  calCurrentDate: Date;
+  calStart: Date | null;
+  calEnd: Date | null;
+  startDatum: string;
+  endDatum: string;
+  calculatedDays: number;
+  calculatedPrice: number | null;
+  imageIndex: number;
+}
+
 @Component({
   selector: 'app-fahrradverleih',
   standalone: true,
@@ -1442,8 +1457,8 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
             <div
               class="seat-card"
               *ngFor="let bike of bikes()"
-              [class.seat-selected]="selectedBike()?.id === bike.id"
-              (click)="selectBike(bike)"
+              [class.seat-selected]="isSelectedBike(bike.id)"
+              (click)="toggleBike(bike)"
             >
               <div class="seat-img-wrap">
                 <img
@@ -1507,18 +1522,9 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
               </div>
               <div
                 class="seat-check-mark"
-                *ngIf="selectedBike()?.id === bike.id"
+                *ngIf="isSelectedBike(bike.id)"
               >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="3"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+                <span class="seat-slot-num">{{ getSlotNumber(bike.id) }}</span>
               </div>
             </div>
           </div>
@@ -1549,542 +1555,314 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
         <!-- Inline Booking Panel -->
         <section
           class="booking-panel"
-          *ngIf="selectedBike()"
+          *ngIf="bikeSlots().length > 0"
           id="booking-panel"
         >
-          <!-- Panel header: selected bike + change button -->
-          <div class="bp-bike-bar">
-            <div class="bp-bike-thumb">
-              <img
-                *ngIf="getSelectedBikeImagePath() as selectedImagePath"
-                [src]="getImageUrl(selectedImagePath)"
-                [alt]="selectedBike()!.marke"
-              />
-              <svg
-                *ngIf="!getSelectedBikeImagePath()"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <circle cx="5.5" cy="17.5" r="3.5" />
-                <circle cx="18.5" cy="17.5" r="3.5" />
-                <path
-                  d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3"
-                />
-              </svg>
-            </div>
-            <div class="bp-bike-details">
-              <span class="bp-bike-name"
-                >{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</span
-              >
-              <span class="bp-bike-meta">
-                <span *ngIf="selectedBike()!.rahmengroesse">{{
-                  selectedBike()!.rahmengroesse
-                }}</span>
-                <span *ngIf="selectedBike()!.farbe">
-                  · {{ selectedBike()!.farbe }}</span
-                >
-              </span>
-            </div>
-            <button class="bp-change-btn" (click)="deselectBike()">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-              >
-                <path
-                  d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
-                />
-                <path
-                  d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
-                />
-              </svg>
-              {{ t().rentalChangeBike }}
-            </button>
-          </div>
-
-          <!-- Selected bike details + gallery -->
-          <div class="bp-bike-overview" *ngIf="!bookingSuccess()">
-            <div class="bp-gallery" *ngIf="selectedBike()!.images.length > 0">
-              <button
-                type="button"
-                class="bp-gallery-main"
-                (click)="openLightbox()"
-                [attr.aria-label]="pageCopy().zoomImageAriaLabel"
-              >
-                <img
-                  *ngIf="getSelectedBikeImagePath() as selectedImagePath"
-                  [src]="getImageUrl(selectedImagePath)"
-                  [alt]="selectedBike()!.marke + ' ' + selectedBike()!.modell"
-                />
-                <span class="bp-zoom-hint" aria-hidden="true">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.3-4.3M11 8v6M8 11h6" />
-                  </svg>
-                </span>
-              </button>
-
-              <div
-                class="bp-gallery-thumbs"
-                *ngIf="selectedBike()!.images.length > 1"
-              >
-                <button
-                  type="button"
-                  class="bp-thumb-btn"
-                  *ngFor="let image of selectedBike()!.images; let i = index"
-                  [class.active]="i === selectedBikeImageIndex()"
-                  (click)="selectBikeImage(i)"
-                >
-                  <img
-                    [src]="getImageUrl(image.filePath)"
-                    [alt]="
-                      selectedBike()!.marke +
-                      ' ' +
-                      selectedBike()!.modell +
-                      ' ' +
-                      pageCopy().zoomImageAriaLabel +
-                      ' ' +
-                      (i + 1)
-                    "
-                    loading="lazy"
-                  />
-                </button>
-              </div>
-            </div>
-
-            <div class="bp-bike-info-panel">
-              <h4>{{ t().rentalBikeDetails }}</h4>
-              <div class="bp-bike-facts">
-                <span class="bp-fact" *ngIf="selectedBike()!.fahrradtyp"
-                  >{{ pageCopy().bikeFactLabels.type }}:
-                  {{ selectedBike()!.fahrradtyp }}</span
-                >
-                <span class="bp-fact" *ngIf="selectedBike()!.art"
-                  >{{ pageCopy().bikeFactLabels.category }}:
-                  {{ selectedBike()!.art }}</span
-                >
-                <span class="bp-fact" *ngIf="selectedBike()!.rahmengroesse"
-                  >{{ pageCopy().bikeFactLabels.frame }}:
-                  {{ selectedBike()!.rahmengroesse }}</span
-                >
-                <span class="bp-fact" *ngIf="selectedBike()!.reifengroesse"
-                  >{{ pageCopy().bikeFactLabels.tire }}:
-                  {{ selectedBike()!.reifengroesse }}</span
-                >
-                <span class="bp-fact" *ngIf="selectedBike()!.farbe"
-                  >{{ pageCopy().bikeFactLabels.color }}:
-                  {{ selectedBike()!.farbe }}</span
-                >
-              </div>
-
-              <p
-                class="bp-bike-description"
-                *ngIf="selectedBike()!.beschreibung"
-              >
-                {{ selectedBike()!.beschreibung }}
-              </p>
-
-              <div class="bp-price-grid">
-                <div
-                  class="bp-price-item"
-                  *ngFor="let item of getPriceLines(selectedBike()!)"
-                >
-                  <span>{{ item.label }}</span
-                  ><strong>{{ item.price | number: '1.0-0' }} €</strong>
-                </div>
-                <div
-                  class="bp-price-item"
-                  *ngIf="selectedBike()!.preise.additionalDayAfter7 != null"
-                >
-                  <span>{{ pageCopy().extraDayPriceLabel }}</span
-                  ><strong
-                    >{{
-                      selectedBike()!.preise.additionalDayAfter7
-                        | number: '1.0-0'
-                    }}
-                    €</strong
-                  >
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Success state -->
           <div class="bp-success" *ngIf="bookingSuccess()">
             <div class="bp-success-icon">
-              <svg
-                width="40"
-                height="40"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
             <h3>{{ t().rentalSuccessTitle }}</h3>
             <p>
-              {{ t().rentalSuccessText }}<br />{{
-                pageCopy().successEmailPrefix
-              }}
+              {{ t().rentalSuccessText }}<br />{{ pageCopy().successEmailPrefix }}
               <strong>{{ bookingForm.email }}</strong>
               {{ pageCopy().successEmailSuffix }}
             </p>
-            <div class="bp-booking-nr">
-              {{ t().rentalSuccessBookingNr }}:
-              <strong>{{ confirmedBookingNr() }}</strong>
+            <div class="bp-booking-nrs">
+              <div *ngFor="let nr of confirmedBookingNrs(); let nri = index" class="bp-booking-nr">
+                {{ t().rentalSuccessBookingNr }} {{ nri + 1 }}: <strong>{{ nr }}</strong>
+              </div>
             </div>
-            <button class="bp-new-btn" (click)="deselectBike()">
+            <button class="bp-new-btn" (click)="resetAll()">
               {{ t().rentalSuccessNewRequest }}
             </button>
           </div>
 
-          <!-- Booking body: calendar + form -->
-          <div class="bp-body" *ngIf="!bookingSuccess()">
-            <!-- Calendar column -->
-            <div class="bp-cal-col">
-              <h3 class="bp-col-title">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                {{ t().rentalFormPeriod }}
-              </h3>
+          <!-- Multi-slot view -->
+          <div *ngIf="!bookingSuccess()">
 
-              <!-- Busy loading -->
-              <div class="bp-cal-loading" *ngIf="busyPeriodsLoading()">
-                <div class="bp-spinner"></div>
-                <span>{{ t().rentalLoadingAvail }}</span>
+            <!-- One section per selected bike -->
+            <div class="bike-slot-section" *ngFor="let slot of bikeSlots(); let si = index">
+
+              <!-- Slot header: bike info + remove button -->
+              <div class="bp-bike-bar">
+                <div class="bp-slot-num">{{ si + 1 }}</div>
+                <div class="bp-bike-thumb">
+                  <img *ngIf="getSlotImagePath(slot) as imgPath" [src]="getImageUrl(imgPath)" [alt]="slot.bike.marke" />
+                  <svg *ngIf="!getSlotImagePath(slot)" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="5.5" cy="17.5" r="3.5" /><circle cx="18.5" cy="17.5" r="3.5" />
+                    <path d="M15 6a1 1 0 100-2 1 1 0 000 2zM12 17.5V14l-3-3 4-3 2 3h3" />
+                  </svg>
+                </div>
+                <div class="bp-bike-details">
+                  <span class="bp-bike-name">{{ slot.bike.marke }} {{ slot.bike.modell }}</span>
+                  <span class="bp-bike-meta">
+                    <span *ngIf="slot.bike.rahmengroesse">{{ slot.bike.rahmengroesse }}</span>
+                    <span *ngIf="slot.bike.farbe"> · {{ slot.bike.farbe }}</span>
+                  </span>
+                </div>
+                <button class="bp-change-btn" (click)="removeSlot(slot.slotId)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
+                  {{ t().rentalChangeBike }}
+                </button>
               </div>
 
-              <div class="booking-calendar" *ngIf="!busyPeriodsLoading()">
-                <div class="bc-header">
-                  <button type="button" class="bc-nav" (click)="prevMonth()">
-                    <svg
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <path d="M15 18l-6-6 6-6" />
-                    </svg>
+              <!-- Gallery + bike info -->
+              <div class="bp-bike-overview">
+                <div class="bp-gallery" *ngIf="slot.bike.images.length > 0">
+                  <button type="button" class="bp-gallery-main" (click)="openLightboxForSlot(slot)" [attr.aria-label]="pageCopy().zoomImageAriaLabel">
+                    <img *ngIf="getSlotImagePath(slot) as imgPath" [src]="getImageUrl(imgPath)" [alt]="slot.bike.marke + ' ' + slot.bike.modell" />
+                    <span class="bp-zoom-hint" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3M11 8v6M8 11h6" />
+                      </svg>
+                    </span>
                   </button>
-                  <span class="bc-month-title">{{ calMonthLabel() }}</span>
-                  <button type="button" class="bc-nav" (click)="nextMonth()">
-                    <svg
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <path d="M9 18l6-6-6-6" />
-                    </svg>
-                  </button>
-                </div>
-                <div class="bc-weekdays">
-                  <span *ngFor="let weekday of pageCopy().weekdays">{{
-                    weekday
-                  }}</span>
-                </div>
-                <div class="bc-grid">
-                  <div
-                    *ngFor="let day of calendarDays()"
-                    class="bc-cell"
-                    [class.bc-empty]="!day"
-                    [class.bc-past]="day && isPast(day)"
-                    [class.bc-busy]="
-                      day && !isPast(day) && getDayBusyType(day) === 'booking'
-                    "
-                    [class.bc-pending]="
-                      day && !isPast(day) && getDayBusyType(day) === 'pending'
-                    "
-                    [class.bc-closed]="
-                      day && !isPast(day) && !isDayBusy(day) && isClosedDay(day)
-                    "
-                    [class.bc-today]="day && isToday(day)"
-                    [class.bc-start]="day && isStart(day)"
-                    [class.bc-end]="day && isEnd(day)"
-                    [class.bc-range]="day && isInRange(day)"
-                    [class.bc-clickable]="
-                      day &&
-                      !isPast(day) &&
-                      !isDayBusy(day) &&
-                      !isClosedDay(day)
-                    "
-                    (click)="
-                      day &&
-                        !isPast(day) &&
-                        !isDayBusy(day) &&
-                        !isClosedDay(day) &&
-                        onCalDayClick(day)
-                    "
-                  >
-                    <span *ngIf="day">{{ day.getDate() }}</span>
-                    <div
-                      class="bc-busy-tip"
-                      *ngIf="day && !isPast(day) && isDayBusy(day)"
-                    >
-                      {{
-                        getDayBusyType(day) === 'pending'
-                          ? t().rentalStatusPending
-                          : t().rentalStatusBooked
-                      }}
-                    </div>
-                    <div
-                      class="bc-busy-tip bc-closed-tip"
-                      *ngIf="
-                        day &&
-                        !isPast(day) &&
-                        !isDayBusy(day) &&
-                        isClosedDay(day)
-                      "
-                    >
-                      {{
-                        day.getDay() === 0
-                          ? t().rentalSundayLabel
-                          : t().rentalStatusClosed
-                      }}
-                    </div>
+                  <div class="bp-gallery-thumbs" *ngIf="slot.bike.images.length > 1">
+                    <button type="button" class="bp-thumb-btn"
+                      *ngFor="let image of slot.bike.images; let imgIdx = index"
+                      [class.active]="imgIdx === slot.imageIndex"
+                      (click)="selectSlotImage(slot.slotId, imgIdx)">
+                      <img [src]="getImageUrl(image.filePath)" [alt]="slot.bike.marke + ' ' + slot.bike.modell + ' ' + (imgIdx + 1)" loading="lazy" />
+                    </button>
                   </div>
                 </div>
-                <div class="bc-legend">
-                  <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-busy"></span
-                    >{{ t().rentalStatusBooked }}</span
-                  >
-                  <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-pending"></span
-                    >{{ t().rentalStatusPending }}</span
-                  >
-                  <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-closed"></span
-                    >{{ t().rentalStatusClosed }}</span
-                  >
-                  <span class="bc-legend-item"
-                    ><span class="bc-leg-dot bc-leg-sel"></span
-                    >{{ t().rentalStatusSelected }}</span
-                  >
-                </div>
-                <div class="bc-info" *ngIf="calendarStart()">
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <rect x="3" y="4" width="18" height="18" rx="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                  <span *ngIf="!calendarEnd()"
-                    >{{ formatCalDay(calendarStart()!) }} →
-                    {{ t().rentalSelectEndDate }}</span
-                  >
-                  <span *ngIf="calendarEnd()"
-                    >{{ formatCalDay(calendarStart()!) }} –
-                    {{ formatCalDay(calendarEnd()!) }}</span
-                  >
+
+                <div class="bp-bike-info-panel">
+                  <h4>{{ t().rentalBikeDetails }}</h4>
+                  <div class="bp-bike-facts">
+                    <span class="bp-fact" *ngIf="slot.bike.fahrradtyp">{{ pageCopy().bikeFactLabels.type }}: {{ slot.bike.fahrradtyp }}</span>
+                    <span class="bp-fact" *ngIf="slot.bike.art">{{ pageCopy().bikeFactLabels.category }}: {{ slot.bike.art }}</span>
+                    <span class="bp-fact" *ngIf="slot.bike.rahmengroesse">{{ pageCopy().bikeFactLabels.frame }}: {{ slot.bike.rahmengroesse }}</span>
+                    <span class="bp-fact" *ngIf="slot.bike.reifengroesse">{{ pageCopy().bikeFactLabels.tire }}: {{ slot.bike.reifengroesse }}</span>
+                    <span class="bp-fact" *ngIf="slot.bike.farbe">{{ pageCopy().bikeFactLabels.color }}: {{ slot.bike.farbe }}</span>
+                  </div>
+                  <p class="bp-bike-description" *ngIf="slot.bike.beschreibung">{{ slot.bike.beschreibung }}</p>
+                  <div class="bp-price-grid">
+                    <div class="bp-price-item" *ngFor="let item of getPriceLines(slot.bike)">
+                      <span>{{ item.label }}</span><strong>{{ item.price | number: '1.0-0' }} €</strong>
+                    </div>
+                    <div class="bp-price-item" *ngIf="slot.bike.preise.additionalDayAfter7 != null">
+                      <span>{{ pageCopy().extraDayPriceLabel }}</span><strong>{{ slot.bike.preise.additionalDayAfter7 | number: '1.0-0' }} €</strong>
+                    </div>
+                  </div>
+                  <div class="bp-kaution-info">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    Kaution: <strong>{{ getKaution(slot.bike) }} € (bar)</strong>
+                  </div>
                 </div>
               </div>
 
-              <!-- Price preview -->
-              <div
-                class="price-preview"
-                *ngIf="calculatedDays() > 0 && calculatedPrice() !== null"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <line x1="12" y1="1" x2="12" y2="23" />
-                  <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-                </svg>
-                <span
-                  >{{ calculatedDays() }} {{ t().bikeRentalDays }} ·
-                  {{ t().rentalEstPrice }}:</span
-                >
-                <strong>{{ calculatedPrice() | number: '1.0-0' }} €</strong>
+              <!-- Calendar for this slot -->
+              <div class="bp-body-single">
+                <div class="bp-cal-col">
+                  <h3 class="bp-col-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    {{ t().rentalFormPeriod }}
+                  </h3>
+
+                  <div class="bp-cal-loading" *ngIf="slot.busyPeriodsLoading">
+                    <div class="bp-spinner"></div>
+                    <span>{{ t().rentalLoadingAvail }}</span>
+                  </div>
+
+                  <div class="booking-calendar" *ngIf="!slot.busyPeriodsLoading">
+                    <div class="bc-header">
+                      <button type="button" class="bc-nav" (click)="prevMonthSlot(slot.slotId)">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                      </button>
+                      <span class="bc-month-title">{{ getCalMonthLabel(slot) }}</span>
+                      <button type="button" class="bc-nav" (click)="nextMonthSlot(slot.slotId)">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <path d="M9 18l6-6-6-6" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="bc-weekdays">
+                      <span *ngFor="let weekday of pageCopy().weekdays">{{ weekday }}</span>
+                    </div>
+                    <div class="bc-grid">
+                      <div
+                        *ngFor="let day of getCalDays(slot)"
+                        class="bc-cell"
+                        [class.bc-empty]="!day"
+                        [class.bc-past]="day && isPast(day)"
+                        [class.bc-busy]="day && !isPast(day) && getSlotDayBusyType(slot, day) === 'booking'"
+                        [class.bc-pending]="day && !isPast(day) && getSlotDayBusyType(slot, day) === 'pending'"
+                        [class.bc-closed]="day && !isPast(day) && !isSlotDayBusy(slot, day) && isClosedDay(day)"
+                        [class.bc-today]="day && isToday(day)"
+                        [class.bc-start]="day && isSlotStart(slot, day)"
+                        [class.bc-end]="day && isSlotEnd(slot, day)"
+                        [class.bc-range]="day && isSlotInRange(slot, day)"
+                        [class.bc-clickable]="day && !isPast(day) && !isSlotDayBusy(slot, day) && !isClosedDay(day)"
+                        (click)="day && !isPast(day) && !isSlotDayBusy(slot, day) && !isClosedDay(day) && onSlotCalDayClick(slot.slotId, day)"
+                      >
+                        <span *ngIf="day">{{ day.getDate() }}</span>
+                        <div class="bc-busy-tip" *ngIf="day && !isPast(day) && isSlotDayBusy(slot, day)">
+                          {{ getSlotDayBusyType(slot, day) === 'pending' ? t().rentalStatusPending : t().rentalStatusBooked }}
+                        </div>
+                        <div class="bc-busy-tip bc-closed-tip" *ngIf="day && !isPast(day) && !isSlotDayBusy(slot, day) && isClosedDay(day)">
+                          {{ day.getDay() === 0 ? t().rentalSundayLabel : t().rentalStatusClosed }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="bc-legend">
+                      <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-busy"></span>{{ t().rentalStatusBooked }}</span>
+                      <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-pending"></span>{{ t().rentalStatusPending }}</span>
+                      <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-closed"></span>{{ t().rentalStatusClosed }}</span>
+                      <span class="bc-legend-item"><span class="bc-leg-dot bc-leg-sel"></span>{{ t().rentalStatusSelected }}</span>
+                    </div>
+                    <div class="bc-info" *ngIf="slot.calStart">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
+                      <span *ngIf="!slot.calEnd">{{ formatCalDay(slot.calStart) }} → {{ t().rentalSelectEndDate }}</span>
+                      <span *ngIf="slot.calEnd">{{ formatCalDay(slot.calStart) }} – {{ formatCalDay(slot.calEnd) }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Price preview for this slot -->
+                  <div class="price-preview" *ngIf="slot.calculatedDays > 0 && slot.calculatedPrice !== null">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                    </svg>
+                    <span>{{ slot.calculatedDays }} {{ t().bikeRentalDays }} · {{ t().rentalEstPrice }}:</span>
+                    <strong>{{ slot.calculatedPrice | number: '1.0-0' }} €</strong>
+                  </div>
+                  <div class="price-preview warn" *ngIf="slot.calculatedDays > 0 && slot.calculatedPrice === null">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <span>{{ slot.calculatedDays }} {{ t().bikeRentalDays }} · {{ t().priceOnRequest }}</span>
+                  </div>
+                </div>
               </div>
-              <div
-                class="price-preview warn"
-                *ngIf="calculatedDays() > 0 && calculatedPrice() === null"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
+
+              <!-- Slot divider -->
+              <div class="slot-divider" *ngIf="si < bikeSlots().length - 1"></div>
+            </div>
+
+            <!-- Add Bike Button -->
+            <div class="bp-add-bike-row">
+              <button type="button" class="btn-add-bike" (click)="addBikeSlot()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
                 </svg>
-                <span
-                  >{{ calculatedDays() }} {{ t().bikeRentalDays }} ·
-                  {{ t().priceOnRequest }}</span
-                >
+                Bisiklet Ekle
+              </button>
+            </div>
+
+            <!-- Total Summary (shown when multiple bikes or at least one date is set) -->
+            <div class="bp-total-summary">
+              <h3 class="bp-col-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                </svg>
+                Gesamtübersicht
+              </h3>
+              <div class="bp-summary-rows">
+                <div class="bp-summary-row" *ngFor="let slot of bikeSlots(); let si = index">
+                  <span class="bp-summary-bike">
+                    <span class="bp-summary-num">{{ si + 1 }}</span>
+                    {{ slot.bike.marke }} {{ slot.bike.modell }}
+                    <span *ngIf="slot.calculatedDays > 0"> · {{ slot.calculatedDays }} {{ t().bikeRentalDays }}</span>
+                  </span>
+                  <span class="bp-summary-price">
+                    <span *ngIf="slot.calculatedPrice !== null">{{ slot.calculatedPrice | number: '1.0-0' }} € + </span>
+                    <span *ngIf="slot.calculatedPrice === null">Preis auf Anfrage + </span>
+                    {{ getKaution(slot.bike) }} € Kaution
+                  </span>
+                </div>
+              </div>
+              <div class="bp-grand-total" *ngIf="bikeSlots().length > 1">
+                <div>Gesamtmiete: <strong>{{ totalRentalPrice() | number: '1.0-0' }} €</strong></div>
+                <div>Gesamtkaution: <strong>{{ totalKaution() }} € (bar)</strong></div>
               </div>
             </div>
 
-            <!-- Form column -->
-            <div class="bp-form-col">
-              <h3 class="bp-col-title">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
+            <!-- Customer Info + Submit -->
+            <div class="bp-form-section">
+              <h3 class="bp-col-title" style="padding: 1.5rem 1.5rem 0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
                 </svg>
                 {{ t().rentalFormYourData }}
               </h3>
 
-              <div class="form-row">
+              <div class="bp-form-col">
+                <div class="form-row">
+                  <div class="form-field">
+                    <label>{{ t().rentalFormFirstName }} *</label>
+                    <input type="text" [(ngModel)]="bookingForm.vorname" [placeholder]="pageCopy().placeholders.firstName" />
+                  </div>
+                  <div class="form-field">
+                    <label>{{ t().rentalFormLastName }} *</label>
+                    <input type="text" [(ngModel)]="bookingForm.nachname" [placeholder]="pageCopy().placeholders.lastName" />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-field">
+                    <label>{{ pageCopy().emailLabel }} *</label>
+                    <input type="email" [(ngModel)]="bookingForm.email" [placeholder]="pageCopy().placeholders.email" />
+                  </div>
+                  <div class="form-field">
+                    <label>{{ t().rentalFormPhone }}</label>
+                    <input type="tel" [(ngModel)]="bookingForm.telefon" [placeholder]="pageCopy().placeholders.phone" />
+                  </div>
+                </div>
+
                 <div class="form-field">
-                  <label>{{ t().rentalFormFirstName }} *</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="bookingForm.vorname"
-                    [placeholder]="pageCopy().placeholders.firstName"
-                  />
+                  <label>{{ t().rentalFormLang }}</label>
+                  <div class="lang-toggle">
+                    <button *ngFor="let option of pageCopy().bookingLanguages" type="button"
+                      [class.active]="bookingForm.sprache === option.code"
+                      (click)="bookingForm.sprache = option.code">
+                      {{ option.label }}
+                    </button>
+                  </div>
                 </div>
+
                 <div class="form-field">
-                  <label>{{ t().rentalFormLastName }} *</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="bookingForm.nachname"
-                    [placeholder]="pageCopy().placeholders.lastName"
-                  />
+                  <label>{{ t().rentalFormNotes }}</label>
+                  <textarea [(ngModel)]="bookingForm.notizen" rows="3" [placeholder]="pageCopy().placeholders.notes"></textarea>
                 </div>
-              </div>
 
-              <div class="form-row">
-                <div class="form-field">
-                  <label>{{ pageCopy().emailLabel }} *</label>
-                  <input
-                    type="email"
-                    [(ngModel)]="bookingForm.email"
-                    [placeholder]="pageCopy().placeholders.email"
-                  />
+                <div class="form-error" *ngIf="bookingError()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
+                  </svg>
+                  {{ bookingError() }}
                 </div>
-                <div class="form-field">
-                  <label>{{ t().rentalFormPhone }}</label>
-                  <input
-                    type="tel"
-                    [(ngModel)]="bookingForm.telefon"
-                    [placeholder]="pageCopy().placeholders.phone"
-                  />
-                </div>
+
+                <button class="btn-submit" (click)="submitBooking()" [disabled]="bookingSubmitting()">
+                  <svg *ngIf="!bookingSubmitting()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <div *ngIf="bookingSubmitting()" class="submit-spinner"></div>
+                  {{ bookingSubmitting() ? t().rentalFormSending : t().rentalFormSubmit }}
+                </button>
+
+                <p class="bp-note">{{ t().rentalFormConfirmNote }}</p>
               </div>
-
-              <div class="form-field">
-                <label>{{ t().rentalFormLang }}</label>
-                <div class="lang-toggle">
-                  <button
-                    *ngFor="let option of pageCopy().bookingLanguages"
-                    type="button"
-                    [class.active]="bookingForm.sprache === option.code"
-                    (click)="bookingForm.sprache = option.code"
-                  >
-                    {{ option.label }}
-                  </button>
-                </div>
-              </div>
-
-              <div class="form-field">
-                <label>{{ t().rentalFormNotes }}</label>
-                <textarea
-                  [(ngModel)]="bookingForm.notizen"
-                  rows="3"
-                  [placeholder]="pageCopy().placeholders.notes"
-                ></textarea>
-              </div>
-
-              <div class="form-error" *ngIf="bookingError()">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="15" y1="9" x2="9" y2="15" />
-                  <line x1="9" y1="9" x2="15" y2="15" />
-                </svg>
-                {{ bookingError() }}
-              </div>
-
-              <button
-                class="btn-submit"
-                (click)="submitBooking()"
-                [disabled]="bookingSubmitting()"
-              >
-                <svg
-                  *ngIf="!bookingSubmitting()"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <div *ngIf="bookingSubmitting()" class="submit-spinner"></div>
-                {{
-                  bookingSubmitting()
-                    ? t().rentalFormSending
-                    : t().rentalFormSubmit
-                }}
-              </button>
-
-              <p class="bp-note">{{ t().rentalFormConfirmNote }}</p>
             </div>
           </div>
         </section>
@@ -2314,7 +2092,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       <!-- Lightbox / Image zoom overlay -->
       <div
         class="lightbox"
-        *ngIf="lightboxOpen() && selectedBike()"
+        *ngIf="lightboxOpen() && getLightboxSlot()"
         (click)="closeLightbox()"
         role="dialog"
         aria-modal="true"
@@ -2326,15 +2104,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
           (click)="closeLightbox(); $event.stopPropagation()"
           [attr.aria-label]="pageCopy().lightboxCloseAriaLabel"
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <path d="M18 6L6 18M6 6l12 12" />
           </svg>
         </button>
@@ -2342,29 +2112,20 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
         <button
           type="button"
           class="lightbox-nav lightbox-prev"
-          *ngIf="selectedBike()!.images.length > 1"
+          *ngIf="getLightboxSlot()!.bike.images.length > 1"
           (click)="lightboxPrev(); $event.stopPropagation()"
           [attr.aria-label]="pageCopy().lightboxPrevAriaLabel"
         >
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
 
         <div class="lightbox-stage" (click)="$event.stopPropagation()">
           <img
-            *ngIf="getSelectedBikeImagePath() as p"
+            *ngIf="getSlotImagePath(getLightboxSlot()!) as p"
             [src]="getImageUrl(p)"
-            [alt]="selectedBike()!.marke + ' ' + selectedBike()!.modell"
+            [alt]="getLightboxSlot()!.bike.marke + ' ' + getLightboxSlot()!.bike.modell"
             [class.zoomed]="lightboxZoomed()"
             (click)="toggleLightboxZoom()"
             draggable="false"
@@ -2374,27 +2135,18 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
         <button
           type="button"
           class="lightbox-nav lightbox-next"
-          *ngIf="selectedBike()!.images.length > 1"
+          *ngIf="getLightboxSlot()!.bike.images.length > 1"
           (click)="lightboxNext(); $event.stopPropagation()"
           [attr.aria-label]="pageCopy().lightboxNextAriaLabel"
         >
-          <svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 6l6 6-6 6" />
           </svg>
         </button>
 
-        <div class="lightbox-counter" *ngIf="selectedBike()!.images.length > 1">
-          {{ selectedBikeImageIndex() + 1 }} /
-          {{ selectedBike()!.images.length }}
+        <div class="lightbox-counter" *ngIf="getLightboxSlot()!.bike.images.length > 1">
+          {{ getLightboxSlot()!.imageIndex + 1 }} /
+          {{ getLightboxSlot()!.bike.images.length }}
         </div>
       </div>
     </div>
@@ -3920,6 +3672,158 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
         font-size: 0.88rem;
         color: var(--color-text);
       }
+      .bp-booking-nrs {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: 100%;
+        max-width: 420px;
+      }
+
+      /* ── Multi-slot styles ── */
+      .bike-slot-section {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .bike-slot-section:last-of-type {
+        border-bottom: none;
+      }
+      .bp-slot-num {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--color-accent);
+        color: #fff;
+        font-size: 0.78rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .slot-divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,87,34,0.3), transparent);
+        margin: 0 1.5rem;
+      }
+      .bp-body-single {
+        padding: 0 1.5rem 1.5rem;
+      }
+      .bp-kaution-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 0.75rem;
+        padding: 7px 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 0.82rem;
+        color: var(--color-text-secondary);
+      }
+      .bp-kaution-info strong {
+        color: var(--color-text);
+      }
+      .bp-kaution-info svg {
+        color: var(--color-accent);
+        flex-shrink: 0;
+      }
+      .bp-add-bike-row {
+        display: flex;
+        justify-content: center;
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .btn-add-bike {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.7rem 1.4rem;
+        border-radius: 999px;
+        border: 1.5px dashed rgba(255, 87, 34, 0.5);
+        background: rgba(255, 87, 34, 0.06);
+        color: var(--color-accent);
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-add-bike:hover {
+        border-color: var(--color-accent);
+        background: rgba(255, 87, 34, 0.12);
+      }
+      .bp-total-summary {
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .bp-summary-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 0.75rem;
+      }
+      .bp-summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.88rem;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        flex-wrap: wrap;
+      }
+      .bp-summary-bike {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-text);
+        font-weight: 600;
+      }
+      .bp-summary-num {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--color-accent);
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .bp-summary-price {
+        color: var(--color-text-secondary);
+        font-size: 0.84rem;
+        white-space: nowrap;
+      }
+      .bp-grand-total {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.85rem;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(255, 87, 34, 0.07);
+        border: 1px solid rgba(255, 87, 34, 0.2);
+        font-size: 0.9rem;
+        color: var(--color-text-secondary);
+      }
+      .bp-grand-total strong {
+        color: var(--color-text);
+      }
+      .bp-form-section {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .seat-slot-num {
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+      }
+
       .bp-new-btn {
         padding: 11px 28px;
         border-radius: 10px;
@@ -4795,20 +4699,22 @@ export class FahrradverleihComponent implements OnInit {
   bikes = signal<PublicRentalBicycle[]>([]);
   bikesLoading = signal(true);
 
-  // Inline booking state
-  selectedBike = signal<PublicRentalBicycle | null>(null);
-  selectedBikeImageIndex = signal(0);
+  // Multi-bike slot state
+  private slotCounter = 0;
+  bikeSlots = signal<BikeSlot[]>([]);
+
+  // Lightbox state
   lightboxOpen = signal(false);
   lightboxZoomed = signal(false);
-  busyPeriodsLoading = signal(false);
+  lightboxSlotId = signal<number | null>(null);
+
+  // Shared booking state
   bookingSubmitting = signal(false);
   bookingSuccess = signal(false);
   bookingError = signal<string | null>(null);
-  confirmedBookingNr = signal<string>('');
+  confirmedBookingNrs = signal<string[]>([]);
 
   bookingForm = {
-    startDatum: '',
-    endDatum: '',
     vorname: '',
     nachname: '',
     email: '',
@@ -4817,10 +4723,6 @@ export class FahrradverleihComponent implements OnInit {
     notizen: '',
   };
 
-  today = new Date().toISOString().split('T')[0];
-  calculatedDays = signal(0);
-  calculatedPrice = signal<number | null>(null);
-
   // Rental Reviews state
   reviews = signal<RentalReviewPublic[]>([]);
   reviewsLoading = signal(false);
@@ -4828,33 +4730,6 @@ export class FahrradverleihComponent implements OnInit {
   reviewFormSending = signal(false);
   reviewFormError = signal<string | null>(null);
   reviewForm: RentalReviewCreate = { ad: '', email: '', sterne: 5, yorum: '' };
-
-  // Calendar state
-  busyPeriods = signal<{ start: Date; end: Date; type: string }[]>([]);
-  calendarCurrentDate = signal(new Date());
-  calendarStart = signal<Date | null>(null);
-  calendarEnd = signal<Date | null>(null);
-
-  calMonthLabel = computed(() => {
-    const d = this.calendarCurrentDate();
-    return d.toLocaleDateString(this.getLocaleForCurrentLanguage(), {
-      month: 'long',
-      year: 'numeric',
-    });
-  });
-
-  calendarDays = computed(() => {
-    const d = this.calendarCurrentDate();
-    const year = d.getFullYear();
-    const month = d.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const offset = (firstDay.getDay() + 6) % 7;
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const days: (Date | null)[] = [];
-    for (let i = 0; i < offset; i++) days.push(null);
-    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
-    return days;
-  });
 
   scrollToBikes(): void {
     if (this.isBrowser) {
@@ -5069,17 +4944,94 @@ export class FahrradverleihComponent implements OnInit {
     document.head.appendChild(script);
   }
 
-  selectBike(bike: PublicRentalBicycle): void {
-    if (this.selectedBike()?.id === bike.id) return;
-    this.selectedBike.set(bike);
-    this.selectedBikeImageIndex.set(0);
-    this.bookingSuccess.set(false);
-    this.bookingError.set(null);
-    this.calculatedDays.set(0);
-    this.calculatedPrice.set(null);
-    this.bookingForm = {
+  // ── Slot management ─────────────────────────────────────────────────────────
+
+  private createSlot(bike: PublicRentalBicycle): BikeSlot {
+    return {
+      slotId: ++this.slotCounter,
+      bike,
+      busyPeriods: [],
+      busyPeriodsLoading: true,
+      calCurrentDate: new Date(),
+      calStart: null,
+      calEnd: null,
       startDatum: '',
       endDatum: '',
+      calculatedDays: 0,
+      calculatedPrice: null,
+      imageIndex: 0,
+    };
+  }
+
+  private updateSlot(slotId: number, updater: (s: BikeSlot) => Partial<BikeSlot>): void {
+    this.bikeSlots.update((slots) =>
+      slots.map((s) => (s.slotId === slotId ? { ...s, ...updater(s) } : s)),
+    );
+  }
+
+  private loadBusyPeriodsForSlot(slotId: number, bikeId: number): void {
+    this.apiService.getBusyPeriods(bikeId).subscribe({
+      next: (periods) => {
+        const toLocal = (str: string) => {
+          const d = new Date(str);
+          return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        };
+        this.updateSlot(slotId, () => ({
+          busyPeriods: periods.map((p) => ({
+            start: toLocal(p.start),
+            end: toLocal(p.end),
+            type: p.type,
+          })),
+          busyPeriodsLoading: false,
+        }));
+      },
+      error: () => this.updateSlot(slotId, () => ({ busyPeriodsLoading: false })),
+    });
+  }
+
+  isSelectedBike(bikeId: number): boolean {
+    return this.bikeSlots().some((s) => s.bike.id === bikeId);
+  }
+
+  getSlotNumber(bikeId: number): number {
+    return this.bikeSlots().findIndex((s) => s.bike.id === bikeId) + 1;
+  }
+
+  toggleBike(bike: PublicRentalBicycle): void {
+    const existingIndex = this.bikeSlots().findIndex((s) => s.bike.id === bike.id);
+    if (existingIndex >= 0) {
+      this.bikeSlots.update((slots) => slots.filter((_, i) => i !== existingIndex));
+    } else {
+      const newSlot = this.createSlot(bike);
+      this.bikeSlots.update((slots) => [...slots, newSlot]);
+      this.loadBusyPeriodsForSlot(newSlot.slotId, bike.id);
+      this.bookingSuccess.set(false);
+      this.bookingError.set(null);
+      setTimeout(() => {
+        document
+          .getElementById('booking-panel')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  }
+
+  addBikeSlot(): void {
+    document
+      .getElementById('fahrrad-waehlen')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  removeSlot(slotId: number): void {
+    this.bikeSlots.update((slots) => slots.filter((s) => s.slotId !== slotId));
+    this.bookingError.set(null);
+  }
+
+  resetAll(): void {
+    this.bikeSlots.set([]);
+    this.bookingSuccess.set(false);
+    this.bookingError.set(null);
+    this.confirmedBookingNrs.set([]);
+    this.bookingForm = {
       vorname: '',
       nachname: '',
       email: '',
@@ -5087,79 +5039,40 @@ export class FahrradverleihComponent implements OnInit {
       sprache: this.getCurrentLanguage(),
       notizen: '',
     };
-    this.calendarStart.set(null);
-    this.calendarEnd.set(null);
-    this.calendarCurrentDate.set(new Date());
-    this.busyPeriods.set([]);
-    this.busyPeriodsLoading.set(true);
-    this.apiService.getBusyPeriods(bike.id).subscribe({
-      next: (periods) => {
-        const toLocal = (s: string) => {
-          const d = new Date(s);
-          return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-        };
-        this.busyPeriods.set(
-          periods.map((p) => ({
-            start: toLocal(p.start),
-            end: toLocal(p.end),
-            type: p.type,
-          })),
-        );
-        this.busyPeriodsLoading.set(false);
-      },
-      error: () => this.busyPeriodsLoading.set(false),
+  }
+
+  // ── Slot image / lightbox ────────────────────────────────────────────────────
+
+  getSlotImagePath(slot: BikeSlot): string | null {
+    if (!slot.bike || slot.bike.images.length === 0) return null;
+    return slot.bike.images[Math.min(slot.imageIndex, slot.bike.images.length - 1)].filePath;
+  }
+
+  selectSlotImage(slotId: number, index: number): void {
+    this.updateSlot(slotId, (s) => {
+      if (index < 0 || index >= s.bike.images.length) return {};
+      return { imageIndex: index };
     });
-    setTimeout(() => {
-      document
-        .getElementById('booking-panel')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
   }
 
-  deselectBike(): void {
-    this.selectedBike.set(null);
-    this.selectedBikeImageIndex.set(0);
-    this.bookingSuccess.set(false);
-    this.bookingError.set(null);
-    this.calendarStart.set(null);
-    this.calendarEnd.set(null);
-    this.busyPeriods.set([]);
-    this.calculatedDays.set(0);
-    this.calculatedPrice.set(null);
-  }
-
-  getMinPrice(bike: PublicRentalBicycle): number | null {
-    const prices = getConfiguredRentalPriceLines(bike.preise).map(
-      (item) => item.price,
-    );
-    return prices.length > 0 ? Math.min(...prices) : null;
-  }
-
-  getPriceLines(bike: PublicRentalBicycle) {
-    return getConfiguredRentalPriceLines(bike.preise);
-  }
-
-  selectBikeImage(index: number): void {
-    const bike = this.selectedBike();
-    if (!bike || index < 0 || index >= bike.images.length) return;
-    this.selectedBikeImageIndex.set(index);
-  }
-
-  openLightbox(): void {
-    if (!this.selectedBike()) return;
+  openLightboxForSlot(slot: BikeSlot): void {
+    this.lightboxSlotId.set(slot.slotId);
     this.lightboxZoomed.set(false);
     this.lightboxOpen.set(true);
-    if (this.isBrowser) {
-      document.body.style.overflow = 'hidden';
-    }
+    if (this.isBrowser) document.body.style.overflow = 'hidden';
+  }
+
+  getLightboxSlot(): BikeSlot | null {
+    const id = this.lightboxSlotId();
+    if (id === null) return null;
+    return this.bikeSlots().find((s) => s.slotId === id) ?? null;
   }
 
   closeLightbox(): void {
     this.lightboxOpen.set(false);
     this.lightboxZoomed.set(false);
-    if (this.isBrowser) {
-      document.body.style.overflow = '';
-    }
+    this.lightboxSlotId.set(null);
+    if (this.isBrowser) document.body.style.overflow = '';
   }
 
   toggleLightboxZoom(): void {
@@ -5167,88 +5080,157 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   lightboxNext(): void {
-    const bike = this.selectedBike();
-    if (!bike) return;
-    const next = (this.selectedBikeImageIndex() + 1) % bike.images.length;
-    this.selectedBikeImageIndex.set(next);
+    const slot = this.getLightboxSlot();
+    if (!slot) return;
+    const next = (slot.imageIndex + 1) % slot.bike.images.length;
+    this.updateSlot(slot.slotId, () => ({ imageIndex: next }));
     this.lightboxZoomed.set(false);
   }
 
   lightboxPrev(): void {
-    const bike = this.selectedBike();
-    if (!bike) return;
-    const len = bike.images.length;
-    const prev = (this.selectedBikeImageIndex() - 1 + len) % len;
-    this.selectedBikeImageIndex.set(prev);
+    const slot = this.getLightboxSlot();
+    if (!slot) return;
+    const len = slot.bike.images.length;
+    const prev = (slot.imageIndex - 1 + len) % len;
+    this.updateSlot(slot.slotId, () => ({ imageIndex: prev }));
     this.lightboxZoomed.set(false);
   }
 
   @HostListener('document:keydown', ['$event'])
   onLightboxKeydown(event: KeyboardEvent): void {
     if (!this.lightboxOpen()) return;
-    if (event.key === 'Escape') {
-      this.closeLightbox();
-    } else if (event.key === 'ArrowRight') {
-      this.lightboxNext();
-    } else if (event.key === 'ArrowLeft') {
-      this.lightboxPrev();
-    }
+    if (event.key === 'Escape') this.closeLightbox();
+    else if (event.key === 'ArrowRight') this.lightboxNext();
+    else if (event.key === 'ArrowLeft') this.lightboxPrev();
   }
 
-  getSelectedBikeImagePath(): string | null {
-    const bike = this.selectedBike();
-    if (!bike || bike.images.length === 0) return null;
-    const index = Math.min(
-      this.selectedBikeImageIndex(),
-      bike.images.length - 1,
+  // ── Slot calendar ────────────────────────────────────────────────────────────
+
+  getCalDays(slot: BikeSlot): (Date | null)[] {
+    const d = slot.calCurrentDate;
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    const offset = (new Date(year, month, 1).getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days: (Date | null)[] = [];
+    for (let i = 0; i < offset; i++) days.push(null);
+    for (let i = 1; i <= daysInMonth; i++) days.push(new Date(year, month, i));
+    return days;
+  }
+
+  getCalMonthLabel(slot: BikeSlot): string {
+    return slot.calCurrentDate.toLocaleDateString(this.getLocaleForCurrentLanguage(), {
+      month: 'long',
+      year: 'numeric',
+    });
+  }
+
+  prevMonthSlot(slotId: number): void {
+    this.updateSlot(slotId, (s) => ({
+      calCurrentDate: new Date(s.calCurrentDate.getFullYear(), s.calCurrentDate.getMonth() - 1, 1),
+    }));
+  }
+
+  nextMonthSlot(slotId: number): void {
+    this.updateSlot(slotId, (s) => ({
+      calCurrentDate: new Date(s.calCurrentDate.getFullYear(), s.calCurrentDate.getMonth() + 1, 1),
+    }));
+  }
+
+  isSlotStart(slot: BikeSlot, date: Date): boolean {
+    return !!slot.calStart && date.getTime() === slot.calStart.getTime();
+  }
+
+  isSlotEnd(slot: BikeSlot, date: Date): boolean {
+    return !!slot.calEnd && date.getTime() === slot.calEnd.getTime();
+  }
+
+  isSlotInRange(slot: BikeSlot, date: Date): boolean {
+    if (!slot.calStart || !slot.calEnd) return false;
+    return date > slot.calStart && date < slot.calEnd;
+  }
+
+  isSlotDayBusy(slot: BikeSlot, date: Date): boolean {
+    return this.getSlotDayBusyType(slot, date) !== null;
+  }
+
+  getSlotDayBusyType(slot: BikeSlot, date: Date): 'booking' | 'pending' | null {
+    const t = date.getTime();
+    const covering = slot.busyPeriods.filter(
+      (p) => t >= p.start.getTime() && t <= p.end.getTime(),
     );
-    return bike.images[index].filePath;
+    if (covering.length === 0) return null;
+    if (covering.some((p) => p.type === 'booking' || p.type === 'rental')) return 'booking';
+    if (covering.some((p) => p.type === 'pending')) return 'pending';
+    return 'booking';
   }
 
-  onDatesChange(): void {
-    this.bookingError.set(null);
-    const { startDatum, endDatum } = this.bookingForm;
-    if (!startDatum || !endDatum) {
-      this.calculatedDays.set(0);
-      this.calculatedPrice.set(null);
-      return;
+  onSlotCalDayClick(slotId: number, date: Date): void {
+    if (this.isClosedDay(date)) return;
+    const slot = this.bikeSlots().find((s) => s.slotId === slotId);
+    if (!slot) return;
+    const s = slot.calStart;
+    const e = slot.calEnd;
+    if (!s || (s && e) || date < s) {
+      this.updateSlot(slotId, () => ({
+        calStart: date,
+        calEnd: null,
+        startDatum: this.toIsoDate(date),
+        endDatum: '',
+        calculatedDays: 0,
+        calculatedPrice: null,
+      }));
+      this.bookingError.set(null);
+    } else {
+      const hasBusy = slot.busyPeriods.some(
+        (p) => p.start.getTime() <= date.getTime() && p.end.getTime() >= s.getTime(),
+      );
+      if (hasBusy) {
+        this.updateSlot(slotId, () => ({
+          calStart: date,
+          calEnd: null,
+          startDatum: this.toIsoDate(date),
+          endDatum: '',
+        }));
+        this.bookingError.set(this.pageCopy().bookingErrors.busyRange);
+        return;
+      }
+      this.bookingError.set(null);
+      const days = Math.floor((date.getTime() - s.getTime()) / 86400000) + 1;
+      const calculatedPrice = days > 0 ? calculateRentalPrice(slot.bike.preise, days).total : null;
+      this.updateSlot(slotId, () => ({
+        calEnd: date,
+        endDatum: this.toIsoDate(date),
+        calculatedDays: days > 0 ? days : 0,
+        calculatedPrice,
+      }));
     }
-    const days =
-      Math.floor(
-        (new Date(endDatum).getTime() - new Date(startDatum).getTime()) /
-          86400000,
-      ) + 1;
-    if (days <= 0) {
-      this.calculatedDays.set(0);
-      this.calculatedPrice.set(null);
-      return;
-    }
-    this.calculatedDays.set(days);
-    const bike = this.selectedBike();
-    if (!bike) {
-      this.calculatedPrice.set(null);
-      return;
-    }
-    const result = calculateRentalPrice(bike.preise, days);
-    this.calculatedPrice.set(result.total);
   }
 
-  prevMonth(): void {
-    const d = this.calendarCurrentDate();
-    this.calendarCurrentDate.set(
-      new Date(d.getFullYear(), d.getMonth() - 1, 1),
-    );
+  // ── Pricing ──────────────────────────────────────────────────────────────────
+
+  getKaution(bike: PublicRentalBicycle): number {
+    const typ = (bike.fahrradtyp ?? '').toLowerCase();
+    const art = (bike.art ?? '').toLowerCase();
+    if (typ.includes('mittelmotor') || art.includes('mittelmotor')) return 700;
+    return 300;
   }
 
-  nextMonth(): void {
-    const d = this.calendarCurrentDate();
-    this.calendarCurrentDate.set(
-      new Date(d.getFullYear(), d.getMonth() + 1, 1),
-    );
+  totalRentalPrice(): number {
+    return this.bikeSlots().reduce((sum, s) => sum + (s.calculatedPrice ?? 0), 0);
   }
 
-  isDayBusy(date: Date): boolean {
-    return this.getDayBusyType(date) !== null;
+  totalKaution(): number {
+    return this.bikeSlots().reduce((sum, s) => sum + this.getKaution(s.bike), 0);
+  }
+
+  getMinPrice(bike: PublicRentalBicycle): number | null {
+    const prices = getConfiguredRentalPriceLines(bike.preise).map((item) => item.price);
+    return prices.length > 0 ? Math.min(...prices) : null;
+  }
+
+  getPriceLines(bike: PublicRentalBicycle) {
+    return getConfiguredRentalPriceLines(bike.preise);
   }
 
   private bwHolidayCache = new Map<number, Set<string>>();
@@ -5304,18 +5286,6 @@ export class FahrradverleihComponent implements OnInit {
     return this.getBWHolidays(date.getFullYear()).has(key);
   }
 
-  getDayBusyType(date: Date): 'booking' | 'pending' | 'rental' | null {
-    const t = date.getTime();
-    const covering = this.busyPeriods().filter(
-      (p) => t >= p.start.getTime() && t <= p.end.getTime(),
-    );
-    if (covering.length === 0) return null;
-    if (covering.some((p) => p.type === 'booking' || p.type === 'rental'))
-      return 'booking';
-    if (covering.some((p) => p.type === 'pending')) return 'pending';
-    return 'booking';
-  }
-
   isPast(date: Date): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -5329,55 +5299,6 @@ export class FahrradverleihComponent implements OnInit {
       date.getMonth() === now.getMonth() &&
       date.getDate() === now.getDate()
     );
-  }
-
-  isStart(date: Date): boolean {
-    const s = this.calendarStart();
-    return !!s && date.getTime() === s.getTime();
-  }
-
-  isEnd(date: Date): boolean {
-    const e = this.calendarEnd();
-    return !!e && date.getTime() === e.getTime();
-  }
-
-  isInRange(date: Date): boolean {
-    const s = this.calendarStart();
-    const e = this.calendarEnd();
-    if (!s || !e) return false;
-    return date > s && date < e;
-  }
-
-  onCalDayClick(date: Date): void {
-    if (this.isClosedDay(date)) return;
-    const s = this.calendarStart();
-    const e = this.calendarEnd();
-    if (!s || (s && e) || date < s) {
-      this.calendarStart.set(date);
-      this.calendarEnd.set(null);
-      this.bookingForm.startDatum = this.toIsoDate(date);
-      this.bookingForm.endDatum = '';
-      this.calculatedDays.set(0);
-      this.calculatedPrice.set(null);
-      this.bookingError.set(null);
-    } else {
-      const hasBusy = this.busyPeriods().some(
-        (p) =>
-          p.start.getTime() <= date.getTime() && p.end.getTime() >= s.getTime(),
-      );
-      if (hasBusy) {
-        this.calendarStart.set(date);
-        this.calendarEnd.set(null);
-        this.bookingForm.startDatum = this.toIsoDate(date);
-        this.bookingForm.endDatum = '';
-        this.bookingError.set(this.pageCopy().bookingErrors.busyRange);
-        return;
-      }
-      this.bookingError.set(null);
-      this.calendarEnd.set(date);
-      this.bookingForm.endDatum = this.toIsoDate(date);
-      this.onDatesChange();
-    }
   }
 
   toIsoDate(date: Date): string {
@@ -5397,14 +5318,9 @@ export class FahrradverleihComponent implements OnInit {
 
   submitBooking(): void {
     const f = this.bookingForm;
-    if (!f.startDatum || !f.endDatum) {
-      this.bookingError.set(this.pageCopy().bookingErrors.choosePeriod);
-      return;
-    }
-    if (new Date(f.endDatum) < new Date(f.startDatum)) {
-      this.bookingError.set(this.pageCopy().bookingErrors.invalidEnd);
-      return;
-    }
+    const slots = this.bikeSlots();
+    if (slots.length === 0) return;
+
     if (!f.vorname.trim() || !f.nachname.trim()) {
       this.bookingError.set(this.pageCopy().bookingErrors.fullName);
       return;
@@ -5413,36 +5329,56 @@ export class FahrradverleihComponent implements OnInit {
       this.bookingError.set(this.pageCopy().bookingErrors.validEmail);
       return;
     }
-
-    const bike = this.selectedBike();
-    if (!bike) return;
+    for (const slot of slots) {
+      if (!slot.startDatum || !slot.endDatum) {
+        this.bookingError.set(this.pageCopy().bookingErrors.choosePeriod);
+        return;
+      }
+      if (new Date(slot.endDatum) < new Date(slot.startDatum)) {
+        this.bookingError.set(this.pageCopy().bookingErrors.invalidEnd);
+        return;
+      }
+    }
 
     this.bookingSubmitting.set(true);
     this.bookingError.set(null);
 
-    const dto: RentalBookingCreate = {
-      bicycleId: bike.id,
-      startDatum: f.startDatum,
-      endDatum: f.endDatum,
+    const dtos: RentalBookingCreate[] = slots.map((slot) => ({
+      bicycleId: slot.bike.id,
+      startDatum: slot.startDatum,
+      endDatum: slot.endDatum,
       vorname: f.vorname.trim(),
       nachname: f.nachname.trim(),
       email: f.email.trim(),
       telefon: f.telefon.trim() || undefined,
       sprache: f.sprache,
       notizen: f.notizen.trim() || undefined,
-    };
+    }));
 
-    this.apiService.createRentalBooking(dto).subscribe({
-      next: (res) => {
-        this.confirmedBookingNr.set(res.buchungsNummer);
-        this.bookingSuccess.set(true);
-        this.bookingSubmitting.set(false);
-      },
-      error: (err) => {
-        const msg = err?.error?.error || this.pageCopy().bookingErrors.generic;
-        this.bookingError.set(msg);
-        this.bookingSubmitting.set(false);
-      },
+    const bookingNrs: string[] = [];
+    let completed = 0;
+    let hasError = false;
+
+    dtos.forEach((dto) => {
+      this.apiService.createRentalBooking(dto).subscribe({
+        next: (res) => {
+          bookingNrs.push(res.buchungsNummer);
+          completed++;
+          if (completed === dtos.length && !hasError) {
+            this.confirmedBookingNrs.set(bookingNrs);
+            this.bookingSuccess.set(true);
+            this.bookingSubmitting.set(false);
+          }
+        },
+        error: (err) => {
+          if (!hasError) {
+            hasError = true;
+            const msg = err?.error?.error || this.pageCopy().bookingErrors.generic;
+            this.bookingError.set(msg);
+            this.bookingSubmitting.set(false);
+          }
+        },
+      });
     });
   }
 
