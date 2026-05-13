@@ -216,7 +216,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
         ],
       },
       {
-        question: 'Are kids\' bikes available to rent in Freiburg?',
+        question: "Are kids' bikes available to rent in Freiburg?",
         answers: ['Models in 20", 24", 26", 27.5" and 29" are available'],
       },
       {
@@ -725,7 +725,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   de: {
     serviceHighlightsAria: 'Service Highlights',
     heroChip: 'Fahrradverleih Freiburg',
-    heroAccent: 'ab 7 €',
+    heroAccent: 'ab 8 €',
     heroDescription:
       '1 bis 7 Tage individuell je Fahrrad kalkuliert, ab Tag 8 mit festem Zusatzpreis. Direkt bei uns in Freiburg abholen.',
     heroFeatures: [
@@ -989,7 +989,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   fr: {
     serviceHighlightsAria: 'Points forts du service',
     heroChip: 'Location de velo Freiburg',
-    heroAccent: 'a partir de 7 €',
+    heroAccent: 'a partir de 8 €',
     heroDescription:
       'Les jours 1 a 7 sont calcules individuellement pour chaque velo, puis un supplement fixe s applique a partir du 8e jour. Retrait direct dans notre magasin a Freiburg.',
     heroFeatures: [
@@ -1134,7 +1134,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   tr: {
     serviceHighlightsAria: 'Servis öne çıkanlar',
     heroChip: 'Freiburg Bisiklet Kiralama',
-    heroAccent: '7 € ile başlayan fiyatlarla',
+    heroAccent: '8 € ile başlayan fiyatlarla',
     heroDescription:
       '1 ile 7 gün arası fiyat her bisiklet için ayrı hesaplanır, 8. günden itibaren sabit ek gün ücreti uygulanır. Teslim almayı doğrudan Freiburg mağazamızdan yapabilirsiniz.',
     heroFeatures: [
@@ -4867,7 +4867,12 @@ export class FahrradverleihComponent implements OnInit {
   ngOnInit(): void {
     const t = this.t();
     const lang = this.lang();
-    const rentalSlug = lang === 'en' ? 'bike-rental' : lang === 'fr' ? 'location-velo' : 'fahrradverleih';
+    const rentalSlug =
+      lang === 'en'
+        ? 'bike-rental'
+        : lang === 'fr'
+          ? 'location-velo'
+          : 'fahrradverleih';
     const pageUrl = `https://bikehausfreiburg.com/${lang}/${rentalSlug}`;
 
     this.bookingForm.sprache = this.getCurrentLanguage();
