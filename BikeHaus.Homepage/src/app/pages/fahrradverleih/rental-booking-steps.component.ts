@@ -133,7 +133,7 @@ type BookingStep =
             <div class="bike-info">
               <h3>{{ bike.marke }} {{ bike.modell }}</h3>
               <p class="bike-type">{{ bike.art || bike.fahrradtyp }}</p>
-              <p class="bike-price" *ngIf="bike.preise?.day1 !== undefined">
+              <p class="bike-price" *ngIf="bike.preise.day1 !== undefined">
                 {{ t().rentalSteps?.from ?? 'ab' }} €{{ bike.preise.day1 }}/{{
                   t().rentalSteps?.day ?? 'Tag'
                 }}
@@ -389,9 +389,7 @@ type BookingStep =
               <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
             </p>
             <p>
-              {{ selectedStartDate }} - {{ selectedEndDate }} ({{
-                daysCount()
-              }}
+              {{ selectedStartDate }} - {{ selectedEndDate }} ({{ daysCount() }}
               Tage)
             </p>
             <p *ngIf="item.farbe">Farbe: {{ item.farbe }}</p>
@@ -1111,7 +1109,7 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   calculatePrice(bike: PublicRentalBicycle, days: number): number {
-    return calculateRentalPrice(bike.preise, days).total;
+    return calculateRentalPrice(bike.preise, days).total ?? 0;
   }
 
   getTotalPrice(): number {

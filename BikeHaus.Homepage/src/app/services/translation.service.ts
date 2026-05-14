@@ -17,6 +17,70 @@ import { EXTENDED_TRANSLATION_OVERRIDES } from './translation-overrides';
 export type Language = SupportedLanguageCode;
 type BaseLanguage = 'de' | 'en' | 'fr' | 'tr';
 
+interface RentalStepsTranslations {
+  dateSelection: string;
+  bikeSelection: string;
+  customerInfo: string;
+  review: string;
+  selectDates: string;
+  startDate: string;
+  endDate: string;
+  continue: string;
+  selectBike: string;
+  days: string;
+  loading: string;
+  noBikesAvailable: string;
+  from: string;
+  day: string;
+  back: string;
+  type: string;
+  frameSize: string;
+  tireSize: string;
+  color: string;
+  description: string;
+  pricing: string;
+  rentalPrice: string;
+  deposit: string;
+  selectColor: string;
+  frameNumber: string;
+  optional: string;
+  addToCart: string;
+  selectDifferent: string;
+  yourInfo: string;
+  cartItems: string;
+  addAnotherBike: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  street: string;
+  houseNumber: string;
+  postalCode: string;
+  city: string;
+  notes: string;
+  submitting: string;
+  confirmBooking: string;
+  bikeDetails: string;
+  contactInfo: string;
+  priceSummary: string;
+  totalRental: string;
+  totalDeposit: string;
+  depositNote: string;
+  confirm: string;
+  bookingSuccess: string;
+  confirmationSent: string;
+  sent: string;
+  bookingNumber: string;
+  newBooking: string;
+  selectBothDates: string;
+  invalidDateRange: string;
+  loadError: string;
+  bookingError: string;
+  firstNameRequired: string;
+  lastNameRequired: string;
+  emailRequired: string;
+}
+
 export interface Translations {
   // Meta / SEO
   metaTitle: string;
@@ -332,6 +396,7 @@ export interface Translations {
   rentalStatusClosed: string;
   rentalStatusSelected: string;
   rentalSundayLabel: string;
+  rentalSteps?: Partial<RentalStepsTranslations>;
 
   // Rental Reviews
   rentalReviewsTitle: string;
