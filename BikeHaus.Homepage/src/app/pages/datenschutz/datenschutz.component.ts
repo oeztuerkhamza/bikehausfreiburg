@@ -12,355 +12,351 @@ import { TranslationService } from '../../services/translation.service';
     <div class="legal-page">
       <header class="page-header">
         <div class="container">
-          <span class="label">LEGAL</span>
-          <h1>{{ t().privacy }}</h1>
+          <span class="label">RECHTLICHES</span>
+          <h1>Datenschutzerklärung</h1>
+          <p class="subtitle">Bike Haus Freiburg – bikehausfreiburg.com</p>
         </div>
       </header>
 
       <div class="container legal-body">
         <article class="legal-content">
           <section>
-            <h2>1. Datenschutz auf einen Blick</h2>
-            <h3>Allgemeine Hinweise</h3>
+            <h2>1. Verantwortliche Stelle</h2>
             <p>
-              Die folgenden Hinweise geben einen einfachen Überblick darüber,
-              was mit Ihren personenbezogenen Daten passiert, wenn Sie diese
-              Website besuchen. Personenbezogene Daten sind alle Daten, mit
-              denen Sie persönlich identifiziert werden können. Ausführliche
-              Informationen zum Thema Datenschutz entnehmen Sie unserer
-              nachfolgend aufgeführten Datenschutzerklärung.
+              Verantwortlich für die Datenverarbeitung auf dieser Website ist:
             </p>
-
-            <h3>Datenerfassung auf dieser Website</h3>
-            <p>
-              <strong
-                >Wer ist verantwortlich für die Datenerfassung auf dieser
-                Website?</strong
+            <address>
+              <strong>Bike Haus Freiburg</strong><br />
+              Heckerstraße 27<br />
+              79114 Freiburg im Breisgau<br />
+              E-Mail:
+              <a href="mailto:info&#64;bikehausfreiburg.com"
+                >info&#64;bikehausfreiburg.com</a
               ><br />
-              Die Datenverarbeitung auf dieser Website erfolgt durch den
-              Websitebetreiber:
-            </p>
-            <p>
-              Bike Haus Freiburg<br />
-              Heckerstraße 27<br />
-              79114 Freiburg im Breisgau<br />
-              E-Mail: info.bikehausfreiburg&#64;gmail.com
-            </p>
+              Website:
+              <a
+                href="https://bikehausfreiburg.com"
+                target="_blank"
+                rel="noopener"
+                >bikehausfreiburg.com</a
+              >
+            </address>
           </section>
 
           <section>
-            <h2>2. Hosting</h2>
-            <p>
-              Wir hosten die Inhalte unserer Website bei folgendem Anbieter. Die
-              personenbezogenen Daten, die auf dieser Website erfasst werden,
-              werden auf den Servern des Hosters gespeichert. Hierbei kann es
-              sich v. a. um IP-Adressen, Kontaktanfragen, Meta- und
-              Kommunikationsdaten, Vertragsdaten, Kontaktdaten, Namen,
-              Websitezugriffe und sonstige Daten, die über eine Website
-              generiert werden, handeln.
-            </p>
-            <p>
-              Der Einsatz des Hosters erfolgt im Interesse einer sicheren,
-              schnellen und effizienten Bereitstellung unseres Online-Angebots
-              durch einen professionellen Anbieter (Art. 6 Abs. 1 lit. f DSGVO).
-            </p>
-          </section>
+            <h2>2. Erhebung und Speicherung personenbezogener Daten</h2>
 
-          <section>
-            <h2>3. Allgemeine Hinweise und Pflichtinformationen</h2>
-            <h3>Datenschutz</h3>
+            <h3>2.1 Beim Besuch der Website</h3>
             <p>
-              Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen
-              Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten
-              vertraulich und entsprechend den gesetzlichen
-              Datenschutzvorschriften sowie dieser Datenschutzerklärung.
-            </p>
-            <p>
-              Wenn Sie diese Website benutzen, werden verschiedene
-              personenbezogene Daten erhoben. Personenbezogene Daten sind Daten,
-              mit denen Sie persönlich identifiziert werden können. Die
-              vorliegende Datenschutzerklärung erläutert, welche Daten wir
-              erheben und wofür wir sie nutzen. Sie erläutert auch, wie und zu
-              welchem Zweck das geschieht.
-            </p>
-            <p>
-              Wir weisen darauf hin, dass die Datenübertragung im Internet (z.
-              B. bei der Kommunikation per E-Mail) Sicherheitslücken aufweisen
-              kann. Ein lückenloser Schutz der Daten vor dem Zugriff durch
-              Dritte ist nicht möglich.
-            </p>
-
-            <h3>Hinweis zur verantwortlichen Stelle</h3>
-            <p>
-              Die verantwortliche Stelle für die Datenverarbeitung auf dieser
-              Website ist:
-            </p>
-            <p>
-              Bike Haus Freiburg<br />
-              Heckerstraße 27<br />
-              79114 Freiburg im Breisgau<br />
-              E-Mail: info.bikehausfreiburg&#64;gmail.com<br />
-              WhatsApp: +49 155 6630 0011
-            </p>
-            <p>
-              Verantwortliche Stelle ist die natürliche oder juristische Person,
-              die allein oder gemeinsam mit anderen über die Zwecke und Mittel
-              der Verarbeitung von personenbezogenen Daten (z. B. Namen,
-              E-Mail-Adressen o. Ä.) entscheidet.
-            </p>
-
-            <h3>Speicherdauer</h3>
-            <p>
-              Soweit innerhalb dieser Datenschutzerklärung keine speziellere
-              Speicherdauer genannt wurde, verbleiben Ihre personenbezogenen
-              Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt.
-              Wenn Sie ein berechtigtes Löschersuchen geltend machen oder eine
-              Einwilligung zur Datenverarbeitung widerrufen, werden Ihre Daten
-              gelöscht, sofern wir keine anderen rechtlich zulässigen Gründe für
-              die Speicherung Ihrer personenbezogenen Daten haben.
-            </p>
-
-            <h3>Widerruf Ihrer Einwilligung zur Datenverarbeitung</h3>
-            <p>
-              Viele Datenverarbeitungsvorgänge sind nur mit Ihrer ausdrücklichen
-              Einwilligung möglich. Sie können eine bereits erteilte
-              Einwilligung jederzeit widerrufen. Die Rechtmäßigkeit der bis zum
-              Widerruf erfolgten Datenverarbeitung bleibt vom Widerruf
-              unberührt.
-            </p>
-
-            <h3>Recht auf Datenübertragbarkeit</h3>
-            <p>
-              Sie haben das Recht, Daten, die wir auf Grundlage Ihrer
-              Einwilligung oder in Erfüllung eines Vertrags automatisiert
-              verarbeiten, an sich oder an einen Dritten in einem gängigen,
-              maschinenlesbaren Format aushändigen zu lassen. Sofern Sie die
-              direkte Übertragung der Daten an einen anderen Verantwortlichen
-              verlangen, erfolgt dies nur, soweit es technisch machbar ist.
-            </p>
-
-            <h3>Auskunft, Löschung und Berichtigung</h3>
-            <p>
-              Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen
-              jederzeit das Recht auf unentgeltliche Auskunft über Ihre
-              gespeicherten personenbezogenen Daten, deren Herkunft und
-              Empfänger und den Zweck der Datenverarbeitung und ggf. ein Recht
-              auf Berichtigung oder Löschung dieser Daten. Hierzu sowie zu
-              weiteren Fragen zum Thema personenbezogene Daten können Sie sich
-              jederzeit an uns wenden.
-            </p>
-          </section>
-
-          <section>
-            <h2>4. Datenerfassung auf dieser Website</h2>
-            <h3>Server-Log-Dateien</h3>
-            <p>
-              Der Provider der Seiten erhebt und speichert automatisch
-              Informationen in so genannten Server-Log-Dateien, die Ihr Browser
-              automatisch an uns übermittelt. Dies sind:
+              Beim Aufrufen unserer Website werden durch den Browser automatisch
+              Informationen an den Server gesendet. Diese umfassen:
             </p>
             <ul>
-              <li>Browsertyp und Browserversion</li>
-              <li>verwendetes Betriebssystem</li>
-              <li>Referrer URL</li>
-              <li>Hostname des zugreifenden Rechners</li>
-              <li>Uhrzeit der Serveranfrage</li>
-              <li>IP-Adresse</li>
+              <li>IP-Adresse des anfragenden Geräts</li>
+              <li>Datum und Uhrzeit der Anfrage</li>
+              <li>Name und URL der abgerufenen Datei</li>
+              <li>Website, von der aus der Zugriff erfolgt (Referrer-URL)</li>
+              <li>Verwendeter Browser und ggf. das Betriebssystem</li>
             </ul>
             <p>
-              Eine Zusammenführung dieser Daten mit anderen Datenquellen wird
-              nicht vorgenommen. Die Erfassung dieser Daten erfolgt auf
-              Grundlage von Art. 6 Abs. 1 lit. f DSGVO.
+              Diese Daten werden zur Sicherstellung eines störungsfreien
+              Verbindungsaufbaus, zur Systemsicherheit und für statistische
+              Auswertungen verarbeitet. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f
+              DSGVO (berechtigtes Interesse).
             </p>
 
-            <h3>Lokale Speicherung (LocalStorage)</h3>
+            <h3>2.2 Bei Online-Käufen (Showroom)</h3>
             <p>
-              Diese Website verwendet den lokalen Speicher (LocalStorage) Ihres
-              Browsers, um Ihre Spracheinstellung zu speichern. Dabei werden
-              keine personenbezogenen Daten an unsere Server übertragen. Die
-              Daten verbleiben ausschließlich in Ihrem Browser.
+              Wenn Sie ein Fahrrad online kaufen, verarbeiten wir folgende
+              Daten, die Sie im Bestellformular angeben:
+            </p>
+            <ul>
+              <li>Vorname und Nachname</li>
+              <li>E-Mail-Adresse</li>
+              <li>Postanschrift</li>
+              <li>Gewünschter Abholtag</li>
+            </ul>
+            <p>
+              Diese Daten werden ausschließlich zur Vertragsabwicklung verwendet
+              (Art. 6 Abs. 1 lit. b DSGVO). Nach vollständiger Abwicklung des
+              Kaufs werden die Daten entsprechend den gesetzlichen
+              Aufbewahrungsfristen gespeichert (in der Regel 10 Jahre gemäß HGB
+              / AO) und anschließend gelöscht.
+            </p>
+
+            <h3>2.3 Zahlungsabwicklung (Mollie)</h3>
+            <p>
+              Für die Zahlungsabwicklung nutzen wir den Dienst
+              <strong>Mollie B.V.</strong>
+              (Keizersgracht 126, 1015 CW Amsterdam, Niederlande). Bei einer
+              Zahlung werden die für die Transaktion erforderlichen Daten
+              (Betrag, Beschreibung, Metadaten) an Mollie übermittelt. Mollie
+              verarbeitet Ihre Zahlungsdaten gemäß seiner eigenen
+              Datenschutzrichtlinie, einsehbar unter
+              <a
+                href="https://www.mollie.com/de/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                www.mollie.com/de/privacy </a
+              >.
+            </p>
+
+            <h3>2.4 Kontaktaufnahme (WhatsApp / E-Mail)</h3>
+            <p>
+              Wenn Sie uns per E-Mail oder WhatsApp kontaktieren, verarbeiten
+              wir Ihre Nachricht und die mitgeteilten personenbezogenen Daten
+              (Name, Kontaktdaten) ausschließlich zur Bearbeitung Ihrer Anfrage.
+              Rechtsgrundlage ist Art. 6 Abs. 1 lit. b bzw. lit. f DSGVO.
             </p>
           </section>
 
           <section>
-            <h2>5. Externe Dienste</h2>
-            <h3>Google Maps</h3>
+            <h2>3. Cookies</h2>
             <p>
-              Diese Seite nutzt den Kartendienst Google Maps. Anbieter ist die
-              Google Ireland Limited („Google"), Gordon House, Barrow Street,
-              Dublin 4, Irland. Beim Laden der Karte werden Daten an
-              Google-Server übertragen. Weitere Informationen finden Sie in der
+              Diese Website verwendet ausschließlich technisch notwendige
+              Cookies, die für den Betrieb der Website erforderlich sind. Es
+              werden keine Tracking- oder Marketing-Cookies eingesetzt.
+              Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO.
+            </p>
+          </section>
+
+          <section>
+            <h2>4. Google Maps</h2>
+            <p>
+              Diese Website enthält einen Link zu Google Maps (Google Ireland
+              Limited, Gordon House, Barrow Street, Dublin 4, Irland). Google
+              Maps wird erst beim Anklicken des Links aufgerufen; dabei werden
+              Daten an Google übermittelt. Weitere Informationen zum Datenschutz
+              finden Sie unter
               <a
                 href="https://policies.google.com/privacy"
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
               >
-                Google Datenschutzerklärung </a
+                policies.google.com/privacy </a
               >.
             </p>
           </section>
-        </article>
 
-        <div class="legal-back">
-          <a [routerLink]="['/' + lang()]" class="back-link">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            {{ t().home }}
-          </a>
-        </div>
+          <section>
+            <h2>5. Weitergabe von Daten an Dritte</h2>
+            <p>
+              Personenbezogene Daten werden nicht an Dritte weitergegeben, es
+              sei denn:
+            </p>
+            <ul>
+              <li>
+                Sie haben ausdrücklich eingewilligt (Art. 6 Abs. 1 lit. a DSGVO)
+              </li>
+              <li>
+                Die Weitergabe ist zur Vertragserfüllung erforderlich (z. B.
+                Mollie für die Zahlung)
+              </li>
+              <li>
+                Eine gesetzliche Verpflichtung besteht (Art. 6 Abs. 1 lit. c
+                DSGVO)
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>6. Ihre Rechte</h2>
+            <p>
+              Sie haben gegenüber uns folgende Rechte hinsichtlich Ihrer
+              personenbezogenen Daten:
+            </p>
+            <ul>
+              <li><strong>Auskunftsrecht</strong> (Art. 15 DSGVO)</li>
+              <li><strong>Recht auf Berichtigung</strong> (Art. 16 DSGVO)</li>
+              <li><strong>Recht auf Löschung</strong> (Art. 17 DSGVO)</li>
+              <li>
+                <strong>Recht auf Einschränkung der Verarbeitung</strong> (Art.
+                18 DSGVO)
+              </li>
+              <li>
+                <strong>Recht auf Datenübertragbarkeit</strong> (Art. 20 DSGVO)
+              </li>
+              <li><strong>Widerspruchsrecht</strong> (Art. 21 DSGVO)</li>
+            </ul>
+            <p>
+              Zur Ausübung Ihrer Rechte wenden Sie sich bitte an:
+              <a href="mailto:info&#64;bikehausfreiburg.com"
+                >info&#64;bikehausfreiburg.com</a
+              >
+            </p>
+            <p>
+              Sie haben zudem das Recht, sich bei einer
+              Datenschutz-Aufsichtsbehörde zu beschweren. Zuständig ist der
+              Landesbeauftragte für den Datenschutz und die Informationsfreiheit
+              Baden-Württemberg:
+              <a
+                href="https://www.baden-wuerttemberg.datenschutz.de"
+                target="_blank"
+                rel="noopener noreferrer"
+                >www.baden-wuerttemberg.datenschutz.de</a
+              >
+            </p>
+          </section>
+
+          <section>
+            <h2>7. Datensicherheit</h2>
+            <p>
+              Die Website verwendet eine SSL/TLS-Verschlüsselung (erkennbar am
+              „https://" und dem Schloss-Symbol im Browser), um die Übertragung
+              Ihrer Daten zu schützen.
+            </p>
+          </section>
+
+          <section>
+            <h2>8. Aktualität dieser Erklärung</h2>
+            <p class="last-updated">
+              Diese Datenschutzerklärung ist aktuell gültig und hat den Stand:
+              <strong>Mai 2025</strong>.
+            </p>
+          </section>
+        </article>
       </div>
     </div>
   `,
   styles: [
     `
+      .legal-page {
+        padding-bottom: 5rem;
+        background: var(--color-bg);
+      }
+
       .page-header {
         padding: 7rem 0 3rem;
-        background: var(--color-bg);
-        border-bottom: 1px solid var(--color-border);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        margin-bottom: 3rem;
+        background:
+          radial-gradient(
+            circle at 20% 0%,
+            rgba(255, 87, 34, 0.1),
+            transparent 30%
+          ),
+          var(--color-bg);
       }
 
       .label {
-        display: block;
-        font-size: 0.75rem;
-        font-weight: 600;
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 700;
         letter-spacing: 0.15em;
-        text-transform: uppercase;
         color: var(--color-accent);
-        margin-bottom: 0.75rem;
+        background: rgba(255, 87, 34, 0.1);
+        border: 1px solid rgba(255, 87, 34, 0.2);
+        padding: 0.3rem 0.85rem;
+        border-radius: 999px;
+        margin-bottom: 1rem;
       }
 
-      .page-header h1 {
-        font-size: clamp(1.75rem, 4vw, 2.5rem);
+      h1 {
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
         font-weight: 800;
         color: var(--color-text);
+        letter-spacing: -0.03em;
+        margin: 0 0 0.5rem;
+      }
+
+      .subtitle {
+        color: var(--color-text-secondary);
+        font-size: 1rem;
         margin: 0;
-        letter-spacing: -0.02em;
       }
 
       .legal-body {
-        padding-top: 3rem;
-        padding-bottom: 4rem;
-      }
-
-      .legal-content {
-        max-width: 740px;
+        max-width: 820px;
       }
 
       .legal-content section {
         margin-bottom: 2.5rem;
+        padding-bottom: 2.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       }
 
-      .legal-content h2 {
-        font-size: 1.1rem;
+      .legal-content section:last-child {
+        border-bottom: none;
+      }
+
+      h2 {
+        font-size: 1.15rem;
         font-weight: 700;
         color: var(--color-text);
-        margin: 0 0 0.75rem;
+        margin: 0 0 1rem;
       }
 
-      .legal-content h3 {
-        font-size: 0.95rem;
-        font-weight: 600;
+      h3 {
+        font-size: 0.97rem;
+        font-weight: 700;
         color: var(--color-text);
         margin: 1.25rem 0 0.5rem;
       }
 
-      .legal-content h3:first-child {
-        margin-top: 0;
-      }
-
-      .legal-content p {
-        font-size: 0.92rem;
+      p {
+        font-size: 0.93rem;
+        line-height: 1.8;
         color: var(--color-text-secondary);
-        line-height: 1.75;
-        margin: 0 0 0.75rem;
+        margin: 0 0 0.9rem;
       }
 
-      .legal-content p:last-child {
-        margin-bottom: 0;
+      ul {
+        padding-left: 1.4rem;
+        margin-bottom: 0.9rem;
       }
 
-      .legal-content strong {
-        color: var(--color-text);
-        font-weight: 700;
-      }
-
-      .legal-content ul {
-        padding-left: 1.5rem;
-        margin: 0.5rem 0 1rem;
-      }
-
-      .legal-content li {
-        font-size: 0.92rem;
+      ul li {
+        font-size: 0.93rem;
+        line-height: 1.8;
         color: var(--color-text-secondary);
-        line-height: 1.75;
-        margin-bottom: 0.25rem;
+        margin-bottom: 0.2rem;
       }
 
-      .legal-content a {
+      address {
+        font-style: normal;
+        font-size: 0.93rem;
+        line-height: 1.8;
+        color: var(--color-text-secondary);
+        margin-bottom: 1rem;
+        padding: 1rem 1.25rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 12px;
+        display: inline-block;
+      }
+
+      a {
         color: var(--color-accent);
-        text-decoration: none;
-        transition: opacity 0.2s;
+        text-decoration: underline;
+        text-underline-offset: 2px;
       }
 
-      .legal-content a:hover {
-        opacity: 0.8;
+      .last-updated {
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
       }
 
-      .legal-back {
-        margin-top: 3rem;
-        padding-top: 2rem;
-        border-top: 1px solid var(--color-border);
-      }
-
-      .back-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: var(--color-text-secondary);
-        text-decoration: none;
-        transition:
-          color 0.2s,
-          gap 0.2s;
-      }
-
-      .back-link:hover {
-        color: var(--color-accent);
-        gap: 0.6rem;
-      }
-
-      @media (max-width: 768px) {
+      @media (max-width: 640px) {
         .page-header {
-          padding: 6rem 0 2rem;
+          padding: 5.5rem 0 2rem;
         }
       }
     `,
   ],
 })
 export class DatenschutzComponent implements OnInit {
-  private translationService = inject(TranslationService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
-
+  private translationService = inject(TranslationService);
   t = this.translationService.translations;
-  lang = this.translationService.currentLanguage;
 
   ngOnInit(): void {
-    const t = this.t();
-    this.titleService.setTitle(t.datenschutzMetaTitle);
+    this.titleService.setTitle('Datenschutzerklärung — Bike Haus Freiburg');
     this.metaService.updateTag({
       name: 'description',
-      content: t.datenschutzMetaDescription,
+      content:
+        'Datenschutzerklärung von Bike Haus Freiburg. Informationen zur Verarbeitung personenbezogener Daten gemäß DSGVO.',
     });
-    this.metaService.updateTag({ name: 'robots', content: 'noindex, follow' });
   }
 }

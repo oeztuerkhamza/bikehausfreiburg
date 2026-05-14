@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
+import { CheckoutCartService } from '../../services/checkout-cart.service';
 import { TranslationService } from '../../services/translation.service';
 import { HomepageAccessory } from '../../models/models';
 import { environment } from '../../../environments/environment';
@@ -95,6 +96,14 @@ import { environment } from '../../../environments/environment';
                   : t().accessoriesPriceOnRequest
               }}
             </div>
+            <button
+              type="button"
+              class="add-cart-btn"
+              *ngIf="item()!.preis > 0"
+              (click)="addCurrentAccessoryToCart()"
+            >
+              Sepete ekle ({{ getCurrentAccessoryCartQuantity() }})
+            </button>
             <div class="description" *ngIf="item()!.beschreibung">
               <p>{{ item()!.beschreibung }}</p>
             </div>
@@ -298,6 +307,23 @@ import { environment } from '../../../environments/environment';
         border-bottom: 1px solid var(--color-border);
       }
 
+      .add-cart-btn {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        padding: 0.55rem 0.9rem;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--color-text);
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 1rem;
+      }
+
+      .add-cart-btn:hover {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+      }
+
       .description {
         margin-top: 1.25rem;
       }
@@ -419,6 +445,7 @@ import { environment } from '../../../environments/environment';
 })
 export class ZubehoerDetailComponent implements OnInit {
   private api = inject(ApiService);
+  private checkoutCart = inject(CheckoutCartService);
   private route = inject(ActivatedRoute);
   private translationService = inject(TranslationService);
   private titleService = inject(Title);
@@ -476,5 +503,17 @@ export class ZubehoerDetailComponent implements OnInit {
     if (!item) return;
     const idx = this.currentImageIndex();
     this.currentImageIndex.set(idx === item.images.length - 1 ? 0 : idx + 1);
+  }
+
+  addCurrentAccessoryToCart(): void {
+    const current = this.item();
+    if (!current) return;
+    this.checkoutCart.addAccessory(current.id, 1);
+  }
+
+  getCurrentAccessoryCartQuantity(): number {
+    const current = this.item();
+    if (!current) return 0;
+    return this.checkoutCart.getAccessoryQuantities()[current.id] || 0;
   }
 }

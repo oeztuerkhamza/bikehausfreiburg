@@ -2,6 +2,8 @@ using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
+using BikeHaus.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -18,6 +20,7 @@ public class PdfService : IPdfService
     private readonly IInvoiceRepository _invoiceRepository;
     private readonly IExpenseRepository _expenseRepository;
     private readonly IRentalRepository _rentalRepository;
+    private readonly BikeHausDbContext _db;
 
     // Print-Friendly Colors (optimized for less ink consumption)
     private static readonly string PrimaryColor = "#2c5282";       // Medium blue (for text)
@@ -66,7 +69,8 @@ public class PdfService : IPdfService
         IShopSettingsRepository shopSettingsRepository,
         IInvoiceRepository invoiceRepository,
         IExpenseRepository expenseRepository,
-        IRentalRepository rentalRepository)
+        IRentalRepository rentalRepository,
+        BikeHausDbContext db)
     {
         _purchaseRepository = purchaseRepository;
         _saleRepository = saleRepository;
@@ -75,6 +79,7 @@ public class PdfService : IPdfService
         _invoiceRepository = invoiceRepository;
         _expenseRepository = expenseRepository;
         _rentalRepository = rentalRepository;
+        _db = db;
     }
 
     // Helper to get shop info from DB settings or use defaults
@@ -1907,6 +1912,181 @@ public class PdfService : IPdfService
                 page.Footer().Column(footerCol =>
                 {
                     footerCol.Item().AlignCenter().Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}")
+                        .FontSize(7).FontColor(Colors.Grey.Darken1);
+                });
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    public async Task<byte[]> GenerateOnlineBelegAsync(int onlineSaleId)
+    {
+        var shop = await GetShopInfoAsync();
+
+        var sale = await _db.OnlineSales.FirstOrDefaultAsync(x => x.Id == onlineSaleId);
+
+        if (sale == null)
+            throw new InvalidOperationException($"Online-Bestellung {onlineSaleId} nicht gefunden.");
+
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = QuestPDF.Fluent.Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(1.5f, Unit.Centimetre);
+                page.DefaultTextStyle(x => x.FontSize(9));
+
+                page.Header().Column(col =>
+                {
+                    col.Item().Row(row =>
+                    {
+                        row.RelativeItem().Column(c =>
+                        {
+                            AddLogoToHeader(c, shop);
+                            c.Item().Text(shop.ShopName).FontSize(14).Bold().FontColor(PrimaryColor);
+                            c.Item().Text(shop.ShopType).FontSize(8).FontColor(Colors.Grey.Darken1);
+                            c.Item().Text($"{shop.Street}, {shop.City}").FontSize(8);
+                            c.Item().Text($"Tel: {shop.Telefon} | {shop.Email}").FontSize(8);
+                        });
+
+                        row.ConstantItem(160).Column(c =>
+                        {
+                            c.Item().Background(PrimaryColor).Padding(10).Column(inner =>
+                            {
+                                inner.Item().Text("ONLINE-BESTELLUNG").FontSize(13).Bold().FontColor(Colors.White).AlignCenter();
+                                inner.Item().Text($"Nr. {sale.Id:D6}").FontSize(11).FontColor(Colors.White).AlignCenter();
+                                inner.Item().PaddingTop(4).Text(sale.CreatedAt.ToString("dd.MM.yyyy HH:mm")).FontSize(9).FontColor(Colors.White).AlignCenter();
+                            });
+                        });
+                    });
+
+                    col.Item().PaddingTop(8).LineHorizontal(1).LineColor(PrimaryColor);
+                });
+
+                page.Content().PaddingTop(16).Column(col =>
+                {
+                    // Customer + Order info side by side
+                    col.Item().Row(row =>
+                    {
+                        // Customer info
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(10).Column(c =>
+                        {
+                            c.Item().Text("KUNDENDATEN").FontSize(8).Bold().FontColor(PrimaryColor);
+                            c.Item().PaddingTop(6).Text($"{sale.Vorname} {sale.Nachname}").Bold();
+                            c.Item().Text(sale.Email).FontColor(Colors.Grey.Darken2);
+                            c.Item().Text(sale.Adresse).FontColor(Colors.Grey.Darken2);
+                        });
+
+                        row.ConstantItem(12);
+
+                        // Order info
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten2).Padding(10).Column(c =>
+                        {
+                            c.Item().Text("BESTELLDETAILS").FontSize(8).Bold().FontColor(PrimaryColor);
+                            c.Item().PaddingTop(6).Row(r =>
+                            {
+                                r.RelativeItem().Text("Zahlungsart:").FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem().Text("Online (Mollie)").Bold();
+                            });
+                            c.Item().PaddingTop(2).Row(r =>
+                            {
+                                r.RelativeItem().Text("Payment-ID:").FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem().Text(sale.MolliePaymentId).FontSize(8);
+                            });
+                            if (!string.IsNullOrEmpty(sale.Abholtag))
+                            {
+                                c.Item().PaddingTop(2).Row(r =>
+                                {
+                                    r.RelativeItem().Text("Abholtag:").FontColor(Colors.Grey.Darken1);
+                                    r.RelativeItem().Text(sale.Abholtag).Bold().FontColor(PrimaryColor);
+                                });
+                            }
+                            c.Item().PaddingTop(2).Row(r =>
+                            {
+                                r.RelativeItem().Text("Status:").FontColor(Colors.Grey.Darken1);
+                                r.RelativeItem().Text(sale.IsVerarbeitet ? "Erledigt" : "Offen").Bold()
+                                    .FontColor(sale.IsVerarbeitet ? Colors.Green.Darken1 : Colors.Orange.Darken1);
+                            });
+                        });
+                    });
+
+                    col.Item().PaddingTop(16);
+
+                    // Product table
+                    col.Item().Table(table =>
+                    {
+                        table.ColumnsDefinition(cols =>
+                        {
+                            cols.RelativeColumn(4);
+                            cols.RelativeColumn(1);
+                            cols.RelativeColumn(1);
+                        });
+
+                        // Header
+                        table.Header(header =>
+                        {
+                            header.Cell().Background(PrimaryColor).Padding(6)
+                                .Text("ARTIKEL").FontSize(8).Bold().FontColor(Colors.White);
+                            header.Cell().Background(PrimaryColor).Padding(6).AlignRight()
+                                .Text("EINZELPREIS").FontSize(8).Bold().FontColor(Colors.White);
+                            header.Cell().Background(PrimaryColor).Padding(6).AlignRight()
+                                .Text("GESAMT").FontSize(8).Bold().FontColor(Colors.White);
+                        });
+
+                        // Product row
+                        table.Cell().Background(TableAltBg).Padding(8).Text(sale.BikeTitle);
+                        table.Cell().Background(TableAltBg).Padding(8).AlignRight()
+                            .Text(sale.Preis.ToString("C", new System.Globalization.CultureInfo("de-DE")));
+                        table.Cell().Background(TableAltBg).Padding(8).AlignRight()
+                            .Text(sale.Preis.ToString("C", new System.Globalization.CultureInfo("de-DE"))).Bold();
+
+                        // Total row
+                        table.Cell().ColumnSpan(2).Background(TableHeaderBg).Padding(8).AlignRight()
+                            .Text("GESAMTBETRAG").Bold().FontColor(PrimaryColor);
+                        table.Cell().Background(TableHeaderBg).Padding(8).AlignRight()
+                            .Text(sale.Preis.ToString("C", new System.Globalization.CultureInfo("de-DE")))
+                            .Bold().FontSize(11).FontColor(PrimaryColor);
+                    });
+
+                    col.Item().PaddingTop(20).Border(1).BorderColor(Colors.Grey.Lighten2)
+                        .Background(TableAltBg).Padding(10).Column(c =>
+                    {
+                        c.Item().Text("HINWEISE").FontSize(8).Bold().FontColor(PrimaryColor);
+                        c.Item().PaddingTop(4).Text(
+                            "Die Zahlung wurde online über Mollie verarbeitet. " +
+                            "Bitte bringen Sie dieses Dokument oder Ihre Bestätigungs-E-Mail zur Abholung mit. " +
+                            "Bei Fragen wenden Sie sich bitte an uns.")
+                            .FontSize(8).FontColor(Colors.Grey.Darken2);
+                    });
+
+                    // Bank info
+                    col.Item().PaddingTop(16).Row(row =>
+                    {
+                        row.RelativeItem().Column(c =>
+                        {
+                            c.Item().Text("BANKDATEN").FontSize(8).Bold().FontColor(PrimaryColor);
+                            c.Item().PaddingTop(4).Text($"Bank: {shop.BankName}").FontSize(8);
+                            c.Item().Text($"Inhaber: {shop.BankAccountHolder}").FontSize(8);
+                            c.Item().Text($"IBAN: {shop.IBAN}").FontSize(8);
+                        });
+
+                        row.RelativeItem().Column(c =>
+                        {
+                            c.Item().Text("STEUERINFORMATIONEN").FontSize(8).Bold().FontColor(PrimaryColor);
+                            c.Item().PaddingTop(4).Text($"Steuernummer: {shop.Steuernummer}").FontSize(8);
+                            c.Item().Text($"USt-IdNr.: {shop.UStIdNr}").FontSize(8);
+                        });
+                    });
+                });
+
+                page.Footer().Column(footerCol =>
+                {
+                    footerCol.Item().LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten2);
+                    footerCol.Item().PaddingTop(4).AlignCenter()
+                        .Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}")
                         .FontSize(7).FontColor(Colors.Grey.Darken1);
                 });
             });

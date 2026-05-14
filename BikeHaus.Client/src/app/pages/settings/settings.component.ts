@@ -454,7 +454,7 @@ interface EmailAccountForm {
                     type="email"
                     [(ngModel)]="newCompanyEmail"
                     name="newCompanyEmail"
-                    placeholder="z.B. info@bikehausfreiburg.com"
+                    placeholder="z.B. info.bikehausfreiburg@gmail.com"
                     class="company-email-input"
                     style="flex: 1; padding: 8px 12px; border: 1px solid var(--border-light, #e2e8f0); border-radius: 6px; font-size: 0.9rem;"
                   />

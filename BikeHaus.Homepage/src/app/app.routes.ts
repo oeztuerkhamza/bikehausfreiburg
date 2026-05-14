@@ -125,6 +125,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'widerrufsbelehrung',
+        loadComponent: () =>
+          import('./pages/widerrufsbelehrung/widerrufsbelehrung.component').then(
+            (m) => m.WiderrufsbelehrungComponent,
+          ),
+      },
+      {
         path: 'fahrradverleih',
         loadComponent: () =>
           import('./pages/fahrradverleih/fahrradverleih.component').then(

@@ -1,20 +1,21 @@
 import {
-  Component,
-  inject,
-  HostListener,
-  PLATFORM_ID,
-  signal,
+    Component,
+    ElementRef,
+    inject,
+    HostListener,
+    PLATFORM_ID,
+    signal,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
-  TranslationService,
-  Language,
+    TranslationService,
+    Language,
 } from '../../services/translation.service';
 import { ShopInfoService } from '../../services/shop-info.service';
 import {
-  LANGUAGE_LABELS,
-  SUPPORTED_LANGUAGES,
+    LANGUAGE_LABELS,
+    SUPPORTED_LANGUAGES,
 } from '../../services/language-config';
 
 @Component({
@@ -64,15 +65,55 @@ import {
             >{{ link.label() }}</a
           >
 
-          <div class="lang-switch">
+          <div class="lang-switch" [class.open]="languageMenuOpen()">
             <button
-              *ngFor="let lang of languages"
-              [class.active]="currentLang() === lang.code"
-              (click)="switchLang(lang.code)"
-              [attr.aria-label]="lang.label"
+              type="button"
+              class="lang-trigger"
+              (click)="toggleLanguageMenu($event)"
+              [attr.aria-expanded]="languageMenuOpen()"
+              [attr.aria-label]="currentLanguageLabel()"
             >
-              {{ lang.code.toUpperCase() }}
+              <img
+                [src]="currentLanguageFlag()"
+                [alt]="currentLanguageLabel()"
+                class="lang-flag"
+                width="24"
+                height="16"
+              />
+              <span class="lang-trigger-label">{{ currentLang().toUpperCase() }}</span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                class="lang-chevron"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
             </button>
+
+            <div class="lang-menu" *ngIf="languageMenuOpen()">
+              <button
+                *ngFor="let lang of languages"
+                type="button"
+                class="lang-option"
+                [class.active]="currentLang() === lang.code"
+                (click)="switchLang(lang.code)"
+                [attr.aria-label]="lang.label"
+              >
+                <img
+                  [src]="getLanguageFlag(lang.code)"
+                  [alt]="lang.label"
+                  class="lang-flag"
+                  width="24"
+                  height="16"
+                />
+                <span>{{ lang.label }}</span>
+                <small>{{ lang.code.toUpperCase() }}</small>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -212,35 +253,105 @@ import {
 
       /* Language Switcher */
       .lang-switch {
+        position: relative;
         display: flex;
-        gap: 2px;
+        align-items: center;
         margin-left: 0.75rem;
         border-left: 1px solid var(--color-border);
         padding-left: 1.5rem;
       }
 
-      .lang-switch button {
-        background: none;
-        border: 1px solid transparent;
-        border-radius: 6px;
-        color: var(--color-text-muted);
-        font-weight: 600;
-        font-size: 0.72rem;
-        letter-spacing: 0.06em;
-        cursor: pointer;
-        padding: 0.3rem 0.5rem;
-        transition: all 0.2s;
-        font-family: var(--font-family);
-      }
-
-      .lang-switch button:hover {
-        color: var(--color-text-secondary);
-      }
-
-      .lang-switch button.active {
+      .lang-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.45rem 0.65rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
         color: #fff;
-        background: var(--color-surface-elevated);
-        border-color: var(--color-border-hover);
+        font-weight: 700;
+        font-size: 0.74rem;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        font-family: var(--font-family);
+        transition:
+          border-color 0.2s,
+          background 0.2s,
+          transform 0.2s;
+      }
+
+      .lang-trigger:hover,
+      .lang-switch.open .lang-trigger {
+        border-color: rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.07);
+      }
+
+      .lang-flag {
+        display: block;
+        width: 22px;
+        height: 15px;
+        object-fit: cover;
+        border-radius: 3px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18) inset;
+      }
+
+      .lang-trigger-label {
+        min-width: 2.2rem;
+        text-align: left;
+      }
+
+      .lang-chevron {
+        opacity: 0.75;
+      }
+
+      .lang-menu {
+        position: absolute;
+        top: calc(100% + 0.55rem);
+        right: 0;
+        min-width: 220px;
+        padding: 0.45rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(8, 10, 16, 0.96);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(18px) saturate(160%);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        z-index: 20;
+      }
+
+      .lang-option {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 24px 1fr auto;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.65rem 0.7rem;
+        border: none;
+        border-radius: 12px;
+        background: transparent;
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        text-align: left;
+        font-family: var(--font-family);
+        transition: background 0.2s, color 0.2s;
+      }
+
+      .lang-option:hover,
+      .lang-option.active {
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+      }
+
+      .lang-option small {
+        color: var(--color-text-muted);
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+      }
+
+      .lang-option.active small {
+        color: var(--color-text-secondary);
       }
 
       /* Mobile */
@@ -298,17 +409,34 @@ import {
         }
 
         .lang-switch {
-          border-left: none;
-          border-top: 1px solid var(--color-border);
+          width: min(420px, 100%);
+          justify-content: center;
+          flex-wrap: wrap;
           padding-left: 0;
+          border-top: 1px solid var(--color-border);
+          border-left: none;
           padding-top: 1.5rem;
           margin-left: 0;
           margin-top: 1rem;
         }
 
-        .lang-switch button {
-          font-size: 0.85rem;
-          padding: 0.5rem 0.75rem;
+        .lang-menu {
+          left: 50%;
+          right: auto;
+          transform: translateX(-50%);
+          width: min(320px, calc(100vw - 2rem));
+        }
+
+        .lang-option {
+          grid-template-columns: 24px 1fr auto;
+        }
+
+        .lang-trigger {
+          font-size: 0.8rem;
+        }
+
+        .lang-trigger-label {
+          min-width: 2.4rem;
         }
       }
 
@@ -485,6 +613,7 @@ export class NavbarComponent {
   private translationService = inject(TranslationService);
   private router = inject(Router);
   private shopInfoService = inject(ShopInfoService);
+  private hostElement = inject(ElementRef);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
 
@@ -492,7 +621,19 @@ export class NavbarComponent {
   currentLang = this.translationService.currentLanguage;
   logoUrl = this.shopInfoService.logoUrl;
   private _menuOpen = false;
+  languageMenuOpen = signal(false);
   scrolled = signal(false);
+
+  private readonly languageFlags: Record<Language, string> = {
+    de: '/assets/images/sections/flags/image%20copy.png',
+    en: '/assets/images/sections/flags/image%20copy%205.png',
+    fr: '/assets/images/sections/flags/france.svg',
+    tr: '/assets/images/sections/flags/image.png',
+    es: '/assets/images/sections/flags/image%20copy%206.png',
+    it: '/assets/images/sections/flags/image%20copy%207.png',
+    ar: '/assets/images/sections/flags/image%20copy%203.png',
+    ru: '/assets/images/sections/flags/image%20copy%202.png',
+  };
 
   get menuOpen(): boolean {
     return this._menuOpen;
@@ -506,10 +647,28 @@ export class NavbarComponent {
   }
 
   toggleMenu(): void {
+    this.languageMenuOpen.set(false);
     this.menuOpen = !this._menuOpen;
     if (this._menuOpen && this.isBrowser) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  }
+
+  toggleLanguageMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.languageMenuOpen.update((open) => !open);
+  }
+
+  getLanguageFlag(lang: Language): string {
+    return this.languageFlags[lang];
+  }
+
+  currentLanguageFlag(): string {
+    return this.getLanguageFlag(this.currentLang());
+  }
+
+  currentLanguageLabel(): string {
+    return LANGUAGE_LABELS[this.currentLang()];
   }
 
   navLinks = [
@@ -540,11 +699,26 @@ export class NavbarComponent {
     this.scrolled.set(window.scrollY > 40);
   }
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.isBrowser) return;
+    const target = event.target as Node | null;
+    if (target && !this.hostElement.nativeElement.contains(target)) {
+      this.languageMenuOpen.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.languageMenuOpen.set(false);
+  }
+
   switchLang(lang: Language): void {
     const currentUrl = this.router.url;
     const segments = currentUrl.split('/');
     segments[1] = lang;
     this.router.navigateByUrl(segments.join('/'));
     this.menuOpen = false;
+    this.languageMenuOpen.set(false);
   }
 }

@@ -233,10 +233,22 @@ export interface CheckoutRequest {
   bikeId: number;
   listingDisplayId: number;
   lang: string;
+  vorname: string;
+  nachname: string;
+  email: string;
+  adresse: string;
+  abholtag: string;
+  accessories?: CheckoutAccessorySelection[];
+}
+
+export interface CheckoutAccessorySelection {
+  accessoryId: number;
+  quantity: number;
 }
 
 export interface CheckoutSessionResponse {
   checkoutUrl: string;
+  paymentId?: string;
 }
 
 // ── Rental Reviews ──

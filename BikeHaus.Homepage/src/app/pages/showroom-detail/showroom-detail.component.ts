@@ -1,11 +1,23 @@
-import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
-import { KleinanzeigenListing, PublicBicycle } from '../../models/models';
+import { CheckoutCartService } from '../../services/checkout-cart.service';
+import {
+  HomepageAccessory,
+  KleinanzeigenListing,
+  PublicBicycle,
+} from '../../models/models';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -216,30 +228,311 @@ import { environment } from '../../../environments/environment';
                 </svg>
               </a>
 
-              <!-- CTA: Buy Now (only for BikeHaus own bikes with a price) -->
-              <button
-                *ngIf="isBikeHausBike() && listing()!.price"
-                class="btn-buy-now"
-                [class.loading]="checkoutLoading()"
-                [disabled]="checkoutLoading()"
-                (click)="onBuyNow()"
-              >
-                <svg
-                  *ngIf="!checkoutLoading()"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
+              <!-- CTA: Buy Now Form (for all bikes with a valid price) -->
+              <div *ngIf="listing()!.price" class="buy-section">
+                <!-- Collapsed: show button to open form -->
+                <button
+                  *ngIf="!buyFormOpen()"
+                  class="btn-buy-now"
+                  (click)="buyFormOpen.set(true)"
                 >
-                  <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" />
-                  <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6" />
-                </svg>
-                <span class="btn-buy-spinner" *ngIf="checkoutLoading()"></span>
-                {{ checkoutLoading() ? 'Weiterleitung...' : 'Jetzt kaufen — ' + listing()!.priceText }}
-              </button>
-              <p *ngIf="checkoutError()" class="checkout-error">{{ checkoutError() }}</p>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="9" cy="21" r="1" />
+                    <circle cx="20" cy="21" r="1" />
+                    <path
+                      d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"
+                    />
+                  </svg>
+                  Jetzt kaufen — {{ listing()!.priceText }}
+                </button>
+
+                <!-- Expanded: checkout form -->
+                <div *ngIf="buyFormOpen()" class="checkout-form">
+                  <div class="checkout-form-header">
+                    <span>Deine Kontaktdaten</span>
+                    <button class="form-close" (click)="buyFormOpen.set(false)">
+                      ×
+                    </button>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-field">
+                      <label>Vorname *</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="checkoutVorname"
+                        placeholder="Max"
+                      />
+                    </div>
+                    <div class="form-field">
+                      <label>Nachname *</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="checkoutNachname"
+                        placeholder="Mustermann"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-field">
+                    <label>E-Mail *</label>
+                    <input
+                      type="email"
+                      [(ngModel)]="checkoutEmail"
+                      placeholder="max@beispiel.de"
+                    />
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-field" style="flex: 2">
+                      <label>Straße *</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="checkoutStrasse"
+                        placeholder="Musterstraße"
+                      />
+                    </div>
+                    <div class="form-field" style="flex: 1">
+                      <label>Nr. *</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="checkoutHausnummer"
+                        placeholder="12a"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-field" style="flex: 1">
+                      <label>PLZ *</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="checkoutPlz"
+                        placeholder="79108"
+                        maxlength="10"
+                      />
+                    </div>
+                    <div class="form-field" style="flex: 2">
+                      <label>Ort *</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="checkoutOrt"
+                        placeholder="Freiburg im Breisgau"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="form-field">
+                    <label>Gewünschter Abholtag *</label>
+                    <input
+                      type="date"
+                      [(ngModel)]="checkoutAbholtag"
+                      [min]="minDate"
+                      (ngModelChange)="onCheckoutAbholtagChanged($event)"
+                    />
+                    <small class="checkout-error" *ngIf="checkoutDateError">
+                      {{ checkoutDateError }}
+                    </small>
+                  </div>
+
+                  <div
+                    class="form-field"
+                    *ngIf="availableCheckoutAccessories().length > 0"
+                  >
+                    <label>Optionales Zubehör</label>
+                    <div class="checkout-accessories">
+                      <div
+                        class="checkout-accessory-item"
+                        *ngFor="let accessory of availableCheckoutAccessories()"
+                      >
+                        <span class="accessory-name">{{
+                          accessory.titel
+                        }}</span>
+                        <span class="accessory-price"
+                          >{{ accessory.preis | number: '1.2-2' }} €</span
+                        >
+                        <div class="accessory-actions">
+                          <button
+                            type="button"
+                            class="qty-add"
+                            *ngIf="
+                              getSelectedAccessoryQuantity(accessory.id) === 0
+                            "
+                            (click)="setAccessoryQuantity(accessory.id, 1)"
+                          >
+                            Hinzufügen
+                          </button>
+
+                          <div
+                            class="qty-controls"
+                            *ngIf="
+                              getSelectedAccessoryQuantity(accessory.id) > 0
+                            "
+                          >
+                            <button
+                              type="button"
+                              class="qty-btn"
+                              (click)="decreaseAccessoryQuantity(accessory.id)"
+                            >
+                              -
+                            </button>
+                            <span class="qty-value">{{
+                              getSelectedAccessoryQuantity(accessory.id)
+                            }}</span>
+                            <button
+                              type="button"
+                              class="qty-btn"
+                              (click)="increaseAccessoryQuantity(accessory.id)"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <p
+                      class="checkout-accessory-total"
+                      *ngIf="checkoutAccessoriesTotal > 0"
+                    >
+                      Zubehör gesamt:
+                      {{ checkoutAccessoriesTotal | number: '1.2-2' }} €
+                    </p>
+                  </div>
+
+                  <div class="checkout-cart-summary">
+                    <div class="summary-row">
+                      <span>{{ listing()!.title }}</span>
+                      <strong>{{ listing()!.priceText || '0.00 €' }}</strong>
+                    </div>
+                    <div
+                      class="summary-row"
+                      *ngFor="let selected of selectedCheckoutAccessories()"
+                    >
+                      <span>
+                        {{ selected.titel }} x{{ selected.quantity }}
+                      </span>
+                      <strong>
+                        {{ selected.lineTotal | number: '1.2-2' }} €
+                      </strong>
+                    </div>
+                    <div class="summary-row total-row">
+                      <span>Gesamt</span>
+                      <strong>{{ checkoutTotalPriceText() }}</strong>
+                    </div>
+                  </div>
+
+                  <!-- Legal Consent -->
+                  <div class="legal-docs">
+                    <a
+                      href="/assets/docs/fernabsatzvertrag.html"
+                      target="_blank"
+                      rel="noopener"
+                      class="legal-doc-btn"
+                      download="Fernabsatzvertrag-BikeHausFreiburg.html"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                        />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="12" y1="18" x2="12" y2="12" />
+                        <polyline points="9 15 12 18 15 15" />
+                      </svg>
+                      Fernabsatzvertrag
+                    </a>
+                    <a
+                      href="/assets/docs/datenschutzerklaerung.html"
+                      target="_blank"
+                      rel="noopener"
+                      class="legal-doc-btn"
+                      download="Datenschutzerklaerung-BikeHausFreiburg.html"
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                        />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="12" y1="18" x2="12" y2="12" />
+                        <polyline points="9 15 12 18 15 15" />
+                      </svg>
+                      Datenschutzerklärung
+                    </a>
+                  </div>
+
+                  <label class="legal-checkbox">
+                    <input type="checkbox" [(ngModel)]="legalAccepted" />
+                    <span>
+                      Ich habe den
+                      <a
+                        href="/assets/docs/fernabsatzvertrag.html"
+                        target="_blank"
+                        rel="noopener"
+                        >Fernabsatzvertrag</a
+                      >
+                      sowie die
+                      <a
+                        href="/assets/docs/datenschutzerklaerung.html"
+                        target="_blank"
+                        rel="noopener"
+                        >Datenschutzerklärung</a
+                      >
+                      gelesen und akzeptiere sie. *
+                    </span>
+                  </label>
+
+                  <button
+                    class="btn-buy-now"
+                    [class.loading]="checkoutLoading()"
+                    [disabled]="checkoutLoading() || !checkoutFormValid"
+                    (click)="onBuyNow()"
+                  >
+                    <span
+                      class="btn-buy-spinner"
+                      *ngIf="checkoutLoading()"
+                    ></span>
+                    <svg
+                      *ngIf="!checkoutLoading()"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                    >
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    {{
+                      checkoutLoading()
+                        ? 'Weiterleitung...'
+                        : 'Sicher bezahlen — ' + checkoutTotalPriceText()
+                    }}
+                  </button>
+                  <p *ngIf="checkoutError()" class="checkout-error">
+                    {{ checkoutError() }}
+                  </p>
+                </div>
+              </div>
 
               <!-- Google Maps -->
               <a
@@ -931,7 +1224,10 @@ import { environment } from '../../../environments/environment';
         font-weight: 700;
         font-family: var(--font-family);
         cursor: pointer;
-        transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+        transition:
+          opacity 0.2s,
+          transform 0.15s,
+          box-shadow 0.2s;
         box-shadow: 0 4px 20px rgba(255, 87, 34, 0.35);
         letter-spacing: -0.01em;
       }
@@ -958,7 +1254,9 @@ import { environment } from '../../../environments/environment';
       }
 
       @keyframes spin {
-        to { transform: rotate(360deg); }
+        to {
+          transform: rotate(360deg);
+        }
       }
 
       .checkout-error {
@@ -966,6 +1264,281 @@ import { environment } from '../../../environments/environment';
         font-size: 0.82rem;
         color: #ff5252;
         text-align: center;
+      }
+
+      .buy-section {
+        margin-top: 0.8rem;
+      }
+
+      .checkout-form {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 87, 34, 0.2);
+        border-radius: 20px;
+        padding: 1.25rem;
+        margin-top: 0.8rem;
+        animation: fadeIn 0.2s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .checkout-form-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--color-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 1rem;
+      }
+
+      .form-close {
+        background: none;
+        border: none;
+        color: var(--color-text-muted);
+        font-size: 1.3rem;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+        transition: color 0.2s;
+      }
+      .form-close:hover {
+        color: var(--color-text);
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .form-field label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .form-field input {
+        padding: 0.75rem 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.25);
+        color: var(--color-text);
+        font-size: 0.88rem;
+        font-family: var(--font-family);
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .form-field input:focus {
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.12);
+      }
+
+      .form-field input::placeholder {
+        color: var(--color-text-muted);
+      }
+
+      .form-field input[type='date']::-webkit-calendar-picker-indicator {
+        filter: invert(0.6);
+        cursor: pointer;
+      }
+
+      .legal-docs {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.75rem;
+      }
+
+      .checkout-accessories {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 220px;
+        overflow: auto;
+        padding-right: 0.2rem;
+      }
+
+      .checkout-accessory-item {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 0.6rem;
+        align-items: center;
+        padding: 0.55rem 0.65rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .accessory-name {
+        font-size: 0.83rem;
+        color: var(--color-text-secondary);
+        line-height: 1.3;
+      }
+
+      .accessory-price {
+        font-size: 0.83rem;
+        font-weight: 700;
+        color: var(--color-accent);
+        white-space: nowrap;
+      }
+
+      .checkout-accessory-total {
+        margin: 0.6rem 0 0;
+        font-size: 0.8rem;
+        color: var(--color-text-secondary);
+      }
+
+      .accessory-actions {
+        justify-self: end;
+      }
+
+      .qty-add {
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 8px;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--color-text);
+        background: rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+      }
+
+      .qty-controls {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .qty-btn {
+        width: 26px;
+        height: 26px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--color-text);
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1;
+      }
+
+      .qty-value {
+        min-width: 20px;
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--color-text-secondary);
+      }
+
+      .checkout-cart-summary {
+        margin: 0.9rem 0 1rem;
+        padding: 0.8rem;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.02);
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        font-size: 0.8rem;
+        color: var(--color-text-secondary);
+      }
+
+      .summary-row strong {
+        color: var(--color-text);
+      }
+
+      .total-row {
+        margin-top: 0.35rem;
+        padding-top: 0.45rem;
+        border-top: 1px dashed rgba(255, 255, 255, 0.14);
+        font-size: 0.9rem;
+        color: var(--color-text);
+      }
+
+      .legal-doc-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 0.85rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--color-text-secondary);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition:
+          border-color 0.2s,
+          color 0.2s;
+        white-space: nowrap;
+      }
+
+      .legal-doc-btn:hover {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+      }
+
+      .legal-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        margin-bottom: 0.85rem;
+        cursor: pointer;
+      }
+
+      .legal-checkbox input[type='checkbox'] {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+        accent-color: var(--color-accent);
+        cursor: pointer;
+      }
+
+      .legal-checkbox span {
+        font-size: 0.78rem;
+        color: var(--color-text-muted);
+        line-height: 1.5;
+      }
+
+      .legal-checkbox span a {
+        color: var(--color-accent);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      @media (max-width: 520px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
       }
 
       .desc-section {
@@ -1181,6 +1754,7 @@ import { environment } from '../../../environments/environment';
 export class ShowroomDetailComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private apiService = inject(ApiService);
+  private checkoutCart = inject(CheckoutCartService);
   private route = inject(ActivatedRoute);
   private titleService = inject(Title);
   private metaService = inject(Meta);
@@ -1197,12 +1771,111 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   selectedImage = signal(0);
   checkoutLoading = signal(false);
   checkoutError = signal<string | null>(null);
+  buyFormOpen = signal(false);
+  checkoutVorname = '';
+  checkoutNachname = '';
+  checkoutEmail = '';
+  checkoutStrasse = '';
+  checkoutHausnummer = '';
+  checkoutPlz = '';
+  checkoutOrt = '';
+  checkoutAbholtag = '';
+  checkoutDateError: string | null = null;
+  availableCheckoutAccessories = signal<HomepageAccessory[]>([]);
+  selectedCheckoutAccessoryQuantities = signal<Record<number, number>>({});
+  legalAccepted = false;
+  minDate = this.getNextOpenDayIso(new Date());
   userWhatsappMessage = '';
   private whatsappPhone = '4915566300011';
+  private bwHolidayCache = new Map<number, Set<string>>();
 
-  isBikeHausBike = computed(() =>
-    this.listing()?.externalId?.startsWith('bike-') ?? false,
+  isBikeHausBike = computed(
+    () => this.listing()?.externalId?.startsWith('bike-') ?? false,
   );
+
+  get checkoutFormValid(): boolean {
+    return (
+      this.checkoutVorname.trim().length > 0 &&
+      this.checkoutNachname.trim().length > 0 &&
+      this.checkoutEmail.trim().includes('@') &&
+      this.checkoutStrasse.trim().length > 0 &&
+      this.checkoutHausnummer.trim().length > 0 &&
+      this.checkoutPlz.trim().length > 0 &&
+      this.checkoutOrt.trim().length > 0 &&
+      this.checkoutAbholtag.length > 0 &&
+      !this.isClosedDayFromIso(this.checkoutAbholtag) &&
+      this.legalAccepted
+    );
+  }
+
+  get checkoutAccessoriesTotal(): number {
+    const quantities = this.selectedCheckoutAccessoryQuantities();
+    return this.availableCheckoutAccessories().reduce(
+      (sum, item) => sum + item.preis * (quantities[item.id] || 0),
+      0,
+    );
+  }
+
+  get checkoutTotalAmount(): number {
+    return (this.listing()?.price || 0) + this.checkoutAccessoriesTotal;
+  }
+
+  checkoutTotalPriceText(): string {
+    const total = this.checkoutTotalAmount;
+    return `${total.toFixed(2)} €`;
+  }
+
+  selectedCheckoutAccessories(): Array<{
+    id: number;
+    titel: string;
+    quantity: number;
+    lineTotal: number;
+  }> {
+    const quantities = this.selectedCheckoutAccessoryQuantities();
+    return this.availableCheckoutAccessories()
+      .map((item) => {
+        const quantity = quantities[item.id] || 0;
+        return {
+          id: item.id,
+          titel: item.titel,
+          quantity,
+          lineTotal: quantity * item.preis,
+        };
+      })
+      .filter((item) => item.quantity > 0);
+  }
+
+  getSelectedAccessoryQuantity(accessoryId: number): number {
+    return this.selectedCheckoutAccessoryQuantities()[accessoryId] || 0;
+  }
+
+  setAccessoryQuantity(accessoryId: number, quantity: number): void {
+    const safeQuantity = Math.max(0, Math.min(quantity, 10));
+    this.checkoutCart.setAccessoryQuantity(accessoryId, safeQuantity);
+    this.selectedCheckoutAccessoryQuantities.update((current) => {
+      const next = { ...current };
+      if (safeQuantity === 0) {
+        delete next[accessoryId];
+      } else {
+        next[accessoryId] = safeQuantity;
+      }
+      return next;
+    });
+  }
+
+  increaseAccessoryQuantity(accessoryId: number): void {
+    this.setAccessoryQuantity(
+      accessoryId,
+      this.getSelectedAccessoryQuantity(accessoryId) + 1,
+    );
+  }
+
+  decreaseAccessoryQuantity(accessoryId: number): void {
+    this.setAccessoryQuantity(
+      accessoryId,
+      this.getSelectedAccessoryQuantity(accessoryId) - 1,
+    );
+  }
 
   private static readonly NEW_PATTERN =
     /\b(neue?[smrn]?|nagelneu|brandneu|unbenutzt|originalverpackt|\bovp\b)\b/i;
@@ -1232,6 +1905,31 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.apiService.getHomepageAccessories().subscribe({
+      next: (items) => {
+        const available = items.filter(
+          (item) => item.isActive && item.preis > 0,
+        );
+        this.availableCheckoutAccessories.set(available);
+
+        const saved = this.checkoutCart.getAccessoryQuantities();
+        const availableIds = new Set(available.map((item) => item.id));
+        const initial: Record<number, number> = {};
+
+        for (const [key, qty] of Object.entries(saved)) {
+          const id = Number(key);
+          if (availableIds.has(id) && qty > 0) {
+            initial[id] = qty;
+          }
+        }
+
+        this.selectedCheckoutAccessoryQuantities.set(initial);
+      },
+      error: () => {
+        this.availableCheckoutAccessories.set([]);
+      },
+    });
+
     this.apiService.getShopInfo().subscribe({
       next: (data) => {
         if (data?.telefon) {
@@ -1444,9 +2142,24 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
 
   onBuyNow(): void {
     const listing = this.listing();
-    if (!listing || !this.isBikeHausBike()) return;
+    if (!listing || !this.checkoutFormValid) return;
 
-    const realId = parseInt(listing.externalId.replace('bike-', ''), 10);
+    if (this.isClosedDayFromIso(this.checkoutAbholtag)) {
+      this.checkoutDateError =
+        'An Sonn- und Feiertagen ist keine Abholung moeglich. Bitte waehle einen anderen Tag.';
+      return;
+    }
+
+    const realId = this.isBikeHausBike()
+      ? parseInt(listing.externalId.replace('bike-', ''), 10)
+      : 0;
+    const selectedAccessories = this.selectedCheckoutAccessories().map(
+      (item) => ({
+        accessoryId: item.id,
+        quantity: item.quantity,
+      }),
+    );
+
     this.checkoutLoading.set(true);
     this.checkoutError.set(null);
 
@@ -1455,9 +2168,19 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
         bikeId: realId,
         listingDisplayId: listing.id,
         lang: this.lang(),
+        vorname: this.checkoutVorname.trim(),
+        nachname: this.checkoutNachname.trim(),
+        email: this.checkoutEmail.trim(),
+        adresse: `${this.checkoutStrasse.trim()} ${this.checkoutHausnummer.trim()}, ${this.checkoutPlz.trim()} ${this.checkoutOrt.trim()}`,
+        abholtag: this.checkoutAbholtag,
+        accessories: selectedAccessories,
       })
       .subscribe({
         next: (res) => {
+          this.checkoutCart.clearAccessories();
+          if (res.paymentId) {
+            localStorage.setItem('pending_payment_id', res.paymentId);
+          }
           window.location.href = res.checkoutUrl;
         },
         error: () => {
@@ -1488,5 +2211,81 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
+  }
+
+  onCheckoutAbholtagChanged(value: string): void {
+    if (!value) {
+      this.checkoutDateError = null;
+      return;
+    }
+
+    this.checkoutDateError = this.isClosedDayFromIso(value)
+      ? 'An Sonn- und Feiertagen ist keine Abholung moeglich.'
+      : null;
+  }
+
+  private getNextOpenDayIso(start: Date): string {
+    const d = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    while (this.isClosedDay(d)) {
+      d.setDate(d.getDate() + 1);
+    }
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  private isClosedDayFromIso(value: string): boolean {
+    const [y, m, d] = value.split('-').map(Number);
+    if (!y || !m || !d) return false;
+    return this.isClosedDay(new Date(y, m - 1, d));
+  }
+
+  private easterDate(year: number): Date {
+    const a = year % 19;
+    const b = Math.floor(year / 100);
+    const c = year % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month, day);
+  }
+
+  private getBWHolidays(year: number): Set<string> {
+    if (this.bwHolidayCache.has(year)) return this.bwHolidayCache.get(year)!;
+    const fmt = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const add = (d: Date, days: number) =>
+      new Date(d.getFullYear(), d.getMonth(), d.getDate() + days);
+    const easter = this.easterDate(year);
+    const holidays = new Set<string>([
+      fmt(new Date(year, 0, 1)),
+      fmt(new Date(year, 0, 6)),
+      fmt(new Date(year, 4, 1)),
+      fmt(new Date(year, 9, 3)),
+      fmt(new Date(year, 10, 1)),
+      fmt(new Date(year, 11, 25)),
+      fmt(new Date(year, 11, 26)),
+      fmt(add(easter, -2)),
+      fmt(easter),
+      fmt(add(easter, 1)),
+      fmt(add(easter, 39)),
+      fmt(add(easter, 49)),
+      fmt(add(easter, 50)),
+      fmt(add(easter, 60)),
+    ]);
+    this.bwHolidayCache.set(year, holidays);
+    return holidays;
+  }
+
+  private isClosedDay(date: Date): boolean {
+    if (date.getDay() === 0) return true;
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return this.getBWHolidays(date.getFullYear()).has(key);
   }
 }

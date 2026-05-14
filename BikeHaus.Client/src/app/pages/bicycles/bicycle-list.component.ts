@@ -774,7 +774,7 @@ export class BicycleListComponent implements OnInit, OnDestroy {
               // Determine API base URL for image serving
               const apiBaseUrl =
                 window.location.hostname === 'localhost'
-                  ? 'http://localhost:5196/api'
+                  ? 'http://localhost:5000/api'
                   : `${window.location.protocol}//api.${window.location.hostname.replace('admin.', '')}/api`;
 
               // Send bicycle data to Chrome extension via postMessage

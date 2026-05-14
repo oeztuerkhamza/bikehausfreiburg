@@ -1,6 +1,4 @@
 using System.Text;
-using Mollie.Api.Client;
-using Mollie.Api.Client.Abstract;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Infrastructure;
 using BikeHaus.Infrastructure.Data;
@@ -32,15 +30,21 @@ builder.Services.AddCors(options =>
     {
         if (builder.Environment.IsDevelopment())
         {
-            policy.WithOrigins("http://localhost:4200")
+            policy.WithOrigins("http://localhost:4200", "http://localhost:4300")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         }
         else
         {
-            policy.AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            // Production: restrict to own domain only
+            var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+                ?? new[] { "https://bikehausfreiburg.com", "https://www.bikehausfreiburg.com" };
+
+            policy.WithOrigins(allowedOrigins)
+                  .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                  .WithHeaders("Content-Type", "Authorization", "X-XSRF-TOKEN", "Idempotency-Key")
+                  .AllowCredentials();
         }
     });
 });
@@ -66,9 +70,46 @@ builder.Services.AddAuthorization();
 // Infrastructure DI
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Mollie payment
-var mollieApiKey = builder.Configuration["Mollie:ApiKey"] ?? "";
-builder.Services.AddTransient<IPaymentClient>(_ => new PaymentClient(mollieApiKey));
+// 💳 PAYMENT SERVICES CONFIGURATION
+// Register all payment-related services
+builder.Services.AddScoped<IPaymentService, BikeHaus.Infrastructure.Services.MolliePaymentService>();
+builder.Services.AddScoped<IPricingService, BikeHaus.Infrastructure.Services.PricingService>();
+builder.Services.AddScoped<IPaymentAuditLogger, BikeHaus.Infrastructure.Services.PaymentAuditLogger>();
+builder.Services.AddScoped<IWebhookValidator, BikeHaus.Infrastructure.Services.WebhookValidator>();
+builder.Services.AddScoped<IIdempotencyService, BikeHaus.Infrastructure.Services.IdempotencyService>();
+builder.Services.AddScoped<IMolliePaymentClient, BikeHaus.Infrastructure.Services.MolliePaymentClient>();
+builder.Services.AddScoped<ICsrfTokenService, BikeHaus.Infrastructure.Services.CsrfTokenService>();
+
+// HttpClient for Mollie API
+builder.Services.AddHttpClient<BikeHaus.Infrastructure.Services.MolliePaymentClient>();
+builder.Services.AddHttpClient("MollieApi");
+builder.Services.AddScoped<Mollie.Api.Client.Abstract.IPaymentClient>(sp =>
+{
+    var apiKey = builder.Configuration["Mollie:ApiKey"]
+        ?? throw new InvalidOperationException("Mollie:ApiKey must be configured");
+    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient("MollieApi");
+    return new Mollie.Api.Client.PaymentClient(apiKey, httpClient);
+});
+
+// FluentValidation for payment DTOs
+builder.Services.AddScoped<FluentValidation.IValidator<BikeHaus.Application.DTOs.CreatePaymentRequest>,
+    BikeHaus.Application.Validators.CreatePaymentRequestValidator>();
+builder.Services.AddScoped<FluentValidation.IValidator<BikeHaus.Application.DTOs.RefundRequest>,
+    BikeHaus.Application.Validators.RefundRequestValidator>();
+
+// Payment Security Filters
+builder.Services.AddScoped<BikeHaus.API.Filters.IdempotencyFilter>();
+builder.Services.AddScoped<BikeHaus.API.Filters.PaymentRateLimitFilter>();
+builder.Services.AddScoped<BikeHaus.API.Filters.PaymentAdminAuthorizationFilter>();
+
+// Anti-forgery (CSRF) token protection
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-XSRF-TOKEN";
+    options.Cookie.SecurePolicy = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+    options.Cookie.HttpOnly = true;
+});
 
 // Response Compression (Brotli + Gzip for API responses)
 builder.Services.AddResponseCompression(options =>
@@ -90,12 +131,56 @@ builder.Services.AddHostedService<BikeHaus.Infrastructure.Services.Kleinanzeigen
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// 🔒 SECURITY HEADERS (PCI DSS & OWASP Compliance)
+app.Use(async (context, next) =>
+{
+    // HSTS (HTTP Strict Transport Security)
+    context.Response.Headers.Add("Strict-Transport-Security",
+        "max-age=31536000; includeSubDomains; preload");
+
+    // CSP (Content Security Policy) — prevent XSS
+    context.Response.Headers.Add("Content-Security-Policy",
+        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+        "style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; " +
+        "font-src 'self' data:; connect-src 'self' https://www.mollie.com; " +
+        "frame-ancestors 'none'; base-uri 'self';");
+
+    // X-Content-Type-Options — prevent MIME sniffing
+    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+
+    // X-Frame-Options — prevent clickjacking
+    context.Response.Headers.Add("X-Frame-Options", "DENY");
+
+    // X-XSS-Protection — legacy XSS protection
+    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+
+    // Referrer-Policy
+    context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
+
+    // Permissions-Policy (feature policy)
+    context.Response.Headers.Add("Permissions-Policy",
+        "geolocation=(), microphone=(), camera=(), payment=()");
+
+    // Remove server header
+    context.Response.Headers.Remove("Server");
+    context.Response.Headers.Remove("X-Powered-By");
+
+    await next();
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Bike Haus Freiburg API v1"));
 }
+else
+{
+    // Production: only allow HTTPS
+    app.UseHttpsRedirection();
+}
 
+// CORS — restrictive policy
 app.UseCors("AllowAngular");
 app.UseResponseCompression();
 

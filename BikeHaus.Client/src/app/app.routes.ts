@@ -325,5 +325,13 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'online-orders',
+    loadComponent: () =>
+      import('./pages/online-orders/online-orders.component').then(
+        (m) => m.OnlineOrdersComponent,
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];

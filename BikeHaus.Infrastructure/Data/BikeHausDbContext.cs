@@ -40,6 +40,13 @@ public class BikeHausDbContext : DbContext
     public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
     public DbSet<EmailLog> EmailLogs => Set<EmailLog>();
     public DbSet<RentalReview> RentalReviews => Set<RentalReview>();
+    public DbSet<OnlineSale> OnlineSales => Set<OnlineSale>();
+
+    // 💳 Payment Management (PCI DSS Compliant)
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<PaymentAuditLog> PaymentAuditLogs => Set<PaymentAuditLog>();
+    public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();
+    public DbSet<PaymentProviderConfig> PaymentProviderConfigs => Set<PaymentProviderConfig>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -561,6 +568,21 @@ public class BikeHausDbContext : DbContext
             entity.HasIndex(e => e.Onaylandi);
         });
 
+        // ── OnlineSale Configuration ──
+        modelBuilder.Entity<OnlineSale>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.BikeTitle).IsRequired().HasMaxLength(300);
+            entity.Property(e => e.Preis).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Vorname).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Nachname).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Adresse).HasMaxLength(500);
+            entity.Property(e => e.Abholtag).HasMaxLength(20);
+            entity.Property(e => e.MolliePaymentId).HasMaxLength(100);
+            entity.HasIndex(e => e.IsVerarbeitet);
+        });
+
         // ── RentalAccessoryItem Configuration ──
         modelBuilder.Entity<RentalAccessoryItem>(entity =>
         {
@@ -578,6 +600,90 @@ public class BikeHausDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.RentalAccessoryId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // 💳 ── Payment Configuration (PCI DSS Compliant) ──
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ExternalPaymentId).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Currency).IsRequired().HasMaxLength(3);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Method).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.CreatedAt).IsRequired();
+            entity.Property(e => e.UpdatedAt);
+
+            entity.HasOne(e => e.OnlineSale)
+                .WithMany()
+                .HasForeignKey(e => e.OnlineSaleId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Indices for performance
+            entity.HasIndex(e => e.ExternalPaymentId).IsUnique();
+            entity.HasIndex(e => e.OnlineSaleId);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.CreatedAt);
+        });
+
+        // 📋 ── PaymentAuditLog Configuration (INSERT-only table) ──
+        modelBuilder.Entity<PaymentAuditLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Event).IsRequired().HasConversion<string>();
+            entity.Property(e => e.ExternalPaymentId).HasMaxLength(100);
+            entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.ClientIpHash).HasMaxLength(50);
+            entity.Property(e => e.UserAgent).HasMaxLength(500);
+            entity.Property(e => e.Details).HasMaxLength(2000);
+            entity.Property(e => e.Timestamp).IsRequired();
+
+            // Indices for audit trail
+            entity.HasIndex(e => e.PaymentId);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.Event);
+            entity.HasIndex(e => e.Timestamp);
+
+            // This table should be configured as INSERT-only in production
+            // UPDATE and DELETE permissions should be revoked at DB level
+        });
+
+        // 🔑 ── IdempotencyKey Configuration ──
+        modelBuilder.Entity<IdempotencyKey>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Key).IsRequired().HasMaxLength(36);
+            entity.Property(e => e.ClientIpHash).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.CachedResponse).IsRequired();
+            entity.Property(e => e.ExpiresAt).IsRequired();
+
+            // Unique constraint on Key + ClientIp
+            entity.HasIndex(e => new { e.Key, e.ClientIpHash }).IsUnique();
+
+            // Index for cleanup queries
+            entity.HasIndex(e => e.ExpiresAt);
+        });
+
+        // ⚙️ ── PaymentProviderConfig Configuration ──
+        modelBuilder.Entity<PaymentProviderConfig>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Provider).IsRequired().HasConversion<string>();
+            entity.Property(e => e.ApiKey).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.WebhookSecret).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.SepaDiscountRate).HasColumnType("decimal(5,3)");
+            entity.Property(e => e.PaypalSurchargeRate).HasColumnType("decimal(5,3)");
+            entity.Property(e => e.KlarnaSurchargeRate).HasColumnType("decimal(5,3)");
+
+            // Only one active provider per type
+            entity.HasIndex(e => new { e.Provider, e.IsActive });
         });
     }
 }

@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
+import { CheckoutCartService } from '../../services/checkout-cart.service';
 import { TranslationService } from '../../services/translation.service';
 import { HomepageAccessory } from '../../models/models';
 import { environment } from '../../../environments/environment';
@@ -165,6 +166,14 @@ import { environment } from '../../../environments/environment';
                     : t().accessoriesPriceOnRequest
                 }}
               </div>
+              <button
+                type="button"
+                class="add-cart-btn"
+                *ngIf="item.preis > 0"
+                (click)="addAccessoryToCart(item, $event)"
+              >
+                Sepete ekle ({{ getAccessoryCartQuantity(item.id) }})
+              </button>
             </div>
           </div>
         </div>
@@ -491,6 +500,24 @@ import { environment } from '../../../environments/environment';
         padding: 1.125rem;
       }
 
+      .add-cart-btn {
+        margin-top: 0.75rem;
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        padding: 0.55rem 0.8rem;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--color-text);
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .add-cart-btn:hover {
+        border-color: var(--color-accent);
+        color: var(--color-accent);
+      }
+
       .card-body h3 {
         font-size: 1rem;
         font-weight: 700;
@@ -664,6 +691,7 @@ import { environment } from '../../../environments/environment';
 })
 export class ZubehoerComponent implements OnInit {
   private api = inject(ApiService);
+  private checkoutCart = inject(CheckoutCartService);
   private translationService = inject(TranslationService);
   private titleService = inject(Title);
   private metaService = inject(Meta);
@@ -742,5 +770,15 @@ export class ZubehoerComponent implements OnInit {
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
+  }
+
+  getAccessoryCartQuantity(accessoryId: number): number {
+    return this.checkoutCart.getAccessoryQuantities()[accessoryId] || 0;
+  }
+
+  addAccessoryToCart(item: HomepageAccessory, event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.checkoutCart.addAccessory(item.id, 1);
   }
 }

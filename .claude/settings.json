@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Start-Sleep -Seconds 6)",
+      "Bash(Get-Content \"C:\\\\Users\\\\hamza\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\d--projects-bikehausfreiburg\\\\d2151bbe-2e4b-430f-b3c7-54f0e0cfb690\\\\tasks\\\\bb3286l2q.output\" -Tail 15)",
+      "Bash(curl -s -X POST http://localhost:5196/api/public/checkout/create-session -H 'Content-Type: application/json' -d '{\"bikeId\": 1, \"listingDisplayId\": 900001, \"lang\": \"de\"}')",
+      "Bash(curl -s \"http://localhost:5196/api/public/gebrauchte-fahrraeder\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Toplam: {len\\(d\\)} bisiklet'\\); [print\\(f'  ID:{b[\\\\\"id\\\\\"]} {b[\\\\\"marke\\\\\"]} {b[\\\\\"modell\\\\\"]} — Fiyat: {b.get\\(\\\\\"preis\\\\\",\\\\\"YOK\\\\\"\\)}€'\\) for b in d[:5]]\")",
+      "Bash(curl -s -X POST http://localhost:5196/api/public/checkout/create-session -H 'Content-Type: application/json' -d '{\"bikeId\": 28, \"listingDisplayId\": 900028, \"lang\": \"de\"}')"
+    ]
+  }
+}

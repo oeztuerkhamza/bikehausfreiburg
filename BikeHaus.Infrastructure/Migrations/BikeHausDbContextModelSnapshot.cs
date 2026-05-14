@@ -104,13 +104,13 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal?>("RentalPriceAdditionalDayAfter7")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal?>("RentalPriceDay1")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("RentalPriceDay2")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("RentalPriceDay14")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("RentalPriceDay3")
@@ -125,16 +125,7 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<decimal?>("RentalPriceDay6")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("RentalPriceDay30")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<decimal?>("RentalPriceDay7")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("RentalPriceAdditionalDayAfter7")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("RentalPricePerDayFrom10")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Status")
@@ -802,6 +793,69 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.HasIndex("NeueFahrradId");
 
                     b.ToTable("NeueFahrradImages");
+                });
+
+            modelBuilder.Entity("BikeHaus.Domain.Entities.OnlineSale", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Abholtag")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Adresse")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("BikeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("BikeTitle")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsVerarbeitet")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("MolliePaymentId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nachname")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Preis")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Vorname")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsVerarbeitet");
+
+                    b.ToTable("OnlineSales");
                 });
 
             modelBuilder.Entity("BikeHaus.Domain.Entities.Purchase", b =>

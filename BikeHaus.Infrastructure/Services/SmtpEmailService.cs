@@ -498,4 +498,30 @@ Wenn du zufrieden warst, freuen wir uns sehr ueber eine kurze Google-Bewertung:<
 <p>Vielen Dank und bis bald.<br />
 Dein Team vom Bike Haus Freiburg</p>";
     }
+
+    public Task SendOnlineSaleNotificationAsync(OnlineSaleEmailModel m)
+    {
+        var subject = $"Neue Online-Bestellung: {m.BikeTitle} — {m.Price:F2} €";
+        var body = $@"<html><body style=""font-family:Arial,sans-serif;color:#222;"">
+<h2 style=""color:#e64a00;"">Neue Online-Bestellung</h2>
+<table style=""border-collapse:collapse;width:100%;max-width:540px;"">
+  <tr><td style=""padding:8px;border:1px solid #ddd;background:#f9f9f9;""><strong>Fahrrad</strong></td>
+      <td style=""padding:8px;border:1px solid #ddd;"">{m.BikeTitle}</td></tr>
+  <tr><td style=""padding:8px;border:1px solid #ddd;background:#f9f9f9;""><strong>Preis</strong></td>
+      <td style=""padding:8px;border:1px solid #ddd;"">{m.Price:F2} €</td></tr>
+  <tr><td style=""padding:8px;border:1px solid #ddd;background:#f9f9f9;""><strong>Name</strong></td>
+      <td style=""padding:8px;border:1px solid #ddd;"">{m.Vorname} {m.Nachname}</td></tr>
+  <tr><td style=""padding:8px;border:1px solid #ddd;background:#f9f9f9;""><strong>E-Mail</strong></td>
+      <td style=""padding:8px;border:1px solid #ddd;""><a href=""mailto:{m.Email}"">{m.Email}</a></td></tr>
+  <tr><td style=""padding:8px;border:1px solid #ddd;background:#f9f9f9;""><strong>Adresse</strong></td>
+      <td style=""padding:8px;border:1px solid #ddd;"">{m.Adresse}</td></tr>
+  <tr><td style=""padding:8px;border:1px solid #ddd;background:#f9f9f9;""><strong>Abholtag</strong></td>
+      <td style=""padding:8px;border:1px solid #ddd;"">{m.Abholtag}</td></tr>
+</table>
+<p style=""margin-top:16px;color:#555;"">Das Fahrrad wurde automatisch aus dem Showroom entfernt.</p>
+<hr/>
+<p style=""font-size:12px;color:#999;"">Bike Haus Freiburg — Online Shop</p>
+</body></html>";
+        return SendAsync(m.AdminEmail, "Bike Haus Freiburg", subject, body, "OnlineSale", isHtml: true);
+    }
 }

@@ -251,6 +251,15 @@ public class BicycleService : IBicycleService
         return entity.ToDto();
     }
 
+    public async Task UnpublishFromWebsiteAsync(int id)
+    {
+        var entity = await _repository.GetWithImagesAsync(id);
+        if (entity == null || !entity.IsPublishedOnWebsite) return;
+        entity.IsPublishedOnWebsite = false;
+        entity.UpdatedAt = DateTime.UtcNow;
+        await _repository.UpdateAsync(entity);
+    }
+
     public async Task<BicycleDto> TogglePublishOnKleinanzeigenAsync(int id)
     {
         var entity = await _repository.GetWithImagesAsync(id)
