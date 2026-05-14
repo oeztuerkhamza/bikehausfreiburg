@@ -704,6 +704,137 @@ type BookingStep =
         color: var(--rb-text);
       }
 
+      /* Calendar styles */
+      .calendar-shell {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0 1.5rem 0;
+      }
+
+      .calendar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .calendar-nav {
+        background: transparent;
+        border: none;
+        color: var(--rb-text);
+        font-size: 1.4rem;
+        padding: 0.25rem 0.6rem;
+        cursor: pointer;
+        border-radius: 6px;
+      }
+
+      .calendar-nav:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .calendar-month-label {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--rb-text);
+      }
+
+      .calendar-hint {
+        color: var(--rb-text-soft);
+        margin: 0 0 0.75rem 0;
+        font-size: 0.95rem;
+      }
+
+      .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .calendar-weekday {
+        text-align: center;
+        color: var(--rb-text-soft);
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+      }
+
+      .calendar-day {
+        height: 40px;
+        border-radius: 6px;
+        background: transparent;
+        border: none;
+        color: var(--rb-text);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.15s,
+          transform 0.08s;
+      }
+
+      .calendar-day span {
+        display: inline-block;
+        width: 28px;
+        text-align: center;
+      }
+
+      .calendar-day:hover:not(.is-empty):not(.is-closed) {
+        background: rgba(255, 255, 255, 0.03);
+        transform: translateY(-2px);
+      }
+
+      .calendar-day.is-empty {
+        visibility: hidden;
+      }
+
+      .calendar-day.is-closed {
+        background: rgba(255, 255, 255, 0.02);
+        color: rgba(245, 248, 255, 0.28);
+        cursor: not-allowed;
+        text-decoration: line-through;
+      }
+
+      .calendar-day.is-start,
+      .calendar-day.is-end {
+        background: linear-gradient(
+          90deg,
+          rgba(255, 87, 34, 0.18),
+          rgba(255, 87, 34, 0.12)
+        );
+        color: white;
+        font-weight: 700;
+        box-shadow: 0 6px 18px rgba(255, 87, 34, 0.12);
+      }
+
+      .calendar-day.in-range {
+        background: rgba(255, 87, 34, 0.06);
+        color: var(--rb-text);
+      }
+
+      .calendar-day.is-today {
+        border: 1px dashed rgba(245, 248, 255, 0.12);
+      }
+
+      .selected-range-summary {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 0.75rem;
+      }
+
       .date-range-display {
         background: var(--rb-surface);
         border: 1px solid var(--rb-border);
