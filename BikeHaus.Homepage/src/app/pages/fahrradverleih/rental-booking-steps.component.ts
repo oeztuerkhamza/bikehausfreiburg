@@ -64,7 +64,7 @@ type BookingStep =
         <h2>
           {{ t().rentalSteps?.selectDates ?? 'Wählen Sie einen Zeitraum' }}
         </h2>
-        <div class="calendar-shell">
+        <div class="calendar-shell" id="rental-calendar">
           <div class="calendar-header">
             <button
               type="button"

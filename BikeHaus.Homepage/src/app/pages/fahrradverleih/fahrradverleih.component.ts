@@ -4665,11 +4665,22 @@ export class FahrradverleihComponent implements OnInit {
   reviewForm: RentalReviewCreate = { ad: '', email: '', sterne: 5, yorum: '' };
 
   scrollToBikes(): void {
-    if (this.isBrowser) {
-      document
-        .getElementById('booking-panel')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    if (!this.isBrowser) return;
+
+    // Prefer the actual calendar; fall back to the panel wrapper.
+    const target =
+      document.getElementById('rental-calendar') ??
+      document.getElementById('booking-panel');
+    if (!target) return;
+
+    // Compute an absolute scroll position, accounting for the sticky header.
+    // scrollIntoView({behavior:'smooth'}) is unreliable inside containers with
+    // animations / lazy-rendered children — window.scrollTo always works.
+    const headerOffset = 80;
+    const top =
+      target.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+    window.scrollTo({ top, behavior: 'smooth' });
   }
 
   ngOnInit(): void {
