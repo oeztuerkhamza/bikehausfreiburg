@@ -205,300 +205,148 @@ type BookingStep =
             {{ t().rentalSteps?.back ?? 'Zurück' }}
           </button>
         </div>
+      </div>
 
-        <!-- Step 3: Bike Details -->
-        <div
-          *ngIf="currentStep() === 'bike-details' && selectedBike()"
-          class="step-container"
-        >
-          <h2>{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</h2>
-          <div class="bike-details">
-            <div class="bike-images">
-              <img
-                *ngIf="getMainImage(selectedBike()!)"
-                [src]="getImageUrl(getMainImage(selectedBike()!)?.filePath)"
-                [alt]="selectedBike()!.modell"
-                class="main-image"
-              />
-              <div
-                class="image-thumbnails"
-                *ngIf="getImages(selectedBike()!).length > 1"
-              >
-                <img
-                  *ngFor="let img of getImages(selectedBike()!)"
-                  [src]="getImageUrl(img.filePath)"
-                  (click)="
-                    currentImageIndex.set(
-                      getImages(selectedBike()!).indexOf(img)
-                    )
-                  "
-                  [class.active]="
-                    currentImageIndex() ===
-                    getImages(selectedBike()!).indexOf(img)
-                  "
-                  class="thumbnail"
-                />
-              </div>
-            </div>
-
-            <div class="bike-specs">
-              <div class="spec" *ngIf="selectedBike()!.fahrradtyp">
-                <strong>{{ t().rentalSteps?.type ?? 'Typ' }}:</strong>
-                {{ selectedBike()!.fahrradtyp }}
-              </div>
-              <div class="spec" *ngIf="selectedBike()!.rahmengroesse">
-                <strong
-                  >{{ t().rentalSteps?.frameSize ?? 'Rahmengröße' }}:</strong
-                >
-                {{ selectedBike()!.rahmengroesse }}
-              </div>
-              <div class="spec" *ngIf="selectedBike()!.reifengroesse">
-                <strong
-                  >{{ t().rentalSteps?.tireSize ?? 'Reifengröße' }}:</strong
-                >
-                {{ selectedBike()!.reifengroesse }}
-              </div>
-              <div class="spec" *ngIf="selectedBike()!.farbe">
-                <strong>{{ t().rentalSteps?.color ?? 'Farbe' }}:</strong>
-                {{ selectedBike()!.farbe }}
-              </div>
-              <div class="spec" *ngIf="selectedBike()!.beschreibung">
-                <strong
-                  >{{ t().rentalSteps?.description ?? 'Beschreibung' }}:</strong
-                >
-                {{ selectedBike()!.beschreibung }}
-              </div>
-
-              <div class="price-info">
-                <p class="total-price">
-                  <strong
-                    >{{ t().rentalSteps?.totalRental ?? 'Mietbetrag' }}:</strong
-                  >
-                  €{{ calculatePrice(selectedBike()!, daysCount()) }}
-                </p>
-                <p class="deposit-info">
-                  <strong>{{ t().rentalSteps?.deposit ?? 'Kaution' }}:</strong>
-                  €{{ selectedBike()!.kaution || 300 }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="booking-actions">
-            <button (click)="addBikeToCart()" class="btn-primary">
-              {{ t().rentalSteps?.book ?? 'Buchen' }}
-            </button>
-            <button (click)="goToStep('bike-selection')" class="btn-secondary">
-              {{ t().rentalSteps?.selectDifferent ?? 'Anderes Fahrrad wählen' }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 3b: Choose next action (continue to checkout OR add another bike) -->
-        <div
-          *ngIf="currentStep() === 'choose-next'"
-          class="step-container choose-next-container"
-        >
-          <h2>
-            {{
-              t().rentalSteps?.bikeAdded ?? 'Fahrrad zur Buchung hinzugefügt'
-            }}
-          </h2>
-
-          <div class="cart-summary">
-            <p class="cart-count">
-              <strong>{{ cartBikes().length }}</strong>
-              {{
-                cartBikes().length === 1
-                  ? (t().rentalSteps?.bikeInCart ?? 'Fahrrad in der Buchung')
-                  : (t().rentalSteps?.bikesInCart ?? 'Fahrräder in der Buchung')
-              }}
-            </p>
-            <ul class="cart-list">
-              <li *ngFor="let item of cartBikes()" class="cart-list-item">
-                <span>{{ item.bike.marke }} {{ item.bike.modell }}</span>
-                <span class="item-price">€{{ item.calculatedPrice }}</span>
-              </li>
-            </ul>
-            <p class="cart-total">
-              <strong
-                >{{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:</strong
-              >
-              €{{ getTotalPrice() }}
-            </p>
-          </div>
-
-          <div class="choose-next-actions">
-            <button (click)="goToStep('customer-info')" class="btn-primary">
-              {{
-                t().rentalSteps?.continueToBooking ?? 'Mit Buchung fortfahren'
-              }}
-            </button>
-            <button (click)="goToStep('bike-selection')" class="btn-secondary">
-              {{
-                t().rentalSteps?.addAnotherBike ??
-                  '+ Weiteres Fahrrad hinzufügen'
-              }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 4: Customer Information -->
-        <div *ngIf="currentStep() === 'customer-info'" class="step-container">
-          <h2>{{ t().rentalSteps?.yourInfo ?? 'Ihre Angaben' }}</h2>
-
-          <div class="cart-summary">
-            <h3>
-              {{ t().rentalSteps?.cartItems ?? 'Ausgewählte Fahrräder' }}:
-            </h3>
-            <div *ngFor="let item of cartBikes()" class="cart-item">
-              <div>
-                <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
-                <p>
-                  {{ formatDisplayDate(selectedStartDate) }} -
-                  {{ formatDisplayDate(selectedEndDate) }}
-                </p>
-                <p *ngIf="item.farbe">
-                  {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
-                </p>
-                <p *ngIf="item.rahmennummer">
-                  {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
-                  {{ item.rahmennummer }}
-                </p>
-              </div>
-              <div class="item-price">
-                <p>€{{ item.calculatedPrice }}</p>
-                <button (click)="removeFromCart(item)" class="btn-remove">
-                  ×
-                </button>
-              </div>
-            </div>
-            <button
-              (click)="goToStep('bike-selection')"
-              class="btn-secondary"
-              style="width: 100%;"
+      <!-- Step 3: Bike Details -->
+      <div
+        *ngIf="currentStep() === 'bike-details' && selectedBike()"
+        class="step-container"
+      >
+        <h2>{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</h2>
+        <div class="bike-details">
+          <div class="bike-images">
+            <img
+              *ngIf="getMainImage(selectedBike()!)"
+              [src]="getImageUrl(getMainImage(selectedBike()!)?.filePath)"
+              [alt]="selectedBike()!.modell"
+              class="main-image"
+            />
+            <div
+              class="image-thumbnails"
+              *ngIf="getImages(selectedBike()!).length > 1"
             >
-              {{
-                t().rentalSteps?.addAnotherBike ??
-                  '+ Weiteres Fahrrad hinzufügen'
-              }}
-            </button>
+              <img
+                *ngFor="let img of getImages(selectedBike()!)"
+                [src]="getImageUrl(img.filePath)"
+                (click)="
+                  currentImageIndex.set(getImages(selectedBike()!).indexOf(img))
+                "
+                [class.active]="
+                  currentImageIndex() ===
+                  getImages(selectedBike()!).indexOf(img)
+                "
+                class="thumbnail"
+              />
+            </div>
           </div>
 
-          <form (ngSubmit)="submitBooking()" class="customer-form">
-            <div class="form-group">
-              <label>{{ t().rentalSteps?.firstName ?? 'Vorname' }} *:</label>
-              <input
-                type="text"
-                [(ngModel)]="bookingForm.vorname"
-                name="vorname"
-                required
-              />
+          <div class="bike-specs">
+            <div class="spec" *ngIf="selectedBike()!.fahrradtyp">
+              <strong>{{ t().rentalSteps?.type ?? 'Typ' }}:</strong>
+              {{ selectedBike()!.fahrradtyp }}
             </div>
-            <div class="form-group">
-              <label>{{ t().rentalSteps?.lastName ?? 'Nachname' }} *:</label>
-              <input
-                type="text"
-                [(ngModel)]="bookingForm.nachname"
-                name="nachname"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>{{ t().rentalSteps?.email ?? 'E-Mail' }} *:</label>
-              <input
-                type="email"
-                [(ngModel)]="bookingForm.email"
-                name="email"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>{{ t().rentalSteps?.phone ?? 'Telefon' }}:</label>
-              <input
-                type="tel"
-                [(ngModel)]="bookingForm.telefon"
-                name="telefon"
-              />
-            </div>
-            <div class="form-group">
-              <label>{{ t().rentalSteps?.street ?? 'Straße' }}:</label>
-              <input
-                type="text"
-                [(ngModel)]="bookingForm.strasse"
-                name="strasse"
-              />
-            </div>
-            <div class="form-group">
-              <label>{{ t().rentalSteps?.houseNumber ?? 'Hausnummer' }}:</label>
-              <input
-                type="text"
-                [(ngModel)]="bookingForm.hausNr"
-                name="hausNr"
-              />
-            </div>
-            <div class="form-group">
-              <label
-                >{{ t().rentalSteps?.postalCode ?? 'Postleitzahl' }}:</label
+            <div class="spec" *ngIf="selectedBike()!.rahmengroesse">
+              <strong
+                >{{ t().rentalSteps?.frameSize ?? 'Rahmengröße' }}:</strong
               >
-              <input type="text" [(ngModel)]="bookingForm.plz" name="plz" />
+              {{ selectedBike()!.rahmengroesse }}
             </div>
-            <div class="form-group">
-              <label>{{ t().rentalSteps?.city ?? 'Stadt' }}:</label>
-              <input type="text" [(ngModel)]="bookingForm.ort" name="ort" />
+            <div class="spec" *ngIf="selectedBike()!.reifengroesse">
+              <strong>{{ t().rentalSteps?.tireSize ?? 'Reifengröße' }}:</strong>
+              {{ selectedBike()!.reifengroesse }}
             </div>
-            <div class="form-group">
-              <label>{{ t().rentalSteps?.notes ?? 'Notizen' }}:</label>
-              <textarea
-                [(ngModel)]="bookingForm.notizen"
-                name="notizen"
-              ></textarea>
+            <div class="spec" *ngIf="selectedBike()!.farbe">
+              <strong>{{ t().rentalSteps?.color ?? 'Farbe' }}:</strong>
+              {{ selectedBike()!.farbe }}
+            </div>
+            <div class="spec" *ngIf="selectedBike()!.beschreibung">
+              <strong
+                >{{ t().rentalSteps?.description ?? 'Beschreibung' }}:</strong
+              >
+              {{ selectedBike()!.beschreibung }}
             </div>
 
-            <div *ngIf="bookingError()" class="error-message">
-              {{ bookingError() }}
+            <div class="price-info">
+              <p class="total-price">
+                <strong
+                  >{{ t().rentalSteps?.totalRental ?? 'Mietbetrag' }}:</strong
+                >
+                €{{ calculatePrice(selectedBike()!, daysCount()) }}
+              </p>
+              <p class="deposit-info">
+                <strong>{{ t().rentalSteps?.deposit ?? 'Kaution' }}:</strong>
+                €{{ selectedBike()!.kaution || 300 }}
+              </p>
             </div>
-
-            <div class="form-actions">
-              <button
-                type="button"
-                (click)="goToStep('bike-selection')"
-                class="btn-secondary"
-              >
-                {{ t().rentalSteps?.back ?? 'Zurück' }}
-              </button>
-              <button
-                type="submit"
-                class="btn-primary"
-                [disabled]="isSubmitting()"
-              >
-                {{
-                  isSubmitting()
-                    ? (t().rentalSteps?.submitting ?? 'Wird gesendet...')
-                    : (t().rentalSteps?.continue ?? 'Weiter')
-                }}
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
 
-        <!-- Step 5: Review & Confirm -->
-        <div
-          *ngIf="currentStep() === 'review'"
-          class="step-container review-section"
-        >
-          <h2>{{ t().rentalSteps?.confirmBooking ?? 'Buchung bestätigen' }}</h2>
+        <div class="booking-actions">
+          <button (click)="addBikeToCart()" class="btn-primary">
+            {{ t().rentalSteps?.book ?? 'Buchen' }}
+          </button>
+          <button (click)="goToStep('bike-selection')" class="btn-secondary">
+            {{ t().rentalSteps?.selectDifferent ?? 'Anderes Fahrrad wählen' }}
+          </button>
+        </div>
+      </div>
 
-          <div class="review-section">
-            <h3>{{ t().rentalSteps?.bikeDetails ?? 'Fahrraddetails' }}:</h3>
-            <div *ngFor="let item of cartBikes()" class="review-item">
-              <p>
-                <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
-              </p>
+      <!-- Step 3b: Choose next action (continue to checkout OR add another bike) -->
+      <div
+        *ngIf="currentStep() === 'choose-next'"
+        class="step-container choose-next-container"
+      >
+        <h2>
+          {{ t().rentalSteps?.bikeAdded ?? 'Fahrrad zur Buchung hinzugefügt' }}
+        </h2>
+
+        <div class="cart-summary">
+          <p class="cart-count">
+            <strong>{{ cartBikes().length }}</strong>
+            {{
+              cartBikes().length === 1
+                ? (t().rentalSteps?.bikeInCart ?? 'Fahrrad in der Buchung')
+                : (t().rentalSteps?.bikesInCart ?? 'Fahrräder in der Buchung')
+            }}
+          </p>
+          <ul class="cart-list">
+            <li *ngFor="let item of cartBikes()" class="cart-list-item">
+              <span>{{ item.bike.marke }} {{ item.bike.modell }}</span>
+              <span class="item-price">€{{ item.calculatedPrice }}</span>
+            </li>
+          </ul>
+          <p class="cart-total">
+            <strong
+              >{{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:</strong
+            >
+            €{{ getTotalPrice() }}
+          </p>
+        </div>
+
+        <div class="choose-next-actions">
+          <button (click)="goToStep('customer-info')" class="btn-primary">
+            {{ t().rentalSteps?.continueToBooking ?? 'Mit Buchung fortfahren' }}
+          </button>
+          <button (click)="goToStep('bike-selection')" class="btn-secondary">
+            {{
+              t().rentalSteps?.addAnotherBike ?? '+ Weiteres Fahrrad hinzufügen'
+            }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Customer Information -->
+      <div *ngIf="currentStep() === 'customer-info'" class="step-container">
+        <h2>{{ t().rentalSteps?.yourInfo ?? 'Ihre Angaben' }}</h2>
+
+        <div class="cart-summary">
+          <h3>{{ t().rentalSteps?.cartItems ?? 'Ausgewählte Fahrräder' }}:</h3>
+          <div *ngFor="let item of cartBikes()" class="cart-item">
+            <div>
+              <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
               <p>
                 {{ formatDisplayDate(selectedStartDate) }} -
-                {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount() }}
-                {{ t().rentalSteps?.days ?? 'Tage' }})
+                {{ formatDisplayDate(selectedEndDate) }}
               </p>
               <p *ngIf="item.farbe">
                 {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
@@ -507,96 +355,227 @@ type BookingStep =
                 {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
                 {{ item.rahmennummer }}
               </p>
-              <p class="price">
-                {{ t().rentalSteps?.priceLabel ?? 'Preis' }}: €{{
-                  item.calculatedPrice
-                }}
-              </p>
+            </div>
+            <div class="item-price">
+              <p>€{{ item.calculatedPrice }}</p>
+              <button (click)="removeFromCart(item)" class="btn-remove">
+                ×
+              </button>
             </div>
           </div>
+          <button
+            (click)="goToStep('bike-selection')"
+            class="btn-secondary"
+            style="width: 100%;"
+          >
+            {{
+              t().rentalSteps?.addAnotherBike ?? '+ Weiteres Fahrrad hinzufügen'
+            }}
+          </button>
+        </div>
 
-          <div class="review-section">
-            <h3>
-              {{ t().rentalSteps?.contactInfo ?? 'Kontaktinformationen' }}:
-            </h3>
-            <p>{{ bookingForm.vorname }} {{ bookingForm.nachname }}</p>
-            <p>{{ bookingForm.email }}</p>
-            <p *ngIf="bookingForm.telefon">{{ bookingForm.telefon }}</p>
-            <p *ngIf="bookingForm.strasse">
-              {{ bookingForm.strasse }} {{ bookingForm.hausNr }}
-            </p>
-            <p *ngIf="bookingForm.plz">
-              {{ bookingForm.plz }} {{ bookingForm.ort }}
-            </p>
+        <form (ngSubmit)="submitBooking()" class="customer-form">
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.firstName ?? 'Vorname' }} *:</label>
+            <input
+              type="text"
+              [(ngModel)]="bookingForm.vorname"
+              name="vorname"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.lastName ?? 'Nachname' }} *:</label>
+            <input
+              type="text"
+              [(ngModel)]="bookingForm.nachname"
+              name="nachname"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.email ?? 'E-Mail' }} *:</label>
+            <input
+              type="email"
+              [(ngModel)]="bookingForm.email"
+              name="email"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.phone ?? 'Telefon' }}:</label>
+            <input
+              type="tel"
+              [(ngModel)]="bookingForm.telefon"
+              name="telefon"
+            />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.street ?? 'Straße' }}:</label>
+            <input
+              type="text"
+              [(ngModel)]="bookingForm.strasse"
+              name="strasse"
+            />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.houseNumber ?? 'Hausnummer' }}:</label>
+            <input type="text" [(ngModel)]="bookingForm.hausNr" name="hausNr" />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.postalCode ?? 'Postleitzahl' }}:</label>
+            <input type="text" [(ngModel)]="bookingForm.plz" name="plz" />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.city ?? 'Stadt' }}:</label>
+            <input type="text" [(ngModel)]="bookingForm.ort" name="ort" />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.notes ?? 'Notizen' }}:</label>
+            <textarea
+              [(ngModel)]="bookingForm.notizen"
+              name="notizen"
+            ></textarea>
           </div>
 
-          <div class="price-summary">
-            <h3>{{ t().rentalSteps?.priceSummary ?? 'Preisübersicht' }}:</h3>
-            <p>
-              {{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:
-              <strong>€{{ getTotalPrice() }}</strong>
-            </p>
-            <p>
-              {{ t().rentalSteps?.totalDeposit ?? 'Gesamtkaution' }}:
-              <strong>€{{ getTotalDeposit() }}</strong>
-            </p>
-            <p class="info-note">
-              {{
-                t().rentalSteps?.depositNote ??
-                  'Die Kaution wird bei Rückgabe des Fahrrads erstattet.'
-              }}
-            </p>
+          <div *ngIf="bookingError()" class="error-message">
+            {{ bookingError() }}
           </div>
 
-          <div class="confirm-actions">
-            <button (click)="goToStep('customer-info')" class="btn-secondary">
+          <div class="form-actions">
+            <button
+              type="button"
+              (click)="goToStep('bike-selection')"
+              class="btn-secondary"
+            >
               {{ t().rentalSteps?.back ?? 'Zurück' }}
             </button>
             <button
-              (click)="confirmAndSubmit()"
+              type="submit"
               class="btn-primary"
               [disabled]="isSubmitting()"
             >
               {{
                 isSubmitting()
                   ? (t().rentalSteps?.submitting ?? 'Wird gesendet...')
-                  : (t().rentalSteps?.confirm ?? 'Buchung bestätigen')
+                  : (t().rentalSteps?.continue ?? 'Weiter')
               }}
             </button>
           </div>
+        </form>
+      </div>
 
-          <div *ngIf="bookingError()" class="error-message">
-            {{ bookingError() }}
+      <!-- Step 5: Review & Confirm -->
+      <div
+        *ngIf="currentStep() === 'review'"
+        class="step-container review-section"
+      >
+        <h2>{{ t().rentalSteps?.confirmBooking ?? 'Buchung bestätigen' }}</h2>
+
+        <div class="review-section">
+          <h3>{{ t().rentalSteps?.bikeDetails ?? 'Fahrraddetails' }}:</h3>
+          <div *ngFor="let item of cartBikes()" class="review-item">
+            <p>
+              <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
+            </p>
+            <p>
+              {{ formatDisplayDate(selectedStartDate) }} -
+              {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount() }}
+              {{ t().rentalSteps?.days ?? 'Tage' }})
+            </p>
+            <p *ngIf="item.farbe">
+              {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
+            </p>
+            <p *ngIf="item.rahmennummer">
+              {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
+              {{ item.rahmennummer }}
+            </p>
+            <p class="price">
+              {{ t().rentalSteps?.priceLabel ?? 'Preis' }}: €{{
+                item.calculatedPrice
+              }}
+            </p>
           </div>
         </div>
 
-        <!-- Success -->
-        <div
-          *ngIf="currentStep() === 'success'"
-          class="step-container success-section"
-        >
-          <h2>
-            {{ t().rentalSteps?.bookingSuccess ?? 'Buchung erfolgreich!' }}
-          </h2>
+        <div class="review-section">
+          <h3>{{ t().rentalSteps?.contactInfo ?? 'Kontaktinformationen' }}:</h3>
+          <p>{{ bookingForm.vorname }} {{ bookingForm.nachname }}</p>
+          <p>{{ bookingForm.email }}</p>
+          <p *ngIf="bookingForm.telefon">{{ bookingForm.telefon }}</p>
+          <p *ngIf="bookingForm.strasse">
+            {{ bookingForm.strasse }} {{ bookingForm.hausNr }}
+          </p>
+          <p *ngIf="bookingForm.plz">
+            {{ bookingForm.plz }} {{ bookingForm.ort }}
+          </p>
+        </div>
+
+        <div class="price-summary">
+          <h3>{{ t().rentalSteps?.priceSummary ?? 'Preisübersicht' }}:</h3>
           <p>
+            {{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:
+            <strong>€{{ getTotalPrice() }}</strong>
+          </p>
+          <p>
+            {{ t().rentalSteps?.totalDeposit ?? 'Gesamtkaution' }}:
+            <strong>€{{ getTotalDeposit() }}</strong>
+          </p>
+          <p class="info-note">
             {{
-              t().rentalSteps?.confirmationSent ??
-                'Eine Bestätigungsmail wurde an'
+              t().rentalSteps?.depositNote ??
+                'Die Kaution wird bei Rückgabe des Fahrrads erstattet.'
             }}
-            <strong>{{ bookingForm.email }}</strong>
-            {{ t().rentalSteps?.sent ?? 'gesendet' }}
           </p>
-          <p *ngIf="bookingNumber()">
-            <strong
-              >{{ t().rentalSteps?.bookingNumber ?? 'Buchungsnummer' }}:</strong
-            >
-            {{ bookingNumber() }}
-          </p>
-          <button (click)="startNewBooking()" class="btn-primary">
-            {{ t().rentalSteps?.newBooking ?? 'Neue Buchung' }}
+        </div>
+
+        <div class="confirm-actions">
+          <button (click)="goToStep('customer-info')" class="btn-secondary">
+            {{ t().rentalSteps?.back ?? 'Zurück' }}
+          </button>
+          <button
+            (click)="confirmAndSubmit()"
+            class="btn-primary"
+            [disabled]="isSubmitting()"
+          >
+            {{
+              isSubmitting()
+                ? (t().rentalSteps?.submitting ?? 'Wird gesendet...')
+                : (t().rentalSteps?.confirm ?? 'Buchung bestätigen')
+            }}
           </button>
         </div>
+
+        <div *ngIf="bookingError()" class="error-message">
+          {{ bookingError() }}
+        </div>
       </div>
+    </div>
+
+    <!-- Success -->
+    <div
+      *ngIf="currentStep() === 'success'"
+      class="step-container success-section"
+    >
+      <h2>
+        {{ t().rentalSteps?.bookingSuccess ?? 'Buchung erfolgreich!' }}
+      </h2>
+      <p>
+        {{
+          t().rentalSteps?.confirmationSent ?? 'Eine Bestätigungsmail wurde an'
+        }}
+        <strong>{{ bookingForm.email }}</strong>
+        {{ t().rentalSteps?.sent ?? 'gesendet' }}
+      </p>
+      <p *ngIf="bookingNumber()">
+        <strong
+          >{{ t().rentalSteps?.bookingNumber ?? 'Buchungsnummer' }}:</strong
+        >
+        {{ bookingNumber() }}
+      </p>
+      <button (click)="startNewBooking()" class="btn-primary">
+        {{ t().rentalSteps?.newBooking ?? 'Neue Buchung' }}
+      </button>
     </div>
   `,
   styles: [
