@@ -6,7 +6,7 @@ import { RentalBookingService } from '../../services/rental-booking.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { TranslationService } from '../../services/translation.service';
-import { RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../models/models';
+import { RentalBooking, RentalBookingStatus } from '../../models/models';
 
 @Component({
   selector: 'app-rental-booking-detail',
@@ -26,8 +26,8 @@ import { RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../mod
           </button>
           <button
             class="btn btn-success"
-            (click)="convertToContract(getFirstBikeId())"
-            *ngIf="booking.status !== BookingStatus.Cancelled && booking.bikes.length <= 1"
+            (click)="goToUmwandeln()"
+            *ngIf="booking.status === BookingStatus.Approved"
             title="Mietanfrage als Mietvertrag anlegen"
           >
             <svg
@@ -115,20 +115,6 @@ import { RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../mod
           <div *ngFor="let bike of booking.bikes; let i = index" [class.bike-item]="booking.bikes.length > 1">
             <div class="bike-item-header" *ngIf="booking.bikes.length > 1">
               <strong>{{ i + 1 }}. Fahrrad</strong>
-              <button
-                class="btn btn-sm btn-success"
-                (click)="convertBikeToContract(bike)"
-                *ngIf="booking.status !== BookingStatus.Cancelled"
-                title="Mietvertrag für dieses Fahrrad"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:4px">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                  <line x1="12" y1="18" x2="12" y2="12"/>
-                  <line x1="9" y1="15" x2="15" y2="15"/>
-                </svg>
-                Mietvertrag
-              </button>
             </div>
             <div class="info-row">
               <span>{{ t.brandModel }}:</span>
@@ -477,24 +463,9 @@ export class RentalBookingDetailComponent implements OnInit {
       });
   }
 
-  getFirstBikeId(): number | null {
-    if (!this.booking) return null;
-    if (this.booking.bikes?.length > 0) return this.booking.bikes[0].bicycleId;
-    return this.booking.bicycle?.id ?? null;
-  }
-
-  convertToContract(bicycleId?: number | null) {
+  goToUmwandeln() {
     if (!this.booking) return;
-    const params: Record<string, string | number> = { bookingId: this.booking.id };
-    if (bicycleId) params['bicycleId'] = bicycleId;
-    this.router.navigate(['/rentals/new'], { queryParams: params });
-  }
-
-  convertBikeToContract(bike: RentalBookingBike) {
-    if (!this.booking) return;
-    this.router.navigate(['/rentals/new'], {
-      queryParams: { bookingId: this.booking.id, bicycleId: bike.bicycleId },
-    });
+    this.router.navigate(['/rental-bookings', this.booking.id, 'umwandeln']);
   }
 
   downloadRechnungPdf() {

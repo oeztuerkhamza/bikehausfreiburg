@@ -294,6 +294,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'rental-bookings/:id/umwandeln',
+    loadComponent: () =>
+      import('./pages/rental-bookings/rental-booking-umwandeln.component').then(
+        (m) => m.RentalBookingUmwandelnComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'rental-bookings/:id',
     loadComponent: () =>
       import('./pages/rental-bookings/rental-booking-detail.component').then(
