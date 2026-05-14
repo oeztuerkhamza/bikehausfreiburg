@@ -55,6 +55,34 @@ import { RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../mod
           >
             {{ t.rentalBookingCancel }}
           </button>
+          <button
+            class="btn btn-pdf"
+            (click)="downloadRechnungPdf()"
+            *ngIf="booking.bikes && booking.bikes.length > 0"
+            title="Mietrechnung PDF herunterladen"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:5px">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Rechnung PDF
+          </button>
+          <button
+            class="btn btn-pdf-kaution"
+            (click)="downloadKautionPdf()"
+            *ngIf="booking.bikes && booking.bikes.length > 0"
+            title="Kautionsquittung PDF herunterladen"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:5px">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Kaution PDF
+          </button>
           <a routerLink="/rental-bookings" class="btn btn-outline">
             {{ t.back }}
           </a>
@@ -351,6 +379,24 @@ import { RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../mod
         padding: 4px 10px;
         font-size: 0.8rem;
       }
+      .btn-pdf {
+        background: #2c5282;
+        color: #fff;
+        border-color: #2c5282;
+      }
+      .btn-pdf:hover {
+        background: #2b6cb0;
+        border-color: #2b6cb0;
+      }
+      .btn-pdf-kaution {
+        background: #805ad5;
+        color: #fff;
+        border-color: #805ad5;
+      }
+      .btn-pdf-kaution:hover {
+        background: #6b46c1;
+        border-color: #6b46c1;
+      }
     `,
   ],
 })
@@ -448,6 +494,36 @@ export class RentalBookingDetailComponent implements OnInit {
     if (!this.booking) return;
     this.router.navigate(['/rentals/new'], {
       queryParams: { bookingId: this.booking.id, bicycleId: bike.bicycleId },
+    });
+  }
+
+  downloadRechnungPdf() {
+    if (!this.booking) return;
+    this.service.downloadRechnungPdf(this.booking.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Mietrechnung-${this.booking!.buchungsNummer}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.notificationService.error(this.t.saveError),
+    });
+  }
+
+  downloadKautionPdf() {
+    if (!this.booking) return;
+    this.service.downloadKautionPdf(this.booking.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Kautionsquittung-${this.booking!.buchungsNummer}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.notificationService.error(this.t.saveError),
     });
   }
 

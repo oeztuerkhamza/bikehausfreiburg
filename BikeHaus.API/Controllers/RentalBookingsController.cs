@@ -11,10 +11,12 @@ namespace BikeHaus.API.Controllers;
 public class RentalBookingsController : ControllerBase
 {
     private readonly IRentalBookingService _service;
+    private readonly IPdfService _pdfService;
 
-    public RentalBookingsController(IRentalBookingService service)
+    public RentalBookingsController(IRentalBookingService service, IPdfService pdfService)
     {
         _service = service;
+        _pdfService = pdfService;
     }
 
     [HttpGet("paginated")]
@@ -92,6 +94,34 @@ public class RentalBookingsController : ControllerBase
         catch (InvalidOperationException ex)
         {
             return Conflict(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("{id}/rechnung-pdf")]
+    public async Task<IActionResult> DownloadBookingRechnung(int id)
+    {
+        try
+        {
+            var pdf = await _pdfService.GenerateBookingRechnungAsync(id);
+            return File(pdf, "application/pdf", $"Mietrechnung-{id}.pdf");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("{id}/kaution-pdf")]
+    public async Task<IActionResult> DownloadBookingKaution(int id)
+    {
+        try
+        {
+            var pdf = await _pdfService.GenerateBookingKautionsquittungAsync(id);
+            return File(pdf, "application/pdf", $"Kautionsquittung-{id}.pdf");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
         }
     }
 }

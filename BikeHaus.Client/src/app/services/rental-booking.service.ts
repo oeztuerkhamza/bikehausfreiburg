@@ -54,4 +54,16 @@ export class RentalBookingService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
+
+  downloadRechnungPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.url}/${id}/rechnung-pdf`, {
+      responseType: 'blob',
+    });
+  }
+
+  downloadKautionPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.url}/${id}/kaution-pdf`, {
+      responseType: 'blob',
+    });
+  }
 }
