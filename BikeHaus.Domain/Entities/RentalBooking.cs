@@ -14,6 +14,10 @@ public class RentalBooking : BaseEntity
     public string Nachname { get; set; } = string.Empty;
     public string? Email { get; set; }
     public string? Telefon { get; set; }
+    public string? Strasse { get; set; }
+    public string? HausNr { get; set; }
+    public string? PLZ { get; set; }
+    public string? Ort { get; set; }
     public string? Sprache { get; set; }
 
     public string? Notizen { get; set; }

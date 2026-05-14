@@ -138,6 +138,10 @@ public class RentalBookingService : IRentalBookingService
             Nachname = dto.Nachname.Trim(),
             Email = dto.Email?.Trim(),
             Telefon = dto.Telefon?.Trim(),
+            Strasse = dto.Strasse?.Trim(),
+            HausNr = dto.HausNr?.Trim(),
+            PLZ = dto.PLZ?.Trim(),
+            Ort = dto.Ort?.Trim(),
             Sprache = language,
             Notizen = dto.Notizen,
             Status = RentalBookingStatus.Pending

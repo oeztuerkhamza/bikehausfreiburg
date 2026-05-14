@@ -160,6 +160,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
     priceSummaryLabel: 'Resumen de precios',
     totalRentalLabel: 'Alquiler total',
     totalKautionLabel: 'Depósito total',
+    kautionInfoNotice:
+      'Atención: se requiere un depósito por cada bicicleta. Tráigalo en efectivo el día de recogida — le será devuelto íntegramente al devolverla.',
+    kautionSuccessReminder:
+      'Por favor, traiga el depósito en efectivo el día de recogida.',
   },
   it: {
     serviceHighlightsAria: 'Punti forti del servizio',
@@ -296,6 +300,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
     priceSummaryLabel: 'Riepilogo prezzi',
     totalRentalLabel: 'Noleggio totale',
     totalKautionLabel: 'Deposito totale',
+    kautionInfoNotice:
+      'Attenzione: per ogni bici è richiesta una cauzione. Portarla in contanti il giorno del ritiro — verrà restituita integralmente alla riconsegna.',
+    kautionSuccessReminder:
+      'Si prega di portare la cauzione in contanti il giorno del ritiro.',
   },
   ar: {
     serviceHighlightsAria: 'نقاط قوة الخدمة',
@@ -440,6 +448,9 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
     priceSummaryLabel: 'ملخص الأسعار',
     totalRentalLabel: 'إجمالي الإيجار',
     totalKautionLabel: 'إجمالي الوديعة',
+    kautionInfoNotice:
+      'تنبيه: يُطلب وديعة لكل دراجة. يُرجى إحضارها نقداً يوم الاستلام — وسيتم ردّها كاملاً عند الإعادة.',
+    kautionSuccessReminder: 'يُرجى إحضار الوديعة نقداً يوم الاستلام.',
   },
   ru: {
     serviceHighlightsAria: 'Основные достоинства услуги',
@@ -576,5 +587,9 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
     priceSummaryLabel: 'Обзор цен',
     totalRentalLabel: 'Итого аренда',
     totalKautionLabel: 'Итого залог',
+    kautionInfoNotice:
+      'Обратите внимание: для каждого велосипеда требуется залог. Пожалуйста, принесите его наличными в день получения — он будет полностью возвращён при сдаче.',
+    kautionSuccessReminder:
+      'Пожалуйста, принесите залог наличными в день получения.',
   },
 };

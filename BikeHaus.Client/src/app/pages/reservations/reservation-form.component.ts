@@ -36,6 +36,8 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
             <app-bike-selector
               [bikes]="availableBikes"
               [(selectedBike)]="selectedBike"
+              [enableAdvancedFilters]="true"
+              [requireConfirmSelection]="true"
               (bikeSelected)="onBikeSelected($event)"
             ></app-bike-selector>
           </div>

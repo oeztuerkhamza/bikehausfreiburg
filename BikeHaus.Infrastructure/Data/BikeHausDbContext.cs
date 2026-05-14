@@ -250,6 +250,10 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Nachname).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Email).HasMaxLength(200);
             entity.Property(e => e.Telefon).HasMaxLength(50);
+            entity.Property(e => e.Strasse).HasMaxLength(200);
+            entity.Property(e => e.HausNr).HasMaxLength(20);
+            entity.Property(e => e.PLZ).HasMaxLength(20);
+            entity.Property(e => e.Ort).HasMaxLength(100);
             entity.Property(e => e.Sprache).HasMaxLength(5);
             entity.Property(e => e.Notizen).HasMaxLength(1000);
             entity.Property(e => e.AdminNotizen).HasMaxLength(1000);

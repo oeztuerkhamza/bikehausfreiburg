@@ -92,6 +92,8 @@ const MONTH_NAMES = [
               [bikes]="availableBikes"
               [(selectedBike)]="selectedBike"
               [allowQuickAdd]="true"
+              [enableAdvancedFilters]="true"
+              [requireConfirmSelection]="true"
               (bikeSelected)="onBikeSelected($event)"
               (quickAddRequested)="onQuickAddBike()"
             ></app-bike-selector>

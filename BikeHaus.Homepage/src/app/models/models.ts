@@ -166,6 +166,10 @@ export interface RentalBookingCreate {
   nachname: string;
   email: string;
   telefon?: string;
+  strasse?: string;
+  hausNr?: string;
+  plz?: string;
+  ort?: string;
   sprache: string;
   notizen?: string;
   accessories?: RentalBookingAccessoryCreate[];

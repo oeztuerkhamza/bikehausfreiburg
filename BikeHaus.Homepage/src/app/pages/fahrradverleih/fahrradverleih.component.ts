@@ -723,6 +723,8 @@ type RentalPageCopy = {
   priceSummaryLabel: string;
   totalRentalLabel: string;
   totalKautionLabel: string;
+  kautionInfoNotice: string;
+  kautionSuccessReminder: string;
 };
 
 const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
@@ -861,6 +863,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
     priceSummaryLabel: 'Preisübersicht',
     totalRentalLabel: 'Gesamtmiete',
     totalKautionLabel: 'Gesamtkaution',
+    kautionInfoNotice:
+      'Bitte beachten: Für jedes Fahrrad wird eine Kaution fällig. Die Kaution ist am Abholtag in bar mitzubringen und wird bei Rückgabe vollständig erstattet.',
+    kautionSuccessReminder:
+      'Bitte bringen Sie die Kaution am Abholtag in bar mit.',
   },
   en: {
     serviceHighlightsAria: 'Service highlights',
@@ -997,6 +1003,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
     priceSummaryLabel: 'Price overview',
     totalRentalLabel: 'Total rental',
     totalKautionLabel: 'Total deposit',
+    kautionInfoNotice:
+      'Please note: A deposit is required for each bike. Please bring the deposit in cash on the pick-up day — it will be fully refunded upon return.',
+    kautionSuccessReminder:
+      'Please bring the deposit in cash on the pick-up day.',
   },
   fr: {
     serviceHighlightsAria: 'Points forts du service',
@@ -1146,6 +1156,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
     priceSummaryLabel: 'Apercu des prix',
     totalRentalLabel: 'Location totale',
     totalKautionLabel: 'Depot total',
+    kautionInfoNotice:
+      'Attention : un dépôt est exigé pour chaque vélo. Veuillez apporter le dépôt en espèces le jour du retrait — il vous sera intégralement remboursé à la restitution.',
+    kautionSuccessReminder:
+      'Veuillez apporter le dépôt en espèces le jour du retrait.',
   },
   tr: {
     serviceHighlightsAria: 'Servis öne çıkanlar',
@@ -1282,6 +1296,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
     priceSummaryLabel: 'Fiyat özeti',
     totalRentalLabel: 'Toplam kiralama',
     totalKautionLabel: 'Toplam depozito',
+    kautionInfoNotice:
+      'Lütfen dikkat: Her bisiklet için depozito alınmaktadır. Depozitoyu teslim alma günü nakit olarak yanınızda getirmenizi rica ederiz — iade sırasında tamamen iade edilecektir.',
+    kautionSuccessReminder:
+      'Lütfen depozitoyu teslim alma günü nakit olarak yanınızda getirin.',
   },
   ...EXTENDED_RENTAL_PAGE_COPY,
 };
@@ -1604,6 +1622,27 @@ interface BikeSlot {
                 <strong>{{ nr }}</strong>
               </div>
             </div>
+            <!-- Kaution reminder bar -->
+            <div class="bp-kaution-reminder" *ngIf="totalKaution() > 0">
+              <div class="bp-kaution-reminder-amount">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="2" y="7" width="20" height="14" rx="2" />
+                  <path d="M16 7V5a2 2 0 0 0-4 0v2" />
+                  <line x1="12" y1="12" x2="12" y2="16" />
+                  <circle cx="12" cy="12" r="1" fill="currentColor" />
+                </svg>
+                <strong>{{ totalKaution() }} € Kaution</strong>
+              </div>
+              <p>{{ pageCopy().kautionSuccessReminder }}</p>
+            </div>
+
             <button class="bp-new-btn" (click)="resetAll()">
               {{ t().rentalSuccessNewRequest }}
             </button>
@@ -1611,6 +1650,23 @@ interface BikeSlot {
 
           <!-- Compact booking view -->
           <div *ngIf="!bookingSuccess()" class="bp-compact">
+            <!-- Kaution info notice -->
+            <div class="bp-kaution-notice">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>{{ pageCopy().kautionInfoNotice }}</span>
+            </div>
+
             <!-- Selected bikes chips -->
             <div class="bp-chips-row">
               <div
@@ -1691,54 +1747,6 @@ interface BikeSlot {
               </button>
             </div>
 
-            <div class="bp-bike-details" *ngIf="bikeSlots().length > 0">
-              <div
-                class="bp-bike-detail"
-                *ngFor="let slot of bikeSlots(); let si = index"
-              >
-                <h4>
-                  Bike {{ si + 1 }} - {{ slot.bike.marke }}
-                  {{ slot.bike.modell }}
-                </h4>
-                <div class="bp-bike-detail-grid">
-                  <div class="form-field">
-                    <label>Rahmennummer</label>
-                    <input
-                      type="text"
-                      [ngModel]="slot.rahmennummer"
-                      (ngModelChange)="setSlotRahmennummer(slot.slotId, $event)"
-                    />
-                  </div>
-                  <div class="form-field">
-                    <label>Kaution (€)</label>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      [ngModel]="slot.kaution"
-                      (ngModelChange)="setSlotKaution(slot.slotId, $event)"
-                    />
-                  </div>
-                </div>
-                <div class="form-field">
-                  <label>Farbe</label>
-                  <div class="bp-color-chips">
-                    <button
-                      type="button"
-                      class="bp-color-chip"
-                      *ngFor="let c of colorOptions"
-                      [class.selected]="isColorSelected(slot.farbe, c.value)"
-                      [style.--chip-color]="c.hex"
-                      (click)="toggleSlotColor(slot.slotId, c.value)"
-                    >
-                      <span class="chip-dot"></span>
-                      <span>{{ c.value }}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <!-- Shared calendar -->
             <div class="bp-cal-section">
               <h3 class="bp-col-title">
@@ -1767,8 +1775,8 @@ interface BikeSlot {
                 <div class="bc-header">
                   <button type="button" class="bc-nav" (click)="prevMonth()">
                     <svg
-                      width="15"
-                      height="15"
+                      width="10"
+                      height="10"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -1780,8 +1788,8 @@ interface BikeSlot {
                   <span class="bc-month-title">{{ getCalMonthLabel() }}</span>
                   <button type="button" class="bc-nav" (click)="nextMonth()">
                     <svg
-                      width="15"
-                      height="15"
+                      width="10"
+                      height="10"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -2010,17 +2018,41 @@ interface BikeSlot {
                   </div>
                 </div>
 
-                <div class="form-field">
-                  <label>{{ t().rentalFormLang }}</label>
-                  <div class="lang-toggle">
-                    <button
-                      *ngFor="let option of pageCopy().bookingLanguages"
-                      type="button"
-                      [class.active]="bookingForm.sprache === option.code"
-                      (click)="bookingForm.sprache = option.code"
-                    >
-                      {{ option.label }}
-                    </button>
+                <div class="form-row">
+                  <div class="form-field form-field--grow">
+                    <label>{{ t().rentalFormStrasse }}</label>
+                    <input
+                      type="text"
+                      [(ngModel)]="bookingForm.strasse"
+                      placeholder="Musterstraße"
+                    />
+                  </div>
+                  <div class="form-field form-field--narrow">
+                    <label>{{ t().rentalFormHausNr }}</label>
+                    <input
+                      type="text"
+                      [(ngModel)]="bookingForm.hausNr"
+                      placeholder="12a"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-field form-field--narrow">
+                    <label>{{ t().rentalFormPlz }}</label>
+                    <input
+                      type="text"
+                      [(ngModel)]="bookingForm.plz"
+                      placeholder="79100"
+                    />
+                  </div>
+                  <div class="form-field form-field--grow">
+                    <label>{{ t().rentalFormOrt }}</label>
+                    <input
+                      type="text"
+                      [(ngModel)]="bookingForm.ort"
+                      placeholder="Freiburg"
+                    />
                   </div>
                 </div>
 
@@ -3559,6 +3591,59 @@ interface BikeSlot {
         flex-direction: column;
       }
 
+      .bp-kaution-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 0.85rem 1.25rem;
+        margin: 1rem 1.5rem 0;
+        border-radius: 10px;
+        background: rgba(234, 179, 8, 0.08);
+        border: 1px solid rgba(234, 179, 8, 0.28);
+        color: #d97706;
+        font-size: 0.85rem;
+        line-height: 1.55;
+      }
+      .bp-kaution-notice svg {
+        flex-shrink: 0;
+        margin-top: 1px;
+        color: #d97706;
+      }
+      .bp-kaution-notice span {
+        color: var(--color-text);
+      }
+
+      .bp-kaution-reminder {
+        width: 100%;
+        max-width: 420px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid rgba(234, 179, 8, 0.4);
+        background: rgba(234, 179, 8, 0.07);
+      }
+      .bp-kaution-reminder-amount {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0.7rem 1rem;
+        background: rgba(234, 179, 8, 0.18);
+        color: #ca8a04;
+        font-size: 1.05rem;
+        border-bottom: 1px solid rgba(234, 179, 8, 0.25);
+      }
+      .bp-kaution-reminder-amount svg {
+        color: #ca8a04;
+      }
+      .bp-kaution-reminder p {
+        margin: 0;
+        padding: 0.6rem 1rem;
+        font-size: 0.82rem;
+        color: var(--color-text-secondary);
+        text-align: center;
+        line-height: 1.5;
+      }
+
       .bp-chips-row {
         display: flex;
         flex-wrap: wrap;
@@ -4237,6 +4322,12 @@ interface BikeSlot {
         grid-template-columns: 1fr 1fr;
         gap: 12px;
       }
+      .form-row:has(.form-field--grow) {
+        grid-template-columns: 3fr 1fr;
+      }
+      .form-row:has(.form-field--narrow:first-child) {
+        grid-template-columns: 1fr 3fr;
+      }
       .form-field {
         display: flex;
         flex-direction: column;
@@ -4378,23 +4469,25 @@ interface BikeSlot {
       /* ── Booking Calendar ── */
       .booking-calendar {
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 18px;
+        border-radius: 12px;
         overflow: hidden;
         background: rgba(7, 10, 15, 0.42);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        max-width: 300px;
+        width: 100%;
       }
 
       .bc-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.8rem 0.95rem;
+        padding: 0.4rem 0.55rem;
         background: rgba(255, 255, 255, 0.03);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
 
       .bc-month-title {
-        font-size: 0.88rem;
+        font-size: 0.72rem;
         font-weight: 700;
         color: var(--color-text);
         text-transform: capitalize;
@@ -4405,8 +4498,8 @@ interface BikeSlot {
         border: none;
         cursor: pointer;
         color: var(--color-text-secondary);
-        padding: 4px 8px;
-        border-radius: 6px;
+        padding: 2px 4px;
+        border-radius: 4px;
         display: flex;
         transition: all 0.15s;
       }
@@ -4418,23 +4511,23 @@ interface BikeSlot {
       .bc-weekdays {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        padding: 6px 10px 2px;
+        padding: 3px 5px 1px;
       }
       .bc-weekdays span {
         text-align: center;
-        font-size: 0.67rem;
+        font-size: 0.52rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.04em;
         color: var(--color-text-secondary);
-        padding: 4px 0;
+        padding: 2px 0;
       }
 
       .bc-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        padding: 4px 10px 10px;
-        gap: 2px;
+        padding: 2px 5px 5px;
+        gap: 1px;
       }
 
       .bc-cell {
@@ -4442,8 +4535,8 @@ interface BikeSlot {
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 8px;
-        font-size: 0.82rem;
+        border-radius: 5px;
+        font-size: 0.62rem;
         font-weight: 500;
         color: var(--color-text);
         transition: all 0.12s;
@@ -4494,11 +4587,11 @@ interface BikeSlot {
       .bc-today::after {
         content: '';
         position: absolute;
-        bottom: 3px;
+        bottom: 2px;
         left: 50%;
         transform: translateX(-50%);
-        width: 4px;
-        height: 4px;
+        width: 3px;
+        height: 3px;
         border-radius: 50%;
         background: var(--color-accent);
       }
@@ -4872,59 +4965,6 @@ interface BikeSlot {
         opacity: 0.85;
       }
 
-      .bp-bike-details {
-        display: grid;
-        gap: 12px;
-        margin: 0 0 1rem;
-      }
-
-      .bp-bike-detail {
-        border: 1px solid var(--color-border);
-        border-radius: 14px;
-        background: var(--color-surface);
-        padding: 12px;
-      }
-
-      .bp-bike-detail h4 {
-        margin: 0 0 10px;
-        font-size: 0.95rem;
-      }
-
-      .bp-bike-detail-grid {
-        display: grid;
-        gap: 10px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .bp-color-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .bp-color-chip {
-        border: 1px solid var(--color-border);
-        background: var(--color-surface);
-        border-radius: 999px;
-        padding: 6px 10px;
-        color: var(--color-text);
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        cursor: pointer;
-      }
-
-      .bp-color-chip.selected {
-        border-color: var(--color-accent);
-      }
-
-      .bp-color-chip .chip-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: var(--chip-color, #ccc);
-      }
-
       .rental-cta {
         display: flex;
         align-items: center;
@@ -5100,6 +5140,10 @@ export class FahrradverleihComponent implements OnInit {
     nachname: '',
     email: '',
     telefon: '',
+    strasse: '',
+    hausNr: '',
+    plz: '',
+    ort: '',
     sprache: this.getCurrentLanguage(),
     notizen: '',
   };
@@ -5459,6 +5503,10 @@ export class FahrradverleihComponent implements OnInit {
       nachname: '',
       email: '',
       telefon: '',
+      strasse: '',
+      hausNr: '',
+      plz: '',
+      ort: '',
       sprache: this.getCurrentLanguage(),
       notizen: '',
     };
@@ -5826,6 +5874,10 @@ export class FahrradverleihComponent implements OnInit {
       nachname: f.nachname.trim(),
       email: f.email.trim(),
       telefon: f.telefon.trim() || undefined,
+      strasse: f.strasse.trim() || undefined,
+      hausNr: f.hausNr.trim() || undefined,
+      plz: f.plz.trim() || undefined,
+      ort: f.ort.trim() || undefined,
       sprache: f.sprache,
       notizen: f.notizen.trim() || undefined,
     };

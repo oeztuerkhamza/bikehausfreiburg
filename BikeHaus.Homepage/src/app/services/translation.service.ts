@@ -308,6 +308,11 @@ export interface Translations {
   rentalFormFirstName: string;
   rentalFormLastName: string;
   rentalFormPhone: string;
+  rentalFormAddress: string;
+  rentalFormStrasse: string;
+  rentalFormHausNr: string;
+  rentalFormPlz: string;
+  rentalFormOrt: string;
   rentalFormLang: string;
   rentalFormNotes: string;
   rentalFormSubmit: string;
@@ -852,6 +857,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalFormFirstName: 'Vorname',
     rentalFormLastName: 'Nachname',
     rentalFormPhone: 'Telefon',
+    rentalFormAddress: 'Adresse',
+    rentalFormStrasse: 'Straße',
+    rentalFormHausNr: 'Haus-Nr.',
+    rentalFormPlz: 'PLZ',
+    rentalFormOrt: 'Ort',
     rentalFormLang: 'Kommunikationssprache',
     rentalFormNotes: 'Anmerkungen (optional)',
     rentalFormSubmit: 'Anfrage senden',
@@ -1211,7 +1221,8 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
   },
 
   en: {
-    metaTitle: 'Bike Shop Freiburg — Buy, Rent & Used Bikes | Bike Haus Freiburg',
+    metaTitle:
+      'Bike Shop Freiburg — Buy, Rent & Used Bikes | Bike Haus Freiburg',
     metaDescription:
       'Bike shop in Freiburg — 100+ inspected used & new bikes ✓ City, E-Bike, Trekking, Kids ✓ Daily bike rental ✓ 3-month warranty. No appointment — Heckerstraße 27!',
 
@@ -1465,6 +1476,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalFormFirstName: 'First name',
     rentalFormLastName: 'Last name',
     rentalFormPhone: 'Phone',
+    rentalFormAddress: 'Address',
+    rentalFormStrasse: 'Street',
+    rentalFormHausNr: 'House no.',
+    rentalFormPlz: 'Postcode',
+    rentalFormOrt: 'City',
     rentalFormLang: 'Communication language',
     rentalFormNotes: 'Notes (optional)',
     rentalFormSubmit: 'Send request',
@@ -2068,6 +2084,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalFormFirstName: 'Prénom',
     rentalFormLastName: 'Nom de famille',
     rentalFormPhone: 'Téléphone',
+    rentalFormAddress: 'Adresse',
+    rentalFormStrasse: 'Rue',
+    rentalFormHausNr: 'N°',
+    rentalFormPlz: 'Code postal',
+    rentalFormOrt: 'Ville',
     rentalFormLang: 'Langue de communication',
     rentalFormNotes: 'Remarques (optionnel)',
     rentalFormSubmit: 'Envoyer la demande',
@@ -2687,6 +2708,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalFormLastName: 'Soyad',
     rentalFormPhone: 'Telefon',
     rentalFormLang: 'İletişim dili',
+    rentalFormAddress: 'Adres',
+    rentalFormStrasse: 'Sokak',
+    rentalFormHausNr: 'Kapı No.',
+    rentalFormPlz: 'Posta Kodu',
+    rentalFormOrt: 'Şehir',
     rentalFormNotes: 'Notlar (isteğe bağlı)',
     rentalFormSubmit: 'Talep gönder',
     rentalFormSending: 'Gönderiliyor...',
