@@ -31,6 +31,7 @@ type BookingStep =
   | 'date-selection'
   | 'bike-selection'
   | 'bike-details'
+  | 'choose-next'
   | 'customer-info'
   | 'review'
   | 'success';
@@ -46,7 +47,10 @@ type BookingStep =
         <div [class.active]="currentStep() === 'date-selection'" class="step">
           1. {{ t().rentalSteps?.dateSelection ?? 'Termin wählen' }}
         </div>
-        <div [class.active]="currentStep() === 'bike-selection'" class="step">
+        <div
+          [class.active]="currentStep() === 'bike-selection' || currentStep() === 'bike-details' || currentStep() === 'choose-next'"
+          class="step"
+        >
           2. {{ t().rentalSteps?.bikeSelection ?? 'Fahrrad wählen' }}
         </div>
         <div [class.active]="currentStep() === 'customer-info'" class="step">
@@ -249,10 +253,43 @@ type BookingStep =
 
         <div class="booking-actions">
           <button (click)="addBikeToCart()" class="btn-primary">
-            {{ t().rentalSteps?.addToCart ?? 'Zum Warenkorb hinzufügen' }}
+            {{ t().rentalSteps?.book ?? 'Buchen' }}
           </button>
           <button (click)="goToStep('bike-selection')" class="btn-secondary">
             {{ t().rentalSteps?.selectDifferent ?? 'Anderes Fahrrad wählen' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3b: Choose next action (continue to checkout OR add another bike) -->
+      <div *ngIf="currentStep() === 'choose-next'" class="step-container choose-next-container">
+        <h2>{{ t().rentalSteps?.bikeAdded ?? 'Fahrrad zur Buchung hinzugefügt' }}</h2>
+
+        <div class="cart-summary">
+          <p class="cart-count">
+            <strong>{{ cartBikes().length }}</strong>
+            {{ cartBikes().length === 1
+                ? (t().rentalSteps?.bikeInCart ?? 'Fahrrad in der Buchung')
+                : (t().rentalSteps?.bikesInCart ?? 'Fahrräder in der Buchung') }}
+          </p>
+          <ul class="cart-list">
+            <li *ngFor="let item of cartBikes()" class="cart-list-item">
+              <span>{{ item.bike.marke }} {{ item.bike.modell }}</span>
+              <span class="item-price">€{{ item.calculatedPrice }}</span>
+            </li>
+          </ul>
+          <p class="cart-total">
+            <strong>{{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:</strong>
+            €{{ getTotalPrice() }}
+          </p>
+        </div>
+
+        <div class="choose-next-actions">
+          <button (click)="goToStep('customer-info')" class="btn-primary">
+            {{ t().rentalSteps?.continueToBooking ?? 'Mit Buchung fortfahren' }}
+          </button>
+          <button (click)="goToStep('bike-selection')" class="btn-secondary">
+            {{ t().rentalSteps?.addAnotherBike ?? '+ Weiteres Fahrrad hinzufügen' }}
           </button>
         </div>
       </div>
@@ -1101,7 +1138,7 @@ export class RentalBookingStepsComponent implements OnInit {
     };
 
     this.cartBikes.update((items) => [...items, cartItem]);
-    this.goToStep('customer-info');
+    this.goToStep('choose-next');
   }
 
   removeFromCart(item: CartBike): void {

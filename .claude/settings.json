@@ -14,7 +14,6 @@
       "Bash(dotnet --version)",
       "Bash(dotnet list package:*)",
       "Bash(dotnet restore:*)",
-
       "PowerShell(dotnet build:*)",
       "PowerShell(dotnet test:*)",
       "PowerShell(dotnet run --project BikeHaus.API:*)",
@@ -28,7 +27,6 @@
       "PowerShell(dotnet --version)",
       "PowerShell(dotnet list package:*)",
       "PowerShell(dotnet restore:*)",
-
       "Bash(npm run build:*)",
       "Bash(npm run test:*)",
       "Bash(npm test:*)",
@@ -45,7 +43,6 @@
       "PowerShell(npm --version)",
       "PowerShell(node --version)",
       "PowerShell(ng version)",
-
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
@@ -66,7 +63,6 @@
       "PowerShell(git ls-files:*)",
       "PowerShell(git rev-parse:*)",
       "PowerShell(git blame:*)",
-
       "Bash(docker compose ps:*)",
       "Bash(docker compose logs:*)",
       "Bash(docker compose config:*)",
@@ -85,7 +81,6 @@
       "PowerShell(docker inspect:*)",
       "PowerShell(docker images:*)",
       "PowerShell(docker --version)",
-
       "Bash(dir:*)",
       "Bash(ls:*)",
       "Bash(pwd)",
@@ -93,10 +88,15 @@
       "PowerShell(Get-ChildItem:*)",
       "PowerShell(Get-Location)",
       "PowerShell(Get-Process:*)",
-
       "Bash(powershell -Command \"\\(Get-Content 'd:\\\\projects\\\\bikehausfreiburg\\\\BikeHaus.Homepage\\\\src\\\\app\\\\pages\\\\fahrradverleih\\\\fahrradverleih.component.ts'\\).Count\")",
       "Bash(dir \"d:\\\\projects\\\\bikehausfreiburg\" /b)",
-      "Bash(git -C \"d:\\\\projects\\\\bikehausfreiburg\" diff --stat)"
+      "Bash(git -C \"d:\\\\projects\\\\bikehausfreiburg\" diff --stat)",
+      "Bash(grep -vE \"Inspect bikehaus container, logs, and connectivity\\\\\\\\s*echo|Inspect bikehaus container, logs, and connectivity\\\\\\\\s*docker|Inspect bikehaus container, logs, and connectivity\\\\\\\\s*cd|Inspect bikehaus container, logs, and connectivity\\\\\\\\s*set|Inspect bikehaus container, logs, and connectivity\\\\\\\\s*'curl|Inspect bikehaus container, logs, and connectivity\\\\\\\\s*'python|Inspect bikehaus container, logs, and connectivity\\\\\\\\s*\\\\\\\\|\\\\\\\\||Inspect bikehaus container, logs, and connectivity\\\\\\\\s*'\\\\\\\\{\\\\\\\\{range|Inspect bikehaus container, logs, and connectivity\\\\\\\\s*2>&1|Inspect bikehaus container, logs, and connectivity\\\\\\\\s*exit 0|Inspect bikehaus container, logs, and connectivity\\\\\\\\s*$\")",
+      "Bash(curl -sS -o /dev/null -w \"code=%{http_code} time=%{time_total}s\\\\n\" --max-time 15 https://api.bikehausfreiburg.com/api/public/neue-fahrraeder)",
+      "Bash(curl -sS -o /dev/null -w \"code=%{http_code} time=%{time_total}s\\\\n\" --max-time 15 https://api.bikehausfreiburg.com/api/public/homepage-accessories)",
+      "Bash(curl -sS -o /dev/null -w \"code=%{http_code}\\\\n\" --max-time 15 https://admin.bikehausfreiburg.com/api/public/neue-fahrraeder)",
+      "Bash(curl -sS -o /dev/null -w \"code=%{http_code}\\\\n\" --max-time 15 https://bikehausfreiburg.com/)",
+      "Bash(curl -sS -o /dev/null -w \"code=%{http_code}\\\\n\" --max-time 15 https://bikehausfreiburg.com/sitemap-products.xml)"
     ]
   }
 }

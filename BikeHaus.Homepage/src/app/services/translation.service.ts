@@ -45,7 +45,12 @@ interface RentalStepsTranslations {
   frameNumber: string;
   optional: string;
   addToCart: string;
+  book: string;
   selectDifferent: string;
+  bikeAdded: string;
+  bikeInCart: string;
+  bikesInCart: string;
+  continueToBooking: string;
   yourInfo: string;
   cartItems: string;
   addAnotherBike: string;
