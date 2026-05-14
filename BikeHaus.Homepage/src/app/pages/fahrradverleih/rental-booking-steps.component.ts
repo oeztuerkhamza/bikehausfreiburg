@@ -198,8 +198,6 @@ type BookingStep =
                   t().rentalSteps?.day ?? 'Tag'
                 }}
               </p>
-              {{ formatDisplayDate(selectedStartDate) }} -
-              {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount()
             </div>
           </div>
 
@@ -272,15 +270,9 @@ type BookingStep =
               </div>
 
               <div class="price-info">
-                <h3>{{ t().rentalSteps?.pricing ?? 'Preisberechnung' }}</h3>
-                <p>
-                  {{ formatDisplayDate(selectedStartDate) }} -
-                  {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount() }}
-                  {{ t().rentalSteps?.days ?? 'Tage' }})
-                </p>
                 <p class="total-price">
                   <strong
-                    >{{ t().rentalSteps?.rentalPrice ?? 'Mietpreis' }}:</strong
+                    >{{ t().rentalSteps?.totalRental ?? 'Mietbetrag' }}:</strong
                   >
                   €{{ calculatePrice(selectedBike()!, daysCount()) }}
                 </p>
