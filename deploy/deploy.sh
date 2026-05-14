@@ -1,7 +1,26 @@
 #!/bin/bash
 set -euo pipefail
 
-cd /opt/bikehaus
+TARGET_DIR="/opt/bikehaus"
+
+if [ -d "$TARGET_DIR" ]; then
+  cd "$TARGET_DIR"
+elif [ -f "docker-compose.yml" ]; then
+  echo "[WARN] /opt/bikehaus not found, using current directory: $(pwd)"
+else
+  echo "[ERROR] Repository not found. Expected $TARGET_DIR or a directory containing docker-compose.yml"
+  exit 1
+fi
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "[ERROR] docker command not found. Run deploy on the Linux server where Docker is installed."
+  exit 1
+fi
+
+if ! docker compose version >/dev/null 2>&1; then
+  echo "[ERROR] docker compose plugin is not available. Install Docker Compose v2 first."
+  exit 1
+fi
 
 echo "=== Deploying BikeHaus (GitHub Actions triggered) ==="
 
@@ -29,6 +48,21 @@ retry_check() {
 # This script is a fallback for manual deployments
 if [ ! -f .env ]; then
   echo "ERROR: .env file not found. Configure secrets first."
+  exit 1
+fi
+
+echo "[0/5] Verifying homepage dist..."
+if [ ! -f "BikeHaus.Homepage/dist/bike-haus.homepage/server/server.mjs" ]; then
+  echo "[INFO] Homepage dist not found. Building homepage SSR bundle now..."
+  (
+    cd BikeHaus.Homepage
+    npm ci
+    npm run build
+  )
+fi
+
+if [ ! -f "BikeHaus.Homepage/dist/bike-haus.homepage/server/server.mjs" ]; then
+  echo "[ERROR] Homepage dist is still missing after build."
   exit 1
 fi
 
