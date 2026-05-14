@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 jobs:
   diagnose:
@@ -33,16 +33,8 @@ jobs:
             echo "==================================================="
             echo "2) docker inspect bikehaus-app (state, health, restarts)"
             echo "==================================================="
-            docker inspect bikehaus-app --format \
-              'Status={{.State.Status}}
-Running={{.State.Running}}
-Restarting={{.State.Restarting}}
-RestartCount={{.RestartCount}}
-ExitCode={{.State.ExitCode}}
-Error={{.State.Error}}
-StartedAt={{.State.StartedAt}}
-FinishedAt={{.State.FinishedAt}}
-Health={{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}'
+            docker inspect bikehaus-app --format 'Status={{.State.Status}}  Running={{.State.Running}}  Restarting={{.State.Restarting}}  RestartCount={{.RestartCount}}  ExitCode={{.State.ExitCode}}  StartedAt={{.State.StartedAt}}  FinishedAt={{.State.FinishedAt}}'
+            docker inspect bikehaus-app --format 'Health={{if .State.Health}}{{.State.Health.Status}} (last {{len .State.Health.Log}} probes){{else}}no healthcheck defined{{end}}'
 
             echo ""
             echo "==================================================="
