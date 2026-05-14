@@ -1,12 +1,5 @@
-import {
-  Component,
-  computed,
-  inject,
-  OnInit,
-  PLATFORM_ID,
-  signal,
-} from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -71,29 +64,78 @@ type BookingStep =
         <h2>
           {{ t().rentalSteps?.selectDates ?? 'Wählen Sie einen Zeitraum' }}
         </h2>
-        <div class="date-inputs">
-          <div class="date-input-group">
-            <label>{{ t().rentalSteps?.startDate ?? 'Startdatum' }}:</label>
-            <input
-              #startDateInput
-              type="date"
-              [(ngModel)]="selectedStartDate"
-              [min]="minDate()"
-              (focus)="openNativeDatePicker(startDateInput)"
-              (click)="openNativeDatePicker(startDateInput)"
-              (change)="onStartDateChanged(endDateInput)"
-            />
+        <div class="calendar-shell">
+          <div class="calendar-header">
+            <button
+              type="button"
+              class="calendar-nav"
+              (click)="prevCalendarMonth()"
+              [attr.aria-label]="
+                t().rentalSteps?.previousMonth ?? 'Vorheriger Monat'
+              "
+            >
+              ‹
+            </button>
+            <div class="calendar-month-label">{{ calendarMonthLabel() }}</div>
+            <button
+              type="button"
+              class="calendar-nav"
+              (click)="nextCalendarMonth()"
+              [attr.aria-label]="t().rentalSteps?.nextMonth ?? 'Nächster Monat'"
+            >
+              ›
+            </button>
           </div>
-          <div class="date-input-group">
-            <label>{{ t().rentalSteps?.endDate ?? 'Enddatum' }}:</label>
-            <input
-              #endDateInput
-              type="date"
-              [(ngModel)]="selectedEndDate"
-              [min]="selectedStartDate"
-              (focus)="openNativeDatePicker(endDateInput)"
-              (click)="openNativeDatePicker(endDateInput)"
-            />
+
+          <p class="calendar-hint">
+            {{
+              t().rentalSteps?.calendarHint ??
+                'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage und Feiertage sind geschlossen.'
+            }}
+          </p>
+
+          <div class="calendar-weekdays">
+            <div
+              *ngFor="let weekday of weekdayLabels()"
+              class="calendar-weekday"
+            >
+              {{ weekday }}
+            </div>
+          </div>
+
+          <div class="calendar-grid">
+            <ng-container *ngFor="let week of calendarWeeks()">
+              <button
+                *ngFor="let day of week"
+                type="button"
+                class="calendar-day"
+                [class.is-empty]="!day"
+                [class.is-start]="day && isCalendarStart(day)"
+                [class.is-end]="day && isCalendarEnd(day)"
+                [class.in-range]="day && isCalendarInRange(day)"
+                [class.is-today]="day && isToday(day)"
+                [class.is-closed]="day && !isSelectableCalendarDay(day)"
+                [disabled]="!day || !isSelectableCalendarDay(day)"
+                (click)="day && selectCalendarDay(day)"
+              >
+                <span *ngIf="day">{{ day.getDate() }}</span>
+              </button>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="selected-range-summary">
+          <div>
+            <strong>{{ t().rentalSteps?.startDate ?? 'Startdatum' }}:</strong>
+            <span>{{
+              selectedStartDate ? formatDisplayDate(selectedStartDate) : '—'
+            }}</span>
+          </div>
+          <div>
+            <strong>{{ t().rentalSteps?.endDate ?? 'Enddatum' }}:</strong>
+            <span>{{
+              selectedEndDate ? formatDisplayDate(selectedEndDate) : '—'
+            }}</span>
           </div>
         </div>
         <button
@@ -112,8 +154,9 @@ type BookingStep =
       <div *ngIf="currentStep() === 'bike-selection'" class="step-container">
         <h2>{{ t().rentalSteps?.selectBike ?? 'Wählen Sie ein Fahrrad' }}</h2>
         <p class="date-range-display">
-          {{ selectedStartDate }} {{ t().rentalSteps?.to ?? 'bis' }}
-          {{ selectedEndDate }} ({{ daysCount() }}
+          {{ formatDisplayDate(selectedStartDate) }}
+          {{ t().rentalSteps?.to ?? 'bis' }}
+          {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount() }}
           {{ t().rentalSteps?.days ?? 'Tage' }})
         </p>
 
@@ -155,160 +198,316 @@ type BookingStep =
                   t().rentalSteps?.day ?? 'Tag'
                 }}
               </p>
+              {{ formatDisplayDate(selectedStartDate) }} -
+              {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount()
             </div>
+          </div>
+
+          <button (click)="goToStep('date-selection')" class="btn-secondary">
+            {{ t().rentalSteps?.back ?? 'Zurück' }}
+          </button>
+        </div>
+
+        <!-- Step 3: Bike Details -->
+        <div
+          *ngIf="currentStep() === 'bike-details' && selectedBike()"
+          class="step-container"
+        >
+          <h2>{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</h2>
+          <div class="bike-details">
+            <div class="bike-images">
+              <img
+                *ngIf="getMainImage(selectedBike()!)"
+                [src]="getImageUrl(getMainImage(selectedBike()!)?.filePath)"
+                [alt]="selectedBike()!.modell"
+                class="main-image"
+              />
+              <div
+                class="image-thumbnails"
+                *ngIf="getImages(selectedBike()!).length > 1"
+              >
+                <img
+                  *ngFor="let img of getImages(selectedBike()!)"
+                  [src]="getImageUrl(img.filePath)"
+                  (click)="
+                    currentImageIndex.set(
+                      getImages(selectedBike()!).indexOf(img)
+                    )
+                  "
+                  [class.active]="
+                    currentImageIndex() ===
+                    getImages(selectedBike()!).indexOf(img)
+                  "
+                  class="thumbnail"
+                />
+              </div>
+            </div>
+
+            <div class="bike-specs">
+              <div class="spec" *ngIf="selectedBike()!.fahrradtyp">
+                <strong>{{ t().rentalSteps?.type ?? 'Typ' }}:</strong>
+                {{ selectedBike()!.fahrradtyp }}
+              </div>
+              <div class="spec" *ngIf="selectedBike()!.rahmengroesse">
+                <strong
+                  >{{ t().rentalSteps?.frameSize ?? 'Rahmengröße' }}:</strong
+                >
+                {{ selectedBike()!.rahmengroesse }}
+              </div>
+              <div class="spec" *ngIf="selectedBike()!.reifengroesse">
+                <strong
+                  >{{ t().rentalSteps?.tireSize ?? 'Reifengröße' }}:</strong
+                >
+                {{ selectedBike()!.reifengroesse }}
+              </div>
+              <div class="spec" *ngIf="selectedBike()!.farbe">
+                <strong>{{ t().rentalSteps?.color ?? 'Farbe' }}:</strong>
+                {{ selectedBike()!.farbe }}
+              </div>
+              <div class="spec" *ngIf="selectedBike()!.beschreibung">
+                <strong
+                  >{{ t().rentalSteps?.description ?? 'Beschreibung' }}:</strong
+                >
+                {{ selectedBike()!.beschreibung }}
+              </div>
+
+              <div class="price-info">
+                <h3>{{ t().rentalSteps?.pricing ?? 'Preisberechnung' }}</h3>
+                <p>
+                  {{ formatDisplayDate(selectedStartDate) }} -
+                  {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount() }}
+                  {{ t().rentalSteps?.days ?? 'Tage' }})
+                </p>
+                <p class="total-price">
+                  <strong
+                    >{{ t().rentalSteps?.rentalPrice ?? 'Mietpreis' }}:</strong
+                  >
+                  €{{ calculatePrice(selectedBike()!, daysCount()) }}
+                </p>
+                <p class="deposit-info">
+                  <strong>{{ t().rentalSteps?.deposit ?? 'Kaution' }}:</strong>
+                  €{{ selectedBike()!.kaution || 300 }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="booking-actions">
+            <button (click)="addBikeToCart()" class="btn-primary">
+              {{ t().rentalSteps?.book ?? 'Buchen' }}
+            </button>
+            <button (click)="goToStep('bike-selection')" class="btn-secondary">
+              {{ t().rentalSteps?.selectDifferent ?? 'Anderes Fahrrad wählen' }}
+            </button>
           </div>
         </div>
 
-        <button (click)="goToStep('date-selection')" class="btn-secondary">
-          {{ t().rentalSteps?.back ?? 'Zurück' }}
-        </button>
-      </div>
+        <!-- Step 3b: Choose next action (continue to checkout OR add another bike) -->
+        <div
+          *ngIf="currentStep() === 'choose-next'"
+          class="step-container choose-next-container"
+        >
+          <h2>
+            {{
+              t().rentalSteps?.bikeAdded ?? 'Fahrrad zur Buchung hinzugefügt'
+            }}
+          </h2>
 
-      <!-- Step 3: Bike Details -->
-      <div
-        *ngIf="currentStep() === 'bike-details' && selectedBike()"
-        class="step-container"
-      >
-        <h2>{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</h2>
-        <div class="bike-details">
-          <div class="bike-images">
-            <img
-              *ngIf="getMainImage(selectedBike()!)"
-              [src]="getImageUrl(getMainImage(selectedBike()!)?.filePath)"
-              [alt]="selectedBike()!.modell"
-              class="main-image"
-            />
-            <div
-              class="image-thumbnails"
-              *ngIf="getImages(selectedBike()!).length > 1"
+          <div class="cart-summary">
+            <p class="cart-count">
+              <strong>{{ cartBikes().length }}</strong>
+              {{
+                cartBikes().length === 1
+                  ? (t().rentalSteps?.bikeInCart ?? 'Fahrrad in der Buchung')
+                  : (t().rentalSteps?.bikesInCart ?? 'Fahrräder in der Buchung')
+              }}
+            </p>
+            <ul class="cart-list">
+              <li *ngFor="let item of cartBikes()" class="cart-list-item">
+                <span>{{ item.bike.marke }} {{ item.bike.modell }}</span>
+                <span class="item-price">€{{ item.calculatedPrice }}</span>
+              </li>
+            </ul>
+            <p class="cart-total">
+              <strong
+                >{{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:</strong
+              >
+              €{{ getTotalPrice() }}
+            </p>
+          </div>
+
+          <div class="choose-next-actions">
+            <button (click)="goToStep('customer-info')" class="btn-primary">
+              {{
+                t().rentalSteps?.continueToBooking ?? 'Mit Buchung fortfahren'
+              }}
+            </button>
+            <button (click)="goToStep('bike-selection')" class="btn-secondary">
+              {{
+                t().rentalSteps?.addAnotherBike ??
+                  '+ Weiteres Fahrrad hinzufügen'
+              }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 4: Customer Information -->
+        <div *ngIf="currentStep() === 'customer-info'" class="step-container">
+          <h2>{{ t().rentalSteps?.yourInfo ?? 'Ihre Angaben' }}</h2>
+
+          <div class="cart-summary">
+            <h3>
+              {{ t().rentalSteps?.cartItems ?? 'Ausgewählte Fahrräder' }}:
+            </h3>
+            <div *ngFor="let item of cartBikes()" class="cart-item">
+              <div>
+                <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
+                <p>
+                  {{ formatDisplayDate(selectedStartDate) }} -
+                  {{ formatDisplayDate(selectedEndDate) }}
+                </p>
+                <p *ngIf="item.farbe">
+                  {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
+                </p>
+                <p *ngIf="item.rahmennummer">
+                  {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
+                  {{ item.rahmennummer }}
+                </p>
+              </div>
+              <div class="item-price">
+                <p>€{{ item.calculatedPrice }}</p>
+                <button (click)="removeFromCart(item)" class="btn-remove">
+                  ×
+                </button>
+              </div>
+            </div>
+            <button
+              (click)="goToStep('bike-selection')"
+              class="btn-secondary"
+              style="width: 100%;"
             >
-              <img
-                *ngFor="let img of getImages(selectedBike()!)"
-                [src]="getImageUrl(img.filePath)"
-                (click)="
-                  currentImageIndex.set(getImages(selectedBike()!).indexOf(img))
-                "
-                [class.active]="
-                  currentImageIndex() ===
-                  getImages(selectedBike()!).indexOf(img)
-                "
-                class="thumbnail"
+              {{
+                t().rentalSteps?.addAnotherBike ??
+                  '+ Weiteres Fahrrad hinzufügen'
+              }}
+            </button>
+          </div>
+
+          <form (ngSubmit)="submitBooking()" class="customer-form">
+            <div class="form-group">
+              <label>{{ t().rentalSteps?.firstName ?? 'Vorname' }} *:</label>
+              <input
+                type="text"
+                [(ngModel)]="bookingForm.vorname"
+                name="vorname"
+                required
               />
             </div>
-          </div>
-
-          <div class="bike-specs">
-            <div class="spec" *ngIf="selectedBike()!.fahrradtyp">
-              <strong>{{ t().rentalSteps?.type ?? 'Typ' }}:</strong>
-              {{ selectedBike()!.fahrradtyp }}
+            <div class="form-group">
+              <label>{{ t().rentalSteps?.lastName ?? 'Nachname' }} *:</label>
+              <input
+                type="text"
+                [(ngModel)]="bookingForm.nachname"
+                name="nachname"
+                required
+              />
             </div>
-            <div class="spec" *ngIf="selectedBike()!.rahmengroesse">
-              <strong
-                >{{ t().rentalSteps?.frameSize ?? 'Rahmengröße' }}:</strong
+            <div class="form-group">
+              <label>{{ t().rentalSteps?.email ?? 'E-Mail' }} *:</label>
+              <input
+                type="email"
+                [(ngModel)]="bookingForm.email"
+                name="email"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label>{{ t().rentalSteps?.phone ?? 'Telefon' }}:</label>
+              <input
+                type="tel"
+                [(ngModel)]="bookingForm.telefon"
+                name="telefon"
+              />
+            </div>
+            <div class="form-group">
+              <label>{{ t().rentalSteps?.street ?? 'Straße' }}:</label>
+              <input
+                type="text"
+                [(ngModel)]="bookingForm.strasse"
+                name="strasse"
+              />
+            </div>
+            <div class="form-group">
+              <label>{{ t().rentalSteps?.houseNumber ?? 'Hausnummer' }}:</label>
+              <input
+                type="text"
+                [(ngModel)]="bookingForm.hausNr"
+                name="hausNr"
+              />
+            </div>
+            <div class="form-group">
+              <label
+                >{{ t().rentalSteps?.postalCode ?? 'Postleitzahl' }}:</label
               >
-              {{ selectedBike()!.rahmengroesse }}
+              <input type="text" [(ngModel)]="bookingForm.plz" name="plz" />
             </div>
-            <div class="spec" *ngIf="selectedBike()!.reifengroesse">
-              <strong>{{ t().rentalSteps?.tireSize ?? 'Reifengröße' }}:</strong>
-              {{ selectedBike()!.reifengroesse }}
+            <div class="form-group">
+              <label>{{ t().rentalSteps?.city ?? 'Stadt' }}:</label>
+              <input type="text" [(ngModel)]="bookingForm.ort" name="ort" />
             </div>
-            <div class="spec" *ngIf="selectedBike()!.farbe">
-              <strong>{{ t().rentalSteps?.color ?? 'Farbe' }}:</strong>
-              {{ selectedBike()!.farbe }}
-            </div>
-            <div class="spec" *ngIf="selectedBike()!.beschreibung">
-              <strong
-                >{{ t().rentalSteps?.description ?? 'Beschreibung' }}:</strong
-              >
-              {{ selectedBike()!.beschreibung }}
+            <div class="form-group">
+              <label>{{ t().rentalSteps?.notes ?? 'Notizen' }}:</label>
+              <textarea
+                [(ngModel)]="bookingForm.notizen"
+                name="notizen"
+              ></textarea>
             </div>
 
-            <div class="price-info">
-              <h3>{{ t().rentalSteps?.pricing ?? 'Preisberechnung' }}</h3>
-              <p>
-                {{ selectedStartDate }} - {{ selectedEndDate }} ({{
-                  daysCount()
+            <div *ngIf="bookingError()" class="error-message">
+              {{ bookingError() }}
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                (click)="goToStep('bike-selection')"
+                class="btn-secondary"
+              >
+                {{ t().rentalSteps?.back ?? 'Zurück' }}
+              </button>
+              <button
+                type="submit"
+                class="btn-primary"
+                [disabled]="isSubmitting()"
+              >
+                {{
+                  isSubmitting()
+                    ? (t().rentalSteps?.submitting ?? 'Wird gesendet...')
+                    : (t().rentalSteps?.continue ?? 'Weiter')
                 }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 5: Review & Confirm -->
+        <div
+          *ngIf="currentStep() === 'review'"
+          class="step-container review-section"
+        >
+          <h2>{{ t().rentalSteps?.confirmBooking ?? 'Buchung bestätigen' }}</h2>
+
+          <div class="review-section">
+            <h3>{{ t().rentalSteps?.bikeDetails ?? 'Fahrraddetails' }}:</h3>
+            <div *ngFor="let item of cartBikes()" class="review-item">
+              <p>
+                <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
+              </p>
+              <p>
+                {{ formatDisplayDate(selectedStartDate) }} -
+                {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount() }}
                 {{ t().rentalSteps?.days ?? 'Tage' }})
               </p>
-              <p class="total-price">
-                <strong
-                  >{{ t().rentalSteps?.rentalPrice ?? 'Mietpreis' }}:</strong
-                >
-                €{{ calculatePrice(selectedBike()!, daysCount()) }}
-              </p>
-              <p class="deposit-info">
-                <strong>{{ t().rentalSteps?.deposit ?? 'Kaution' }}:</strong>
-                €{{ selectedBike()!.kaution || 300 }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="booking-actions">
-          <button (click)="addBikeToCart()" class="btn-primary">
-            {{ t().rentalSteps?.book ?? 'Buchen' }}
-          </button>
-          <button (click)="goToStep('bike-selection')" class="btn-secondary">
-            {{ t().rentalSteps?.selectDifferent ?? 'Anderes Fahrrad wählen' }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Step 3b: Choose next action (continue to checkout OR add another bike) -->
-      <div
-        *ngIf="currentStep() === 'choose-next'"
-        class="step-container choose-next-container"
-      >
-        <h2>
-          {{ t().rentalSteps?.bikeAdded ?? 'Fahrrad zur Buchung hinzugefügt' }}
-        </h2>
-
-        <div class="cart-summary">
-          <p class="cart-count">
-            <strong>{{ cartBikes().length }}</strong>
-            {{
-              cartBikes().length === 1
-                ? (t().rentalSteps?.bikeInCart ?? 'Fahrrad in der Buchung')
-                : (t().rentalSteps?.bikesInCart ?? 'Fahrräder in der Buchung')
-            }}
-          </p>
-          <ul class="cart-list">
-            <li *ngFor="let item of cartBikes()" class="cart-list-item">
-              <span>{{ item.bike.marke }} {{ item.bike.modell }}</span>
-              <span class="item-price">€{{ item.calculatedPrice }}</span>
-            </li>
-          </ul>
-          <p class="cart-total">
-            <strong
-              >{{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:</strong
-            >
-            €{{ getTotalPrice() }}
-          </p>
-        </div>
-
-        <div class="choose-next-actions">
-          <button (click)="goToStep('customer-info')" class="btn-primary">
-            {{ t().rentalSteps?.continueToBooking ?? 'Mit Buchung fortfahren' }}
-          </button>
-          <button (click)="goToStep('bike-selection')" class="btn-secondary">
-            {{
-              t().rentalSteps?.addAnotherBike ?? '+ Weiteres Fahrrad hinzufügen'
-            }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Step 4: Customer Information -->
-      <div *ngIf="currentStep() === 'customer-info'" class="step-container">
-        <h2>{{ t().rentalSteps?.yourInfo ?? 'Ihre Angaben' }}</h2>
-
-        <div class="cart-summary">
-          <h3>{{ t().rentalSteps?.cartItems ?? 'Ausgewählte Fahrräder' }}:</h3>
-          <div *ngFor="let item of cartBikes()" class="cart-item">
-            <div>
-              <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
-              <p>{{ selectedStartDate }} - {{ selectedEndDate }}</p>
               <p *ngIf="item.farbe">
                 {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
               </p>
@@ -316,224 +515,95 @@ type BookingStep =
                 {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
                 {{ item.rahmennummer }}
               </p>
+              <p class="price">
+                {{ t().rentalSteps?.priceLabel ?? 'Preis' }}: €{{
+                  item.calculatedPrice
+                }}
+              </p>
             </div>
-            <div class="item-price">
-              <p>€{{ item.calculatedPrice }}</p>
-              <button (click)="removeFromCart(item)" class="btn-remove">
-                ×
-              </button>
-            </div>
-          </div>
-          <button
-            (click)="goToStep('bike-selection')"
-            class="btn-secondary"
-            style="width: 100%;"
-          >
-            {{
-              t().rentalSteps?.addAnotherBike ?? '+ Weiteres Fahrrad hinzufügen'
-            }}
-          </button>
-        </div>
-
-        <form (ngSubmit)="submitBooking()" class="customer-form">
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.firstName ?? 'Vorname' }} *:</label>
-            <input
-              type="text"
-              [(ngModel)]="bookingForm.vorname"
-              name="vorname"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.lastName ?? 'Nachname' }} *:</label>
-            <input
-              type="text"
-              [(ngModel)]="bookingForm.nachname"
-              name="nachname"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.email ?? 'E-Mail' }} *:</label>
-            <input
-              type="email"
-              [(ngModel)]="bookingForm.email"
-              name="email"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.phone ?? 'Telefon' }}:</label>
-            <input
-              type="tel"
-              [(ngModel)]="bookingForm.telefon"
-              name="telefon"
-            />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.street ?? 'Straße' }}:</label>
-            <input
-              type="text"
-              [(ngModel)]="bookingForm.strasse"
-              name="strasse"
-            />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.houseNumber ?? 'Hausnummer' }}:</label>
-            <input type="text" [(ngModel)]="bookingForm.hausNr" name="hausNr" />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.postalCode ?? 'Postleitzahl' }}:</label>
-            <input type="text" [(ngModel)]="bookingForm.plz" name="plz" />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.city ?? 'Stadt' }}:</label>
-            <input type="text" [(ngModel)]="bookingForm.ort" name="ort" />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.notes ?? 'Notizen' }}:</label>
-            <textarea
-              [(ngModel)]="bookingForm.notizen"
-              name="notizen"
-            ></textarea>
           </div>
 
-          <div *ngIf="bookingError()" class="error-message">
-            {{ bookingError() }}
+          <div class="review-section">
+            <h3>
+              {{ t().rentalSteps?.contactInfo ?? 'Kontaktinformationen' }}:
+            </h3>
+            <p>{{ bookingForm.vorname }} {{ bookingForm.nachname }}</p>
+            <p>{{ bookingForm.email }}</p>
+            <p *ngIf="bookingForm.telefon">{{ bookingForm.telefon }}</p>
+            <p *ngIf="bookingForm.strasse">
+              {{ bookingForm.strasse }} {{ bookingForm.hausNr }}
+            </p>
+            <p *ngIf="bookingForm.plz">
+              {{ bookingForm.plz }} {{ bookingForm.ort }}
+            </p>
           </div>
 
-          <div class="form-actions">
-            <button
-              type="button"
-              (click)="goToStep('bike-selection')"
-              class="btn-secondary"
-            >
+          <div class="price-summary">
+            <h3>{{ t().rentalSteps?.priceSummary ?? 'Preisübersicht' }}:</h3>
+            <p>
+              {{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:
+              <strong>€{{ getTotalPrice() }}</strong>
+            </p>
+            <p>
+              {{ t().rentalSteps?.totalDeposit ?? 'Gesamtkaution' }}:
+              <strong>€{{ getTotalDeposit() }}</strong>
+            </p>
+            <p class="info-note">
+              {{
+                t().rentalSteps?.depositNote ??
+                  'Die Kaution wird bei Rückgabe des Fahrrads erstattet.'
+              }}
+            </p>
+          </div>
+
+          <div class="confirm-actions">
+            <button (click)="goToStep('customer-info')" class="btn-secondary">
               {{ t().rentalSteps?.back ?? 'Zurück' }}
             </button>
             <button
-              type="submit"
+              (click)="confirmAndSubmit()"
               class="btn-primary"
               [disabled]="isSubmitting()"
             >
               {{
                 isSubmitting()
                   ? (t().rentalSteps?.submitting ?? 'Wird gesendet...')
-                  : (t().rentalSteps?.continue ?? 'Weiter')
+                  : (t().rentalSteps?.confirm ?? 'Buchung bestätigen')
               }}
             </button>
           </div>
-        </form>
-      </div>
 
-      <!-- Step 5: Review & Confirm -->
-      <div
-        *ngIf="currentStep() === 'review'"
-        class="step-container review-section"
-      >
-        <h2>{{ t().rentalSteps?.confirmBooking ?? 'Buchung bestätigen' }}</h2>
-
-        <div class="review-section">
-          <h3>{{ t().rentalSteps?.bikeDetails ?? 'Fahrraddetails' }}:</h3>
-          <div *ngFor="let item of cartBikes()" class="review-item">
-            <p>
-              <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
-            </p>
-            <p>
-              {{ selectedStartDate }} - {{ selectedEndDate }} ({{ daysCount() }}
-              {{ t().rentalSteps?.days ?? 'Tage' }})
-            </p>
-            <p *ngIf="item.farbe">
-              {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
-            </p>
-            <p *ngIf="item.rahmennummer">
-              {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
-              {{ item.rahmennummer }}
-            </p>
-            <p class="price">
-              {{ t().rentalSteps?.priceLabel ?? 'Preis' }}: €{{
-                item.calculatedPrice
-              }}
-            </p>
+          <div *ngIf="bookingError()" class="error-message">
+            {{ bookingError() }}
           </div>
         </div>
 
-        <div class="review-section">
-          <h3>{{ t().rentalSteps?.contactInfo ?? 'Kontaktinformationen' }}:</h3>
-          <p>{{ bookingForm.vorname }} {{ bookingForm.nachname }}</p>
-          <p>{{ bookingForm.email }}</p>
-          <p *ngIf="bookingForm.telefon">{{ bookingForm.telefon }}</p>
-          <p *ngIf="bookingForm.strasse">
-            {{ bookingForm.strasse }} {{ bookingForm.hausNr }}
-          </p>
-          <p *ngIf="bookingForm.plz">
-            {{ bookingForm.plz }} {{ bookingForm.ort }}
-          </p>
-        </div>
-
-        <div class="price-summary">
-          <h3>{{ t().rentalSteps?.priceSummary ?? 'Preisübersicht' }}:</h3>
+        <!-- Success -->
+        <div
+          *ngIf="currentStep() === 'success'"
+          class="step-container success-section"
+        >
+          <h2>
+            {{ t().rentalSteps?.bookingSuccess ?? 'Buchung erfolgreich!' }}
+          </h2>
           <p>
-            {{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:
-            <strong>€{{ getTotalPrice() }}</strong>
-          </p>
-          <p>
-            {{ t().rentalSteps?.totalDeposit ?? 'Gesamtkaution' }}:
-            <strong>€{{ getTotalDeposit() }}</strong>
-          </p>
-          <p class="info-note">
             {{
-              t().rentalSteps?.depositNote ??
-                'Die Kaution wird bei Rückgabe des Fahrrads erstattet.'
+              t().rentalSteps?.confirmationSent ??
+                'Eine Bestätigungsmail wurde an'
             }}
+            <strong>{{ bookingForm.email }}</strong>
+            {{ t().rentalSteps?.sent ?? 'gesendet' }}
           </p>
-        </div>
-
-        <div class="confirm-actions">
-          <button (click)="goToStep('customer-info')" class="btn-secondary">
-            {{ t().rentalSteps?.back ?? 'Zurück' }}
-          </button>
-          <button
-            (click)="confirmAndSubmit()"
-            class="btn-primary"
-            [disabled]="isSubmitting()"
-          >
-            {{
-              isSubmitting()
-                ? (t().rentalSteps?.submitting ?? 'Wird gesendet...')
-                : (t().rentalSteps?.confirm ?? 'Buchung bestätigen')
-            }}
+          <p *ngIf="bookingNumber()">
+            <strong
+              >{{ t().rentalSteps?.bookingNumber ?? 'Buchungsnummer' }}:</strong
+            >
+            {{ bookingNumber() }}
+          </p>
+          <button (click)="startNewBooking()" class="btn-primary">
+            {{ t().rentalSteps?.newBooking ?? 'Neue Buchung' }}
           </button>
         </div>
-
-        <div *ngIf="bookingError()" class="error-message">
-          {{ bookingError() }}
-        </div>
-      </div>
-
-      <!-- Success -->
-      <div
-        *ngIf="currentStep() === 'success'"
-        class="step-container success-section"
-      >
-        <h2>{{ t().rentalSteps?.bookingSuccess ?? 'Buchung erfolgreich!' }}</h2>
-        <p>
-          {{
-            t().rentalSteps?.confirmationSent ??
-              'Eine Bestätigungsmail wurde an'
-          }}
-          <strong>{{ bookingForm.email }}</strong>
-          {{ t().rentalSteps?.sent ?? 'gesendet' }}
-        </p>
-        <p *ngIf="bookingNumber()">
-          <strong
-            >{{ t().rentalSteps?.bookingNumber ?? 'Buchungsnummer' }}:</strong
-          >
-          {{ bookingNumber() }}
-        </p>
-        <button (click)="startNewBooking()" class="btn-primary">
-          {{ t().rentalSteps?.newBooking ?? 'Neue Buchung' }}
-        </button>
       </div>
     </div>
   `,
@@ -1093,8 +1163,6 @@ type BookingStep =
 export class RentalBookingStepsComponent implements OnInit {
   private apiService = inject(ApiService);
   private translationService = inject(TranslationService);
-  private platformId = inject(PLATFORM_ID);
-  private isBrowser = isPlatformBrowser(this.platformId);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -1102,10 +1170,17 @@ export class RentalBookingStepsComponent implements OnInit {
   currentStep = signal<BookingStep>('date-selection');
   selectedStartDate = '';
   selectedEndDate = '';
+  calendarMonth = signal(this.getInitialCalendarMonth());
   selectedBike = signal<PublicRentalBicycle | null>(null);
   selectedBikeColor = '';
   selectedBikeFrameNumber = '';
   currentImageIndex = signal(0);
+
+  weekdayLabels = computed(() => this.getWeekdayLabels());
+  calendarMonthLabel = computed(() =>
+    this.formatCalendarMonth(this.calendarMonth()),
+  );
+  calendarWeeks = computed(() => this.buildCalendarWeeks(this.calendarMonth()));
 
   availableBikes = signal<PublicRentalBicycle[]>([]);
   loadingAvailableBikes = signal(false);
@@ -1129,18 +1204,218 @@ export class RentalBookingStepsComponent implements OnInit {
     notizen: '',
   };
 
-  minDate = computed(() => {
-    const today = new Date();
-    today.setDate(today.getDate() + 1);
-    return today.toISOString().split('T')[0];
-  });
-
   daysCount = computed(() => {
     if (!this.selectedStartDate || !this.selectedEndDate) return 0;
-    const start = new Date(this.selectedStartDate);
-    const end = new Date(this.selectedEndDate);
+    const start = new Date(`${this.selectedStartDate}T00:00:00`);
+    const end = new Date(`${this.selectedEndDate}T00:00:00`);
     return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
   });
+
+  private getLocaleForCurrentLanguage(): string {
+    switch (this.lang()) {
+      case 'en':
+        return 'en-GB';
+      case 'fr':
+        return 'fr-FR';
+      case 'tr':
+        return 'tr-TR';
+      case 'es':
+        return 'es-ES';
+      case 'it':
+        return 'it-IT';
+      case 'ar':
+        return 'ar-SA';
+      case 'ru':
+        return 'ru-RU';
+      default:
+        return 'de-DE';
+    }
+  }
+
+  private getInitialCalendarMonth(): Date {
+    const minDate = this.getMinSelectableDate();
+    return new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+  }
+
+  private getMinSelectableDate(): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    today.setDate(today.getDate() + 1);
+    return today;
+  }
+
+  private normalizeDate(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  private formatDateKey(date: Date): string {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  formatDisplayDate(value: string): string {
+    if (!value) return '—';
+    const date = new Date(`${value}T00:00:00`);
+    return new Intl.DateTimeFormat(this.getLocaleForCurrentLanguage(), {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(date);
+  }
+
+  formatCalendarMonth(date: Date): string {
+    return new Intl.DateTimeFormat(this.getLocaleForCurrentLanguage(), {
+      month: 'long',
+      year: 'numeric',
+    }).format(date);
+  }
+
+  getWeekdayLabels(): string[] {
+    const locale = this.getLocaleForCurrentLanguage();
+    const monday = new Date(2024, 0, 1);
+    return Array.from({ length: 7 }, (_, index) =>
+      new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(
+        new Date(
+          monday.getFullYear(),
+          monday.getMonth(),
+          monday.getDate() + index,
+        ),
+      ),
+    );
+  }
+
+  buildCalendarWeeks(month: Date): Array<Array<Date | null>> {
+    const year = month.getFullYear();
+    const currentMonth = month.getMonth();
+    const firstDay = new Date(year, currentMonth, 1);
+    const offset = (firstDay.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, currentMonth + 1, 0).getDate();
+    const cells: Array<Date | null> = [];
+
+    for (let i = 0; i < offset; i++) cells.push(null);
+    for (let day = 1; day <= daysInMonth; day++) {
+      cells.push(new Date(year, currentMonth, day));
+    }
+    while (cells.length % 7 !== 0) cells.push(null);
+
+    const weeks: Array<Array<Date | null>> = [];
+    for (let index = 0; index < cells.length; index += 7) {
+      weeks.push(cells.slice(index, index + 7));
+    }
+    return weeks;
+  }
+
+  prevCalendarMonth(): void {
+    const month = this.calendarMonth();
+    this.calendarMonth.set(
+      new Date(month.getFullYear(), month.getMonth() - 1, 1),
+    );
+  }
+
+  nextCalendarMonth(): void {
+    const month = this.calendarMonth();
+    this.calendarMonth.set(
+      new Date(month.getFullYear(), month.getMonth() + 1, 1),
+    );
+  }
+
+  isCalendarStart(date: Date): boolean {
+    return this.selectedStartDate === this.formatDateKey(date);
+  }
+
+  isCalendarEnd(date: Date): boolean {
+    return this.selectedEndDate === this.formatDateKey(date);
+  }
+
+  isCalendarInRange(date: Date): boolean {
+    if (!this.selectedStartDate || !this.selectedEndDate) return false;
+    const key = this.formatDateKey(date);
+    return key > this.selectedStartDate && key < this.selectedEndDate;
+  }
+
+  isToday(date: Date): boolean {
+    const today = new Date();
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    );
+  }
+
+  isSelectableCalendarDay(date: Date): boolean {
+    const normalized = this.normalizeDate(date);
+    return (
+      normalized >= this.getMinSelectableDate() && !this.isClosedDay(normalized)
+    );
+  }
+
+  selectCalendarDay(date: Date): void {
+    if (!this.isSelectableCalendarDay(date)) return;
+
+    const selectedDate = this.formatDateKey(date);
+    if (
+      !this.selectedStartDate ||
+      (this.selectedStartDate && this.selectedEndDate) ||
+      selectedDate <= this.selectedStartDate
+    ) {
+      this.selectedStartDate = selectedDate;
+      this.selectedEndDate = '';
+      this.calendarMonth.set(new Date(date.getFullYear(), date.getMonth(), 1));
+      return;
+    }
+
+    this.selectedEndDate = selectedDate;
+  }
+
+  private bwHolidayCache = new Map<number, Set<string>>();
+
+  private easterDate(year: number): Date {
+    const a = year % 19;
+    const b = Math.floor(year / 100);
+    const c = year % 100;
+    const d = Math.floor(b / 4);
+    const e = b % 4;
+    const f = Math.floor((b + 8) / 25);
+    const g = Math.floor((b - f + 1) / 3);
+    const h = (19 * a + b - d - g + 15) % 30;
+    const i = Math.floor(c / 4);
+    const k = c % 4;
+    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+    const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+    const day = ((h + l - 7 * m + 114) % 31) + 1;
+    return new Date(year, month, day);
+  }
+
+  private getBWHolidays(year: number): Set<string> {
+    if (this.bwHolidayCache.has(year)) return this.bwHolidayCache.get(year)!;
+    const fmt = (d: Date) => this.formatDateKey(d);
+    const add = (d: Date, days: number) =>
+      new Date(d.getFullYear(), d.getMonth(), d.getDate() + days);
+    const easter = this.easterDate(year);
+    const holidays = new Set<string>([
+      fmt(new Date(year, 0, 1)),
+      fmt(new Date(year, 0, 6)),
+      fmt(new Date(year, 4, 1)),
+      fmt(new Date(year, 9, 3)),
+      fmt(new Date(year, 10, 1)),
+      fmt(new Date(year, 11, 25)),
+      fmt(new Date(year, 11, 26)),
+      fmt(add(easter, -2)),
+      fmt(easter),
+      fmt(add(easter, 1)),
+      fmt(add(easter, 39)),
+      fmt(add(easter, 49)),
+      fmt(add(easter, 50)),
+      fmt(add(easter, 60)),
+    ]);
+    this.bwHolidayCache.set(year, holidays);
+    return holidays;
+  }
+
+  isClosedDay(date: Date): boolean {
+    if (date.getDay() === 0) return true;
+    return this.getBWHolidays(date.getFullYear()).has(this.formatDateKey(date));
+  }
 
   ngOnInit(): void {
     // Initialize
@@ -1327,23 +1602,6 @@ export class RentalBookingStepsComponent implements OnInit {
       notizen: '',
     };
     this.goToStep('date-selection');
-  }
-
-  openNativeDatePicker(input: HTMLInputElement): void {
-    if (!this.isBrowser) return;
-    const pickerInput = input as HTMLInputElement & {
-      showPicker?: () => void;
-    };
-    pickerInput.showPicker?.();
-  }
-
-  onStartDateChanged(endInput: HTMLInputElement): void {
-    if (this.selectedEndDate && this.selectedEndDate < this.selectedStartDate) {
-      this.selectedEndDate = '';
-    }
-    if (this.selectedStartDate) {
-      this.openNativeDatePicker(endInput);
-    }
   }
 
   goToStep(step: BookingStep): void {

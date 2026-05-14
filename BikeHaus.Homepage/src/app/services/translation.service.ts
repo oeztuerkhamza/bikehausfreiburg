@@ -33,6 +33,9 @@ interface RentalStepsTranslations {
   from: string;
   day: string;
   to: string;
+  calendarHint: string;
+  previousMonth: string;
+  nextMonth: string;
   back: string;
   type: string;
   frameSize: string;
@@ -3157,6 +3160,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'ab',
     day: 'Tag',
     to: 'bis',
+    calendarHint:
+      'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage und Feiertage sind geschlossen.',
+    previousMonth: 'Vorheriger Monat',
+    nextMonth: 'Nächster Monat',
     back: 'Zurück',
     type: 'Typ',
     frameSize: 'Rahmengröße',
@@ -3229,6 +3236,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'from',
     day: 'day',
     to: 'to',
+    calendarHint:
+      'Select the start date first and then the end date. Sundays and public holidays are closed.',
+    previousMonth: 'Previous month',
+    nextMonth: 'Next month',
     back: 'Back',
     type: 'Type',
     frameSize: 'Frame size',
@@ -3301,6 +3312,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'à partir de',
     day: 'jour',
     to: 'au',
+    calendarHint:
+      'Sélectionnez d’abord la date de début puis la date de fin. Les dimanches et jours fériés sont fermés.',
+    previousMonth: 'Mois précédent',
+    nextMonth: 'Mois suivant',
     back: 'Retour',
     type: 'Type',
     frameSize: 'Taille du cadre',
@@ -3373,6 +3388,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'itibaren',
     day: 'gün',
     to: 'ile',
+    calendarHint:
+      'Önce başlangıç tarihini, sonra bitiş tarihini seçin. Pazar ve resmi tatiller kapalıdır.',
+    previousMonth: 'Önceki ay',
+    nextMonth: 'Sonraki ay',
     back: 'Geri',
     type: 'Tip',
     frameSize: 'Kadro boyu',
@@ -3445,6 +3464,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'desde',
     day: 'día',
     to: 'hasta',
+    calendarHint:
+      'Selecciona primero la fecha de inicio y luego la de fin. Los domingos y festivos están cerrados.',
+    previousMonth: 'Mes anterior',
+    nextMonth: 'Mes siguiente',
     back: 'Atrás',
     type: 'Tipo',
     frameSize: 'Tamaño del cuadro',
@@ -3517,6 +3540,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'da',
     day: 'giorno',
     to: 'a',
+    calendarHint:
+      'Seleziona prima la data di inizio e poi la data di fine. Le domeniche e i giorni festivi sono chiusi.',
+    previousMonth: 'Mese precedente',
+    nextMonth: 'Mese successivo',
     back: 'Indietro',
     type: 'Tipo',
     frameSize: 'Misura telaio',
@@ -3590,6 +3617,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'من',
     day: 'يوم',
     to: 'إلى',
+    calendarHint:
+      'اختر تاريخ البدء أولاً ثم تاريخ الانتهاء. أيام الأحد والعطل الرسمية مغلقة.',
+    previousMonth: 'الشهر السابق',
+    nextMonth: 'الشهر التالي',
     back: 'رجوع',
     type: 'النوع',
     frameSize: 'مقاس الهيكل',
@@ -3662,6 +3693,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'от',
     day: 'день',
     to: 'до',
+    calendarHint:
+      'Сначала выберите дату начала, затем дату окончания. Воскресенья и официальные праздники закрыты.',
+    previousMonth: 'Предыдущий месяц',
+    nextMonth: 'Следующий месяц',
     back: 'Назад',
     type: 'Тип',
     frameSize: 'Размер рамы',
