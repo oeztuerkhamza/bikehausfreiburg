@@ -55,34 +55,7 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
           >
             {{ t.rentalBookingCancel }}
           </button>
-          <button
-            class="btn btn-pdf"
-            (click)="downloadRechnungPdf()"
-            *ngIf="booking.bikes && booking.bikes.length > 0"
-            title="Mietrechnung PDF herunterladen"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:5px">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-            Rechnung PDF
-          </button>
-          <button
-            class="btn btn-pdf-kaution"
-            (click)="downloadKautionPdf()"
-            *ngIf="booking.bikes && booking.bikes.length > 0"
-            title="Kautionsquittung PDF herunterladen"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:5px">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-            </svg>
-            Kaution PDF
-          </button>
+
           <a routerLink="/rental-bookings" class="btn btn-outline">
             {{ t.back }}
           </a>
@@ -118,9 +91,20 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
           </div>
         </div>
 
-        <div class="info-card" *ngIf="booking.bikes && booking.bikes.length > 0">
-          <h3>{{ t.bicycle }} <span *ngIf="booking.bikes.length > 1" class="bike-count-badge">{{ booking.bikes.length }}</span></h3>
-          <div *ngFor="let bike of booking.bikes; let i = index" [class.bike-item]="booking.bikes.length > 1">
+        <div
+          class="info-card"
+          *ngIf="booking.bikes && booking.bikes.length > 0"
+        >
+          <h3>
+            {{ t.bicycle }}
+            <span *ngIf="booking.bikes.length > 1" class="bike-count-badge">{{
+              booking.bikes.length
+            }}</span>
+          </h3>
+          <div
+            *ngFor="let bike of booking.bikes; let i = index"
+            [class.bike-item]="booking.bikes.length > 1"
+          >
             <div class="bike-item-header" *ngIf="booking.bikes.length > 1">
               <strong>{{ i + 1 }}. Fahrrad</strong>
             </div>
@@ -136,18 +120,26 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
               <span>{{ t.to }}:</span>
               <strong>{{ bike.endDatum | date: 'dd.MM.yyyy' }}</strong>
             </div>
-            <div class="info-row" *ngIf="bike.gesamtpreis && booking.bikes.length > 1">
+            <div
+              class="info-row"
+              *ngIf="bike.gesamtpreis && booking.bikes.length > 1"
+            >
               <span>{{ t.total }}:</span>
               <strong>{{ bike.gesamtpreis | number: '1.2-2' }} €</strong>
             </div>
           </div>
         </div>
 
-        <div class="info-card" *ngIf="!booking.bikes || booking.bikes.length === 0">
+        <div
+          class="info-card"
+          *ngIf="!booking.bikes || booking.bikes.length === 0"
+        >
           <h3>{{ t.bicycle }}</h3>
           <div class="info-row" *ngIf="booking.bicycle">
             <span>{{ t.brandModel }}:</span>
-            <strong>{{ booking.bicycle.marke }} {{ booking.bicycle.modell }}</strong>
+            <strong
+              >{{ booking.bicycle.marke }} {{ booking.bicycle.modell }}</strong
+            >
           </div>
         </div>
 
