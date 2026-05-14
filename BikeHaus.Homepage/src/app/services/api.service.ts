@@ -145,6 +145,17 @@ export class ApiService {
     );
   }
 
+  getAvailableBikes(
+    startDate: Date,
+    endDate: Date,
+  ): Observable<PublicRentalBicycle[]> {
+    const start = this.formatDateForAPI(startDate);
+    const end = this.formatDateForAPI(endDate);
+    return this.http.get<PublicRentalBicycle[]>(
+      `${this.baseUrl}/rentals/bikes/available?startDate=${start}&endDate=${end}`,
+    );
+  }
+
   getRentalAccessories(): Observable<RentalAccessoryPublic[]> {
     return this.http.get<RentalAccessoryPublic[]>(
       `${this.baseUrl}/rentals/accessories`,
@@ -193,10 +204,18 @@ export class ApiService {
 
   // ── Checkout / Payment ──
 
-  createCheckoutSession(dto: CheckoutRequest): Observable<CheckoutSessionResponse> {
+  createCheckoutSession(
+    dto: CheckoutRequest,
+  ): Observable<CheckoutSessionResponse> {
     return this.http.post<CheckoutSessionResponse>(
       `${this.baseUrl}/checkout/create-session`,
       dto,
     );
+  }
+
+  // ── Helper Methods ──
+
+  private formatDateForAPI(date: Date): string {
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD format
   }
 }

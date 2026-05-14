@@ -55,6 +55,33 @@ public class PublicRentalsController : ControllerBase
         return Ok(periods);
     }
 
+    [HttpGet("bikes/available")]
+    public async Task<ActionResult<IEnumerable<PublicRentalBicycleDto>>> GetAvailableBikes([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    {
+        // Validate date range
+        if (startDate >= endDate)
+            return BadRequest(new { error = "Start date must be before end date." });
+
+        var allBikes = await _bicycleService.GetRentableBicyclesAsync();
+        var availableBikes = new List<PublicRentalBicycleDto>();
+
+        foreach (var bike in allBikes)
+        {
+            var busyPeriods = await _bicycleService.GetBusyPeriodsAsync(bike.Id);
+
+            // Check if bike is available for the entire date range
+            bool isAvailable = !busyPeriods.Any(p =>
+                p.Start < endDate && p.End > startDate);
+
+            if (isAvailable)
+            {
+                availableBikes.Add(bike);
+            }
+        }
+
+        return Ok(availableBikes);
+    }
+
     [HttpGet("accessories")]
     public async Task<ActionResult<IEnumerable<RentalAccessoryListDto>>> GetAccessories()
     {
