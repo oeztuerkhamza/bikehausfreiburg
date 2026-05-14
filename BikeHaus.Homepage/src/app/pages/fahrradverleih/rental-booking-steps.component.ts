@@ -75,17 +75,24 @@ type BookingStep =
           <div class="date-input-group">
             <label>{{ t().rentalSteps?.startDate ?? 'Startdatum' }}:</label>
             <input
+              #startDateInput
               type="date"
               [(ngModel)]="selectedStartDate"
               [min]="minDate()"
+              (focus)="openNativeDatePicker(startDateInput)"
+              (click)="openNativeDatePicker(startDateInput)"
+              (change)="onStartDateChanged(endDateInput)"
             />
           </div>
           <div class="date-input-group">
             <label>{{ t().rentalSteps?.endDate ?? 'Enddatum' }}:</label>
             <input
+              #endDateInput
               type="date"
               [(ngModel)]="selectedEndDate"
               [min]="selectedStartDate"
+              (focus)="openNativeDatePicker(endDateInput)"
+              (click)="openNativeDatePicker(endDateInput)"
             />
           </div>
         </div>
@@ -105,7 +112,8 @@ type BookingStep =
       <div *ngIf="currentStep() === 'bike-selection'" class="step-container">
         <h2>{{ t().rentalSteps?.selectBike ?? 'Wählen Sie ein Fahrrad' }}</h2>
         <p class="date-range-display">
-          {{ selectedStartDate }} bis {{ selectedEndDate }} ({{ daysCount() }}
+          {{ selectedStartDate }} {{ t().rentalSteps?.to ?? 'bis' }}
+          {{ selectedEndDate }} ({{ daysCount() }}
           {{ t().rentalSteps?.days ?? 'Tage' }})
         </p>
 
@@ -234,25 +242,6 @@ type BookingStep =
                 €{{ selectedBike()!.kaution || 300 }}
               </p>
             </div>
-
-            <div class="color-selection" *ngIf="selectedBike()!.farbe">
-              <label
-                >{{
-                  t().rentalSteps?.selectColor ??
-                    'Farbe wählen (falls verfügbar)'
-                }}:</label
-              >
-              <input type="text" [(ngModel)]="selectedBikeColor" />
-            </div>
-
-            <div class="frame-number-input">
-              <label
-                >{{ t().rentalSteps?.frameNumber ?? 'Rahmennummer' }} ({{
-                  t().rentalSteps?.optional ?? 'optional'
-                }}):</label
-              >
-              <input type="text" [(ngModel)]="selectedBikeFrameNumber" />
-            </div>
           </div>
         </div>
 
@@ -320,9 +309,12 @@ type BookingStep =
             <div>
               <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
               <p>{{ selectedStartDate }} - {{ selectedEndDate }}</p>
-              <p *ngIf="item.farbe">Farbe: {{ item.farbe }}</p>
+              <p *ngIf="item.farbe">
+                {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
+              </p>
               <p *ngIf="item.rahmennummer">
-                Rahmennummer: {{ item.rahmennummer }}
+                {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
+                {{ item.rahmennummer }}
               </p>
             </div>
             <div class="item-price">
@@ -411,20 +403,26 @@ type BookingStep =
             {{ bookingError() }}
           </div>
 
-          <button
-            type="button"
-            (click)="goToStep('bike-selection')"
-            class="btn-secondary"
-          >
-            {{ t().rentalSteps?.back ?? 'Zurück' }}
-          </button>
-          <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
-            {{
-              isSubmitting()
-                ? (t().rentalSteps?.submitting ?? 'Wird gesendet...')
-                : (t().rentalSteps?.continue ?? 'Weiter')
-            }}
-          </button>
+          <div class="form-actions">
+            <button
+              type="button"
+              (click)="goToStep('bike-selection')"
+              class="btn-secondary"
+            >
+              {{ t().rentalSteps?.back ?? 'Zurück' }}
+            </button>
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="isSubmitting()"
+            >
+              {{
+                isSubmitting()
+                  ? (t().rentalSteps?.submitting ?? 'Wird gesendet...')
+                  : (t().rentalSteps?.continue ?? 'Weiter')
+              }}
+            </button>
+          </div>
         </form>
       </div>
 
@@ -443,13 +441,20 @@ type BookingStep =
             </p>
             <p>
               {{ selectedStartDate }} - {{ selectedEndDate }} ({{ daysCount() }}
-              Tage)
+              {{ t().rentalSteps?.days ?? 'Tage' }})
             </p>
-            <p *ngIf="item.farbe">Farbe: {{ item.farbe }}</p>
+            <p *ngIf="item.farbe">
+              {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
+            </p>
             <p *ngIf="item.rahmennummer">
-              Rahmennummer: {{ item.rahmennummer }}
+              {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
+              {{ item.rahmennummer }}
             </p>
-            <p class="price">Preis: €{{ item.calculatedPrice }}</p>
+            <p class="price">
+              {{ t().rentalSteps?.priceLabel ?? 'Preis' }}: €{{
+                item.calculatedPrice
+              }}
+            </p>
           </div>
         </div>
 
@@ -840,6 +845,13 @@ type BookingStep =
         grid-column: 1 / -1;
         resize: vertical;
         min-height: 100px;
+      }
+
+      .form-actions {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
       }
 
       .cart-summary {
@@ -1317,13 +1329,25 @@ export class RentalBookingStepsComponent implements OnInit {
     this.goToStep('date-selection');
   }
 
+  openNativeDatePicker(input: HTMLInputElement): void {
+    if (!this.isBrowser) return;
+    const pickerInput = input as HTMLInputElement & {
+      showPicker?: () => void;
+    };
+    pickerInput.showPicker?.();
+  }
+
+  onStartDateChanged(endInput: HTMLInputElement): void {
+    if (this.selectedEndDate && this.selectedEndDate < this.selectedStartDate) {
+      this.selectedEndDate = '';
+    }
+    if (this.selectedStartDate) {
+      this.openNativeDatePicker(endInput);
+    }
+  }
+
   goToStep(step: BookingStep): void {
     this.currentStep.set(step);
-    if (this.isBrowser) {
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 50);
-    }
   }
 
   getImages(bike: PublicRentalBicycle | null): RentalBikeImage[] {
