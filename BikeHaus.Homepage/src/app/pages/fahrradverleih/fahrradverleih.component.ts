@@ -1395,6 +1395,12 @@ interface BikeSlot {
                 </svg>
               </button>
               <a
+                [routerLink]="['/' + lang(), rentalCatalogSlug()]"
+                class="hero-cta-scroll"
+              >
+                {{ t().viewAll }} ({{ t().rentalCatalogLabel }}) →
+              </a>
+              <a
                 href="https://wa.me/491556630011"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -4587,6 +4593,13 @@ export class FahrradverleihComponent implements OnInit {
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+
+  rentalCatalogSlug = computed(() => {
+    const l = this.lang();
+    if (l === 'en') return 'rental-bikes';
+    if (l === 'fr') return 'velos-de-location';
+    return 'mietfahrraeder';
+  });
   pageCopy = computed(
     () => RENTAL_PAGE_COPY[this.getCurrentLanguage()] ?? RENTAL_PAGE_COPY.en!,
   );

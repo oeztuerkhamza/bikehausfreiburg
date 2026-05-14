@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { RentalService } from '../../services/rental.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
@@ -32,6 +34,54 @@ interface AccessoryLine {
 }
 
 type PredefinedAccessoryKey = 'helm' | 'schloss' | 'korb';
+
+interface BikeEntry {
+  selectedBike: Bicycle | null;
+  isQuickAddMode: boolean;
+  bikeEdit: {
+    rahmennummer: string;
+    marke: string;
+    modell: string;
+    farbe: string;
+    reifengroesse: string;
+    fahrradtyp: string;
+  };
+  gesamtmiete: number;
+  rabatt: number;
+  berechneterPreis: number;
+  preisInfo: string;
+  kaution: number;
+  zahlungsart: PaymentMethod;
+  kautionZahlungsart: PaymentMethod;
+  zustandBeiUebergabe: string;
+  busyPeriods: BusyPeriod[];
+  busyPeriodsLoading: boolean;
+}
+
+function createEmptyBikeEntry(): BikeEntry {
+  return {
+    selectedBike: null,
+    isQuickAddMode: false,
+    bikeEdit: {
+      rahmennummer: '',
+      marke: '',
+      modell: '',
+      farbe: '',
+      reifengroesse: '',
+      fahrradtyp: '',
+    },
+    gesamtmiete: 0,
+    rabatt: 0,
+    berechneterPreis: 0,
+    preisInfo: '',
+    kaution: 0,
+    zahlungsart: PaymentMethod.Bar,
+    kautionZahlungsart: PaymentMethod.Bar,
+    zustandBeiUebergabe: 'Gut',
+    busyPeriods: [],
+    busyPeriodsLoading: false,
+  };
+}
 
 const MONTH_NAMES = [
   'Januar',
@@ -85,118 +135,197 @@ const MONTH_NAMES = [
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
-          <!-- Bicycle selection -->
-          <div class="form-card">
-            <h2>Fahrrad auswählen</h2>
+          <!-- Bicycle cards (1 or 2) -->
+          <div class="form-card bike-card" *ngFor="let b of bikes; let i = index; trackBy: trackByIndex">
+            <div class="bike-card-header">
+              <h2>{{ bikes.length > 1 ? (i + 1) + '. Fahrrad' : 'Fahrrad auswählen' }}</h2>
+              <button
+                *ngIf="bikes.length > 1"
+                type="button"
+                class="btn-remove-bike"
+                (click)="removeBike(i)"
+                title="Fahrrad entfernen"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                Entfernen
+              </button>
+            </div>
+
             <app-bike-selector
-              [bikes]="availableBikes"
-              [(selectedBike)]="selectedBike"
+              [bikes]="getAvailableBikesFor(i)"
+              [selectedBike]="b.selectedBike"
+              (selectedBikeChange)="b.selectedBike = $event"
               [allowQuickAdd]="true"
               [enableAdvancedFilters]="true"
               [requireConfirmSelection]="true"
-              (bikeSelected)="onBikeSelected($event)"
-              (quickAddRequested)="onQuickAddBike()"
+              (bikeSelected)="onBikeSelected(i, $event)"
+              (quickAddRequested)="onQuickAddBike(i)"
             ></app-bike-selector>
 
             <!-- Quick-add bike form -->
-            <div class="quick-add-form" *ngIf="isQuickAddMode">
+            <div class="quick-add-form" *ngIf="b.isQuickAddMode">
               <h3>🆕 Neues Fahrrad</h3>
               <div class="form-grid">
                 <div class="field">
                   <label>Rahmennummer *</label>
                   <input
-                    [(ngModel)]="bikeEdit.rahmennummer"
-                    name="bikeRahmen"
+                    [(ngModel)]="b.bikeEdit.rahmennummer"
+                    [name]="'bikeRahmen_' + i"
                     style="text-transform: uppercase"
                     required
                   />
                 </div>
                 <div class="field">
                   <label>Marke *</label>
-                  <input
-                    [(ngModel)]="bikeEdit.marke"
-                    name="bikeMarke"
-                    required
-                  />
+                  <input [(ngModel)]="b.bikeEdit.marke" [name]="'bikeMarke_' + i" required />
                 </div>
                 <div class="field">
                   <label>Modell *</label>
-                  <input
-                    [(ngModel)]="bikeEdit.modell"
-                    name="bikeModell"
-                    required
-                  />
+                  <input [(ngModel)]="b.bikeEdit.modell" [name]="'bikeModell_' + i" required />
                 </div>
                 <div class="field">
                   <label>Farbe</label>
-                  <input [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" />
+                  <input [(ngModel)]="b.bikeEdit.farbe" [name]="'bikeFarbe_' + i" />
                 </div>
                 <div class="field">
                   <label>Reifengröße</label>
-                  <input
-                    [(ngModel)]="bikeEdit.reifengroesse"
-                    name="bikeReifen"
-                  />
+                  <input [(ngModel)]="b.bikeEdit.reifengroesse" [name]="'bikeReifen_' + i" />
                 </div>
                 <div class="field">
                   <label>Fahrradtyp</label>
-                  <input
-                    [(ngModel)]="bikeEdit.fahrradtyp"
-                    name="bikeFahrradtyp"
-                  />
+                  <input [(ngModel)]="b.bikeEdit.fahrradtyp" [name]="'bikeFahrradtyp_' + i" />
                 </div>
               </div>
             </div>
 
             <!-- Edit selected bike -->
-            <div class="bike-edit-form" *ngIf="selectedBike && !isQuickAddMode">
+            <div class="bike-edit-form" *ngIf="b.selectedBike && !b.isQuickAddMode">
               <h3>🚲 Fahrrad-Details</h3>
               <div class="form-grid">
                 <div class="field">
                   <label>Rahmennummer</label>
                   <input
-                    [(ngModel)]="bikeEdit.rahmennummer"
-                    name="bikeRahmen"
+                    [(ngModel)]="b.bikeEdit.rahmennummer"
+                    [name]="'bikeRahmen_' + i"
                     style="text-transform: uppercase"
                   />
                 </div>
                 <div class="field">
                   <label>Marke *</label>
-                  <input
-                    [(ngModel)]="bikeEdit.marke"
-                    name="bikeMarke"
-                    required
-                  />
+                  <input [(ngModel)]="b.bikeEdit.marke" [name]="'bikeMarke_' + i" required />
                 </div>
                 <div class="field">
                   <label>Modell *</label>
-                  <input
-                    [(ngModel)]="bikeEdit.modell"
-                    name="bikeModell"
-                    required
-                  />
+                  <input [(ngModel)]="b.bikeEdit.modell" [name]="'bikeModell_' + i" required />
                 </div>
                 <div class="field">
                   <label>Farbe</label>
-                  <input [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" />
+                  <input [(ngModel)]="b.bikeEdit.farbe" [name]="'bikeFarbe_' + i" />
                 </div>
                 <div class="field">
                   <label>Reifengröße</label>
-                  <input
-                    [(ngModel)]="bikeEdit.reifengroesse"
-                    name="bikeReifen"
-                  />
+                  <input [(ngModel)]="b.bikeEdit.reifengroesse" [name]="'bikeReifen_' + i" />
                 </div>
                 <div class="field">
                   <label>Fahrradtyp</label>
+                  <input [(ngModel)]="b.bikeEdit.fahrradtyp" [name]="'bikeFahrradtyp_' + i" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Per-bike pricing & payment -->
+            <div class="bike-pricing" *ngIf="b.selectedBike || b.isQuickAddMode">
+              <div class="price-calc" *ngIf="rentalDays > 0 && b.selectedBike">
+                <div class="calc-header">
+                  <span class="calc-days">{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span>
+                  <span class="calc-price">
+                    Berechneter Preis: {{ b.berechneterPreis | number: '1.2-2' }} €
+                  </span>
+                </div>
+                <div class="calc-breakdown" *ngIf="b.preisInfo">
+                  <span class="calc-info">{{ b.preisInfo }}</span>
+                </div>
+              </div>
+
+              <div class="form-grid" style="margin-top: 16px;">
+                <div class="field">
+                  <label>Gesamtmiete (€, inkl. MwSt.) *</label>
                   <input
-                    [(ngModel)]="bikeEdit.fahrradtyp"
-                    name="bikeFahrradtyp"
+                    type="number"
+                    step="0.01"
+                    [(ngModel)]="b.gesamtmiete"
+                    [name]="'gesamtmiete_' + i"
+                    required
+                    min="0"
                   />
+                </div>
+                <div class="field">
+                  <label>Rabatt (€)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    [(ngModel)]="b.rabatt"
+                    [name]="'rabatt_' + i"
+                    min="0"
+                    (ngModelChange)="onRabattChanged(i)"
+                  />
+                </div>
+                <div class="field">
+                  <label>Kaution (€) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    [(ngModel)]="b.kaution"
+                    [name]="'kaution_' + i"
+                    required
+                    min="0"
+                  />
+                </div>
+                <div class="field">
+                  <label>Zahlungsart Miete *</label>
+                  <select [(ngModel)]="b.zahlungsart" [name]="'zahlungsart_' + i" required>
+                    <option value="Bar">Bar</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Karte">Karte</option>
+                    <option value="Überweisung">Überweisung</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Zahlungsart Kaution *</label>
+                  <select [(ngModel)]="b.kautionZahlungsart" [name]="'kautionZahlungsart_' + i" required>
+                    <option value="Bar">Bar</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Karte">Karte</option>
+                    <option value="Überweisung">Überweisung</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Zustand bei Übergabe *</label>
+                  <select [(ngModel)]="b.zustandBeiUebergabe" [name]="'zustand_' + i" required>
+                    <option value="SehrGut">Sehr gut</option>
+                    <option value="Gut">Gut</option>
+                    <option value="Gebrauchsspuren">Gebrauchsspuren</option>
+                  </select>
                 </div>
               </div>
             </div>
           </div>
+
+          <button
+            *ngIf="bikes.length < 2"
+            type="button"
+            class="btn-add-bike"
+            (click)="addBike()"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Zweites Fahrrad hinzufügen
+          </button>
 
           <!-- Mieter -->
           <div class="form-card">
@@ -304,11 +433,11 @@ const MONTH_NAMES = [
 
             <!-- Calendar -->
             <div class="calendar-wrap">
-              <div class="cal-loading" *ngIf="busyPeriodsLoading">
+              <div class="cal-loading" *ngIf="anyBusyLoading">
                 <span>Verfügbarkeit wird geladen…</span>
               </div>
 
-              <div class="calendar" *ngIf="!busyPeriodsLoading">
+              <div class="calendar" *ngIf="!anyBusyLoading">
                 <div class="cal-nav">
                   <button
                     type="button"
@@ -393,7 +522,7 @@ const MONTH_NAMES = [
                   </span>
                   <span
                     class="legend-item legend-hint"
-                    *ngIf="!selectedBike && !isQuickAddMode"
+                    *ngIf="!hasAnyBikeReady"
                   >
                     Zuerst Fahrrad auswählen
                   </span>
@@ -468,86 +597,7 @@ const MONTH_NAMES = [
               required
             />
 
-            <!-- Price calculation -->
-            <div class="price-calc" *ngIf="rentalDays > 0">
-              <div class="calc-header">
-                <span class="calc-days"
-                  >{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span
-                >
-                <span class="calc-price"
-                  >Berechneter Preis:
-                  {{ berechneterPreis | number: '1.2-2' }} €</span
-                >
-              </div>
-              <div class="calc-breakdown" *ngIf="preisInfo">
-                <span class="calc-info">{{ preisInfo }}</span>
-              </div>
-            </div>
-
             <div class="form-grid" style="margin-top: 16px;">
-              <div class="field">
-                <label>Gesamtmiete (€, inkl. MwSt.) *</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="gesamtmiete"
-                  name="gesamtmiete"
-                  required
-                  min="0"
-                />
-              </div>
-              <div class="field">
-                <label>Rabatt (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="rabatt"
-                  name="rabatt"
-                  min="0"
-                  (ngModelChange)="onRabattChanged()"
-                />
-              </div>
-              <div class="field">
-                <label>Kaution (€) *</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="kaution"
-                  name="kaution"
-                  required
-                  min="0"
-                />
-              </div>
-              <div class="field">
-                <label>Zahlungsart Miete *</label>
-                <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
-                  <option value="Bar">Bar</option>
-                  <option value="PayPal">PayPal</option>
-                  <option value="Karte">Karte</option>
-                  <option value="Überweisung">Überweisung</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Zahlungsart Kaution *</label>
-                <select [(ngModel)]="kautionZahlungsart" name="kautionZahlungsart" required>
-                  <option value="Bar">Bar</option>
-                  <option value="PayPal">PayPal</option>
-                  <option value="Karte">Karte</option>
-                  <option value="Überweisung">Überweisung</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Zustand bei Übergabe *</label>
-                <select
-                  [(ngModel)]="zustandBeiUebergabe"
-                  name="zustandBeiUebergabe"
-                  required
-                >
-                  <option value="SehrGut">Sehr gut</option>
-                  <option value="Gut">Gut</option>
-                  <option value="Gebrauchsspuren">Gebrauchsspuren</option>
-                </select>
-              </div>
               <div class="field full">
                 <label>Notizen</label>
                 <textarea
@@ -565,15 +615,11 @@ const MONTH_NAMES = [
           <button
             type="submit"
             class="btn btn-primary"
-            [disabled]="
-              submitting ||
-              (!selectedBike && !isQuickAddMode) ||
-              !f.form.valid ||
-              !startDatum ||
-              !endDatum
-            "
+            [disabled]="submitting || !canSubmit || !f.form.valid"
           >
-            {{ submitting ? 'Wird erstellt...' : 'Vermietung anlegen' }}
+            {{ submitting
+              ? 'Wird erstellt...'
+              : (bikes.length > 1 ? 'Vermietungen anlegen' : 'Vermietung anlegen') }}
           </button>
         </div>
       </form>
@@ -640,6 +686,58 @@ const MONTH_NAMES = [
         font-weight: 700;
         margin: 0 0 16px 0;
         color: var(--text-primary);
+      }
+      .bike-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .bike-card-header h2 {
+        margin: 0;
+      }
+      .btn-remove-bike {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-remove-bike:hover {
+        border-color: #ef4444;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.06);
+      }
+      .btn-add-bike {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1.5px dashed var(--accent-primary, #6366f1);
+        border-radius: var(--radius-md, 10px);
+        background: rgba(99, 102, 241, 0.04);
+        color: var(--accent-primary, #6366f1);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-add-bike:hover {
+        background: rgba(99, 102, 241, 0.1);
+      }
+      .bike-pricing {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-light);
       }
       .form-grid {
         display: grid;
@@ -1229,17 +1327,8 @@ export class RentalFormComponent implements OnInit {
 
   fromBookingId: number | null = null;
   availableBikes: Bicycle[] = [];
-  selectedBike: Bicycle | null = null;
-  isQuickAddMode = false;
 
-  bikeEdit = {
-    rahmennummer: '',
-    marke: '',
-    modell: '',
-    farbe: '',
-    reifengroesse: '',
-    fahrradtyp: '',
-  };
+  bikes: BikeEntry[] = [createEmptyBikeEntry()];
 
   customer: CustomerCreate = {
     vorname: '',
@@ -1254,15 +1343,7 @@ export class RentalFormComponent implements OnInit {
 
   startDatum = '';
   endDatum = '';
-  gesamtmiete = 0;
-  rabatt = 0;
-  berechneterPreis = 0;
   rentalDays = 0;
-  preisInfo = '';
-  kaution = 0;
-  zahlungsart: PaymentMethod = PaymentMethod.Bar;
-  kautionZahlungsart: PaymentMethod = PaymentMethod.Bar;
-  zustandBeiUebergabe = 'Gut';
   notizen = '';
   submitting = false;
 
@@ -1277,9 +1358,43 @@ export class RentalFormComponent implements OnInit {
   readonly weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
   calendarYear = new Date().getFullYear();
   calendarMonth = new Date().getMonth();
-  busyPeriods: BusyPeriod[] = [];
-  busyPeriodsLoading = false;
   pickingState: 'start' | 'end' = 'start';
+
+  trackByIndex = (i: number) => i;
+
+  get anyBusyLoading(): boolean {
+    return this.bikes.some((b) => b.busyPeriodsLoading);
+  }
+
+  get combinedBusyPeriods(): BusyPeriod[] {
+    return this.bikes.flatMap((b) => b.busyPeriods);
+  }
+
+  get hasAnyBikeReady(): boolean {
+    return this.bikes.some((b) => !!b.selectedBike || b.isQuickAddMode);
+  }
+
+  get canSubmit(): boolean {
+    if (!this.startDatum || !this.endDatum) return false;
+    return this.bikes.every((b) => !!b.selectedBike || b.isQuickAddMode);
+  }
+
+  getAvailableBikesFor(i: number): Bicycle[] {
+    const otherSelectedIds = this.bikes
+      .map((b, idx) => (idx !== i ? b.selectedBike?.id : null))
+      .filter((x): x is number => x != null);
+    return this.availableBikes.filter((b) => !otherSelectedIds.includes(b.id));
+  }
+
+  addBike() {
+    if (this.bikes.length >= 2) return;
+    this.bikes.push(createEmptyBikeEntry());
+  }
+
+  removeBike(i: number) {
+    if (this.bikes.length <= 1) return;
+    this.bikes.splice(i, 1);
+  }
 
   get calendarMonthName(): string {
     return MONTH_NAMES[this.calendarMonth];
@@ -1303,7 +1418,7 @@ export class RentalFormComponent implements OnInit {
 
   isDayBusy(date: Date): boolean {
     const t = date.getTime();
-    return this.busyPeriods.some((p) => {
+    return this.combinedBusyPeriods.some((p) => {
       const s = new Date(p.start).getTime();
       const e = new Date(p.end).getTime();
       return t >= s && t <= e;
@@ -1429,7 +1544,7 @@ export class RentalFormComponent implements OnInit {
     // Check if selected range would overlap with any busy period
     const rangeStart = new Date(this.startDatum);
     const rangeEnd = date;
-    const overlaps = this.busyPeriods.some((p) => {
+    const overlaps = this.combinedBusyPeriods.some((p) => {
       const ps = new Date(p.start);
       const pe = new Date(p.end);
       return rangeStart <= pe && rangeEnd >= ps;
@@ -1453,16 +1568,18 @@ export class RentalFormComponent implements OnInit {
     this.onDatesChanged();
   }
 
-  private loadBusyPeriods(bikeId: number) {
-    this.busyPeriodsLoading = true;
-    this.busyPeriods = [];
+  private loadBusyPeriodsFor(i: number, bikeId: number) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.busyPeriodsLoading = true;
+    b.busyPeriods = [];
     this.bicycleService.getBusyPeriods(bikeId).subscribe({
       next: (periods) => {
-        this.busyPeriods = periods;
-        this.busyPeriodsLoading = false;
+        b.busyPeriods = periods;
+        b.busyPeriodsLoading = false;
       },
       error: () => {
-        this.busyPeriodsLoading = false;
+        b.busyPeriodsLoading = false;
       },
     });
   }
@@ -1511,10 +1628,11 @@ export class RentalFormComponent implements OnInit {
 
               this.onDatesChanged();
 
+              const firstBike = this.bikes[0];
               if (bookingBike?.gesamtpreis) {
-                this.gesamtmiete = bookingBike.gesamtpreis;
+                firstBike.gesamtmiete = bookingBike.gesamtpreis;
               } else if (booking.gesamtpreis) {
-                this.gesamtmiete = booking.gesamtpreis;
+                firstBike.gesamtmiete = booking.gesamtpreis;
               }
               this.notizen = booking.notizen || '';
 
@@ -1535,15 +1653,15 @@ export class RentalFormComponent implements OnInit {
               if (bikeId) {
                 const match = this.availableBikes.find((b) => b.id === bikeId);
                 if (match) {
-                  this.onBikeSelected(match);
+                  this.onBikeSelected(0, match);
                 } else {
-                  this.isQuickAddMode = false;
+                  firstBike.isQuickAddMode = false;
                   const srcBike = bookingBike ?? (booking.bicycle as any);
                   if (srcBike) {
-                    this.selectedBike = {
+                    firstBike.selectedBike = {
                       id: srcBike.bicycleId ?? srcBike.id,
                     } as Bicycle;
-                    this.bikeEdit = {
+                    firstBike.bikeEdit = {
                       rahmennummer: '',
                       marke: srcBike.marke || '',
                       modell: srcBike.modell || '',
@@ -1551,7 +1669,7 @@ export class RentalFormComponent implements OnInit {
                       reifengroesse: srcBike.reifengroesse || '',
                       fahrradtyp: srcBike.fahrradtyp || '',
                     };
-                    this.loadBusyPeriods(bikeId);
+                    this.loadBusyPeriodsFor(0, bikeId);
                   }
                 }
               }
@@ -1568,10 +1686,12 @@ export class RentalFormComponent implements OnInit {
     this.startDatum = new Date().toISOString().split('T')[0];
   }
 
-  onBikeSelected(bike: Bicycle) {
-    this.selectedBike = bike;
-    this.isQuickAddMode = false;
-    this.bikeEdit = {
+  onBikeSelected(i: number, bike: Bicycle) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.selectedBike = bike;
+    b.isQuickAddMode = false;
+    b.bikeEdit = {
       rahmennummer: bike.rahmennummer || '',
       marke: bike.marke || '',
       modell: bike.modell || '',
@@ -1579,14 +1699,20 @@ export class RentalFormComponent implements OnInit {
       reifengroesse: bike.reifengroesse || '',
       fahrradtyp: bike.fahrradtyp || '',
     };
-    this.loadBusyPeriods(bike.id);
+    if (bike.kaution != null) {
+      b.kaution = bike.kaution;
+    }
+    this.loadBusyPeriodsFor(i, bike.id);
+    this.recalcPriceFor(i);
   }
 
-  onQuickAddBike() {
-    this.isQuickAddMode = true;
-    this.selectedBike = null;
-    this.busyPeriods = [];
-    this.bikeEdit = {
+  onQuickAddBike(i: number) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.isQuickAddMode = true;
+    b.selectedBike = null;
+    b.busyPeriods = [];
+    b.bikeEdit = {
       rahmennummer: '',
       marke: '',
       modell: '',
@@ -1636,13 +1762,12 @@ export class RentalFormComponent implements OnInit {
     };
   }
 
-  recalcPrice() {
+  recalcPriceFor(i: number) {
+    const b = this.bikes[i];
+    if (!b) return;
     if (this.rentalDays > 0) {
-      this.berechneterPreis = this.calculatePrice(this.rentalDays);
-      this.gesamtmiete = Math.max(
-        0,
-        this.berechneterPreis - (this.rabatt || 0),
-      );
+      b.berechneterPreis = this.calculatePriceFor(i, this.rentalDays);
+      b.gesamtmiete = Math.max(0, b.berechneterPreis - (b.rabatt || 0));
     }
   }
 
@@ -1657,101 +1782,96 @@ export class RentalFormComponent implements OnInit {
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
     );
     this.rentalDays = Math.max(0, diffDays + 1); // both start and end day count
-    if (this.rentalDays > 0) this.recalcPrice();
+    if (this.rentalDays > 0) {
+      this.bikes.forEach((_, i) => this.recalcPriceFor(i));
+    }
   }
 
-  onRabattChanged() {
-    if (this.berechneterPreis > 0)
-      this.gesamtmiete = Math.max(
-        0,
-        this.berechneterPreis - (this.rabatt || 0),
-      );
+  onRabattChanged(i: number) {
+    const b = this.bikes[i];
+    if (!b) return;
+    if (b.berechneterPreis > 0)
+      b.gesamtmiete = Math.max(0, b.berechneterPreis - (b.rabatt || 0));
   }
 
-  calculatePrice(days: number): number {
-    const config = this.selectedBike;
+  calculatePriceFor(i: number, days: number): number {
+    const b = this.bikes[i];
+    if (!b) return 0;
+    const config = b.selectedBike;
     if (!config) {
-      this.preisInfo = '';
+      b.preisInfo = '';
       return 0;
     }
-
     const result = calculateRentalPrice(config, days);
-    this.preisInfo = result.info;
+    b.preisInfo = result.info;
     return result.total ?? 0;
   }
 
   submit() {
     if (this.submitting) return;
 
-    if (this.isQuickAddMode) {
-      if (
-        !this.bikeEdit.rahmennummer ||
-        !this.bikeEdit.marke ||
-        !this.bikeEdit.modell
-      ) {
+    for (let i = 0; i < this.bikes.length; i++) {
+      const b = this.bikes[i];
+      if (!b.selectedBike && !b.isQuickAddMode) {
         this.notificationService.error(
-          'Bitte Rahmennummer, Marke und Modell ausfüllen',
+          `Fahrrad ${i + 1}: bitte auswählen oder neu anlegen`,
         );
         return;
       }
-      this.submitting = true;
-      this.bicycleService
-        .create({
-          rahmennummer: this.bikeEdit.rahmennummer.toUpperCase(),
-          marke: this.bikeEdit.marke,
-          modell: this.bikeEdit.modell,
-          farbe: this.bikeEdit.farbe || undefined,
-          reifengroesse: this.bikeEdit.reifengroesse || undefined,
-          fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
-          status: 'Available',
-          zustand: BikeCondition.Gebraucht,
-          isRentable: false,
-        } as any)
-        .subscribe({
-          next: (bike) => this.createRental(bike.id),
-          error: (err) => {
-            this.submitting = false;
-            this.notificationService.error(
-              err.error?.error || 'Fehler beim Erstellen des Fahrrads',
-            );
-          },
-        });
-    } else {
-      if (!this.selectedBike) return;
-      this.submitting = true;
-      const bikeUpdate: BicycleUpdate = {
-        marke: this.bikeEdit.marke,
-        modell: this.bikeEdit.modell,
-        rahmennummer: this.bikeEdit.rahmennummer || undefined,
-        farbe: this.bikeEdit.farbe || undefined,
-        reifengroesse: this.bikeEdit.reifengroesse || '',
-        fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
-        status: this.selectedBike.status as any,
-        zustand: (this.selectedBike.zustand || 'Gebraucht') as BikeCondition,
-        isRentable: this.selectedBike.isRentable,
-        rentalPriceDay1: this.selectedBike.rentalPriceDay1,
-        rentalPriceDay2: this.selectedBike.rentalPriceDay2,
-        rentalPriceDay3: this.selectedBike.rentalPriceDay3,
-        rentalPriceDay4: this.selectedBike.rentalPriceDay4,
-        rentalPriceDay5: this.selectedBike.rentalPriceDay5,
-        rentalPriceDay6: this.selectedBike.rentalPriceDay6,
-        rentalPriceDay7: this.selectedBike.rentalPriceDay7,
-        rentalPriceAdditionalDayAfter7:
-          this.selectedBike.rentalPriceAdditionalDayAfter7,
-      };
-      this.bicycleService.update(this.selectedBike.id, bikeUpdate).subscribe({
-        next: () => this.createRental(this.selectedBike!.id),
-        error: (err) => {
-          this.submitting = false;
-          this.notificationService.error(
-            err.error?.error || 'Fehler beim Aktualisieren des Fahrrads',
-          );
-        },
-      });
+      if (
+        b.isQuickAddMode &&
+        (!b.bikeEdit.rahmennummer || !b.bikeEdit.marke || !b.bikeEdit.modell)
+      ) {
+        this.notificationService.error(
+          `Fahrrad ${i + 1}: Rahmennummer, Marke und Modell ausfüllen`,
+        );
+        return;
+      }
     }
-  }
 
-  private createRental(bicycleId: number) {
+    this.submitting = true;
+
+    const bikeIdResolves = this.bikes.map((b) => {
+      if (b.isQuickAddMode) {
+        return this.bicycleService
+          .create({
+            rahmennummer: b.bikeEdit.rahmennummer.toUpperCase(),
+            marke: b.bikeEdit.marke,
+            modell: b.bikeEdit.modell,
+            farbe: b.bikeEdit.farbe || undefined,
+            reifengroesse: b.bikeEdit.reifengroesse || undefined,
+            fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
+            status: 'Available',
+            zustand: BikeCondition.Gebraucht,
+            isRentable: false,
+          } as any)
+          .pipe(map((bike) => bike.id));
+      }
+      const sel = b.selectedBike!;
+      const bikeUpdate: BicycleUpdate = {
+        marke: b.bikeEdit.marke,
+        modell: b.bikeEdit.modell,
+        rahmennummer: b.bikeEdit.rahmennummer || undefined,
+        farbe: b.bikeEdit.farbe || undefined,
+        reifengroesse: b.bikeEdit.reifengroesse || '',
+        fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
+        status: sel.status as any,
+        zustand: (sel.zustand || 'Gebraucht') as BikeCondition,
+        isRentable: sel.isRentable,
+        rentalPriceDay1: sel.rentalPriceDay1,
+        rentalPriceDay2: sel.rentalPriceDay2,
+        rentalPriceDay3: sel.rentalPriceDay3,
+        rentalPriceDay4: sel.rentalPriceDay4,
+        rentalPriceDay5: sel.rentalPriceDay5,
+        rentalPriceDay6: sel.rentalPriceDay6,
+        rentalPriceDay7: sel.rentalPriceDay7,
+        rentalPriceAdditionalDayAfter7: sel.rentalPriceAdditionalDayAfter7,
+      };
+      return this.bicycleService
+        .update(sel.id, bikeUpdate)
+        .pipe(map(() => sel.id));
+    });
+
     const accessoryKeys: PredefinedAccessoryKey[] = ['helm', 'schloss', 'korb'];
     const accessoriesPayload: RentalAccessoryItemCreate[] = accessoryKeys
       .filter((key) => this.selectedAccessories[key])
@@ -1766,32 +1886,45 @@ export class RentalFormComponent implements OnInit {
         };
       });
 
-    const rental: RentalCreate = {
-      bicycleId,
-      customer: this.customer,
-      startDatum: this.startDatum,
-      endDatum: this.endDatum,
-      gesamtmiete: this.gesamtmiete,
-      rabatt: this.rabatt || 0,
-      kaution: this.kaution,
-      zahlungsart: this.zahlungsart,
-      kautionZahlungsart: this.kautionZahlungsart,
-      zustandBeiUebergabe: this.zustandBeiUebergabe as BikeConditionAtHandover,
-      notizen: this.notizen || undefined,
-      accessories:
-        accessoriesPayload.length > 0 ? accessoriesPayload : undefined,
-    };
-
-    this.rentalService.create(rental).subscribe({
-      next: () => {
-        this.notificationService.success('Vermietung erfolgreich angelegt');
-        this.router.navigate(['/rentals']);
-      },
-      error: (err) => {
-        this.submitting = false;
-        this.notificationService.error(
-          err.error?.error || 'Fehler beim Anlegen der Vermietung',
-        );
+    forkJoin(bikeIdResolves)
+      .pipe(
+        switchMap((bicycleIds: number[]) => {
+          const creates = this.bikes.map((b, i) => {
+            const payload: RentalCreate = {
+              bicycleId: bicycleIds[i],
+              customer: this.customer,
+              startDatum: this.startDatum,
+              endDatum: this.endDatum,
+              gesamtmiete: b.gesamtmiete,
+              rabatt: b.rabatt || 0,
+              kaution: b.kaution,
+              zahlungsart: b.zahlungsart,
+              kautionZahlungsart: b.kautionZahlungsart,
+              zustandBeiUebergabe:
+                b.zustandBeiUebergabe as BikeConditionAtHandover,
+              notizen: this.notizen || undefined,
+              accessories:
+                accessoriesPayload.length > 0 ? accessoriesPayload : undefined,
+            };
+            return this.rentalService.create(payload);
+          });
+          return forkJoin(creates);
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.success(
+            this.bikes.length > 1
+              ? 'Vermietungen erfolgreich angelegt'
+              : 'Vermietung erfolgreich angelegt',
+          );
+          this.router.navigate(['/rentals']);
+        },
+        error: (err) => {
+          this.submitting = false;
+          this.notificationService.error(
+            err.error?.error || 'Fehler beim Anlegen der Vermietung',
+          );
       },
     });
   }

@@ -25,6 +25,17 @@ function getRentalPath(lang: string): string {
   if (lang === 'fr') return 'location-velo';
   return 'fahrradverleih';
 }
+// Rental bike catalog (listing) — uses language-specific slugs
+const RENTAL_CATALOG_SEGMENTS = new Set([
+  'mietfahrraeder',
+  'rental-bikes',
+  'velos-de-location',
+]);
+function getRentalCatalogPath(lang: string): string {
+  if (lang === 'en') return 'rental-bikes';
+  if (lang === 'fr') return 'velos-de-location';
+  return 'mietfahrraeder';
+}
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {
@@ -92,6 +103,45 @@ export class SeoService {
         this.addHreflangLink(lang, `${BASE_URL}/${lang}/${getRentalPath(lang)}`);
       }
       this.addHreflangLink('x-default', `${BASE_URL}/${DEFAULT_LANGUAGE}/fahrradverleih`);
+      this.updateMetaProperty('og:url', canonicalUrl);
+      return;
+    }
+
+    // ── Rental catalog (list): /:lang/(mietfahrraeder|rental-bikes|velos-de-location) ──
+    if (
+      pathSegments.length === 2 &&
+      RENTAL_CATALOG_SEGMENTS.has(pathSegments[1])
+    ) {
+      for (const lang of SUPPORTED_LANGUAGES) {
+        this.addHreflangLink(
+          lang,
+          `${BASE_URL}/${lang}/${getRentalCatalogPath(lang)}`,
+        );
+      }
+      this.addHreflangLink(
+        'x-default',
+        `${BASE_URL}/${DEFAULT_LANGUAGE}/mietfahrraeder`,
+      );
+      this.updateMetaProperty('og:url', canonicalUrl);
+      return;
+    }
+
+    // ── Rental catalog (detail): /:lang/(mietfahrraeder|rental-bikes|velos-de-location)/:id ──
+    if (
+      pathSegments.length === 3 &&
+      RENTAL_CATALOG_SEGMENTS.has(pathSegments[1])
+    ) {
+      const bikeId = pathSegments[2];
+      for (const lang of SUPPORTED_LANGUAGES) {
+        this.addHreflangLink(
+          lang,
+          `${BASE_URL}/${lang}/${getRentalCatalogPath(lang)}/${bikeId}`,
+        );
+      }
+      this.addHreflangLink(
+        'x-default',
+        `${BASE_URL}/${DEFAULT_LANGUAGE}/mietfahrraeder/${bikeId}`,
+      );
       this.updateMetaProperty('og:url', canonicalUrl);
       return;
     }

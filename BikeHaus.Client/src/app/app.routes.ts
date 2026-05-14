@@ -286,6 +286,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'bicycle-calendar',
+    loadComponent: () =>
+      import('./pages/bicycle-calendar/bicycle-calendar.component').then(
+        (m) => m.BicycleCalendarComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'rental-bookings',
     loadComponent: () =>
       import('./pages/rental-bookings/rental-booking-list.component').then(

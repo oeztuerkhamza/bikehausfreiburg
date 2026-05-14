@@ -147,6 +147,52 @@ export const routes: Routes = [
             (m) => m.FahrradverleihComponent,
           ),
       },
+      // ── Rental bike catalog (filterable, SEO-optimised) ──
+      // DE/TR/ES/IT/AR/RU: /mietfahrraeder
+      {
+        path: 'mietfahrraeder',
+        loadComponent: () =>
+          import('./pages/mietfahrraeder/mietfahrraeder.component').then(
+            (m) => m.MietfahrraederComponent,
+          ),
+      },
+      {
+        path: 'mietfahrraeder/:id',
+        loadComponent: () =>
+          import('./pages/mietfahrraeder/mietfahrrad-detail.component').then(
+            (m) => m.MietfahrradDetailComponent,
+          ),
+      },
+      // EN canonical: /en/rental-bikes
+      {
+        path: 'rental-bikes',
+        loadComponent: () =>
+          import('./pages/mietfahrraeder/mietfahrraeder.component').then(
+            (m) => m.MietfahrraederComponent,
+          ),
+      },
+      {
+        path: 'rental-bikes/:id',
+        loadComponent: () =>
+          import('./pages/mietfahrraeder/mietfahrrad-detail.component').then(
+            (m) => m.MietfahrradDetailComponent,
+          ),
+      },
+      // FR canonical: /fr/velos-de-location
+      {
+        path: 'velos-de-location',
+        loadComponent: () =>
+          import('./pages/mietfahrraeder/mietfahrraeder.component').then(
+            (m) => m.MietfahrraederComponent,
+          ),
+      },
+      {
+        path: 'velos-de-location/:id',
+        loadComponent: () =>
+          import('./pages/mietfahrraeder/mietfahrrad-detail.component').then(
+            (m) => m.MietfahrradDetailComponent,
+          ),
+      },
       {
         path: 'ratgeber',
         loadComponent: () =>

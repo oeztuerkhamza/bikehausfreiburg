@@ -669,6 +669,37 @@ export interface Translations {
   blogCta1: string;
   blogCta2: string;
   blogCta3: string;
+
+  // Rental bike catalog (Mietfahrräder)
+  rentalCatalogMetaTitle: string;
+  rentalCatalogMetaDescription: string;
+  rentalCatalogLabel: string;
+  rentalCatalogTitle: string;
+  rentalCatalogSub: string;
+  rentalCatalogIntro: string;
+  rentalCatalogPerDay: string;
+  rentalCatalogFrom: string;
+  rentalCatalogReserveCta: string;
+  rentalCatalogViewDetail: string;
+  rentalCatalogFilterBrand: string;
+  rentalCatalogFilterType: string;
+  rentalCatalogPriceMaxDaily: string;
+  rentalCatalogNoBikes: string;
+
+  // Rental bike detail
+  rentalDetailBackToCatalog: string;
+  rentalDetailReserveCta: string;
+  rentalDetailPriceHeading: string;
+  rentalDetailPriceNote: string;
+  rentalDetailDay: string;
+  rentalDetailDays: string;
+  rentalDetailExtraDay: string;
+  rentalDetailDeposit: string;
+  rentalDetailDepositInfo: string;
+  rentalDetailSpecsHeading: string;
+  rentalDetailDescHeading: string;
+  rentalDetailMetaTitleSuffix: string;
+  rentalDetailMetaDescPrefix: string;
 }
 
 const TRANSLATIONS: Record<BaseLanguage, Translations> = {
@@ -1295,6 +1326,40 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta1: 'Gebrauchtes Fahrrad kaufen — Tipps & Checkliste',
     blogCta2: 'Welches Fahrrad passt zu mir?',
     blogCta3: 'Fahrrad Inspektion — Was kostet es?',
+
+    rentalCatalogMetaTitle:
+      'Mietfahrräder Freiburg — alle Räder zum Mieten | Bike Haus Freiburg',
+    rentalCatalogMetaDescription:
+      'Alle Mietfahrräder in Freiburg auf einen Blick ✓ City-Räder, Trekking, E-Bikes & Kinderräder ✓ Tagesgenaue Preise ✓ Filterbar nach Marke, Größe & Typ ✓ Online reservieren — Heckerstraße 27.',
+    rentalCatalogLabel: 'Mietflotte',
+    rentalCatalogTitle: 'Fahrräder zum Mieten in Freiburg.',
+    rentalCatalogSub: 'Mietfahrräder verfügbar',
+    rentalCatalogIntro:
+      'Stöbere durch unsere komplette Mietflotte in Freiburg-Haid: City-Räder, Trekking, E-Bikes, Kinderräder und mehr. Filtere nach Marke, Reifengröße, Rahmengröße und Typ. Jedes Fahrrad hat tagesgenaue Preise und kann direkt online reserviert werden.',
+    rentalCatalogPerDay: '/Tag',
+    rentalCatalogFrom: 'ab',
+    rentalCatalogReserveCta: 'Jetzt reservieren',
+    rentalCatalogViewDetail: 'Details ansehen',
+    rentalCatalogFilterBrand: 'Marke',
+    rentalCatalogFilterType: 'Fahrradtyp',
+    rentalCatalogPriceMaxDaily: 'Max. Preis/Tag (€)',
+    rentalCatalogNoBikes: 'Keine Mietfahrräder gefunden.',
+
+    rentalDetailBackToCatalog: 'Zur Mietflotte',
+    rentalDetailReserveCta: 'Dieses Fahrrad reservieren',
+    rentalDetailPriceHeading: 'Mietpreise',
+    rentalDetailPriceNote:
+      'Preise pro Fahrrad, gestaffelt nach Anzahl der Tage. Ab dem 8. Tag gilt der angegebene Zusatztagespreis.',
+    rentalDetailDay: 'Tag',
+    rentalDetailDays: 'Tage',
+    rentalDetailExtraDay: 'Jeder weitere Tag (ab Tag 8)',
+    rentalDetailDeposit: 'Kaution',
+    rentalDetailDepositInfo:
+      'Die Kaution wird bei Übergabe hinterlegt und nach unbeschädigter Rückgabe vollständig erstattet.',
+    rentalDetailSpecsHeading: 'Ausstattung',
+    rentalDetailDescHeading: 'Beschreibung',
+    rentalDetailMetaTitleSuffix: 'mieten in Freiburg | Bike Haus Freiburg',
+    rentalDetailMetaDescPrefix: 'Miete dieses Fahrrad in Freiburg:',
   },
 
   en: {
@@ -1895,6 +1960,40 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta1: 'Buying a Used Bike — Tips & Checklist',
     blogCta2: 'Which Bike Fits Me?',
     blogCta3: 'Bike Inspection — What Does It Cost?',
+
+    rentalCatalogMetaTitle:
+      'Rental Bikes Freiburg — Full Fleet to Rent | Bike Haus Freiburg',
+    rentalCatalogMetaDescription:
+      'Browse every rental bike in Freiburg ✓ City, trekking, e-bikes & kids bikes ✓ Per-day pricing ✓ Filter by brand, size & type ✓ Book online — Heckerstraße 27.',
+    rentalCatalogLabel: 'Rental Fleet',
+    rentalCatalogTitle: 'Bikes to rent in Freiburg.',
+    rentalCatalogSub: 'rental bikes available',
+    rentalCatalogIntro:
+      'Browse our complete rental fleet in Freiburg-Haid: city bikes, trekking, e-bikes, kids bikes and more. Filter by brand, tyre size, frame size and type. Every bike has per-day pricing and can be reserved online instantly.',
+    rentalCatalogPerDay: '/day',
+    rentalCatalogFrom: 'from',
+    rentalCatalogReserveCta: 'Reserve now',
+    rentalCatalogViewDetail: 'View details',
+    rentalCatalogFilterBrand: 'Brand',
+    rentalCatalogFilterType: 'Bike type',
+    rentalCatalogPriceMaxDaily: 'Max price/day (€)',
+    rentalCatalogNoBikes: 'No rental bikes match your filters.',
+
+    rentalDetailBackToCatalog: 'Back to rentals',
+    rentalDetailReserveCta: 'Reserve this bike',
+    rentalDetailPriceHeading: 'Rental prices',
+    rentalDetailPriceNote:
+      'Prices are per bike and scale with rental duration. From day 8 onwards the extra-day rate applies.',
+    rentalDetailDay: 'day',
+    rentalDetailDays: 'days',
+    rentalDetailExtraDay: 'Each additional day (from day 8)',
+    rentalDetailDeposit: 'Deposit',
+    rentalDetailDepositInfo:
+      'Deposit is collected on handover and refunded in full when the bike is returned undamaged.',
+    rentalDetailSpecsHeading: 'Specifications',
+    rentalDetailDescHeading: 'Description',
+    rentalDetailMetaTitleSuffix: 'to rent in Freiburg | Bike Haus Freiburg',
+    rentalDetailMetaDescPrefix: 'Rent this bike in Freiburg:',
   },
 
   fr: {
@@ -2520,6 +2619,40 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta1: "Acheter un vélo d'occasion — Conseils & Checklist",
     blogCta2: 'Quel vélo me convient?',
     blogCta3: 'Révision vélo — Combien ça coûte?',
+
+    rentalCatalogMetaTitle:
+      'Vélos de location Fribourg — Toute la flotte | Bike Haus Freiburg',
+    rentalCatalogMetaDescription:
+      'Parcourez tous nos vélos de location à Fribourg ✓ Ville, trekking, VAE & vélos enfants ✓ Tarifs à la journée ✓ Filtrez par marque, taille & type ✓ Réservez en ligne — Heckerstraße 27.',
+    rentalCatalogLabel: 'Flotte de location',
+    rentalCatalogTitle: 'Vélos à louer à Fribourg.',
+    rentalCatalogSub: 'vélos de location disponibles',
+    rentalCatalogIntro:
+      "Découvrez toute notre flotte de location à Fribourg-Haid : vélos de ville, trekking, vélos électriques, vélos enfants et plus. Filtrez par marque, taille de roue, taille de cadre et type. Chaque vélo a un tarif à la journée et se réserve en ligne.",
+    rentalCatalogPerDay: '/jour',
+    rentalCatalogFrom: 'dès',
+    rentalCatalogReserveCta: 'Réserver',
+    rentalCatalogViewDetail: 'Voir les détails',
+    rentalCatalogFilterBrand: 'Marque',
+    rentalCatalogFilterType: 'Type de vélo',
+    rentalCatalogPriceMaxDaily: 'Prix max/jour (€)',
+    rentalCatalogNoBikes: 'Aucun vélo ne correspond à vos filtres.',
+
+    rentalDetailBackToCatalog: 'Retour à la flotte',
+    rentalDetailReserveCta: 'Réserver ce vélo',
+    rentalDetailPriceHeading: 'Tarifs de location',
+    rentalDetailPriceNote:
+      "Tarifs par vélo, dégressifs selon la durée. Au-delà du 7e jour, le tarif jour supplémentaire s'applique.",
+    rentalDetailDay: 'jour',
+    rentalDetailDays: 'jours',
+    rentalDetailExtraDay: 'Chaque jour supplémentaire (à partir du 8e jour)',
+    rentalDetailDeposit: 'Caution',
+    rentalDetailDepositInfo:
+      "La caution est versée à la remise du vélo et restituée intégralement au retour si le vélo est en bon état.",
+    rentalDetailSpecsHeading: 'Caractéristiques',
+    rentalDetailDescHeading: 'Description',
+    rentalDetailMetaTitleSuffix: 'à louer à Fribourg | Bike Haus Freiburg',
+    rentalDetailMetaDescPrefix: 'Louez ce vélo à Fribourg :',
   },
 
   tr: {
@@ -3140,6 +3273,40 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta1: 'İkinci El Bisiklet Alma — İpuçları & Kontrol Listesi',
     blogCta2: 'Hangi Bisiklet Bana Uyar?',
     blogCta3: 'Bisiklet Bakımı — Ne Kadara Mal Olur?',
+
+    rentalCatalogMetaTitle:
+      "Kiralık Bisikletler Freiburg — Tüm Filo | Bike Haus Freiburg",
+    rentalCatalogMetaDescription:
+      "Freiburg'daki tüm kiralık bisikletler ✓ Şehir, trekking, e-bike & çocuk bisikletleri ✓ Günlük fiyatlar ✓ Marka, beden ve tipe göre filtrele ✓ Online rezervasyon — Heckerstraße 27.",
+    rentalCatalogLabel: 'Kiralık Filo',
+    rentalCatalogTitle: "Freiburg'da kiralık bisikletler.",
+    rentalCatalogSub: 'kiralık bisiklet mevcut',
+    rentalCatalogIntro:
+      "Freiburg-Haid'deki tüm kiralık filomuza göz atın: şehir bisikletleri, trekking, e-bike, çocuk bisikletleri ve daha fazlası. Marka, lastik boyutu, kadro boyu ve tipe göre filtreleyin. Her bisikletin günlük fiyatı vardır ve doğrudan online rezerve edilebilir.",
+    rentalCatalogPerDay: '/gün',
+    rentalCatalogFrom: 'şu fiyattan başlayarak',
+    rentalCatalogReserveCta: 'Şimdi rezerve et',
+    rentalCatalogViewDetail: 'Detayları gör',
+    rentalCatalogFilterBrand: 'Marka',
+    rentalCatalogFilterType: 'Bisiklet tipi',
+    rentalCatalogPriceMaxDaily: 'Maks. fiyat/gün (€)',
+    rentalCatalogNoBikes: 'Filtrelerinize uyan kiralık bisiklet bulunamadı.',
+
+    rentalDetailBackToCatalog: 'Filoya geri dön',
+    rentalDetailReserveCta: 'Bu bisikleti rezerve et',
+    rentalDetailPriceHeading: 'Kiralama fiyatları',
+    rentalDetailPriceNote:
+      'Fiyatlar bisiklet başınadır ve süreye göre değişir. 8. günden itibaren ek gün fiyatı uygulanır.',
+    rentalDetailDay: 'gün',
+    rentalDetailDays: 'gün',
+    rentalDetailExtraDay: 'Her ek gün (8. günden itibaren)',
+    rentalDetailDeposit: 'Depozito',
+    rentalDetailDepositInfo:
+      'Depozito teslim sırasında alınır ve bisiklet hasarsız iade edildiğinde tam olarak iade edilir.',
+    rentalDetailSpecsHeading: 'Özellikler',
+    rentalDetailDescHeading: 'Açıklama',
+    rentalDetailMetaTitleSuffix: "Freiburg'da kiralık | Bike Haus Freiburg",
+    rentalDetailMetaDescPrefix: "Bu bisikleti Freiburg'da kiralayın:",
   },
 };
 
