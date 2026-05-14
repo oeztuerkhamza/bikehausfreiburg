@@ -341,12 +341,15 @@ public class BicycleService : IBicycleService
     {
         var result = new List<BusyPeriodDto>();
 
-        // Active rentals (Mietvertrag)
+        // Active rentals (Mietvertrag) — include only the bike line matching this bicycle
         var allRentals = await _rentalRepository.GetAllAsync();
-        var activeRentals = allRentals
-            .Where(r => r.BicycleId == bicycleId && r.Status == RentalStatus.Active);
-        result.AddRange(activeRentals.Select(r =>
-            new BusyPeriodDto(r.StartDatum.Date, r.EndDatum.Date, "rental")));
+        foreach (var rental in allRentals.Where(r => r.Status == RentalStatus.Active))
+        {
+            foreach (var rentalBike in rental.Bikes.Where(rb => rb.BicycleId == bicycleId))
+            {
+                result.Add(new BusyPeriodDto(rentalBike.StartDatum.Date, rentalBike.EndDatum.Date, "rental"));
+            }
+        }
 
         // Approved bookings (Mietanfragen)
         var approvedBookings = await _bookingRepository.GetApprovedByBicycleIdAsync(bicycleId);

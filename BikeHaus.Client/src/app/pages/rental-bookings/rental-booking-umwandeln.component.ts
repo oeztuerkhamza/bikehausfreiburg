@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { RentalBookingService } from '../../services/rental-booking.service';
 import { RentalService } from '../../services/rental.service';
 import { NotificationService } from '../../services/notification.service';
@@ -11,16 +10,14 @@ import {
   RentalBookingBike,
   RentalBookingStatus,
   RentalCreate,
+  RentalBikeCreate,
   PaymentMethod,
   BikeConditionAtHandover,
 } from '../../models/models';
 
 interface BikeFormData {
   kaution: number;
-  zahlungsart: PaymentMethod;
-  kautionZahlungsart: PaymentMethod;
   zustandBeiUebergabe: BikeConditionAtHandover;
-  notizen: string;
 }
 
 @Component({
@@ -35,8 +32,9 @@ interface BikeFormData {
       </div>
 
       <div class="info-banner">
-        Mietverträge werden aus der bestätigten Anfrage erstellt.
-        Bitte Kaution und Zahlungsart für {{ bikes.length > 1 ? 'jedes Fahrrad' : 'das Fahrrad' }} eintragen.
+        Aus dieser Anfrage wird <strong>ein Mietvertrag</strong> mit
+        {{ bikes.length }} {{ bikes.length === 1 ? 'Fahrrad' : 'Fahrrädern' }} erstellt.
+        Zahlungsart gilt für den gesamten Vertrag, Kaution und Zustand pro Fahrrad.
       </div>
 
       <div class="section-card">
@@ -61,6 +59,34 @@ interface BikeFormData {
           <div class="info-row" *ngIf="booking.plz || booking.ort">
             <span>PLZ / Ort:</span>
             <span>{{ booking.plz }} {{ booking.ort }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h2>Zahlung &amp; Notizen</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label>Zahlungsart Miete *</label>
+            <select [(ngModel)]="zahlungsart" name="rental_zahlungsart" required>
+              <option value="Bar">Bar</option>
+              <option value="PayPal">PayPal</option>
+              <option value="Karte">Karte</option>
+              <option value="Überweisung">Überweisung</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Zahlungsart Kaution *</label>
+            <select [(ngModel)]="kautionZahlungsart" name="rental_kaution_zahlungsart" required>
+              <option value="Bar">Bar</option>
+              <option value="PayPal">PayPal</option>
+              <option value="Karte">Karte</option>
+              <option value="Überweisung">Überweisung</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>Notizen</label>
+            <textarea [(ngModel)]="notizen" name="rental_notizen" rows="2"></textarea>
           </div>
         </div>
       </div>
@@ -99,34 +125,12 @@ interface BikeFormData {
             />
           </div>
           <div class="field">
-            <label>Zahlungsart Miete *</label>
-            <select [(ngModel)]="bikeForms[i].zahlungsart" [name]="'zahlungsart_' + i" required>
-              <option value="Bar">Bar</option>
-              <option value="PayPal">PayPal</option>
-              <option value="Karte">Karte</option>
-              <option value="Überweisung">Überweisung</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Zahlungsart Kaution *</label>
-            <select [(ngModel)]="bikeForms[i].kautionZahlungsart" [name]="'kaution_zahlungsart_' + i" required>
-              <option value="Bar">Bar</option>
-              <option value="PayPal">PayPal</option>
-              <option value="Karte">Karte</option>
-              <option value="Überweisung">Überweisung</option>
-            </select>
-          </div>
-          <div class="field">
             <label>Zustand bei Übergabe *</label>
             <select [(ngModel)]="bikeForms[i].zustandBeiUebergabe" [name]="'zustand_' + i" required>
               <option value="SehrGut">Sehr gut</option>
               <option value="Gut">Gut</option>
               <option value="Gebrauchsspuren">Gebrauchsspuren</option>
             </select>
-          </div>
-          <div class="field full">
-            <label>Notizen</label>
-            <textarea [(ngModel)]="bikeForms[i].notizen" [name]="'notizen_' + i" rows="2"></textarea>
           </div>
         </div>
       </div>
@@ -291,6 +295,11 @@ export class RentalBookingUmwandelnComponent implements OnInit {
   bikes: RentalBookingBike[] = [];
   bikeForms: BikeFormData[] = [];
 
+  // Rental-level fields (apply to the whole contract)
+  zahlungsart: PaymentMethod = PaymentMethod.Bar;
+  kautionZahlungsart: PaymentMethod = PaymentMethod.Bar;
+  notizen = '';
+
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (!id) {
@@ -320,12 +329,9 @@ export class RentalBookingUmwandelnComponent implements OnInit {
                   gesamtpreis: booking.gesamtpreis ?? undefined,
                 }]
               : [];
-        this.bikeForms = this.bikes.map(() => ({
-          kaution: 0,
-          zahlungsart: PaymentMethod.Bar,
-          kautionZahlungsart: PaymentMethod.Bar,
+        this.bikeForms = this.bikes.map((bk) => ({
+          kaution: bk.kaution ?? 0,
           zustandBeiUebergabe: BikeConditionAtHandover.Gut,
-          notizen: '',
         }));
       },
       error: () => {
@@ -349,37 +355,38 @@ export class RentalBookingUmwandelnComponent implements OnInit {
       stadt: this.booking.ort || undefined,
     };
 
-    const creates = this.bikes.map((bike, i) => {
+    const bikes: RentalBikeCreate[] = this.bikes.map((bike, i) => {
       const form = this.bikeForms[i];
-      const payload: RentalCreate = {
+      return {
         bicycleId: bike.bicycleId,
-        customer,
+        rahmennummer: bike.rahmennummer || undefined,
+        farbe: bike.farbe || undefined,
         startDatum: bike.startDatum.split('T')[0],
         endDatum: bike.endDatum.split('T')[0],
-        gesamtmiete: bike.gesamtpreis ?? 0,
-        rabatt: 0,
+        mietpreis: bike.gesamtpreis ?? 0,
         kaution: form.kaution,
-        zahlungsart: form.zahlungsart,
-        kautionZahlungsart: form.kautionZahlungsart,
         zustandBeiUebergabe: form.zustandBeiUebergabe,
-        notizen: form.notizen || undefined,
       };
-      return this.rentalService.create(payload);
     });
 
-    forkJoin(creates).subscribe({
+    const payload: RentalCreate = {
+      bikes,
+      customer,
+      rabatt: 0,
+      zahlungsart: this.zahlungsart,
+      kautionZahlungsart: this.kautionZahlungsart,
+      notizen: this.notizen || undefined,
+    };
+
+    this.rentalService.create(payload).subscribe({
       next: () => {
-        this.notificationService.success(
-          this.bikes.length > 1
-            ? 'Alle Mietverträge erfolgreich angelegt.'
-            : 'Mietvertrag erfolgreich angelegt.',
-        );
+        this.notificationService.success('Mietvertrag erfolgreich angelegt.');
         this.router.navigate(['/rental-bookings', this.booking!.id]);
       },
       error: (err) => {
         this.submitting = false;
         this.notificationService.error(
-          err.error?.error || 'Fehler beim Erstellen der Mietverträge.',
+          err.error?.error || 'Fehler beim Erstellen des Mietvertrags.',
         );
       },
     });

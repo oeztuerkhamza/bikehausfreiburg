@@ -1379,7 +1379,7 @@ public class PdfService : IPdfService
         var shop = await GetShopInfoAsync();
         QuestPDF.Settings.License = LicenseType.Community;
 
-        var zustandText = rental.ZustandBeiUebergabe switch
+        static string ConditionToText(Domain.Enums.BikeConditionAtHandover c) => c switch
         {
             Domain.Enums.BikeConditionAtHandover.SehrGut => "Sehr gut",
             Domain.Enums.BikeConditionAtHandover.Gut => "Gut",
@@ -1395,6 +1395,7 @@ public class PdfService : IPdfService
             _ => "Bar"
         };
 
+        var rentalBikes = rental.Bikes.OrderBy(b => b.Id).ToList();
         var mietTage = (rental.EndDatum - rental.StartDatum).Days + 1;
         var berechneterPreis = rental.Gesamtmiete + rental.Rabatt;
 
@@ -1483,32 +1484,52 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.AusweisnNr ?? "-").FontSize(10);
                     });
 
-                    // FAHRRAD-DETAILS Section
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRAD-DETAILS");
+                    // GEMIETETE FAHRRÄDER Section (one row per rented bike)
+                    col.Item().PaddingTop(6).Element(SectionHeader).Text("GEMIETETE FAHRRÄDER");
                     col.Item().Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
+                            columns.ConstantColumn(25);
+                            columns.RelativeColumn(2);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(1);
+                            columns.ConstantColumn(85);
+                            columns.ConstantColumn(40);
+                            columns.ConstantColumn(70);
+                            columns.ConstantColumn(70);
                         });
 
-                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Marke").FontSize(9).Bold().FontColor(PrimaryColor);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Bicycle.Marke).FontSize(10).Bold();
-                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennummer").FontSize(9).Bold().FontColor(PrimaryColor);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Bicycle.Rahmennummer).FontSize(10).Bold();
+                        // Header row
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Nr.").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Fahrrad").FontSize(8).Bold().FontColor(PrimaryColor);
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennr.").FontSize(8).Bold().FontColor(PrimaryColor);
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Farbe").FontSize(8).Bold().FontColor(PrimaryColor);
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Zeitraum").FontSize(8).Bold().FontColor(PrimaryColor);
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Tage").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Zustand").FontSize(8).Bold().FontColor(PrimaryColor);
+                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Preis").FontSize(8).Bold().FontColor(PrimaryColor).AlignRight();
 
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Modell").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Bicycle.Modell).FontSize(10);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Farbe").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Bicycle.Farbe ?? "-").FontSize(10);
+                        for (int i = 0; i < rentalBikes.Count; i++)
+                        {
+                            var rb = rentalBikes[i];
+                            var bicycle = rb.Bicycle;
+                            var days = (rb.EndDatum.Date - rb.StartDatum.Date).Days + 1;
+                            var rahmennr = !string.IsNullOrWhiteSpace(rb.Rahmennummer) ? rb.Rahmennummer : (bicycle?.Rahmennummer ?? "-");
+                            var farbe = !string.IsNullOrWhiteSpace(rb.Farbe) ? rb.Farbe : (bicycle?.Farbe ?? "-");
 
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Reifengröße").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Bicycle.Reifengroesse ?? "-").FontSize(10);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Zustand").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(zustandText).FontSize(10).Bold();
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{i + 1}").FontSize(9).AlignCenter();
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{bicycle?.Marke} {bicycle?.Modell}".Trim()).FontSize(9).Bold();
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rahmennr).FontSize(9);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(farbe).FontSize(9);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{rb.StartDatum:dd.MM} - {rb.EndDatum:dd.MM.yy}").FontSize(8);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{days}").FontSize(9).AlignCenter();
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(ConditionToText(rb.ZustandBeiUebergabe)).FontSize(8);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{rb.Mietpreis:N2} €").FontSize(9).AlignRight();
+                        }
+
+                        table.Cell().ColumnSpan(7).Border(1).BorderColor(AccentColor).Padding(3).Text("GESAMTMIETE").FontSize(9).Bold().FontColor(AccentColor).AlignRight();
+                        table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{rental.Gesamtmiete:N2} €").FontSize(10).Bold().FontColor(AccentColor).AlignRight();
                     });
 
                     // MIETDAUER & PREIS Section
@@ -1819,28 +1840,45 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Customer.Email ?? "-").FontSize(10);
                     });
 
-                    // FAHRRAD Section
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRAD");
-                    col.Item().Table(table =>
+                    // FAHRRÄDER Section (one row per bike with individual Kaution)
+                    col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRÄDER & KAUTION");
                     {
-                        table.ColumnsDefinition(columns =>
+                        var kautionsBikes = rental.Bikes.OrderBy(b => b.Id).ToList();
+                        col.Item().Table(table =>
                         {
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
-                            columns.RelativeColumn();
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.ConstantColumn(25);
+                                columns.RelativeColumn(2);
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(1);
+                                columns.ConstantColumn(90);
+                            });
+
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Nr.").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Fahrrad").FontSize(8).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennr.").FontSize(8).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Farbe").FontSize(8).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Kaution").FontSize(8).Bold().FontColor(PrimaryColor).AlignRight();
+
+                            for (int i = 0; i < kautionsBikes.Count; i++)
+                            {
+                                var rb = kautionsBikes[i];
+                                var bicycle = rb.Bicycle;
+                                var rahmennr = !string.IsNullOrWhiteSpace(rb.Rahmennummer) ? rb.Rahmennummer : (bicycle?.Rahmennummer ?? "-");
+                                var farbe = !string.IsNullOrWhiteSpace(rb.Farbe) ? rb.Farbe : (bicycle?.Farbe ?? "-");
+
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{i + 1}").FontSize(9).AlignCenter();
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{bicycle?.Marke} {bicycle?.Modell}".Trim()).FontSize(9).Bold();
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rahmennr).FontSize(9);
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(farbe).FontSize(9);
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{rb.Kaution:N2} €").FontSize(9).AlignRight().Bold();
+                            }
+
+                            table.Cell().ColumnSpan(4).Border(1).BorderColor(AccentColor).Padding(3).Text("KAUTION (GESAMT)").FontSize(9).Bold().FontColor(AccentColor).AlignRight();
+                            table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{rental.Kaution:N2} €").FontSize(10).Bold().FontColor(AccentColor).AlignRight();
                         });
-
-                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Marke").FontSize(9).Bold().FontColor(PrimaryColor);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Bicycle.Marke).FontSize(10).Bold();
-                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennummer").FontSize(9).Bold().FontColor(PrimaryColor);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Bicycle.Rahmennummer ?? "-").FontSize(10).Bold();
-
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Modell").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Bicycle.Modell).FontSize(10);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Farbe").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Bicycle.Farbe ?? "-").FontSize(10);
-                    });
+                    }
 
                     // KAUTION BETRAG - big highlight
                     col.Item().PaddingTop(10).Row(row =>

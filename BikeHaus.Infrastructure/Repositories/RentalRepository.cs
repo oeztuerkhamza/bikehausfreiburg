@@ -20,7 +20,7 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
     public async Task<Rental?> GetWithDetailsAsync(int id)
     {
         return await _dbSet
-            .Include(r => r.Bicycle)
+            .Include(r => r.Bikes).ThenInclude(b => b.Bicycle)
             .Include(r => r.Customer)
             .Include(r => r.Accessories)
             .FirstOrDefaultAsync(r => r.Id == id);
@@ -29,10 +29,10 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
     public async Task<Rental?> GetActiveByBicycleIdAsync(int bicycleId)
     {
         return await _dbSet
-            .Include(r => r.Bicycle)
+            .Include(r => r.Bikes).ThenInclude(b => b.Bicycle)
             .Include(r => r.Customer)
             .Include(r => r.Accessories)
-            .FirstOrDefaultAsync(r => r.BicycleId == bicycleId && r.Status == RentalStatus.Active);
+            .FirstOrDefaultAsync(r => r.Status == RentalStatus.Active && r.Bikes.Any(b => b.BicycleId == bicycleId));
     }
 
     public async Task<string> GenerateMietvertragNummerAsync()
@@ -70,7 +70,7 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
     public override async Task<IEnumerable<Rental>> GetAllAsync()
     {
         return await _dbSet
-            .Include(r => r.Bicycle)
+            .Include(r => r.Bikes).ThenInclude(b => b.Bicycle)
             .Include(r => r.Customer)
             .OrderByDescending(r => r.StartDatum)
             .ToListAsync();
@@ -81,7 +81,7 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         Expression<Func<Rental, bool>>? predicate = null)
     {
         var query = _dbSet
-            .Include(r => r.Bicycle)
+            .Include(r => r.Bikes).ThenInclude(b => b.Bicycle)
             .Include(r => r.Customer)
             .AsQueryable();
 

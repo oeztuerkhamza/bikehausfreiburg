@@ -22,25 +22,10 @@ namespace BikeHaus.Infrastructure.Migrations
                 name: "Farbe",
                 table: "BicycleImages");
 
-            migrationBuilder.AddColumn<string>(
-                name: "Farbe",
-                table: "RentalBookingBikes",
-                type: "TEXT",
-                maxLength: 150,
-                nullable: true);
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "Kaution",
-                table: "RentalBookingBikes",
-                type: "decimal(18,2)",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Rahmennummer",
-                table: "RentalBookingBikes",
-                type: "TEXT",
-                maxLength: 50,
-                nullable: true);
+            // NOTE: Farbe / Kaution / Rahmennummer on RentalBookingBikes were already added by
+            // 20260514001500_AddBicycleKautionAndBookingBikeCapturedFields. Re-adding them here
+            // raised "duplicate column name" on existing dev DBs, so the redundant AddColumn calls
+            // were removed.
 
             // Fix corrupted rental price data where column names were stored as values
             migrationBuilder.Sql(
@@ -95,17 +80,8 @@ namespace BikeHaus.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Farbe",
-                table: "RentalBookingBikes");
-
-            migrationBuilder.DropColumn(
-                name: "Kaution",
-                table: "RentalBookingBikes");
-
-            migrationBuilder.DropColumn(
-                name: "Rahmennummer",
-                table: "RentalBookingBikes");
+            // The Farbe/Kaution/Rahmennummer columns on RentalBookingBikes are owned by
+            // the earlier AddBicycleKautionAndBookingBikeCapturedFields migration, so leave them alone.
 
             migrationBuilder.AddColumn<decimal>(
                 name: "Kaution",

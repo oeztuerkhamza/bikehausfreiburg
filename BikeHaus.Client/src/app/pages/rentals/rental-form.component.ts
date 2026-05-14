@@ -1889,33 +1889,36 @@ export class RentalFormComponent implements OnInit {
     forkJoin(bikeIdResolves)
       .pipe(
         switchMap((bicycleIds: number[]) => {
-          const creates = this.bikes.map((b, i) => {
-            const payload: RentalCreate = {
+          // Use the first bike's payment methods as the rental-level defaults
+          const firstBike = this.bikes[0];
+          const payload: RentalCreate = {
+            customer: this.customer,
+            rabatt: firstBike.rabatt || 0,
+            zahlungsart: firstBike.zahlungsart,
+            kautionZahlungsart: firstBike.kautionZahlungsart,
+            notizen: this.notizen || undefined,
+            accessories:
+              accessoriesPayload.length > 0 ? accessoriesPayload : undefined,
+            bikes: this.bikes.map((b, i) => ({
               bicycleId: bicycleIds[i],
-              customer: this.customer,
+              rahmennummer: b.bikeEdit?.rahmennummer || undefined,
+              farbe: b.bikeEdit?.farbe || undefined,
               startDatum: this.startDatum,
               endDatum: this.endDatum,
-              gesamtmiete: b.gesamtmiete,
-              rabatt: b.rabatt || 0,
+              mietpreis: b.gesamtmiete,
               kaution: b.kaution,
-              zahlungsart: b.zahlungsart,
-              kautionZahlungsart: b.kautionZahlungsart,
               zustandBeiUebergabe:
                 b.zustandBeiUebergabe as BikeConditionAtHandover,
-              notizen: this.notizen || undefined,
-              accessories:
-                accessoriesPayload.length > 0 ? accessoriesPayload : undefined,
-            };
-            return this.rentalService.create(payload);
-          });
-          return forkJoin(creates);
+            })),
+          };
+          return this.rentalService.create(payload);
         }),
       )
       .subscribe({
         next: () => {
           this.notificationService.success(
             this.bikes.length > 1
-              ? 'Vermietungen erfolgreich angelegt'
+              ? 'Vermietung mit mehreren Fahrrädern angelegt'
               : 'Vermietung erfolgreich angelegt',
           );
           this.router.navigate(['/rentals']);
@@ -1925,7 +1928,7 @@ export class RentalFormComponent implements OnInit {
           this.notificationService.error(
             err.error?.error || 'Fehler beim Anlegen der Vermietung',
           );
-      },
-    });
+        },
+      });
   }
 }

@@ -9,34 +9,22 @@ public class Rental : BaseEntity
 
     // Mieter (Renter)
     public int CustomerId { get; set; }
-    public string? AusweisnNr { get; set; }  // ID number
+    public string? AusweisnNr { get; set; }
 
-    // Fahrrad
-    public int BicycleId { get; set; }
-
-    // Mietdauer
+    // Overall rental window (typically the union of per-bike periods)
     public DateTime StartDatum { get; set; }
     public DateTime EndDatum { get; set; }
 
-    // Mietpreis
-    public decimal Gesamtmiete { get; set; }  // Total rent (incl. MwSt.)
-    public decimal Rabatt { get; set; }  // Discount
+    // Aggregate totals — denormalised sums across Bikes
+    public decimal Gesamtmiete { get; set; }  // Sum of Bikes.Mietpreis (after Rabatt)
+    public decimal Rabatt { get; set; }
+    public decimal Kaution { get; set; }      // Sum of Bikes.Kaution
 
-    // Kaution
-    public decimal Kaution { get; set; }
-    public bool KautionZurueckgegeben { get; set; } = false;
-    public string? KautionRueckgabeUnterschrift { get; set; }
-
-    // Zahlungsart (für Miete / Mietgebühr)
+    // Single payment method for the whole rental
     public PaymentMethod Zahlungsart { get; set; } = PaymentMethod.Bar;
-
-    // Zahlungsart für die Kaution (kann von der Miete-Zahlungsart abweichen)
     public PaymentMethod KautionZahlungsart { get; set; } = PaymentMethod.Bar;
 
-    // Zustand bei Übergabe
-    public BikeConditionAtHandover ZustandBeiUebergabe { get; set; } = BikeConditionAtHandover.Gut;
-
-    // Status
+    // Status (applies to all bikes in this rental)
     public RentalStatus Status { get; set; } = RentalStatus.Active;
 
     // Notizen
@@ -44,6 +32,6 @@ public class Rental : BaseEntity
 
     // Navigation Properties
     public Customer Customer { get; set; } = null!;
-    public Bicycle Bicycle { get; set; } = null!;
+    public ICollection<RentalBike> Bikes { get; set; } = new List<RentalBike>();
     public ICollection<RentalAccessoryItem> Accessories { get; set; } = new List<RentalAccessoryItem>();
 }

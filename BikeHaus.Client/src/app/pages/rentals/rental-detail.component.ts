@@ -54,23 +54,37 @@ import { Rental, RentalUpdate } from '../../models/models';
         </div>
 
         <div class="info-card">
-          <h3>Fahrrad</h3>
-          <div class="info-row">
-            <span>Marke/Modell:</span
-            ><strong
-              >{{ rental.bicycle.marke }} {{ rental.bicycle.modell }}</strong
-            >
-          </div>
-          <div class="info-row" *ngIf="rental.bicycle.rahmennummer">
-            <span>Rahmennummer:</span
-            ><span>{{ rental.bicycle.rahmennummer }}</span>
-          </div>
-          <div class="info-row" *ngIf="rental.bicycle.farbe">
-            <span>Farbe:</span><span>{{ rental.bicycle.farbe }}</span>
-          </div>
-          <div class="info-row" *ngIf="rental.bicycle.reifengroesse">
-            <span>Reifengröße:</span
-            ><span>{{ rental.bicycle.reifengroesse }}</span>
+          <h3>{{ rental.bikes.length > 1 ? rental.bikes.length + ' Fahrräder' : 'Fahrrad' }}</h3>
+          <div class="bike-block" *ngFor="let rb of rental.bikes; let i = index">
+            <h4 *ngIf="rental.bikes.length > 1">{{ i + 1 }}. {{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</h4>
+            <div class="info-row" *ngIf="rental.bikes.length === 1">
+              <span>Marke/Modell:</span
+              ><strong>{{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</strong>
+            </div>
+            <div class="info-row" *ngIf="rb.rahmennummer || rb.bicycle.rahmennummer">
+              <span>Rahmennummer:</span
+              ><span>{{ rb.rahmennummer || rb.bicycle.rahmennummer }}</span>
+            </div>
+            <div class="info-row" *ngIf="rb.farbe || rb.bicycle.farbe">
+              <span>Farbe:</span><span>{{ rb.farbe || rb.bicycle.farbe }}</span>
+            </div>
+            <div class="info-row" *ngIf="rb.bicycle.reifengroesse">
+              <span>Reifengröße:</span
+              ><span>{{ rb.bicycle.reifengroesse }}</span>
+            </div>
+            <div class="info-row">
+              <span>Mietpreis:</span><strong>{{ rb.mietpreis | number: '1.2-2' }} €</strong>
+            </div>
+            <div class="info-row">
+              <span>Kaution:</span><strong>{{ rb.kaution | number: '1.2-2' }} €</strong>
+            </div>
+            <div class="info-row">
+              <span>Zeitraum:</span>
+              <span>{{ rb.startDatum | date: 'dd.MM.yyyy' }} – {{ rb.endDatum | date: 'dd.MM.yyyy' }}</span>
+            </div>
+            <div class="info-row">
+              <span>Zustand:</span><span>{{ getZustandText(rb.zustandBeiUebergabe) }}</span>
+            </div>
           </div>
         </div>
 
@@ -114,10 +128,6 @@ import { Rental, RentalUpdate } from '../../models/models';
             >
               {{ rental.kautionZurueckgegeben ? 'Ja' : 'Nein' }}
             </span>
-          </div>
-          <div class="info-row">
-            <span>Zustand:</span
-            ><span>{{ getZustandText(rental.zustandBeiUebergabe) }}</span>
           </div>
           <div class="info-row">
             <span>Status:</span>

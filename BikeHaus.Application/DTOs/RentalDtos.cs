@@ -25,10 +25,37 @@ public record RentalAccessoryItemCreateDto(
     int Menge
 );
 
+// ── Per-bike line inside a rental contract ──
+public record RentalBikeDto(
+    int Id,
+    int BicycleId,
+    BicycleDto Bicycle,
+    string? Rahmennummer,
+    string? Farbe,
+    DateTime StartDatum,
+    DateTime EndDatum,
+    decimal Mietpreis,
+    decimal Kaution,
+    bool KautionZurueckgegeben,
+    string? KautionRueckgabeUnterschrift,
+    BikeConditionAtHandover ZustandBeiUebergabe
+);
+
+public record RentalBikeCreateDto(
+    int BicycleId,
+    string? Rahmennummer,
+    string? Farbe,
+    DateTime StartDatum,
+    DateTime EndDatum,
+    decimal Mietpreis,
+    decimal Kaution,
+    BikeConditionAtHandover ZustandBeiUebergabe
+);
+
 public record RentalDto(
     int Id,
     string MietvertragNummer,
-    BicycleDto Bicycle,
+    List<RentalBikeDto> Bikes,
     CustomerDto Customer,
     string? AusweisnNr,
     DateTime StartDatum,
@@ -36,11 +63,9 @@ public record RentalDto(
     decimal Gesamtmiete,
     decimal Rabatt,
     decimal Kaution,
-    bool KautionZurueckgegeben,
-    string? KautionRueckgabeUnterschrift,
+    bool KautionZurueckgegeben,            // true when every bike's deposit is returned
     PaymentMethod Zahlungsart,
     PaymentMethod KautionZahlungsart,
-    BikeConditionAtHandover ZustandBeiUebergabe,
     RentalStatus Status,
     string? Notizen,
     DateTime CreatedAt,
@@ -50,7 +75,8 @@ public record RentalDto(
 public record RentalListDto(
     int Id,
     string MietvertragNummer,
-    string BikeInfo,
+    string BikeInfo,                       // "Marke Modell (+N more)" for multi-bike rentals
+    int BikeCount,
     string CustomerName,
     DateTime StartDatum,
     DateTime EndDatum,
@@ -62,17 +88,12 @@ public record RentalListDto(
 );
 
 public record RentalCreateDto(
-    int BicycleId,
+    List<RentalBikeCreateDto> Bikes,
     CustomerCreateDto Customer,
     string? AusweisnNr,
-    DateTime StartDatum,
-    DateTime EndDatum,
-    decimal Gesamtmiete,
     decimal Rabatt,
-    decimal Kaution,
     PaymentMethod Zahlungsart,
     PaymentMethod? KautionZahlungsart,
-    BikeConditionAtHandover ZustandBeiUebergabe,
     string? Notizen,
     List<RentalAccessoryItemCreateDto>? Accessories
 );
@@ -82,13 +103,10 @@ public record RentalUpdateDto(
     string? AusweisnNr,
     DateTime? StartDatum,
     DateTime? EndDatum,
-    decimal? Gesamtmiete,
     decimal? Rabatt,
-    decimal? Kaution,
-    bool? KautionZurueckgegeben,
+    bool? KautionZurueckgegeben,           // applies to every bike in this rental
     string? KautionRueckgabeUnterschrift,
     PaymentMethod? Zahlungsart,
     PaymentMethod? KautionZahlungsart,
-    BikeConditionAtHandover? ZustandBeiUebergabe,
     string? Notizen
 );

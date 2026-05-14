@@ -1,0 +1,33 @@
+using BikeHaus.Domain.Enums;
+
+namespace BikeHaus.Domain.Entities;
+
+public class RentalBike : BaseEntity
+{
+    public int RentalId { get; set; }
+    public int BicycleId { get; set; }
+
+    // Snapshot fields captured at handover (preserved if Bicycle changes later)
+    public string? Rahmennummer { get; set; }
+    public string? Farbe { get; set; }
+
+    // Per-bike rental window (bikes in the same Rental can have different periods,
+    // mirroring the RentalBookingBike model)
+    public DateTime StartDatum { get; set; }
+    public DateTime EndDatum { get; set; }
+
+    // Per-bike rental price (excluding accessories). Sum across bikes feeds Rental.Gesamtmiete.
+    public decimal Mietpreis { get; set; }
+
+    // Per-bike deposit; sum feeds Rental.Kaution
+    public decimal Kaution { get; set; }
+    public bool KautionZurueckgegeben { get; set; } = false;
+    public string? KautionRueckgabeUnterschrift { get; set; }
+
+    // Condition at handover is tracked per bike
+    public BikeConditionAtHandover ZustandBeiUebergabe { get; set; } = BikeConditionAtHandover.Gut;
+
+    // Navigation
+    public Rental Rental { get; set; } = null!;
+    public Bicycle Bicycle { get; set; } = null!;
+}

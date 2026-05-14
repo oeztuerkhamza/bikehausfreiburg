@@ -59,8 +59,7 @@ public class RentalService : IRentalService
                 var prevPredicate = predicate;
                 predicate = r => prevPredicate.Compile()(r) &&
                     (r.MietvertragNummer.ToLower().Contains(term) ||
-                     r.Bicycle.Marke.ToLower().Contains(term) ||
-                     r.Bicycle.Modell.ToLower().Contains(term) ||
+                     r.Bikes.Any(b => b.Bicycle.Marke.ToLower().Contains(term) || b.Bicycle.Modell.ToLower().Contains(term)) ||
                      r.Customer.Vorname.ToLower().Contains(term) ||
                      r.Customer.Nachname.ToLower().Contains(term));
             }
@@ -68,8 +67,7 @@ public class RentalService : IRentalService
             {
                 predicate = r =>
                     r.MietvertragNummer.ToLower().Contains(term) ||
-                    r.Bicycle.Marke.ToLower().Contains(term) ||
-                    r.Bicycle.Modell.ToLower().Contains(term) ||
+                    r.Bikes.Any(b => b.Bicycle.Marke.ToLower().Contains(term) || b.Bicycle.Modell.ToLower().Contains(term)) ||
                     r.Customer.Vorname.ToLower().Contains(term) ||
                     r.Customer.Nachname.ToLower().Contains(term);
             }
@@ -97,49 +95,75 @@ public class RentalService : IRentalService
 
     public async Task<RentalDto> CreateAsync(RentalCreateDto dto)
     {
-        var bicycle = await _bicycleRepository.GetByIdAsync(dto.BicycleId)
-            ?? throw new KeyNotFoundException($"Fahrrad mit ID {dto.BicycleId} nicht gefunden.");
+        if (dto.Bikes == null || dto.Bikes.Count == 0)
+            throw new InvalidOperationException("Mindestens ein Fahrrad ist erforderlich.");
 
-        if (bicycle.Status != BikeStatus.Available)
-            throw new InvalidOperationException("Dieses Fahrrad ist nicht verfügbar für Vermietung.");
+        // Validate every bike up-front so we don't half-create
+        var bicycles = new List<Bicycle>();
+        foreach (var bikeDto in dto.Bikes)
+        {
+            var bicycle = await _bicycleRepository.GetByIdAsync(bikeDto.BicycleId)
+                ?? throw new KeyNotFoundException($"Fahrrad mit ID {bikeDto.BicycleId} nicht gefunden.");
 
-        // Check if there's already an active rental for this bicycle
-        var existingRental = await _rentalRepository.GetActiveByBicycleIdAsync(dto.BicycleId);
-        if (existingRental != null)
-            throw new InvalidOperationException("Dieses Fahrrad ist bereits vermietet.");
+            if (bicycle.Status != BikeStatus.Available)
+                throw new InvalidOperationException($"Fahrrad '{bicycle.Marke} {bicycle.Modell}' ist nicht verfügbar für Vermietung.");
 
-        // Create customer
+            var existingRental = await _rentalRepository.GetActiveByBicycleIdAsync(bikeDto.BicycleId);
+            if (existingRental != null)
+                throw new InvalidOperationException($"Fahrrad '{bicycle.Marke} {bicycle.Modell}' ist bereits vermietet.");
+
+            bicycles.Add(bicycle);
+        }
+
+        // Create customer (one per rental)
         var customer = dto.Customer.ToEntity();
         customer = await _customerRepository.AddAsync(customer);
 
+        // Aggregate dates/totals across bikes
+        var startDatum = dto.Bikes.Min(b => b.StartDatum);
+        var endDatum = dto.Bikes.Max(b => b.EndDatum);
+        var gesamtmiete = dto.Bikes.Sum(b => b.Mietpreis);
+        var kautionTotal = dto.Bikes.Sum(b => b.Kaution);
+
         var rental = new Rental
         {
-            BicycleId = dto.BicycleId,
             CustomerId = customer.Id,
             AusweisnNr = dto.AusweisnNr,
-            StartDatum = dto.StartDatum,
-            EndDatum = dto.EndDatum,
-            Gesamtmiete = dto.Gesamtmiete,
+            StartDatum = startDatum,
+            EndDatum = endDatum,
+            Gesamtmiete = gesamtmiete,
             Rabatt = dto.Rabatt,
-            Kaution = dto.Kaution,
+            Kaution = kautionTotal,
             Zahlungsart = dto.Zahlungsart,
             KautionZahlungsart = dto.KautionZahlungsart ?? dto.Zahlungsart,
-            ZustandBeiUebergabe = dto.ZustandBeiUebergabe,
             Notizen = dto.Notizen,
             Status = RentalStatus.Active,
             MietvertragNummer = await _rentalRepository.GenerateMietvertragNummerAsync()
         };
 
-        var created = await _rentalRepository.AddAsync(rental);
+        // Attach bikes
+        foreach (var bikeDto in dto.Bikes)
+        {
+            rental.Bikes.Add(new RentalBike
+            {
+                BicycleId = bikeDto.BicycleId,
+                Rahmennummer = bikeDto.Rahmennummer,
+                Farbe = bikeDto.Farbe,
+                StartDatum = bikeDto.StartDatum,
+                EndDatum = bikeDto.EndDatum,
+                Mietpreis = bikeDto.Mietpreis,
+                Kaution = bikeDto.Kaution,
+                ZustandBeiUebergabe = bikeDto.ZustandBeiUebergabe
+            });
+        }
 
-        // Add accessories
+        // Accessories
         if (dto.Accessories != null && dto.Accessories.Count > 0)
         {
             foreach (var accessoryDto in dto.Accessories)
             {
-                created.Accessories.Add(new RentalAccessoryItem
+                rental.Accessories.Add(new RentalAccessoryItem
                 {
-                    RentalId = created.Id,
                     RentalAccessoryId = accessoryDto.RentalAccessoryId,
                     Bezeichnung = accessoryDto.Bezeichnung,
                     Tagespreis = accessoryDto.Tagespreis,
@@ -147,13 +171,17 @@ public class RentalService : IRentalService
                     Menge = accessoryDto.Menge
                 });
             }
-            await _rentalRepository.UpdateAsync(created);
         }
 
-        // Update bicycle status to Rented
-        bicycle.Status = BikeStatus.Rented;
-        bicycle.UpdatedAt = DateTime.UtcNow;
-        await _bicycleRepository.UpdateAsync(bicycle);
+        var created = await _rentalRepository.AddAsync(rental);
+
+        // Mark every bicycle Rented
+        foreach (var bicycle in bicycles)
+        {
+            bicycle.Status = BikeStatus.Rented;
+            bicycle.UpdatedAt = DateTime.UtcNow;
+            await _bicycleRepository.UpdateAsync(bicycle);
+        }
 
         var result = await _rentalRepository.GetWithDetailsAsync(created.Id);
         if (result != null)
@@ -194,9 +222,9 @@ public class RentalService : IRentalService
     {
         var rental = await _rentalRepository.GetWithDetailsAsync(id)
             ?? throw new KeyNotFoundException($"Mietvertrag mit ID {id} nicht gefunden.");
-        var wasDepositRefunded = rental.KautionZurueckgegeben;
 
-        // Update customer if provided
+        var wasAllRefunded = rental.Bikes.Count > 0 && rental.Bikes.All(b => b.KautionZurueckgegeben);
+
         if (dto.Customer != null)
         {
             var customer = rental.Customer;
@@ -218,34 +246,43 @@ public class RentalService : IRentalService
             rental.StartDatum = dto.StartDatum.Value;
         if (dto.EndDatum.HasValue)
             rental.EndDatum = dto.EndDatum.Value;
-        if (dto.Gesamtmiete.HasValue)
-            rental.Gesamtmiete = dto.Gesamtmiete.Value;
         if (dto.Rabatt.HasValue)
             rental.Rabatt = dto.Rabatt.Value;
-        if (dto.Kaution.HasValue)
-            rental.Kaution = dto.Kaution.Value;
+        if (dto.Zahlungsart.HasValue)
+            rental.Zahlungsart = dto.Zahlungsart.Value;
+        if (dto.KautionZahlungsart.HasValue)
+            rental.KautionZahlungsart = dto.KautionZahlungsart.Value;
+        if (dto.Notizen != null)
+            rental.Notizen = dto.Notizen;
+
+        // Deposit return cascades to every bike in this rental
         if (dto.KautionZurueckgegeben.HasValue)
         {
             if (dto.KautionZurueckgegeben.Value && string.IsNullOrWhiteSpace(dto.KautionRueckgabeUnterschrift))
                 throw new InvalidOperationException("Für die Kautionsrückgabe ist eine Unterschrift erforderlich.");
 
-            rental.KautionZurueckgegeben = dto.KautionZurueckgegeben.Value;
+            foreach (var bike in rental.Bikes)
+            {
+                bike.KautionZurueckgegeben = dto.KautionZurueckgegeben.Value;
+                if (dto.KautionRueckgabeUnterschrift != null)
+                    bike.KautionRueckgabeUnterschrift = dto.KautionRueckgabeUnterschrift;
+                bike.UpdatedAt = DateTime.UtcNow;
+            }
         }
-        if (dto.KautionRueckgabeUnterschrift != null)
-            rental.KautionRueckgabeUnterschrift = dto.KautionRueckgabeUnterschrift;
-        if (dto.Zahlungsart.HasValue)
-            rental.Zahlungsart = dto.Zahlungsart.Value;
-        if (dto.KautionZahlungsart.HasValue)
-            rental.KautionZahlungsart = dto.KautionZahlungsart.Value;
-        if (dto.ZustandBeiUebergabe.HasValue)
-            rental.ZustandBeiUebergabe = dto.ZustandBeiUebergabe.Value;
-        if (dto.Notizen != null)
-            rental.Notizen = dto.Notizen;
+        else if (dto.KautionRueckgabeUnterschrift != null)
+        {
+            foreach (var bike in rental.Bikes)
+            {
+                bike.KautionRueckgabeUnterschrift = dto.KautionRueckgabeUnterschrift;
+                bike.UpdatedAt = DateTime.UtcNow;
+            }
+        }
 
         rental.UpdatedAt = DateTime.UtcNow;
         await _rentalRepository.UpdateAsync(rental);
 
-        if (!wasDepositRefunded && rental.KautionZurueckgegeben)
+        var isAllRefundedNow = rental.Bikes.Count > 0 && rental.Bikes.All(b => b.KautionZurueckgegeben);
+        if (!wasAllRefunded && isAllRefundedNow)
             await TrySendDepositRefundConfirmationAsync(rental);
 
         var updated = await _rentalRepository.GetWithDetailsAsync(id);
@@ -280,17 +317,8 @@ public class RentalService : IRentalService
         var rental = await _rentalRepository.GetWithDetailsAsync(id)
             ?? throw new KeyNotFoundException($"Mietvertrag mit ID {id} nicht gefunden.");
 
-        // If active, release the bicycle
         if (rental.Status == RentalStatus.Active)
-        {
-            var bicycle = await _bicycleRepository.GetByIdAsync(rental.BicycleId);
-            if (bicycle != null)
-            {
-                bicycle.Status = BikeStatus.Available;
-                bicycle.UpdatedAt = DateTime.UtcNow;
-                await _bicycleRepository.UpdateAsync(bicycle);
-            }
-        }
+            await ReleaseBikesAsync(rental);
 
         await _rentalRepository.DeleteAsync(rental.Id);
     }
@@ -307,14 +335,7 @@ public class RentalService : IRentalService
         rental.UpdatedAt = DateTime.UtcNow;
         await _rentalRepository.UpdateAsync(rental);
 
-        // Release bicycle
-        var bicycle = await _bicycleRepository.GetByIdAsync(rental.BicycleId);
-        if (bicycle != null)
-        {
-            bicycle.Status = BikeStatus.Available;
-            bicycle.UpdatedAt = DateTime.UtcNow;
-            await _bicycleRepository.UpdateAsync(bicycle);
-        }
+        await ReleaseBikesAsync(rental);
 
         var updated = await _rentalRepository.GetWithDetailsAsync(id);
         return updated!.ToDto();
@@ -332,16 +353,21 @@ public class RentalService : IRentalService
         rental.UpdatedAt = DateTime.UtcNow;
         await _rentalRepository.UpdateAsync(rental);
 
-        // Release bicycle
-        var bicycle = await _bicycleRepository.GetByIdAsync(rental.BicycleId);
-        if (bicycle != null)
+        await ReleaseBikesAsync(rental);
+
+        var updated = await _rentalRepository.GetWithDetailsAsync(id);
+        return updated!.ToDto();
+    }
+
+    private async Task ReleaseBikesAsync(Rental rental)
+    {
+        foreach (var rentalBike in rental.Bikes)
         {
+            var bicycle = await _bicycleRepository.GetByIdAsync(rentalBike.BicycleId);
+            if (bicycle == null) continue;
             bicycle.Status = BikeStatus.Available;
             bicycle.UpdatedAt = DateTime.UtcNow;
             await _bicycleRepository.UpdateAsync(bicycle);
         }
-
-        var updated = await _rentalRepository.GetWithDetailsAsync(id);
-        return updated!.ToDto();
     }
 }

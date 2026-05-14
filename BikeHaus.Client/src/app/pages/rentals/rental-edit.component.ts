@@ -8,9 +8,7 @@ import {
   Rental,
   RentalUpdate,
   PaymentMethod,
-  BikeConditionAtHandover,
 } from '../../models/models';
-import { calculateRentalPrice } from '../../utils/rental-pricing';
 
 @Component({
   selector: 'app-rental-edit',
@@ -30,26 +28,30 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
         <div class="form-sections">
           <!-- Bicycle info (read-only) -->
           <div class="form-card">
-            <h2>Fahrrad</h2>
-            <div class="bike-info" *ngIf="rental.bicycle">
-              <div class="info-row">
+            <h2>{{ rental.bikes.length > 1 ? rental.bikes.length + ' Fahrräder' : 'Fahrrad' }}</h2>
+            <div class="bike-info" *ngFor="let rb of rental.bikes; let i = index">
+              <div class="info-row" *ngIf="rental.bikes.length > 1">
+                <span class="label">#{{ i + 1 }}:</span>
+                <strong>{{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</strong>
+              </div>
+              <div class="info-row" *ngIf="rental.bikes.length === 1">
                 <span class="label">Marke/Modell:</span>
-                <span
-                  >{{ rental.bicycle.marke }} {{ rental.bicycle.modell }}</span
-                >
+                <span>{{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</span>
+              </div>
+              <div class="info-row" *ngIf="rb.rahmennummer || rb.bicycle.rahmennummer">
+                <span class="label">Rahmennummer:</span>
+                <span style="text-transform: uppercase">{{ rb.rahmennummer || rb.bicycle.rahmennummer }}</span>
+              </div>
+              <div class="info-row" *ngIf="rb.farbe || rb.bicycle.farbe">
+                <span class="label">Farbe:</span>
+                <span>{{ rb.farbe || rb.bicycle.farbe }}</span>
               </div>
               <div class="info-row">
-                <span class="label">Rahmennummer:</span>
-                <span style="text-transform: uppercase">{{
-                  rental.bicycle.rahmennummer
-                }}</span>
-              </div>
-              <div class="info-row" *ngIf="rental.bicycle.farbe">
-                <span class="label">Farbe:</span>
-                <span>{{ rental.bicycle.farbe }}</span>
+                <span class="label">Kaution:</span>
+                <span>{{ rb.kaution | number: '1.2-2' }} €</span>
               </div>
             </div>
-            <p class="hint">Fahrrad kann nicht geändert werden.</p>
+            <p class="hint">Fahrräder können nicht geändert werden.</p>
           </div>
 
           <!-- Mieter info -->
@@ -133,32 +135,20 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
               </div>
             </div>
 
-            <!-- Price calculation info -->
+            <!-- Rental period overview -->
             <div class="price-calc" *ngIf="rentalDays > 0">
               <div class="calc-header">
                 <span class="calc-days"
                   >{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span
                 >
                 <span class="calc-price"
-                  >Berechneter Preis:
-                  {{ berechneterPreis | number: '1.2-2' }} €</span
+                  >Gesamtmiete:
+                  {{ rental?.gesamtmiete | number: '1.2-2' }} €</span
                 >
-              </div>
-              <div class="calc-breakdown" *ngIf="preisInfo">
-                <span class="calc-info">{{ preisInfo }}</span>
               </div>
             </div>
 
             <div class="form-grid" style="margin-top: 12px;">
-              <div class="field">
-                <label>Gesamtmiete (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="gesamtmiete"
-                  name="gesamtmiete"
-                />
-              </div>
               <div class="field">
                 <label>Rabatt (€)</label>
                 <input
@@ -167,16 +157,6 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
                   [(ngModel)]="rabatt"
                   name="rabatt"
                   min="0"
-                  (ngModelChange)="onRabattChanged()"
-                />
-              </div>
-              <div class="field">
-                <label>Kaution (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="kaution"
-                  name="kaution"
                 />
               </div>
               <div class="field">
@@ -197,17 +177,6 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
                   <option value="Überweisung">Überweisung</option>
                 </select>
               </div>
-              <div class="field">
-                <label>Zustand bei Übergabe</label>
-                <select
-                  [(ngModel)]="zustandBeiUebergabe"
-                  name="zustandBeiUebergabe"
-                >
-                  <option value="SehrGut">Sehr gut</option>
-                  <option value="Gut">Gut</option>
-                  <option value="Gebrauchsspuren">Gebrauchsspuren</option>
-                </select>
-              </div>
               <div class="field full">
                 <label>Notizen</label>
                 <textarea
@@ -217,6 +186,9 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
                 ></textarea>
               </div>
             </div>
+            <p class="hint" style="margin-top: 8px;">
+              Gesamtmiete, Kaution und Zustand werden pro Fahrrad beim Anlegen festgelegt und sind hier nicht mehr editierbar.
+            </p>
           </div>
         </div>
 
@@ -446,15 +418,10 @@ export class RentalEditComponent implements OnInit {
   ausweisnNr = '';
   startDatum = '';
   endDatum = '';
-  gesamtmiete = 0;
   rabatt = 0;
-  berechneterPreis = 0;
   rentalDays = 0;
-  preisInfo = '';
-  kaution = 0;
   zahlungsart: string = PaymentMethod.Bar;
   kautionZahlungsart: string = PaymentMethod.Bar;
-  zustandBeiUebergabe = 'Gut';
   notizen = '';
 
   get t() {
@@ -504,12 +471,9 @@ export class RentalEditComponent implements OnInit {
     }
 
     this.ausweisnNr = rental.ausweisnNr || '';
-    this.gesamtmiete = rental.gesamtmiete;
     this.rabatt = rental.rabatt || 0;
-    this.kaution = rental.kaution;
     this.zahlungsart = rental.zahlungsart || PaymentMethod.Bar;
     this.kautionZahlungsart = rental.kautionZahlungsart || PaymentMethod.Bar;
-    this.zustandBeiUebergabe = rental.zustandBeiUebergabe || 'Gut';
     this.notizen = rental.notizen || '';
 
     // Format dates
@@ -534,47 +498,10 @@ export class RentalEditComponent implements OnInit {
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
     );
     this.rentalDays = Math.max(0, diffDays + 1);
-    if (this.rentalDays > 0) {
-      this.berechneterPreis = this.calculatePrice(this.rentalDays);
-    }
   }
 
   onDatesChanged() {
-    if (!this.startDatum || !this.endDatum) return;
-    const start = new Date(this.startDatum);
-    const end = new Date(this.endDatum);
-    const diffDays = Math.round(
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
-    );
-    this.rentalDays = Math.max(0, diffDays + 1);
-    if (this.rentalDays > 0) {
-      this.berechneterPreis = this.calculatePrice(this.rentalDays);
-      this.gesamtmiete = Math.max(
-        0,
-        this.berechneterPreis - (this.rabatt || 0),
-      );
-    }
-  }
-
-  onRabattChanged() {
-    if (this.berechneterPreis > 0) {
-      this.gesamtmiete = Math.max(
-        0,
-        this.berechneterPreis - (this.rabatt || 0),
-      );
-    }
-  }
-
-  calculatePrice(days: number): number {
-    const bicycle = this.rental?.bicycle;
-    if (!bicycle) {
-      this.preisInfo = '';
-      return 0;
-    }
-
-    const result = calculateRentalPrice(bicycle, days);
-    this.preisInfo = result.info;
-    return result.total ?? 0;
+    this.recalcDays();
   }
 
   submit() {
@@ -586,12 +513,9 @@ export class RentalEditComponent implements OnInit {
       ausweisnNr: this.ausweisnNr || undefined,
       startDatum: this.startDatum,
       endDatum: this.endDatum,
-      gesamtmiete: this.gesamtmiete,
       rabatt: this.rabatt || 0,
-      kaution: this.kaution,
       zahlungsart: this.zahlungsart as PaymentMethod,
       kautionZahlungsart: this.kautionZahlungsart as PaymentMethod,
-      zustandBeiUebergabe: this.zustandBeiUebergabe as BikeConditionAtHandover,
       notizen: this.notizen || undefined,
     };
 

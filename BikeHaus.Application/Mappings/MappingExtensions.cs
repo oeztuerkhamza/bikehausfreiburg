@@ -443,10 +443,25 @@ public static class MappingExtensions
         entity.Tagespreis * entity.Menge
     );
 
+    public static RentalBikeDto ToDto(this RentalBike entity) => new(
+        entity.Id,
+        entity.BicycleId,
+        entity.Bicycle.ToDto(),
+        entity.Rahmennummer,
+        entity.Farbe,
+        entity.StartDatum,
+        entity.EndDatum,
+        entity.Mietpreis,
+        entity.Kaution,
+        entity.KautionZurueckgegeben,
+        entity.KautionRueckgabeUnterschrift,
+        entity.ZustandBeiUebergabe
+    );
+
     public static RentalDto ToDto(this Rental entity) => new(
         entity.Id,
         entity.MietvertragNummer,
-        entity.Bicycle.ToDto(),
+        entity.Bikes.OrderBy(b => b.Id).Select(b => b.ToDto()).ToList(),
         entity.Customer.ToDto(),
         entity.AusweisnNr,
         entity.StartDatum,
@@ -454,28 +469,38 @@ public static class MappingExtensions
         entity.Gesamtmiete,
         entity.Rabatt,
         entity.Kaution,
-        entity.KautionZurueckgegeben,
-        entity.KautionRueckgabeUnterschrift,
+        entity.Bikes.Count > 0 && entity.Bikes.All(b => b.KautionZurueckgegeben),
         entity.Zahlungsart,
         entity.KautionZahlungsart,
-        entity.ZustandBeiUebergabe,
         entity.Status,
         entity.Notizen,
         entity.CreatedAt,
         entity.Accessories.Select(a => a.ToDto()).ToList()
     );
 
-    public static RentalListDto ToListDto(this Rental entity) => new(
-        entity.Id,
-        entity.MietvertragNummer,
-        $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
-        entity.Customer.FullName,
-        entity.StartDatum,
-        entity.EndDatum,
-        entity.Gesamtmiete,
-        entity.Rabatt,
-        entity.Kaution,
-        entity.Status,
-        entity.EndDatum < DateTime.UtcNow && entity.Status == Domain.Enums.RentalStatus.Active
-    );
+    public static RentalListDto ToListDto(this Rental entity)
+    {
+        var firstBike = entity.Bikes.OrderBy(b => b.Id).FirstOrDefault();
+        var bikeCount = entity.Bikes.Count;
+        var info = firstBike != null
+            ? bikeCount > 1
+                ? $"{firstBike.Bicycle.Marke} {firstBike.Bicycle.Modell} (+{bikeCount - 1})"
+                : $"{firstBike.Bicycle.Marke} {firstBike.Bicycle.Modell}"
+            : string.Empty;
+
+        return new RentalListDto(
+            entity.Id,
+            entity.MietvertragNummer,
+            info,
+            bikeCount,
+            entity.Customer.FullName,
+            entity.StartDatum,
+            entity.EndDatum,
+            entity.Gesamtmiete,
+            entity.Rabatt,
+            entity.Kaution,
+            entity.Status,
+            entity.EndDatum < DateTime.UtcNow && entity.Status == Domain.Enums.RentalStatus.Active
+        );
+    }
 }

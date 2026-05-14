@@ -4667,7 +4667,7 @@ export class FahrradverleihComponent implements OnInit {
   scrollToBikes(): void {
     if (this.isBrowser) {
       document
-        .getElementById('fahrrad-waehlen')
+        .getElementById('booking-panel')
         ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
