@@ -1320,7 +1320,12 @@ interface BikeSlot {
 @Component({
   selector: 'app-fahrradverleih',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, RentalBookingStepsComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    RentalBookingStepsComponent,
+  ],
   template: `
     <div class="rental-page">
       <!-- ═══ HERO BANNER ═══ -->
@@ -1449,8 +1454,8 @@ interface BikeSlot {
           </div>
         </section> -->
 
-        <!-- Seat-Map: Fahrrad wählen -->
-        <section class="bikes-section" id="fahrrad-waehlen">
+        <!-- Legacy Seat-Map hidden: booking now uses step-by-step flow -->
+        <section class="bikes-section" id="fahrrad-waehlen" *ngIf="false">
           <div class="section-header">
             <span class="section-label">{{
               t().bikeRentalAvailableLabel

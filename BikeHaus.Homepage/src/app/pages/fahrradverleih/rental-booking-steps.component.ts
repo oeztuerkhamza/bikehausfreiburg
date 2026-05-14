@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { TranslationService } from '../../services/translation.service';
+import { environment } from '../../../environments/environment';
 import {
   PublicRentalBicycle,
   RentalBikeImage,
@@ -48,7 +49,11 @@ type BookingStep =
           1. {{ t().rentalSteps?.dateSelection ?? 'Termin wählen' }}
         </div>
         <div
-          [class.active]="currentStep() === 'bike-selection' || currentStep() === 'bike-details' || currentStep() === 'choose-next'"
+          [class.active]="
+            currentStep() === 'bike-selection' ||
+            currentStep() === 'bike-details' ||
+            currentStep() === 'choose-next'
+          "
           class="step"
         >
           2. {{ t().rentalSteps?.bikeSelection ?? 'Fahrrad wählen' }}
@@ -130,7 +135,7 @@ type BookingStep =
             <div class="bike-image">
               <img
                 *ngIf="getMainImage(bike)"
-                [src]="bike.images[0]?.filePath"
+                [src]="getImageUrl(getMainImage(bike)?.filePath)"
                 [alt]="bike.modell"
               />
             </div>
@@ -161,7 +166,7 @@ type BookingStep =
           <div class="bike-images">
             <img
               *ngIf="getMainImage(selectedBike()!)"
-              [src]="getMainImage(selectedBike()!)!.filePath"
+              [src]="getImageUrl(getMainImage(selectedBike()!)?.filePath)"
               [alt]="selectedBike()!.modell"
               class="main-image"
             />
@@ -171,7 +176,7 @@ type BookingStep =
             >
               <img
                 *ngFor="let img of getImages(selectedBike()!)"
-                [src]="img.filePath"
+                [src]="getImageUrl(img.filePath)"
                 (click)="
                   currentImageIndex.set(getImages(selectedBike()!).indexOf(img))
                 "
@@ -262,15 +267,22 @@ type BookingStep =
       </div>
 
       <!-- Step 3b: Choose next action (continue to checkout OR add another bike) -->
-      <div *ngIf="currentStep() === 'choose-next'" class="step-container choose-next-container">
-        <h2>{{ t().rentalSteps?.bikeAdded ?? 'Fahrrad zur Buchung hinzugefügt' }}</h2>
+      <div
+        *ngIf="currentStep() === 'choose-next'"
+        class="step-container choose-next-container"
+      >
+        <h2>
+          {{ t().rentalSteps?.bikeAdded ?? 'Fahrrad zur Buchung hinzugefügt' }}
+        </h2>
 
         <div class="cart-summary">
           <p class="cart-count">
             <strong>{{ cartBikes().length }}</strong>
-            {{ cartBikes().length === 1
+            {{
+              cartBikes().length === 1
                 ? (t().rentalSteps?.bikeInCart ?? 'Fahrrad in der Buchung')
-                : (t().rentalSteps?.bikesInCart ?? 'Fahrräder in der Buchung') }}
+                : (t().rentalSteps?.bikesInCart ?? 'Fahrräder in der Buchung')
+            }}
           </p>
           <ul class="cart-list">
             <li *ngFor="let item of cartBikes()" class="cart-list-item">
@@ -279,7 +291,9 @@ type BookingStep =
             </li>
           </ul>
           <p class="cart-total">
-            <strong>{{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:</strong>
+            <strong
+              >{{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:</strong
+            >
             €{{ getTotalPrice() }}
           </p>
         </div>
@@ -289,7 +303,9 @@ type BookingStep =
             {{ t().rentalSteps?.continueToBooking ?? 'Mit Buchung fortfahren' }}
           </button>
           <button (click)="goToStep('bike-selection')" class="btn-secondary">
-            {{ t().rentalSteps?.addAnotherBike ?? '+ Weiteres Fahrrad hinzufügen' }}
+            {{
+              t().rentalSteps?.addAnotherBike ?? '+ Weiteres Fahrrad hinzufügen'
+            }}
           </button>
         </div>
       </div>
@@ -519,12 +535,36 @@ type BookingStep =
   styles: [
     `
       .rental-booking-steps-container {
+        --rb-bg: rgba(10, 16, 28, 0.82);
+        --rb-surface: rgba(255, 255, 255, 0.06);
+        --rb-surface-strong: rgba(255, 255, 255, 0.1);
+        --rb-border: rgba(255, 255, 255, 0.16);
+        --rb-text: #f5f8ff;
+        --rb-text-soft: rgba(245, 248, 255, 0.72);
+        --rb-accent: var(--color-accent, #ff5722);
         max-width: 900px;
         margin: 2rem auto;
         padding: 2rem;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(
+          160deg,
+          var(--rb-bg),
+          rgba(18, 27, 43, 0.94)
+        );
+        border: 1px solid var(--rb-border);
+        border-radius: 18px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        color: var(--rb-text);
+      }
+
+      .rental-booking-steps-container h2,
+      .rental-booking-steps-container h3,
+      .rental-booking-steps-container strong,
+      .rental-booking-steps-container label {
+        color: var(--rb-text);
+      }
+
+      .rental-booking-steps-container p {
+        color: var(--rb-text-soft);
       }
 
       .steps-indicator {
@@ -536,16 +576,18 @@ type BookingStep =
 
       .step {
         padding: 0.75rem 1.5rem;
-        background: #f0f0f0;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
         border-radius: 8px;
         font-size: 0.9rem;
-        font-weight: 500;
-        color: #666;
+        font-weight: 600;
+        color: var(--rb-text-soft);
       }
 
       .step.active {
-        background: #007bff;
-        color: white;
+        background: rgba(255, 87, 34, 0.2);
+        border-color: rgba(255, 87, 34, 0.52);
+        color: var(--rb-text);
       }
 
       .step-container {
@@ -580,13 +622,16 @@ type BookingStep =
 
       .date-input-group input {
         padding: 0.75rem;
-        border: 1px solid #ddd;
+        border: 1px solid var(--rb-border);
         border-radius: 6px;
         font-size: 1rem;
+        background: var(--rb-surface);
+        color: var(--rb-text);
       }
 
       .date-range-display {
-        background: #f9f9f9;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
         padding: 1rem;
         border-radius: 6px;
         margin-bottom: 1.5rem;
@@ -601,7 +646,8 @@ type BookingStep =
       }
 
       .bike-card {
-        border: 2px solid #ddd;
+        border: 1px solid var(--rb-border);
+        background: var(--rb-surface);
         border-radius: 8px;
         overflow: hidden;
         cursor: pointer;
@@ -609,15 +655,15 @@ type BookingStep =
       }
 
       .bike-card:hover {
-        border-color: #007bff;
-        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+        border-color: rgba(255, 87, 34, 0.52);
+        box-shadow: 0 8px 20px rgba(255, 87, 34, 0.2);
         transform: translateY(-2px);
       }
 
       .bike-image {
         width: 100%;
         height: 200px;
-        background: #f0f0f0;
+        background: rgba(255, 255, 255, 0.04);
         overflow: hidden;
       }
 
@@ -637,13 +683,13 @@ type BookingStep =
       }
 
       .bike-type {
-        color: #666;
+        color: var(--rb-text-soft);
         font-size: 0.9rem;
         margin: 0.25rem 0;
       }
 
       .bike-price {
-        color: #007bff;
+        color: var(--rb-accent);
         font-weight: 600;
         margin: 0.5rem 0 0 0;
       }
@@ -685,7 +731,7 @@ type BookingStep =
       }
 
       .thumbnail.active {
-        border-color: #007bff;
+        border-color: var(--rb-accent);
       }
 
       .bike-specs {
@@ -696,22 +742,23 @@ type BookingStep =
 
       .spec {
         padding: 0.75rem;
-        background: #f9f9f9;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
         border-radius: 6px;
         font-size: 0.9rem;
       }
 
       .spec strong {
         display: block;
-        color: #333;
+        color: var(--rb-text);
         margin-bottom: 0.25rem;
       }
 
       .price-info {
         padding: 1rem;
-        background: #e7f3ff;
+        background: rgba(255, 87, 34, 0.09);
         border-radius: 6px;
-        border-left: 4px solid #007bff;
+        border-left: 4px solid var(--rb-accent);
       }
 
       .price-info h3 {
@@ -727,17 +774,18 @@ type BookingStep =
       .total-price {
         font-size: 1.1rem !important;
         font-weight: 600 !important;
-        color: #007bff;
+        color: var(--rb-accent);
       }
 
       .deposit-info {
-        color: #666;
+        color: var(--rb-text-soft);
       }
 
       .color-selection,
       .frame-number-input {
         padding: 0.75rem;
-        background: #f9f9f9;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
         border-radius: 6px;
       }
 
@@ -752,9 +800,11 @@ type BookingStep =
       .frame-number-input input {
         width: 100%;
         padding: 0.5rem;
-        border: 1px solid #ddd;
+        border: 1px solid var(--rb-border);
         border-radius: 4px;
         font-size: 0.9rem;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--rb-text);
       }
 
       .customer-form {
@@ -778,10 +828,12 @@ type BookingStep =
       .form-group input,
       .form-group textarea {
         padding: 0.75rem;
-        border: 1px solid #ddd;
+        border: 1px solid var(--rb-border);
         border-radius: 6px;
         font-size: 0.95rem;
         font-family: inherit;
+        background: var(--rb-surface);
+        color: var(--rb-text);
       }
 
       .form-group textarea {
@@ -791,7 +843,8 @@ type BookingStep =
       }
 
       .cart-summary {
-        background: #f9f9f9;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
         padding: 1.5rem;
         border-radius: 8px;
         margin-bottom: 2rem;
@@ -806,16 +859,16 @@ type BookingStep =
         justify-content: space-between;
         align-items: center;
         padding: 1rem;
-        background: white;
+        background: rgba(255, 255, 255, 0.04);
         border-radius: 6px;
         margin-bottom: 0.75rem;
-        border-left: 4px solid #007bff;
+        border-left: 4px solid var(--rb-accent);
       }
 
       .cart-item p {
         margin: 0.25rem 0;
         font-size: 0.9rem;
-        color: #666;
+        color: var(--rb-text-soft);
       }
 
       .item-price {
@@ -828,11 +881,11 @@ type BookingStep =
       .item-price p {
         font-weight: 600;
         font-size: 1.1rem;
-        color: #007bff;
+        color: var(--rb-accent);
       }
 
       .btn-remove {
-        background: #ff4444;
+        background: #d93d3d;
         color: white;
         border: none;
         width: 32px;
@@ -846,11 +899,12 @@ type BookingStep =
       }
 
       .btn-remove:hover {
-        background: #cc0000;
+        background: #b62323;
       }
 
       .review-section {
-        background: #f9f9f9;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
         padding: 1.5rem;
         border-radius: 8px;
         margin-bottom: 1.5rem;
@@ -859,15 +913,15 @@ type BookingStep =
       .review-section h3 {
         margin: 0 0 1rem 0;
         font-size: 1.05rem;
-        color: #333;
+        color: var(--rb-text);
       }
 
       .review-item {
-        background: white;
+        background: rgba(255, 255, 255, 0.04);
         padding: 1rem;
         border-radius: 6px;
         margin-bottom: 0.75rem;
-        border-left: 4px solid #007bff;
+        border-left: 4px solid var(--rb-accent);
       }
 
       .review-item p {
@@ -876,16 +930,16 @@ type BookingStep =
       }
 
       .review-item .price {
-        color: #007bff;
+        color: var(--rb-accent);
         font-weight: 600;
         margin-top: 0.5rem;
       }
 
       .price-summary {
-        background: #e7f3ff;
+        background: rgba(255, 87, 34, 0.09);
         padding: 1.5rem;
         border-radius: 8px;
-        border-left: 4px solid #007bff;
+        border-left: 4px solid var(--rb-accent);
         margin-bottom: 2rem;
       }
 
@@ -900,12 +954,12 @@ type BookingStep =
 
       .price-summary strong {
         font-size: 1.1rem;
-        color: #007bff;
+        color: var(--rb-accent);
       }
 
       .info-note {
         font-size: 0.85rem !important;
-        color: #666 !important;
+        color: var(--rb-text-soft) !important;
         font-style: italic;
         margin-top: 1rem !important;
       }
@@ -916,7 +970,7 @@ type BookingStep =
       }
 
       .success-section h2 {
-        color: #28a745;
+        color: #64d68a;
         margin-bottom: 1rem;
       }
 
@@ -930,16 +984,16 @@ type BookingStep =
         text-align: center;
         padding: 3rem 1rem;
         font-size: 1.1rem;
-        color: #666;
+        color: var(--rb-text-soft);
       }
 
       .error-message {
-        background: #fee;
-        color: #c00;
+        background: rgba(220, 38, 38, 0.12);
+        color: #fecaca;
         padding: 1rem;
         border-radius: 6px;
         margin: 1rem 0;
-        border-left: 4px solid #c00;
+        border-left: 4px solid #ef4444;
       }
 
       .booking-actions,
@@ -962,32 +1016,33 @@ type BookingStep =
       }
 
       .btn-primary {
-        background: #007bff;
+        background: linear-gradient(135deg, #ff7a3a, var(--rb-accent));
         color: white;
         flex: 1;
         min-width: 150px;
       }
 
       .btn-primary:hover:not(:disabled) {
-        background: #0056b3;
+        background: linear-gradient(135deg, #ff8850, #ff6b33);
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+        box-shadow: 0 8px 18px rgba(255, 87, 34, 0.35);
       }
 
       .btn-primary:disabled {
-        background: #ccc;
+        background: rgba(255, 255, 255, 0.2);
         cursor: not-allowed;
       }
 
       .btn-secondary {
-        background: #f0f0f0;
-        color: #333;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
+        color: var(--rb-text);
         flex: 1;
         min-width: 150px;
       }
 
       .btn-secondary:hover {
-        background: #ddd;
+        background: var(--rb-surface-strong);
       }
 
       @media (max-width: 768px) {
@@ -1287,5 +1342,16 @@ export class RentalBookingStepsComponent implements OnInit {
       Math.min(this.currentImageIndex(), images.length - 1),
     );
     return images[index];
+  }
+
+  getImageUrl(path?: string | null): string {
+    if (!path) return '';
+    if (/^https?:\/\//i.test(path)) return path;
+
+    const base = environment.apiUrl
+      .replace('/api/public', '')
+      .replace(/\/$/, '');
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    return `${base}${normalizedPath}`;
   }
 }
