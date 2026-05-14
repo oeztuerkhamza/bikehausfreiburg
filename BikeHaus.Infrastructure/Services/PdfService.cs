@@ -1809,7 +1809,7 @@ public class PdfService : IPdfService
                     col.Item().Border(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(2).PaddingHorizontal(6).Row(row =>
                     {
                         row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(7).FontColor(Colors.Grey.Darken2);
-                        row.RelativeItem().AlignRight().Text("Depozito Makbuzu / Kautionsquittung").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text("Kautionsquittung").FontSize(7).FontColor(Colors.Grey.Darken2);
                     });
                 });
 
@@ -2270,7 +2270,7 @@ public class PdfService : IPdfService
                     col.Item().Border(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(2).PaddingHorizontal(6).Row(row =>
                     {
                         row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(7).FontColor(Colors.Grey.Darken2);
-                        row.RelativeItem().AlignRight().Text("Depozito Makbuzu / Kautionsquittung").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text("Kautionsquittung").FontSize(7).FontColor(Colors.Grey.Darken2);
                     });
                 });
 
