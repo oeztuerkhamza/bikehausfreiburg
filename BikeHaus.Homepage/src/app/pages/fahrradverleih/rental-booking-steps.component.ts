@@ -550,32 +550,33 @@ type BookingStep =
           {{ bookingError() }}
         </div>
       </div>
-    </div>
 
-    <!-- Success -->
-    <div
-      *ngIf="currentStep() === 'success'"
-      class="step-container success-section"
-    >
-      <h2>
-        {{ t().rentalSteps?.bookingSuccess ?? 'Buchung erfolgreich!' }}
-      </h2>
-      <p>
-        {{
-          t().rentalSteps?.confirmationSent ?? 'Eine Bestätigungsmail wurde an'
-        }}
-        <strong>{{ bookingForm.email }}</strong>
-        {{ t().rentalSteps?.sent ?? 'gesendet' }}
-      </p>
-      <p *ngIf="bookingNumber()">
-        <strong
-          >{{ t().rentalSteps?.bookingNumber ?? 'Buchungsnummer' }}:</strong
-        >
-        {{ bookingNumber() }}
-      </p>
-      <button (click)="startNewBooking()" class="btn-primary">
-        {{ t().rentalSteps?.newBooking ?? 'Neue Buchung' }}
-      </button>
+      <!-- Success -->
+      <div
+        *ngIf="currentStep() === 'success'"
+        class="step-container success-section"
+      >
+        <h2>
+          {{ t().rentalSteps?.bookingSuccess ?? 'Buchung erfolgreich!' }}
+        </h2>
+        <p>
+          {{
+            t().rentalSteps?.confirmationSent ??
+              'Eine Bestätigungsmail wurde an'
+          }}
+          <strong>{{ bookingForm.email }}</strong>
+          {{ t().rentalSteps?.sent ?? 'gesendet' }}
+        </p>
+        <p *ngIf="bookingNumber()">
+          <strong
+            >{{ t().rentalSteps?.bookingNumber ?? 'Buchungsnummer' }}:</strong
+          >
+          {{ bookingNumber() }}
+        </p>
+        <button (click)="startNewBooking()" class="btn-primary">
+          {{ t().rentalSteps?.newBooking ?? 'Neue Buchung' }}
+        </button>
+      </div>
     </div>
   `,
   styles: [
