@@ -372,18 +372,53 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           envs: INFRA_CHANGED
-          command_timeout: 5m
+          command_timeout: 10m
           script: |
             set -euo pipefail
             cd /opt/bikehaus
+
+            # Make sure every backend service nginx proxies to is actually
+            # up before we touch nginx. `up -d` without --force-recreate
+            # is a no-op if the container is already running and healthy,
+            # but will (re)start a stopped/crashed one. Without this step
+            # nginx -t can fail with "host not found in upstream" when a
+            # backend container is in restart-loop or has been stopped
+            # out of band.
+            echo "==> Ensuring backend services are up"
+            docker compose up -d bikehaus client homepage
+
+            # Wait up to ~90s for the API to answer its healthcheck. nginx
+            # uses a request-time resolver (see nginx.conf), so DNS would
+            # still succeed even if the API is down, but pinging it here
+            # gives us a real signal and a useful error message in the log
+            # if something is fundamentally broken before we reload nginx.
+            echo "==> Waiting for API to become healthy"
+            api_ok=0
+            for i in $(seq 1 30); do
+              if docker compose exec -T bikehaus curl -fsS --max-time 5 http://localhost:5000/api/settings > /dev/null 2>&1; then
+                echo "[OK] API healthy after ${i} attempt(s)"
+                api_ok=1
+                break
+              fi
+              sleep 3
+            done
+            if [ "${api_ok}" -ne 1 ]; then
+              echo "[WARN] API did not become healthy in time — continuing anyway since nginx resolves upstreams lazily"
+              docker compose ps bikehaus
+              docker compose logs --tail=50 bikehaus || true
+            fi
 
             if [ "${INFRA_CHANGED:-false}" = "true" ]; then
               echo "==> Infra changed — recreating nginx"
               docker compose up -d --force-recreate nginx
             elif docker compose ps --status running --services | grep -q '^nginx$'; then
               echo "==> Reloading nginx in-place"
-              docker compose exec -T nginx nginx -t
-              docker compose exec -T nginx nginx -s reload
+              if docker compose exec -T nginx nginx -t; then
+                docker compose exec -T nginx nginx -s reload
+              else
+                echo "[WARN] nginx -t failed — falling back to recreate"
+                docker compose up -d --force-recreate nginx
+              fi
             else
               echo "==> nginx not running — starting it"
               docker compose up -d nginx
