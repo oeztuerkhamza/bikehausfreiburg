@@ -104,6 +104,14 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
             <span>{{ t.phone }}:</span>
             <span>{{ booking.telefon }}</span>
           </div>
+          <div class="info-row" *ngIf="booking.strasse || booking.hausNr">
+            <span>Adresse:</span>
+            <span>{{ booking.strasse }} {{ booking.hausNr }}</span>
+          </div>
+          <div class="info-row" *ngIf="booking.plz || booking.ort">
+            <span>PLZ / Ort:</span>
+            <span>{{ booking.plz }} {{ booking.ort }}</span>
+          </div>
           <div class="info-row" *ngIf="booking.sprache">
             <span>{{ t.language }}:</span>
             <span>{{ booking.sprache }}</span>

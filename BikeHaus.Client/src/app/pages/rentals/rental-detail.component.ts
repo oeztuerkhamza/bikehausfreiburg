@@ -99,8 +99,12 @@ import { Rental, RentalUpdate } from '../../models/models';
             ><strong>{{ rental.kaution | number: '1.2-2' }} €</strong>
           </div>
           <div class="info-row">
-            <span>Zahlungsart:</span
+            <span>Zahlungsart Miete:</span
             ><span>{{ getZahlungsartText(rental.zahlungsart) }}</span>
+          </div>
+          <div class="info-row">
+            <span>Zahlungsart Kaution:</span
+            ><span>{{ getZahlungsartText(rental.kautionZahlungsart) }}</span>
           </div>
           <div class="info-row">
             <span>Kaution zurück:</span>

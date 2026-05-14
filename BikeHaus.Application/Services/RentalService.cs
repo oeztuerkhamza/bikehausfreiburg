@@ -123,6 +123,7 @@ public class RentalService : IRentalService
             Rabatt = dto.Rabatt,
             Kaution = dto.Kaution,
             Zahlungsart = dto.Zahlungsart,
+            KautionZahlungsart = dto.KautionZahlungsart ?? dto.Zahlungsart,
             ZustandBeiUebergabe = dto.ZustandBeiUebergabe,
             Notizen = dto.Notizen,
             Status = RentalStatus.Active,
@@ -234,6 +235,8 @@ public class RentalService : IRentalService
             rental.KautionRueckgabeUnterschrift = dto.KautionRueckgabeUnterschrift;
         if (dto.Zahlungsart.HasValue)
             rental.Zahlungsart = dto.Zahlungsart.Value;
+        if (dto.KautionZahlungsart.HasValue)
+            rental.KautionZahlungsart = dto.KautionZahlungsart.Value;
         if (dto.ZustandBeiUebergabe.HasValue)
             rental.ZustandBeiUebergabe = dto.ZustandBeiUebergabe.Value;
         if (dto.Notizen != null)

@@ -457,6 +457,7 @@ public static class MappingExtensions
         entity.KautionZurueckgegeben,
         entity.KautionRueckgabeUnterschrift,
         entity.Zahlungsart,
+        entity.KautionZahlungsart,
         entity.ZustandBeiUebergabe,
         entity.Status,
         entity.Notizen,

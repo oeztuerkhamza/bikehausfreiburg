@@ -27,8 +27,11 @@ public class Rental : BaseEntity
     public bool KautionZurueckgegeben { get; set; } = false;
     public string? KautionRueckgabeUnterschrift { get; set; }
 
-    // Zahlungsart
+    // Zahlungsart (für Miete / Mietgebühr)
     public PaymentMethod Zahlungsart { get; set; } = PaymentMethod.Bar;
+
+    // Zahlungsart für die Kaution (kann von der Miete-Zahlungsart abweichen)
+    public PaymentMethod KautionZahlungsart { get; set; } = PaymentMethod.Bar;
 
     // Zustand bei Übergabe
     public BikeConditionAtHandover ZustandBeiUebergabe { get; set; } = BikeConditionAtHandover.Gut;

@@ -39,6 +39,7 @@ public record RentalDto(
     bool KautionZurueckgegeben,
     string? KautionRueckgabeUnterschrift,
     PaymentMethod Zahlungsart,
+    PaymentMethod KautionZahlungsart,
     BikeConditionAtHandover ZustandBeiUebergabe,
     RentalStatus Status,
     string? Notizen,
@@ -70,6 +71,7 @@ public record RentalCreateDto(
     decimal Rabatt,
     decimal Kaution,
     PaymentMethod Zahlungsart,
+    PaymentMethod? KautionZahlungsart,
     BikeConditionAtHandover ZustandBeiUebergabe,
     string? Notizen,
     List<RentalAccessoryItemCreateDto>? Accessories
@@ -86,6 +88,7 @@ public record RentalUpdateDto(
     bool? KautionZurueckgegeben,
     string? KautionRueckgabeUnterschrift,
     PaymentMethod? Zahlungsart,
+    PaymentMethod? KautionZahlungsart,
     BikeConditionAtHandover? ZustandBeiUebergabe,
     string? Notizen
 );

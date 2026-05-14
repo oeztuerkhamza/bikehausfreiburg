@@ -180,8 +180,17 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
                 />
               </div>
               <div class="field">
-                <label>Zahlungsart</label>
+                <label>Zahlungsart Miete</label>
                 <select [(ngModel)]="zahlungsart" name="zahlungsart">
+                  <option value="Bar">Bar</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Karte">Karte</option>
+                  <option value="Überweisung">Überweisung</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Zahlungsart Kaution</label>
+                <select [(ngModel)]="kautionZahlungsart" name="kautionZahlungsart">
                   <option value="Bar">Bar</option>
                   <option value="PayPal">PayPal</option>
                   <option value="Karte">Karte</option>
@@ -444,6 +453,7 @@ export class RentalEditComponent implements OnInit {
   preisInfo = '';
   kaution = 0;
   zahlungsart: string = PaymentMethod.Bar;
+  kautionZahlungsart: string = PaymentMethod.Bar;
   zustandBeiUebergabe = 'Gut';
   notizen = '';
 
@@ -498,6 +508,7 @@ export class RentalEditComponent implements OnInit {
     this.rabatt = rental.rabatt || 0;
     this.kaution = rental.kaution;
     this.zahlungsart = rental.zahlungsart || PaymentMethod.Bar;
+    this.kautionZahlungsart = rental.kautionZahlungsart || PaymentMethod.Bar;
     this.zustandBeiUebergabe = rental.zustandBeiUebergabe || 'Gut';
     this.notizen = rental.notizen || '';
 
@@ -579,6 +590,7 @@ export class RentalEditComponent implements OnInit {
       rabatt: this.rabatt || 0,
       kaution: this.kaution,
       zahlungsart: this.zahlungsart as PaymentMethod,
+      kautionZahlungsart: this.kautionZahlungsart as PaymentMethod,
       zustandBeiUebergabe: this.zustandBeiUebergabe as BikeConditionAtHandover,
       notizen: this.notizen || undefined,
     };

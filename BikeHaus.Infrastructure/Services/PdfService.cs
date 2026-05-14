@@ -1726,7 +1726,7 @@ public class PdfService : IPdfService
         var shop = await GetShopInfoAsync();
         QuestPDF.Settings.License = LicenseType.Community;
 
-        var zahlungsartText = rental.Zahlungsart switch
+        var zahlungsartText = rental.KautionZahlungsart switch
         {
             Domain.Enums.PaymentMethod.Bar => "Bar",
             Domain.Enums.PaymentMethod.PayPal => "PayPal",

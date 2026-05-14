@@ -18,6 +18,7 @@ import {
 interface BikeFormData {
   kaution: number;
   zahlungsart: PaymentMethod;
+  kautionZahlungsart: PaymentMethod;
   zustandBeiUebergabe: BikeConditionAtHandover;
   notizen: string;
 }
@@ -52,6 +53,14 @@ interface BikeFormData {
           <div class="info-row" *ngIf="booking.telefon">
             <span>Telefon:</span>
             <span>{{ booking.telefon }}</span>
+          </div>
+          <div class="info-row" *ngIf="booking.strasse || booking.hausNr">
+            <span>Adresse:</span>
+            <span>{{ booking.strasse }} {{ booking.hausNr }}</span>
+          </div>
+          <div class="info-row" *ngIf="booking.plz || booking.ort">
+            <span>PLZ / Ort:</span>
+            <span>{{ booking.plz }} {{ booking.ort }}</span>
           </div>
         </div>
       </div>
@@ -90,8 +99,17 @@ interface BikeFormData {
             />
           </div>
           <div class="field">
-            <label>Zahlungsart *</label>
+            <label>Zahlungsart Miete *</label>
             <select [(ngModel)]="bikeForms[i].zahlungsart" [name]="'zahlungsart_' + i" required>
+              <option value="Bar">Bar</option>
+              <option value="PayPal">PayPal</option>
+              <option value="Karte">Karte</option>
+              <option value="Überweisung">Überweisung</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Zahlungsart Kaution *</label>
+            <select [(ngModel)]="bikeForms[i].kautionZahlungsart" [name]="'kaution_zahlungsart_' + i" required>
               <option value="Bar">Bar</option>
               <option value="PayPal">PayPal</option>
               <option value="Karte">Karte</option>
@@ -305,6 +323,7 @@ export class RentalBookingUmwandelnComponent implements OnInit {
         this.bikeForms = this.bikes.map(() => ({
           kaution: 0,
           zahlungsart: PaymentMethod.Bar,
+          kautionZahlungsart: PaymentMethod.Bar,
           zustandBeiUebergabe: BikeConditionAtHandover.Gut,
           notizen: '',
         }));
@@ -324,6 +343,10 @@ export class RentalBookingUmwandelnComponent implements OnInit {
       nachname: this.booking.nachname,
       email: this.booking.email || undefined,
       telefon: this.booking.telefon || undefined,
+      strasse: this.booking.strasse || undefined,
+      hausnummer: this.booking.hausNr || undefined,
+      plz: this.booking.plz || undefined,
+      stadt: this.booking.ort || undefined,
     };
 
     const creates = this.bikes.map((bike, i) => {
@@ -337,6 +360,7 @@ export class RentalBookingUmwandelnComponent implements OnInit {
         rabatt: 0,
         kaution: form.kaution,
         zahlungsart: form.zahlungsart,
+        kautionZahlungsart: form.kautionZahlungsart,
         zustandBeiUebergabe: form.zustandBeiUebergabe,
         notizen: form.notizen || undefined,
       };

@@ -519,8 +519,17 @@ const MONTH_NAMES = [
                 />
               </div>
               <div class="field">
-                <label>Zahlungsart *</label>
+                <label>Zahlungsart Miete *</label>
                 <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
+                  <option value="Bar">Bar</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Karte">Karte</option>
+                  <option value="Überweisung">Überweisung</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Zahlungsart Kaution *</label>
+                <select [(ngModel)]="kautionZahlungsart" name="kautionZahlungsart" required>
                   <option value="Bar">Bar</option>
                   <option value="PayPal">PayPal</option>
                   <option value="Karte">Karte</option>
@@ -1252,6 +1261,7 @@ export class RentalFormComponent implements OnInit {
   preisInfo = '';
   kaution = 0;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
+  kautionZahlungsart: PaymentMethod = PaymentMethod.Bar;
   zustandBeiUebergabe = 'Gut';
   notizen = '';
   submitting = false;
@@ -1765,6 +1775,7 @@ export class RentalFormComponent implements OnInit {
       rabatt: this.rabatt || 0,
       kaution: this.kaution,
       zahlungsart: this.zahlungsart,
+      kautionZahlungsart: this.kautionZahlungsart,
       zustandBeiUebergabe: this.zustandBeiUebergabe as BikeConditionAtHandover,
       notizen: this.notizen || undefined,
       accessories:
