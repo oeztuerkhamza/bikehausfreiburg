@@ -15,12 +15,7 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
 @Component({
   selector: 'app-reservation-form',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterLink,
-    BikeSelectorComponent,
-  ],
+  imports: [CommonModule, FormsModule, RouterLink, BikeSelectorComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -459,7 +454,6 @@ export class ReservationFormComponent implements OnInit {
   onBikeSelected(bike: Bicycle) {
     this.selectedBike = bike;
   }
-
 
   getExpirationDate(): string {
     const date = this.reservierungsDatum

@@ -1467,7 +1467,8 @@ export class RentalFormComponent implements OnInit {
         this.availableBikes = bikes.filter((b) => b.status === 'Available');
 
         const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
-        const bicycleIdParam = this.route.snapshot.queryParamMap.get('bicycleId');
+        const bicycleIdParam =
+          this.route.snapshot.queryParamMap.get('bicycleId');
         if (bookingId) {
           this.fromBookingId = Number(bookingId);
           this.bookingService.getById(this.fromBookingId).subscribe({
@@ -1478,12 +1479,16 @@ export class RentalFormComponent implements OnInit {
               this.customer.email = booking.email || '';
 
               // For multi-bike bookings, find the specific bike by bicycleId param
-              const targetBikeId = bicycleIdParam ? Number(bicycleIdParam) : null;
-              const bookingBike = targetBikeId && booking.bikes?.length > 0
-                ? booking.bikes.find(bk => bk.bicycleId === targetBikeId)
-                : booking.bikes?.[0];
+              const targetBikeId = bicycleIdParam
+                ? Number(bicycleIdParam)
+                : null;
+              const bookingBike =
+                targetBikeId && booking.bikes?.length > 0
+                  ? booking.bikes.find((bk) => bk.bicycleId === targetBikeId)
+                  : booking.bikes?.[0];
 
-              const bikeStartDatum = bookingBike?.startDatum ?? booking.startDatum;
+              const bikeStartDatum =
+                bookingBike?.startDatum ?? booking.startDatum;
               const bikeEndDatum = bookingBike?.endDatum ?? booking.endDatum;
 
               this.startDatum = bikeStartDatum.split('T')[0];
@@ -1515,7 +1520,8 @@ export class RentalFormComponent implements OnInit {
                 );
               }
 
-              const bikeId = targetBikeId ?? bookingBike?.bicycleId ?? booking.bicycle?.id;
+              const bikeId =
+                targetBikeId ?? bookingBike?.bicycleId ?? booking.bicycle?.id;
               if (bikeId) {
                 const match = this.availableBikes.find((b) => b.id === bikeId);
                 if (match) {
@@ -1524,7 +1530,9 @@ export class RentalFormComponent implements OnInit {
                   this.isQuickAddMode = false;
                   const srcBike = bookingBike ?? (booking.bicycle as any);
                   if (srcBike) {
-                    this.selectedBike = { id: srcBike.bicycleId ?? srcBike.id } as Bicycle;
+                    this.selectedBike = {
+                      id: srcBike.bicycleId ?? srcBike.id,
+                    } as Bicycle;
                     this.bikeEdit = {
                       rahmennummer: '',
                       marke: srcBike.marke || '',

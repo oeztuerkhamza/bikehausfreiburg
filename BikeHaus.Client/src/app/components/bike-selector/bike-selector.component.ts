@@ -92,18 +92,29 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
             <div class="bike-main">
               <span class="bike-id">#{{ bike.id }}</span>
               <span class="bike-brand">{{ bike.marke }} {{ bike.modell }}</span>
-              <span class="bike-frame" *ngIf="bike.rahmennummer">{{ bike.rahmennummer }}</span>
+              <span class="bike-frame" *ngIf="bike.rahmennummer">{{
+                bike.rahmennummer
+              }}</span>
             </div>
-            <div class="start-price" *ngIf="getStartingPrice(bike) as startPrice">
+            <div
+              class="start-price"
+              *ngIf="getStartingPrice(bike) as startPrice"
+            >
               ab {{ startPrice | number: '1.0-0' }} €
             </div>
           </div>
 
           <div class="bike-details">
             <span class="chip" *ngIf="bike.marke">{{ bike.marke }}</span>
-            <span class="chip" *ngIf="getBikeArt(bike)">{{ getBikeArt(bike) }}</span>
-            <span class="chip" *ngIf="bike.rahmengroesse">Size {{ bike.rahmengroesse }}</span>
-            <span class="chip" *ngIf="bike.reifengroesse">{{ bike.reifengroesse }}\"</span>
+            <span class="chip" *ngIf="getBikeArt(bike)">{{
+              getBikeArt(bike)
+            }}</span>
+            <span class="chip" *ngIf="bike.rahmengroesse"
+              >Size {{ bike.rahmengroesse }}</span
+            >
+            <span class="chip" *ngIf="bike.reifengroesse"
+              >{{ bike.reifengroesse }}"</span
+            >
           </div>
         </div>
 
@@ -117,9 +128,15 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
           <div>
             <h4>{{ activeBike.marke }} {{ activeBike.modell }}</h4>
             <p>
-              <span *ngIf="getBikeArt(activeBike)">{{ getBikeArt(activeBike) }}</span>
-              <span *ngIf="activeBike.rahmengroesse"> · Size {{ activeBike.rahmengroesse }}</span>
-              <span *ngIf="activeBike.reifengroesse"> · {{ activeBike.reifengroesse }}\"</span>
+              <span *ngIf="getBikeArt(activeBike)">{{
+                getBikeArt(activeBike)
+              }}</span>
+              <span *ngIf="activeBike.rahmengroesse">
+                · Size {{ activeBike.rahmengroesse }}</span
+              >
+              <span *ngIf="activeBike.reifengroesse">
+                · {{ activeBike.reifengroesse }}"</span
+              >
             </p>
           </div>
 
@@ -133,12 +150,20 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
           </button>
         </div>
 
-        <div class="detail-loading" *ngIf="activeBikeLoading">Detaylar yukleniyor...</div>
+        <div class="detail-loading" *ngIf="activeBikeLoading">
+          Detaylar yukleniyor...
+        </div>
 
         <div class="detail-grid" *ngIf="!activeBikeLoading">
           <div class="photo-column">
-            <div class="main-photo" *ngIf="getMainImage(activeBike) as mainImage; else noImage">
-              <img [src]="getImageUrl(mainImage.filePath)" [alt]="activeBike.marke + ' ' + activeBike.modell" />
+            <div
+              class="main-photo"
+              *ngIf="getMainImage(activeBike) as mainImage; else noImage"
+            >
+              <img
+                [src]="getImageUrl(mainImage.filePath)"
+                [alt]="activeBike.marke + ' ' + activeBike.modell"
+              />
             </div>
             <ng-template #noImage>
               <div class="photo-placeholder">Foto yok</div>
@@ -159,14 +184,28 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
 
           <div class="price-column">
             <h5>Gunluk fiyatlar</h5>
-            <div class="price-lines" *ngIf="getPriceLines(activeBike).length > 0; else noPricing">
-              <div class="price-line" *ngFor="let line of getPriceLines(activeBike)">
+            <div
+              class="price-lines"
+              *ngIf="getPriceLines(activeBike).length > 0; else noPricing"
+            >
+              <div
+                class="price-line"
+                *ngFor="let line of getPriceLines(activeBike)"
+              >
                 <span>{{ line.label }}</span>
                 <strong>{{ line.price | number: '1.0-0' }} €</strong>
               </div>
-              <div class="price-line" *ngIf="activeBike.rentalPriceAdditionalDayAfter7 != null">
+              <div
+                class="price-line"
+                *ngIf="activeBike.rentalPriceAdditionalDayAfter7 != null"
+              >
                 <span>Ab Tag 8 (+1)</span>
-                <strong>{{ activeBike.rentalPriceAdditionalDayAfter7 | number: '1.0-0' }} €</strong>
+                <strong
+                  >{{
+                    activeBike.rentalPriceAdditionalDayAfter7 | number: '1.0-0'
+                  }}
+                  €</strong
+                >
               </div>
             </div>
 
