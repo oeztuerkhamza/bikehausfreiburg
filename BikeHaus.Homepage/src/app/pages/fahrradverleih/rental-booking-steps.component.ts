@@ -193,6 +193,20 @@ type BookingStep =
             <div class="bike-info">
               <h3>{{ bike.marke }} {{ bike.modell }}</h3>
               <p class="bike-type">{{ bike.art || bike.fahrradtyp }}</p>
+              <ul class="bike-specs-inline">
+                <li *ngIf="bike.rahmengroesse">
+                  <span class="spec-label"
+                    >{{ t().rentalSteps?.frameSize ?? 'Rahmengröße' }}:</span
+                  >
+                  {{ bike.rahmengroesse }}
+                </li>
+                <li *ngIf="bike.reifengroesse">
+                  <span class="spec-label"
+                    >{{ t().rentalSteps?.tireSize ?? 'Reifengröße' }}:</span
+                  >
+                  {{ bike.reifengroesse }}
+                </li>
+              </ul>
               <p class="bike-price" *ngIf="bike.preise.day1 !== undefined">
                 {{ t().rentalSteps?.from ?? 'ab' }} €{{ bike.preise.day1 }}/{{
                   t().rentalSteps?.day ?? 'Tag'
@@ -866,6 +880,26 @@ type BookingStep =
         margin: 0.25rem 0;
       }
 
+      .bike-specs-inline {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+
+      .bike-specs-inline li {
+        font-size: 0.85rem;
+        color: var(--rb-text-soft);
+      }
+
+      .bike-specs-inline .spec-label {
+        color: var(--rb-text);
+        font-weight: 600;
+        margin-right: 0.25rem;
+      }
+
       .bike-price {
         color: var(--rb-accent);
         font-weight: 600;
@@ -1311,7 +1345,9 @@ export class RentalBookingStepsComponent implements OnInit {
     if (!this.selectedStartDate || !this.selectedEndDate) return 0;
     const start = new Date(`${this.selectedStartDate}T00:00:00`);
     const end = new Date(`${this.selectedEndDate}T00:00:00`);
-    return Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    const diff =
+      Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    return diff > 0 ? diff : 0;
   });
 
   private getLocaleForCurrentLanguage(): string {
