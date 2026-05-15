@@ -790,6 +790,9 @@ export interface Rental {
   notizen?: string;
   createdAt: string;
   accessories: RentalAccessoryItem[];
+  mieterUnterschrift?: string;
+  agbAkzeptiert: boolean;
+  unterschriftOrt?: string;
 }
 
 export interface RentalList {
@@ -839,6 +842,9 @@ export interface RentalCreate {
   kautionZahlungsart?: PaymentMethod;
   notizen?: string;
   accessories?: RentalAccessoryItemCreate[];
+  mieterUnterschrift?: string;
+  agbAkzeptiert?: boolean;
+  unterschriftOrt?: string;
 }
 
 export interface RentalUpdate {
@@ -852,6 +858,9 @@ export interface RentalUpdate {
   zahlungsart?: PaymentMethod;
   kautionZahlungsart?: PaymentMethod;
   notizen?: string;
+  mieterUnterschrift?: string;
+  agbAkzeptiert?: boolean;
+  unterschriftOrt?: string;
 }
 
 // ── Rental Booking (Homepage) ──

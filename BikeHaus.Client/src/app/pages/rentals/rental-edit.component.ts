@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
 import { TranslationService } from '../../services/translation.service';
+import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import {
   Rental,
   RentalUpdate,
@@ -13,7 +14,7 @@ import {
 @Component({
   selector: 'app-rental-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SignaturePadComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -189,6 +190,36 @@ import {
             <p class="hint" style="margin-top: 8px;">
               Gesamtmiete, Kaution und Zustand werden pro Fahrrad beim Anlegen festgelegt und sind hier nicht mehr editierbar.
             </p>
+          </div>
+
+          <!-- AGB & Unterschrift -->
+          <div class="form-card">
+            <h2>AGB &amp; Unterschrift</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>Ort</label>
+                <input [(ngModel)]="unterschriftOrt" name="unterschriftOrt" placeholder="Freiburg" />
+              </div>
+              <div class="field" style="display:flex;align-items:center;gap:8px;padding-top:22px;">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="agbAkzeptiert"
+                  name="agbAkzeptiert"
+                  id="agbCheckEdit"
+                  style="width:18px;height:18px;cursor:pointer;"
+                />
+                <label for="agbCheckEdit" style="cursor:pointer;margin:0;">Ich habe die AGB gelesen und akzeptiert</label>
+              </div>
+            </div>
+            <div style="margin-top:12px;">
+              <label style="font-weight:600;font-size:0.9rem;">Unterschrift Mieter</label>
+              <div *ngIf="rental!.mieterUnterschrift && !mieterUnterschrift" style="margin-bottom:8px;">
+                <p style="font-size:0.8rem;color:#64748b;margin-bottom:4px;">Vorhandene Unterschrift:</p>
+                <img [src]="rental!.mieterUnterschrift" style="max-height:60px;border:1px solid #e2e8f0;border-radius:4px;" />
+              </div>
+              <app-signature-pad [(ngModel)]="mieterUnterschrift" name="mieterUnterschrift"></app-signature-pad>
+              <p style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Neu unterschreiben, um die vorhandene Unterschrift zu ersetzen.</p>
+            </div>
           </div>
         </div>
 
@@ -423,6 +454,9 @@ export class RentalEditComponent implements OnInit {
   zahlungsart: string = PaymentMethod.Bar;
   kautionZahlungsart: string = PaymentMethod.Bar;
   notizen = '';
+  mieterUnterschrift = '';
+  agbAkzeptiert = false;
+  unterschriftOrt = 'Freiburg';
 
   get t() {
     return this.translationService.translations();
@@ -475,6 +509,8 @@ export class RentalEditComponent implements OnInit {
     this.zahlungsart = rental.zahlungsart || PaymentMethod.Bar;
     this.kautionZahlungsart = rental.kautionZahlungsart || PaymentMethod.Bar;
     this.notizen = rental.notizen || '';
+    this.agbAkzeptiert = rental.agbAkzeptiert || false;
+    this.unterschriftOrt = rental.unterschriftOrt || 'Freiburg';
 
     // Format dates
     if (rental.startDatum) {
@@ -517,6 +553,9 @@ export class RentalEditComponent implements OnInit {
       zahlungsart: this.zahlungsart as PaymentMethod,
       kautionZahlungsart: this.kautionZahlungsart as PaymentMethod,
       notizen: this.notizen || undefined,
+      mieterUnterschrift: this.mieterUnterschrift || undefined,
+      agbAkzeptiert: this.agbAkzeptiert,
+      unterschriftOrt: this.unterschriftOrt || undefined,
     };
 
     this.rentalService.update(this.rental.id, update).subscribe({

@@ -23,6 +23,7 @@ import {
   PaymentMethod,
 } from '../../models/models';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
+import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
 
 interface AccessoryLine {
@@ -117,7 +118,7 @@ const MONTH_NAMES = [
 @Component({
   selector: 'app-rental-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BikeSelectorComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BikeSelectorComponent, SignaturePadComponent],
   template: `
     <datalist id="brandList">
       <option *ngFor="let b of brands" [value]="b"></option>
@@ -487,21 +488,46 @@ const MONTH_NAMES = [
                 />
               </div>
               <div class="field">
-                <label>Telefon *</label>
+                <label>Telefon</label>
                 <input
                   [(ngModel)]="customer.telefon"
                   name="customerTelefon"
-                  required
                 />
               </div>
               <div class="field">
-                <label>E-Mail</label>
+                <label>E-Mail *</label>
                 <input
                   [(ngModel)]="customer.email"
                   name="customerEmail"
                   type="email"
+                  required
                 />
               </div>
+            </div>
+          </div>
+
+          <!-- AGB & Unterschrift -->
+          <div class="form-card">
+            <h2>AGB &amp; Unterschrift</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>Ort</label>
+                <input [(ngModel)]="unterschriftOrt" name="unterschriftOrt" placeholder="Freiburg" />
+              </div>
+              <div class="field" style="display:flex;align-items:center;gap:8px;padding-top:22px;">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="agbAkzeptiert"
+                  name="agbAkzeptiert"
+                  id="agbCheck"
+                  style="width:18px;height:18px;cursor:pointer;"
+                />
+                <label for="agbCheck" style="cursor:pointer;margin:0;">Ich habe die AGB gelesen und akzeptiert</label>
+              </div>
+            </div>
+            <div style="margin-top:12px;">
+              <label style="font-weight:600;font-size:0.9rem;">Unterschrift Mieter</label>
+              <app-signature-pad [(ngModel)]="mieterUnterschrift" name="mieterUnterschrift"></app-signature-pad>
             </div>
           </div>
 
@@ -1622,6 +1648,9 @@ export class RentalFormComponent implements OnInit {
   rentalDays = 0;
   notizen = '';
   submitting = false;
+  mieterUnterschrift = '';
+  agbAkzeptiert = false;
+  unterschriftOrt = 'Freiburg';
 
   availableAccessories: RentalAccessoryList[] = [];
   selectedAccessories: Record<PredefinedAccessoryKey, boolean> = {
@@ -2268,6 +2297,9 @@ export class RentalFormComponent implements OnInit {
             notizen: this.notizen || undefined,
             accessories:
               accessoriesPayload.length > 0 ? accessoriesPayload : undefined,
+            mieterUnterschrift: this.mieterUnterschrift || undefined,
+            agbAkzeptiert: this.agbAkzeptiert,
+            unterschriftOrt: this.unterschriftOrt || undefined,
             bikes: this.bikes.map((b, i) => ({
               bicycleId: bicycleIds[i],
               rahmennummer: b.bikeEdit?.rahmennummer || undefined,

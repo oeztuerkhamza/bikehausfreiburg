@@ -887,6 +887,9 @@ namespace BikeHaus.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("AgbAkzeptiert")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("AusweisnNr")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
@@ -909,6 +912,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<int>("KautionZahlungsart")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("MieterUnterschrift")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("MietvertragNummer")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -926,6 +932,9 @@ namespace BikeHaus.Infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("UnterschriftOrt")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");

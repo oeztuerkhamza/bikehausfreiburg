@@ -138,7 +138,10 @@ public class RentalService : IRentalService
             KautionZahlungsart = dto.KautionZahlungsart ?? dto.Zahlungsart,
             Notizen = dto.Notizen,
             Status = RentalStatus.Active,
-            MietvertragNummer = await _rentalRepository.GenerateMietvertragNummerAsync()
+            MietvertragNummer = await _rentalRepository.GenerateMietvertragNummerAsync(),
+            MieterUnterschrift = dto.MieterUnterschrift,
+            AgbAkzeptiert = dto.AgbAkzeptiert,
+            UnterschriftOrt = dto.UnterschriftOrt
         };
 
         // Attach bikes
@@ -254,6 +257,12 @@ public class RentalService : IRentalService
             rental.KautionZahlungsart = dto.KautionZahlungsart.Value;
         if (dto.Notizen != null)
             rental.Notizen = dto.Notizen;
+        if (dto.MieterUnterschrift != null)
+            rental.MieterUnterschrift = dto.MieterUnterschrift;
+        if (dto.AgbAkzeptiert.HasValue)
+            rental.AgbAkzeptiert = dto.AgbAkzeptiert.Value;
+        if (dto.UnterschriftOrt != null)
+            rental.UnterschriftOrt = dto.UnterschriftOrt;
 
         // Deposit return cascades to every bike in this rental
         if (dto.KautionZurueckgegeben.HasValue)

@@ -69,7 +69,10 @@ public record RentalDto(
     RentalStatus Status,
     string? Notizen,
     DateTime CreatedAt,
-    List<RentalAccessoryItemDto> Accessories
+    List<RentalAccessoryItemDto> Accessories,
+    string? MieterUnterschrift,
+    bool AgbAkzeptiert,
+    string? UnterschriftOrt
 );
 
 public record RentalListDto(
@@ -95,7 +98,10 @@ public record RentalCreateDto(
     PaymentMethod Zahlungsart,
     PaymentMethod? KautionZahlungsart,
     string? Notizen,
-    List<RentalAccessoryItemCreateDto>? Accessories
+    List<RentalAccessoryItemCreateDto>? Accessories,
+    string? MieterUnterschrift,
+    bool AgbAkzeptiert,
+    string? UnterschriftOrt
 );
 
 public record RentalUpdateDto(
@@ -108,5 +114,8 @@ public record RentalUpdateDto(
     string? KautionRueckgabeUnterschrift,
     PaymentMethod? Zahlungsart,
     PaymentMethod? KautionZahlungsart,
-    string? Notizen
+    string? Notizen,
+    string? MieterUnterschrift,
+    bool? AgbAkzeptiert,
+    string? UnterschriftOrt
 );

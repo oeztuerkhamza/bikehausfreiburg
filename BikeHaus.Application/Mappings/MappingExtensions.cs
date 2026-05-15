@@ -475,7 +475,10 @@ public static class MappingExtensions
         entity.Status,
         entity.Notizen,
         entity.CreatedAt,
-        entity.Accessories.Select(a => a.ToDto()).ToList()
+        entity.Accessories.Select(a => a.ToDto()).ToList(),
+        entity.MieterUnterschrift,
+        entity.AgbAkzeptiert,
+        entity.UnterschriftOrt
     );
 
     public static RentalListDto ToListDto(this Rental entity)

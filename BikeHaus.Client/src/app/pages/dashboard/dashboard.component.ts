@@ -76,42 +76,6 @@ import { TranslationService } from '../../services/translation.service';
             <polyline points="9 18 15 12 9 6" />
           </svg>
         </a>
-        <a
-          routerLink="/purchases/new"
-          [queryParams]="{ bulk: 'true' }"
-          class="shortcut-card card-accent"
-        >
-          <div class="shortcut-icon-wrap accent-violet">
-            <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <rect x="2" y="7" width="20" height="14" rx="2" />
-              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-              <path d="M6 11h4" />
-              <path d="M14 11h4" />
-            </svg>
-          </div>
-          <div class="shortcut-info">
-            <div class="shortcut-label">{{ t.bulkPurchase }}</div>
-            <div class="shortcut-desc">{{ t.bulkPurchaseDesc }}</div>
-          </div>
-          <svg
-            class="shortcut-arrow"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </a>
         <a routerLink="/sales/new" class="shortcut-card card-accent">
           <div class="shortcut-icon-wrap accent-success">
             <svg

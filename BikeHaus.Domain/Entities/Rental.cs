@@ -30,6 +30,11 @@ public class Rental : BaseEntity
     // Notizen
     public string? Notizen { get; set; }
 
+    // Mieter-Unterschrift & AGB-Bestätigung
+    public string? MieterUnterschrift { get; set; }  // base64 PNG
+    public bool AgbAkzeptiert { get; set; }
+    public string? UnterschriftOrt { get; set; }
+
     // Navigation Properties
     public Customer Customer { get; set; } = null!;
     public ICollection<RentalBike> Bikes { get; set; } = new List<RentalBike>();

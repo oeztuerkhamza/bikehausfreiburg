@@ -1718,7 +1718,20 @@ public class PdfService : IPdfService
                             mieterCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3)
                                 .Text("MIETER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
                             mieterCol.Item().PaddingTop(3).Text("Unterschrift Mieter").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            mieterCol.Item().Height(35);
+                            if (!string.IsNullOrEmpty(rental.MieterUnterschrift))
+                            {
+                                try
+                                {
+                                    var sigData = rental.MieterUnterschrift;
+                                    if (sigData.Contains(",")) sigData = sigData.Substring(sigData.IndexOf(",") + 1);
+                                    mieterCol.Item().Height(35).Image(Convert.FromBase64String(sigData));
+                                }
+                                catch { mieterCol.Item().Height(35); }
+                            }
+                            else
+                            {
+                                mieterCol.Item().Height(35);
+                            }
                             mieterCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                             mieterCol.Item().PaddingTop(2).Text(rental.Customer.FullName).FontSize(9);
                             mieterCol.Item().PaddingTop(2).Text("Mit Unterschrift bestätigt der Mieter den Erhalt des Fahrrads und die Kenntnis der AGB (Seite 2).")
@@ -1798,7 +1811,8 @@ public class PdfService : IPdfService
                         bc.Item().PaddingTop(4).Text("Der Mieter bestätigt den Erhalt des Fahrrads sowie die Kenntnis der Kautionsbedingungen.").FontSize(9);
                         bc.Item().PaddingTop(3).Row(r =>
                         {
-                            r.ConstantItem(14).AlignTop().Text("☐").FontSize(12);
+                            r.ConstantItem(14).AlignTop().Text(rental.AgbAkzeptiert ? "☑" : "☐").FontSize(12)
+                                .FontColor(rental.AgbAkzeptiert ? AccentColor : Colors.Black);
                             r.RelativeItem().Text("Ich habe die AGB gelesen und akzeptiert.").FontSize(10).Bold();
                         });
                         bc.Item().PaddingTop(10).Row(r =>
@@ -1806,14 +1820,33 @@ public class PdfService : IPdfService
                             r.RelativeItem().Column(oc =>
                             {
                                 oc.Item().Text("Ort, Datum").FontSize(9).FontColor(Colors.Grey.Darken1);
-                                oc.Item().Height(28);
+                                var ortDatum = !string.IsNullOrEmpty(rental.UnterschriftOrt)
+                                    ? $"{rental.UnterschriftOrt}, {rental.UpdatedAt:dd.MM.yyyy}"
+                                    : string.Empty;
+                                if (!string.IsNullOrEmpty(ortDatum))
+                                    oc.Item().PaddingTop(4).Text(ortDatum).FontSize(10).Bold();
+                                else
+                                    oc.Item().Height(28);
                                 oc.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                             });
                             r.ConstantItem(20);
                             r.RelativeItem().Column(sc =>
                             {
                                 sc.Item().Text("Unterschrift Mieter").FontSize(9).FontColor(Colors.Grey.Darken1);
-                                sc.Item().Height(28);
+                                if (!string.IsNullOrEmpty(rental.MieterUnterschrift))
+                                {
+                                    try
+                                    {
+                                        var sigData = rental.MieterUnterschrift;
+                                        if (sigData.Contains(",")) sigData = sigData.Substring(sigData.IndexOf(",") + 1);
+                                        sc.Item().Height(28).Image(Convert.FromBase64String(sigData));
+                                    }
+                                    catch { sc.Item().Height(28); }
+                                }
+                                else
+                                {
+                                    sc.Item().Height(28);
+                                }
                                 sc.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                                 sc.Item().PaddingTop(2).Text(rental.Customer.FullName).FontSize(8).FontColor(Colors.Grey.Darken2);
                             });
