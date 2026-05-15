@@ -1379,7 +1379,6 @@ export class RentalBookingStepsComponent implements OnInit {
   private getMinSelectableDate(): Date {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    today.setDate(today.getDate() + 1);
     return today;
   }
 
@@ -1494,7 +1493,7 @@ export class RentalBookingStepsComponent implements OnInit {
     if (
       !this.selectedStartDate ||
       (this.selectedStartDate && this.selectedEndDate) ||
-      selectedDate <= this.selectedStartDate
+      selectedDate < this.selectedStartDate
     ) {
       this.selectedStartDate = selectedDate;
       this.selectedEndDate = '';
@@ -1574,7 +1573,7 @@ export class RentalBookingStepsComponent implements OnInit {
     const start = new Date(this.selectedStartDate);
     const end = new Date(this.selectedEndDate);
 
-    if (start >= end) {
+    if (start > end) {
       this.dateRangeError.set(
         this.t().rentalSteps?.invalidDateRange ??
           'Enddatum muss nach Startdatum liegen',

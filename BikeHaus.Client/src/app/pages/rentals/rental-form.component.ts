@@ -38,21 +38,29 @@ type PredefinedAccessoryKey = 'helm' | 'schloss' | 'korb';
 interface BikeEntry {
   selectedBike: Bicycle | null;
   isQuickAddMode: boolean;
+  isCollapsed: boolean;
   bikeEdit: {
     rahmennummer: string;
     marke: string;
     modell: string;
+    rahmengroesse: string;
     farbe: string;
     reifengroesse: string;
     fahrradtyp: string;
+    beschreibung: string;
+    zustand: BikeCondition;
   };
+  bikeErrors: { [key: string]: boolean };
+  rahmenSearchResults: Bicycle[];
+  showRahmenDropdown: boolean;
+  rahmenSearchTimeout: any;
   gesamtmiete: number;
   rabatt: number;
   berechneterPreis: number;
   preisInfo: string;
   kaution: number;
-  zahlungsart: PaymentMethod;
-  kautionZahlungsart: PaymentMethod;
+  zahlungsart: PaymentMethod | '';
+  kautionZahlungsart: PaymentMethod | '';
   zustandBeiUebergabe: string;
   busyPeriods: BusyPeriod[];
   busyPeriodsLoading: boolean;
@@ -62,21 +70,29 @@ function createEmptyBikeEntry(): BikeEntry {
   return {
     selectedBike: null,
     isQuickAddMode: false,
+    isCollapsed: false,
     bikeEdit: {
       rahmennummer: '',
       marke: '',
       modell: '',
+      rahmengroesse: '',
       farbe: '',
       reifengroesse: '',
       fahrradtyp: '',
+      beschreibung: '',
+      zustand: BikeCondition.Gebraucht,
     },
+    bikeErrors: {},
+    rahmenSearchResults: [],
+    showRahmenDropdown: false,
+    rahmenSearchTimeout: null,
     gesamtmiete: 0,
     rabatt: 0,
     berechneterPreis: 0,
     preisInfo: '',
     kaution: 0,
-    zahlungsart: PaymentMethod.Bar,
-    kautionZahlungsart: PaymentMethod.Bar,
+    zahlungsart: '',
+    kautionZahlungsart: '',
     zustandBeiUebergabe: 'Gut',
     busyPeriods: [],
     busyPeriodsLoading: false,
@@ -103,6 +119,12 @@ const MONTH_NAMES = [
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, BikeSelectorComponent],
   template: `
+    <datalist id="brandList">
+      <option *ngFor="let b of brands" [value]="b"></option>
+    </datalist>
+    <datalist id="modelList">
+      <option *ngFor="let m of models" [value]="m"></option>
+    </datalist>
     <div class="page">
       <div class="page-header">
         <h1>
@@ -135,25 +157,45 @@ const MONTH_NAMES = [
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
-          <!-- Bicycle cards (1 or 2) -->
-          <div class="form-card bike-card" *ngFor="let b of bikes; let i = index; trackBy: trackByIndex">
+          <!-- Bicycle cards (1+) -->
+          <div class="form-card bike-card" [class.is-collapsed]="b.isCollapsed" *ngFor="let b of bikes; let i = index; trackBy: trackByIndex">
             <div class="bike-card-header">
-              <h2>{{ bikes.length > 1 ? (i + 1) + '. Fahrrad' : 'Fahrrad auswählen' }}</h2>
-              <button
-                *ngIf="bikes.length > 1"
-                type="button"
-                class="btn-remove-bike"
-                (click)="removeBike(i)"
-                title="Fahrrad entfernen"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-                Entfernen
-              </button>
+              <h2>
+                {{ bikes.length > 1 ? (i + 1) + '. Fahrrad' : 'Fahrrad auswählen' }}
+                <span *ngIf="b.isCollapsed && (b.selectedBike || b.isQuickAddMode)" class="bike-summary">
+                  – {{ b.bikeEdit.marke }} {{ b.bikeEdit.modell }}<ng-container *ngIf="b.gesamtmiete"> · {{ b.gesamtmiete | number: '1.2-2' }} €</ng-container>
+                </span>
+              </h2>
+              <div class="bike-card-actions">
+                <button
+                  *ngIf="b.selectedBike || b.isQuickAddMode"
+                  type="button"
+                  class="btn-collapse-bike"
+                  (click)="toggleCollapse(i)"
+                  [title]="b.isCollapsed ? 'Erweitern' : 'Einklappen'"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [style.transform]="b.isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)'" style="transition: transform .15s">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                  {{ b.isCollapsed ? 'Erweitern' : 'Einklappen' }}
+                </button>
+                <button
+                  *ngIf="bikes.length > 1"
+                  type="button"
+                  class="btn-remove-bike"
+                  (click)="removeBike(i)"
+                  title="Fahrrad entfernen"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                  Entfernen
+                </button>
+              </div>
             </div>
 
+            <div class="bike-card-body" *ngIf="!b.isCollapsed">
             <app-bike-selector
               [bikes]="getAvailableBikesFor(i)"
               [selectedBike]="b.selectedBike"
@@ -165,73 +207,140 @@ const MONTH_NAMES = [
               (quickAddRequested)="onQuickAddBike(i)"
             ></app-bike-selector>
 
-            <!-- Quick-add bike form -->
-            <div class="quick-add-form" *ngIf="b.isQuickAddMode">
-              <h3>🆕 Neues Fahrrad</h3>
+            <!-- Bike details form (quick-add or edit-selected) -->
+            <div class="bike-details-form" *ngIf="b.selectedBike || b.isQuickAddMode" [class.is-quick-add]="b.isQuickAddMode">
+              <h3>
+                <span *ngIf="b.isQuickAddMode" class="quick-add-badge">🆕 Neues Fahrrad</span>
+                <span *ngIf="!b.isQuickAddMode">🚲 Fahrrad-Details</span>
+              </h3>
               <div class="form-grid">
-                <div class="field">
-                  <label>Rahmennummer *</label>
+                <!-- Rahmennummer with autocomplete -->
+                <div
+                  class="field full rahmen-autocomplete-wrapper"
+                  [class.field-error]="b.bikeErrors['rahmennummer']"
+                >
+                  <label>Rahmennummer <ng-container *ngIf="b.isQuickAddMode">*</ng-container></label>
                   <input
                     [(ngModel)]="b.bikeEdit.rahmennummer"
                     [name]="'bikeRahmen_' + i"
+                    (ngModelChange)="b.bikeErrors['rahmennummer'] = false; onRahmennummerChange(i, $event)"
+                    (focus)="onRahmennummerChange(i, b.bikeEdit.rahmennummer)"
+                    (blur)="hideRahmenDropdown(i)"
                     style="text-transform: uppercase"
+                    placeholder="Rahmennummer eingeben..."
+                    autocomplete="off"
+                    [required]="b.isQuickAddMode"
+                  />
+                  <span class="error-msg" *ngIf="b.bikeErrors['rahmennummer']">Pflichtfeld</span>
+                  <div
+                    class="rahmen-dropdown"
+                    *ngIf="b.rahmenSearchResults.length > 0 && b.showRahmenDropdown"
+                  >
+                    <div
+                      class="rahmen-dropdown-item"
+                      *ngFor="let bk of b.rahmenSearchResults"
+                      (mousedown)="selectRahmenBike(i, bk)"
+                    >
+                      <span class="rahmen-nr">{{ bk.rahmennummer }}</span>
+                      <span class="rahmen-info">{{ bk.marke }} {{ bk.modell }}</span>
+                      <span class="rahmen-badge" *ngIf="bk.status === 'Available'">Verfügbar</span>
+                      <span class="rahmen-badge sold" *ngIf="bk.status === 'Sold'">Verkauft</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field" [class.field-error]="b.bikeErrors['marke']">
+                  <label>Marke *</label>
+                  <input
+                    [(ngModel)]="b.bikeEdit.marke"
+                    [name]="'bikeMarke_' + i"
+                    list="brandList"
+                    autocomplete="off"
                     required
+                    (ngModelChange)="b.bikeErrors['marke'] = false"
                   />
+                  <span class="error-msg" *ngIf="b.bikeErrors['marke']">Pflichtfeld</span>
                 </div>
-                <div class="field">
-                  <label>Marke *</label>
-                  <input [(ngModel)]="b.bikeEdit.marke" [name]="'bikeMarke_' + i" required />
-                </div>
-                <div class="field">
+                <div class="field" [class.field-error]="b.bikeErrors['modell']">
                   <label>Modell *</label>
-                  <input [(ngModel)]="b.bikeEdit.modell" [name]="'bikeModell_' + i" required />
-                </div>
-                <div class="field">
-                  <label>Farbe</label>
-                  <input [(ngModel)]="b.bikeEdit.farbe" [name]="'bikeFarbe_' + i" />
-                </div>
-                <div class="field">
-                  <label>Reifengröße</label>
-                  <input [(ngModel)]="b.bikeEdit.reifengroesse" [name]="'bikeReifen_' + i" />
-                </div>
-                <div class="field">
-                  <label>Fahrradtyp</label>
-                  <input [(ngModel)]="b.bikeEdit.fahrradtyp" [name]="'bikeFahrradtyp_' + i" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Edit selected bike -->
-            <div class="bike-edit-form" *ngIf="b.selectedBike && !b.isQuickAddMode">
-              <h3>🚲 Fahrrad-Details</h3>
-              <div class="form-grid">
-                <div class="field">
-                  <label>Rahmennummer</label>
                   <input
-                    [(ngModel)]="b.bikeEdit.rahmennummer"
-                    [name]="'bikeRahmen_' + i"
-                    style="text-transform: uppercase"
+                    [(ngModel)]="b.bikeEdit.modell"
+                    [name]="'bikeModell_' + i"
+                    list="modelList"
+                    autocomplete="off"
+                    required
+                    (ngModelChange)="b.bikeErrors['modell'] = false"
+                  />
+                  <span class="error-msg" *ngIf="b.bikeErrors['modell']">Pflichtfeld</span>
+                </div>
+                <div class="field">
+                  <label>Rahmengröße</label>
+                  <input
+                    [(ngModel)]="b.bikeEdit.rahmengroesse"
+                    [name]="'bikeRahmengroesse_' + i"
+                    placeholder="z.B. 52, 56, M, L"
                   />
                 </div>
                 <div class="field">
-                  <label>Marke *</label>
-                  <input [(ngModel)]="b.bikeEdit.marke" [name]="'bikeMarke_' + i" required />
-                </div>
-                <div class="field">
-                  <label>Modell *</label>
-                  <input [(ngModel)]="b.bikeEdit.modell" [name]="'bikeModell_' + i" required />
-                </div>
-                <div class="field">
                   <label>Farbe</label>
-                  <input [(ngModel)]="b.bikeEdit.farbe" [name]="'bikeFarbe_' + i" />
+                  <div class="color-chips">
+                    <button
+                      type="button"
+                      *ngFor="let c of colorOptions"
+                      class="color-chip"
+                      [class.selected]="isColorSelected(b.bikeEdit.farbe, c.value)"
+                      [style.--chip-color]="c.hex"
+                      (click)="b.bikeEdit.farbe = toggleColor(b.bikeEdit.farbe, c.value)"
+                    >
+                      <span class="chip-dot"></span>
+                      {{ c.label }}
+                    </button>
+                  </div>
                 </div>
                 <div class="field">
                   <label>Reifengröße</label>
-                  <input [(ngModel)]="b.bikeEdit.reifengroesse" [name]="'bikeReifen_' + i" />
+                  <select [(ngModel)]="b.bikeEdit.reifengroesse" [name]="'bikeReifen_' + i">
+                    <option value="">-- Auswählen --</option>
+                    <option value="12">12"</option>
+                    <option value="14">14"</option>
+                    <option value="16">16"</option>
+                    <option value="18">18"</option>
+                    <option value="20">20"</option>
+                    <option value="24">24"</option>
+                    <option value="26">26"</option>
+                    <option value="27.5">27.5"</option>
+                    <option value="28">28"</option>
+                    <option value="29">29"</option>
+                  </select>
                 </div>
                 <div class="field">
                   <label>Fahrradtyp</label>
-                  <input [(ngModel)]="b.bikeEdit.fahrradtyp" [name]="'bikeFahrradtyp_' + i" />
+                  <select [(ngModel)]="b.bikeEdit.fahrradtyp" [name]="'bikeFahrradtyp_' + i">
+                    <option value="">-- Auswählen --</option>
+                    <option value="E-Bike">E-Bike</option>
+                    <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
+                    <option value="Trekking">Trekking</option>
+                    <option value="City">City</option>
+                    <option value="MTB">Mountainbike (MTB)</option>
+                    <option value="Rennrad">Rennrad</option>
+                    <option value="Kinderfahrrad">Kinderfahrrad</option>
+                    <option value="Lastenrad">Lastenrad</option>
+                    <option value="Sonstige">Sonstige</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Zustand *</label>
+                  <select [(ngModel)]="b.bikeEdit.zustand" [name]="'bikeZustand_' + i" required>
+                    <option value="Gebraucht">Gebraucht</option>
+                    <option value="Neu">Neu</option>
+                  </select>
+                </div>
+                <div class="field full">
+                  <label>Beschreibung / Ausstattung</label>
+                  <textarea
+                    [(ngModel)]="b.bikeEdit.beschreibung"
+                    [name]="'bikeBeschr_' + i"
+                    rows="3"
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -287,6 +396,7 @@ const MONTH_NAMES = [
                 <div class="field">
                   <label>Zahlungsart Miete *</label>
                   <select [(ngModel)]="b.zahlungsart" [name]="'zahlungsart_' + i" required>
+                    <option value="" disabled>Bitte wählen…</option>
                     <option value="Bar">Bar</option>
                     <option value="PayPal">PayPal</option>
                     <option value="Karte">Karte</option>
@@ -296,6 +406,7 @@ const MONTH_NAMES = [
                 <div class="field">
                   <label>Zahlungsart Kaution *</label>
                   <select [(ngModel)]="b.kautionZahlungsart" [name]="'kautionZahlungsart_' + i" required>
+                    <option value="" disabled>Bitte wählen…</option>
                     <option value="Bar">Bar</option>
                     <option value="PayPal">PayPal</option>
                     <option value="Karte">Karte</option>
@@ -312,10 +423,10 @@ const MONTH_NAMES = [
                 </div>
               </div>
             </div>
+            </div>
           </div>
 
           <button
-            *ngIf="bikes.length < 2"
             type="button"
             class="btn-add-bike"
             (click)="addBike()"
@@ -324,7 +435,7 @@ const MONTH_NAMES = [
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            Zweites Fahrrad hinzufügen
+            Weiteres Fahrrad hinzufügen
           </button>
 
           <!-- Mieter -->
@@ -694,8 +805,44 @@ const MONTH_NAMES = [
         gap: 12px;
         margin-bottom: 16px;
       }
+      .bike-card.is-collapsed .bike-card-header {
+        margin-bottom: 0;
+      }
       .bike-card-header h2 {
         margin: 0;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .bike-card-header .bike-summary {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+      .bike-card-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+      }
+      .btn-collapse-bike {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-collapse-bike:hover {
+        border-color: var(--primary, #3b82f6);
+        color: var(--primary, #3b82f6);
       }
       .btn-remove-bike {
         display: inline-flex;
@@ -1273,31 +1420,142 @@ const MONTH_NAMES = [
         padding-top: 20px;
         border-top: 1px solid var(--border-light);
       }
-      .quick-add-form {
-        margin-top: 16px;
-        padding: 16px;
-        background: rgba(16, 185, 129, 0.04);
-        border-radius: var(--radius-md, 10px);
-        border: 1.5px dashed #10b981;
-      }
-      .quick-add-form h3 {
-        margin: 0 0 12px 0;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #10b981;
-      }
-      .bike-edit-form {
+      .bike-details-form {
         margin-top: 16px;
         padding: 16px;
         background: var(--bg-secondary, #f8fafc);
         border-radius: var(--radius-md, 10px);
         border: 1.5px solid var(--border-light, #e2e8f0);
       }
-      .bike-edit-form h3 {
+      .bike-details-form.is-quick-add {
+        background: rgba(16, 185, 129, 0.04);
+        border: 1.5px dashed #10b981;
+      }
+      .bike-details-form h3 {
         margin: 0 0 12px 0;
         font-size: 0.95rem;
         font-weight: 700;
         color: var(--accent-primary, #6366f1);
+      }
+      .quick-add-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 8px;
+        vertical-align: middle;
+      }
+      .field.full {
+        grid-column: 1 / -1;
+      }
+      .field-error input,
+      .field-error select,
+      .field-error textarea {
+        border-color: #ef4444 !important;
+        background: rgba(239, 68, 68, 0.04);
+      }
+      .field-error label {
+        color: #ef4444;
+      }
+      .error-msg {
+        display: block;
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 4px;
+        font-weight: 500;
+      }
+      .color-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .color-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 20px;
+        background: var(--bg-card, #fff);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .color-chip:hover {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--table-hover, #f1f5f9);
+      }
+      .color-chip.selected {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        font-weight: 600;
+      }
+      .chip-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--chip-color, #ccc);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        flex-shrink: 0;
+      }
+      .rahmen-autocomplete-wrapper {
+        position: relative;
+      }
+      .rahmen-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--accent-primary, #6366f1);
+        border-radius: 0 0 var(--radius-md, 10px) var(--radius-md, 10px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        max-height: 240px;
+        overflow-y: auto;
+      }
+      .rahmen-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: background 0.1s;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+      }
+      .rahmen-dropdown-item:last-child {
+        border-bottom: none;
+      }
+      .rahmen-dropdown-item:hover {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+      }
+      .rahmen-nr {
+        font-weight: 700;
+        font-family: monospace;
+        font-size: 0.88rem;
+        text-transform: uppercase;
+        color: var(--accent-primary, #6366f1);
+      }
+      .rahmen-info {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+      }
+      .rahmen-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 99px;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        margin-left: auto;
+      }
+      .rahmen-badge.sold {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
       }
 
       @media (max-width: 640px) {
@@ -1327,6 +1585,24 @@ export class RentalFormComponent implements OnInit {
 
   fromBookingId: number | null = null;
   availableBikes: Bicycle[] = [];
+  brands: string[] = [];
+  models: string[] = [];
+
+  colorOptions = [
+    { value: 'Schwarz', label: 'Schwarz', hex: '#1a1a1a' },
+    { value: 'Weiß', label: 'Weiß', hex: '#f5f5f5' },
+    { value: 'Rot', label: 'Rot', hex: '#ef4444' },
+    { value: 'Blau', label: 'Blau', hex: '#3b82f6' },
+    { value: 'Grün', label: 'Grün', hex: '#22c55e' },
+    { value: 'Gelb', label: 'Gelb', hex: '#eab308' },
+    { value: 'Orange', label: 'Orange', hex: '#f97316' },
+    { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
+    { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
+    { value: 'Pink', label: 'Pink', hex: '#ec4899' },
+    { value: 'Türkis', label: 'Türkis', hex: '#06b6d4' },
+    { value: 'Lila', label: 'Lila', hex: '#a855f7' },
+    { value: 'Dunkelblau', label: 'Dunkelblau', hex: '#1e3a5f' },
+  ];
 
   bikes: BikeEntry[] = [createEmptyBikeEntry()];
 
@@ -1387,13 +1663,77 @@ export class RentalFormComponent implements OnInit {
   }
 
   addBike() {
-    if (this.bikes.length >= 2) return;
+    for (const b of this.bikes) {
+      if (b.selectedBike || b.isQuickAddMode) b.isCollapsed = true;
+    }
     this.bikes.push(createEmptyBikeEntry());
   }
 
   removeBike(i: number) {
     if (this.bikes.length <= 1) return;
     this.bikes.splice(i, 1);
+  }
+
+  toggleCollapse(i: number) {
+    this.bikes[i].isCollapsed = !this.bikes[i].isCollapsed;
+  }
+
+  isColorSelected(farbe: string, color: string): boolean {
+    if (!farbe) return false;
+    return farbe.split(/[,\/]\s*/).includes(color);
+  }
+
+  toggleColor(farbe: string, color: string): string {
+    const colors = farbe ? farbe.split(/[,\/]\s*/).filter(Boolean) : [];
+    const idx = colors.indexOf(color);
+    if (idx >= 0) colors.splice(idx, 1);
+    else colors.push(color);
+    return colors.join('/');
+  }
+
+  onRahmennummerChange(i: number, value: string) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.rahmenSearchResults = [];
+    if (b.rahmenSearchTimeout) clearTimeout(b.rahmenSearchTimeout);
+    if (!value || value.trim().length < 2) {
+      b.showRahmenDropdown = false;
+      return;
+    }
+    b.rahmenSearchTimeout = setTimeout(() => {
+      this.bicycleService.search(value.trim()).subscribe({
+        next: (bikes) => {
+          const otherSelected = this.bikes
+            .map((x, idx) => (idx !== i ? x.selectedBike?.id : null))
+            .filter((x): x is number => x != null);
+          b.rahmenSearchResults = bikes.filter(
+            (bk) =>
+              bk.status !== 'Sold' &&
+              !otherSelected.includes(bk.id) &&
+              bk.rahmennummer
+                ?.toUpperCase()
+                .includes(value.trim().toUpperCase()),
+          );
+          b.showRahmenDropdown = b.rahmenSearchResults.length > 0;
+        },
+        error: () => {},
+      });
+    }, 300);
+  }
+
+  hideRahmenDropdown(i: number) {
+    setTimeout(() => {
+      const b = this.bikes[i];
+      if (b) b.showRahmenDropdown = false;
+    }, 200);
+  }
+
+  selectRahmenBike(i: number, bike: Bicycle) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.showRahmenDropdown = false;
+    b.rahmenSearchResults = [];
+    this.onBikeSelected(i, bike);
   }
 
   get calendarMonthName(): string {
@@ -1589,6 +1929,15 @@ export class RentalFormComponent implements OnInit {
       next: (list) => (this.availableAccessories = list),
     });
 
+    this.bicycleService.getBrands().subscribe({
+      next: (res) => (this.brands = res),
+      error: () => {},
+    });
+    this.bicycleService.getModels().subscribe({
+      next: (res) => (this.models = res),
+      error: () => {},
+    });
+
     this.bicycleService.getAll().subscribe({
       next: (bikes) => {
         this.availableBikes = bikes.filter((b) => b.status === 'Available');
@@ -1665,9 +2014,12 @@ export class RentalFormComponent implements OnInit {
                       rahmennummer: '',
                       marke: srcBike.marke || '',
                       modell: srcBike.modell || '',
+                      rahmengroesse: srcBike.rahmengroesse || '',
                       farbe: srcBike.farbe || '',
                       reifengroesse: srcBike.reifengroesse || '',
                       fahrradtyp: srcBike.fahrradtyp || '',
+                      beschreibung: srcBike.beschreibung || '',
+                      zustand: srcBike.zustand || BikeCondition.Gebraucht,
                     };
                     this.loadBusyPeriodsFor(0, bikeId);
                   }
@@ -1695,10 +2047,14 @@ export class RentalFormComponent implements OnInit {
       rahmennummer: bike.rahmennummer || '',
       marke: bike.marke || '',
       modell: bike.modell || '',
+      rahmengroesse: bike.rahmengroesse || '',
       farbe: bike.farbe || '',
       reifengroesse: bike.reifengroesse || '',
       fahrradtyp: bike.fahrradtyp || '',
+      beschreibung: bike.beschreibung || '',
+      zustand: bike.zustand || BikeCondition.Gebraucht,
     };
+    b.bikeErrors = {};
     if (bike.kaution != null) {
       b.kaution = bike.kaution;
     }
@@ -1716,10 +2072,16 @@ export class RentalFormComponent implements OnInit {
       rahmennummer: '',
       marke: '',
       modell: '',
+      rahmengroesse: '',
       farbe: '',
       reifengroesse: '',
       fahrradtyp: '',
+      beschreibung: '',
+      zustand: BikeCondition.Gebraucht,
     };
+    b.bikeErrors = {};
+    b.rahmenSearchResults = [];
+    b.showRahmenDropdown = false;
   }
 
   private normalizeAccessoryName(value: string): string {
@@ -1818,14 +2180,17 @@ export class RentalFormComponent implements OnInit {
         );
         return;
       }
-      if (
-        b.isQuickAddMode &&
-        (!b.bikeEdit.rahmennummer || !b.bikeEdit.marke || !b.bikeEdit.modell)
-      ) {
-        this.notificationService.error(
-          `Fahrrad ${i + 1}: Rahmennummer, Marke und Modell ausfüllen`,
-        );
-        return;
+      if (b.isQuickAddMode || b.selectedBike) {
+        b.bikeErrors = {};
+        if (b.isQuickAddMode && !b.bikeEdit.rahmennummer) b.bikeErrors['rahmennummer'] = true;
+        if (!b.bikeEdit.marke) b.bikeErrors['marke'] = true;
+        if (!b.bikeEdit.modell) b.bikeErrors['modell'] = true;
+        if (Object.values(b.bikeErrors).some((v) => v)) {
+          this.notificationService.error(
+            `Fahrrad ${i + 1}: Rahmennummer, Marke und Modell ausfüllen`,
+          );
+          return;
+        }
       }
     }
 
@@ -1838,11 +2203,13 @@ export class RentalFormComponent implements OnInit {
             rahmennummer: b.bikeEdit.rahmennummer.toUpperCase(),
             marke: b.bikeEdit.marke,
             modell: b.bikeEdit.modell,
+            rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
             farbe: b.bikeEdit.farbe || undefined,
             reifengroesse: b.bikeEdit.reifengroesse || undefined,
             fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
+            beschreibung: b.bikeEdit.beschreibung || undefined,
             status: 'Available',
-            zustand: BikeCondition.Gebraucht,
+            zustand: b.bikeEdit.zustand || BikeCondition.Gebraucht,
             isRentable: false,
           } as any)
           .pipe(map((bike) => bike.id));
@@ -1852,11 +2219,13 @@ export class RentalFormComponent implements OnInit {
         marke: b.bikeEdit.marke,
         modell: b.bikeEdit.modell,
         rahmennummer: b.bikeEdit.rahmennummer || undefined,
+        rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
         farbe: b.bikeEdit.farbe || undefined,
         reifengroesse: b.bikeEdit.reifengroesse || '',
         fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
+        beschreibung: b.bikeEdit.beschreibung || undefined,
         status: sel.status as any,
-        zustand: (sel.zustand || 'Gebraucht') as BikeCondition,
+        zustand: b.bikeEdit.zustand || (sel.zustand || 'Gebraucht') as BikeCondition,
         isRentable: sel.isRentable,
         rentalPriceDay1: sel.rentalPriceDay1,
         rentalPriceDay2: sel.rentalPriceDay2,
@@ -1894,8 +2263,8 @@ export class RentalFormComponent implements OnInit {
           const payload: RentalCreate = {
             customer: this.customer,
             rabatt: firstBike.rabatt || 0,
-            zahlungsart: firstBike.zahlungsart,
-            kautionZahlungsart: firstBike.kautionZahlungsart,
+            zahlungsart: firstBike.zahlungsart as PaymentMethod,
+            kautionZahlungsart: firstBike.kautionZahlungsart as PaymentMethod,
             notizen: this.notizen || undefined,
             accessories:
               accessoriesPayload.length > 0 ? accessoriesPayload : undefined,

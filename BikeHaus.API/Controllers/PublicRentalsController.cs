@@ -59,8 +59,8 @@ public class PublicRentalsController : ControllerBase
     public async Task<ActionResult<IEnumerable<PublicRentalBicycleDto>>> GetAvailableBikes([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
         // Validate date range
-        if (startDate >= endDate)
-            return BadRequest(new { error = "Start date must be before end date." });
+        if (startDate.Date > endDate.Date)
+            return BadRequest(new { error = "Start date must be before or equal to end date." });
 
         var allBikes = await _bicycleService.GetRentableBicyclesAsync();
         var availableBikes = new List<PublicRentalBicycleDto>();
@@ -69,9 +69,9 @@ public class PublicRentalsController : ControllerBase
         {
             var busyPeriods = await _bicycleService.GetBusyPeriodsAsync(bike.Id);
 
-            // Check if bike is available for the entire date range
+            // Check if bike is available for the entire date range (inclusive bounds)
             bool isAvailable = !busyPeriods.Any(p =>
-                p.Start < endDate && p.End > startDate);
+                p.Start.Date <= endDate.Date && p.End.Date >= startDate.Date);
 
             if (isAvailable)
             {
