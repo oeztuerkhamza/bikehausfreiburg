@@ -1399,6 +1399,12 @@ public class PdfService : IPdfService
         var mietTage = (rental.EndDatum - rental.StartDatum).Days + 1;
         var berechneterPreis = rental.Gesamtmiete + rental.Rabatt;
 
+        // 19% MwSt breakdown (Gesamtmiete is treated as brutto)
+        const decimal mwstRate = 0.19m;
+        var brutto = rental.Gesamtmiete;
+        var netto = Math.Round(brutto / (1 + mwstRate), 2);
+        var mwst = brutto - netto;
+
         var document = QuestPDF.Fluent.Document.Create(container =>
         {
             container.Page(page =>
@@ -1484,6 +1490,9 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.AusweisnNr ?? "-").FontSize(10);
                     });
 
+                    col.Item().PaddingTop(3).Text("✓ Die Identität des Mieters wurde anhand eines gültigen Ausweisdokuments überprüft.")
+                        .FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
+
                     // GEMIETETE FAHRRÄDER Section (one row per rented bike)
                     col.Item().PaddingTop(6).Element(SectionHeader).Text("GEMIETETE FAHRRÄDER");
                     col.Item().Table(table =>
@@ -1562,9 +1571,21 @@ public class PdfService : IPdfService
                             table.Cell().Border(0.5f).BorderColor("#10b981").Padding(3).Text($"- {rental.Rabatt:N2} €").FontSize(10).Bold().FontColor("#10b981");
                         }
 
-                        table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text("Gesamtmiete").FontSize(9).Bold().FontColor(AccentColor);
-                        table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{rental.Gesamtmiete:N2} €").FontSize(10).Bold().FontColor(AccentColor);
-                        table.Cell().ColumnSpan(2).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("inkl. MwSt.").FontSize(9).FontColor(Colors.Grey.Darken2);
+                        // VAT breakdown (Netto + 19% MwSt = Brutto). Each row uses two label cells + two value cells.
+                        table.Cell().ColumnSpan(2).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3)
+                            .Text("Nettopreis").FontSize(9).FontColor(Colors.Grey.Darken2);
+                        table.Cell().ColumnSpan(2).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3)
+                            .Text($"{netto:N2} €").FontSize(10).AlignRight();
+
+                        table.Cell().ColumnSpan(2).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3)
+                            .Text("zzgl. 19% MwSt.").FontSize(9).FontColor(Colors.Grey.Darken2);
+                        table.Cell().ColumnSpan(2).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3)
+                            .Text($"{mwst:N2} €").FontSize(10).AlignRight();
+
+                        table.Cell().ColumnSpan(2).Border(1).BorderColor(AccentColor).Padding(3)
+                            .Text("Gesamtmiete (inkl. MwSt.)").FontSize(9).Bold().FontColor(AccentColor);
+                        table.Cell().ColumnSpan(2).Border(1).BorderColor(AccentColor).Padding(3)
+                            .Text($"{brutto:N2} €").FontSize(10).Bold().FontColor(AccentColor).AlignRight();
                     });
 
                     // ZUBEHÖR Section (only if accessories present)
@@ -1602,27 +1623,6 @@ public class PdfService : IPdfService
                         });
                     }
 
-                    // KAUTION Section
-                    col.Item().PaddingTop(6).Row(row =>
-                    {
-                        row.RelativeItem().Column(c =>
-                        {
-                            c.Item().Text("Kaution:").FontSize(9).FontColor(Colors.Grey.Darken1);
-                            c.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(5).Text($"{rental.Kaution:N2} €").FontSize(13).Bold();
-                            c.Item().PaddingTop(3).Text("Die Mietgebühr wird im Voraus bezahlt.").FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
-                            c.Item().Text($"Zusätzlich ist pro Fahrrad eine Kaution in Höhe von {rental.Kaution:N2} € in bar zu hinterlegen.").FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
-                            c.Item().Text("Bei ordnungsgemäßer Rückgabe ohne Schäden oder Verluste wird die Kaution vollständig erstattet.").FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
-                        });
-
-                        // Grand Total box
-                        row.ConstantItem(170).AlignMiddle().Border(2).BorderColor(PrimaryColor).Padding(8).Column(c =>
-                        {
-                            c.Item().Text("GESAMTMIETE").FontSize(10).FontColor(PrimaryColor).AlignCenter();
-                            c.Item().Text("(inkl. MwSt.)").FontSize(8).FontColor(Colors.Grey.Darken2).AlignCenter();
-                            c.Item().PaddingTop(3).Text($"{rental.Gesamtmiete:N2} €").FontSize(25).Bold().FontColor(PrimaryColor).AlignCenter();
-                        });
-                    });
-
                     // HAFTUNG & RÜCKGABE
                     col.Item().PaddingTop(6).Element(SectionHeader).Text("BEDINGUNGEN");
                     col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(wCol =>
@@ -1634,15 +1634,6 @@ public class PdfService : IPdfService
                             {
                                 text.Span("MIETZAHLUNG: ").Bold().FontSize(9);
                                 text.Span("Die Mietgebühr wird im Voraus bezahlt.").FontSize(9).FontColor(Colors.Grey.Darken3);
-                            });
-                        });
-                        wCol.Item().PaddingTop(3).Row(wRow =>
-                        {
-                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
-                            wRow.RelativeItem().Text(text =>
-                            {
-                                text.Span("KAUTION: ").Bold().FontSize(9);
-                                text.Span($"Pro Fahrrad ist eine Kaution in Höhe von {rental.Kaution:N2} € in bar zu hinterlegen. Bei ordnungsgemäßer Rückgabe wird sie erstattet.").FontSize(9).FontColor(Colors.Grey.Darken3);
                             });
                         });
                         wCol.Item().PaddingTop(3).Row(wRow =>
@@ -1681,6 +1672,8 @@ public class PdfService : IPdfService
                                 text.Span("Für verlorenes oder beschädigtes Zubehör (Schloss, Helm oder Korb) werden jeweils 30 € berechnet.").FontSize(9).FontColor(Colors.Grey.Darken3);
                             });
                         });
+                        wCol.Item().PaddingTop(6).Text("Es gelten zusätzlich die Allgemeinen Geschäftsbedingungen (AGB) auf Seite 2.")
+                            .FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
                     });
 
                     // Notes if present
@@ -1720,7 +1713,111 @@ public class PdfService : IPdfService
                             sellerCol.Item().PaddingTop(2).Text(shop.OwnerName).FontSize(9);
                         });
 
-                        row.RelativeItem();
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(mieterCol =>
+                        {
+                            mieterCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3)
+                                .Text("MIETER").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
+                            mieterCol.Item().PaddingTop(3).Text("Unterschrift Mieter").FontSize(9).FontColor(Colors.Grey.Darken1);
+                            mieterCol.Item().Height(35);
+                            mieterCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                            mieterCol.Item().PaddingTop(2).Text(rental.Customer.FullName).FontSize(9);
+                            mieterCol.Item().PaddingTop(2).Text("Mit Unterschrift bestätigt der Mieter den Erhalt des Fahrrads und die Kenntnis der AGB (Seite 2).")
+                                .FontSize(7).Italic().FontColor(Colors.Grey.Darken2);
+                        });
+                    });
+
+                    // ═══════════════════════════════════════════════════════
+                    // PAGE 2 — Allgemeine Geschäftsbedingungen (AGB)
+                    // ═══════════════════════════════════════════════════════
+                    col.Item().PageBreak();
+
+                    col.Item().PaddingTop(4).Element(SectionHeader).Text("ALLGEMEINE GESCHÄFTSBEDINGUNGEN (AGB)");
+                    col.Item().PaddingTop(2).Text($"Zum Mietvertrag Nr. {rental.MietvertragNummer} vom {rental.CreatedAt:dd.MM.yyyy}")
+                        .FontSize(9).FontColor(Colors.Grey.Darken2);
+
+                    // § 1 Mietgegenstand
+                    col.Item().PaddingTop(8).Text("§ 1 Mietgegenstand").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text(
+                        "Der Vermieter überlässt dem Mieter das im Vertrag bezeichnete Fahrrad samt Zubehör für die vereinbarte Mietdauer. " +
+                        "Der Mieter bestätigt den Erhalt und die Anerkennung dieser Bedingungen."
+                    ).FontSize(9);
+
+                    // § 2 Übergabe und Zustand
+                    col.Item().PaddingTop(8).Text("§ 2 Übergabe und Zustand").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text("Der Mieter bestätigt, dass das Fahrrad bei Übergabe:").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  technisch funktionsfähig ist").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  verkehrstauglich ist").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  keine sichtbaren Mängel aufweist").FontSize(9);
+                    col.Item().PaddingTop(2).Text(
+                        "Innerhalb von 1 Stunde nach Übergabe festgestellte technische Mängel berechtigen zur kostenlosen Rückgabe."
+                    ).FontSize(9);
+
+                    // § 3 Schadenspauschalen
+                    col.Item().PaddingTop(8).Text("§ 3 Schadenspauschalen").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text("Folgende Pauschalen gelten als Schadensersatz:").FontSize(9);
+                    col.Item().PaddingTop(2).Table(t =>
+                    {
+                        t.ColumnsDefinition(cdef =>
+                        {
+                            cdef.RelativeColumn(3);
+                            cdef.ConstantColumn(70);
+                        });
+
+                        void AddSchadenRow(string label, string price)
+                        {
+                            t.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(label).FontSize(9);
+                            t.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(price).FontSize(9).AlignRight().Bold();
+                        }
+
+                        AddSchadenRow("Schlauch-/Reifenpanne",     "10,00 €");
+                        AddSchadenRow("Kettenschaden",             "20,00 €");
+                        AddSchadenRow("Schaltungsschaden",         "30,00 €");
+                        AddSchadenRow("Leichte Felgenverformung",  "10,00 €");
+                        AddSchadenRow("Reifenersatz",              "50,00 €");
+                    });
+                    col.Item().PaddingTop(2).Text(
+                        "Eine Anpassung bei nachgewiesen höherem oder geringerem Schaden bleibt vorbehalten."
+                    ).FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
+
+                    // § 4 Kaution
+                    col.Item().PaddingTop(8).Text("§ 4 Kaution").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text(
+                        $"Pro Fahrrad ist eine Kaution in Höhe von {rental.Kaution:N2} € in bar zu hinterlegen. " +
+                        "Die Kaution wird nach ordnungsgemäßer Rückgabe des Fahrrads ohne Schäden und vollständigem Zubehör zurückerstattet."
+                    ).FontSize(9);
+                    col.Item().PaddingTop(3).Text("Bei folgenden Fällen kann die Kaution ganz oder teilweise einbehalten werden:").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  Schäden am Fahrrad").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  Verlust oder Diebstahl").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  unsachgemäße Nutzung").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  fehlendes Zubehör").FontSize(9);
+
+                    // Bestätigung (acceptance)
+                    col.Item().PaddingTop(14).Border(1).BorderColor(PrimaryColor).Padding(8).Column(bc =>
+                    {
+                        bc.Item().Text("BESTÄTIGUNG DES MIETERS").FontSize(10).Bold().FontColor(PrimaryColor);
+                        bc.Item().PaddingTop(4).Text("Der Mieter bestätigt den Erhalt des Fahrrads sowie die Kenntnis der Kautionsbedingungen.").FontSize(9);
+                        bc.Item().PaddingTop(3).Row(r =>
+                        {
+                            r.ConstantItem(14).AlignTop().Text("☐").FontSize(12);
+                            r.RelativeItem().Text("Ich habe die AGB gelesen und akzeptiert.").FontSize(10).Bold();
+                        });
+                        bc.Item().PaddingTop(10).Row(r =>
+                        {
+                            r.RelativeItem().Column(oc =>
+                            {
+                                oc.Item().Text("Ort, Datum").FontSize(9).FontColor(Colors.Grey.Darken1);
+                                oc.Item().Height(28);
+                                oc.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                            });
+                            r.ConstantItem(20);
+                            r.RelativeItem().Column(sc =>
+                            {
+                                sc.Item().Text("Unterschrift Mieter").FontSize(9).FontColor(Colors.Grey.Darken1);
+                                sc.Item().Height(28);
+                                sc.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                                sc.Item().PaddingTop(2).Text(rental.Customer.FullName).FontSize(8).FontColor(Colors.Grey.Darken2);
+                            });
+                        });
                     });
                 });
 
