@@ -1540,10 +1540,18 @@ interface BikeSlot {
               <div class="seat-info">
                 <div class="seat-name">{{ bike.marke }} {{ bike.modell }}</div>
                 <div class="seat-specs">
-                  <span *ngIf="bike.rahmengroesse">{{
-                    bike.rahmengroesse
-                  }}</span>
-                  <span *ngIf="bike.farbe">· {{ bike.farbe }}</span>
+                  <span *ngIf="bike.rahmengroesse" class="spec-row">
+                    <span class="spec-label">Rahmenhöhe</span>
+                    {{ bike.rahmengroesse }} cm
+                  </span>
+                  <span *ngIf="bike.reifengroesse" class="spec-row">
+                    <span class="spec-label">Reifengröße</span>
+                    {{ bike.reifengroesse }} Zoll
+                  </span>
+                  <span *ngIf="bike.farbe" class="spec-row">
+                    <span class="spec-label">Farbe</span>
+                    {{ bike.farbe }}
+                  </span>
                 </div>
                 <div class="seat-price-from" *ngIf="getMinPrice(bike) as minP">
                   {{ pageCopy().bikePriceFrom }} {{ minP | number: '1.0-0' }} €
@@ -3017,6 +3025,19 @@ interface BikeSlot {
         font-size: 0.78rem;
         color: rgba(255, 255, 255, 0.58);
         margin-bottom: 0.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+      .spec-row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.3rem;
+      }
+      .spec-label {
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 0.72rem;
+        min-width: 6rem;
       }
       .seat-price-from {
         display: inline-flex;
