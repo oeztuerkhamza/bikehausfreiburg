@@ -1834,12 +1834,55 @@ public class PdfService : IPdfService
                         "Bei verspäteter Rückgabe wird eine Gebühr von 12 € pro angefangenem Tag berechnet."
                     ).FontSize(9);
 
-                    // § 6 Haftung
-                    col.Item().PaddingTop(8).Text("§ 6 Haftung").FontSize(11).Bold().FontColor(PrimaryColor);
+                    // § 6 Diebstahl und Haftung
+                    col.Item().PaddingTop(8).Text("§ 6 Diebstahl und Haftung").FontSize(11).Bold().FontColor(PrimaryColor);
                     col.Item().PaddingTop(2).Text(
-                        "Der Mieter haftet bei Verlust oder Diebstahl des Fahrrads in voller Höhe des Zeitwerts. " +
-                        "Für verlorenes oder beschädigtes Zubehör (z. B. Schloss, Helm, Korb) werden jeweils 30 € berechnet. " +
-                        "Schäden durch Unfälle oder unsachgemäße Nutzung gehen vollständig zu Lasten des Mieters."
+                        "Der Mieter haftet für Diebstahl, Verlust, unsachgemäße Nutzung und sämtliche während der Mietzeit entstandenen Schäden."
+                    ).FontSize(9);
+                    col.Item().PaddingTop(2).Text(
+                        "Wird festgestellt, dass das Fahrrad nicht ordnungsgemäß gesichert war, entfällt der Anspruch auf " +
+                        "Rückzahlung der Kaution, und weitere Schäden können geltend gemacht werden."
+                    ).FontSize(9);
+
+                    // § 7 Diebstahlmeldung
+                    col.Item().PaddingTop(8).Text("§ 7 Diebstahlmeldung").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text("Im Falle eines Diebstahls hat der Mieter unverzüglich:").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  die Polizei zu informieren").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  eine Anzeige zu erstatten").FontSize(9);
+                    col.Item().PaddingLeft(12).Text("•  den Vermieter zu benachrichtigen").FontSize(9);
+                    col.Item().PaddingTop(2).Text("Das polizeiliche Aktenzeichen ist vorzulegen.").FontSize(9);
+
+                    // § 8 Rückgabe
+                    col.Item().PaddingTop(8).Text("§ 8 Rückgabe").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text(
+                        "Das Fahrrad ist zum vereinbarten Zeitpunkt zurückzugeben. " +
+                        "Bei verspäteter Rückgabe kann eine zusätzliche Tagesmiete berechnet werden."
+                    ).FontSize(9);
+
+                    // § 9 Kaution
+                    col.Item().PaddingTop(8).Text("§ 9 Kaution").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text(
+                        "Die Kaution wird bei ordnungsgemäßer Rückgabe vollständig erstattet. " +
+                        "Bei Schäden, Verlust oder unsachgemäßer Nutzung erfolgt eine entsprechende Kürzung."
+                    ).FontSize(9);
+
+                    // § 10 Haftung des Vermieters
+                    col.Item().PaddingTop(8).Text("§ 10 Haftung des Vermieters").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text(
+                        "Die Haftung des Vermieters ist auf Vorsatz und grobe Fahrlässigkeit beschränkt. " +
+                        "Für sonstige Schäden haftet der Mieter, sofern kein technischer Mangel vorlag."
+                    ).FontSize(9);
+
+                    // § 11 Datenschutz
+                    col.Item().PaddingTop(8).Text("§ 11 Datenschutz").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text(
+                        "Personenbezogene Daten werden ausschließlich zur Vertragsabwicklung verwendet und nicht an Dritte weitergegeben."
+                    ).FontSize(9);
+
+                    // § 12 Recht und Gerichtsstand
+                    col.Item().PaddingTop(8).Text("§ 12 Recht und Gerichtsstand").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text(
+                        "Es gilt deutsches Recht. Soweit gesetzlich zulässig ist Gerichtsstand Freiburg im Breisgau."
                     ).FontSize(9);
 
                     // Bestätigung
