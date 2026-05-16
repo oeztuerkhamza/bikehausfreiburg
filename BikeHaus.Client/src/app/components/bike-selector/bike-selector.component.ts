@@ -712,9 +712,8 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
   }
 
   getImageUrl(path: string): string {
-    const baseUrl = environment.apiUrl.replace('/api', '');
     const normalizedPath = path.startsWith('/') ? path.substring(1) : path;
-    return `${baseUrl}/${normalizedPath}`;
+    return `${environment.apiUrl}/public/gallery-image/${normalizedPath}`;
   }
 
   private uniqueSorted(values: string[]): string[] {
