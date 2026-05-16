@@ -1040,6 +1040,37 @@ const MONTH_NAMES = [
       .cal-day.busy:hover .busy-tooltip {
         display: block;
       }
+      .avail-loading-bar,
+      .avail-none-bar,
+      .avail-count-bar,
+      .select-dates-hint {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+      }
+      .avail-loading-bar {
+        background: var(--bg-secondary, #f3f4f6);
+        color: var(--text-muted);
+        font-style: italic;
+      }
+      .avail-none-bar {
+        background: rgba(239, 68, 68, 0.08);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      .avail-count-bar {
+        background: rgba(34, 197, 94, 0.08);
+        color: #16a34a;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+      .select-dates-hint {
+        background: var(--bg-secondary, #f3f4f6);
+        color: var(--text-muted);
+        border: 1px dashed var(--border-light);
+      }
       .cal-legend {
         display: flex;
         align-items: center;
