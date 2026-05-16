@@ -91,6 +91,8 @@ interface RentalStepsTranslations {
   firstNameRequired: string;
   lastNameRequired: string;
   emailRequired: string;
+  termsPrefix: string;
+  termsLinkText: string;
 }
 
 export interface Translations {
@@ -3386,6 +3388,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     firstNameRequired: 'Vorname erforderlich',
     lastNameRequired: 'Nachname erforderlich',
     emailRequired: 'Gültige E-Mail erforderlich',
+    termsPrefix: 'Ich akzeptiere die',
+    termsLinkText: 'Fahrradverleih-Bedingungen',
   },
   en: {
     dateSelection: 'Choose date',
@@ -3462,6 +3466,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     firstNameRequired: 'First name is required',
     lastNameRequired: 'Last name is required',
     emailRequired: 'Valid email is required',
+    termsPrefix: 'I accept the',
+    termsLinkText: 'Rental Terms',
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -3538,6 +3544,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     firstNameRequired: 'Prénom requis',
     lastNameRequired: 'Nom requis',
     emailRequired: 'E-mail valide requis',
+    termsPrefix: "J'accepte les",
+    termsLinkText: 'Conditions de location',
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -3614,6 +3622,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     firstNameRequired: 'Ad zorunludur',
     lastNameRequired: 'Soyad zorunludur',
     emailRequired: 'Geçerli bir e-posta zorunludur',
+    termsPrefix: 'Kabul ediyorum',
+    termsLinkText: 'Kiralama Koşulları',
   },
   es: {
     dateSelection: 'Elegir fecha',
@@ -3690,6 +3700,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     firstNameRequired: 'El nombre es obligatorio',
     lastNameRequired: 'El apellido es obligatorio',
     emailRequired: 'Se requiere un correo electrónico válido',
+    termsPrefix: 'Acepto los',
+    termsLinkText: 'Términos de alquiler',
   },
   it: {
     dateSelection: 'Scegli data',
@@ -3767,6 +3779,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     firstNameRequired: 'Il nome è obbligatorio',
     lastNameRequired: 'Il cognome è obbligatorio',
     emailRequired: "È richiesta un'email valida",
+    termsPrefix: 'Accetto i',
+    termsLinkText: 'Termini di noleggio',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
@@ -3843,6 +3857,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     firstNameRequired: 'الاسم الأول مطلوب',
     lastNameRequired: 'اسم العائلة مطلوب',
     emailRequired: 'مطلوب بريد إلكتروني صحيح',
+    termsPrefix: 'أوافق على',
+    termsLinkText: 'شروط الإيجار',
   },
   ru: {
     dateSelection: 'Выбор даты',
@@ -3919,6 +3935,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     firstNameRequired: 'Введите имя',
     lastNameRequired: 'Введите фамилию',
     emailRequired: 'Укажите корректный email',
+    termsPrefix: 'Я принимаю',
+    termsLinkText: 'Условия аренды',
   },
 };
 
