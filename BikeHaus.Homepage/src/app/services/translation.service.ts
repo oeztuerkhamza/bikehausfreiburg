@@ -17,6 +17,84 @@ import { EXTENDED_TRANSLATION_OVERRIDES } from './translation-overrides';
 export type Language = SupportedLanguageCode;
 type BaseLanguage = 'de' | 'en' | 'fr' | 'tr';
 
+interface RentalStepsTranslations {
+  dateSelection: string;
+  bikeSelection: string;
+  customerInfo: string;
+  review: string;
+  selectDates: string;
+  startDate: string;
+  endDate: string;
+  continue: string;
+  selectBike: string;
+  days: string;
+  loading: string;
+  noBikesAvailable: string;
+  from: string;
+  day: string;
+  to: string;
+  calendarHint: string;
+  previousMonth: string;
+  nextMonth: string;
+  back: string;
+  type: string;
+  frameSize: string;
+  tireSize: string;
+  color: string;
+  description: string;
+  pricing: string;
+  rentalPrice: string;
+  deposit: string;
+  selectColor: string;
+  frameNumber: string;
+  optional: string;
+  addToCart: string;
+  book: string;
+  selectDifferent: string;
+  bikeAdded: string;
+  bikeInCart: string;
+  bikesInCart: string;
+  continueToBooking: string;
+  yourInfo: string;
+  cartItems: string;
+  addAnotherBike: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  street: string;
+  houseNumber: string;
+  postalCode: string;
+  city: string;
+  notes: string;
+  submitting: string;
+  confirmBooking: string;
+  bikeDetails: string;
+  contactInfo: string;
+  priceSummary: string;
+  totalRental: string;
+  totalDeposit: string;
+  depositNote: string;
+  confirm: string;
+  bookingSuccess: string;
+  confirmationSent: string;
+  sent: string;
+  bookingNumber: string;
+  newBooking: string;
+  colorLabel: string;
+  frameNumberLabel: string;
+  priceLabel: string;
+  selectBothDates: string;
+  invalidDateRange: string;
+  loadError: string;
+  bookingError: string;
+  firstNameRequired: string;
+  lastNameRequired: string;
+  emailRequired: string;
+  termsPrefix: string;
+  termsLinkText: string;
+}
+
 export interface Translations {
   // Meta / SEO
   metaTitle: string;
@@ -308,6 +386,11 @@ export interface Translations {
   rentalFormFirstName: string;
   rentalFormLastName: string;
   rentalFormPhone: string;
+  rentalFormAddress: string;
+  rentalFormStrasse: string;
+  rentalFormHausNr: string;
+  rentalFormPlz: string;
+  rentalFormOrt: string;
   rentalFormLang: string;
   rentalFormNotes: string;
   rentalFormSubmit: string;
@@ -327,6 +410,7 @@ export interface Translations {
   rentalStatusClosed: string;
   rentalStatusSelected: string;
   rentalSundayLabel: string;
+  rentalSteps?: Partial<RentalStepsTranslations>;
 
   // Rental Reviews
   rentalReviewsTitle: string;
@@ -587,6 +671,37 @@ export interface Translations {
   blogCta1: string;
   blogCta2: string;
   blogCta3: string;
+
+  // Rental bike catalog (Mietfahrräder)
+  rentalCatalogMetaTitle: string;
+  rentalCatalogMetaDescription: string;
+  rentalCatalogLabel: string;
+  rentalCatalogTitle: string;
+  rentalCatalogSub: string;
+  rentalCatalogIntro: string;
+  rentalCatalogPerDay: string;
+  rentalCatalogFrom: string;
+  rentalCatalogReserveCta: string;
+  rentalCatalogViewDetail: string;
+  rentalCatalogFilterBrand: string;
+  rentalCatalogFilterType: string;
+  rentalCatalogPriceMaxDaily: string;
+  rentalCatalogNoBikes: string;
+
+  // Rental bike detail
+  rentalDetailBackToCatalog: string;
+  rentalDetailReserveCta: string;
+  rentalDetailPriceHeading: string;
+  rentalDetailPriceNote: string;
+  rentalDetailDay: string;
+  rentalDetailDays: string;
+  rentalDetailExtraDay: string;
+  rentalDetailDeposit: string;
+  rentalDetailDepositInfo: string;
+  rentalDetailSpecsHeading: string;
+  rentalDetailDescHeading: string;
+  rentalDetailMetaTitleSuffix: string;
+  rentalDetailMetaDescPrefix: string;
 }
 
 const TRANSLATIONS: Record<BaseLanguage, Translations> = {
@@ -852,6 +967,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalFormFirstName: 'Vorname',
     rentalFormLastName: 'Nachname',
     rentalFormPhone: 'Telefon',
+    rentalFormAddress: 'Adresse',
+    rentalFormStrasse: 'Straße',
+    rentalFormHausNr: 'Haus-Nr.',
+    rentalFormPlz: 'PLZ',
+    rentalFormOrt: 'Ort',
     rentalFormLang: 'Kommunikationssprache',
     rentalFormNotes: 'Anmerkungen (optional)',
     rentalFormSubmit: 'Anfrage senden',
@@ -1208,10 +1328,45 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta1: 'Gebrauchtes Fahrrad kaufen — Tipps & Checkliste',
     blogCta2: 'Welches Fahrrad passt zu mir?',
     blogCta3: 'Fahrrad Inspektion — Was kostet es?',
+
+    rentalCatalogMetaTitle:
+      'Mietfahrräder Freiburg — alle Räder zum Mieten | Bike Haus Freiburg',
+    rentalCatalogMetaDescription:
+      'Alle Mietfahrräder in Freiburg auf einen Blick ✓ City-Räder, Trekking, E-Bikes & Kinderräder ✓ Tagesgenaue Preise ✓ Filterbar nach Marke, Größe & Typ ✓ Online reservieren — Heckerstraße 27.',
+    rentalCatalogLabel: 'Mietflotte',
+    rentalCatalogTitle: 'Fahrräder zum Mieten in Freiburg.',
+    rentalCatalogSub: 'Mietfahrräder verfügbar',
+    rentalCatalogIntro:
+      'Stöbere durch unsere komplette Mietflotte in Freiburg-Haid: City-Räder, Trekking, E-Bikes, Kinderräder und mehr. Filtere nach Marke, Reifengröße, Rahmengröße und Typ. Jedes Fahrrad hat tagesgenaue Preise und kann direkt online reserviert werden.',
+    rentalCatalogPerDay: '/Tag',
+    rentalCatalogFrom: 'ab',
+    rentalCatalogReserveCta: 'Jetzt reservieren',
+    rentalCatalogViewDetail: 'Details ansehen',
+    rentalCatalogFilterBrand: 'Marke',
+    rentalCatalogFilterType: 'Fahrradtyp',
+    rentalCatalogPriceMaxDaily: 'Max. Preis/Tag (€)',
+    rentalCatalogNoBikes: 'Keine Mietfahrräder gefunden.',
+
+    rentalDetailBackToCatalog: 'Zur Mietflotte',
+    rentalDetailReserveCta: 'Dieses Fahrrad reservieren',
+    rentalDetailPriceHeading: 'Mietpreise',
+    rentalDetailPriceNote:
+      'Preise pro Fahrrad, gestaffelt nach Anzahl der Tage. Ab dem 8. Tag gilt der angegebene Zusatztagespreis.',
+    rentalDetailDay: 'Tag',
+    rentalDetailDays: 'Tage',
+    rentalDetailExtraDay: 'Jeder weitere Tag (ab Tag 8)',
+    rentalDetailDeposit: 'Kaution',
+    rentalDetailDepositInfo:
+      'Die Kaution wird bei Übergabe hinterlegt und nach unbeschädigter Rückgabe vollständig erstattet.',
+    rentalDetailSpecsHeading: 'Ausstattung',
+    rentalDetailDescHeading: 'Beschreibung',
+    rentalDetailMetaTitleSuffix: 'mieten in Freiburg | Bike Haus Freiburg',
+    rentalDetailMetaDescPrefix: 'Miete dieses Fahrrad in Freiburg:',
   },
 
   en: {
-    metaTitle: 'Bike Shop Freiburg — Buy, Rent & Used Bikes | Bike Haus Freiburg',
+    metaTitle:
+      'Bike Shop Freiburg — Buy, Rent & Used Bikes | Bike Haus Freiburg',
     metaDescription:
       'Bike shop in Freiburg — 100+ inspected used & new bikes ✓ City, E-Bike, Trekking, Kids ✓ Daily bike rental ✓ 3-month warranty. No appointment — Heckerstraße 27!',
 
@@ -1465,6 +1620,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalFormFirstName: 'First name',
     rentalFormLastName: 'Last name',
     rentalFormPhone: 'Phone',
+    rentalFormAddress: 'Address',
+    rentalFormStrasse: 'Street',
+    rentalFormHausNr: 'House no.',
+    rentalFormPlz: 'Postcode',
+    rentalFormOrt: 'City',
     rentalFormLang: 'Communication language',
     rentalFormNotes: 'Notes (optional)',
     rentalFormSubmit: 'Send request',
@@ -1802,6 +1962,40 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta1: 'Buying a Used Bike — Tips & Checklist',
     blogCta2: 'Which Bike Fits Me?',
     blogCta3: 'Bike Inspection — What Does It Cost?',
+
+    rentalCatalogMetaTitle:
+      'Rental Bikes Freiburg — Full Fleet to Rent | Bike Haus Freiburg',
+    rentalCatalogMetaDescription:
+      'Browse every rental bike in Freiburg ✓ City, trekking, e-bikes & kids bikes ✓ Per-day pricing ✓ Filter by brand, size & type ✓ Book online — Heckerstraße 27.',
+    rentalCatalogLabel: 'Rental Fleet',
+    rentalCatalogTitle: 'Bikes to rent in Freiburg.',
+    rentalCatalogSub: 'rental bikes available',
+    rentalCatalogIntro:
+      'Browse our complete rental fleet in Freiburg-Haid: city bikes, trekking, e-bikes, kids bikes and more. Filter by brand, tyre size, frame size and type. Every bike has per-day pricing and can be reserved online instantly.',
+    rentalCatalogPerDay: '/day',
+    rentalCatalogFrom: 'from',
+    rentalCatalogReserveCta: 'Reserve now',
+    rentalCatalogViewDetail: 'View details',
+    rentalCatalogFilterBrand: 'Brand',
+    rentalCatalogFilterType: 'Bike type',
+    rentalCatalogPriceMaxDaily: 'Max price/day (€)',
+    rentalCatalogNoBikes: 'No rental bikes match your filters.',
+
+    rentalDetailBackToCatalog: 'Back to rentals',
+    rentalDetailReserveCta: 'Reserve this bike',
+    rentalDetailPriceHeading: 'Rental prices',
+    rentalDetailPriceNote:
+      'Prices are per bike and scale with rental duration. From day 8 onwards the extra-day rate applies.',
+    rentalDetailDay: 'day',
+    rentalDetailDays: 'days',
+    rentalDetailExtraDay: 'Each additional day (from day 8)',
+    rentalDetailDeposit: 'Deposit',
+    rentalDetailDepositInfo:
+      'Deposit is collected on handover and refunded in full when the bike is returned undamaged.',
+    rentalDetailSpecsHeading: 'Specifications',
+    rentalDetailDescHeading: 'Description',
+    rentalDetailMetaTitleSuffix: 'to rent in Freiburg | Bike Haus Freiburg',
+    rentalDetailMetaDescPrefix: 'Rent this bike in Freiburg:',
   },
 
   fr: {
@@ -2068,6 +2262,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalFormFirstName: 'Prénom',
     rentalFormLastName: 'Nom de famille',
     rentalFormPhone: 'Téléphone',
+    rentalFormAddress: 'Adresse',
+    rentalFormStrasse: 'Rue',
+    rentalFormHausNr: 'N°',
+    rentalFormPlz: 'Code postal',
+    rentalFormOrt: 'Ville',
     rentalFormLang: 'Langue de communication',
     rentalFormNotes: 'Remarques (optionnel)',
     rentalFormSubmit: 'Envoyer la demande',
@@ -2422,6 +2621,40 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta1: "Acheter un vélo d'occasion — Conseils & Checklist",
     blogCta2: 'Quel vélo me convient?',
     blogCta3: 'Révision vélo — Combien ça coûte?',
+
+    rentalCatalogMetaTitle:
+      'Vélos de location Fribourg — Toute la flotte | Bike Haus Freiburg',
+    rentalCatalogMetaDescription:
+      'Parcourez tous nos vélos de location à Fribourg ✓ Ville, trekking, VAE & vélos enfants ✓ Tarifs à la journée ✓ Filtrez par marque, taille & type ✓ Réservez en ligne — Heckerstraße 27.',
+    rentalCatalogLabel: 'Flotte de location',
+    rentalCatalogTitle: 'Vélos à louer à Fribourg.',
+    rentalCatalogSub: 'vélos de location disponibles',
+    rentalCatalogIntro:
+      "Découvrez toute notre flotte de location à Fribourg-Haid : vélos de ville, trekking, vélos électriques, vélos enfants et plus. Filtrez par marque, taille de roue, taille de cadre et type. Chaque vélo a un tarif à la journée et se réserve en ligne.",
+    rentalCatalogPerDay: '/jour',
+    rentalCatalogFrom: 'dès',
+    rentalCatalogReserveCta: 'Réserver',
+    rentalCatalogViewDetail: 'Voir les détails',
+    rentalCatalogFilterBrand: 'Marque',
+    rentalCatalogFilterType: 'Type de vélo',
+    rentalCatalogPriceMaxDaily: 'Prix max/jour (€)',
+    rentalCatalogNoBikes: 'Aucun vélo ne correspond à vos filtres.',
+
+    rentalDetailBackToCatalog: 'Retour à la flotte',
+    rentalDetailReserveCta: 'Réserver ce vélo',
+    rentalDetailPriceHeading: 'Tarifs de location',
+    rentalDetailPriceNote:
+      "Tarifs par vélo, dégressifs selon la durée. Au-delà du 7e jour, le tarif jour supplémentaire s'applique.",
+    rentalDetailDay: 'jour',
+    rentalDetailDays: 'jours',
+    rentalDetailExtraDay: 'Chaque jour supplémentaire (à partir du 8e jour)',
+    rentalDetailDeposit: 'Caution',
+    rentalDetailDepositInfo:
+      "La caution est versée à la remise du vélo et restituée intégralement au retour si le vélo est en bon état.",
+    rentalDetailSpecsHeading: 'Caractéristiques',
+    rentalDetailDescHeading: 'Description',
+    rentalDetailMetaTitleSuffix: 'à louer à Fribourg | Bike Haus Freiburg',
+    rentalDetailMetaDescPrefix: 'Louez ce vélo à Fribourg :',
   },
 
   tr: {
@@ -2687,6 +2920,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalFormLastName: 'Soyad',
     rentalFormPhone: 'Telefon',
     rentalFormLang: 'İletişim dili',
+    rentalFormAddress: 'Adres',
+    rentalFormStrasse: 'Sokak',
+    rentalFormHausNr: 'Kapı No.',
+    rentalFormPlz: 'Posta Kodu',
+    rentalFormOrt: 'Şehir',
     rentalFormNotes: 'Notlar (isteğe bağlı)',
     rentalFormSubmit: 'Talep gönder',
     rentalFormSending: 'Gönderiliyor...',
@@ -3037,12 +3275,677 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta1: 'İkinci El Bisiklet Alma — İpuçları & Kontrol Listesi',
     blogCta2: 'Hangi Bisiklet Bana Uyar?',
     blogCta3: 'Bisiklet Bakımı — Ne Kadara Mal Olur?',
+
+    rentalCatalogMetaTitle:
+      "Kiralık Bisikletler Freiburg — Tüm Filo | Bike Haus Freiburg",
+    rentalCatalogMetaDescription:
+      "Freiburg'daki tüm kiralık bisikletler ✓ Şehir, trekking, e-bike & çocuk bisikletleri ✓ Günlük fiyatlar ✓ Marka, beden ve tipe göre filtrele ✓ Online rezervasyon — Heckerstraße 27.",
+    rentalCatalogLabel: 'Kiralık Filo',
+    rentalCatalogTitle: "Freiburg'da kiralık bisikletler.",
+    rentalCatalogSub: 'kiralık bisiklet mevcut',
+    rentalCatalogIntro:
+      "Freiburg-Haid'deki tüm kiralık filomuza göz atın: şehir bisikletleri, trekking, e-bike, çocuk bisikletleri ve daha fazlası. Marka, lastik boyutu, kadro boyu ve tipe göre filtreleyin. Her bisikletin günlük fiyatı vardır ve doğrudan online rezerve edilebilir.",
+    rentalCatalogPerDay: '/gün',
+    rentalCatalogFrom: 'şu fiyattan başlayarak',
+    rentalCatalogReserveCta: 'Şimdi rezerve et',
+    rentalCatalogViewDetail: 'Detayları gör',
+    rentalCatalogFilterBrand: 'Marka',
+    rentalCatalogFilterType: 'Bisiklet tipi',
+    rentalCatalogPriceMaxDaily: 'Maks. fiyat/gün (€)',
+    rentalCatalogNoBikes: 'Filtrelerinize uyan kiralık bisiklet bulunamadı.',
+
+    rentalDetailBackToCatalog: 'Filoya geri dön',
+    rentalDetailReserveCta: 'Bu bisikleti rezerve et',
+    rentalDetailPriceHeading: 'Kiralama fiyatları',
+    rentalDetailPriceNote:
+      'Fiyatlar bisiklet başınadır ve süreye göre değişir. 8. günden itibaren ek gün fiyatı uygulanır.',
+    rentalDetailDay: 'gün',
+    rentalDetailDays: 'gün',
+    rentalDetailExtraDay: 'Her ek gün (8. günden itibaren)',
+    rentalDetailDeposit: 'Depozito',
+    rentalDetailDepositInfo:
+      'Depozito teslim sırasında alınır ve bisiklet hasarsız iade edildiğinde tam olarak iade edilir.',
+    rentalDetailSpecsHeading: 'Özellikler',
+    rentalDetailDescHeading: 'Açıklama',
+    rentalDetailMetaTitleSuffix: "Freiburg'da kiralık | Bike Haus Freiburg",
+    rentalDetailMetaDescPrefix: "Bu bisikleti Freiburg'da kiralayın:",
+  },
+};
+
+const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
+  de: {
+    dateSelection: 'Termin wählen',
+    bikeSelection: 'Fahrrad wählen',
+    customerInfo: 'Daten eintragen',
+    review: 'Bestätigung',
+    selectDates: 'Wählen Sie einen Zeitraum',
+    startDate: 'Startdatum',
+    endDate: 'Enddatum',
+    continue: 'Weiter',
+    selectBike: 'Wählen Sie ein Fahrrad',
+    days: 'Tage',
+    loading: 'Laden...',
+    noBikesAvailable: 'Keine Fahrräder für diesen Zeitraum verfügbar',
+    from: 'ab',
+    day: 'Tag',
+    to: 'bis',
+    calendarHint:
+      'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage und Feiertage sind geschlossen.',
+    previousMonth: 'Vorheriger Monat',
+    nextMonth: 'Nächster Monat',
+    back: 'Zurück',
+    type: 'Typ',
+    frameSize: 'Rahmengröße',
+    tireSize: 'Reifengröße',
+    color: 'Farbe',
+    description: 'Beschreibung',
+    pricing: 'Preisberechnung',
+    rentalPrice: 'Mietpreis',
+    deposit: 'Kaution',
+    selectColor: 'Farbe wählen',
+    frameNumber: 'Rahmennummer',
+    optional: 'optional',
+    addToCart: 'Zur Buchung hinzufügen',
+    book: 'Buchen',
+    selectDifferent: 'Anderes Fahrrad wählen',
+    bikeAdded: 'Fahrrad zur Buchung hinzugefügt',
+    bikeInCart: 'Fahrrad in der Buchung',
+    bikesInCart: 'Fahrräder in der Buchung',
+    continueToBooking: 'Mit Buchung fortfahren',
+    yourInfo: 'Ihre Angaben',
+    cartItems: 'Ausgewählte Fahrräder',
+    addAnotherBike: '+ Weiteres Fahrrad hinzufügen',
+    firstName: 'Vorname',
+    lastName: 'Nachname',
+    email: 'E-Mail',
+    phone: 'Telefon',
+    street: 'Straße',
+    houseNumber: 'Hausnummer',
+    postalCode: 'Postleitzahl',
+    city: 'Stadt',
+    notes: 'Notizen',
+    submitting: 'Wird gesendet...',
+    confirmBooking: 'Buchung bestätigen',
+    bikeDetails: 'Fahrraddetails',
+    contactInfo: 'Kontaktinformationen',
+    priceSummary: 'Preisübersicht',
+    totalRental: 'Gesamtmiete',
+    totalDeposit: 'Gesamtkaution',
+    depositNote: 'Die Kaution wird bei Rückgabe des Fahrrads erstattet.',
+    confirm: 'Buchung bestätigen',
+    bookingSuccess: 'Buchung erfolgreich!',
+    confirmationSent: 'Eine Bestätigungsmail wurde an',
+    sent: 'gesendet',
+    bookingNumber: 'Buchungsnummer',
+    newBooking: 'Neue Buchung',
+    colorLabel: 'Farbe',
+    frameNumberLabel: 'Rahmennummer',
+    priceLabel: 'Preis',
+    selectBothDates: 'Bitte wählen Sie Start- und Enddatum',
+    invalidDateRange: 'Enddatum muss nach Startdatum liegen',
+    loadError: 'Fehler beim Laden der Fahrräder',
+    bookingError: 'Fehler beim Erstellen der Buchung',
+    firstNameRequired: 'Vorname erforderlich',
+    lastNameRequired: 'Nachname erforderlich',
+    emailRequired: 'Gültige E-Mail erforderlich',
+    termsPrefix: 'Ich akzeptiere die',
+    termsLinkText: 'Fahrradverleih-Bedingungen',
+  },
+  en: {
+    dateSelection: 'Choose date',
+    bikeSelection: 'Choose bike',
+    customerInfo: 'Enter details',
+    review: 'Confirmation',
+    selectDates: 'Choose a rental period',
+    startDate: 'Start date',
+    endDate: 'End date',
+    continue: 'Continue',
+    selectBike: 'Choose a bike',
+    days: 'days',
+    loading: 'Loading...',
+    noBikesAvailable: 'No bikes available for this period',
+    from: 'from',
+    day: 'day',
+    to: 'to',
+    calendarHint:
+      'Select the start date first and then the end date. Sundays and public holidays are closed.',
+    previousMonth: 'Previous month',
+    nextMonth: 'Next month',
+    back: 'Back',
+    type: 'Type',
+    frameSize: 'Frame size',
+    tireSize: 'Tire size',
+    color: 'Color',
+    description: 'Description',
+    pricing: 'Price calculation',
+    rentalPrice: 'Rental price',
+    deposit: 'Deposit',
+    selectColor: 'Choose color',
+    frameNumber: 'Frame number',
+    optional: 'optional',
+    addToCart: 'Add to booking',
+    book: 'Book',
+    selectDifferent: 'Choose another bike',
+    bikeAdded: 'Bike added to booking',
+    bikeInCart: 'bike in booking',
+    bikesInCart: 'bikes in booking',
+    continueToBooking: 'Continue to booking',
+    yourInfo: 'Your details',
+    cartItems: 'Selected bikes',
+    addAnotherBike: '+ Add another bike',
+    firstName: 'First name',
+    lastName: 'Last name',
+    email: 'Email',
+    phone: 'Phone',
+    street: 'Street',
+    houseNumber: 'House number',
+    postalCode: 'Postal code',
+    city: 'City',
+    notes: 'Notes',
+    submitting: 'Submitting...',
+    confirmBooking: 'Confirm booking',
+    bikeDetails: 'Bike details',
+    contactInfo: 'Contact information',
+    priceSummary: 'Price summary',
+    totalRental: 'Total rental',
+    totalDeposit: 'Total deposit',
+    depositNote: 'The deposit is refunded when the bike is returned.',
+    confirm: 'Confirm booking',
+    bookingSuccess: 'Booking successful!',
+    confirmationSent: 'A confirmation email was sent to',
+    sent: 'sent',
+    bookingNumber: 'Booking number',
+    newBooking: 'New booking',
+    colorLabel: 'Color',
+    frameNumberLabel: 'Frame number',
+    priceLabel: 'Price',
+    selectBothDates: 'Please select start and end dates',
+    invalidDateRange: 'End date must be after start date',
+    loadError: 'Error loading bikes',
+    bookingError: 'Error creating booking',
+    firstNameRequired: 'First name is required',
+    lastNameRequired: 'Last name is required',
+    emailRequired: 'Valid email is required',
+    termsPrefix: 'I accept the',
+    termsLinkText: 'Rental Terms',
+  },
+  fr: {
+    dateSelection: 'Choisir la date',
+    bikeSelection: 'Choisir un vélo',
+    customerInfo: 'Saisir les informations',
+    review: 'Confirmation',
+    selectDates: 'Choisissez une période',
+    startDate: 'Date de début',
+    endDate: 'Date de fin',
+    continue: 'Continuer',
+    selectBike: 'Choisissez un vélo',
+    days: 'jours',
+    loading: 'Chargement...',
+    noBikesAvailable: 'Aucun vélo disponible pour cette période',
+    from: 'à partir de',
+    day: 'jour',
+    to: 'au',
+    calendarHint:
+      'Sélectionnez d’abord la date de début puis la date de fin. Les dimanches et jours fériés sont fermés.',
+    previousMonth: 'Mois précédent',
+    nextMonth: 'Mois suivant',
+    back: 'Retour',
+    type: 'Type',
+    frameSize: 'Taille du cadre',
+    tireSize: 'Taille des pneus',
+    color: 'Couleur',
+    description: 'Description',
+    pricing: 'Calcul du prix',
+    rentalPrice: 'Prix de location',
+    deposit: 'Caution',
+    selectColor: 'Choisir la couleur',
+    frameNumber: 'Numéro de cadre',
+    optional: 'optionnel',
+    addToCart: 'Ajouter à la réservation',
+    book: 'Réserver',
+    selectDifferent: 'Choisir un autre vélo',
+    bikeAdded: 'Vélo ajouté à la réservation',
+    bikeInCart: 'vélo dans la réservation',
+    bikesInCart: 'vélos dans la réservation',
+    continueToBooking: 'Continuer la réservation',
+    yourInfo: 'Vos informations',
+    cartItems: 'Vélos sélectionnés',
+    addAnotherBike: '+ Ajouter un autre vélo',
+    firstName: 'Prénom',
+    lastName: 'Nom',
+    email: 'E-mail',
+    phone: 'Téléphone',
+    street: 'Rue',
+    houseNumber: 'Numéro',
+    postalCode: 'Code postal',
+    city: 'Ville',
+    notes: 'Remarques',
+    submitting: 'Envoi en cours...',
+    confirmBooking: 'Confirmer la réservation',
+    bikeDetails: 'Détails du vélo',
+    contactInfo: 'Coordonnées',
+    priceSummary: 'Récapitulatif des prix',
+    totalRental: 'Location totale',
+    totalDeposit: 'Caution totale',
+    depositNote: 'La caution est remboursée lors de la restitution du vélo.',
+    confirm: 'Confirmer la réservation',
+    bookingSuccess: 'Réservation réussie !',
+    confirmationSent: 'Un e-mail de confirmation a été envoyé à',
+    sent: 'envoyé',
+    bookingNumber: 'Numéro de réservation',
+    newBooking: 'Nouvelle réservation',
+    colorLabel: 'Couleur',
+    frameNumberLabel: 'Numéro de cadre',
+    priceLabel: 'Prix',
+    selectBothDates: 'Veuillez sélectionner la date de début et de fin',
+    invalidDateRange: 'La date de fin doit être postérieure à la date de début',
+    loadError: 'Erreur lors du chargement des vélos',
+    bookingError: 'Erreur lors de la création de la réservation',
+    firstNameRequired: 'Prénom requis',
+    lastNameRequired: 'Nom requis',
+    emailRequired: 'E-mail valide requis',
+    termsPrefix: "J'accepte les",
+    termsLinkText: 'Conditions de location',
+  },
+  tr: {
+    dateSelection: 'Tarih seç',
+    bikeSelection: 'Bisiklet seç',
+    customerInfo: 'Bilgileri gir',
+    review: 'Onay',
+    selectDates: 'Tarih aralığı seçin',
+    startDate: 'Başlangıç tarihi',
+    endDate: 'Bitiş tarihi',
+    continue: 'Devam',
+    selectBike: 'Bir bisiklet seçin',
+    days: 'gün',
+    loading: 'Yükleniyor...',
+    noBikesAvailable: 'Bu aralık için uygun bisiklet yok',
+    from: 'itibaren',
+    day: 'gün',
+    to: 'ile',
+    calendarHint:
+      'Önce başlangıç tarihini, sonra bitiş tarihini seçin. Pazar ve resmi tatiller kapalıdır.',
+    previousMonth: 'Önceki ay',
+    nextMonth: 'Sonraki ay',
+    back: 'Geri',
+    type: 'Tip',
+    frameSize: 'Kadro boyu',
+    tireSize: 'Lastik boyu',
+    color: 'Renk',
+    description: 'Açıklama',
+    pricing: 'Fiyat hesaplama',
+    rentalPrice: 'Kiralama ücreti',
+    deposit: 'Depozito',
+    selectColor: 'Renk seç',
+    frameNumber: 'Kadro numarası',
+    optional: 'isteğe bağlı',
+    addToCart: 'Rezervasyona ekle',
+    book: 'Rezerve et',
+    selectDifferent: 'Başka bisiklet seç',
+    bikeAdded: 'Bisiklet rezervasyona eklendi',
+    bikeInCart: 'rezervasyonda bisiklet',
+    bikesInCart: 'rezervasyonda bisiklet',
+    continueToBooking: 'Rezervasyona devam et',
+    yourInfo: 'Bilgileriniz',
+    cartItems: 'Seçilen bisikletler',
+    addAnotherBike: '+ Bir bisiklet daha ekle',
+    firstName: 'Ad',
+    lastName: 'Soyad',
+    email: 'E-posta',
+    phone: 'Telefon',
+    street: 'Sokak',
+    houseNumber: 'Kapı no',
+    postalCode: 'Posta kodu',
+    city: 'Şehir',
+    notes: 'Notlar',
+    submitting: 'Gönderiliyor...',
+    confirmBooking: 'Rezervasyonu onayla',
+    bikeDetails: 'Bisiklet detayları',
+    contactInfo: 'İletişim bilgileri',
+    priceSummary: 'Fiyat özeti',
+    totalRental: 'Toplam kiralama',
+    totalDeposit: 'Toplam depozito',
+    depositNote: 'Bisiklet iade edildiğinde depozito geri ödenir.',
+    confirm: 'Rezervasyonu onayla',
+    bookingSuccess: 'Rezervasyon başarılı!',
+    confirmationSent: 'Onay e-postası şu adrese gönderildi',
+    sent: 'gönderildi',
+    bookingNumber: 'Rezervasyon numarası',
+    newBooking: 'Yeni rezervasyon',
+    colorLabel: 'Renk',
+    frameNumberLabel: 'Kadro numarası',
+    priceLabel: 'Fiyat',
+    selectBothDates: 'Lütfen başlangıç ve bitiş tarihlerini seçin',
+    invalidDateRange: 'Bitiş tarihi başlangıçtan sonra olmalıdır',
+    loadError: 'Bisikletler yüklenirken hata oluştu',
+    bookingError: 'Rezervasyon oluşturulurken hata oluştu',
+    firstNameRequired: 'Ad zorunludur',
+    lastNameRequired: 'Soyad zorunludur',
+    emailRequired: 'Geçerli bir e-posta zorunludur',
+    termsPrefix: 'Kabul ediyorum',
+    termsLinkText: 'Kiralama Koşulları',
+  },
+  es: {
+    dateSelection: 'Elegir fecha',
+    bikeSelection: 'Elegir bicicleta',
+    customerInfo: 'Ingresar datos',
+    review: 'Confirmación',
+    selectDates: 'Elige un período',
+    startDate: 'Fecha de inicio',
+    endDate: 'Fecha de fin',
+    continue: 'Continuar',
+    selectBike: 'Elige una bicicleta',
+    days: 'días',
+    loading: 'Cargando...',
+    noBikesAvailable: 'No hay bicicletas disponibles para este período',
+    from: 'desde',
+    day: 'día',
+    to: 'hasta',
+    calendarHint:
+      'Selecciona primero la fecha de inicio y luego la de fin. Los domingos y festivos están cerrados.',
+    previousMonth: 'Mes anterior',
+    nextMonth: 'Mes siguiente',
+    back: 'Atrás',
+    type: 'Tipo',
+    frameSize: 'Tamaño del cuadro',
+    tireSize: 'Tamaño de la rueda',
+    color: 'Color',
+    description: 'Descripción',
+    pricing: 'Cálculo de precio',
+    rentalPrice: 'Precio de alquiler',
+    deposit: 'Depósito',
+    selectColor: 'Elegir color',
+    frameNumber: 'Número de cuadro',
+    optional: 'opcional',
+    addToCart: 'Añadir a la reserva',
+    book: 'Reservar',
+    selectDifferent: 'Elegir otra bicicleta',
+    bikeAdded: 'Bicicleta añadida a la reserva',
+    bikeInCart: 'bicicleta en la reserva',
+    bikesInCart: 'bicicletas en la reserva',
+    continueToBooking: 'Continuar con la reserva',
+    yourInfo: 'Tus datos',
+    cartItems: 'Bicicletas seleccionadas',
+    addAnotherBike: '+ Añadir otra bicicleta',
+    firstName: 'Nombre',
+    lastName: 'Apellido',
+    email: 'Correo electrónico',
+    phone: 'Teléfono',
+    street: 'Calle',
+    houseNumber: 'Número',
+    postalCode: 'Código postal',
+    city: 'Ciudad',
+    notes: 'Notas',
+    submitting: 'Enviando...',
+    confirmBooking: 'Confirmar reserva',
+    bikeDetails: 'Detalles de la bicicleta',
+    contactInfo: 'Información de contacto',
+    priceSummary: 'Resumen de precios',
+    totalRental: 'Alquiler total',
+    totalDeposit: 'Depósito total',
+    depositNote: 'El depósito se devuelve al entregar la bicicleta.',
+    confirm: 'Confirmar reserva',
+    bookingSuccess: '¡Reserva exitosa!',
+    confirmationSent: 'Se envió un correo de confirmación a',
+    sent: 'enviado',
+    bookingNumber: 'Número de reserva',
+    newBooking: 'Nueva reserva',
+    colorLabel: 'Color',
+    frameNumberLabel: 'Número de cuadro',
+    priceLabel: 'Precio',
+    selectBothDates: 'Por favor selecciona fecha de inicio y fin',
+    invalidDateRange: 'La fecha de fin debe ser posterior a la de inicio',
+    loadError: 'Error al cargar las bicicletas',
+    bookingError: 'Error al crear la reserva',
+    firstNameRequired: 'El nombre es obligatorio',
+    lastNameRequired: 'El apellido es obligatorio',
+    emailRequired: 'Se requiere un correo electrónico válido',
+    termsPrefix: 'Acepto los',
+    termsLinkText: 'Términos de alquiler',
+  },
+  it: {
+    dateSelection: 'Scegli data',
+    bikeSelection: 'Scegli bici',
+    customerInfo: 'Inserisci dati',
+    review: 'Conferma',
+    selectDates: 'Scegli un periodo',
+    startDate: 'Data inizio',
+    endDate: 'Data fine',
+    continue: 'Continua',
+    selectBike: 'Scegli una bici',
+    days: 'giorni',
+    loading: 'Caricamento...',
+    noBikesAvailable: 'Nessuna bici disponibile per questo periodo',
+    from: 'da',
+    day: 'giorno',
+    to: 'a',
+    calendarHint:
+      'Seleziona prima la data di inizio e poi la data di fine. Le domeniche e i giorni festivi sono chiusi.',
+    previousMonth: 'Mese precedente',
+    nextMonth: 'Mese successivo',
+    back: 'Indietro',
+    type: 'Tipo',
+    frameSize: 'Misura telaio',
+    tireSize: 'Misura ruota',
+    color: 'Colore',
+    description: 'Descrizione',
+    pricing: 'Calcolo prezzo',
+    rentalPrice: 'Prezzo noleggio',
+    deposit: 'Deposito',
+    selectColor: 'Scegli colore',
+    frameNumber: 'Numero telaio',
+    optional: 'opzionale',
+    addToCart: 'Aggiungi alla prenotazione',
+    book: 'Prenota',
+    selectDifferent: "Scegli un'altra bici",
+    bikeAdded: 'Bici aggiunta alla prenotazione',
+    bikeInCart: 'bici nella prenotazione',
+    bikesInCart: 'bici nella prenotazione',
+    continueToBooking: 'Continua con la prenotazione',
+    yourInfo: 'I tuoi dati',
+    cartItems: 'Bici selezionate',
+    addAnotherBike: "+ Aggiungi un'altra bici",
+    firstName: 'Nome',
+    lastName: 'Cognome',
+    email: 'Email',
+    phone: 'Telefono',
+    street: 'Via',
+    houseNumber: 'Numero civico',
+    postalCode: 'CAP',
+    city: 'Città',
+    notes: 'Note',
+    submitting: 'Invio in corso...',
+    confirmBooking: 'Conferma prenotazione',
+    bikeDetails: 'Dettagli bici',
+    contactInfo: 'Informazioni di contatto',
+    priceSummary: 'Riepilogo prezzi',
+    totalRental: 'Totale noleggio',
+    totalDeposit: 'Totale deposito',
+    depositNote: 'Il deposito viene restituito alla riconsegna della bici.',
+    confirm: 'Conferma prenotazione',
+    bookingSuccess: 'Prenotazione completata!',
+    confirmationSent: 'Una email di conferma è stata inviata a',
+    sent: 'inviata',
+    bookingNumber: 'Numero prenotazione',
+    newBooking: 'Nuova prenotazione',
+    colorLabel: 'Colore',
+    frameNumberLabel: 'Numero telaio',
+    priceLabel: 'Prezzo',
+    selectBothDates: 'Seleziona data di inizio e fine',
+    invalidDateRange:
+      'La data di fine deve essere successiva alla data di inizio',
+    loadError: 'Errore durante il caricamento delle bici',
+    bookingError: 'Errore durante la creazione della prenotazione',
+    firstNameRequired: 'Il nome è obbligatorio',
+    lastNameRequired: 'Il cognome è obbligatorio',
+    emailRequired: "È richiesta un'email valida",
+    termsPrefix: 'Accetto i',
+    termsLinkText: 'Termini di noleggio',
+  },
+  ar: {
+    dateSelection: 'اختيار التاريخ',
+    bikeSelection: 'اختيار الدراجة',
+    customerInfo: 'إدخال البيانات',
+    review: 'التأكيد',
+    selectDates: 'اختر فترة',
+    startDate: 'تاريخ البدء',
+    endDate: 'تاريخ الانتهاء',
+    continue: 'متابعة',
+    selectBike: 'اختر دراجة',
+    days: 'أيام',
+    loading: 'جار التحميل...',
+    noBikesAvailable: 'لا توجد دراجات متاحة لهذه الفترة',
+    from: 'من',
+    day: 'يوم',
+    to: 'إلى',
+    calendarHint:
+      'اختر تاريخ البدء أولاً ثم تاريخ الانتهاء. أيام الأحد والعطل الرسمية مغلقة.',
+    previousMonth: 'الشهر السابق',
+    nextMonth: 'الشهر التالي',
+    back: 'رجوع',
+    type: 'النوع',
+    frameSize: 'مقاس الهيكل',
+    tireSize: 'مقاس الإطار',
+    color: 'اللون',
+    description: 'الوصف',
+    pricing: 'حساب السعر',
+    rentalPrice: 'سعر الإيجار',
+    deposit: 'التأمين',
+    selectColor: 'اختر اللون',
+    frameNumber: 'رقم الهيكل',
+    optional: 'اختياري',
+    addToCart: 'إضافة إلى الحجز',
+    book: 'احجز',
+    selectDifferent: 'اختر دراجة أخرى',
+    bikeAdded: 'تمت إضافة الدراجة إلى الحجز',
+    bikeInCart: 'دراجة في الحجز',
+    bikesInCart: 'دراجات في الحجز',
+    continueToBooking: 'المتابعة إلى الحجز',
+    yourInfo: 'بياناتك',
+    cartItems: 'الدراجات المختارة',
+    addAnotherBike: '+ إضافة دراجة أخرى',
+    firstName: 'الاسم الأول',
+    lastName: 'اسم العائلة',
+    email: 'البريد الإلكتروني',
+    phone: 'الهاتف',
+    street: 'الشارع',
+    houseNumber: 'رقم المنزل',
+    postalCode: 'الرمز البريدي',
+    city: 'المدينة',
+    notes: 'ملاحظات',
+    submitting: 'جار الإرسال...',
+    confirmBooking: 'تأكيد الحجز',
+    bikeDetails: 'تفاصيل الدراجة',
+    contactInfo: 'معلومات الاتصال',
+    priceSummary: 'ملخص الأسعار',
+    totalRental: 'إجمالي الإيجار',
+    totalDeposit: 'إجمالي التأمين',
+    depositNote: 'يتم رد مبلغ التأمين عند إعادة الدراجة.',
+    confirm: 'تأكيد الحجز',
+    bookingSuccess: 'تم الحجز بنجاح!',
+    confirmationSent: 'تم إرسال رسالة تأكيد إلى',
+    sent: 'تم الإرسال',
+    bookingNumber: 'رقم الحجز',
+    newBooking: 'حجز جديد',
+    colorLabel: 'اللون',
+    frameNumberLabel: 'رقم الهيكل',
+    priceLabel: 'السعر',
+    selectBothDates: 'يرجى اختيار تاريخ البدء والانتهاء',
+    invalidDateRange: 'يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء',
+    loadError: 'حدث خطأ أثناء تحميل الدراجات',
+    bookingError: 'حدث خطأ أثناء إنشاء الحجز',
+    firstNameRequired: 'الاسم الأول مطلوب',
+    lastNameRequired: 'اسم العائلة مطلوب',
+    emailRequired: 'مطلوب بريد إلكتروني صحيح',
+    termsPrefix: 'أوافق على',
+    termsLinkText: 'شروط الإيجار',
+  },
+  ru: {
+    dateSelection: 'Выбор даты',
+    bikeSelection: 'Выбор велосипеда',
+    customerInfo: 'Ввод данных',
+    review: 'Подтверждение',
+    selectDates: 'Выберите период',
+    startDate: 'Дата начала',
+    endDate: 'Дата окончания',
+    continue: 'Далее',
+    selectBike: 'Выберите велосипед',
+    days: 'дней',
+    loading: 'Загрузка...',
+    noBikesAvailable: 'Нет доступных велосипедов на этот период',
+    from: 'от',
+    day: 'день',
+    to: 'до',
+    calendarHint:
+      'Сначала выберите дату начала, затем дату окончания. Воскресенья и официальные праздники закрыты.',
+    previousMonth: 'Предыдущий месяц',
+    nextMonth: 'Следующий месяц',
+    back: 'Назад',
+    type: 'Тип',
+    frameSize: 'Размер рамы',
+    tireSize: 'Размер шин',
+    color: 'Цвет',
+    description: 'Описание',
+    pricing: 'Расчет цены',
+    rentalPrice: 'Стоимость аренды',
+    deposit: 'Залог',
+    selectColor: 'Выберите цвет',
+    frameNumber: 'Номер рамы',
+    optional: 'необязательно',
+    addToCart: 'Добавить в бронирование',
+    book: 'Забронировать',
+    selectDifferent: 'Выбрать другой велосипед',
+    bikeAdded: 'Велосипед добавлен в бронирование',
+    bikeInCart: 'велосипед в бронировании',
+    bikesInCart: 'велосипедов в бронировании',
+    continueToBooking: 'Продолжить бронирование',
+    yourInfo: 'Ваши данные',
+    cartItems: 'Выбранные велосипеды',
+    addAnotherBike: '+ Добавить еще велосипед',
+    firstName: 'Имя',
+    lastName: 'Фамилия',
+    email: 'Эл. почта',
+    phone: 'Телефон',
+    street: 'Улица',
+    houseNumber: 'Номер дома',
+    postalCode: 'Почтовый индекс',
+    city: 'Город',
+    notes: 'Примечания',
+    submitting: 'Отправка...',
+    confirmBooking: 'Подтвердить бронирование',
+    bikeDetails: 'Детали велосипеда',
+    contactInfo: 'Контактная информация',
+    priceSummary: 'Сводка по цене',
+    totalRental: 'Итого аренда',
+    totalDeposit: 'Итого залог',
+    depositNote: 'Залог возвращается при возврате велосипеда.',
+    confirm: 'Подтвердить бронирование',
+    bookingSuccess: 'Бронирование успешно!',
+    confirmationSent: 'Письмо с подтверждением отправлено на',
+    sent: 'отправлено',
+    bookingNumber: 'Номер бронирования',
+    newBooking: 'Новое бронирование',
+    colorLabel: 'Цвет',
+    frameNumberLabel: 'Номер рамы',
+    priceLabel: 'Цена',
+    selectBothDates: 'Пожалуйста, выберите дату начала и окончания',
+    invalidDateRange: 'Дата окончания должна быть позже даты начала',
+    loadError: 'Ошибка при загрузке велосипедов',
+    bookingError: 'Ошибка при создании бронирования',
+    firstNameRequired: 'Введите имя',
+    lastNameRequired: 'Введите фамилию',
+    emailRequired: 'Укажите корректный email',
+    termsPrefix: 'Я принимаю',
+    termsLinkText: 'Условия аренды',
   },
 };
 
 function getTranslations(language: Language): Translations {
   if (language in TRANSLATIONS) {
-    return TRANSLATIONS[language as BaseLanguage];
+    return {
+      ...TRANSLATIONS[language as BaseLanguage],
+      rentalSteps: RENTAL_STEPS_TRANSLATIONS[language],
+    };
   }
 
   const fallback = TRANSLATIONS.en;
@@ -3054,6 +3957,7 @@ function getTranslations(language: Language): Translations {
   return {
     ...fallback,
     ...(overrides as Partial<Translations>),
+    rentalSteps: RENTAL_STEPS_TRANSLATIONS[language],
   };
 }
 

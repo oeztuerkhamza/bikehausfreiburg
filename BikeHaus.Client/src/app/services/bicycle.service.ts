@@ -78,6 +78,11 @@ export class BicycleService {
     return this.http.get<BusyPeriod[]>(`${this.url}/${id}/busy-periods`);
   }
 
+  getAvailableForPeriod(start: string, end: string): Observable<Bicycle[]> {
+    const params = new HttpParams().set('start', start).set('end', end);
+    return this.http.get<Bicycle[]>(`${this.url}/available-for-period`, { params });
+  }
+
   getBrands(): Observable<string[]> {
     return this.http.get<string[]>(`${this.url}/brands`);
   }

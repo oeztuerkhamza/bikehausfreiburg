@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { RentalService } from '../../services/rental.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
@@ -21,6 +23,7 @@ import {
   PaymentMethod,
 } from '../../models/models';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
+import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
 
 interface AccessoryLine {
@@ -32,6 +35,70 @@ interface AccessoryLine {
 }
 
 type PredefinedAccessoryKey = 'helm' | 'schloss' | 'korb';
+
+interface BikeEntry {
+  selectedBike: Bicycle | null;
+  isQuickAddMode: boolean;
+  isCollapsed: boolean;
+  bikeEdit: {
+    rahmennummer: string;
+    marke: string;
+    modell: string;
+    rahmengroesse: string;
+    farbe: string;
+    reifengroesse: string;
+    fahrradtyp: string;
+    beschreibung: string;
+    zustand: BikeCondition;
+  };
+  bikeErrors: { [key: string]: boolean };
+  rahmenSearchResults: Bicycle[];
+  showRahmenDropdown: boolean;
+  rahmenSearchTimeout: any;
+  gesamtmiete: number;
+  rabatt: number;
+  berechneterPreis: number;
+  preisInfo: string;
+  kaution: number;
+  zahlungsart: PaymentMethod | '';
+  kautionZahlungsart: PaymentMethod | '';
+  zustandBeiUebergabe: string;
+  busyPeriods: BusyPeriod[];
+  busyPeriodsLoading: boolean;
+}
+
+function createEmptyBikeEntry(): BikeEntry {
+  return {
+    selectedBike: null,
+    isQuickAddMode: false,
+    isCollapsed: false,
+    bikeEdit: {
+      rahmennummer: '',
+      marke: '',
+      modell: '',
+      rahmengroesse: '',
+      farbe: '',
+      reifengroesse: '',
+      fahrradtyp: '',
+      beschreibung: '',
+      zustand: BikeCondition.Gebraucht,
+    },
+    bikeErrors: {},
+    rahmenSearchResults: [],
+    showRahmenDropdown: false,
+    rahmenSearchTimeout: null,
+    gesamtmiete: 0,
+    rabatt: 0,
+    berechneterPreis: 0,
+    preisInfo: '',
+    kaution: 0,
+    zahlungsart: '',
+    kautionZahlungsart: '',
+    zustandBeiUebergabe: 'Gut',
+    busyPeriods: [],
+    busyPeriodsLoading: false,
+  };
+}
 
 const MONTH_NAMES = [
   'Januar',
@@ -51,8 +118,14 @@ const MONTH_NAMES = [
 @Component({
   selector: 'app-rental-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BikeSelectorComponent],
+  imports: [CommonModule, FormsModule, RouterLink, BikeSelectorComponent, SignaturePadComponent],
   template: `
+    <datalist id="brandList">
+      <option *ngFor="let b of brands" [value]="b"></option>
+    </datalist>
+    <datalist id="modelList">
+      <option *ngFor="let m of models" [value]="m"></option>
+    </datalist>
     <div class="page">
       <div class="page-header">
         <h1>
@@ -85,116 +158,391 @@ const MONTH_NAMES = [
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
-          <!-- Bicycle selection -->
-          <div class="form-card">
-            <h2>Fahrrad auswählen</h2>
-            <app-bike-selector
-              [bikes]="availableBikes"
-              [(selectedBike)]="selectedBike"
-              [allowQuickAdd]="true"
-              (bikeSelected)="onBikeSelected($event)"
-              (quickAddRequested)="onQuickAddBike()"
-            ></app-bike-selector>
 
-            <!-- Quick-add bike form -->
-            <div class="quick-add-form" *ngIf="isQuickAddMode">
-              <h3>🆕 Neues Fahrrad</h3>
-              <div class="form-grid">
-                <div class="field">
-                  <label>Rahmennummer *</label>
-                  <input
-                    [(ngModel)]="bikeEdit.rahmennummer"
-                    name="bikeRahmen"
-                    style="text-transform: uppercase"
-                    required
-                  />
+          <!-- Mietdauer mit Kalender — FIRST: dates must be chosen before bikes -->
+          <div class="form-card">
+            <h2>Mietdauer</h2>
+
+            <div class="calendar-wrap">
+              <div class="calendar">
+                <div class="cal-nav">
+                  <button type="button" class="cal-nav-btn" (click)="prevMonth()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+                  <span class="cal-title">{{ calendarMonthName }} {{ calendarYear }}</span>
+                  <button type="button" class="cal-nav-btn" (click)="nextMonth()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
                 </div>
-                <div class="field">
-                  <label>Marke *</label>
-                  <input
-                    [(ngModel)]="bikeEdit.marke"
-                    name="bikeMarke"
-                    required
-                  />
+
+                <div class="cal-grid">
+                  <div class="cal-dow" *ngFor="let d of weekDays">{{ d }}</div>
+                  <div
+                    *ngFor="let day of calendarDays"
+                    class="cal-day"
+                    [class.empty]="!day"
+                    [class.closed]="day && isClosedDay(day)"
+                    [class.range-start]="day && isDayRangeStart(day)"
+                    [class.range-end]="day && isDayRangeEnd(day)"
+                    [class.in-range]="day && isDayInRange(day)"
+                    [class.today]="day && isDayToday(day)"
+                    [class.picking-end]="pickingState === 'end' && day && !isClosedDay(day) && !isDayRangeStart(day)"
+                    (click)="day && onCalendarDayClick(day)"
+                  >
+                    <span *ngIf="day">{{ day.getDate() }}</span>
+                    <div class="busy-tooltip closed-tooltip" *ngIf="day && isClosedDay(day)">
+                      {{ day.getDay() === 0 ? 'Sonntag' : 'Feiertag' }}
+                    </div>
+                  </div>
                 </div>
-                <div class="field">
-                  <label>Modell *</label>
-                  <input
-                    [(ngModel)]="bikeEdit.modell"
-                    name="bikeModell"
-                    required
-                  />
+
+                <div class="cal-legend">
+                  <span class="legend-item">
+                    <span class="legend-dot closed-dot"></span> Geschlossen
+                  </span>
+                  <span class="legend-item">
+                    <span class="legend-dot selected-dot"></span> Ausgewählt
+                  </span>
                 </div>
-                <div class="field">
-                  <label>Farbe</label>
-                  <input [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" />
-                </div>
-                <div class="field">
-                  <label>Reifengröße</label>
-                  <input
-                    [(ngModel)]="bikeEdit.reifengroesse"
-                    name="bikeReifen"
-                  />
-                </div>
-                <div class="field">
-                  <label>Fahrradtyp</label>
-                  <input
-                    [(ngModel)]="bikeEdit.fahrradtyp"
-                    name="bikeFahrradtyp"
-                  />
-                </div>
+
+                <div class="cal-hint" *ngIf="pickingState === 'start'">Startdatum klicken</div>
+                <div class="cal-hint" *ngIf="pickingState === 'end'">Enddatum klicken</div>
               </div>
             </div>
 
-            <!-- Edit selected bike -->
-            <div class="bike-edit-form" *ngIf="selectedBike && !isQuickAddMode">
-              <h3>🚲 Fahrrad-Details</h3>
-              <div class="form-grid">
-                <div class="field">
-                  <label>Rahmennummer</label>
-                  <input
-                    [(ngModel)]="bikeEdit.rahmennummer"
-                    name="bikeRahmen"
-                    style="text-transform: uppercase"
-                  />
-                </div>
-                <div class="field">
-                  <label>Marke *</label>
-                  <input
-                    [(ngModel)]="bikeEdit.marke"
-                    name="bikeMarke"
-                    required
-                  />
-                </div>
-                <div class="field">
-                  <label>Modell *</label>
-                  <input
-                    [(ngModel)]="bikeEdit.modell"
-                    name="bikeModell"
-                    required
-                  />
-                </div>
-                <div class="field">
-                  <label>Farbe</label>
-                  <input [(ngModel)]="bikeEdit.farbe" name="bikeFarbe" />
-                </div>
-                <div class="field">
-                  <label>Reifengröße</label>
-                  <input
-                    [(ngModel)]="bikeEdit.reifengroesse"
-                    name="bikeReifen"
-                  />
-                </div>
-                <div class="field">
-                  <label>Fahrradtyp</label>
-                  <input
-                    [(ngModel)]="bikeEdit.fahrradtyp"
-                    name="bikeFahrradtyp"
-                  />
-                </div>
+            <div class="date-display" *ngIf="startDatum || endDatum">
+              <div class="date-chip" [class.active]="!!startDatum">
+                <label>Mietbeginn</label>
+                <span>{{ startDatum ? (startDatum | date: 'dd.MM.yyyy') : '–' }}</span>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+              <div class="date-chip" [class.active]="!!endDatum">
+                <label>Mietende</label>
+                <span>{{ endDatum ? (endDatum | date: 'dd.MM.yyyy') : '–' }}</span>
+              </div>
+              <button type="button" class="btn-reset-dates" *ngIf="startDatum" (click)="resetDates()" title="Zurücksetzen">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <input type="hidden" [(ngModel)]="startDatum" name="startDatum" required />
+            <input type="hidden" [(ngModel)]="endDatum" name="endDatum" required />
+
+            <div class="form-grid" style="margin-top: 16px;">
+              <div class="field full">
+                <label>Notizen</label>
+                <textarea [(ngModel)]="notizen" name="notizen" rows="3"></textarea>
               </div>
             </div>
           </div>
+
+          <!-- Availability status after date selection -->
+          <div class="avail-loading-bar" *ngIf="availabilityLoading">
+            <span>Verfügbare Fahrräder werden geladen…</span>
+          </div>
+          <div class="avail-none-bar" *ngIf="datesReady && !availabilityLoading && availableBikes.length === 0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Keine Fahrräder für diesen Zeitraum verfügbar.
+          </div>
+          <div class="avail-count-bar" *ngIf="datesReady && !availabilityLoading && availableBikes.length > 0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            {{ availableBikes.length }} Fahrrad{{ availableBikes.length !== 1 ? 'räder' : '' }} für diesen Zeitraum verfügbar
+          </div>
+          <div class="select-dates-hint" *ngIf="!datesReady && !availabilityLoading">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Bitte zuerst Mietdauer auswählen, um verfügbare Fahrräder zu sehen.
+          </div>
+
+          <ng-container *ngIf="datesReady">
+          <!-- Bicycle cards (1+) -->
+          <div class="form-card bike-card" [class.is-collapsed]="b.isCollapsed" *ngFor="let b of bikes; let i = index; trackBy: trackByIndex">
+            <div class="bike-card-header">
+              <h2>
+                {{ bikes.length > 1 ? (i + 1) + '. Fahrrad' : 'Fahrrad auswählen' }}
+                <span *ngIf="b.isCollapsed && (b.selectedBike || b.isQuickAddMode)" class="bike-summary">
+                  – {{ b.bikeEdit.marke }} {{ b.bikeEdit.modell }}<ng-container *ngIf="b.gesamtmiete"> · {{ b.gesamtmiete | number: '1.2-2' }} €</ng-container>
+                </span>
+              </h2>
+              <div class="bike-card-actions">
+                <button
+                  *ngIf="b.selectedBike || b.isQuickAddMode"
+                  type="button"
+                  class="btn-collapse-bike"
+                  (click)="toggleCollapse(i)"
+                  [title]="b.isCollapsed ? 'Erweitern' : 'Einklappen'"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" [style.transform]="b.isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)'" style="transition: transform .15s">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                  {{ b.isCollapsed ? 'Erweitern' : 'Einklappen' }}
+                </button>
+                <button
+                  *ngIf="bikes.length > 1"
+                  type="button"
+                  class="btn-remove-bike"
+                  (click)="removeBike(i)"
+                  title="Fahrrad entfernen"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                  Entfernen
+                </button>
+              </div>
+            </div>
+
+            <div class="bike-card-body" *ngIf="!b.isCollapsed">
+            <app-bike-selector
+              [bikes]="getAvailableBikesFor(i)"
+              [selectedBike]="b.selectedBike"
+              (selectedBikeChange)="b.selectedBike = $event"
+              [allowQuickAdd]="true"
+              [requireConfirmSelection]="true"
+              (bikeSelected)="onBikeSelected(i, $event)"
+              (quickAddRequested)="onQuickAddBike(i)"
+            ></app-bike-selector>
+
+            <!-- Bike details form (quick-add or edit-selected) -->
+            <div class="bike-details-form" *ngIf="b.selectedBike || b.isQuickAddMode" [class.is-quick-add]="b.isQuickAddMode">
+              <h3>
+                <span *ngIf="b.isQuickAddMode" class="quick-add-badge">🆕 Neues Fahrrad</span>
+                <span *ngIf="!b.isQuickAddMode">🚲 Fahrrad-Details</span>
+              </h3>
+              <div class="form-grid">
+                <!-- Rahmennummer with autocomplete -->
+                <div
+                  class="field full rahmen-autocomplete-wrapper"
+                  [class.field-error]="b.bikeErrors['rahmennummer']"
+                >
+                  <label>Rahmennummer <ng-container *ngIf="b.isQuickAddMode">*</ng-container></label>
+                  <input
+                    [(ngModel)]="b.bikeEdit.rahmennummer"
+                    [name]="'bikeRahmen_' + i"
+                    (ngModelChange)="b.bikeErrors['rahmennummer'] = false; onRahmennummerChange(i, $event)"
+                    (focus)="onRahmennummerChange(i, b.bikeEdit.rahmennummer)"
+                    (blur)="hideRahmenDropdown(i)"
+                    style="text-transform: uppercase"
+                    placeholder="Rahmennummer eingeben..."
+                    autocomplete="off"
+                    [required]="b.isQuickAddMode"
+                  />
+                  <span class="error-msg" *ngIf="b.bikeErrors['rahmennummer']">Pflichtfeld</span>
+                  <div
+                    class="rahmen-dropdown"
+                    *ngIf="b.rahmenSearchResults.length > 0 && b.showRahmenDropdown"
+                  >
+                    <div
+                      class="rahmen-dropdown-item"
+                      *ngFor="let bk of b.rahmenSearchResults"
+                      (mousedown)="selectRahmenBike(i, bk)"
+                    >
+                      <span class="rahmen-nr">{{ bk.rahmennummer }}</span>
+                      <span class="rahmen-info">{{ bk.marke }} {{ bk.modell }}</span>
+                      <span class="rahmen-badge" *ngIf="bk.status === 'Available'">Verfügbar</span>
+                      <span class="rahmen-badge sold" *ngIf="bk.status === 'Sold'">Verkauft</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="field" [class.field-error]="b.bikeErrors['marke']">
+                  <label>Marke *</label>
+                  <input
+                    [(ngModel)]="b.bikeEdit.marke"
+                    [name]="'bikeMarke_' + i"
+                    list="brandList"
+                    autocomplete="off"
+                    required
+                    (ngModelChange)="b.bikeErrors['marke'] = false"
+                  />
+                  <span class="error-msg" *ngIf="b.bikeErrors['marke']">Pflichtfeld</span>
+                </div>
+                <div class="field" [class.field-error]="b.bikeErrors['modell']">
+                  <label>Modell *</label>
+                  <input
+                    [(ngModel)]="b.bikeEdit.modell"
+                    [name]="'bikeModell_' + i"
+                    list="modelList"
+                    autocomplete="off"
+                    required
+                    (ngModelChange)="b.bikeErrors['modell'] = false"
+                  />
+                  <span class="error-msg" *ngIf="b.bikeErrors['modell']">Pflichtfeld</span>
+                </div>
+                <div class="field">
+                  <label>Rahmengröße</label>
+                  <input
+                    [(ngModel)]="b.bikeEdit.rahmengroesse"
+                    [name]="'bikeRahmengroesse_' + i"
+                    placeholder="z.B. 52, 56, M, L"
+                  />
+                </div>
+                <div class="field">
+                  <label>Farbe</label>
+                  <div class="color-chips">
+                    <button
+                      type="button"
+                      *ngFor="let c of colorOptions"
+                      class="color-chip"
+                      [class.selected]="isColorSelected(b.bikeEdit.farbe, c.value)"
+                      [style.--chip-color]="c.hex"
+                      (click)="b.bikeEdit.farbe = toggleColor(b.bikeEdit.farbe, c.value)"
+                    >
+                      <span class="chip-dot"></span>
+                      {{ c.label }}
+                    </button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Reifengröße</label>
+                  <select [(ngModel)]="b.bikeEdit.reifengroesse" [name]="'bikeReifen_' + i">
+                    <option value="">-- Auswählen --</option>
+                    <option value="12">12"</option>
+                    <option value="14">14"</option>
+                    <option value="16">16"</option>
+                    <option value="18">18"</option>
+                    <option value="20">20"</option>
+                    <option value="24">24"</option>
+                    <option value="26">26"</option>
+                    <option value="27.5">27.5"</option>
+                    <option value="28">28"</option>
+                    <option value="29">29"</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Fahrradtyp</label>
+                  <select [(ngModel)]="b.bikeEdit.fahrradtyp" [name]="'bikeFahrradtyp_' + i">
+                    <option value="">-- Auswählen --</option>
+                    <option value="E-Bike">E-Bike</option>
+                    <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
+                    <option value="Trekking">Trekking</option>
+                    <option value="City">City</option>
+                    <option value="MTB">Mountainbike (MTB)</option>
+                    <option value="Rennrad">Rennrad</option>
+                    <option value="Kinderfahrrad">Kinderfahrrad</option>
+                    <option value="Lastenrad">Lastenrad</option>
+                    <option value="Sonstige">Sonstige</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Zustand *</label>
+                  <select [(ngModel)]="b.bikeEdit.zustand" [name]="'bikeZustand_' + i" required>
+                    <option value="Gebraucht">Gebraucht</option>
+                    <option value="Neu">Neu</option>
+                  </select>
+                </div>
+                <div class="field full">
+                  <label>Beschreibung / Ausstattung</label>
+                  <textarea
+                    [(ngModel)]="b.bikeEdit.beschreibung"
+                    [name]="'bikeBeschr_' + i"
+                    rows="3"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Per-bike pricing & payment -->
+            <div class="bike-pricing" *ngIf="b.selectedBike || b.isQuickAddMode">
+              <div class="price-calc" *ngIf="rentalDays > 0 && b.selectedBike">
+                <div class="calc-header">
+                  <span class="calc-days">{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span>
+                  <span class="calc-price">
+                    Berechneter Preis: {{ b.berechneterPreis | number: '1.2-2' }} €
+                  </span>
+                </div>
+                <div class="calc-breakdown" *ngIf="b.preisInfo">
+                  <span class="calc-info">{{ b.preisInfo }}</span>
+                </div>
+              </div>
+
+              <div class="form-grid" style="margin-top: 16px;">
+                <div class="field">
+                  <label>Gesamtmiete (€, inkl. MwSt.) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    [(ngModel)]="b.gesamtmiete"
+                    [name]="'gesamtmiete_' + i"
+                    required
+                    min="0"
+                  />
+                </div>
+                <div class="field">
+                  <label>Rabatt (€)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    [(ngModel)]="b.rabatt"
+                    [name]="'rabatt_' + i"
+                    min="0"
+                    (ngModelChange)="onRabattChanged(i)"
+                  />
+                </div>
+                <div class="field">
+                  <label>Kaution (€) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    [(ngModel)]="b.kaution"
+                    [name]="'kaution_' + i"
+                    required
+                    min="0"
+                  />
+                </div>
+                <div class="field">
+                  <label>Zahlungsart Miete *</label>
+                  <select [(ngModel)]="b.zahlungsart" [name]="'zahlungsart_' + i" required>
+                    <option value="" disabled>Bitte wählen…</option>
+                    <option value="Bar">Bar</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Karte">Karte</option>
+                    <option value="Überweisung">Überweisung</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Zahlungsart Kaution *</label>
+                  <select [(ngModel)]="b.kautionZahlungsart" [name]="'kautionZahlungsart_' + i" required>
+                    <option value="" disabled>Bitte wählen…</option>
+                    <option value="Bar">Bar</option>
+                    <option value="PayPal">PayPal</option>
+                    <option value="Karte">Karte</option>
+                    <option value="Überweisung">Überweisung</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Zustand bei Übergabe *</label>
+                  <select [(ngModel)]="b.zustandBeiUebergabe" [name]="'zustand_' + i" required>
+                    <option value="SehrGut">Sehr gut</option>
+                    <option value="Gut">Gut</option>
+                    <option value="Gebrauchsspuren">Gebrauchsspuren</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn-add-bike"
+            (click)="addBike()"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Weiteres Fahrrad hinzufügen
+          </button>
 
           <!-- Mieter -->
           <div class="form-card">
@@ -245,21 +593,46 @@ const MONTH_NAMES = [
                 />
               </div>
               <div class="field">
-                <label>Telefon *</label>
+                <label>Telefon</label>
                 <input
                   [(ngModel)]="customer.telefon"
                   name="customerTelefon"
-                  required
                 />
               </div>
               <div class="field">
-                <label>E-Mail</label>
+                <label>E-Mail *</label>
                 <input
                   [(ngModel)]="customer.email"
                   name="customerEmail"
                   type="email"
+                  required
                 />
               </div>
+            </div>
+          </div>
+
+          <!-- AGB & Unterschrift -->
+          <div class="form-card">
+            <h2>AGB &amp; Unterschrift</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>Ort</label>
+                <input [(ngModel)]="unterschriftOrt" name="unterschriftOrt" placeholder="Freiburg" />
+              </div>
+              <div class="field" style="display:flex;align-items:center;gap:8px;padding-top:22px;">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="agbAkzeptiert"
+                  name="agbAkzeptiert"
+                  id="agbCheck"
+                  style="width:18px;height:18px;cursor:pointer;"
+                />
+                <label for="agbCheck" style="cursor:pointer;margin:0;">Ich habe die AGB gelesen und akzeptiert</label>
+              </div>
+            </div>
+            <div style="margin-top:12px;">
+              <label style="font-weight:600;font-size:0.9rem;">Unterschrift Mieter</label>
+              <app-signature-pad [(ngModel)]="mieterUnterschrift" name="mieterUnterschrift"></app-signature-pad>
             </div>
           </div>
 
@@ -296,257 +669,8 @@ const MONTH_NAMES = [
             </div>
           </div>
 
-          <!-- Mietdauer mit Kalender -->
-          <div class="form-card">
-            <h2>Mietdauer</h2>
+          </ng-container>
 
-            <!-- Calendar -->
-            <div class="calendar-wrap">
-              <div class="cal-loading" *ngIf="busyPeriodsLoading">
-                <span>Verfügbarkeit wird geladen…</span>
-              </div>
-
-              <div class="calendar" *ngIf="!busyPeriodsLoading">
-                <div class="cal-nav">
-                  <button
-                    type="button"
-                    class="cal-nav-btn"
-                    (click)="prevMonth()"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                  </button>
-                  <span class="cal-title"
-                    >{{ calendarMonthName }} {{ calendarYear }}</span
-                  >
-                  <button
-                    type="button"
-                    class="cal-nav-btn"
-                    (click)="nextMonth()"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div class="cal-grid">
-                  <div class="cal-dow" *ngFor="let d of weekDays">{{ d }}</div>
-                  <div
-                    *ngFor="let day of calendarDays"
-                    class="cal-day"
-                    [class.empty]="!day"
-                    [class.busy]="day && isDayBusy(day)"
-                    [class.closed]="day && !isDayBusy(day) && isClosedDay(day)"
-                    [class.range-start]="day && isDayRangeStart(day)"
-                    [class.range-end]="day && isDayRangeEnd(day)"
-                    [class.in-range]="day && isDayInRange(day)"
-                    [class.today]="day && isDayToday(day)"
-                    [class.picking-end]="
-                      pickingState === 'end' &&
-                      day &&
-                      !isDayBusy(day) &&
-                      !isClosedDay(day) &&
-                      !isDayRangeStart(day)
-                    "
-                    (click)="day && onCalendarDayClick(day)"
-                  >
-                    <span *ngIf="day">{{ day.getDate() }}</span>
-                    <div class="busy-tooltip" *ngIf="day && isDayBusy(day)">
-                      Besetzt
-                    </div>
-                    <div
-                      class="busy-tooltip closed-tooltip"
-                      *ngIf="day && !isDayBusy(day) && isClosedDay(day)"
-                    >
-                      {{ day.getDay() === 0 ? 'Sonntag' : 'Feiertag' }}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="cal-legend">
-                  <span class="legend-item">
-                    <span class="legend-dot busy-dot"></span> Besetzt
-                  </span>
-                  <span class="legend-item">
-                    <span class="legend-dot closed-dot"></span> Geschlossen
-                  </span>
-                  <span class="legend-item">
-                    <span class="legend-dot selected-dot"></span> Ausgewählt
-                  </span>
-                  <span
-                    class="legend-item legend-hint"
-                    *ngIf="!selectedBike && !isQuickAddMode"
-                  >
-                    Zuerst Fahrrad auswählen
-                  </span>
-                </div>
-
-                <div class="cal-hint" *ngIf="pickingState === 'start'">
-                  Startdatum klicken
-                </div>
-                <div class="cal-hint" *ngIf="pickingState === 'end'">
-                  Enddatum klicken
-                </div>
-              </div>
-            </div>
-
-            <!-- Selected range display -->
-            <div class="date-display" *ngIf="startDatum || endDatum">
-              <div class="date-chip" [class.active]="!!startDatum">
-                <label>Mietbeginn</label>
-                <span>{{
-                  startDatum ? (startDatum | date: 'dd.MM.yyyy') : '–'
-                }}</span>
-              </div>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-              <div class="date-chip" [class.active]="!!endDatum">
-                <label>Mietende</label>
-                <span>{{
-                  endDatum ? (endDatum | date: 'dd.MM.yyyy') : '–'
-                }}</span>
-              </div>
-              <button
-                type="button"
-                class="btn-reset-dates"
-                *ngIf="startDatum"
-                (click)="resetDates()"
-                title="Zurücksetzen"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-
-            <!-- Hidden inputs for form validation -->
-            <input
-              type="hidden"
-              [(ngModel)]="startDatum"
-              name="startDatum"
-              required
-            />
-            <input
-              type="hidden"
-              [(ngModel)]="endDatum"
-              name="endDatum"
-              required
-            />
-
-            <!-- Price calculation -->
-            <div class="price-calc" *ngIf="rentalDays > 0">
-              <div class="calc-header">
-                <span class="calc-days"
-                  >{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span
-                >
-                <span class="calc-price"
-                  >Berechneter Preis:
-                  {{ berechneterPreis | number: '1.2-2' }} €</span
-                >
-              </div>
-              <div class="calc-breakdown" *ngIf="preisInfo">
-                <span class="calc-info">{{ preisInfo }}</span>
-              </div>
-            </div>
-
-            <div class="form-grid" style="margin-top: 16px;">
-              <div class="field">
-                <label>Gesamtmiete (€, inkl. MwSt.) *</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="gesamtmiete"
-                  name="gesamtmiete"
-                  required
-                  min="0"
-                />
-              </div>
-              <div class="field">
-                <label>Rabatt (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="rabatt"
-                  name="rabatt"
-                  min="0"
-                  (ngModelChange)="onRabattChanged()"
-                />
-              </div>
-              <div class="field">
-                <label>Kaution (€) *</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="kaution"
-                  name="kaution"
-                  required
-                  min="0"
-                />
-              </div>
-              <div class="field">
-                <label>Zahlungsart *</label>
-                <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
-                  <option value="Bar">Bar</option>
-                  <option value="PayPal">PayPal</option>
-                  <option value="Karte">Karte</option>
-                  <option value="Überweisung">Überweisung</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Zustand bei Übergabe *</label>
-                <select
-                  [(ngModel)]="zustandBeiUebergabe"
-                  name="zustandBeiUebergabe"
-                  required
-                >
-                  <option value="SehrGut">Sehr gut</option>
-                  <option value="Gut">Gut</option>
-                  <option value="Gebrauchsspuren">Gebrauchsspuren</option>
-                </select>
-              </div>
-              <div class="field full">
-                <label>Notizen</label>
-                <textarea
-                  [(ngModel)]="notizen"
-                  name="notizen"
-                  rows="3"
-                ></textarea>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="form-actions">
@@ -554,15 +678,11 @@ const MONTH_NAMES = [
           <button
             type="submit"
             class="btn btn-primary"
-            [disabled]="
-              submitting ||
-              (!selectedBike && !isQuickAddMode) ||
-              !f.form.valid ||
-              !startDatum ||
-              !endDatum
-            "
+            [disabled]="submitting || !canSubmit || !f.form.valid"
           >
-            {{ submitting ? 'Wird erstellt...' : 'Vermietung anlegen' }}
+            {{ submitting
+              ? 'Wird erstellt...'
+              : (bikes.length > 1 ? 'Vermietungen anlegen' : 'Vermietung anlegen') }}
           </button>
         </div>
       </form>
@@ -629,6 +749,94 @@ const MONTH_NAMES = [
         font-weight: 700;
         margin: 0 0 16px 0;
         color: var(--text-primary);
+      }
+      .bike-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .bike-card.is-collapsed .bike-card-header {
+        margin-bottom: 0;
+      }
+      .bike-card-header h2 {
+        margin: 0;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .bike-card-header .bike-summary {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+      .bike-card-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+      }
+      .btn-collapse-bike {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-collapse-bike:hover {
+        border-color: var(--primary, #3b82f6);
+        color: var(--primary, #3b82f6);
+      }
+      .btn-remove-bike {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-remove-bike:hover {
+        border-color: #ef4444;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.06);
+      }
+      .btn-add-bike {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1.5px dashed var(--accent-primary, #6366f1);
+        border-radius: var(--radius-md, 10px);
+        background: rgba(99, 102, 241, 0.04);
+        color: var(--accent-primary, #6366f1);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-add-bike:hover {
+        background: rgba(99, 102, 241, 0.1);
+      }
+      .bike-pricing {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-light);
       }
       .form-grid {
         display: grid;
@@ -831,6 +1039,37 @@ const MONTH_NAMES = [
       }
       .cal-day.busy:hover .busy-tooltip {
         display: block;
+      }
+      .avail-loading-bar,
+      .avail-none-bar,
+      .avail-count-bar,
+      .select-dates-hint {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+      }
+      .avail-loading-bar {
+        background: var(--bg-secondary, #f3f4f6);
+        color: var(--text-muted);
+        font-style: italic;
+      }
+      .avail-none-bar {
+        background: rgba(239, 68, 68, 0.08);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      .avail-count-bar {
+        background: rgba(34, 197, 94, 0.08);
+        color: #16a34a;
+        border: 1px solid rgba(34, 197, 94, 0.2);
+      }
+      .select-dates-hint {
+        background: var(--bg-secondary, #f3f4f6);
+        color: var(--text-muted);
+        border: 1px dashed var(--border-light);
       }
       .cal-legend {
         display: flex;
@@ -1164,31 +1403,142 @@ const MONTH_NAMES = [
         padding-top: 20px;
         border-top: 1px solid var(--border-light);
       }
-      .quick-add-form {
-        margin-top: 16px;
-        padding: 16px;
-        background: rgba(16, 185, 129, 0.04);
-        border-radius: var(--radius-md, 10px);
-        border: 1.5px dashed #10b981;
-      }
-      .quick-add-form h3 {
-        margin: 0 0 12px 0;
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #10b981;
-      }
-      .bike-edit-form {
+      .bike-details-form {
         margin-top: 16px;
         padding: 16px;
         background: var(--bg-secondary, #f8fafc);
         border-radius: var(--radius-md, 10px);
         border: 1.5px solid var(--border-light, #e2e8f0);
       }
-      .bike-edit-form h3 {
+      .bike-details-form.is-quick-add {
+        background: rgba(16, 185, 129, 0.04);
+        border: 1.5px dashed #10b981;
+      }
+      .bike-details-form h3 {
         margin: 0 0 12px 0;
         font-size: 0.95rem;
         font-weight: 700;
         color: var(--accent-primary, #6366f1);
+      }
+      .quick-add-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 8px;
+        vertical-align: middle;
+      }
+      .field.full {
+        grid-column: 1 / -1;
+      }
+      .field-error input,
+      .field-error select,
+      .field-error textarea {
+        border-color: #ef4444 !important;
+        background: rgba(239, 68, 68, 0.04);
+      }
+      .field-error label {
+        color: #ef4444;
+      }
+      .error-msg {
+        display: block;
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 4px;
+        font-weight: 500;
+      }
+      .color-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .color-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 20px;
+        background: var(--bg-card, #fff);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .color-chip:hover {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--table-hover, #f1f5f9);
+      }
+      .color-chip.selected {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        font-weight: 600;
+      }
+      .chip-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--chip-color, #ccc);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        flex-shrink: 0;
+      }
+      .rahmen-autocomplete-wrapper {
+        position: relative;
+      }
+      .rahmen-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--accent-primary, #6366f1);
+        border-radius: 0 0 var(--radius-md, 10px) var(--radius-md, 10px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        max-height: 240px;
+        overflow-y: auto;
+      }
+      .rahmen-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: background 0.1s;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+      }
+      .rahmen-dropdown-item:last-child {
+        border-bottom: none;
+      }
+      .rahmen-dropdown-item:hover {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+      }
+      .rahmen-nr {
+        font-weight: 700;
+        font-family: monospace;
+        font-size: 0.88rem;
+        text-transform: uppercase;
+        color: var(--accent-primary, #6366f1);
+      }
+      .rahmen-info {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+      }
+      .rahmen-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 99px;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        margin-left: auto;
+      }
+      .rahmen-badge.sold {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
       }
 
       @media (max-width: 640px) {
@@ -1218,17 +1568,29 @@ export class RentalFormComponent implements OnInit {
 
   fromBookingId: number | null = null;
   availableBikes: Bicycle[] = [];
-  selectedBike: Bicycle | null = null;
-  isQuickAddMode = false;
+  availabilityLoading = false;
+  private pendingBikeIdToSelect: number | null = null;
+  private pendingBookingBike: any = null;
+  brands: string[] = [];
+  models: string[] = [];
 
-  bikeEdit = {
-    rahmennummer: '',
-    marke: '',
-    modell: '',
-    farbe: '',
-    reifengroesse: '',
-    fahrradtyp: '',
-  };
+  colorOptions = [
+    { value: 'Schwarz', label: 'Schwarz', hex: '#1a1a1a' },
+    { value: 'Weiß', label: 'Weiß', hex: '#f5f5f5' },
+    { value: 'Rot', label: 'Rot', hex: '#ef4444' },
+    { value: 'Blau', label: 'Blau', hex: '#3b82f6' },
+    { value: 'Grün', label: 'Grün', hex: '#22c55e' },
+    { value: 'Gelb', label: 'Gelb', hex: '#eab308' },
+    { value: 'Orange', label: 'Orange', hex: '#f97316' },
+    { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
+    { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
+    { value: 'Pink', label: 'Pink', hex: '#ec4899' },
+    { value: 'Türkis', label: 'Türkis', hex: '#06b6d4' },
+    { value: 'Lila', label: 'Lila', hex: '#a855f7' },
+    { value: 'Dunkelblau', label: 'Dunkelblau', hex: '#1e3a5f' },
+  ];
+
+  bikes: BikeEntry[] = [createEmptyBikeEntry()];
 
   customer: CustomerCreate = {
     vorname: '',
@@ -1243,16 +1605,12 @@ export class RentalFormComponent implements OnInit {
 
   startDatum = '';
   endDatum = '';
-  gesamtmiete = 0;
-  rabatt = 0;
-  berechneterPreis = 0;
   rentalDays = 0;
-  preisInfo = '';
-  kaution = 0;
-  zahlungsart: PaymentMethod = PaymentMethod.Bar;
-  zustandBeiUebergabe = 'Gut';
   notizen = '';
   submitting = false;
+  mieterUnterschrift = '';
+  agbAkzeptiert = false;
+  unterschriftOrt = 'Freiburg';
 
   availableAccessories: RentalAccessoryList[] = [];
   selectedAccessories: Record<PredefinedAccessoryKey, boolean> = {
@@ -1265,9 +1623,111 @@ export class RentalFormComponent implements OnInit {
   readonly weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
   calendarYear = new Date().getFullYear();
   calendarMonth = new Date().getMonth();
-  busyPeriods: BusyPeriod[] = [];
-  busyPeriodsLoading = false;
   pickingState: 'start' | 'end' = 'start';
+
+  trackByIndex = (i: number) => i;
+
+  get anyBusyLoading(): boolean {
+    return this.bikes.some((b) => b.busyPeriodsLoading);
+  }
+
+  get combinedBusyPeriods(): BusyPeriod[] {
+    return this.bikes.flatMap((b) => b.busyPeriods);
+  }
+
+  get hasAnyBikeReady(): boolean {
+    return this.bikes.some((b) => !!b.selectedBike || b.isQuickAddMode);
+  }
+
+  get datesReady(): boolean {
+    return !!this.startDatum && !!this.endDatum;
+  }
+
+  get canSubmit(): boolean {
+    if (!this.startDatum || !this.endDatum) return false;
+    return this.bikes.every((b) => !!b.selectedBike || b.isQuickAddMode);
+  }
+
+  getAvailableBikesFor(i: number): Bicycle[] {
+    const otherSelectedIds = this.bikes
+      .map((b, idx) => (idx !== i ? b.selectedBike?.id : null))
+      .filter((x): x is number => x != null);
+    return this.availableBikes.filter((b) => !otherSelectedIds.includes(b.id));
+  }
+
+  addBike() {
+    for (const b of this.bikes) {
+      if (b.selectedBike || b.isQuickAddMode) b.isCollapsed = true;
+    }
+    this.bikes.push(createEmptyBikeEntry());
+  }
+
+  removeBike(i: number) {
+    if (this.bikes.length <= 1) return;
+    this.bikes.splice(i, 1);
+  }
+
+  toggleCollapse(i: number) {
+    this.bikes[i].isCollapsed = !this.bikes[i].isCollapsed;
+  }
+
+  isColorSelected(farbe: string, color: string): boolean {
+    if (!farbe) return false;
+    return farbe.split(/[,\/]\s*/).includes(color);
+  }
+
+  toggleColor(farbe: string, color: string): string {
+    const colors = farbe ? farbe.split(/[,\/]\s*/).filter(Boolean) : [];
+    const idx = colors.indexOf(color);
+    if (idx >= 0) colors.splice(idx, 1);
+    else colors.push(color);
+    return colors.join('/');
+  }
+
+  onRahmennummerChange(i: number, value: string) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.rahmenSearchResults = [];
+    if (b.rahmenSearchTimeout) clearTimeout(b.rahmenSearchTimeout);
+    if (!value || value.trim().length < 2) {
+      b.showRahmenDropdown = false;
+      return;
+    }
+    b.rahmenSearchTimeout = setTimeout(() => {
+      this.bicycleService.search(value.trim()).subscribe({
+        next: (bikes) => {
+          const otherSelected = this.bikes
+            .map((x, idx) => (idx !== i ? x.selectedBike?.id : null))
+            .filter((x): x is number => x != null);
+          b.rahmenSearchResults = bikes.filter(
+            (bk) =>
+              bk.status !== 'Sold' &&
+              !otherSelected.includes(bk.id) &&
+              bk.rahmennummer
+                ?.toUpperCase()
+                .includes(value.trim().toUpperCase()),
+          );
+          b.showRahmenDropdown = b.rahmenSearchResults.length > 0;
+        },
+        error: () => {},
+      });
+    }, 300);
+  }
+
+  hideRahmenDropdown(i: number) {
+    setTimeout(() => {
+      const b = this.bikes[i];
+      if (b) b.showRahmenDropdown = false;
+    }, 200);
+  }
+
+  selectRahmenBike(i: number, bike: Bicycle) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.showRahmenDropdown = false;
+    b.rahmenSearchResults = [];
+    this.onBikeSelected(i, bike);
+  }
 
   get calendarMonthName(): string {
     return MONTH_NAMES[this.calendarMonth];
@@ -1291,7 +1751,7 @@ export class RentalFormComponent implements OnInit {
 
   isDayBusy(date: Date): boolean {
     const t = date.getTime();
-    return this.busyPeriods.some((p) => {
+    return this.combinedBusyPeriods.some((p) => {
       const s = new Date(p.start).getTime();
       const e = new Date(p.end).getTime();
       return t >= s && t <= e;
@@ -1417,7 +1877,7 @@ export class RentalFormComponent implements OnInit {
     // Check if selected range would overlap with any busy period
     const rangeStart = new Date(this.startDatum);
     const rangeEnd = date;
-    const overlaps = this.busyPeriods.some((p) => {
+    const overlaps = this.combinedBusyPeriods.some((p) => {
       const ps = new Date(p.start);
       const pe = new Date(p.end);
       return rangeStart <= pe && rangeEnd >= ps;
@@ -1438,19 +1898,23 @@ export class RentalFormComponent implements OnInit {
     this.startDatum = '';
     this.endDatum = '';
     this.pickingState = 'start';
-    this.onDatesChanged();
+    this.availableBikes = [];
+    this.bikes = [createEmptyBikeEntry()];
+    this.rentalDays = 0;
   }
 
-  private loadBusyPeriods(bikeId: number) {
-    this.busyPeriodsLoading = true;
-    this.busyPeriods = [];
+  private loadBusyPeriodsFor(i: number, bikeId: number) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.busyPeriodsLoading = true;
+    b.busyPeriods = [];
     this.bicycleService.getBusyPeriods(bikeId).subscribe({
       next: (periods) => {
-        this.busyPeriods = periods;
-        this.busyPeriodsLoading = false;
+        b.busyPeriods = periods;
+        b.busyPeriodsLoading = false;
       },
       error: () => {
-        this.busyPeriodsLoading = false;
+        b.busyPeriodsLoading = false;
       },
     });
   }
@@ -1460,103 +1924,123 @@ export class RentalFormComponent implements OnInit {
       next: (list) => (this.availableAccessories = list),
     });
 
-    this.bicycleService.getAll().subscribe({
-      next: (bikes) => {
-        this.availableBikes = bikes.filter((b) => b.status === 'Available');
-
-        const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
-        if (bookingId) {
-          this.fromBookingId = Number(bookingId);
-          this.bookingService.getById(this.fromBookingId).subscribe({
-            next: (booking) => {
-              this.customer.vorname = booking.vorname;
-              this.customer.nachname = booking.nachname;
-              this.customer.telefon = booking.telefon || '';
-              this.customer.email = booking.email || '';
-
-              this.startDatum = booking.startDatum.split('T')[0];
-              this.endDatum = booking.endDatum.split('T')[0];
-              this.pickingState = 'start';
-
-              // Navigate calendar to the booking start month
-              const start = new Date(this.startDatum);
-              this.calendarMonth = start.getMonth();
-              this.calendarYear = start.getFullYear();
-
-              this.onDatesChanged();
-
-              if (booking.gesamtpreis) this.gesamtmiete = booking.gesamtpreis;
-              this.notizen = booking.notizen || '';
-
-              if (booking.accessories && booking.accessories.length > 0) {
-                this.selectedAccessories.helm = booking.accessories.some((a) =>
-                  this.matchesAccessoryKey(a.bezeichnung, 'helm'),
-                );
-                this.selectedAccessories.schloss = booking.accessories.some(
-                  (a) => this.matchesAccessoryKey(a.bezeichnung, 'schloss'),
-                );
-                this.selectedAccessories.korb = booking.accessories.some((a) =>
-                  this.matchesAccessoryKey(a.bezeichnung, 'korb'),
-                );
-              }
-
-              const match = this.availableBikes.find(
-                (b) => b.id === booking.bicycle.id,
-              );
-              if (match) {
-                this.onBikeSelected(match);
-              } else {
-                this.isQuickAddMode = false;
-                this.selectedBike = booking.bicycle as Bicycle;
-                this.bikeEdit = {
-                  rahmennummer: booking.bicycle.rahmennummer || '',
-                  marke: booking.bicycle.marke || '',
-                  modell: booking.bicycle.modell || '',
-                  farbe: booking.bicycle.farbe || '',
-                  reifengroesse: booking.bicycle.reifengroesse || '',
-                  fahrradtyp: booking.bicycle.fahrradtyp || '',
-                };
-                this.loadBusyPeriods(booking.bicycle.id);
-              }
-            },
-            error: () => {
-              this.notificationService.error(
-                'Buchung konnte nicht geladen werden',
-              );
-            },
-          });
-        }
-      },
+    this.bicycleService.getBrands().subscribe({
+      next: (res) => (this.brands = res),
+      error: () => {},
     });
-    this.startDatum = new Date().toISOString().split('T')[0];
+    this.bicycleService.getModels().subscribe({
+      next: (res) => (this.models = res),
+      error: () => {},
+    });
+
+    const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
+    const bicycleIdParam = this.route.snapshot.queryParamMap.get('bicycleId');
+    if (bookingId) {
+      this.fromBookingId = Number(bookingId);
+      this.bookingService.getById(this.fromBookingId).subscribe({
+        next: (booking) => {
+          this.customer.vorname = booking.vorname;
+          this.customer.nachname = booking.nachname;
+          this.customer.telefon = booking.telefon || '';
+          this.customer.email = booking.email || '';
+
+          const targetBikeId = bicycleIdParam ? Number(bicycleIdParam) : null;
+          const bookingBike =
+            targetBikeId && booking.bikes?.length > 0
+              ? booking.bikes.find((bk) => bk.bicycleId === targetBikeId)
+              : booking.bikes?.[0];
+
+          const bikeStartDatum = bookingBike?.startDatum ?? booking.startDatum;
+          const bikeEndDatum = bookingBike?.endDatum ?? booking.endDatum;
+
+          this.startDatum = bikeStartDatum.split('T')[0];
+          this.endDatum = bikeEndDatum.split('T')[0];
+          this.pickingState = 'start';
+
+          const start = new Date(this.startDatum);
+          this.calendarMonth = start.getMonth();
+          this.calendarYear = start.getFullYear();
+
+          const firstBike = this.bikes[0];
+          if (bookingBike?.gesamtpreis) {
+            firstBike.gesamtmiete = bookingBike.gesamtpreis;
+          } else if (booking.gesamtpreis) {
+            firstBike.gesamtmiete = booking.gesamtpreis;
+          }
+          this.notizen = booking.notizen || '';
+
+          if (booking.accessories && booking.accessories.length > 0) {
+            this.selectedAccessories.helm = booking.accessories.some((a) =>
+              this.matchesAccessoryKey(a.bezeichnung, 'helm'),
+            );
+            this.selectedAccessories.schloss = booking.accessories.some((a) =>
+              this.matchesAccessoryKey(a.bezeichnung, 'schloss'),
+            );
+            this.selectedAccessories.korb = booking.accessories.some((a) =>
+              this.matchesAccessoryKey(a.bezeichnung, 'korb'),
+            );
+          }
+
+          const bikeId =
+            targetBikeId ?? bookingBike?.bicycleId ?? booking.bicycle?.id;
+          if (bikeId) {
+            this.pendingBikeIdToSelect = bikeId;
+            this.pendingBookingBike = bookingBike ?? (booking.bicycle as any);
+          }
+
+          this.onDatesChanged(); // triggers loadAvailableForPeriod → auto-selects bike
+        },
+        error: () => {
+          this.notificationService.error('Buchung konnte nicht geladen werden');
+        },
+      });
+    }
   }
 
-  onBikeSelected(bike: Bicycle) {
-    this.selectedBike = bike;
-    this.isQuickAddMode = false;
-    this.bikeEdit = {
+  onBikeSelected(i: number, bike: Bicycle) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.selectedBike = bike;
+    b.isQuickAddMode = false;
+    b.bikeEdit = {
       rahmennummer: bike.rahmennummer || '',
       marke: bike.marke || '',
       modell: bike.modell || '',
+      rahmengroesse: bike.rahmengroesse || '',
       farbe: bike.farbe || '',
       reifengroesse: bike.reifengroesse || '',
       fahrradtyp: bike.fahrradtyp || '',
+      beschreibung: bike.beschreibung || '',
+      zustand: bike.zustand || BikeCondition.Gebraucht,
     };
-    this.loadBusyPeriods(bike.id);
+    b.bikeErrors = {};
+    if (bike.kaution != null) {
+      b.kaution = bike.kaution;
+    }
+    this.loadBusyPeriodsFor(i, bike.id);
+    this.recalcPriceFor(i);
   }
 
-  onQuickAddBike() {
-    this.isQuickAddMode = true;
-    this.selectedBike = null;
-    this.busyPeriods = [];
-    this.bikeEdit = {
+  onQuickAddBike(i: number) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.isQuickAddMode = true;
+    b.selectedBike = null;
+    b.busyPeriods = [];
+    b.bikeEdit = {
       rahmennummer: '',
       marke: '',
       modell: '',
+      rahmengroesse: '',
       farbe: '',
       reifengroesse: '',
       fahrradtyp: '',
+      beschreibung: '',
+      zustand: BikeCondition.Gebraucht,
     };
+    b.bikeErrors = {};
+    b.rahmenSearchResults = [];
+    b.showRahmenDropdown = false;
   }
 
   private normalizeAccessoryName(value: string): string {
@@ -1599,13 +2083,12 @@ export class RentalFormComponent implements OnInit {
     };
   }
 
-  recalcPrice() {
+  recalcPriceFor(i: number) {
+    const b = this.bikes[i];
+    if (!b) return;
     if (this.rentalDays > 0) {
-      this.berechneterPreis = this.calculatePrice(this.rentalDays);
-      this.gesamtmiete = Math.max(
-        0,
-        this.berechneterPreis - (this.rabatt || 0),
-      );
+      b.berechneterPreis = this.calculatePriceFor(i, this.rentalDays);
+      b.gesamtmiete = Math.max(0, b.berechneterPreis - (b.rabatt || 0));
     }
   }
 
@@ -1619,102 +2102,144 @@ export class RentalFormComponent implements OnInit {
     const diffDays = Math.round(
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
     );
-    this.rentalDays = Math.max(0, diffDays + 1); // both start and end day count
-    if (this.rentalDays > 0) this.recalcPrice();
+    this.rentalDays = Math.max(0, diffDays + 1);
+    if (this.rentalDays > 0) {
+      this.bikes.forEach((_, i) => this.recalcPriceFor(i));
+    }
+    this.loadAvailableForPeriod();
   }
 
-  onRabattChanged() {
-    if (this.berechneterPreis > 0)
-      this.gesamtmiete = Math.max(
-        0,
-        this.berechneterPreis - (this.rabatt || 0),
-      );
+  private loadAvailableForPeriod() {
+    this.availabilityLoading = true;
+    this.bicycleService.getAvailableForPeriod(this.startDatum, this.endDatum).subscribe({
+      next: (bikes) => {
+        this.availableBikes = bikes;
+        this.availabilityLoading = false;
+        if (this.pendingBikeIdToSelect != null) {
+          const match = bikes.find((b) => b.id === this.pendingBikeIdToSelect);
+          const bikeId = this.pendingBikeIdToSelect;
+          const srcBike = this.pendingBookingBike;
+          this.pendingBikeIdToSelect = null;
+          this.pendingBookingBike = null;
+          if (match) {
+            this.onBikeSelected(0, match);
+          } else if (srcBike) {
+            const firstBike = this.bikes[0];
+            firstBike.isQuickAddMode = false;
+            firstBike.selectedBike = { id: srcBike.bicycleId ?? srcBike.id } as Bicycle;
+            firstBike.bikeEdit = {
+              rahmennummer: '',
+              marke: srcBike.marke || '',
+              modell: srcBike.modell || '',
+              rahmengroesse: srcBike.rahmengroesse || '',
+              farbe: srcBike.farbe || '',
+              reifengroesse: srcBike.reifengroesse || '',
+              fahrradtyp: srcBike.fahrradtyp || '',
+              beschreibung: srcBike.beschreibung || '',
+              zustand: srcBike.zustand || BikeCondition.Gebraucht,
+            };
+            this.loadBusyPeriodsFor(0, bikeId!);
+          }
+        }
+      },
+      error: () => {
+        this.availabilityLoading = false;
+      },
+    });
   }
 
-  calculatePrice(days: number): number {
-    const config = this.selectedBike;
+  onRabattChanged(i: number) {
+    const b = this.bikes[i];
+    if (!b) return;
+    if (b.berechneterPreis > 0)
+      b.gesamtmiete = Math.max(0, b.berechneterPreis - (b.rabatt || 0));
+  }
+
+  calculatePriceFor(i: number, days: number): number {
+    const b = this.bikes[i];
+    if (!b) return 0;
+    const config = b.selectedBike;
     if (!config) {
-      this.preisInfo = '';
+      b.preisInfo = '';
       return 0;
     }
-
     const result = calculateRentalPrice(config, days);
-    this.preisInfo = result.info;
+    b.preisInfo = result.info;
     return result.total ?? 0;
   }
 
   submit() {
     if (this.submitting) return;
 
-    if (this.isQuickAddMode) {
-      if (
-        !this.bikeEdit.rahmennummer ||
-        !this.bikeEdit.marke ||
-        !this.bikeEdit.modell
-      ) {
+    for (let i = 0; i < this.bikes.length; i++) {
+      const b = this.bikes[i];
+      if (!b.selectedBike && !b.isQuickAddMode) {
         this.notificationService.error(
-          'Bitte Rahmennummer, Marke und Modell ausfüllen',
+          `Fahrrad ${i + 1}: bitte auswählen oder neu anlegen`,
         );
         return;
       }
-      this.submitting = true;
-      this.bicycleService
-        .create({
-          rahmennummer: this.bikeEdit.rahmennummer.toUpperCase(),
-          marke: this.bikeEdit.marke,
-          modell: this.bikeEdit.modell,
-          farbe: this.bikeEdit.farbe || undefined,
-          reifengroesse: this.bikeEdit.reifengroesse || undefined,
-          fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
-          status: 'Available',
-          zustand: BikeCondition.Gebraucht,
-          isRentable: false,
-        } as any)
-        .subscribe({
-          next: (bike) => this.createRental(bike.id),
-          error: (err) => {
-            this.submitting = false;
-            this.notificationService.error(
-              err.error?.error || 'Fehler beim Erstellen des Fahrrads',
-            );
-          },
-        });
-    } else {
-      if (!this.selectedBike) return;
-      this.submitting = true;
-      const bikeUpdate: BicycleUpdate = {
-        marke: this.bikeEdit.marke,
-        modell: this.bikeEdit.modell,
-        rahmennummer: this.bikeEdit.rahmennummer || undefined,
-        farbe: this.bikeEdit.farbe || undefined,
-        reifengroesse: this.bikeEdit.reifengroesse || '',
-        fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
-        status: this.selectedBike.status as any,
-        zustand: (this.selectedBike.zustand || 'Gebraucht') as BikeCondition,
-        isRentable: this.selectedBike.isRentable,
-        rentalPriceDay1: this.selectedBike.rentalPriceDay1,
-        rentalPriceDay2: this.selectedBike.rentalPriceDay2,
-        rentalPriceDay3: this.selectedBike.rentalPriceDay3,
-        rentalPriceDay4: this.selectedBike.rentalPriceDay4,
-        rentalPriceDay5: this.selectedBike.rentalPriceDay5,
-        rentalPriceDay6: this.selectedBike.rentalPriceDay6,
-        rentalPriceDay7: this.selectedBike.rentalPriceDay7,
-        rentalPriceAdditionalDayAfter7:
-          this.selectedBike.rentalPriceAdditionalDayAfter7,
-      };
-      this.bicycleService.update(this.selectedBike.id, bikeUpdate).subscribe({
-        next: () => this.createRental(this.selectedBike!.id),
-        error: (err) => {
-          this.submitting = false;
+      if (b.isQuickAddMode || b.selectedBike) {
+        b.bikeErrors = {};
+        if (b.isQuickAddMode && !b.bikeEdit.rahmennummer) b.bikeErrors['rahmennummer'] = true;
+        if (!b.bikeEdit.marke) b.bikeErrors['marke'] = true;
+        if (!b.bikeEdit.modell) b.bikeErrors['modell'] = true;
+        if (Object.values(b.bikeErrors).some((v) => v)) {
           this.notificationService.error(
-            err.error?.error || 'Fehler beim Aktualisieren des Fahrrads',
+            `Fahrrad ${i + 1}: Rahmennummer, Marke und Modell ausfüllen`,
           );
-        },
-      });
+          return;
+        }
+      }
     }
-  }
 
-  private createRental(bicycleId: number) {
+    this.submitting = true;
+
+    const bikeIdResolves = this.bikes.map((b) => {
+      if (b.isQuickAddMode) {
+        return this.bicycleService
+          .create({
+            rahmennummer: b.bikeEdit.rahmennummer.toUpperCase(),
+            marke: b.bikeEdit.marke,
+            modell: b.bikeEdit.modell,
+            rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
+            farbe: b.bikeEdit.farbe || undefined,
+            reifengroesse: b.bikeEdit.reifengroesse || undefined,
+            fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
+            beschreibung: b.bikeEdit.beschreibung || undefined,
+            status: 'Available',
+            zustand: b.bikeEdit.zustand || BikeCondition.Gebraucht,
+            isRentable: false,
+          } as any)
+          .pipe(map((bike) => bike.id));
+      }
+      const sel = b.selectedBike!;
+      const bikeUpdate: BicycleUpdate = {
+        marke: b.bikeEdit.marke,
+        modell: b.bikeEdit.modell,
+        rahmennummer: b.bikeEdit.rahmennummer || undefined,
+        rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
+        farbe: b.bikeEdit.farbe || undefined,
+        reifengroesse: b.bikeEdit.reifengroesse || '',
+        fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
+        beschreibung: b.bikeEdit.beschreibung || undefined,
+        status: sel.status as any,
+        zustand: b.bikeEdit.zustand || (sel.zustand || 'Gebraucht') as BikeCondition,
+        isRentable: sel.isRentable,
+        rentalPriceDay1: sel.rentalPriceDay1,
+        rentalPriceDay2: sel.rentalPriceDay2,
+        rentalPriceDay3: sel.rentalPriceDay3,
+        rentalPriceDay4: sel.rentalPriceDay4,
+        rentalPriceDay5: sel.rentalPriceDay5,
+        rentalPriceDay6: sel.rentalPriceDay6,
+        rentalPriceDay7: sel.rentalPriceDay7,
+        rentalPriceAdditionalDayAfter7: sel.rentalPriceAdditionalDayAfter7,
+      };
+      return this.bicycleService
+        .update(sel.id, bikeUpdate)
+        .pipe(map(() => sel.id));
+    });
+
     const accessoryKeys: PredefinedAccessoryKey[] = ['helm', 'schloss', 'korb'];
     const accessoriesPayload: RentalAccessoryItemCreate[] = accessoryKeys
       .filter((key) => this.selectedAccessories[key])
@@ -1729,32 +2254,52 @@ export class RentalFormComponent implements OnInit {
         };
       });
 
-    const rental: RentalCreate = {
-      bicycleId,
-      customer: this.customer,
-      startDatum: this.startDatum,
-      endDatum: this.endDatum,
-      gesamtmiete: this.gesamtmiete,
-      rabatt: this.rabatt || 0,
-      kaution: this.kaution,
-      zahlungsart: this.zahlungsart,
-      zustandBeiUebergabe: this.zustandBeiUebergabe as BikeConditionAtHandover,
-      notizen: this.notizen || undefined,
-      accessories:
-        accessoriesPayload.length > 0 ? accessoriesPayload : undefined,
-    };
-
-    this.rentalService.create(rental).subscribe({
-      next: () => {
-        this.notificationService.success('Vermietung erfolgreich angelegt');
-        this.router.navigate(['/rentals']);
-      },
-      error: (err) => {
-        this.submitting = false;
-        this.notificationService.error(
-          err.error?.error || 'Fehler beim Anlegen der Vermietung',
-        );
-      },
-    });
+    forkJoin(bikeIdResolves)
+      .pipe(
+        switchMap((bicycleIds: number[]) => {
+          // Use the first bike's payment methods as the rental-level defaults
+          const firstBike = this.bikes[0];
+          const payload: RentalCreate = {
+            customer: this.customer,
+            rabatt: firstBike.rabatt || 0,
+            zahlungsart: firstBike.zahlungsart as PaymentMethod,
+            kautionZahlungsart: firstBike.kautionZahlungsart as PaymentMethod,
+            notizen: this.notizen || undefined,
+            accessories:
+              accessoriesPayload.length > 0 ? accessoriesPayload : undefined,
+            mieterUnterschrift: this.mieterUnterschrift || undefined,
+            agbAkzeptiert: this.agbAkzeptiert,
+            unterschriftOrt: this.unterschriftOrt || undefined,
+            bikes: this.bikes.map((b, i) => ({
+              bicycleId: bicycleIds[i],
+              rahmennummer: b.bikeEdit?.rahmennummer || undefined,
+              farbe: b.bikeEdit?.farbe || undefined,
+              startDatum: this.startDatum,
+              endDatum: this.endDatum,
+              mietpreis: b.gesamtmiete,
+              kaution: b.kaution,
+              zustandBeiUebergabe:
+                b.zustandBeiUebergabe as BikeConditionAtHandover,
+            })),
+          };
+          return this.rentalService.create(payload);
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.success(
+            this.bikes.length > 1
+              ? 'Vermietung mit mehreren Fahrrädern angelegt'
+              : 'Vermietung erfolgreich angelegt',
+          );
+          this.router.navigate(['/rentals']);
+        },
+        error: (err) => {
+          this.submitting = false;
+          this.notificationService.error(
+            err.error?.error || 'Fehler beim Anlegen der Vermietung',
+          );
+        },
+      });
   }
 }

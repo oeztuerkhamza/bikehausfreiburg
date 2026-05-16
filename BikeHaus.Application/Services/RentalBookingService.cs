@@ -98,37 +98,77 @@ public class RentalBookingService : IRentalBookingService
 
     public async Task<RentalBookingDto> CreateAsync(RentalBookingCreateDto dto)
     {
-        if (dto.EndDatum.Date < dto.StartDatum.Date)
-            throw new InvalidOperationException("End date must be after start date.");
+        if (dto.Bikes == null || dto.Bikes.Count == 0)
+            throw new InvalidOperationException("Mindestens ein Fahrrad muss ausgewaehlt werden.");
 
-        var hasApprovedOverlap = await _bookingRepository.ExistsApprovedOverlapAsync(
-            dto.BicycleId,
-            dto.StartDatum.Date,
-            dto.EndDatum.Date);
-        if (hasApprovedOverlap)
-            throw new InvalidOperationException("Dieses Fahrrad ist im ausgewaehlten Zeitraum bereits bestaetigt gebucht.");
+        foreach (var bikeDto in dto.Bikes)
+        {
+            if (bikeDto.EndDatum.Date < bikeDto.StartDatum.Date)
+                throw new InvalidOperationException("Das Enddatum muss nach dem Startdatum liegen.");
+        }
 
-        var bicycle = await _bicycleRepository.GetByIdAsync(dto.BicycleId)
-            ?? throw new KeyNotFoundException($"Bicycle with ID {dto.BicycleId} not found.");
+        var bikeChecks = dto.Bikes.Select(b => (b.BicycleId, b.StartDatum.Date, b.EndDatum.Date));
+        var hasOverlap = await _bookingRepository.ExistsApprovedOverlapForBikesAsync(bikeChecks);
+        if (hasOverlap)
+            throw new InvalidOperationException("Eines der ausgewaehlten Fahrraeder ist im gewaehlten Zeitraum bereits bestaetigt gebucht.");
 
-        if (!bicycle.IsRentable)
-            throw new InvalidOperationException("Dieses Fahrrad ist nicht fuer den Verleih aktiviert.");
+        var bicycles = new List<Bicycle>();
+        foreach (var bikeDto in dto.Bikes)
+        {
+            var bicycle = await _bicycleRepository.GetByIdAsync(bikeDto.BicycleId)
+                ?? throw new KeyNotFoundException($"Fahrrad mit ID {bikeDto.BicycleId} nicht gefunden.");
+
+            if (!bicycle.IsRentable)
+                throw new InvalidOperationException($"Das Fahrrad '{bicycle.Marke} {bicycle.Modell}' ist nicht fuer den Verleih aktiviert.");
+
+            bicycles.Add(bicycle);
+        }
 
         var language = NormalizeLanguage(dto.Sprache);
+        var minStart = dto.Bikes.Min(b => b.StartDatum.Date);
+        var maxEnd = dto.Bikes.Max(b => b.EndDatum.Date);
+
         var booking = new RentalBooking
         {
-            BicycleId = dto.BicycleId,
+            BicycleId = dto.Bikes[0].BicycleId,
             BuchungsNummer = await _bookingRepository.GenerateBuchungsNummerAsync(),
-            StartDatum = dto.StartDatum.Date,
-            EndDatum = dto.EndDatum.Date,
+            StartDatum = minStart,
+            EndDatum = maxEnd,
             Vorname = dto.Vorname.Trim(),
             Nachname = dto.Nachname.Trim(),
             Email = dto.Email?.Trim(),
             Telefon = dto.Telefon?.Trim(),
+            Strasse = dto.Strasse?.Trim(),
+            HausNr = dto.HausNr?.Trim(),
+            PLZ = dto.PLZ?.Trim(),
+            Ort = dto.Ort?.Trim(),
             Sprache = language,
             Notizen = dto.Notizen,
             Status = RentalBookingStatus.Pending
         };
+
+        for (int i = 0; i < dto.Bikes.Count; i++)
+        {
+            var bikeDto = dto.Bikes[i];
+            var bicycle = bicycles[i];
+            var days = CalculateDaysInclusive(bikeDto.StartDatum.Date, bikeDto.EndDatum.Date);
+            var bikePrice = RentalPricingCalculator.CalculateBikePrice(bicycle, days);
+
+            booking.Bikes.Add(new RentalBookingBike
+            {
+                BicycleId = bikeDto.BicycleId,
+                Rahmennummer = string.IsNullOrWhiteSpace(bikeDto.Rahmennummer)
+                    ? bicycle.Rahmennummer
+                    : bikeDto.Rahmennummer.Trim(),
+                Farbe = string.IsNullOrWhiteSpace(bikeDto.Farbe)
+                    ? bicycle.Farbe
+                    : bikeDto.Farbe.Trim(),
+                Kaution = bikeDto.Kaution ?? bicycle.Kaution,
+                StartDatum = bikeDto.StartDatum.Date,
+                EndDatum = bikeDto.EndDatum.Date,
+                Gesamtpreis = bikePrice
+            });
+        }
 
         if (dto.Accessories != null && dto.Accessories.Count > 0)
         {
@@ -150,7 +190,8 @@ public class RentalBookingService : IRentalBookingService
             }
         }
 
-        booking.Gesamtpreis = CalculateTotalPrice(bicycle, booking);
+        booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m);
+        if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
 
         if (string.IsNullOrWhiteSpace(booking.Email))
             throw new InvalidOperationException("Bitte geben Sie eine gueltige E-Mail-Adresse an.");
@@ -162,7 +203,7 @@ public class RentalBookingService : IRentalBookingService
 
         try
         {
-            var emailModel = await BuildEmailModelAsync(withDetails, bicycle);
+            var emailModel = await BuildEmailModelAsync(withDetails, bicycles);
             await _emailService.SendRentalBookingReceivedAsync(emailModel);
             await _emailService.SendRentalBookingAdminPendingNotificationAsync(
                 emailModel,
@@ -187,16 +228,22 @@ public class RentalBookingService : IRentalBookingService
         var booking = await _bookingRepository.GetWithDetailsAsync(id)
             ?? throw new KeyNotFoundException($"Booking with ID {id} not found.");
 
-        var hasApprovedOverlap = await _bookingRepository.ExistsApprovedOverlapAsync(
-            booking.BicycleId,
-            booking.StartDatum.Date,
-            booking.EndDatum.Date,
-            booking.Id);
-        if (hasApprovedOverlap)
-            throw new InvalidOperationException("Diese Buchung kann nicht bestaetigt werden, da der Zeitraum bereits durch eine andere bestaetigte Buchung belegt ist.");
-
         if (booking.Status == RentalBookingStatus.Cancelled)
             throw new InvalidOperationException("Stornierte Buchungen koennen nicht bestaetigt werden.");
+
+        bool hasOverlap;
+        if (booking.Bikes.Any())
+        {
+            var bikeChecks = booking.Bikes.Select(bk => (bk.BicycleId, bk.StartDatum, bk.EndDatum));
+            hasOverlap = await _bookingRepository.ExistsApprovedOverlapForBikesAsync(bikeChecks, booking.Id);
+        }
+        else
+        {
+            hasOverlap = await _bookingRepository.ExistsApprovedOverlapAsync(
+                booking.BicycleId, booking.StartDatum.Date, booking.EndDatum.Date, booking.Id);
+        }
+        if (hasOverlap)
+            throw new InvalidOperationException("Diese Buchung kann nicht bestaetigt werden, da der Zeitraum bereits durch eine andere bestaetigte Buchung belegt ist.");
 
         if (booking.Status != RentalBookingStatus.Approved)
         {
@@ -207,10 +254,25 @@ public class RentalBookingService : IRentalBookingService
         if (!string.IsNullOrWhiteSpace(dto.AdminNotizen))
             booking.AdminNotizen = dto.AdminNotizen;
 
-        var bicycle = await _bicycleRepository.GetByIdAsync(booking.BicycleId)
-            ?? throw new KeyNotFoundException($"Bicycle with ID {booking.BicycleId} not found.");
+        var bicycles = new List<Bicycle>();
+        if (booking.Bikes.Any())
+        {
+            foreach (var bk in booking.Bikes)
+            {
+                var bicycle = await _bicycleRepository.GetByIdAsync(bk.BicycleId);
+                if (bicycle != null) bicycles.Add(bicycle);
+            }
+        }
+        else
+        {
+            var bicycle = await _bicycleRepository.GetByIdAsync(booking.BicycleId);
+            if (bicycle != null)
+            {
+                bicycles.Add(bicycle);
+                booking.Gesamtpreis ??= CalculateTotalPrice(bicycle, booking);
+            }
+        }
 
-        booking.Gesamtpreis ??= CalculateTotalPrice(bicycle, booking);
         booking.UpdatedAt = DateTime.UtcNow;
         await _bookingRepository.UpdateAsync(booking);
 
@@ -218,7 +280,7 @@ public class RentalBookingService : IRentalBookingService
         {
             try
             {
-                var emailModel = await BuildEmailModelAsync(booking, bicycle);
+                var emailModel = await BuildEmailModelAsync(booking, bicycles);
                 await _emailService.SendRentalBookingApprovedAsync(emailModel);
             }
             catch (Exception ex)
@@ -252,21 +314,18 @@ public class RentalBookingService : IRentalBookingService
 
         if (!string.IsNullOrWhiteSpace(booking.Email))
         {
-            var bicycle = await _bicycleRepository.GetByIdAsync(booking.BicycleId);
-            if (bicycle != null)
+            try
             {
-                try
-                {
-                    var emailModel = await BuildEmailModelAsync(booking, bicycle);
-                    await _emailService.SendRentalBookingCancelledAsync(emailModel);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(
-                        ex,
-                        "Failed to send booking cancelled email for booking {BookingNumber}",
-                        booking.BuchungsNummer);
-                }
+                var bicycles = await GetBicyclesForBookingAsync(booking);
+                var emailModel = await BuildEmailModelAsync(booking, bicycles);
+                await _emailService.SendRentalBookingCancelledAsync(emailModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to send booking cancelled email for booking {BookingNumber}",
+                    booking.BuchungsNummer);
             }
         }
 
@@ -300,21 +359,18 @@ public class RentalBookingService : IRentalBookingService
 
         if (!string.IsNullOrWhiteSpace(booking.Email))
         {
-            var bicycle = await _bicycleRepository.GetByIdAsync(booking.BicycleId);
-            if (bicycle != null)
+            try
             {
-                try
-                {
-                    var emailModel = await BuildEmailModelAsync(booking, bicycle);
-                    await _emailService.SendRentalBookingCancelledAsync(emailModel);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(
-                        ex,
-                        "Failed to send booking cancelled email for customer self-cancel {BookingNumber}",
-                        booking.BuchungsNummer);
-                }
+                var bicycles = await GetBicyclesForBookingAsync(booking);
+                var emailModel = await BuildEmailModelAsync(booking, bicycles);
+                await _emailService.SendRentalBookingCancelledAsync(emailModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to send booking cancelled email for customer self-cancel {BookingNumber}",
+                    booking.BuchungsNummer);
             }
         }
 
@@ -324,7 +380,13 @@ public class RentalBookingService : IRentalBookingService
     public async Task<IEnumerable<RentalBookingRangeDto>> GetApprovedRangesAsync(int bicycleId)
     {
         var bookings = await _bookingRepository.GetApprovedByBicycleIdAsync(bicycleId);
-        return bookings.Select(b => new RentalBookingRangeDto(b.StartDatum, b.EndDatum));
+        return bookings.Select(b =>
+        {
+            var bike = b.Bikes.FirstOrDefault(bk => bk.BicycleId == bicycleId);
+            var start = bike?.StartDatum ?? b.StartDatum;
+            var end = bike?.EndDatum ?? b.EndDatum;
+            return new RentalBookingRangeDto(start, end);
+        });
     }
 
     public Task<int> GetPendingCountAsync()
@@ -338,6 +400,14 @@ public class RentalBookingService : IRentalBookingService
         if (booking == null) return false;
         await _bookingRepository.DeleteAsync(id);
         return true;
+    }
+
+    public async Task SaveSignatureAsync(int id, string mieterUnterschrift)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Booking {id} not found.");
+        booking.MieterUnterschrift = mieterUnterschrift;
+        await _bookingRepository.UpdateAsync(booking);
     }
 
     private static string NormalizeLanguage(string lang)
@@ -365,21 +435,53 @@ public class RentalBookingService : IRentalBookingService
         return (bikeTotal ?? 0m) + accessoryTotal;
     }
 
-    private async Task<RentalBookingEmailModel> BuildEmailModelAsync(RentalBooking booking, Bicycle bicycle)
+    private async Task<List<Bicycle>> GetBicyclesForBookingAsync(RentalBooking booking)
+    {
+        var result = new List<Bicycle>();
+        if (booking.Bikes.Any())
+        {
+            foreach (var bk in booking.Bikes)
+            {
+                var bicycle = await _bicycleRepository.GetByIdAsync(bk.BicycleId);
+                if (bicycle != null) result.Add(bicycle);
+            }
+        }
+        else
+        {
+            var bicycle = await _bicycleRepository.GetByIdAsync(booking.BicycleId);
+            if (bicycle != null) result.Add(bicycle);
+        }
+        return result;
+    }
+
+    private async Task<RentalBookingEmailModel> BuildEmailModelAsync(RentalBooking booking, List<Bicycle> bicycles)
     {
         var shop = await GetShopInfoAsync();
+        var primaryBicycle = bicycles.FirstOrDefault();
         var days = CalculateDaysInclusive(booking.StartDatum, booking.EndDatum);
         var accessoriesText = BuildAccessoriesText(booking, booking.Sprache);
+
+        string bikeBrand, bikeModel;
+        if (bicycles.Count == 1)
+        {
+            bikeBrand = primaryBicycle?.Marke ?? string.Empty;
+            bikeModel = primaryBicycle?.Modell ?? string.Empty;
+        }
+        else
+        {
+            bikeBrand = string.Join(" + ", bicycles.Select(b => $"{b.Marke} {b.Modell}".Trim()));
+            bikeModel = string.Empty;
+        }
 
         return new RentalBookingEmailModel(
             booking.Email ?? string.Empty,
             $"{booking.Vorname} {booking.Nachname}".Trim(),
             booking.BuchungsNummer,
-            bicycle.Marke,
-            bicycle.Modell,
-            bicycle.Rahmennummer,
-            bicycle.Rahmengroesse,
-            bicycle.Farbe,
+            bikeBrand,
+            bikeModel,
+            bicycles.Count == 1 ? primaryBicycle?.Rahmennummer : null,
+            bicycles.Count == 1 ? primaryBicycle?.Rahmengroesse : null,
+            bicycles.Count == 1 ? primaryBicycle?.Farbe : null,
             booking.StartDatum,
             booking.EndDatum,
             days,

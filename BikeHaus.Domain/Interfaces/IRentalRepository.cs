@@ -9,4 +9,5 @@ public interface IRentalRepository : IRepository<Rental>
     Task<Rental?> GetActiveByBicycleIdAsync(int bicycleId);
     Task<string> GenerateMietvertragNummerAsync();
     Task<(IEnumerable<Rental> Items, int TotalCount)> GetPaginatedAsync(int page, int pageSize, Expression<Func<Rental, bool>>? predicate = null);
+    Task<IEnumerable<int>> GetBusyBicycleIdsForPeriodAsync(DateOnly start, DateOnly end);
 }

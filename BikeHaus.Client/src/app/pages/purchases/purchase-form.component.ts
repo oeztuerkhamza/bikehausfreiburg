@@ -27,26 +27,6 @@ import { forkJoin, Observable } from 'rxjs';
         <a routerLink="/purchases" class="btn btn-outline">{{ t.back }}</a>
       </div>
 
-      <!-- Mode Toggle -->
-      <div class="mode-toggle">
-        <button
-          type="button"
-          class="toggle-btn"
-          [class.active]="!bulkMode"
-          (click)="setBulkMode(false)"
-        >
-          🚲 {{ t.singlePurchase }}
-        </button>
-        <button
-          type="button"
-          class="toggle-btn"
-          [class.active]="bulkMode"
-          (click)="setBulkMode(true)"
-        >
-          📦 {{ t.bulkPurchase }}
-        </button>
-      </div>
-
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <!-- Bicycle info -->
@@ -954,15 +934,7 @@ export class PurchaseFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Check for bulk mode from query param
-    this.route.queryParams.subscribe((params) => {
-      if (params['bulk'] === 'true') {
-        this.bulkMode = true;
-        this.bicycle.zustand = BikeCondition.Neu; // Bulk mode is always Neu
-      } else {
-        this.bicycle.zustand = BikeCondition.Gebraucht; // Single mode is Gebraucht
-      }
-    });
+    this.bicycle.zustand = BikeCondition.Gebraucht;
 
     this.kaufdatum = new Date().toISOString().split('T')[0];
     this.purchaseService.getNextBelegNummer().subscribe({

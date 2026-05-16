@@ -9,38 +9,34 @@ public class Rental : BaseEntity
 
     // Mieter (Renter)
     public int CustomerId { get; set; }
-    public string? AusweisnNr { get; set; }  // ID number
+    public string? AusweisnNr { get; set; }
 
-    // Fahrrad
-    public int BicycleId { get; set; }
-
-    // Mietdauer
+    // Overall rental window (typically the union of per-bike periods)
     public DateTime StartDatum { get; set; }
     public DateTime EndDatum { get; set; }
 
-    // Mietpreis
-    public decimal Gesamtmiete { get; set; }  // Total rent (incl. MwSt.)
-    public decimal Rabatt { get; set; }  // Discount
+    // Aggregate totals — denormalised sums across Bikes
+    public decimal Gesamtmiete { get; set; }  // Sum of Bikes.Mietpreis (after Rabatt)
+    public decimal Rabatt { get; set; }
+    public decimal Kaution { get; set; }      // Sum of Bikes.Kaution
 
-    // Kaution
-    public decimal Kaution { get; set; }
-    public bool KautionZurueckgegeben { get; set; } = false;
-    public string? KautionRueckgabeUnterschrift { get; set; }
-
-    // Zahlungsart
+    // Single payment method for the whole rental
     public PaymentMethod Zahlungsart { get; set; } = PaymentMethod.Bar;
+    public PaymentMethod KautionZahlungsart { get; set; } = PaymentMethod.Bar;
 
-    // Zustand bei Übergabe
-    public BikeConditionAtHandover ZustandBeiUebergabe { get; set; } = BikeConditionAtHandover.Gut;
-
-    // Status
+    // Status (applies to all bikes in this rental)
     public RentalStatus Status { get; set; } = RentalStatus.Active;
 
     // Notizen
     public string? Notizen { get; set; }
 
+    // Mieter-Unterschrift & AGB-Bestätigung
+    public string? MieterUnterschrift { get; set; }  // base64 PNG
+    public bool AgbAkzeptiert { get; set; }
+    public string? UnterschriftOrt { get; set; }
+
     // Navigation Properties
     public Customer Customer { get; set; } = null!;
-    public Bicycle Bicycle { get; set; } = null!;
+    public ICollection<RentalBike> Bikes { get; set; } = new List<RentalBike>();
     public ICollection<RentalAccessoryItem> Accessories { get; set; } = new List<RentalAccessoryItem>();
 }

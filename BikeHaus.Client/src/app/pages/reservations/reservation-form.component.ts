@@ -15,12 +15,7 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
 @Component({
   selector: 'app-reservation-form',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterLink,
-    BikeSelectorComponent,
-  ],
+  imports: [CommonModule, FormsModule, RouterLink, BikeSelectorComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -36,6 +31,8 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
             <app-bike-selector
               [bikes]="availableBikes"
               [(selectedBike)]="selectedBike"
+              [enableAdvancedFilters]="true"
+              [requireConfirmSelection]="true"
               (bikeSelected)="onBikeSelected($event)"
             ></app-bike-selector>
           </div>
@@ -160,10 +157,10 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
           <p *ngIf="!selectedBike" class="error-msg">
             ⚠️ {{ t.selectBicycleWarning }}
           </p>
-          <p *ngIf="!customer.vorname?.trim()" class="error-msg">
+          <p *ngIf="!customer.vorname.trim()" class="error-msg">
             ⚠️ {{ t.firstNameRequiredMsg }}
           </p>
-          <p *ngIf="!customer.nachname?.trim()" class="error-msg">
+          <p *ngIf="!customer.nachname.trim()" class="error-msg">
             ⚠️ {{ t.lastNameRequiredMsg }}
           </p>
           <p *ngIf="!customer.strasse?.trim()" class="error-msg">
@@ -457,7 +454,6 @@ export class ReservationFormComponent implements OnInit {
   onBikeSelected(bike: Bicycle) {
     this.selectedBike = bike;
   }
-
 
   getExpirationDate(): string {
     const date = this.reservierungsDatum

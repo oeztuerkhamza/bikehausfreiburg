@@ -34,6 +34,10 @@
 /en/fahrradverleih
 /fr/fahrradverleih
 /tr/fahrradverleih
+/de/mietfahrraeder
+/en/rental-bikes
+/fr/velos-de-location
+/tr/mietfahrraeder
 /de/garantie
 /en/garantie
 /fr/garantie

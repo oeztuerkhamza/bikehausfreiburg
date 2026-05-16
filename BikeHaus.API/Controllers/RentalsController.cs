@@ -104,11 +104,11 @@ public class RentalsController : ControllerBase
     }
 
     [HttpPost("{id}/return")]
-    public async Task<ActionResult<RentalDto>> ReturnBicycle(int id)
+    public async Task<ActionResult<RentalDto>> ReturnBicycle(int id, [FromBody] RentalReturnDto dto)
     {
         try
         {
-            var rental = await _rentalService.ReturnBicycleAsync(id);
+            var rental = await _rentalService.ReturnBicycleAsync(id, dto);
             return Ok(rental);
         }
         catch (KeyNotFoundException ex)
@@ -146,6 +146,20 @@ public class RentalsController : ControllerBase
         {
             var pdf = await _pdfService.GenerateMietvertragAsync(id);
             return File(pdf, "application/pdf", $"Mietvertrag-{id}.pdf");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("{id}/bedingungen-pdf")]
+    public async Task<IActionResult> DownloadMietbedingungen(int id)
+    {
+        try
+        {
+            var pdf = await _pdfService.GenerateMietbedingungenpdfAsync(id);
+            return File(pdf, "application/pdf", $"Mietbedingungen-{id}.pdf");
         }
         catch (KeyNotFoundException ex)
         {

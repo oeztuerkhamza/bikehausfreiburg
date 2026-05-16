@@ -37,6 +37,22 @@ export function app(): express.Express {
     res.redirect(301, '/fr/location-velo');
   });
 
+  // Rental catalog: ensure canonical EN/FR slugs are used
+  // /en/mietfahrraeder → /en/rental-bikes
+  server.get('/en/mietfahrraeder', (_req, res) => {
+    res.redirect(301, '/en/rental-bikes');
+  });
+  server.get('/en/mietfahrraeder/:id', (req, res) => {
+    res.redirect(301, `/en/rental-bikes/${req.params['id']}`);
+  });
+  // /fr/mietfahrraeder → /fr/velos-de-location
+  server.get('/fr/mietfahrraeder', (_req, res) => {
+    res.redirect(301, '/fr/velos-de-location');
+  });
+  server.get('/fr/mietfahrraeder/:id', (req, res) => {
+    res.redirect(301, `/fr/velos-de-location/${req.params['id']}`);
+  });
+
   // Serve static files from /browser
   server.get(
     '*.*',

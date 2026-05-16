@@ -10,6 +10,6 @@ public interface IRentalService
     Task<RentalDto> CreateAsync(RentalCreateDto dto);
     Task<RentalDto> UpdateAsync(int id, RentalUpdateDto dto);
     Task DeleteAsync(int id);
-    Task<RentalDto> ReturnBicycleAsync(int id);
+    Task<RentalDto> ReturnBicycleAsync(int id, RentalReturnDto dto);
     Task<RentalDto> CancelAsync(int id);
 }

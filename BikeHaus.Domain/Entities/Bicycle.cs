@@ -33,6 +33,7 @@ public class Bicycle : BaseEntity
     public decimal? RentalPriceDay6 { get; set; }
     public decimal? RentalPriceDay7 { get; set; }
     public decimal? RentalPriceAdditionalDayAfter7 { get; set; }
+    public decimal? Kaution { get; set; }
 
     // Publishing flags
     public bool IsPublishedOnWebsite { get; set; } = false;
@@ -44,7 +45,7 @@ public class Bicycle : BaseEntity
     public Purchase? Purchase { get; set; }
     public ICollection<Sale> Sales { get; set; } = new List<Sale>();
     public Reservation? Reservation { get; set; }
-    public ICollection<Rental> Rentals { get; set; } = new List<Rental>();
+    public ICollection<RentalBike> RentalBikes { get; set; } = new List<RentalBike>();
     public ICollection<Document> Documents { get; set; } = new List<Document>();
     public ICollection<BicycleImage> Images { get; set; } = new List<BicycleImage>();
 }

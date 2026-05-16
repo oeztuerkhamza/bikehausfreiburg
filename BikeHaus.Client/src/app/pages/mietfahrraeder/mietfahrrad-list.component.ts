@@ -686,7 +686,7 @@ export class MietfahrradListComponent implements OnInit {
   }
 
   getImageUrl(path: string): string {
-    return `${environment.apiUrl.replace('/api', '')}/${path}`;
+    return `${environment.apiUrl}/public/gallery-image/${path}`;
   }
 
   getPriceLines(bike: Bicycle) {

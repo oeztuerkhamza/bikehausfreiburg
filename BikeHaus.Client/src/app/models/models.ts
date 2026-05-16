@@ -63,6 +63,7 @@ export interface Bicycle {
   rentalPriceDay6?: number;
   rentalPriceDay7?: number;
   rentalPriceAdditionalDayAfter7?: number;
+  kaution?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
@@ -101,6 +102,7 @@ export interface BicycleCreate {
   rentalPriceDay6?: number;
   rentalPriceDay7?: number;
   rentalPriceAdditionalDayAfter7?: number;
+  kaution?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
@@ -128,6 +130,7 @@ export interface BicycleUpdate {
   rentalPriceDay6?: number;
   rentalPriceDay7?: number;
   rentalPriceAdditionalDayAfter7?: number;
+  kaution?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
@@ -743,10 +746,41 @@ export enum BikeConditionAtHandover {
   Gebrauchsspuren = 'Gebrauchsspuren',
 }
 
+export interface RentalBike {
+  id: number;
+  bicycleId: number;
+  bicycle: Bicycle;
+  rahmennummer?: string;
+  farbe?: string;
+  startDatum: string;
+  endDatum: string;
+  mietpreis: number;
+  kaution: number;
+  kautionZurueckgegeben: boolean;
+  kautionRueckgabeUnterschrift?: string;
+  zustandBeiUebergabe: BikeConditionAtHandover;
+  zustandBeiRueckgabe?: BikeConditionAtHandover;
+  schadenAbzug: number;
+  verspaetungsAbzug: number;
+  tatsaechlichesRueckgabeDatum?: string;
+  abzugNotizen?: string;
+}
+
+export interface RentalBikeCreate {
+  bicycleId: number;
+  rahmennummer?: string;
+  farbe?: string;
+  startDatum: string;
+  endDatum: string;
+  mietpreis: number;
+  kaution: number;
+  zustandBeiUebergabe: BikeConditionAtHandover;
+}
+
 export interface Rental {
   id: number;
   mietvertragNummer: string;
-  bicycle: Bicycle;
+  bikes: RentalBike[];
   customer: Customer;
   ausweisnNr?: string;
   startDatum: string;
@@ -754,20 +788,23 @@ export interface Rental {
   gesamtmiete: number;
   rabatt: number;
   kaution: number;
-  kautionZurueckgegeben: boolean;
-  kautionRueckgabeUnterschrift?: string;
+  kautionZurueckgegeben: boolean;       // true when every bike's deposit is returned
   zahlungsart: PaymentMethod;
-  zustandBeiUebergabe: BikeConditionAtHandover;
+  kautionZahlungsart: PaymentMethod;
   status: RentalStatus;
   notizen?: string;
   createdAt: string;
   accessories: RentalAccessoryItem[];
+  mieterUnterschrift?: string;
+  agbAkzeptiert: boolean;
+  unterschriftOrt?: string;
 }
 
 export interface RentalList {
   id: number;
   mietvertragNummer: string;
   bikeInfo: string;
+  bikeCount: number;
   customerName: string;
   startDatum: string;
   endDatum: string;
@@ -799,21 +836,40 @@ export interface RentalAccessoryItem {
   verlustgebuehr?: number;
   menge: number;
   gesamtpreis: number;
+  zurueckgegeben: boolean;
+}
+
+export interface RentalBikeReturn {
+  rentalBikeId: number;
+  zustandBeiRueckgabe: BikeConditionAtHandover;
+  schadenAbzug: number;
+  verspaetungsAbzug: number;
+  tatsaechlichesRueckgabeDatum: string;
+  abzugNotizen?: string;
+}
+
+export interface RentalAccessoryReturn {
+  rentalAccessoryItemId: number;
+  zurueckgegeben: boolean;
+}
+
+export interface RentalReturn {
+  bikes: RentalBikeReturn[];
+  accessories?: RentalAccessoryReturn[];
 }
 
 export interface RentalCreate {
-  bicycleId: number;
+  bikes: RentalBikeCreate[];
   customer: CustomerCreate;
   ausweisnNr?: string;
-  startDatum: string;
-  endDatum: string;
-  gesamtmiete: number;
   rabatt: number;
-  kaution: number;
   zahlungsart: PaymentMethod;
-  zustandBeiUebergabe: BikeConditionAtHandover;
+  kautionZahlungsart?: PaymentMethod;
   notizen?: string;
   accessories?: RentalAccessoryItemCreate[];
+  mieterUnterschrift?: string;
+  agbAkzeptiert?: boolean;
+  unterschriftOrt?: string;
 }
 
 export interface RentalUpdate {
@@ -821,14 +877,15 @@ export interface RentalUpdate {
   ausweisnNr?: string;
   startDatum?: string;
   endDatum?: string;
-  gesamtmiete?: number;
   rabatt?: number;
-  kaution?: number;
   kautionZurueckgegeben?: boolean;
   kautionRueckgabeUnterschrift?: string;
   zahlungsart?: PaymentMethod;
-  zustandBeiUebergabe?: BikeConditionAtHandover;
+  kautionZahlungsart?: PaymentMethod;
   notizen?: string;
+  mieterUnterschrift?: string;
+  agbAkzeptiert?: boolean;
+  unterschriftOrt?: string;
 }
 
 // ── Rental Booking (Homepage) ──
@@ -912,16 +969,36 @@ export interface RentalBookingAccessory {
   gesamtpreis: number;
 }
 
+export interface RentalBookingBike {
+  id: number;
+  bicycleId: number;
+  marke: string;
+  modell: string;
+  farbe?: string;
+  rahmennummer?: string;
+  rahmengroesse?: string;
+  art?: string;
+  kaution?: number;
+  startDatum: string;
+  endDatum: string;
+  gesamtpreis?: number;
+}
+
 export interface RentalBooking {
   id: number;
   buchungsNummer: string;
-  bicycle: Bicycle;
+  bicycle?: Bicycle;
+  bikes: RentalBookingBike[];
   startDatum: string;
   endDatum: string;
   vorname: string;
   nachname: string;
   email?: string;
   telefon?: string;
+  strasse?: string;
+  hausNr?: string;
+  plz?: string;
+  ort?: string;
   sprache?: string;
   notizen?: string;
   adminNotizen?: string;

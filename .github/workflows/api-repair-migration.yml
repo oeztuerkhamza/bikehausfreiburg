@@ -1,0 +1,156 @@
+name: API Repair Migration (one-shot)
+
+# One-shot repair for the FixRentalPriceCorruption migration that
+# was partially applied on prod (DDL succeeded, history row never
+# written, container then crash-loops on duplicate-column error).
+#
+# Strategy:
+# 1) Stop bikehaus to release the SQLite WAL lock.
+# 2) Inspect RentalBookingBikes — confirm Farbe/Kaution/Rahmennummer
+#    are already present (i.e. partial migration thesis holds).
+# 3) Insert the migration row into __EFMigrationsHistory so EF skips it.
+# 4) Run the idempotent price-fix UPDATEs from the migration body.
+# 5) Restart bikehaus and report status.
+#
+# Trigger via workflow_dispatch. Read-only by default; pass
+# `apply=true` to actually mutate the DB.
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Set to "true" to mutate the DB. Otherwise dry-run.'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect, repair, restart
+        uses: appleboy/ssh-action@v1
+        env:
+          APPLY: ${{ inputs.apply }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: APPLY
+          command_timeout: 10m
+          script: |
+            set +e
+            cd /opt/bikehaus
+
+            MIGRATION_ID="20260514074811_FixRentalPriceCorruption"
+            MIGRATION_VERSION="8.0.0"
+            DB="/app/data/BikeHausFreiburg.db"
+
+            echo "==================================================="
+            echo "Mode: APPLY=${APPLY}"
+            echo "Target migration: ${MIGRATION_ID}"
+            echo "==================================================="
+
+            run_sqlite() {
+              # Runs an arbitrary SQL statement against the prod SQLite
+              # database mounted into a throwaway python container.
+              local sql="$1"
+              docker run --rm --volumes-from bikehaus-app python:3.12-alpine \
+                python -c "import sqlite3,sys; c=sqlite3.connect('${DB}'); cur=c.cursor(); cur.execute(sys.argv[1]); rows=cur.fetchall(); print('\n'.join(repr(r) for r in rows)) if rows else print('(no rows)'); c.commit(); c.close()" \
+                "${sql}"
+            }
+
+            echo ""
+            echo "==> [1/5] Stopping bikehaus to release SQLite lock"
+            if [ "${APPLY}" = "true" ]; then
+              docker compose stop bikehaus
+            else
+              echo "[dry-run] would: docker compose stop bikehaus"
+            fi
+
+            echo ""
+            echo "==> [2/5] Inspecting current schema"
+            echo "--- RentalBookingBikes columns:"
+            run_sqlite "SELECT name, type FROM pragma_table_info('RentalBookingBikes') ORDER BY cid"
+            echo "--- RentalBookings columns (Kaution + Rahmennummer should be ABSENT):"
+            run_sqlite "SELECT name, type FROM pragma_table_info('RentalBookings') WHERE name IN ('Kaution','Rahmennummer','Farbe') ORDER BY name"
+            echo "--- BicycleImages columns (Farbe should be ABSENT):"
+            run_sqlite "SELECT name, type FROM pragma_table_info('BicycleImages') WHERE name IN ('Farbe') ORDER BY name"
+            echo "--- Latest 5 migrations in history:"
+            run_sqlite "SELECT MigrationId, ProductVersion FROM __EFMigrationsHistory ORDER BY MigrationId DESC LIMIT 5"
+            echo "--- Is the target migration already recorded?"
+            run_sqlite "SELECT MigrationId FROM __EFMigrationsHistory WHERE MigrationId = '${MIGRATION_ID}'"
+
+            echo ""
+            echo "==> [3/5] Inserting migration row (idempotent — uses INSERT OR IGNORE)"
+            if [ "${APPLY}" = "true" ]; then
+              run_sqlite "INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ('${MIGRATION_ID}', '${MIGRATION_VERSION}')"
+              echo "--- Verify:"
+              run_sqlite "SELECT MigrationId, ProductVersion FROM __EFMigrationsHistory WHERE MigrationId = '${MIGRATION_ID}'"
+            else
+              echo "[dry-run] would: INSERT OR IGNORE INTO __EFMigrationsHistory ..."
+            fi
+
+            echo ""
+            echo "==> [4/5] Running idempotent price-fix UPDATEs from the migration"
+            if [ "${APPLY}" = "true" ]; then
+              docker run --rm --volumes-from bikehaus-app python:3.12-alpine python <<'PY'
+            import sqlite3
+            c = sqlite3.connect('/app/data/BikeHausFreiburg.db')
+            cur = c.cursor()
+            cols = ["RentalPriceAdditionalDayAfter7","RentalPriceDay1","RentalPriceDay2","RentalPriceDay3","RentalPriceDay4","RentalPriceDay5","RentalPriceDay6","RentalPriceDay7"]
+            total = 0
+            for col in cols:
+                sql = f'UPDATE "Bicycles" SET "{col}" = NULL WHERE "{col}" = \'{col}\' OR ("{col}" IS NOT NULL AND CAST("{col}" AS TEXT) LIKE \'RentalPrice%\')'
+                cur.execute(sql)
+                print(f"  {col}: nulled {cur.rowcount} rows")
+                total += cur.rowcount
+            c.commit()
+            c.close()
+            print(f"Total corrupted price values nulled: {total}")
+            PY
+            else
+              echo "[dry-run] would: nullify corrupted rental price string values across 8 columns"
+            fi
+
+            echo ""
+            echo "==> [5/5] Restarting bikehaus"
+            if [ "${APPLY}" = "true" ]; then
+              docker compose start bikehaus
+              echo "Waiting for API to become healthy..."
+              ok=0
+              for i in $(seq 1 30); do
+                if docker compose exec -T bikehaus curl -fsS --max-time 5 http://localhost:5000/api/settings > /dev/null 2>&1; then
+                  echo "[OK] API healthy after ${i} attempt(s)"
+                  ok=1
+                  break
+                fi
+                sleep 3
+              done
+              if [ "${ok}" -ne 1 ]; then
+                echo "[ERROR] API still unhealthy after 90s — printing last 100 log lines:"
+                docker compose logs --tail=100 --no-color bikehaus
+                exit 1
+              fi
+              echo ""
+              echo "==> Final docker compose ps"
+              docker compose ps
+            else
+              echo "[dry-run] would: docker compose start bikehaus + healthcheck loop"
+            fi
+
+            echo ""
+            echo "==================================================="
+            if [ "${APPLY}" = "true" ]; then
+              echo "Repair complete."
+            else
+              echo "Dry-run complete. Re-run with apply=true to mutate."
+            fi
+            echo "==================================================="
+            exit 0

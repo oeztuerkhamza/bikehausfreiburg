@@ -16,7 +16,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   es: {
     serviceHighlightsAria: 'Aspectos destacados del servicio',
     heroChip: 'Alquiler de Bicicletas Freiburg',
-    heroAccent: 'a partir de 7 €',
+    heroAccent: 'a partir de 8 €',
     heroDescription:
       'Los días 1 a 7 se calculan individualmente para cada bicicleta, a partir del día 8 se aplica un complemento fijo. Retiro directo en nuestro establecimiento en Freiburg.',
     heroFeatures: [
@@ -129,9 +129,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
     bikeFactLabels: {
       type: 'Tipo',
       category: 'Categoría',
-      frame: 'Marco',
-      tire: 'Llanta',
+      frame: 'Altura del cuadro',
+      tire: 'Tamaño de rueda',
       color: 'Color',
+      tireUnit: 'pulgadas',
     },
     extraDayPriceLabel: 'A partir del día 8 por día extra',
     successEmailPrefix: 'Una confirmación fue enviada a',
@@ -156,11 +157,19 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       validEmail: 'Por favor ingresa una dirección de correo válida.',
       generic: 'Ocurrió un error. Por favor intenta de nuevo.',
     },
+    addBikeLabel: 'Agregar bicicleta',
+    priceSummaryLabel: 'Resumen de precios',
+    totalRentalLabel: 'Alquiler total',
+    totalKautionLabel: 'Depósito total',
+    kautionInfoNotice:
+      'Atención: se requiere un depósito por cada bicicleta. Tráigalo en efectivo el día de recogida — le será devuelto íntegramente al devolverla.',
+    kautionSuccessReminder:
+      'Por favor, traiga el depósito en efectivo el día de recogida.',
   },
   it: {
     serviceHighlightsAria: 'Punti forti del servizio',
     heroChip: 'Noleggio bici Friburgo',
-    heroAccent: 'a partire da 7 €',
+    heroAccent: 'a partire da 8 €',
     heroDescription:
       'I giorni 1-7 sono calcolati individualmente per ogni bici, dal giorno 8 in poi si applica un supplemento fisso al giorno. Ritira direttamente presso il nostro negozio a Friburgo.',
     heroFeatures: [
@@ -261,9 +270,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
     bikeFactLabels: {
       type: 'Tipo',
       category: 'Categoria',
-      frame: 'Telaio',
-      tire: 'Pneumatico',
+      frame: 'Altezza telaio',
+      tire: 'Misura ruota',
       color: 'Colore',
+      tireUnit: 'pollici',
     },
     extraDayPriceLabel: 'Dal giorno 8 per giorno extra',
     successEmailPrefix: 'Una conferma è stata inviata a',
@@ -288,11 +298,19 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       validEmail: 'Inserisci un indirizzo email valido.',
       generic: 'Si è verificato un errore. Riprova.',
     },
+    addBikeLabel: 'Aggiungi bici',
+    priceSummaryLabel: 'Riepilogo prezzi',
+    totalRentalLabel: 'Noleggio totale',
+    totalKautionLabel: 'Deposito totale',
+    kautionInfoNotice:
+      'Attenzione: per ogni bici è richiesta una cauzione. Portarla in contanti il giorno del ritiro — verrà restituita integralmente alla riconsegna.',
+    kautionSuccessReminder:
+      'Si prega di portare la cauzione in contanti il giorno del ritiro.',
   },
   ar: {
     serviceHighlightsAria: 'نقاط قوة الخدمة',
     heroChip: 'استئجار الدراجات فرايبورج',
-    heroAccent: 'ابتداءً من 7 €',
+    heroAccent: 'ابتداءً من 8 €',
     heroDescription:
       'يتم حساب الأيام من 1 إلى 7 بشكل فردي لكل دراجة، ثم يتم تطبيق رسم إضافي ثابت من اليوم 8. الاستلام المباشر من متجرنا في فرايبورج.',
     heroFeatures: [
@@ -393,9 +411,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
     bikeFactLabels: {
       type: 'النوع',
       category: 'الفئة',
-      frame: 'الإطار',
-      tire: 'الإطار',
+      frame: 'ارتفاع الإطار',
+      tire: 'مقاس الإطار',
       color: 'اللون',
+      tireUnit: 'بوصة',
     },
     extraDayPriceLabel: 'من اليوم 8 لكل يوم إضافي',
     successEmailPrefix: 'تم إرسال تأكيد إلى',
@@ -428,11 +447,18 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       validEmail: 'يرجى إدخال عنوان بريد إلكتروني صحيح.',
       generic: 'حدث خطأ. يرجى المحاولة مرة أخرى.',
     },
+    addBikeLabel: 'إضافة دراجة',
+    priceSummaryLabel: 'ملخص الأسعار',
+    totalRentalLabel: 'إجمالي الإيجار',
+    totalKautionLabel: 'إجمالي الوديعة',
+    kautionInfoNotice:
+      'تنبيه: يُطلب وديعة لكل دراجة. يُرجى إحضارها نقداً يوم الاستلام — وسيتم ردّها كاملاً عند الإعادة.',
+    kautionSuccessReminder: 'يُرجى إحضار الوديعة نقداً يوم الاستلام.',
   },
   ru: {
     serviceHighlightsAria: 'Основные достоинства услуги',
     heroChip: 'Аренда велосипедов Фрайбург',
-    heroAccent: 'от 7 €',
+    heroAccent: 'от 8 €',
     heroDescription:
       'Дни 1-7 рассчитываются индивидуально для каждого велосипеда, с 8-го дня применяется фиксированная доплата. Самовывоз прямо в нашем магазине во Фрайбурге.',
     heroFeatures: [
@@ -533,9 +559,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
     bikeFactLabels: {
       type: 'Тип',
       category: 'Категория',
-      frame: 'Рама',
-      tire: 'Шина',
+      frame: 'Высота рамы',
+      tire: 'Размер колеса',
       color: 'Цвет',
+      tireUnit: 'дюйм',
     },
     extraDayPriceLabel: 'С 8-го дня за каждый дополнительный день',
     successEmailPrefix: 'Подтверждение было отправлено на',
@@ -560,5 +587,13 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       validEmail: 'Пожалуйста, введите действительный адрес электронной почты.',
       generic: 'Произошла ошибка. Пожалуйста, попробуйте еще раз.',
     },
+    addBikeLabel: 'Добавить велосипед',
+    priceSummaryLabel: 'Обзор цен',
+    totalRentalLabel: 'Итого аренда',
+    totalKautionLabel: 'Итого залог',
+    kautionInfoNotice:
+      'Обратите внимание: для каждого велосипеда требуется залог. Пожалуйста, принесите его наличными в день получения — он будет полностью возвращён при сдаче.',
+    kautionSuccessReminder:
+      'Пожалуйста, принесите залог наличными в день получения.',
   },
 };

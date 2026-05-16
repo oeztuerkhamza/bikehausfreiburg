@@ -1,0 +1,78 @@
+name: API Diagnostic (one-shot)
+
+# Temporary workflow to inspect the bikehaus container state on the
+# production server. Trigger manually with workflow_dispatch.
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect bikehaus container, logs, and connectivity
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 5m
+          script: |
+            set +e
+            cd /opt/bikehaus
+
+            echo "==================================================="
+            echo "1) docker compose ps"
+            echo "==================================================="
+            docker compose ps
+
+            echo ""
+            echo "==================================================="
+            echo "2) docker inspect bikehaus-app (state, health, restarts)"
+            echo "==================================================="
+            docker inspect bikehaus-app --format 'Status={{.State.Status}}  Running={{.State.Running}}  Restarting={{.State.Restarting}}  RestartCount={{.RestartCount}}  ExitCode={{.State.ExitCode}}  StartedAt={{.State.StartedAt}}  FinishedAt={{.State.FinishedAt}}'
+            docker inspect bikehaus-app --format 'Health={{if .State.Health}}{{.State.Health.Status}} (last {{len .State.Health.Log}} probes){{else}}no healthcheck defined{{end}}'
+
+            echo ""
+            echo "==================================================="
+            echo "3) Last 150 log lines from bikehaus"
+            echo "==================================================="
+            docker compose logs --tail=150 --no-color bikehaus
+
+            echo ""
+            echo "==================================================="
+            echo "4) curl from inside bikehaus container (localhost:5000)"
+            echo "==================================================="
+            docker compose exec -T bikehaus sh -c \
+              'curl -sS -o /tmp/out -w "code=%{http_code} time=%{time_total}s\n" --max-time 5 http://localhost:5000/api/settings; echo; head -c 400 /tmp/out; echo' \
+              || echo "[FAIL] exec into bikehaus failed (container probably not running)"
+
+            echo ""
+            echo "==================================================="
+            echo "5) curl from nginx container to bikehaus:5000 (cross-container)"
+            echo "==================================================="
+            docker compose exec -T nginx sh -c \
+              'getent hosts bikehaus; wget -q -S -O- --timeout=5 http://bikehaus:5000/api/settings 2>&1 | head -30' \
+              || echo "[FAIL] exec into nginx failed"
+
+            echo ""
+            echo "==================================================="
+            echo "6) Recent migration applied? Inspect DB"
+            echo "==================================================="
+            docker run --rm --volumes-from bikehaus-app python:3.12-alpine sh -c \
+              'python -c "import sqlite3; c=sqlite3.connect(\"/app/data/BikeHausFreiburg.db\"); cur=c.cursor(); cur.execute(\"SELECT MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId DESC LIMIT 5\"); print(\"Latest migrations:\"); [print(\" \", r[0]) for r in cur.fetchall()]; cur.execute(\"PRAGMA table_info(Bicycles)\"); print(\"Bicycles columns:\"); [print(\" \", r[1], r[2]) for r in cur.fetchall() if \"Price\" in r[1] or \"Rental\" in r[1]]"' \
+              2>&1 || echo "[FAIL] SQLite inspection failed"
+
+            echo ""
+            echo "==================================================="
+            echo "7) docker network inspect bikehaus-network (which containers attached)"
+            echo "==================================================="
+            docker network inspect bikehaus_bikehaus-network --format \
+              '{{range $k,$v := .Containers}}{{$v.Name}} -> {{$v.IPv4Address}}{{"\n"}}{{end}}' \
+              2>&1 || docker network inspect $(docker network ls --filter name=bikehaus-network -q | head -1) --format \
+              '{{range $k,$v := .Containers}}{{$v.Name}} -> {{$v.IPv4Address}}{{"\n"}}{{end}}' 2>&1
+
+            exit 0

@@ -26,8 +26,8 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
           </button>
           <button
             class="btn btn-success"
-            (click)="convertToContract()"
-            *ngIf="booking.status !== BookingStatus.Cancelled"
+            (click)="goToUmwandeln()"
+            *ngIf="booking.status === BookingStatus.Approved"
             title="Mietanfrage als Mietvertrag anlegen"
           >
             <svg
@@ -55,6 +55,7 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
           >
             {{ t.rentalBookingCancel }}
           </button>
+
           <a routerLink="/rental-bookings" class="btn btn-outline">
             {{ t.back }}
           </a>
@@ -76,29 +77,69 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
             <span>{{ t.phone }}:</span>
             <span>{{ booking.telefon }}</span>
           </div>
+          <div class="info-row" *ngIf="booking.strasse || booking.hausNr">
+            <span>Adresse:</span>
+            <span>{{ booking.strasse }} {{ booking.hausNr }}</span>
+          </div>
+          <div class="info-row" *ngIf="booking.plz || booking.ort">
+            <span>PLZ / Ort:</span>
+            <span>{{ booking.plz }} {{ booking.ort }}</span>
+          </div>
           <div class="info-row" *ngIf="booking.sprache">
             <span>{{ t.language }}:</span>
             <span>{{ booking.sprache }}</span>
           </div>
         </div>
 
-        <div class="info-card">
+        <div
+          class="info-card"
+          *ngIf="booking.bikes && booking.bikes.length > 0"
+        >
+          <h3>
+            {{ t.bicycle }}
+            <span *ngIf="booking.bikes.length > 1" class="bike-count-badge">{{
+              booking.bikes.length
+            }}</span>
+          </h3>
+          <div
+            *ngFor="let bike of booking.bikes; let i = index"
+            [class.bike-item]="booking.bikes.length > 1"
+          >
+            <div class="bike-item-header" *ngIf="booking.bikes.length > 1">
+              <strong>{{ i + 1 }}. Fahrrad</strong>
+            </div>
+            <div class="info-row">
+              <span>{{ t.brandModel }}:</span>
+              <strong>{{ bike.marke }} {{ bike.modell }}</strong>
+            </div>
+            <div class="info-row" *ngIf="booking.bikes.length > 1">
+              <span>{{ t.from }}:</span>
+              <strong>{{ bike.startDatum | date: 'dd.MM.yyyy' }}</strong>
+            </div>
+            <div class="info-row" *ngIf="booking.bikes.length > 1">
+              <span>{{ t.to }}:</span>
+              <strong>{{ bike.endDatum | date: 'dd.MM.yyyy' }}</strong>
+            </div>
+            <div
+              class="info-row"
+              *ngIf="bike.gesamtpreis && booking.bikes.length > 1"
+            >
+              <span>{{ t.total }}:</span>
+              <strong>{{ bike.gesamtpreis | number: '1.2-2' }} €</strong>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="info-card"
+          *ngIf="!booking.bikes || booking.bikes.length === 0"
+        >
           <h3>{{ t.bicycle }}</h3>
-          <div class="info-row">
+          <div class="info-row" *ngIf="booking.bicycle">
             <span>{{ t.brandModel }}:</span>
             <strong
               >{{ booking.bicycle.marke }} {{ booking.bicycle.modell }}</strong
             >
-          </div>
-          <div class="info-row" *ngIf="booking.bicycle.rahmennummer">
-            <span>{{ t.frameNumber }}:</span>
-            <span style="text-transform: uppercase">
-              {{ booking.bicycle.rahmennummer }}
-            </span>
-          </div>
-          <div class="info-row" *ngIf="booking.bicycle.farbe">
-            <span>{{ t.color }}:</span>
-            <span>{{ booking.bicycle.farbe }}</span>
           </div>
         </div>
 
@@ -290,6 +331,58 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
         color: #fff;
         border-color: var(--accent-danger, #ef4444);
       }
+      .bike-count-badge {
+        display: inline-block;
+        background: var(--accent-primary, #6366f1);
+        color: #fff;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-align: center;
+        line-height: 20px;
+        vertical-align: middle;
+        margin-left: 4px;
+      }
+      .bike-item {
+        border-top: 1px solid var(--border-light, #e2e8f0);
+        padding-top: 8px;
+        margin-top: 8px;
+      }
+      .bike-item:first-child {
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
+      }
+      .bike-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .btn-sm {
+        padding: 4px 10px;
+        font-size: 0.8rem;
+      }
+      .btn-pdf {
+        background: #2c5282;
+        color: #fff;
+        border-color: #2c5282;
+      }
+      .btn-pdf:hover {
+        background: #2b6cb0;
+        border-color: #2b6cb0;
+      }
+      .btn-pdf-kaution {
+        background: #805ad5;
+        color: #fff;
+        border-color: #805ad5;
+      }
+      .btn-pdf-kaution:hover {
+        background: #6b46c1;
+        border-color: #6b46c1;
+      }
     `,
   ],
 })
@@ -370,10 +463,38 @@ export class RentalBookingDetailComponent implements OnInit {
       });
   }
 
-  convertToContract() {
+  goToUmwandeln() {
     if (!this.booking) return;
-    this.router.navigate(['/rentals/new'], {
-      queryParams: { bookingId: this.booking.id },
+    this.router.navigate(['/rental-bookings', this.booking.id, 'umwandeln']);
+  }
+
+  downloadRechnungPdf() {
+    if (!this.booking) return;
+    this.service.downloadRechnungPdf(this.booking.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Mietrechnung-${this.booking!.buchungsNummer}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.notificationService.error(this.t.saveError),
+    });
+  }
+
+  downloadKautionPdf() {
+    if (!this.booking) return;
+    this.service.downloadKautionPdf(this.booking.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Kautionsquittung-${this.booking!.buchungsNummer}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.notificationService.error(this.t.saveError),
     });
   }
 

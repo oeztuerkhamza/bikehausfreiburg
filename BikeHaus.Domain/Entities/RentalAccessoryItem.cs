@@ -9,6 +9,7 @@ public class RentalAccessoryItem : BaseEntity
     public decimal Tagespreis { get; set; }
     public decimal? Verlustgebuehr { get; set; }
     public int Menge { get; set; } = 1;
+    public bool Zurueckgegeben { get; set; } = true;
 
     public Rental Rental { get; set; } = null!;
     public RentalAccessory? RentalAccessory { get; set; }

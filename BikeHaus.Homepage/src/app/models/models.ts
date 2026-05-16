@@ -127,12 +127,14 @@ export interface PublicRentalBicycle {
   id: number;
   marke: string;
   modell: string;
+  rahmennummer?: string;
   farbe?: string;
   reifengroesse?: string;
   fahrradtyp?: string;
   art?: string;
   beschreibung?: string;
   rahmengroesse?: string;
+  kaution?: number;
   images: RentalBikeImage[];
   preise: RentalPrice;
 }
@@ -149,14 +151,25 @@ export interface RentalBookingAccessoryCreate {
   menge: number;
 }
 
-export interface RentalBookingCreate {
+export interface RentalBookingBikeCreate {
   bicycleId: number;
   startDatum: string;
   endDatum: string;
+  rahmennummer?: string;
+  farbe?: string;
+  kaution?: number;
+}
+
+export interface RentalBookingCreate {
+  bikes: RentalBookingBikeCreate[];
   vorname: string;
   nachname: string;
   email: string;
   telefon?: string;
+  strasse?: string;
+  hausNr?: string;
+  plz?: string;
+  ort?: string;
   sprache: string;
   notizen?: string;
   accessories?: RentalBookingAccessoryCreate[];

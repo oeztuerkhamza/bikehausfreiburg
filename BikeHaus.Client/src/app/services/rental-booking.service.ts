@@ -51,7 +51,23 @@ export class RentalBookingService {
     return this.http.get<{ count: number }>(`${this.url}/pending-count`);
   }
 
+  saveSignature(id: number, mieterUnterschrift: string): Observable<void> {
+    return this.http.patch<void>(`${this.url}/${id}/signature`, { mieterUnterschrift });
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
+  }
+
+  downloadRechnungPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.url}/${id}/rechnung-pdf`, {
+      responseType: 'blob',
+    });
+  }
+
+  downloadKautionPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.url}/${id}/kaution-pdf`, {
+      responseType: 'blob',
+    });
   }
 }

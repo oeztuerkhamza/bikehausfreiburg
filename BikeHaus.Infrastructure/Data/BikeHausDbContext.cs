@@ -32,8 +32,10 @@ public class BikeHausDbContext : DbContext
     public DbSet<HomepageAccessoryImage> HomepageAccessoryImages => Set<HomepageAccessoryImage>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<Rental> Rentals => Set<Rental>();
+    public DbSet<RentalBike> RentalBikes => Set<RentalBike>();
     public DbSet<RentalAccessory> RentalAccessories => Set<RentalAccessory>();
     public DbSet<RentalBooking> RentalBookings => Set<RentalBooking>();
+    public DbSet<RentalBookingBike> RentalBookingBikes => Set<RentalBookingBike>();
     public DbSet<RentalBookingAccessory> RentalBookingAccessories => Set<RentalBookingAccessory>();
     public DbSet<RentalAccessoryItem> RentalAccessoryItems => Set<RentalAccessoryItem>();
     public DbSet<RenovationCost> RenovationCosts => Set<RenovationCost>();
@@ -71,6 +73,7 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.RentalPriceDay6).HasColumnType("decimal(18,2)");
             entity.Property(e => e.RentalPriceDay7).HasColumnType("decimal(18,2)");
             entity.Property(e => e.RentalPriceAdditionalDayAfter7).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Kaution).HasColumnType("decimal(18,2)");
             entity.HasIndex(e => e.Rahmennummer);
             entity.HasMany(e => e.Images).WithOne(i => i.Bicycle)
                 .HasForeignKey(i => i.BicycleId).OnDelete(DeleteBehavior.Cascade);
@@ -255,6 +258,10 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Nachname).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Email).HasMaxLength(200);
             entity.Property(e => e.Telefon).HasMaxLength(50);
+            entity.Property(e => e.Strasse).HasMaxLength(200);
+            entity.Property(e => e.HausNr).HasMaxLength(20);
+            entity.Property(e => e.PLZ).HasMaxLength(20);
+            entity.Property(e => e.Ort).HasMaxLength(100);
             entity.Property(e => e.Sprache).HasMaxLength(5);
             entity.Property(e => e.Notizen).HasMaxLength(1000);
             entity.Property(e => e.AdminNotizen).HasMaxLength(1000);
@@ -265,7 +272,27 @@ public class BikeHausDbContext : DbContext
                 .HasForeignKey(e => e.BicycleId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            entity.HasMany(e => e.Bikes)
+                .WithOne(bk => bk.RentalBooking)
+                .HasForeignKey(bk => bk.RentalBookingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             entity.HasIndex(e => e.BuchungsNummer).IsUnique();
+        });
+
+        // ── RentalBookingBike Configuration ──
+        modelBuilder.Entity<RentalBookingBike>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Gesamtpreis).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Rahmennummer).HasMaxLength(50);
+            entity.Property(e => e.Farbe).HasMaxLength(150);
+            entity.Property(e => e.Kaution).HasColumnType("decimal(18,2)");
+
+            entity.HasOne(e => e.Bicycle)
+                .WithMany()
+                .HasForeignKey(e => e.BicycleId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── RentalBookingAccessory Configuration ──
@@ -517,17 +544,35 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Kaution).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Notizen).HasMaxLength(1000);
 
-            entity.HasOne(e => e.Bicycle)
-                .WithMany(b => b.Rentals)
-                .HasForeignKey(e => e.BicycleId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             entity.HasOne(e => e.Customer)
                 .WithMany(c => c.Rentals)
                 .HasForeignKey(e => e.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            entity.HasMany(e => e.Bikes)
+                .WithOne(rb => rb.Rental)
+                .HasForeignKey(rb => rb.RentalId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             entity.HasIndex(e => e.MietvertragNummer).IsUnique();
+        });
+
+        // ── RentalBike Configuration ──
+        modelBuilder.Entity<RentalBike>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Rahmennummer).HasMaxLength(50);
+            entity.Property(e => e.Farbe).HasMaxLength(150);
+            entity.Property(e => e.Mietpreis).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Kaution).HasColumnType("decimal(18,2)");
+
+            entity.HasOne(e => e.Bicycle)
+                .WithMany(b => b.RentalBikes)
+                .HasForeignKey(e => e.BicycleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.RentalId);
+            entity.HasIndex(e => e.BicycleId);
         });
 
         // ── EmailAccount Configuration ──

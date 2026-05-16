@@ -25,6 +25,7 @@ public record BicycleDto(
     decimal? RentalPriceDay6,
     decimal? RentalPriceDay7,
     decimal? RentalPriceAdditionalDayAfter7,
+    decimal? Kaution,
     bool IsPublishedOnWebsite,
     bool IsPublishedOnKleinanzeigen,
     decimal? VerkaufspreisVorschlag,
@@ -52,7 +53,8 @@ public record BicycleCreateDto(
     decimal? RentalPriceDay5 = null,
     decimal? RentalPriceDay6 = null,
     decimal? RentalPriceDay7 = null,
-    decimal? RentalPriceAdditionalDayAfter7 = null
+    decimal? RentalPriceAdditionalDayAfter7 = null,
+    decimal? Kaution = null
 );
 
 public record BicycleUpdateDto(
@@ -76,7 +78,8 @@ public record BicycleUpdateDto(
     decimal? RentalPriceDay5 = null,
     decimal? RentalPriceDay6 = null,
     decimal? RentalPriceDay7 = null,
-    decimal? RentalPriceAdditionalDayAfter7 = null
+    decimal? RentalPriceAdditionalDayAfter7 = null,
+    decimal? Kaution = null
 );
 
 public record BicycleImageDto(

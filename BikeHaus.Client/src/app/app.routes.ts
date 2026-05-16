@@ -286,10 +286,26 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'bicycle-calendar',
+    loadComponent: () =>
+      import('./pages/bicycle-calendar/bicycle-calendar.component').then(
+        (m) => m.BicycleCalendarComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'rental-bookings',
     loadComponent: () =>
       import('./pages/rental-bookings/rental-booking-list.component').then(
         (m) => m.RentalBookingListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'rental-bookings/:id/umwandeln',
+    loadComponent: () =>
+      import('./pages/rental-bookings/rental-booking-umwandeln.component').then(
+        (m) => m.RentalBookingUmwandelnComponent,
       ),
     canActivate: [authGuard],
   },

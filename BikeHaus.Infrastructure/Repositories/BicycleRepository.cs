@@ -38,7 +38,7 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
         int page, int pageSize,
         Expression<Func<Bicycle, bool>>? predicate = null)
     {
-        var query = _dbSet.AsQueryable();
+        var query = _dbSet.Include(b => b.Images).AsQueryable();
 
         if (predicate != null)
             query = query.Where(predicate);

@@ -4,18 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
 import { TranslationService } from '../../services/translation.service';
+import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import {
   Rental,
   RentalUpdate,
   PaymentMethod,
-  BikeConditionAtHandover,
 } from '../../models/models';
-import { calculateRentalPrice } from '../../utils/rental-pricing';
 
 @Component({
   selector: 'app-rental-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SignaturePadComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -30,26 +29,30 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
         <div class="form-sections">
           <!-- Bicycle info (read-only) -->
           <div class="form-card">
-            <h2>Fahrrad</h2>
-            <div class="bike-info" *ngIf="rental.bicycle">
-              <div class="info-row">
+            <h2>{{ rental.bikes.length > 1 ? rental.bikes.length + ' Fahrräder' : 'Fahrrad' }}</h2>
+            <div class="bike-info" *ngFor="let rb of rental.bikes; let i = index">
+              <div class="info-row" *ngIf="rental.bikes.length > 1">
+                <span class="label">#{{ i + 1 }}:</span>
+                <strong>{{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</strong>
+              </div>
+              <div class="info-row" *ngIf="rental.bikes.length === 1">
                 <span class="label">Marke/Modell:</span>
-                <span
-                  >{{ rental.bicycle.marke }} {{ rental.bicycle.modell }}</span
-                >
+                <span>{{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</span>
+              </div>
+              <div class="info-row" *ngIf="rb.rahmennummer || rb.bicycle.rahmennummer">
+                <span class="label">Rahmennummer:</span>
+                <span style="text-transform: uppercase">{{ rb.rahmennummer || rb.bicycle.rahmennummer }}</span>
+              </div>
+              <div class="info-row" *ngIf="rb.farbe || rb.bicycle.farbe">
+                <span class="label">Farbe:</span>
+                <span>{{ rb.farbe || rb.bicycle.farbe }}</span>
               </div>
               <div class="info-row">
-                <span class="label">Rahmennummer:</span>
-                <span style="text-transform: uppercase">{{
-                  rental.bicycle.rahmennummer
-                }}</span>
-              </div>
-              <div class="info-row" *ngIf="rental.bicycle.farbe">
-                <span class="label">Farbe:</span>
-                <span>{{ rental.bicycle.farbe }}</span>
+                <span class="label">Kaution:</span>
+                <span>{{ rb.kaution | number: '1.2-2' }} €</span>
               </div>
             </div>
-            <p class="hint">Fahrrad kann nicht geändert werden.</p>
+            <p class="hint">Fahrräder können nicht geändert werden.</p>
           </div>
 
           <!-- Mieter info -->
@@ -133,32 +136,20 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
               </div>
             </div>
 
-            <!-- Price calculation info -->
+            <!-- Rental period overview -->
             <div class="price-calc" *ngIf="rentalDays > 0">
               <div class="calc-header">
                 <span class="calc-days"
                   >{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span
                 >
                 <span class="calc-price"
-                  >Berechneter Preis:
-                  {{ berechneterPreis | number: '1.2-2' }} €</span
+                  >Gesamtmiete:
+                  {{ rental?.gesamtmiete | number: '1.2-2' }} €</span
                 >
-              </div>
-              <div class="calc-breakdown" *ngIf="preisInfo">
-                <span class="calc-info">{{ preisInfo }}</span>
               </div>
             </div>
 
             <div class="form-grid" style="margin-top: 12px;">
-              <div class="field">
-                <label>Gesamtmiete (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="gesamtmiete"
-                  name="gesamtmiete"
-                />
-              </div>
               <div class="field">
                 <label>Rabatt (€)</label>
                 <input
@@ -167,20 +158,10 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
                   [(ngModel)]="rabatt"
                   name="rabatt"
                   min="0"
-                  (ngModelChange)="onRabattChanged()"
                 />
               </div>
               <div class="field">
-                <label>Kaution (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="kaution"
-                  name="kaution"
-                />
-              </div>
-              <div class="field">
-                <label>Zahlungsart</label>
+                <label>Zahlungsart Miete</label>
                 <select [(ngModel)]="zahlungsart" name="zahlungsart">
                   <option value="Bar">Bar</option>
                   <option value="PayPal">PayPal</option>
@@ -189,14 +170,12 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
                 </select>
               </div>
               <div class="field">
-                <label>Zustand bei Übergabe</label>
-                <select
-                  [(ngModel)]="zustandBeiUebergabe"
-                  name="zustandBeiUebergabe"
-                >
-                  <option value="SehrGut">Sehr gut</option>
-                  <option value="Gut">Gut</option>
-                  <option value="Gebrauchsspuren">Gebrauchsspuren</option>
+                <label>Zahlungsart Kaution</label>
+                <select [(ngModel)]="kautionZahlungsart" name="kautionZahlungsart">
+                  <option value="Bar">Bar</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Karte">Karte</option>
+                  <option value="Überweisung">Überweisung</option>
                 </select>
               </div>
               <div class="field full">
@@ -207,6 +186,39 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
                   rows="3"
                 ></textarea>
               </div>
+            </div>
+            <p class="hint" style="margin-top: 8px;">
+              Gesamtmiete, Kaution und Zustand werden pro Fahrrad beim Anlegen festgelegt und sind hier nicht mehr editierbar.
+            </p>
+          </div>
+
+          <!-- AGB & Unterschrift -->
+          <div class="form-card">
+            <h2>AGB &amp; Unterschrift</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>Ort</label>
+                <input [(ngModel)]="unterschriftOrt" name="unterschriftOrt" placeholder="Freiburg" />
+              </div>
+              <div class="field" style="display:flex;align-items:center;gap:8px;padding-top:22px;">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="agbAkzeptiert"
+                  name="agbAkzeptiert"
+                  id="agbCheckEdit"
+                  style="width:18px;height:18px;cursor:pointer;"
+                />
+                <label for="agbCheckEdit" style="cursor:pointer;margin:0;">Ich habe die AGB gelesen und akzeptiert</label>
+              </div>
+            </div>
+            <div style="margin-top:12px;">
+              <label style="font-weight:600;font-size:0.9rem;">Unterschrift Mieter</label>
+              <div *ngIf="rental!.mieterUnterschrift && !mieterUnterschrift" style="margin-bottom:8px;">
+                <p style="font-size:0.8rem;color:#64748b;margin-bottom:4px;">Vorhandene Unterschrift:</p>
+                <img [src]="rental!.mieterUnterschrift" style="max-height:60px;border:1px solid #e2e8f0;border-radius:4px;" />
+              </div>
+              <app-signature-pad [(ngModel)]="mieterUnterschrift" name="mieterUnterschrift"></app-signature-pad>
+              <p style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Neu unterschreiben, um die vorhandene Unterschrift zu ersetzen.</p>
             </div>
           </div>
         </div>
@@ -437,15 +449,14 @@ export class RentalEditComponent implements OnInit {
   ausweisnNr = '';
   startDatum = '';
   endDatum = '';
-  gesamtmiete = 0;
   rabatt = 0;
-  berechneterPreis = 0;
   rentalDays = 0;
-  preisInfo = '';
-  kaution = 0;
   zahlungsart: string = PaymentMethod.Bar;
-  zustandBeiUebergabe = 'Gut';
+  kautionZahlungsart: string = PaymentMethod.Bar;
   notizen = '';
+  mieterUnterschrift = '';
+  agbAkzeptiert = false;
+  unterschriftOrt = 'Freiburg';
 
   get t() {
     return this.translationService.translations();
@@ -494,12 +505,12 @@ export class RentalEditComponent implements OnInit {
     }
 
     this.ausweisnNr = rental.ausweisnNr || '';
-    this.gesamtmiete = rental.gesamtmiete;
     this.rabatt = rental.rabatt || 0;
-    this.kaution = rental.kaution;
     this.zahlungsart = rental.zahlungsart || PaymentMethod.Bar;
-    this.zustandBeiUebergabe = rental.zustandBeiUebergabe || 'Gut';
+    this.kautionZahlungsart = rental.kautionZahlungsart || PaymentMethod.Bar;
     this.notizen = rental.notizen || '';
+    this.agbAkzeptiert = rental.agbAkzeptiert || false;
+    this.unterschriftOrt = rental.unterschriftOrt || 'Freiburg';
 
     // Format dates
     if (rental.startDatum) {
@@ -523,47 +534,10 @@ export class RentalEditComponent implements OnInit {
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
     );
     this.rentalDays = Math.max(0, diffDays + 1);
-    if (this.rentalDays > 0) {
-      this.berechneterPreis = this.calculatePrice(this.rentalDays);
-    }
   }
 
   onDatesChanged() {
-    if (!this.startDatum || !this.endDatum) return;
-    const start = new Date(this.startDatum);
-    const end = new Date(this.endDatum);
-    const diffDays = Math.round(
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
-    );
-    this.rentalDays = Math.max(0, diffDays + 1);
-    if (this.rentalDays > 0) {
-      this.berechneterPreis = this.calculatePrice(this.rentalDays);
-      this.gesamtmiete = Math.max(
-        0,
-        this.berechneterPreis - (this.rabatt || 0),
-      );
-    }
-  }
-
-  onRabattChanged() {
-    if (this.berechneterPreis > 0) {
-      this.gesamtmiete = Math.max(
-        0,
-        this.berechneterPreis - (this.rabatt || 0),
-      );
-    }
-  }
-
-  calculatePrice(days: number): number {
-    const bicycle = this.rental?.bicycle;
-    if (!bicycle) {
-      this.preisInfo = '';
-      return 0;
-    }
-
-    const result = calculateRentalPrice(bicycle, days);
-    this.preisInfo = result.info;
-    return result.total ?? 0;
+    this.recalcDays();
   }
 
   submit() {
@@ -575,12 +549,13 @@ export class RentalEditComponent implements OnInit {
       ausweisnNr: this.ausweisnNr || undefined,
       startDatum: this.startDatum,
       endDatum: this.endDatum,
-      gesamtmiete: this.gesamtmiete,
       rabatt: this.rabatt || 0,
-      kaution: this.kaution,
       zahlungsart: this.zahlungsart as PaymentMethod,
-      zustandBeiUebergabe: this.zustandBeiUebergabe as BikeConditionAtHandover,
+      kautionZahlungsart: this.kautionZahlungsart as PaymentMethod,
       notizen: this.notizen || undefined,
+      mieterUnterschrift: this.mieterUnterschrift || undefined,
+      agbAkzeptiert: this.agbAkzeptiert,
+      unterschriftOrt: this.unterschriftOrt || undefined,
     };
 
     this.rentalService.update(this.rental.id, update).subscribe({

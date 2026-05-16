@@ -15,12 +15,14 @@ public record PublicRentalBicycleDto(
     int Id,
     string Marke,
     string Modell,
+    string? Rahmennummer,
     string? Farbe,
     string Reifengroesse,
     string? Fahrradtyp,
     string? Art,
     string? Beschreibung,
     string? Rahmengroesse,
+    decimal? Kaution,
     List<BicycleImageDto> Images,
     RentalPriceDto Preise
 );

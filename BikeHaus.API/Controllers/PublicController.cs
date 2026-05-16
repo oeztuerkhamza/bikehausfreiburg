@@ -360,6 +360,55 @@ public class PublicController : ControllerBase
             }
         }
 
+        // ── Rental bikes (Mietfahrräder) — list + per-bike detail ──
+        // Language-specific slugs: de/tr → mietfahrraeder, en → rental-bikes, fr → velos-de-location
+        var rentalLangs = new[] { "de", "en", "fr", "tr" };
+        static string RentalSlug(string lang) => lang switch
+        {
+            "en" => "rental-bikes",
+            "fr" => "velos-de-location",
+            _ => "mietfahrraeder",
+        };
+
+        // Catalog list page (one URL per language with hreflang alternates)
+        foreach (var lang in rentalLangs)
+        {
+            sb.AppendLine("  <url>");
+            sb.AppendLine($"    <loc>{baseUrl}/{lang}/{RentalSlug(lang)}</loc>");
+            foreach (var altLang in rentalLangs)
+            {
+                sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/{RentalSlug(altLang)}\"/>");
+            }
+            sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"{baseUrl}/de/mietfahrraeder\"/>");
+            sb.AppendLine($"    <lastmod>{now}</lastmod>");
+            sb.AppendLine("    <changefreq>daily</changefreq>");
+            sb.AppendLine("    <priority>0.9</priority>");
+            sb.AppendLine("  </url>");
+        }
+
+        // Per-bike rental detail pages
+        var rentalBikes = await _bicycleService.GetRentableBicyclesAsync();
+        if (rentalBikes != null)
+        {
+            foreach (var bike in rentalBikes)
+            {
+                foreach (var lang in rentalLangs)
+                {
+                    sb.AppendLine("  <url>");
+                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/{RentalSlug(lang)}/{bike.Id}</loc>");
+                    foreach (var altLang in rentalLangs)
+                    {
+                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/{RentalSlug(altLang)}/{bike.Id}\"/>");
+                    }
+                    sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"{baseUrl}/de/mietfahrraeder/{bike.Id}\"/>");
+                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
+                    sb.AppendLine("    <changefreq>weekly</changefreq>");
+                    sb.AppendLine("    <priority>0.75</priority>");
+                    sb.AppendLine("  </url>");
+                }
+            }
+        }
+
         sb.AppendLine("</urlset>");
 
         return Content(sb.ToString(), "application/xml", System.Text.Encoding.UTF8);
@@ -394,6 +443,11 @@ public class PublicController : ControllerBase
             urls.Add($"{baseUrl}/{lang}/zubehoer");
             urls.Add($"{baseUrl}/{lang}/ratgeber");
         }
+        // Rental catalog list (per-language slug)
+        urls.Add($"{baseUrl}/de/mietfahrraeder");
+        urls.Add($"{baseUrl}/en/rental-bikes");
+        urls.Add($"{baseUrl}/fr/velos-de-location");
+        urls.Add($"{baseUrl}/tr/mietfahrraeder");
 
         // Dynamic product pages
         var usedBikes = await _bicycleService.GetPublishedOnWebsiteAsync();
@@ -411,6 +465,15 @@ public class PublicController : ControllerBase
             foreach (var bike in newBikes)
             {
                 urls.Add($"{baseUrl}/de/neue-fahrraeder/{bike.Id}");
+            }
+        }
+
+        var rentalBikesIndex = await _bicycleService.GetRentableBicyclesAsync();
+        if (rentalBikesIndex != null)
+        {
+            foreach (var bike in rentalBikesIndex)
+            {
+                urls.Add($"{baseUrl}/de/mietfahrraeder/{bike.Id}");
             }
         }
 

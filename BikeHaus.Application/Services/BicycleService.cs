@@ -187,6 +187,7 @@ public class BicycleService : IBicycleService
         entity.RentalPriceDay6 = dto.RentalPriceDay6;
         entity.RentalPriceDay7 = dto.RentalPriceDay7;
         entity.RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7;
+        entity.Kaution = dto.Kaution;
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(entity);
@@ -345,26 +346,56 @@ public class BicycleService : IBicycleService
             ?? Enumerable.Empty<BicycleImageDto>();
     }
 
+    public async Task<IEnumerable<BicycleDto>> GetAvailableForPeriodAsync(DateOnly start, DateOnly end)
+    {
+        var rentalBusyIds = await _rentalRepository.GetBusyBicycleIdsForPeriodAsync(start, end);
+        var bookingBusyIds = await _bookingRepository.GetBusyBicycleIdsForPeriodAsync(start, end);
+        var allBusyIds = new HashSet<int>(rentalBusyIds.Concat(bookingBusyIds));
+
+        var bikes = await _repository.FindAsync(b =>
+            b.IsRentable &&
+            !(b.Marke == "Zubehör" && b.Modell == "Direktverkauf" && b.Rahmennummer != null && b.Rahmennummer.StartsWith("ACC-")));
+
+        return bikes
+            .Where(b => !allBusyIds.Contains(b.Id))
+            .Select(b => b.ToDto());
+    }
+
     public async Task<IEnumerable<BusyPeriodDto>> GetBusyPeriodsAsync(int bicycleId)
     {
         var result = new List<BusyPeriodDto>();
 
-        // Active rentals (Mietvertrag)
+        // Active rentals (Mietvertrag) — include only the bike line matching this bicycle
         var allRentals = await _rentalRepository.GetAllAsync();
-        var activeRentals = allRentals
-            .Where(r => r.BicycleId == bicycleId && r.Status == RentalStatus.Active);
-        result.AddRange(activeRentals.Select(r =>
-            new BusyPeriodDto(r.StartDatum.Date, r.EndDatum.Date, "rental")));
+        foreach (var rental in allRentals.Where(r => r.Status == RentalStatus.Active))
+        {
+            foreach (var rentalBike in rental.Bikes.Where(rb => rb.BicycleId == bicycleId))
+            {
+                result.Add(new BusyPeriodDto(rentalBike.StartDatum.Date, rentalBike.EndDatum.Date, "rental"));
+            }
+        }
 
         // Approved bookings (Mietanfragen)
         var approvedBookings = await _bookingRepository.GetApprovedByBicycleIdAsync(bicycleId);
         result.AddRange(approvedBookings.Select(b =>
-            new BusyPeriodDto(b.StartDatum.Date, b.EndDatum.Date, "booking")));
+        {
+            var bk = b.Bikes.FirstOrDefault(bk => bk.BicycleId == bicycleId);
+            return new BusyPeriodDto(
+                (bk?.StartDatum ?? b.StartDatum).Date,
+                (bk?.EndDatum ?? b.EndDatum).Date,
+                "booking");
+        }));
 
         // Pending booking requests (not processed yet)
         var pendingBookings = await _bookingRepository.GetPendingByBicycleIdAsync(bicycleId);
         result.AddRange(pendingBookings.Select(b =>
-            new BusyPeriodDto(b.StartDatum.Date, b.EndDatum.Date, "pending")));
+        {
+            var bk = b.Bikes.FirstOrDefault(bk => bk.BicycleId == bicycleId);
+            return new BusyPeriodDto(
+                (bk?.StartDatum ?? b.StartDatum).Date,
+                (bk?.EndDatum ?? b.EndDatum).Date,
+                "pending");
+        }));
 
         return result;
     }

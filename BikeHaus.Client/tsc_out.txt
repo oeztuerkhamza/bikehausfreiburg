@@ -1,0 +1,2 @@
+src/app/pages/reservations/reservation-convert.component.ts(722,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
