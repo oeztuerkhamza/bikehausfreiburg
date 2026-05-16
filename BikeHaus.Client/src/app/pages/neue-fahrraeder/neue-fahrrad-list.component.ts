@@ -415,10 +415,9 @@ export class NeueFahrradListComponent implements OnInit {
   }
 
   getImageUrl(path: string): string {
-    // In production, uploads are served at /uploads directly
-    // In development, prepend API URL
     if (environment.production) {
-      return path;  // e.g. /uploads/neue-fahrraeder/1/image.jpg
+      const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+      return `${environment.apiUrl}/public/gallery-image/${cleanPath}`;
     }
     return `${environment.apiUrl.replace('/api', '')}${path}`;
   }

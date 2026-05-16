@@ -247,9 +247,15 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
               </div>
               <div class="card-body">
                 <h2 class="card-title">{{ bike.marke }} {{ bike.modell }}</h2>
-                <div class="card-meta">
-                  <span *ngIf="bike.rahmengroesse">{{ bike.rahmengroesse }}</span>
-                  <span *ngIf="bike.reifengroesse">{{ bike.reifengroesse }}"</span>
+                <div class="card-specs">
+                  <div *ngIf="bike.rahmengroesse" class="spec-row">
+                    <span class="spec-label">Rahmengröße (Size)</span>
+                    <span class="spec-value">{{ bike.rahmengroesse }}</span>
+                  </div>
+                  <div *ngIf="bike.reifengroesse" class="spec-row">
+                    <span class="spec-label">Reifengröße (Zoll)</span>
+                    <span class="spec-value">{{ bike.reifengroesse }}"</span>
+                  </div>
                 </div>
                 <div class="card-price">
                   <span class="price-from">{{ t().rentalCatalogFrom }}</span>
@@ -545,11 +551,26 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
       color: var(--color-text);
       line-height: 1.25;
     }
-    .card-meta {
-      display: flex; gap: 0.6rem; flex-wrap: wrap;
-      color: var(--color-text-muted);
-      font-size: 0.82rem;
+    .card-specs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
       margin-bottom: 0.6rem;
+    }
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      padding: 0.15rem 0;
+      border-bottom: 1px solid var(--color-border, rgba(0,0,0,0.06));
+    }
+    .spec-label {
+      color: var(--color-text-muted);
+    }
+    .spec-value {
+      font-weight: 600;
+      color: var(--color-text);
     }
     .card-price {
       display: flex; align-items: baseline; gap: 0.3rem;

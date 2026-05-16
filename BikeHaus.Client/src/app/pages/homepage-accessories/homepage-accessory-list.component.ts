@@ -405,7 +405,8 @@ export class HomepageAccessoryListComponent implements OnInit {
 
   getImageUrl(path: string): string {
     if (environment.production) {
-      return path;
+      const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+      return `${environment.apiUrl}/public/gallery-image/${cleanPath}`;
     }
     return `${environment.apiUrl.replace('/api', '')}${path}`;
   }
