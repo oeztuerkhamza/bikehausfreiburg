@@ -7,11 +7,8 @@ namespace BikeHaus.Infrastructure.Repositories;
 
 public class InvoiceRepository : Repository<Invoice>, IInvoiceRepository
 {
-    private readonly BikeHausDbContext _context;
-
     public InvoiceRepository(BikeHausDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task<IEnumerable<Invoice>> SearchAsync(string query)

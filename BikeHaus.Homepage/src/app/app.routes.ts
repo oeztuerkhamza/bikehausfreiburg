@@ -132,6 +132,14 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'online-bestellungen',
+        loadComponent: () =>
+          import('./pages/online-orders/online-orders.component').then(
+            (m) => m.OnlineOrdersComponent,
+          ),
+      },
+
+      {
         path: 'fahrradverleih',
         loadComponent: () =>
           import('./pages/fahrradverleih/fahrradverleih.component').then(

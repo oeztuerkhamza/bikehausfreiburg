@@ -176,7 +176,7 @@ public class PurchaseService : IPurchaseService
         // Update Bicycle
         var bicycle = purchase.Bicycle;
         bicycle.Marke = dto.Bicycle.Marke;
-        bicycle.Modell = dto.Bicycle.Modell;
+        bicycle.Modell = dto.Bicycle.Modell ?? string.Empty;
         bicycle.Rahmennummer = dto.Bicycle.Rahmennummer;
         bicycle.Rahmengroesse = dto.Bicycle.Rahmengroesse;
         bicycle.Farbe = dto.Bicycle.Farbe;

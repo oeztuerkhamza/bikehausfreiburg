@@ -74,8 +74,8 @@ public class IdempotencyFilter : IAsyncActionFilter
             objectResult.StatusCode == 200)
         {
             var responseContent = System.Text.Json.JsonSerializer.Serialize(objectResult.Value);
-            int? paymentId = context.RouteData.Values.TryGetValue("paymentId", out var id)
-                ? (int.TryParse(id.ToString()!, out var pid) ? pid : null)
+            int? paymentId = context.RouteData.Values.TryGetValue("paymentId", out var id) && id != null && int.TryParse(id.ToString(), out var pid)
+                ? pid
                 : null;
 
             await _idempotencyService.SaveResponseAsync(key, clientIpHash, responseContent, paymentId);

@@ -716,6 +716,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     accessories: 'Zubehör',
     about: 'Über uns',
     contact: 'Kontakt',
+    onlineOrders: 'Online-Bestellungen',
 
     heroH1: 'Fahrräder in Freiburg — neu & gebraucht.',
     heroSub:
@@ -1375,6 +1376,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     accessories: 'Accessories',
     about: 'About',
     contact: 'Contact',
+    onlineOrders: 'Online Orders',
 
     heroH1: 'Bike Shop in Freiburg — New & Used Bikes.',
     heroSub:
@@ -2630,7 +2632,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalCatalogTitle: 'Vélos à louer à Fribourg.',
     rentalCatalogSub: 'vélos de location disponibles',
     rentalCatalogIntro:
-      "Découvrez toute notre flotte de location à Fribourg-Haid : vélos de ville, trekking, vélos électriques, vélos enfants et plus. Filtrez par marque, taille de roue, taille de cadre et type. Chaque vélo a un tarif à la journée et se réserve en ligne.",
+      'Découvrez toute notre flotte de location à Fribourg-Haid : vélos de ville, trekking, vélos électriques, vélos enfants et plus. Filtrez par marque, taille de roue, taille de cadre et type. Chaque vélo a un tarif à la journée et se réserve en ligne.',
     rentalCatalogPerDay: '/jour',
     rentalCatalogFrom: 'dès',
     rentalCatalogReserveCta: 'Réserver',
@@ -2650,7 +2652,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalDetailExtraDay: 'Chaque jour supplémentaire (à partir du 8e jour)',
     rentalDetailDeposit: 'Caution',
     rentalDetailDepositInfo:
-      "La caution est versée à la remise du vélo et restituée intégralement au retour si le vélo est en bon état.",
+      'La caution est versée à la remise du vélo et restituée intégralement au retour si le vélo est en bon état.',
     rentalDetailSpecsHeading: 'Caractéristiques',
     rentalDetailDescHeading: 'Description',
     rentalDetailMetaTitleSuffix: 'à louer à Fribourg | Bike Haus Freiburg',
@@ -3277,7 +3279,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta3: 'Bisiklet Bakımı — Ne Kadara Mal Olur?',
 
     rentalCatalogMetaTitle:
-      "Kiralık Bisikletler Freiburg — Tüm Filo | Bike Haus Freiburg",
+      'Kiralık Bisikletler Freiburg — Tüm Filo | Bike Haus Freiburg',
     rentalCatalogMetaDescription:
       "Freiburg'daki tüm kiralık bisikletler ✓ Şehir, trekking, e-bike & çocuk bisikletleri ✓ Günlük fiyatlar ✓ Marka, beden ve tipe göre filtrele ✓ Online rezervasyon — Heckerstraße 27.",
     rentalCatalogLabel: 'Kiralık Filo',

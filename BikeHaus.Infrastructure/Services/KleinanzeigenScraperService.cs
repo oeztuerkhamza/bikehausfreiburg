@@ -139,7 +139,7 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
                 try
                 {
                     var button = page.Locator(selector).First;
-                    if (await button.IsVisibleAsync(new LocatorIsVisibleOptions { Timeout = 3000 }))
+                    if (await button.IsVisibleAsync())
                     {
                         await button.ClickAsync();
                         _logger.LogInformation("Cookie consent accepted via: {Selector}", selector);

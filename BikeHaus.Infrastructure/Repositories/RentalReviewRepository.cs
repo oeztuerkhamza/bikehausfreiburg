@@ -7,11 +7,8 @@ namespace BikeHaus.Infrastructure.Repositories;
 
 public class RentalReviewRepository : Repository<RentalReview>, IRentalReviewRepository
 {
-    private readonly BikeHausDbContext _context;
-
     public RentalReviewRepository(BikeHausDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task<IEnumerable<RentalReview>> GetApprovedAsync()

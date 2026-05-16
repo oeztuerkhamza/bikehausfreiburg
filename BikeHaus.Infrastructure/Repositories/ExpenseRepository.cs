@@ -7,11 +7,8 @@ namespace BikeHaus.Infrastructure.Repositories;
 
 public class ExpenseRepository : Repository<Expense>, IExpenseRepository
 {
-    private readonly BikeHausDbContext _context;
-
     public ExpenseRepository(BikeHausDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task<IEnumerable<Expense>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)

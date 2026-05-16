@@ -1784,10 +1784,10 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   availableCheckoutAccessories = signal<HomepageAccessory[]>([]);
   selectedCheckoutAccessoryQuantities = signal<Record<number, number>>({});
   legalAccepted = false;
+  private bwHolidayCache = new Map<number, Set<string>>();
   minDate = this.getNextOpenDayIso(new Date());
   userWhatsappMessage = '';
   private whatsappPhone = '4915566300011';
-  private bwHolidayCache = new Map<number, Set<string>>();
 
   isBikeHausBike = computed(
     () => this.listing()?.externalId?.startsWith('bike-') ?? false,
@@ -2257,6 +2257,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   }
 
   private getBWHolidays(year: number): Set<string> {
+    this.bwHolidayCache ??= new Map<number, Set<string>>();
     if (this.bwHolidayCache.has(year)) return this.bwHolidayCache.get(year)!;
     const fmt = (d: Date) =>
       `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

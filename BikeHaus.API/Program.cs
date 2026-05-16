@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Infrastructure;
@@ -30,14 +31,26 @@ builder.Services.AddCors(options =>
     {
         if (builder.Environment.IsDevelopment())
         {
-            policy.WithOrigins("http://localhost:4200", "http://localhost:4300")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod()
-                  .AllowCredentials();
+            // Allow any localhost origin (any port) during development
+            policy.SetIsOriginAllowed(origin =>
+            {
+                try
+                {
+                    var host = new Uri(origin).Host;
+                    return host == "localhost" || host == "127.0.0.1" || host == "::1";
+                }
+                catch
+                {
+                    return false;
+                }
+            })
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
         }
         else
         {
-            // Production: restrict to own domain only
+            // Production: restrict to configured origins
             var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
                 ?? new[] { "https://bikehausfreiburg.com", "https://www.bikehausfreiburg.com" };
 
@@ -136,30 +149,30 @@ var app = builder.Build();
 app.Use(async (context, next) =>
 {
     // HSTS (HTTP Strict Transport Security)
-    context.Response.Headers.Add("Strict-Transport-Security",
+    context.Response.Headers.Append("Strict-Transport-Security",
         "max-age=31536000; includeSubDomains; preload");
 
     // CSP (Content Security Policy) — prevent XSS
-    context.Response.Headers.Add("Content-Security-Policy",
+    context.Response.Headers.Append("Content-Security-Policy",
         "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
         "style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; " +
         "font-src 'self' data:; connect-src 'self' https://www.mollie.com; " +
         "frame-ancestors 'none'; base-uri 'self';");
 
     // X-Content-Type-Options — prevent MIME sniffing
-    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
 
     // X-Frame-Options — prevent clickjacking
-    context.Response.Headers.Add("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
 
     // X-XSS-Protection — legacy XSS protection
-    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
 
     // Referrer-Policy
-    context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
 
     // Permissions-Policy (feature policy)
-    context.Response.Headers.Add("Permissions-Policy",
+    context.Response.Headers.Append("Permissions-Policy",
         "geolocation=(), microphone=(), camera=(), payment=()");
 
     // Remove server header

@@ -167,7 +167,7 @@ public class BicycleService : IBicycleService
             ?? throw new KeyNotFoundException($"Bicycle with ID {id} not found.");
 
         entity.Marke = dto.Marke;
-        entity.Modell = dto.Modell;
+        entity.Modell = dto.Modell ?? string.Empty;
         entity.Rahmennummer = dto.Rahmennummer;
         entity.Rahmengroesse = dto.Rahmengroesse;
         entity.Farbe = dto.Farbe;

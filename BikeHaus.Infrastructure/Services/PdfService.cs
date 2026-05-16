@@ -28,7 +28,6 @@ public class PdfService : IPdfService
     private static readonly string PrimaryColor = "#2c5282";       // Medium blue (for text)
     private static readonly string SecondaryColor = "#4299e1";     // Light blue (for accents)
     private static readonly string AccentColor = "#2b6cb0";        // Blue accent
-    private static readonly string LightBg = "#ffffff";           // White background
     private static readonly string TableHeaderBg = "#f7fafc";      // Very light gray
     private static readonly string TableAltBg = "#f7fafc";         // Very light gray for rows
 

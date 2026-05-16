@@ -7,11 +7,8 @@ namespace BikeHaus.Infrastructure.Repositories;
 
 public class RenovationCostRepository : Repository<RenovationCost>, IRenovationCostRepository
 {
-    private readonly BikeHausDbContext _context;
-
     public RenovationCostRepository(BikeHausDbContext context) : base(context)
     {
-        _context = context;
     }
 
     public async Task<IEnumerable<RenovationCost>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
