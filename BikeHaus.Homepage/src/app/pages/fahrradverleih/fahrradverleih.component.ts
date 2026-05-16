@@ -697,6 +697,7 @@ type RentalPageCopy = {
     frame: string;
     tire: string;
     color: string;
+    tireUnit: string;
   };
   extraDayPriceLabel: string;
   successEmailPrefix: string;
@@ -833,9 +834,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
     bikeFactLabels: {
       type: 'Typ',
       category: 'Kategorie',
-      frame: 'Rahmen',
-      tire: 'Reifen',
+      frame: 'Rahmenhöhe',
+      tire: 'Reifengröße',
       color: 'Farbe',
+      tireUnit: 'Zoll',
     },
     extraDayPriceLabel: 'Ab Tag 8 je weiterer Tag',
     successEmailPrefix: 'Eine Bestatigung wurde an',
@@ -973,9 +975,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
     bikeFactLabels: {
       type: 'Type',
       category: 'Category',
-      frame: 'Frame',
-      tire: 'Tire',
+      frame: 'Frame height',
+      tire: 'Tire size',
       color: 'Color',
+      tireUnit: 'inch',
     },
     extraDayPriceLabel: 'From day 8 per extra day',
     successEmailPrefix: 'A confirmation was sent to',
@@ -1125,9 +1128,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
     bikeFactLabels: {
       type: 'Type',
       category: 'Categorie',
-      frame: 'Cadre',
-      tire: 'Pneu',
+      frame: 'Hauteur de cadre',
+      tire: 'Taille des pneus',
       color: 'Couleur',
+      tireUnit: 'pouces',
     },
     extraDayPriceLabel: 'A partir du 8e jour par jour supplementaire',
     successEmailPrefix: 'Une confirmation a ete envoyee a',
@@ -1266,9 +1270,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
     bikeFactLabels: {
       type: 'Tip',
       category: 'Kategori',
-      frame: 'Kadro',
-      tire: 'Lastik',
+      frame: 'Kadro yüksekliği',
+      tire: 'Lastik boyutu',
       color: 'Renk',
+      tireUnit: 'inç',
     },
     extraDayPriceLabel: '8. günden sonra her ek gün',
     successEmailPrefix: 'Bir onay e-postası şu adrese gönderildi',
@@ -1541,15 +1546,15 @@ interface BikeSlot {
                 <div class="seat-name">{{ bike.marke }} {{ bike.modell }}</div>
                 <div class="seat-specs">
                   <span *ngIf="bike.rahmengroesse" class="spec-row">
-                    <span class="spec-label">Rahmenhöhe</span>
+                    <span class="spec-label">{{ pageCopy().bikeFactLabels.frame }}</span>
                     {{ bike.rahmengroesse }} cm
                   </span>
                   <span *ngIf="bike.reifengroesse" class="spec-row">
-                    <span class="spec-label">Reifengröße</span>
-                    {{ bike.reifengroesse }} Zoll
+                    <span class="spec-label">{{ pageCopy().bikeFactLabels.tire }}</span>
+                    {{ bike.reifengroesse }} {{ pageCopy().bikeFactLabels.tireUnit }}
                   </span>
                   <span *ngIf="bike.farbe" class="spec-row">
-                    <span class="spec-label">Farbe</span>
+                    <span class="spec-label">{{ pageCopy().bikeFactLabels.color }}</span>
                     {{ bike.farbe }}
                   </span>
                 </div>
