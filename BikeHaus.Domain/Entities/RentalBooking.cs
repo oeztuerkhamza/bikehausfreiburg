@@ -28,6 +28,7 @@ public class RentalBooking : BaseEntity
 
     public DateTime? ApprovedAt { get; set; }
     public DateTime? CancelledAt { get; set; }
+    public string? MieterUnterschrift { get; set; }
 
     public Bicycle Bicycle { get; set; } = null!;
     public ICollection<RentalBookingAccessory> Accessories { get; set; } = new List<RentalBookingAccessory>();

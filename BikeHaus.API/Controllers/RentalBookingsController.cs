@@ -71,6 +71,20 @@ public class RentalBookingsController : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/signature")]
+    public async Task<IActionResult> SaveSignature(int id, [FromBody] RentalBookingSignatureDto dto)
+    {
+        try
+        {
+            await _service.SaveSignatureAsync(id, dto.MieterUnterschrift);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

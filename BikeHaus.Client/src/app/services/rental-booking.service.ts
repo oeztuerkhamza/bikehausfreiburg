@@ -51,6 +51,10 @@ export class RentalBookingService {
     return this.http.get<{ count: number }>(`${this.url}/pending-count`);
   }
 
+  saveSignature(id: number, mieterUnterschrift: string): Observable<void> {
+    return this.http.patch<void>(`${this.url}/${id}/signature`, { mieterUnterschrift });
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }

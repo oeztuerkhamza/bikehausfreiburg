@@ -96,4 +96,6 @@ public record RentalBookingApproveDto(string? AdminNotizen);
 
 public record RentalBookingCancelDto(string? AdminNotizen);
 
+public record RentalBookingSignatureDto(string MieterUnterschrift);
+
 public record RentalBookingRangeDto(DateTime StartDatum, DateTime EndDatum);

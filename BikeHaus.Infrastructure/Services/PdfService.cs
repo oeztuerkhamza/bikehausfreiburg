@@ -2528,7 +2528,7 @@ public class PdfService : IPdfService
                         });
                     });
 
-                    // Signature
+                    // Signatures
                     col.Item().PaddingTop(12).Row(row =>
                     {
                         row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(sellerCol =>
@@ -2551,7 +2551,27 @@ public class PdfService : IPdfService
                             sellerCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                             sellerCol.Item().PaddingTop(2).Text(shop.OwnerName).FontSize(9);
                         });
-                        row.RelativeItem();
+
+                        row.ConstantItem(12);
+
+                        row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(mieterCol =>
+                        {
+                            mieterCol.Item().Border(1).BorderColor(PrimaryColor).Padding(3).Text("MIETER / KUNDE").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
+                            mieterCol.Item().PaddingTop(3).Text("Unterschrift Mieter").FontSize(9).FontColor(Colors.Grey.Darken1);
+                            if (!string.IsNullOrEmpty(booking.MieterUnterschrift))
+                            {
+                                try
+                                {
+                                    var sigData = booking.MieterUnterschrift;
+                                    if (sigData.Contains(",")) sigData = sigData.Substring(sigData.IndexOf(",") + 1);
+                                    mieterCol.Item().Height(35).Image(Convert.FromBase64String(sigData));
+                                }
+                                catch { mieterCol.Item().Height(35); }
+                            }
+                            else { mieterCol.Item().Height(35); }
+                            mieterCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                            mieterCol.Item().PaddingTop(2).Text(kundenName).FontSize(9);
+                        });
                     });
                 });
 

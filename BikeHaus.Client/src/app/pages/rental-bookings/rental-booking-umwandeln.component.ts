@@ -395,8 +395,19 @@ export class RentalBookingUmwandelnComponent implements OnInit {
 
     this.rentalService.create(payload).subscribe({
       next: () => {
-        this.notificationService.success('Mietvertrag erfolgreich angelegt.');
-        this.router.navigate(['/rental-bookings', this.booking!.id]);
+        const bookingId = this.booking!.id;
+        const afterCreate = () => {
+          this.notificationService.success('Mietvertrag erfolgreich angelegt.');
+          this.router.navigate(['/rental-bookings', bookingId]);
+        };
+        if (this.mieterUnterschrift) {
+          this.bookingService.saveSignature(bookingId, this.mieterUnterschrift).subscribe({
+            next: afterCreate,
+            error: afterCreate,
+          });
+        } else {
+          afterCreate();
+        }
       },
       error: (err) => {
         this.submitting = false;

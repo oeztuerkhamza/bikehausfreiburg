@@ -402,6 +402,14 @@ public class RentalBookingService : IRentalBookingService
         return true;
     }
 
+    public async Task SaveSignatureAsync(int id, string mieterUnterschrift)
+    {
+        var booking = await _bookingRepository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Booking {id} not found.");
+        booking.MieterUnterschrift = mieterUnterschrift;
+        await _bookingRepository.UpdateAsync(booking);
+    }
+
     private static string NormalizeLanguage(string lang)
     {
         if (string.IsNullOrWhiteSpace(lang)) return "de";

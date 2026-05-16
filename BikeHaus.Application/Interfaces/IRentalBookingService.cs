@@ -13,4 +13,5 @@ public interface IRentalBookingService
     Task<IEnumerable<RentalBookingRangeDto>> GetApprovedRangesAsync(int bicycleId);
     Task<int> GetPendingCountAsync();
     Task<bool> DeleteAsync(int id);
+    Task SaveSignatureAsync(int id, string mieterUnterschrift);
 }
