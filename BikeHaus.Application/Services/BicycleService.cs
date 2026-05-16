@@ -337,6 +337,21 @@ public class BicycleService : IBicycleService
             ?? Enumerable.Empty<BicycleImageDto>();
     }
 
+    public async Task<IEnumerable<BicycleDto>> GetAvailableForPeriodAsync(DateOnly start, DateOnly end)
+    {
+        var rentalBusyIds = await _rentalRepository.GetBusyBicycleIdsForPeriodAsync(start, end);
+        var bookingBusyIds = await _bookingRepository.GetBusyBicycleIdsForPeriodAsync(start, end);
+        var allBusyIds = new HashSet<int>(rentalBusyIds.Concat(bookingBusyIds));
+
+        var bikes = await _repository.FindAsync(b =>
+            b.IsRentable &&
+            !(b.Marke == "Zubehör" && b.Modell == "Direktverkauf" && b.Rahmennummer != null && b.Rahmennummer.StartsWith("ACC-")));
+
+        return bikes
+            .Where(b => !allBusyIds.Contains(b.Id))
+            .Select(b => b.ToDto());
+    }
+
     public async Task<IEnumerable<BusyPeriodDto>> GetBusyPeriodsAsync(int bicycleId)
     {
         var result = new List<BusyPeriodDto>();

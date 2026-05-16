@@ -79,6 +79,16 @@ public class BicyclesController : ControllerBase
         return Ok(periods);
     }
 
+    [Authorize]
+    [HttpGet("available-for-period")]
+    public async Task<ActionResult<IEnumerable<BicycleDto>>> GetAvailableForPeriod(
+        [FromQuery] DateOnly start,
+        [FromQuery] DateOnly end)
+    {
+        var bicycles = await _bicycleService.GetAvailableForPeriodAsync(start, end);
+        return Ok(bicycles);
+    }
+
     [HttpGet("search")]
     public async Task<ActionResult<IEnumerable<BicycleDto>>> Search([FromQuery] string term)
     {

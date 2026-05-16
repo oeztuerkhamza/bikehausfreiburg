@@ -158,6 +158,112 @@ const MONTH_NAMES = [
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
+
+          <!-- Mietdauer mit Kalender — FIRST: dates must be chosen before bikes -->
+          <div class="form-card">
+            <h2>Mietdauer</h2>
+
+            <div class="calendar-wrap">
+              <div class="calendar">
+                <div class="cal-nav">
+                  <button type="button" class="cal-nav-btn" (click)="prevMonth()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+                  <span class="cal-title">{{ calendarMonthName }} {{ calendarYear }}</span>
+                  <button type="button" class="cal-nav-btn" (click)="nextMonth()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div class="cal-grid">
+                  <div class="cal-dow" *ngFor="let d of weekDays">{{ d }}</div>
+                  <div
+                    *ngFor="let day of calendarDays"
+                    class="cal-day"
+                    [class.empty]="!day"
+                    [class.closed]="day && isClosedDay(day)"
+                    [class.range-start]="day && isDayRangeStart(day)"
+                    [class.range-end]="day && isDayRangeEnd(day)"
+                    [class.in-range]="day && isDayInRange(day)"
+                    [class.today]="day && isDayToday(day)"
+                    [class.picking-end]="pickingState === 'end' && day && !isClosedDay(day) && !isDayRangeStart(day)"
+                    (click)="day && onCalendarDayClick(day)"
+                  >
+                    <span *ngIf="day">{{ day.getDate() }}</span>
+                    <div class="busy-tooltip closed-tooltip" *ngIf="day && isClosedDay(day)">
+                      {{ day.getDay() === 0 ? 'Sonntag' : 'Feiertag' }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="cal-legend">
+                  <span class="legend-item">
+                    <span class="legend-dot closed-dot"></span> Geschlossen
+                  </span>
+                  <span class="legend-item">
+                    <span class="legend-dot selected-dot"></span> Ausgewählt
+                  </span>
+                </div>
+
+                <div class="cal-hint" *ngIf="pickingState === 'start'">Startdatum klicken</div>
+                <div class="cal-hint" *ngIf="pickingState === 'end'">Enddatum klicken</div>
+              </div>
+            </div>
+
+            <div class="date-display" *ngIf="startDatum || endDatum">
+              <div class="date-chip" [class.active]="!!startDatum">
+                <label>Mietbeginn</label>
+                <span>{{ startDatum ? (startDatum | date: 'dd.MM.yyyy') : '–' }}</span>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+              <div class="date-chip" [class.active]="!!endDatum">
+                <label>Mietende</label>
+                <span>{{ endDatum ? (endDatum | date: 'dd.MM.yyyy') : '–' }}</span>
+              </div>
+              <button type="button" class="btn-reset-dates" *ngIf="startDatum" (click)="resetDates()" title="Zurücksetzen">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <input type="hidden" [(ngModel)]="startDatum" name="startDatum" required />
+            <input type="hidden" [(ngModel)]="endDatum" name="endDatum" required />
+
+            <div class="form-grid" style="margin-top: 16px;">
+              <div class="field full">
+                <label>Notizen</label>
+                <textarea [(ngModel)]="notizen" name="notizen" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Availability status after date selection -->
+          <div class="avail-loading-bar" *ngIf="availabilityLoading">
+            <span>Verfügbare Fahrräder werden geladen…</span>
+          </div>
+          <div class="avail-none-bar" *ngIf="datesReady && !availabilityLoading && availableBikes.length === 0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Keine Fahrräder für diesen Zeitraum verfügbar.
+          </div>
+          <div class="avail-count-bar" *ngIf="datesReady && !availabilityLoading && availableBikes.length > 0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            {{ availableBikes.length }} Fahrrad{{ availableBikes.length !== 1 ? 'räder' : '' }} für diesen Zeitraum verfügbar
+          </div>
+          <div class="select-dates-hint" *ngIf="!datesReady && !availabilityLoading">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Bitte zuerst Mietdauer auswählen, um verfügbare Fahrräder zu sehen.
+          </div>
+
+          <ng-container *ngIf="datesReady">
           <!-- Bicycle cards (1+) -->
           <div class="form-card bike-card" [class.is-collapsed]="b.isCollapsed" *ngFor="let b of bikes; let i = index; trackBy: trackByIndex">
             <div class="bike-card-header">
@@ -202,7 +308,6 @@ const MONTH_NAMES = [
               [selectedBike]="b.selectedBike"
               (selectedBikeChange)="b.selectedBike = $event"
               [allowQuickAdd]="true"
-              [enableAdvancedFilters]="true"
               [requireConfirmSelection]="true"
               (bikeSelected)="onBikeSelected(i, $event)"
               (quickAddRequested)="onQuickAddBike(i)"
@@ -564,187 +669,8 @@ const MONTH_NAMES = [
             </div>
           </div>
 
-          <!-- Mietdauer mit Kalender -->
-          <div class="form-card">
-            <h2>Mietdauer</h2>
+          </ng-container>
 
-            <!-- Calendar -->
-            <div class="calendar-wrap">
-              <div class="cal-loading" *ngIf="anyBusyLoading">
-                <span>Verfügbarkeit wird geladen…</span>
-              </div>
-
-              <div class="calendar" *ngIf="!anyBusyLoading">
-                <div class="cal-nav">
-                  <button
-                    type="button"
-                    class="cal-nav-btn"
-                    (click)="prevMonth()"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                  </button>
-                  <span class="cal-title"
-                    >{{ calendarMonthName }} {{ calendarYear }}</span
-                  >
-                  <button
-                    type="button"
-                    class="cal-nav-btn"
-                    (click)="nextMonth()"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2.5"
-                    >
-                      <polyline points="9 18 15 12 9 6" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div class="cal-grid">
-                  <div class="cal-dow" *ngFor="let d of weekDays">{{ d }}</div>
-                  <div
-                    *ngFor="let day of calendarDays"
-                    class="cal-day"
-                    [class.empty]="!day"
-                    [class.busy]="day && isDayBusy(day)"
-                    [class.closed]="day && !isDayBusy(day) && isClosedDay(day)"
-                    [class.range-start]="day && isDayRangeStart(day)"
-                    [class.range-end]="day && isDayRangeEnd(day)"
-                    [class.in-range]="day && isDayInRange(day)"
-                    [class.today]="day && isDayToday(day)"
-                    [class.picking-end]="
-                      pickingState === 'end' &&
-                      day &&
-                      !isDayBusy(day) &&
-                      !isClosedDay(day) &&
-                      !isDayRangeStart(day)
-                    "
-                    (click)="day && onCalendarDayClick(day)"
-                  >
-                    <span *ngIf="day">{{ day.getDate() }}</span>
-                    <div class="busy-tooltip" *ngIf="day && isDayBusy(day)">
-                      Besetzt
-                    </div>
-                    <div
-                      class="busy-tooltip closed-tooltip"
-                      *ngIf="day && !isDayBusy(day) && isClosedDay(day)"
-                    >
-                      {{ day.getDay() === 0 ? 'Sonntag' : 'Feiertag' }}
-                    </div>
-                  </div>
-                </div>
-
-                <div class="cal-legend">
-                  <span class="legend-item">
-                    <span class="legend-dot busy-dot"></span> Besetzt
-                  </span>
-                  <span class="legend-item">
-                    <span class="legend-dot closed-dot"></span> Geschlossen
-                  </span>
-                  <span class="legend-item">
-                    <span class="legend-dot selected-dot"></span> Ausgewählt
-                  </span>
-                  <span
-                    class="legend-item legend-hint"
-                    *ngIf="!hasAnyBikeReady"
-                  >
-                    Zuerst Fahrrad auswählen
-                  </span>
-                </div>
-
-                <div class="cal-hint" *ngIf="pickingState === 'start'">
-                  Startdatum klicken
-                </div>
-                <div class="cal-hint" *ngIf="pickingState === 'end'">
-                  Enddatum klicken
-                </div>
-              </div>
-            </div>
-
-            <!-- Selected range display -->
-            <div class="date-display" *ngIf="startDatum || endDatum">
-              <div class="date-chip" [class.active]="!!startDatum">
-                <label>Mietbeginn</label>
-                <span>{{
-                  startDatum ? (startDatum | date: 'dd.MM.yyyy') : '–'
-                }}</span>
-              </div>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <line x1="5" y1="12" x2="19" y2="12" />
-                <polyline points="12 5 19 12 12 19" />
-              </svg>
-              <div class="date-chip" [class.active]="!!endDatum">
-                <label>Mietende</label>
-                <span>{{
-                  endDatum ? (endDatum | date: 'dd.MM.yyyy') : '–'
-                }}</span>
-              </div>
-              <button
-                type="button"
-                class="btn-reset-dates"
-                *ngIf="startDatum"
-                (click)="resetDates()"
-                title="Zurücksetzen"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-
-            <!-- Hidden inputs for form validation -->
-            <input
-              type="hidden"
-              [(ngModel)]="startDatum"
-              name="startDatum"
-              required
-            />
-            <input
-              type="hidden"
-              [(ngModel)]="endDatum"
-              name="endDatum"
-              required
-            />
-
-            <div class="form-grid" style="margin-top: 16px;">
-              <div class="field full">
-                <label>Notizen</label>
-                <textarea
-                  [(ngModel)]="notizen"
-                  name="notizen"
-                  rows="3"
-                ></textarea>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="form-actions">
@@ -1611,6 +1537,9 @@ export class RentalFormComponent implements OnInit {
 
   fromBookingId: number | null = null;
   availableBikes: Bicycle[] = [];
+  availabilityLoading = false;
+  private pendingBikeIdToSelect: number | null = null;
+  private pendingBookingBike: any = null;
   brands: string[] = [];
   models: string[] = [];
 
@@ -1677,6 +1606,10 @@ export class RentalFormComponent implements OnInit {
 
   get hasAnyBikeReady(): boolean {
     return this.bikes.some((b) => !!b.selectedBike || b.isQuickAddMode);
+  }
+
+  get datesReady(): boolean {
+    return !!this.startDatum && !!this.endDatum;
   }
 
   get canSubmit(): boolean {
@@ -1934,7 +1867,9 @@ export class RentalFormComponent implements OnInit {
     this.startDatum = '';
     this.endDatum = '';
     this.pickingState = 'start';
-    this.onDatesChanged();
+    this.availableBikes = [];
+    this.bikes = [createEmptyBikeEntry()];
+    this.rentalDays = 0;
   }
 
   private loadBusyPeriodsFor(i: number, bikeId: number) {
@@ -1967,104 +1902,68 @@ export class RentalFormComponent implements OnInit {
       error: () => {},
     });
 
-    this.bicycleService.getAll().subscribe({
-      next: (bikes) => {
-        this.availableBikes = bikes.filter((b) => b.status === 'Available');
+    const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
+    const bicycleIdParam = this.route.snapshot.queryParamMap.get('bicycleId');
+    if (bookingId) {
+      this.fromBookingId = Number(bookingId);
+      this.bookingService.getById(this.fromBookingId).subscribe({
+        next: (booking) => {
+          this.customer.vorname = booking.vorname;
+          this.customer.nachname = booking.nachname;
+          this.customer.telefon = booking.telefon || '';
+          this.customer.email = booking.email || '';
 
-        const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
-        const bicycleIdParam =
-          this.route.snapshot.queryParamMap.get('bicycleId');
-        if (bookingId) {
-          this.fromBookingId = Number(bookingId);
-          this.bookingService.getById(this.fromBookingId).subscribe({
-            next: (booking) => {
-              this.customer.vorname = booking.vorname;
-              this.customer.nachname = booking.nachname;
-              this.customer.telefon = booking.telefon || '';
-              this.customer.email = booking.email || '';
+          const targetBikeId = bicycleIdParam ? Number(bicycleIdParam) : null;
+          const bookingBike =
+            targetBikeId && booking.bikes?.length > 0
+              ? booking.bikes.find((bk) => bk.bicycleId === targetBikeId)
+              : booking.bikes?.[0];
 
-              // For multi-bike bookings, find the specific bike by bicycleId param
-              const targetBikeId = bicycleIdParam
-                ? Number(bicycleIdParam)
-                : null;
-              const bookingBike =
-                targetBikeId && booking.bikes?.length > 0
-                  ? booking.bikes.find((bk) => bk.bicycleId === targetBikeId)
-                  : booking.bikes?.[0];
+          const bikeStartDatum = bookingBike?.startDatum ?? booking.startDatum;
+          const bikeEndDatum = bookingBike?.endDatum ?? booking.endDatum;
 
-              const bikeStartDatum =
-                bookingBike?.startDatum ?? booking.startDatum;
-              const bikeEndDatum = bookingBike?.endDatum ?? booking.endDatum;
+          this.startDatum = bikeStartDatum.split('T')[0];
+          this.endDatum = bikeEndDatum.split('T')[0];
+          this.pickingState = 'start';
 
-              this.startDatum = bikeStartDatum.split('T')[0];
-              this.endDatum = bikeEndDatum.split('T')[0];
-              this.pickingState = 'start';
+          const start = new Date(this.startDatum);
+          this.calendarMonth = start.getMonth();
+          this.calendarYear = start.getFullYear();
 
-              const start = new Date(this.startDatum);
-              this.calendarMonth = start.getMonth();
-              this.calendarYear = start.getFullYear();
+          const firstBike = this.bikes[0];
+          if (bookingBike?.gesamtpreis) {
+            firstBike.gesamtmiete = bookingBike.gesamtpreis;
+          } else if (booking.gesamtpreis) {
+            firstBike.gesamtmiete = booking.gesamtpreis;
+          }
+          this.notizen = booking.notizen || '';
 
-              this.onDatesChanged();
+          if (booking.accessories && booking.accessories.length > 0) {
+            this.selectedAccessories.helm = booking.accessories.some((a) =>
+              this.matchesAccessoryKey(a.bezeichnung, 'helm'),
+            );
+            this.selectedAccessories.schloss = booking.accessories.some((a) =>
+              this.matchesAccessoryKey(a.bezeichnung, 'schloss'),
+            );
+            this.selectedAccessories.korb = booking.accessories.some((a) =>
+              this.matchesAccessoryKey(a.bezeichnung, 'korb'),
+            );
+          }
 
-              const firstBike = this.bikes[0];
-              if (bookingBike?.gesamtpreis) {
-                firstBike.gesamtmiete = bookingBike.gesamtpreis;
-              } else if (booking.gesamtpreis) {
-                firstBike.gesamtmiete = booking.gesamtpreis;
-              }
-              this.notizen = booking.notizen || '';
+          const bikeId =
+            targetBikeId ?? bookingBike?.bicycleId ?? booking.bicycle?.id;
+          if (bikeId) {
+            this.pendingBikeIdToSelect = bikeId;
+            this.pendingBookingBike = bookingBike ?? (booking.bicycle as any);
+          }
 
-              if (booking.accessories && booking.accessories.length > 0) {
-                this.selectedAccessories.helm = booking.accessories.some((a) =>
-                  this.matchesAccessoryKey(a.bezeichnung, 'helm'),
-                );
-                this.selectedAccessories.schloss = booking.accessories.some(
-                  (a) => this.matchesAccessoryKey(a.bezeichnung, 'schloss'),
-                );
-                this.selectedAccessories.korb = booking.accessories.some((a) =>
-                  this.matchesAccessoryKey(a.bezeichnung, 'korb'),
-                );
-              }
-
-              const bikeId =
-                targetBikeId ?? bookingBike?.bicycleId ?? booking.bicycle?.id;
-              if (bikeId) {
-                const match = this.availableBikes.find((b) => b.id === bikeId);
-                if (match) {
-                  this.onBikeSelected(0, match);
-                } else {
-                  firstBike.isQuickAddMode = false;
-                  const srcBike = bookingBike ?? (booking.bicycle as any);
-                  if (srcBike) {
-                    firstBike.selectedBike = {
-                      id: srcBike.bicycleId ?? srcBike.id,
-                    } as Bicycle;
-                    firstBike.bikeEdit = {
-                      rahmennummer: '',
-                      marke: srcBike.marke || '',
-                      modell: srcBike.modell || '',
-                      rahmengroesse: srcBike.rahmengroesse || '',
-                      farbe: srcBike.farbe || '',
-                      reifengroesse: srcBike.reifengroesse || '',
-                      fahrradtyp: srcBike.fahrradtyp || '',
-                      beschreibung: srcBike.beschreibung || '',
-                      zustand: srcBike.zustand || BikeCondition.Gebraucht,
-                    };
-                    this.loadBusyPeriodsFor(0, bikeId);
-                  }
-                }
-              }
-            },
-            error: () => {
-              this.notificationService.error(
-                'Buchung konnte nicht geladen werden',
-              );
-            },
-          });
-        }
-      },
-    });
-    this.startDatum = new Date().toISOString().split('T')[0];
+          this.onDatesChanged(); // triggers loadAvailableForPeriod → auto-selects bike
+        },
+        error: () => {
+          this.notificationService.error('Buchung konnte nicht geladen werden');
+        },
+      });
+    }
   }
 
   onBikeSelected(i: number, bike: Bicycle) {
@@ -2172,10 +2071,50 @@ export class RentalFormComponent implements OnInit {
     const diffDays = Math.round(
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
     );
-    this.rentalDays = Math.max(0, diffDays + 1); // both start and end day count
+    this.rentalDays = Math.max(0, diffDays + 1);
     if (this.rentalDays > 0) {
       this.bikes.forEach((_, i) => this.recalcPriceFor(i));
     }
+    this.loadAvailableForPeriod();
+  }
+
+  private loadAvailableForPeriod() {
+    this.availabilityLoading = true;
+    this.bicycleService.getAvailableForPeriod(this.startDatum, this.endDatum).subscribe({
+      next: (bikes) => {
+        this.availableBikes = bikes;
+        this.availabilityLoading = false;
+        if (this.pendingBikeIdToSelect != null) {
+          const match = bikes.find((b) => b.id === this.pendingBikeIdToSelect);
+          const bikeId = this.pendingBikeIdToSelect;
+          const srcBike = this.pendingBookingBike;
+          this.pendingBikeIdToSelect = null;
+          this.pendingBookingBike = null;
+          if (match) {
+            this.onBikeSelected(0, match);
+          } else if (srcBike) {
+            const firstBike = this.bikes[0];
+            firstBike.isQuickAddMode = false;
+            firstBike.selectedBike = { id: srcBike.bicycleId ?? srcBike.id } as Bicycle;
+            firstBike.bikeEdit = {
+              rahmennummer: '',
+              marke: srcBike.marke || '',
+              modell: srcBike.modell || '',
+              rahmengroesse: srcBike.rahmengroesse || '',
+              farbe: srcBike.farbe || '',
+              reifengroesse: srcBike.reifengroesse || '',
+              fahrradtyp: srcBike.fahrradtyp || '',
+              beschreibung: srcBike.beschreibung || '',
+              zustand: srcBike.zustand || BikeCondition.Gebraucht,
+            };
+            this.loadBusyPeriodsFor(0, bikeId!);
+          }
+        }
+      },
+      error: () => {
+        this.availabilityLoading = false;
+      },
+    });
   }
 
   onRabattChanged(i: number) {

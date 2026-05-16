@@ -155,4 +155,29 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
         }
         return false;
     }
+
+    public async Task<IEnumerable<int>> GetBusyBicycleIdsForPeriodAsync(DateOnly start, DateOnly end)
+    {
+        var startDt = start.ToDateTime(TimeOnly.MinValue);
+        var endDt = end.ToDateTime(TimeOnly.MaxValue);
+
+        var legacyIds = await _dbSet
+            .Where(b => !b.Bikes.Any()
+                && (b.Status == RentalBookingStatus.Approved || b.Status == RentalBookingStatus.Pending)
+                && b.StartDatum <= endDt
+                && b.EndDatum >= startDt)
+            .Select(b => b.BicycleId)
+            .ToListAsync();
+
+        var multiIds = await _context.Set<RentalBookingBike>()
+            .Where(bk => (bk.RentalBooking.Status == RentalBookingStatus.Approved
+                         || bk.RentalBooking.Status == RentalBookingStatus.Pending)
+                && bk.StartDatum <= endDt
+                && bk.EndDatum >= startDt)
+            .Select(bk => bk.BicycleId)
+            .Distinct()
+            .ToListAsync();
+
+        return legacyIds.Union(multiIds);
+    }
 }

@@ -76,6 +76,19 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<int>> GetBusyBicycleIdsForPeriodAsync(DateOnly start, DateOnly end)
+    {
+        var startDt = start.ToDateTime(TimeOnly.MinValue);
+        var endDt = end.ToDateTime(TimeOnly.MaxValue);
+        return await _context.Set<RentalBike>()
+            .Where(rb => rb.Rental.Status == RentalStatus.Active
+                && rb.StartDatum <= endDt
+                && rb.EndDatum >= startDt)
+            .Select(rb => rb.BicycleId)
+            .Distinct()
+            .ToListAsync();
+    }
+
     public async Task<(IEnumerable<Rental> Items, int TotalCount)> GetPaginatedAsync(
         int page, int pageSize,
         Expression<Func<Rental, bool>>? predicate = null)
