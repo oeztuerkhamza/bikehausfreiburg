@@ -202,6 +202,7 @@ public class RentalService : IRentalService
         {
             var mietvertragPdf = await _pdfService.GenerateMietvertragAsync(rental.Id);
             var kautionsquittungPdf = await _pdfService.GenerateKautionsquittungAsync(rental.Id);
+            var bedingungenpdf = await _pdfService.GenerateMietbedingungenpdfAsync(rental.Id);
             var toName = $"{rental.Customer.Vorname} {rental.Customer.Nachname}".Trim();
 
             await _emailService.SendRentalDocumentsAsync(
@@ -209,7 +210,8 @@ public class RentalService : IRentalService
                 string.IsNullOrWhiteSpace(toName) ? "Kunde" : toName,
                 rental.MietvertragNummer,
                 mietvertragPdf,
-                kautionsquittungPdf);
+                kautionsquittungPdf,
+                bedingungenpdf);
         }
         catch (Exception ex)
         {
@@ -332,13 +334,41 @@ public class RentalService : IRentalService
         await _rentalRepository.DeleteAsync(rental.Id);
     }
 
-    public async Task<RentalDto> ReturnBicycleAsync(int id)
+    public async Task<RentalDto> ReturnBicycleAsync(int id, RentalReturnDto dto)
     {
         var rental = await _rentalRepository.GetWithDetailsAsync(id)
             ?? throw new KeyNotFoundException($"Mietvertrag mit ID {id} nicht gefunden.");
 
         if (rental.Status != RentalStatus.Active)
             throw new InvalidOperationException("Nur aktive Mietverträge können zurückgegeben werden.");
+
+        // Apply per-bike return checklist
+        foreach (var bikeReturn in dto.Bikes)
+        {
+            var rentalBike = rental.Bikes.FirstOrDefault(b => b.Id == bikeReturn.RentalBikeId)
+                ?? throw new KeyNotFoundException($"RentalBike mit ID {bikeReturn.RentalBikeId} nicht gefunden.");
+
+            rentalBike.ZustandBeiRueckgabe = bikeReturn.ZustandBeiRueckgabe;
+            rentalBike.SchadenAbzug = bikeReturn.SchadenAbzug;
+            rentalBike.VerspaetungsAbzug = bikeReturn.VerspaetungsAbzug;
+            rentalBike.TatsaechlichesRueckgabeDatum = bikeReturn.TatsaechlichesRueckgabeDatum;
+            rentalBike.AbzugNotizen = bikeReturn.AbzugNotizen;
+            rentalBike.UpdatedAt = DateTime.UtcNow;
+        }
+
+        // Apply per-accessory return status
+        if (dto.Accessories != null)
+        {
+            foreach (var accReturn in dto.Accessories)
+            {
+                var acc = rental.Accessories.FirstOrDefault(a => a.Id == accReturn.RentalAccessoryItemId);
+                if (acc != null)
+                {
+                    acc.Zurueckgegeben = accReturn.Zurueckgegeben;
+                    acc.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+        }
 
         rental.Status = RentalStatus.Returned;
         rental.UpdatedAt = DateTime.UtcNow;

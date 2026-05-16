@@ -7,6 +7,7 @@ import {
   RentalCreate,
   RentalList,
   RentalUpdate,
+  RentalReturn,
   PaginatedResult,
 } from '../models/models';
 
@@ -54,8 +55,8 @@ export class RentalService {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 
-  returnBicycle(id: number): Observable<Rental> {
-    return this.http.post<Rental>(`${this.url}/${id}/return`, {});
+  returnBicycle(id: number, payload: RentalReturn): Observable<Rental> {
+    return this.http.post<Rental>(`${this.url}/${id}/return`, payload);
   }
 
   cancel(id: number): Observable<Rental> {
@@ -64,6 +65,12 @@ export class RentalService {
 
   downloadMietvertragPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.url}/${id}/mietvertrag-pdf`, {
+      responseType: 'blob',
+    });
+  }
+
+  downloadMietbedingungenPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.url}/${id}/bedingungen-pdf`, {
       responseType: 'blob',
     });
   }

@@ -14,7 +14,8 @@ public record RentalAccessoryItemDto(
     decimal Tagespreis,
     decimal? Verlustgebuehr,
     int Menge,
-    decimal Gesamtpreis
+    decimal Gesamtpreis,
+    bool Zurueckgegeben
 );
 
 public record RentalAccessoryItemCreateDto(
@@ -38,7 +39,12 @@ public record RentalBikeDto(
     decimal Kaution,
     bool KautionZurueckgegeben,
     string? KautionRueckgabeUnterschrift,
-    BikeConditionAtHandover ZustandBeiUebergabe
+    BikeConditionAtHandover ZustandBeiUebergabe,
+    BikeConditionAtHandover? ZustandBeiRueckgabe,
+    decimal SchadenAbzug,
+    decimal VerspaetungsAbzug,
+    DateTime? TatsaechlichesRueckgabeDatum,
+    string? AbzugNotizen
 );
 
 public record RentalBikeCreateDto(
@@ -88,6 +94,26 @@ public record RentalListDto(
     decimal Kaution,
     RentalStatus Status,
     bool IsOverdue
+);
+
+// ── Return checklist DTOs ──
+public record RentalBikeReturnDto(
+    int RentalBikeId,
+    BikeConditionAtHandover ZustandBeiRueckgabe,
+    decimal SchadenAbzug,
+    decimal VerspaetungsAbzug,
+    DateTime TatsaechlichesRueckgabeDatum,
+    string? AbzugNotizen
+);
+
+public record RentalAccessoryReturnDto(
+    int RentalAccessoryItemId,
+    bool Zurueckgegeben
+);
+
+public record RentalReturnDto(
+    List<RentalBikeReturnDto> Bikes,
+    List<RentalAccessoryReturnDto>? Accessories
 );
 
 public record RentalCreateDto(

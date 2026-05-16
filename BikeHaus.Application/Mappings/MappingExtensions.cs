@@ -440,7 +440,8 @@ public static class MappingExtensions
         entity.Tagespreis,
         entity.Verlustgebuehr,
         entity.Menge,
-        entity.Tagespreis * entity.Menge
+        entity.Tagespreis * entity.Menge,
+        entity.Zurueckgegeben
     );
 
     public static RentalBikeDto ToDto(this RentalBike entity) => new(
@@ -455,7 +456,12 @@ public static class MappingExtensions
         entity.Kaution,
         entity.KautionZurueckgegeben,
         entity.KautionRueckgabeUnterschrift,
-        entity.ZustandBeiUebergabe
+        entity.ZustandBeiUebergabe,
+        entity.ZustandBeiRueckgabe,
+        entity.SchadenAbzug,
+        entity.VerspaetungsAbzug,
+        entity.TatsaechlichesRueckgabeDatum,
+        entity.AbzugNotizen
     );
 
     public static RentalDto ToDto(this Rental entity) => new(

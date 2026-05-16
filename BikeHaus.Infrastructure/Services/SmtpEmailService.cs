@@ -110,7 +110,8 @@ Dein Team vom Bike Haus Freiburg";
         string toName,
         string mietvertragNummer,
         byte[] mietvertragPdfBytes,
-        byte[] kautionsquittungPdfBytes)
+        byte[] kautionsquittungPdfBytes,
+        byte[] bedingungenpdfBytes)
     {
         var subject = $"Ihre Mietunterlagen - {mietvertragNummer} | Bike Haus Freiburg";
         var body = $@"Hallo {toName},
@@ -124,6 +125,7 @@ Mietvertragsnummer: {mietvertragNummer}
 Im Anhang finden Sie:
 - Mietvertrag
 - Kautionsquittung
+- Mietbedingungen (AGB)
 
     Wenn du noch Fragen hast, melde dich jederzeit.
 
@@ -141,7 +143,8 @@ Viele Gruesse
             new[]
             {
                 (Bytes: mietvertragPdfBytes, FileName: $"Mietvertrag-{mietvertragNummer}.pdf"),
-                (Bytes: kautionsquittungPdfBytes, FileName: $"Kautionsquittung-{mietvertragNummer}.pdf")
+                (Bytes: kautionsquittungPdfBytes, FileName: $"Kautionsquittung-{mietvertragNummer}.pdf"),
+                (Bytes: bedingungenpdfBytes, FileName: $"Mietbedingungen-{mietvertragNummer}.pdf")
             });
     }
 

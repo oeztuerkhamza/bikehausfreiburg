@@ -759,6 +759,11 @@ export interface RentalBike {
   kautionZurueckgegeben: boolean;
   kautionRueckgabeUnterschrift?: string;
   zustandBeiUebergabe: BikeConditionAtHandover;
+  zustandBeiRueckgabe?: BikeConditionAtHandover;
+  schadenAbzug: number;
+  verspaetungsAbzug: number;
+  tatsaechlichesRueckgabeDatum?: string;
+  abzugNotizen?: string;
 }
 
 export interface RentalBikeCreate {
@@ -831,6 +836,26 @@ export interface RentalAccessoryItem {
   verlustgebuehr?: number;
   menge: number;
   gesamtpreis: number;
+  zurueckgegeben: boolean;
+}
+
+export interface RentalBikeReturn {
+  rentalBikeId: number;
+  zustandBeiRueckgabe: BikeConditionAtHandover;
+  schadenAbzug: number;
+  verspaetungsAbzug: number;
+  tatsaechlichesRueckgabeDatum: string;
+  abzugNotizen?: string;
+}
+
+export interface RentalAccessoryReturn {
+  rentalAccessoryItemId: number;
+  zurueckgegeben: boolean;
+}
+
+export interface RentalReturn {
+  bikes: RentalBikeReturn[];
+  accessories?: RentalAccessoryReturn[];
 }
 
 export interface RentalCreate {

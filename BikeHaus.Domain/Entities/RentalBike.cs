@@ -27,6 +27,13 @@ public class RentalBike : BaseEntity
     // Condition at handover is tracked per bike
     public BikeConditionAtHandover ZustandBeiUebergabe { get; set; } = BikeConditionAtHandover.Gut;
 
+    // Return checklist — filled when the bike is handed back
+    public BikeConditionAtHandover? ZustandBeiRueckgabe { get; set; }
+    public decimal SchadenAbzug { get; set; } = 0;        // damage deduction
+    public decimal VerspaetungsAbzug { get; set; } = 0;   // late-return fee
+    public DateTime? TatsaechlichesRueckgabeDatum { get; set; }
+    public string? AbzugNotizen { get; set; }
+
     // Navigation
     public Rental Rental { get; set; } = null!;
     public Bicycle Bicycle { get; set; } = null!;

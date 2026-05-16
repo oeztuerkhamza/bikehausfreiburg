@@ -1019,6 +1019,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<decimal?>("Verlustgebuehr")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<bool>("Zurueckgegeben")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RentalAccessoryId");
@@ -1033,6 +1036,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("AbzugNotizen")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("BicycleId")
                         .HasColumnType("INTEGER");
@@ -1066,11 +1072,23 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<int>("RentalId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<decimal>("SchadenAbzug")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("StartDatum")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("TatsaechlichesRueckgabeDatum")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<decimal>("VerspaetungsAbzug")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ZustandBeiRueckgabe")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("ZustandBeiUebergabe")
                         .HasColumnType("INTEGER");

@@ -1623,58 +1623,6 @@ public class PdfService : IPdfService
                         });
                     }
 
-                    // HAFTUNG & RÜCKGABE
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("BEDINGUNGEN");
-                    col.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(6).Column(wCol =>
-                    {
-                        wCol.Item().Row(wRow =>
-                        {
-                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
-                            wRow.RelativeItem().Text(text =>
-                            {
-                                text.Span("MIETZAHLUNG: ").Bold().FontSize(9);
-                                text.Span("Die Mietgebühr wird im Voraus bezahlt.").FontSize(9).FontColor(Colors.Grey.Darken3);
-                            });
-                        });
-                        wCol.Item().PaddingTop(3).Row(wRow =>
-                        {
-                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
-                            wRow.RelativeItem().Text(text =>
-                            {
-                                text.Span("ÜBERGABE & RÜCKGABE: ").Bold().FontSize(9);
-                                text.Span("Die Fahrradübergabe ist täglich ab 10:00 Uhr möglich. Die Rückgabe muss bis spätestens 18:00 Uhr erfolgen.").FontSize(9).FontColor(Colors.Grey.Darken3);
-                            });
-                        });
-                        wCol.Item().Row(wRow =>
-                        {
-                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
-                            wRow.RelativeItem().Text(text =>
-                            {
-                                text.Span("HAFTUNG: ").Bold().FontSize(9);
-                                text.Span("Der Mieter haftet bei Verlust oder Diebstahl des Fahrrads.").FontSize(9).FontColor(Colors.Grey.Darken3);
-                            });
-                        });
-                        wCol.Item().PaddingTop(3).Row(wRow =>
-                        {
-                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
-                            wRow.RelativeItem().Text(text =>
-                            {
-                                text.Span("VERSPÄTETE RÜCKGABE: ").Bold().FontSize(9);
-                                text.Span("Bei verspäteter Rückgabe wird eine Gebühr von 12 € pro angefangenem Tag berechnet.").FontSize(9).FontColor(Colors.Grey.Darken3);
-                            });
-                        });
-                        wCol.Item().PaddingTop(3).Row(wRow =>
-                        {
-                            wRow.ConstantItem(18).AlignCenter().Text(">").FontSize(13).Bold().FontColor(AccentColor);
-                            wRow.RelativeItem().Text(text =>
-                            {
-                                text.Span("ZUBEHÖR: ").Bold().FontSize(9);
-                                text.Span("Für verlorenes oder beschädigtes Zubehör (Schloss, Helm oder Korb) werden jeweils 30 € berechnet.").FontSize(9).FontColor(Colors.Grey.Darken3);
-                            });
-                        });
-                        wCol.Item().PaddingTop(6).Text("Es gelten zusätzlich die Allgemeinen Geschäftsbedingungen (AGB) auf Seite 2.")
-                            .FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
-                    });
 
                     // Notes if present
                     if (!string.IsNullOrEmpty(rental.Notizen))
@@ -1734,16 +1682,91 @@ public class PdfService : IPdfService
                             }
                             mieterCol.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
                             mieterCol.Item().PaddingTop(2).Text(rental.Customer.FullName).FontSize(9);
-                            mieterCol.Item().PaddingTop(2).Text("Mit Unterschrift bestätigt der Mieter den Erhalt des Fahrrads und die Kenntnis der AGB (Seite 2).")
+                            mieterCol.Item().PaddingTop(2).Text("Mit Unterschrift bestätigt der Mieter den Erhalt des Fahrrads und die Kenntnis der beiliegenden Mietbedingungen.")
                                 .FontSize(7).Italic().FontColor(Colors.Grey.Darken2);
                         });
                     });
 
-                    // ═══════════════════════════════════════════════════════
-                    // PAGE 2 — Allgemeine Geschäftsbedingungen (AGB)
-                    // ═══════════════════════════════════════════════════════
-                    col.Item().PageBreak();
+                });
 
+                // Footer
+                page.Footer().Column(footerCol =>
+                {
+                    footerCol.Item().AlignCenter().Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}")
+                        .FontSize(7).FontColor(Colors.Grey.Darken1);
+                });
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // MIETBEDINGUNGEN (AGB) — separate A4 document
+    // ══════════════════════════════════════════════════════════════
+    public async Task<byte[]> GenerateMietbedingungenpdfAsync(int rentalId)
+    {
+        var rental = await _rentalRepository.GetWithDetailsAsync(rentalId)
+            ?? throw new KeyNotFoundException($"Mietvertrag mit ID {rentalId} nicht gefunden.");
+
+        var shop = await GetShopInfoAsync();
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = QuestPDF.Fluent.Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(0.6f, Unit.Centimetre);
+                page.DefaultTextStyle(x => x.FontSize(10).FontColor(Colors.Grey.Darken4));
+
+                // Same header as Mietvertrag
+                page.Header().Container().Column(col =>
+                {
+                    col.Item().Row(row =>
+                    {
+                        row.ConstantItem(90).Column(logoCol =>
+                        {
+                            if (!string.IsNullOrEmpty(shop.LogoBase64))
+                            {
+                                try
+                                {
+                                    var base64Data = shop.LogoBase64;
+                                    if (base64Data.Contains(","))
+                                        base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
+                                    logoCol.Item().Height(84).Image(Convert.FromBase64String(base64Data));
+                                }
+                                catch { }
+                            }
+                        });
+
+                        row.RelativeItem().AlignMiddle().PaddingHorizontal(10).Column(centerCol =>
+                        {
+                            centerCol.Item().AlignCenter().Text(shop.ShopName).FontSize(18).Bold().FontColor(PrimaryColor);
+                            centerCol.Item().AlignCenter().Text(shop.OwnerName).FontSize(10).Bold().FontColor(Colors.Grey.Darken2);
+                            centerCol.Item().AlignCenter().Text(shop.Street).FontSize(9).FontColor(Colors.Grey.Darken2);
+                            centerCol.Item().AlignCenter().Text(shop.City).FontSize(9).FontColor(Colors.Grey.Darken2);
+                            centerCol.Item().AlignCenter().Text($"Tel: {shop.Telefon}").FontSize(9).FontColor(Colors.Grey.Darken2);
+                            centerCol.Item().AlignCenter().Text($"E-Mail: {shop.Email}").FontSize(9).FontColor(Colors.Grey.Darken2);
+                        });
+
+                        row.ConstantItem(150).AlignMiddle().Border(1).BorderColor(PrimaryColor).Padding(6).Column(box =>
+                        {
+                            box.Item().Text("MIETBEDINGUNGEN").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
+                            box.Item().Text(rental.MietvertragNummer).FontSize(13).Bold().FontColor(PrimaryColor).AlignCenter();
+                            box.Item().Text($"{rental.CreatedAt:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
+                        });
+                    });
+
+                    col.Item().Border(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(2).PaddingHorizontal(6).Row(row =>
+                    {
+                        row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text("Allgemeine Mietbedingungen").FontSize(7).FontColor(Colors.Grey.Darken2);
+                    });
+                });
+
+                page.Content().PaddingTop(4).Column(col =>
+                {
                     col.Item().PaddingTop(4).Element(SectionHeader).Text("ALLGEMEINE GESCHÄFTSBEDINGUNGEN (AGB)");
                     col.Item().PaddingTop(2).Text($"Zum Mietvertrag Nr. {rental.MietvertragNummer} vom {rental.CreatedAt:dd.MM.yyyy}")
                         .FontSize(9).FontColor(Colors.Grey.Darken2);
@@ -1782,11 +1805,11 @@ public class PdfService : IPdfService
                             t.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(price).FontSize(9).AlignRight().Bold();
                         }
 
-                        AddSchadenRow("Schlauch-/Reifenpanne",     "10,00 €");
-                        AddSchadenRow("Kettenschaden",             "20,00 €");
-                        AddSchadenRow("Schaltungsschaden",         "30,00 €");
-                        AddSchadenRow("Leichte Felgenverformung",  "10,00 €");
-                        AddSchadenRow("Reifenersatz",              "50,00 €");
+                        AddSchadenRow("Schlauch-/Reifenpanne",    "10,00 €");
+                        AddSchadenRow("Kettenschaden",            "20,00 €");
+                        AddSchadenRow("Schaltungsschaden",        "30,00 €");
+                        AddSchadenRow("Leichte Felgenverformung", "10,00 €");
+                        AddSchadenRow("Reifenersatz",             "50,00 €");
                     });
                     col.Item().PaddingTop(2).Text(
                         "Eine Anpassung bei nachgewiesen höherem oder geringerem Schaden bleibt vorbehalten."
@@ -1804,16 +1827,31 @@ public class PdfService : IPdfService
                     col.Item().PaddingLeft(12).Text("•  unsachgemäße Nutzung").FontSize(9);
                     col.Item().PaddingLeft(12).Text("•  fehlendes Zubehör").FontSize(9);
 
-                    // Bestätigung (acceptance)
-                    col.Item().PaddingTop(14).Border(1).BorderColor(PrimaryColor).Padding(8).Column(bc =>
+                    // § 5 Übergabe & Öffnungszeiten
+                    col.Item().PaddingTop(8).Text("§ 5 Übergabe & Öffnungszeiten").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text(
+                        "Die Fahrradübergabe ist täglich ab 10:00 Uhr möglich. Die Rückgabe muss bis spätestens 18:00 Uhr erfolgen. " +
+                        "Bei verspäteter Rückgabe wird eine Gebühr von 12 € pro angefangenem Tag berechnet."
+                    ).FontSize(9);
+
+                    // § 6 Haftung
+                    col.Item().PaddingTop(8).Text("§ 6 Haftung").FontSize(11).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(2).Text(
+                        "Der Mieter haftet bei Verlust oder Diebstahl des Fahrrads in voller Höhe des Zeitwerts. " +
+                        "Für verlorenes oder beschädigtes Zubehör (z. B. Schloss, Helm, Korb) werden jeweils 30 € berechnet. " +
+                        "Schäden durch Unfälle oder unsachgemäße Nutzung gehen vollständig zu Lasten des Mieters."
+                    ).FontSize(9);
+
+                    // Bestätigung
+                    col.Item().PaddingTop(16).Border(1).BorderColor(PrimaryColor).Padding(8).Column(bc =>
                     {
                         bc.Item().Text("BESTÄTIGUNG DES MIETERS").FontSize(10).Bold().FontColor(PrimaryColor);
-                        bc.Item().PaddingTop(4).Text("Der Mieter bestätigt den Erhalt des Fahrrads sowie die Kenntnis der Kautionsbedingungen.").FontSize(9);
+                        bc.Item().PaddingTop(4).Text("Der Mieter bestätigt den Erhalt des Fahrrads sowie die vollständige Kenntnisnahme der vorstehenden Mietbedingungen.").FontSize(9);
                         bc.Item().PaddingTop(3).Row(r =>
                         {
                             r.ConstantItem(14).AlignTop().Text(rental.AgbAkzeptiert ? "☑" : "☐").FontSize(12)
                                 .FontColor(rental.AgbAkzeptiert ? AccentColor : Colors.Black);
-                            r.RelativeItem().Text("Ich habe die AGB gelesen und akzeptiert.").FontSize(10).Bold();
+                            r.RelativeItem().Text("Ich habe die Mietbedingungen gelesen und akzeptiert.").FontSize(10).Bold();
                         });
                         bc.Item().PaddingTop(10).Row(r =>
                         {
@@ -1821,7 +1859,7 @@ public class PdfService : IPdfService
                             {
                                 oc.Item().Text("Ort, Datum").FontSize(9).FontColor(Colors.Grey.Darken1);
                                 var ortDatum = !string.IsNullOrEmpty(rental.UnterschriftOrt)
-                                    ? $"{rental.UnterschriftOrt}, {rental.UpdatedAt:dd.MM.yyyy}"
+                                    ? $"{rental.UnterschriftOrt}, {rental.CreatedAt:dd.MM.yyyy}"
                                     : string.Empty;
                                 if (!string.IsNullOrEmpty(ortDatum))
                                     oc.Item().PaddingTop(4).Text(ortDatum).FontSize(10).Bold();
@@ -1854,7 +1892,6 @@ public class PdfService : IPdfService
                     });
                 });
 
-                // Footer
                 page.Footer().Column(footerCol =>
                 {
                     footerCol.Item().AlignCenter().Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}")

@@ -5,7 +5,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
-import { Rental, RentalUpdate } from '../../models/models';
+import {
+  Rental,
+  RentalUpdate,
+  RentalReturn,
+  BikeConditionAtHandover,
+} from '../../models/models';
 
 @Component({
   selector: 'app-rental-detail',
@@ -27,6 +32,9 @@ import { Rental, RentalUpdate } from '../../models/models';
           </button>
           <button class="btn btn-outline" (click)="printKaution()">
             🖨️ Kautionsquittung drucken
+          </button>
+          <button class="btn btn-outline" (click)="printBedingungen()">
+            🖨️ Mietbedingungen drucken
           </button>
           <a routerLink="/rentals" class="btn btn-outline">Zurück</a>
         </div>
@@ -54,14 +62,28 @@ import { Rental, RentalUpdate } from '../../models/models';
         </div>
 
         <div class="info-card">
-          <h3>{{ rental.bikes.length > 1 ? rental.bikes.length + ' Fahrräder' : 'Fahrrad' }}</h3>
-          <div class="bike-block" *ngFor="let rb of rental.bikes; let i = index">
-            <h4 *ngIf="rental.bikes.length > 1">{{ i + 1 }}. {{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</h4>
+          <h3>
+            {{
+              rental.bikes.length > 1
+                ? rental.bikes.length + ' Fahrräder'
+                : 'Fahrrad'
+            }}
+          </h3>
+          <div
+            class="bike-block"
+            *ngFor="let rb of rental.bikes; let i = index"
+          >
+            <h4 *ngIf="rental.bikes.length > 1">
+              {{ i + 1 }}. {{ rb.bicycle.marke }} {{ rb.bicycle.modell }}
+            </h4>
             <div class="info-row" *ngIf="rental.bikes.length === 1">
               <span>Marke/Modell:</span
               ><strong>{{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</strong>
             </div>
-            <div class="info-row" *ngIf="rb.rahmennummer || rb.bicycle.rahmennummer">
+            <div
+              class="info-row"
+              *ngIf="rb.rahmennummer || rb.bicycle.rahmennummer"
+            >
               <span>Rahmennummer:</span
               ><span>{{ rb.rahmennummer || rb.bicycle.rahmennummer }}</span>
             </div>
@@ -73,17 +95,23 @@ import { Rental, RentalUpdate } from '../../models/models';
               ><span>{{ rb.bicycle.reifengroesse }}</span>
             </div>
             <div class="info-row">
-              <span>Mietpreis:</span><strong>{{ rb.mietpreis | number: '1.2-2' }} €</strong>
+              <span>Mietpreis:</span
+              ><strong>{{ rb.mietpreis | number: '1.2-2' }} €</strong>
             </div>
             <div class="info-row">
-              <span>Kaution:</span><strong>{{ rb.kaution | number: '1.2-2' }} €</strong>
+              <span>Kaution:</span
+              ><strong>{{ rb.kaution | number: '1.2-2' }} €</strong>
             </div>
             <div class="info-row">
               <span>Zeitraum:</span>
-              <span>{{ rb.startDatum | date: 'dd.MM.yyyy' }} – {{ rb.endDatum | date: 'dd.MM.yyyy' }}</span>
+              <span
+                >{{ rb.startDatum | date: 'dd.MM.yyyy' }} –
+                {{ rb.endDatum | date: 'dd.MM.yyyy' }}</span
+              >
             </div>
             <div class="info-row">
-              <span>Zustand:</span><span>{{ getZustandText(rb.zustandBeiUebergabe) }}</span>
+              <span>Zustand:</span
+              ><span>{{ getZustandText(rb.zustandBeiUebergabe) }}</span>
             </div>
           </div>
         </div>
@@ -140,9 +168,72 @@ import { Rental, RentalUpdate } from '../../models/models';
         </div>
       </div>
 
+      <!-- Return summary (after return) -->
+      <div
+        class="info-card return-summary"
+        *ngIf="rental.status === 'Returned' && hasReturnData(rental)"
+      >
+        <h3>Rückgabe-Abrechnung</h3>
+        <div *ngFor="let rb of rental.bikes">
+          <div class="bike-block-header" *ngIf="rental.bikes.length > 1">
+            <strong>{{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</strong>
+          </div>
+          <div class="info-row" *ngIf="rb.zustandBeiRueckgabe">
+            <span>Zustand bei Rückgabe:</span>
+            <span>{{ getZustandText(rb.zustandBeiRueckgabe) }}</span>
+          </div>
+          <div class="info-row" *ngIf="rb.tatsaechlichesRueckgabeDatum">
+            <span>Tatsächl. Rückgabe:</span>
+            <span>{{
+              rb.tatsaechlichesRueckgabeDatum | date: 'dd.MM.yyyy'
+            }}</span>
+          </div>
+          <div class="info-row" *ngIf="rb.schadenAbzug > 0">
+            <span>Schadensabzug:</span>
+            <span class="text-danger"
+              >- {{ rb.schadenAbzug | number: '1.2-2' }} €</span
+            >
+          </div>
+          <div class="info-row" *ngIf="rb.verspaetungsAbzug > 0">
+            <span>Verspätungsabzug:</span>
+            <span class="text-danger"
+              >- {{ rb.verspaetungsAbzug | number: '1.2-2' }} €</span
+            >
+          </div>
+          <div class="info-row" *ngIf="rb.abzugNotizen">
+            <span>Notizen:</span>
+            <span>{{ rb.abzugNotizen }}</span>
+          </div>
+        </div>
+        <ng-container *ngIf="getLostAccessories(rental).length > 0">
+          <div class="info-row" *ngFor="let acc of getLostAccessories(rental)">
+            <span>Verlust: {{ acc.bezeichnung }}</span>
+            <span class="text-danger"
+              >- {{ acc.verlustgebuehr | number: '1.2-2' }} €</span
+            >
+          </div>
+        </ng-container>
+        <div class="info-row total-row">
+          <span>Kaution gesamt:</span>
+          <strong>{{ rental.kaution | number: '1.2-2' }} €</strong>
+        </div>
+        <div class="info-row total-row" *ngIf="getTotalAbzug(rental) > 0">
+          <span>Gesamtabzug:</span>
+          <strong class="text-danger"
+            >- {{ getTotalAbzug(rental) | number: '1.2-2' }} €</strong
+          >
+        </div>
+        <div class="info-row total-row highlight">
+          <span>Rückzahlung an Mieter:</span>
+          <strong class="text-success"
+            >{{ getKautionRueckgabeBetrag(rental) | number: '1.2-2' }} €</strong
+          >
+        </div>
+      </div>
+
       <!-- Actions for active rentals -->
       <div class="action-bar" *ngIf="rental.status === 'Active'">
-        <button class="btn btn-success" (click)="returnBicycle()">
+        <button class="btn btn-success" (click)="openReturnModal()">
           ✅ Fahrrad zurückgeben
         </button>
         <button
@@ -226,6 +317,170 @@ import { Rental, RentalUpdate } from '../../models/models';
               [disabled]="sigIsEmpty"
             >
               ✅ Kaution bestätigt
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Return Checklist Modal -->
+    <div
+      class="modal-backdrop"
+      *ngIf="showReturnModal"
+      (click)="closeReturnModal()"
+    >
+      <div class="modal modal-return" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>✅ Fahrrad zurückgeben – Checkliste</h3>
+          <button class="modal-close" (click)="closeReturnModal()">✕</button>
+        </div>
+        <div class="modal-body return-body">
+          <!-- Per-bike checklist -->
+          <div
+            class="return-bike-block"
+            *ngFor="let bikeForm of returnBikeForms; let i = index"
+          >
+            <div class="return-bike-title">
+              🚲 {{ bikeForm.bikeLabel }}
+              <span class="planned-end"
+                >Geplant bis:
+                {{ bikeForm.plannedEndDatum | date: 'dd.MM.yyyy' }}</span
+              >
+            </div>
+
+            <div class="form-row">
+              <label>Tatsächl. Rückgabedatum</label>
+              <input
+                type="date"
+                [(ngModel)]="bikeForm.tatsaechlichesRueckgabeDatum"
+                (change)="onReturnDateChange(i)"
+              />
+              <span class="overdue-hint" *ngIf="isOverdue(i)">
+                ⚠ {{ getOverdueDays(i) }} Tag(e) zu spät
+              </span>
+            </div>
+
+            <div class="form-row">
+              <label>Zustand bei Rückgabe</label>
+              <select [(ngModel)]="bikeForm.zustandBeiRueckgabe">
+                <option value="SehrGut">Sehr gut</option>
+                <option value="Gut">Gut</option>
+                <option value="Gebrauchsspuren">Gebrauchsspuren</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label>Schadensabzug (€)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                [(ngModel)]="bikeForm.schadenAbzug"
+                placeholder="0,00"
+              />
+            </div>
+
+            <div class="form-row">
+              <label>Verspätungsgebühr (€)</label>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                [(ngModel)]="bikeForm.verspaetungsAbzug"
+                placeholder="0,00"
+              />
+              <span class="hint" *ngIf="isOverdue(i)">
+                Tagesmiete:
+                {{ bikeForm.mietpreis | number: '1.2-2' }} € ×
+                {{ getOverdueDays(i) }} Tage =
+                {{ getSuggestedLateFee(i) | number: '1.2-2' }} €
+                <button class="btn-link" (click)="applySuggestedLateFee(i)">
+                  Übernehmen
+                </button>
+              </span>
+            </div>
+
+            <div class="form-row">
+              <label>Notizen</label>
+              <input
+                type="text"
+                [(ngModel)]="bikeForm.abzugNotizen"
+                placeholder="Optionale Anmerkungen"
+              />
+            </div>
+
+            <div class="bike-kaution-calc">
+              <span
+                >Kaution:
+                <strong
+                  >{{ bikeForm.kaution | number: '1.2-2' }} €</strong
+                ></span
+              >
+              <span *ngIf="getBikeAbzug(i) > 0" class="text-danger">
+                − {{ getBikeAbzug(i) | number: '1.2-2' }} €
+              </span>
+              <span class="text-success">
+                =
+                <strong
+                  >{{ getBikeKautionRueckgabe(i) | number: '1.2-2' }} €</strong
+                >
+              </span>
+            </div>
+          </div>
+
+          <!-- Accessories checklist -->
+          <div
+            class="return-section"
+            *ngIf="returnAccessoryForms.length > 0"
+          >
+            <div class="return-section-title">📦 Zubehör</div>
+            <div
+              class="acc-row"
+              *ngFor="let accForm of returnAccessoryForms; let j = index"
+            >
+              <label class="acc-check">
+                <input type="checkbox" [(ngModel)]="accForm.zurueckgegeben" />
+                {{ accForm.bezeichnung }}
+                (× {{ accForm.menge }})
+              </label>
+              <span
+                class="acc-loss"
+                *ngIf="!accForm.zurueckgegeben && accForm.verlustgebuehr"
+              >
+                Verlustgebühr:
+                <strong class="text-danger"
+                  >{{ accForm.verlustgebuehr | number: '1.2-2' }} €</strong
+                >
+              </span>
+            </div>
+          </div>
+
+          <!-- Summary -->
+          <div class="return-summary-box">
+            <div class="summary-row">
+              <span>Kaution gesamt:</span>
+              <strong>{{ rental?.kaution | number: '1.2-2' }} €</strong>
+            </div>
+            <div class="summary-row" *ngIf="getModalTotalAbzug() > 0">
+              <span>Gesamtabzug:</span>
+              <strong class="text-danger"
+                >− {{ getModalTotalAbzug() | number: '1.2-2' }} €</strong
+              >
+            </div>
+            <div class="summary-row total">
+              <span>Rückzahlung an Mieter:</span>
+              <strong class="text-success"
+                >{{ getModalKautionRueckgabe() | number: '1.2-2' }} €</strong
+              >
+            </div>
+          </div>
+
+          <div class="return-actions">
+            <button class="btn btn-outline" (click)="closeReturnModal()">
+              Abbrechen
+            </button>
+            <button class="btn btn-success" (click)="submitReturnChecklist()">
+              ✅ Rückgabe bestätigen
             </button>
           </div>
         </div>
@@ -512,6 +767,172 @@ import { Rental, RentalUpdate } from '../../models/models';
         gap: 10px;
         justify-content: flex-end;
       }
+      /* Return modal */
+      .modal-return {
+        max-width: 640px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .return-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        overflow-y: auto;
+      }
+      .return-bike-block {
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md, 10px);
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: var(--bg-secondary);
+      }
+      .return-bike-title {
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .planned-end {
+        font-size: 0.78rem;
+        font-weight: 400;
+        color: var(--text-muted);
+      }
+      .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .form-row label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .form-row input,
+      .form-row select {
+        padding: 7px 10px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm, 6px);
+        font-size: 0.88rem;
+        background: var(--bg-card);
+        color: var(--text-primary);
+      }
+      .overdue-hint {
+        font-size: 0.78rem;
+        color: #f59e0b;
+        font-weight: 600;
+      }
+      .hint {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .btn-link {
+        background: none;
+        border: none;
+        color: var(--accent-primary);
+        cursor: pointer;
+        font-size: 0.78rem;
+        padding: 0;
+        text-decoration: underline;
+      }
+      .bike-kaution-calc {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        font-size: 0.85rem;
+        padding-top: 6px;
+        border-top: 1px solid var(--border-light);
+      }
+      .return-section {
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md, 10px);
+        padding: 14px;
+      }
+      .return-section-title {
+        font-weight: 700;
+        font-size: 0.88rem;
+        margin-bottom: 10px;
+      }
+      .acc-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border-light);
+        font-size: 0.85rem;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .acc-row:last-child {
+        border-bottom: none;
+      }
+      .acc-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+      .acc-check input[type='checkbox'] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+      .acc-loss {
+        font-size: 0.82rem;
+      }
+      .return-summary-box {
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md, 10px);
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.88rem;
+      }
+      .summary-row.total {
+        border-top: 2px solid var(--border-color);
+        padding-top: 8px;
+        margin-top: 4px;
+        font-size: 1rem;
+      }
+      .return-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      /* Return summary on detail page */
+      .return-summary {
+        margin-top: 20px;
+      }
+      .bike-block-header {
+        font-size: 0.88rem;
+        padding: 6px 0 2px 0;
+        color: var(--text-muted);
+      }
+      .total-row {
+        font-weight: 700;
+      }
+      .highlight {
+        background: rgba(16, 185, 129, 0.06);
+        padding: 6px 0;
+        border-radius: 6px;
+      }
     `,
   ],
 })
@@ -533,6 +954,28 @@ export class RentalDetailComponent implements OnInit {
   showSignatureModal = false;
   sigIsEmpty = true;
   private sigDrawing = false;
+
+  // Return checklist modal
+  showReturnModal = false;
+  returnBikeForms: {
+    rentalBikeId: number;
+    bikeLabel: string;
+    plannedEndDatum: string;
+    kaution: number;
+    mietpreis: number;
+    zustandBeiRueckgabe: BikeConditionAtHandover;
+    schadenAbzug: number;
+    verspaetungsAbzug: number;
+    tatsaechlichesRueckgabeDatum: string;
+    abzugNotizen: string;
+  }[] = [];
+  returnAccessoryForms: {
+    rentalAccessoryItemId: number;
+    bezeichnung: string;
+    menge: number;
+    verlustgebuehr: number | undefined;
+    zurueckgegeben: boolean;
+  }[] = [];
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id')!;
@@ -586,27 +1029,153 @@ export class RentalDetailComponent implements OnInit {
     return map[z] || z;
   }
 
-  returnBicycle() {
+  openReturnModal() {
     if (!this.rental) return;
-    this.dialogService
-      .confirm({
-        title: 'Fahrrad zurückgeben',
-        message: 'Möchten Sie das Fahrrad als zurückgegeben markieren?',
-        type: 'confirm',
-        confirmText: 'Zurückgeben',
-      })
-      .then((ok) => {
-        if (ok) {
-          this.rentalService.returnBicycle(this.rental!.id).subscribe({
-            next: (r) => {
-              this.rental = r;
-              this.notificationService.success('Fahrrad zurückgegeben');
-            },
-            error: (err) =>
-              this.notificationService.error(err.error?.error || 'Fehler'),
-          });
-        }
-      });
+    const today = new Date().toISOString().split('T')[0];
+    this.returnBikeForms = this.rental.bikes.map((rb) => ({
+      rentalBikeId: rb.id,
+      bikeLabel: `${rb.bicycle.marke} ${rb.bicycle.modell}`.trim(),
+      plannedEndDatum: rb.endDatum,
+      kaution: rb.kaution,
+      mietpreis: rb.mietpreis,
+      zustandBeiRueckgabe: BikeConditionAtHandover.Gut,
+      schadenAbzug: 0,
+      verspaetungsAbzug: 0,
+      tatsaechlichesRueckgabeDatum: today,
+      abzugNotizen: '',
+    }));
+    this.returnAccessoryForms = this.rental.accessories.map((acc) => ({
+      rentalAccessoryItemId: acc.id,
+      bezeichnung: acc.bezeichnung,
+      menge: acc.menge,
+      verlustgebuehr: acc.verlustgebuehr,
+      zurueckgegeben: true,
+    }));
+    this.showReturnModal = true;
+  }
+
+  closeReturnModal() {
+    this.showReturnModal = false;
+  }
+
+  isOverdue(bikeIndex: number): boolean {
+    const f = this.returnBikeForms[bikeIndex];
+    if (!f) return false;
+    return new Date(f.tatsaechlichesRueckgabeDatum) > new Date(f.plannedEndDatum);
+  }
+
+  getOverdueDays(bikeIndex: number): number {
+    const f = this.returnBikeForms[bikeIndex];
+    if (!f) return 0;
+    const diff = new Date(f.tatsaechlichesRueckgabeDatum).getTime() - new Date(f.plannedEndDatum).getTime();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  }
+
+  getSuggestedLateFee(bikeIndex: number): number {
+    const f = this.returnBikeForms[bikeIndex];
+    if (!f) return 0;
+    return this.getOverdueDays(bikeIndex) * f.mietpreis;
+  }
+
+  applySuggestedLateFee(bikeIndex: number) {
+    this.returnBikeForms[bikeIndex].verspaetungsAbzug =
+      this.getSuggestedLateFee(bikeIndex);
+  }
+
+  onReturnDateChange(bikeIndex: number) {
+    if (
+      this.isOverdue(bikeIndex) &&
+      this.returnBikeForms[bikeIndex].verspaetungsAbzug === 0
+    ) {
+      this.returnBikeForms[bikeIndex].verspaetungsAbzug =
+        this.getSuggestedLateFee(bikeIndex);
+    }
+  }
+
+  getBikeAbzug(bikeIndex: number): number {
+    const f = this.returnBikeForms[bikeIndex];
+    return (f.schadenAbzug || 0) + (f.verspaetungsAbzug || 0);
+  }
+
+  getBikeKautionRueckgabe(bikeIndex: number): number {
+    const f = this.returnBikeForms[bikeIndex];
+    if (!f) return 0;
+    return Math.max(0, f.kaution - this.getBikeAbzug(bikeIndex));
+  }
+
+  getModalLostAccessoriesAbzug(): number {
+    return this.returnAccessoryForms.reduce((sum, f) => {
+      return f.zurueckgegeben ? sum : sum + (f.verlustgebuehr ?? 0);
+    }, 0);
+  }
+
+  getModalTotalAbzug(): number {
+    const bikeAbzug = this.returnBikeForms.reduce(
+      (s, _, i) => s + this.getBikeAbzug(i),
+      0,
+    );
+    return bikeAbzug + this.getModalLostAccessoriesAbzug();
+  }
+
+  getModalKautionRueckgabe(): number {
+    if (!this.rental) return 0;
+    return Math.max(0, this.rental.kaution - this.getModalTotalAbzug());
+  }
+
+  submitReturnChecklist() {
+    if (!this.rental) return;
+    const payload: RentalReturn = {
+      bikes: this.returnBikeForms.map((f) => ({
+        rentalBikeId: f.rentalBikeId,
+        zustandBeiRueckgabe: f.zustandBeiRueckgabe,
+        schadenAbzug: f.schadenAbzug || 0,
+        verspaetungsAbzug: f.verspaetungsAbzug || 0,
+        tatsaechlichesRueckgabeDatum: new Date(
+          f.tatsaechlichesRueckgabeDatum,
+        ).toISOString(),
+        abzugNotizen: f.abzugNotizen || undefined,
+      })),
+      accessories:
+        this.returnAccessoryForms.length > 0
+          ? this.returnAccessoryForms
+          : undefined,
+    };
+    this.closeReturnModal();
+    this.rentalService.returnBicycle(this.rental.id, payload).subscribe({
+      next: (r) => {
+        this.rental = r;
+        this.notificationService.success('Fahrrad zurückgegeben');
+      },
+      error: (err) =>
+        this.notificationService.error(err.error?.error || 'Fehler'),
+    });
+  }
+
+  // ── Return summary helpers (displayed after return) ──
+  hasReturnData(rental: Rental): boolean {
+    return rental.bikes.some((b) => b.zustandBeiRueckgabe != null);
+  }
+
+  getLostAccessories(rental: Rental) {
+    return rental.accessories.filter(
+      (a) => !a.zurueckgegeben && a.verlustgebuehr,
+    );
+  }
+
+  getTotalAbzug(rental: Rental): number {
+    const bikeAbzug = rental.bikes.reduce(
+      (s, b) => s + (b.schadenAbzug || 0) + (b.verspaetungsAbzug || 0),
+      0,
+    );
+    const lossAbzug = this.getLostAccessories(rental).reduce(
+      (s, a) => s + (a.verlustgebuehr ?? 0),
+      0,
+    );
+    return bikeAbzug + lossAbzug;
+  }
+
+  getKautionRueckgabeBetrag(rental: Rental): number {
+    return Math.max(0, rental.kaution - this.getTotalAbzug(rental));
   }
 
   markKautionReturned() {
@@ -726,6 +1295,14 @@ export class RentalDetailComponent implements OnInit {
   printMietvertrag() {
     if (!this.rental) return;
     this.rentalService.downloadMietvertragPdf(this.rental.id).subscribe({
+      next: (blob) => this.printBlob(blob),
+      error: () => this.notificationService.error('Fehler beim Drucken'),
+    });
+  }
+
+  printBedingungen() {
+    if (!this.rental) return;
+    this.rentalService.downloadMietbedingungenPdf(this.rental.id).subscribe({
       next: (blob) => this.printBlob(blob),
       error: () => this.notificationService.error('Fehler beim Drucken'),
     });
