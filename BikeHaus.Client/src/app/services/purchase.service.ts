@@ -32,6 +32,7 @@ export class PurchaseService {
     marke?: string,
     fahrradtyp?: string,
     farbe?: string,
+    reifengroesse?: string,
   ): Observable<PaginatedResult<PurchaseList>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -42,6 +43,7 @@ export class PurchaseService {
     if (marke) params = params.set('marke', marke);
     if (fahrradtyp) params = params.set('fahrradtyp', fahrradtyp);
     if (farbe) params = params.set('farbe', farbe);
+    if (reifengroesse) params = params.set('reifengroesse', reifengroesse);
 
     return this.http.get<PaginatedResult<PurchaseList>>(
       `${this.url}/paginated`,

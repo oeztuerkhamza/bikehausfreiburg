@@ -146,6 +146,22 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             class="filter-input"
           />
         </div>
+        <div class="filter-item">
+          <label>Reifengröße (Zoll)</label>
+          <select [(ngModel)]="filterReifengroesse" (change)="onFilterChange()" class="filter-input">
+            <option value="">{{ t.allBicycleTypes ? t.all : 'Alle' }}</option>
+            <option value="12">12"</option>
+            <option value="14">14"</option>
+            <option value="16">16"</option>
+            <option value="18">18"</option>
+            <option value="20">20"</option>
+            <option value="24">24"</option>
+            <option value="26">26"</option>
+            <option value="27.5">27.5"</option>
+            <option value="28">28"</option>
+            <option value="29">29"</option>
+          </select>
+        </div>
       </div>
 
       <div class="table-wrap">
@@ -638,6 +654,7 @@ export class SaleListComponent implements OnInit {
   filterMarke = '';
   filterFahrradtyp = '';
   filterFarbe = '';
+  filterReifengroesse = '';
   currentPage = 1;
   pageSize = 20;
   showFilters = false;
@@ -661,6 +678,7 @@ export class SaleListComponent implements OnInit {
     if (this.filterMarke) count++;
     if (this.filterFahrradtyp) count++;
     if (this.filterFarbe) count++;
+    if (this.filterReifengroesse) count++;
     return count;
   }
 
@@ -678,6 +696,7 @@ export class SaleListComponent implements OnInit {
         this.filterMarke || undefined,
         this.filterFahrradtyp || undefined,
         this.filterFarbe || undefined,
+        this.filterReifengroesse || undefined,
       )
       .subscribe((data) => {
         this.paginatedResult = data;
@@ -689,6 +708,7 @@ export class SaleListComponent implements OnInit {
     this.filterMarke = '';
     this.filterFahrradtyp = '';
     this.filterFarbe = '';
+    this.filterReifengroesse = '';
     this.currentPage = 1;
     this.load();
   }

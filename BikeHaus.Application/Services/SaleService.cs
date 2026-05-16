@@ -48,6 +48,7 @@ public class SaleService : ISaleService
         var marke = paginationParams.Marke?.ToLower();
         var fahrradtyp = paginationParams.Fahrradtyp?.ToLower();
         var farbe = paginationParams.Farbe?.ToLower();
+        var reifengroesse = paginationParams.Reifengroesse;
 
         System.Linq.Expressions.Expression<Func<Sale, bool>> predicate = s =>
             // Payment method filter
@@ -63,7 +64,8 @@ public class SaleService : ISaleService
             // Bicycle property filters
             (string.IsNullOrEmpty(marke) || s.Bicycle.Marke.ToLower().Contains(marke)) &&
             (string.IsNullOrEmpty(fahrradtyp) || (s.Bicycle.Fahrradtyp != null && s.Bicycle.Fahrradtyp.ToLower().Contains(fahrradtyp))) &&
-            (string.IsNullOrEmpty(farbe) || (s.Bicycle.Farbe != null && s.Bicycle.Farbe.ToLower().Contains(farbe)));
+            (string.IsNullOrEmpty(farbe) || (s.Bicycle.Farbe != null && s.Bicycle.Farbe.ToLower().Contains(farbe))) &&
+            (string.IsNullOrEmpty(reifengroesse) || s.Bicycle.Reifengroesse == reifengroesse);
 
         var (items, totalCount) = await _saleRepository.GetPaginatedAsync(
             paginationParams.Page,

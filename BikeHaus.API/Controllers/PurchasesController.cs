@@ -34,7 +34,8 @@ public class PurchasesController : ControllerBase
         [FromQuery] string? search = null,
         [FromQuery] string? marke = null,
         [FromQuery] string? fahrradtyp = null,
-        [FromQuery] string? farbe = null)
+        [FromQuery] string? farbe = null,
+        [FromQuery] string? reifengroesse = null)
     {
         var paginationParams = new PaginationParams
         {
@@ -44,7 +45,8 @@ public class PurchasesController : ControllerBase
             SearchTerm = search,
             Marke = marke,
             Fahrradtyp = fahrradtyp,
-            Farbe = farbe
+            Farbe = farbe,
+            Reifengroesse = reifengroesse
         };
         var result = await _purchaseService.GetPaginatedAsync(paginationParams);
         return Ok(result);
