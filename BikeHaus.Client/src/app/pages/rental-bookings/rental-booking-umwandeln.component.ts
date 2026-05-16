@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RentalBookingService } from '../../services/rental-booking.service';
 import { RentalService } from '../../services/rental.service';
 import { NotificationService } from '../../services/notification.service';
+import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import {
   RentalBooking,
   RentalBookingBike,
@@ -23,7 +24,7 @@ interface BikeFormData {
 @Component({
   selector: 'app-rental-booking-umwandeln',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SignaturePadComponent],
   template: `
     <div class="page" *ngIf="booking">
       <div class="page-header">
@@ -133,6 +134,16 @@ interface BikeFormData {
             </select>
           </div>
         </div>
+      </div>
+
+      <div class="section-card">
+        <h2>Kundenunterschrift</h2>
+        <p class="signature-hint">Bitte den Kunden hier unterschreiben lassen.</p>
+        <app-signature-pad
+          label=""
+          [(ngModel)]="mieterUnterschrift"
+          name="mieter_unterschrift"
+        ></app-signature-pad>
       </div>
 
       <div class="form-actions">
@@ -279,6 +290,7 @@ interface BikeFormData {
     .btn-primary { background: var(--accent-primary, #6366f1); color: #fff; border-color: var(--accent-primary, #6366f1); }
     .btn-primary:hover { opacity: 0.9; }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .signature-hint { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 10px 0; }
     .loading, .error-msg { text-align: center; padding: 40px; color: var(--text-muted); }
   `],
 })
@@ -299,6 +311,7 @@ export class RentalBookingUmwandelnComponent implements OnInit {
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   kautionZahlungsart: PaymentMethod = PaymentMethod.Bar;
   notizen = '';
+  mieterUnterschrift = '';
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -376,6 +389,8 @@ export class RentalBookingUmwandelnComponent implements OnInit {
       zahlungsart: this.zahlungsart,
       kautionZahlungsart: this.kautionZahlungsart,
       notizen: this.notizen || undefined,
+      mieterUnterschrift: this.mieterUnterschrift || undefined,
+      agbAkzeptiert: !!this.mieterUnterschrift,
     };
 
     this.rentalService.create(payload).subscribe({

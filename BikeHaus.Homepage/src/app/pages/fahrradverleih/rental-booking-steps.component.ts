@@ -543,6 +543,26 @@ type BookingStep =
           </p>
         </div>
 
+        <div class="terms-acceptance">
+          <label class="terms-label">
+            <input
+              type="checkbox"
+              [checked]="termsAccepted()"
+              (change)="termsAccepted.set(!termsAccepted())"
+              class="terms-checkbox"
+            />
+            <span>
+              {{ t().rentalSteps?.termsPrefix ?? 'Ich akzeptiere die' }}
+              <a
+                href="/assets/fahrradverleih-bedingungen.pdf"
+                target="_blank"
+                rel="noopener"
+                class="terms-link"
+              >{{ t().rentalSteps?.termsLinkText ?? 'Fahrradverleih-Bedingungen' }}</a>
+            </span>
+          </label>
+        </div>
+
         <div class="confirm-actions">
           <button (click)="goToStep('customer-info')" class="btn-secondary">
             {{ t().rentalSteps?.back ?? 'Zurück' }}
@@ -550,7 +570,7 @@ type BookingStep =
           <button
             (click)="confirmAndSubmit()"
             class="btn-primary"
-            [disabled]="isSubmitting()"
+            [disabled]="isSubmitting() || !termsAccepted()"
           >
             {{
               isSubmitting()
@@ -1215,6 +1235,43 @@ type BookingStep =
         border-left: 4px solid #ef4444;
       }
 
+      .terms-acceptance {
+        margin: 1.5rem 0 0.5rem;
+        padding: 1rem 1.25rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+      }
+
+      .terms-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--rb-text-soft);
+      }
+
+      .terms-checkbox {
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        margin-top: 2px;
+        accent-color: var(--rb-accent);
+        cursor: pointer;
+      }
+
+      .terms-link {
+        color: var(--rb-accent);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover {
+          opacity: 0.85;
+        }
+      }
+
       .booking-actions,
       .confirm-actions {
         display: flex;
@@ -1327,6 +1384,7 @@ export class RentalBookingStepsComponent implements OnInit {
   bookingError = signal('');
   isSubmitting = signal(false);
   bookingNumber = signal('');
+  termsAccepted = signal(false);
 
   bookingForm = {
     vorname: '',
