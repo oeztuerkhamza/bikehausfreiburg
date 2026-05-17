@@ -1,21 +1,21 @@
 import {
-    Component,
-    ElementRef,
-    inject,
-    HostListener,
-    PLATFORM_ID,
-    signal,
+  Component,
+  ElementRef,
+  inject,
+  HostListener,
+  PLATFORM_ID,
+  signal,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import {
-    TranslationService,
-    Language,
+  TranslationService,
+  Language,
 } from '../../services/translation.service';
 import { ShopInfoService } from '../../services/shop-info.service';
 import {
-    LANGUAGE_LABELS,
-    SUPPORTED_LANGUAGES,
+  LANGUAGE_LABELS,
+  SUPPORTED_LANGUAGES,
 } from '../../services/language-config';
 
 @Component({
@@ -80,7 +80,9 @@ import {
                 width="24"
                 height="16"
               />
-              <span class="lang-trigger-label">{{ currentLang().toUpperCase() }}</span>
+              <span class="lang-trigger-label">{{
+                currentLang().toUpperCase()
+              }}</span>
               <svg
                 width="14"
                 height="14"
@@ -335,7 +337,9 @@ import {
         cursor: pointer;
         text-align: left;
         font-family: var(--font-family);
-        transition: background 0.2s, color 0.2s;
+        transition:
+          background 0.2s,
+          color 0.2s;
       }
 
       .lang-option:hover,
@@ -679,7 +683,6 @@ export class NavbarComponent {
       label: () => this.t().neueFahrraeder,
       exact: false,
     },
-    { path: 'zubehoer', label: () => this.t().accessories, exact: false },
     {
       path: 'fahrradverleih',
       label: () => this.t().bikeRental,
