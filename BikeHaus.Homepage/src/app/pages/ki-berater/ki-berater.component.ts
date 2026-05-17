@@ -2,7 +2,7 @@ import {
   Component, OnInit, OnDestroy, inject, signal, computed,
   PLATFORM_ID, ElementRef, ViewChild, afterNextRender,
 } from '@angular/core';
-import { isPlatformBrowser, CommonModule } from '@angular/common';
+import { isPlatformBrowser, CommonModule, DOCUMENT } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Title, Meta } from '@angular/platform-browser';
@@ -164,6 +164,38 @@ import { ChatMessage, PublicBicycle, KleinanzeigenCard, BikeAdviserSseEvent, Bik
 
         </div>
       </section>
+
+      <!-- SEO content: How it works + FAQ -->
+      <section class="seo-section">
+        <div class="seo-wrapper">
+
+          <div class="how-it-works">
+            <h2>{{ faqHeading() }}</h2>
+            <div class="how-steps">
+              @for (step of howSteps(); track $index) {
+                <div class="how-step">
+                  <span class="step-num">{{ $index + 1 }}</span>
+                  <p>{{ step }}</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="faq">
+            <h3>{{ faqTitle() }}</h3>
+            <div class="faq-list">
+              @for (item of faqItems(); track $index) {
+                <details class="faq-item">
+                  <summary>{{ item.q }}</summary>
+                  <p>{{ item.a }}</p>
+                </details>
+              }
+            </div>
+          </div>
+
+        </div>
+      </section>
+
     </div>
   `,
   styles: [`
@@ -461,6 +493,72 @@ import { ChatMessage, PublicBicycle, KleinanzeigenCard, BikeAdviserSseEvent, Bik
       .chip { font-size: 12.5px; padding: 7px 14px; }
       .shop-cta { flex-direction: column; }
     }
+
+    /* ── SEO section ── */
+    .seo-section {
+      background: #fff;
+      border-top: 1px solid #edf0f7;
+      padding: 56px 16px 72px;
+    }
+    .seo-wrapper {
+      max-width: 820px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+    }
+    @media (max-width: 700px) {
+      .seo-wrapper { grid-template-columns: 1fr; gap: 32px; }
+    }
+
+    .seo-section h2 {
+      font-size: 20px; font-weight: 700; color: #1a1a2e;
+      margin: 0 0 20px;
+    }
+    .how-steps {
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .how-step {
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #0f3460; color: #fff;
+      font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .how-step p {
+      font-size: 14px; color: #444; line-height: 1.6; margin: 0; padding-top: 4px;
+    }
+
+    .faq h3 {
+      font-size: 18px; font-weight: 700; color: #1a1a2e;
+      margin: 0 0 16px;
+    }
+    .faq-list { display: flex; flex-direction: column; gap: 8px; }
+    .faq-item {
+      border: 1px solid #e8ecf5;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .faq-item summary {
+      padding: 13px 16px;
+      font-size: 14px; font-weight: 600; color: #1a1a2e;
+      cursor: pointer; list-style: none;
+      background: #f9faff;
+      transition: background 0.15s;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+'; float: right; color: #0f3460; font-size: 18px; line-height: 1;
+    }
+    .faq-item[open] summary::after { content: '−'; }
+    .faq-item[open] summary { background: #eef2fc; }
+    .faq-item p {
+      padding: 12px 16px 14px;
+      font-size: 13.5px; color: #555; line-height: 1.65; margin: 0;
+    }
   `]
 })
 export class KiBeraterComponent implements OnInit, OnDestroy {
@@ -470,12 +568,131 @@ export class KiBeraterComponent implements OnInit, OnDestroy {
   private apiService = inject(ApiService);
   private route = inject(ActivatedRoute);
   private platformId = inject(PLATFORM_ID);
+  private doc = inject(DOCUMENT);
   private scrollTimeout: ReturnType<typeof setTimeout> | null = null;
 
   @ViewChild('messagesContainer') private messagesContainer?: ElementRef<HTMLElement>;
 
   t = this.translationService.translations;
   lang = signal<string>('de');
+
+  // ── SEO content computed from language ───────────────────────────────────
+
+  faqHeading = computed(() => {
+    const l = this.lang();
+    if (l === 'en') return 'How does the AI Bike Adviser work?';
+    if (l === 'fr') return 'Comment fonctionne le conseiller vélo IA ?';
+    if (l === 'tr') return 'YZ Bisiklet Danışmanı nasıl çalışır?';
+    return 'Wie funktioniert der KI-Fahrradberater?';
+  });
+
+  howSteps = computed(() => {
+    const l = this.lang();
+    if (l === 'en') return [
+      'Describe what you are looking for – budget, height, intended use or who the bike is for.',
+      'The AI asks 1–2 targeted follow-up questions to narrow down the selection.',
+      'You receive personalised bike recommendations directly from our Freiburg stock.',
+    ];
+    if (l === 'fr') return [
+      'Décrivez ce que vous cherchez – budget, taille, utilisation ou pour qui est le vélo.',
+      'L\'IA pose 1 à 2 questions de suivi ciblées pour affiner la sélection.',
+      'Vous recevez des recommandations personnalisées directement depuis notre stock fribourgeois.',
+    ];
+    if (l === 'tr') return [
+      'Ne aradığını söyle – bütçe, boy, kullanım amacı veya kimin için bisiklet istediğini.',
+      'YZ, seçimi daraltmak için 1–2 hedefli soru sorar.',
+      'Freiburg stoğumuzdan sana özel bisiklet önerileri alırsın.',
+    ];
+    return [
+      'Beschreib, was du suchst – Budget, Körpergröße, Nutzungszweck oder für wen das Fahrrad ist.',
+      'Die KI stellt 1–2 gezielte Rückfragen, um die Auswahl einzugrenzen.',
+      'Du erhältst persönliche Fahrradempfehlungen direkt aus unserem Freiburger Bestand.',
+    ];
+  });
+
+  faqTitle = computed(() => {
+    const l = this.lang();
+    if (l === 'en') return 'Frequently Asked Questions';
+    if (l === 'fr') return 'Questions fréquentes';
+    if (l === 'tr') return 'Sık Sorulan Sorular';
+    return 'Häufig gestellte Fragen';
+  });
+
+  faqItems = computed(() => {
+    const l = this.lang();
+    if (l === 'en') return [
+      {
+        q: 'Which bike is right for me?',
+        a: 'That depends on your height, intended use and budget. Our AI adviser asks 1–2 targeted questions and recommends bikes from our Freiburg stock – mountain bikes, e-bikes, trekking bikes, city bikes and more.',
+      },
+      {
+        q: "What size bike does my child need?",
+        a: 'Wheel size by age: 4–6 years: 16", 6–9 years: 20", 9–12 years: 24", 12+ years: 26–28". Just tell the adviser your child\'s age and it will suggest the right bike from our stock.',
+      },
+      {
+        q: 'Is the AI adviser free?',
+        a: 'Yes, completely free with no sign-up required. Type your question and receive instant bike recommendations from our Freiburg stock.',
+      },
+      {
+        q: 'What types of bikes do you have?',
+        a: 'Our stock includes used and new mountain bikes, e-bikes, trekking bikes, city bikes, children\'s bikes, ladies\' and men\'s bikes – all sizes and price ranges.',
+      },
+    ];
+    if (l === 'fr') return [
+      {
+        q: 'Quel vélo me convient ?',
+        a: 'Cela dépend de votre taille, de votre utilisation et de votre budget. Notre conseiller IA pose 1–2 questions et recommande des vélos de notre stock à Fribourg – VTT, vélos électriques, vélos de trekking, vélos de ville et plus.',
+      },
+      {
+        q: 'Quelle taille de vélo pour mon enfant ?',
+        a: 'Taille de roue par âge : 4–6 ans : 16", 6–9 ans : 20", 9–12 ans : 24", 12+ ans : 26–28". Indiquez simplement l\'âge de votre enfant et l\'IA suggère le bon vélo.',
+      },
+      {
+        q: 'Le conseiller IA est-il gratuit ?',
+        a: 'Oui, totalement gratuit, sans inscription. Posez votre question et obtenez immédiatement des recommandations de vélos de notre stock fribourgeois.',
+      },
+      {
+        q: 'Quels types de vélos avez-vous ?',
+        a: 'Notre stock comprend VTT, vélos électriques, vélos de trekking, vélos de ville, vélos pour enfants, vélos homme et femme – neufs et d\'occasion, toutes tailles.',
+      },
+    ];
+    if (l === 'tr') return [
+      {
+        q: 'Hangi bisiklet bana uyar?',
+        a: 'Bu, boyuna, kullanım amacına ve bütçene bağlıdır. YZ danışmanımız 1–2 hedefli soru sorar ve Freiburg stoğumuzdan uygun bisikletleri önerir – dağ bisikleti, e-bisiklet, trekking, şehir bisikleti ve daha fazlası.',
+      },
+      {
+        q: 'Çocuğum için hangi bisiklet bedeni uygun?',
+        a: 'Yaşa göre tekerlek boyutu: 4–6 yaş: 16", 6–9 yaş: 20", 9–12 yaş: 24", 12+ yaş: 26–28". Çocuğunuzun yaşını söylemeniz yeterli, asistan stoğumuzdan uygun bisikleti önerir.',
+      },
+      {
+        q: 'YZ danışmanı ücretsiz mi?',
+        a: 'Evet, kayıt gerektirmeden tamamen ücretsiz. Sorunuzu yazın ve Freiburg stoğumuzdan anında bisiklet önerileri alın.',
+      },
+      {
+        q: 'Hangi tür bisikletleriniz var?',
+        a: 'Stoğumuzda ikinci el ve yeni dağ bisikletleri, e-bisikletler, trekking bisikletleri, şehir bisikletleri, çocuk bisikletleri, bayan ve erkek bisikletleri bulunmaktadır – tüm bedenler ve fiyat aralıkları.',
+      },
+    ];
+    return [
+      {
+        q: 'Welches Fahrrad passt zu mir?',
+        a: 'Das hängt von deiner Körpergröße, deinem Nutzungszweck und deinem Budget ab. Unser KI-Berater stellt 1–2 gezielte Fragen und empfiehlt passende Fahrräder aus unserem Freiburger Bestand – Mountainbikes, E-Bikes, Trekkingräder, Citybikes und mehr.',
+      },
+      {
+        q: 'Welche Fahrradgröße braucht mein Kind?',
+        a: 'Reifengröße nach Alter: 4–6 Jahre: 16", 6–9 Jahre: 20", 9–12 Jahre: 24", ab 12 Jahre: 26–28". Einfach das Alter im Chat angeben – der Assistent empfiehlt das passende Kinderfahrrad aus unserem Bestand.',
+      },
+      {
+        q: 'Ist der KI-Fahrradberater kostenlos?',
+        a: 'Ja, vollständig kostenlos und ohne Anmeldung. Einfach die Frage eintippen und sofort persönliche Fahrradempfehlungen aus unserem Freiburger Lager erhalten.',
+      },
+      {
+        q: 'Welche Fahrräder habt ihr im Bestand?',
+        a: 'Unser Bestand umfasst gebrauchte und neue Fahrräder aller Typen: Mountainbikes, E-Bikes, Trekkingräder, Citybikes, Kinderfahrräder, Damen- und Herrenräder in verschiedenen Größen und Preisklassen.',
+      },
+    ];
+  });
 
   messages = signal<ChatMessage[]>([]);
   isStreaming = signal(false);
@@ -624,11 +841,69 @@ export class KiBeraterComponent implements OnInit, OnDestroy {
   }
 
   private updateSeo(): void {
-    const tr = this.t();
+    const tr  = this.t();
+    const l   = this.lang();
+    const url = `https://bikehausfreiburg.com/${l}/ki-berater`;
+
     this.titleService.setTitle(tr.kiBeraterMetaTitle);
-    this.metaService.updateTag({ name: 'description', content: tr.kiBeraterMetaDescription });
-    this.metaService.updateTag({ property: 'og:title', content: tr.kiBeraterTitle });
-    this.metaService.updateTag({ property: 'og:description', content: tr.kiBeraterMetaDescription });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
+    this.metaService.updateTag({ name: 'description',          content: tr.kiBeraterMetaDescription });
+    this.metaService.updateTag({ property: 'og:title',         content: tr.kiBeraterTitle });
+    this.metaService.updateTag({ property: 'og:description',   content: tr.kiBeraterMetaDescription });
+    this.metaService.updateTag({ property: 'og:type',          content: 'website' });
+    this.metaService.updateTag({ property: 'og:url',           content: url });
+    this.metaService.updateTag({ property: 'og:image',         content: 'https://bikehausfreiburg.com/assets/og-ki-berater.jpg' });
+    this.metaService.updateTag({ property: 'og:image:width',   content: '1200' });
+    this.metaService.updateTag({ property: 'og:image:height',  content: '630' });
+    this.metaService.updateTag({ name: 'robots',               content: 'index, follow' });
+
+    this.injectJsonLd(l, tr.kiBeraterMetaTitle, tr.kiBeraterMetaDescription);
+  }
+
+  private injectJsonLd(lang: string, name: string, description: string): void {
+    // Remove any previous JSON-LD injected by this component
+    this.doc.querySelectorAll('script[data-ki-berater-ld]').forEach(el => el.remove());
+
+    const faq = this.faqItems();
+
+    const webAppSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name,
+      description,
+      url: `https://bikehausfreiburg.com/${lang}/ki-berater`,
+      applicationCategory: 'ShoppingApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+      provider: {
+        '@type': 'LocalBusiness',
+        name: 'Bike Haus Freiburg',
+        url: 'https://bikehausfreiburg.com',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Freiburg im Breisgau',
+          addressRegion: 'Baden-Württemberg',
+          postalCode: '79106',
+          addressCountry: 'DE',
+        },
+      },
+    };
+
+    const faqSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: faq.map(item => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    };
+
+    for (const schema of [webAppSchema, faqSchema]) {
+      const script = this.doc.createElement('script');
+      script.type = 'application/ld+json';
+      script.setAttribute('data-ki-berater-ld', '');
+      script.text = JSON.stringify(schema);
+      this.doc.head.appendChild(script);
+    }
   }
 }

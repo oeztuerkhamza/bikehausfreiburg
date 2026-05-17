@@ -730,8 +730,7 @@ export interface Translations {
 
 const TRANSLATIONS: Record<BaseLanguage, Translations> = {
   de: {
-    metaTitle:
-      'Fahrradladen Freiburg — Fahrrad kaufen & mieten | Bike Haus Freiburg',
+    metaTitle: 'Fahrradladen Freiburg | kaufen, mieten & service ',
     metaDescription:
       'Ihr Fahrradladen in Freiburg Haid ✓ Neue & gebrauchte Räder kaufen ✓ E-Bike, City, Trekking, Kinderfahrrad ✓ Fahrradverleih mit tagesgenauen Preisen pro Fahrrad ✓ 3 Monate Garantie. Kein Termin — Heckerstraße 27!',
 
@@ -772,7 +771,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Gebrauchträder verlängern Lebenszyklen und schonen Ressourcen.',
 
     showroomLabel: 'SHOWROOM',
-    showroomTitle: 'Aktuelle Fahrräder.',
+    showroomTitle: 'Fahrräder kaufen in Freiburg.',
     showroomSub: 'Entdecken Sie unser Sortiment — regelmäßig aktualisiert.',
     viewAll: 'Alle ansehen',
     viewDetails: 'Details',
@@ -1058,7 +1057,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     testimonialsSub: 'Über 500 zufriedene Kunden in Freiburg vertrauen uns',
 
     repairLabel: 'WERKSTATT',
-    repairTitle: 'Unsere Reparaturen',
+    repairTitle: 'Unsere Serviceleistungen',
     repairSub: 'Einblicke in unsere professionelle Fahrradwerkstatt',
 
     faqLabel: 'HÄUFIGE FRAGEN',
@@ -1175,8 +1174,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     filterGears: 'Gänge',
     gearsUnit: 'Gänge',
     filterFrameSize: 'Rahmengröße (Size)',
-    showroomMetaTitle:
-      'Gebrauchte Fahrräder kaufen Freiburg | Showroom | Bike Haus Freiburg',
+    showroomMetaTitle: 'Gebrauchte Fahrräder kaufen Freiburg | Bike Haus',
     showroomMetaDescription:
       'Gebrauchte & neue Fahrräder kaufen in Freiburg ✓ Über 100 geprüfte Räder ✓ City, Trekking, Mountain, E-Bike ✓ 3 Monate Garantie ✓ Sofort abholbereit. Bike Haus Freiburg.',
 
@@ -1205,8 +1203,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     catSonstige: 'Sonstige Fahrräder',
 
     // Accessories page
-    accessoriesMetaTitle:
-      'Fahrradzubehör Freiburg | Helme, Taschen & Schlösser | Bike Haus',
+    accessoriesMetaTitle: 'Fahrradzubehör Freiburg | Helme, Taschen, Schlösser',
     accessoriesMetaDescription:
       'Fahrradzubehör in Freiburg kaufen ✓ Helme, Taschen, Schlösser, Beleuchtung & mehr ✓ Direkt im Bike Haus Freiburg — Heckerstraße 27, 79114 Freiburg.',
     accessoriesTitle: 'Zubehör',
@@ -1220,10 +1217,10 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     // Neue Fahrräder
     neueFahrraeder: 'Neue Fahrräder',
     neueFahrraederMetaTitle:
-      'Neue Fahrräder kaufen Freiburg | City, Trekking, E-Bike | Bike Haus',
+      'Neue Fahrräder kaufen Freiburg | City, E-Bike, Trekking',
     neueFahrraederMetaDescription:
       'Neue Fahrräder in Freiburg kaufen ✓ City, Trekking, Mountain & E-Bikes ✓ 2 Jahre Garantie ✓ Sofort verfügbar ✓ Faire Preise. Jetzt im Showroom ansehen — Bike Haus Freiburg.',
-    neueFahrraederTitle: 'Neue Fahrräder',
+    neueFahrraederTitle: 'Neue Fahrräder Freiburg',
     neueFahrraederSub: 'Fabrikneue Räder mit 2 Jahren Geschäftsgarantie.',
     neueFahrraederBrand: 'Marke',
     neueFahrraederModel: 'Modell',
@@ -1256,8 +1253,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     faqMetaTitle: 'FAQ Fahrrad Freiburg — Häufige Fragen | Bike Haus Freiburg',
     faqMetaDescription:
       'Häufige Fragen zu Fahrrad kaufen & mieten in Freiburg: Garantie, E-Bikes, Probefahrt, Öffnungszeiten, Preise. Alle Antworten von Bike Haus Freiburg.',
-    bikeRentalMetaTitle:
-      'Fahrrad mieten Freiburg | Tagespreise pro Fahrrad | Bike Haus Freiburg',
+    bikeRentalMetaTitle: 'Fahrrad mieten Freiburg | Helm & Schloss inklusive',
     bikeRentalMetaDescription:
       'Fahrradverleih Freiburg — 1 bis 7 Tage pro Fahrrad individuell bepreist, ab Tag 8 mit festem Zusatzpreis. Helm & Schloss inklusive. Sofort abholen. ✓ Bike Haus Freiburg.',
     garantieMetaTitle: 'Garantiebedingungen — Bike Haus Freiburg',
@@ -1354,7 +1350,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta3: 'Fahrrad Inspektion — Was kostet es?',
 
     rentalCatalogMetaTitle:
-      'Mietfahrräder Freiburg — alle Räder zum Mieten | Bike Haus Freiburg',
+      'Mietfahrräder Freiburg | City, E-Bike & Trekking | Bike Haus',
     rentalCatalogMetaDescription:
       'Alle Mietfahrräder in Freiburg auf einen Blick ✓ City-Räder, Trekking, E-Bikes & Kinderräder ✓ Tagesgenaue Preise ✓ Filterbar nach Marke, Größe & Typ ✓ Online reservieren — Heckerstraße 27.',
     rentalCatalogLabel: 'Mietflotte',
@@ -1388,16 +1384,20 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalDetailMetaDescPrefix: 'Miete dieses Fahrrad in Freiburg:',
 
     kiBeraterNav: 'KI-Fahrradberater',
-    kiBeraterMetaTitle: 'KI-Fahrradberater – Das perfekte Fahrrad finden | Bike Haus Freiburg',
-    kiBeraterMetaDescription: 'Finde mit unserem KI-Berater das perfekte Fahrrad für dich. Unser Assistent analysiert deine Bedürfnisse und empfiehlt passende Fahrräder aus unserem Bestand.',
-    kiBeraterTitle: 'KI-Fahrradberater',
-    kiBeraterSubtitle: 'Beschreib, was du suchst – unser KI-Assistent findet das passende Fahrrad für dich.',
-    kiBeraterWelcome: 'Hallo! Ich bin dein persönlicher Fahrradberater. 🚲',
-    kiBeraterWelcomeSub: 'Sag mir, was du suchst, und ich helfe dir das perfekte Fahrrad zu finden.',
-    kiBeraterQuick1: 'Ich suche ein Mountainbike unter 500 €',
-    kiBeraterQuick2: 'Welche E-Bikes habt ihr?',
-    kiBeraterQuick3: 'Ich brauche ein Stadtrad für den Alltag',
-    kiBeraterQuick4: 'Was ist für ein Kind ab 8 Jahren geeignet?',
+    kiBeraterMetaTitle:
+      'KI-Fahrradberater Freiburg – Das richtige Fahrrad finden',
+    kiBeraterMetaDescription:
+      'Welches Fahrrad passt zu dir? Kostenloser KI-Assistent empfiehlt Bikes aus unserem Freiburger Bestand. Jetzt fragen – sofort Antwort, ohne Anmeldung!',
+    kiBeraterTitle: 'KI-Fahrradberater Freiburg',
+    kiBeraterSubtitle:
+      'Beschreib dein Budget, deine Körpergröße oder für wen das Fahrrad ist – unser KI-Assistent findet das richtige Bike aus unserem Freiburger Bestand.',
+    kiBeraterWelcome: 'Hallo! Ich bin dein persönlicher Fahrradberater.',
+    kiBeraterWelcomeSub:
+      'Sag mir, was du suchst – Budget, Körpergröße oder Fahrradtyp – und ich empfehle passende Bikes aus unserem Freiburger Lager.',
+    kiBeraterQuick1: 'Kinderfahrrad für 8-Jährigen – welche Größe?',
+    kiBeraterQuick2: 'E-Bike unter 800 € gebraucht',
+    kiBeraterQuick3: 'Stadtrad für den Alltag unter 300 €',
+    kiBeraterQuick4: 'Trekkingrad Herren, ca. 180 cm',
     kiBeraterInputPlaceholder: 'Frag mich nach dem perfekten Fahrrad…',
     kiBeraterSend: 'Senden',
     kiBeraterTyping: 'Schreibt…',
@@ -1412,8 +1412,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
   },
 
   en: {
-    metaTitle:
-      'Bike Shop Freiburg — Buy, Rent & Used Bikes | Bike Haus Freiburg',
+    metaTitle: 'Bike Shop Freiburg | Buy, Rent & Repair Bikes | Bike Haus',
     metaDescription:
       'Bike shop in Freiburg — 100+ inspected used & new bikes ✓ City, E-Bike, Trekking, Kids ✓ Daily bike rental ✓ 3-month warranty. No appointment — Heckerstraße 27!',
 
@@ -1452,7 +1451,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     value4Desc: 'Used bikes extend lifecycles and conserve resources.',
 
     showroomLabel: 'SHOWROOM',
-    showroomTitle: 'Current Bikes.',
+    showroomTitle: 'Buy Bikes in Freiburg.',
     showroomSub: 'Discover our selection — regularly updated.',
     viewAll: 'View All',
     viewDetails: 'Details',
@@ -1536,7 +1535,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeCheckReflectorCheck: 'Reflectors & visibility',
     bikeCheckBellCheck: 'Bell & horn check',
     bikeCheckSafetyCheck: 'General safety inspection',
-    bikeCheckRepairTitle: 'Repairs on Request',
+    bikeCheckRepairTitle: 'Service on Request',
     bikeCheckBrakeAdjust: 'Brake adjustment',
     bikeCheckChainCassette: 'Chain & cassette replacement',
     bikeCheckGearAdjust: 'Gear adjustment',
@@ -1839,7 +1838,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     gearsUnit: 'gears',
     filterFrameSize: 'Frame Size',
     showroomMetaTitle:
-      'Used & New Bikes Freiburg — Buy Second-Hand | Bike Haus Freiburg',
+      'Buy Used Bikes Freiburg | Second-Hand & New | Bike Haus',
     showroomMetaDescription:
       'Buy used & new bikes in Freiburg — 100+ inspected second-hand bikes ✓ City, E-Bike, Trekking, Mountain ✓ 3-month warranty ✓ Ready to ride. Bike Haus Freiburg.',
 
@@ -1863,8 +1862,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     catRennrad: 'Road Bikes',
     catSonstige: 'Other Bikes',
 
-    accessoriesMetaTitle:
-      'Bike Accessories Freiburg | Helmets, Bags & Locks | Bike Haus',
+    accessoriesMetaTitle: 'Bike Accessories Freiburg | Helmets, Bags & Locks',
     accessoriesMetaDescription:
       'Buy bike accessories in Freiburg ✓ Helmets, bags, locks, lights & more ✓ In-store at Bike Haus Freiburg — Heckerstraße 27, 79114 Freiburg.',
     accessoriesTitle: 'Accessories',
@@ -1877,10 +1875,10 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     neueFahrraeder: 'New Bikes',
     neueFahrraederMetaTitle:
-      'New Bikes Freiburg | City, Trekking & E-Bikes | Bike Haus Freiburg',
+      'New Bikes Freiburg | City, Trekking & E-Bike | Bike Haus',
     neueFahrraederMetaDescription:
       'Buy new bikes in Freiburg ✓ City, Trekking, Mountain & E-Bikes ✓ 2-year warranty ✓ In stock & ready to ride ✓ Fair prices. Visit our showroom — Bike Haus Freiburg.',
-    neueFahrraederTitle: 'New Bikes',
+    neueFahrraederTitle: 'New Bikes Freiburg',
     neueFahrraederSub: 'Brand new bikes with 2 years shop warranty.',
     neueFahrraederBrand: 'Brand',
     neueFahrraederModel: 'Model',
@@ -1916,7 +1914,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     faqMetaDescription:
       'Frequently asked questions about buying & renting bikes in Freiburg: warranty, e-bikes, test rides, opening hours, prices. Answered by Bike Haus Freiburg.',
     bikeRentalMetaTitle:
-      'Rent a Bike in Freiburg — City, E-Bike & Trekking | Bike Haus',
+      'Rent a Bike Freiburg | Helmet & Lock Included | Bike Haus',
     bikeRentalMetaDescription:
       'Rent a bike in Freiburg — city bikes, e-bikes & trekking daily ✓ Helmet & lock included ✓ Pick up same day ✓ No hidden fees ✓ Heckerstraße 27, Freiburg.',
     garantieMetaTitle: 'Warranty Terms — Bike Haus Freiburg',
@@ -2011,7 +2009,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta3: 'Bike Inspection — What Does It Cost?',
 
     rentalCatalogMetaTitle:
-      'Rental Bikes Freiburg — Full Fleet to Rent | Bike Haus Freiburg',
+      'Rental Bikes Freiburg | City, E-Bike & Trekking | Bike Haus',
     rentalCatalogMetaDescription:
       'Browse every rental bike in Freiburg ✓ City, trekking, e-bikes & kids bikes ✓ Per-day pricing ✓ Filter by brand, size & type ✓ Book online — Heckerstraße 27.',
     rentalCatalogLabel: 'Rental Fleet',
@@ -2045,22 +2043,26 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalDetailMetaDescPrefix: 'Rent this bike in Freiburg:',
 
     kiBeraterNav: 'AI Bike Adviser',
-    kiBeraterMetaTitle: 'AI Bike Adviser – Find Your Perfect Bike | Bike Haus Freiburg',
-    kiBeraterMetaDescription: 'Use our AI adviser to find the perfect bike for you. Our assistant analyses your needs and recommends bikes from our current stock.',
-    kiBeraterTitle: 'AI Bike Adviser',
-    kiBeraterSubtitle: 'Describe what you\'re looking for – our AI assistant finds the perfect bike for you.',
-    kiBeraterWelcome: 'Hello! I\'m your personal bike adviser. 🚲',
-    kiBeraterWelcomeSub: 'Tell me what you\'re looking for and I\'ll help you find the perfect bike.',
-    kiBeraterQuick1: 'I\'m looking for a mountain bike under €500',
-    kiBeraterQuick2: 'What e-bikes do you have?',
-    kiBeraterQuick3: 'I need a city bike for everyday use',
-    kiBeraterQuick4: 'What\'s suitable for a child aged 8+?',
+    kiBeraterMetaTitle: 'Free AI Bike Adviser Freiburg – Which Bike Fits You?',
+    kiBeraterMetaDescription:
+      'Not sure which bike to buy? Our free AI adviser finds the right bike from our Freiburg stock. Ask now – no sign-up needed, instant answer.',
+    kiBeraterTitle: 'AI Bike Adviser Freiburg',
+    kiBeraterSubtitle:
+      'Tell us your budget, height or who the bike is for – our AI assistant finds the right bike from our Freiburg stock.',
+    kiBeraterWelcome: "Hello! I'm your personal bike adviser.",
+    kiBeraterWelcomeSub:
+      "Tell me what you're looking for – budget, height or bike type – and I'll recommend bikes from our Freiburg stock.",
+    kiBeraterQuick1: "Children's bike for an 8-year-old – which size?",
+    kiBeraterQuick2: 'Used e-bike under €800',
+    kiBeraterQuick3: 'City bike for everyday use under €300',
+    kiBeraterQuick4: "Men's trekking bike, approx. 180 cm",
     kiBeraterInputPlaceholder: 'Ask me about the perfect bike…',
     kiBeraterSend: 'Send',
     kiBeraterTyping: 'Typing…',
     kiBeraterViewBike: 'View details',
     kiBeraterShopCtaTitle: 'Want personal advice?',
-    kiBeraterShopCtaText: 'Our team looks forward to welcoming you in the shop.',
+    kiBeraterShopCtaText:
+      'Our team looks forward to welcoming you in the shop.',
     kiBeraterShopCtaBtn: 'Visit Showroom',
     kiBeraterContactCtaBtn: 'Get in touch',
     kiBeraterError: 'Connection error. Please try again.',
@@ -2110,7 +2112,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "Les vélos d'occasion prolongent les cycles de vie et préservent les ressources.",
 
     showroomLabel: 'SHOWROOM',
-    showroomTitle: 'Vélos disponibles.',
+    showroomTitle: 'Acheter des vélos à Fribourg.',
     showroomSub: 'Découvrez notre sélection — mise à jour régulièrement.',
     viewAll: 'Tout voir',
     viewDetails: 'Détails',
@@ -2515,7 +2517,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     filterGears: 'Vitesses',
     gearsUnit: 'vitesses',
     filterFrameSize: 'Taille de cadre',
-    showroomMetaTitle: 'Acheter vélo Fribourg | Showroom | Bike Haus Freiburg',
+    showroomMetaTitle: 'Acheter vélo occasion Fribourg | Bike Haus',
     showroomMetaDescription:
       "Achetez des vélos neufs et d'occasion à Fribourg-en-Brisgau ✓ 100+ vélos certifiés ✓ Ville, Trekking, VTT, VAE ✓ 3 mois de garantie ✓ Disponibles immédiatement.",
 
@@ -2545,7 +2547,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     // Accessories page
     accessoriesMetaTitle:
-      'Accessoires vélo Fribourg | Casques, Sacoches & Antivols | Bike Haus',
+      'Accessoires vélo Fribourg | Casques, Sacoches & Antivols',
     accessoriesMetaDescription:
       'Achetez des accessoires vélo à Fribourg-en-Brisgau ✓ Casques, sacoches, antivols, éclairage & plus ✓ En magasin — Heckerstraße 27, 79114 Freiburg.',
     accessoriesTitle: 'Accessoires',
@@ -2559,10 +2561,10 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     // Neue Fahrräder
     neueFahrraeder: 'Vélos neufs',
     neueFahrraederMetaTitle:
-      'Acheter vélos neufs à Fribourg | City, Trekking, VAE | Bike Haus',
+      'Vélos neufs Fribourg | City, Trekking, VAE | Bike Haus',
     neueFahrraederMetaDescription:
       'Achetez des vélos neufs à Fribourg-en-Brisgau ✓ Vélos de ville, trekking, VTT & VAE ✓ 2 ans de garantie ✓ En stock immédiatement ✓ Prix honnêtes. Bike Haus Freiburg.',
-    neueFahrraederTitle: 'Vélos neufs',
+    neueFahrraederTitle: 'Vélos neufs Fribourg',
     neueFahrraederSub: 'Vélos neufs avec 2 ans de garantie magasin.',
     neueFahrraederBrand: 'Marque',
     neueFahrraederModel: 'Modèle',
@@ -2597,8 +2599,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'FAQ — Magasin vélo Fribourg | Questions fréquentes | Bike Haus',
     faqMetaDescription:
       "Questions fréquentes sur l'achat et la location de vélos à Fribourg : garantie, VAE, essais, horaires, tarifs. Répondu par Bike Haus Freiburg.",
-    bikeRentalMetaTitle:
-      'Location vélo Fribourg | Tarifs journaliers par vélo | Bike Haus Freiburg',
+    bikeRentalMetaTitle: 'Louer un vélo à Fribourg | Casque inclus | Bike Haus',
     bikeRentalMetaDescription:
       'Location vélo à Fribourg avec tarifs journaliers définis vélo par vélo pour 1 à 7 jours, puis supplément fixe à partir du 8e jour. Casque & antivol inclus. ✓ Bike Haus Freiburg.',
     garantieMetaTitle: 'Conditions de garantie — Bike Haus Freiburg',
@@ -2693,14 +2694,14 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta3: 'Révision vélo — Combien ça coûte?',
 
     rentalCatalogMetaTitle:
-      'Vélos de location Fribourg — Toute la flotte | Bike Haus Freiburg',
+      'Vélos de location Fribourg — Toute la flotte | Bike Haus',
     rentalCatalogMetaDescription:
       'Parcourez tous nos vélos de location à Fribourg ✓ Ville, trekking, VAE & vélos enfants ✓ Tarifs à la journée ✓ Filtrez par marque, taille & type ✓ Réservez en ligne — Heckerstraße 27.',
     rentalCatalogLabel: 'Flotte de location',
     rentalCatalogTitle: 'Vélos à louer à Fribourg.',
     rentalCatalogSub: 'vélos de location disponibles',
     rentalCatalogIntro:
-      "Découvrez toute notre flotte de location à Fribourg-Haid : vélos de ville, trekking, vélos électriques, vélos enfants et plus. Filtrez par marque, taille de roue, taille de cadre et type. Chaque vélo a un tarif à la journée et se réserve en ligne.",
+      'Découvrez toute notre flotte de location à Fribourg-Haid : vélos de ville, trekking, vélos électriques, vélos enfants et plus. Filtrez par marque, taille de roue, taille de cadre et type. Chaque vélo a un tarif à la journée et se réserve en ligne.',
     rentalCatalogPerDay: '/jour',
     rentalCatalogFrom: 'dès',
     rentalCatalogReserveCta: 'Réserver',
@@ -2720,29 +2721,34 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalDetailExtraDay: 'Chaque jour supplémentaire (à partir du 8e jour)',
     rentalDetailDeposit: 'Caution',
     rentalDetailDepositInfo:
-      "La caution est versée à la remise du vélo et restituée intégralement au retour si le vélo est en bon état.",
+      'La caution est versée à la remise du vélo et restituée intégralement au retour si le vélo est en bon état.',
     rentalDetailSpecsHeading: 'Caractéristiques',
     rentalDetailDescHeading: 'Description',
     rentalDetailMetaTitleSuffix: 'à louer à Fribourg | Bike Haus Freiburg',
     rentalDetailMetaDescPrefix: 'Louez ce vélo à Fribourg :',
 
     kiBeraterNav: 'Conseiller vélo IA',
-    kiBeraterMetaTitle: 'Conseiller vélo IA – Trouvez votre vélo idéal | Bike Haus Freiburg',
-    kiBeraterMetaDescription: 'Utilisez notre conseiller IA pour trouver le vélo parfait. Notre assistant analyse vos besoins et vous recommande des vélos de notre stock actuel.',
-    kiBeraterTitle: 'Conseiller vélo IA',
-    kiBeraterSubtitle: 'Décrivez ce que vous cherchez – notre assistant IA trouve le vélo parfait pour vous.',
-    kiBeraterWelcome: 'Bonjour ! Je suis votre conseiller vélo personnel. 🚲',
-    kiBeraterWelcomeSub: 'Dites-moi ce que vous cherchez et je vous aiderai à trouver le vélo parfait.',
-    kiBeraterQuick1: 'Je cherche un VTT à moins de 500 €',
-    kiBeraterQuick2: 'Quels vélos électriques avez-vous ?',
-    kiBeraterQuick3: 'J\'ai besoin d\'un vélo de ville pour le quotidien',
-    kiBeraterQuick4: 'Qu\'est-ce qui convient à un enfant de 8 ans ?',
+    kiBeraterMetaTitle:
+      'Conseiller vélo IA Fribourg – Quel vélo vous convient?',
+    kiBeraterMetaDescription:
+      'Quel vélo vous convient ? Notre conseiller IA gratuit recommande des vélos de notre stock à Fribourg. Posez votre question – réponse immédiate, sans inscription !',
+    kiBeraterTitle: 'Conseiller vélo IA Fribourg',
+    kiBeraterSubtitle:
+      'Décrivez votre budget, votre taille ou pour qui est le vélo – notre IA trouve le vélo idéal depuis notre stock fribourgeois.',
+    kiBeraterWelcome: 'Bonjour ! Je suis votre conseiller vélo personnel.',
+    kiBeraterWelcomeSub:
+      'Dites-moi ce que vous cherchez – budget, taille ou type de vélo – et je recommande des vélos de notre stock à Fribourg.',
+    kiBeraterQuick1: 'Vélo enfant pour 8 ans – quelle taille ?',
+    kiBeraterQuick2: "Vélo électrique d'occasion sous 800 €",
+    kiBeraterQuick3: 'Vélo de ville pour le quotidien sous 300 €',
+    kiBeraterQuick4: 'Vélo de trekking homme, environ 180 cm',
     kiBeraterInputPlaceholder: 'Posez-moi une question sur le vélo idéal…',
     kiBeraterSend: 'Envoyer',
-    kiBeraterTyping: 'En train d\'écrire…',
+    kiBeraterTyping: "En train d'écrire…",
     kiBeraterViewBike: 'Voir les détails',
     kiBeraterShopCtaTitle: 'Vous souhaitez un conseil personnalisé ?',
-    kiBeraterShopCtaText: 'Notre équipe vous accueille avec plaisir en magasin.',
+    kiBeraterShopCtaText:
+      'Notre équipe vous accueille avec plaisir en magasin.',
     kiBeraterShopCtaBtn: 'Visiter le showroom',
     kiBeraterContactCtaBtn: 'Nous contacter',
     kiBeraterError: 'Erreur de connexion. Veuillez réessayer.',
@@ -2791,7 +2797,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'İkinci el bisikletler yaşam döngülerini uzatır ve kaynakları korur.',
 
     showroomLabel: 'SHOWROOM',
-    showroomTitle: 'Mevcut Bisikletler.',
+    showroomTitle: "Freiburg'da Bisiklet Satın Al.",
     showroomSub: 'Seçkimizi keşfedin — düzenli olarak güncellenir.',
     viewAll: 'Tümünü Gör',
     viewDetails: 'Detaylar',
@@ -3192,8 +3198,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     filterGears: 'Vites',
     gearsUnit: 'Vites',
     filterFrameSize: 'Kadro Boyutu',
-    showroomMetaTitle:
-      "Freiburg'da İkinci El & Yeni Bisiklet Al | Showroom | Bike Haus",
+    showroomMetaTitle: "Freiburg'da İkinci El Bisiklet Al | Bike Haus",
     showroomMetaDescription:
       "Freiburg'da yeni ve ikinci el bisiklet satın alın ✓ 100+ kontrollü bisiklet ✓ Şehir, Trekking, Dağ, E-bisiklet ✓ 3 ay garanti ✓ Hemen teslim. Bike Haus Freiburg.",
 
@@ -3223,7 +3228,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     // Accessories page
     accessoriesMetaTitle:
-      'Bisiklet Aksesuarları Freiburg | Kask, Çanta & Kilit | Bike Haus',
+      'Bisiklet Aksesuarları Freiburg | Kask, Çanta & Kilit',
     accessoriesMetaDescription:
       "Freiburg'da bisiklet aksesuarı satın alın ✓ Kask, çanta, kilit, aydınlatma & daha fazlası ✓ Bike Haus Freiburg — Heckerstraße 27, 79114 Freiburg.",
     accessoriesTitle: 'Aksesuar',
@@ -3237,10 +3242,10 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     // Neue Fahrräder
     neueFahrraeder: 'Yeni Bisikletler',
     neueFahrraederMetaTitle:
-      "Freiburg'da Yeni Bisiklet Al | Şehir, Trekking, E-Bisiklet | Bike Haus",
+      "Freiburg'da Yeni Bisiklet | City, Trekking, E-Bike",
     neueFahrraederMetaDescription:
       "Freiburg'da yeni bisiklet satın alın ✓ Şehir, Trekking, Dağ & E-bisiklet ✓ 2 yıl garanti ✓ Stokta & hemen teslim ✓ Uygun fiyat. Bike Haus Freiburg.",
-    neueFahrraederTitle: 'Yeni Bisikletler',
+    neueFahrraederTitle: "Freiburg'da Yeni Bisikletler",
     neueFahrraederSub: '2 yıl mağaza garantili sıfır bisikletler.',
     neueFahrraederBrand: 'Marka',
     neueFahrraederModel: 'Model',
@@ -3275,8 +3280,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'SSS — Freiburg Bisiklet Mağazası | Sık Sorulan Sorular | Bike Haus',
     faqMetaDescription:
       "Freiburg'da bisiklet alma ve kiralama hakkında sık sorulan sorular: garanti, e-bisiklet, deneme sürüşü, çalışma saatleri, fiyatlar. Bike Haus Freiburg.",
-    bikeRentalMetaTitle:
-      'Freiburg Bisiklet Kiralama | Bisiklet Bazlı Günlük Fiyat | Bike Haus Freiburg',
+    bikeRentalMetaTitle: 'Freiburg Bisiklet Kiralama | Kask Dahil | Bike Haus',
     bikeRentalMetaDescription:
       "Freiburg'da bisiklet kiralama: 1-7 gün için bisiklet bazlı günlük fiyatlar, 8. günden sonra sabit ek gün ücreti. Kask ve kilit dahil. ✓ Bike Haus Freiburg.",
     garantieMetaTitle: 'Garanti Koşulları — Bike Haus Freiburg',
@@ -3370,7 +3374,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     blogCta3: 'Bisiklet Bakımı — Ne Kadara Mal Olur?',
 
     rentalCatalogMetaTitle:
-      "Kiralık Bisikletler Freiburg — Tüm Filo | Bike Haus Freiburg",
+      'Kiralık Bisikletler Freiburg | Filo & Fiyatlar | Bike Haus',
     rentalCatalogMetaDescription:
       "Freiburg'daki tüm kiralık bisikletler ✓ Şehir, trekking, e-bike & çocuk bisikletleri ✓ Günlük fiyatlar ✓ Marka, beden ve tipe göre filtrele ✓ Online rezervasyon — Heckerstraße 27.",
     rentalCatalogLabel: 'Kiralık Filo',
@@ -3404,23 +3408,27 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalDetailMetaDescPrefix: "Bu bisikleti Freiburg'da kiralayın:",
 
     kiBeraterNav: 'Yapay Zeka Bisiklet Danışmanı',
-    kiBeraterMetaTitle: 'YZ Bisiklet Danışmanı – Mükemmel Bisikletini Bul | Bike Haus Freiburg',
-    kiBeraterMetaDescription: 'YZ danışmanımızla sana en uygun bisikleti bul. Asistanımız ihtiyaçlarını analiz eder ve mevcut stoğumuzdan bisiklet önerir.',
-    kiBeraterTitle: 'YZ Bisiklet Danışmanı',
-    kiBeraterSubtitle: 'Ne aradığını söyle – YZ asistanımız sana en uygun bisikleti bulur.',
-    kiBeraterWelcome: 'Merhaba! Ben senin kişisel bisiklet danışmanınım. 🚲',
-    kiBeraterWelcomeSub: 'Ne aradığını söyle, mükemmel bisikleti bulmana yardımcı olayım.',
-    kiBeraterQuick1: '500 € altında dağ bisikleti arıyorum',
-    kiBeraterQuick2: 'Hangi elektrikli bisikletleriniz var?',
-    kiBeraterQuick3: 'Günlük kullanım için şehir bisikleti istiyorum',
-    kiBeraterQuick4: '8 yaş üstü çocuk için ne önerirsiniz?',
+    kiBeraterMetaTitle:
+      'YZ Bisiklet Danışmanı Freiburg – Hangi Bisiklet Sana Uyar?',
+    kiBeraterMetaDescription:
+      'Hangi bisiklet sana uyar? Ücretsiz YZ danışmanımız Freiburg stoğumuzdan en uygun bisikleti buluyor. Hemen sor – anında cevap, kayıt gerekmez!',
+    kiBeraterTitle: 'YZ Bisiklet Danışmanı Freiburg',
+    kiBeraterSubtitle:
+      'Bütçeni, boyunu veya kimin için bisiklet aradığını söyle – YZ asistanımız Freiburg stoğumuzdan sana en uygun bisikleti buluyor.',
+    kiBeraterWelcome: 'Merhaba! Ben senin kişisel bisiklet danışmanınım.',
+    kiBeraterWelcomeSub:
+      'Ne aradığını söyle – bütçe, boy veya bisiklet türü – ve Freiburg stoğumuzdan sana uygun bisikleti bulayım.',
+    kiBeraterQuick1: '8 yaşındaki çocuk için bisiklet – hangi beden?',
+    kiBeraterQuick2: '800 € altında ikinci el e-bisiklet',
+    kiBeraterQuick3: '300 € altında günlük şehir bisikleti',
+    kiBeraterQuick4: 'Erkek trekking bisikleti, yaklaşık 180 cm',
     kiBeraterInputPlaceholder: 'Mükemmel bisiklet hakkında soru sor…',
     kiBeraterSend: 'Gönder',
     kiBeraterTyping: 'Yazıyor…',
     kiBeraterViewBike: 'Detayları gör',
     kiBeraterShopCtaTitle: 'Kişisel danışma ister misiniz?',
     kiBeraterShopCtaText: 'Ekibimiz mağazamızda sizi bekliyor.',
-    kiBeraterShopCtaBtn: 'Showroom\'a git',
+    kiBeraterShopCtaBtn: "Showroom'a git",
     kiBeraterContactCtaBtn: 'İletişime geç',
     kiBeraterError: 'Bağlantı hatası. Lütfen tekrar deneyin.',
     kiBeraterClearChat: 'Sohbeti temizle',

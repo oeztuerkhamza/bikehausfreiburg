@@ -995,6 +995,7 @@ export class NeueFahrraederComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.bikes.set(data);
         this.loading.set(false);
+        this.injectJsonLd(data);
       },
       error: () => this.loading.set(false),
     });
@@ -1028,6 +1029,75 @@ export class NeueFahrraederComponent implements OnInit, OnDestroy {
       'link[rel="canonical"]',
     );
     if (canonical) canonical.href = pageUrl;
+  }
+
+  private injectJsonLd(bikes: NeueFahrrad[]): void {
+    this.document
+      .querySelectorAll('script[data-neue-fahrraeder-ld]')
+      .forEach((el) => el.remove());
+
+    const lang = this.lang();
+    const t = this.t();
+    const baseUrl = 'https://bikehausfreiburg.com';
+    const apiBase = 'https://api.bikehausfreiburg.com';
+    const pageUrl = `${baseUrl}/${lang}/neue-fahrraeder`;
+
+    const breadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Bike Haus Freiburg',
+          item: `${baseUrl}/${lang}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: t.neueFahrraederTitle,
+          item: pageUrl,
+        },
+      ],
+    };
+
+    const topBikes = bikes.filter((b) => b.isActive).slice(0, 12);
+    const itemList = {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: t.neueFahrraederTitle,
+      url: pageUrl,
+      numberOfItems: topBikes.length,
+      itemListElement: topBikes.map((bike, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        item: {
+          '@type': 'Product',
+          name: bike.titel,
+          ...(bike.beschreibung ? { description: bike.beschreibung } : {}),
+          ...(bike.marke ? { brand: { '@type': 'Brand', name: bike.marke } } : {}),
+          offers: {
+            '@type': 'Offer',
+            price: bike.preis,
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+            seller: { '@type': 'LocalBusiness', name: 'Bike Haus Freiburg' },
+          },
+          ...(bike.images[0]
+            ? { image: `${apiBase}/uploads/${bike.images[0].filePath}` }
+            : {}),
+          url: `${pageUrl}/${bike.id}`,
+        },
+      })),
+    };
+
+    [breadcrumb, itemList].forEach((schema) => {
+      const script = this.document.createElement('script');
+      script.type = 'application/ld+json';
+      script.setAttribute('data-neue-fahrraeder-ld', '');
+      script.textContent = JSON.stringify(schema);
+      this.document.head.appendChild(script);
+    });
   }
 
   onSearch(event: Event): void {

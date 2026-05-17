@@ -38,6 +38,14 @@
 /en/rental-bikes
 /fr/velos-de-location
 /tr/mietfahrraeder
+/de/ki-berater
+/en/ai-bike-adviser
+/fr/conseiller-velo
+/tr/ki-berater
+/es/ki-berater
+/it/ki-berater
+/ar/ki-berater
+/ru/ki-berater
 /de/garantie
 /en/garantie
 /fr/garantie
