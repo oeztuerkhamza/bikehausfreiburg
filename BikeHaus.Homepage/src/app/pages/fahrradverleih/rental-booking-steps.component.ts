@@ -1,5 +1,5 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, computed, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
@@ -1357,6 +1357,7 @@ type BookingStep =
 export class RentalBookingStepsComponent implements OnInit {
   private apiService = inject(ApiService);
   private translationService = inject(TranslationService);
+  private platformId = inject(PLATFORM_ID);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -1801,7 +1802,13 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   goToStep(step: BookingStep): void {
-    this.currentStep.set(step);
+    if (isPlatformBrowser(this.platformId)) {
+      const savedScrollY = window.scrollY;
+      this.currentStep.set(step);
+      queueMicrotask(() => window.scrollTo({ top: savedScrollY, behavior: 'instant' as ScrollBehavior }));
+    } else {
+      this.currentStep.set(step);
+    }
   }
 
   getImages(bike: PublicRentalBicycle | null): RentalBikeImage[] {
