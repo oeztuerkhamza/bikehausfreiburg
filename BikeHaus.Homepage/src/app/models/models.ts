@@ -274,8 +274,19 @@ export interface BikeAdviserMessage {
   content: string;
 }
 
+export interface KleinanzeigenCard {
+  id: number;
+  title: string;
+  price?: number;
+  priceText?: string;
+  externalUrl: string;
+  category?: string;
+  imageUrl?: string;
+}
+
 export interface ChatMessage extends BikeAdviserMessage {
   bikes?: PublicBicycle[];
+  listings?: KleinanzeigenCard[];
   isStreaming?: boolean;
 }
 
@@ -285,8 +296,9 @@ export interface BikeAdviserShopCta {
 }
 
 export interface BikeAdviserSseEvent {
-  type: 'delta' | 'bikes' | 'done';
+  type: 'delta' | 'bikes' | 'listings' | 'done';
   text?: string;
   bikes?: PublicBicycle[];
+  listings?: KleinanzeigenCard[];
   shopCta?: BikeAdviserShopCta;
 }

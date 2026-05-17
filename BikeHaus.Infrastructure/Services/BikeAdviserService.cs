@@ -82,6 +82,8 @@ public class BikeAdviserService(
             var systemPrompt = BuildSystemPrompt(request.Language);
             var messages = MapMessages(request.Messages);
             var tools = BuildTools();
+            var foundListings = new List<KleinanzeigenListingDto>();
+
             // ── Tool resolution loop (non-streaming) ─────────────────────
             for (int round = 0; round < 3; round++)
             {
@@ -103,7 +105,7 @@ public class BikeAdviserService(
                 var toolResults = new List<ContentBase>();
                 foreach (var toolUse in toolUseBlocks)
                 {
-                    var result = await ExecuteToolAsync(toolUse, ct);
+                    var result = await ExecuteToolAsync(toolUse, foundListings, ct);
                     toolResults.Add(new ToolResultContent
                     {
                         ToolUseId = toolUse.Id,
@@ -111,6 +113,22 @@ public class BikeAdviserService(
                     });
                 }
                 messages.Add(new Message { Role = RoleType.User, Content = toolResults });
+            }
+
+            // ── Emit listing cards ────────────────────────────────────────
+            if (foundListings.Count > 0)
+            {
+                var cards = foundListings.Select(l => new
+                {
+                    id = l.Id,
+                    title = l.Title,
+                    price = l.Price,
+                    priceText = l.PriceText,
+                    externalUrl = l.ExternalUrl,
+                    category = l.Category,
+                    imageUrl = l.Images.OrderBy(i => i.SortOrder).FirstOrDefault()?.ImageUrl
+                });
+                await writer.WriteAsync(SseEvent("listings", new { listings = cards }), ct);
             }
 
             // ── Final streaming response ──────────────────────────────────
@@ -155,6 +173,7 @@ public class BikeAdviserService(
     // ── Tool execution ───────────────────────────────────────────────────────
     private async Task<string> ExecuteToolAsync(
         ToolUseContent toolUse,
+        List<KleinanzeigenListingDto> foundListings,
         CancellationToken ct)
     {
         if (toolUse.Name == "get_shop_info")
@@ -204,10 +223,12 @@ public class BikeAdviserService(
             if (results.Count == 0)
                 return "Keine passenden Fahrräder auf Kleinanzeigen gefunden. Empfehle einen Besuch im Laden für aktuelle Neuankünfte.";
 
+            foundListings.AddRange(results);
+
             var lines = results.Select(l =>
                 $"- {l.Title}, " +
                 $"{(l.Price.HasValue ? $"{l.Price:F0}€" : l.PriceText ?? "Preis auf Anfrage")}, " +
-                $"Kategorie: {l.Category ?? "–"}, Link: {l.ExternalUrl}");
+                $"Kategorie: {l.Category ?? "–"}");
             return $"Gefundene Kleinanzeigen-Inserate ({results.Count}):\n{string.Join("\n", lines)}";
         }
 

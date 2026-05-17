@@ -9,7 +9,7 @@ import { Title, Meta } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
-import { ChatMessage, PublicBicycle, BikeAdviserSseEvent, BikeAdviserShopCta } from '../../models/models';
+import { ChatMessage, PublicBicycle, KleinanzeigenCard, BikeAdviserSseEvent, BikeAdviserShopCta } from '../../models/models';
 
 @Component({
   selector: 'app-ki-berater',
@@ -56,15 +56,15 @@ import { ChatMessage, PublicBicycle, BikeAdviserSseEvent, BikeAdviserShopCta } f
                 <div class="message-body">
                   <div class="bubble" [innerHTML]="formatText(msg.content)"></div>
 
-                  <!-- Bike cards -->
-                  @if (msg.bikes && msg.bikes.length > 0) {
+                  <!-- Kleinanzeigen cards -->
+                  @if (msg.listings && msg.listings.length > 0) {
                     <div class="bike-cards">
-                      @for (bike of msg.bikes; track bike.id) {
-                        <div class="bike-card">
-                          @if (bike.images && bike.images.length > 0) {
+                      @for (listing of msg.listings; track listing.id) {
+                        <a [href]="listing.externalUrl" target="_blank" rel="noopener noreferrer" class="bike-card">
+                          @if (listing.imageUrl) {
                             <img
-                              [src]="imageUrl(bike)"
-                              [alt]="bike.marke + ' ' + bike.modell"
+                              [src]="listing.imageUrl"
+                              [alt]="listing.title"
                               class="bike-img"
                               loading="lazy"
                               (error)="onImgError($event)"
@@ -73,18 +73,16 @@ import { ChatMessage, PublicBicycle, BikeAdviserSseEvent, BikeAdviserShopCta } f
                             <div class="bike-img-placeholder">🚲</div>
                           }
                           <div class="bike-info">
-                            <div class="bike-name">{{ bike.marke }} {{ bike.modell }}</div>
-                            @if (bike.fahrradtyp || bike.art) {
-                              <div class="bike-type">{{ bike.fahrradtyp || bike.art }}</div>
+                            <div class="bike-name">{{ listing.title }}</div>
+                            @if (listing.category) {
+                              <div class="bike-type">{{ listing.category }}</div>
                             }
                             <div class="bike-price">
-                              {{ bike.preis ? (bike.preis | number:'1.0-0') + ' €' : t().kiBeraterPriceOnRequest }}
+                              {{ listing.price ? (listing.price | number:'1.0-0') + ' €' : (listing.priceText || t().kiBeraterPriceOnRequest) }}
                             </div>
-                            <a [routerLink]="['/', lang(), 'showroom', bike.id]" class="bike-link">
-                              {{ t().kiBeraterViewBike }} →
-                            </a>
+                            <span class="bike-link">{{ t().kiBeraterViewBike }} →</span>
                           </div>
-                        </div>
+                        </a>
                       }
                     </div>
                   }
@@ -317,9 +315,11 @@ import { ChatMessage, PublicBicycle, BikeAdviserSseEvent, BikeAdviserShopCta } f
       border: 1.5px solid #e0e8f5;
       border-radius: 12px;
       overflow: hidden;
-      transition: box-shadow 0.2s;
+      transition: box-shadow 0.2s, border-color 0.2s;
+      text-decoration: none;
+      color: inherit;
     }
-    .bike-card:hover { box-shadow: 0 4px 16px rgba(15,52,96,0.1); }
+    .bike-card:hover { box-shadow: 0 4px 16px rgba(15,52,96,0.12); border-color: #b0c4e8; }
     .bike-img {
       width: 90px; height: 80px;
       object-fit: cover;
@@ -509,7 +509,10 @@ export class KiBeraterComponent implements OnInit, OnDestroy {
   }
 
   formatText(text: string): string {
-    return text.replace(/\n/g, '<br>');
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/\n/g, '<br>');
   }
 
   private async sendMessage(text: string): Promise<void> {
@@ -584,11 +587,11 @@ export class KiBeraterComponent implements OnInit, OnDestroy {
         updated[updated.length - 1] = { ...last, content: last.content + event.text };
         return updated;
       });
-    } else if (event.type === 'bikes' && event.bikes) {
+    } else if (event.type === 'listings' && event.listings) {
       this.messages.update(msgs => {
         const updated = [...msgs];
         const last = updated[updated.length - 1];
-        updated[updated.length - 1] = { ...last, bikes: event.bikes };
+        updated[updated.length - 1] = { ...last, listings: event.listings };
         return updated;
       });
     } else if (event.type === 'done') {
