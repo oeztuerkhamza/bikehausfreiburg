@@ -96,7 +96,11 @@
       "Bash(curl -sS -o /dev/null -w \"code=%{http_code} time=%{time_total}s\\\\n\" --max-time 15 https://api.bikehausfreiburg.com/api/public/homepage-accessories)",
       "Bash(curl -sS -o /dev/null -w \"code=%{http_code}\\\\n\" --max-time 15 https://admin.bikehausfreiburg.com/api/public/neue-fahrraeder)",
       "Bash(curl -sS -o /dev/null -w \"code=%{http_code}\\\\n\" --max-time 15 https://bikehausfreiburg.com/)",
-      "Bash(curl -sS -o /dev/null -w \"code=%{http_code}\\\\n\" --max-time 15 https://bikehausfreiburg.com/sitemap-products.xml)"
+      "Bash(curl -sS -o /dev/null -w \"code=%{http_code}\\\\n\" --max-time 15 https://bikehausfreiburg.com/sitemap-products.xml)",
+      "Read(//c/Users/hamza/.nuget/packages/anthropic.sdk/5.10.0/lib/net8.0/**)",
+      "Read(//c/Users/hamza/.nuget/packages/anthropic.sdk/5.10.0/**)",
+      "Bash(cd /mnt/d/projects/bikehausfreiburg && dotnet build BikeHaus.Infrastructure/BikeHaus.Infrastructure.csproj BikeHaus.API/BikeHaus.API.csproj 2>&1 | tail -40)",
+      "Read(//mnt/d/projects/**)"
     ]
   }
 }

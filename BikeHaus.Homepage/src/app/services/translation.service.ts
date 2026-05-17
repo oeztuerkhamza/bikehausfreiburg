@@ -702,6 +702,30 @@ export interface Translations {
   rentalDetailDescHeading: string;
   rentalDetailMetaTitleSuffix: string;
   rentalDetailMetaDescPrefix: string;
+
+  // KI-Fahrradberater
+  kiBeraterNav: string;
+  kiBeraterMetaTitle: string;
+  kiBeraterMetaDescription: string;
+  kiBeraterTitle: string;
+  kiBeraterSubtitle: string;
+  kiBeraterWelcome: string;
+  kiBeraterWelcomeSub: string;
+  kiBeraterQuick1: string;
+  kiBeraterQuick2: string;
+  kiBeraterQuick3: string;
+  kiBeraterQuick4: string;
+  kiBeraterInputPlaceholder: string;
+  kiBeraterSend: string;
+  kiBeraterTyping: string;
+  kiBeraterViewBike: string;
+  kiBeraterShopCtaTitle: string;
+  kiBeraterShopCtaText: string;
+  kiBeraterShopCtaBtn: string;
+  kiBeraterContactCtaBtn: string;
+  kiBeraterError: string;
+  kiBeraterClearChat: string;
+  kiBeraterPriceOnRequest: string;
 }
 
 const TRANSLATIONS: Record<BaseLanguage, Translations> = {
@@ -1362,6 +1386,29 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalDetailDescHeading: 'Beschreibung',
     rentalDetailMetaTitleSuffix: 'mieten in Freiburg | Bike Haus Freiburg',
     rentalDetailMetaDescPrefix: 'Miete dieses Fahrrad in Freiburg:',
+
+    kiBeraterNav: 'KI-Fahrradberater',
+    kiBeraterMetaTitle: 'KI-Fahrradberater – Das perfekte Fahrrad finden | Bike Haus Freiburg',
+    kiBeraterMetaDescription: 'Finde mit unserem KI-Berater das perfekte Fahrrad für dich. Unser Assistent analysiert deine Bedürfnisse und empfiehlt passende Fahrräder aus unserem Bestand.',
+    kiBeraterTitle: 'KI-Fahrradberater',
+    kiBeraterSubtitle: 'Beschreib, was du suchst – unser KI-Assistent findet das passende Fahrrad für dich.',
+    kiBeraterWelcome: 'Hallo! Ich bin dein persönlicher Fahrradberater. 🚲',
+    kiBeraterWelcomeSub: 'Sag mir, was du suchst, und ich helfe dir das perfekte Fahrrad zu finden.',
+    kiBeraterQuick1: 'Ich suche ein Mountainbike unter 500 €',
+    kiBeraterQuick2: 'Welche E-Bikes habt ihr?',
+    kiBeraterQuick3: 'Ich brauche ein Stadtrad für den Alltag',
+    kiBeraterQuick4: 'Was ist für ein Kind ab 8 Jahren geeignet?',
+    kiBeraterInputPlaceholder: 'Frag mich nach dem perfekten Fahrrad…',
+    kiBeraterSend: 'Senden',
+    kiBeraterTyping: 'Schreibt…',
+    kiBeraterViewBike: 'Details ansehen',
+    kiBeraterShopCtaTitle: 'Persönliche Beratung gewünscht?',
+    kiBeraterShopCtaText: 'Unser Team freut sich auf deinen Besuch im Laden.',
+    kiBeraterShopCtaBtn: 'Zum Showroom',
+    kiBeraterContactCtaBtn: 'Kontakt aufnehmen',
+    kiBeraterError: 'Verbindungsfehler. Bitte versuche es erneut.',
+    kiBeraterClearChat: 'Chat leeren',
+    kiBeraterPriceOnRequest: 'Preis auf Anfrage',
   },
 
   en: {
@@ -1996,6 +2043,29 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalDetailDescHeading: 'Description',
     rentalDetailMetaTitleSuffix: 'to rent in Freiburg | Bike Haus Freiburg',
     rentalDetailMetaDescPrefix: 'Rent this bike in Freiburg:',
+
+    kiBeraterNav: 'AI Bike Adviser',
+    kiBeraterMetaTitle: 'AI Bike Adviser – Find Your Perfect Bike | Bike Haus Freiburg',
+    kiBeraterMetaDescription: 'Use our AI adviser to find the perfect bike for you. Our assistant analyses your needs and recommends bikes from our current stock.',
+    kiBeraterTitle: 'AI Bike Adviser',
+    kiBeraterSubtitle: 'Describe what you\'re looking for – our AI assistant finds the perfect bike for you.',
+    kiBeraterWelcome: 'Hello! I\'m your personal bike adviser. 🚲',
+    kiBeraterWelcomeSub: 'Tell me what you\'re looking for and I\'ll help you find the perfect bike.',
+    kiBeraterQuick1: 'I\'m looking for a mountain bike under €500',
+    kiBeraterQuick2: 'What e-bikes do you have?',
+    kiBeraterQuick3: 'I need a city bike for everyday use',
+    kiBeraterQuick4: 'What\'s suitable for a child aged 8+?',
+    kiBeraterInputPlaceholder: 'Ask me about the perfect bike…',
+    kiBeraterSend: 'Send',
+    kiBeraterTyping: 'Typing…',
+    kiBeraterViewBike: 'View details',
+    kiBeraterShopCtaTitle: 'Want personal advice?',
+    kiBeraterShopCtaText: 'Our team looks forward to welcoming you in the shop.',
+    kiBeraterShopCtaBtn: 'Visit Showroom',
+    kiBeraterContactCtaBtn: 'Get in touch',
+    kiBeraterError: 'Connection error. Please try again.',
+    kiBeraterClearChat: 'Clear chat',
+    kiBeraterPriceOnRequest: 'Price on request',
   },
 
   fr: {
@@ -2655,6 +2725,29 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalDetailDescHeading: 'Description',
     rentalDetailMetaTitleSuffix: 'à louer à Fribourg | Bike Haus Freiburg',
     rentalDetailMetaDescPrefix: 'Louez ce vélo à Fribourg :',
+
+    kiBeraterNav: 'Conseiller vélo IA',
+    kiBeraterMetaTitle: 'Conseiller vélo IA – Trouvez votre vélo idéal | Bike Haus Freiburg',
+    kiBeraterMetaDescription: 'Utilisez notre conseiller IA pour trouver le vélo parfait. Notre assistant analyse vos besoins et vous recommande des vélos de notre stock actuel.',
+    kiBeraterTitle: 'Conseiller vélo IA',
+    kiBeraterSubtitle: 'Décrivez ce que vous cherchez – notre assistant IA trouve le vélo parfait pour vous.',
+    kiBeraterWelcome: 'Bonjour ! Je suis votre conseiller vélo personnel. 🚲',
+    kiBeraterWelcomeSub: 'Dites-moi ce que vous cherchez et je vous aiderai à trouver le vélo parfait.',
+    kiBeraterQuick1: 'Je cherche un VTT à moins de 500 €',
+    kiBeraterQuick2: 'Quels vélos électriques avez-vous ?',
+    kiBeraterQuick3: 'J\'ai besoin d\'un vélo de ville pour le quotidien',
+    kiBeraterQuick4: 'Qu\'est-ce qui convient à un enfant de 8 ans ?',
+    kiBeraterInputPlaceholder: 'Posez-moi une question sur le vélo idéal…',
+    kiBeraterSend: 'Envoyer',
+    kiBeraterTyping: 'En train d\'écrire…',
+    kiBeraterViewBike: 'Voir les détails',
+    kiBeraterShopCtaTitle: 'Vous souhaitez un conseil personnalisé ?',
+    kiBeraterShopCtaText: 'Notre équipe vous accueille avec plaisir en magasin.',
+    kiBeraterShopCtaBtn: 'Visiter le showroom',
+    kiBeraterContactCtaBtn: 'Nous contacter',
+    kiBeraterError: 'Erreur de connexion. Veuillez réessayer.',
+    kiBeraterClearChat: 'Effacer le chat',
+    kiBeraterPriceOnRequest: 'Prix sur demande',
   },
 
   tr: {
@@ -3309,6 +3402,29 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalDetailDescHeading: 'Açıklama',
     rentalDetailMetaTitleSuffix: "Freiburg'da kiralık | Bike Haus Freiburg",
     rentalDetailMetaDescPrefix: "Bu bisikleti Freiburg'da kiralayın:",
+
+    kiBeraterNav: 'Yapay Zeka Bisiklet Danışmanı',
+    kiBeraterMetaTitle: 'YZ Bisiklet Danışmanı – Mükemmel Bisikletini Bul | Bike Haus Freiburg',
+    kiBeraterMetaDescription: 'YZ danışmanımızla sana en uygun bisikleti bul. Asistanımız ihtiyaçlarını analiz eder ve mevcut stoğumuzdan bisiklet önerir.',
+    kiBeraterTitle: 'YZ Bisiklet Danışmanı',
+    kiBeraterSubtitle: 'Ne aradığını söyle – YZ asistanımız sana en uygun bisikleti bulur.',
+    kiBeraterWelcome: 'Merhaba! Ben senin kişisel bisiklet danışmanınım. 🚲',
+    kiBeraterWelcomeSub: 'Ne aradığını söyle, mükemmel bisikleti bulmana yardımcı olayım.',
+    kiBeraterQuick1: '500 € altında dağ bisikleti arıyorum',
+    kiBeraterQuick2: 'Hangi elektrikli bisikletleriniz var?',
+    kiBeraterQuick3: 'Günlük kullanım için şehir bisikleti istiyorum',
+    kiBeraterQuick4: '8 yaş üstü çocuk için ne önerirsiniz?',
+    kiBeraterInputPlaceholder: 'Mükemmel bisiklet hakkında soru sor…',
+    kiBeraterSend: 'Gönder',
+    kiBeraterTyping: 'Yazıyor…',
+    kiBeraterViewBike: 'Detayları gör',
+    kiBeraterShopCtaTitle: 'Kişisel danışma ister misiniz?',
+    kiBeraterShopCtaText: 'Ekibimiz mağazamızda sizi bekliyor.',
+    kiBeraterShopCtaBtn: 'Showroom\'a git',
+    kiBeraterContactCtaBtn: 'İletişime geç',
+    kiBeraterError: 'Bağlantı hatası. Lütfen tekrar deneyin.',
+    kiBeraterClearChat: 'Sohbeti temizle',
+    kiBeraterPriceOnRequest: 'Fiyat için sorunuz',
   },
 };
 

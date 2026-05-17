@@ -78,6 +78,7 @@ public static class DependencyInjection
         services.AddScoped<IIndexNowService, IndexNowService>();
         services.AddHttpClient("GooglePlaces");
         services.AddScoped<IGoogleReviewsService, GoogleReviewsService>();
+        services.AddScoped<IBikeAdviserService, BikeAdviserService>();
         services.AddScoped<IExportService>(sp =>
         {
             var uploadsPath = configuration["FileStorage:BasePath"]

@@ -79,11 +79,12 @@ jobs:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: FORCE_LOGOUT,JWT_SECRET_KEY,INDEXNOW_API_KEY,SMTP_PASSWORD
+          envs: FORCE_LOGOUT,JWT_SECRET_KEY,INDEXNOW_API_KEY,SMTP_PASSWORD,ANTHROPIC_API_KEY
           command_timeout: 10m
           script: |
             set -euo pipefail
@@ -113,6 +114,7 @@ jobs:
             GOOGLE_PLACES_API_KEY="$(_read_env GOOGLE_PLACES_API_KEY)"
             GOOGLE_PLACES_PLACE_ID="$(_read_env GOOGLE_PLACES_PLACE_ID)"
             [ -z "${SMTP_PASSWORD:-}" ] && SMTP_PASSWORD="$(_read_env SMTP_PASSWORD)"
+            [ -z "${ANTHROPIC_API_KEY:-}" ] && ANTHROPIC_API_KEY="$(_read_env ANTHROPIC_API_KEY)"
 
             echo "==> Updating source"
             echo "Current server commit: $(git rev-parse --short HEAD || echo unknown)"
@@ -123,8 +125,8 @@ jobs:
 
             echo "==> Writing .env"
             umask 077
-            printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_HOST=mail.bikehausfreiburg.com\nSMTP_PORT=587\nSMTP_USERNAME=no-reply@bikehausfreiburg.com\nSMTP_PASSWORD=%s\nSMTP_USESSL=false\nSMTP_FROMEMAIL=no-reply@bikehausfreiburg.com\nSMTP_FROMNAME=Bike Haus Freiburg\n' \
-              "${JWT_SECRET_KEY}" "${INDEXNOW_API_KEY}" "${GOOGLE_PLACES_API_KEY}" "${GOOGLE_PLACES_PLACE_ID}" "${SMTP_PASSWORD}" > .env
+            printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_HOST=mail.bikehausfreiburg.com\nSMTP_PORT=587\nSMTP_USERNAME=no-reply@bikehausfreiburg.com\nSMTP_PASSWORD=%s\nSMTP_USESSL=false\nSMTP_FROMEMAIL=no-reply@bikehausfreiburg.com\nSMTP_FROMNAME=Bike Haus Freiburg\nANTHROPIC_API_KEY=%s\n' \
+              "${JWT_SECRET_KEY}" "${INDEXNOW_API_KEY}" "${GOOGLE_PLACES_API_KEY}" "${GOOGLE_PLACES_PLACE_ID}" "${SMTP_PASSWORD}" "${ANTHROPIC_API_KEY}" > .env
             chmod 600 .env
 
   # ───────────────────────────────────────────────────────────────

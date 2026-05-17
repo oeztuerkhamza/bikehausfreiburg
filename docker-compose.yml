@@ -24,6 +24,7 @@ services:
       - Smtp__UseSsl=${SMTP_USESSL:-false}
       - Smtp__FromEmail=${SMTP_FROMEMAIL:-no-reply@bikehausfreiburg.com}
       - Smtp__FromName=${SMTP_FROMNAME:-Bike Haus Freiburg}
+      - Anthropic__ApiKey=${ANTHROPIC_API_KEY}
     networks:
       - bikehaus-network
 

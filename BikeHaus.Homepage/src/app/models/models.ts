@@ -267,3 +267,26 @@ export interface RentalReviewCreate {
   sterne: number;
   yorum: string;
 }
+
+// ── KI-Fahrradberater ──
+export interface BikeAdviserMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface ChatMessage extends BikeAdviserMessage {
+  bikes?: PublicBicycle[];
+  isStreaming?: boolean;
+}
+
+export interface BikeAdviserShopCta {
+  show: boolean;
+  type?: 'showroom' | 'contact' | 'rental';
+}
+
+export interface BikeAdviserSseEvent {
+  type: 'delta' | 'bikes' | 'done';
+  text?: string;
+  bikes?: PublicBicycle[];
+  shopCta?: BikeAdviserShopCta;
+}
