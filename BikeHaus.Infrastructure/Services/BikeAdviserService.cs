@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace BikeHaus.Infrastructure.Services;
 
 public class BikeAdviserService(
-    IBicycleService bicycleService,
+    IKleinanzeigenService kleinanzeigenService,
     IShopSettingsService shopSettingsService,
     IConfiguration configuration,
     ILogger<BikeAdviserService> logger) : IBikeAdviserService
@@ -82,8 +82,6 @@ public class BikeAdviserService(
             var systemPrompt = BuildSystemPrompt(request.Language);
             var messages = MapMessages(request.Messages);
             var tools = BuildTools();
-            var recommendedBikes = new List<PublicBicycleDto>();
-
             // ── Tool resolution loop (non-streaming) ─────────────────────
             for (int round = 0; round < 3; round++)
             {
@@ -105,7 +103,7 @@ public class BikeAdviserService(
                 var toolResults = new List<ContentBase>();
                 foreach (var toolUse in toolUseBlocks)
                 {
-                    var result = await ExecuteToolAsync(toolUse, recommendedBikes, ct);
+                    var result = await ExecuteToolAsync(toolUse, ct);
                     toolResults.Add(new ToolResultContent
                     {
                         ToolUseId = toolUse.Id,
@@ -114,10 +112,6 @@ public class BikeAdviserService(
                 }
                 messages.Add(new Message { Role = RoleType.User, Content = toolResults });
             }
-
-            // ── Emit bike cards ───────────────────────────────────────────
-            if (recommendedBikes.Count > 0)
-                await writer.WriteAsync(SseEvent("bikes", new { bikes = recommendedBikes }), ct);
 
             // ── Final streaming response ──────────────────────────────────
             var allEvents = new List<MessageResponse>();
@@ -142,10 +136,9 @@ public class BikeAdviserService(
             var fullText = string.Concat(allEvents
                 .Where(e => e.Delta?.Text != null)
                 .Select(e => e.Delta!.Text));
-            var showCta = ShouldShowCta(fullText, recommendedBikes.Count);
-            var ctaType = recommendedBikes.Count > 0 ? "showroom" : "contact";
+            var showCta = ShouldShowCta(fullText);
             await writer.WriteAsync(
-                SseEvent("done", new { shopCta = new { show = showCta, type = showCta ? ctaType : (string?)null } }), ct);
+                SseEvent("done", new { shopCta = new { show = showCta, type = showCta ? "contact" : (string?)null } }), ct);
         }
         catch (Exception ex) when (!ct.IsCancellationRequested)
         {
@@ -162,7 +155,6 @@ public class BikeAdviserService(
     // ── Tool execution ───────────────────────────────────────────────────────
     private async Task<string> ExecuteToolAsync(
         ToolUseContent toolUse,
-        List<PublicBicycleDto> recommendedBikes,
         CancellationToken ct)
     {
         if (toolUse.Name == "get_shop_info")
@@ -178,57 +170,60 @@ public class BikeAdviserService(
 
         if (toolUse.Name == "get_available_bikes")
         {
-            var allBikes = (await bicycleService.GetPublishedOnWebsiteAsync()).ToList();
-            var filtered = allBikes.AsEnumerable();
+            string? typ = null;
+            decimal? maxP = null, minP = null;
 
             if (toolUse.Input is JsonObject inputObj)
             {
-                if (inputObj["fahrradtyp"]?.ToString() is { Length: > 0 } typ)
-                    filtered = filtered.Where(b =>
-                        (b.Fahrradtyp != null && b.Fahrradtyp.Contains(typ, StringComparison.OrdinalIgnoreCase)) ||
-                        (b.Art != null && b.Art.Contains(typ, StringComparison.OrdinalIgnoreCase)));
+                typ = inputObj["fahrradtyp"]?.ToString() is { Length: > 0 } t ? t : null;
 
                 if (inputObj["max_preis"]?.ToString() is { Length: > 0 } maxPStr &&
                     decimal.TryParse(maxPStr, System.Globalization.NumberStyles.Number,
-                        System.Globalization.CultureInfo.InvariantCulture, out var maxP))
-                    filtered = filtered.Where(b => b.Preis == null || b.Preis <= maxP);
+                        System.Globalization.CultureInfo.InvariantCulture, out var maxParsed))
+                    maxP = maxParsed;
 
                 if (inputObj["min_preis"]?.ToString() is { Length: > 0 } minPStr &&
                     decimal.TryParse(minPStr, System.Globalization.NumberStyles.Number,
-                        System.Globalization.CultureInfo.InvariantCulture, out var minP))
-                    filtered = filtered.Where(b => b.Preis == null || b.Preis >= minP);
-
-                if (inputObj["zustand"]?.ToString() is { Length: > 0 } zustand)
-                    filtered = filtered.Where(b =>
-                        b.Zustand.ToString().Equals(zustand, StringComparison.OrdinalIgnoreCase));
+                        System.Globalization.CultureInfo.InvariantCulture, out var minParsed))
+                    minP = minParsed;
             }
 
-            var results = filtered.Take(5).ToList();
-            recommendedBikes.AddRange(results);
+            var listings = (await kleinanzeigenService.GetAllActiveListingsAsync()).AsEnumerable();
+
+            if (typ != null)
+                listings = listings.Where(l =>
+                    (l.Category != null && l.Category.Contains(typ, StringComparison.OrdinalIgnoreCase)) ||
+                    l.Title.Contains(typ, StringComparison.OrdinalIgnoreCase));
+            if (maxP.HasValue)
+                listings = listings.Where(l => l.Price == null || l.Price <= maxP);
+            if (minP.HasValue)
+                listings = listings.Where(l => l.Price == null || l.Price >= minP);
+
+            var results = listings.Take(8).ToList();
 
             if (results.Count == 0)
-                return "Keine passenden Fahrräder im Bestand gefunden. Empfehle einen Besuch im Laden für aktuelle Neuankünfte.";
+                return "Keine passenden Fahrräder auf Kleinanzeigen gefunden. Empfehle einen Besuch im Laden für aktuelle Neuankünfte.";
 
-            var lines = results.Select(b =>
-                $"- {b.Marke} {b.Modell}, {b.Fahrradtyp ?? b.Art}, " +
-                $"{(b.Preis.HasValue ? $"{b.Preis:F0}€" : "Preis auf Anfrage")}, " +
-                $"Zustand: {b.Zustand}, ID: {b.Id}");
-            return $"Gefundene Fahrräder ({results.Count}):\n{string.Join("\n", lines)}";
+            var lines = results.Select(l =>
+                $"- {l.Title}, " +
+                $"{(l.Price.HasValue ? $"{l.Price:F0}€" : l.PriceText ?? "Preis auf Anfrage")}, " +
+                $"Kategorie: {l.Category ?? "–"}, Link: {l.ExternalUrl}");
+            return $"Gefundene Kleinanzeigen-Inserate ({results.Count}):\n{string.Join("\n", lines)}";
         }
 
         return "Unbekanntes Tool.";
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
-    private static bool ShouldShowCta(string text, int bikeCount)
+    private static bool ShouldShowCta(string text)
     {
-        if (bikeCount == 0) return true;
         var lower = text.ToLowerInvariant();
         return lower.Contains("besuchen sie") || lower.Contains("kommen sie") ||
                lower.Contains("im laden") || lower.Contains("persönlich") ||
                lower.Contains("kontaktieren") || lower.Contains("visit us") ||
                lower.Contains("come by") || lower.Contains("in store") ||
-               lower.Contains("venez") || lower.Contains("visitez");
+               lower.Contains("venez") || lower.Contains("visitez") ||
+               lower.Contains("keine passenden");
     }
 
     private static List<Message> MapMessages(List<BikeAdviserMessage> incoming) =>
