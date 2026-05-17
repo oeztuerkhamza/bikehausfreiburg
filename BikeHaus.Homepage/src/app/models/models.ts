@@ -282,6 +282,7 @@ export interface KleinanzeigenCard {
   externalUrl: string;
   category?: string;
   imageUrl?: string;
+  source?: 'showroom' | 'kleinanzeigen';
 }
 
 export interface ChatMessage extends BikeAdviserMessage {

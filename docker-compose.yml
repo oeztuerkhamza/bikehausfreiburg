@@ -25,6 +25,7 @@ services:
       - Smtp__FromEmail=${SMTP_FROMEMAIL:-no-reply@bikehausfreiburg.com}
       - Smtp__FromName=${SMTP_FROMNAME:-Bike Haus Freiburg}
       - Anthropic__ApiKey=${ANTHROPIC_API_KEY}
+      - Api__PublicBaseUrl=https://api.bikehausfreiburg.com
     networks:
       - bikehaus-network
 

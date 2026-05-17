@@ -60,7 +60,10 @@ import { ChatMessage, PublicBicycle, KleinanzeigenCard, BikeAdviserSseEvent, Bik
                   @if (msg.listings && msg.listings.length > 0) {
                     <div class="bike-cards">
                       @for (listing of msg.listings; track listing.id) {
-                        <a [href]="listing.externalUrl" target="_blank" rel="noopener noreferrer" class="bike-card">
+                        <a [href]="listing.externalUrl"
+                           [target]="listing.source === 'showroom' ? '_self' : '_blank'"
+                           rel="noopener noreferrer"
+                           class="bike-card">
                           @if (listing.imageUrl) {
                             <img
                               [src]="listing.imageUrl"
@@ -73,7 +76,12 @@ import { ChatMessage, PublicBicycle, KleinanzeigenCard, BikeAdviserSseEvent, Bik
                             <div class="bike-img-placeholder">🚲</div>
                           }
                           <div class="bike-info">
-                            <div class="bike-name">{{ listing.title }}</div>
+                            <div class="bike-name">
+                              {{ listing.title }}
+                              @if (listing.source === 'showroom') {
+                                <span class="source-badge showroom">Showroom</span>
+                              }
+                            </div>
                             @if (listing.category) {
                               <div class="bike-type">{{ listing.category }}</div>
                             }
@@ -339,7 +347,15 @@ import { ChatMessage, PublicBicycle, KleinanzeigenCard, BikeAdviserSseEvent, Bik
       gap: 3px;
       min-width: 0;
     }
-    .bike-name { font-weight: 600; font-size: 14px; color: #1a1a2e; }
+    .bike-name {
+      font-weight: 600; font-size: 14px; color: #1a1a2e;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .source-badge {
+      font-size: 10px; font-weight: 600; padding: 2px 7px;
+      border-radius: 100px; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .source-badge.showroom { background: #e8f5e9; color: #2e7d32; }
     .bike-type { font-size: 12px; color: #666; }
     .bike-price { font-size: 15px; font-weight: 700; color: #0f3460; }
     .bike-link {
