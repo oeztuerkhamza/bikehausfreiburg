@@ -14,5 +14,7 @@ public interface IRentalBookingService
     Task<int> GetPendingCountAsync();
     Task<bool> DeleteAsync(int id);
     Task SaveSignatureAsync(int id, string mieterUnterschrift);
+    Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath);
+    Task<string?> GetAusweisPhotoPathAsync(int id);
     Task<RentalBookingDto> UpdateBookingBikeAsync(int bookingId, int bookingBikeId, int newBicycleId);
 }

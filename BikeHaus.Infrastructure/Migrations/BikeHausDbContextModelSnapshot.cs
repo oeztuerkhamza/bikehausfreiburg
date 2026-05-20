@@ -890,6 +890,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<bool>("AgbAkzeptiert")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("AusweisPhotoPath")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("AusweisnNr")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
@@ -1113,6 +1116,9 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AusweisPhotoPath")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("BicycleId")

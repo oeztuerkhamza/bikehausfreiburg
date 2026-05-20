@@ -391,7 +391,8 @@ public static class MappingExtensions
             entity.CreatedAt,
             entity.ApprovedAt,
             entity.CancelledAt,
-            entity.Accessories.Select(a => a.ToDto()).ToList()
+            entity.Accessories.Select(a => a.ToDto()).ToList(),
+            entity.AusweisPhotoPath
         );
     }
 
@@ -484,7 +485,8 @@ public static class MappingExtensions
         entity.Accessories.Select(a => a.ToDto()).ToList(),
         entity.MieterUnterschrift,
         entity.AgbAkzeptiert,
-        entity.UnterschriftOrt
+        entity.UnterschriftOrt,
+        entity.AusweisPhotoPath
     );
 
     public static RentalListDto ToListDto(this Rental entity)

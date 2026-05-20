@@ -1567,6 +1567,7 @@ export class RentalFormComponent implements OnInit {
   private accessoryService = inject(RentalAccessoryService);
 
   fromBookingId: number | null = null;
+  fromBookingAusweisPhotoPath: string | undefined = undefined;
   availableBikes: Bicycle[] = [];
   availabilityLoading = false;
   private pendingBikeIdToSelect: number | null = null;
@@ -1945,6 +1946,9 @@ export class RentalFormComponent implements OnInit {
           this.customer.telefon = booking.telefon || '';
           this.customer.email = booking.email || '';
           this.notizen = booking.notizen || '';
+          if (booking.ausweisPhotoPath) {
+            this.fromBookingAusweisPhotoPath = booking.ausweisPhotoPath;
+          }
 
           if (booking.accessories && booking.accessories.length > 0) {
             this.selectedAccessories.helm = booking.accessories.some((a) =>
@@ -2325,6 +2329,7 @@ export class RentalFormComponent implements OnInit {
             mieterUnterschrift: this.mieterUnterschrift || undefined,
             agbAkzeptiert: this.agbAkzeptiert,
             unterschriftOrt: this.unterschriftOrt || undefined,
+            ausweisPhotoPath: this.fromBookingAusweisPhotoPath,
             bikes: this.bikes.map((b, i) => ({
               bicycleId: bicycleIds[i],
               rahmennummer: b.bikeEdit?.rahmennummer || undefined,

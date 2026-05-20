@@ -12,11 +12,13 @@ public class RentalBookingsController : ControllerBase
 {
     private readonly IRentalBookingService _service;
     private readonly IPdfService _pdfService;
+    private readonly IFileStorageService _fileStorage;
 
-    public RentalBookingsController(IRentalBookingService service, IPdfService pdfService)
+    public RentalBookingsController(IRentalBookingService service, IPdfService pdfService, IFileStorageService fileStorage)
     {
         _service = service;
         _pdfService = pdfService;
+        _fileStorage = fileStorage;
     }
 
     [HttpGet("paginated")]
@@ -154,6 +156,49 @@ public class RentalBookingsController : ControllerBase
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("{id}/ausweis")]
+    public async Task<IActionResult> UploadAusweis(int id, IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest(new { error = "No file uploaded" });
+
+        try
+        {
+            using var stream = file.OpenReadStream();
+            var relativePath = await _fileStorage.SaveFileAsync(stream, file.FileName, $"ausweis/{id}");
+            await _service.SaveAusweisPhotoPathAsync(id, relativePath);
+            return Ok(new { path = relativePath });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("{id}/ausweis")]
+    public async Task<IActionResult> DownloadAusweis(int id)
+    {
+        try
+        {
+            var path = await _service.GetAusweisPhotoPathAsync(id);
+            if (string.IsNullOrEmpty(path))
+                return NotFound(new { error = "Kein Ausweis-Foto vorhanden" });
+
+            var stream = await _fileStorage.GetFileAsync(path);
+            var ext = Path.GetExtension(path).ToLower();
+            var contentType = ext == ".pdf" ? "application/pdf" : "image/jpeg";
+            return File(stream, contentType, $"Ausweis-Buchung-{id}{ext}");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (FileNotFoundException)
+        {
+            return NotFound(new { error = "Ausweis-Datei nicht gefunden" });
         }
     }
 }

@@ -77,7 +77,8 @@ public record RentalBookingDto(
     DateTime CreatedAt,
     DateTime? ApprovedAt,
     DateTime? CancelledAt,
-    List<RentalBookingAccessoryDto> Accessories
+    List<RentalBookingAccessoryDto> Accessories,
+    string? AusweisPhotoPath
 );
 
 public record RentalBookingListDto(

@@ -798,6 +798,7 @@ export interface Rental {
   mieterUnterschrift?: string;
   agbAkzeptiert: boolean;
   unterschriftOrt?: string;
+  ausweisPhotoPath?: string;
 }
 
 export interface RentalList {
@@ -870,6 +871,7 @@ export interface RentalCreate {
   mieterUnterschrift?: string;
   agbAkzeptiert?: boolean;
   unterschriftOrt?: string;
+  ausweisPhotoPath?: string;
 }
 
 export interface RentalUpdate {
@@ -1008,6 +1010,7 @@ export interface RentalBooking {
   approvedAt?: string;
   cancelledAt?: string;
   accessories: RentalBookingAccessory[];
+  ausweisPhotoPath?: string;
 }
 
 export interface RentalBookingList {

@@ -36,6 +36,13 @@ import {
           <button class="btn btn-outline" (click)="printBedingungen()">
             🖨️ Mietbedingungen drucken
           </button>
+          <button
+            *ngIf="rental.ausweisPhotoPath"
+            class="btn btn-outline"
+            (click)="downloadAusweis()"
+          >
+            🪪 Ausweis herunterladen
+          </button>
           <a routerLink="/rentals" class="btn btn-outline">Zurück</a>
         </div>
       </div>
@@ -1398,6 +1405,22 @@ export class RentalDetailComponent implements OnInit {
           });
         }
       });
+  }
+
+  downloadAusweis() {
+    if (!this.rental) return;
+    this.rentalService.downloadAusweis(this.rental.id).subscribe({
+      next: (blob) => {
+        const ext = this.rental!.ausweisPhotoPath?.split('.').pop() || 'jpg';
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Ausweis-${this.rental!.mietvertragNummer}.${ext}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.notificationService.error('Fehler beim Herunterladen'),
+    });
   }
 
   private printBlob(blob: Blob) {

@@ -22,6 +22,7 @@ public class RentalBooking : BaseEntity
 
     public string? Notizen { get; set; }
     public string? AdminNotizen { get; set; }
+    public string? AusweisPhotoPath { get; set; }
 
     public decimal? Gesamtpreis { get; set; }
     public RentalBookingStatus Status { get; set; } = RentalBookingStatus.Pending;

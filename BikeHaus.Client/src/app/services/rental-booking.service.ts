@@ -74,4 +74,14 @@ export class RentalBookingService {
       responseType: 'blob',
     });
   }
+
+  uploadAusweis(id: number, file: File): Observable<{ path: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ path: string }>(`${this.url}/${id}/ausweis`, formData);
+  }
+
+  downloadAusweis(id: number): Observable<Blob> {
+    return this.http.get(`${this.url}/${id}/ausweis`, { responseType: 'blob' });
+  }
 }

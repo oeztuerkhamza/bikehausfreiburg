@@ -29,6 +29,7 @@ public class Rental : BaseEntity
 
     // Notizen
     public string? Notizen { get; set; }
+    public string? AusweisPhotoPath { get; set; }
 
     // Mieter-Unterschrift & AGB-Bestätigung
     public string? MieterUnterschrift { get; set; }  // base64 PNG

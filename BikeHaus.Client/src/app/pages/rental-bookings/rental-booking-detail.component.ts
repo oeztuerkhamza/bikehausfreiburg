@@ -283,6 +283,40 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
           </div>
         </div>
 
+        <!-- Ausweis Upload -->
+        <div class="info-card ausweis-card">
+          <h3>Ausweis-Foto</h3>
+          <div *ngIf="booking.ausweisPhotoPath" class="info-row">
+            <span>Status:</span>
+            <span class="ausweis-badge has-photo">✓ Foto vorhanden</span>
+          </div>
+          <div *ngIf="!booking.ausweisPhotoPath" class="info-row">
+            <span>Status:</span>
+            <span class="ausweis-badge no-photo">Kein Foto</span>
+          </div>
+          <div class="ausweis-actions">
+            <label class="btn btn-outline btn-upload" [class.uploading]="uploadingAusweis()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:5px">
+                <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+              </svg>
+              {{ uploadingAusweis() ? 'Wird hochgeladen...' : (booking.ausweisPhotoPath ? 'Foto ersetzen' : 'Foto hochladen') }}
+              <input type="file" accept="image/*,.pdf" style="display:none" (change)="onAusweisFileSelected($event)" [disabled]="uploadingAusweis()" />
+            </label>
+            <button
+              *ngIf="booking.ausweisPhotoPath"
+              class="btn btn-outline"
+              (click)="downloadAusweis()"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:5px">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Ausweis herunterladen
+            </button>
+          </div>
+        </div>
+
         <div class="info-card">
           <h3>{{ t.rentalBookingDates }}</h3>
           <div class="info-row">
@@ -710,6 +744,37 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
         background: #6b46c1;
         border-color: #6b46c1;
       }
+      .ausweis-card {
+        grid-column: 1 / -1;
+      }
+      .ausweis-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+      .ausweis-badge.has-photo {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+      }
+      .ausweis-badge.no-photo {
+        background: rgba(100, 116, 139, 0.1);
+        color: #64748b;
+      }
+      .ausweis-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+      .btn-upload {
+        cursor: pointer;
+      }
+      .btn-upload.uploading {
+        opacity: 0.65;
+        pointer-events: none;
+      }
     `,
   ],
 })
@@ -726,6 +791,9 @@ export class RentalBookingDetailComponent implements OnInit {
   adminNotizen = '';
 
   BookingStatus = RentalBookingStatus;
+
+  // Ausweis upload state
+  uploadingAusweis = signal(false);
 
   // Bike-change dialog state
   bikeDialogOpen = signal(false);
@@ -993,5 +1061,41 @@ export class RentalBookingDetailComponent implements OnInit {
             },
           });
       });
+  }
+
+  onAusweisFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || !this.booking) return;
+    this.uploadingAusweis.set(true);
+    this.service.uploadAusweis(this.booking.id, file).subscribe({
+      next: (res) => {
+        this.booking!.ausweisPhotoPath = res.path;
+        this.uploadingAusweis.set(false);
+        this.notificationService.success('Ausweis-Foto gespeichert');
+        input.value = '';
+      },
+      error: () => {
+        this.uploadingAusweis.set(false);
+        this.notificationService.error(this.t.saveError);
+        input.value = '';
+      },
+    });
+  }
+
+  downloadAusweis() {
+    if (!this.booking) return;
+    this.service.downloadAusweis(this.booking.id).subscribe({
+      next: (blob) => {
+        const ext = this.booking!.ausweisPhotoPath?.split('.').pop() || 'jpg';
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Ausweis-${this.booking!.buchungsNummer}.${ext}`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.notificationService.error(this.t.saveError),
+    });
   }
 }

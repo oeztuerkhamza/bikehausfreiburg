@@ -78,7 +78,8 @@ public record RentalDto(
     List<RentalAccessoryItemDto> Accessories,
     string? MieterUnterschrift,
     bool AgbAkzeptiert,
-    string? UnterschriftOrt
+    string? UnterschriftOrt,
+    string? AusweisPhotoPath
 );
 
 public record RentalListDto(
@@ -127,7 +128,8 @@ public record RentalCreateDto(
     List<RentalAccessoryItemCreateDto>? Accessories,
     string? MieterUnterschrift,
     bool AgbAkzeptiert,
-    string? UnterschriftOrt
+    string? UnterschriftOrt,
+    string? AusweisPhotoPath
 );
 
 public record RentalUpdateDto(
