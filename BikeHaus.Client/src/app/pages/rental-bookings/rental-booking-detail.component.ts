@@ -7,7 +7,7 @@ import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { TranslationService } from '../../services/translation.service';
-import { Bicycle, RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../models/models';
+import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../models/models';
 
 @Component({
   selector: 'app-rental-booking-detail',
@@ -141,47 +141,97 @@ import { Bicycle, RentalBooking, RentalBookingBike, RentalBookingStatus } from '
         <div class="modal-overlay" *ngIf="bikeDialogOpen()" (click)="closeBikeDialog()">
           <div class="modal-box" (click)="$event.stopPropagation()">
             <div class="modal-header">
-              <h3>Fahrrad ändern</h3>
+              <h3>{{ bikeDialogMode() === 'create' ? 'Neues Mietfahrrad anlegen' : 'Fahrrad ändern' }}</h3>
               <button class="modal-close" (click)="closeBikeDialog()">✕</button>
             </div>
-            <div class="modal-search">
-              <input
-                type="text"
-                placeholder="Suchen (Marke, Modell)..."
-                [ngModel]="bikeSearch()"
-                (ngModelChange)="bikeSearch.set($event)"
-                class="search-input"
-              />
-            </div>
-            <div class="modal-list">
-              <div *ngIf="loadingBikes()" class="modal-loading">Wird geladen...</div>
-              <div *ngIf="!loadingBikes() && filteredBikes().length === 0" class="modal-empty">
-                Keine Mietfahrräder gefunden.
+
+            <!-- SELECT MODE -->
+            <ng-container *ngIf="bikeDialogMode() === 'select'">
+              <div class="modal-search">
+                <input
+                  type="text"
+                  placeholder="Suchen (Marke, Modell)..."
+                  [ngModel]="bikeSearch()"
+                  (ngModelChange)="bikeSearch.set($event)"
+                  class="search-input"
+                />
               </div>
-              <div
-                *ngFor="let b of filteredBikes()"
-                class="bike-option"
-                [class.selected]="selectedNewBicycleId() === b.id"
-                (click)="selectedNewBicycleId.set(b.id)"
-              >
-                <div class="bike-option-name">{{ b.marke }} {{ b.modell }}</div>
-                <div class="bike-option-meta">
-                  <span *ngIf="b.farbe">{{ b.farbe }}</span>
-                  <span *ngIf="b.rahmengroesse"> · {{ b.rahmengroesse }}</span>
-                  <span *ngIf="b.rahmennummer"> · {{ b.rahmennummer }}</span>
+              <div class="modal-list">
+                <div *ngIf="loadingBikes()" class="modal-loading">Wird geladen...</div>
+                <div *ngIf="!loadingBikes() && filteredBikes().length === 0" class="modal-empty">
+                  Keine verfügbaren Mietfahrräder für diesen Zeitraum.
+                </div>
+                <div
+                  *ngFor="let b of filteredBikes()"
+                  class="bike-option"
+                  [class.selected]="selectedNewBicycleId() === b.id"
+                  (click)="selectedNewBicycleId.set(b.id)"
+                >
+                  <div class="bike-option-name">{{ b.marke }} {{ b.modell }}</div>
+                  <div class="bike-option-meta">
+                    <span *ngIf="b.farbe">{{ b.farbe }}</span>
+                    <span *ngIf="b.rahmengroesse"> · {{ b.rahmengroesse }}</span>
+                    <span *ngIf="b.rahmennummer"> · {{ b.rahmennummer }}</span>
+                  </div>
+                </div>
+                <div class="new-bike-divider" *ngIf="!loadingBikes()">
+                  <button class="btn-new-bike" (click)="startCreateBike()">
+                    + Neues Mietfahrrad anlegen
+                  </button>
                 </div>
               </div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-outline" (click)="closeBikeDialog()">Abbrechen</button>
-              <button
-                class="btn btn-primary"
-                [disabled]="!selectedNewBicycleId() || savingBike()"
-                (click)="confirmBikeChange()"
-              >
-                {{ savingBike() ? 'Wird gespeichert...' : 'Übernehmen' }}
-              </button>
-            </div>
+              <div class="modal-footer">
+                <button class="btn btn-outline" (click)="closeBikeDialog()">Abbrechen</button>
+                <button
+                  class="btn btn-primary"
+                  [disabled]="!selectedNewBicycleId() || savingBike()"
+                  (click)="confirmBikeChange()"
+                >
+                  {{ savingBike() ? 'Wird gespeichert...' : 'Übernehmen' }}
+                </button>
+              </div>
+            </ng-container>
+
+            <!-- CREATE MODE -->
+            <ng-container *ngIf="bikeDialogMode() === 'create'">
+              <div class="modal-create-form">
+                <div class="form-row">
+                  <label>Marke *</label>
+                  <input type="text" [(ngModel)]="newBikeForm.marke" class="search-input" placeholder="z.B. Cube" />
+                </div>
+                <div class="form-row">
+                  <label>Modell *</label>
+                  <input type="text" [(ngModel)]="newBikeForm.modell" class="search-input" placeholder="z.B. Touring" />
+                </div>
+                <div class="form-row">
+                  <label>Reifengröße *</label>
+                  <input type="text" [(ngModel)]="newBikeForm.reifengroesse" class="search-input" placeholder="z.B. 28" />
+                </div>
+                <div class="form-row">
+                  <label>Rahmennummer</label>
+                  <input type="text" [(ngModel)]="newBikeForm.rahmennummer" class="search-input" placeholder="Optional" />
+                </div>
+                <div class="form-row">
+                  <label>Farbe</label>
+                  <input type="text" [(ngModel)]="newBikeForm.farbe" class="search-input" placeholder="Optional" />
+                </div>
+                <div class="form-row">
+                  <label>Kaution (€)</label>
+                  <input type="number" [(ngModel)]="newBikeForm.kaution" class="search-input" placeholder="Optional" min="0" />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-outline" (click)="bikeDialogMode.set('select')">Zurück</button>
+                <button
+                  class="btn btn-primary"
+                  [disabled]="!newBikeForm.marke || !newBikeForm.modell || !newBikeForm.reifengroesse || savingBike()"
+                  (click)="createAndSelectBike()"
+                >
+                  {{ savingBike() ? 'Wird angelegt...' : 'Anlegen & auswählen' }}
+                </button>
+              </div>
+            </ng-container>
+
           </div>
         </div>
 
@@ -520,11 +570,27 @@ import { Bicycle, RentalBooking, RentalBookingBike, RentalBookingStatus } from '
       .bike-option-name {
         font-weight: 600;
         font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
       .bike-option-meta {
         font-size: 0.78rem;
         color: var(--text-secondary, #64748b);
         margin-top: 2px;
+      }
+      .bike-option.busy {
+        opacity: 0.7;
+      }
+      .busy-badge {
+        display: inline-block;
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 1px 7px;
+        border-radius: 50px;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        letter-spacing: 0.02em;
       }
       .modal-footer {
         display: flex;
@@ -532,6 +598,45 @@ import { Bicycle, RentalBooking, RentalBookingBike, RentalBookingStatus } from '
         gap: 10px;
         padding: 14px 20px;
         border-top: 1.5px solid var(--border-light, #e2e8f0);
+      }
+      .new-bike-divider {
+        padding: 12px 20px 8px;
+        border-top: 1px dashed var(--border-light, #e2e8f0);
+        margin-top: 4px;
+      }
+      .btn-new-bike {
+        background: none;
+        border: none;
+        color: var(--accent-primary, #6366f1);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px 0;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .btn-new-bike:hover {
+        opacity: 0.75;
+      }
+      .modal-create-form {
+        padding: 16px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        max-height: 55vh;
+      }
+      .form-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .form-row label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
       }
       .btn-sm {
         padding: 4px 10px;
@@ -574,15 +679,18 @@ export class RentalBookingDetailComponent implements OnInit {
 
   // Bike-change dialog state
   bikeDialogOpen = signal(false);
+  bikeDialogMode = signal<'select' | 'create'>('select');
   loadingBikes = signal(false);
   savingBike = signal(false);
   bikeSearch = signal('');
   selectedNewBicycleId = signal<number | null>(null);
   private activeBikeEntry: RentalBookingBike | null = null;
-  private availableBikes = signal<Bicycle[]>([]);
+  private allRentableBikes = signal<Bicycle[]>([]);
+  private busyBikeIds = signal<Set<number>>(new Set());
   filteredBikes = computed(() => {
     const term = this.bikeSearch().toLowerCase();
-    const bikes = this.availableBikes();
+    const busy = this.busyBikeIds();
+    const bikes = this.allRentableBikes().filter((b) => !busy.has(b.id));
     if (!term) return bikes;
     return bikes.filter(
       (b) =>
@@ -590,6 +698,15 @@ export class RentalBookingDetailComponent implements OnInit {
         b.modell.toLowerCase().includes(term),
     );
   });
+
+  newBikeForm = {
+    marke: '',
+    modell: '',
+    reifengroesse: '28',
+    rahmennummer: '',
+    farbe: '',
+    kaution: null as number | null,
+  };
 
   get t() {
     return this.translationService.translations();
@@ -657,7 +774,7 @@ export class RentalBookingDetailComponent implements OnInit {
 
   goToUmwandeln() {
     if (!this.booking) return;
-    this.router.navigate(['/rental-bookings', this.booking.id, 'umwandeln']);
+    this.router.navigate(['/rentals/new'], { queryParams: { bookingId: this.booking.id } });
   }
 
   downloadRechnungPdf() {
@@ -694,17 +811,26 @@ export class RentalBookingDetailComponent implements OnInit {
     this.activeBikeEntry = bike;
     this.bikeSearch.set('');
     this.selectedNewBicycleId.set(null);
-    this.availableBikes.set([]);
+    this.allRentableBikes.set([]);
+    this.busyBikeIds.set(new Set());
     this.bikeDialogOpen.set(true);
 
     const start = bike.startDatum.substring(0, 10);
     const end = bike.endDatum.substring(0, 10);
 
     this.loadingBikes.set(true);
-    this.bicycleService.getAvailableForPeriod(start, end).subscribe({
-      next: (bikes) => {
-        this.availableBikes.set(bikes);
-        this.loadingBikes.set(false);
+    this.bicycleService.getPaginated(1, 500, undefined, undefined, undefined, undefined, undefined, undefined, true).subscribe({
+      next: (result) => {
+        this.allRentableBikes.set(result.items);
+        this.bicycleService.getAvailableForPeriod(start, end).subscribe({
+          next: (available) => {
+            const availableIds = new Set(available.map((b) => b.id));
+            const busy = new Set(result.items.filter((b) => !availableIds.has(b.id)).map((b) => b.id));
+            this.busyBikeIds.set(busy);
+            this.loadingBikes.set(false);
+          },
+          error: () => this.loadingBikes.set(false),
+        });
       },
       error: () => {
         this.loadingBikes.set(false);
@@ -715,9 +841,48 @@ export class RentalBookingDetailComponent implements OnInit {
 
   closeBikeDialog() {
     this.bikeDialogOpen.set(false);
+    this.bikeDialogMode.set('select');
     this.activeBikeEntry = null;
     this.selectedNewBicycleId.set(null);
-    this.availableBikes.set([]);
+    this.allRentableBikes.set([]);
+    this.busyBikeIds.set(new Set());
+  }
+
+  startCreateBike() {
+    this.newBikeForm.marke = '';
+    this.newBikeForm.modell = '';
+    this.newBikeForm.reifengroesse = '28';
+    this.newBikeForm.rahmennummer = '';
+    this.newBikeForm.farbe = '';
+    this.newBikeForm.kaution = null;
+    this.bikeDialogMode.set('create');
+  }
+
+  createAndSelectBike() {
+    if (!this.newBikeForm.marke || !this.newBikeForm.modell || !this.newBikeForm.reifengroesse) return;
+    this.savingBike.set(true);
+    this.bicycleService.create({
+      marke: this.newBikeForm.marke.trim(),
+      modell: this.newBikeForm.modell.trim(),
+      reifengroesse: this.newBikeForm.reifengroesse.trim(),
+      rahmennummer: this.newBikeForm.rahmennummer.trim() || undefined,
+      farbe: this.newBikeForm.farbe.trim() || undefined,
+      kaution: this.newBikeForm.kaution ?? undefined,
+      zustand: BikeCondition.Gebraucht,
+      isRentable: true,
+    }).subscribe({
+      next: (newBike) => {
+        this.allRentableBikes.update((list) => [...list, newBike]);
+        this.selectedNewBicycleId.set(newBike.id);
+        this.bikeDialogMode.set('select');
+        this.savingBike.set(false);
+        this.notificationService.success('Mietfahrrad angelegt und ausgewählt');
+      },
+      error: (err) => {
+        this.savingBike.set(false);
+        this.notificationService.error(err.error?.error || this.t.saveError);
+      },
+    });
   }
 
   confirmBikeChange() {

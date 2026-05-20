@@ -165,7 +165,7 @@ type BookingStep =
         </div>
 
         <div
-          *ngIf="!loadingAvailableBikes() && availableBikes().length === 0"
+          *ngIf="!loadingAvailableBikes() && selectableBikes().length === 0"
           class="no-bikes"
         >
           {{
@@ -175,11 +175,11 @@ type BookingStep =
         </div>
 
         <div
-          *ngIf="!loadingAvailableBikes() && availableBikes().length > 0"
+          *ngIf="!loadingAvailableBikes() && selectableBikes().length > 0"
           class="bike-grid"
         >
           <div
-            *ngFor="let bike of availableBikes()"
+            *ngFor="let bike of selectableBikes()"
             (click)="selectBikeForDetails(bike)"
             class="bike-card"
           >
@@ -1380,6 +1380,11 @@ export class RentalBookingStepsComponent implements OnInit {
   availableBikes = signal<PublicRentalBicycle[]>([]);
   loadingAvailableBikes = signal(false);
   cartBikes = signal<CartBike[]>([]);
+
+  selectableBikes = computed(() => {
+    const cartIds = new Set(this.cartBikes().map((item) => item.bike.id));
+    return this.availableBikes().filter((bike) => !cartIds.has(bike.id));
+  });
 
   dateRangeError = signal('');
   bookingError = signal('');

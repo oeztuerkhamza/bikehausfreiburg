@@ -1571,6 +1571,7 @@ export class RentalFormComponent implements OnInit {
   availabilityLoading = false;
   private pendingBikeIdToSelect: number | null = null;
   private pendingBookingBike: any = null;
+  private pendingMultiBikes: Array<{ bikeId: number; srcBike: any; mietpreis?: number }> = [];
   brands: string[] = [];
   models: string[] = [];
 
@@ -1943,30 +1944,6 @@ export class RentalFormComponent implements OnInit {
           this.customer.nachname = booking.nachname;
           this.customer.telefon = booking.telefon || '';
           this.customer.email = booking.email || '';
-
-          const targetBikeId = bicycleIdParam ? Number(bicycleIdParam) : null;
-          const bookingBike =
-            targetBikeId && booking.bikes?.length > 0
-              ? booking.bikes.find((bk) => bk.bicycleId === targetBikeId)
-              : booking.bikes?.[0];
-
-          const bikeStartDatum = bookingBike?.startDatum ?? booking.startDatum;
-          const bikeEndDatum = bookingBike?.endDatum ?? booking.endDatum;
-
-          this.startDatum = bikeStartDatum.split('T')[0];
-          this.endDatum = bikeEndDatum.split('T')[0];
-          this.pickingState = 'start';
-
-          const start = new Date(this.startDatum);
-          this.calendarMonth = start.getMonth();
-          this.calendarYear = start.getFullYear();
-
-          const firstBike = this.bikes[0];
-          if (bookingBike?.gesamtpreis) {
-            firstBike.gesamtmiete = bookingBike.gesamtpreis;
-          } else if (booking.gesamtpreis) {
-            firstBike.gesamtmiete = booking.gesamtpreis;
-          }
           this.notizen = booking.notizen || '';
 
           if (booking.accessories && booking.accessories.length > 0) {
@@ -1981,14 +1958,57 @@ export class RentalFormComponent implements OnInit {
             );
           }
 
-          const bikeId =
-            targetBikeId ?? bookingBike?.bicycleId ?? booking.bicycle?.id;
-          if (bikeId) {
-            this.pendingBikeIdToSelect = bikeId;
-            this.pendingBookingBike = bookingBike ?? (booking.bicycle as any);
+          const allBikes = booking.bikes?.length > 0 ? booking.bikes : null;
+          const targetBikeId = bicycleIdParam ? Number(bicycleIdParam) : null;
+
+          if (allBikes && allBikes.length > 1 && !targetBikeId) {
+            // Multi-bike booking: use overall min/max dates
+            const starts = allBikes.map((bk) => bk.startDatum.split('T')[0]);
+            const ends = allBikes.map((bk) => bk.endDatum.split('T')[0]);
+            this.startDatum = starts.reduce((a, b) => (a < b ? a : b));
+            this.endDatum = ends.reduce((a, b) => (a > b ? a : b));
+            this.pickingState = 'start';
+            const start = new Date(this.startDatum);
+            this.calendarMonth = start.getMonth();
+            this.calendarYear = start.getFullYear();
+
+            // Queue all bikes for auto-selection after availability loads
+            this.pendingMultiBikes = allBikes.map((bk) => ({
+              bikeId: bk.bicycleId,
+              srcBike: bk,
+              mietpreis: bk.gesamtpreis ?? undefined,
+            }));
+          } else {
+            // Single-bike or targeted bike
+            const bookingBike =
+              targetBikeId && allBikes
+                ? allBikes.find((bk) => bk.bicycleId === targetBikeId)
+                : allBikes?.[0];
+
+            const bikeStartDatum = bookingBike?.startDatum ?? booking.startDatum;
+            const bikeEndDatum = bookingBike?.endDatum ?? booking.endDatum;
+            this.startDatum = bikeStartDatum.split('T')[0];
+            this.endDatum = bikeEndDatum.split('T')[0];
+            this.pickingState = 'start';
+            const start = new Date(this.startDatum);
+            this.calendarMonth = start.getMonth();
+            this.calendarYear = start.getFullYear();
+
+            const firstBike = this.bikes[0];
+            if (bookingBike?.gesamtpreis) {
+              firstBike.gesamtmiete = bookingBike.gesamtpreis;
+            } else if (booking.gesamtpreis) {
+              firstBike.gesamtmiete = booking.gesamtpreis;
+            }
+
+            const bikeId = targetBikeId ?? bookingBike?.bicycleId ?? booking.bicycle?.id;
+            if (bikeId) {
+              this.pendingBikeIdToSelect = bikeId;
+              this.pendingBookingBike = bookingBike ?? (booking.bicycle as any);
+            }
           }
 
-          this.onDatesChanged(); // triggers loadAvailableForPeriod → auto-selects bike
+          this.onDatesChanged(); // triggers loadAvailableForPeriod → auto-selects bike(s)
         },
         error: () => {
           this.notificationService.error('Buchung konnte nicht geladen werden');
@@ -2115,7 +2135,42 @@ export class RentalFormComponent implements OnInit {
       next: (bikes) => {
         this.availableBikes = bikes;
         this.availabilityLoading = false;
-        if (this.pendingBikeIdToSelect != null) {
+
+        if (this.pendingMultiBikes.length > 0) {
+          const pending = this.pendingMultiBikes;
+          this.pendingMultiBikes = [];
+
+          // Ensure we have enough bike slots
+          while (this.bikes.length < pending.length) {
+            this.bikes.push(createEmptyBikeEntry());
+          }
+
+          pending.forEach((entry, i) => {
+            const match = bikes.find((b) => b.id === entry.bikeId);
+            if (match) {
+              if (i > 0) this.bikes[i - 1].isCollapsed = true;
+              this.onBikeSelected(i, match);
+              if (entry.mietpreis) this.bikes[i].gesamtmiete = entry.mietpreis;
+            } else if (entry.srcBike) {
+              const slot = this.bikes[i];
+              slot.isQuickAddMode = false;
+              slot.selectedBike = { id: entry.bikeId } as Bicycle;
+              slot.bikeEdit = {
+                rahmennummer: '',
+                marke: entry.srcBike.marke || '',
+                modell: entry.srcBike.modell || '',
+                rahmengroesse: entry.srcBike.rahmengroesse || '',
+                farbe: entry.srcBike.farbe || '',
+                reifengroesse: '',
+                fahrradtyp: '',
+                beschreibung: '',
+                zustand: BikeCondition.Gebraucht,
+              };
+              if (entry.mietpreis) slot.gesamtmiete = entry.mietpreis;
+              this.loadBusyPeriodsFor(i, entry.bikeId);
+            }
+          });
+        } else if (this.pendingBikeIdToSelect != null) {
           const match = bikes.find((b) => b.id === this.pendingBikeIdToSelect);
           const bikeId = this.pendingBikeIdToSelect;
           const srcBike = this.pendingBookingBike;
