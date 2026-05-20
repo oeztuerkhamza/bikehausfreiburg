@@ -156,6 +156,46 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
         return false;
     }
 
+    public async Task<bool> ExistsActiveOverlapAsync(int bicycleId, DateTime start, DateTime end, int? excludeBookingId = null)
+    {
+        var activeStatuses = new[] { RentalBookingStatus.Approved, RentalBookingStatus.Pending };
+
+        var legacyQuery = _dbSet.Where(b =>
+            b.BicycleId == bicycleId &&
+            !b.Bikes.Any() &&
+            activeStatuses.Contains(b.Status) &&
+            b.StartDatum.Date <= end.Date &&
+            b.EndDatum.Date >= start.Date);
+
+        if (excludeBookingId.HasValue)
+            legacyQuery = legacyQuery.Where(b => b.Id != excludeBookingId.Value);
+
+        if (await legacyQuery.AnyAsync()) return true;
+
+        var bikeQuery = _context.Set<RentalBookingBike>().Where(bk =>
+            bk.BicycleId == bicycleId &&
+            activeStatuses.Contains(bk.RentalBooking.Status) &&
+            bk.StartDatum.Date <= end.Date &&
+            bk.EndDatum.Date >= start.Date);
+
+        if (excludeBookingId.HasValue)
+            bikeQuery = bikeQuery.Where(bk => bk.RentalBookingId != excludeBookingId.Value);
+
+        return await bikeQuery.AnyAsync();
+    }
+
+    public async Task<bool> ExistsActiveOverlapForBikesAsync(
+        IEnumerable<(int BicycleId, DateTime Start, DateTime End)> bikes,
+        int? excludeBookingId = null)
+    {
+        foreach (var bike in bikes)
+        {
+            if (await ExistsActiveOverlapAsync(bike.BicycleId, bike.Start, bike.End, excludeBookingId))
+                return true;
+        }
+        return false;
+    }
+
     public async Task<IEnumerable<int>> GetBusyBicycleIdsForPeriodAsync(DateOnly start, DateOnly end)
     {
         var startDt = start.ToDateTime(TimeOnly.MinValue);

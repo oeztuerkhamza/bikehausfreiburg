@@ -99,3 +99,5 @@ public record RentalBookingCancelDto(string? AdminNotizen);
 public record RentalBookingSignatureDto(string MieterUnterschrift);
 
 public record RentalBookingRangeDto(DateTime StartDatum, DateTime EndDatum);
+
+public record RentalBookingUpdateBikeDto(int NewBicycleId);

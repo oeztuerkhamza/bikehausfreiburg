@@ -111,6 +111,24 @@ public class RentalBookingsController : ControllerBase
         }
     }
 
+    [HttpPatch("{bookingId}/bikes/{bikeId}")]
+    public async Task<ActionResult<RentalBookingDto>> UpdateBike(int bookingId, int bikeId, [FromBody] RentalBookingUpdateBikeDto dto)
+    {
+        try
+        {
+            var updated = await _service.UpdateBookingBikeAsync(bookingId, bikeId, dto.NewBicycleId);
+            return Ok(updated);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
     [HttpGet("{id}/rechnung-pdf")]
     public async Task<IActionResult> DownloadBookingRechnung(int id)
     {

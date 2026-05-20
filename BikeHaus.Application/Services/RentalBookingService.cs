@@ -108,9 +108,9 @@ public class RentalBookingService : IRentalBookingService
         }
 
         var bikeChecks = dto.Bikes.Select(b => (b.BicycleId, b.StartDatum.Date, b.EndDatum.Date));
-        var hasOverlap = await _bookingRepository.ExistsApprovedOverlapForBikesAsync(bikeChecks);
+        var hasOverlap = await _bookingRepository.ExistsActiveOverlapForBikesAsync(bikeChecks);
         if (hasOverlap)
-            throw new InvalidOperationException("Eines der ausgewaehlten Fahrraeder ist im gewaehlten Zeitraum bereits bestaetigt gebucht.");
+            throw new InvalidOperationException("Eines der ausgewaehlten Fahrraeder ist im gewaehlten Zeitraum bereits gebucht.");
 
         var bicycles = new List<Bicycle>();
         foreach (var bikeDto in dto.Bikes)
@@ -392,6 +392,39 @@ public class RentalBookingService : IRentalBookingService
     public Task<int> GetPendingCountAsync()
     {
         return _bookingRepository.CountAsync(b => b.Status == RentalBookingStatus.Pending);
+    }
+
+    public async Task<RentalBookingDto> UpdateBookingBikeAsync(int bookingId, int bookingBikeId, int newBicycleId)
+    {
+        var booking = await _bookingRepository.GetWithDetailsAsync(bookingId)
+            ?? throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+
+        var bookingBike = booking.Bikes.FirstOrDefault(bk => bk.Id == bookingBikeId)
+            ?? throw new KeyNotFoundException($"Bike entry with ID {bookingBikeId} not found in booking.");
+
+        var newBicycle = await _bicycleRepository.GetByIdAsync(newBicycleId)
+            ?? throw new KeyNotFoundException($"Bicycle with ID {newBicycleId} not found.");
+
+        if (!newBicycle.IsRentable)
+            throw new InvalidOperationException($"Das Fahrrad '{newBicycle.Marke} {newBicycle.Modell}' ist nicht fuer den Verleih aktiviert.");
+
+        var days = CalculateDaysInclusive(bookingBike.StartDatum, bookingBike.EndDatum);
+
+        bookingBike.BicycleId = newBicycleId;
+        bookingBike.Rahmennummer = newBicycle.Rahmennummer;
+        bookingBike.Farbe = newBicycle.Farbe;
+        bookingBike.Kaution = newBicycle.Kaution;
+        bookingBike.Gesamtpreis = RentalPricingCalculator.CalculateBikePrice(newBicycle, days);
+        bookingBike.UpdatedAt = DateTime.UtcNow;
+
+        booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m);
+        if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
+        booking.UpdatedAt = DateTime.UtcNow;
+
+        await _bookingRepository.UpdateAsync(booking);
+
+        var withDetails = await _bookingRepository.GetWithDetailsAsync(bookingId);
+        return withDetails!.ToDto();
     }
 
     public async Task<bool> DeleteAsync(int id)

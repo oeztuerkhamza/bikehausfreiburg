@@ -59,6 +59,10 @@ export class RentalBookingService {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 
+  updateBike(bookingId: number, bikeId: number, newBicycleId: number): Observable<RentalBooking> {
+    return this.http.patch<RentalBooking>(`${this.url}/${bookingId}/bikes/${bikeId}`, { newBicycleId });
+  }
+
   downloadRechnungPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.url}/${id}/rechnung-pdf`, {
       responseType: 'blob',

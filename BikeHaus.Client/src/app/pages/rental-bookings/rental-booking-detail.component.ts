@@ -1,12 +1,13 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RentalBookingService } from '../../services/rental-booking.service';
+import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { TranslationService } from '../../services/translation.service';
-import { RentalBooking, RentalBookingStatus } from '../../models/models';
+import { Bicycle, RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../models/models';
 
 @Component({
   selector: 'app-rental-booking-detail',
@@ -105,8 +106,14 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
             *ngFor="let bike of booking.bikes; let i = index"
             [class.bike-item]="booking.bikes.length > 1"
           >
-            <div class="bike-item-header" *ngIf="booking.bikes.length > 1">
-              <strong>{{ i + 1 }}. Fahrrad</strong>
+            <div class="bike-item-header">
+              <strong *ngIf="booking.bikes.length > 1">{{ i + 1 }}. Fahrrad</strong>
+              <button
+                class="btn btn-sm btn-change-bike"
+                (click)="openBikeDialog(bike)"
+              >
+                Fahrrad ändern
+              </button>
             </div>
             <div class="info-row">
               <span>{{ t.brandModel }}:</span>
@@ -126,6 +133,54 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
             >
               <span>{{ t.total }}:</span>
               <strong>{{ bike.gesamtpreis | number: '1.2-2' }} €</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fahrrad-Wechsel Dialog -->
+        <div class="modal-overlay" *ngIf="bikeDialogOpen()" (click)="closeBikeDialog()">
+          <div class="modal-box" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3>Fahrrad ändern</h3>
+              <button class="modal-close" (click)="closeBikeDialog()">✕</button>
+            </div>
+            <div class="modal-search">
+              <input
+                type="text"
+                placeholder="Suchen (Marke, Modell)..."
+                [ngModel]="bikeSearch()"
+                (ngModelChange)="bikeSearch.set($event)"
+                class="search-input"
+              />
+            </div>
+            <div class="modal-list">
+              <div *ngIf="loadingBikes()" class="modal-loading">Wird geladen...</div>
+              <div *ngIf="!loadingBikes() && filteredBikes().length === 0" class="modal-empty">
+                Keine Mietfahrräder gefunden.
+              </div>
+              <div
+                *ngFor="let b of filteredBikes()"
+                class="bike-option"
+                [class.selected]="selectedNewBicycleId() === b.id"
+                (click)="selectedNewBicycleId.set(b.id)"
+              >
+                <div class="bike-option-name">{{ b.marke }} {{ b.modell }}</div>
+                <div class="bike-option-meta">
+                  <span *ngIf="b.farbe">{{ b.farbe }}</span>
+                  <span *ngIf="b.rahmengroesse"> · {{ b.rahmengroesse }}</span>
+                  <span *ngIf="b.rahmennummer"> · {{ b.rahmennummer }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline" (click)="closeBikeDialog()">Abbrechen</button>
+              <button
+                class="btn btn-primary"
+                [disabled]="!selectedNewBicycleId() || savingBike()"
+                (click)="confirmBikeChange()"
+              >
+                {{ savingBike() ? 'Wird gespeichert...' : 'Übernehmen' }}
+              </button>
             </div>
           </div>
         </div>
@@ -361,6 +416,123 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
         align-items: center;
         margin-bottom: 6px;
       }
+      .btn-change-bike {
+        background: var(--bg-primary, #fff);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        color: var(--accent-primary, #6366f1);
+        font-size: 0.78rem;
+        padding: 3px 9px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.15s;
+        margin-left: auto;
+      }
+      .btn-change-bike:hover {
+        border-color: var(--accent-primary, #6366f1);
+        background: rgba(99, 102, 241, 0.06);
+      }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-box {
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
+        width: 480px;
+        max-width: 95vw;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+        overflow: hidden;
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px 14px;
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
+      }
+      .modal-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        color: var(--text-secondary, #64748b);
+        line-height: 1;
+        padding: 2px 6px;
+      }
+      .modal-close:hover {
+        color: var(--text-primary);
+      }
+      .modal-search {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+      }
+      .search-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 8px;
+        font-size: 0.88rem;
+        box-sizing: border-box;
+      }
+      .search-input:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+      }
+      .modal-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 8px 0;
+      }
+      .modal-loading,
+      .modal-empty {
+        padding: 24px 20px;
+        text-align: center;
+        color: var(--text-secondary, #64748b);
+        font-size: 0.88rem;
+      }
+      .bike-option {
+        padding: 10px 20px;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        transition: background 0.1s, border-color 0.1s;
+      }
+      .bike-option:hover {
+        background: rgba(99, 102, 241, 0.05);
+      }
+      .bike-option.selected {
+        background: rgba(99, 102, 241, 0.08);
+        border-left-color: var(--accent-primary, #6366f1);
+      }
+      .bike-option-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .bike-option-meta {
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
+        margin-top: 2px;
+      }
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 14px 20px;
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
+      }
       .btn-sm {
         padding: 4px 10px;
         font-size: 0.8rem;
@@ -388,6 +560,7 @@ import { RentalBooking, RentalBookingStatus } from '../../models/models';
 })
 export class RentalBookingDetailComponent implements OnInit {
   private service = inject(RentalBookingService);
+  private bicycleService = inject(BicycleService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
   private translationService = inject(TranslationService);
@@ -398,6 +571,25 @@ export class RentalBookingDetailComponent implements OnInit {
   adminNotizen = '';
 
   BookingStatus = RentalBookingStatus;
+
+  // Bike-change dialog state
+  bikeDialogOpen = signal(false);
+  loadingBikes = signal(false);
+  savingBike = signal(false);
+  bikeSearch = signal('');
+  selectedNewBicycleId = signal<number | null>(null);
+  private activeBikeEntry: RentalBookingBike | null = null;
+  private availableBikes = signal<Bicycle[]>([]);
+  filteredBikes = computed(() => {
+    const term = this.bikeSearch().toLowerCase();
+    const bikes = this.availableBikes();
+    if (!term) return bikes;
+    return bikes.filter(
+      (b) =>
+        b.marke.toLowerCase().includes(term) ||
+        b.modell.toLowerCase().includes(term),
+    );
+  });
 
   get t() {
     return this.translationService.translations();
@@ -496,6 +688,55 @@ export class RentalBookingDetailComponent implements OnInit {
       },
       error: () => this.notificationService.error(this.t.saveError),
     });
+  }
+
+  openBikeDialog(bike: RentalBookingBike) {
+    this.activeBikeEntry = bike;
+    this.bikeSearch.set('');
+    this.selectedNewBicycleId.set(null);
+    this.availableBikes.set([]);
+    this.bikeDialogOpen.set(true);
+
+    const start = bike.startDatum.substring(0, 10);
+    const end = bike.endDatum.substring(0, 10);
+
+    this.loadingBikes.set(true);
+    this.bicycleService.getAvailableForPeriod(start, end).subscribe({
+      next: (bikes) => {
+        this.availableBikes.set(bikes);
+        this.loadingBikes.set(false);
+      },
+      error: () => {
+        this.loadingBikes.set(false);
+        this.notificationService.error(this.t.saveError);
+      },
+    });
+  }
+
+  closeBikeDialog() {
+    this.bikeDialogOpen.set(false);
+    this.activeBikeEntry = null;
+    this.selectedNewBicycleId.set(null);
+    this.availableBikes.set([]);
+  }
+
+  confirmBikeChange() {
+    if (!this.booking || !this.activeBikeEntry || !this.selectedNewBicycleId()) return;
+    this.savingBike.set(true);
+    this.service
+      .updateBike(this.booking.id, this.activeBikeEntry.id, this.selectedNewBicycleId()!)
+      .subscribe({
+        next: (updated) => {
+          this.booking = updated;
+          this.savingBike.set(false);
+          this.closeBikeDialog();
+          this.notificationService.success(this.t.saveSuccess);
+        },
+        error: (err) => {
+          this.savingBike.set(false);
+          this.notificationService.error(err.error?.error || this.t.saveError);
+        },
+      });
   }
 
   cancelBooking() {
