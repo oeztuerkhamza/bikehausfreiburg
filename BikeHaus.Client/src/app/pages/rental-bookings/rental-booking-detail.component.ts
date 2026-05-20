@@ -219,6 +219,41 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
                   <label>Kaution (€)</label>
                   <input type="number" [(ngModel)]="newBikeForm.kaution" class="search-input" placeholder="Optional" min="0" />
                 </div>
+                <div class="form-section-title">Mietpreise (€)</div>
+                <div class="price-grid">
+                  <div class="form-row">
+                    <label>1 Tag</label>
+                    <input type="number" [(ngModel)]="newBikeForm.rentalPriceDay1" class="search-input" placeholder="—" min="0" />
+                  </div>
+                  <div class="form-row">
+                    <label>2 Tage</label>
+                    <input type="number" [(ngModel)]="newBikeForm.rentalPriceDay2" class="search-input" placeholder="—" min="0" />
+                  </div>
+                  <div class="form-row">
+                    <label>3 Tage</label>
+                    <input type="number" [(ngModel)]="newBikeForm.rentalPriceDay3" class="search-input" placeholder="—" min="0" />
+                  </div>
+                  <div class="form-row">
+                    <label>4 Tage</label>
+                    <input type="number" [(ngModel)]="newBikeForm.rentalPriceDay4" class="search-input" placeholder="—" min="0" />
+                  </div>
+                  <div class="form-row">
+                    <label>5 Tage</label>
+                    <input type="number" [(ngModel)]="newBikeForm.rentalPriceDay5" class="search-input" placeholder="—" min="0" />
+                  </div>
+                  <div class="form-row">
+                    <label>6 Tage</label>
+                    <input type="number" [(ngModel)]="newBikeForm.rentalPriceDay6" class="search-input" placeholder="—" min="0" />
+                  </div>
+                  <div class="form-row">
+                    <label>7 Tage</label>
+                    <input type="number" [(ngModel)]="newBikeForm.rentalPriceDay7" class="search-input" placeholder="—" min="0" />
+                  </div>
+                  <div class="form-row">
+                    <label>+1 Tag (ab 8.)</label>
+                    <input type="number" [(ngModel)]="newBikeForm.rentalPriceAdditionalDayAfter7" class="search-input" placeholder="—" min="0" />
+                  </div>
+                </div>
               </div>
               <div class="modal-footer">
                 <button class="btn btn-outline" (click)="bikeDialogMode.set('select')">Zurück</button>
@@ -638,6 +673,21 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
         text-transform: uppercase;
         letter-spacing: 0.04em;
       }
+      .form-section-title {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--text-secondary, #64748b);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding-top: 4px;
+        border-top: 1px solid var(--border-light, #e2e8f0);
+        margin-top: 2px;
+      }
+      .price-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
       .btn-sm {
         padding: 4px 10px;
         font-size: 0.8rem;
@@ -706,6 +756,14 @@ export class RentalBookingDetailComponent implements OnInit {
     rahmennummer: '',
     farbe: '',
     kaution: null as number | null,
+    rentalPriceDay1: null as number | null,
+    rentalPriceDay2: null as number | null,
+    rentalPriceDay3: null as number | null,
+    rentalPriceDay4: null as number | null,
+    rentalPriceDay5: null as number | null,
+    rentalPriceDay6: null as number | null,
+    rentalPriceDay7: null as number | null,
+    rentalPriceAdditionalDayAfter7: null as number | null,
   };
 
   get t() {
@@ -849,25 +907,34 @@ export class RentalBookingDetailComponent implements OnInit {
   }
 
   startCreateBike() {
-    this.newBikeForm.marke = '';
-    this.newBikeForm.modell = '';
-    this.newBikeForm.reifengroesse = '28';
-    this.newBikeForm.rahmennummer = '';
-    this.newBikeForm.farbe = '';
-    this.newBikeForm.kaution = null;
+    Object.assign(this.newBikeForm, {
+      marke: '', modell: '', reifengroesse: '28', rahmennummer: '',
+      farbe: '', kaution: null, rentalPriceDay1: null, rentalPriceDay2: null,
+      rentalPriceDay3: null, rentalPriceDay4: null, rentalPriceDay5: null,
+      rentalPriceDay6: null, rentalPriceDay7: null, rentalPriceAdditionalDayAfter7: null,
+    });
     this.bikeDialogMode.set('create');
   }
 
   createAndSelectBike() {
     if (!this.newBikeForm.marke || !this.newBikeForm.modell || !this.newBikeForm.reifengroesse) return;
     this.savingBike.set(true);
+    const f = this.newBikeForm;
     this.bicycleService.create({
-      marke: this.newBikeForm.marke.trim(),
-      modell: this.newBikeForm.modell.trim(),
-      reifengroesse: this.newBikeForm.reifengroesse.trim(),
-      rahmennummer: this.newBikeForm.rahmennummer.trim() || undefined,
-      farbe: this.newBikeForm.farbe.trim() || undefined,
-      kaution: this.newBikeForm.kaution ?? undefined,
+      marke: f.marke.trim(),
+      modell: f.modell.trim(),
+      reifengroesse: f.reifengroesse.trim(),
+      rahmennummer: f.rahmennummer.trim() || undefined,
+      farbe: f.farbe.trim() || undefined,
+      kaution: f.kaution ?? undefined,
+      rentalPriceDay1: f.rentalPriceDay1 ?? undefined,
+      rentalPriceDay2: f.rentalPriceDay2 ?? undefined,
+      rentalPriceDay3: f.rentalPriceDay3 ?? undefined,
+      rentalPriceDay4: f.rentalPriceDay4 ?? undefined,
+      rentalPriceDay5: f.rentalPriceDay5 ?? undefined,
+      rentalPriceDay6: f.rentalPriceDay6 ?? undefined,
+      rentalPriceDay7: f.rentalPriceDay7 ?? undefined,
+      rentalPriceAdditionalDayAfter7: f.rentalPriceAdditionalDayAfter7 ?? undefined,
       zustand: BikeCondition.Gebraucht,
       isRentable: true,
     }).subscribe({
