@@ -1892,9 +1892,16 @@ public class PdfService : IPdfService
                         bc.Item().PaddingTop(4).Text("Der Mieter bestätigt den Erhalt des Fahrrads sowie die vollständige Kenntnisnahme der vorstehenden Mietbedingungen.").FontSize(9);
                         bc.Item().PaddingTop(3).Row(r =>
                         {
-                            r.ConstantItem(14).AlignTop().Text(rental.AgbAkzeptiert ? "☑" : "☐").FontSize(12)
-                                .FontColor(rental.AgbAkzeptiert ? AccentColor : Colors.Black);
-                            r.RelativeItem().Text("Ich habe die Mietbedingungen gelesen und akzeptiert.").FontSize(10).Bold();
+                            r.ConstantItem(20).AlignTop().Element(e =>
+                            {
+                                if (rental.AgbAkzeptiert)
+                                    e.Width(13).Height(13).Background(AccentColor).AlignCenter().AlignMiddle()
+                                        .Text("X").FontSize(8).FontColor(Colors.White).Bold();
+                                else
+                                    e.Width(13).Height(13).Border(1).BorderColor(Colors.Grey.Darken2).AlignCenter().AlignMiddle()
+                                        .Text(" ").FontSize(8);
+                            });
+                            r.RelativeItem().PaddingLeft(2).Text("Ich habe die Mietbedingungen gelesen und akzeptiert.").FontSize(10).Bold();
                         });
                         bc.Item().PaddingTop(10).Row(r =>
                         {

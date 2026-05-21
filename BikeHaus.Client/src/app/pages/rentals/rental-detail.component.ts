@@ -615,6 +615,7 @@ import {
         display: flex;
         gap: 12px;
         margin-top: 20px;
+        margin-bottom: 20px;
         flex-wrap: wrap;
       }
       .btn {
