@@ -900,7 +900,7 @@ export class RentalBookingDetailComponent implements OnInit {
 
   goToUmwandeln() {
     if (!this.booking) return;
-    this.router.navigate(['/rental-bookings', this.booking.id, 'umwandeln']);
+    this.router.navigate(['/rentals/new'], { queryParams: { bookingId: this.booking.id } });
   }
 
   downloadRechnungPdf() {

@@ -578,7 +578,7 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.filterBikes();
-    if (this.selectedBike && !this.activeBike) {
+    if (this.selectedBike && !this.activeBike && !this.activeBikeLoading) {
       this.activeBike = this.selectedBike;
       this.ensureActiveBikeDetails(this.selectedBike);
     }
@@ -623,6 +623,7 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
 
     if (
       this.activeBike &&
+      this.activeBike.id !== this.selectedBike?.id &&
       !this.filteredBikes.some((item) => item.id === this.activeBike?.id)
     ) {
       this.activeBike = null;
