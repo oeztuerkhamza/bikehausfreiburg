@@ -874,6 +874,15 @@ export interface RentalCreate {
   ausweisPhotoPath?: string;
 }
 
+export interface RentalBikeUpdate {
+  id: number;
+  bicycleId?: number;
+  rahmennummer?: string;
+  farbe?: string;
+  mietpreis?: number;
+  kaution?: number;
+}
+
 export interface RentalUpdate {
   customer?: CustomerCreate;
   ausweisnNr?: string;
@@ -888,6 +897,7 @@ export interface RentalUpdate {
   mieterUnterschrift?: string;
   agbAkzeptiert?: boolean;
   unterschriftOrt?: string;
+  bikes?: RentalBikeUpdate[];
 }
 
 // ── Rental Booking (Homepage) ──

@@ -2046,6 +2046,10 @@ export class RentalFormComponent implements OnInit {
     if (bike.farbe) b.bikeEdit.farbe = bike.farbe;
     if (bike.marke) b.bikeEdit.marke = bike.marke;
     if (bike.modell) b.bikeEdit.modell = bike.modell;
+    if (bike.kaution != null) b.kaution = bike.kaution;
+    if (this.rentalDays > 0) {
+      b.berechneterPreis = this.calculatePriceFor(i, this.rentalDays);
+    }
   }
 
   onQuickAddBike(i: number) {
@@ -2174,6 +2178,7 @@ export class RentalFormComponent implements OnInit {
                 zustand: BikeCondition.Gebraucht,
               };
               if (entry.mietpreis) slot.gesamtmiete = entry.mietpreis;
+              if (entry.srcBike.kaution != null) slot.kaution = entry.srcBike.kaution;
               this.loadBusyPeriodsFor(i, entry.bikeId);
             }
           });

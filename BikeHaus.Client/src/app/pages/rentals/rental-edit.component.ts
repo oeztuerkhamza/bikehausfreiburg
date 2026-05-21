@@ -3,166 +3,111 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
+import { BicycleService } from '../../services/bicycle.service';
+import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
+import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
 import {
   Rental,
+  RentalBike,
   RentalUpdate,
+  Bicycle,
   PaymentMethod,
 } from '../../models/models';
+import { calculateRentalPrice } from '../../utils/rental-pricing';
+
+interface BikeEditSlot {
+  rentalBikeId: number;
+  selectedBike: Bicycle | null;
+  originalBicycleId: number;
+  rahmennummer: string;
+  farbe: string;
+  mietpreis: number;
+  kaution: number;
+  berechneterPreis: number;
+  preisInfo: string;
+}
 
 @Component({
   selector: 'app-rental-edit',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, SignaturePadComponent],
+  imports: [CommonModule, FormsModule, RouterLink, SignaturePadComponent, BikeSelectorComponent],
   template: `
     <div class="page">
       <div class="page-header">
         <h1>Mietvertrag bearbeiten</h1>
-        <a routerLink="/rentals" class="btn btn-outline">Zurück</a>
+        <a [routerLink]="rental ? ['/rentals', rental.id] : ['/rentals']" class="btn btn-outline">Zurück</a>
       </div>
 
       <div *ngIf="loading" class="loading">Laden...</div>
-      <div *ngIf="error" class="error">{{ error }}</div>
+      <div *ngIf="error" class="error-msg">{{ error }}</div>
 
       <form *ngIf="rental && !loading" (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
-          <!-- Bicycle info (read-only) -->
-          <div class="form-card">
-            <h2>{{ rental.bikes.length > 1 ? rental.bikes.length + ' Fahrräder' : 'Fahrrad' }}</h2>
-            <div class="bike-info" *ngFor="let rb of rental.bikes; let i = index">
-              <div class="info-row" *ngIf="rental.bikes.length > 1">
-                <span class="label">#{{ i + 1 }}:</span>
-                <strong>{{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</strong>
-              </div>
-              <div class="info-row" *ngIf="rental.bikes.length === 1">
-                <span class="label">Marke/Modell:</span>
-                <span>{{ rb.bicycle.marke }} {{ rb.bicycle.modell }}</span>
-              </div>
-              <div class="info-row" *ngIf="rb.rahmennummer || rb.bicycle.rahmennummer">
-                <span class="label">Rahmennummer:</span>
-                <span style="text-transform: uppercase">{{ rb.rahmennummer || rb.bicycle.rahmennummer }}</span>
-              </div>
-              <div class="info-row" *ngIf="rb.farbe || rb.bicycle.farbe">
-                <span class="label">Farbe:</span>
-                <span>{{ rb.farbe || rb.bicycle.farbe }}</span>
-              </div>
-              <div class="info-row">
-                <span class="label">Kaution:</span>
-                <span>{{ rb.kaution | number: '1.2-2' }} €</span>
-              </div>
-            </div>
-            <p class="hint">Fahrräder können nicht geändert werden.</p>
-          </div>
 
-          <!-- Mieter info -->
-          <div class="form-card">
-            <h2>Mieter</h2>
-            <div class="form-grid">
-              <div class="field">
-                <label>Vorname</label>
-                <input
-                  [(ngModel)]="mieter.vorname"
-                  name="mieterVorname"
-                  required
-                />
-              </div>
-              <div class="field">
-                <label>Nachname</label>
-                <input
-                  [(ngModel)]="mieter.nachname"
-                  name="mieterNachname"
-                  required
-                />
-              </div>
-              <div class="field">
-                <label>Straße</label>
-                <input [(ngModel)]="mieter.strasse" name="mieterStrasse" />
-              </div>
-              <div class="field">
-                <label>Hausnummer</label>
-                <input [(ngModel)]="mieter.hausnummer" name="mieterHausnr" />
-              </div>
-              <div class="field">
-                <label>PLZ</label>
-                <input [(ngModel)]="mieter.plz" name="mieterPlz" />
-              </div>
-              <div class="field">
-                <label>Stadt</label>
-                <input [(ngModel)]="mieter.stadt" name="mieterStadt" />
-              </div>
-              <div class="field">
-                <label>Telefon</label>
-                <input [(ngModel)]="mieter.telefon" name="mieterTelefon" />
-              </div>
-              <div class="field">
-                <label>E-Mail</label>
-                <input
-                  [(ngModel)]="mieter.email"
-                  name="mieterEmail"
-                  type="email"
-                />
-              </div>
-              <div class="field">
-                <label>Ausweis-Nr.</label>
-                <input [(ngModel)]="ausweisnNr" name="ausweisnNr" />
-              </div>
+          <!-- Fahrräder -->
+          <div class="form-card" *ngFor="let slot of bikeSlots; let i = index">
+            <div class="bike-card-header">
+              <h2>{{ bikeSlots.length > 1 ? (i + 1) + '. Fahrrad' : 'Fahrrad' }}</h2>
+              <span class="bike-nr-badge" *ngIf="slot.selectedBike">
+                {{ slot.selectedBike.marke }} {{ slot.selectedBike.modell }}
+              </span>
             </div>
-          </div>
 
-          <!-- Mietdetails -->
-          <div class="form-card">
-            <h2>Mietdetails</h2>
-            <div class="form-grid">
-              <div class="field">
-                <label>Mietbeginn</label>
-                <input
-                  type="date"
-                  [(ngModel)]="startDatum"
-                  name="startDatum"
-                  required
-                  (ngModelChange)="onDatesChanged()"
-                />
+            <!-- Bike selector -->
+            <div class="selector-wrap">
+              <app-bike-selector
+                [bikes]="getAvailableBikesFor(i)"
+                [selectedBike]="slot.selectedBike"
+                (selectedBikeChange)="onSelectedBikeUpdated(i, $event)"
+                [requireConfirmSelection]="true"
+                (bikeSelected)="onBikeSelected(i, $event)"
+              ></app-bike-selector>
+            </div>
+
+            <!-- Bike detail fields -->
+            <div class="form-grid" style="margin-top: 16px;">
+              <div class="field full">
+                <label>Rahmennummer</label>
+                <input type="text" [(ngModel)]="slot.rahmennummer" [name]="'rahmen_' + i" />
               </div>
               <div class="field">
-                <label>Mietende</label>
-                <input
-                  type="date"
-                  [(ngModel)]="endDatum"
-                  name="endDatum"
-                  required
-                  (ngModelChange)="onDatesChanged()"
-                />
+                <label>Farbe</label>
+                <input type="text" [(ngModel)]="slot.farbe" [name]="'farbe_' + i" />
               </div>
             </div>
 
-            <!-- Rental period overview -->
-            <div class="price-calc" *ngIf="rentalDays > 0">
-              <div class="calc-header">
-                <span class="calc-days"
-                  >{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span
-                >
-                <span class="calc-price"
-                  >Gesamtmiete:
-                  {{ rental?.gesamtmiete | number: '1.2-2' }} €</span
-                >
-              </div>
+            <!-- Pricing -->
+            <div class="price-bar" *ngIf="rentalDays > 0">
+              <span class="days-badge">{{ rentalDays }} Tag{{ rentalDays !== 1 ? 'e' : '' }}</span>
+              <span class="calc-price">Berechneter Preis: {{ slot.berechneterPreis | number:'1.2-2' }} €</span>
             </div>
+            <div class="calc-info" *ngIf="slot.preisInfo">{{ slot.preisInfo }}</div>
 
             <div class="form-grid" style="margin-top: 12px;">
               <div class="field">
-                <label>Rabatt (€)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  [(ngModel)]="rabatt"
-                  name="rabatt"
-                  min="0"
-                />
+                <label>Gesamtmiete (€) *</label>
+                <input type="number" step="0.01" min="0" [(ngModel)]="slot.mietpreis" [name]="'miete_' + i" required />
               </div>
               <div class="field">
-                <label>Zahlungsart Miete</label>
-                <select [(ngModel)]="zahlungsart" name="zahlungsart">
+                <label>Kaution (€) *</label>
+                <input type="number" step="0.01" min="0" [(ngModel)]="slot.kaution" [name]="'kaution_' + i" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Zahlungsart & Rabatt -->
+          <div class="form-card">
+            <h2>Zahlung</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>Rabatt (€)</label>
+                <input type="number" step="0.01" min="0" [(ngModel)]="rabatt" name="rabatt" />
+              </div>
+              <div class="field">
+                <label>Zahlungsart Miete *</label>
+                <select [(ngModel)]="zahlungsart" name="zahlungsart" required>
                   <option value="Bar">Bar</option>
                   <option value="PayPal">PayPal</option>
                   <option value="Karte">Karte</option>
@@ -170,8 +115,8 @@ import {
                 </select>
               </div>
               <div class="field">
-                <label>Zahlungsart Kaution</label>
-                <select [(ngModel)]="kautionZahlungsart" name="kautionZahlungsart">
+                <label>Zahlungsart Kaution *</label>
+                <select [(ngModel)]="kautionZahlungsart" name="kautionZahlungsart" required>
                   <option value="Bar">Bar</option>
                   <option value="PayPal">PayPal</option>
                   <option value="Karte">Karte</option>
@@ -180,16 +125,67 @@ import {
               </div>
               <div class="field full">
                 <label>Notizen</label>
-                <textarea
-                  [(ngModel)]="notizen"
-                  name="notizen"
-                  rows="3"
-                ></textarea>
+                <textarea [(ngModel)]="notizen" name="notizen" rows="3"></textarea>
               </div>
             </div>
-            <p class="hint" style="margin-top: 8px;">
-              Gesamtmiete, Kaution und Zustand werden pro Fahrrad beim Anlegen festgelegt und sind hier nicht mehr editierbar.
-            </p>
+          </div>
+
+          <!-- Mietdaten -->
+          <div class="form-card">
+            <h2>Mietdaten</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>Mietbeginn *</label>
+                <input type="date" [(ngModel)]="startDatum" name="startDatum" required (ngModelChange)="onDatesChanged()" />
+              </div>
+              <div class="field">
+                <label>Mietende *</label>
+                <input type="date" [(ngModel)]="endDatum" name="endDatum" required (ngModelChange)="onDatesChanged()" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Mieter -->
+          <div class="form-card">
+            <h2>Mieter</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>Vorname *</label>
+                <input [(ngModel)]="mieter.vorname" name="vorname" required />
+              </div>
+              <div class="field">
+                <label>Nachname *</label>
+                <input [(ngModel)]="mieter.nachname" name="nachname" required />
+              </div>
+              <div class="field">
+                <label>Straße</label>
+                <input [(ngModel)]="mieter.strasse" name="strasse" />
+              </div>
+              <div class="field">
+                <label>Hausnummer</label>
+                <input [(ngModel)]="mieter.hausnummer" name="hausnr" />
+              </div>
+              <div class="field">
+                <label>PLZ</label>
+                <input [(ngModel)]="mieter.plz" name="plz" />
+              </div>
+              <div class="field">
+                <label>Stadt</label>
+                <input [(ngModel)]="mieter.stadt" name="stadt" />
+              </div>
+              <div class="field">
+                <label>Telefon</label>
+                <input [(ngModel)]="mieter.telefon" name="telefon" />
+              </div>
+              <div class="field">
+                <label>E-Mail</label>
+                <input type="email" [(ngModel)]="mieter.email" name="email" />
+              </div>
+              <div class="field">
+                <label>Ausweis-Nr.</label>
+                <input [(ngModel)]="ausweisnNr" name="ausweisnNr" />
+              </div>
+            </div>
           </div>
 
           <!-- AGB & Unterschrift -->
@@ -201,14 +197,8 @@ import {
                 <input [(ngModel)]="unterschriftOrt" name="unterschriftOrt" placeholder="Freiburg" />
               </div>
               <div class="field" style="display:flex;align-items:center;gap:8px;padding-top:22px;">
-                <input
-                  type="checkbox"
-                  [(ngModel)]="agbAkzeptiert"
-                  name="agbAkzeptiert"
-                  id="agbCheckEdit"
-                  style="width:18px;height:18px;cursor:pointer;"
-                />
-                <label for="agbCheckEdit" style="cursor:pointer;margin:0;">Ich habe die AGB gelesen und akzeptiert</label>
+                <input type="checkbox" [(ngModel)]="agbAkzeptiert" name="agb" id="agbChk" style="width:18px;height:18px;cursor:pointer;" />
+                <label for="agbChk" style="cursor:pointer;margin:0;">AGB gelesen und akzeptiert</label>
               </div>
             </div>
             <div style="margin-top:12px;">
@@ -221,236 +211,97 @@ import {
               <p style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Neu unterschreiben, um die vorhandene Unterschrift zu ersetzen.</p>
             </div>
           </div>
+
         </div>
 
         <div class="form-actions">
-          <button
-            type="submit"
-            class="btn btn-primary btn-lg"
-            [disabled]="submitting"
-          >
+          <a [routerLink]="rental ? ['/rentals', rental.id] : ['/rentals']" class="btn btn-outline">Abbrechen</a>
+          <button type="submit" class="btn btn-primary" [disabled]="submitting">
             {{ submitting ? 'Wird gespeichert...' : 'Änderungen speichern' }}
           </button>
         </div>
       </form>
     </div>
   `,
-  styles: [
-    `
-      .page {
-        max-width: 900px;
-        margin: 0 auto;
-        animation: fadeIn 0.4s ease;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 22px;
-      }
-      .page-header h1 {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--text-primary);
-      }
-      .loading,
-      .error {
-        text-align: center;
-        padding: 48px;
-        font-size: 1.1rem;
-        color: var(--text-secondary, #64748b);
-      }
-      .error {
-        color: var(--accent-danger, #ef4444);
-      }
-      .form-sections {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-      .form-card {
-        background: var(--bg-card, #fff);
-        border-radius: var(--radius-lg, 14px);
-        padding: 24px;
-        border: 1.5px solid var(--border-light, #e2e8f0);
-        box-shadow: var(--shadow-sm);
-      }
-      .form-card h2 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 16px;
-        color: var(--text-primary);
-      }
-      .bike-info {
-        background: var(--bg-secondary, #f8fafc);
-        padding: 16px;
-        border-radius: var(--radius-md, 10px);
-        border: 1.5px solid var(--border-light, #e2e8f0);
-        margin-bottom: 12px;
-      }
-      .info-row {
-        display: flex;
-        gap: 12px;
-        padding: 4px 0;
-      }
-      .info-row .label {
-        font-weight: 600;
-        color: var(--text-secondary, #64748b);
-        min-width: 140px;
-        font-size: 0.88rem;
-      }
-      .hint {
-        font-size: 0.85rem;
-        color: var(--text-secondary, #64748b);
-        font-style: italic;
-      }
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-      }
-      @media (max-width: 600px) {
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
-      }
-      .field label {
-        display: block;
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: var(--text-secondary, #64748b);
-        margin-bottom: 5px;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-      }
-      .field input,
-      .field select,
-      .field textarea {
-        width: 100%;
-        padding: 9px 12px;
-        border: 1.5px solid var(--border-light, #e2e8f0);
-        border-radius: var(--radius-md, 10px);
-        font-size: 0.92rem;
-        background: var(--bg-card, #fff);
-        color: var(--text-primary);
-        transition: var(--transition-fast);
-      }
-      .field input:focus,
-      .field select:focus,
-      .field textarea:focus {
-        outline: none;
-        border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 3px
-          var(--accent-primary-light, rgba(99, 102, 241, 0.1));
-      }
-      .field.full {
-        grid-column: 1 / -1;
-      }
-      .form-actions {
-        margin-top: 24px;
-        text-align: right;
-      }
-      .btn {
-        padding: 10px 20px;
-        border-radius: var(--radius-md, 10px);
-        font-weight: 600;
-        font-size: 0.88rem;
-        cursor: pointer;
-        border: none;
-        transition: var(--transition-fast);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-      }
-      .btn-primary {
-        background: var(--accent-primary, #6366f1);
-        color: white;
-      }
-      .btn-primary:hover {
-        background: var(--accent-primary-hover, #4f46e5);
-        box-shadow: var(--shadow-sm);
-      }
-      .btn-primary:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      .btn-outline {
-        background: transparent;
-        border: 1.5px solid var(--border-color, #e2e8f0);
-        color: var(--text-primary);
-      }
-      .btn-outline:hover {
-        background: var(--bg-secondary, #f1f5f9);
-      }
-      .btn-lg {
-        padding: 12px 32px;
-        font-size: 1.05rem;
-      }
-      .price-calc {
-        margin-top: 12px;
-        padding: 12px 16px;
-        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
-        border-radius: var(--radius-md, 10px);
-        border: 1.5px solid var(--accent-primary, #6366f1);
-      }
-      .calc-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 700;
-        font-size: 0.95rem;
-        color: var(--accent-primary, #6366f1);
-      }
-      .calc-days {
-        background: var(--accent-primary, #6366f1);
-        color: white;
-        padding: 2px 10px;
-        border-radius: 50px;
-        font-size: 0.82rem;
-      }
-      .calc-breakdown {
-        margin-top: 6px;
-        font-size: 0.82rem;
-        color: var(--text-secondary, #64748b);
-      }
-    `,
-  ],
+  styles: [`
+    .page { max-width: 960px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); }
+    .loading, .error-msg { text-align: center; padding: 48px; font-size: 1.1rem; }
+    .error-msg { color: var(--accent-danger, #ef4444); }
+    .form-sections { display: flex; flex-direction: column; gap: 20px; }
+    .form-card {
+      background: var(--bg-card, #fff);
+      border-radius: var(--radius-lg, 14px);
+      padding: 24px;
+      border: 1.5px solid var(--border-light, #e2e8f0);
+      box-shadow: var(--shadow-sm);
+    }
+    .form-card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); }
+    .bike-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .bike-card-header h2 { margin-bottom: 0; }
+    .bike-nr-badge { font-size: 0.85rem; color: var(--text-secondary, #64748b); }
+    .selector-wrap { border: 1.5px solid var(--border-light, #e2e8f0); border-radius: var(--radius-md, 10px); padding: 12px; }
+    .price-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(99,102,241,0.07); border: 1.5px solid rgba(99,102,241,0.2);
+      border-radius: 8px; padding: 8px 14px; margin-top: 14px;
+    }
+    .days-badge { background: var(--accent-primary, #6366f1); color: #fff; border-radius: 50px; padding: 2px 10px; font-size: 0.82rem; font-weight: 700; }
+    .calc-price { font-weight: 700; font-size: 0.92rem; color: var(--accent-primary, #6366f1); }
+    .calc-info { font-size: 0.8rem; color: var(--text-secondary, #64748b); margin-top: 4px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary, #64748b); text-transform: uppercase; letter-spacing: 0.03em; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 9px 12px;
+      border: 1.5px solid var(--border-light, #e2e8f0);
+      border-radius: var(--radius-md, 10px);
+      font-size: 0.92rem; background: var(--bg-card, #fff); color: var(--text-primary);
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none; border-color: var(--accent-primary, #6366f1);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+    }
+    .form-actions { margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px; }
+    .btn {
+      padding: 10px 22px; border-radius: var(--radius-md, 10px); font-weight: 600;
+      font-size: 0.88rem; cursor: pointer; border: 1.5px solid transparent;
+      text-decoration: none; display: inline-flex; align-items: center;
+    }
+    .btn-primary { background: var(--accent-primary, #6366f1); color: #fff; border-color: var(--accent-primary, #6366f1); }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-outline { border-color: var(--border-light, #e2e8f0); color: var(--text-primary); background: transparent; }
+    .btn-outline:hover { border-color: var(--accent-primary, #6366f1); color: var(--accent-primary, #6366f1); }
+  `],
 })
 export class RentalEditComponent implements OnInit {
+  private rentalService = inject(RentalService);
+  private bicycleService = inject(BicycleService);
+  private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   rental: Rental | null = null;
   loading = true;
   error = '';
   submitting = false;
 
-  mieter = {
-    vorname: '',
-    nachname: '',
-    strasse: '',
-    hausnummer: '',
-    plz: '',
-    stadt: '',
-    telefon: '',
-    email: '',
-  };
+  bikeSlots: BikeEditSlot[] = [];
+  availableBikes: Bicycle[] = [];
+  availabilityLoading = false;
+  rentalDays = 0;
 
+  mieter = { vorname: '', nachname: '', strasse: '', hausnummer: '', plz: '', stadt: '', telefon: '', email: '' };
   ausweisnNr = '';
   startDatum = '';
   endDatum = '';
   rabatt = 0;
-  rentalDays = 0;
   zahlungsart: string = PaymentMethod.Bar;
   kautionZahlungsart: string = PaymentMethod.Bar;
   notizen = '';
@@ -458,39 +309,24 @@ export class RentalEditComponent implements OnInit {
   agbAkzeptiert = false;
   unterschriftOrt = 'Freiburg';
 
-  get t() {
-    return this.translationService.translations();
-  }
-
-  constructor(
-    private rentalService: RentalService,
-    private router: Router,
-    private route: ActivatedRoute,
-  ) {}
+  get t() { return this.translationService.translations(); }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (!id) {
-      this.error = 'Ungültige Mietvertrag-ID';
-      this.loading = false;
-      return;
-    }
+    if (!id) { this.error = 'Ungültige ID'; this.loading = false; return; }
 
     this.rentalService.getById(+id).subscribe({
       next: (rental) => {
         this.rental = rental;
         this.loadFormData(rental);
         this.loading = false;
+        this.loadAvailableForPeriod();
       },
-      error: () => {
-        this.error = 'Mietvertrag nicht gefunden';
-        this.loading = false;
-      },
+      error: () => { this.error = 'Mietvertrag nicht gefunden'; this.loading = false; },
     });
   }
 
   private loadFormData(rental: Rental) {
-    // Load mieter data
     if (rental.customer) {
       this.mieter = {
         vorname: rental.customer.vorname || '',
@@ -503,7 +339,6 @@ export class RentalEditComponent implements OnInit {
         email: rental.customer.email || '',
       };
     }
-
     this.ausweisnNr = rental.ausweisnNr || '';
     this.rabatt = rental.rabatt || 0;
     this.zahlungsart = rental.zahlungsart || PaymentMethod.Bar;
@@ -512,36 +347,101 @@ export class RentalEditComponent implements OnInit {
     this.agbAkzeptiert = rental.agbAkzeptiert || false;
     this.unterschriftOrt = rental.unterschriftOrt || 'Freiburg';
 
-    // Format dates
-    if (rental.startDatum) {
-      const d = new Date(rental.startDatum);
-      this.startDatum = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    }
-    if (rental.endDatum) {
-      const d = new Date(rental.endDatum);
-      this.endDatum = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    }
+    if (rental.startDatum) this.startDatum = rental.startDatum.split('T')[0];
+    if (rental.endDatum) this.endDatum = rental.endDatum.split('T')[0];
 
-    // Calculate days and price info
     this.recalcDays();
+
+    this.bikeSlots = rental.bikes.map((rb: RentalBike) => ({
+      rentalBikeId: rb.id,
+      selectedBike: rb.bicycle ?? null,
+      originalBicycleId: rb.bicycleId,
+      rahmennummer: rb.rahmennummer || rb.bicycle?.rahmennummer || '',
+      farbe: rb.farbe || rb.bicycle?.farbe || '',
+      mietpreis: rb.mietpreis,
+      kaution: rb.kaution,
+      berechneterPreis: 0,
+      preisInfo: '',
+    }));
+
+    this.recalcAllPrices();
   }
 
   private recalcDays() {
-    if (!this.startDatum || !this.endDatum) return;
-    const start = new Date(this.startDatum);
-    const end = new Date(this.endDatum);
-    const diffDays = Math.round(
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
-    );
-    this.rentalDays = Math.max(0, diffDays + 1);
+    if (!this.startDatum || !this.endDatum) { this.rentalDays = 0; return; }
+    const diff = Math.round((new Date(this.endDatum).getTime() - new Date(this.startDatum).getTime()) / 86400000);
+    this.rentalDays = Math.max(0, diff + 1);
+  }
+
+  private recalcAllPrices() {
+    this.bikeSlots.forEach((_, i) => this.recalcPriceFor(i));
+  }
+
+  private recalcPriceFor(i: number) {
+    const slot = this.bikeSlots[i];
+    if (!slot || this.rentalDays <= 0) return;
+    const result = calculateRentalPrice(slot.selectedBike as any, this.rentalDays);
+    slot.berechneterPreis = result.total ?? 0;
+    slot.preisInfo = result.info ?? '';
   }
 
   onDatesChanged() {
     this.recalcDays();
+    this.recalcAllPrices();
+    this.loadAvailableForPeriod();
+  }
+
+  private loadAvailableForPeriod() {
+    if (!this.startDatum || !this.endDatum) return;
+    this.availabilityLoading = true;
+    this.bicycleService.getAvailableForPeriod(this.startDatum, this.endDatum).subscribe({
+      next: (bikes) => {
+        // Include currently selected bikes even if they're busy (they're part of this rental)
+        const currentIds = new Set(this.bikeSlots.map(s => s.selectedBike?.id).filter(Boolean));
+        const extra = this.bikeSlots
+          .filter(s => s.selectedBike && !bikes.some(b => b.id === s.selectedBike!.id))
+          .map(s => s.selectedBike!);
+        this.availableBikes = [...bikes, ...extra];
+        this.availabilityLoading = false;
+      },
+      error: () => { this.availabilityLoading = false; },
+    });
+  }
+
+  getAvailableBikesFor(i: number): Bicycle[] {
+    const otherIds = this.bikeSlots
+      .map((s, idx) => idx !== i ? s.selectedBike?.id : null)
+      .filter((id): id is number => id != null);
+    return this.availableBikes.filter(b => !otherIds.includes(b.id));
+  }
+
+  onBikeSelected(i: number, bike: Bicycle) {
+    const slot = this.bikeSlots[i];
+    if (!slot) return;
+    slot.selectedBike = bike;
+    slot.rahmennummer = bike.rahmennummer || '';
+    slot.farbe = bike.farbe || '';
+    if (bike.kaution != null) slot.kaution = bike.kaution;
+    this.recalcPriceFor(i);
+  }
+
+  onSelectedBikeUpdated(i: number, bike: Bicycle | null) {
+    const slot = this.bikeSlots[i];
+    if (!slot) return;
+    slot.selectedBike = bike;
+    if (!bike) return;
+    if (bike.rahmennummer) slot.rahmennummer = bike.rahmennummer;
+    if (bike.farbe) slot.farbe = bike.farbe;
+    if (bike.kaution != null) slot.kaution = bike.kaution;
+    if (this.rentalDays > 0) {
+      const result = calculateRentalPrice(bike as any, this.rentalDays);
+      slot.berechneterPreis = result.total ?? 0;
+      slot.preisInfo = result.info ?? '';
+    }
   }
 
   submit() {
-    if (!this.rental) return;
+    if (!this.rental || this.submitting) return;
     this.submitting = true;
 
     const update: RentalUpdate = {
@@ -556,15 +456,24 @@ export class RentalEditComponent implements OnInit {
       mieterUnterschrift: this.mieterUnterschrift || undefined,
       agbAkzeptiert: this.agbAkzeptiert,
       unterschriftOrt: this.unterschriftOrt || undefined,
+      bikes: this.bikeSlots.map(slot => ({
+        id: slot.rentalBikeId,
+        bicycleId: slot.selectedBike?.id !== slot.originalBicycleId ? slot.selectedBike?.id : undefined,
+        rahmennummer: slot.rahmennummer || undefined,
+        farbe: slot.farbe || undefined,
+        mietpreis: slot.mietpreis,
+        kaution: slot.kaution,
+      })),
     };
 
     this.rentalService.update(this.rental.id, update).subscribe({
       next: () => {
+        this.notificationService.success('Änderungen gespeichert');
         this.router.navigate(['/rentals', this.rental!.id]);
       },
-      error: () => {
+      error: (err) => {
         this.submitting = false;
-        alert('Fehler beim Speichern der Änderungen');
+        this.notificationService.error(err.error?.error || 'Fehler beim Speichern');
       },
     });
   }

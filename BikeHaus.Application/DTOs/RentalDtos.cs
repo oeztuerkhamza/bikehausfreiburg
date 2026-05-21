@@ -132,6 +132,18 @@ public record RentalCreateDto(
     string? AusweisPhotoPath
 );
 
+public record RentalBikeUpdateDto(
+    int Id,
+    int? BicycleId,
+    string? Rahmennummer,
+    string? Farbe,
+    string? Rahmengroesse,
+    string? Reifengroesse,
+    string? Fahrradtyp,
+    decimal? Mietpreis,
+    decimal? Kaution
+);
+
 public record RentalUpdateDto(
     CustomerCreateDto? Customer,
     string? AusweisnNr,
@@ -145,5 +157,6 @@ public record RentalUpdateDto(
     string? Notizen,
     string? MieterUnterschrift,
     bool? AgbAkzeptiert,
-    string? UnterschriftOrt
+    string? UnterschriftOrt,
+    List<RentalBikeUpdateDto>? Bikes
 );

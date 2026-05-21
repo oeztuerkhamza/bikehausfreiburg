@@ -44,18 +44,17 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
 
     public async Task<string> GenerateBelegNummerAsync()
     {
-        var lastBeleg = await _dbSet
-            .OrderByDescending(p => p.BelegNummer)
+        var allBelegs = await _dbSet
             .Select(p => p.BelegNummer)
-            .FirstOrDefaultAsync();
+            .ToListAsync();
 
-        var nextNumber = 1;
-        if (!string.IsNullOrEmpty(lastBeleg) && int.TryParse(lastBeleg, out var parsed))
-        {
-            nextNumber = parsed + 1;
-        }
+        var maxNumber = allBelegs
+            .Where(b => !string.IsNullOrEmpty(b) && int.TryParse(b, out _))
+            .Select(b => int.Parse(b))
+            .DefaultIfEmpty(0)
+            .Max();
 
-        return $"{nextNumber:D3}";
+        return $"{maxNumber + 1:D3}";
     }
 
     public override async Task<IEnumerable<Purchase>> GetAllAsync()

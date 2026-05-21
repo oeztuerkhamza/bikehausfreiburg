@@ -282,6 +282,31 @@ public class RentalService : IRentalService
             }
         }
 
+        // Per-bike updates
+        if (dto.Bikes != null && dto.Bikes.Count > 0)
+        {
+            foreach (var bikeDto in dto.Bikes)
+            {
+                var bike = rental.Bikes.FirstOrDefault(b => b.Id == bikeDto.Id);
+                if (bike == null) continue;
+
+                if (bikeDto.BicycleId.HasValue && bikeDto.BicycleId.Value != bike.BicycleId)
+                {
+                    var newBicycle = await _bicycleRepository.GetByIdAsync(bikeDto.BicycleId.Value)
+                        ?? throw new KeyNotFoundException($"Fahrrad mit ID {bikeDto.BicycleId} nicht gefunden.");
+                    bike.BicycleId = newBicycle.Id;
+                }
+                if (bikeDto.Rahmennummer != null) bike.Rahmennummer = bikeDto.Rahmennummer;
+                if (bikeDto.Farbe != null) bike.Farbe = bikeDto.Farbe;
+                if (bikeDto.Mietpreis.HasValue) bike.Mietpreis = bikeDto.Mietpreis.Value;
+                if (bikeDto.Kaution.HasValue) bike.Kaution = bikeDto.Kaution.Value;
+                bike.UpdatedAt = DateTime.UtcNow;
+            }
+
+            rental.Gesamtmiete = rental.Bikes.Sum(b => b.Mietpreis) - (rental.Rabatt);
+            rental.Kaution = rental.Bikes.Sum(b => b.Kaution);
+        }
+
         rental.UpdatedAt = DateTime.UtcNow;
         await _rentalRepository.UpdateAsync(rental);
 
