@@ -27,6 +27,12 @@ export function app(): express.Express {
     next();
   });
 
+  // Root-level Angular router redirects: override with 301 Permanent
+  server.get('/', (_req, res) => res.redirect(301, '/de'));
+  server.get('/showroom', (_req, res) => res.redirect(301, '/de/showroom'));
+  server.get('/showroom/danke', (_req, res) => res.redirect(301, '/de/showroom/danke'));
+  server.get('/showroom/:id', (req, res) => res.redirect(301, `/de/showroom/${req.params['id']}`));
+
   // /en/fahrradverleih → /en/bike-rental (canonical EN slug)
   server.get('/en/fahrradverleih', (_req, res) => {
     res.redirect(301, '/en/bike-rental');

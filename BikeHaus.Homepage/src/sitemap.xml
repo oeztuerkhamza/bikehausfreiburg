@@ -57,8 +57,8 @@
   <url>
     <loc>https://bikehausfreiburg.com/de/ratgeber</loc>
     <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/ratgeber"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/ratgeber"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/ratgeber"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/guide"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/guide"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/ratgeber"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/ratgeber"/>
     <lastmod>2026-04-12</lastmod>

@@ -31,8 +31,8 @@
 /fr/zubehoer
 /tr/zubehoer
 /de/fahrradverleih
-/en/fahrradverleih
-/fr/fahrradverleih
+/en/bike-rental
+/fr/location-velo
 /tr/fahrradverleih
 /de/mietfahrraeder
 /en/rental-bikes
