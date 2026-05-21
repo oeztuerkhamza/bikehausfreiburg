@@ -34,6 +34,10 @@
 /en/bike-rental
 /fr/location-velo
 /tr/fahrradverleih
+/es/fahrradverleih
+/it/fahrradverleih
+/ar/fahrradverleih
+/ru/fahrradverleih
 /de/mietfahrraeder
 /en/rental-bikes
 /fr/velos-de-location

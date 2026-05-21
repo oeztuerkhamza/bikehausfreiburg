@@ -228,6 +228,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://bikehausfreiburg.com/es/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://bikehausfreiburg.com/it/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bikehausfreiburg.com/ar/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://bikehausfreiburg.com/ru/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
     <lastmod>2026-05-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -240,6 +244,10 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://bikehausfreiburg.com/es/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://bikehausfreiburg.com/it/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bikehausfreiburg.com/ar/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://bikehausfreiburg.com/ru/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
     <lastmod>2026-05-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -252,10 +260,94 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://bikehausfreiburg.com/es/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://bikehausfreiburg.com/it/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bikehausfreiburg.com/ar/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://bikehausfreiburg.com/ru/fahrradverleih"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
     <lastmod>2026-05-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.92</priority>
+  </url>
+  <!-- TR: /tr/fahrradverleih -->
+  <url>
+    <loc>https://bikehausfreiburg.com/tr/fahrradverleih</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://bikehausfreiburg.com/es/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://bikehausfreiburg.com/it/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bikehausfreiburg.com/ar/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://bikehausfreiburg.com/ru/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <!-- ES: /es/fahrradverleih -->
+  <url>
+    <loc>https://bikehausfreiburg.com/es/fahrradverleih</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://bikehausfreiburg.com/es/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://bikehausfreiburg.com/it/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bikehausfreiburg.com/ar/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://bikehausfreiburg.com/ru/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <!-- IT: /it/fahrradverleih -->
+  <url>
+    <loc>https://bikehausfreiburg.com/it/fahrradverleih</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://bikehausfreiburg.com/es/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://bikehausfreiburg.com/it/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bikehausfreiburg.com/ar/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://bikehausfreiburg.com/ru/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <!-- AR: /ar/fahrradverleih -->
+  <url>
+    <loc>https://bikehausfreiburg.com/ar/fahrradverleih</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://bikehausfreiburg.com/es/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://bikehausfreiburg.com/it/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bikehausfreiburg.com/ar/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://bikehausfreiburg.com/ru/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <!-- RU: /ru/fahrradverleih -->
+  <url>
+    <loc>https://bikehausfreiburg.com/ru/fahrradverleih</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://bikehausfreiburg.com/es/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://bikehausfreiburg.com/it/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bikehausfreiburg.com/ar/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://bikehausfreiburg.com/ru/fahrradverleih"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih"/>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
   </url>
 
   <!-- Garantie -->

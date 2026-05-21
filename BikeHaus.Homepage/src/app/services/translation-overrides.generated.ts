@@ -231,7 +231,8 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalDay: 'Día',
     bikeRentalDays: 'Días',
 
-    rentalHeroTitle: 'Alquila una Bicicleta',
+    rentalHeroTitle:
+      'Alquila una Bicicleta en Freiburg — Simple, Justo, Flexible',
     rentalHeroSub:
       'Disponible inmediatamente – justo, flexible, sin costos ocultos. Retira directamente en nuestro establecimiento en Freiburg.',
     rentalHeroWaCta: '¿Preguntas? WhatsApp',
@@ -862,7 +863,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalBookBtn: 'Prenota bici',
     bikeRentalDay: 'Giorno',
     bikeRentalDays: 'Giorni',
-    rentalHeroTitle: 'Noleggia una bici',
+    rentalHeroTitle: 'Noleggia una bici a Friburgo.',
     rentalHeroSub:
       'Disponibile subito – equo, flessibile, senza costi nascosti. Ritira direttamente da noi a Friburgo.',
     rentalHeroWaCta: 'Domande? WhatsApp',
@@ -1224,7 +1225,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     rentalCatalogMetaTitle:
       'Bici a noleggio Friburgo — tutte le bici in noleggio | Bike Haus Friburgo',
     rentalCatalogMetaDescription:
-      'Tutte le bici a noleggio a Friburgo in un colpo d\'occhio ✓ City, Trekking, E-Bike e bici per bambini ✓ Prezzi giornalieri ✓ Filtrabile per marca, misura e tipo ✓ Prenota online — Heckerstraße 27.',
+      "Tutte le bici a noleggio a Friburgo in un colpo d'occhio ✓ City, Trekking, E-Bike e bici per bambini ✓ Prezzi giornalieri ✓ Filtrabile per marca, misura e tipo ✓ Prenota online — Heckerstraße 27.",
     rentalCatalogLabel: 'Flotta noleggio',
     rentalCatalogTitle: 'Biciclette da noleggiare a Friburgo.',
     rentalCatalogSub: 'Bici a noleggio disponibili',
@@ -1456,7 +1457,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalBookBtn: 'احجز الدراجة',
     bikeRentalDay: 'يوم',
     bikeRentalDays: 'أيام',
-    rentalHeroTitle: 'استأجر دراجة',
+    rentalHeroTitle: 'استأجر دراجة في فرايبورج',
     rentalHeroSub:
       'متاح فورًا — عادل ومرن وبدون تكاليف مخفية. الاستلام مباشرة منا في فرايبورج.',
     rentalHeroWaCta: 'أسئلة؟ WhatsApp',
@@ -1972,7 +1973,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalBookBtn: 'Зарезервировать велосипед',
     bikeRentalDay: 'День',
     bikeRentalDays: 'Дни',
-    rentalHeroTitle: 'Арендовать велосипед',
+    rentalHeroTitle: 'Арендовать велосипед во Фрайбурге — просто и гибко',
     rentalHeroSub:
       'Доступно сразу же – справедливо, гибко, без скрытых расходов. Самовывоз прямо в нашем магазине во Фрайбурге.',
     rentalHeroWaCta: 'Вопросы? WhatsApp',

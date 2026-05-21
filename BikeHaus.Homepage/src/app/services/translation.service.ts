@@ -372,6 +372,10 @@ export interface Translations {
   bikeRentalBookBtn: string;
   bikeRentalDay: string;
   bikeRentalDays: string;
+  rentalLinksTitle: string;
+  rentalLinkCatalog: string;
+  rentalLinkGuide: string;
+  rentalLinkFaq: string;
 
   // Rental page booking form
   rentalHeroTitle: string;
@@ -975,8 +979,12 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalBookBtn: 'Fahrrad reservieren',
     bikeRentalDay: 'Tag',
     bikeRentalDays: 'Tage',
+    rentalLinksTitle: 'Mehr entdecken',
+    rentalLinkCatalog: 'Alle Mietfahrräder ansehen',
+    rentalLinkGuide: 'Ratgeber: Fahrradverleih Freiburg',
+    rentalLinkFaq: 'Häufige Fragen',
 
-    rentalHeroTitle: 'Fahrrad mieten',
+    rentalHeroTitle: 'Fahrrad mieten in Freiburg',
     rentalHeroSub:
       'Sofort verfügbar – fair, flexibel, ohne versteckte Kosten. Direkt bei uns in Freiburg abholen.',
     rentalHeroWaCta: 'Fragen? WhatsApp',
@@ -1255,7 +1263,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Häufige Fragen zu Fahrrad kaufen & mieten in Freiburg: Garantie, E-Bikes, Probefahrt, Öffnungszeiten, Preise. Alle Antworten von Bike Haus Freiburg.',
     bikeRentalMetaTitle: 'Fahrrad mieten Freiburg | Helm & Schloss inklusive',
     bikeRentalMetaDescription:
-      'Fahrradverleih Freiburg — 1 bis 7 Tage pro Fahrrad individuell bepreist, ab Tag 8 mit festem Zusatzpreis. Helm & Schloss inklusive. Sofort abholen. ✓ Bike Haus Freiburg.',
+      'Fahrradverleih Freiburg ✓ Cityräder, E-Bikes & Trekkingräder mieten. Helm & Schloss inklusive. Ab 8 €/Tag. Sofort abholen — Bike Haus Freiburg.',
     garantieMetaTitle: 'Garantiebedingungen — Bike Haus Freiburg',
     garantieMetaDescription:
       'Garantiebedingungen für neue und gebrauchte Fahrräder bei Bike Haus Freiburg. 2 Jahre für Neuräder, 3 Monate für Gebrauchträder.',
@@ -1651,6 +1659,10 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalBookBtn: 'Reserve bike',
     bikeRentalDay: 'Day',
     bikeRentalDays: 'Days',
+    rentalLinksTitle: 'Discover more',
+    rentalLinkCatalog: 'View all rental bikes',
+    rentalLinkGuide: 'Guide: Bike Rental Freiburg',
+    rentalLinkFaq: 'Frequently Asked Questions',
 
     rentalHeroTitle: 'Rent a Bike in Freiburg',
     rentalHeroSub:
@@ -2318,6 +2330,10 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalBookBtn: 'Demander maintenant',
     bikeRentalDay: 'Jour',
     bikeRentalDays: 'Jours',
+    rentalLinksTitle: 'En savoir plus',
+    rentalLinkCatalog: 'Voir tous les vélos de location',
+    rentalLinkGuide: 'Guide : location de vélo à Fribourg',
+    rentalLinkFaq: 'Questions fréquentes',
 
     rentalHeroTitle: 'Louer un vélo à Fribourg',
     rentalHeroSub:
@@ -3002,8 +3018,12 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalBookBtn: 'Bisikletini rezerve edin',
     bikeRentalDay: 'Gün',
     bikeRentalDays: 'Gün',
+    rentalLinksTitle: 'Daha fazla keşfet',
+    rentalLinkCatalog: 'Tüm kiralık bisikletleri gör',
+    rentalLinkGuide: 'Rehber: Freiburg Bisiklet Kiralama',
+    rentalLinkFaq: 'Sık sorulan sorular',
 
-    rentalHeroTitle: 'Bisiklet Kirala',
+    rentalHeroTitle: "Freiburg'da Bisiklet Kirala",
     rentalHeroSub:
       "Hemen mevcut – adil, esnek, gizli maliyet yok. Doğrudan Freiburg'daki dükkânımızdan teslim alın.",
     rentalHeroWaCta: 'Sorularınız? WhatsApp',

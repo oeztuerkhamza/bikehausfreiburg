@@ -7,7 +7,7 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
@@ -82,74 +82,74 @@ const BOOKING_LANGUAGE_OPTIONS: RentalLangOption[] = SUPPORTED_LANGUAGES.map(
 const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
   de: {
     sectionLabel: 'FAQ',
-    sectionTitle: 'Haufige Fragen',
+    sectionTitle: 'Häufige Fragen zum Fahrradverleih',
     items: [
       {
-        question: 'Welche Fahrrader kann ich mieten?',
+        question: 'Welche Fahrräder kann ich in Freiburg mieten?',
         answers: [
           'Citybikes',
           'Mountainbikes (MTB)',
-          'Kinderfahrrader',
+          'Kinderfahrräder',
           'E-Bikes (Heckmotor & Mittelmotor)',
-          'Rennrader & Gravelbikes',
+          'Rennräder & Gravelbikes',
         ],
       },
       {
-        question: 'Abholung & Ruckgabe',
+        question: 'Wie funktioniert Abholung & Rückgabe?',
         answers: [
-          'Abholung taglich ab 10:00 Uhr',
-          'Ruckgabe bis spatestens 18:00 Uhr',
+          'Abholung täglich ab 10:00 Uhr',
+          'Rückgabe bis spätestens 18:00 Uhr',
           'Sonn- und Feiertage geschlossen',
         ],
       },
       {
-        question: 'Im Mietpreis inklusive',
+        question: 'Was ist im Mietpreis inklusive?',
         answers: ['Schloss', 'Korb', 'Helm'],
       },
       {
-        question: 'Kaution',
+        question: 'Wie hoch ist die Kaution?',
         answers: [
-          'Normale Fahrrader & einfache E-Bikes: 300 EUR',
+          'Normale Fahrräder & einfache E-Bikes: 300 EUR',
           'Mittelmotor E-Bikes: 700 EUR',
           'Kaution nur in bar',
         ],
       },
       {
-        question: 'Zahlungsmoglichkeiten',
+        question: 'Welche Zahlungsmöglichkeiten gibt es?',
         answers: ['Miete: Bar oder Karte', 'Kaution: nur bar'],
       },
       {
-        question: 'Bei Diebstahl oder Schaden',
+        question: 'Was passiert bei Diebstahl oder Schäden?',
         answers: [
-          'Fahrrad immer abschliesen',
+          'Fahrrad immer abschließen',
           'Der Mieter haftet laut Vertrag',
-          'Reparaturkosten tragt der Mieter',
-          'Kaution wird in solchen Fallen nicht zuruckerstattet',
+          'Reparaturkosten trägt der Mieter',
+          'Kaution wird in solchen Fällen nicht zurückerstattet',
         ],
       },
       {
-        question: 'Reservierung & Stornierung',
+        question: 'Ist eine Reservierung möglich?',
         answers: [
-          'Reservierung moglich und empfohlen',
+          'Reservierung möglich und empfohlen',
           'Kostenlose Stornierung bis 1 Tag vorher',
         ],
       },
       {
-        question: 'Weitere Informationen',
+        question: 'Weitere Informationen zum Fahrradverleih',
         answers: [
-          'Mietdauer kann verlangert werden',
-          'Fahrradwechsel bei falscher Grose moglich',
-          'Eigener Helm & Schloss konnen genutzt werden',
-          'Mietfahrrad kann spater gekauft werden',
+          'Mietdauer kann verlängert werden',
+          'Fahrradwechsel bei falscher Größe möglich',
+          'Eigener Helm & Schloss können genutzt werden',
+          'Mietfahrrad kann später gekauft werden',
         ],
       },
       {
-        question: 'Kinderfahrrader verfugbar?',
-        answers: ['Modelle in 20", 24", 26", 27,5" und 29" verfugbar'],
+        question: 'Welche Kindergrößen sind verfügbar?',
+        answers: ['Kinderfahrräder in 20", 24", 26", 27,5" und 29" verfügbar'],
       },
       {
-        question: 'Verspatete Ruckgabe',
-        answers: ['12 EUR Gebuhr pro zusatzlichem Tag'],
+        question: 'Was kostet eine verspätete Rückgabe?',
+        answers: ['12 EUR Gebühr pro zusätzlichem Tag'],
       },
     ],
   },
@@ -1609,6 +1609,28 @@ interface BikeSlot {
           </div>
         </section>
 
+        <!-- Internal Links -->
+        <section class="rental-links-section">
+          <h2 class="rental-links-title">{{ t().rentalLinksTitle }}</h2>
+          <ul class="rental-links-list">
+            <li>
+              <a [routerLink]="['/' + lang() + '/' + rentalCatalogSlug()]">
+                {{ t().rentalLinkCatalog }}
+              </a>
+            </li>
+            <li>
+              <a [routerLink]="['/' + lang() + '/' + rentalGuideSlug()]">
+                {{ t().rentalLinkGuide }}
+              </a>
+            </li>
+            <li>
+              <a [routerLink]="['/' + lang() + '/faq']">
+                {{ t().rentalLinkFaq }}
+              </a>
+            </li>
+          </ul>
+        </section>
+
         <!-- Booking Steps (replaces old inline booking panel) -->
         <section class="booking-panel" id="booking-panel">
           <app-rental-booking-steps></app-rental-booking-steps>
@@ -2681,6 +2703,41 @@ interface BikeSlot {
         color: var(--color-text-secondary);
         line-height: 1.65;
         margin: 0;
+      }
+
+      /* ── Internal Links ── */
+      .rental-links-section {
+        padding: 1.5rem 0;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        margin-bottom: 1rem;
+      }
+
+      .rental-links-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-secondary, #6b7280);
+        margin-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .rental-links-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        a {
+          color: var(--accent, #2563eb);
+          text-decoration: none;
+          font-size: 0.95rem;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
       }
 
       /* ── WhatsApp Card ── */
@@ -4616,6 +4673,7 @@ export class FahrradverleihComponent implements OnInit {
   private apiService = inject(ApiService);
   private platformId = inject(PLATFORM_ID);
   private isBrowser = isPlatformBrowser(this.platformId);
+  private document = inject(DOCUMENT);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -4625,6 +4683,17 @@ export class FahrradverleihComponent implements OnInit {
     if (l === 'en') return 'rental-bikes';
     if (l === 'fr') return 'velos-de-location';
     return 'mietfahrraeder';
+  });
+  rentalGuideSlug = computed(() => {
+    const l = this.lang();
+    const base = l === 'en' ? 'guide' : 'ratgeber';
+    const slug =
+      l === 'en'
+        ? 'bike-rental-freiburg-guide'
+        : l === 'fr'
+          ? 'location-velo-fribourg-guide'
+          : 'fahrradverleih-freiburg-guide';
+    return l === 'fr' ? `guide/${slug}` : `${base}/${slug}`;
   });
   pageCopy = computed(
     () => RENTAL_PAGE_COPY[this.getCurrentLanguage()] ?? RENTAL_PAGE_COPY.en!,
@@ -4738,15 +4807,27 @@ export class FahrradverleihComponent implements OnInit {
     });
     this.metaService.updateTag({ property: 'og:url', content: pageUrl });
     this.metaService.updateTag({ property: 'og:type', content: 'website' });
+    this.metaService.updateTag({
+      property: 'og:image',
+      content: 'https://bikehausfreiburg.com/assets/images/fahrradverleih-freiburg.jpg',
+    });
+    this.metaService.updateTag({ property: 'og:image:width', content: '1200' });
+    this.metaService.updateTag({ property: 'og:image:height', content: '630' });
+    this.metaService.updateTag({ property: 'og:locale', content: lang === 'de' ? 'de_DE' : lang === 'en' ? 'en_GB' : lang === 'fr' ? 'fr_FR' : lang === 'tr' ? 'tr_TR' : 'de_DE' });
+    this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.metaService.updateTag({ name: 'twitter:title', content: t.bikeRentalMetaTitle });
+    this.metaService.updateTag({ name: 'twitter:description', content: t.bikeRentalMetaDescription });
+    this.metaService.updateTag({
+      name: 'twitter:image',
+      content: 'https://bikehausfreiburg.com/assets/images/fahrradverleih-freiburg.jpg',
+    });
 
     // Update canonical link
-    if (typeof document !== 'undefined') {
-      let canonical = document.querySelector<HTMLLinkElement>(
-        'link[rel="canonical"]',
-      );
-      if (canonical) {
-        canonical.href = pageUrl;
-      }
+    const canonical = this.document.querySelector<HTMLLinkElement>(
+      'link[rel="canonical"]',
+    );
+    if (canonical) {
+      canonical.href = pageUrl;
     }
 
     // Rental Service + FAQPage structured data
@@ -4810,11 +4891,7 @@ export class FahrradverleihComponent implements OnInit {
   }
 
   private addRentalSchema(lang: string, pageUrl: string): void {
-    if (!this.isBrowser || typeof document === 'undefined') {
-      return;
-    }
-
-    const existing = document.getElementById('rental-schema');
+    const existing = this.document.getElementById('rental-schema');
     if (existing) existing.remove();
 
     const schemaLang = isSupportedLanguage(lang) ? lang : DEFAULT_LANGUAGE;
@@ -4872,6 +4949,31 @@ export class FahrradverleihComponent implements OnInit {
             '@type': 'City',
             name: 'Freiburg im Breisgau',
           },
+          offers: {
+            '@type': 'Offer',
+            priceSpecification: [
+              {
+                '@type': 'UnitPriceSpecification',
+                name: '1 Tag',
+                price: '12.00',
+                priceCurrency: 'EUR',
+                unitCode: 'DAY',
+                minPrice: '8.00',
+              },
+              {
+                '@type': 'UnitPriceSpecification',
+                name: 'Ab 8 Tage',
+                price: '8.00',
+                priceCurrency: 'EUR',
+                unitCode: 'DAY',
+              },
+            ],
+            availability: 'https://schema.org/InStock',
+            seller: {
+              '@type': 'LocalBusiness',
+              '@id': 'https://bikehausfreiburg.com/#organization',
+            },
+          },
           url: pageUrl,
         },
         {
@@ -4882,7 +4984,7 @@ export class FahrradverleihComponent implements OnInit {
             name: item.question,
             acceptedAnswer: {
               '@type': 'Answer',
-              text: item.answers.join(' | '),
+              text: item.answers.join(' '),
             },
           })),
         },
@@ -4907,11 +5009,11 @@ export class FahrradverleihComponent implements OnInit {
       ],
     };
 
-    const script = document.createElement('script');
+    const script = this.document.createElement('script');
     script.id = 'rental-schema';
     script.type = 'application/ld+json';
     script.textContent = JSON.stringify(schema);
-    document.head.appendChild(script);
+    this.document.head.appendChild(script);
   }
 
   // ── Slot management ─────────────────────────────────────────────────────────
