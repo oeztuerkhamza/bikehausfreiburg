@@ -38,6 +38,15 @@
 /it/fahrradverleih
 /ar/fahrradverleih
 /ru/fahrradverleih
+/de/fahrradverleih/e-bike-mieten-freiburg
+/de/fahrradverleih/trekkingrad-mieten-freiburg
+/de/fahrradverleih/kinderfahrrad-mieten-freiburg
+/en/bike-rental/rent-e-bike-freiburg
+/en/bike-rental/rent-trekking-bike-freiburg
+/en/bike-rental/rent-kids-bike-freiburg
+/fr/location-velo/louer-velo-electrique-fribourg
+/fr/location-velo/louer-velo-trekking-fribourg
+/fr/location-velo/louer-velo-enfant-fribourg
 /de/mietfahrraeder
 /en/rental-bikes
 /fr/velos-de-location

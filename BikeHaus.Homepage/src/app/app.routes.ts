@@ -131,6 +131,14 @@ export const routes: Routes = [
             (m) => m.FahrradverleihComponent,
           ),
       },
+      // DE sub-categories
+      {
+        path: 'fahrradverleih/:category',
+        loadComponent: () =>
+          import('./pages/fahrradverleih/rental-category.component').then(
+            (m) => m.RentalCategoryComponent,
+          ),
+      },
       // EN canonical alias: /en/bike-rental
       {
         path: 'bike-rental',
@@ -139,12 +147,28 @@ export const routes: Routes = [
             (m) => m.FahrradverleihComponent,
           ),
       },
+      // EN sub-categories
+      {
+        path: 'bike-rental/:category',
+        loadComponent: () =>
+          import('./pages/fahrradverleih/rental-category.component').then(
+            (m) => m.RentalCategoryComponent,
+          ),
+      },
       // FR canonical alias: /fr/location-velo
       {
         path: 'location-velo',
         loadComponent: () =>
           import('./pages/fahrradverleih/fahrradverleih.component').then(
             (m) => m.FahrradverleihComponent,
+          ),
+      },
+      // FR sub-categories
+      {
+        path: 'location-velo/:category',
+        loadComponent: () =>
+          import('./pages/fahrradverleih/rental-category.component').then(
+            (m) => m.RentalCategoryComponent,
           ),
       },
       // ── Rental bike catalog (filterable, SEO-optimised) ──

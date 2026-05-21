@@ -36,6 +36,7 @@ import {
 } from '../../utils/rental-pricing';
 import { EXTENDED_RENTAL_PAGE_COPY } from './rental-page-copy-extended';
 import { RentalBookingStepsComponent } from './rental-booking-steps.component';
+import { RENTAL_CATEGORIES } from './rental-category-content';
 
 type RentalLangOption = { code: Language; label: string };
 
@@ -1613,6 +1614,9 @@ interface BikeSlot {
         <section class="rental-links-section">
           <h2 class="rental-links-title">{{ t().rentalLinksTitle }}</h2>
           <ul class="rental-links-list">
+            <li *ngFor="let sub of rentalSubCategories()">
+              <a [routerLink]="sub.url">{{ sub.label }}</a>
+            </li>
             <li>
               <a [routerLink]="['/' + lang() + '/' + rentalCatalogSlug()]">
                 {{ t().rentalLinkCatalog }}
@@ -4694,6 +4698,16 @@ export class FahrradverleihComponent implements OnInit {
           ? 'location-velo-fribourg-guide'
           : 'fahrradverleih-freiburg-guide';
     return l === 'fr' ? `guide/${slug}` : `${base}/${slug}`;
+  });
+  rentalSubCategories = computed(() => {
+    const l = this.lang();
+    if (l !== 'de' && l !== 'en' && l !== 'fr') return [];
+    const parent =
+      l === 'en' ? 'bike-rental' : l === 'fr' ? 'location-velo' : 'fahrradverleih';
+    return RENTAL_CATEGORIES.map((c) => ({
+      label: c.translations[l].breadcrumbLabel,
+      url: `/${l}/${parent}/${c.slugs[l]}`,
+    }));
   });
   pageCopy = computed(
     () => RENTAL_PAGE_COPY[this.getCurrentLanguage()] ?? RENTAL_PAGE_COPY.en!,

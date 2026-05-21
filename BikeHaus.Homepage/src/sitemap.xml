@@ -350,6 +350,109 @@
     <priority>0.80</priority>
   </url>
 
+  <!-- ═══ Rental Sub-Categories (E-Bike, Trekking, Kinder) ═══ -->
+  <!-- E-Bike (DE) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/de/fahrradverleih/e-bike-mieten-freiburg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih/e-bike-mieten-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental/rent-e-bike-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo/louer-velo-electrique-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih/e-bike-mieten-freiburg"/>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.88</priority>
+  </url>
+  <!-- E-Bike (EN) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/en/bike-rental/rent-e-bike-freiburg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih/e-bike-mieten-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental/rent-e-bike-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo/louer-velo-electrique-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih/e-bike-mieten-freiburg"/>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.86</priority>
+  </url>
+  <!-- E-Bike (FR) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/location-velo/louer-velo-electrique-fribourg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih/e-bike-mieten-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental/rent-e-bike-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo/louer-velo-electrique-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih/e-bike-mieten-freiburg"/>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Trekkingrad (DE) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/de/fahrradverleih/trekkingrad-mieten-freiburg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih/trekkingrad-mieten-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental/rent-trekking-bike-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo/louer-velo-trekking-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih/trekkingrad-mieten-freiburg"/>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <!-- Trekkingrad (EN) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/en/bike-rental/rent-trekking-bike-freiburg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih/trekkingrad-mieten-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental/rent-trekking-bike-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo/louer-velo-trekking-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih/trekkingrad-mieten-freiburg"/>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <!-- Trekkingrad (FR) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/location-velo/louer-velo-trekking-fribourg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih/trekkingrad-mieten-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental/rent-trekking-bike-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo/louer-velo-trekking-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih/trekkingrad-mieten-freiburg"/>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- Kinderfahrrad (DE) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/de/fahrradverleih/kinderfahrrad-mieten-freiburg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih/kinderfahrrad-mieten-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental/rent-kids-bike-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo/louer-velo-enfant-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih/kinderfahrrad-mieten-freiburg"/>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.82</priority>
+  </url>
+  <!-- Kinderfahrrad (EN) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/en/bike-rental/rent-kids-bike-freiburg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih/kinderfahrrad-mieten-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental/rent-kids-bike-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo/louer-velo-enfant-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih/kinderfahrrad-mieten-freiburg"/>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+  <!-- Kinderfahrrad (FR) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/location-velo/louer-velo-enfant-fribourg</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrradverleih/kinderfahrrad-mieten-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-rental/rent-kids-bike-freiburg"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/location-velo/louer-velo-enfant-fribourg"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/fahrradverleih/kinderfahrrad-mieten-freiburg"/>
+    <lastmod>2026-05-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
   <!-- Garantie -->
   <url>
     <loc>https://bikehausfreiburg.com/de/garantie</loc>
