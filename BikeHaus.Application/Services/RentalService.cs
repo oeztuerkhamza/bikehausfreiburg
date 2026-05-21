@@ -104,14 +104,6 @@ public class RentalService : IRentalService
         {
             var bicycle = await _bicycleRepository.GetByIdAsync(bikeDto.BicycleId)
                 ?? throw new KeyNotFoundException($"Fahrrad mit ID {bikeDto.BicycleId} nicht gefunden.");
-
-            var existingRental = await _rentalRepository.GetActiveByBicycleIdAsync(bikeDto.BicycleId);
-            if (bicycle.Status != BikeStatus.Available &&  existingRental.CustomerId != dto.Customer.Id)
-                throw new InvalidOperationException($"Fahrrad '{bicycle.Marke} {bicycle.Modell}' ist nicht verfügbar für Vermietung.");
-
-            if (existingRental != null && existingRental.CustomerId != dto.Customer.Id)
-                throw new InvalidOperationException($"Fahrrad '{bicycle.Marke} {bicycle.Modell}' ist bereits vermietet.");
-
             bicycles.Add(bicycle);
         }
 
