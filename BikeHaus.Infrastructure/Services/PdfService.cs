@@ -1610,10 +1610,11 @@ public class PdfService : IPdfService
                             {
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(acc.Bezeichnung).FontSize(9);
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(acc.Menge.ToString()).FontSize(9);
+                                var verlust = acc.Verlustgebuehr ?? 30m;
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignRight()
-                                    .Text(acc.Verlustgebuehr.HasValue ? $"{acc.Verlustgebuehr.Value:N2} €" : "–")
+                                    .Text($"{verlust:N2} €")
                                     .FontSize(9).Bold()
-                                    .FontColor(acc.Verlustgebuehr.HasValue ? "#ef4444" : Colors.Grey.Darken1);
+                                    .FontColor("#ef4444");
                             }
                         });
                         col.Item().PaddingTop(3).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(text =>

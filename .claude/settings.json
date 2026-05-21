@@ -100,7 +100,8 @@
       "Read(//c/Users/hamza/.nuget/packages/anthropic.sdk/5.10.0/lib/net8.0/**)",
       "Read(//c/Users/hamza/.nuget/packages/anthropic.sdk/5.10.0/**)",
       "Bash(cd /mnt/d/projects/bikehausfreiburg && dotnet build BikeHaus.Infrastructure/BikeHaus.Infrastructure.csproj BikeHaus.API/BikeHaus.API.csproj 2>&1 | tail -40)",
-      "Read(//mnt/d/projects/**)"
+      "Read(//mnt/d/projects/**)",
+      "Bash(python -c ' *)"
     ]
   }
 }

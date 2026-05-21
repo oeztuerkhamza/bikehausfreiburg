@@ -2109,7 +2109,7 @@ export class RentalFormComponent implements OnInit {
       rentalAccessoryId: found?.id,
       bezeichnung: found?.bezeichnung || this.getDefaultAccessoryLabel(key),
       tagespreis: found?.tagespreis || 0,
-      verlustgebuehr: found?.verlustgebuehr,
+      verlustgebuehr: found?.verlustgebuehr ?? 30,
       menge: 1,
     };
   }

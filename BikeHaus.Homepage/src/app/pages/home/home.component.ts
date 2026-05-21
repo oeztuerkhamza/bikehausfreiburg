@@ -3416,12 +3416,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       ],
     };
 
-    // Remove old schema element if exists (e.g. after Google reviews load)
-    if (this.reviewSchemaElement) {
-      this.reviewSchemaElement.remove();
+    // Remove existing schema element (covers both in-memory ref and SSR-injected element after hydration)
+    const existing = this.reviewSchemaElement
+      || this.document.getElementById('review-schema');
+    if (existing) {
+      existing.remove();
     }
 
     this.reviewSchemaElement = this.document.createElement('script');
+    this.reviewSchemaElement.id = 'review-schema';
     this.reviewSchemaElement.type = 'application/ld+json';
     this.reviewSchemaElement.text = JSON.stringify(schema);
     this.document.head.appendChild(this.reviewSchemaElement);

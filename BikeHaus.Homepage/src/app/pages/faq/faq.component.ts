@@ -367,7 +367,11 @@ export class FaqComponent implements OnInit, OnDestroy {
       })),
     };
 
+    const existing = this.faqSchemaElement || this.document.getElementById('faq-schema');
+    if (existing) existing.remove();
+
     this.faqSchemaElement = this.document.createElement('script');
+    this.faqSchemaElement.id = 'faq-schema';
     this.faqSchemaElement.type = 'application/ld+json';
     this.faqSchemaElement.text = JSON.stringify(schema);
     this.document.head.appendChild(this.faqSchemaElement);
