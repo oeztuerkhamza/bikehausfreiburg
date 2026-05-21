@@ -306,7 +306,7 @@ const MONTH_NAMES = [
             <app-bike-selector
               [bikes]="getAvailableBikesFor(i)"
               [selectedBike]="b.selectedBike"
-              (selectedBikeChange)="b.selectedBike = $event"
+              (selectedBikeChange)="onSelectedBikeUpdated(i, $event)"
               [allowQuickAdd]="true"
               [requireConfirmSelection]="true"
               (bikeSelected)="onBikeSelected(i, $event)"
@@ -433,13 +433,6 @@ const MONTH_NAMES = [
                     <option value="Sonstige">Sonstige</option>
                   </select>
                 </div>
-                <div class="field">
-                  <label>Zustand *</label>
-                  <select [(ngModel)]="b.bikeEdit.zustand" [name]="'bikeZustand_' + i" required>
-                    <option value="Gebraucht">Gebraucht</option>
-                    <option value="Neu">Neu</option>
-                  </select>
-                </div>
                 <div class="field full">
                   <label>Beschreibung / Ausstattung</label>
                   <textarea
@@ -517,14 +510,6 @@ const MONTH_NAMES = [
                     <option value="PayPal">PayPal</option>
                     <option value="Karte">Karte</option>
                     <option value="Überweisung">Überweisung</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label>Zustand bei Übergabe *</label>
-                  <select [(ngModel)]="b.zustandBeiUebergabe" [name]="'zustand_' + i" required>
-                    <option value="SehrGut">Sehr gut</option>
-                    <option value="Gut">Gut</option>
-                    <option value="Gebrauchsspuren">Gebrauchsspuren</option>
                   </select>
                 </div>
               </div>
@@ -1945,6 +1930,10 @@ export class RentalFormComponent implements OnInit {
           this.customer.nachname = booking.nachname;
           this.customer.telefon = booking.telefon || '';
           this.customer.email = booking.email || '';
+          this.customer.strasse = booking.strasse || '';
+          this.customer.hausnummer = booking.hausNr || '';
+          this.customer.plz = booking.plz || '';
+          this.customer.stadt = booking.ort || '';
           this.notizen = booking.notizen || '';
           if (booking.ausweisPhotoPath) {
             this.fromBookingAusweisPhotoPath = booking.ausweisPhotoPath;
@@ -2043,6 +2032,20 @@ export class RentalFormComponent implements OnInit {
     }
     this.loadBusyPeriodsFor(i, bike.id);
     this.recalcPriceFor(i);
+  }
+
+  onSelectedBikeUpdated(i: number, bike: Bicycle | null) {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.selectedBike = bike;
+    if (!bike) return;
+    if (bike.rahmennummer) b.bikeEdit.rahmennummer = bike.rahmennummer;
+    if (bike.reifengroesse) b.bikeEdit.reifengroesse = bike.reifengroesse;
+    if (bike.fahrradtyp) b.bikeEdit.fahrradtyp = bike.fahrradtyp;
+    if (bike.rahmengroesse) b.bikeEdit.rahmengroesse = bike.rahmengroesse;
+    if (bike.farbe) b.bikeEdit.farbe = bike.farbe;
+    if (bike.marke) b.bikeEdit.marke = bike.marke;
+    if (bike.modell) b.bikeEdit.modell = bike.modell;
   }
 
   onQuickAddBike(i: number) {
