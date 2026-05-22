@@ -119,6 +119,14 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
               <span>{{ t.brandModel }}:</span>
               <strong>{{ bike.marke }} {{ bike.modell }}</strong>
             </div>
+            <div class="info-row" *ngIf="bike.rahmennummer">
+              <span>Rahmennr.:</span>
+              <strong>{{ bike.rahmennummer }}</strong>
+            </div>
+            <div class="info-row" *ngIf="bike.rahmengroesse">
+              <span>Rahmengröße:</span>
+              <strong>{{ bike.rahmengroesse }}</strong>
+            </div>
             <div class="info-row" *ngIf="booking.bikes.length > 1">
               <span>{{ t.from }}:</span>
               <strong>{{ bike.startDatum | date: 'dd.MM.yyyy' }}</strong>
