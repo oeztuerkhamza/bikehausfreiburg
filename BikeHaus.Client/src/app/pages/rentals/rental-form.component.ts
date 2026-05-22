@@ -544,6 +544,28 @@ const MONTH_NAMES = [
             Weiteres Fahrrad hinzufügen
           </button>
 
+          <!-- Zubehör -->
+          <div class="form-card">
+            <div class="section-header">
+              <h2>Zubehör</h2>
+            </div>
+            <div class="accessory-quantity-grid">
+              <div class="accessory-quantity-item" *ngFor="let key of accessoryKeys">
+                <label [attr.for]="'acc_' + key">{{ accessoryLabels[key] }}</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  [id]="'acc_' + key"
+                  [name]="'accessoryQty_' + key"
+                  [ngModel]="accessoryQuantities[key]"
+                  (ngModelChange)="onAccessoryQuantityChange(key, $event)"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+          </div>
+
           <!-- Mieter -->
           <div class="form-card">
             <h2>Mieter</h2>
@@ -633,28 +655,6 @@ const MONTH_NAMES = [
             <div style="margin-top:12px;">
               <label style="font-weight:600;font-size:0.9rem;">Unterschrift Mieter</label>
               <app-signature-pad [(ngModel)]="mieterUnterschrift" name="mieterUnterschrift"></app-signature-pad>
-            </div>
-          </div>
-
-          <!-- Zubehör -->
-          <div class="form-card">
-            <div class="section-header">
-              <h2>Zubehör</h2>
-            </div>
-            <div class="accessory-quantity-grid">
-              <div class="accessory-quantity-item" *ngFor="let key of accessoryKeys">
-                <label [attr.for]="'acc_' + key">{{ accessoryLabels[key] }}</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  [id]="'acc_' + key"
-                  [name]="'accessoryQty_' + key"
-                  [ngModel]="accessoryQuantities[key]"
-                  (ngModelChange)="onAccessoryQuantityChange(key, $event)"
-                  placeholder="0"
-                />
-              </div>
             </div>
           </div>
 
