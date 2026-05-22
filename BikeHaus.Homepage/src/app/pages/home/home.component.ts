@@ -3059,7 +3059,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   filteredGoogleReviews = computed(() =>
     this.googleReviews()
-      .filter(r => r.text && r.text.length > 100)
+      .filter(r => r.text && r.text.length > 30)
       .slice(0, 6)
   );
 
