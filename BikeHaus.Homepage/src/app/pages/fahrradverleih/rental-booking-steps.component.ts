@@ -417,32 +417,34 @@ type BookingStep =
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.phone ?? 'Telefon' }}:</label>
+            <label>{{ t().rentalSteps?.phone ?? 'Telefon' }} *:</label>
             <input
               type="tel"
               [(ngModel)]="bookingForm.telefon"
               name="telefon"
+              required
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.street ?? 'Straße' }}:</label>
+            <label>{{ t().rentalSteps?.street ?? 'Straße' }} *:</label>
             <input
               type="text"
               [(ngModel)]="bookingForm.strasse"
               name="strasse"
+              required
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.houseNumber ?? 'Hausnummer' }}:</label>
-            <input type="text" [(ngModel)]="bookingForm.hausNr" name="hausNr" />
+            <label>{{ t().rentalSteps?.houseNumber ?? 'Hausnummer' }} *:</label>
+            <input type="text" [(ngModel)]="bookingForm.hausNr" name="hausNr" required />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.postalCode ?? 'Postleitzahl' }}:</label>
-            <input type="text" [(ngModel)]="bookingForm.plz" name="plz" />
+            <label>{{ t().rentalSteps?.postalCode ?? 'Postleitzahl' }} *:</label>
+            <input type="text" [(ngModel)]="bookingForm.plz" name="plz" required />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.city ?? 'Stadt' }}:</label>
-            <input type="text" [(ngModel)]="bookingForm.ort" name="ort" />
+            <label>{{ t().rentalSteps?.city ?? 'Stadt' }} *:</label>
+            <input type="text" [(ngModel)]="bookingForm.ort" name="ort" required />
           </div>
           <div class="form-group">
             <label>{{ t().rentalSteps?.notes ?? 'Notizen' }}:</label>
@@ -1775,6 +1777,36 @@ export class RentalBookingStepsComponent implements OnInit {
     ) {
       this.bookingError.set(
         this.t().rentalSteps?.emailRequired ?? 'Gültige E-Mail erforderlich',
+      );
+      return false;
+    }
+    if (!this.bookingForm.telefon.trim()) {
+      this.bookingError.set(
+        this.t().rentalSteps?.phoneRequired ?? 'Telefon erforderlich',
+      );
+      return false;
+    }
+    if (!this.bookingForm.strasse.trim()) {
+      this.bookingError.set(
+        this.t().rentalSteps?.streetRequired ?? 'Straße erforderlich',
+      );
+      return false;
+    }
+    if (!this.bookingForm.hausNr.trim()) {
+      this.bookingError.set(
+        this.t().rentalSteps?.houseNumberRequired ?? 'Hausnummer erforderlich',
+      );
+      return false;
+    }
+    if (!this.bookingForm.plz.trim()) {
+      this.bookingError.set(
+        this.t().rentalSteps?.postalCodeRequired ?? 'Postleitzahl erforderlich',
+      );
+      return false;
+    }
+    if (!this.bookingForm.ort.trim()) {
+      this.bookingError.set(
+        this.t().rentalSteps?.cityRequired ?? 'Stadt erforderlich',
       );
       return false;
     }
