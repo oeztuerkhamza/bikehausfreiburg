@@ -34,7 +34,22 @@ interface AccessoryLine {
   menge: number;
 }
 
-type PredefinedAccessoryKey = 'helm' | 'schloss' | 'korb';
+type PredefinedAccessoryKey =
+  | 'helm'
+  | 'schloss'
+  | 'korb'
+  | 'reparaturset'
+  | 'licht'
+  | 'handyhalter';
+
+const ACCESSORY_KEYS: PredefinedAccessoryKey[] = [
+  'helm',
+  'schloss',
+  'korb',
+  'reparaturset',
+  'licht',
+  'handyhalter',
+];
 
 interface BikeEntry {
   selectedBike: Bicycle | null;
@@ -625,31 +640,20 @@ const MONTH_NAMES = [
           <div class="form-card">
             <div class="section-header">
               <h2>Zubehör</h2>
-              <div class="accessory-checklist">
-                <label class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="selectedAccessories.helm"
-                    name="accessoryHelm"
-                  />
-                  Helm
-                </label>
-                <label class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="selectedAccessories.schloss"
-                    name="accessorySchloss"
-                  />
-                  Schloss
-                </label>
-                <label class="checkbox-item">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="selectedAccessories.korb"
-                    name="accessoryKorb"
-                  />
-                  Korb
-                </label>
+            </div>
+            <div class="accessory-quantity-grid">
+              <div class="accessory-quantity-item" *ngFor="let key of accessoryKeys">
+                <label [attr.for]="'acc_' + key">{{ accessoryLabels[key] }}</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  [id]="'acc_' + key"
+                  [name]="'accessoryQty_' + key"
+                  [ngModel]="accessoryQuantities[key]"
+                  (ngModelChange)="onAccessoryQuantityChange(key, $event)"
+                  placeholder="0"
+                />
               </div>
             </div>
           </div>
@@ -1201,6 +1205,38 @@ const MONTH_NAMES = [
         gap: 12px;
         flex-wrap: wrap;
       }
+      .accessory-quantity-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px 16px;
+        margin-top: 12px;
+      }
+      .accessory-quantity-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 12px;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card);
+      }
+      .accessory-quantity-item label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+      }
+      .accessory-quantity-item input {
+        width: 70px;
+        padding: 6px 8px;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-sm, 6px);
+        font-size: 0.9rem;
+        text-align: center;
+        background: var(--bg-input, var(--bg-card));
+        color: var(--text-primary);
+      }
       .checkbox-item {
         display: inline-flex;
         align-items: center;
@@ -1600,11 +1636,29 @@ export class RentalFormComponent implements OnInit {
   unterschriftOrt = 'Freiburg';
 
   availableAccessories: RentalAccessoryList[] = [];
-  selectedAccessories: Record<PredefinedAccessoryKey, boolean> = {
-    helm: false,
-    schloss: false,
-    korb: false,
+  accessoryQuantities: Record<PredefinedAccessoryKey, number> = {
+    helm: 0,
+    schloss: 0,
+    korb: 0,
+    reparaturset: 0,
+    licht: 0,
+    handyhalter: 0,
   };
+
+  readonly accessoryKeys = ACCESSORY_KEYS;
+  readonly accessoryLabels: Record<PredefinedAccessoryKey, string> = {
+    helm: 'Helm',
+    schloss: 'Schloss',
+    korb: 'Korb',
+    reparaturset: 'Reparaturset',
+    licht: 'Fahrradlicht',
+    handyhalter: 'Handyhalterung',
+  };
+
+  onAccessoryQuantityChange(key: PredefinedAccessoryKey, value: unknown) {
+    const n = Number(value);
+    this.accessoryQuantities[key] = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+  }
 
   // ── Calendar ──
   readonly weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
@@ -1940,15 +1994,14 @@ export class RentalFormComponent implements OnInit {
           }
 
           if (booking.accessories && booking.accessories.length > 0) {
-            this.selectedAccessories.helm = booking.accessories.some((a) =>
-              this.matchesAccessoryKey(a.bezeichnung, 'helm'),
-            );
-            this.selectedAccessories.schloss = booking.accessories.some((a) =>
-              this.matchesAccessoryKey(a.bezeichnung, 'schloss'),
-            );
-            this.selectedAccessories.korb = booking.accessories.some((a) =>
-              this.matchesAccessoryKey(a.bezeichnung, 'korb'),
-            );
+            for (const key of ACCESSORY_KEYS) {
+              const match = booking.accessories.find((a) =>
+                this.matchesAccessoryKey(a.bezeichnung, key),
+              );
+              this.accessoryQuantities[key] = match
+                ? Math.max(0, Math.floor(Number(match.menge) || 0)) || 1
+                : 0;
+            }
           }
 
           const allBikes = booking.bikes?.length > 0 ? booking.bikes : null;
@@ -2089,18 +2142,30 @@ export class RentalFormComponent implements OnInit {
     key: PredefinedAccessoryKey,
   ): boolean {
     const n = this.normalizeAccessoryName(bezeichnung);
-    if (key === 'helm') return n.includes('helm');
-    if (key === 'schloss') return n.includes('schloss');
-    return n.includes('korb');
+    switch (key) {
+      case 'helm':
+        return n.includes('helm');
+      case 'schloss':
+        return n.includes('schloss');
+      case 'korb':
+        return n.includes('korb');
+      case 'reparaturset':
+        return n.includes('reparatur') || n.includes('tamir') || n.includes('repair');
+      case 'licht':
+        return n.includes('licht') || n.includes('light') || n.includes('lampe');
+      case 'handyhalter':
+        return n.includes('handy');
+    }
   }
 
   private getDefaultAccessoryLabel(key: PredefinedAccessoryKey): string {
-    if (key === 'helm') return 'Helm';
-    if (key === 'schloss') return 'Schloss';
-    return 'Korb';
+    return this.accessoryLabels[key];
   }
 
-  private buildAccessoryFromKey(key: PredefinedAccessoryKey): AccessoryLine {
+  private buildAccessoryFromKey(
+    key: PredefinedAccessoryKey,
+    menge: number,
+  ): AccessoryLine {
     const found = this.availableAccessories.find((a) =>
       this.matchesAccessoryKey(a.bezeichnung, key),
     );
@@ -2110,7 +2175,7 @@ export class RentalFormComponent implements OnInit {
       bezeichnung: found?.bezeichnung || this.getDefaultAccessoryLabel(key),
       tagespreis: found?.tagespreis || 0,
       verlustgebuehr: found?.verlustgebuehr ?? 30,
-      menge: 1,
+      menge,
     };
   }
 
@@ -2307,11 +2372,13 @@ export class RentalFormComponent implements OnInit {
         .pipe(map(() => sel.id));
     });
 
-    const accessoryKeys: PredefinedAccessoryKey[] = ['helm', 'schloss', 'korb'];
-    const accessoriesPayload: RentalAccessoryItemCreate[] = accessoryKeys
-      .filter((key) => this.selectedAccessories[key])
+    const accessoriesPayload: RentalAccessoryItemCreate[] = ACCESSORY_KEYS
+      .filter((key) => (this.accessoryQuantities[key] || 0) > 0)
       .map((key) => {
-        const accessory = this.buildAccessoryFromKey(key);
+        const accessory = this.buildAccessoryFromKey(
+          key,
+          this.accessoryQuantities[key],
+        );
         return {
           rentalAccessoryId: accessory.rentalAccessoryId,
           bezeichnung: accessory.bezeichnung,
