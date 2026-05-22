@@ -444,7 +444,7 @@ jobs:
         run: |
           set -euo pipefail
           urls=(
-            "https://bikehausfreiburg.com"
+            "https://bikehausfreiburg.com/de"
             "https://admin.bikehausfreiburg.com"
             "https://api.bikehausfreiburg.com/api/public/neue-fahrraeder"
             "https://api.bikehausfreiburg.com/api/public/homepage-accessories"
