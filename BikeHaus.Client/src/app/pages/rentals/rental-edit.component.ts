@@ -12,21 +12,25 @@ import {
   Rental,
   RentalBike,
   RentalUpdate,
+  RentalBikeCreate,
   Bicycle,
   PaymentMethod,
+  BikeConditionAtHandover,
 } from '../../models/models';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
 
 interface BikeEditSlot {
-  rentalBikeId: number;
+  rentalBikeId: number | null;   // null = newly added, not yet in DB
+  isNew: boolean;
   selectedBike: Bicycle | null;
-  originalBicycleId: number;
+  originalBicycleId: number | null;
   rahmennummer: string;
   farbe: string;
   mietpreis: number;
   kaution: number;
   berechneterPreis: number;
   preisInfo: string;
+  pendingRemove: boolean;        // marked for removal on save
 }
 
 @Component({
@@ -47,12 +51,22 @@ interface BikeEditSlot {
         <div class="form-sections">
 
           <!-- Fahrräder -->
-          <div class="form-card" *ngFor="let slot of bikeSlots; let i = index">
+          <div class="form-card" *ngFor="let slot of visibleSlots; let i = index" [class.remove-pending]="slot.pendingRemove">
             <div class="bike-card-header">
-              <h2>{{ bikeSlots.length > 1 ? (i + 1) + '. Fahrrad' : 'Fahrrad' }}</h2>
+              <h2>
+                <span *ngIf="slot.isNew" class="new-badge">Neu</span>
+                {{ visibleSlots.length > 1 ? (i + 1) + '. Fahrrad' : 'Fahrrad' }}
+              </h2>
               <span class="bike-nr-badge" *ngIf="slot.selectedBike">
                 {{ slot.selectedBike.marke }} {{ slot.selectedBike.modell }}
               </span>
+              <button
+                *ngIf="visibleSlots.length > 1 || slot.isNew"
+                type="button"
+                class="btn-remove-bike"
+                (click)="toggleRemoveSlot(slot)"
+                [title]="slot.pendingRemove ? 'Wiederherstellen' : 'Fahrrad entfernen'"
+              >{{ slot.pendingRemove ? 'Wiederherstellen' : '✕ Entfernen' }}</button>
             </div>
 
             <!-- Bike selector -->
@@ -214,6 +228,13 @@ interface BikeEditSlot {
 
         </div>
 
+        <!-- Fahrrad hinzufügen -->
+        <div class="add-bike-row">
+          <button type="button" class="btn btn-add-bike" (click)="addNewBikeSlot()">
+            + Fahrrad hinzufügen
+          </button>
+        </div>
+
         <div class="form-actions">
           <a [routerLink]="rental ? ['/rentals', rental.id] : ['/rentals']" class="btn btn-outline">Abbrechen</a>
           <button type="submit" class="btn btn-primary" [disabled]="submitting">
@@ -277,6 +298,13 @@ interface BikeEditSlot {
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-outline { border-color: var(--border-light, #e2e8f0); color: var(--text-primary); background: transparent; }
     .btn-outline:hover { border-color: var(--accent-primary, #6366f1); color: var(--accent-primary, #6366f1); }
+    .new-badge { background: #10b981; color:#fff; border-radius:50px; padding:2px 8px; font-size:0.72rem; font-weight:700; margin-right:6px; vertical-align:middle; }
+    .btn-remove-bike { margin-left:auto; padding:5px 12px; border:1.5px solid #ef4444; border-radius:8px; background:transparent; color:#ef4444; font-size:0.8rem; font-weight:600; cursor:pointer; }
+    .btn-remove-bike:hover { background:#ef4444; color:#fff; }
+    .remove-pending { opacity:0.5; border-color:#ef4444 !important; }
+    .add-bike-row { display:flex; justify-content:flex-start; margin-top:4px; }
+    .btn-add-bike { padding:10px 20px; border:2px dashed var(--accent-primary,#6366f1); border-radius:var(--radius-md,10px); background:transparent; color:var(--accent-primary,#6366f1); font-size:0.9rem; font-weight:700; cursor:pointer; }
+    .btn-add-bike:hover { background:rgba(99,102,241,0.07); }
   `],
 })
 export class RentalEditComponent implements OnInit {
@@ -296,6 +324,10 @@ export class RentalEditComponent implements OnInit {
   availableBikes: Bicycle[] = [];
   availabilityLoading = false;
   rentalDays = 0;
+
+  get visibleSlots(): BikeEditSlot[] {
+    return this.bikeSlots;
+  }
 
   mieter = { vorname: '', nachname: '', strasse: '', hausnummer: '', plz: '', stadt: '', telefon: '', email: '' };
   ausweisnNr = '';
@@ -326,6 +358,31 @@ export class RentalEditComponent implements OnInit {
     });
   }
 
+  addNewBikeSlot() {
+    this.bikeSlots.push({
+      rentalBikeId: null,
+      isNew: true,
+      selectedBike: null,
+      originalBicycleId: null,
+      rahmennummer: '',
+      farbe: '',
+      mietpreis: 0,
+      kaution: 0,
+      berechneterPreis: 0,
+      preisInfo: '',
+      pendingRemove: false,
+    });
+    this.loadAvailableForPeriod();
+  }
+
+  toggleRemoveSlot(slot: BikeEditSlot) {
+    if (slot.isNew) {
+      this.bikeSlots.splice(this.bikeSlots.indexOf(slot), 1);
+    } else {
+      slot.pendingRemove = !slot.pendingRemove;
+    }
+  }
+
   private loadFormData(rental: Rental) {
     if (rental.customer) {
       this.mieter = {
@@ -354,6 +411,7 @@ export class RentalEditComponent implements OnInit {
 
     this.bikeSlots = rental.bikes.map((rb: RentalBike) => ({
       rentalBikeId: rb.id,
+      isNew: false,
       selectedBike: rb.bicycle ?? null,
       originalBicycleId: rb.bicycleId,
       rahmennummer: rb.rahmennummer || rb.bicycle?.rahmennummer || '',
@@ -362,6 +420,7 @@ export class RentalEditComponent implements OnInit {
       kaution: rb.kaution,
       berechneterPreis: 0,
       preisInfo: '',
+      pendingRemove: false,
     }));
 
     this.recalcAllPrices();
@@ -374,15 +433,12 @@ export class RentalEditComponent implements OnInit {
   }
 
   private recalcAllPrices() {
-    this.bikeSlots.forEach((_, i) => this.recalcPriceFor(i));
-  }
-
-  private recalcPriceFor(i: number) {
-    const slot = this.bikeSlots[i];
-    if (!slot || this.rentalDays <= 0) return;
-    const result = calculateRentalPrice(slot.selectedBike as any, this.rentalDays);
-    slot.berechneterPreis = result.total ?? 0;
-    slot.preisInfo = result.info ?? '';
+    this.bikeSlots.forEach(slot => {
+      if (!slot.selectedBike || this.rentalDays <= 0) return;
+      const result = calculateRentalPrice(slot.selectedBike as any, this.rentalDays);
+      slot.berechneterPreis = result.total ?? 0;
+      slot.preisInfo = result.info ?? '';
+    });
   }
 
   onDatesChanged() {
@@ -409,24 +465,27 @@ export class RentalEditComponent implements OnInit {
   }
 
   getAvailableBikesFor(i: number): Bicycle[] {
-    const otherIds = this.bikeSlots
+    const visibleSlots = this.visibleSlots;
+    const otherIds = visibleSlots
       .map((s, idx) => idx !== i ? s.selectedBike?.id : null)
       .filter((id): id is number => id != null);
     return this.availableBikes.filter(b => !otherIds.includes(b.id));
   }
 
   onBikeSelected(i: number, bike: Bicycle) {
-    const slot = this.bikeSlots[i];
+    const slot = this.visibleSlots[i];
     if (!slot) return;
     slot.selectedBike = bike;
     slot.rahmennummer = bike.rahmennummer || '';
     slot.farbe = bike.farbe || '';
     if (bike.kaution != null) slot.kaution = bike.kaution;
-    this.recalcPriceFor(i);
+    const result = calculateRentalPrice(bike as any, this.rentalDays);
+    slot.berechneterPreis = result.total ?? 0;
+    slot.preisInfo = result.info ?? '';
   }
 
   onSelectedBikeUpdated(i: number, bike: Bicycle | null) {
-    const slot = this.bikeSlots[i];
+    const slot = this.visibleSlots[i];
     if (!slot) return;
     slot.selectedBike = bike;
     if (!bike) return;
@@ -444,6 +503,24 @@ export class RentalEditComponent implements OnInit {
     if (!this.rental || this.submitting) return;
     this.submitting = true;
 
+    const removeBikeIds = this.bikeSlots
+      .filter(s => !s.isNew && s.pendingRemove && s.rentalBikeId != null)
+      .map(s => s.rentalBikeId as number);
+
+    const existingSlots = this.bikeSlots.filter(s => !s.isNew && !s.pendingRemove);
+    const newSlots = this.bikeSlots.filter(s => s.isNew && !s.pendingRemove && s.selectedBike != null);
+
+    const newBikes: RentalBikeCreate[] = newSlots.map(slot => ({
+      bicycleId: slot.selectedBike!.id,
+      rahmennummer: slot.rahmennummer || undefined,
+      farbe: slot.farbe || undefined,
+      startDatum: this.startDatum,
+      endDatum: this.endDatum,
+      mietpreis: slot.mietpreis,
+      kaution: slot.kaution,
+      zustandBeiUebergabe: BikeConditionAtHandover.Gut,
+    }));
+
     const update: RentalUpdate = {
       customer: this.mieter,
       ausweisnNr: this.ausweisnNr || undefined,
@@ -456,14 +533,16 @@ export class RentalEditComponent implements OnInit {
       mieterUnterschrift: this.mieterUnterschrift || undefined,
       agbAkzeptiert: this.agbAkzeptiert,
       unterschriftOrt: this.unterschriftOrt || undefined,
-      bikes: this.bikeSlots.map(slot => ({
-        id: slot.rentalBikeId,
+      bikes: existingSlots.map(slot => ({
+        id: slot.rentalBikeId as number,
         bicycleId: slot.selectedBike?.id !== slot.originalBicycleId ? slot.selectedBike?.id : undefined,
         rahmennummer: slot.rahmennummer || undefined,
         farbe: slot.farbe || undefined,
         mietpreis: slot.mietpreis,
         kaution: slot.kaution,
       })),
+      newBikes: newBikes.length > 0 ? newBikes : undefined,
+      removeBikeIds: removeBikeIds.length > 0 ? removeBikeIds : undefined,
     };
 
     this.rentalService.update(this.rental.id, update).subscribe({

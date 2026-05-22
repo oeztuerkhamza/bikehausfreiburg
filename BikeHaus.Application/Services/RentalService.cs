@@ -282,6 +282,24 @@ public class RentalService : IRentalService
             }
         }
 
+        // Remove bikes
+        if (dto.RemoveBikeIds != null && dto.RemoveBikeIds.Count > 0)
+        {
+            foreach (var removeId in dto.RemoveBikeIds)
+            {
+                var bikeToRemove = rental.Bikes.FirstOrDefault(b => b.Id == removeId);
+                if (bikeToRemove == null) continue;
+                var bicycle = await _bicycleRepository.GetByIdAsync(bikeToRemove.BicycleId);
+                if (bicycle != null && bicycle.Status == BikeStatus.Rented)
+                {
+                    bicycle.Status = BikeStatus.Available;
+                    bicycle.UpdatedAt = DateTime.UtcNow;
+                    await _bicycleRepository.UpdateAsync(bicycle);
+                }
+                rental.Bikes.Remove(bikeToRemove);
+            }
+        }
+
         // Per-bike updates
         if (dto.Bikes != null && dto.Bikes.Count > 0)
         {
@@ -292,8 +310,19 @@ public class RentalService : IRentalService
 
                 if (bikeDto.BicycleId.HasValue && bikeDto.BicycleId.Value != bike.BicycleId)
                 {
+                    // Release old bicycle
+                    var oldBicycle = await _bicycleRepository.GetByIdAsync(bike.BicycleId);
+                    if (oldBicycle != null)
+                    {
+                        oldBicycle.Status = BikeStatus.Available;
+                        oldBicycle.UpdatedAt = DateTime.UtcNow;
+                        await _bicycleRepository.UpdateAsync(oldBicycle);
+                    }
                     var newBicycle = await _bicycleRepository.GetByIdAsync(bikeDto.BicycleId.Value)
                         ?? throw new KeyNotFoundException($"Fahrrad mit ID {bikeDto.BicycleId} nicht gefunden.");
+                    newBicycle.Status = BikeStatus.Rented;
+                    newBicycle.UpdatedAt = DateTime.UtcNow;
+                    await _bicycleRepository.UpdateAsync(newBicycle);
                     bike.BicycleId = newBicycle.Id;
                 }
                 if (bikeDto.Rahmennummer != null) bike.Rahmennummer = bikeDto.Rahmennummer;
@@ -302,7 +331,37 @@ public class RentalService : IRentalService
                 if (bikeDto.Kaution.HasValue) bike.Kaution = bikeDto.Kaution.Value;
                 bike.UpdatedAt = DateTime.UtcNow;
             }
+        }
 
+        // Add new bikes
+        if (dto.NewBikes != null && dto.NewBikes.Count > 0)
+        {
+            foreach (var newBikeDto in dto.NewBikes)
+            {
+                var bicycle = await _bicycleRepository.GetByIdAsync(newBikeDto.BicycleId)
+                    ?? throw new KeyNotFoundException($"Fahrrad mit ID {newBikeDto.BicycleId} nicht gefunden.");
+                bicycle.Status = BikeStatus.Rented;
+                bicycle.UpdatedAt = DateTime.UtcNow;
+                await _bicycleRepository.UpdateAsync(bicycle);
+
+                rental.Bikes.Add(new RentalBike
+                {
+                    BicycleId = bicycle.Id,
+                    Rahmennummer = newBikeDto.Rahmennummer,
+                    Farbe = newBikeDto.Farbe,
+                    StartDatum = newBikeDto.StartDatum,
+                    EndDatum = newBikeDto.EndDatum,
+                    Mietpreis = newBikeDto.Mietpreis,
+                    Kaution = newBikeDto.Kaution,
+                    ZustandBeiUebergabe = newBikeDto.ZustandBeiUebergabe,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                });
+            }
+        }
+
+        if (dto.Bikes != null || dto.NewBikes != null || dto.RemoveBikeIds != null)
+        {
             rental.Gesamtmiete = rental.Bikes.Sum(b => b.Mietpreis) - (rental.Rabatt);
             rental.Kaution = rental.Bikes.Sum(b => b.Kaution);
         }

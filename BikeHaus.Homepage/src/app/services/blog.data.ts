@@ -126,7 +126,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'paragraph',
             content:
-              'Bike Haus Freiburg in der Heckerstraße 27 bietet über 100 geprüfte neue und gebrauchte Fahrräder. Alle Räder haben Garantie und können vor Ort probegefahren werden. Wir sind Mo–Fr 10–18 Uhr und Sa 10–14 Uhr für Sie da.',
+              'Bike Haus Freiburg in der Heckerstraße 27 bietet über 100 geprüfte neue und gebrauchte Fahrräder. Alle Räder haben Garantie und können vor Ort probegefahren werden. Wir sind Mo–Fr 11-17.30 Uhr und Sa 11–17.30 Uhr für Sie da.',
           },
           {
             type: 'cta',
@@ -771,7 +771,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'Fahrradladen in Freiburg gesucht? Bike Haus Freiburg: Über 100 neue & gebrauchte Fahrräder, E-Bikes, Garantie, Probefahrt. Heckerstraße 27.',
         excerpt:
           'Ihr Fahrradladen in Freiburg: Bike Haus Freiburg bietet über 100 neue und gebrauchte Fahrräder mit Garantie.',
-        tldr: 'Bike Haus Freiburg: Heckerstraße 27, 79114 Freiburg. Über 100 neue & gebrauchte Fahrräder, E-Bikes, Garantie. Mo–Fr 10–18, Sa 10–14 Uhr. WhatsApp: +49 155 6630 0011.',
+        tldr: 'Bike Haus Freiburg: Heckerstraße 27, 79114 Freiburg. Über 100 neue & gebrauchte Fahrräder, E-Bikes, Garantie. Mo–Fr 11–17.30, Sa 11–17.30 Uhr. WhatsApp: +49 155 6630 0011.',
         sections: [
           {
             type: 'heading',
@@ -838,7 +838,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'Looking for a bike shop in Freiburg? Bike Haus Freiburg: 100+ new & used bikes, e-bikes, warranty, test rides.',
         excerpt:
           'Your bike shop in Freiburg: Over 100 new and used bikes with warranty.',
-        tldr: 'Bike Haus Freiburg: Heckerstraße 27, 79114 Freiburg. 100+ new & used bikes, e-bikes, warranty. Mon–Fri 10–18, Sat 10–14. WhatsApp: +49 155 6630 0011.',
+        tldr: 'Bike Haus Freiburg: Heckerstraße 27, 79114 Freiburg. 100+ new & used bikes, e-bikes, warranty. Mon–Fri 11–17.30, Sat 11–17.30. WhatsApp: +49 155 6630 0011.',
         sections: [
           {
             type: 'heading',
@@ -864,7 +864,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'Vous cherchez un magasin de vélos à Freiburg ? Bike Haus Freiburg : plus de 100 vélos neufs et occasion.',
         excerpt:
           'Votre magasin de vélos à Freiburg : plus de 100 vélos avec garantie.',
-        tldr: 'Bike Haus Freiburg : Heckerstraße 27, 79114 Freiburg. Plus de 100 vélos neufs et occasion, VAE, garantie. Lun–Ven 10–18, Sam 10–14.',
+        tldr: 'Bike Haus Freiburg : Heckerstraße 27, 79114 Freiburg. Plus de 100 vélos neufs et occasion, VAE, garantie. Lun–Ven 11–17.30, Sam 11–17.30.',
         sections: [
           {
             type: 'heading',
@@ -890,7 +890,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           "Freiburg'da bisiklet dükkanı arıyorsunuz? Bike Haus Freiburg: 100+ yeni ve ikinci el bisiklet, garanti, deneme sürüşü.",
         excerpt:
           "Freiburg'daki bisiklet dükkanınız: Garantili 100+ yeni ve ikinci el bisiklet.",
-        tldr: 'Bike Haus Freiburg: Heckerstraße 27, 79114 Freiburg. 100+ yeni ve ikinci el bisiklet, e-bisiklet, garanti. Pzt–Cum 10–18, Cmt 10–14. WhatsApp: +49 155 6630 0011.',
+        tldr: 'Bike Haus Freiburg: Heckerstraße 27, 79114 Freiburg. 100+ yeni ve ikinci el bisiklet, e-bisiklet, garanti. Pzt–Cum 11–17.30, Cmt 11–17.30. WhatsApp: +49 155 6630 0011.',
         sections: [
           {
             type: 'heading',

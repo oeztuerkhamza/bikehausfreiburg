@@ -158,5 +158,7 @@ public record RentalUpdateDto(
     string? MieterUnterschrift,
     bool? AgbAkzeptiert,
     string? UnterschriftOrt,
-    List<RentalBikeUpdateDto>? Bikes
+    List<RentalBikeUpdateDto>? Bikes,
+    List<RentalBikeCreateDto>? NewBikes,
+    List<int>? RemoveBikeIds
 );

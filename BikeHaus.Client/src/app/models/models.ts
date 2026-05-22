@@ -898,6 +898,8 @@ export interface RentalUpdate {
   agbAkzeptiert?: boolean;
   unterschriftOrt?: string;
   bikes?: RentalBikeUpdate[];
+  newBikes?: RentalBikeCreate[];
+  removeBikeIds?: number[];
 }
 
 // ── Rental Booking (Homepage) ──
