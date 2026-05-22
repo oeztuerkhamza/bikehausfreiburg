@@ -5,6 +5,7 @@ import {
   OnInit,
   OnDestroy,
   signal,
+  computed,
 } from '@angular/core';
 import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -974,68 +975,34 @@ interface Testimonial {
         <!-- Google Rating Badge -->
         @if (googleRating() > 0) {
           <div class="google-rating-badge fade-in d2">
-            <svg class="google-icon" viewBox="0 0 24 24" width="28" height="28">
-              <path
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-                fill="#4285F4"
-              />
-              <path
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                fill="#34A853"
-              />
-              <path
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                fill="#FBBC05"
-              />
-              <path
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                fill="#EA4335"
-              />
-            </svg>
-            <div class="google-rating-info">
-              <div class="google-rating-stars">
-                <span class="google-rating-value">{{
-                  googleRating().toFixed(1)
-                }}</span>
-                <div class="google-stars-row">
+            <div class="grb-left">
+              <svg class="google-icon" viewBox="0 0 24 24" width="36" height="36">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              <span class="grb-platform">Google</span>
+            </div>
+            <div class="grb-divider"></div>
+            <div class="grb-center">
+              <div class="grb-score-row">
+                <span class="grb-score">{{ googleRating().toFixed(1) }}</span>
+                <div class="grb-stars">
                   @for (s of [1, 2, 3, 4, 5]; track s) {
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      [attr.fill]="s <= googleRating() ? '#f59e0b' : '#4b5563'"
-                    >
-                      <path
-                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                      />
+                    <svg width="18" height="18" viewBox="0 0 24 24" [attr.fill]="s <= googleRating() ? '#f59e0b' : '#374151'">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
                   }
                 </div>
               </div>
-              <span class="google-review-count"
-                >{{ googleTotalReviews() }} Google
-                {{ t().reviewCountLabel }}</span
-              >
+              <span class="grb-count">{{ googleTotalReviews() }} {{ t().reviewCountLabel }}</span>
             </div>
             @if (googlePlaceUrl()) {
-              <a
-                [href]="googlePlaceUrl()"
-                target="_blank"
-                rel="noopener"
-                class="google-review-link"
-              >
+              <a [href]="googlePlaceUrl()" target="_blank" rel="noopener" class="grb-cta">
                 {{ t().reviewCta }}
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"
-                  />
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
                 </svg>
               </a>
             }
@@ -1044,9 +1011,9 @@ interface Testimonial {
 
         <div class="testimonials-grid">
           <!-- Google Reviews (real) -->
-          @if (googleReviews().length > 0) {
-            @for (review of googleReviews(); track review.time) {
-              @if (review.text) {
+          @if (filteredGoogleReviews().length > 0) {
+            @for (review of filteredGoogleReviews(); track review.time) {
+              @if (true) {
                 <article class="testimonial-card fade-in d1">
                   <div
                     class="testimonial-stars"
@@ -1095,7 +1062,7 @@ interface Testimonial {
               }
             }
           } @else {
-            <!-- Fallback: hardcoded testimonials -->
+            <!-- Fallback: hardcoded testimonials (gösterilir Google API yoksa) -->
             <article
               class="testimonial-card fade-in d1"
               *ngFor="let review of fallbackTestimonials(); let i = index"
@@ -2144,56 +2111,74 @@ interface Testimonial {
       .google-rating-badge {
         display: flex;
         align-items: center;
-        gap: 1rem;
-        background: rgba(255, 255, 255, 0.035);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 22px;
-        padding: 1.25rem 1.75rem;
-        margin-top: 2rem;
+        gap: 1.5rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 1.25rem 2rem;
+        margin: 2rem auto 0;
         width: fit-content;
-        margin-left: auto;
-        margin-right: auto;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
       }
 
-      .google-icon {
+      .grb-left {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .grb-platform {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+      }
+
+      .grb-divider {
+        width: 1px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.1);
         flex-shrink: 0;
       }
 
-      .google-rating-info {
+      .grb-center {
         display: flex;
         flex-direction: column;
-        gap: 0.15rem;
+        gap: 0.25rem;
       }
 
-      .google-rating-stars {
+      .grb-score-row {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
       }
 
-      .google-rating-value {
-        font-size: 1.5rem;
-        font-weight: 700;
+      .grb-score {
+        font-size: 2rem;
+        font-weight: 800;
         color: var(--color-text);
+        line-height: 1;
       }
 
-      .google-stars-row {
+      .grb-stars {
         display: flex;
         gap: 2px;
       }
 
-      .google-review-count {
-        font-size: 0.85rem;
-        color: var(--color-text-secondary);
+      .grb-count {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        letter-spacing: 0.02em;
       }
 
-      .google-review-link {
+      .grb-cta {
         display: flex;
         align-items: center;
-        gap: 0.35rem;
-        margin-left: 1rem;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
+        gap: 0.4rem;
+        padding: 0.65rem 1.25rem;
+        border-radius: 10px;
         background: var(--color-accent);
         color: white;
         font-size: 0.85rem;
@@ -2201,10 +2186,15 @@ interface Testimonial {
         text-decoration: none;
         white-space: nowrap;
         transition: opacity 0.2s;
+        margin-left: 0.5rem;
       }
 
-      .google-review-link:hover {
-        opacity: 0.9;
+      .grb-cta:hover {
+        opacity: 0.88;
+      }
+
+      .google-icon {
+        flex-shrink: 0;
       }
 
       .author-photo {
@@ -3066,6 +3056,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   googleRating = signal(0);
   googleTotalReviews = signal(0);
   googlePlaceUrl = signal('');
+
+  filteredGoogleReviews = computed(() =>
+    this.googleReviews()
+      .filter(r => r.text && r.text.length > 100)
+      .slice(0, 6)
+  );
 
   // Testimonials for SEO and social proof (fallback when Google API not configured)
   private readonly testimonialsByLanguage: Record<
