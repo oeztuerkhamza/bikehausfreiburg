@@ -1229,7 +1229,7 @@ public class PdfService : IPdfService
                                 r.RelativeItem().Text("Gesamtbetrag:").FontSize(10).FontColor(PrimaryColor);
                                 r.ConstantItem(80).AlignRight().Text($"{invoice.Betrag:N2} \u20ac").FontSize(12).Bold().FontColor(PrimaryColor);
                             });
-                            c.Item().Text("(Gem\u00e4\u00df \u00a719 UStG wird keine Umsatzsteuer berechnet)").FontSize(6).FontColor(Colors.Grey.Darken2);
+                            c.Item().Text("(inkl. gesetzlicher Mehrwertsteuer)").FontSize(6).FontColor(Colors.Grey.Darken2);
                         });
                     });
 
@@ -1791,7 +1791,7 @@ public class PdfService : IPdfService
 
                     // § 3 Schadenspauschalen
                     col.Item().PaddingTop(8).Text("§ 3 Schadenspauschalen").FontSize(11).Bold().FontColor(PrimaryColor);
-                    col.Item().PaddingTop(2).Text("Folgende Pauschalen gelten als Schadensersatz:").FontSize(9);
+                    col.Item().PaddingTop(2).Text("Folgende Pauschalen gelten als Schadensersatz (jeweils inkl. Materialkosten und Arbeitslohn):").FontSize(9);
                     col.Item().PaddingTop(2).Table(t =>
                     {
                         t.ColumnsDefinition(cdef =>
@@ -1813,14 +1813,16 @@ public class PdfService : IPdfService
                         AddSchadenRow("Reifenersatz",             "50,00 €");
                     });
                     col.Item().PaddingTop(2).Text(
-                        "Eine Anpassung bei nachgewiesen höherem oder geringerem Schaden bleibt vorbehalten."
+                        "Dem Mieter bleibt ausdrücklich der Nachweis vorbehalten, dass ein Schaden nicht entstanden ist " +
+                        "oder der tatsächliche Schaden erheblich niedriger ist als die Pauschale (§ 309 Nr. 5 BGB). " +
+                        "Dem Vermieter bleibt der Nachweis eines höheren Schadens vorbehalten."
                     ).FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
 
                     // § 4 Kaution
                     col.Item().PaddingTop(8).Text("§ 4 Kaution").FontSize(11).Bold().FontColor(PrimaryColor);
                     col.Item().PaddingTop(2).Text(
                         $"Pro Fahrrad ist eine Kaution in Höhe von {rental.Kaution:N2} € in bar zu hinterlegen. " +
-                        "Die Kaution wird nach ordnungsgemäßer Rückgabe des Fahrrads ohne Schäden und vollständigem Zubehör zurückerstattet."
+                        "Die Kaution wird spätestens innerhalb von 14 Tagen nach ordnungsgemäßer Rückgabe des Fahrrads ohne Schäden und vollständigem Zubehör zurückerstattet."
                     ).FontSize(9);
                     col.Item().PaddingTop(3).Text("Bei folgenden Fällen kann die Kaution ganz oder teilweise einbehalten werden:").FontSize(9);
                     col.Item().PaddingLeft(12).Text("•  Schäden am Fahrrad").FontSize(9);
@@ -1838,11 +1840,12 @@ public class PdfService : IPdfService
                     // § 6 Diebstahl und Haftung
                     col.Item().PaddingTop(8).Text("§ 6 Diebstahl und Haftung").FontSize(11).Bold().FontColor(PrimaryColor);
                     col.Item().PaddingTop(2).Text(
-                        "Der Mieter haftet für Diebstahl, Verlust, unsachgemäße Nutzung und sämtliche während der Mietzeit entstandenen Schäden."
+                        "Der Mieter haftet für schuldhaft verursachte Schäden, Verlust und unsachgemäße Nutzung des Fahrrads während der Mietzeit. " +
+                        "Für Diebstahl haftet der Mieter nur dann in voller Höhe, wenn das Fahrrad nicht ordnungsgemäß gesichert war."
                     ).FontSize(9);
                     col.Item().PaddingTop(2).Text(
-                        "Wird festgestellt, dass das Fahrrad nicht ordnungsgemäß gesichert war, entfällt der Anspruch auf " +
-                        "Rückzahlung der Kaution, und weitere Schäden können geltend gemacht werden."
+                        "Wird ein Diebstahl bei ordnungsgemäßer Sicherung nachgewiesen (Polizeianzeige + Aktenzeichen), " +
+                        "beschränkt sich die Haftung des Mieters auf die hinterlegte Kaution."
                     ).FontSize(9);
 
                     // § 7 Diebstahlmeldung
@@ -1860,24 +1863,32 @@ public class PdfService : IPdfService
                         "Bei verspäteter Rückgabe kann eine zusätzliche Tagesmiete berechnet werden."
                     ).FontSize(9);
 
-                    // § 9 Kaution
-                    col.Item().PaddingTop(8).Text("§ 9 Kaution").FontSize(11).Bold().FontColor(PrimaryColor);
+                    // § 9 Versicherung
+                    col.Item().PaddingTop(8).Text("§ 9 Versicherung").FontSize(11).Bold().FontColor(PrimaryColor);
                     col.Item().PaddingTop(2).Text(
-                        "Die Kaution wird bei ordnungsgemäßer Rückgabe vollständig erstattet. " +
-                        "Bei Schäden, Verlust oder unsachgemäßer Nutzung erfolgt eine entsprechende Kürzung."
+                        "Die Mietfahrräder sind nicht über den Vermieter haftpflicht- oder kaskoversichert. " +
+                        "Der Mieter haftet für alle während der Mietzeit entstandenen Schäden gemäß § 6 dieser Bedingungen. " +
+                        "Es wird empfohlen, eine eigene Haftpflichtversicherung abzuschließen oder den Versicherungsschutz der vorhandenen Hausratversicherung zu prüfen."
                     ).FontSize(9);
 
                     // § 10 Haftung des Vermieters
                     col.Item().PaddingTop(8).Text("§ 10 Haftung des Vermieters").FontSize(11).Bold().FontColor(PrimaryColor);
                     col.Item().PaddingTop(2).Text(
                         "Die Haftung des Vermieters ist auf Vorsatz und grobe Fahrlässigkeit beschränkt. " +
-                        "Für sonstige Schäden haftet der Mieter, sofern kein technischer Mangel vorlag."
+                        "Für leichte Fahrlässigkeit haftet der Vermieter nur bei Verletzung wesentlicher Vertragspflichten (Kardinalpflichten), " +
+                        "in diesem Fall begrenzt auf den vorhersehbaren, vertragstypischen Schaden. " +
+                        "Eine Haftung für technische Mängel, die dem Vermieter trotz ordnungsgemäßer Prüfung nicht erkennbar waren, ist ausgeschlossen."
                     ).FontSize(9);
 
                     // § 11 Datenschutz
                     col.Item().PaddingTop(8).Text("§ 11 Datenschutz").FontSize(11).Bold().FontColor(PrimaryColor);
                     col.Item().PaddingTop(2).Text(
-                        "Personenbezogene Daten werden ausschließlich zur Vertragsabwicklung verwendet und nicht an Dritte weitergegeben."
+                        "Die im Rahmen dieses Vertrags erhobenen personenbezogenen Daten (Name, Anschrift, Telefon, Ausweisnummer) " +
+                        "werden auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) verarbeitet und ausschließlich " +
+                        "zur Abwicklung des Mietverhältnisses verwendet. Eine Weitergabe an Dritte erfolgt nicht, " +
+                        "es sei denn, dies ist zur Vertragserfüllung oder zur Geltendmachung von Schadenersatzansprüchen erforderlich. " +
+                        "Die Daten werden nach Ablauf der gesetzlichen Aufbewahrungsfristen gelöscht. " +
+                        "Der Mieter hat das Recht auf Auskunft, Berichtigung, Löschung und Einschränkung der Verarbeitung seiner Daten."
                     ).FontSize(9);
 
                     // § 12 Recht und Gerichtsstand
