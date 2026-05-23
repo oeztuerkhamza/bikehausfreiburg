@@ -37,7 +37,8 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
             .Include(p => p.Bicycle)
             .Include(p => p.Seller)
             .Include(p => p.Sale)
-            .OrderByDescending(p => p.BelegNummer)
+            .OrderByDescending(p => p.Kaufdatum)
+            .ThenByDescending(p => p.Id)
             .Take(count)
             .ToListAsync();
     }
@@ -63,7 +64,8 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
             .Include(p => p.Bicycle)
             .Include(p => p.Seller)
             .Include(p => p.Sale)
-            .OrderByDescending(p => p.BelegNummer)
+            .OrderByDescending(p => p.Kaufdatum)
+            .ThenByDescending(p => p.Id)
             .ToListAsync();
     }
 
@@ -83,7 +85,8 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .OrderByDescending(p => p.BelegNummer)
+            .OrderByDescending(p => p.Kaufdatum)
+            .ThenByDescending(p => p.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
