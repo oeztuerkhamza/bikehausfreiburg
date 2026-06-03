@@ -104,7 +104,11 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .OrderByDescending(r => r.StartDatum)
+            // Aktive (laufende) Mietverträge immer oben, nach Startdatum sortiert;
+            // danach die übrigen (zurückgegeben/storniert) nach Startdatum absteigend.
+            .OrderBy(r => r.Status == RentalStatus.Active ? 0 : 1)
+            .ThenBy(r => r.Status == RentalStatus.Active ? r.StartDatum : DateTime.MaxValue)
+            .ThenByDescending(r => r.StartDatum)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

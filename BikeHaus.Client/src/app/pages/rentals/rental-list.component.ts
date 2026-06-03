@@ -90,6 +90,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             </tr>
             <tr
               *ngFor="let r of paginatedResult?.items"
+              [class.active-row]="r.status === 'Active'"
+              [class.returned-row]="r.status === 'Returned'"
               [class.overdue-row]="r.isOverdue && r.status === 'Active'"
               class="clickable-row"
               (click)="goToDetail(r.id)"
@@ -256,6 +258,15 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         padding: 2px 8px;
         border-radius: 6px;
         font-weight: 600;
+      }
+      /* Laufende Miete -> grün, zurückgegeben -> rot */
+      .active-row {
+        background: rgba(16, 185, 129, 0.07);
+        box-shadow: inset 3px 0 0 var(--accent-success, #10b981);
+      }
+      .returned-row {
+        background: rgba(239, 68, 68, 0.07);
+        box-shadow: inset 3px 0 0 var(--accent-danger, #ef4444);
       }
       .overdue-row {
         background: var(--accent-danger-light, rgba(239, 68, 68, 0.04));
