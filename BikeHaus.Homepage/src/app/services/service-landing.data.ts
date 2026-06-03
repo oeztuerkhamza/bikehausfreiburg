@@ -44,14 +44,14 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
     metaTitle:
       'Fahrrad Service Freiburg — Inspektion, Wartung & Pflege | Bike Haus Freiburg',
     metaDescription:
-      'Fahrrad Service in Freiburg ✓ Inspektion, Wartung, Bremsen & Schaltung einstellen, Reifenwechsel, E-Bike Check. Heckerstraße 27, Freiburg. Ohne Termin vorbeikommen.',
+      'Fahrrad Service in Freiburg ✓ Inspektion, Wartung, Bremsen & Schaltung einstellen, Reifenwechsel. Heckerstraße 27, Freiburg. Ohne Termin vorbeikommen.',
     heroTitle: 'Fahrrad Service in Freiburg',
     heroSub:
-      'Inspektion, Wartung und Pflege für Ihr Fahrrad oder E-Bike — bei Bike Haus Freiburg in der Heckerstraße 27.',
-    badges: ['🔧 Inspektion & Wartung', '⚡ E-Bike Check', '🕒 Ohne Termin'],
-    introHeading: 'Service für Ihr Fahrrad & E-Bike',
+      'Inspektion, Wartung und Pflege für Ihr Fahrrad  — bei Bike Haus Freiburg in der Heckerstraße 27.',
+    badges: ['🔧 Inspektion & Wartung', '⚡ Fahrrad Check', '🕒 Ohne Termin'],
+    introHeading: 'Service für Ihr Fahrrad',
     introText:
-      'Damit Ihr Fahrrad sicher und zuverlässig läuft, bieten wir bei Bike Haus Freiburg einen umfassenden Fahrrad-Service: Wir prüfen, warten, stellen ein und pflegen Ihr Rad. Ob City-Bike, Trekkingrad, Mountainbike oder E-Bike — bringen Sie Ihr Fahrrad einfach in der Heckerstraße 27 vorbei. Sie erhalten vorab eine transparente Einschätzung von Umfang und Kosten.',
+      'Damit Ihr Fahrrad sicher und zuverlässig läuft, bieten wir bei Bike Haus Freiburg einen umfassenden Fahrrad-Service: Wir prüfen, warten, stellen ein und pflegen Ihr Rad. Ob City-Bike, Trekkingrad, Mountainbike — bringen Sie Ihr Fahrrad einfach in der Heckerstraße 27 vorbei. Sie erhalten vorab eine transparente Einschätzung von Umfang und Kosten.',
     servicesHeading: 'Unsere Service-Leistungen',
     services: [
       'Inspektion & Sicherheits-Check (Bremsen, Licht, Reifen, Rahmen)',
@@ -59,8 +59,7 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Schaltung prüfen und einstellen',
       'Reifen und Schläuche wechseln, Luftdruck prüfen',
       'Kette, Antrieb & bewegliche Teile reinigen und ölen',
-      'Licht & Elektrik prüfen',
-      'E-Bike Check: Akku, Display und Funktionstest',
+      'Licht prüfen',
       'Fahrrad-Aufbereitung & Reinigung vor dem Verkauf',
     ],
     processHeading: 'So läuft der Service ab',
@@ -75,10 +74,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       {
         q: 'Brauche ich einen Termin für den Service?',
         a: 'Nein. Sie können während der Öffnungszeiten einfach mit Ihrem Fahrrad in der Heckerstraße 27 in Freiburg vorbeikommen. Bei größerem Umfang vereinbaren wir gemeinsam einen Abholtermin.',
-      },
-      {
-        q: 'Macht ihr auch Service für E-Bikes?',
-        a: 'Ja. Wir bieten einen E-Bike Check inklusive Akku-, Display- und Funktionstest sowie das Einstellen von Bremsen und Schaltung an.',
       },
       {
         q: 'Was kostet ein Fahrrad-Service?',
@@ -102,14 +97,14 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
     metaTitle:
       'Bike Service Freiburg — Inspection, Maintenance & Tune-Up | Bike Haus Freiburg',
     metaDescription:
-      'Bike service in Freiburg ✓ Inspection, maintenance, brake & gear adjustment, tyre changes, e-bike check. Heckerstraße 27, Freiburg. Walk in, no appointment needed.',
+      'Bike service in Freiburg ✓ Inspection, maintenance, brake & gear adjustment, tyre changes. Heckerstraße 27, Freiburg. Walk in, no appointment needed.',
     heroTitle: 'Bike Service in Freiburg',
     heroSub:
-      'Inspection, maintenance and care for your bike or e-bike — at Bike Haus Freiburg, Heckerstraße 27.',
-    badges: ['🔧 Inspection & tune-up', '⚡ E-bike check', '🕒 No appointment'],
-    introHeading: 'Service for your bike & e-bike',
+      'Inspection, maintenance and care for your bike — at Bike Haus Freiburg, Heckerstraße 27.',
+    badges: ['🔧 Inspection & tune-up', '🕒 No appointment'],
+    introHeading: 'Service for your bike',
     introText:
-      'To keep your bike safe and reliable, Bike Haus Freiburg offers a complete bike service: we check, maintain, adjust and care for your bike. City bike, trekking bike, mountain bike or e-bike — just bring it to Heckerstraße 27. You always get a transparent estimate of scope and cost beforehand.',
+      'To keep your bike safe and reliable, Bike Haus Freiburg offers a complete bike service: we check, maintain, adjust and care for your bike. City bike, trekking bike, mountain bike — just bring it to Heckerstraße 27. You always get a transparent estimate of scope and cost beforehand.',
     servicesHeading: 'Our service offering',
     services: [
       'Inspection & safety check (brakes, lights, tyres, frame)',
@@ -118,7 +113,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Tyre and tube changes, pressure check',
       'Chain, drivetrain & moving parts cleaned and oiled',
       'Lights & electrics check',
-      'E-bike check: battery, display and function test',
       'Bike preparation & cleaning before sale',
     ],
     processHeading: 'How the service works',
@@ -133,10 +127,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       {
         q: 'Do I need an appointment for the service?',
         a: 'No. During opening hours you can simply walk in with your bike at Heckerstraße 27 in Freiburg. For larger jobs we agree on a pick-up day together.',
-      },
-      {
-        q: 'Do you also service e-bikes?',
-        a: 'Yes. We offer an e-bike check including battery, display and function test, plus brake and gear adjustment.',
       },
       {
         q: 'How much does a bike service cost?',
@@ -160,14 +150,14 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
     metaTitle:
       'Entretien vélo Fribourg — Révision, maintenance & réglage | Bike Haus Freiburg',
     metaDescription:
-      'Entretien vélo à Fribourg ✓ Révision, maintenance, réglage freins & vitesses, changement de pneus, contrôle vélo électrique. Heckerstraße 27, Fribourg. Sans rendez-vous.',
+      'Entretien vélo à Fribourg ✓ Révision, maintenance, réglage freins & vitesses, changement de pneus, contrôle. Heckerstraße 27, Fribourg. Sans rendez-vous.',
     heroTitle: 'Entretien vélo à Fribourg',
     heroSub:
-      'Révision, maintenance et entretien de votre vélo ou vélo électrique — chez Bike Haus Freiburg, Heckerstraße 27.',
-    badges: ['🔧 Révision & réglage', '⚡ Contrôle VAE', '🕒 Sans rendez-vous'],
-    introHeading: 'Service pour votre vélo & vélo électrique',
+      'Révision, maintenance et entretien de votre vélo  — chez Bike Haus Freiburg, Heckerstraße 27.',
+    badges: ['🔧 Révision & réglage', '🕒 Sans rendez-vous'],
+    introHeading: 'Service pour votre vélo',
     introText:
-      'Pour que votre vélo reste sûr et fiable, Bike Haus Freiburg propose un service vélo complet : nous contrôlons, entretenons, réglons et soignons votre vélo. Vélo de ville, vélo de trekking, VTT ou vélo électrique — apportez-le simplement à la Heckerstraße 27. Vous recevez toujours au préalable une estimation transparente de l’étendue et du coût.',
+      'Pour que votre vélo reste sûr et fiable, Bike Haus Freiburg propose un service vélo complet : nous contrôlons, entretenons, réglons et soignons votre vélo. Vélo de ville, vélo de trekking, VTT — apportez-le simplement à la Heckerstraße 27. Vous recevez toujours au préalable une estimation transparente de l’étendue et du coût.',
     servicesHeading: 'Nos prestations de service',
     services: [
       'Révision & contrôle de sécurité (freins, éclairage, pneus, cadre)',
@@ -176,7 +166,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Changement de pneus et chambres à air, contrôle de la pression',
       'Chaîne, transmission & pièces mobiles nettoyées et huilées',
       'Contrôle de l’éclairage & de l’électrique',
-      'Contrôle vélo électrique : batterie, écran et test de fonctionnement',
       'Préparation & nettoyage du vélo avant la vente',
     ],
     processHeading: 'Comment se déroule le service',
@@ -191,10 +180,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       {
         q: 'Ai-je besoin d’un rendez-vous pour le service ?',
         a: 'Non. Pendant les heures d’ouverture, vous pouvez simplement venir avec votre vélo à la Heckerstraße 27 à Fribourg. Pour les travaux plus importants, nous convenons ensemble d’un jour de récupération.',
-      },
-      {
-        q: 'Faites-vous aussi l’entretien des vélos électriques ?',
-        a: 'Oui. Nous proposons un contrôle vélo électrique incluant batterie, écran et test de fonctionnement, ainsi que le réglage des freins et des vitesses.',
       },
       {
         q: 'Combien coûte un entretien vélo ?',
@@ -218,14 +203,14 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
     metaTitle:
       'Bisiklet Servisi Freiburg — Bakım, Kontrol & Ayar | Bike Haus Freiburg',
     metaDescription:
-      'Freiburg’da bisiklet servisi ✓ Bakım, kontrol, fren & vites ayarı, lastik değişimi, e-bike kontrolü. Heckerstraße 27, Freiburg. Randevusuz gelin.',
+      'Freiburg’da bisiklet servisi ✓ Bakım, kontrol, fren & vites ayarı, lastik değişimi. Heckerstraße 27, Freiburg. Randevusuz gelin.',
     heroTitle: 'Freiburg’da Bisiklet Servisi',
     heroSub:
-      'Bisikletiniz veya e-bike’ınız için bakım, kontrol ve ayar — Bike Haus Freiburg, Heckerstraße 27.',
-    badges: ['🔧 Bakım & ayar', '⚡ E-bike kontrolü', '🕒 Randevusuz'],
-    introHeading: 'Bisikletiniz & e-bike’ınız için servis',
+      'Bisikletiniz için bakım, kontrol ve ayar — Bike Haus Freiburg, Heckerstraße 27.',
+    badges: ['🔧 Bakım & ayar', '🕒 Randevusuz'],
+    introHeading: 'Bisikletiniz için servis',
     introText:
-      'Bisikletinizin güvenli ve sorunsuz çalışması için Bike Haus Freiburg kapsamlı bir bisiklet servisi sunar: kontrol eder, bakımını yapar, ayarlar ve bakımını üstleniriz. Şehir bisikleti, trekking, dağ bisikleti veya e-bike — bisikletinizi Heckerstraße 27’ye getirmeniz yeterli. Kapsam ve ücret konusunda önceden şeffaf bir bilgi alırsınız.',
+      'Bisikletinizin güvenli ve sorunsuz çalışması için Bike Haus Freiburg kapsamlı bir bisiklet servisi sunar: kontrol eder, bakımını yapar, ayarlar ve bakımını üstleniriz. Şehir bisikleti, trekking, dağ bisikleti — bisikletinizi Heckerstraße 27’ye getirmeniz yeterli. Kapsam ve ücret konusunda önceden şeffaf bir bilgi alırsınız.',
     servicesHeading: 'Servis hizmetlerimiz',
     services: [
       'Kontrol & güvenlik bakımı (fren, ışık, lastik, kadro)',
@@ -234,7 +219,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Lastik ve iç lastik değişimi, basınç kontrolü',
       'Zincir, aktarma & hareketli parçaların temizliği ve yağlanması',
       'Işık & elektrik kontrolü',
-      'E-bike kontrolü: batarya, ekran ve fonksiyon testi',
       'Satış öncesi bisiklet hazırlığı & temizliği',
     ],
     processHeading: 'Servis nasıl işliyor',
@@ -249,10 +233,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       {
         q: 'Servis için randevu gerekiyor mu?',
         a: 'Hayır. Açılış saatleri içinde bisikletinizle Freiburg, Heckerstraße 27’ye uğrayabilirsiniz. Kapsamlı işlerde birlikte bir teslim günü belirleriz.',
-      },
-      {
-        q: 'E-bike servisi de yapıyor musunuz?',
-        a: 'Evet. Batarya, ekran ve fonksiyon testi dahil e-bike kontrolünün yanı sıra fren ve vites ayarı sunuyoruz.',
       },
       {
         q: 'Bisiklet servisi ne kadar tutar?',
@@ -276,14 +256,17 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
     metaTitle:
       'Servicio de bicicletas Friburgo — Revisión, mantenimiento y ajuste | Bike Haus Freiburg',
     metaDescription:
-      'Servicio de bicicletas en Friburgo ✓ Revisión, mantenimiento, ajuste de frenos y cambios, sustitución de neumáticos, control de e-bike. Heckerstraße 27. Sin cita previa.',
+      'Servicio de bicicletas en Friburgo ✓ Revisión, mantenimiento, ajuste de frenos y cambios, sustitución de neumáticos. Heckerstraße 27. Sin cita previa.',
     heroTitle: 'Servicio de bicicletas en Friburgo',
     heroSub:
-      'Revisión, mantenimiento y cuidado de tu bicicleta o e-bike — en Bike Haus Freiburg, Heckerstraße 27.',
-    badges: ['🔧 Revisión y ajuste', '⚡ Control de e-bike', '🕒 Sin cita previa'],
-    introHeading: 'Servicio para tu bicicleta y e-bike',
+      'Revisión, mantenimiento y cuidado de tu bicicleta — en Bike Haus Freiburg, Heckerstraße 27.',
+    badges: [
+      '🔧 Revisión y ajuste',
+      '🕒 Sin cita previa',
+    ],
+    introHeading: 'Servicio para tu bicicleta',
     introText:
-      'Para que tu bicicleta sea segura y fiable, Bike Haus Freiburg ofrece un servicio de bicicletas completo: revisamos, mantenemos, ajustamos y cuidamos tu bicicleta. Bicicleta de ciudad, de trekking, de montaña o e-bike — solo tienes que traerla a la Heckerstraße 27. Siempre recibes de antemano una estimación transparente del alcance y el coste.',
+      'Para que tu bicicleta sea segura y fiable, Bike Haus Freiburg ofrece un servicio de bicicletas completo: revisamos, mantenemos, ajustamos y cuidamos tu bicicleta. Bicicleta de ciudad, de trekking, de montaña — solo tienes que traerla a la Heckerstraße 27. Siempre recibes de antemano una estimación transparente del alcance y el coste.',
     servicesHeading: 'Nuestros servicios',
     services: [
       'Revisión y control de seguridad (frenos, luces, neumáticos, cuadro)',
@@ -292,7 +275,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Cambio de neumáticos y cámaras, control de presión',
       'Cadena, transmisión y piezas móviles limpiadas y engrasadas',
       'Control de luces y sistema eléctrico',
-      'Control de e-bike: batería, pantalla y prueba de funcionamiento',
       'Preparación y limpieza de la bicicleta antes de la venta',
     ],
     processHeading: 'Cómo funciona el servicio',
@@ -307,10 +289,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       {
         q: '¿Necesito cita para el servicio?',
         a: 'No. Durante el horario de apertura puedes venir con tu bicicleta a la Heckerstraße 27 en Friburgo. Para trabajos más grandes acordamos juntos un día de recogida.',
-      },
-      {
-        q: '¿También dais servicio a e-bikes?',
-        a: 'Sí. Ofrecemos un control de e-bike que incluye batería, pantalla y prueba de funcionamiento, además del ajuste de frenos y cambios.',
       },
       {
         q: '¿Cuánto cuesta un servicio de bicicleta?',
@@ -334,14 +312,17 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
     metaTitle:
       'Assistenza bici Friburgo — Revisione, manutenzione e regolazione | Bike Haus Freiburg',
     metaDescription:
-      'Assistenza bici a Friburgo ✓ Revisione, manutenzione, regolazione freni e cambio, sostituzione pneumatici, controllo e-bike. Heckerstraße 27. Senza appuntamento.',
+      'Assistenza bici a Friburgo ✓ Revisione, manutenzione, regolazione freni e cambio, sostituzione pneumatici. Heckerstraße 27. Senza appuntamento.',
     heroTitle: 'Assistenza bici a Friburgo',
     heroSub:
-      'Revisione, manutenzione e cura della tua bici o e-bike — da Bike Haus Freiburg, Heckerstraße 27.',
-    badges: ['🔧 Revisione e regolazione', '⚡ Controllo e-bike', '🕒 Senza appuntamento'],
-    introHeading: 'Assistenza per la tua bici ed e-bike',
+      'Revisione, manutenzione e cura della tua bici — da Bike Haus Freiburg, Heckerstraße 27.',
+    badges: [
+      '🔧 Revisione e regolazione',
+      '🕒 Senza appuntamento',
+    ],
+    introHeading: 'Assistenza per la tua bici',
     introText:
-      'Per mantenere la tua bici sicura e affidabile, Bike Haus Freiburg offre un servizio bici completo: controlliamo, manuteniamo, regoliamo e curiamo la tua bicicletta. City bike, trekking, mountain bike o e-bike — basta portarla in Heckerstraße 27. Ricevi sempre in anticipo una stima trasparente di entità e costo.',
+      'Per mantenere la tua bici sicura e affidabile, Bike Haus Freiburg offre un servizio bici completo: controlliamo, manuteniamo, regoliamo e curiamo la tua bicicletta. City bike, trekking, mountain bike — basta portarla in Heckerstraße 27. Ricevi sempre in anticipo una stima trasparente di entità e costo.',
     servicesHeading: 'I nostri servizi',
     services: [
       'Revisione e controllo di sicurezza (freni, luci, pneumatici, telaio)',
@@ -350,7 +331,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Sostituzione di pneumatici e camere d’aria, controllo pressione',
       'Catena, trasmissione e parti mobili pulite e lubrificate',
       'Controllo luci e impianto elettrico',
-      'Controllo e-bike: batteria, display e test di funzionamento',
       'Preparazione e pulizia della bici prima della vendita',
     ],
     processHeading: 'Come funziona il servizio',
@@ -365,10 +345,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       {
         q: 'Serve un appuntamento per il servizio?',
         a: 'No. Durante gli orari di apertura puoi venire con la tua bici in Heckerstraße 27 a Friburgo. Per lavori più impegnativi concordiamo insieme un giorno di ritiro.',
-      },
-      {
-        q: 'Fate assistenza anche per e-bike?',
-        a: 'Sì. Offriamo un controllo e-bike che include batteria, display e test di funzionamento, oltre alla regolazione di freni e cambio.',
       },
       {
         q: 'Quanto costa un servizio bici?',
@@ -392,14 +368,14 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
     metaTitle:
       'خدمة الدراجات في فرايبورغ — فحص وصيانة وضبط | Bike Haus Freiburg',
     metaDescription:
-      'خدمة الدراجات في فرايبورغ ✓ فحص وصيانة وضبط الفرامل والتروس وتغيير الإطارات وفحص الدراجة الكهربائية. Heckerstraße 27. بدون موعد مسبق.',
+      'خدمة الدراجات في فرايبورغ ✓ فحص وصيانة وضبط الفرامل والتروس وتغيير الإطارات. Heckerstraße 27. بدون موعد مسبق.',
     heroTitle: 'خدمة الدراجات في فرايبورغ',
     heroSub:
-      'فحص وصيانة وعناية بدراجتك أو دراجتك الكهربائية — لدى Bike Haus Freiburg، Heckerstraße 27.',
-    badges: ['🔧 فحص وضبط', '⚡ فحص الدراجة الكهربائية', '🕒 بدون موعد'],
-    introHeading: 'خدمة لدراجتك ودراجتك الكهربائية',
+      'فحص وصيانة وعناية بدراجتك — لدى Bike Haus Freiburg، Heckerstraße 27.',
+    badges: ['🔧 فحص وضبط', '🕒 بدون موعد'],
+    introHeading: 'خدمة لدراجتك',
     introText:
-      'كي تبقى دراجتك آمنة وموثوقة، يقدّم Bike Haus Freiburg خدمة شاملة للدراجات: نفحص ونصون ونضبط ونعتني بدراجتك. دراجة مدينة أو تريكنغ أو جبلية أو كهربائية — يكفي أن تحضرها إلى Heckerstraße 27. تحصل دائمًا مسبقًا على تقدير شفّاف للنطاق والتكلفة.',
+      'كي تبقى دراجتك آمنة وموثوقة، يقدّم Bike Haus Freiburg خدمة شاملة للدراجات: نفحص ونصون ونضبط ونعتني بدراجتك. دراجة مدينة أو تريكنغ أو جبلية — يكفي أن تحضرها إلى Heckerstraße 27. تحصل دائمًا مسبقًا على تقدير شفّاف للنطاق والتكلفة.',
     servicesHeading: 'خدماتنا',
     services: [
       'فحص وفحص سلامة (الفرامل، الإضاءة، الإطارات، الهيكل)',
@@ -408,7 +384,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'تغيير الإطارات والأنابيب الداخلية وفحص الضغط',
       'تنظيف وتزييت السلسلة ونظام النقل والأجزاء المتحركة',
       'فحص الإضاءة والنظام الكهربائي',
-      'فحص الدراجة الكهربائية: البطارية والشاشة واختبار الأداء',
       'تجهيز وتنظيف الدراجة قبل البيع',
     ],
     processHeading: 'كيف تتم الخدمة',
@@ -425,10 +400,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
         a: 'لا. خلال ساعات العمل يمكنك ببساطة المرور بدراجتك إلى Heckerstraße 27 في فرايبورغ. وللأعمال الأكبر نتفق معًا على يوم للاستلام.',
       },
       {
-        q: 'هل تقدّمون خدمة للدراجات الكهربائية أيضًا؟',
-        a: 'نعم. نقدّم فحصًا للدراجة الكهربائية يشمل البطارية والشاشة واختبار الأداء، إضافة إلى ضبط الفرامل والتروس.',
-      },
-      {
         q: 'كم تكلفة خدمة الدراجة؟',
         a: 'تعتمد على النطاق. تحصل دائمًا على تقدير شفّاف قبل البدء دون مفاجآت.',
       },
@@ -442,22 +413,24 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       },
     ],
     ctaHeading: 'هل تحتاج إلى خدمة دراجة في فرايبورغ؟',
-    ctaText:
-      'مرّ علينا بدون موعد أو راسلنا عبر واتساب — سنعتني بدراجتك.',
+    ctaText: 'مرّ علينا بدون موعد أو راسلنا عبر واتساب — سنعتني بدراجتك.',
   },
 
   ru: {
     metaTitle:
       'Сервис велосипедов Фрайбург — диагностика, обслуживание и настройка | Bike Haus Freiburg',
     metaDescription:
-      'Сервис велосипедов во Фрайбурге ✓ диагностика, обслуживание, настройка тормозов и переключателей, замена шин, проверка e-bike. Heckerstraße 27. Без записи.',
+      'Сервис велосипедов во Фрайбурге ✓ диагностика, обслуживание, настройка тормозов и переключателей, замена шин. Heckerstraße 27. Без записи.',
     heroTitle: 'Сервис велосипедов во Фрайбурге',
     heroSub:
-      'Диагностика, обслуживание и уход за вашим велосипедом или e-bike — в Bike Haus Freiburg, Heckerstraße 27.',
-    badges: ['🔧 Диагностика и настройка', '⚡ Проверка e-bike', '🕒 Без записи'],
-    introHeading: 'Сервис для вашего велосипеда и e-bike',
+      'Диагностика, обслуживание и уход за вашим велосипедом — в Bike Haus Freiburg, Heckerstraße 27.',
+    badges: [
+      '🔧 Диагностика и настройка',
+      '🕒 Без записи',
+    ],
+    introHeading: 'Сервис для вашего велосипеда',
     introText:
-      'Чтобы ваш велосипед был безопасным и надёжным, Bike Haus Freiburg предлагает полный сервис: мы проверяем, обслуживаем, настраиваем и ухаживаем за вашим велосипедом. Городской, трекинговый, горный или e-bike — просто привезите его на Heckerstraße 27. Вы всегда заранее получаете прозрачную оценку объёма и стоимости.',
+      'Чтобы ваш велосипед был безопасным и надёжным, Bike Haus Freiburg предлагает полный сервис: мы проверяем, обслуживаем, настраиваем и ухаживаем за вашим велосипедом. Городской, трекинговый, горный — просто привезите его на Heckerstraße 27. Вы всегда заранее получаете прозрачную оценку объёма и стоимости.',
     servicesHeading: 'Наши услуги',
     services: [
       'Диагностика и проверка безопасности (тормоза, свет, шины, рама)',
@@ -466,7 +439,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Замена шин и камер, проверка давления',
       'Чистка и смазка цепи, трансмиссии и подвижных частей',
       'Проверка света и электрики',
-      'Проверка e-bike: батарея, дисплей и тест работы',
       'Подготовка и чистка велосипеда перед продажей',
     ],
     processHeading: 'Как проходит сервис',
@@ -481,10 +453,6 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       {
         q: 'Нужна ли запись на сервис?',
         a: 'Нет. В часы работы вы можете просто приехать с велосипедом на Heckerstraße 27 во Фрайбурге. Для крупных работ мы вместе договариваемся о дне выдачи.',
-      },
-      {
-        q: 'Обслуживаете ли вы e-bike?',
-        a: 'Да. Мы предлагаем проверку e-bike с батареей, дисплеем и тестом работы, а также настройку тормозов и переключателей.',
       },
       {
         q: 'Сколько стоит сервис велосипеда?',
