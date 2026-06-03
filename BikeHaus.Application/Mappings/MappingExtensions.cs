@@ -34,7 +34,7 @@ public static class MappingExtensions
         entity.VerkaufspreisVorschlag,
         entity.KleinanzeigenAnzeigeNr,
         entity.CreatedAt,
-        entity.Images?.Select(i => i.ToDto()).ToList()
+        entity.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList()
     );
 
     public static BicycleImageDto ToDto(this BicycleImage entity) => new(
@@ -57,7 +57,7 @@ public static class MappingExtensions
         entity.Zustand,
         entity.VerkaufspreisVorschlag,
         entity.CreatedAt,
-        entity.Images?.Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>()
+        entity.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>()
     );
 
     public static Bicycle ToEntity(this BicycleCreateDto dto) => new()
@@ -96,7 +96,7 @@ public static class MappingExtensions
         entity.Beschreibung,
         entity.Rahmengroesse,
         entity.Kaution,
-        entity.Images?.Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>(),
+        entity.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>(),
         new RentalPriceDto(
             entity.RentalPriceDay1,
             entity.RentalPriceDay2,

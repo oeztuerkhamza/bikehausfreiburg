@@ -78,6 +78,16 @@ export class BicycleService {
     return this.http.get<BusyPeriod[]>(`${this.url}/${id}/busy-periods`);
   }
 
+  // Batch: busy periods for many bikes in one request (keyed by bicycle id).
+  getBusyPeriodsBatch(
+    ids: number[],
+  ): Observable<Record<number, BusyPeriod[]>> {
+    return this.http.post<Record<number, BusyPeriod[]>>(
+      `${this.url}/busy-periods/batch`,
+      { ids },
+    );
+  }
+
   getAvailableForPeriod(start: string, end: string): Observable<Bicycle[]> {
     const params = new HttpParams().set('start', start).set('end', end);
     return this.http.get<Bicycle[]>(`${this.url}/available-for-period`, { params });
@@ -119,5 +129,15 @@ export class BicycleService {
 
   deleteGalleryImage(bicycleId: number, imageId: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${bicycleId}/gallery/${imageId}`);
+  }
+
+  reorderGalleryImages(
+    bicycleId: number,
+    imageIds: number[],
+  ): Observable<BicycleImage[]> {
+    return this.http.put<BicycleImage[]>(
+      `${this.url}/${bicycleId}/gallery/reorder`,
+      { imageIds },
+    );
   }
 }

@@ -23,7 +23,9 @@ public interface IBicycleService
     Task<PublicRentalBicycleDto?> GetRentableBicycleByIdAsync(int id);
     Task<BicycleImageDto> AddImageAsync(int bicycleId, string filePath, int sortOrder);
     Task DeleteImageAsync(int bicycleId, int imageId);
+    Task<IEnumerable<BicycleImageDto>> ReorderImagesAsync(int bicycleId, IList<int> orderedImageIds);
     Task<IEnumerable<BicycleImageDto>> GetImagesAsync(int bicycleId);
     Task<IEnumerable<BusyPeriodDto>> GetBusyPeriodsAsync(int bicycleId);
+    Task<Dictionary<int, List<BusyPeriodDto>>> GetBusyPeriodsForBikesAsync(IEnumerable<int> bicycleIds);
     Task<IEnumerable<BicycleDto>> GetAvailableForPeriodAsync(DateOnly start, DateOnly end);
 }

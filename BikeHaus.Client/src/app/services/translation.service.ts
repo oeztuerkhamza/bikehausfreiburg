@@ -752,6 +752,12 @@ export interface Translations {
   mietfahrradToggleRentable: string;
   mietfahrradBasicInfo: string;
   mietfahrradSaveSuccess: string;
+  mietfahrradTitelbild: string;
+  mietfahrradSetAsTitelbild: string;
+  mietfahrradMoveLeft: string;
+  mietfahrradMoveRight: string;
+  mietfahrradPhotoOrderHint: string;
+  mietfahrradOrderSaveError: string;
 
   // Rental Reviews
   rentalReviews: string;
@@ -1537,6 +1543,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     mietfahrradToggleRentable: 'Verleih aktivieren/deaktivieren',
     mietfahrradBasicInfo: 'Grundinformationen',
     mietfahrradSaveSuccess: 'Mietfahrrad gespeichert',
+    mietfahrradTitelbild: 'Titelbild',
+    mietfahrradSetAsTitelbild: 'Als Titelbild',
+    mietfahrradMoveLeft: 'Nach vorne',
+    mietfahrradMoveRight: 'Nach hinten',
+    mietfahrradPhotoOrderHint:
+      'Ziehen zum Sortieren. Das erste Foto ist das Titelbild.',
+    mietfahrradOrderSaveError:
+      'Reihenfolge konnte nicht gespeichert werden.',
 
     // Rental Reviews
     rentalReviews: 'Kundenbewertungen',
@@ -2320,6 +2334,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     mietfahrradToggleRentable: 'Kiralamayı aç/kapat',
     mietfahrradBasicInfo: 'Temel Bilgiler',
     mietfahrradSaveSuccess: 'Kiralık bisiklet kaydedildi',
+    mietfahrradTitelbild: 'Kapak fotoğrafı',
+    mietfahrradSetAsTitelbild: 'Kapak yap',
+    mietfahrradMoveLeft: 'Öne al',
+    mietfahrradMoveRight: 'Geri al',
+    mietfahrradPhotoOrderHint:
+      'Sıralamak için sürükle. İlk fotoğraf kapak fotoğrafıdır.',
+    mietfahrradOrderSaveError: 'Sıralama kaydedilemedi.',
 
     // Rental Reviews
     rentalReviews: 'Müşteri Yorumları',

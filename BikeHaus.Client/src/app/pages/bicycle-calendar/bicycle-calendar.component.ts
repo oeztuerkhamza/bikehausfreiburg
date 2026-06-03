@@ -2,7 +2,6 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { BicycleService } from '../../services/bicycle.service';
 import { Bicycle, BusyPeriod } from '../../models/models';
 
@@ -390,12 +389,11 @@ export class BicycleCalendarComponent implements OnInit {
           this.loading.set(false);
           return;
         }
-        const requests = bikes.map((b) => this.bicycleService.getBusyPeriods(b.id));
-        forkJoin(requests).subscribe({
-          next: (periodsArr) => {
-            const rows: BikeRow[] = bikes.map((bike, idx) => ({
+        this.bicycleService.getBusyPeriodsBatch(bikes.map((b) => b.id)).subscribe({
+          next: (periodsMap) => {
+            const rows: BikeRow[] = bikes.map((bike) => ({
               bike,
-              periods: periodsArr[idx] ?? [],
+              periods: periodsMap[bike.id] ?? [],
             }));
             rows.sort((a, b) =>
               `${a.bike.marke} ${a.bike.modell}`.localeCompare(

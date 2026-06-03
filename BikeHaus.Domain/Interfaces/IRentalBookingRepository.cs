@@ -14,6 +14,7 @@ public interface IRentalBookingRepository : IRepository<RentalBooking>
         Expression<Func<RentalBooking, bool>>? predicate = null);
     Task<IEnumerable<RentalBooking>> GetApprovedByBicycleIdAsync(int bicycleId);
     Task<IEnumerable<RentalBooking>> GetPendingByBicycleIdAsync(int bicycleId);
+    Task<IEnumerable<RentalBooking>> GetByStatusesWithBikesAsync(IEnumerable<Enums.RentalBookingStatus> statuses);
     Task<bool> ExistsApprovedOverlapAsync(int bicycleId, DateTime start, DateTime end, int? excludeBookingId = null);
     Task<bool> ExistsApprovedOverlapForBikesAsync(IEnumerable<(int BicycleId, DateTime Start, DateTime End)> bikes, int? excludeBookingId = null);
     Task<bool> ExistsActiveOverlapAsync(int bicycleId, DateTime start, DateTime end, int? excludeBookingId = null);
