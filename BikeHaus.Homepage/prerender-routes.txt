@@ -59,6 +59,14 @@
 /it/ki-berater
 /ar/ki-berater
 /ru/ki-berater
+/de/service
+/en/bike-service
+/fr/entretien-velo
+/tr/service
+/es/service
+/it/service
+/ar/service
+/ru/service
 /de/garantie
 /en/garantie
 /fr/garantie

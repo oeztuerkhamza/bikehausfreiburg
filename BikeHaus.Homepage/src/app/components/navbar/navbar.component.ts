@@ -689,6 +689,11 @@ export class NavbarComponent {
       exact: false,
     },
     {
+      path: 'service',
+      label: () => this.t().bikeService,
+      exact: false,
+    },
+    {
       path: 'ki-berater',
       label: () => this.t().kiBeraterNav,
       exact: false,

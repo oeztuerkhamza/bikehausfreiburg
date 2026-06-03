@@ -51,7 +51,7 @@ interface Testimonial {
     <section class="svc-cards-section" [attr.aria-label]="t().homeServicesAria">
       <div class="container">
         <div class="svc-cards-grid">
-          <!-- Reparatur -->
+          <!-- Service -->
           <div class="svc-card svc-card-repair">
             <div class="svc-card-icon">
               <svg
@@ -75,7 +75,13 @@ interface Testimonial {
               <li>{{ t().svcRepairItem4 }}</li>
             </ul>
             <a
-              href="https://wa.me/491556630011"
+              [routerLink]="['/' + lang(), 'service']"
+              class="svc-card-cta"
+            >
+              {{ t().svcRepairCta }}
+            </a>
+            <a
+              href="https://wa.me/4915566300011"
               target="_blank"
               rel="noopener noreferrer"
               class="svc-card-cta svc-card-cta-whatsapp"

@@ -221,6 +221,44 @@
     <priority>0.82</priority>
   </url>
 
+  <!-- Fahrrad-Service / Bike Service -->
+  <url>
+    <loc>https://bikehausfreiburg.com/de/service</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/service"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-service"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/entretien-velo"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/service"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://bikehausfreiburg.com/es/service"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://bikehausfreiburg.com/it/service"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bikehausfreiburg.com/ar/service"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://bikehausfreiburg.com/ru/service"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/service"/>
+    <lastmod>2026-06-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- EN canonical: /en/bike-service -->
+  <url>
+    <loc>https://bikehausfreiburg.com/en/bike-service</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/service"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-service"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/entretien-velo"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/service"/>
+    <lastmod>2026-06-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <!-- FR canonical: /fr/entretien-velo -->
+  <url>
+    <loc>https://bikehausfreiburg.com/fr/entretien-velo</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/service"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/bike-service"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/entretien-velo"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/service"/>
+    <lastmod>2026-06-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
   <!-- Fahrradverleih / Bike Rental -->
   <url>
     <loc>https://bikehausfreiburg.com/de/fahrradverleih</loc>

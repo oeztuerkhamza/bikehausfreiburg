@@ -39,6 +39,9 @@ import {
             <a [routerLink]="['/' + lang(), 'fahrradverleih']">{{
               t().bikeRental
             }}</a>
+            <a [routerLink]="['/' + lang(), 'service']">{{
+              t().bikeService
+            }}</a>
             <a [routerLink]="['/' + lang(), 'ratgeber']">{{
               t().ratgeberNav
             }}</a>

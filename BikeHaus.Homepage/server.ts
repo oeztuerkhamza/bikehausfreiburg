@@ -43,6 +43,16 @@ export function app(): express.Express {
     res.redirect(301, '/fr/location-velo');
   });
 
+  // Bike service: ensure canonical EN/FR slugs are used
+  // /en/service → /en/bike-service
+  server.get('/en/service', (_req, res) => {
+    res.redirect(301, '/en/bike-service');
+  });
+  // /fr/service → /fr/entretien-velo
+  server.get('/fr/service', (_req, res) => {
+    res.redirect(301, '/fr/entretien-velo');
+  });
+
   // Rental catalog: ensure canonical EN/FR slugs are used
   // /en/mietfahrraeder → /en/rental-bikes
   server.get('/en/mietfahrraeder', (_req, res) => {

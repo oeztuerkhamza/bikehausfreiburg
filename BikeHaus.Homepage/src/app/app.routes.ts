@@ -283,6 +283,31 @@ export const routes: Routes = [
             (m) => m.KiBeraterComponent,
           ),
       },
+      // ── Fahrrad-Service (Inspektion, Wartung, Pflege) ──
+      // DE/TR/ES/IT/AR/RU: /service
+      {
+        path: 'service',
+        loadComponent: () =>
+          import('./pages/fahrrad-service/fahrrad-service.component').then(
+            (m) => m.FahrradServiceComponent,
+          ),
+      },
+      // EN canonical: /en/bike-service
+      {
+        path: 'bike-service',
+        loadComponent: () =>
+          import('./pages/fahrrad-service/fahrrad-service.component').then(
+            (m) => m.FahrradServiceComponent,
+          ),
+      },
+      // FR canonical: /fr/entretien-velo
+      {
+        path: 'entretien-velo',
+        loadComponent: () =>
+          import('./pages/fahrrad-service/fahrrad-service.component').then(
+            (m) => m.FahrradServiceComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: 'de' },

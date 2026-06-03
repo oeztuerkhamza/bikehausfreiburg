@@ -75,6 +75,7 @@ interface RentalStepsTranslations {
   totalRental: string;
   totalDeposit: string;
   depositNote: string;
+  depositCashNote: string;
   confirm: string;
   bookingSuccess: string;
   confirmationSent: string;
@@ -333,6 +334,9 @@ export interface Translations {
   warrantyExcludedItems: string;
   warrantyReturnTitle: string;
   warrantyReturnText: string;
+
+  // Bike Service Page (nav label)
+  bikeService: string;
 
   // Bike Rental Page
   bikeRental: string;
@@ -873,7 +877,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeCheckTireService: 'Reifenservice',
     bikeCheckCableReplace: 'Bowdenzug wechseln',
     bikeCheckBottomBracket: 'Tretlager warten',
-    bikeCheckSpokeRepair: 'Speichen reparieren & zentrieren',
+    bikeCheckSpokeRepair: 'Speichen zentrieren & nachziehen',
     bikeCheckLightInstall: 'Licht nachrüsten',
     bikeCheckPedalReplace: 'Pedale tauschen',
     bikeCheckNote: 'Nur für normale Fahrräder',
@@ -937,6 +941,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     warrantyReturnText: 'Innerhalb von 3 Arbeitstagen.',
 
     // Bike Rental Page
+    bikeService: 'Service',
     bikeRental: 'Fahrradverleih',
     bikeRentalPageLabel: 'SERVICE',
     bikeRentalPageTitle: 'Fahrradverleih – Einfach und flexibel',
@@ -1069,9 +1074,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     testimonialsTitle: 'Was unsere Kunden sagen',
     testimonialsSub: 'Über 500 zufriedene Kunden in Freiburg vertrauen uns',
 
-    repairLabel: 'WERKSTATT',
+    repairLabel: 'SERVICE',
     repairTitle: 'Unsere Serviceleistungen',
-    repairSub: 'Einblicke in unsere professionelle Fahrradwerkstatt',
+    repairSub: 'Einblicke in unseren Fahrrad-Service',
 
     faqLabel: 'HÄUFIGE FRAGEN',
     faqTitle: 'Fragen & Antworten',
@@ -1312,14 +1317,14 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Ja, in Einzelfällen ist eine Inzahlungnahme möglich. Sprechen Sie uns einfach an — wir finden eine Lösung.',
 
     svcRepairBadge: 'Service',
-    svcRepairTitle: 'Fahrrad Reparatur',
+    svcRepairTitle: 'Fahrrad Service',
     svcRepairSub:
       'Professionelle Wartung & Service – schnell, zuverlässig, fair.',
     svcRepairItem1: 'Bremsen, Schaltung, Reifen',
     svcRepairItem2: 'Komplette Inspektion',
     svcRepairItem3: 'Fahrrad Diagnose & Wartung',
     svcRepairItem4: 'Ersatzteile auf Lager',
-    svcRepairCta: 'Termin anfragen',
+    svcRepairCta: 'Zum Service',
     svcRepairWaCta: 'Termin via WhatsApp',
     svcRentalBadge: 'Verleih',
     svcRentalTitle: 'Fahrradverleih',
@@ -1555,7 +1560,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeCheckTireService: 'Tire service',
     bikeCheckCableReplace: 'Cable replacement',
     bikeCheckBottomBracket: 'Bottom bracket service',
-    bikeCheckSpokeRepair: 'Spoke repair & truing',
+    bikeCheckSpokeRepair: 'Spoke check & truing',
     bikeCheckLightInstall: 'Light installation',
     bikeCheckPedalReplace: 'Pedal replacement',
     bikeCheckNote: 'Regular bikes only',
@@ -1618,6 +1623,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     warrantyReturnText: 'Within 3 business days.',
 
     // Bike Rental Page
+    bikeService: 'Bike Service',
     bikeRental: 'Bike Rental',
     bikeRentalPageLabel: 'SERVICE',
     bikeRentalPageTitle: 'Bike Rental – Simple and Flexible',
@@ -1748,9 +1754,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     testimonialsTitle: 'What our customers say',
     testimonialsSub: 'Over 500 satisfied customers in Freiburg trust us',
 
-    repairLabel: 'WORKSHOP',
-    repairTitle: 'Our Repairs',
-    repairSub: 'Insights into our professional bicycle workshop',
+    repairLabel: 'SERVICE',
+    repairTitle: 'Our Service',
+    repairSub: 'Insights into our bike service',
 
     faqLabel: 'FAQ',
     faqTitle: 'Questions & Answers',
@@ -1976,13 +1982,13 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Yes. Bike Haus Freiburg rents city bikes, trekking bikes and e-bikes with prices configured per bike for days 1 to 7. From day 8 onward, a fixed extra-day surcharge is added to the 7-day price. No reservation needed — just come by Heckerstraße 27.',
 
     svcRepairBadge: 'Service',
-    svcRepairTitle: 'Bicycle Repair',
-    svcRepairSub: 'Professional maintenance & repairs – fast, reliable, fair.',
+    svcRepairTitle: 'Bike Service',
+    svcRepairSub: 'Professional maintenance & service – fast, reliable, fair.',
     svcRepairItem1: 'Brakes, Gears, Tyres',
     svcRepairItem2: 'Full Inspection',
     svcRepairItem3: 'Bike Diagnostics & Maintenance',
     svcRepairItem4: 'Spare Parts in Stock',
-    svcRepairCta: 'Request Appointment',
+    svcRepairCta: 'View Service',
     svcRepairWaCta: 'Book via WhatsApp',
     svcRentalBadge: 'Rental',
     svcRentalTitle: 'Bike Rental',
@@ -2223,7 +2229,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeCheckTireService: 'Service pneus',
     bikeCheckCableReplace: 'Remplacement de câble',
     bikeCheckBottomBracket: 'Entretien du pédalier',
-    bikeCheckSpokeRepair: 'Réparation & centrage des rayons',
+    bikeCheckSpokeRepair: 'Contrôle & centrage des rayons',
     bikeCheckLightInstall: "Installation d'éclairage",
     bikeCheckPedalReplace: 'Remplacement des pédales',
     bikeCheckNote: 'Uniquement pour les vélos classiques',
@@ -2288,6 +2294,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     warrantyReturnText: 'Dans les 3 jours ouvrables.',
 
     // Bike Rental Page
+    bikeService: 'Entretien',
     bikeRental: 'Location de vélos',
     bikeRentalPageLabel: 'SERVICE',
     bikeRentalPageTitle: 'Location de vélos – Simple et flexible',
@@ -2422,9 +2429,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     testimonialsSub:
       'Plus de 500 clients satisfaits à Fribourg nous font confiance',
 
-    repairLabel: 'ATELIER',
-    repairTitle: 'Nos réparations',
-    repairSub: 'Aperçu de notre atelier de réparation de vélos professionnel',
+    repairLabel: 'SERVICE',
+    repairTitle: 'Notre service',
+    repairSub: 'Aperçu de notre service vélo',
 
     faqLabel: 'QUESTIONS FRÉQUENTES',
     faqTitle: 'Questions & Réponses',
@@ -2664,14 +2671,14 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Oui. Bike Haus Freiburg loue des vélos city, trekking et VAE avec des tarifs configurés par vélo pour 1 à 7 jours. À partir du 8e jour, un supplément fixe est ajouté au prix 7 jours. Sans réservation — venez directement Heckerstraße 27.',
 
     svcRepairBadge: 'Service',
-    svcRepairTitle: 'Réparation de vélos',
+    svcRepairTitle: 'Service vélo',
     svcRepairSub:
-      'Entretien & réparation professionnels – rapide, fiable, juste.',
+      'Entretien & service professionnels – rapide, fiable, juste.',
     svcRepairItem1: 'Freins, Vitesses, Pneus',
     svcRepairItem2: 'Inspection complète',
     svcRepairItem3: 'Diagnostic & entretien E-Bike',
     svcRepairItem4: 'Pièces détachées en stock',
-    svcRepairCta: 'Prendre rendez-vous',
+    svcRepairCta: 'Voir le service',
     svcRepairWaCta: 'Réserver via WhatsApp',
     svcRentalBadge: 'Location',
     svcRentalTitle: 'Location de vélos',
@@ -2911,7 +2918,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeCheckTireService: 'Lastik servisi',
     bikeCheckCableReplace: 'Bowden teli değişimi',
     bikeCheckBottomBracket: 'Orta göbek bakımı',
-    bikeCheckSpokeRepair: 'Jant teli onarımı & merkezleme',
+    bikeCheckSpokeRepair: 'Jant teli kontrolü & merkezleme',
     bikeCheckLightInstall: 'Aydınlatma montajı',
     bikeCheckPedalReplace: 'Pedal değişimi',
     bikeCheckNote: 'Sadece normal bisikletler için',
@@ -2976,6 +2983,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     warrantyReturnText: '3 iş günü içinde.',
 
     // Bike Rental Page
+    bikeService: 'Servis',
     bikeRental: 'Bisiklet Kiralama',
     bikeRentalPageLabel: 'HİZMET',
     bikeRentalPageTitle: 'Bisiklet Kiralama – Kolay ve Esnek',
@@ -3107,9 +3115,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     testimonialsTitle: 'Müşterilerimiz ne diyor',
     testimonialsSub: "Freiburg'da 500'den fazla memnun müşteri bize güveniyor",
 
-    repairLabel: 'ATÖLYE',
-    repairTitle: 'Tamir Çalışmalarımız',
-    repairSub: 'Profesyonel bisiklet atölyemizden görüntüler',
+    repairLabel: 'SERVİS',
+    repairTitle: 'Servis Çalışmalarımız',
+    repairSub: 'Bisiklet servisimizden görüntüler',
 
     faqLabel: 'SIK SORULAN SORULAR',
     faqTitle: 'Sorular & Cevaplar',
@@ -3350,13 +3358,13 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Evet, bireysel durumlarda takas mümkündür. Bize danışın — bir çözüm buluruz.',
 
     svcRepairBadge: 'Servis',
-    svcRepairTitle: 'Bisiklet Tamiri',
-    svcRepairSub: 'Profesyonel bakım & tamir – hızlı, güvenilir, adil.',
+    svcRepairTitle: 'Bisiklet Servisi',
+    svcRepairSub: 'Profesyonel bakım & servis – hızlı, güvenilir, adil.',
     svcRepairItem1: 'Frenler, Vites, Lastik',
     svcRepairItem2: 'Tam Kontrol',
     svcRepairItem3: 'Bisiklet Tanı & Bakım',
     svcRepairItem4: 'Yedek Parça Stokta',
-    svcRepairCta: 'Randevu Talep Et',
+    svcRepairCta: 'Servise Git',
     svcRepairWaCta: 'WhatsApp ile Randevu',
     svcRentalBadge: 'Kiralama',
     svcRentalTitle: 'Bisiklet Kiralama',
@@ -3521,6 +3529,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Gesamtmiete',
     totalDeposit: 'Gesamtkaution',
     depositNote: 'Die Kaution wird bei Rückgabe des Fahrrads erstattet.',
+    depositCashNote: 'Wichtig: Die Kaution kann ausschließlich in bar bezahlt werden.',
     confirm: 'Buchung bestätigen',
     bookingSuccess: 'Buchung erfolgreich!',
     confirmationSent: 'Eine Bestätigungsmail wurde an',
@@ -3604,6 +3613,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Total rental',
     totalDeposit: 'Total deposit',
     depositNote: 'The deposit is refunded when the bike is returned.',
+    depositCashNote: 'Important: The deposit can only be paid in cash.',
     confirm: 'Confirm booking',
     bookingSuccess: 'Booking successful!',
     confirmationSent: 'A confirmation email was sent to',
@@ -3687,6 +3697,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Location totale',
     totalDeposit: 'Caution totale',
     depositNote: 'La caution est remboursée lors de la restitution du vélo.',
+    depositCashNote: 'Important : la caution est payable uniquement en espèces.',
     confirm: 'Confirmer la réservation',
     bookingSuccess: 'Réservation réussie !',
     confirmationSent: 'Un e-mail de confirmation a été envoyé à',
@@ -3770,6 +3781,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Toplam kiralama',
     totalDeposit: 'Toplam depozito',
     depositNote: 'Bisiklet iade edildiğinde depozito geri ödenir.',
+    depositCashNote: 'Önemli: Depozito yalnızca nakit olarak ödenebilir.',
     confirm: 'Rezervasyonu onayla',
     bookingSuccess: 'Rezervasyon başarılı!',
     confirmationSent: 'Onay e-postası şu adrese gönderildi',
@@ -3853,6 +3865,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Alquiler total',
     totalDeposit: 'Depósito total',
     depositNote: 'El depósito se devuelve al entregar la bicicleta.',
+    depositCashNote: 'Importante: el depósito solo se puede pagar en efectivo.',
     confirm: 'Confirmar reserva',
     bookingSuccess: '¡Reserva exitosa!',
     confirmationSent: 'Se envió un correo de confirmación a',
@@ -3936,6 +3949,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Totale noleggio',
     totalDeposit: 'Totale deposito',
     depositNote: 'Il deposito viene restituito alla riconsegna della bici.',
+    depositCashNote: 'Importante: il deposito può essere pagato solo in contanti.',
     confirm: 'Conferma prenotazione',
     bookingSuccess: 'Prenotazione completata!',
     confirmationSent: 'Una email di conferma è stata inviata a',
@@ -4020,6 +4034,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'إجمالي الإيجار',
     totalDeposit: 'إجمالي التأمين',
     depositNote: 'يتم رد مبلغ التأمين عند إعادة الدراجة.',
+    depositCashNote: 'مهم: لا يمكن دفع مبلغ التأمين إلا نقدًا.',
     confirm: 'تأكيد الحجز',
     bookingSuccess: 'تم الحجز بنجاح!',
     confirmationSent: 'تم إرسال رسالة تأكيد إلى',
@@ -4103,6 +4118,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Итого аренда',
     totalDeposit: 'Итого залог',
     depositNote: 'Залог возвращается при возврате велосипеда.',
+    depositCashNote: 'Важно: залог можно оплатить только наличными.',
     confirm: 'Подтвердить бронирование',
     bookingSuccess: 'Бронирование успешно!',
     confirmationSent: 'Письмо с подтверждением отправлено на',

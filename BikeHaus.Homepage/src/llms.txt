@@ -22,6 +22,7 @@ Bike Haus Freiburg ist ein Fahrradgeschäft in der Heckerstraße 27, 79114 Freib
 - Fahrradzubehör (Schlösser, Helme, Beleuchtung, Körbe, Satteltaschen)
 - Fahrradankauf — wir kaufen gebrauchte Fahrräder in gutem Zustand an
 - Fahrradverleih für Touristen und Einheimische
+- Fahrrad-Service: Inspektion, Wartung, Pflege, Einstellung von Bremsen & Schaltung, Reifenwechsel, E-Bike Check (kein Termin nötig)
 - KI-Fahrradberater: kostenloser KI-Assistent hilft bei der Fahrradwahl
 
 ## Besonderheiten
@@ -107,6 +108,9 @@ Für ein 6-jähriges Kind empfehlen wir ein 20-Zoll-Rad, für ein 9-jähriges ei
 **Was kostet ein Fahrrad bei Bike Haus Freiburg?**
 Gebrauchte Stadträder ab 180 €, Kinderfahrräder ab 60 €, gebrauchte E-Bikes ab 800 €, neue Fahrräder je nach Modell.
 
+**Bieten Sie Fahrrad-Service an?**
+Ja. Wir bieten Inspektion, Wartung und Pflege für Fahrräder und E-Bikes — Bremsen und Schaltung einstellen, Reifen wechseln, Licht prüfen, E-Bike Check (Akku, Display, Funktion). Einfach ohne Termin in der Heckerstraße 27 vorbeikommen. Mehr: https://bikehausfreiburg.com/de/service
+
 ## Standort-Seiten (City Landing Pages)
 
 - Fahrrad Emmendingen: https://bikehausfreiburg.com/de/fahrrad-emmendingen
@@ -127,6 +131,7 @@ Gebrauchte Stadträder ab 180 €, Kinderfahrräder ab 60 €, gebrauchte E-Bike
 - FAQ: https://bikehausfreiburg.com/de/faq
 - Kontakt: https://bikehausfreiburg.com/de/contact
 - Fahrradverleih: https://bikehausfreiburg.com/de/fahrradverleih
+- Fahrrad-Service: https://bikehausfreiburg.com/de/service
 
 ## Ratgeber (Blog)
 

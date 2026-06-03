@@ -47,6 +47,13 @@ function getKiBeraterPath(lang: string): string {
   if (lang === 'fr') return 'conseiller-velo';
   return 'ki-berater';
 }
+// Fahrrad-Service — uses language-specific slugs
+const SERVICE_SEGMENTS = new Set(['service', 'bike-service', 'entretien-velo']);
+function getServicePath(lang: string): string {
+  if (lang === 'en') return 'bike-service';
+  if (lang === 'fr') return 'entretien-velo';
+  return 'service';
+}
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {
@@ -164,6 +171,19 @@ export class SeoService {
       }
       this.addHreflangLink('x-default', `${BASE_URL}/${DEFAULT_LANGUAGE}/ki-berater`);
       this.updateMetaProperty('og:url', canonicalUrl);
+      return;
+    }
+
+    // ── Fahrrad-Service: /:lang/(service|bike-service|entretien-velo) ──
+    if (pathSegments.length === 2 && SERVICE_SEGMENTS.has(pathSegments[1])) {
+      // Consolidate any non-canonical service slug onto the language canonical.
+      const canonicalServiceUrl = `${BASE_URL}/${currentLang}/${getServicePath(currentLang)}`;
+      canonical.href = canonicalServiceUrl;
+      for (const lang of SUPPORTED_LANGUAGES) {
+        this.addHreflangLink(lang, `${BASE_URL}/${lang}/${getServicePath(lang)}`);
+      }
+      this.addHreflangLink('x-default', `${BASE_URL}/${DEFAULT_LANGUAGE}/service`);
+      this.updateMetaProperty('og:url', canonicalServiceUrl);
       return;
     }
 
