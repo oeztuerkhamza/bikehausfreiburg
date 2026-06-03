@@ -449,10 +449,42 @@ interface RentalForm {
                 </div>
               </div>
 
+              <p class="photo-order-hint" *ngIf="images().length > 1">
+                {{ t.mietfahrradPhotoOrderHint }}
+              </p>
+
               <!-- Photo grid -->
               <div class="photo-grid" *ngIf="images().length > 0">
-                <div class="photo-item" *ngFor="let img of images()">
+                <div
+                  class="photo-item"
+                  *ngFor="let img of images(); let i = index"
+                  [class.is-cover]="i === 0"
+                  [class.dragging]="draggingIndex() === i"
+                  [class.drag-over]="dragOverIndex() === i"
+                  draggable="true"
+                  (dragstart)="onPhotoDragStart(i)"
+                  (dragover)="onPhotoDragOver($event, i)"
+                  (dragleave)="onPhotoDragLeave(i)"
+                  (drop)="onPhotoDrop(i)"
+                  (dragend)="onPhotoDragEnd()"
+                >
                   <img [src]="getImageUrl(img.filePath)" [alt]="'Foto'" />
+
+                  <div class="cover-badge" *ngIf="i === 0">
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path
+                        d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z"
+                      />
+                    </svg>
+                    {{ t.mietfahrradTitelbild }}
+                  </div>
+                  <div class="photo-order" *ngIf="i !== 0">{{ i + 1 }}</div>
+
                   <button
                     class="photo-delete"
                     type="button"
@@ -471,7 +503,65 @@ interface RentalForm {
                       <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
                   </button>
-                  <div class="photo-order">{{ img.sortOrder + 1 }}</div>
+
+                  <div class="photo-controls">
+                    <button
+                      type="button"
+                      class="ctrl"
+                      [disabled]="i === 0"
+                      (click)="moveImage(i, i - 1)"
+                      [title]="t.mietfahrradMoveLeft"
+                    >
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                      >
+                        <polyline points="15 18 9 12 15 6" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="ctrl ctrl-cover"
+                      *ngIf="i !== 0"
+                      (click)="setAsCover(i)"
+                      [title]="t.mietfahrradSetAsTitelbild"
+                    >
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.2"
+                      >
+                        <path
+                          d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="ctrl"
+                      [disabled]="i === images().length - 1"
+                      (click)="moveImage(i, i + 1)"
+                      [title]="t.mietfahrradMoveRight"
+                    >
+                      <svg
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3"
+                      >
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -912,6 +1002,84 @@ interface RentalForm {
         text-align: center;
         margin: 8px 0 0;
       }
+      .photo-order-hint {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin: 0 0 12px;
+      }
+
+      .photo-item {
+        cursor: grab;
+        border: 2px solid transparent;
+      }
+      .photo-item.is-cover {
+        border-color: var(--accent-primary);
+      }
+      .photo-item.dragging {
+        opacity: 0.4;
+      }
+      .photo-item.drag-over {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px
+          var(--accent-primary-light, rgba(99, 102, 241, 0.2));
+      }
+      .cover-badge {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 7px 2px 5px;
+        border-radius: 999px;
+        background: var(--accent-primary);
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        z-index: 2;
+      }
+      .photo-controls {
+        position: absolute;
+        bottom: 6px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 5px;
+        opacity: 0;
+        transition: opacity 0.15s;
+        z-index: 2;
+      }
+      .photo-item:hover .photo-controls {
+        opacity: 1;
+      }
+      .photo-controls .ctrl {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        border: none;
+        background: rgba(17, 24, 39, 0.78);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        transition:
+          background 0.15s,
+          opacity 0.15s;
+      }
+      .photo-controls .ctrl:hover:not(:disabled) {
+        background: var(--accent-primary);
+      }
+      .photo-controls .ctrl:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .photo-controls .ctrl-cover:hover {
+        background: #f59e0b;
+      }
 
       .info-card {
         display: flex;
@@ -998,6 +1166,8 @@ export class MietfahrradFormComponent implements OnInit {
   pageLoading = signal(true);
   saving = signal(false);
   uploadingCount = signal(0);
+  draggingIndex = signal<number | null>(null);
+  dragOverIndex = signal<number | null>(null);
 
   form: RentalForm = {
     marke: '',
@@ -1184,6 +1354,59 @@ export class MietfahrradFormComponent implements OnInit {
       next: () =>
         this.images.update((imgs) => imgs.filter((i) => i.id !== img.id)),
       error: () => this.notificationService.error(this.t.saveError),
+    });
+  }
+
+  // ── Reordering / Titelbild ──
+  moveImage(from: number, to: number) {
+    const imgs = [...this.images()];
+    if (to < 0 || to >= imgs.length || from === to) return;
+    const [moved] = imgs.splice(from, 1);
+    imgs.splice(to, 0, moved);
+    this.images.set(imgs);
+    this.persistOrder();
+  }
+
+  setAsCover(index: number) {
+    this.moveImage(index, 0);
+  }
+
+  onPhotoDragStart(index: number) {
+    this.draggingIndex.set(index);
+  }
+
+  onPhotoDragOver(event: DragEvent, index: number) {
+    if (this.draggingIndex() === null) return;
+    event.preventDefault();
+    this.dragOverIndex.set(index);
+  }
+
+  onPhotoDragLeave(index: number) {
+    if (this.dragOverIndex() === index) this.dragOverIndex.set(null);
+  }
+
+  onPhotoDrop(index: number) {
+    const from = this.draggingIndex();
+    this.dragOverIndex.set(null);
+    this.draggingIndex.set(null);
+    if (from === null) return;
+    this.moveImage(from, index);
+  }
+
+  onPhotoDragEnd() {
+    this.draggingIndex.set(null);
+    this.dragOverIndex.set(null);
+  }
+
+  private persistOrder() {
+    if (!this.bikeId) return;
+    const ids = this.images().map((i) => i.id);
+    this.bicycleService.reorderGalleryImages(this.bikeId, ids).subscribe({
+      next: (imgs) => this.images.set(imgs),
+      error: () => {
+        this.notificationService.error(this.t.mietfahrradOrderSaveError);
+        this.loadBike();
+      },
     });
   }
 

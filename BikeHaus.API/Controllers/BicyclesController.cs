@@ -79,6 +79,19 @@ public class BicyclesController : ControllerBase
         return Ok(periods);
     }
 
+    // Batch variant: one request for many bikes (avoids fanning out N requests
+    // from the calendar, which trips the reverse-proxy rate limit → 503).
+    [Authorize]
+    [HttpPost("busy-periods/batch")]
+    public async Task<ActionResult<Dictionary<int, List<BusyPeriodDto>>>> GetBusyPeriodsBatch([FromBody] BusyPeriodsBatchRequest request)
+    {
+        if (request?.Ids == null)
+            return BadRequest(new { error = "ids is required" });
+
+        var map = await _bicycleService.GetBusyPeriodsForBikesAsync(request.Ids);
+        return Ok(map);
+    }
+
     [Authorize]
     [HttpGet("available-for-period")]
     public async Task<ActionResult<IEnumerable<BicycleDto>>> GetAvailableForPeriod(
@@ -260,4 +273,23 @@ public class BicyclesController : ControllerBase
         }
         catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
     }
+
+    [Authorize]
+    [HttpPut("{id}/gallery/reorder")]
+    public async Task<ActionResult<IEnumerable<BicycleImageDto>>> ReorderGalleryImages(int id, [FromBody] ReorderImagesRequest request)
+    {
+        if (request?.ImageIds == null)
+            return BadRequest(new { error = "imageIds is required" });
+
+        try
+        {
+            var images = await _bicycleService.ReorderImagesAsync(id, request.ImageIds);
+            return Ok(images);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
 }
+
+public record ReorderImagesRequest(IList<int> ImageIds);
+
+public record BusyPeriodsBatchRequest(IList<int> Ids);

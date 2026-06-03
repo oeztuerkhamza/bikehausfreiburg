@@ -116,6 +116,15 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
         return legacy.Concat(multi);
     }
 
+    public async Task<IEnumerable<RentalBooking>> GetByStatusesWithBikesAsync(IEnumerable<RentalBookingStatus> statuses)
+    {
+        var statusList = statuses.ToList();
+        return await _dbSet
+            .Include(b => b.Bikes)
+            .Where(b => statusList.Contains(b.Status))
+            .ToListAsync();
+    }
+
     public async Task<bool> ExistsApprovedOverlapAsync(int bicycleId, DateTime start, DateTime end, int? excludeBookingId = null)
     {
         // Legacy single-bike bookings

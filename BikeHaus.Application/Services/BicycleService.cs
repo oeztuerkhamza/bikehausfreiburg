@@ -337,6 +337,30 @@ public class BicycleService : IBicycleService
             ?? Enumerable.Empty<BicycleImageDto>();
     }
 
+    public async Task<IEnumerable<BicycleImageDto>> ReorderImagesAsync(int bicycleId, IList<int> orderedImageIds)
+    {
+        var bicycle = await _repository.GetWithImagesAsync(bicycleId)
+            ?? throw new KeyNotFoundException($"Bicycle with ID {bicycleId} not found.");
+
+        var images = bicycle.Images ?? new List<BicycleImage>();
+
+        // Assign sort order following the requested sequence; any image not
+        // listed keeps a stable order after the explicitly ordered ones.
+        var position = 0;
+        foreach (var imageId in orderedImageIds)
+        {
+            var image = images.FirstOrDefault(i => i.Id == imageId);
+            if (image != null)
+                image.SortOrder = position++;
+        }
+        foreach (var image in images.Where(i => !orderedImageIds.Contains(i.Id)).OrderBy(i => i.SortOrder))
+            image.SortOrder = position++;
+
+        await _repository.UpdateAsync(bicycle);
+
+        return images.OrderBy(i => i.SortOrder).Select(i => i.ToDto());
+    }
+
     public async Task<IEnumerable<BicycleDto>> GetAvailableForPeriodAsync(DateOnly start, DateOnly end)
     {
         var rentalBusyIds = await _rentalRepository.GetBusyBicycleIdsForPeriodAsync(start, end);
@@ -387,6 +411,48 @@ public class BicycleService : IBicycleService
                 (bk?.EndDatum ?? b.EndDatum).Date,
                 "pending");
         }));
+
+        return result;
+    }
+
+    /// <summary>
+    /// Batch variant of <see cref="GetBusyPeriodsAsync"/>: computes busy periods for
+    /// many bikes in a fixed number of queries (instead of one round-trip per bike),
+    /// returning a map keyed by bicycle id. Used by the booking calendar.
+    /// </summary>
+    public async Task<Dictionary<int, List<BusyPeriodDto>>> GetBusyPeriodsForBikesAsync(IEnumerable<int> bicycleIds)
+    {
+        var result = bicycleIds.Distinct().ToDictionary(id => id, _ => new List<BusyPeriodDto>());
+
+        void Add(int bikeId, DateTime start, DateTime end, string type)
+        {
+            if (result.TryGetValue(bikeId, out var list))
+                list.Add(new BusyPeriodDto(start.Date, end.Date, type));
+        }
+
+        // Active rentals (Mietvertrag) — loaded once for all bikes
+        var allRentals = await _rentalRepository.GetAllAsync();
+        foreach (var rental in allRentals.Where(r => r.Status == RentalStatus.Active))
+            foreach (var rentalBike in rental.Bikes)
+                Add(rentalBike.BicycleId, rentalBike.StartDatum, rentalBike.EndDatum, "rental");
+
+        // Bookings (approved + pending) — loaded once for all bikes
+        var bookings = await _bookingRepository.GetByStatusesWithBikesAsync(
+            new[] { RentalBookingStatus.Approved, RentalBookingStatus.Pending });
+        foreach (var booking in bookings)
+        {
+            var type = booking.Status == RentalBookingStatus.Approved ? "booking" : "pending";
+            if (booking.Bikes.Any())
+            {
+                foreach (var bk in booking.Bikes)
+                    Add(bk.BicycleId, bk.StartDatum, bk.EndDatum, type);
+            }
+            else
+            {
+                // Legacy single-bike booking (no Bikes entries)
+                Add(booking.BicycleId, booking.StartDatum, booking.EndDatum, type);
+            }
+        }
 
         return result;
     }
