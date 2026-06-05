@@ -2,7 +2,7 @@ import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { RentalService } from '../../services/rental.service';
 import { BicycleService } from '../../services/bicycle.service';
@@ -12,6 +12,11 @@ import { RentalBookingService } from '../../services/rental-booking.service';
 import { RentalAccessoryService } from '../../services/rental-accessory.service';
 import {
   RentalCreate,
+  RentalUpdate,
+  RentalBikeUpdate,
+  RentalBikeCreate,
+  Rental,
+  RentalBike,
   RentalAccessoryItemCreate,
   RentalAccessoryList,
   BusyPeriod,
@@ -55,6 +60,10 @@ interface BikeEntry {
   selectedBike: Bicycle | null;
   isQuickAddMode: boolean;
   isCollapsed: boolean;
+  // Edit-mode tracking (null/false for the "new rental" flow)
+  rentalBikeId: number | null; // id of the existing RentalBike row, null = newly added
+  isExisting: boolean;
+  originalBicycleId: number | null;
   bikeEdit: {
     rahmennummer: string;
     marke: string;
@@ -87,6 +96,9 @@ function createEmptyBikeEntry(): BikeEntry {
     selectedBike: null,
     isQuickAddMode: false,
     isCollapsed: false,
+    rentalBikeId: null,
+    isExisting: false,
+    originalBicycleId: null,
     bikeEdit: {
       rahmennummer: '',
       marke: '',
@@ -144,9 +156,9 @@ const MONTH_NAMES = [
     <div class="page">
       <div class="page-header">
         <h1>
-          {{ fromBookingId ? 'Mietvertrag aus Anfrage' : 'Neue Vermietung' }}
+          {{ isEditMode ? 'Mietvertrag bearbeiten' : (fromBookingId ? 'Mietvertrag aus Anfrage' : 'Neue Vermietung') }}
         </h1>
-        <a routerLink="/rentals" class="btn btn-outline">Zurück</a>
+        <a [routerLink]="backLink" class="btn btn-outline">Zurück</a>
       </div>
 
       <div class="from-booking-banner" *ngIf="fromBookingId">
@@ -407,17 +419,14 @@ const MONTH_NAMES = [
                   />
                   <span class="error-msg" *ngIf="b.bikeErrors['marke']">Pflichtfeld</span>
                 </div>
-                <div class="field" [class.field-error]="b.bikeErrors['modell']">
-                  <label>Modell *</label>
+                <div class="field">
+                  <label>Modell</label>
                   <input
                     [(ngModel)]="b.bikeEdit.modell"
                     [name]="'bikeModell_' + i"
                     list="modelList"
                     autocomplete="off"
-                    required
-                    (ngModelChange)="b.bikeErrors['modell'] = false"
                   />
-                  <span class="error-msg" *ngIf="b.bikeErrors['modell']">Pflichtfeld</span>
                 </div>
                 <div class="field">
                   <label>Rahmengröße</label>
@@ -699,7 +708,12 @@ const MONTH_NAMES = [
             </div>
             <div style="margin-top:12px;">
               <label style="font-weight:600;font-size:0.9rem;">Unterschrift Mieter</label>
+              <div *ngIf="isEditMode && existingSignature && !mieterUnterschrift" style="margin-bottom:8px;">
+                <p style="font-size:0.8rem;color:#64748b;margin-bottom:4px;">Vorhandene Unterschrift:</p>
+                <img [src]="existingSignature" style="max-height:60px;border:1px solid #e2e8f0;border-radius:4px;" />
+              </div>
               <app-signature-pad [(ngModel)]="mieterUnterschrift" name="mieterUnterschrift"></app-signature-pad>
+              <p *ngIf="isEditMode" style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Neu unterschreiben, um die vorhandene Unterschrift zu ersetzen.</p>
             </div>
           </div>
           </ng-container>
@@ -710,7 +724,7 @@ const MONTH_NAMES = [
 
         <!-- Wizard nav (mobile only) -->
         <div class="wizard-nav" *ngIf="isMobile">
-          <a routerLink="/rentals" class="btn btn-outline wizard-back" *ngIf="currentStep === 0">Abbrechen</a>
+          <a [routerLink]="backLink" class="btn btn-outline wizard-back" *ngIf="currentStep === 0">Abbrechen</a>
           <button
             type="button"
             class="btn btn-outline wizard-back"
@@ -733,22 +747,18 @@ const MONTH_NAMES = [
             *ngIf="isLastStep"
             [disabled]="submitting || !canSubmit || !f.form.valid"
           >
-            {{ submitting
-              ? 'Wird erstellt...'
-              : (bikes.length > 1 ? 'Vermietungen anlegen' : 'Vermietung anlegen') }}
+            {{ submitButtonLabel }}
           </button>
         </div>
 
         <div class="form-actions" *ngIf="!isMobile">
-          <a routerLink="/rentals" class="btn btn-outline">Abbrechen</a>
+          <a [routerLink]="backLink" class="btn btn-outline">Abbrechen</a>
           <button
             type="submit"
             class="btn btn-primary"
             [disabled]="submitting || !canSubmit || !f.form.valid"
           >
-            {{ submitting
-              ? 'Wird erstellt...'
-              : (bikes.length > 1 ? 'Vermietungen anlegen' : 'Vermietung anlegen') }}
+            {{ submitButtonLabel }}
           </button>
         </div>
       </form>
@@ -1800,6 +1810,13 @@ export class RentalFormComponent implements OnInit {
 
   fromBookingId: number | null = null;
   fromBookingAusweisPhotoPath: string | undefined = undefined;
+
+  // ── Edit mode ──
+  isEditMode = false;
+  rentalId: number | null = null;
+  existingSignature = '';
+  private removedExistingBikeIds: number[] = [];
+
   availableBikes: Bicycle[] = [];
   availabilityLoading = false;
   private pendingBikeIdToSelect: number | null = null;
@@ -1861,6 +1878,18 @@ export class RentalFormComponent implements OnInit {
 
   get currentStepLabel(): string {
     return this.wizardSteps[this.currentStep] ?? '';
+  }
+
+  get backLink(): any[] {
+    return this.isEditMode && this.rentalId ? ['/rentals', this.rentalId] : ['/rentals'];
+  }
+
+  get submitButtonLabel(): string {
+    if (this.submitting) {
+      return this.isEditMode ? 'Wird gespeichert...' : 'Wird erstellt...';
+    }
+    if (this.isEditMode) return 'Änderungen speichern';
+    return this.bikes.length > 1 ? 'Vermietungen anlegen' : 'Vermietung anlegen';
   }
 
   @HostListener('window:resize')
@@ -1941,11 +1970,10 @@ export class RentalFormComponent implements OnInit {
       b.bikeErrors = {};
       if (b.isQuickAddMode && !b.bikeEdit.rahmennummer) b.bikeErrors['rahmennummer'] = true;
       if (!b.bikeEdit.marke) b.bikeErrors['marke'] = true;
-      if (!b.bikeEdit.modell) b.bikeErrors['modell'] = true;
       if (Object.values(b.bikeErrors).some((v) => v)) {
         b.isCollapsed = false;
         this.notificationService.error(
-          `Fahrrad ${i + 1}: Rahmennummer, Marke und Modell ausfüllen`,
+          `Fahrrad ${i + 1}: Rahmennummer und Marke ausfüllen`,
         );
         return false;
       }
@@ -2050,6 +2078,10 @@ export class RentalFormComponent implements OnInit {
 
   removeBike(i: number) {
     if (this.bikes.length <= 1) return;
+    const b = this.bikes[i];
+    if (b?.isExisting && b.rentalBikeId != null) {
+      this.removedExistingBikeIds.push(b.rentalBikeId);
+    }
     this.bikes.splice(i, 1);
   }
 
@@ -2321,6 +2353,15 @@ export class RentalFormComponent implements OnInit {
       error: () => {},
     });
 
+    // ── Edit mode: route param /rentals/edit/:id ──
+    const editId = this.route.snapshot.paramMap.get('id');
+    if (editId) {
+      this.isEditMode = true;
+      this.rentalId = Number(editId);
+      this.loadRentalForEdit(this.rentalId);
+      return;
+    }
+
     const bookingId = this.route.snapshot.queryParamMap.get('bookingId');
     const bicycleIdParam = this.route.snapshot.queryParamMap.get('bicycleId');
     if (bookingId) {
@@ -2406,6 +2447,107 @@ export class RentalFormComponent implements OnInit {
         error: () => {
           this.notificationService.error('Buchung konnte nicht geladen werden');
         },
+      });
+    }
+  }
+
+  private loadRentalForEdit(id: number) {
+    this.rentalService.getById(id).subscribe({
+      next: (rental) => this.prefillFromRental(rental),
+      error: () => {
+        this.notificationService.error('Mietvertrag konnte nicht geladen werden');
+        this.router.navigate(['/rentals']);
+      },
+    });
+  }
+
+  private prefillFromRental(rental: Rental) {
+    // Mieter
+    if (rental.customer) {
+      this.customer = {
+        vorname: rental.customer.vorname || '',
+        nachname: rental.customer.nachname || '',
+        strasse: rental.customer.strasse || '',
+        hausnummer: rental.customer.hausnummer || '',
+        plz: rental.customer.plz || '',
+        stadt: rental.customer.stadt || '',
+        telefon: rental.customer.telefon || '',
+        email: rental.customer.email || '',
+      };
+    }
+    this.notizen = rental.notizen || '';
+    this.agbAkzeptiert = rental.agbAkzeptiert || false;
+    this.unterschriftOrt = rental.unterschriftOrt || 'Freiburg';
+    this.existingSignature = rental.mieterUnterschrift || '';
+
+    // Dates
+    if (rental.startDatum) this.startDatum = rental.startDatum.split('T')[0];
+    if (rental.endDatum) this.endDatum = rental.endDatum.split('T')[0];
+    if (this.startDatum) {
+      const start = new Date(this.startDatum);
+      this.calendarMonth = start.getMonth();
+      this.calendarYear = start.getFullYear();
+    }
+    this.pickingState = 'start';
+
+    // Bikes → one BikeEntry per existing RentalBike
+    this.bikes = rental.bikes.map((rb: RentalBike, idx: number) => {
+      const entry = createEmptyBikeEntry();
+      entry.rentalBikeId = rb.id;
+      entry.isExisting = true;
+      entry.originalBicycleId = rb.bicycleId;
+      entry.selectedBike = rb.bicycle ?? ({ id: rb.bicycleId } as Bicycle);
+      entry.isCollapsed = idx > 0;
+      entry.bikeEdit = {
+        rahmennummer: rb.rahmennummer || rb.bicycle?.rahmennummer || '',
+        marke: rb.bicycle?.marke || '',
+        modell: rb.bicycle?.modell || '',
+        rahmengroesse: rb.bicycle?.rahmengroesse || '',
+        farbe: rb.farbe || rb.bicycle?.farbe || '',
+        reifengroesse: rb.bicycle?.reifengroesse || '',
+        fahrradtyp: rb.bicycle?.fahrradtyp || '',
+        beschreibung: rb.bicycle?.beschreibung || '',
+        zustand: rb.bicycle?.zustand || BikeCondition.Gebraucht,
+      };
+      entry.gesamtmiete = rb.mietpreis;
+      entry.kaution = rb.kaution;
+      // Rental-level fields live on the first bike (mirrors the create flow)
+      entry.rabatt = idx === 0 ? rental.rabatt || 0 : 0;
+      entry.zahlungsart = rental.zahlungsart || '';
+      entry.kautionZahlungsart = rental.kautionZahlungsart || '';
+      return entry;
+    });
+    if (this.bikes.length === 0) this.bikes = [createEmptyBikeEntry()];
+
+    // Accessories → predefined quantities
+    for (const key of ACCESSORY_KEYS) {
+      const match = rental.accessories?.find((a) =>
+        this.matchesAccessoryKey(a.bezeichnung, key),
+      );
+      this.accessoryQuantities[key] = match
+        ? Math.max(0, Math.floor(Number(match.menge) || 0))
+        : 0;
+    }
+
+    this.recalcDaysAndPrices();
+    this.loadAvailableForPeriod();
+  }
+
+  private recalcDaysAndPrices() {
+    if (this.startDatum && this.endDatum) {
+      const start = new Date(this.startDatum);
+      const end = new Date(this.endDatum);
+      const diffDays = Math.round(
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+      );
+      this.rentalDays = Math.max(0, diffDays + 1);
+    } else {
+      this.rentalDays = 0;
+    }
+    if (this.rentalDays > 0) {
+      this.bikes.forEach((_, i) => {
+        const b = this.bikes[i];
+        if (b.selectedBike) b.berechneterPreis = this.calculatePriceFor(i, this.rentalDays);
       });
     }
   }
@@ -2556,7 +2698,12 @@ export class RentalFormComponent implements OnInit {
     this.availabilityLoading = true;
     this.bicycleService.getAvailableForPeriod(this.startDatum, this.endDatum).subscribe({
       next: (bikes) => {
-        this.availableBikes = bikes;
+        // In edit mode the rental's own bikes are "Rented" and won't be returned
+        // by the availability endpoint — re-add them so they stay selectable.
+        const extra = this.bikes
+          .map((b) => b.selectedBike)
+          .filter((sb): sb is Bicycle => !!sb && sb.id != null && !bikes.some((x) => x.id === sb.id));
+        this.availableBikes = extra.length > 0 ? [...bikes, ...extra] : bikes;
         this.availabilityLoading = false;
 
         if (this.pendingMultiBikes.length > 0) {
@@ -2662,10 +2809,9 @@ export class RentalFormComponent implements OnInit {
         b.bikeErrors = {};
         if (b.isQuickAddMode && !b.bikeEdit.rahmennummer) b.bikeErrors['rahmennummer'] = true;
         if (!b.bikeEdit.marke) b.bikeErrors['marke'] = true;
-        if (!b.bikeEdit.modell) b.bikeErrors['modell'] = true;
         if (Object.values(b.bikeErrors).some((v) => v)) {
           this.notificationService.error(
-            `Fahrrad ${i + 1}: Rahmennummer, Marke und Modell ausfüllen`,
+            `Fahrrad ${i + 1}: Rahmennummer und Marke ausfüllen`,
           );
           return;
         }
@@ -2677,9 +2823,15 @@ export class RentalFormComponent implements OnInit {
       if (this.isMobile) this.currentStep = this.totalSteps - 1;
       return;
     }
-    if (!this.mieterUnterschrift) {
+    // In edit mode the existing signature is kept if no new one is drawn.
+    if (!this.mieterUnterschrift && !(this.isEditMode && this.existingSignature)) {
       this.notificationService.error('Bitte die Unterschrift des Mieters erfassen.');
       if (this.isMobile) this.currentStep = this.totalSteps - 1;
+      return;
+    }
+
+    if (this.isEditMode) {
+      this.submitEdit();
       return;
     }
 
@@ -2791,6 +2943,137 @@ export class RentalFormComponent implements OnInit {
           this.submitting = false;
           this.notificationService.error(
             err.error?.error || 'Fehler beim Anlegen der Vermietung',
+          );
+        },
+      });
+  }
+
+  /** Creates (quick-add) or updates the underlying Bicycle and yields its id. */
+  private resolveBicycleId(b: BikeEntry): Observable<number> {
+    if (b.isQuickAddMode) {
+      return this.bicycleService
+        .create({
+          rahmennummer: b.bikeEdit.rahmennummer.toUpperCase(),
+          marke: b.bikeEdit.marke,
+          modell: b.bikeEdit.modell,
+          rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
+          farbe: b.bikeEdit.farbe || undefined,
+          reifengroesse: b.bikeEdit.reifengroesse || undefined,
+          fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
+          beschreibung: b.bikeEdit.beschreibung || undefined,
+          status: 'Available',
+          zustand: b.bikeEdit.zustand || BikeCondition.Gebraucht,
+          isRentable: false,
+        } as any)
+        .pipe(map((bike) => bike.id));
+    }
+    const sel = b.selectedBike;
+    if (!sel) return of(0);
+    const bikeUpdate: BicycleUpdate = {
+      marke: b.bikeEdit.marke,
+      modell: b.bikeEdit.modell,
+      rahmennummer: b.bikeEdit.rahmennummer || undefined,
+      rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
+      farbe: b.bikeEdit.farbe || undefined,
+      reifengroesse: b.bikeEdit.reifengroesse || '',
+      fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
+      beschreibung: b.bikeEdit.beschreibung || undefined,
+      status: sel.status as any,
+      zustand: b.bikeEdit.zustand || ((sel.zustand || 'Gebraucht') as BikeCondition),
+      isRentable: sel.isRentable,
+      rentalPriceDay1: sel.rentalPriceDay1,
+      rentalPriceDay2: sel.rentalPriceDay2,
+      rentalPriceDay3: sel.rentalPriceDay3,
+      rentalPriceDay4: sel.rentalPriceDay4,
+      rentalPriceDay5: sel.rentalPriceDay5,
+      rentalPriceDay6: sel.rentalPriceDay6,
+      rentalPriceDay7: sel.rentalPriceDay7,
+      rentalPriceAdditionalDayAfter7: sel.rentalPriceAdditionalDayAfter7,
+    };
+    return this.bicycleService.update(sel.id, bikeUpdate).pipe(map(() => sel.id));
+  }
+
+  private submitEdit() {
+    if (!this.rentalId) return;
+    this.submitting = true;
+
+    const accessoriesPayload: RentalAccessoryItemCreate[] = ACCESSORY_KEYS
+      .filter((key) => (this.accessoryQuantities[key] || 0) > 0)
+      .map((key) => {
+        const accessory = this.buildAccessoryFromKey(key, this.accessoryQuantities[key]);
+        return {
+          rentalAccessoryId: accessory.rentalAccessoryId,
+          bezeichnung: accessory.bezeichnung,
+          tagespreis: accessory.tagespreis,
+          verlustgebuehr: accessory.verlustgebuehr,
+          menge: accessory.menge,
+        };
+      });
+
+    const resolves = this.bikes.map((b) =>
+      this.resolveBicycleId(b).pipe(map((bicycleId) => ({ b, bicycleId }))),
+    );
+
+    forkJoin(resolves)
+      .pipe(
+        switchMap((results) => {
+          const firstBike = this.bikes[0];
+          const existingBikes: RentalBikeUpdate[] = [];
+          const newBikes: RentalBikeCreate[] = [];
+
+          for (const { b, bicycleId } of results) {
+            if (b.isExisting && b.rentalBikeId != null) {
+              existingBikes.push({
+                id: b.rentalBikeId,
+                bicycleId: bicycleId !== b.originalBicycleId ? bicycleId : undefined,
+                rahmennummer: b.bikeEdit.rahmennummer || undefined,
+                farbe: b.bikeEdit.farbe || undefined,
+                mietpreis: b.gesamtmiete,
+                kaution: b.kaution,
+              });
+            } else {
+              newBikes.push({
+                bicycleId,
+                rahmennummer: b.bikeEdit.rahmennummer || undefined,
+                farbe: b.bikeEdit.farbe || undefined,
+                startDatum: this.startDatum,
+                endDatum: this.endDatum,
+                mietpreis: b.gesamtmiete,
+                kaution: b.kaution,
+                zustandBeiUebergabe: b.zustandBeiUebergabe as BikeConditionAtHandover,
+              });
+            }
+          }
+
+          const update: RentalUpdate = {
+            customer: this.customer,
+            startDatum: this.startDatum,
+            endDatum: this.endDatum,
+            rabatt: firstBike.rabatt || 0,
+            zahlungsart: firstBike.zahlungsart as PaymentMethod,
+            kautionZahlungsart: firstBike.kautionZahlungsart as PaymentMethod,
+            notizen: this.notizen || undefined,
+            mieterUnterschrift: this.mieterUnterschrift || undefined,
+            agbAkzeptiert: this.agbAkzeptiert,
+            unterschriftOrt: this.unterschriftOrt || undefined,
+            bikes: existingBikes.length > 0 ? existingBikes : undefined,
+            newBikes: newBikes.length > 0 ? newBikes : undefined,
+            removeBikeIds:
+              this.removedExistingBikeIds.length > 0 ? this.removedExistingBikeIds : undefined,
+            accessories: accessoriesPayload,
+          };
+          return this.rentalService.update(this.rentalId!, update);
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.notificationService.success('Änderungen gespeichert');
+          this.router.navigate(['/rentals', this.rentalId!]);
+        },
+        error: (err) => {
+          this.submitting = false;
+          this.notificationService.error(
+            err.error?.error || 'Fehler beim Speichern der Änderungen',
           );
         },
       });

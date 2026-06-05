@@ -272,8 +272,8 @@ export const routes: Routes = [
   {
     path: 'rentals/edit/:id',
     loadComponent: () =>
-      import('./pages/rentals/rental-edit.component').then(
-        (m) => m.RentalEditComponent,
+      import('./pages/rentals/rental-form.component').then(
+        (m) => m.RentalFormComponent,
       ),
     canActivate: [authGuard],
   },

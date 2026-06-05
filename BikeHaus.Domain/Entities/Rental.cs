@@ -9,7 +9,6 @@ public class Rental : BaseEntity
 
     // Mieter (Renter)
     public int CustomerId { get; set; }
-    public string? AusweisnNr { get; set; }
 
     // Overall rental window (typically the union of per-bike periods)
     public DateTime StartDatum { get; set; }

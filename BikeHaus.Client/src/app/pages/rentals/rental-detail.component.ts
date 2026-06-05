@@ -63,9 +63,6 @@ import {
           <div class="info-row" *ngIf="rental.customer.email">
             <span>E-Mail:</span><span>{{ rental.customer.email }}</span>
           </div>
-          <div class="info-row" *ngIf="rental.ausweisnNr">
-            <span>Ausweis-Nr.:</span><span>{{ rental.ausweisnNr }}</span>
-          </div>
         </div>
 
         <div class="info-card">

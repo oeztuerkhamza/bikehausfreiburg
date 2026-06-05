@@ -782,7 +782,6 @@ export interface Rental {
   mietvertragNummer: string;
   bikes: RentalBike[];
   customer: Customer;
-  ausweisnNr?: string;
   startDatum: string;
   endDatum: string;
   gesamtmiete: number;
@@ -862,7 +861,6 @@ export interface RentalReturn {
 export interface RentalCreate {
   bikes: RentalBikeCreate[];
   customer: CustomerCreate;
-  ausweisnNr?: string;
   rabatt: number;
   zahlungsart: PaymentMethod;
   kautionZahlungsart?: PaymentMethod;
@@ -885,7 +883,6 @@ export interface RentalBikeUpdate {
 
 export interface RentalUpdate {
   customer?: CustomerCreate;
-  ausweisnNr?: string;
   startDatum?: string;
   endDatum?: string;
   rabatt?: number;
@@ -900,6 +897,7 @@ export interface RentalUpdate {
   bikes?: RentalBikeUpdate[];
   newBikes?: RentalBikeCreate[];
   removeBikeIds?: number[];
+  accessories?: RentalAccessoryItemCreate[];
 }
 
 // ── Rental Booking (Homepage) ──

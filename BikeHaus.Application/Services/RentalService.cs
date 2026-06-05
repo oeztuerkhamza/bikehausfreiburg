@@ -120,7 +120,6 @@ public class RentalService : IRentalService
         var rental = new Rental
         {
             CustomerId = customer.Id,
-            AusweisnNr = dto.AusweisnNr,
             StartDatum = startDatum,
             EndDatum = endDatum,
             Gesamtmiete = gesamtmiete,
@@ -238,8 +237,6 @@ public class RentalService : IRentalService
             await _customerRepository.UpdateAsync(customer);
         }
 
-        if (dto.AusweisnNr != null)
-            rental.AusweisnNr = dto.AusweisnNr;
         if (dto.StartDatum.HasValue)
             rental.StartDatum = dto.StartDatum.Value;
         if (dto.EndDatum.HasValue)
@@ -357,6 +354,48 @@ public class RentalService : IRentalService
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                 });
+            }
+        }
+
+        // Sync accessories when provided: update matching items in place (keeping their
+        // id and their already-returned status), add new ones, and remove the rest —
+        // but never silently drop an accessory that was already returned.
+        if (dto.Accessories != null)
+        {
+            var incoming = dto.Accessories;
+
+            var toRemove = rental.Accessories
+                .Where(existing => !existing.Zurueckgegeben
+                    && !incoming.Any(inc => AccessoryMatches(existing, inc)))
+                .ToList();
+            foreach (var rem in toRemove)
+                rental.Accessories.Remove(rem);
+
+            foreach (var inc in incoming)
+            {
+                var existing = rental.Accessories.FirstOrDefault(e => AccessoryMatches(e, inc));
+                if (existing != null)
+                {
+                    existing.RentalAccessoryId = inc.RentalAccessoryId;
+                    existing.Bezeichnung = inc.Bezeichnung;
+                    existing.Tagespreis = inc.Tagespreis;
+                    existing.Verlustgebuehr = inc.Verlustgebuehr;
+                    existing.Menge = inc.Menge;
+                    existing.UpdatedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    rental.Accessories.Add(new RentalAccessoryItem
+                    {
+                        RentalAccessoryId = inc.RentalAccessoryId,
+                        Bezeichnung = inc.Bezeichnung,
+                        Tagespreis = inc.Tagespreis,
+                        Verlustgebuehr = inc.Verlustgebuehr,
+                        Menge = inc.Menge,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow,
+                    });
+                }
             }
         }
 
@@ -500,5 +539,15 @@ public class RentalService : IRentalService
             bicycle.UpdatedAt = DateTime.UtcNow;
             await _bicycleRepository.UpdateAsync(bicycle);
         }
+    }
+
+    private static bool AccessoryMatches(RentalAccessoryItem existing, RentalAccessoryItemCreateDto inc)
+    {
+        if (inc.RentalAccessoryId.HasValue && existing.RentalAccessoryId.HasValue)
+            return existing.RentalAccessoryId == inc.RentalAccessoryId;
+        return string.Equals(
+            existing.Bezeichnung?.Trim(),
+            inc.Bezeichnung?.Trim(),
+            StringComparison.OrdinalIgnoreCase);
     }
 }

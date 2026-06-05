@@ -1485,9 +1485,7 @@ public class PdfService : IPdfService
                         table.Cell().ColumnSpan(3).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Customer.FullAddress ?? "-").FontSize(10);
 
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Telefon").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Customer.Telefon ?? "-").FontSize(10);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Ausweis-Nr.").FontSize(9).FontColor(Colors.Grey.Darken2);
-                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.AusweisnNr ?? "-").FontSize(10);
+                        table.Cell().ColumnSpan(3).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Customer.Telefon ?? "-").FontSize(10);
                     });
 
                     col.Item().PaddingTop(3).Text("✓ Die Identität des Mieters wurde anhand eines gültigen Ausweisdokuments überprüft.")

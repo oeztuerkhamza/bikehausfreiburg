@@ -470,7 +470,6 @@ public static class MappingExtensions
         entity.MietvertragNummer,
         entity.Bikes.OrderBy(b => b.Id).Select(b => b.ToDto()).ToList(),
         entity.Customer.ToDto(),
-        entity.AusweisnNr,
         entity.StartDatum,
         entity.EndDatum,
         entity.Gesamtmiete,

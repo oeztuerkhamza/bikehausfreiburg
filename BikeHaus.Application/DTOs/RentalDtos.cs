@@ -63,7 +63,6 @@ public record RentalDto(
     string MietvertragNummer,
     List<RentalBikeDto> Bikes,
     CustomerDto Customer,
-    string? AusweisnNr,
     DateTime StartDatum,
     DateTime EndDatum,
     decimal Gesamtmiete,
@@ -120,7 +119,6 @@ public record RentalReturnDto(
 public record RentalCreateDto(
     List<RentalBikeCreateDto> Bikes,
     CustomerCreateDto Customer,
-    string? AusweisnNr,
     decimal Rabatt,
     PaymentMethod Zahlungsart,
     PaymentMethod? KautionZahlungsart,
@@ -146,7 +144,6 @@ public record RentalBikeUpdateDto(
 
 public record RentalUpdateDto(
     CustomerCreateDto? Customer,
-    string? AusweisnNr,
     DateTime? StartDatum,
     DateTime? EndDatum,
     decimal? Rabatt,
@@ -160,5 +157,6 @@ public record RentalUpdateDto(
     string? UnterschriftOrt,
     List<RentalBikeUpdateDto>? Bikes,
     List<RentalBikeCreateDto>? NewBikes,
-    List<int>? RemoveBikeIds
+    List<int>? RemoveBikeIds,
+    List<RentalAccessoryItemCreateDto>? Accessories
 );
