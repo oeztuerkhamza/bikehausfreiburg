@@ -18,7 +18,7 @@ namespace BikeHaus.Infrastructure.Services;
 public class SmtpEmailService : IEmailService
 {
     private const int MaxSendAttempts = 3;
-    private const string DefaultGoogleReviewUrl = "https://g.page/r/CQTjOCyqlXbGEBM/review";
+    private const string DefaultGoogleReviewUrl = "https://g.page/r/CRnu1n--kiIYEBM/review";
     private readonly SmtpOptions _options;
     private readonly ILogger<SmtpEmailService> _logger;
     private readonly BikeHausDbContext _db;
