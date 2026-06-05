@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -172,9 +172,31 @@ const MONTH_NAMES = [
       </div>
 
       <form (ngSubmit)="submit()" #f="ngForm">
+
+        <!-- Wizard progress (mobile only) -->
+        <div class="wizard-progress" *ngIf="isMobile">
+          <div class="wizard-progress-top">
+            <span class="wizard-step-count">Schritt {{ currentStep + 1 }} / {{ totalSteps }}</span>
+            <span class="wizard-step-name">{{ currentStepLabel }}</span>
+          </div>
+          <div class="wizard-progress-bar">
+            <div class="wizard-progress-fill" [style.width.%]="((currentStep + 1) / totalSteps) * 100"></div>
+          </div>
+          <div class="wizard-dots">
+            <span
+              class="wizard-dot"
+              *ngFor="let s of wizardSteps; let idx = index"
+              [class.active]="idx === currentStep"
+              [class.done]="idx < currentStep"
+              (click)="goToStep(idx)"
+            ></span>
+          </div>
+        </div>
+
         <div class="form-sections">
 
-          <!-- Mietdauer mit Kalender — FIRST: dates must be chosen before bikes -->
+          <!-- STEP 0: Mietdauer mit Kalender — FIRST: dates must be chosen before bikes -->
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 0">
           <div class="form-card">
             <h2>Mietdauer</h2>
 
@@ -260,7 +282,11 @@ const MONTH_NAMES = [
               </div>
             </div>
           </div>
+          </div>
+          <!-- /STEP 0 -->
 
+          <!-- STEP 1: Fahrrad — Verfügbarkeit + Fahrradkarten -->
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 1">
           <!-- Availability status after date selection -->
           <div class="avail-loading-bar" *ngIf="availabilityLoading">
             <span>Verfügbare Fahrräder werden geladen…</span>
@@ -543,7 +569,13 @@ const MONTH_NAMES = [
             </svg>
             Weiteres Fahrrad hinzufügen
           </button>
+          </ng-container>
+          </div>
+          <!-- /STEP 1 -->
 
+          <!-- STEP 2: Zubehör -->
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 2">
+          <ng-container *ngIf="datesReady">
           <!-- Zubehör -->
           <div class="form-card">
             <div class="section-header">
@@ -565,7 +597,13 @@ const MONTH_NAMES = [
               </div>
             </div>
           </div>
+          </ng-container>
+          </div>
+          <!-- /STEP 2 -->
 
+          <!-- STEP 3: Mieter -->
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 3">
+          <ng-container *ngIf="datesReady">
           <!-- Mieter -->
           <div class="form-card">
             <h2>Mieter</h2>
@@ -632,7 +670,13 @@ const MONTH_NAMES = [
               </div>
             </div>
           </div>
+          </ng-container>
+          </div>
+          <!-- /STEP 3 -->
 
+          <!-- STEP 4: AGB & Unterschrift -->
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 4">
+          <ng-container *ngIf="datesReady">
           <!-- AGB & Unterschrift -->
           <div class="form-card">
             <h2>AGB &amp; Unterschrift</h2>
@@ -647,6 +691,7 @@ const MONTH_NAMES = [
                   [(ngModel)]="agbAkzeptiert"
                   name="agbAkzeptiert"
                   id="agbCheck"
+                  required
                   style="width:18px;height:18px;cursor:pointer;"
                 />
                 <label for="agbCheck" style="cursor:pointer;margin:0;">Ich habe die AGB gelesen und akzeptiert</label>
@@ -657,12 +702,44 @@ const MONTH_NAMES = [
               <app-signature-pad [(ngModel)]="mieterUnterschrift" name="mieterUnterschrift"></app-signature-pad>
             </div>
           </div>
-
           </ng-container>
+          </div>
+          <!-- /STEP 4 -->
 
         </div>
 
-        <div class="form-actions">
+        <!-- Wizard nav (mobile only) -->
+        <div class="wizard-nav" *ngIf="isMobile">
+          <a routerLink="/rentals" class="btn btn-outline wizard-back" *ngIf="currentStep === 0">Abbrechen</a>
+          <button
+            type="button"
+            class="btn btn-outline wizard-back"
+            *ngIf="currentStep > 0"
+            (click)="prevStep()"
+          >
+            Zurück
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary wizard-next"
+            *ngIf="!isLastStep"
+            (click)="nextStep()"
+          >
+            Weiter
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary wizard-next"
+            *ngIf="isLastStep"
+            [disabled]="submitting || !canSubmit || !f.form.valid"
+          >
+            {{ submitting
+              ? 'Wird erstellt...'
+              : (bikes.length > 1 ? 'Vermietungen anlegen' : 'Vermietung anlegen') }}
+          </button>
+        </div>
+
+        <div class="form-actions" *ngIf="!isMobile">
           <a routerLink="/rentals" class="btn btn-outline">Abbrechen</a>
           <button
             type="submit"
@@ -1562,6 +1639,90 @@ const MONTH_NAMES = [
         color: #ef4444;
       }
 
+      /* ── Mobile wizard ── */
+      .wizard-progress {
+        margin-bottom: 16px;
+      }
+      .wizard-progress-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .wizard-step-count {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+      }
+      .wizard-step-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .wizard-progress-bar {
+        height: 6px;
+        background: var(--border-light);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .wizard-progress-fill {
+        height: 100%;
+        background: var(--accent-primary, #6366f1);
+        border-radius: 99px;
+        transition: width 0.25s ease;
+      }
+      .wizard-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .wizard-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--border-color);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .wizard-dot.active {
+        background: var(--accent-primary, #6366f1);
+        transform: scale(1.35);
+      }
+      .wizard-dot.done {
+        background: var(--accent-primary, #6366f1);
+        opacity: 0.5;
+      }
+      .wizard-hidden {
+        display: none;
+      }
+      .wizard-nav {
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+        padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+        background: var(--bg-card);
+        border-top: 1px solid var(--border-light);
+      }
+      .wizard-nav .wizard-next {
+        flex: 1;
+      }
+      .wizard-nav .wizard-back {
+        flex: 0 0 auto;
+      }
+      .wizard-nav .btn {
+        padding: 14px 18px;
+        font-size: 1rem;
+        justify-content: center;
+      }
+
       @media (max-width: 640px) {
         .form-grid {
           grid-template-columns: 1fr;
@@ -1572,6 +1733,56 @@ const MONTH_NAMES = [
         }
         .date-display {
           flex-wrap: wrap;
+        }
+
+        /* Prevent iOS zoom-on-focus (needs ≥16px) */
+        input,
+        select,
+        textarea {
+          font-size: 16px;
+        }
+
+        /* Tighter spacing on small screens */
+        .form-card {
+          padding: 16px;
+        }
+        .form-sections {
+          gap: 16px;
+        }
+        .page-header {
+          margin-bottom: 16px;
+        }
+        .page-header h1 {
+          font-size: 1.25rem;
+        }
+
+        /* Larger touch targets */
+        .cal-nav-btn {
+          width: 40px;
+          height: 40px;
+        }
+        .cal-day {
+          font-size: 0.95rem;
+        }
+        .qty-btn {
+          height: 40px;
+          padding: 0 14px;
+        }
+        .btn-remove {
+          width: 40px;
+          height: 40px;
+        }
+        .btn-add-bike {
+          width: 100%;
+          padding: 14px;
+        }
+        .color-chip {
+          padding: 8px 12px;
+          font-size: 0.9rem;
+        }
+        .accessory-quantity-item input {
+          width: 64px;
+          padding: 8px;
         }
       }
     `,
@@ -1634,6 +1845,140 @@ export class RentalFormComponent implements OnInit {
   mieterUnterschrift = '';
   agbAkzeptiert = false;
   unterschriftOrt = 'Freiburg';
+
+  // ── Mobile wizard ──
+  isMobile = false;
+  currentStep = 0;
+  readonly wizardSteps = ['Mietdauer', 'Fahrrad', 'Zubehör', 'Mieter', 'Unterschrift'];
+
+  get totalSteps(): number {
+    return this.wizardSteps.length;
+  }
+
+  get isLastStep(): boolean {
+    return this.currentStep === this.totalSteps - 1;
+  }
+
+  get currentStepLabel(): string {
+    return this.wizardSteps[this.currentStep] ?? '';
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.updateIsMobile();
+  }
+
+  private updateIsMobile() {
+    if (typeof window === 'undefined') return;
+    this.isMobile = window.innerWidth <= 640;
+  }
+
+  private scrollToTop() {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  nextStep() {
+    if (!this.validateStep(this.currentStep)) return;
+    if (this.currentStep < this.totalSteps - 1) {
+      this.currentStep++;
+      this.scrollToTop();
+    }
+  }
+
+  prevStep() {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+      this.scrollToTop();
+    }
+  }
+
+  goToStep(step: number) {
+    if (step === this.currentStep) return;
+    if (step < this.currentStep) {
+      this.currentStep = step;
+      this.scrollToTop();
+      return;
+    }
+    // Forward navigation: validate each step in between
+    for (let s = this.currentStep; s < step; s++) {
+      if (!this.validateStep(s)) {
+        this.currentStep = s;
+        this.scrollToTop();
+        return;
+      }
+    }
+    this.currentStep = step;
+    this.scrollToTop();
+  }
+
+  private validateStep(step: number): boolean {
+    switch (step) {
+      case 0:
+        if (!this.datesReady) {
+          this.notificationService.error('Bitte Mietbeginn und Mietende auswählen.');
+          return false;
+        }
+        return true;
+      case 1:
+        return this.validateBikesStep();
+      case 3:
+        return this.validateMieterStep();
+      default:
+        return true;
+    }
+  }
+
+  private validateBikesStep(): boolean {
+    for (let i = 0; i < this.bikes.length; i++) {
+      const b = this.bikes[i];
+      if (!b.selectedBike && !b.isQuickAddMode) {
+        b.isCollapsed = false;
+        this.notificationService.error(`Fahrrad ${i + 1}: bitte auswählen oder neu anlegen`);
+        return false;
+      }
+      b.bikeErrors = {};
+      if (b.isQuickAddMode && !b.bikeEdit.rahmennummer) b.bikeErrors['rahmennummer'] = true;
+      if (!b.bikeEdit.marke) b.bikeErrors['marke'] = true;
+      if (!b.bikeEdit.modell) b.bikeErrors['modell'] = true;
+      if (Object.values(b.bikeErrors).some((v) => v)) {
+        b.isCollapsed = false;
+        this.notificationService.error(
+          `Fahrrad ${i + 1}: Rahmennummer, Marke und Modell ausfüllen`,
+        );
+        return false;
+      }
+      if (!b.zahlungsart) {
+        b.isCollapsed = false;
+        this.notificationService.error(`Fahrrad ${i + 1}: Zahlungsart Miete wählen`);
+        return false;
+      }
+      if (!b.kautionZahlungsart) {
+        b.isCollapsed = false;
+        this.notificationService.error(`Fahrrad ${i + 1}: Zahlungsart Kaution wählen`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private validateMieterStep(): boolean {
+    const c = this.customer;
+    if (
+      !c.vorname ||
+      !c.nachname ||
+      !c.strasse ||
+      !c.hausnummer ||
+      !c.plz ||
+      !c.stadt ||
+      !c.email
+    ) {
+      this.notificationService.error('Bitte alle Pflichtfelder des Mieters ausfüllen.');
+      return false;
+    }
+    return true;
+  }
 
   availableAccessories: RentalAccessoryList[] = [];
   accessoryQuantities: Record<PredefinedAccessoryKey, number> = {
@@ -1961,6 +2306,8 @@ export class RentalFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.updateIsMobile();
+
     this.accessoryService.getActive().subscribe({
       next: (list) => (this.availableAccessories = list),
     });
@@ -2323,6 +2670,17 @@ export class RentalFormComponent implements OnInit {
           return;
         }
       }
+    }
+
+    if (!this.agbAkzeptiert) {
+      this.notificationService.error('Bitte die AGB akzeptieren.');
+      if (this.isMobile) this.currentStep = this.totalSteps - 1;
+      return;
+    }
+    if (!this.mieterUnterschrift) {
+      this.notificationService.error('Bitte die Unterschrift des Mieters erfassen.');
+      if (this.isMobile) this.currentStep = this.totalSteps - 1;
+      return;
     }
 
     this.submitting = true;
