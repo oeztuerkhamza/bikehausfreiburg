@@ -71,6 +71,7 @@ public static class DependencyInjection
         services.AddScoped<IPdfService, PdfService>();
         services.AddScoped<IEmailService, SmtpEmailService>();
         services.AddScoped<IEmailAccountService, EmailAccountService>();
+        services.AddScoped<IUnsubscribeService, UnsubscribeService>();
         services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));
         services.Configure<MailboxProvisioningOptions>(configuration.GetSection("MailboxProvisioning"));
         services.AddHttpClient<IMailboxProvisioningService, MailcowMailboxProvisioningService>();

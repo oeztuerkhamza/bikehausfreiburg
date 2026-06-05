@@ -42,6 +42,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
     public DbSet<EmailLog> EmailLogs => Set<EmailLog>();
     public DbSet<RentalReview> RentalReviews => Set<RentalReview>();
+    public DbSet<EmailUnsubscribe> EmailUnsubscribes => Set<EmailUnsubscribe>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -531,7 +532,6 @@ public class BikeHausDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.MietvertragNummer).IsRequired().HasMaxLength(30);
-            entity.Property(e => e.AusweisnNr).HasMaxLength(50);
             entity.Property(e => e.Gesamtmiete).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Rabatt).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Kaution).HasColumnType("decimal(18,2)");
@@ -604,6 +604,15 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Yorum).IsRequired().HasMaxLength(2000);
             entity.Property(e => e.AdminNotiz).HasMaxLength(500);
             entity.HasIndex(e => e.Onaylandi);
+        });
+
+        // ── EmailUnsubscribe Configuration ──
+        modelBuilder.Entity<EmailUnsubscribe>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Source).HasMaxLength(20);
+            entity.HasIndex(e => e.Email).IsUnique();
         });
 
         // ── RentalAccessoryItem Configuration ──

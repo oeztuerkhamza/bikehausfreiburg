@@ -1,0 +1,41 @@
+Betreff-Vorschlag: Wie war Ihr Besuch bei Bike Haus Freiburg?
+(Alternativen: "Ihre Meinung zählt – kurz Zeit für eine Bewertung?" /
+"Vielen Dank – würden Sie uns bei Google bewerten?")
+
+---------------------------------------------------------------
+
+Hallo {{Vorname}},
+
+vielen Dank, dass Sie sich für Bike Haus Freiburg entschieden haben.
+Wir hoffen, Sie sind mit Ihrem Fahrrad und unserem Service zufrieden.
+
+Wenn Sie einen Moment Zeit haben, würden wir uns sehr über eine kurze
+Bewertung bei Google freuen. Das hilft anderen Radfahrerinnen und
+Radfahrern in Freiburg, uns zu finden – und uns, noch besser zu werden.
+
+>> Jetzt bei Google bewerten: https://g.page/r/CRnu1n--kiIYEBM/review
+   (Es dauert nur eine Minute – vielen Dank!)
+
+---------------------------------------------------------------
+
+SERVICE & WARTUNG
+Inspektion, Wartung und Pflege – damit Ihr Rad sicher und zuverlässig
+läuft. Mehr dazu: https://bikehausfreiburg.com/de/service
+
+FAHRRADVERLEIH
+Freiburg und das Umland entdecken – online ansehen und buchen:
+https://bikehausfreiburg.com/de/fahrradverleih
+
+---------------------------------------------------------------
+
+Bike Haus Freiburg
+Heckerstraße 27, 79114 Freiburg im Breisgau
+Telefon / WhatsApp: +49 155 6630 0011
+E-Mail: info.bikehausfreiburg@gmail.com
+Web: https://bikehausfreiburg.com
+
+Sie erhalten diese E-Mail, weil Sie Kundin oder Kunde bei Bike Haus
+Freiburg sind. Abmelden jederzeit hier: {{AbmeldeLink}}
+
+Datenschutz: https://bikehausfreiburg.com/de/datenschutz
+Impressum:  https://bikehausfreiburg.com/de/impressum
