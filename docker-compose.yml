@@ -28,7 +28,7 @@ services:
       - CampaignSmtp__Username=${CAMPAIGN_SMTP_USERNAME:-cevdet.akarsu@bikehausfreiburg.com}
       - CampaignSmtp__Password=${CAMPAIGN_SMTP_PASSWORD}
       - CampaignSmtp__FromEmail=${CAMPAIGN_SMTP_FROMEMAIL:-cevdet.akarsu@bikehausfreiburg.com}
-      - CampaignSmtp__FromName=${CAMPAIGN_SMTP_FROMNAME:-Cevdet}
+      - CampaignSmtp__FromName=${CAMPAIGN_SMTP_FROMNAME:-Cevdet Akarsu}
       - Anthropic__ApiKey=${ANTHROPIC_API_KEY}
       - Api__PublicBaseUrl=https://api.bikehausfreiburg.com
     networks:

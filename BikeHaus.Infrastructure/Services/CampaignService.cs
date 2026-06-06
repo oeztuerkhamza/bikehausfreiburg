@@ -174,7 +174,7 @@ https://g.page/r/CRnu1n--kiIYEBM/review
 Das hilft uns wirklich weiter. Vielen Dank!
 
 Viele Grüße
-Cevdet
+Cevdet Akarsu
 Bike Haus Freiburg
 Heckerstraße 27, 79114 Freiburg im Breisgau
 Telefon / WhatsApp: +49 155 6630 0011
