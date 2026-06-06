@@ -208,6 +208,7 @@ Viele Gruesse
         var fromName = dbAccount is not null
             ? FirstConfigured(dbAccount.FromName, _options.FromName)
             : FirstConfigured(_options.FromName);
+        var replyTo = FirstConfigured(_options.ReplyTo, fromEmail);
 
         if (string.IsNullOrWhiteSpace(host))
         {
@@ -236,6 +237,8 @@ Viele Gruesse
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress(fromName, fromEmail));
                 message.To.Add(new MailboxAddress(toName, toEmail));
+                if (!string.IsNullOrWhiteSpace(replyTo))
+                    message.ReplyTo.Add(new MailboxAddress(fromName, replyTo));
                 message.Subject = subject;
 
                 if (extraHeaders is { Count: > 0 })
