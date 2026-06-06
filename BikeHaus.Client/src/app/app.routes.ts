@@ -166,6 +166,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'email-kampagne',
+    loadComponent: () =>
+      import('./pages/email-campaign/email-campaign.component').then(
+        (m) => m.EmailCampaignComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'settings',
     loadComponent: () =>
       import('./pages/settings/settings.component').then(

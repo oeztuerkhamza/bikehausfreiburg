@@ -148,6 +148,34 @@ Viele Gruesse
             });
     }
 
+    public Task SendNewsletterAsync(
+        string toEmail,
+        string toName,
+        string subject,
+        string htmlBody,
+        string textBody,
+        string unsubscribeUrl)
+    {
+        var headers = new Dictionary<string, string>
+        {
+            // RFC 8058 one-click unsubscribe — improves deliverability (Gmail/Yahoo)
+            // and lets mail clients offer a native "Abmelden" button.
+            ["List-Unsubscribe"] = $"<{unsubscribeUrl}>",
+            ["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click",
+        };
+
+        return SendAsync(
+            toEmail,
+            toName,
+            subject,
+            htmlBody,
+            "Newsletter",
+            attachments: null,
+            isHtml: true,
+            plainTextAlternative: textBody,
+            extraHeaders: headers);
+    }
+
     private async Task SendAsync(
         string toEmail,
         string toName,
@@ -155,7 +183,9 @@ Viele Gruesse
         string body,
         string emailType = "",
         IEnumerable<(byte[] Bytes, string FileName)>? attachments = null,
-        bool isHtml = false)
+        bool isHtml = false,
+        string? plainTextAlternative = null,
+        IDictionary<string, string>? extraHeaders = null)
     {
         var dbAccount = await _db.EmailAccounts
             .Where(a => a.IsDefault && a.IsActive)
@@ -208,6 +238,12 @@ Viele Gruesse
                 message.To.Add(new MailboxAddress(toName, toEmail));
                 message.Subject = subject;
 
+                if (extraHeaders is { Count: > 0 })
+                {
+                    foreach (var header in extraHeaders)
+                        message.Headers.Add(header.Key, header.Value);
+                }
+
                 if (validAttachments is { Count: > 0 })
                 {
                     var multipart = new Multipart("mixed");
@@ -225,6 +261,16 @@ Viele Gruesse
                     }
 
                     message.Body = multipart;
+                }
+                else if (isHtml && plainTextAlternative is not null)
+                {
+                    // multipart/alternative: plain first, HTML last (clients pick HTML)
+                    var alternative = new MultipartAlternative
+                    {
+                        new TextPart("plain") { Text = plainTextAlternative },
+                        new TextPart("html") { Text = body },
+                    };
+                    message.Body = alternative;
                 }
                 else
                 {

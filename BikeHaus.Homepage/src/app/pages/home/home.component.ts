@@ -3306,36 +3306,30 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private addReviewSchema(): void {
     const googleReviews = this.googleReviews();
-    const useGoogle = googleReviews.length > 0;
 
-    const reviews = useGoogle
-      ? googleReviews
-          .filter((r) => r.text)
-          .map((r) => ({
-            '@type': 'Review',
-            author: { '@type': 'Person', name: r.authorName },
-            reviewRating: {
-              '@type': 'Rating',
-              ratingValue: r.rating,
-              bestRating: 5,
-            },
-            reviewBody: r.text,
-          }))
-      : this.fallbackTestimonials().map((t) => ({
-          '@type': 'Review',
-          author: { '@type': 'Person', name: t.name },
-          reviewRating: {
-            '@type': 'Rating',
-            ratingValue: t.rating,
-            bestRating: 5,
-          },
-          reviewBody: t.text,
-        }));
+    // Only emit AggregateRating/Review structured data when we have REAL Google
+    // reviews. Fabricated ratings violate Google's review-snippet guidelines and
+    // risk a manual action, so with no real reviews we inject nothing here — the
+    // static LocalBusiness node in index.html still describes the business.
+    if (googleReviews.length === 0) {
+      return;
+    }
 
-    const ratingValue = useGoogle ? this.googleRating().toFixed(1) : '4.9';
-    const reviewCount = useGoogle
-      ? this.googleTotalReviews().toString()
-      : this.fallbackTestimonials().length.toString();
+    const reviews = googleReviews
+      .filter((r) => r.text)
+      .map((r) => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: r.authorName },
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: r.rating,
+          bestRating: 5,
+        },
+        reviewBody: r.text,
+      }));
+
+    const ratingValue = this.googleRating().toFixed(1);
+    const reviewCount = this.googleTotalReviews().toString();
 
     const schema = {
       '@context': 'https://schema.org',
@@ -3381,8 +3375,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       paymentAccepted: 'Cash, Credit Card, Debit Card, PayPal, Bank Transfer',
       sameAs: [
         'https://maps.app.goo.gl/Q1fXe7A6PRb8E5wV7',
-        'https://www.instagram.com/bikehausfreiburg',
+        'https://www.instagram.com/bikehausfreiburg/',
+        'https://www.facebook.com/bikehausfreiburg/',
         'https://wa.me/4915566300011',
+        'https://www.kleinanzeigen.de/pro/bike-haus-freiburg',
       ],
       openingHoursSpecification: [
         {
