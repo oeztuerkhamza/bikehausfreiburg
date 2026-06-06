@@ -10,8 +10,6 @@ namespace BikeHaus.Infrastructure.Services;
 /// <summary>
 /// Builds and sends the Google-review request campaign. Recipients are all
 /// customers with a valid e-mail, minus anyone on the opt-out (Abmelde-) list.
-/// The mail content is intentionally minimal so Gmail is less likely to
-/// classify it as Promotions.
 /// </summary>
 public class CampaignService : ICampaignService
 {
@@ -171,21 +169,31 @@ public class CampaignService : ICampaignService
     private const string TextTemplate = """
 [[ANREDE]]
 
-vielen Dank, dass Sie bei Bike Haus Freiburg waren. Wir hoffen, dass Sie mit
-Ihrem Fahrrad und unserem Service zufrieden sind.
+vielen Dank, dass Sie sich für Bike Haus Freiburg entschieden haben. Wir
+hoffen, Sie sind mit Ihrem Fahrrad und unserem Service zufrieden.
 
-Wenn Sie kurz Zeit haben, würden wir uns sehr über eine Google-Bewertung
-freuen:
+Wenn Sie einen Moment Zeit haben, würden wir uns sehr über eine kurze
+Bewertung bei Google freuen:
 
-https://g.page/r/CRnu1n--kiIYEBM/review
+>> https://g.page/r/CRnu1n--kiIYEBM/review
+
+----------------------------------------------------------------
+
+SERVICE & WARTUNG — Inspektion, Wartung und Pflege:
+https://bikehausfreiburg.com/de/service
+
+FAHRRADVERLEIH — Freiburg entdecken, online buchen:
+https://bikehausfreiburg.com/de/fahrradverleih
+
+----------------------------------------------------------------
 
 Bike Haus Freiburg
 Heckerstraße 27, 79114 Freiburg im Breisgau
 Telefon / WhatsApp: +49 155 6630 0011
-E-Mail: info.bikehausfreiburg@gmail.com
+info.bikehausfreiburg@gmail.com
 
-Sie erhalten diese E-Mail, weil Sie Kundin oder Kunde bei Bike Haus Freiburg
-sind. Abmelden: [[ABMELDE]]
+Sie erhalten diese E-Mail, weil Sie Kundin oder Kunde bei Bike Haus
+Freiburg sind. Abmelden: [[ABMELDE]]
 Datenschutz: https://bikehausfreiburg.com/de/datenschutz
 """;
 
@@ -199,25 +207,74 @@ Datenschutz: https://bikehausfreiburg.com/de/datenschutz
   <title>Bike Haus Freiburg</title>
 </head>
 <body style="margin:0; padding:0; background-color:#f4f5f7; font-family:Arial, Helvetica, sans-serif; color:#1f2937;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0;">
+    Vielen Dank für Ihren Besuch bei Bike Haus Freiburg – wir würden uns über Ihre Bewertung freuen.
+  </div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;">
     <tr>
       <td align="center" style="padding:24px 12px;">
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px; max-width:600px; background-color:#ffffff; border-radius:12px; overflow:hidden;">
           <tr>
-            <td style="padding:32px 32px 24px 32px; font-size:16px; line-height:1.7; color:#1f2937;">
-              <p style="margin:0 0 16px 0;">[[ANREDE]]</p>
-              <p style="margin:0 0 16px 0;">vielen Dank, dass Sie bei Bike Haus Freiburg waren. Wir hoffen, dass Sie mit Ihrem Fahrrad und unserem Service zufrieden sind.</p>
-              <p style="margin:0 0 16px 0;">Wenn Sie kurz Zeit haben, würden wir uns sehr über eine Google-Bewertung freuen:</p>
-              <p style="margin:0 0 20px 0;">
-                <a href="https://g.page/r/CRnu1n--kiIYEBM/review" target="_blank" style="color:#0f172a; text-decoration:underline; font-weight:bold;">Google-Bewertung schreiben</a>
+            <td style="background-color:#0f172a; padding:24px 32px;" align="center">
+              <a href="https://bikehausfreiburg.com/de" target="_blank" style="text-decoration:none;">
+                <img src="https://bikehausfreiburg.com/assets/logo.png" alt="Bike Haus Freiburg" width="180" style="display:block; width:180px; max-width:180px; height:auto; margin:0 auto;">
+              </a>
+              <div style="font-size:13px; color:#9ca3af; margin-top:10px;">Fahrradverkauf &amp; Verleih · Heckerstraße 27, Freiburg</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px 32px 8px 32px;">
+              <p style="margin:0 0 16px 0; font-size:16px; line-height:1.6;">[[ANREDE]]</p>
+              <p style="margin:0 0 16px 0; font-size:16px; line-height:1.6;">vielen Dank, dass Sie sich für Bike Haus Freiburg entschieden haben. Wir hoffen, Sie sind mit Ihrem Fahrrad und unserem Service zufrieden.</p>
+              <p style="margin:0 0 8px 0; font-size:16px; line-height:1.6;">Wenn Sie einen Moment Zeit haben, würden wir uns sehr über eine kurze Bewertung bei Google freuen. Das hilft anderen Radfahrerinnen und Radfahrern in Freiburg, uns zu finden – und uns, noch besser zu werden.</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:16px 32px 32px 32px;">
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td align="center" style="border-radius:8px; background-color:#f59e0b;">
+                    <a href="https://g.page/r/CRnu1n--kiIYEBM/review" target="_blank" style="display:inline-block; padding:14px 32px; font-size:16px; font-weight:bold; color:#1f2937; text-decoration:none; border-radius:8px;">⭐ Jetzt bei Google bewerten</a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:14px 0 0 0; font-size:13px; color:#6b7280;">Es dauert nur eine Minute – vielen Dank!</p>
+            </td>
+          </tr>
+          <tr><td style="padding:0 32px;"><hr style="border:none; border-top:1px solid #e5e7eb; margin:0;"></td></tr>
+          <tr>
+            <td style="padding:28px 32px 8px 32px;">
+              <a href="https://bikehausfreiburg.com/de/service" target="_blank" style="text-decoration:none;">
+                <img src="https://bikehausfreiburg.com/assets/images/sections/bg-services.jpg" alt="Fahrrad-Service und Wartung bei Bike Haus Freiburg" width="536" style="width:100%; max-width:536px; height:auto; border-radius:8px; display:block;">
+              </a>
+              <h2 style="margin:16px 0 8px 0; font-size:18px; color:#0f172a;">Service &amp; Wartung</h2>
+              <p style="margin:0 0 12px 0; font-size:15px; line-height:1.6; color:#374151;">Inspektion, Wartung und Pflege – damit Ihr Rad sicher und zuverlässig läuft. Vereinbaren Sie einfach einen Termin bei uns im Laden.</p>
+              <a href="https://bikehausfreiburg.com/de/service" target="_blank" style="font-size:15px; font-weight:bold; color:#0ea5e9; text-decoration:none;">Mehr zum Service &rarr;</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px 32px 8px 32px;">
+              <a href="https://bikehausfreiburg.com/de/fahrradverleih" target="_blank" style="text-decoration:none;">
+                <img src="https://bikehausfreiburg.com/assets/images/sections/bg-rental.jpg" alt="Fahrradverleih bei Bike Haus Freiburg" width="536" style="width:100%; max-width:536px; height:auto; border-radius:8px; display:block;">
+              </a>
+              <h2 style="margin:16px 0 8px 0; font-size:18px; color:#0f172a;">Fahrradverleih</h2>
+              <p style="margin:0 0 12px 0; font-size:15px; line-height:1.6; color:#374151;">Freiburg und das Umland entdecken – ob für einen Tag oder länger. Bei uns finden Sie das passende Rad. Online ansehen und buchen.</p>
+              <a href="https://bikehausfreiburg.com/de/fahrradverleih" target="_blank" style="font-size:15px; font-weight:bold; color:#0ea5e9; text-decoration:none;">Räder ansehen &amp; buchen &rarr;</a>
+            </td>
+          </tr>
+          <tr><td style="padding:24px 32px 0 32px;"><hr style="border:none; border-top:1px solid #e5e7eb; margin:0;"></td></tr>
+          <tr>
+            <td style="padding:20px 32px 28px 32px;">
+              <p style="margin:0 0 6px 0; font-size:13px; line-height:1.6; color:#6b7280;">
+                <strong>Bike Haus Freiburg</strong><br>
+                Heckerstraße 27, 79114 Freiburg im Breisgau<br>
+                Telefon / WhatsApp: +49 155 6630 0011<br>
+                E-Mail: info.bikehausfreiburg@gmail.com<br>
+                Web: <a href="https://bikehausfreiburg.com" target="_blank" style="color:#6b7280;">bikehausfreiburg.com</a>
               </p>
-              <p style="margin:0 0 4px 0; font-size:14px; color:#4b5563;">Bike Haus Freiburg</p>
-              <p style="margin:0 0 4px 0; font-size:14px; color:#4b5563;">Heckerstraße 27, 79114 Freiburg im Breisgau</p>
-              <p style="margin:0 0 4px 0; font-size:14px; color:#4b5563;">Telefon / WhatsApp: +49 155 6630 0011</p>
-              <p style="margin:0 0 16px 0; font-size:14px; color:#4b5563;">E-Mail: info.bikehausfreiburg@gmail.com</p>
-              <p style="margin:0 0 6px 0; font-size:12px; line-height:1.6; color:#6b7280;">Sie erhalten diese E-Mail, weil Sie Kundin oder Kunde bei Bike Haus Freiburg sind. Wenn Sie keine weiteren E-Mails von uns erhalten möchten, können Sie sich hier jederzeit abmelden:</p>
-              <p style="margin:0 0 12px 0; font-size:12px; line-height:1.6;">
-                <a href="[[ABMELDE]]" target="_blank" style="color:#374151; text-decoration:underline;">Abmelden</a>
+              <p style="margin:14px 0 6px 0; font-size:12px; line-height:1.6; color:#9ca3af;">Sie erhalten diese E-Mail, weil Sie Kundin oder Kunde bei Bike Haus Freiburg sind. Wenn Sie keine weiteren E-Mails von uns erhalten möchten, können Sie sich hier jederzeit abmelden:</p>
+              <p style="margin:0 0 14px 0;">
+                <a href="[[ABMELDE]]" target="_blank" style="font-size:13px; font-weight:bold; color:#374151; text-decoration:underline;">Vom Newsletter abmelden</a>
               </p>
               <p style="margin:0; font-size:12px; line-height:1.6; color:#9ca3af;">
                 <a href="https://bikehausfreiburg.com/de/datenschutz" target="_blank" style="color:#9ca3af;">Datenschutzerklärung</a>
