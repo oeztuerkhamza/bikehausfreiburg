@@ -1553,6 +1553,42 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("Returns");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.ReviewRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Vorname")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email", "SentAt");
+
+                    b.ToTable("ReviewRequests");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.Sale", b =>
                 {
                     b.Property<int>("Id")

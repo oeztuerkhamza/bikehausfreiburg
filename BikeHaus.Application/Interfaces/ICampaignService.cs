@@ -1,4 +1,5 @@
 using BikeHaus.Application.DTOs;
+using BikeHaus.Domain.Enums;
 
 namespace BikeHaus.Application.Interfaces;
 
@@ -19,4 +20,14 @@ public interface ICampaignService
     /// updating the shared status store. Intended to be called on a background task.
     /// </summary>
     Task RunReviewRequestCampaignAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Sends ONE review-request mail to a single recipient — but only if eligible:
+    /// valid address, not unsubscribed, and not already contacted within the
+    /// configured interval. Records a <c>ReviewRequest</c> on success. Shared by
+    /// the automatic (post sale/rental) flow and the manual campaign so a customer
+    /// is never contacted twice. Returns the outcome.
+    /// </summary>
+    Task<ReviewSendOutcome> SendReviewRequestAsync(
+        string email, string? vorname, ReviewRequestSource source, CancellationToken cancellationToken = default);
 }

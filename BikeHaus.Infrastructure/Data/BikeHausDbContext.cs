@@ -43,6 +43,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<EmailLog> EmailLogs => Set<EmailLog>();
     public DbSet<RentalReview> RentalReviews => Set<RentalReview>();
     public DbSet<EmailUnsubscribe> EmailUnsubscribes => Set<EmailUnsubscribe>();
+    public DbSet<ReviewRequest> ReviewRequests => Set<ReviewRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -613,6 +614,17 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
             entity.Property(e => e.Source).HasMaxLength(20);
             entity.HasIndex(e => e.Email).IsUnique();
+        });
+
+        // ── ReviewRequest Configuration ──
+        modelBuilder.Entity<ReviewRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Vorname).HasMaxLength(100);
+            entity.Property(e => e.Source).HasConversion<string>().HasMaxLength(20);
+            // De-dup lookups: "any request to this address since <date>".
+            entity.HasIndex(e => new { e.Email, e.SentAt });
         });
 
         // ── RentalAccessoryItem Configuration ──

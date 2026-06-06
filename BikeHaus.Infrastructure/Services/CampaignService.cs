@@ -1,8 +1,11 @@
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
+using BikeHaus.Domain.Entities;
+using BikeHaus.Domain.Enums;
 using BikeHaus.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace BikeHaus.Infrastructure.Services;
 
@@ -25,6 +28,7 @@ public class CampaignService : ICampaignService
     private readonly IEmailService _email;
     private readonly IUnsubscribeService _unsubscribe;
     private readonly CampaignStatusStore _status;
+    private readonly ReviewAutomationOptions _reviewOptions;
     private readonly ILogger<CampaignService> _logger;
 
     public CampaignService(
@@ -32,12 +36,14 @@ public class CampaignService : ICampaignService
         IEmailService email,
         IUnsubscribeService unsubscribe,
         CampaignStatusStore status,
+        IOptions<ReviewAutomationOptions> reviewOptions,
         ILogger<CampaignService> logger)
     {
         _db = db;
         _email = email;
         _unsubscribe = unsubscribe;
         _status = status;
+        _reviewOptions = reviewOptions.Value;
         _logger = logger;
     }
 
@@ -82,20 +88,12 @@ public class CampaignService : ICampaignService
                 break;
             }
 
-            try
-            {
-                var url = _unsubscribe.BuildUnsubscribeUrl(r.Email);
-                var anrede = string.IsNullOrWhiteSpace(r.Vorname) ? string.Empty : r.Vorname;
-                var text = RenderText(anrede, url);
-
-                await _email.SendNewsletterAsync(r.Email, r.Vorname, Subject, text);
+            var outcome = await SendReviewRequestAsync(r.Email, r.Vorname, ReviewRequestSource.Manual, cancellationToken);
+            if (outcome == ReviewSendOutcome.Sent)
                 _status.IncrementSent();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Review campaign mail to {Email} failed.", r.Email);
+            else if (outcome == ReviewSendOutcome.Failed)
                 _status.IncrementFailed();
-            }
+            // Skipped (unsubscribed / already contacted / invalid) — not counted.
 
             try { await Task.Delay(ThrottleMs, cancellationToken); }
             catch (TaskCanceledException) { break; }
@@ -103,6 +101,51 @@ public class CampaignService : ICampaignService
 
         _status.Complete();
         _logger.LogInformation("Review campaign finished.");
+    }
+
+    public async Task<ReviewSendOutcome> SendReviewRequestAsync(
+        string email, string? vorname, ReviewRequestSource source, CancellationToken cancellationToken = default)
+    {
+        var normalized = (email ?? string.Empty).Trim().ToLowerInvariant();
+        if (!IsValidEmail(normalized))
+            return ReviewSendOutcome.SkippedInvalidEmail;
+
+        if (await _unsubscribe.IsUnsubscribedAsync(normalized))
+            return ReviewSendOutcome.SkippedUnsubscribed;
+
+        // De-dup: at most one request per address per MinIntervalDays — shared by
+        // the manual campaign and the automatic flow via the ReviewRequest table.
+        var since = DateTime.UtcNow.AddDays(-Math.Max(1, _reviewOptions.MinIntervalDays));
+        var alreadyContacted = await _db.ReviewRequests
+            .AnyAsync(r => r.Email == normalized && r.SentAt >= since, cancellationToken);
+        if (alreadyContacted)
+            return ReviewSendOutcome.SkippedAlreadySent;
+
+        var address = email!.Trim();
+        var url = _unsubscribe.BuildUnsubscribeUrl(address);
+        var text = RenderText(vorname ?? string.Empty, url);
+
+        try
+        {
+            await _email.SendNewsletterAsync(address, vorname ?? string.Empty, Subject, text);
+        }
+        catch (Exception ex)
+        {
+            // Not recorded → eligible for retry on the next run (until MaxAgeDays).
+            _logger.LogError(ex, "Review request mail to {Email} failed.", normalized);
+            return ReviewSendOutcome.Failed;
+        }
+
+        _db.ReviewRequests.Add(new ReviewRequest
+        {
+            Email = normalized,
+            Vorname = string.IsNullOrWhiteSpace(vorname) ? null : vorname.Trim(),
+            SentAt = DateTime.UtcNow,
+            Source = source,
+        });
+        await _db.SaveChangesAsync(cancellationToken);
+
+        return ReviewSendOutcome.Sent;
     }
 
     // ── recipient selection ──────────────────────────────────────────────
