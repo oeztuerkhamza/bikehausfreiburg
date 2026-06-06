@@ -13,8 +13,10 @@ public interface IEmailService
     Task SendRentalDocumentsAsync(string toEmail, string toName, string mietvertragNummer, byte[] mietvertragPdfBytes, byte[] kautionsquittungPdfBytes, byte[] bedingungenpdfBytes);
 
     /// <summary>
-    /// Sends a marketing/newsletter mail as multipart/alternative (plain + HTML)
-    /// with RFC 8058 one-click unsubscribe headers. Used for campaigns.
+    /// Sends the review campaign as a PLAIN-TEXT message from the dedicated
+    /// campaign sender — no HTML, no List-Unsubscribe headers — so it reads
+    /// like a normal personal mail instead of a newsletter. The opt-out link
+    /// is embedded in the body text by the caller for legal compliance.
     /// </summary>
-    Task SendNewsletterAsync(string toEmail, string toName, string subject, string htmlBody, string textBody, string unsubscribeUrl);
+    Task SendNewsletterAsync(string toEmail, string toName, string subject, string textBody);
 }

@@ -157,32 +157,20 @@ Viele Gruesse
             });
     }
 
-    public Task SendNewsletterAsync(
-        string toEmail,
-        string toName,
-        string subject,
-        string htmlBody,
-        string textBody,
-        string unsubscribeUrl)
+    public Task SendNewsletterAsync(string toEmail, string toName, string subject, string textBody)
     {
-        var headers = new Dictionary<string, string>
-        {
-            // RFC 8058 one-click unsubscribe — improves deliverability (Gmail/Yahoo)
-            // and lets mail clients offer a native "Abmelden" button.
-            ["List-Unsubscribe"] = $"<{unsubscribeUrl}>",
-            ["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click",
-        };
-
+        // Plain text, no List-Unsubscribe headers, no HTML — deliberately
+        // looks like a one-to-one personal mail so Gmail does not file it
+        // under "Promotions". Sent from the dedicated campaign mailbox
+        // (falls back to the default sender when not configured).
         return SendAsync(
             toEmail,
             toName,
             subject,
-            htmlBody,
+            textBody,
             "Newsletter",
             attachments: null,
-            isHtml: true,
-            plainTextAlternative: textBody,
-            extraHeaders: headers,
+            isHtml: false,
             sender: ResolveCampaignSender());
     }
 
