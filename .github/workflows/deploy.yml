@@ -79,6 +79,7 @@ jobs:
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           INDEXNOW_API_KEY: ${{ secrets.INDEXNOW_API_KEY }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          CAMPAIGN_SMTP_PASSWORD: ${{ secrets.CAMPAIGN_SMTP_PASSWORD }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
           GOOGLE_PLACES_PLACE_ID: ${{ secrets.GOOGLE_PLACES_PLACE_ID }}
@@ -86,7 +87,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: FORCE_LOGOUT,JWT_SECRET_KEY,INDEXNOW_API_KEY,SMTP_PASSWORD,ANTHROPIC_API_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID
+          envs: FORCE_LOGOUT,JWT_SECRET_KEY,INDEXNOW_API_KEY,SMTP_PASSWORD,CAMPAIGN_SMTP_PASSWORD,ANTHROPIC_API_KEY,GOOGLE_PLACES_API_KEY,GOOGLE_PLACES_PLACE_ID
           command_timeout: 10m
           script: |
             set -euo pipefail
@@ -116,6 +117,7 @@ jobs:
             [ -z "${GOOGLE_PLACES_API_KEY:-}" ] && GOOGLE_PLACES_API_KEY="$(_read_env GOOGLE_PLACES_API_KEY)"
             [ -z "${GOOGLE_PLACES_PLACE_ID:-}" ] && GOOGLE_PLACES_PLACE_ID="$(_read_env GOOGLE_PLACES_PLACE_ID)"
             [ -z "${SMTP_PASSWORD:-}" ] && SMTP_PASSWORD="$(_read_env SMTP_PASSWORD)"
+            [ -z "${CAMPAIGN_SMTP_PASSWORD:-}" ] && CAMPAIGN_SMTP_PASSWORD="$(_read_env CAMPAIGN_SMTP_PASSWORD)"
             [ -z "${ANTHROPIC_API_KEY:-}" ] && ANTHROPIC_API_KEY="$(_read_env ANTHROPIC_API_KEY)"
 
             echo "==> Updating source"
@@ -127,8 +129,8 @@ jobs:
 
             echo "==> Writing .env"
             umask 077
-            printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_HOST=mail.bikehausfreiburg.com\nSMTP_PORT=587\nSMTP_USERNAME=no-reply@bikehausfreiburg.com\nSMTP_PASSWORD=%s\nSMTP_USESSL=false\nSMTP_FROMEMAIL=no-reply@bikehausfreiburg.com\nSMTP_FROMNAME=Bike Haus Freiburg\nANTHROPIC_API_KEY=%s\n' \
-              "${JWT_SECRET_KEY}" "${INDEXNOW_API_KEY}" "${GOOGLE_PLACES_API_KEY}" "${GOOGLE_PLACES_PLACE_ID}" "${SMTP_PASSWORD}" "${ANTHROPIC_API_KEY}" > .env
+            printf 'JWT_SECRET_KEY=%s\nINDEXNOW_API_KEY=%s\nGOOGLE_PLACES_API_KEY=%s\nGOOGLE_PLACES_PLACE_ID=%s\nSMTP_HOST=mail.bikehausfreiburg.com\nSMTP_PORT=587\nSMTP_USERNAME=no-reply@bikehausfreiburg.com\nSMTP_PASSWORD=%s\nSMTP_USESSL=false\nSMTP_FROMEMAIL=no-reply@bikehausfreiburg.com\nSMTP_FROMNAME=Bike Haus Freiburg\nCAMPAIGN_SMTP_PASSWORD=%s\nANTHROPIC_API_KEY=%s\n' \
+              "${JWT_SECRET_KEY}" "${INDEXNOW_API_KEY}" "${GOOGLE_PLACES_API_KEY}" "${GOOGLE_PLACES_PLACE_ID}" "${SMTP_PASSWORD}" "${CAMPAIGN_SMTP_PASSWORD}" "${ANTHROPIC_API_KEY}" > .env
             chmod 600 .env
 
   # ───────────────────────────────────────────────────────────────

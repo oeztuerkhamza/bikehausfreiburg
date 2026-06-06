@@ -75,6 +75,7 @@ public static class DependencyInjection
         services.AddSingleton<CampaignStatusStore>();
         services.AddScoped<ICampaignService, CampaignService>();
         services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));
+        services.Configure<CampaignSmtpOptions>(configuration.GetSection("CampaignSmtp"));
         services.Configure<MailboxProvisioningOptions>(configuration.GetSection("MailboxProvisioning"));
         services.AddHttpClient<IMailboxProvisioningService, MailcowMailboxProvisioningService>();
         services.AddHttpClient("IndexNow");

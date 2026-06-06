@@ -20,15 +20,24 @@ public class SmtpEmailService : IEmailService
     private const int MaxSendAttempts = 3;
     private const string DefaultGoogleReviewUrl = "https://g.page/r/CRnu1n--kiIYEBM/review";
     private readonly SmtpOptions _options;
+    private readonly CampaignSmtpOptions _campaignOptions;
     private readonly ILogger<SmtpEmailService> _logger;
     private readonly BikeHausDbContext _db;
 
-    public SmtpEmailService(IOptions<SmtpOptions> options, ILogger<SmtpEmailService> logger, BikeHausDbContext db)
+    public SmtpEmailService(
+        IOptions<SmtpOptions> options,
+        IOptions<CampaignSmtpOptions> campaignOptions,
+        ILogger<SmtpEmailService> logger,
+        BikeHausDbContext db)
     {
         _options = options.Value;
+        _campaignOptions = campaignOptions.Value;
         _logger = logger;
         _db = db;
     }
+
+    /// <summary>Optional per-send sender override (SMTP login + From identity).</summary>
+    private sealed record SenderIdentity(string Username, string Password, string FromEmail, string FromName);
 
     public Task SendRentalBookingApprovedAsync(RentalBookingEmailModel model)
     {
@@ -173,7 +182,28 @@ Viele Gruesse
             attachments: null,
             isHtml: true,
             plainTextAlternative: textBody,
-            extraHeaders: headers);
+            extraHeaders: headers,
+            sender: ResolveCampaignSender());
+    }
+
+    /// <summary>
+    /// The campaign is sent from a dedicated mailbox (e.g. cevdet.akarsu@) so
+    /// the review newsletter goes out under a real person's name, while ALL
+    /// transactional mail keeps using the default no-reply@ sender. Returns
+    /// null — and thus falls back to the default sender — when the campaign
+    /// account is not configured.
+    /// </summary>
+    private SenderIdentity? ResolveCampaignSender()
+    {
+        var c = _campaignOptions;
+        if (string.IsNullOrWhiteSpace(c.Username) || string.IsNullOrWhiteSpace(c.Password))
+            return null;
+
+        return new SenderIdentity(
+            c.Username.Trim(),
+            c.Password,
+            FirstConfigured(c.FromEmail, c.Username),
+            FirstConfigured(c.FromName, _options.FromName));
     }
 
     private async Task SendAsync(
@@ -185,29 +215,45 @@ Viele Gruesse
         IEnumerable<(byte[] Bytes, string FileName)>? attachments = null,
         bool isHtml = false,
         string? plainTextAlternative = null,
-        IDictionary<string, string>? extraHeaders = null)
+        IDictionary<string, string>? extraHeaders = null,
+        SenderIdentity? sender = null)
     {
         var dbAccount = await _db.EmailAccounts
             .Where(a => a.IsDefault && a.IsActive)
             .FirstOrDefaultAsync();
 
+        // Host/Port/TLS always come from the server config (same Mailcow).
         var host = dbAccount is not null
             ? FirstConfigured(dbAccount.Host, _options.Host)
             : FirstConfigured(_options.Host);
         var port = dbAccount?.Port > 0 ? dbAccount.Port : _options.Port;
-        var username = dbAccount is not null
-            ? (dbAccount.Username ?? string.Empty).Trim()
-            : FirstConfigured(_options.Username);
-        var password = dbAccount is not null
-            ? dbAccount.Password ?? string.Empty
-            : FirstConfigured(_options.Password);
         var useSsl = dbAccount?.UseSsl ?? _options.UseSsl;
-        var fromEmail = dbAccount is not null
-            ? FirstConfigured(dbAccount.FromEmail, _options.FromEmail)
-            : FirstConfigured(_options.FromEmail);
-        var fromName = dbAccount is not null
-            ? FirstConfigured(dbAccount.FromName, _options.FromName)
-            : FirstConfigured(_options.FromName);
+
+        // Identity (login + From) resolution order:
+        //   1. explicit per-send override (campaign mailbox), else
+        //   2. the active default DB account, else
+        //   3. the no-reply@ config. The override never affects the path 2/3
+        //      used by all transactional mail.
+        var username = sender is not null
+            ? sender.Username
+            : dbAccount is not null
+                ? (dbAccount.Username ?? string.Empty).Trim()
+                : FirstConfigured(_options.Username);
+        var password = sender is not null
+            ? sender.Password
+            : dbAccount is not null
+                ? dbAccount.Password ?? string.Empty
+                : FirstConfigured(_options.Password);
+        var fromEmail = sender is not null
+            ? sender.FromEmail
+            : dbAccount is not null
+                ? FirstConfigured(dbAccount.FromEmail, _options.FromEmail)
+                : FirstConfigured(_options.FromEmail);
+        var fromName = sender is not null
+            ? sender.FromName
+            : dbAccount is not null
+                ? FirstConfigured(dbAccount.FromName, _options.FromName)
+                : FirstConfigured(_options.FromName);
 
         if (string.IsNullOrWhiteSpace(host))
         {
