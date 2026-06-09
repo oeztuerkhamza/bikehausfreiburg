@@ -217,7 +217,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'La tarifa de alquiler se paga por adelantado. Además, se requiere un depósito en efectivo de 300 € por bicicleta. Si la bicicleta se devuelve correctamente sin daños ni pérdidas, el depósito se reembolsa completamente.',
     bikeRentalNoteTitle: 'Nota',
     bikeRentalNoteText:
-      'La entrega es posible diariamente a partir de las 10:00 y la devolución debe realizarse como muy tarde a las 18:00. Los retrasos en la devolución se cobran a 8 € por día iniciado.',
+      'La entrega es posible de lunes a viernes a partir de las 10:00 y los sábados a partir de las 11:00; la devolución debe realizarse como muy tarde a las 18:00. Los retrasos en la devolución se cobran a 8 € por día iniciado.',
     bikeRentalIncludedTitle: 'Incluido',
     bikeRentalIncluded1: 'Candado plegable',
     bikeRentalIncluded2: 'Cesta de bicicleta',
@@ -850,7 +850,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'La tariffa di noleggio viene pagata in anticipo. Inoltre, è richiesto un deposito in contanti di 300 € per bici. Se la bici viene restituita correttamente senza danni o perdite, il deposito viene rimborsato integralmente.',
     bikeRentalNoteTitle: 'Nota',
     bikeRentalNoteText:
-      'La consegna è possibile ogni giorno dalle 10:00, la restituzione deve essere entro le 18:00. Una tariffa di ritardo di 12 € per giorno iniziato sarà addebitata.',
+      'La consegna è possibile dal lunedì al venerdì dalle 10:00 e il sabato dalle 11:00, la restituzione deve essere entro le 18:00. Una tariffa di ritardo di 12 € per giorno iniziato sarà addebitata.',
     bikeRentalIncludedTitle: 'Incluso',
     bikeRentalIncluded1: 'Lucchetto pieghevole',
     bikeRentalIncluded2: 'Cesto bici',
@@ -1445,7 +1445,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'يتم دفع رسم الإيجار مقدمًا. بالإضافة إلى ذلك، يلزم إيداع نقدي بقيمة 300 يورو لكل دراجة. إذا تم إرجاع الدراجة بشكل صحيح دون ضرر أو فقدان، يتم رد الإيداع بالكامل.',
     bikeRentalNoteTitle: 'ملاحظة',
     bikeRentalNoteText:
-      'التسليم ممكن يوميًا من الساعة 10:00، والعودة يجب أن تكتمل بحلول الساعة 18:00 على الأبعد. سيتم فرض رسم تأخير قدره 12 يورو لكل يوم بدأ.',
+      'التسليم ممكن من الإثنين إلى الجمعة من الساعة 10:00 ويوم السبت من الساعة 11:00، والعودة يجب أن تكتمل بحلول الساعة 18:00 على الأبعد. سيتم فرض رسم تأخير قدره 12 يورو لكل يوم بدأ.',
     bikeRentalIncludedTitle: 'المدرج',
     bikeRentalIncluded1: 'قفل قابل للطي',
     bikeRentalIncluded2: 'سلة الدراجة',
@@ -1960,7 +1960,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'Стоимость аренды оплачивается заранее. Кроме того, требуется денежный залог в размере 300 € за велосипед. При надлежащем возврате без повреждений или потерь залог полностью возвращается.',
     bikeRentalNoteTitle: 'Примечание',
     bikeRentalNoteText:
-      'Передача возможна ежедневно с 10:00, возврат должен быть завершен не позднее 18:00. За просрочку взимается плата в размере 12 € за каждый начатый день.',
+      'Передача возможна с понедельника по пятницу с 10:00 и в субботу с 11:00, возврат должен быть завершен не позднее 18:00. За просрочку взимается плата в размере 12 € за каждый начатый день.',
     bikeRentalIncludedTitle: 'Включено',
     bikeRentalIncluded1: 'Складной замок',
     bikeRentalIncluded2: 'Велосипедная корзина',

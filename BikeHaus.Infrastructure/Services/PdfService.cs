@@ -1831,7 +1831,7 @@ public class PdfService : IPdfService
                     // § 5 Übergabe & Öffnungszeiten
                     col.Item().PaddingTop(8).Text("§ 5 Übergabe & Öffnungszeiten").FontSize(11).Bold().FontColor(PrimaryColor);
                     col.Item().PaddingTop(2).Text(
-                        "Die Fahrradübergabe ist täglich ab 10:00 Uhr möglich. Die Rückgabe muss bis spätestens 18:00 Uhr erfolgen. " +
+                        "Die Fahrradübergabe ist Mo-Fr ab 10:00 Uhr und Sa ab 11:00 Uhr möglich. Die Rückgabe muss bis spätestens 18:00 Uhr erfolgen. " +
                         "Bei verspäteter Rückgabe wird eine Gebühr von 12 € pro angefangenem Tag berechnet."
                     ).FontSize(9);
 

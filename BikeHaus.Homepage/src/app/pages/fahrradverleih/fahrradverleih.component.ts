@@ -98,7 +98,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Wie funktioniert Abholung & Rückgabe?',
         answers: [
-          'Abholung täglich ab 10:00 Uhr',
+          'Abholung Mo-Fr ab 10:00 Uhr, Sa ab 11:00 Uhr',
           'Rückgabe bis spätestens 18:00 Uhr',
           'Sonn- und Feiertage geschlossen',
         ],
@@ -171,7 +171,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'How does pickup & return work for the bike rental?',
         answers: [
-          'Pickup daily from 10:00',
+          'Pickup Mon-Fri from 10:00, Sat from 11:00',
           'Return no later than 18:00',
           'Closed on Sundays and public holidays',
         ],
@@ -244,7 +244,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Retrait & retour',
         answers: [
-          'Retrait tous les jours a partir de 10h00',
+          'Retrait lun-ven a partir de 10h00, sam a partir de 11h00',
           'Retour au plus tard a 18h00',
           'Ferme les dimanches et jours feries',
         ],
@@ -317,7 +317,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Teslim alma ve iade',
         answers: [
-          'Teslim alma her gun 10:00 dan itibaren',
+          'Teslim alma hafta ici 10:00, cumartesi 11:00 dan itibaren',
           'Iade en gec 18:00 e kadar',
           'Pazar ve resmi tatillerde kapali',
         ],
@@ -390,7 +390,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Recogida y devolucion',
         answers: [
-          'Recogida diaria a partir de las 10:00',
+          'Recogida lun-vie a partir de las 10:00, sab a partir de las 11:00',
           'Devolucion como maximo a las 18:00',
           'Cerrado domingos y festivos',
         ],
@@ -463,7 +463,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Ritiro e riconsegna',
         answers: [
-          'Ritiro ogni giorno dalle 10:00',
+          'Ritiro lun-ven dalle 10:00, sab dalle 11:00',
           'Riconsegna entro le 18:00',
           'Chiuso domeniche e festivi',
         ],
@@ -536,7 +536,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'الاستلام والاعادة',
         answers: [
-          'الاستلام يوميا من الساعة 10:00',
+          'الاستلام من الإثنين إلى الجمعة من الساعة 10:00 والسبت من الساعة 11:00',
           'الاعادة بحد اقصى الساعة 18:00',
           'مغلق ايام الاحد والعطل الرسمية',
         ],
@@ -606,7 +606,7 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Получение и возврат',
         answers: [
-          'Получение ежедневно с 10:00',
+          'Получение пн-пт с 10:00, сб с 11:00',
           'Возврат не позднее 18:00',
           'По воскресеньям и праздникам закрыто',
         ],

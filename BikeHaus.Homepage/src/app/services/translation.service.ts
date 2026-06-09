@@ -976,7 +976,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Die Mietgebühr wird im Voraus bezahlt. Zusätzlich ist pro Fahrrad eine Kaution in Höhe von 300 € in bar zu hinterlegen. Bei ordnungsgemäßer Rückgabe ohne Schäden oder Verluste wird die Kaution vollständig erstattet.',
     bikeRentalNoteTitle: 'Hinweis',
     bikeRentalNoteText:
-      'Die Übergabe ist täglich ab 10:00 Uhr möglich, die Rückgabe spätestens bis 18:00 Uhr. Bei verspäteter Rückgabe berechnen wir 12 € pro angefangenem Tag.',
+      'Die Übergabe ist Mo-Fr ab 10:00 Uhr und Sa ab 11:00 Uhr möglich, die Rückgabe spätestens bis 18:00 Uhr. Bei verspäteter Rückgabe berechnen wir 12 € pro angefangenem Tag.',
     bikeRentalIncludedTitle: 'Inklusive',
     bikeRentalIncluded1: 'Faltschloss',
     bikeRentalIncluded2: 'Fahrradkorb',
@@ -1658,7 +1658,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'The rental fee is paid in advance. In addition, a cash deposit of 300 € is required per bicycle. If the bicycle is returned properly without damage or loss, the deposit is fully refunded.',
     bikeRentalNoteTitle: 'Note',
     bikeRentalNoteText:
-      'Handover is possible daily from 10:00, and return must be completed by 18:00 at the latest. A late return fee of 12 € per started day will be charged.',
+      'Handover is possible Mon-Fri from 10:00 and Sat from 11:00, and return must be completed by 18:00 at the latest. A late return fee of 12 € per started day will be charged.',
     bikeRentalIncludedTitle: 'Included',
     bikeRentalIncluded1: 'Folding lock',
     bikeRentalIncluded2: 'Bicycle basket',
@@ -2329,7 +2329,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "Le prix de location est payé à l'avance. En plus, une caution en espèces de 300 € est exigée par vélo. Si le vélo est retourné correctement, sans dommage ni perte, la caution est remboursée intégralement.",
     bikeRentalNoteTitle: 'Remarque',
     bikeRentalNoteText:
-      'La remise du vélo est possible tous les jours à partir de 10:00 et le retour doit être effectué au plus tard à 18:00. En cas de retour tardif, des frais de 12 € par jour entamé sont facturés.',
+      'La remise du vélo est possible du lundi au vendredi à partir de 10:00 et le samedi à partir de 11:00 ; le retour doit être effectué au plus tard à 18:00. En cas de retour tardif, des frais de 12 € par jour entamé sont facturés.',
     bikeRentalIncludedTitle: 'Inclus',
     bikeRentalIncluded1: 'Antivol pliable',
     bikeRentalIncluded2: 'Panier de vélo',
@@ -3018,7 +3018,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Kiralama ücreti peşin ödenir. Buna ek olarak her bisiklet için 300 € nakit depozito alınır. Bisiklet hasar veya kayıp olmadan düzgün şekilde iade edilirse depozito tamamen geri ödenir.',
     bikeRentalNoteTitle: 'Not',
     bikeRentalNoteText:
-      "Teslimat her gün 10:00'dan itibaren mümkündür, iade ise en geç 18:00'e kadar yapılmalıdır. Geç iade için başlayan her gün başına 12 € ücret alınır.",
+      "Teslimat hafta içi 10:00'dan, cumartesi 11:00'dan itibaren mümkündür, iade ise en geç 18:00'e kadar yapılmalıdır. Geç iade için başlayan her gün başına 12 € ücret alınır.",
     bikeRentalIncludedTitle: 'Dahil',
     bikeRentalIncluded1: 'Katlanabilir kilit',
     bikeRentalIncluded2: 'Bisiklet sepeti',
