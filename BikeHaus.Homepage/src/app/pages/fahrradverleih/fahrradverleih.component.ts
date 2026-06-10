@@ -150,7 +150,9 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Was kostet eine verspätete Rückgabe?',
-        answers: ['12 EUR Gebühr pro zusätzlichem Tag'],
+        answers: [
+          'Ist das Fahrrad am Folgetag verfügbar, kann die Miete nach Absprache verlängert werden — pro zusätzlichem Tag berechnen wir den regulären Tagespreis.',
+        ],
       },
     ],
   },
@@ -223,7 +225,9 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'What is the fee for a late bike return?',
-        answers: ['EUR 30 fee per additional day'],
+        answers: [
+          'If the bike is available the next day, you can extend the rental by letting us know — each additional day is charged at the regular daily rate.',
+        ],
       },
     ],
   },
@@ -296,7 +300,9 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Retour en retard',
-        answers: ['Frais de 12 EUR par jour supplementaire'],
+        answers: [
+          'Si le velo est disponible le lendemain, la location peut etre prolongee en nous prevenant — chaque jour supplementaire est facture au tarif journalier normal.',
+        ],
       },
     ],
   },
@@ -369,7 +375,9 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Gec iade',
-        answers: ['Her ek gun icin 12 EUR ucret'],
+        answers: [
+          'Bisiklet ertesi gun musaitse bize haber vererek kiralamayi uzatabilirsiniz — her ek gun icin normal gunluk ucret alinir.',
+        ],
       },
     ],
   },
@@ -442,7 +450,9 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Devolucion tardia',
-        answers: ['Tarifa de 12 EUR por cada dia adicional'],
+        answers: [
+          'Si la bicicleta esta disponible al dia siguiente, puede prolongar el alquiler avisandonos — cada dia adicional se cobra a la tarifa diaria normal.',
+        ],
       },
     ],
   },
@@ -515,7 +525,9 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Riconsegna in ritardo',
-        answers: ['Costo di 12 EUR per ogni giorno aggiuntivo'],
+        answers: [
+          'Se la bici è disponibile il giorno successivo, puoi prolungare il noleggio avvisandoci — ogni giorno aggiuntivo viene addebitato alla normale tariffa giornaliera.',
+        ],
       },
     ],
   },
@@ -585,7 +597,9 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'الاعادة المتاخرة',
-        answers: ['رسوم 30 يورو لكل يوم اضافي'],
+        answers: [
+          'اذا كانت الدراجة متاحة في اليوم التالي يمكن تمديد الايجار بعد ابلاغنا — يحتسب كل يوم اضافي بسعر اليوم العادي',
+        ],
       },
     ],
   },
@@ -658,7 +672,9 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       },
       {
         question: 'Поздний возврат',
-        answers: ['Доплата 12 EUR за каждый дополнительный день'],
+        answers: [
+          'Если велосипед свободен на следующий день, аренду можно продлить, предупредив нас — каждый дополнительный день оплачивается по обычному дневному тарифу.',
+        ],
       },
     ],
   },

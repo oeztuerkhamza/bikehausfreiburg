@@ -1832,7 +1832,8 @@ public class PdfService : IPdfService
                     col.Item().PaddingTop(8).Text("§ 5 Übergabe & Öffnungszeiten").FontSize(11).Bold().FontColor(PrimaryColor);
                     col.Item().PaddingTop(2).Text(
                         "Die Fahrradübergabe ist Mo-Fr ab 10:00 Uhr und Sa ab 11:00 Uhr möglich. Die Rückgabe muss bis spätestens 18:00 Uhr erfolgen. " +
-                        "Bei verspäteter Rückgabe wird eine Gebühr von 12 € pro angefangenem Tag berechnet."
+                        "Ist das Fahrrad am Folgetag verfügbar, kann die Miete nach vorheriger Mitteilung an den Vermieter verlängert werden; " +
+                        "pro zusätzlichem Tag wird der reguläre Tagespreis berechnet."
                     ).FontSize(9);
 
                     // § 6 Diebstahl und Haftung
