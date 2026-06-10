@@ -1599,14 +1599,16 @@ export class RentalBookingStepsComponent implements OnInit {
     notizen: '',
   };
 
-  daysCount = computed(() => {
+  // Plain method, NOT computed(): selectedStart/EndDate are not signals, so a
+  // computed would cache its first value forever (stale day counts → prices).
+  daysCount(): number {
     if (!this.selectedStartDate || !this.selectedEndDate) return 0;
     const start = new Date(`${this.selectedStartDate}T00:00:00`);
     const end = new Date(`${this.selectedEndDate}T00:00:00`);
     const diff =
       Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     return diff > 0 ? diff : 0;
-  });
+  }
 
   private getLocaleForCurrentLanguage(): string {
     switch (this.lang()) {
@@ -1835,7 +1837,14 @@ export class RentalBookingStepsComponent implements OnInit {
           this.syncStepToUrl(resolved, true);
           return;
         }
+        const changed = this.currentStep() !== resolved;
         this.currentStep.set(resolved);
+        // Query-param-only navigations don't trigger the router's scroll
+        // restoration — jump to the top of the flow ourselves so the user
+        // always lands at the step indicator (mobile UX feedback).
+        if (changed && isPlatformBrowser(this.platformId)) {
+          queueMicrotask(() => window.scrollTo({ top: 0 }));
+        }
       });
   }
 
