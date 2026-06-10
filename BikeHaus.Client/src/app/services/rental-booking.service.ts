@@ -35,11 +35,9 @@ export class RentalBookingService {
     );
   }
 
-  /** All non-cancelled bookings overlapping the given month (calendar view). */
-  getCalendar(year: number, month: number): Observable<RentalBookingList[]> {
-    const params = new HttpParams()
-      .set('year', year.toString())
-      .set('month', month.toString());
+  /** All non-cancelled bookings overlapping the given range (calendar view). */
+  getCalendar(fromIso: string, toIso: string): Observable<RentalBookingList[]> {
+    const params = new HttpParams().set('from', fromIso).set('to', toIso);
     return this.http.get<RentalBookingList[]>(`${this.url}/calendar`, {
       params,
     });

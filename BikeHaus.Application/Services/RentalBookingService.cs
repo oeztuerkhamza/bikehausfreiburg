@@ -394,13 +394,11 @@ public class RentalBookingService : IRentalBookingService
         return _bookingRepository.CountAsync(b => b.Status == RentalBookingStatus.Pending);
     }
 
-    public async Task<IEnumerable<RentalBookingListDto>> GetCalendarAsync(int year, int month)
+    public async Task<IEnumerable<RentalBookingListDto>> GetCalendarAsync(DateTime from, DateTime to)
     {
-        if (month < 1 || month > 12)
-            throw new ArgumentOutOfRangeException(nameof(month));
+        if (to < from)
+            throw new ArgumentOutOfRangeException(nameof(to));
 
-        var from = new DateTime(year, month, 1);
-        var to = from.AddMonths(1).AddDays(-1);
         var bookings = await _bookingRepository.GetOverlappingRangeWithBikesAsync(from, to);
         return bookings.Select(b => b.ToListDto());
     }

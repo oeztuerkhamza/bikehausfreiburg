@@ -13,18 +13,18 @@ import {
 } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
-interface CalChip {
-  booking: RentalBookingList;
-  isStart: boolean;
-  isEnd: boolean;
-  showLabel: boolean;
-}
-
 interface CalDay {
   date: Date;
-  inMonth: boolean;
   isToday: boolean;
-  chips: CalChip[];
+}
+
+/** One booking rendered as a bar across the visible week. */
+interface CalBar {
+  booking: RentalBookingList;
+  colStart: number; // 1-based grid column
+  colEnd: number; // inclusive
+  continuesLeft: boolean;
+  continuesRight: boolean;
 }
 
 @Component({
@@ -53,14 +53,14 @@ interface CalDay {
         </div>
       </div>
 
-      <!-- ── Calendar view ── -->
+      <!-- ── Calendar view (weekly) ── -->
       <div *ngIf="viewMode === 'calendar'" class="cal-wrap">
         <div class="cal-toolbar">
           <div class="cal-nav">
             <button type="button" class="cal-nav-btn" (click)="calPrev()">
               ‹
             </button>
-            <div class="cal-month-label">{{ calMonthLabel }}</div>
+            <div class="cal-month-label">{{ calWeekLabel }}</div>
             <button type="button" class="cal-nav-btn" (click)="calNext()">
               ›
             </button>
@@ -83,42 +83,53 @@ interface CalDay {
           </div>
         </div>
 
-        <div class="cal-weekdays">
-          <div *ngFor="let w of calWeekdays" class="cal-weekday">{{ w }}</div>
-        </div>
-
-        <div class="cal-grid">
+        <div class="cal-weekhead">
           <div
             *ngFor="let day of calDays"
-            class="cal-day"
-            [class.other-month]="!day.inMonth"
+            class="cal-wh-day"
             [class.is-today]="day.isToday"
           >
-            <div class="cal-day-num">{{ day.date.getDate() }}</div>
-            <a
-              *ngFor="let chip of day.chips"
-              class="cal-chip"
-              [class.ebike]="chip.booking.hasEBike"
-              [class.pending]="chip.booking.status === BookingStatus.Pending"
-              [class.chip-start]="chip.isStart"
-              [class.chip-end]="chip.isEnd"
-              [routerLink]="['/rental-bookings', chip.booking.id]"
-              [title]="
-                chip.booking.buchungsNummer +
-                ' · ' +
-                chip.booking.customerName +
-                ' · ' +
-                chip.booking.bikeInfo
-              "
-            >
-              <span *ngIf="chip.showLabel" class="chip-label">
-                {{ chip.booking.customerName }}
-              </span>
-            </a>
+            <span class="wh-name">{{ weekdayShort(day.date) }}</span>
+            <span class="wh-num">{{ day.date | date: 'dd.MM.' }}</span>
           </div>
         </div>
 
-        <div *ngIf="calBookings.length === 0" class="cal-empty">
+        <div class="cal-lanes" *ngIf="calBars.length > 0">
+          <div
+            *ngIf="todayCol >= 0"
+            class="cal-today-col"
+            [style.left]="'calc(' + todayCol + ' * 100% / 7)'"
+          ></div>
+          <a
+            *ngFor="let bar of calBars; let i = index"
+            class="cal-bar"
+            [class.ebike]="bar.booking.hasEBike"
+            [class.pending]="bar.booking.status === BookingStatus.Pending"
+            [class.cont-left]="bar.continuesLeft"
+            [class.cont-right]="bar.continuesRight"
+            [style.grid-column]="bar.colStart + ' / ' + (bar.colEnd + 1)"
+            [style.grid-row]="i + 1"
+            [routerLink]="['/rental-bookings', bar.booking.id]"
+            [title]="
+              bar.booking.buchungsNummer +
+              ' · ' +
+              bar.booking.customerName +
+              ' · ' +
+              bar.booking.bikeInfo +
+              ' · ' +
+              (bar.booking.startDatum | date: 'dd.MM.') +
+              '–' +
+              (bar.booking.endDatum | date: 'dd.MM.yyyy')
+            "
+          >
+            <span class="bar-label">
+              <strong>{{ bar.booking.customerName }}</strong>
+              <span class="bar-bike">· {{ bar.booking.bikeInfo }}</span>
+            </span>
+          </a>
+        </div>
+
+        <div *ngIf="calBars.length === 0" class="cal-empty">
           {{ t.rentalBookingCalEmpty }}
         </div>
       </div>
@@ -538,101 +549,125 @@ interface CalDay {
       .legend-note {
         font-style: italic;
       }
-      .cal-weekdays {
+      /* week header: 7 day columns */
+      .cal-weekhead {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-        margin-bottom: 4px;
+        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
+        margin-bottom: 8px;
       }
-      .cal-weekday {
-        text-align: center;
+      .cal-wh-day {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1px;
+        padding: 6px 2px 8px;
+        border-radius: 8px 8px 0 0;
+      }
+      .cal-wh-day.is-today {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+      }
+      .wh-name {
         font-size: 0.72rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.04em;
         color: var(--text-secondary, #64748b);
-        padding: 4px 0;
       }
-      .cal-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-      }
-      .cal-day {
-        min-height: 96px;
-        border: 1px solid var(--border-light, #e2e8f0);
-        border-radius: 8px;
-        padding: 4px;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        background: var(--bg-primary, #fff);
-        overflow: hidden;
-      }
-      .cal-day.other-month {
-        opacity: 0.42;
-      }
-      .cal-day.is-today {
-        border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 1px var(--accent-primary, #6366f1) inset;
-      }
-      .cal-day-num {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--text-secondary, #64748b);
-        padding: 1px 3px;
-      }
-      .cal-day.is-today .cal-day-num {
+      .cal-wh-day.is-today .wh-name,
+      .cal-wh-day.is-today .wh-num {
         color: var(--accent-primary, #6366f1);
       }
-      .cal-chip {
-        display: block;
-        height: 18px;
-        line-height: 14px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: #fff;
+      .wh-num {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      /* lanes: one row per booking, bars span their day columns */
+      .cal-lanes {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        grid-auto-rows: 34px;
+        row-gap: 6px;
+        padding: 6px 0 10px;
+        /* vertical day separators */
+        background-image: repeating-linear-gradient(
+          to right,
+          transparent 0,
+          transparent calc(100% / 7 - 1px),
+          var(--border-light, #e2e8f0) calc(100% / 7 - 1px),
+          var(--border-light, #e2e8f0) calc(100% / 7)
+        );
+        min-height: 120px;
+      }
+      .cal-today-col {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: calc(100% / 7);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
+        pointer-events: none;
+      }
+      .cal-bar {
+        display: flex;
+        align-items: center;
+        height: 28px;
+        margin: 0 3px;
+        padding: 0 10px;
+        border-radius: 8px;
         background: #3b82f6;
         border: 2px solid #3b82f6;
-        border-radius: 0;
-        margin: 0 -4px;
-        padding: 0 4px;
+        color: #fff;
+        font-size: 0.8rem;
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis;
         text-decoration: none;
         cursor: pointer;
+        z-index: 1;
       }
-      .cal-chip.ebike {
+      .cal-bar .bar-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .cal-bar .bar-bike {
+        opacity: 0.85;
+        font-weight: 400;
+      }
+      .cal-bar.ebike {
         background: #f59e0b;
         border-color: #f59e0b;
       }
       /* pending = dashed outline instead of solid fill */
-      .cal-chip.pending {
-        background: rgba(59, 130, 246, 0.12);
+      .cal-bar.pending {
+        background: rgba(59, 130, 246, 0.1);
         border-style: dashed;
-        color: #3b82f6;
+        color: #2563eb;
       }
-      .cal-chip.pending.ebike {
-        background: rgba(245, 158, 11, 0.14);
+      .cal-bar.pending .bar-bike {
+        opacity: 0.75;
+      }
+      .cal-bar.pending.ebike {
+        background: rgba(245, 158, 11, 0.12);
         border-color: #f59e0b;
         color: #b45309;
       }
-      .cal-chip.chip-start {
-        border-top-left-radius: 9px;
-        border-bottom-left-radius: 9px;
+      /* booking continues beyond the visible week */
+      .cal-bar.cont-left {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left-style: dotted;
         margin-left: 0;
       }
-      .cal-chip.chip-end {
-        border-top-right-radius: 9px;
-        border-bottom-right-radius: 9px;
+      .cal-bar.cont-right {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right-style: dotted;
         margin-right: 0;
       }
-      .cal-chip:hover {
-        filter: brightness(1.08);
-      }
-      .chip-label {
-        pointer-events: none;
+      .cal-bar:hover {
+        filter: brightness(1.06);
       }
       .cal-empty {
         text-align: center;
@@ -640,19 +675,24 @@ interface CalDay {
         padding: 24px 0 8px;
       }
       @media (max-width: 700px) {
-        .cal-day {
-          min-height: 64px;
-          padding: 3px 2px;
-        }
-        .chip-label {
-          display: none;
-        }
-        .cal-chip {
-          height: 10px;
-        }
         .cal-month-label {
-          min-width: 110px;
+          min-width: 120px;
           font-size: 0.92rem;
+        }
+        .cal-lanes {
+          grid-auto-rows: 30px;
+        }
+        .cal-bar {
+          font-size: 0.7rem;
+          padding: 0 6px;
+          height: 24px;
+          margin: 0 1px;
+        }
+        .wh-num {
+          font-size: 0.78rem;
+        }
+        .wh-name {
+          font-size: 0.62rem;
         }
       }
     `,
@@ -671,13 +711,15 @@ export class RentalBookingListComponent implements OnInit {
 
   BookingStatus = RentalBookingStatus;
 
-  // ── Calendar state ──
+  // ── Calendar state (weekly view) ──
   viewMode: 'list' | 'calendar' =
     (localStorage.getItem('rental-bookings-view') as 'list' | 'calendar') ||
     'list';
-  calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  calWeekStart = this.mondayOf(new Date());
   calBookings: RentalBookingList[] = [];
   calDays: CalDay[] = [];
+  calBars: CalBar[] = [];
+  todayCol = -1;
 
   get t() {
     return this.translationService.translations();
@@ -689,19 +731,16 @@ export class RentalBookingListComponent implements OnInit {
       : 'de-DE';
   }
 
-  get calMonthLabel(): string {
-    return new Intl.DateTimeFormat(this.locale, {
-      month: 'long',
-      year: 'numeric',
-    }).format(this.calMonth);
+  get calWeekLabel(): string {
+    const end = this.addDays(this.calWeekStart, 6);
+    const fmt = (d: Date) =>
+      `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.`;
+    return `${fmt(this.calWeekStart)} – ${fmt(end)}${end.getFullYear()}`;
   }
 
-  get calWeekdays(): string[] {
-    const monday = new Date(2024, 0, 1); // a Monday
-    return Array.from({ length: 7 }, (_, i) =>
-      new Intl.DateTimeFormat(this.locale, { weekday: 'short' }).format(
-        new Date(2024, 0, 1 + i),
-      ),
+  weekdayShort(date: Date): string {
+    return new Intl.DateTimeFormat(this.locale, { weekday: 'short' }).format(
+      date,
     );
   }
 
@@ -717,32 +756,24 @@ export class RentalBookingListComponent implements OnInit {
   }
 
   calPrev() {
-    this.calMonth = new Date(
-      this.calMonth.getFullYear(),
-      this.calMonth.getMonth() - 1,
-      1,
-    );
+    this.calWeekStart = this.addDays(this.calWeekStart, -7);
     this.loadCalendar();
   }
 
   calNext() {
-    this.calMonth = new Date(
-      this.calMonth.getFullYear(),
-      this.calMonth.getMonth() + 1,
-      1,
-    );
+    this.calWeekStart = this.addDays(this.calWeekStart, 7);
     this.loadCalendar();
   }
 
   calToday() {
-    const now = new Date();
-    this.calMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    this.calWeekStart = this.mondayOf(new Date());
     this.loadCalendar();
   }
 
   loadCalendar() {
+    const weekEnd = this.addDays(this.calWeekStart, 6);
     this.service
-      .getCalendar(this.calMonth.getFullYear(), this.calMonth.getMonth() + 1)
+      .getCalendar(this.toIso(this.calWeekStart), this.toIso(weekEnd))
       .subscribe({
         next: (items) => {
           this.calBookings = items;
@@ -755,17 +786,16 @@ export class RentalBookingListComponent implements OnInit {
   }
 
   private buildCalendar() {
-    const year = this.calMonth.getFullYear();
-    const month = this.calMonth.getMonth();
-    const firstOfMonth = new Date(year, month, 1);
-    // Monday-first grid, padded to full weeks
-    const lead = (firstOfMonth.getDay() + 6) % 7;
-    const gridStart = new Date(year, month, 1 - lead);
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const cellCount = Math.ceil((lead + daysInMonth) / 7) * 7;
-
+    const weekStart = this.calWeekStart;
+    const weekEnd = this.addDays(weekStart, 6);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    this.calDays = Array.from({ length: 7 }, (_, i) => {
+      const date = this.addDays(weekStart, i);
+      return { date, isToday: date.getTime() === today.getTime() };
+    });
+    this.todayCol = this.calDays.findIndex((d) => d.isToday);
 
     const sorted = [...this.calBookings].sort(
       (a, b) =>
@@ -773,35 +803,42 @@ export class RentalBookingListComponent implements OnInit {
         a.id - b.id,
     );
 
-    const days: CalDay[] = [];
-    for (let i = 0; i < cellCount; i++) {
-      const date = new Date(
-        gridStart.getFullYear(),
-        gridStart.getMonth(),
-        gridStart.getDate() + i,
-      );
-      const chips: CalChip[] = [];
-      for (const booking of sorted) {
+    // One lane per booking: a continuous bar clamped to the visible week.
+    this.calBars = sorted
+      .map((booking) => {
         const start = this.dateOnly(booking.startDatum);
         const end = this.dateOnly(booking.endDatum);
-        if (date < start || date > end) continue;
-        const isStart = date.getTime() === start.getTime();
-        chips.push({
+        if (end < weekStart || start > weekEnd) return null;
+        const clampedStart = start < weekStart ? weekStart : start;
+        const clampedEnd = end > weekEnd ? weekEnd : end;
+        return {
           booking,
-          isStart,
-          isEnd: date.getTime() === end.getTime(),
-          // label on the first day and at each week start (Monday)
-          showLabel: isStart || date.getDay() === 1,
-        });
-      }
-      days.push({
-        date,
-        inMonth: date.getMonth() === month,
-        isToday: date.getTime() === today.getTime(),
-        chips,
-      });
-    }
-    this.calDays = days;
+          colStart: this.dayDiff(weekStart, clampedStart) + 1,
+          colEnd: this.dayDiff(weekStart, clampedEnd) + 1,
+          continuesLeft: start < weekStart,
+          continuesRight: end > weekEnd,
+        };
+      })
+      .filter((b): b is CalBar => b !== null);
+  }
+
+  private mondayOf(date: Date): Date {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    return this.addDays(d, -((d.getDay() + 6) % 7));
+  }
+
+  private addDays(date: Date, days: number): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+  }
+
+  private dayDiff(a: Date, b: Date): number {
+    return Math.round((b.getTime() - a.getTime()) / 86400000);
+  }
+
+  private toIso(date: Date): string {
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${date.getFullYear()}-${m}-${d}`;
   }
 
   private dateOnly(value: string): Date {

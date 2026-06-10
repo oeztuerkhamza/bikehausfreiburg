@@ -47,16 +47,16 @@ public class RentalBookingsController : ControllerBase
         return Ok(new { count });
     }
 
-    /// <summary>All non-cancelled bookings overlapping the given month (calendar view).</summary>
+    /// <summary>All non-cancelled bookings overlapping the given range (calendar view).</summary>
     [HttpGet("calendar")]
     public async Task<ActionResult<IEnumerable<RentalBookingListDto>>> GetCalendar(
-        [FromQuery] int year,
-        [FromQuery] int month)
+        [FromQuery] DateTime from,
+        [FromQuery] DateTime to)
     {
-        if (year < 2020 || year > 2100 || month < 1 || month > 12)
+        if (to < from || (to - from).TotalDays > 62)
             return BadRequest(new { error = "Ungültiger Zeitraum" });
 
-        var items = await _service.GetCalendarAsync(year, month);
+        var items = await _service.GetCalendarAsync(from, to);
         return Ok(items);
     }
 
