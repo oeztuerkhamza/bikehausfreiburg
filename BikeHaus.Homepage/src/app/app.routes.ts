@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlSegment, UrlMatchResult } from '@angular/router';
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { TranslationService, Language } from './services/translation.service';
@@ -15,6 +15,29 @@ export const languageGuard: CanActivateFn = (route) => {
   }
   return inject(Router).createUrlTree([`/${DEFAULT_LANGUAGE}`]);
 };
+
+// Unmatched URLs fall back to the home page of the language the visitor is
+// currently browsing in, not hard-coded German.
+export const languageFallbackGuard: CanActivateFn = () => {
+  const lang = inject(TranslationService).currentLanguage();
+  return inject(Router).createUrlTree([`/${lang}`]);
+};
+
+// Angular's router has no mid-segment params, so `path: 'fahrrad-:city'`
+// matches nothing — city URLs need this matcher to extract the :city param.
+export function cityLandingMatcher(
+  segments: UrlSegment[],
+): UrlMatchResult | null {
+  if (segments.length === 1 && segments[0].path.startsWith('fahrrad-')) {
+    return {
+      consumed: segments,
+      posParams: {
+        city: new UrlSegment(segments[0].path.slice('fahrrad-'.length), {}),
+      },
+    };
+  }
+  return null;
+}
 
 export const routes: Routes = [
   { path: '', redirectTo: DEFAULT_LANGUAGE, pathMatch: 'full' },
@@ -131,6 +154,14 @@ export const routes: Routes = [
             (m) => m.FahrradverleihComponent,
           ),
       },
+      // Dedicated booking flow (must be registered before :category)
+      {
+        path: 'fahrradverleih/buchen',
+        loadComponent: () =>
+          import('./pages/fahrradverleih/rental-booking-page.component').then(
+            (m) => m.RentalBookingPageComponent,
+          ),
+      },
       // DE sub-categories
       {
         path: 'fahrradverleih/:category',
@@ -147,6 +178,14 @@ export const routes: Routes = [
             (m) => m.FahrradverleihComponent,
           ),
       },
+      // EN booking flow (must be registered before :category)
+      {
+        path: 'bike-rental/booking',
+        loadComponent: () =>
+          import('./pages/fahrradverleih/rental-booking-page.component').then(
+            (m) => m.RentalBookingPageComponent,
+          ),
+      },
       // EN sub-categories
       {
         path: 'bike-rental/:category',
@@ -161,6 +200,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/fahrradverleih/fahrradverleih.component').then(
             (m) => m.FahrradverleihComponent,
+          ),
+      },
+      // FR booking flow (must be registered before :category)
+      {
+        path: 'location-velo/reservation',
+        loadComponent: () =>
+          import('./pages/fahrradverleih/rental-booking-page.component').then(
+            (m) => m.RentalBookingPageComponent,
           ),
       },
       // FR sub-categories
@@ -252,7 +299,7 @@ export const routes: Routes = [
           import('./pages/faq/faq.component').then((m) => m.FaqComponent),
       },
       {
-        path: 'fahrrad-:city',
+        matcher: cityLandingMatcher,
         loadComponent: () =>
           import('./pages/fahrrad-stadt/fahrrad-stadt.component').then(
             (m) => m.FahrradStadtComponent,
@@ -310,5 +357,10 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', redirectTo: 'de' },
+  {
+    path: '**',
+    canActivate: [languageFallbackGuard],
+    loadComponent: () =>
+      import('./pages/home/home.component').then((m) => m.HomeComponent),
+  },
 ];

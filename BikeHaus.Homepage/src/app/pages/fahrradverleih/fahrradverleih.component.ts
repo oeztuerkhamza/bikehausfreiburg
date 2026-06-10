@@ -35,7 +35,7 @@ import {
   getConfiguredRentalPriceLines,
 } from '../../utils/rental-pricing';
 import { EXTENDED_RENTAL_PAGE_COPY } from './rental-page-copy-extended';
-import { RentalBookingStepsComponent } from './rental-booking-steps.component';
+import { getRentalBookingPath } from '../../services/language-config';
 import { RENTAL_CATEGORIES } from './rental-category-content';
 
 type RentalLangOption = { code: Language; label: string };
@@ -1326,12 +1326,7 @@ interface BikeSlot {
 @Component({
   selector: 'app-fahrradverleih',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    RouterModule,
-    RentalBookingStepsComponent,
-  ],
+  imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="rental-page">
       <!-- ═══ HERO BANNER ═══ -->
@@ -1383,11 +1378,7 @@ interface BikeSlot {
               >
             </div>
             <div class="rental-hero-ctas">
-              <button
-                type="button"
-                class="hero-cta-scroll"
-                (click)="scrollToBikes()"
-              >
+              <a [routerLink]="bookingPath()" class="hero-cta-scroll">
                 {{ t().rentalHeroScrollCta }}
                 <svg
                   width="14"
@@ -1397,9 +1388,9 @@ interface BikeSlot {
                   stroke="currentColor"
                   stroke-width="2"
                 >
-                  <path d="M12 5v14M5 12l7 7 7-7" />
+                  <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
-              </button>
+              </a>
               <a
                 [routerLink]="['/' + lang(), rentalCatalogSlug()]"
                 class="hero-cta-scroll"
@@ -1635,9 +1626,48 @@ interface BikeSlot {
           </ul>
         </section>
 
-        <!-- Booking Steps (replaces old inline booking panel) -->
-        <section class="booking-panel" id="booking-panel">
-          <app-rental-booking-steps></app-rental-booking-steps>
+        <!-- Booking CTA → dedicated booking page (flow no longer embedded here) -->
+        <section class="booking-panel booking-cta-section" id="booking-panel">
+          <div class="booking-cta-inner">
+            <div class="booking-cta-icon" aria-hidden="true">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+                <path d="M9 16l2 2 4-4" />
+              </svg>
+            </div>
+            <h2 class="booking-cta-title">
+              {{ t().rentalSteps?.bookingCtaTitle ?? 'Jetzt Fahrrad reservieren' }}
+            </h2>
+            <p class="booking-cta-text">
+              {{
+                t().rentalSteps?.bookingCtaText ??
+                  'In 4 einfachen Schritten: Termin wählen, Fahrrad aussuchen, Daten eintragen – fertig.'
+              }}
+            </p>
+            <a [routerLink]="bookingPath()" class="booking-cta-btn">
+              {{ t().rentalHeroScrollCta }}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
         </section>
 
         <!-- Note -->
@@ -3160,6 +3190,62 @@ interface BikeSlot {
           opacity: 1;
           transform: translateY(0);
         }
+      }
+
+      /* ── Booking CTA card (flow moved to dedicated page) ── */
+      .booking-cta-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.85rem;
+        padding: 2.5rem 1.5rem;
+      }
+
+      .booking-cta-icon {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        background: rgba(255, 87, 34, 0.16);
+        color: var(--color-accent, #ff5722);
+      }
+
+      .booking-cta-title {
+        font-family: var(--rental-display-font);
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #fff;
+        margin: 0;
+      }
+
+      .booking-cta-text {
+        color: rgba(245, 248, 255, 0.72);
+        max-width: 480px;
+        margin: 0;
+      }
+
+      .booking-cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding: 0.95rem 1.9rem;
+        border-radius: 999px;
+        background: var(--color-accent, #ff5722);
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.05rem;
+        text-decoration: none;
+        box-shadow: 0 10px 30px rgba(255, 87, 34, 0.4);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .booking-cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 36px rgba(255, 87, 34, 0.5);
       }
 
       /* ── Compact booking panel ── */
@@ -4773,24 +4859,8 @@ export class FahrradverleihComponent implements OnInit {
   reviewFormError = signal<string | null>(null);
   reviewForm: RentalReviewCreate = { ad: '', email: '', sterne: 5, yorum: '' };
 
-  scrollToBikes(): void {
-    if (!this.isBrowser) return;
-
-    // Prefer the actual calendar; fall back to the panel wrapper.
-    const target =
-      document.getElementById('rental-calendar') ??
-      document.getElementById('booking-panel');
-    if (!target) return;
-
-    // Compute an absolute scroll position, accounting for the sticky header.
-    // scrollIntoView({behavior:'smooth'}) is unreliable inside containers with
-    // animations / lazy-rendered children — window.scrollTo always works.
-    const headerOffset = 80;
-    const top =
-      target.getBoundingClientRect().top + window.scrollY - headerOffset;
-
-    window.scrollTo({ top, behavior: 'smooth' });
-  }
+  /** The booking flow lives on its own page — all CTAs navigate there. */
+  bookingPath = () => getRentalBookingPath(this.lang());
 
   ngOnInit(): void {
     const t = this.t();

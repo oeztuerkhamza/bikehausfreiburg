@@ -417,15 +417,19 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    const slug = this.route.snapshot.paramMap.get('city');
-    const found = CITY_LANDINGS.find((c) => c.slug === `fahrrad-${slug}`);
-    if (!found) {
-      this.router.navigate(['/de']);
-      return;
-    }
-    this.city.set(found);
-    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
-    this.injectSchema(found);
+    // paramMap statt snapshot: bei Navigation zwischen Stadtseiten wird die
+    // Komponente wiederverwendet, ngOnInit läuft dann nicht erneut.
+    this.route.paramMap.subscribe((params) => {
+      const slug = params.get('city');
+      const found = CITY_LANDINGS.find((c) => c.slug === `fahrrad-${slug}`);
+      if (!found) {
+        this.router.navigate(['/', this.lang()]);
+        return;
+      }
+      this.city.set(found);
+      this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+      this.injectSchema(found);
+    });
   }
 
   ngOnDestroy(): void {
@@ -498,6 +502,7 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
       description: t.metaDescription,
     };
 
+    this.schemaEl?.remove();
     const el = this.doc.createElement('script');
     el.type = 'application/ld+json';
     el.textContent = JSON.stringify(schema);

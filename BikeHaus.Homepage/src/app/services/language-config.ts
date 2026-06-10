@@ -72,3 +72,27 @@ export function getLanguageDirection(
 ): 'ltr' | 'rtl' {
   return language === 'ar' ? 'rtl' : 'ltr';
 }
+
+// ── Rental booking page (dedicated flow) — language-specific slugs ──
+export const RENTAL_BOOKING_SLUGS = new Set([
+  'buchen',
+  'booking',
+  'reservation',
+]);
+
+export function getRentalSlug(lang: string): string {
+  if (lang === 'en') return 'bike-rental';
+  if (lang === 'fr') return 'location-velo';
+  return 'fahrradverleih';
+}
+
+export function getRentalBookingSlug(lang: string): string {
+  if (lang === 'en') return 'booking';
+  if (lang === 'fr') return 'reservation';
+  return 'buchen';
+}
+
+/** Absolute path of the dedicated booking page, e.g. `/de/fahrradverleih/buchen`. */
+export function getRentalBookingPath(lang: string): string {
+  return `/${lang}/${getRentalSlug(lang)}/${getRentalBookingSlug(lang)}`;
+}

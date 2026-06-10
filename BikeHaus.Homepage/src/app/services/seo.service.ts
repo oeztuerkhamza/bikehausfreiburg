@@ -6,8 +6,10 @@ import { TranslationService, Language } from './translation.service';
 import {
   DEFAULT_LANGUAGE,
   OG_LOCALE_BY_LANGUAGE,
+  RENTAL_BOOKING_SLUGS,
   SUPPORTED_LANGUAGES,
   getLanguageDirection,
+  getRentalBookingPath,
   isSupportedLanguage,
 } from './language-config';
 
@@ -76,7 +78,9 @@ export class SeoService {
   }
 
   private updateCanonicalAndHreflang(url: string): void {
-    const pathSegments = url.split('/').filter(Boolean);
+    // Slug matching must ignore query string / fragment (e.g. booking ?step=2)
+    const pathOnly = url.split('?')[0].split('#')[0];
+    const pathSegments = pathOnly.split('/').filter(Boolean);
     const currentLang = isSupportedLanguage(pathSegments[0])
       ? pathSegments[0]
       : DEFAULT_LANGUAGE;
@@ -111,6 +115,25 @@ export class SeoService {
     // Here we only update og:url and let the component set language-specific hreflang.
     if (pathSegments.length === 3 && BLOG_SEGMENTS.has(pathSegments[1])) {
       this.updateMetaProperty('og:url', canonicalUrl);
+      return;
+    }
+
+    // ── Dedicated booking page: /:lang/(rental-slug)/(buchen|booking|reservation) ──
+    // noindex page; still emit correct per-language alternates + clean canonical
+    if (
+      pathSegments.length === 3 &&
+      RENTAL_SEGMENTS.has(pathSegments[1]) &&
+      RENTAL_BOOKING_SLUGS.has(pathSegments[2])
+    ) {
+      canonical.href = `${BASE_URL}${getRentalBookingPath(currentLang)}`;
+      for (const lang of SUPPORTED_LANGUAGES) {
+        this.addHreflangLink(lang, `${BASE_URL}${getRentalBookingPath(lang)}`);
+      }
+      this.addHreflangLink(
+        'x-default',
+        `${BASE_URL}${getRentalBookingPath(DEFAULT_LANGUAGE)}`,
+      );
+      this.updateMetaProperty('og:url', canonical.href);
       return;
     }
 

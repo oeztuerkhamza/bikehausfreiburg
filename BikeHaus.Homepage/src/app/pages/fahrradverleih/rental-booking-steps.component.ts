@@ -1,7 +1,8 @@
-import { Component, computed, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { TranslationService } from '../../services/translation.service';
 import { environment } from '../../../environments/environment';
@@ -30,32 +31,48 @@ type BookingStep =
   | 'review'
   | 'success';
 
+const BOOKING_STEPS: readonly BookingStep[] = [
+  'date-selection',
+  'bike-selection',
+  'bike-details',
+  'choose-next',
+  'customer-info',
+  'review',
+  'success',
+];
+
+/** Which of the 4 indicator positions a step belongs to. */
+const INDICATOR_INDEX: Record<BookingStep, number> = {
+  'date-selection': 1,
+  'bike-selection': 2,
+  'bike-details': 2,
+  'choose-next': 2,
+  'customer-info': 3,
+  review: 4,
+  success: 5,
+};
+
 @Component({
   selector: 'app-rental-booking-steps',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="rental-booking-steps-container">
-      <!-- Step Indicator -->
+      <!-- Step Indicator (sticky — the process flow stays visible at all times) -->
       <div class="steps-indicator">
-        <div [class.active]="currentStep() === 'date-selection'" class="step">
-          1. {{ t().rentalSteps?.dateSelection ?? 'Termin wählen' }}
-        </div>
         <div
-          [class.active]="
-            currentStep() === 'bike-selection' ||
-            currentStep() === 'bike-details' ||
-            currentStep() === 'choose-next'
-          "
           class="step"
+          *ngFor="let label of stepLabels(); let i = index"
+          [class.active]="indicatorIndex() === i + 1"
+          [class.done]="indicatorIndex() > i + 1"
         >
-          2. {{ t().rentalSteps?.bikeSelection ?? 'Fahrrad wählen' }}
-        </div>
-        <div [class.active]="currentStep() === 'customer-info'" class="step">
-          3. {{ t().rentalSteps?.customerInfo ?? 'Daten eintragen' }}
-        </div>
-        <div [class.active]="currentStep() === 'review'" class="step">
-          4. {{ t().rentalSteps?.review ?? 'Bestätigung' }}
+          <span class="step-num">
+            <ng-container *ngIf="indicatorIndex() > i + 1; else numTpl"
+              >✓</ng-container
+            >
+            <ng-template #numTpl>{{ i + 1 }}</ng-template>
+          </span>
+          <span class="step-label">{{ label }}</span>
         </div>
       </div>
 
@@ -94,6 +111,23 @@ type BookingStep =
             }}
           </p>
 
+          <!-- Live selection state — makes it obvious what to tap next -->
+          <p class="selection-hint" *ngIf="!selectedStartDate">
+            {{
+              t().rentalSteps?.chooseStartDate ??
+                'Bitte Starttermin antippen'
+            }}
+          </p>
+          <p
+            class="selection-hint"
+            *ngIf="selectedStartDate && !selectedEndDate"
+          >
+            {{
+              t().rentalSteps?.chooseEndDate ??
+                'Jetzt den Endtermin antippen'
+            }}
+          </p>
+
           <div class="calendar-weekdays">
             <div
               *ngFor="let weekday of weekdayLabels()"
@@ -124,7 +158,10 @@ type BookingStep =
           </div>
         </div>
 
-        <div class="selected-range-summary">
+        <div
+          class="selected-range-summary"
+          [class.is-complete]="selectedStartDate && selectedEndDate"
+        >
           <div>
             <strong>{{ t().rentalSteps?.startDate ?? 'Startdatum' }}:</strong>
             <span>{{
@@ -136,6 +173,14 @@ type BookingStep =
             <span>{{
               selectedEndDate ? formatDisplayDate(selectedEndDate) : '—'
             }}</span>
+          </div>
+          <div *ngIf="daysCount() > 0" class="range-days">
+            <strong>{{ daysCount() }}</strong>
+            {{
+              daysCount() === 1
+                ? (t().rentalSteps?.day ?? 'Tag')
+                : (t().rentalSteps?.days ?? 'Tage')
+            }}
           </div>
         </div>
         <button
@@ -212,6 +257,10 @@ type BookingStep =
                   t().rentalSteps?.day ?? 'Tag'
                 }}
               </p>
+              <!-- Visible affordance; click bubbles to the card handler -->
+              <button type="button" class="btn-select-bike">
+                {{ t().rentalSteps?.selectThisBike ?? 'Auswählen' }} →
+              </button>
             </div>
           </div>
 
@@ -297,7 +346,7 @@ type BookingStep =
 
         <div class="booking-actions">
           <button (click)="addBikeToCart()" class="btn-primary">
-            {{ t().rentalSteps?.book ?? 'Buchen' }}
+            {{ t().rentalSteps?.addToCart ?? 'Zur Buchung hinzufügen' }}
           </button>
           <button (click)="goToStep('bike-selection')" class="btn-secondary">
             {{ t().rentalSteps?.selectDifferent ?? 'Anderes Fahrrad wählen' }}
@@ -650,27 +699,83 @@ type BookingStep =
         color: var(--rb-text-soft);
       }
 
+      /* Sticky stepper: the process flow stays visible while scrolling */
       .steps-indicator {
+        position: sticky;
+        top: 76px;
+        z-index: 20;
         display: flex;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
+        gap: 0.25rem;
+        margin: -2rem -2rem 1.75rem;
+        padding: 0.85rem 1rem;
+        background: rgba(10, 16, 28, 0.94);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--rb-border);
+        border-radius: 18px 18px 0 0;
       }
 
       .step {
-        padding: 0.75rem 1.5rem;
-        background: var(--rb-surface);
-        border: 1px solid var(--rb-border);
-        border-radius: 8px;
-        font-size: 0.9rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        text-align: center;
+        font-size: 0.78rem;
         font-weight: 600;
         color: var(--rb-text-soft);
+        position: relative;
+      }
+
+      /* Connector line between the circles */
+      .step:not(:first-child)::before {
+        content: '';
+        position: absolute;
+        top: 14px;
+        right: calc(50% + 18px);
+        width: calc(100% - 36px);
+        height: 2px;
+        background: var(--rb-border);
+      }
+
+      .step.done:not(:first-child)::before {
+        background: rgba(255, 87, 34, 0.6);
+      }
+
+      .step-num {
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: var(--rb-surface);
+        border: 2px solid var(--rb-border);
+        font-size: 0.85rem;
+        font-weight: 700;
+        z-index: 1;
+      }
+
+      .step.active .step-num {
+        background: var(--rb-accent);
+        border-color: var(--rb-accent);
+        color: #fff;
+        box-shadow: 0 2px 12px rgba(255, 87, 34, 0.5);
+      }
+
+      .step.done .step-num {
+        background: rgba(255, 87, 34, 0.2);
+        border-color: rgba(255, 87, 34, 0.6);
+        color: var(--rb-accent);
       }
 
       .step.active {
-        background: rgba(255, 87, 34, 0.2);
-        border-color: rgba(255, 87, 34, 0.52);
         color: var(--rb-text);
+      }
+
+      .step-label {
+        line-height: 1.2;
       }
 
       .step-container {
@@ -818,12 +923,10 @@ type BookingStep =
 
       .calendar-day.is-start,
       .calendar-day.is-end {
-        background: linear-gradient(
-          90deg,
-          rgba(255, 87, 34, 0.18),
-          rgba(255, 87, 34, 0.12)
-        );
-        color: white;
+        background: var(--rb-accent);
+        color: #fff;
+        font-weight: 800;
+        box-shadow: 0 2px 12px rgba(255, 87, 34, 0.55);
         font-weight: 700;
         box-shadow: 0 6px 18px rgba(255, 87, 34, 0.12);
       }
@@ -837,10 +940,42 @@ type BookingStep =
         border: 1px dashed rgba(245, 248, 255, 0.12);
       }
 
+      .selection-hint {
+        margin: 0 0 0.75rem;
+        padding: 0.5rem 0.85rem;
+        border-radius: 8px;
+        background: rgba(255, 87, 34, 0.12);
+        border: 1px dashed rgba(255, 87, 34, 0.5);
+        color: var(--rb-text);
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+
       .selected-range-summary {
         display: flex;
-        gap: 1.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1.5rem;
         margin-top: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--rb-border);
+        background: var(--rb-surface);
+      }
+
+      .selected-range-summary.is-complete {
+        border-color: rgba(255, 87, 34, 0.55);
+        background: rgba(255, 87, 34, 0.1);
+      }
+
+      .selected-range-summary .range-days {
+        margin-left: auto;
+        padding: 0.25rem 0.7rem;
+        border-radius: 999px;
+        background: var(--rb-accent);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.9rem;
       }
 
       .date-range-display {
@@ -926,6 +1061,29 @@ type BookingStep =
         color: var(--rb-accent);
         font-weight: 600;
         margin: 0.5rem 0 0 0;
+      }
+
+      .btn-select-bike {
+        width: 100%;
+        margin-top: 0.85rem;
+        padding: 0.7rem 1rem;
+        background: rgba(255, 87, 34, 0.14);
+        border: 1px solid rgba(255, 87, 34, 0.55);
+        border-radius: 8px;
+        color: var(--rb-accent);
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          background 0.2s ease,
+          color 0.2s ease;
+      }
+
+      .bike-card:hover .btn-select-bike,
+      .btn-select-bike:hover,
+      .btn-select-bike:focus-visible {
+        background: var(--rb-accent);
+        color: #fff;
       }
 
       .bike-details {
@@ -1340,7 +1498,26 @@ type BookingStep =
         }
 
         .steps-indicator {
-          flex-direction: column;
+          top: 60px;
+          margin: -1rem -1rem 1.25rem;
+          padding: 0.6rem 0.4rem;
+          gap: 0.15rem;
+        }
+
+        .step {
+          font-size: 0.66rem;
+        }
+
+        .step-num {
+          width: 24px;
+          height: 24px;
+          font-size: 0.78rem;
+        }
+
+        .step:not(:first-child)::before {
+          top: 12px;
+          right: calc(50% + 15px);
+          width: calc(100% - 30px);
         }
 
         .booking-actions,
@@ -1360,11 +1537,24 @@ export class RentalBookingStepsComponent implements OnInit {
   private apiService = inject(ApiService);
   private translationService = inject(TranslationService);
   private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
 
   currentStep = signal<BookingStep>('date-selection');
+  indicatorIndex = computed(() => INDICATOR_INDEX[this.currentStep()]);
+  stepLabels = computed(() => {
+    const steps = this.t().rentalSteps;
+    return [
+      steps?.dateSelection ?? 'Termin wählen',
+      steps?.bikeSelection ?? 'Fahrrad wählen',
+      steps?.customerInfo ?? 'Daten eintragen',
+      steps?.review ?? 'Bestätigung',
+    ];
+  });
   selectedStartDate = '';
   selectedEndDate = '';
   calendarMonth = signal(this.getInitialCalendarMonth());
@@ -1381,6 +1571,8 @@ export class RentalBookingStepsComponent implements OnInit {
 
   availableBikes = signal<PublicRentalBicycle[]>([]);
   loadingAvailableBikes = signal(false);
+  /** True once availability was fetched for the selected dates. */
+  bikesLoaded = signal(false);
   cartBikes = signal<CartBike[]>([]);
 
   selectableBikes = computed(() => {
@@ -1556,6 +1748,8 @@ export class RentalBookingStepsComponent implements OnInit {
     if (!this.isSelectableCalendarDay(date)) return;
 
     const selectedDate = this.formatDateKey(date);
+    // Any change invalidates the previously fetched availability list.
+    this.bikesLoaded.set(false);
     if (
       !this.selectedStartDate ||
       (this.selectedStartDate && this.selectedEndDate) ||
@@ -1622,7 +1816,60 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Initialize
+    // Steps live in the URL (?step=…) so the browser back button moves one
+    // step back instead of leaving the page and losing all state.
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const raw = params.get('step');
+        const requested: BookingStep = BOOKING_STEPS.includes(
+          raw as BookingStep,
+        )
+          ? (raw as BookingStep)
+          : 'date-selection';
+        const resolved = this.resolveStep(requested);
+
+        if (resolved !== requested && isPlatformBrowser(this.platformId)) {
+          // Stale history entry / deep link without state → normalize the URL
+          // in place; the subscription re-fires with the resolved step.
+          this.syncStepToUrl(resolved, true);
+          return;
+        }
+        this.currentStep.set(resolved);
+      });
+  }
+
+  /** Downgrades a requested step when its prerequisites are missing. */
+  private resolveStep(requested: BookingStep): BookingStep {
+    // After a successful booking, never re-enter confirm/form steps via
+    // history — protects against accidental double bookings.
+    if (this.bookingNumber() && requested !== 'date-selection') {
+      return 'success';
+    }
+    const hasDates = !!this.selectedStartDate && !!this.selectedEndDate;
+    switch (requested) {
+      case 'success':
+        return this.bookingNumber() ? 'success' : 'date-selection';
+      case 'review':
+      case 'customer-info':
+      case 'choose-next':
+        return this.cartBikes().length > 0 ? requested : 'date-selection';
+      case 'bike-details':
+        return this.selectedBike() && hasDates ? requested : 'date-selection';
+      case 'bike-selection':
+        return hasDates && this.bikesLoaded() ? requested : 'date-selection';
+      default:
+        return 'date-selection';
+    }
+  }
+
+  private syncStepToUrl(step: BookingStep, replace: boolean): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { step: step === 'date-selection' ? null : step },
+      queryParamsHandling: 'merge',
+      replaceUrl: replace,
+    });
   }
 
   proceedToBikeSelection(): void {
@@ -1651,6 +1898,7 @@ export class RentalBookingStepsComponent implements OnInit {
     this.apiService.getAvailableBikes(start, end).subscribe({
       next: (bikes) => {
         this.availableBikes.set(bikes);
+        this.bikesLoaded.set(true);
         this.loadingAvailableBikes.set(false);
         this.goToStep('bike-selection');
       },
@@ -1823,6 +2071,9 @@ export class RentalBookingStepsComponent implements OnInit {
     this.selectedEndDate = '';
     this.selectedBike.set(null);
     this.cartBikes.set([]);
+    this.bookingNumber.set('');
+    this.bikesLoaded.set(false);
+    this.termsAccepted.set(false);
     this.bookingForm = {
       vorname: '',
       nachname: '',
@@ -1840,9 +2091,10 @@ export class RentalBookingStepsComponent implements OnInit {
 
   goToStep(step: BookingStep): void {
     if (isPlatformBrowser(this.platformId)) {
-      const savedScrollY = window.scrollY;
-      this.currentStep.set(step);
-      queueMicrotask(() => window.scrollTo({ top: savedScrollY, behavior: 'instant' as ScrollBehavior }));
+      // Push the step into the URL; the queryParamMap subscription applies it.
+      // Router scrollPositionRestoration ('top') scrolls the page up so the
+      // user always lands at the step indicator — never on unrelated content.
+      this.syncStepToUrl(step, false);
     } else {
       this.currentStep.set(step);
     }

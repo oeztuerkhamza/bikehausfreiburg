@@ -99,6 +99,13 @@ interface RentalStepsTranslations {
   cityRequired: string;
   termsPrefix: string;
   termsLinkText: string;
+  chooseStartDate: string;
+  chooseEndDate: string;
+  selectThisBike: string;
+  bookingPageTitle: string;
+  backToInfo: string;
+  bookingCtaTitle: string;
+  bookingCtaText: string;
 }
 
 export interface Translations {
@@ -3553,6 +3560,14 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     cityRequired: 'Stadt erforderlich',
     termsPrefix: 'Ich akzeptiere die',
     termsLinkText: 'Fahrradverleih-Bedingungen',
+    chooseStartDate: 'Bitte wählen Sie den Starttermin',
+    chooseEndDate: 'Jetzt den Endtermin antippen',
+    selectThisBike: 'Auswählen',
+    bookingPageTitle: 'Fahrrad online buchen',
+    backToInfo: 'Zurück zum Fahrradverleih',
+    bookingCtaTitle: 'Jetzt Fahrrad reservieren',
+    bookingCtaText:
+      'In 4 einfachen Schritten: Termin wählen, Fahrrad aussuchen, Daten eintragen – fertig.',
   },
   en: {
     dateSelection: 'Choose date',
@@ -3637,6 +3652,14 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     cityRequired: 'City is required',
     termsPrefix: 'I accept the',
     termsLinkText: 'Rental Terms',
+    chooseStartDate: 'Please tap your start date',
+    chooseEndDate: 'Now tap your end date',
+    selectThisBike: 'Select',
+    bookingPageTitle: 'Book a bike online',
+    backToInfo: 'Back to bike rental',
+    bookingCtaTitle: 'Reserve your bike now',
+    bookingCtaText:
+      'In 4 simple steps: pick a date, choose a bike, enter your details – done.',
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -3721,6 +3744,14 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     cityRequired: 'Ville requise',
     termsPrefix: "J'accepte les",
     termsLinkText: 'Conditions de location',
+    chooseStartDate: 'Veuillez sélectionner la date de début',
+    chooseEndDate: 'Sélectionnez maintenant la date de fin',
+    selectThisBike: 'Choisir',
+    bookingPageTitle: 'Réserver un vélo en ligne',
+    backToInfo: 'Retour à la location de vélos',
+    bookingCtaTitle: 'Réservez votre vélo maintenant',
+    bookingCtaText:
+      'En 4 étapes simples : choisissez une date, un vélo, saisissez vos coordonnées – c’est fait.',
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -3805,6 +3836,14 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     cityRequired: 'Şehir zorunludur',
     termsPrefix: 'Kabul ediyorum',
     termsLinkText: 'Kiralama Koşulları',
+    chooseStartDate: 'Lütfen başlangıç tarihini seçin',
+    chooseEndDate: 'Şimdi bitiş tarihini seçin',
+    selectThisBike: 'Seç',
+    bookingPageTitle: 'Online bisiklet kirala',
+    backToInfo: 'Bisiklet kiralama sayfasına dön',
+    bookingCtaTitle: 'Hemen bisiklet rezerve edin',
+    bookingCtaText:
+      '4 kolay adımda: tarih seçin, bisiklet seçin, bilgilerinizi girin – tamam.',
   },
   es: {
     dateSelection: 'Elegir fecha',
@@ -3889,6 +3928,14 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     cityRequired: 'La ciudad es obligatoria',
     termsPrefix: 'Acepto los',
     termsLinkText: 'Términos de alquiler',
+    chooseStartDate: 'Seleccione la fecha de inicio',
+    chooseEndDate: 'Ahora seleccione la fecha de fin',
+    selectThisBike: 'Seleccionar',
+    bookingPageTitle: 'Reservar una bicicleta en línea',
+    backToInfo: 'Volver al alquiler de bicicletas',
+    bookingCtaTitle: 'Reserve su bicicleta ahora',
+    bookingCtaText:
+      'En 4 pasos sencillos: elija la fecha, la bicicleta, introduzca sus datos – listo.',
   },
   it: {
     dateSelection: 'Scegli data',
@@ -3974,6 +4021,14 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     cityRequired: 'La città è obbligatoria',
     termsPrefix: 'Accetto i',
     termsLinkText: 'Termini di noleggio',
+    chooseStartDate: 'Seleziona la data di inizio',
+    chooseEndDate: 'Ora seleziona la data di fine',
+    selectThisBike: 'Seleziona',
+    bookingPageTitle: 'Prenota una bici online',
+    backToInfo: 'Torna al noleggio bici',
+    bookingCtaTitle: 'Prenota subito la tua bici',
+    bookingCtaText:
+      'In 4 semplici passaggi: scegli la data, la bici, inserisci i tuoi dati – fatto.',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
@@ -4058,6 +4113,14 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     cityRequired: 'المدينة مطلوبة',
     termsPrefix: 'أوافق على',
     termsLinkText: 'شروط الإيجار',
+    chooseStartDate: 'يرجى اختيار تاريخ البدء',
+    chooseEndDate: 'اختر الآن تاريخ الانتهاء',
+    selectThisBike: 'اختيار',
+    bookingPageTitle: 'احجز دراجة عبر الإنترنت',
+    backToInfo: 'العودة إلى تأجير الدراجات',
+    bookingCtaTitle: 'احجز دراجتك الآن',
+    bookingCtaText:
+      'في 4 خطوات بسيطة: اختر التاريخ والدراجة وأدخل بياناتك – وانتهيت.',
   },
   ru: {
     dateSelection: 'Выбор даты',
@@ -4142,6 +4205,14 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     cityRequired: 'Укажите город',
     termsPrefix: 'Я принимаю',
     termsLinkText: 'Условия аренды',
+    chooseStartDate: 'Пожалуйста, выберите дату начала',
+    chooseEndDate: 'Теперь выберите дату окончания',
+    selectThisBike: 'Выбрать',
+    bookingPageTitle: 'Забронировать велосипед онлайн',
+    backToInfo: 'Назад к прокату велосипедов',
+    bookingCtaTitle: 'Забронируйте велосипед сейчас',
+    bookingCtaText:
+      'Всего 4 простых шага: выберите дату, велосипед, введите данные – готово.',
   },
 };
 

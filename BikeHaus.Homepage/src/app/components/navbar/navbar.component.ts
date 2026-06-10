@@ -388,7 +388,9 @@ import {
           backdrop-filter: blur(18px) saturate(140%);
           -webkit-backdrop-filter: blur(18px) saturate(140%);
           flex-direction: column;
-          justify-content: center;
+          /* flex-start statt center: bei center sind überlaufende Items oben
+             nicht erreichbar und der Sprachumschalter rutscht aus dem Viewport */
+          justify-content: flex-start;
           align-items: center;
           gap: 0.8rem;
           padding: 6.5rem 1.25rem 2rem;
@@ -413,15 +415,20 @@ import {
         }
 
         .lang-switch {
+          /* Sprachumschalter zuerst, damit er beim Öffnen sofort sichtbar ist */
+          order: -1;
           width: min(420px, 100%);
           justify-content: center;
           flex-wrap: wrap;
           padding-left: 0;
-          border-top: 1px solid var(--color-border);
+          border-top: none;
+          border-bottom: 1px solid var(--color-border);
           border-left: none;
-          padding-top: 1.5rem;
+          padding-top: 0;
+          padding-bottom: 1.25rem;
           margin-left: 0;
-          margin-top: 1rem;
+          margin-top: 0;
+          margin-bottom: 0.5rem;
         }
 
         .lang-menu {
@@ -601,8 +608,10 @@ import {
           justify-content: center;
           flex-wrap: wrap;
           gap: 0.4rem;
-          padding-top: 1.25rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          padding-top: 0;
+          padding-bottom: 1.25rem;
+          border-top: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .lang-switch button {

@@ -7,7 +7,11 @@
       "Bash(dotnet build *)",
       "Bash(npm start *)",
       "Bash(dotnet ef *)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{redirect_url}\\\\n\" https://bikehausfreiburg.com/de/fahrrad-emmendingen)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{redirect_url}\\\\n\" https://bikehausfreiburg.com/tr/fahrrad-emmendingen)",
+      "Bash(curl -s https://bikehausfreiburg.com/tr/fahrrad-emmendingen)",
+      "Skill(commit-commands:commit)"
     ]
   },
   "enabledPlugins": {

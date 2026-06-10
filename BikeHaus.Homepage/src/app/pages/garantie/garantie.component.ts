@@ -20,13 +20,13 @@ import { TranslationService } from '../../services/translation.service';
       <div class="container legal-body">
         <article class="legal-content">
           <section class="warranty-section warranty-new">
-            <div class="warranty-badge new">NEU</div>
+            <div class="warranty-badge new">{{ t().conditionNew }}</div>
             <h2>{{ t().warrantyNewTitle }}</h2>
             <p>{{ t().warrantyNewText }}</p>
           </section>
 
           <section class="warranty-section warranty-used">
-            <div class="warranty-badge used">GEBRAUCHT</div>
+            <div class="warranty-badge used">{{ t().conditionUsed }}</div>
             <h2>{{ t().warrantyUsedTitle }}</h2>
             <p>{{ t().warrantyUsedText }}</p>
           </section>
@@ -103,7 +103,7 @@ import { TranslationService } from '../../services/translation.service';
         margin-bottom: 2.5rem;
         padding: 1.5rem;
         border-radius: 12px;
-        background: var(--color-bg-soft);
+        background: var(--color-surface);
         border: 1px solid var(--color-border);
       }
 
@@ -114,17 +114,18 @@ import { TranslationService } from '../../services/translation.service';
         font-size: 0.7rem;
         font-weight: 700;
         letter-spacing: 0.05em;
+        text-transform: uppercase;
         margin-bottom: 0.75rem;
       }
 
       .warranty-badge.new {
-        background: #d4edda;
-        color: #155724;
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
       }
 
       .warranty-badge.used {
-        background: #fff3cd;
-        color: #856404;
+        background: rgba(249, 115, 22, 0.15);
+        color: #fb923c;
       }
 
       .warranty-section h2 {
@@ -142,19 +143,19 @@ import { TranslationService } from '../../services/translation.service';
       }
 
       .warranty-excluded {
-        background: #fff5f5;
-        border-color: #fed7d7;
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.25);
       }
 
       .warranty-return {
-        background: #e6fffa;
-        border-color: #b2f5ea;
+        background: var(--color-accent-subtle);
+        border-color: rgba(16, 185, 129, 0.3);
       }
 
       .warranty-note {
         margin-top: 2rem;
         padding: 1rem 1.5rem;
-        background: #f7fafc;
+        background: var(--color-surface);
         border-left: 4px solid var(--color-accent);
         border-radius: 0 8px 8px 0;
       }

@@ -9,6 +9,7 @@ import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
+import { getRentalBookingPath } from '../../services/language-config';
 import {
   RENTAL_CATEGORIES,
   RentalCategory,
@@ -48,11 +49,7 @@ import {
                 }
               </div>
               <div class="rc-hero-actions">
-                <a
-                  [routerLink]="['/' + lang() + '/' + parentSlug()]"
-                  fragment="booking-panel"
-                  class="rc-btn-primary"
-                >
+                <a [routerLink]="bookingPath()" class="rc-btn-primary">
                   {{ c.ctaButton }}
                 </a>
                 <a
@@ -148,11 +145,7 @@ import {
               <h2>{{ c.ctaHeading }}</h2>
               <p>{{ c.ctaText }}</p>
               <div class="rc-cta-actions">
-                <a
-                  [routerLink]="['/' + lang() + '/' + parentSlug()]"
-                  fragment="booking-panel"
-                  class="rc-btn-primary"
-                >
+                <a [routerLink]="bookingPath()" class="rc-btn-primary">
                   {{ c.ctaButton }}
                 </a>
                 <a
@@ -526,6 +519,8 @@ export class RentalCategoryComponent implements OnInit {
     if (l === 'fr') return 'velos-de-location';
     return 'mietfahrraeder';
   });
+
+  bookingPath = computed(() => getRentalBookingPath(this.lang()));
 
   otherCategories = computed(() => {
     const current = this.category();
