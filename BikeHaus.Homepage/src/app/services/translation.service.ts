@@ -106,6 +106,10 @@ interface RentalStepsTranslations {
   backToInfo: string;
   bookingCtaTitle: string;
   bookingCtaText: string;
+  zoomImage: string;
+  closeLabel: string;
+  prevImage: string;
+  nextImage: string;
 }
 
 export interface Translations {
@@ -3568,6 +3572,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     bookingCtaTitle: 'Jetzt Fahrrad reservieren',
     bookingCtaText:
       'In 4 einfachen Schritten: Termin wählen, Fahrrad aussuchen, Daten eintragen – fertig.',
+    zoomImage: 'Bild vergrößern',
+    closeLabel: 'Schließen',
+    prevImage: 'Vorheriges Bild',
+    nextImage: 'Nächstes Bild',
   },
   en: {
     dateSelection: 'Choose date',
@@ -3660,6 +3668,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     bookingCtaTitle: 'Reserve your bike now',
     bookingCtaText:
       'In 4 simple steps: pick a date, choose a bike, enter your details – done.',
+    zoomImage: 'Zoom image',
+    closeLabel: 'Close',
+    prevImage: 'Previous image',
+    nextImage: 'Next image',
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -3752,6 +3764,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     bookingCtaTitle: 'Réservez votre vélo maintenant',
     bookingCtaText:
       'En 4 étapes simples : choisissez une date, un vélo, saisissez vos coordonnées – c’est fait.',
+    zoomImage: 'Agrandir l’image',
+    closeLabel: 'Fermer',
+    prevImage: 'Image précédente',
+    nextImage: 'Image suivante',
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -3844,6 +3860,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     bookingCtaTitle: 'Hemen bisiklet rezerve edin',
     bookingCtaText:
       '4 kolay adımda: tarih seçin, bisiklet seçin, bilgilerinizi girin – tamam.',
+    zoomImage: 'Görseli büyüt',
+    closeLabel: 'Kapat',
+    prevImage: 'Önceki görsel',
+    nextImage: 'Sonraki görsel',
   },
   es: {
     dateSelection: 'Elegir fecha',
@@ -3936,6 +3956,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     bookingCtaTitle: 'Reserve su bicicleta ahora',
     bookingCtaText:
       'En 4 pasos sencillos: elija la fecha, la bicicleta, introduzca sus datos – listo.',
+    zoomImage: 'Ampliar imagen',
+    closeLabel: 'Cerrar',
+    prevImage: 'Imagen anterior',
+    nextImage: 'Imagen siguiente',
   },
   it: {
     dateSelection: 'Scegli data',
@@ -4029,6 +4053,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     bookingCtaTitle: 'Prenota subito la tua bici',
     bookingCtaText:
       'In 4 semplici passaggi: scegli la data, la bici, inserisci i tuoi dati – fatto.',
+    zoomImage: 'Ingrandisci immagine',
+    closeLabel: 'Chiudi',
+    prevImage: 'Immagine precedente',
+    nextImage: 'Immagine successiva',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
@@ -4121,6 +4149,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     bookingCtaTitle: 'احجز دراجتك الآن',
     bookingCtaText:
       'في 4 خطوات بسيطة: اختر التاريخ والدراجة وأدخل بياناتك – وانتهيت.',
+    zoomImage: 'تكبير الصورة',
+    closeLabel: 'إغلاق',
+    prevImage: 'الصورة السابقة',
+    nextImage: 'الصورة التالية',
   },
   ru: {
     dateSelection: 'Выбор даты',
@@ -4213,6 +4245,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     bookingCtaTitle: 'Забронируйте велосипед сейчас',
     bookingCtaText:
       'Всего 4 простых шага: выберите дату, велосипед, введите данные – готово.',
+    zoomImage: 'Увеличить изображение',
+    closeLabel: 'Закрыть',
+    prevImage: 'Предыдущее изображение',
+    nextImage: 'Следующее изображение',
   },
 };
 
