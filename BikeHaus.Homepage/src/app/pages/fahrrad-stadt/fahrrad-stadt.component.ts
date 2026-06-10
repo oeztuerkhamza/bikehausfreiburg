@@ -9,7 +9,12 @@ import {
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { Meta, Title } from '@angular/platform-browser';
+import {
+  Meta,
+  Title,
+  DomSanitizer,
+  SafeResourceUrl,
+} from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { CITY_LANDINGS, CityLanding } from '../../services/city-landing.data';
 
@@ -392,6 +397,7 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
   private title = inject(Title);
   private ts = inject(TranslationService);
   private doc = inject(DOCUMENT);
+  private sanitizer = inject(DomSanitizer);
 
   lang = this.ts.currentLanguage;
   tr = this.ts.translations;
@@ -402,9 +408,14 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
     return c.translations[this.lang()] ?? c.translations.en;
   });
 
-  mapUrl = computed(() => {
+  // Feste, eigene Embed-URL — bypassSecurityTrustResourceUrl ist hier sicher;
+  // ohne Bypass wirft die iframe-[src]-Bindung NG0904 und das Prerendering
+  // der Stadtseiten schlägt fehl.
+  mapUrl = computed<SafeResourceUrl | string>(() => {
     if (!this.city()) return '';
-    return `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2000!2d7.8194!3d47.9877!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47911b7a5f0b3b0d%3A0x0!2sHeckerstra%C3%9Fe+27%2C+79114+Freiburg!5e0!3m2!1sde!2sde!4v1`;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2000!2d7.8194!3d47.9877!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47911b7a5f0b3b0d%3A0x0!2sHeckerstra%C3%9Fe+27%2C+79114+Freiburg!5e0!3m2!1sde!2sde!4v1`,
+    );
   });
 
   private schemaEl?: HTMLScriptElement;
@@ -427,6 +438,16 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
         return;
       }
       this.city.set(found);
+      // Titel/Description synchron setzen — der metaEffect läuft beim
+      // Prerendering nicht vor der Serialisierung.
+      const t = this.ct();
+      if (t) {
+        this.title.setTitle(t.metaTitle);
+        this.meta.updateTag({
+          name: 'description',
+          content: t.metaDescription,
+        });
+      }
       this.meta.updateTag({ name: 'robots', content: 'index, follow' });
       this.injectSchema(found);
     });
