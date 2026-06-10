@@ -90,7 +90,8 @@ public record RentalBookingListDto(
     DateTime EndDatum,
     decimal? Gesamtpreis,
     RentalBookingStatus Status,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    bool HasEBike
 );
 
 public record RentalBookingApproveDto(string? AdminNotizen);

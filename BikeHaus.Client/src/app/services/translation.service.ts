@@ -364,6 +364,13 @@ export interface Translations {
   rentalBookingApproved: string;
   rentalBookingCancelled: string;
   rentalBookingNoItems: string;
+  rentalBookingViewList: string;
+  rentalBookingViewCalendar: string;
+  rentalBookingCalToday: string;
+  rentalBookingCalLegendBike: string;
+  rentalBookingCalLegendEBike: string;
+  rentalBookingCalLegendPending: string;
+  rentalBookingCalEmpty: string;
   rentalBookingDetails: string;
   rentalBookingApprove: string;
   rentalBookingCancel: string;
@@ -1150,6 +1157,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingApproved: 'Bestätigt',
     rentalBookingCancelled: 'Storniert',
     rentalBookingNoItems: 'Keine Mietanfragen vorhanden.',
+    rentalBookingViewList: 'Liste',
+    rentalBookingViewCalendar: 'Kalender',
+    rentalBookingCalToday: 'Heute',
+    rentalBookingCalLegendBike: 'Fahrrad',
+    rentalBookingCalLegendEBike: 'E-Bike',
+    rentalBookingCalLegendPending: 'gestrichelt = ausstehend',
+    rentalBookingCalEmpty: 'Keine Mietanfragen in diesem Monat.',
     rentalBookingDetails: 'Mietanfrage',
     rentalBookingApprove: 'Bestätigen',
     rentalBookingCancel: 'Stornieren',
@@ -1940,6 +1954,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingApproved: 'Onaylandı',
     rentalBookingCancelled: 'İptal',
     rentalBookingNoItems: 'Kiralama talebi yok.',
+    rentalBookingViewList: 'Liste',
+    rentalBookingViewCalendar: 'Takvim',
+    rentalBookingCalToday: 'Bugün',
+    rentalBookingCalLegendBike: 'Bisiklet',
+    rentalBookingCalLegendEBike: 'E-Bike',
+    rentalBookingCalLegendPending: 'kesik çizgili = onay bekliyor',
+    rentalBookingCalEmpty: 'Bu ay kiralama talebi yok.',
     rentalBookingDetails: 'Kiralama Talebi',
     rentalBookingApprove: 'Onayla',
     rentalBookingCancel: 'İptal Et',

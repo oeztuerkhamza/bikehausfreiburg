@@ -125,6 +125,19 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<RentalBooking>> GetOverlappingRangeWithBikesAsync(DateTime from, DateTime to)
+    {
+        // Calendar view: all non-cancelled bookings touching the range.
+        return await _dbSet
+            .Include(b => b.Bicycle)
+            .Include(b => b.Bikes).ThenInclude(bk => bk.Bicycle)
+            .Where(b => b.Status != RentalBookingStatus.Cancelled
+                && b.StartDatum.Date <= to.Date
+                && b.EndDatum.Date >= from.Date)
+            .OrderBy(b => b.StartDatum)
+            .ToListAsync();
+    }
+
     public async Task<bool> ExistsApprovedOverlapAsync(int bicycleId, DateTime start, DateTime end, int? excludeBookingId = null)
     {
         // Legacy single-bike bookings

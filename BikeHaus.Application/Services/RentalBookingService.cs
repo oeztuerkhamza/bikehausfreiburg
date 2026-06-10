@@ -394,6 +394,17 @@ public class RentalBookingService : IRentalBookingService
         return _bookingRepository.CountAsync(b => b.Status == RentalBookingStatus.Pending);
     }
 
+    public async Task<IEnumerable<RentalBookingListDto>> GetCalendarAsync(int year, int month)
+    {
+        if (month < 1 || month > 12)
+            throw new ArgumentOutOfRangeException(nameof(month));
+
+        var from = new DateTime(year, month, 1);
+        var to = from.AddMonths(1).AddDays(-1);
+        var bookings = await _bookingRepository.GetOverlappingRangeWithBikesAsync(from, to);
+        return bookings.Select(b => b.ToListDto());
+    }
+
     public async Task<RentalBookingDto> UpdateBookingBikeAsync(int bookingId, int bookingBikeId, int newBicycleId)
     {
         var booking = await _bookingRepository.GetWithDetailsAsync(bookingId)

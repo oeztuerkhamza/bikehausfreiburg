@@ -399,14 +399,17 @@ public static class MappingExtensions
     public static RentalBookingListDto ToListDto(this RentalBooking entity)
     {
         string bikeInfo;
+        bool hasEBike;
         if (entity.Bikes.Any())
         {
             bikeInfo = string.Join(" + ", entity.Bikes.Select(bk =>
                 $"{bk.Bicycle?.Marke ?? ""} {bk.Bicycle?.Modell ?? ""}".Trim()));
+            hasEBike = entity.Bikes.Any(bk => IsEBike(bk.Bicycle));
         }
         else
         {
             bikeInfo = $"{entity.Bicycle?.Marke ?? ""} {entity.Bicycle?.Modell ?? ""}".Trim();
+            hasEBike = IsEBike(entity.Bicycle);
         }
 
         return new RentalBookingListDto(
@@ -418,8 +421,21 @@ public static class MappingExtensions
             entity.EndDatum,
             entity.Gesamtpreis,
             entity.Status,
-            entity.CreatedAt
+            entity.CreatedAt,
+            hasEBike
         );
+    }
+
+    /// <summary>E-Bike-Heuristik über Fahrradtyp/Modell (e-bike, pedelec, elektro …).</summary>
+    private static bool IsEBike(Bicycle? bike)
+    {
+        if (bike == null) return false;
+        var haystack = $"{bike.Fahrradtyp} {bike.Modell}";
+        return haystack.Contains("e-bike", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("ebike", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("e bike", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("pedelec", StringComparison.OrdinalIgnoreCase)
+            || haystack.Contains("elektro", StringComparison.OrdinalIgnoreCase);
     }
 
     public static ReservationListDto ToListDto(this Reservation entity) => new(

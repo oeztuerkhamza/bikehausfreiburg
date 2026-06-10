@@ -1033,6 +1033,7 @@ export interface RentalBookingList {
   gesamtpreis?: number;
   status: RentalBookingStatus;
   createdAt: string;
+  hasEBike: boolean;
 }
 
 export interface RentalBookingApprove {

@@ -13,6 +13,20 @@ import {
 } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
+interface CalChip {
+  booking: RentalBookingList;
+  isStart: boolean;
+  isEnd: boolean;
+  showLabel: boolean;
+}
+
+interface CalDay {
+  date: Date;
+  inMonth: boolean;
+  isToday: boolean;
+  chips: CalChip[];
+}
+
 @Component({
   selector: 'app-rental-booking-list',
   standalone: true,
@@ -21,9 +35,96 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
     <div class="page">
       <div class="page-header">
         <h1>{{ t.rentalBookings }}</h1>
+        <div class="view-toggle">
+          <button
+            type="button"
+            [class.active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+          >
+            {{ t.rentalBookingViewList }}
+          </button>
+          <button
+            type="button"
+            [class.active]="viewMode === 'calendar'"
+            (click)="setViewMode('calendar')"
+          >
+            {{ t.rentalBookingViewCalendar }}
+          </button>
+        </div>
       </div>
 
-      <div class="filter-bar">
+      <!-- ── Calendar view ── -->
+      <div *ngIf="viewMode === 'calendar'" class="cal-wrap">
+        <div class="cal-toolbar">
+          <div class="cal-nav">
+            <button type="button" class="cal-nav-btn" (click)="calPrev()">
+              ‹
+            </button>
+            <div class="cal-month-label">{{ calMonthLabel }}</div>
+            <button type="button" class="cal-nav-btn" (click)="calNext()">
+              ›
+            </button>
+            <button type="button" class="cal-today-btn" (click)="calToday()">
+              {{ t.rentalBookingCalToday }}
+            </button>
+          </div>
+          <div class="cal-legend">
+            <span class="legend-item">
+              <span class="legend-dot dot-bike"></span>
+              {{ t.rentalBookingCalLegendBike }}
+            </span>
+            <span class="legend-item">
+              <span class="legend-dot dot-ebike"></span>
+              {{ t.rentalBookingCalLegendEBike }}
+            </span>
+            <span class="legend-item legend-note">
+              {{ t.rentalBookingCalLegendPending }}
+            </span>
+          </div>
+        </div>
+
+        <div class="cal-weekdays">
+          <div *ngFor="let w of calWeekdays" class="cal-weekday">{{ w }}</div>
+        </div>
+
+        <div class="cal-grid">
+          <div
+            *ngFor="let day of calDays"
+            class="cal-day"
+            [class.other-month]="!day.inMonth"
+            [class.is-today]="day.isToday"
+          >
+            <div class="cal-day-num">{{ day.date.getDate() }}</div>
+            <a
+              *ngFor="let chip of day.chips"
+              class="cal-chip"
+              [class.ebike]="chip.booking.hasEBike"
+              [class.pending]="chip.booking.status === BookingStatus.Pending"
+              [class.chip-start]="chip.isStart"
+              [class.chip-end]="chip.isEnd"
+              [routerLink]="['/rental-bookings', chip.booking.id]"
+              [title]="
+                chip.booking.buchungsNummer +
+                ' · ' +
+                chip.booking.customerName +
+                ' · ' +
+                chip.booking.bikeInfo
+              "
+            >
+              <span *ngIf="chip.showLabel" class="chip-label">
+                {{ chip.booking.customerName }}
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <div *ngIf="calBookings.length === 0" class="cal-empty">
+          {{ t.rentalBookingCalEmpty }}
+        </div>
+      </div>
+
+      <!-- ── List view ── -->
+      <div *ngIf="viewMode === 'list'" class="filter-bar">
         <div class="filter-group search-group">
           <input
             type="text"
@@ -61,7 +162,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         </div>
       </div>
 
-      <div class="table-wrap">
+      <div *ngIf="viewMode === 'list'" class="table-wrap">
         <table>
           <thead>
             <tr>
@@ -134,7 +235,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       </div>
 
       <app-pagination
-        *ngIf="paginatedResult && paginatedResult.totalCount > 0"
+        *ngIf="viewMode === 'list' && paginatedResult && paginatedResult.totalCount > 0"
         [currentPage]="currentPage"
         [pageSize]="pageSize"
         [totalCount]="paginatedResult.totalCount"
@@ -329,6 +430,231 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas,
           'Liberation Mono', 'Courier New', monospace;
       }
+
+      /* ── View toggle ── */
+      .view-toggle {
+        display: inline-flex;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        overflow: hidden;
+      }
+      .view-toggle button {
+        padding: 8px 16px;
+        border: none;
+        background: var(--bg-card, #fff);
+        color: var(--text-secondary, #64748b);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .view-toggle button.active {
+        background: var(--accent-primary, #6366f1);
+        color: #fff;
+      }
+
+      /* ── Calendar ── */
+      .cal-wrap {
+        background: var(--bg-card, #fff);
+        border: 1px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-lg, 14px);
+        padding: 16px;
+      }
+      .cal-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .cal-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .cal-nav-btn {
+        width: 34px;
+        height: 34px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 8px;
+        background: var(--bg-card, #fff);
+        color: var(--text-primary);
+        font-size: 1.2rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .cal-nav-btn:hover {
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
+      }
+      .cal-month-label {
+        min-width: 150px;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.02rem;
+        color: var(--text-primary);
+        text-transform: capitalize;
+      }
+      .cal-today-btn {
+        padding: 7px 13px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 8px;
+        background: var(--bg-card, #fff);
+        color: var(--text-secondary, #64748b);
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .cal-today-btn:hover {
+        border-color: var(--accent-primary, #6366f1);
+        color: var(--accent-primary, #6366f1);
+      }
+      .cal-legend {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        font-size: 0.8rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        display: inline-block;
+      }
+      .dot-bike {
+        background: #3b82f6;
+      }
+      .dot-ebike {
+        background: #f59e0b;
+      }
+      .legend-note {
+        font-style: italic;
+      }
+      .cal-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        margin-bottom: 4px;
+      }
+      .cal-weekday {
+        text-align: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-secondary, #64748b);
+        padding: 4px 0;
+      }
+      .cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+      }
+      .cal-day {
+        min-height: 96px;
+        border: 1px solid var(--border-light, #e2e8f0);
+        border-radius: 8px;
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        background: var(--bg-primary, #fff);
+        overflow: hidden;
+      }
+      .cal-day.other-month {
+        opacity: 0.42;
+      }
+      .cal-day.is-today {
+        border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 0 0 1px var(--accent-primary, #6366f1) inset;
+      }
+      .cal-day-num {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-secondary, #64748b);
+        padding: 1px 3px;
+      }
+      .cal-day.is-today .cal-day-num {
+        color: var(--accent-primary, #6366f1);
+      }
+      .cal-chip {
+        display: block;
+        height: 18px;
+        line-height: 14px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #fff;
+        background: #3b82f6;
+        border: 2px solid #3b82f6;
+        border-radius: 0;
+        margin: 0 -4px;
+        padding: 0 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .cal-chip.ebike {
+        background: #f59e0b;
+        border-color: #f59e0b;
+      }
+      /* pending = dashed outline instead of solid fill */
+      .cal-chip.pending {
+        background: rgba(59, 130, 246, 0.12);
+        border-style: dashed;
+        color: #3b82f6;
+      }
+      .cal-chip.pending.ebike {
+        background: rgba(245, 158, 11, 0.14);
+        border-color: #f59e0b;
+        color: #b45309;
+      }
+      .cal-chip.chip-start {
+        border-top-left-radius: 9px;
+        border-bottom-left-radius: 9px;
+        margin-left: 0;
+      }
+      .cal-chip.chip-end {
+        border-top-right-radius: 9px;
+        border-bottom-right-radius: 9px;
+        margin-right: 0;
+      }
+      .cal-chip:hover {
+        filter: brightness(1.08);
+      }
+      .chip-label {
+        pointer-events: none;
+      }
+      .cal-empty {
+        text-align: center;
+        color: var(--text-secondary, #64748b);
+        padding: 24px 0 8px;
+      }
+      @media (max-width: 700px) {
+        .cal-day {
+          min-height: 64px;
+          padding: 3px 2px;
+        }
+        .chip-label {
+          display: none;
+        }
+        .cal-chip {
+          height: 10px;
+        }
+        .cal-month-label {
+          min-width: 110px;
+          font-size: 0.92rem;
+        }
+      }
     `,
   ],
 })
@@ -345,12 +671,143 @@ export class RentalBookingListComponent implements OnInit {
 
   BookingStatus = RentalBookingStatus;
 
+  // ── Calendar state ──
+  viewMode: 'list' | 'calendar' =
+    (localStorage.getItem('rental-bookings-view') as 'list' | 'calendar') ||
+    'list';
+  calMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  calBookings: RentalBookingList[] = [];
+  calDays: CalDay[] = [];
+
   get t() {
     return this.translationService.translations();
   }
 
+  private get locale(): string {
+    return this.translationService.currentLanguage() === 'tr'
+      ? 'tr-TR'
+      : 'de-DE';
+  }
+
+  get calMonthLabel(): string {
+    return new Intl.DateTimeFormat(this.locale, {
+      month: 'long',
+      year: 'numeric',
+    }).format(this.calMonth);
+  }
+
+  get calWeekdays(): string[] {
+    const monday = new Date(2024, 0, 1); // a Monday
+    return Array.from({ length: 7 }, (_, i) =>
+      new Intl.DateTimeFormat(this.locale, { weekday: 'short' }).format(
+        new Date(2024, 0, 1 + i),
+      ),
+    );
+  }
+
   ngOnInit() {
     this.loadBookings();
+    if (this.viewMode === 'calendar') this.loadCalendar();
+  }
+
+  setViewMode(mode: 'list' | 'calendar') {
+    this.viewMode = mode;
+    localStorage.setItem('rental-bookings-view', mode);
+    if (mode === 'calendar') this.loadCalendar();
+  }
+
+  calPrev() {
+    this.calMonth = new Date(
+      this.calMonth.getFullYear(),
+      this.calMonth.getMonth() - 1,
+      1,
+    );
+    this.loadCalendar();
+  }
+
+  calNext() {
+    this.calMonth = new Date(
+      this.calMonth.getFullYear(),
+      this.calMonth.getMonth() + 1,
+      1,
+    );
+    this.loadCalendar();
+  }
+
+  calToday() {
+    const now = new Date();
+    this.calMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    this.loadCalendar();
+  }
+
+  loadCalendar() {
+    this.service
+      .getCalendar(this.calMonth.getFullYear(), this.calMonth.getMonth() + 1)
+      .subscribe({
+        next: (items) => {
+          this.calBookings = items;
+          this.buildCalendar();
+        },
+        error: () => {
+          this.notificationService.error(this.t.saveError);
+        },
+      });
+  }
+
+  private buildCalendar() {
+    const year = this.calMonth.getFullYear();
+    const month = this.calMonth.getMonth();
+    const firstOfMonth = new Date(year, month, 1);
+    // Monday-first grid, padded to full weeks
+    const lead = (firstOfMonth.getDay() + 6) % 7;
+    const gridStart = new Date(year, month, 1 - lead);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const cellCount = Math.ceil((lead + daysInMonth) / 7) * 7;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const sorted = [...this.calBookings].sort(
+      (a, b) =>
+        new Date(a.startDatum).getTime() - new Date(b.startDatum).getTime() ||
+        a.id - b.id,
+    );
+
+    const days: CalDay[] = [];
+    for (let i = 0; i < cellCount; i++) {
+      const date = new Date(
+        gridStart.getFullYear(),
+        gridStart.getMonth(),
+        gridStart.getDate() + i,
+      );
+      const chips: CalChip[] = [];
+      for (const booking of sorted) {
+        const start = this.dateOnly(booking.startDatum);
+        const end = this.dateOnly(booking.endDatum);
+        if (date < start || date > end) continue;
+        const isStart = date.getTime() === start.getTime();
+        chips.push({
+          booking,
+          isStart,
+          isEnd: date.getTime() === end.getTime(),
+          // label on the first day and at each week start (Monday)
+          showLabel: isStart || date.getDay() === 1,
+        });
+      }
+      days.push({
+        date,
+        inMonth: date.getMonth() === month,
+        isToday: date.getTime() === today.getTime(),
+        chips,
+      });
+    }
+    this.calDays = days;
+  }
+
+  private dateOnly(value: string): Date {
+    const d = new Date(value);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
 
   loadBookings() {

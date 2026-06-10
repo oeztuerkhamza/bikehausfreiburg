@@ -12,6 +12,7 @@ public interface IRentalBookingService
     Task<RentalBookingDto> CancelByCustomerAsync(string bookingNumber, string email);
     Task<IEnumerable<RentalBookingRangeDto>> GetApprovedRangesAsync(int bicycleId);
     Task<int> GetPendingCountAsync();
+    Task<IEnumerable<RentalBookingListDto>> GetCalendarAsync(int year, int month);
     Task<bool> DeleteAsync(int id);
     Task SaveSignatureAsync(int id, string mieterUnterschrift);
     Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath);
