@@ -1,0 +1,14 @@
+# Binärdateien nie EOL-normalisieren (core.autocrlf würde sie sonst beim
+# Checkout auf Windows beschädigen)
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.db binary
+*.db-shm binary
+*.db-wal binary
