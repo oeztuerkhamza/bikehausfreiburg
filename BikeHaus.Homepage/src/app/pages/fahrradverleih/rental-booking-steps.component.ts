@@ -906,9 +906,17 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         text-align: center;
       }
 
-      .calendar-day:hover:not(.is-empty):not(.is-closed) {
-        background: rgba(255, 255, 255, 0.03);
-        transform: translateY(-2px);
+      /* Hover only on devices that actually hover — on touch screens the
+         last-tapped day keeps :hover ("sticky hover") and the faint hover
+         background would wash out the selected end date. Also never dim
+         already-selected days. */
+      @media (hover: hover) {
+        .calendar-day:hover:not(.is-empty):not(.is-closed):not(.is-start):not(
+            .is-end
+          ) {
+          background: rgba(255, 255, 255, 0.03);
+          transform: translateY(-2px);
+        }
       }
 
       .calendar-day.is-empty {
