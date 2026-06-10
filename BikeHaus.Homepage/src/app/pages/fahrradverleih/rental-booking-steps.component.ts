@@ -278,12 +278,36 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         <h2>{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</h2>
         <div class="bike-details">
           <div class="bike-images">
-            <img
+            <button
               *ngIf="getMainImage(selectedBike()!)"
-              [src]="getImageUrl(getMainImage(selectedBike()!)?.filePath)"
-              [alt]="selectedBike()!.modell"
-              class="main-image"
-            />
+              type="button"
+              class="main-image-zoom"
+              (click)="openLightbox()"
+              [attr.aria-label]="
+                t().rentalSteps?.zoomImage ?? 'Bild vergrößern'
+              "
+            >
+              <img
+                [src]="getImageUrl(getMainImage(selectedBike()!)?.filePath)"
+                [alt]="selectedBike()!.modell"
+                class="main-image"
+              />
+              <span class="zoom-badge" aria-hidden="true">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  <line x1="11" y1="8" x2="11" y2="14" />
+                  <line x1="8" y1="11" x2="14" y2="11" />
+                </svg>
+              </span>
+            </button>
             <div
               class="image-thumbnails"
               *ngIf="getImages(selectedBike()!).length > 1"
@@ -661,6 +685,93 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         <button (click)="startNewBooking()" class="btn-primary">
           {{ t().rentalSteps?.newBooking ?? 'Neue Buchung' }}
         </button>
+      </div>
+
+      <!-- Fullscreen image lightbox (pinch zoom / double-tap / wheel) -->
+      <div
+        *ngIf="lightboxOpen() && selectedBike()"
+        class="lightbox"
+        (click)="closeLightbox()"
+      >
+        <button
+          type="button"
+          class="lb-close"
+          (click)="closeLightbox(); $event.stopPropagation()"
+          [attr.aria-label]="t().rentalSteps?.closeLabel ?? 'Schließen'"
+        >
+          ×
+        </button>
+
+        <div
+          class="lb-stage"
+          #lbStage
+          (click)="$event.stopPropagation()"
+          (pointerdown)="onLbPointerDown($event)"
+          (pointermove)="onLbPointerMove($event)"
+          (pointerup)="onLbPointerUp($event)"
+          (pointercancel)="onLbPointerUp($event)"
+          (wheel)="onLbWheel($event)"
+        >
+          <img
+            [src]="getImageUrl(getMainImage(selectedBike()!)?.filePath)"
+            [alt]="selectedBike()!.modell"
+            class="lb-img"
+            draggable="false"
+            [style.transform]="
+              'translate(' +
+              lightboxTx() +
+              'px,' +
+              lightboxTy() +
+              'px) scale(' +
+              lightboxScale() +
+              ')'
+            "
+          />
+        </div>
+
+        <div class="lb-controls" (click)="$event.stopPropagation()">
+          <button
+            type="button"
+            class="lb-btn"
+            (click)="lbZoom(-1)"
+            aria-label="−"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            class="lb-btn"
+            (click)="lbZoom(1)"
+            aria-label="+"
+          >
+            +
+          </button>
+        </div>
+
+        <ng-container *ngIf="getImages(selectedBike()!).length > 1">
+          <button
+            type="button"
+            class="lb-nav lb-prev"
+            (click)="lbStep(-1); $event.stopPropagation()"
+            [attr.aria-label]="
+              t().rentalSteps?.prevImage ?? 'Vorheriges Bild'
+            "
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            class="lb-nav lb-next"
+            (click)="lbStep(1); $event.stopPropagation()"
+            [attr.aria-label]="t().rentalSteps?.nextImage ?? 'Nächstes Bild'"
+          >
+            ›
+          </button>
+          <div class="lb-counter" (click)="$event.stopPropagation()">
+            {{ currentImageIndex() + 1 }} /
+            {{ getImages(selectedBike()!).length }}
+          </div>
+        </ng-container>
       </div>
     </div>
   `,
@@ -1113,6 +1224,130 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         max-height: 400px;
         object-fit: contain;
         border-radius: 8px;
+      }
+
+      .main-image-zoom {
+        position: relative;
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: none;
+        background: transparent;
+        cursor: zoom-in;
+      }
+
+      .zoom-badge {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(10, 16, 28, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        color: #fff;
+        pointer-events: none;
+      }
+
+      /* ── Lightbox ── */
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 5000;
+        background: rgba(4, 7, 13, 0.96);
+      }
+
+      .lb-stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        touch-action: none;
+        cursor: grab;
+      }
+
+      .lb-stage:active {
+        cursor: grabbing;
+      }
+
+      .lb-img {
+        max-width: 100%;
+        max-height: 100%;
+        user-select: none;
+        -webkit-user-drag: none;
+        will-change: transform;
+      }
+
+      .lb-close,
+      .lb-btn,
+      .lb-nav {
+        position: absolute;
+        z-index: 2;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(20, 28, 44, 0.8);
+        color: #fff;
+        font-size: 1.5rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .lb-close {
+        top: max(14px, env(safe-area-inset-top));
+        right: 14px;
+        font-size: 1.7rem;
+      }
+
+      .lb-controls {
+        position: absolute;
+        bottom: max(18px, env(safe-area-inset-bottom));
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      .lb-controls .lb-btn {
+        position: static;
+      }
+
+      .lb-nav {
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .lb-prev {
+        left: 10px;
+      }
+
+      .lb-next {
+        right: 10px;
+      }
+
+      .lb-counter {
+        position: absolute;
+        top: max(20px, env(safe-area-inset-top));
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 2;
+        padding: 0.3rem 0.85rem;
+        border-radius: 999px;
+        background: rgba(20, 28, 44, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 600;
       }
 
       .image-thumbnails {
@@ -1848,6 +2083,7 @@ export class RentalBookingStepsComponent implements OnInit {
         }
         const changed = this.currentStep() !== resolved;
         this.currentStep.set(resolved);
+        if (changed) this.closeLightbox();
         // Query-param-only navigations don't trigger the router's scroll
         // restoration — jump to the top of the flow ourselves so the user
         // always lands at the step indicator (mobile UX feedback).
@@ -2145,5 +2381,238 @@ export class RentalBookingStepsComponent implements OnInit {
       .replace(/\/$/, '');
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     return `${base}${normalizedPath}`;
+  }
+
+  // ── Image lightbox (pinch zoom / pan / double-tap / wheel) ──
+  lightboxOpen = signal(false);
+  lightboxScale = signal(1);
+  lightboxTx = signal(0);
+  lightboxTy = signal(0);
+
+  private lbPointers = new Map<number, { x: number; y: number }>();
+  private lbPinchStart: {
+    dist: number;
+    scale: number;
+    midX: number;
+    midY: number;
+    tx: number;
+    ty: number;
+  } | null = null;
+  private lbPanStart: { x: number; y: number; tx: number; ty: number } | null =
+    null;
+  /** Time/position of the last completed clean tap (short, no movement). */
+  private lbLastTap = 0;
+  private lbLastTapPos = { x: 0, y: 0 };
+  /** Current press, candidate for becoming a tap on pointerup. */
+  private lbDown: { t: number; x: number; y: number } | null = null;
+  private lbSwipeDx = 0;
+
+  private lbKeyHandler = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') this.closeLightbox();
+    else if (e.key === 'ArrowLeft') this.lbStep(-1);
+    else if (e.key === 'ArrowRight') this.lbStep(1);
+  };
+
+  openLightbox(): void {
+    this.lbResetTransform();
+    this.lightboxOpen.set(true);
+    if (isPlatformBrowser(this.platformId)) {
+      document.documentElement.style.overflow = 'hidden';
+      window.addEventListener('keydown', this.lbKeyHandler);
+    }
+  }
+
+  closeLightbox(): void {
+    if (!this.lightboxOpen()) return;
+    this.lightboxOpen.set(false);
+    this.lbPointers.clear();
+    this.lbPinchStart = null;
+    this.lbPanStart = null;
+    if (isPlatformBrowser(this.platformId)) {
+      document.documentElement.style.overflow = '';
+      window.removeEventListener('keydown', this.lbKeyHandler);
+    }
+  }
+
+  /** Switch to previous/next image, wrapping around. */
+  lbStep(dir: number): void {
+    const images = this.getImages(this.selectedBike());
+    if (images.length < 2) return;
+    const next =
+      (this.currentImageIndex() + dir + images.length) % images.length;
+    this.currentImageIndex.set(next);
+    this.lbResetTransform();
+  }
+
+  /** +/- buttons. */
+  lbZoom(dir: number): void {
+    const factor = dir > 0 ? 1.6 : 1 / 1.6;
+    this.lbSetScaleAnchored(this.lightboxScale() * factor, 0, 0);
+  }
+
+  onLbPointerDown(e: PointerEvent): void {
+    try {
+      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    } catch {
+      // pointer may already be released — capture is best-effort
+    }
+    this.lbPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (this.lbPointers.size === 2) {
+      const [p1, p2] = [...this.lbPointers.values()];
+      const c = this.lbStageCenter();
+      this.lbPinchStart = {
+        dist: Math.hypot(p1.x - p2.x, p1.y - p2.y),
+        scale: this.lightboxScale(),
+        midX: (p1.x + p2.x) / 2 - c.x,
+        midY: (p1.y + p2.y) / 2 - c.y,
+        tx: this.lightboxTx(),
+        ty: this.lightboxTy(),
+      };
+      this.lbPanStart = null;
+      this.lbDown = null;
+      this.lbLastTap = 0;
+    } else if (this.lbPointers.size === 1) {
+      const now = Date.now();
+      const nearLastTap =
+        Math.hypot(
+          e.clientX - this.lbLastTapPos.x,
+          e.clientY - this.lbLastTapPos.y,
+        ) < 40;
+      if (now - this.lbLastTap < 300 && nearLastTap) {
+        // double tap: toggle zoom anchored at the tap point
+        const c = this.lbStageCenter();
+        if (this.lightboxScale() > 1) {
+          this.lbResetTransform();
+        } else {
+          this.lbSetScaleAnchored(2.5, e.clientX - c.x, e.clientY - c.y);
+        }
+        this.lbLastTap = 0;
+        this.lbDown = null;
+      } else {
+        this.lbDown = { t: now, x: e.clientX, y: e.clientY };
+      }
+      this.lbPanStart = {
+        x: e.clientX,
+        y: e.clientY,
+        tx: this.lightboxTx(),
+        ty: this.lightboxTy(),
+      };
+      this.lbSwipeDx = 0;
+    }
+  }
+
+  onLbPointerMove(e: PointerEvent): void {
+    if (!this.lbPointers.has(e.pointerId)) return;
+    this.lbPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (this.lbPointers.size === 2 && this.lbPinchStart) {
+      const [p1, p2] = [...this.lbPointers.values()];
+      const st = this.lbPinchStart;
+      const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+      const ns = Math.min(4, Math.max(1, (st.scale * dist) / st.dist));
+      // keep the content point under the pinch midpoint stationary
+      const tx = st.midX - ((st.midX - st.tx) * ns) / st.scale;
+      const ty = st.midY - ((st.midY - st.ty) * ns) / st.scale;
+      this.lightboxScale.set(ns);
+      this.lbApplyPan(tx, ty, ns);
+    } else if (this.lbPointers.size === 1 && this.lbPanStart) {
+      const dx = e.clientX - this.lbPanStart.x;
+      const dy = e.clientY - this.lbPanStart.y;
+      if (this.lightboxScale() > 1) {
+        this.lbApplyPan(
+          this.lbPanStart.tx + dx,
+          this.lbPanStart.ty + dy,
+          this.lightboxScale(),
+        );
+      } else if (Math.abs(dx) > Math.abs(dy)) {
+        this.lbSwipeDx = dx;
+      }
+    }
+  }
+
+  onLbPointerUp(e: PointerEvent): void {
+    this.lbPointers.delete(e.pointerId);
+    if (this.lbPointers.size < 2) this.lbPinchStart = null;
+    if (this.lbPointers.size === 0) {
+      // Only a short, motionless press counts as a tap (and can later form
+      // a double tap) — releasing a drag must not arm the double-tap timer.
+      const d = this.lbDown;
+      if (
+        d &&
+        Date.now() - d.t < 250 &&
+        Math.hypot(e.clientX - d.x, e.clientY - d.y) < 10
+      ) {
+        this.lbLastTap = Date.now();
+        this.lbLastTapPos = { x: d.x, y: d.y };
+      } else {
+        this.lbLastTap = 0;
+      }
+      this.lbDown = null;
+      if (this.lightboxScale() === 1 && Math.abs(this.lbSwipeDx) > 60) {
+        this.lbStep(this.lbSwipeDx < 0 ? 1 : -1);
+      }
+      this.lbPanStart = null;
+      this.lbSwipeDx = 0;
+    }
+  }
+
+  onLbWheel(e: WheelEvent): void {
+    e.preventDefault();
+    const c = this.lbStageCenter();
+    const factor = e.deltaY < 0 ? 1.2 : 1 / 1.2;
+    this.lbSetScaleAnchored(
+      this.lightboxScale() * factor,
+      e.clientX - c.x,
+      e.clientY - c.y,
+    );
+  }
+
+  private lbResetTransform(): void {
+    this.lightboxScale.set(1);
+    this.lightboxTx.set(0);
+    this.lightboxTy.set(0);
+  }
+
+  /** Set scale keeping the focal point (relative to stage center) fixed. */
+  private lbSetScaleAnchored(scale: number, fx: number, fy: number): void {
+    const s = this.lightboxScale();
+    const ns = Math.min(4, Math.max(1, scale));
+    const tx = fx - ((fx - this.lightboxTx()) * ns) / s;
+    const ty = fy - ((fy - this.lightboxTy()) * ns) / s;
+    this.lightboxScale.set(ns);
+    this.lbApplyPan(tx, ty, ns);
+  }
+
+  /** Clamp the pan so the image cannot be dragged fully out of view. */
+  private lbApplyPan(tx: number, ty: number, scale: number): void {
+    if (scale <= 1) {
+      this.lightboxTx.set(0);
+      this.lightboxTy.set(0);
+      return;
+    }
+    let maxX = Infinity;
+    let maxY = Infinity;
+    if (isPlatformBrowser(this.platformId)) {
+      const stage = document.querySelector('.lb-stage');
+      const img = stage?.querySelector('img');
+      if (stage && img) {
+        maxX = Math.max(0, (img.clientWidth * scale - stage.clientWidth) / 2);
+        maxY = Math.max(
+          0,
+          (img.clientHeight * scale - stage.clientHeight) / 2,
+        );
+      }
+    }
+    this.lightboxTx.set(Math.min(maxX, Math.max(-maxX, tx)));
+    this.lightboxTy.set(Math.min(maxY, Math.max(-maxY, ty)));
+  }
+
+  private lbStageCenter(): { x: number; y: number } {
+    if (!isPlatformBrowser(this.platformId)) return { x: 0, y: 0 };
+    const rect = document.querySelector('.lb-stage')?.getBoundingClientRect();
+    return rect
+      ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+      : { x: 0, y: 0 };
   }
 }
