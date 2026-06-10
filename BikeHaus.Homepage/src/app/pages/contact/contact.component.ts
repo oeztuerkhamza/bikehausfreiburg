@@ -367,6 +367,14 @@ import { PublicShopInfo } from '../../models/models';
           border-color 0.3s,
           transform 0.2s;
         position: relative;
+        /* Grid items default to min-width:auto — without these the cards'
+           min-content can exceed the 1fr track and cause horizontal
+           overflow on phones. */
+        min-width: 0;
+      }
+
+      .contact-card .card-content {
+        min-width: 0;
       }
 
       a.contact-card:hover {

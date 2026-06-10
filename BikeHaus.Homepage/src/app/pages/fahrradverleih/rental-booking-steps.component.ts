@@ -699,10 +699,11 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         color: var(--rb-text-soft);
       }
 
-      /* Sticky stepper: the process flow stays visible while scrolling */
+      /* Sticky stepper: the process flow stays visible while scrolling.
+         top must clear the fixed site header (108px desktop / 92px mobile). */
       .steps-indicator {
         position: sticky;
-        top: 76px;
+        top: 112px;
         z-index: 20;
         display: flex;
         gap: 0.25rem;
@@ -1498,7 +1499,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         }
 
         .steps-indicator {
-          top: 60px;
+          top: 96px;
           margin: -1rem -1rem 1.25rem;
           padding: 0.6rem 0.4rem;
           gap: 0.15rem;

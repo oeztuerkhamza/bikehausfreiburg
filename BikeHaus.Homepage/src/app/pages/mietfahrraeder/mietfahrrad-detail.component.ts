@@ -11,6 +11,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
 import { TranslationService } from '../../services/translation.service';
+import { getRentalBookingPath } from '../../services/language-config';
 import { PublicRentalBicycle } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
@@ -197,9 +198,9 @@ import { environment } from '../../../environments/environment';
                 <p class="description-text">{{ bike()!.beschreibung }}</p>
               </section>
 
-              <!-- CTA -->
+              <!-- CTA → dedicated booking flow -->
               <div class="cta-row">
-                <a [routerLink]="['/' + lang(), bookingSlug()]" class="cta-primary">
+                <a [routerLink]="bookingPath()" class="cta-primary">
                   {{ t().rentalDetailReserveCta }}
                 </a>
               </div>
@@ -495,12 +496,7 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
     return 'mietfahrraeder';
   });
 
-  bookingSlug = computed(() => {
-    const l = this.lang();
-    if (l === 'en') return 'bike-rental';
-    if (l === 'fr') return 'location-velo';
-    return 'fahrradverleih';
-  });
+  bookingPath = computed(() => getRentalBookingPath(this.lang()));
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
