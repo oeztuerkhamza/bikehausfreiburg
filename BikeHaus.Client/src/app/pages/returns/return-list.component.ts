@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ReturnService } from '../../services/return.service';
-import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -389,7 +388,6 @@ export class ReturnListComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
   private returnService = inject(ReturnService);
-  private excelExportService = inject(ExcelExportService);
   private router = inject(Router);
   private elementRef = inject(ElementRef);
 
@@ -509,22 +507,6 @@ export class ReturnListComponent implements OnInit {
         };
       }
     });
-  }
-
-  exportExcel() {
-    this.excelExportService.exportToExcel(
-      this.paginatedResult?.items || [],
-      'Rueckgaben',
-      [
-        { key: 'belegNummer', header: 'Beleg-Nr.' },
-        { key: 'originalSaleBelegNummer', header: 'Org. Verkauf' },
-        { key: 'bikeInfo', header: 'Fahrrad' },
-        { key: 'customerName', header: 'Kunde' },
-        { key: 'rueckgabedatum', header: 'Datum' },
-        { key: 'grund', header: 'Grund' },
-        { key: 'erstattungsbetrag', header: 'Erstattung (€)' },
-      ],
-    );
   }
 
   deleteReturn(r: ReturnList) {

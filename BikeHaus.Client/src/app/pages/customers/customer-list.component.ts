@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CustomerService } from '../../services/customer.service';
-import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -336,10 +335,7 @@ export class CustomerListComponent implements OnInit {
     return this.translationService.translations();
   }
 
-  constructor(
-    private customerService: CustomerService,
-    private excelExportService: ExcelExportService,
-  ) {}
+  constructor(private customerService: CustomerService) {}
 
   ngOnInit() {
     this.load();
@@ -423,18 +419,6 @@ export class CustomerListComponent implements OnInit {
           });
         }
       });
-  }
-
-  exportExcel() {
-    this.excelExportService.exportToExcel(this.customers, 'Kunden', [
-      { key: 'fullName', header: 'Name' },
-      { key: 'strasse', header: 'Straße' },
-      { key: 'hausnummer', header: 'Hausnummer' },
-      { key: 'plz', header: 'PLZ' },
-      { key: 'stadt', header: 'Stadt' },
-      { key: 'telefon', header: 'Telefon' },
-      { key: 'email', header: 'E-Mail' },
-    ]);
   }
 
   private resetForm() {

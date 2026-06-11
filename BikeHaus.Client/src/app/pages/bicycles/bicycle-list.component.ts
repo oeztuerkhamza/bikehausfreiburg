@@ -10,7 +10,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
-import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -618,7 +617,6 @@ export class BicycleListComponent implements OnInit, OnDestroy {
     private bicycleService: BicycleService,
     private router: Router,
     private elementRef: ElementRef,
-    private excelExportService: ExcelExportService,
   ) {}
 
   @HostListener('document:click', ['$event'])
@@ -811,21 +809,6 @@ export class BicycleListComponent implements OnInit, OnDestroy {
         this.notificationService.error(this.t.saveChangesError);
       },
     });
-  }
-
-  exportExcel() {
-    const data = this.paginatedResult?.items || [];
-    this.excelExportService.exportToExcel(data, 'Fahrraeder', [
-      { key: 'lagernummer', header: 'Lagernummer' },
-      { key: 'marke', header: 'Marke' },
-      { key: 'modell', header: 'Modell' },
-      { key: 'rahmennummer', header: 'Rahmennummer' },
-      { key: 'farbe', header: 'Farbe' },
-      { key: 'reifengroesse', header: 'Reifengröße' },
-      { key: 'fahrradtyp', header: 'Fahrradtyp' },
-      { key: 'zustand', header: 'Zustand' },
-      { key: 'status', header: 'Status' },
-    ]);
   }
 
   deleteBicycle(b: Bicycle) {

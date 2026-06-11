@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ReservationService } from '../../services/reservation.service';
-import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -23,9 +22,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       <div class="page-header">
         <h1>{{ t.reservations }}</h1>
         <div class="header-actions">
-          <button class="btn btn-outline" (click)="exportExcel()">
-            📥 Excel Export
-          </button>
           <a routerLink="/reservations/new" class="btn btn-primary"
             >+ {{ t.newReservation }}</a
           >
@@ -528,7 +524,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 })
 export class ReservationListComponent implements OnInit {
   private reservationService = inject(ReservationService);
-  private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
@@ -631,22 +626,6 @@ export class ReservationListComponent implements OnInit {
           });
         }
       });
-  }
-
-  exportExcel() {
-    this.excelExportService.exportToExcel(
-      this.paginatedResult?.items || [],
-      'Reservierungen',
-      [
-        { key: 'reservierungsNummer', header: 'Res.-Nr.' },
-        { key: 'bikeInfo', header: 'Fahrrad' },
-        { key: 'customerName', header: 'Kunde' },
-        { key: 'reservierungsDatum', header: 'Reservierungsdatum' },
-        { key: 'ablaufDatum', header: 'Ablaufdatum' },
-        { key: 'anzahlung', header: 'Anzahlung (€)' },
-        { key: 'status', header: 'Status' },
-      ],
-    );
   }
 
   confirmDelete(reservation: ReservationList) {

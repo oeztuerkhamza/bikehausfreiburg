@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccessoryCatalogService } from '../../services/accessory-catalog.service';
-import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -465,10 +464,7 @@ export class PartsListComponent implements OnInit {
     return this.translationService.translations();
   }
 
-  constructor(
-    private service: AccessoryCatalogService,
-    private excelExportService: ExcelExportService,
-  ) {}
+  constructor(private service: AccessoryCatalogService) {}
 
   ngOnInit() {
     this.loadParts();
@@ -570,15 +566,6 @@ export class PartsListComponent implements OnInit {
         },
       });
     }
-  }
-
-  exportExcel() {
-    this.excelExportService.exportToExcel(this.filteredParts, 'Zubehoer', [
-      { key: 'bezeichnung', header: this.t.designation },
-      { key: 'kategorie', header: this.t.category },
-      { key: 'standardpreis', header: this.t.defaultPrice + ' (€)' },
-      { key: 'aktiv', header: this.t.status },
-    ]);
   }
 
   deletePart(part: AccessoryCatalogList) {

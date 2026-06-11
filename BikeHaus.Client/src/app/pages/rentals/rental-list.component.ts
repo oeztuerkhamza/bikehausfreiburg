@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { RentalService } from '../../services/rental.service';
-import { ExcelExportService } from '../../services/excel-export.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { RentalList, RentalStatus, PaginatedResult } from '../../models/models';
@@ -18,9 +17,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       <div class="page-header">
         <h1>Fahrradverleih (Miete)</h1>
         <div class="header-actions">
-          <button class="btn btn-outline" (click)="exportExcel()">
-            📥 Excel Export
-          </button>
           <a routerLink="/rentals/new" class="btn btn-primary"
             >+ Neue Vermietung</a
           >
@@ -496,7 +492,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 })
 export class RentalListComponent implements OnInit {
   private rentalService = inject(RentalService);
-  private excelExportService = inject(ExcelExportService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
   private router = inject(Router);
@@ -568,20 +563,4 @@ export class RentalListComponent implements OnInit {
     return map[status] || status;
   }
 
-  exportExcel() {
-    this.excelExportService.exportToExcel(
-      this.paginatedResult?.items || [],
-      'Vermietungen',
-      [
-        { key: 'mietvertragNummer', header: 'Vertrag-Nr.' },
-        { key: 'bikeInfo', header: 'Fahrrad' },
-        { key: 'customerName', header: 'Mieter' },
-        { key: 'startDatum', header: 'Von' },
-        { key: 'endDatum', header: 'Bis' },
-        { key: 'gesamtmiete', header: 'Miete (€)' },
-        { key: 'kaution', header: 'Kaution (€)' },
-        { key: 'status', header: 'Status' },
-      ],
-    );
-  }
 }

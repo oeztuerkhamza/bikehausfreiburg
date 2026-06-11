@@ -10,7 +10,6 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { SaleService } from '../../services/sale.service';
 import { PurchaseService } from '../../services/purchase.service';
-import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -636,7 +635,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 export class SaleListComponent implements OnInit {
   private saleService = inject(SaleService);
   private purchaseService = inject(PurchaseService);
-  private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
@@ -876,23 +874,6 @@ export class SaleListComponent implements OnInit {
   goToEdit(s: SaleList) {
     this.closeMenu();
     this.router.navigate(['/sales/edit', s.id]);
-  }
-
-  exportExcel() {
-    this.excelExportService.exportToExcel(
-      this.paginatedResult?.items || [],
-      'Verkaeufe',
-      [
-        { key: 'belegNummer', header: 'Beleg-Nr.' },
-        { key: 'bikeInfo', header: 'Fahrrad' },
-        { key: 'lagernummer', header: 'Lagernummer' },
-        { key: 'buyerName', header: 'Käufer' },
-        { key: 'gesamtbetrag', header: 'Gesamtbetrag (€)' },
-        { key: 'zahlungsart', header: 'Zahlungsart' },
-        { key: 'verkaufsdatum', header: 'Verkaufsdatum' },
-        { key: 'garantie', header: 'Garantie' },
-      ],
-    );
   }
 
   deleteSale(s: SaleList) {

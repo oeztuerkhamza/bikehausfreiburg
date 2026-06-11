@@ -199,7 +199,7 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 
 ## Admin SPA — [BikeHaus.Client/](BikeHaus.Client/)
 
-**Angular 17.3, standalone, signals, custom SCSS.** No NgRx, no Material, no Tailwind. Uses `xlsx` for Excel export.
+**Angular 17.3, standalone, signals, custom SCSS.** No NgRx, no Material, no Tailwind.
 
 **Routing** — [app.routes.ts](BikeHaus.Client/src/app/app.routes.ts): 28 lazy routes, all behind [authGuard](BikeHaus.Client/src/app/guards/auth.guard.ts). Token attached by [auth.interceptor.ts](BikeHaus.Client/src/app/interceptors/auth.interceptor.ts).
 
@@ -221,7 +221,7 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 
 **All models** in single file: [models.ts](BikeHaus.Client/src/app/models/models.ts).
 
-**Services**: in `src/app/services/` — one per backend controller (`bicycle.service.ts`, `rental.service.ts`, `purchase.service.ts`, etc.) plus utility services (`theme`, `notification`, `dialog`, `excel-export`, `translation`).
+**Services**: in `src/app/services/` — one per backend controller (`bicycle.service.ts`, `rental.service.ts`, `purchase.service.ts`, etc.) plus utility services (`theme`, `notification`, `dialog`, `translation`).
 
 ---
 
