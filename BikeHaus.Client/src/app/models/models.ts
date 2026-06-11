@@ -217,6 +217,7 @@ export interface PurchaseList {
   belegNummer?: string;
   bikeInfo: string;
   rahmennummer?: string;
+  lagernummer?: number;
   sellerName: string;
   preis: number;
   verkaufspreisVorschlag?: number;
@@ -706,6 +707,7 @@ export interface MissingSale {
   marke: string;
   modell: string;
   rahmennummer?: string;
+  lagernummer?: number;
   rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;

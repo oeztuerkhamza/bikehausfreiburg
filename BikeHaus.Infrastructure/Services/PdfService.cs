@@ -241,6 +241,11 @@ public class PdfService : IPdfService
                         {
                             box.Item().Text("RECHNUNGSNUMMER").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
                             box.Item().Text(purchase.BelegNummer).FontSize(14).Bold().FontColor(PrimaryColor).AlignCenter();
+                            if (purchase.Bicycle?.Lagernummer != null)
+                            {
+                                box.Item().Text("LAGERNUMMER").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
+                                box.Item().Text(purchase.Bicycle.Lagernummer.Value.ToString()).FontSize(12).Bold().FontColor(PrimaryColor).AlignCenter();
+                            }
                             box.Item().Text("RECHNUNGSDATUM").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
                             box.Item().Text($"{purchase.Kaufdatum:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
                         });
@@ -464,6 +469,11 @@ public class PdfService : IPdfService
                         {
                             box.Item().Text("RECHNUNGSNUMMER").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
                             box.Item().Text(sale.BelegNummer).FontSize(14).Bold().FontColor(PrimaryColor).AlignCenter();
+                            if (!isAccessoryOnlySale && sale.Bicycle?.Lagernummer != null)
+                            {
+                                box.Item().Text("LAGERNUMMER").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
+                                box.Item().Text(sale.Bicycle.Lagernummer.Value.ToString()).FontSize(12).Bold().FontColor(PrimaryColor).AlignCenter();
+                            }
                             box.Item().Text("RECHNUNGSDATUM").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
                             box.Item().Text($"{sale.Verkaufsdatum:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
                         });
@@ -818,7 +828,22 @@ public class PdfService : IPdfService
         if (byBicycleId != null)
             return byBicycleId;
 
-        // Fallback 3: relation by Rahmennummer if available.
+        // Fallback 3: relation by Lagernummer (stock number) — the shared key
+        // between Ankauf- and Verkaufsbelege, designed for exactly this case
+        // where Rahmennummer is missing or mismatched.
+        var lagernummer = sale.Bicycle?.Lagernummer;
+        if (lagernummer.HasValue)
+        {
+            var byLagernummer = await _purchaseRepository.FindAsync(p =>
+                p.Bicycle.Lagernummer == lagernummer.Value);
+            var match = byLagernummer
+                .OrderByDescending(p => p.Kaufdatum)
+                .FirstOrDefault();
+            if (match != null)
+                return match;
+        }
+
+        // Fallback 4: relation by Rahmennummer if available.
         var rahmennummer = sale.Bicycle?.Rahmennummer?.Trim();
         if (string.IsNullOrWhiteSpace(rahmennummer))
             return null;

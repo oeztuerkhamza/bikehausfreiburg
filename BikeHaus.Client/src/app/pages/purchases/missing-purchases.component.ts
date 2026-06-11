@@ -59,6 +59,10 @@ import { MissingSale } from '../../models/models';
                 sale.verkaufsdatum | date: 'dd.MM.yyyy'
               }}</span>
             </div>
+            <div class="detail-row" *ngIf="sale.lagernummer != null">
+              <span class="label">{{ t.stockNumber }}:</span>
+              <span class="value">{{ sale.lagernummer }}</span>
+            </div>
             <div class="detail-row" *ngIf="sale.rahmennummer">
               <span class="label">{{ t.frameNumber }}:</span>
               <span class="value">{{ sale.rahmennummer }}</span>

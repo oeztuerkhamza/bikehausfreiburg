@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
-import { ExcelExportService } from '../../services/excel-export.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -136,6 +135,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <tr>
               <th>{{ t.receiptNo }}</th>
               <th>{{ t.bicycle }}</th>
+              <th>{{ t.stockNumber }}</th>
               <th>{{ t.frameNumber }}</th>
               <th>{{ t.seller }}</th>
               <th>{{ t.price }}</th>
@@ -152,6 +152,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             >
               <td class="mono">{{ p.belegNummer }}</td>
               <td>{{ p.bikeInfo }}</td>
+              <td class="mono">{{ p.lagernummer ?? '–' }}</td>
               <td class="mono" style="text-transform: uppercase">
                 {{ p.rahmennummer || '–' }}
               </td>
@@ -527,7 +528,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
 })
 export class PurchaseListComponent implements OnInit {
   private purchaseService = inject(PurchaseService);
-  private excelExportService = inject(ExcelExportService);
   private translationService = inject(TranslationService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
@@ -684,22 +684,6 @@ export class PurchaseListComponent implements OnInit {
   goToEdit(p: PurchaseList) {
     this.closeMenu();
     this.router.navigate(['/purchases/edit', p.id]);
-  }
-
-  exportExcel() {
-    this.excelExportService.exportToExcel(
-      this.paginatedResult?.items || [],
-      this.t.purchases,
-      [
-        { key: 'belegNummer', header: this.t.receiptNo },
-        { key: 'bikeInfo', header: this.t.bicycle },
-        { key: 'sellerName', header: this.t.seller },
-        { key: 'preis', header: `${this.t.price} (€)` },
-        { key: 'verkaufspreisVorschlag', header: `${this.t.sellingPrice} (€)` },
-        { key: 'zahlungsart', header: this.t.paymentMethod },
-        { key: 'kaufdatum', header: this.t.date },
-      ],
-    );
   }
 
   deletePurchase(p: PurchaseList) {

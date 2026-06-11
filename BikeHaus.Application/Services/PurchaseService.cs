@@ -43,6 +43,8 @@ public class PurchaseService : IPurchaseService
         var paymentMethod = !string.IsNullOrEmpty(paginationParams.Status) &&
             Enum.TryParse<Domain.Enums.PaymentMethod>(paginationParams.Status, out var pm) ? pm : (Domain.Enums.PaymentMethod?)null;
         var term = paginationParams.SearchTerm?.ToLower();
+        // Numeric terms also match the bike's Lagernummer (stock number) exactly.
+        var isNumeric = int.TryParse(paginationParams.SearchTerm?.Trim(), out var lagerNr);
         var marke = paginationParams.Marke?.ToLower();
         var fahrradtyp = paginationParams.Fahrradtyp?.ToLower();
         var farbe = paginationParams.Farbe?.ToLower();
@@ -57,7 +59,7 @@ public class PurchaseService : IPurchaseService
                 p.Bicycle.Marke.ToLower().Contains(term) ||
                 p.Bicycle.Modell.ToLower().Contains(term) ||
                 (p.Bicycle.Rahmennummer != null && p.Bicycle.Rahmennummer.ToLower().Contains(term)) ||
-
+                (isNumeric && p.Bicycle.Lagernummer == lagerNr) ||
                 p.Seller.Vorname.ToLower().Contains(term) ||
                 p.Seller.Nachname.ToLower().Contains(term)) &&
             // Bicycle property filters
@@ -363,6 +365,7 @@ public class PurchaseService : IPurchaseService
             s.Bicycle.Marke,
             s.Bicycle.Modell,
             s.Bicycle.Rahmennummer,
+            s.Bicycle.Lagernummer,
             s.Bicycle.Rahmengroesse,
             s.Bicycle.Farbe,
             s.Bicycle.Reifengroesse,
