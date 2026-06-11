@@ -46,6 +46,7 @@ export interface Bicycle {
   marke: string;
   modell: string;
   rahmennummer?: string;
+  lagernummer?: number;
   rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
@@ -86,6 +87,7 @@ export interface BicycleCreate {
   marke: string;
   modell: string;
   rahmennummer?: string;
+  lagernummer?: number;
   rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
@@ -112,6 +114,8 @@ export interface BicycleUpdate {
   marke: string;
   modell: string;
   rahmennummer?: string;
+  // null/undefined = keep current value, 0 = clear, value = set (backend contract)
+  lagernummer?: number;
   rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
@@ -320,6 +324,7 @@ export interface SaleList {
   purchaseId?: number;
   bikeInfo: string;
   rahmennummer?: string;
+  lagernummer?: number;
   buyerName: string;
   preis: number;
   gesamtbetrag: number;

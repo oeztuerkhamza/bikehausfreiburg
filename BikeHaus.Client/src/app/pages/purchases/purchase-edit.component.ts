@@ -59,6 +59,16 @@ import { forkJoin } from 'rxjs';
                 />
               </div>
               <div class="field">
+                <label>{{ t.stockNumber }}</label>
+                <input
+                  type="number"
+                  min="1"
+                  [(ngModel)]="bicycle.lagernummer"
+                  name="bikeLagernummer"
+                  placeholder="optional"
+                />
+              </div>
+              <div class="field">
                 <label>{{ t.frameSize }}</label>
                 <input
                   [(ngModel)]="bicycle.rahmengroesse"
@@ -707,6 +717,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     marke: '',
     modell: '',
     rahmennummer: '',
+    lagernummer: undefined as number | undefined,
     rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
@@ -932,6 +943,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
         marke: purchase.bicycle.marke || '',
         modell: purchase.bicycle.modell || '',
         rahmennummer: purchase.bicycle.rahmennummer || '',
+        lagernummer: purchase.bicycle.lagernummer,
         rahmengroesse: purchase.bicycle.rahmengroesse || '',
         farbe: purchase.bicycle.farbe || '',
         reifengroesse: purchase.bicycle.reifengroesse || '',
@@ -978,7 +990,8 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     this.submitting = true;
 
     const update: PurchaseUpdate = {
-      bicycle: this.bicycle,
+      // lagernummer: empty input means "clear" → send 0 (backend: null=keep, 0=clear)
+      bicycle: { ...this.bicycle, lagernummer: this.bicycle.lagernummer ?? 0 },
       seller: this.seller,
       preis: this.preis,
       verkaufspreisVorschlag: this.verkaufspreisVorschlag || undefined,

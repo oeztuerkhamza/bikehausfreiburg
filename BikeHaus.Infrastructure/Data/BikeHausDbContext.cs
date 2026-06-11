@@ -70,6 +70,7 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.RentalPriceAdditionalDayAfter7).HasColumnType("decimal(18,2)");
             entity.Property(e => e.Kaution).HasColumnType("decimal(18,2)");
             entity.HasIndex(e => e.Rahmennummer);
+            entity.HasIndex(e => e.Lagernummer);
             entity.HasMany(e => e.Images).WithOne(i => i.Bicycle)
                 .HasForeignKey(i => i.BicycleId).OnDelete(DeleteBehavior.Cascade);
         });

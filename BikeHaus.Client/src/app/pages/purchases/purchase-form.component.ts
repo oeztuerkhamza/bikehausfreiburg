@@ -90,6 +90,16 @@ import { forkJoin, Observable } from 'rxjs';
                 />
               </div>
               <div class="field">
+                <label>{{ t.stockNumber }}</label>
+                <input
+                  type="number"
+                  min="1"
+                  [(ngModel)]="bicycle.lagernummer"
+                  name="bikeLagernummer"
+                  placeholder="optional"
+                />
+              </div>
+              <div class="field">
                 <label>{{ t.frameSize }}</label>
                 <input
                   [(ngModel)]="bicycle.rahmengroesse"
@@ -883,6 +893,7 @@ export class PurchaseFormComponent implements OnInit {
     marke: '',
     modell: '',
     rahmennummer: '',
+    lagernummer: undefined as number | undefined,
     rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
@@ -940,6 +951,14 @@ export class PurchaseFormComponent implements OnInit {
     this.purchaseService.getNextBelegNummer().subscribe({
       next: (res) => {
         this.belegNummer = res.belegNummer;
+      },
+      error: () => {},
+    });
+
+    // Suggest the next free Lagernummer (stock number)
+    this.bicycleService.getNextLagernummer().subscribe({
+      next: (next) => {
+        if (this.bicycle.lagernummer == null) this.bicycle.lagernummer = next;
       },
       error: () => {},
     });
@@ -1101,6 +1120,8 @@ export class PurchaseFormComponent implements OnInit {
       bicycle: {
         marke: this.bicycle.marke,
         modell: this.bicycle.modell,
+        // Bulk: backend assigns sequential numbers starting from this value
+        lagernummer: this.bicycle.lagernummer,
         farbe: this.bicycle.farbe || undefined,
         reifengroesse: this.bicycle.reifengroesse,
         rahmengroesse: this.bicycle.rahmengroesse || undefined,

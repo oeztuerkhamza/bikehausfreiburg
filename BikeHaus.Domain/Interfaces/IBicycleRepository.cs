@@ -17,4 +17,5 @@ public interface IBicycleRepository : IRepository<Bicycle>
     Task<IEnumerable<Bicycle>> GetRentableBicyclesAsync();
     Task<Bicycle?> GetRentableBicycleByIdAsync(int id);
     Task<Bicycle?> GetWithImagesAsync(int id);
+    Task<int?> GetMaxLagernummerAsync();
 }

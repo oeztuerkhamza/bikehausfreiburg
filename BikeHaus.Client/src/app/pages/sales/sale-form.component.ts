@@ -18,7 +18,6 @@ import {
   SalePaymentCreate,
   AccessoryCatalogList,
 } from '../../models/models';
-import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
 import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
 
 @Component({
@@ -28,7 +27,6 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
     CommonModule,
     FormsModule,
     RouterLink,
-    BikeSelectorComponent,
     AccessoryAutocompleteComponent,
   ],
   template: `
@@ -56,30 +54,66 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
           <ng-container *ngIf="!isAccessoryOnly">
-            <!-- Bicycle selection -->
+            <!-- Bicycle details edit form (always open; existing bikes are
+                 linked via Lagernummer/Rahmennummer autocomplete) -->
             <div class="form-card">
-              <h2>{{ t.selectBicycle }}</h2>
-              <app-bike-selector
-                [bikes]="availableBikes"
-                [(selectedBike)]="selectedBike"
-                [allowQuickAdd]="true"
-                (bikeSelected)="onBikeSelected($event)"
-                (quickAddRequested)="onQuickAddBike()"
-              ></app-bike-selector>
-            </div>
-
-            <!-- Bicycle details edit form -->
-            <div class="form-card" *ngIf="selectedBike">
               <div class="card-header-row">
                 <h2>
                   <span *ngIf="isQuickAddMode" class="quick-add-badge"
                     >🆕 {{ t.newBicycle }}</span
                   >
-                  <span *ngIf="!isQuickAddMode">{{ t.bicycleDetails }}</span>
+                  <span *ngIf="!isQuickAddMode"
+                    >{{ t.bicycleDetails }}: {{ selectedBike?.marke }}
+                    {{ selectedBike?.modell }}</span
+                  >
                 </h2>
+                <button
+                  type="button"
+                  class="btn btn-outline"
+                  *ngIf="!isQuickAddMode"
+                  (click)="onQuickAddBike()"
+                >
+                  ✕ {{ t.newBicycle }}
+                </button>
               </div>
               <div class="form-grid">
-                <!-- Rahmennummer first with autocomplete dropdown -->
+                <!-- Lagernummer with autocomplete dropdown -->
+                <div class="field full rahmen-autocomplete-wrapper">
+                  <label>{{ t.stockNumber }}</label>
+                  <input
+                    type="number"
+                    min="1"
+                    [(ngModel)]="bikeEdit.lagernummer"
+                    name="bikeLagernummer"
+                    (ngModelChange)="onLagernummerChange($event)"
+                    (focus)="onLagernummerChange(bikeEdit.lagernummer)"
+                    (blur)="hideLagerDropdown()"
+                    placeholder="Lagernummer eingeben..."
+                    autocomplete="off"
+                  />
+                  <!-- Autocomplete dropdown -->
+                  <div
+                    class="rahmen-dropdown"
+                    *ngIf="lagerSearchResults.length > 0 && showLagerDropdown"
+                  >
+                    <div
+                      class="rahmen-dropdown-item"
+                      *ngFor="let bike of lagerSearchResults"
+                      (mousedown)="selectRahmenBike(bike)"
+                    >
+                      <span class="rahmen-nr">#{{ bike.lagernummer }}</span>
+                      <span class="rahmen-info"
+                        >{{ bike.marke }} {{ bike.modell }}</span
+                      >
+                      <span
+                        class="rahmen-badge"
+                        *ngIf="bike.status === 'Available'"
+                        >Verfügbar</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <!-- Rahmennummer with autocomplete dropdown -->
                 <div
                   class="field full rahmen-autocomplete-wrapper"
                   [class.field-error]="bikeErrors['rahmennummer']"
@@ -111,6 +145,9 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                       *ngFor="let bike of rahmenSearchResults"
                       (mousedown)="selectRahmenBike(bike)"
                     >
+                      <span class="rahmen-nr" *ngIf="bike.lagernummer != null"
+                        >#{{ bike.lagernummer }}</span
+                      >
                       <span class="rahmen-nr">{{ bike.rahmennummer }}</span>
                       <span class="rahmen-info"
                         >{{ bike.marke }} {{ bike.modell }}</span
@@ -1227,10 +1264,13 @@ export class SaleFormComponent implements OnInit {
   rahmenSearchResults: Bicycle[] = [];
   showRahmenDropdown = false;
   private rahmenSearchTimeout: any = null;
+  lagerSearchResults: Bicycle[] = [];
+  showLagerDropdown = false;
   bikeEdit = {
     marke: '',
     modell: '',
     rahmennummer: '',
+    lagernummer: undefined as number | undefined,
     rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
@@ -1297,6 +1337,12 @@ export class SaleFormComponent implements OnInit {
 
     this.showBuyerFields = !this.isAccessoryOnly;
 
+    // Bike details form is always open; start in quick-add mode until an
+    // existing bike is linked via Lagernummer/Rahmennummer autocomplete.
+    if (!this.isAccessoryOnly) {
+      this.onQuickAddBike();
+    }
+
     this.bicycleService.getAvailable().subscribe((bikes) => {
       this.availableBikes = bikes;
       const preselect = this.route.snapshot.queryParamMap.get('bicycleId');
@@ -1353,6 +1399,7 @@ export class SaleFormComponent implements OnInit {
       marke: bike.marke || '',
       modell: bike.modell || '',
       rahmennummer: bike.rahmennummer || '',
+      lagernummer: bike.lagernummer,
       rahmengroesse: bike.rahmengroesse || '',
       farbe: bike.farbe || '',
       reifengroesse: bike.reifengroesse || '',
@@ -1395,6 +1442,7 @@ export class SaleFormComponent implements OnInit {
       marke: '',
       modell: '',
       rahmennummer: '',
+      lagernummer: undefined,
       rahmengroesse: '',
       farbe: '',
       reifengroesse: '',
@@ -1412,7 +1460,9 @@ export class SaleFormComponent implements OnInit {
     this.rahmenMatchBike = null;
     this.rahmenSearchResults = [];
     if (this.rahmenSearchTimeout) clearTimeout(this.rahmenSearchTimeout);
-    if (!value || value.trim().length < 2) {
+    // Numeric input = Lagernummer search, allowed from the first digit
+    const isNumeric = /^\d+$/.test(value?.trim() ?? '');
+    if (!value || (!isNumeric && value.trim().length < 2)) {
       this.showRahmenDropdown = false;
       return;
     }
@@ -1422,9 +1472,10 @@ export class SaleFormComponent implements OnInit {
           this.rahmenSearchResults = bikes.filter(
             (b) =>
               b.status !== 'Sold' &&
-              b.rahmennummer
+              (b.rahmennummer
                 ?.toUpperCase()
-                .includes(value.trim().toUpperCase()),
+                .includes(value.trim().toUpperCase()) ||
+                (isNumeric && b.lagernummer === +value.trim())),
           );
           this.showRahmenDropdown = this.rahmenSearchResults.length > 0;
         },
@@ -1440,9 +1491,31 @@ export class SaleFormComponent implements OnInit {
     }, 200);
   }
 
+  // Lagernummer autocomplete: instant prefix match over available bikes
+  onLagernummerChange(value: number | string | null | undefined) {
+    this.lagerSearchResults = [];
+    const term = value != null ? String(value).trim() : '';
+    if (!term) {
+      this.showLagerDropdown = false;
+      return;
+    }
+    this.lagerSearchResults = this.availableBikes.filter(
+      (b) => b.lagernummer != null && String(b.lagernummer).startsWith(term),
+    );
+    this.showLagerDropdown = this.lagerSearchResults.length > 0;
+  }
+
+  hideLagerDropdown() {
+    setTimeout(() => {
+      this.showLagerDropdown = false;
+    }, 200);
+  }
+
   selectRahmenBike(bike: Bicycle) {
     this.showRahmenDropdown = false;
     this.rahmenSearchResults = [];
+    this.showLagerDropdown = false;
+    this.lagerSearchResults = [];
     this.rahmenMatchBike = null;
     this.isQuickAddMode = false;
     this.selectedBike = bike;
@@ -1451,6 +1524,7 @@ export class SaleFormComponent implements OnInit {
       marke: bike.marke || '',
       modell: bike.modell || '',
       rahmennummer: bike.rahmennummer || '',
+      lagernummer: bike.lagernummer,
       rahmengroesse: bike.rahmengroesse || '',
       farbe: bike.farbe || '',
       reifengroesse: bike.reifengroesse || '',
@@ -1470,6 +1544,7 @@ export class SaleFormComponent implements OnInit {
       marke: bike.marke || '',
       modell: bike.modell || '',
       rahmennummer: bike.rahmennummer || '',
+      lagernummer: bike.lagernummer,
       rahmengroesse: bike.rahmengroesse || '',
       farbe: bike.farbe || '',
       reifengroesse: bike.reifengroesse || '',
@@ -1562,6 +1637,11 @@ export class SaleFormComponent implements OnInit {
     if (this.zahlungen.length === 0) {
       this.zahlungen = [{ zahlungsart: null as any, betrag: 0 }];
     }
+
+    // Re-open the bike form in quick-add mode when switching back
+    if (!this.selectedBike) {
+      this.onQuickAddBike();
+    }
   }
 
   submit() {
@@ -1630,6 +1710,7 @@ export class SaleFormComponent implements OnInit {
         marke: this.bikeEdit.marke,
         modell: this.bikeEdit.modell,
         rahmennummer: this.bikeEdit.rahmennummer || undefined,
+        lagernummer: this.bikeEdit.lagernummer,
         rahmengroesse: this.bikeEdit.rahmengroesse || undefined,
         farbe: this.bikeEdit.farbe || undefined,
         reifengroesse: this.bikeEdit.reifengroesse,
@@ -1704,6 +1785,8 @@ export class SaleFormComponent implements OnInit {
       marke: this.bikeEdit.marke,
       modell: this.bikeEdit.modell,
       rahmennummer: this.bikeEdit.rahmennummer || undefined,
+      // empty input means "clear" → send 0 (backend: null=keep, 0=clear)
+      lagernummer: this.bikeEdit.lagernummer ?? 0,
       rahmengroesse: this.bikeEdit.rahmengroesse || undefined,
       farbe: this.bikeEdit.farbe || undefined,
       reifengroesse: this.bikeEdit.reifengroesse,

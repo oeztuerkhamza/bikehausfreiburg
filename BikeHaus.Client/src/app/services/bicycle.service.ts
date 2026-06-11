@@ -93,6 +93,11 @@ export class BicycleService {
     return this.http.get<Bicycle[]>(`${this.url}/available-for-period`, { params });
   }
 
+  // Next free Lagernummer (stock number) — suggested when taking in a new bike.
+  getNextLagernummer(): Observable<number> {
+    return this.http.get<number>(`${this.url}/next-lagernummer`);
+  }
+
   getBrands(): Observable<string[]> {
     return this.http.get<string[]>(`${this.url}/brands`);
   }

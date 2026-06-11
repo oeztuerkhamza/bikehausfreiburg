@@ -14,6 +14,10 @@ public class Bicycle : BaseEntity
         set => _rahmennummer = value?.ToUpperInvariant();
     }
 
+    // Stock number (Lagernummer): per-bike sequential number used to match
+    // Ankauf- and Verkaufsbelege when the Rahmennummer is missing/mismatched.
+    public int? Lagernummer { get; set; }
+
     public string? Rahmengroesse { get; set; }                   // Frame Size (Rahmengröße)
     public string? Farbe { get; set; }                          // Color (Rahmenfarbe)
     public string Reifengroesse { get; set; } = string.Empty;  // Tire Size (Zoll)

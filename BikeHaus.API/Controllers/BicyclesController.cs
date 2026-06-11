@@ -110,6 +110,14 @@ public class BicyclesController : ControllerBase
     }
 
     [Authorize]
+    [HttpGet("next-lagernummer")]
+    public async Task<ActionResult<int>> GetNextLagernummer()
+    {
+        var next = await _bicycleService.GetNextLagernummerAsync();
+        return Ok(next);
+    }
+
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<BicycleDto>> Create([FromBody] BicycleCreateDto dto)
     {

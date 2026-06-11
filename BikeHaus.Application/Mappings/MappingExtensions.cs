@@ -34,7 +34,8 @@ public static class MappingExtensions
         entity.VerkaufspreisVorschlag,
         entity.KleinanzeigenAnzeigeNr,
         entity.CreatedAt,
-        entity.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList()
+        entity.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList(),
+        entity.Lagernummer
     );
 
     public static BicycleImageDto ToDto(this BicycleImage entity) => new(
@@ -81,7 +82,8 @@ public static class MappingExtensions
         RentalPriceDay6 = dto.RentalPriceDay6,
         RentalPriceDay7 = dto.RentalPriceDay7,
         RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7,
-        Kaution = dto.Kaution
+        Kaution = dto.Kaution,
+        Lagernummer = dto.Lagernummer
     };
 
     public static PublicRentalBicycleDto ToPublicRentalDto(this Bicycle entity) => new(
@@ -196,6 +198,7 @@ public static class MappingExtensions
         entity.PurchaseId,
         $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
         entity.Bicycle.Rahmennummer,
+        entity.Bicycle.Lagernummer,
         entity.Buyer.FullName,
         entity.Preis,
         entity.Gesamtbetrag,

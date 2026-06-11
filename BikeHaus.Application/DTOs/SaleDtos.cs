@@ -77,6 +77,7 @@ public record SaleListDto(
     int? PurchaseId,
     string BikeInfo,
     string? Rahmennummer,
+    int? Lagernummer,
     string BuyerName,
     decimal Preis,
     decimal Gesamtbetrag,

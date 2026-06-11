@@ -49,6 +49,10 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                   sale.bicycle.rahmennummer
                 }}</span>
               </div>
+              <div class="info-row" *ngIf="sale.bicycle.lagernummer != null">
+                <span class="label">{{ t.stockNumber }}:</span>
+                <span>{{ sale.bicycle.lagernummer }}</span>
+              </div>
               <div class="info-row">
                 <span class="label">{{ t.color }}:</span>
                 <span>{{ sale.bicycle.farbe }}</span>

@@ -170,6 +170,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <tr>
               <th>{{ t.receiptNo }}</th>
               <th>{{ t.bicycle }}</th>
+              <th>{{ t.stockNumber }}</th>
               <th>{{ t.frameNumber }}</th>
               <th>{{ t.buyer }}</th>
               <th>{{ t.price }}</th>
@@ -180,7 +181,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <tbody>
             <tr *ngIf="paginatedResult?.items?.length === 0">
               <td
-                colspan="7"
+                colspan="8"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 {{ t.noSales }}
@@ -196,6 +197,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             >
               <td class="mono">{{ s.belegNummer }}</td>
               <td>{{ s.bikeInfo }}</td>
+              <td class="mono">{{ s.lagernummer ?? '–' }}</td>
               <td class="mono" style="text-transform: uppercase">
                 {{
                   s.rahmennummer?.startsWith('ACC-')
@@ -883,6 +885,7 @@ export class SaleListComponent implements OnInit {
       [
         { key: 'belegNummer', header: 'Beleg-Nr.' },
         { key: 'bikeInfo', header: 'Fahrrad' },
+        { key: 'lagernummer', header: 'Lagernummer' },
         { key: 'buyerName', header: 'Käufer' },
         { key: 'gesamtbetrag', header: 'Gesamtbetrag (€)' },
         { key: 'zahlungsart', header: 'Zahlungsart' },

@@ -144,6 +144,9 @@ public class PurchaseService : IPurchaseService
         {
             // Create Bicycle - preserve Zustand from DTO
             var bicycle = dto.Bicycle.ToEntity();
+            // Bulk: each bike gets its own sequential Lagernummer.
+            if (dto.Bicycle.Lagernummer.HasValue)
+                bicycle.Lagernummer = dto.Bicycle.Lagernummer.Value + i;
             bicycle = await _bicycleRepository.AddAsync(bicycle);
 
             // Create Purchase
@@ -180,6 +183,10 @@ public class PurchaseService : IPurchaseService
         bicycle.Marke = dto.Bicycle.Marke;
         bicycle.Modell = dto.Bicycle.Modell;
         bicycle.Rahmennummer = dto.Bicycle.Rahmennummer;
+        // null = keep, 0 = clear, value = set (see BicycleService.UpdateAsync)
+        if (dto.Bicycle.Lagernummer.HasValue)
+            bicycle.Lagernummer =
+                dto.Bicycle.Lagernummer.Value == 0 ? null : dto.Bicycle.Lagernummer;
         bicycle.Rahmengroesse = dto.Bicycle.Rahmengroesse;
         bicycle.Farbe = dto.Bicycle.Farbe;
         bicycle.Reifengroesse = dto.Bicycle.Reifengroesse;

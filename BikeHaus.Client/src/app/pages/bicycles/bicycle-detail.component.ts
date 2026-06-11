@@ -65,6 +65,16 @@ import {
               />
             </div>
             <div class="field">
+              <label>{{ t.stockNumber }}</label>
+              <input
+                type="number"
+                min="1"
+                [(ngModel)]="form.lagernummer"
+                name="lagernummer"
+                placeholder="optional"
+              />
+            </div>
+            <div class="field">
               <label>{{ t.frameSize }}</label>
               <input
                 [(ngModel)]="form.rahmengroesse"
@@ -822,6 +832,7 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
     marke: '',
     modell: '',
     rahmennummer: '',
+    lagernummer: undefined,
     rahmengroesse: '',
     farbe: '',
     reifengroesse: '',
@@ -883,6 +894,7 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
         marke: b.marke,
         modell: b.modell,
         rahmennummer: b.rahmennummer,
+        lagernummer: b.lagernummer,
         rahmengroesse: b.rahmengroesse,
         farbe: b.farbe,
         reifengroesse: b.reifengroesse,
@@ -964,13 +976,19 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
     }
     this.submitting = true;
 
+    // lagernummer: empty input means "clear" → send 0 (backend: null=keep, 0=clear)
+    const payload: BicycleUpdate = {
+      ...this.form,
+      lagernummer: this.form.lagernummer ?? 0,
+    };
+
     // Save bicycle data
-    this.bicycleService.update(this.bicycle!.id, this.form).subscribe({
+    this.bicycleService.update(this.bicycle!.id, payload).subscribe({
       next: () => {
         // If there's a purchase, save it too
         if (this.purchase) {
           const purchaseUpdate: PurchaseUpdate = {
-            bicycle: this.form,
+            bicycle: payload,
             seller: this.sellerForm,
             preis: this.purchaseForm.preis,
             verkaufspreisVorschlag:

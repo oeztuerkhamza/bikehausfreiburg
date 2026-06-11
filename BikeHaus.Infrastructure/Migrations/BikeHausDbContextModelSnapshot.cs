@@ -85,6 +85,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<string>("KleinanzeigenAnzeigeNr")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("Lagernummer")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Marke")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -144,6 +147,8 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Lagernummer");
 
                     b.HasIndex("Rahmennummer");
 

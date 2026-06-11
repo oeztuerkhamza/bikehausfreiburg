@@ -102,11 +102,14 @@ public class BicycleService : IBicycleService
         if (!string.IsNullOrEmpty(paginationParams.SearchTerm))
         {
             var term = paginationParams.SearchTerm.ToLower();
+            // Numeric terms also match the Lagernummer (stock number) exactly.
+            var isNumeric = int.TryParse(paginationParams.SearchTerm.Trim(), out var lagerNr);
             predicate = CombineAnd(predicate, b =>
                 b.Marke.ToLower().Contains(term) ||
                 b.Modell.ToLower().Contains(term) ||
                 (b.Rahmennummer != null && b.Rahmennummer.ToLower().Contains(term)) ||
-                (b.Farbe != null && b.Farbe.ToLower().Contains(term)));
+                (b.Farbe != null && b.Farbe.ToLower().Contains(term)) ||
+                (isNumeric && b.Lagernummer == lagerNr));
         }
 
         var (items, totalCount) = await _repository.GetPaginatedAsync(
@@ -169,6 +172,10 @@ public class BicycleService : IBicycleService
         entity.Marke = dto.Marke;
         entity.Modell = dto.Modell;
         entity.Rahmennummer = dto.Rahmennummer;
+        // Lagernummer: null = keep current (callers that don't know the field
+        // must not wipe it), 0 = clear, value = set.
+        if (dto.Lagernummer.HasValue)
+            entity.Lagernummer = dto.Lagernummer.Value == 0 ? null : dto.Lagernummer;
         entity.Rahmengroesse = dto.Rahmengroesse;
         entity.Farbe = dto.Farbe;
         entity.Reifengroesse = dto.Reifengroesse;
@@ -219,6 +226,7 @@ public class BicycleService : IBicycleService
     public async Task<IEnumerable<BicycleDto>> SearchAsync(string searchTerm)
     {
         var lowerTerm = searchTerm.ToLower();
+        var isNumeric = int.TryParse(searchTerm.Trim(), out var lagerNr);
         var bicycles = await _repository.FindAsync(b =>
                         !(b.Marke == "Zubehör" &&
                             b.Modell == "Direktverkauf" &&
@@ -228,7 +236,8 @@ public class BicycleService : IBicycleService
             b.Marke.Contains(searchTerm) ||
             b.Modell.Contains(searchTerm) ||
             (b.Rahmennummer != null && b.Rahmennummer.ToLower().Contains(lowerTerm)) ||
-            (b.Farbe != null && b.Farbe.Contains(searchTerm))));
+            (b.Farbe != null && b.Farbe.Contains(searchTerm)) ||
+            (isNumeric && b.Lagernummer == lagerNr)));
         return bicycles.Select(b => b.ToDto());
     }
 
@@ -359,6 +368,12 @@ public class BicycleService : IBicycleService
         await _repository.UpdateAsync(bicycle);
 
         return images.OrderBy(i => i.SortOrder).Select(i => i.ToDto());
+    }
+
+    public async Task<int> GetNextLagernummerAsync()
+    {
+        var max = await _repository.GetMaxLagernummerAsync();
+        return (max ?? 0) + 1;
     }
 
     public async Task<IEnumerable<BicycleDto>> GetAvailableForPeriodAsync(DateOnly start, DateOnly end)

@@ -31,7 +31,8 @@ public record BicycleDto(
     decimal? VerkaufspreisVorschlag,
     string? KleinanzeigenAnzeigeNr,
     DateTime CreatedAt,
-    List<BicycleImageDto>? Images = null
+    List<BicycleImageDto>? Images = null,
+    int? Lagernummer = null
 );
 
 public record BicycleCreateDto(
@@ -54,7 +55,8 @@ public record BicycleCreateDto(
     decimal? RentalPriceDay6 = null,
     decimal? RentalPriceDay7 = null,
     decimal? RentalPriceAdditionalDayAfter7 = null,
-    decimal? Kaution = null
+    decimal? Kaution = null,
+    int? Lagernummer = null
 );
 
 public record BicycleUpdateDto(
@@ -79,7 +81,8 @@ public record BicycleUpdateDto(
     decimal? RentalPriceDay6 = null,
     decimal? RentalPriceDay7 = null,
     decimal? RentalPriceAdditionalDayAfter7 = null,
-    decimal? Kaution = null
+    decimal? Kaution = null,
+    int? Lagernummer = null
 );
 
 public record BicycleImageDto(

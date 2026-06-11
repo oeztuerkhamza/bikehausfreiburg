@@ -28,4 +28,5 @@ public interface IBicycleService
     Task<IEnumerable<BusyPeriodDto>> GetBusyPeriodsAsync(int bicycleId);
     Task<Dictionary<int, List<BusyPeriodDto>>> GetBusyPeriodsForBikesAsync(IEnumerable<int> bicycleIds);
     Task<IEnumerable<BicycleDto>> GetAvailableForPeriodAsync(DateOnly start, DateOnly end);
+    Task<int> GetNextLagernummerAsync();
 }

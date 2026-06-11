@@ -117,4 +117,9 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             .Include(b => b.Images)
             .FirstOrDefaultAsync(b => b.Id == id);
     }
+
+    public async Task<int?> GetMaxLagernummerAsync()
+    {
+        return await _dbSet.MaxAsync(b => b.Lagernummer);
+    }
 }
