@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -6,6 +6,7 @@ import { PurchaseService } from '../../services/purchase.service';
 import { DocumentService } from '../../services/document.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { CustomerService } from '../../services/customer.service';
+import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
 import {
   PurchaseCreateForExistingBike,
@@ -33,7 +34,37 @@ import { forkJoin, Observable } from 'rxjs';
       </div>
 
       <form (ngSubmit)="submit()" #f="ngForm">
+        <!-- Wizard progress (mobile only) -->
+        <div class="wizard-progress" *ngIf="isMobile">
+          <div class="wizard-progress-top">
+            <span class="wizard-step-count"
+              >Schritt {{ currentStep + 1 }} / {{ totalSteps }}</span
+            >
+            <span class="wizard-step-name">{{ currentStepLabel }}</span>
+          </div>
+          <div class="wizard-progress-bar">
+            <div
+              class="wizard-progress-fill"
+              [style.width.%]="((currentStep + 1) / totalSteps) * 100"
+            ></div>
+          </div>
+          <div class="wizard-dots">
+            <span
+              class="wizard-dot"
+              *ngFor="let s of wizardSteps; let idx = index"
+              [class.active]="idx === currentStep"
+              [class.done]="idx < currentStep"
+              (click)="goToStep(idx)"
+            ></span>
+          </div>
+        </div>
+
         <div class="form-sections">
+          <!-- STEP 0: Fahrrad -->
+          <div
+            class="wizard-step"
+            [class.wizard-hidden]="isMobile && currentStep !== 0"
+          >
           <!-- Bicycle Info -->
           <div class="form-card">
             <h2>🚲 {{ t.bicycle }}</h2>
@@ -80,7 +111,14 @@ import { forkJoin, Observable } from 'rxjs';
               </div>
             </div>
           </div>
+          </div>
+          <!-- /STEP 0 -->
 
+          <!-- STEP 1: Ankaufsdaten -->
+          <div
+            class="wizard-step"
+            [class.wizard-hidden]="isMobile && currentStep !== 1"
+          >
           <!-- Purchase Details -->
           <div class="form-card">
             <h2>{{ t.purchases }}</h2>
@@ -144,7 +182,14 @@ import { forkJoin, Observable } from 'rxjs';
               </div>
             </div>
           </div>
+          </div>
+          <!-- /STEP 1 -->
 
+          <!-- STEP 2: Verkäufer -->
+          <div
+            class="wizard-step"
+            [class.wizard-hidden]="isMobile && currentStep !== 2"
+          >
           <!-- Seller info -->
           <div class="form-card">
             <h2>{{ t.seller }} ({{ t.customer }})</h2>
@@ -203,7 +248,14 @@ import { forkJoin, Observable } from 'rxjs';
               </div>
             </div>
           </div>
+          </div>
+          <!-- /STEP 2 -->
 
+          <!-- STEP 3: Fotos -->
+          <div
+            class="wizard-step"
+            [class.wizard-hidden]="isMobile && currentStep !== 3"
+          >
           <!-- Verkaufsfotos (for Website & Kleinanzeigen) -->
           <div class="form-card">
             <h2>📸 {{ t.salesPhotos }}</h2>
@@ -289,9 +341,45 @@ import { forkJoin, Observable } from 'rxjs';
               </div>
             </div>
           </div>
+          </div>
+          <!-- /STEP 3 -->
         </div>
 
-        <div class="form-actions">
+        <!-- Wizard nav (mobile only) -->
+        <div class="wizard-nav" *ngIf="isMobile">
+          <a
+            routerLink="/purchases/missing"
+            class="btn btn-outline wizard-back"
+            *ngIf="currentStep === 0"
+            >{{ t.back }}</a
+          >
+          <button
+            type="button"
+            class="btn btn-outline wizard-back"
+            *ngIf="currentStep > 0"
+            (click)="prevStep()"
+          >
+            Zurück
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary wizard-next"
+            *ngIf="!isLastStep"
+            (click)="nextStep()"
+          >
+            Weiter
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary wizard-next"
+            *ngIf="isLastStep"
+            [disabled]="submitting || !canSubmit()"
+          >
+            {{ submitting ? '...' : t.savePurchase }}
+          </button>
+        </div>
+
+        <div class="form-actions" *ngIf="!isMobile">
           <a routerLink="/purchases/missing" class="btn btn-outline">{{
             t.back
           }}</a>
@@ -479,6 +567,90 @@ import { forkJoin, Observable } from 'rxjs';
         cursor: not-allowed;
       }
 
+      /* ── Mobile wizard ── */
+      .wizard-progress {
+        margin-bottom: 16px;
+      }
+      .wizard-progress-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .wizard-step-count {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+      }
+      .wizard-step-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .wizard-progress-bar {
+        height: 6px;
+        background: var(--border-light);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .wizard-progress-fill {
+        height: 100%;
+        background: var(--accent-primary, #6366f1);
+        border-radius: 99px;
+        transition: width 0.25s ease;
+      }
+      .wizard-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .wizard-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--border-color);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .wizard-dot.active {
+        background: var(--accent-primary, #6366f1);
+        transform: scale(1.35);
+      }
+      .wizard-dot.done {
+        background: var(--accent-primary, #6366f1);
+        opacity: 0.5;
+      }
+      .wizard-hidden {
+        display: none;
+      }
+      .wizard-nav {
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+        padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+        background: var(--bg-card);
+        border-top: 1px solid var(--border-light);
+      }
+      .wizard-nav .wizard-next {
+        flex: 1;
+      }
+      .wizard-nav .wizard-back {
+        flex: 0 0 auto;
+      }
+      .wizard-nav .btn {
+        padding: 14px 18px;
+        font-size: 1rem;
+        justify-content: center;
+      }
+
       @media (max-width: 640px) {
         .form-grid {
           grid-template-columns: 1fr;
@@ -487,6 +659,26 @@ import { forkJoin, Observable } from 'rxjs';
           flex-direction: column;
           align-items: flex-start;
           gap: 12px;
+        }
+        /* Prevent iOS zoom-on-focus (needs ≥16px) */
+        .field input,
+        .field select,
+        .field textarea {
+          font-size: 16px;
+        }
+        .form-card {
+          padding: 16px;
+        }
+        .form-sections {
+          gap: 16px;
+        }
+        .upload-area .btn {
+          width: 100%;
+          padding: 13px;
+        }
+        .remove-btn {
+          width: 32px;
+          height: 32px;
         }
       }
     `,
@@ -497,9 +689,111 @@ export class MissingPurchaseFormComponent implements OnInit {
   private documentService = inject(DocumentService);
   private bicycleService = inject(BicycleService);
   private customerService = inject(CustomerService);
+  private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+
+  // ── Mobile wizard ──
+  isMobile = false;
+  currentStep = 0;
+
+  get wizardSteps(): string[] {
+    return [this.t.bicycle, this.t.purchases, this.t.seller, 'Fotos'];
+  }
+
+  get totalSteps(): number {
+    return this.wizardSteps.length;
+  }
+
+  get isLastStep(): boolean {
+    return this.currentStep === this.totalSteps - 1;
+  }
+
+  get currentStepLabel(): string {
+    return this.wizardSteps[this.currentStep] ?? '';
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.updateIsMobile();
+  }
+
+  private updateIsMobile() {
+    if (typeof window === 'undefined') return;
+    this.isMobile = window.innerWidth <= 640;
+  }
+
+  private scrollToTop() {
+    if (typeof document !== 'undefined') {
+      document
+        .querySelector('.content-area')
+        ?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  nextStep() {
+    if (!this.validateStep(this.currentStep)) return;
+    if (this.currentStep < this.totalSteps - 1) {
+      this.currentStep++;
+      this.scrollToTop();
+    }
+  }
+
+  prevStep() {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+      this.scrollToTop();
+    }
+  }
+
+  goToStep(step: number) {
+    if (step === this.currentStep) return;
+    if (step < this.currentStep) {
+      this.currentStep = step;
+      this.scrollToTop();
+      return;
+    }
+    for (let s = this.currentStep; s < step; s++) {
+      if (!this.validateStep(s)) {
+        this.currentStep = s;
+        this.scrollToTop();
+        return;
+      }
+    }
+    this.currentStep = step;
+    this.scrollToTop();
+  }
+
+  private validateStep(step: number): boolean {
+    switch (step) {
+      case 0:
+        if (
+          !this.bikeMarke?.trim() ||
+          !this.bikeRahmennummer?.trim() ||
+          !this.bikeReifengroesse?.trim()
+        ) {
+          this.notificationService.error(
+            'Bitte Marke, Rahmennummer und Reifengröße ausfüllen.',
+          );
+          return false;
+        }
+        return true;
+      case 1:
+        if (!this.preis || this.preis <= 0 || !this.kaufdatum) {
+          this.notificationService.error(
+            'Bitte Preis und Kaufdatum ausfüllen.',
+          );
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  }
 
   PaymentMethod = PaymentMethod;
   DocumentType = DocumentType;
@@ -549,6 +843,7 @@ export class MissingPurchaseFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.updateIsMobile();
     this.kaufdatum = new Date().toISOString().split('T')[0];
 
     // Read bicycle data from query params

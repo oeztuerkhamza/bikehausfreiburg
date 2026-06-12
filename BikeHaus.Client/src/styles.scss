@@ -372,6 +372,34 @@ table {
   }
 }
 
+/* ── Mobile baseline ── */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (max-width: 640px) {
+  // ≥16px input font prevents iOS Safari zoom-on-focus.
+  // Component-scoped styles override this; forms set it themselves too.
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  // Comfortable touch targets
+  .btn {
+    min-height: 44px;
+  }
+  .btn-sm {
+    min-height: 38px;
+  }
+
+  h1 {
+    font-size: 1.35rem;
+  }
+}
+
 // Global Print Styles - hide everything except labels
 @media print {
   // Hide sidebar and header completely

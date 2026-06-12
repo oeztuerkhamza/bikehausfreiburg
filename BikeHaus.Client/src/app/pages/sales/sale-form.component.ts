@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -6,6 +6,7 @@ import { SaleService } from '../../services/sale.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { PurchaseService } from '../../services/purchase.service';
 import { SettingsService } from '../../services/settings.service';
+import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
 import {
   SaleCreate,
@@ -52,7 +53,34 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
       </div>
 
       <form (ngSubmit)="submit()" #f="ngForm">
+        <!-- Wizard progress (mobile only) -->
+        <div class="wizard-progress" *ngIf="isMobile">
+          <div class="wizard-progress-top">
+            <span class="wizard-step-count"
+              >Schritt {{ currentStep + 1 }} / {{ totalSteps }}</span
+            >
+            <span class="wizard-step-name">{{ currentStepLabel }}</span>
+          </div>
+          <div class="wizard-progress-bar">
+            <div
+              class="wizard-progress-fill"
+              [style.width.%]="((currentStep + 1) / totalSteps) * 100"
+            ></div>
+          </div>
+          <div class="wizard-dots">
+            <span
+              class="wizard-dot"
+              *ngFor="let s of wizardSteps; let idx = index"
+              [class.active]="idx === currentStep"
+              [class.done]="idx < currentStep"
+              (click)="goToStep(idx)"
+            ></span>
+          </div>
+        </div>
+
         <div class="form-sections">
+          <!-- STEP: Fahrrad -->
+          <div class="wizard-step" [class.wizard-hidden]="isStepHidden('bike')">
           <ng-container *ngIf="!isAccessoryOnly">
             <!-- Bicycle details edit form (always open; existing bikes are
                  linked via Lagernummer/Rahmennummer autocomplete) -->
@@ -315,7 +343,11 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
               </div>
             </div>
           </ng-container>
+          </div>
+          <!-- /STEP Fahrrad -->
 
+          <!-- STEP: Verkaufsdaten -->
+          <div class="wizard-step" [class.wizard-hidden]="isStepHidden('sale')">
           <!-- Sale details -->
           <div class="form-card">
             <h2>{{ t.saleData }}</h2>
@@ -369,7 +401,14 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
               </div>
             </div>
           </div>
+          </div>
+          <!-- /STEP Verkaufsdaten -->
 
+          <!-- STEP: Zubehör & Rabatt -->
+          <div
+            class="wizard-step"
+            [class.wizard-hidden]="isStepHidden('accessories')"
+          >
           <!-- Accessories (Zubehör) -->
           <div class="form-card">
             <h2>{{ t.accessoriesOptional }}</h2>
@@ -472,7 +511,14 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
               </div>
             </div>
           </div>
+          </div>
+          <!-- /STEP Zubehör -->
 
+          <!-- STEP: Kundendaten -->
+          <div
+            class="wizard-step"
+            [class.wizard-hidden]="isStepHidden('buyer')"
+          >
           <!-- Buyer info -->
           <div class="form-card" *ngIf="showBuyerFields">
             <h2>Kundendaten</h2>
@@ -516,7 +562,14 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
               </div>
             </div>
           </div>
+          </div>
+          <!-- /STEP Kundendaten -->
 
+          <!-- STEP: Zahlung -->
+          <div
+            class="wizard-step"
+            [class.wizard-hidden]="isStepHidden('payment')"
+          >
           <div class="form-card">
             <h2>Preisübersicht</h2>
             <table class="price-summary-table">
@@ -602,9 +655,45 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
               </div>
             </div>
           </div>
+          </div>
+          <!-- /STEP Zahlung -->
         </div>
 
-        <div class="form-actions">
+        <!-- Wizard nav (mobile only) -->
+        <div class="wizard-nav" *ngIf="isMobile">
+          <a
+            routerLink="/sales"
+            class="btn btn-outline wizard-back"
+            *ngIf="currentStep === 0"
+            >{{ t.back }}</a
+          >
+          <button
+            type="button"
+            class="btn btn-outline wizard-back"
+            *ngIf="currentStep > 0"
+            (click)="prevStep()"
+          >
+            Zurück
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary wizard-next"
+            *ngIf="!isLastStep"
+            (click)="nextStep()"
+          >
+            Weiter
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary wizard-next"
+            *ngIf="isLastStep"
+            [disabled]="submitting"
+          >
+            {{ submitting ? t.saving : t.saveSale }}
+          </button>
+        </div>
+
+        <div class="form-actions" *ngIf="!isMobile">
           <button
             type="submit"
             class="btn btn-primary btn-lg"
@@ -1189,15 +1278,265 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
         background: rgba(239, 68, 68, 0.1);
         color: #ef4444;
       }
+
+      /* ── Mobile wizard ── */
+      .wizard-progress {
+        margin-bottom: 16px;
+      }
+      .wizard-progress-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .wizard-step-count {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+      }
+      .wizard-step-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .wizard-progress-bar {
+        height: 6px;
+        background: var(--border-light);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .wizard-progress-fill {
+        height: 100%;
+        background: var(--accent-primary, #6366f1);
+        border-radius: 99px;
+        transition: width 0.25s ease;
+      }
+      .wizard-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .wizard-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--border-color);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .wizard-dot.active {
+        background: var(--accent-primary, #6366f1);
+        transform: scale(1.35);
+      }
+      .wizard-dot.done {
+        background: var(--accent-primary, #6366f1);
+        opacity: 0.5;
+      }
+      .wizard-hidden {
+        display: none;
+      }
+      .wizard-nav {
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+        padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+        background: var(--bg-card);
+        border-top: 1px solid var(--border-light);
+      }
+      .wizard-nav .wizard-next {
+        flex: 1;
+      }
+      .wizard-nav .wizard-back {
+        flex: 0 0 auto;
+      }
+      .wizard-nav .btn {
+        padding: 14px 18px;
+        font-size: 1rem;
+        justify-content: center;
+      }
+
+      @media (max-width: 640px) {
+        /* Prevent iOS zoom-on-focus (needs ≥16px) */
+        .field input,
+        .field select,
+        .field textarea,
+        .zahlung-item select,
+        .zahlung-item input {
+          font-size: 16px;
+        }
+        .form-card {
+          padding: 16px;
+        }
+        .form-sections {
+          gap: 16px;
+        }
+        .page-header {
+          margin-bottom: 16px;
+        }
+        .page-header h1 {
+          font-size: 1.25rem;
+        }
+        .color-chip {
+          padding: 8px 12px;
+          font-size: 0.9rem;
+        }
+        .btn-icon {
+          width: 40px;
+          height: 40px;
+        }
+        .accessory-fields .field {
+          min-width: 130px;
+        }
+        .zahlung-item {
+          flex-wrap: wrap;
+        }
+        .zahlung-item select {
+          flex: 1 1 100%;
+        }
+        .zahlung-item input {
+          flex: 1;
+          width: auto;
+        }
+      }
     `,
   ],
 })
 export class SaleFormComponent implements OnInit {
   private translationService = inject(TranslationService);
+  private notificationService = inject(NotificationService);
   private readonly defaultBuyer = {
     vorname: '',
     nachname: '',
   };
+
+  // ── Mobile wizard ──
+  isMobile = false;
+  currentStep = 0;
+
+  get wizardSteps(): { key: string; label: string }[] {
+    if (this.isAccessoryOnly) {
+      return [
+        { key: 'sale', label: this.t.saleData },
+        { key: 'accessories', label: 'Zubehör' },
+        { key: 'payment', label: 'Zahlung' },
+      ];
+    }
+    return [
+      { key: 'bike', label: this.t.bicycle },
+      { key: 'sale', label: this.t.saleData },
+      { key: 'accessories', label: 'Zubehör' },
+      { key: 'buyer', label: 'Kundendaten' },
+      { key: 'payment', label: 'Zahlung' },
+    ];
+  }
+
+  get totalSteps(): number {
+    return this.wizardSteps.length;
+  }
+
+  get isLastStep(): boolean {
+    return this.currentStep === this.totalSteps - 1;
+  }
+
+  get currentStepLabel(): string {
+    return this.wizardSteps[this.currentStep]?.label ?? '';
+  }
+
+  isStepHidden(key: string): boolean {
+    return this.isMobile && this.wizardSteps[this.currentStep]?.key !== key;
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.updateIsMobile();
+  }
+
+  private updateIsMobile() {
+    if (typeof window === 'undefined') return;
+    this.isMobile = window.innerWidth <= 640;
+  }
+
+  private scrollToTop() {
+    if (typeof document !== 'undefined') {
+      document
+        .querySelector('.content-area')
+        ?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  nextStep() {
+    if (!this.validateStep(this.currentStep)) return;
+    if (this.currentStep < this.totalSteps - 1) {
+      this.currentStep++;
+      this.scrollToTop();
+    }
+  }
+
+  prevStep() {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+      this.scrollToTop();
+    }
+  }
+
+  goToStep(step: number) {
+    if (step === this.currentStep) return;
+    if (step < this.currentStep) {
+      this.currentStep = step;
+      this.scrollToTop();
+      return;
+    }
+    for (let s = this.currentStep; s < step; s++) {
+      if (!this.validateStep(s)) {
+        this.currentStep = s;
+        this.scrollToTop();
+        return;
+      }
+    }
+    this.currentStep = step;
+    this.scrollToTop();
+  }
+
+  private validateStep(step: number): boolean {
+    const key = this.wizardSteps[step]?.key;
+    switch (key) {
+      case 'bike':
+        if (!this.validateBike()) {
+          this.notificationService.error(
+            'Bitte alle Pflichtfelder des Fahrrads ausfüllen.',
+          );
+          return false;
+        }
+        return true;
+      case 'sale':
+        if (!this.verkaufsdatum) {
+          this.notificationService.error('Bitte Verkaufsdatum ausfüllen.');
+          return false;
+        }
+        return true;
+      case 'accessories':
+        if (this.isAccessoryOnly && this.accessories.length === 0) {
+          this.notificationService.error(
+            'Bitte mindestens ein Zubehör hinzufügen.',
+          );
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  }
 
   colorOptions = [
     { value: 'Schwarz', label: 'Schwarz', hex: '#1a1a1a' },
@@ -1325,6 +1664,7 @@ export class SaleFormComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.updateIsMobile();
     const _d = new Date();
     this.verkaufsdatum = `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`;
 
@@ -1619,6 +1959,8 @@ export class SaleFormComponent implements OnInit {
 
   onAccessoryOnlyChange() {
     this.showBuyerFields = !this.isAccessoryOnly;
+    // Step list changes between modes — restart the wizard from the top
+    this.currentStep = 0;
 
     if (this.isAccessoryOnly) {
       this.selectedBike = null;

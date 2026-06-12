@@ -1903,6 +1903,11 @@ export class RentalFormComponent implements OnInit {
   }
 
   private scrollToTop() {
+    if (typeof document !== 'undefined') {
+      document
+        .querySelector('.content-area')
+        ?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
