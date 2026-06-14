@@ -171,8 +171,10 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <th>{{ t.bicycle }}</th>
               <th>{{ t.stockNumber }}</th>
               <th>{{ t.frameNumber }}</th>
+              <th>{{ t.wheelSize }}</th>
               <th>{{ t.buyer }}</th>
               <th>{{ t.price }}</th>
+              <th>{{ t.paymentMethod }}</th>
               <th>{{ t.date }}</th>
               <th style="width: 50px;"></th>
             </tr>
@@ -180,7 +182,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <tbody>
             <tr *ngIf="paginatedResult?.items?.length === 0">
               <td
-                colspan="8"
+                colspan="10"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 {{ t.noSales }}
@@ -204,8 +206,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                     : s.rahmennummer || '–'
                 }}
               </td>
+              <td>{{ s.reifengroesse ? s.reifengroesse + '"' : '–' }}</td>
               <td>{{ s.buyerName }}</td>
               <td>{{ s.gesamtbetrag | number: '1.2-2' }} €</td>
+              <td class="pay-cell">
+                <span class="pay-part" *ngFor="let p of paymentParts(s)">
+                  {{ p.label }}: {{ p.betrag | number: '1.2-2' }} €
+                </span>
+              </td>
               <td>{{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}</td>
               <td class="actions-cell">
                 <span class="action-icon">⋮</span>
@@ -494,6 +502,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         text-align: center;
         overflow: visible !important;
       }
+      .pay-cell {
+        font-size: 0.82rem;
+        white-space: nowrap;
+      }
+      .pay-part {
+        display: block;
+        font-variant-numeric: tabular-nums;
+      }
       .action-icon {
         font-size: 1.2rem;
         color: var(--text-secondary);
@@ -747,6 +763,20 @@ export class SaleListComponent implements OnInit {
       default:
         return method;
     }
+  }
+
+  // Amount charged per payment method. Uses the split-payment list when present,
+  // otherwise falls back to the single payment method for the full total.
+  paymentParts(s: SaleList): { label: string; betrag: number }[] {
+    if (s.zahlungen && s.zahlungen.length > 0) {
+      return s.zahlungen.map((z) => ({
+        label: this.getPaymentLabel(z.zahlungsart),
+        betrag: z.betrag,
+      }));
+    }
+    return [
+      { label: this.getPaymentLabel(s.zahlungsart), betrag: s.gesamtbetrag },
+    ];
   }
 
   downloadPdf(s: SaleList) {

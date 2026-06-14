@@ -334,6 +334,7 @@ export interface SaleList {
   bikeInfo: string;
   rahmennummer?: string;
   lagernummer?: number;
+  reifengroesse?: string;
   buyerName: string;
   preis: number;
   gesamtbetrag: number;

@@ -200,6 +200,7 @@ public static class MappingExtensions
         $"{entity.Bicycle.Marke} {entity.Bicycle.Modell}",
         entity.Bicycle.Rahmennummer,
         entity.Bicycle.Lagernummer,
+        entity.Bicycle.Reifengroesse,
         entity.Buyer.FullName,
         entity.Preis,
         entity.Gesamtbetrag,
