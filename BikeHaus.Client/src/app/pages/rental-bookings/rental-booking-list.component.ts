@@ -705,7 +705,7 @@ export class RentalBookingListComponent implements OnInit {
   private translationService = inject(TranslationService);
   paginatedResult: PaginatedResult<RentalBookingList> | null = null;
   currentPage = 1;
-  pageSize = 20;
+  pageSize = 1000;
   filterStatus = '';
   searchText = '';
 

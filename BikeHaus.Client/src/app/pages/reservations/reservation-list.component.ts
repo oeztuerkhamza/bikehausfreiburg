@@ -532,7 +532,7 @@ export class ReservationListComponent implements OnInit {
   searchText = '';
   filterStatus = '';
   currentPage = 1;
-  pageSize = 20;
+  pageSize = 1000;
 
   showDeleteModal = false;
   selectedReservation: ReservationList | null = null;

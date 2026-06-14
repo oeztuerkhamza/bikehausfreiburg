@@ -406,7 +406,7 @@ export class ReturnListComponent implements OnInit {
   searchText = '';
   filterReason = '';
   currentPage = 1;
-  pageSize = 20;
+  pageSize = 1000;
   activeMenuId: number | null = null;
 
   ngOnInit() {

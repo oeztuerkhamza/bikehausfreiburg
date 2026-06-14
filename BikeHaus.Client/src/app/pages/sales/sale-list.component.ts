@@ -656,7 +656,7 @@ export class SaleListComponent implements OnInit {
   filterFarbe = '';
   filterReifengroesse = '';
   currentPage = 1;
-  pageSize = 20;
+  pageSize = 1000;
   showFilters = false;
   activeMenuId: number | null = null;
   showAddPurchaseDialog = false;

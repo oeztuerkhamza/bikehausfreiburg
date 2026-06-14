@@ -589,7 +589,7 @@ export class MietfahrradListComponent implements OnInit {
   paginatedResult: PaginatedResult<Bicycle> | null = null;
   loading = signal(true);
   currentPage = 1;
-  pageSize = 20;
+  pageSize = 1000;
   searchText = '';
   showOnlyRentable = true;
 

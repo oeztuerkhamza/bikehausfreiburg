@@ -500,7 +500,7 @@ export class RentalListComponent implements OnInit {
   searchText = '';
   filterStatus = '';
   currentPage = 1;
-  pageSize = 20;
+  pageSize = 1000;
 
   ngOnInit() {
     this.loadRentals();

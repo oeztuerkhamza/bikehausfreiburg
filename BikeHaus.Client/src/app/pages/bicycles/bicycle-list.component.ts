@@ -594,7 +594,7 @@ export class BicycleListComponent implements OnInit, OnDestroy {
   showFilters = false;
   activeMenuId: number | null = null;
   currentPage = 1;
-  pageSize = 20;
+  pageSize = 1000;
 
   private searchDebounce: any;
   private messageHandler: ((event: MessageEvent) => void) | null = null;
