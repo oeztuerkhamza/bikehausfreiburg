@@ -8,6 +8,7 @@ import {
   PurchaseCreateForExistingBike,
   PurchaseList,
   PurchaseUpdate,
+  PurchaseInlineUpdate,
   BulkPurchaseCreate,
   BulkPurchaseResult,
   PaginatedResult,
@@ -77,6 +78,10 @@ export class PurchaseService {
 
   update(id: number, purchase: PurchaseUpdate): Observable<Purchase> {
     return this.http.put<Purchase>(`${this.url}/${id}`, purchase);
+  }
+
+  inlineUpdate(id: number, patch: PurchaseInlineUpdate): Observable<Purchase> {
+    return this.http.patch<Purchase>(`${this.url}/${id}/inline`, patch);
   }
 
   delete(id: number): Observable<void> {

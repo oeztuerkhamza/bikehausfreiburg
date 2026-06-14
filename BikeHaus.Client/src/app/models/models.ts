@@ -251,6 +251,14 @@ export interface PurchaseUpdate {
   anzeigeNr?: string;
 }
 
+// Inline (single-cell) edit from the purchase list.
+export interface PurchaseInlineUpdate {
+  preis: number;
+  verkaufspreisVorschlag?: number;
+  zahlungsart: PaymentMethod;
+  kaufdatum: string;
+}
+
 export interface BulkPurchaseCreate {
   bicycle: BicycleCreate;
   seller: CustomerCreate;

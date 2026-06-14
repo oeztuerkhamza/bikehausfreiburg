@@ -239,6 +239,31 @@ public class PurchaseService : IPurchaseService
         return updated!.ToDto();
     }
 
+    public async Task<PurchaseDto> InlineUpdateAsync(int id, PurchaseInlineUpdateDto dto)
+    {
+        var purchase = await _purchaseRepository.GetWithDetailsAsync(id)
+            ?? throw new KeyNotFoundException($"Ankauf mit ID {id} nicht gefunden.");
+
+        purchase.Preis = dto.Preis;
+        purchase.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
+        purchase.Zahlungsart = dto.Zahlungsart;
+        purchase.Kaufdatum = dto.Kaufdatum;
+        purchase.UpdatedAt = DateTime.UtcNow;
+
+        // VerkaufspreisVorschlag: Purchase is the source of truth — keep the Bicycle in sync.
+        if (purchase.Bicycle != null)
+        {
+            purchase.Bicycle.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
+            purchase.Bicycle.UpdatedAt = DateTime.UtcNow;
+            await _bicycleRepository.UpdateAsync(purchase.Bicycle);
+        }
+
+        await _purchaseRepository.UpdateAsync(purchase);
+
+        var updated = await _purchaseRepository.GetWithDetailsAsync(id);
+        return updated!.ToDto();
+    }
+
     public async Task DeleteAsync(int id)
     {
         var purchase = await _purchaseRepository.GetWithDetailsAsync(id)

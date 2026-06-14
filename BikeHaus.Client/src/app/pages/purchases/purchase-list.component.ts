@@ -12,13 +12,24 @@ import { PurchaseService } from '../../services/purchase.service';
 import { TranslationService } from '../../services/translation.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
-import { PurchaseList, PaginatedResult } from '../../models/models';
+import {
+  PurchaseList,
+  PaginatedResult,
+  PurchaseInlineUpdate,
+} from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
+import { EditableCellComponent } from '../../components/editable-cell/editable-cell.component';
 
 @Component({
   selector: 'app-purchase-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, PaginationComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    FormsModule,
+    PaginationComponent,
+    EditableCellComponent,
+  ],
   template: `
     <div class="page">
       <div class="page-header">
@@ -157,8 +168,25 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 {{ p.rahmennummer || '–' }}
               </td>
               <td>{{ p.sellerName }}</td>
-              <td>{{ p.preis | number: '1.2-2' }} €</td>
-              <td>{{ p.kaufdatum | date: 'dd.MM.yyyy' }}</td>
+              <td (click)="$event.stopPropagation()">
+                <app-editable-cell
+                  type="number"
+                  align="right"
+                  [value]="p.preis"
+                  [display]="(p.preis | number: '1.2-2') + ' €'"
+                  [editHint]="t.edit"
+                  (save)="savePreis(p, $event)"
+                ></app-editable-cell>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <app-editable-cell
+                  type="date"
+                  [value]="p.kaufdatum"
+                  [display]="(p.kaufdatum | date: 'dd.MM.yyyy') || ''"
+                  [editHint]="t.edit"
+                  (save)="saveKaufdatum(p, $event)"
+                ></app-editable-cell>
+              </td>
               <td class="actions-cell">
                 <span class="action-icon">⋮</span>
                 <div
@@ -622,6 +650,34 @@ export class PurchaseListComponent implements OnInit {
     this.pageSize = size;
     this.currentPage = 1;
     this.load();
+  }
+
+  savePreis(p: PurchaseList, value: unknown) {
+    this.commitInline(p, { preis: Number(value) });
+  }
+
+  saveKaufdatum(p: PurchaseList, value: unknown) {
+    this.commitInline(p, { kaufdatum: String(value) });
+  }
+
+  // Optimistically apply the change, persist it via the inline endpoint, and
+  // revert the row if the request fails.
+  private commitInline(p: PurchaseList, change: Partial<PurchaseList>) {
+    const original = { ...p };
+    Object.assign(p, change);
+    const patch: PurchaseInlineUpdate = {
+      preis: p.preis,
+      verkaufspreisVorschlag: p.verkaufspreisVorschlag,
+      zahlungsart: p.zahlungsart,
+      kaufdatum: p.kaufdatum,
+    };
+    this.purchaseService.inlineUpdate(p.id, patch).subscribe({
+      next: () => this.notificationService.success(this.t.saveSuccess),
+      error: () => {
+        Object.assign(p, original);
+        this.notificationService.error(this.t.saveError);
+      },
+    });
   }
 
   getPaymentLabel(method: string): string {

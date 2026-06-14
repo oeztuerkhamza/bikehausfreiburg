@@ -147,6 +147,20 @@ public class PurchasesController : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/inline")]
+    public async Task<ActionResult<PurchaseDto>> InlineUpdate(int id, [FromBody] PurchaseInlineUpdateDto dto)
+    {
+        try
+        {
+            var purchase = await _purchaseService.InlineUpdateAsync(id, dto);
+            return Ok(purchase);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
     [HttpGet("{id}/kaufbeleg")]
     public async Task<IActionResult> DownloadKaufbeleg(int id)
     {

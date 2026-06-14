@@ -12,6 +12,7 @@ public interface IPurchaseService
     Task<PurchaseDto> CreateForExistingBicycleAsync(PurchaseCreateForExistingBikeDto dto);
     Task<BulkPurchaseResultDto> CreateBulkAsync(BulkPurchaseCreateDto dto);
     Task<PurchaseDto> UpdateAsync(int id, PurchaseUpdateDto dto);
+    Task<PurchaseDto> InlineUpdateAsync(int id, PurchaseInlineUpdateDto dto);
     Task DeleteAsync(int id);
     Task<string> GetNextBelegNummerAsync();
     Task<byte[]> GeneratePdfAsync(int id);

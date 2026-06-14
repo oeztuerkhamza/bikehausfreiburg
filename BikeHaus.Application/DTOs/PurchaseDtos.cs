@@ -58,6 +58,17 @@ public record PurchaseUpdateDto(
     string? AnzeigeNr = null
 );
 
+// Inline (single-cell) edit from the purchase list. Carries only the
+// purchase-level fields editable inline; the linked Bicycle and Seller
+// are left untouched (VerkaufspreisVorschlag is mirrored to the Bicycle,
+// since the Purchase is the source of truth for it).
+public record PurchaseInlineUpdateDto(
+    decimal Preis,
+    decimal? VerkaufspreisVorschlag,
+    PaymentMethod Zahlungsart,
+    DateTime Kaufdatum
+);
+
 // Bulk Purchase DTO - for buying multiple identical bicycles at once
 public record BulkPurchaseCreateDto(
     BicycleCreateDto Bicycle,
