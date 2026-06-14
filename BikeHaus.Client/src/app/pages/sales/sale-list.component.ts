@@ -206,7 +206,13 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 }}
               </td>
               <td>{{ s.reifengroesse ? s.reifengroesse + '"' : '–' }}</td>
-              <td>{{ s.buyerName }}</td>
+              <td [title]="s.buyerName">
+                {{
+                  s.buyerName.length > 20
+                    ? (s.buyerName | slice: 0 : 20) + '…'
+                    : s.buyerName
+                }}
+              </td>
               <td class="pay-cell">
                 <span class="pay-part" *ngFor="let p of paymentParts(s)">
                   {{ p.label }}: {{ p.betrag | number: '1.2-2' }} €
