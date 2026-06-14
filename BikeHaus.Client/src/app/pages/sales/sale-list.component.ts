@@ -173,7 +173,6 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <th>{{ t.frameNumber }}</th>
               <th>{{ t.wheelSize }}</th>
               <th>{{ t.buyer }}</th>
-              <th>{{ t.price }}</th>
               <th>{{ t.paymentMethod }}</th>
               <th>{{ t.date }}</th>
               <th style="width: 50px;"></th>
@@ -182,7 +181,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
           <tbody>
             <tr *ngIf="paginatedResult?.items?.length === 0">
               <td
-                colspan="10"
+                colspan="9"
                 style="text-align:center;padding:32px;color:var(--text-muted);"
               >
                 {{ t.noSales }}
@@ -208,13 +207,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               </td>
               <td>{{ s.reifengroesse ? s.reifengroesse + '"' : '–' }}</td>
               <td>{{ s.buyerName }}</td>
-              <td>{{ s.gesamtbetrag | number: '1.2-2' }} €</td>
               <td class="pay-cell">
                 <span class="pay-part" *ngFor="let p of paymentParts(s)">
                   {{ p.label }}: {{ p.betrag | number: '1.2-2' }} €
                 </span>
               </td>
-              <td>{{ s.verkaufsdatum | date: 'dd.MM.yyyy' }}</td>
+              <td>{{ s.verkaufsdatum | date: 'dd.MM' }}</td>
               <td class="actions-cell">
                 <span class="action-icon">⋮</span>
                 <div
