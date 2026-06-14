@@ -24,6 +24,23 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
         return await _dbSet.FirstOrDefaultAsync(b => b.Rahmennummer == rahmennummer);
     }
 
+    public async Task<List<string>> GetDuplicateRahmennummernAsync()
+    {
+        // Project the non-empty frame numbers, then group in memory (trim +
+        // case-insensitive) so quirks like trailing spaces or mixed case still
+        // count as the same number. Returns the normalised duplicate values.
+        var all = await _dbSet
+            .Where(b => b.Rahmennummer != null && b.Rahmennummer != "")
+            .Select(b => b.Rahmennummer!)
+            .ToListAsync();
+
+        return all
+            .GroupBy(r => r.Trim().ToUpperInvariant())
+            .Where(g => g.Count() > 1)
+            .Select(g => g.Key)
+            .ToList();
+    }
+
     public async Task<Bicycle?> GetWithDetailsAsync(int id)
     {
         return await _dbSet

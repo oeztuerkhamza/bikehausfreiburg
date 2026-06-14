@@ -159,6 +159,13 @@ public class BicyclesController : ControllerBase
         return Ok(brands);
     }
 
+    [HttpGet("duplicate-rahmennummern")]
+    public async Task<ActionResult<IEnumerable<string>>> GetDuplicateRahmennummern()
+    {
+        var duplicates = await _bicycleService.GetDuplicateRahmennummernAsync();
+        return Ok(duplicates);
+    }
+
     [HttpGet("models")]
     public async Task<ActionResult<IEnumerable<string>>> GetModels([FromQuery] string? brand = null)
     {

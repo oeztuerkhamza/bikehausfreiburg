@@ -13,6 +13,7 @@ public interface IBicycleService
     Task DeleteAsync(int id);
     Task<IEnumerable<BicycleDto>> SearchAsync(string searchTerm);
     Task<IEnumerable<string>> GetUniqueBrandsAsync();
+    Task<IEnumerable<string>> GetDuplicateRahmennummernAsync();
     Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null);
     Task<BicycleDto> TogglePublishOnWebsiteAsync(int id);
     Task<BicycleDto> TogglePublishOnKleinanzeigenAsync(int id);

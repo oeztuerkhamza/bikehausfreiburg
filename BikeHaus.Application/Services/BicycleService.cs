@@ -246,6 +246,11 @@ public class BicycleService : IBicycleService
         return await _repository.GetUniqueBrandsAsync();
     }
 
+    public async Task<IEnumerable<string>> GetDuplicateRahmennummernAsync()
+    {
+        return await _repository.GetDuplicateRahmennummernAsync();
+    }
+
     public async Task<IEnumerable<string>> GetUniqueModelsAsync(string? brand = null)
     {
         return await _repository.GetUniqueModelsAsync(brand);

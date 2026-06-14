@@ -102,6 +102,11 @@ export class BicycleService {
     return this.http.get<string[]>(`${this.url}/brands`);
   }
 
+  // Normalised (trimmed, upper-case) frame numbers shared by more than one bike.
+  getDuplicateRahmennummern(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.url}/duplicate-rahmennummern`);
+  }
+
   getModels(brand?: string): Observable<string[]> {
     let params = new HttpParams();
     if (brand) params = params.set('brand', brand);

@@ -162,6 +162,7 @@ export interface Translations {
   brand: string;
   model: string;
   frameNumber: string;
+  duplicateFrameNumber: string;
   stockNumber: string;
   frameSize: string;
   color: string;
@@ -955,6 +956,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     brand: 'Marke',
     model: 'Modell',
     frameNumber: 'Rahmennummer',
+    duplicateFrameNumber: 'Gleiche Rahmennummer bei mehreren Fahrrädern',
     stockNumber: 'Lagernummer',
     frameSize: 'Rahmengröße',
     color: 'Farbe',
@@ -1752,6 +1754,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     brand: 'Marka',
     model: 'Model',
     frameNumber: 'Şase Numarası',
+    duplicateFrameNumber: 'Aynı şase numarası birden fazla bisiklette',
     stockNumber: 'Stok No',
     frameSize: 'Çerçeve Boyutu',
     color: 'Renk',

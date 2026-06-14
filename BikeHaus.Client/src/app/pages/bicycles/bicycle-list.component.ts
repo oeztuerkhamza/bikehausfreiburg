@@ -144,6 +144,12 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <td>{{ b.marke }}</td>
               <td>{{ b.modell }}</td>
               <td class="mono" style="text-transform: uppercase">
+                <span
+                  *ngIf="isDuplicateRahmen(b)"
+                  class="dup-warn"
+                  [title]="t.duplicateFrameNumber"
+                  >⚠️</span
+                >
                 {{ b.rahmennummer || '–' }}
               </td>
               <td>{{ b.reifengroesse ? b.reifengroesse + '"' : '–' }}</td>
@@ -546,6 +552,11 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         margin-left: 4px;
         vertical-align: middle;
       }
+      .dup-warn {
+        margin-right: 4px;
+        cursor: help;
+        vertical-align: middle;
+      }
       .btn {
         padding: 8px 16px;
         border-radius: var(--radius-md, 10px);
@@ -596,6 +607,9 @@ export class BicycleListComponent implements OnInit, OnDestroy {
   currentPage = 1;
   pageSize = 1000;
 
+  // Normalised frame numbers shared by more than one bike (for the ⚠️ marker).
+  duplicateRahmen = new Set<string>();
+
   private searchDebounce: any;
   private messageHandler: ((event: MessageEvent) => void) | null = null;
 
@@ -628,6 +642,7 @@ export class BicycleListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.load();
+    this.loadDuplicates();
 
     // Listen for Kleinanzeigen ad number from Chrome extension
     this.messageHandler = (event: MessageEvent) => {
@@ -677,6 +692,22 @@ export class BicycleListComponent implements OnInit, OnDestroy {
       .subscribe((data) => {
         this.paginatedResult = data;
       });
+  }
+
+  private loadDuplicates() {
+    this.bicycleService.getDuplicateRahmennummern().subscribe({
+      next: (list) => {
+        this.duplicateRahmen = new Set(
+          list.map((r) => r.trim().toUpperCase()),
+        );
+      },
+      error: () => {},
+    });
+  }
+
+  isDuplicateRahmen(b: Bicycle): boolean {
+    const r = (b.rahmennummer || '').trim().toUpperCase();
+    return r !== '' && this.duplicateRahmen.has(r);
   }
 
   onSearch() {
