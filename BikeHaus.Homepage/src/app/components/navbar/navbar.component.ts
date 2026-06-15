@@ -693,6 +693,11 @@ export class NavbarComponent {
       exact: false,
     },
     {
+      path: 'e-bikes',
+      label: () => this.t().eBikesNav,
+      exact: false,
+    },
+    {
       path: 'fahrradverleih',
       label: () => this.t().bikeRental,
       exact: false,

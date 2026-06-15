@@ -26,6 +26,10 @@
 /en/neue-fahrraeder
 /fr/neue-fahrraeder
 /tr/neue-fahrraeder
+/de/e-bikes
+/en/e-bikes
+/fr/e-bikes
+/tr/e-bikes
 /de/zubehoer
 /en/zubehoer
 /fr/zubehoer

@@ -60,6 +60,45 @@ export interface NeueFahrradCategory {
   count: number;
 }
 
+// ── E-Bikes ──
+export interface EBikeImage {
+  id: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface EBike {
+  id: number;
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+  angebot?: number;
+  // E-Bike specific
+  motorMarke?: string;
+  motorPosition?: string;
+  akkuKapazitaetWh?: number;
+  reichweiteKm?: number;
+  motorLeistungNm?: number;
+  isActive?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+  images: EBikeImage[];
+}
+
+export interface EBikeCategory {
+  name: string;
+  count: number;
+}
+
 export interface PublicShopInfo {
   shopName?: string;
   strasse?: string;

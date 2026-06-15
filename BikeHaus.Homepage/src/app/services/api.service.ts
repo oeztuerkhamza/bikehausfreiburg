@@ -8,6 +8,8 @@ import {
   PublicShopInfo,
   NeueFahrrad,
   NeueFahrradCategory,
+  EBike,
+  EBikeCategory,
   PublicBicycle,
   RepairShowcase,
   HomepageAccessory,
@@ -82,6 +84,28 @@ export class ApiService {
   getNeueFahrraederCategories(): Observable<NeueFahrradCategory[]> {
     return this.http
       .get<NeueFahrradCategory[]>(`${this.baseUrl}/neue-fahrraeder/categories`)
+      .pipe(catchError(() => of([])));
+  }
+
+  // ── E-Bikes ──
+
+  getEBikes(): Observable<EBike[]> {
+    return this.http.get<EBike[]>(`${this.baseUrl}/e-bikes`);
+  }
+
+  getEBikesByCategory(category: string): Observable<EBike[]> {
+    return this.http.get<EBike[]>(
+      `${this.baseUrl}/e-bikes/category/${encodeURIComponent(category)}`,
+    );
+  }
+
+  getEBikeById(id: number): Observable<EBike> {
+    return this.http.get<EBike>(`${this.baseUrl}/e-bikes/${id}`);
+  }
+
+  getEBikeCategories(): Observable<EBikeCategory[]> {
+    return this.http
+      .get<EBikeCategory[]>(`${this.baseUrl}/e-bikes/categories`)
       .pipe(catchError(() => of([])));
   }
 
