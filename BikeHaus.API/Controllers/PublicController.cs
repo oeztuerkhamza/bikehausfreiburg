@@ -1,4 +1,6 @@
+using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BikeHaus.API.Controllers;
@@ -9,6 +11,7 @@ public class PublicController : ControllerBase
 {
     private readonly IKleinanzeigenService _kleinanzeigenService;
     private readonly INeueFahrradService _neueFahrradService;
+    private readonly IEBikeService _eBikeService;
     private readonly IBicycleService _bicycleService;
     private readonly IRepairShowcaseService _repairShowcaseService;
     private readonly IHomepageAccessoryService _homepageAccessoryService;
@@ -19,6 +22,7 @@ public class PublicController : ControllerBase
     public PublicController(
         IKleinanzeigenService kleinanzeigenService,
         INeueFahrradService neueFahrradService,
+        IEBikeService eBikeService,
         IBicycleService bicycleService,
         IRepairShowcaseService repairShowcaseService,
         IHomepageAccessoryService homepageAccessoryService,
@@ -28,6 +32,7 @@ public class PublicController : ControllerBase
     {
         _kleinanzeigenService = kleinanzeigenService;
         _neueFahrradService = neueFahrradService;
+        _eBikeService = eBikeService;
         _bicycleService = bicycleService;
         _repairShowcaseService = repairShowcaseService;
         _homepageAccessoryService = homepageAccessoryService;
@@ -143,6 +148,77 @@ public class PublicController : ControllerBase
         var categories = await _neueFahrradService.GetCategoriesAsync();
         return Ok(categories);
     }
+
+    // ═══ E-Bikes ═══
+
+    /// <summary>
+    /// Get all active e-bikes (public)
+    /// </summary>
+    [AllowAnonymous]
+    [HttpGet("e-bikes")]
+    public async Task<IActionResult> GetEBikes()
+    {
+        var items = await _eBikeService.GetAllActiveAsync();
+        return Ok(items.Select(ToPublic));
+    }
+
+    /// <summary>
+    /// Get e-bikes by category (public)
+    /// </summary>
+    [AllowAnonymous]
+    [HttpGet("e-bikes/category/{category}")]
+    public async Task<IActionResult> GetEBikesByCategory(string category)
+    {
+        var items = await _eBikeService.GetByCategoryAsync(Uri.UnescapeDataString(category));
+        return Ok(items.Select(ToPublic));
+    }
+
+    /// <summary>
+    /// Get e-bike categories with counts (public)
+    /// </summary>
+    [AllowAnonymous]
+    [HttpGet("e-bikes/categories")]
+    public async Task<IActionResult> GetEBikeCategories()
+    {
+        var categories = await _eBikeService.GetCategoriesAsync();
+        return Ok(categories);
+    }
+
+    /// <summary>
+    /// Get a single active e-bike by ID (public)
+    /// </summary>
+    [AllowAnonymous]
+    [HttpGet("e-bikes/{id}")]
+    public async Task<IActionResult> GetEBike(int id)
+    {
+        var item = await _eBikeService.GetByIdAsync(id);
+        if (item == null || !item.IsActive) return NotFound();
+        return Ok(ToPublic(item));
+    }
+
+    private static PublicEBikeDto ToPublic(EBikeDto dto) => new(
+        dto.Id,
+        dto.Titel,
+        dto.Beschreibung,
+        dto.Preis,
+        dto.PreisText,
+        dto.Kategorie,
+        dto.Marke,
+        dto.Modell,
+        dto.Farbe,
+        dto.Rahmengroesse,
+        dto.Reifengroesse,
+        dto.Gangschaltung,
+        dto.Zustand,
+        dto.Angebot,
+        dto.MotorMarke,
+        dto.MotorPosition,
+        dto.AkkuKapazitaetWh,
+        dto.ReichweiteKm,
+        dto.MotorLeistungNm,
+        dto.CreatedAt,
+        dto.Images
+    );
 
     // ═══ Gebrauchte Fahrräder (Published Used Bicycles) ═══
 
