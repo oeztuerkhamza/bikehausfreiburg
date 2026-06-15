@@ -131,7 +131,6 @@ public class RentalBookingService : IRentalBookingService
         var booking = new RentalBooking
         {
             BicycleId = dto.Bikes[0].BicycleId,
-            BuchungsNummer = await _bookingRepository.GenerateBuchungsNummerAsync(),
             StartDatum = minStart,
             EndDatum = maxEnd,
             Vorname = dto.Vorname.Trim(),
@@ -196,7 +195,12 @@ public class RentalBookingService : IRentalBookingService
         if (string.IsNullOrWhiteSpace(booking.Email))
             throw new InvalidOperationException("Bitte geben Sie eine gueltige E-Mail-Adresse an.");
 
-        var created = await _bookingRepository.AddAsync(booking);
+        // Buchungsnummer atomar vergeben (erzeugen + speichern unter Sperre).
+        var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.Buchung, async () =>
+        {
+            booking.BuchungsNummer = await _bookingRepository.GenerateBuchungsNummerAsync();
+            return await _bookingRepository.AddAsync(booking);
+        });
         var withDetails = await _bookingRepository.GetWithDetailsAsync(created.Id);
         if (withDetails == null)
             throw new InvalidOperationException("Buchung konnte nach dem Speichern nicht geladen werden.");

@@ -4,6 +4,13 @@ namespace BikeHaus.Application.Services;
 
 public static class RentalPricingCalculator
 {
+    /// <summary>Tage inklusive Start- und Endtag (1 Tag = Start == Ende), mindestens 1.</summary>
+    public static int CalculateDaysInclusive(DateTime start, DateTime end)
+    {
+        var days = (end.Date - start.Date).Days + 1;
+        return Math.Max(1, days);
+    }
+
     public static decimal? CalculateBikePrice(Bicycle bicycle, int days)
     {
         if (days <= 0)

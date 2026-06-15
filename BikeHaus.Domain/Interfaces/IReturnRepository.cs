@@ -10,5 +10,6 @@ public interface IReturnRepository : IRepository<Return>
     Task<bool> ExistsByBicycleIdAsync(int bicycleId);
     Task<IEnumerable<Return>> GetRecentReturnsAsync(int count = 10);
     Task<string> GenerateBelegNummerAsync();
+    Task<bool> BelegNummerExistsAsync(string belegNummer);
     Task<(IEnumerable<Return> Items, int TotalCount)> GetPaginatedAsync(int page, int pageSize, Expression<Func<Return, bool>>? predicate = null);
 }

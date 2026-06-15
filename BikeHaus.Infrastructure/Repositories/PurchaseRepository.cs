@@ -58,6 +58,11 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
         return $"{maxNumber + 1:D3}";
     }
 
+    public async Task<bool> BelegNummerExistsAsync(string belegNummer)
+    {
+        return await _dbSet.AnyAsync(p => p.BelegNummer == belegNummer);
+    }
+
     public override async Task<IEnumerable<Purchase>> GetAllAsync()
     {
         return await _dbSet

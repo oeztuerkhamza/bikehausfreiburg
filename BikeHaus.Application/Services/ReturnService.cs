@@ -123,10 +123,7 @@ public class ReturnService : IReturnService
             GrundDetails = dto.GrundDetails,
             Erstattungsbetrag = dto.Erstattungsbetrag,
             Zahlungsart = dto.Zahlungsart,
-            Notizen = dto.Notizen,
-            BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
-                ? dto.BelegNummer
-                : await _returnRepository.GenerateBelegNummerAsync()
+            Notizen = dto.Notizen
         };
 
         // Add signatures if provided
@@ -139,7 +136,15 @@ public class ReturnService : IReturnService
             returnEntity.ShopSignature = dto.ShopSignature.ToEntity();
         }
 
-        var created = await _returnRepository.AddAsync(returnEntity);
+        // Belegnummer atomar vergeben (erzeugen + speichern unter Sperre).
+        var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.Rueckgabe, async () =>
+        {
+            returnEntity.BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
+                && !await _returnRepository.BelegNummerExistsAsync(dto.BelegNummer!)
+                    ? dto.BelegNummer!
+                    : await _returnRepository.GenerateBelegNummerAsync();
+            return await _returnRepository.AddAsync(returnEntity);
+        });
 
         // Update bicycle status back to Available
         bicycle.Status = BikeStatus.Available;

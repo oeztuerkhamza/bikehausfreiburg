@@ -111,10 +111,23 @@ public class RentalService : IRentalService
         var customer = dto.Customer.ToEntity();
         customer = await _customerRepository.AddAsync(customer);
 
+        // Mietpreis pro Fahrrad serverseitig aus der Preistabelle des Fahrrads
+        // und der (inklusiven) Tageszahl berechnen. So wird nie 0 gespeichert,
+        // auch wenn das Frontend keinen Preis mitschickt. Hat ein Fahrrad keine
+        // Preistabelle, wird ersatzweise der vom Formular gesendete Wert benutzt.
+        var bikePrices = new List<decimal>(dto.Bikes.Count);
+        for (int i = 0; i < dto.Bikes.Count; i++)
+        {
+            var bikeDto = dto.Bikes[i];
+            var days = RentalPricingCalculator.CalculateDaysInclusive(bikeDto.StartDatum, bikeDto.EndDatum);
+            var calculated = RentalPricingCalculator.CalculateBikePrice(bicycles[i], days);
+            bikePrices.Add(calculated ?? bikeDto.Mietpreis);
+        }
+
         // Aggregate dates/totals across bikes
         var startDatum = dto.Bikes.Min(b => b.StartDatum);
         var endDatum = dto.Bikes.Max(b => b.EndDatum);
-        var gesamtmiete = dto.Bikes.Sum(b => b.Mietpreis);
+        var gesamtmiete = bikePrices.Sum();
         var kautionTotal = dto.Bikes.Sum(b => b.Kaution);
 
         var rental = new Rental
@@ -129,16 +142,16 @@ public class RentalService : IRentalService
             KautionZahlungsart = dto.KautionZahlungsart ?? dto.Zahlungsart,
             Notizen = dto.Notizen,
             Status = RentalStatus.Active,
-            MietvertragNummer = await _rentalRepository.GenerateMietvertragNummerAsync(),
             MieterUnterschrift = dto.MieterUnterschrift,
             AgbAkzeptiert = dto.AgbAkzeptiert,
             UnterschriftOrt = dto.UnterschriftOrt,
             AusweisPhotoPath = dto.AusweisPhotoPath
         };
 
-        // Attach bikes
-        foreach (var bikeDto in dto.Bikes)
+        // Attach bikes (mit serverseitig berechnetem Mietpreis)
+        for (int i = 0; i < dto.Bikes.Count; i++)
         {
+            var bikeDto = dto.Bikes[i];
             rental.Bikes.Add(new RentalBike
             {
                 BicycleId = bikeDto.BicycleId,
@@ -146,7 +159,7 @@ public class RentalService : IRentalService
                 Farbe = bikeDto.Farbe,
                 StartDatum = bikeDto.StartDatum,
                 EndDatum = bikeDto.EndDatum,
-                Mietpreis = bikeDto.Mietpreis,
+                Mietpreis = bikePrices[i],
                 Kaution = bikeDto.Kaution,
                 ZustandBeiUebergabe = bikeDto.ZustandBeiUebergabe
             });
@@ -168,7 +181,13 @@ public class RentalService : IRentalService
             }
         }
 
-        var created = await _rentalRepository.AddAsync(rental);
+        // Mietvertragsnummer atomar vergeben (erzeugen + speichern unter Sperre);
+        // teilt sich den Nummernkreis mit dem Verkauf.
+        var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.VerkaufMiete, async () =>
+        {
+            rental.MietvertragNummer = await _rentalRepository.GenerateMietvertragNummerAsync();
+            return await _rentalRepository.AddAsync(rental);
+        });
 
         // Mark every bicycle Rented
         foreach (var bicycle in bicycles)

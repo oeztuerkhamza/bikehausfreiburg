@@ -42,13 +42,8 @@ public class InvoiceService : IInvoiceService
 
     public async Task<InvoiceDto> CreateAsync(InvoiceCreateDto dto)
     {
-        var rechnungsNummer = dto.RechnungsNummer;
-        if (string.IsNullOrWhiteSpace(rechnungsNummer))
-            rechnungsNummer = await _repository.GetNextRechnungsNummerAsync();
-
         var invoice = new Invoice
         {
-            RechnungsNummer = rechnungsNummer,
             Datum = dto.Datum,
             Betrag = dto.Betrag,
             Bezeichnung = dto.Bezeichnung,
@@ -58,7 +53,16 @@ public class InvoiceService : IInvoiceService
             Notizen = dto.Notizen
         };
 
-        var created = await _repository.AddAsync(invoice);
+        // Rechnungsnummer atomar vergeben (erzeugen + speichern unter Sperre),
+        // damit gleichzeitige Anlagen nicht dieselbe Nummer ziehen.
+        var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.Rechnung, async () =>
+        {
+            invoice.RechnungsNummer = !string.IsNullOrWhiteSpace(dto.RechnungsNummer)
+                && !await _repository.RechnungsNummerExistsAsync(dto.RechnungsNummer!)
+                    ? dto.RechnungsNummer!
+                    : await _repository.GetNextRechnungsNummerAsync();
+            return await _repository.AddAsync(invoice);
+        });
         return MapToDto(created);
     }
 

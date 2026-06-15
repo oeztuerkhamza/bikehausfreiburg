@@ -118,11 +118,15 @@ public class ReservationService : IReservationService
             AblaufDatum = reservationDate.AddDays(dto.ReservierungsTage),
             Anzahlung = dto.Anzahlung,
             Notizen = dto.Notizen,
-            Status = ReservationStatus.Active,
-            ReservierungsNummer = await _reservationRepository.GenerateReservierungsNummerAsync()
+            Status = ReservationStatus.Active
         };
 
-        var created = await _reservationRepository.AddAsync(reservation);
+        // Reservierungsnummer atomar vergeben (erzeugen + speichern unter Sperre).
+        var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.Reservierung, async () =>
+        {
+            reservation.ReservierungsNummer = await _reservationRepository.GenerateReservierungsNummerAsync();
+            return await _reservationRepository.AddAsync(reservation);
+        });
 
         // Update bicycle status to Reserved
         bicycle.Status = BikeStatus.Reserved;
@@ -217,8 +221,7 @@ public class ReservationService : IReservationService
             Verkaufsdatum = DateTime.UtcNow,
             Garantie = dto.Garantie,
             GarantieBedingungen = dto.GarantieBedingungen,
-            Notizen = dto.Notizen,
-            BelegNummer = await _saleRepository.GenerateBelegNummerAsync()
+            Notizen = dto.Notizen
         };
 
         // Add signatures if provided
@@ -245,7 +248,12 @@ public class ReservationService : IReservationService
             }
         }
 
-        var createdSale = await _saleRepository.AddAsync(sale);
+        // Belegnummer atomar vergeben (erzeugen + speichern unter Sperre).
+        var createdSale = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.VerkaufMiete, async () =>
+        {
+            sale.BelegNummer = await _saleRepository.GenerateBelegNummerAsync();
+            return await _saleRepository.AddAsync(sale);
+        });
 
         // Update reservation status
         reservation.Status = ReservationStatus.Converted;

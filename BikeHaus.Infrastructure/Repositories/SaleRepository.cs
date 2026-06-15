@@ -99,6 +99,11 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
         return $"{maxNumber + 1:D3}";
     }
 
+    public async Task<bool> BelegNummerExistsAsync(string belegNummer)
+    {
+        return await _dbSet.AnyAsync(s => s.BelegNummer == belegNummer);
+    }
+
     public override async Task<IEnumerable<Sale>> GetAllAsync()
     {
         return await _dbSet

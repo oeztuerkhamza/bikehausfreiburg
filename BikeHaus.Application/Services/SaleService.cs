@@ -129,9 +129,6 @@ public class SaleService : ISaleService
             Garantie = dto.Garantie,
             GarantieBedingungen = dto.GarantieBedingungen,
             Notizen = dto.Notizen,
-            BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
-                ? dto.BelegNummer
-                : await _saleRepository.GenerateBelegNummerAsync(),
             Rabatt = dto.Rabatt
         };
 
@@ -172,7 +169,16 @@ public class SaleService : ISaleService
             }
         }
 
-        var created = await _saleRepository.AddAsync(sale);
+        // Belegnummer atomar vergeben: erzeugen + speichern unter Sperre,
+        // damit gleichzeitige Verkäufe nicht dieselbe Nummer ziehen.
+        var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.VerkaufMiete, async () =>
+        {
+            sale.BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
+                && !await _saleRepository.BelegNummerExistsAsync(dto.BelegNummer!)
+                    ? dto.BelegNummer!
+                    : await _saleRepository.GenerateBelegNummerAsync();
+            return await _saleRepository.AddAsync(sale);
+        });
 
         if (!dto.IsAccessoryOnly)
         {

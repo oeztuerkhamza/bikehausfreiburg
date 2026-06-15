@@ -114,9 +114,6 @@ public class PurchaseService : IPurchaseService
             Zahlungsart = dto.Zahlungsart,
             Kaufdatum = dto.Kaufdatum ?? DateTime.UtcNow,
             Notizen = dto.Notizen,
-            BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
-                ? dto.BelegNummer
-                : null,
             AnzeigeNr = dto.AnzeigeNr
         };
 
@@ -126,7 +123,12 @@ public class PurchaseService : IPurchaseService
             purchase.Signature = dto.Signature.ToEntity();
         }
 
-        var created = await _purchaseRepository.AddAsync(purchase);
+        // Belegnummer atomar vergeben (Kollision unter Sperre verhindern).
+        var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.Ankauf, async () =>
+        {
+            purchase.BelegNummer = await ResolveBelegNummerAsync(dto.BelegNummer);
+            return await _purchaseRepository.AddAsync(purchase);
+        });
         var result = await _purchaseRepository.GetWithDetailsAsync(created.Id);
         return result!.ToDto();
     }
@@ -161,13 +163,15 @@ public class PurchaseService : IPurchaseService
                 Zahlungsart = dto.Zahlungsart,
                 Kaufdatum = dto.Kaufdatum ?? DateTime.UtcNow,
                 Notizen = dto.Notizen,
-                BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
-                    ? dto.BelegNummer
-                    : null,
                 AnzeigeNr = dto.AnzeigeNr
             };
 
-            var created = await _purchaseRepository.AddAsync(purchase);
+            // Belegnummer atomar vergeben (Kollision unter Sperre verhindern).
+            var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.Ankauf, async () =>
+            {
+                purchase.BelegNummer = await ResolveBelegNummerAsync(dto.BelegNummer);
+                return await _purchaseRepository.AddAsync(purchase);
+            });
             var result = await _purchaseRepository.GetWithDetailsAsync(created.Id);
             results.Add(result!.ToDto());
         }
@@ -304,6 +308,21 @@ public class PurchaseService : IPurchaseService
         return await _purchaseRepository.GenerateBelegNummerAsync();
     }
 
+    /// <summary>
+    /// Liefert die zu speichernde Belegnummer: leer -> null (manuell später),
+    /// vorhanden & frei -> übernehmen, vorhanden & belegt -> nächste freie Nummer.
+    /// Muss innerhalb der Sequenz-Sperre aufgerufen werden.
+    /// </summary>
+    private async Task<string?> ResolveBelegNummerAsync(string? requested)
+    {
+        if (string.IsNullOrWhiteSpace(requested))
+            return null;
+
+        return await _purchaseRepository.BelegNummerExistsAsync(requested)
+            ? await _purchaseRepository.GenerateBelegNummerAsync()
+            : requested;
+    }
+
     public async Task<IEnumerable<string>> GetStoreNamesAsync()
     {
         var purchases = await _purchaseRepository.GetAllAsync();
@@ -351,9 +370,6 @@ public class PurchaseService : IPurchaseService
             Zahlungsart = dto.Zahlungsart,
             Kaufdatum = dto.Kaufdatum ?? DateTime.UtcNow,
             Notizen = dto.Notizen,
-            BelegNummer = !string.IsNullOrWhiteSpace(dto.BelegNummer)
-                ? dto.BelegNummer
-                : null,
             AnzeigeNr = dto.AnzeigeNr
         };
 
@@ -362,7 +378,12 @@ public class PurchaseService : IPurchaseService
             purchase.Signature = dto.Signature.ToEntity();
         }
 
-        var created = await _purchaseRepository.AddAsync(purchase);
+        // Belegnummer atomar vergeben (Kollision unter Sperre verhindern).
+        var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.Ankauf, async () =>
+        {
+            purchase.BelegNummer = await ResolveBelegNummerAsync(dto.BelegNummer);
+            return await _purchaseRepository.AddAsync(purchase);
+        });
 
         // Also link the sale to this purchase if there is one
         var sale = await _saleRepository.GetByBicycleIdAsync(dto.BicycleId);

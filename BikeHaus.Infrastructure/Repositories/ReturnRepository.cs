@@ -71,6 +71,11 @@ public class ReturnRepository : Repository<Return>, IReturnRepository
         return $"{nextNumber:D3}";
     }
 
+    public async Task<bool> BelegNummerExistsAsync(string belegNummer)
+    {
+        return await _dbSet.AnyAsync(r => r.BelegNummer == belegNummer);
+    }
+
     public override async Task<IEnumerable<Return>> GetAllAsync()
     {
         return await _dbSet

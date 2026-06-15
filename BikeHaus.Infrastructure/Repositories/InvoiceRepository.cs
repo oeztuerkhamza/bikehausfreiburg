@@ -46,4 +46,9 @@ public class InvoiceRepository : Repository<Invoice>, IInvoiceRepository
 
         return $"{prefix}001";
     }
+
+    public async Task<bool> RechnungsNummerExistsAsync(string rechnungsNummer)
+    {
+        return await _context.Invoices.AnyAsync(i => i.RechnungsNummer == rechnungsNummer);
+    }
 }

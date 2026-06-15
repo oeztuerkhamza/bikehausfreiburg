@@ -6,4 +6,5 @@ public interface IInvoiceRepository : IRepository<Invoice>
 {
     Task<IEnumerable<Invoice>> SearchAsync(string query);
     Task<string> GetNextRechnungsNummerAsync();
+    Task<bool> RechnungsNummerExistsAsync(string rechnungsNummer);
 }
