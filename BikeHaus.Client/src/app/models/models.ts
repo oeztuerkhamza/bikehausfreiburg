@@ -666,6 +666,86 @@ export interface NeueFahrradCategory {
   count: number;
 }
 
+// ── E-Bikes (Electric Bicycles for Homepage) ──
+export interface EBike {
+  id: number;
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+  angebot?: number;
+  motorMarke?: string;
+  motorPosition?: string;
+  akkuKapazitaetWh?: number;
+  reichweiteKm?: number;
+  motorLeistungNm?: number;
+  isActive: boolean;
+  createdAt: string;
+  images: EBikeImage[];
+}
+
+export interface EBikeImage {
+  id: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface EBikeCreate {
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+  angebot?: number;
+  motorMarke?: string;
+  motorPosition?: string;
+  akkuKapazitaetWh?: number;
+  reichweiteKm?: number;
+  motorLeistungNm?: number;
+}
+
+export interface EBikeUpdate {
+  titel: string;
+  beschreibung?: string;
+  preis: number;
+  preisText?: string;
+  kategorie?: string;
+  marke?: string;
+  modell?: string;
+  farbe?: string;
+  rahmengroesse?: string;
+  reifengroesse?: string;
+  gangschaltung?: string;
+  zustand: string;
+  angebot?: number;
+  motorMarke?: string;
+  motorPosition?: string;
+  akkuKapazitaetWh?: number;
+  reichweiteKm?: number;
+  motorLeistungNm?: number;
+  isActive: boolean;
+}
+
+export interface EBikeCategory {
+  name: string;
+  count: number;
+}
+
 // ── Homepage Accessories ──
 export interface HomepageAccessory {
   id: number;
