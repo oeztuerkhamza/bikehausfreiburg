@@ -576,6 +576,7 @@ export interface Translations {
   // Showroom filters
   filterCondition: string;
   filterCategory: string;
+  filterAll: string;
   filterTireSize: string;
   filterGears: string;
   gearsUnit: string;
@@ -635,6 +636,26 @@ export interface Translations {
   neueFahrraederNoItems: string;
   neueFahrraederContactUs: string;
   neueFahrraederInterested: string;
+
+  // E-Bikes
+  eBikesNav: string;
+  eBikes: string;
+  eBikesMetaTitle: string;
+  eBikesMetaDescription: string;
+  eBikesTitle: string;
+  eBikesSub: string;
+  eBikesNoItems: string;
+  eBikesBackToList: string;
+  eBikesInterested: string;
+  eBikeMotorBrand: string;
+  eBikeMotorPosition: string;
+  eBikeBatteryCapacity: string;
+  eBikeRange: string;
+  eBikeTorque: string;
+  filterMotorBrand: string;
+  filterMotorPosition: string;
+  filterBatteryRange: string;
+  filterRange: string;
 
   // Ratgeber / Blog
   ratgeberNav: string;
@@ -1199,6 +1220,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     // Showroom filters
     filterCondition: 'Zustand',
     filterCategory: 'Kategorie',
+    filterAll: 'Alle',
     filterTireSize: 'Reifengröße (Zoll)',
     filterGears: 'Gänge',
     gearsUnit: 'Gänge',
@@ -1263,6 +1285,26 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     neueFahrraederNoItems: 'Aktuell keine neuen Fahrräder verfügbar.',
     neueFahrraederContactUs: 'Kontaktieren Sie uns',
     neueFahrraederInterested: 'Interesse an diesem Fahrrad?',
+
+    eBikesNav: 'E-Bikes',
+    eBikes: 'E-Bikes',
+    eBikesMetaTitle: 'E-Bikes kaufen Freiburg | City, Trekking & Mountain E-Bikes',
+    eBikesMetaDescription:
+      'E-Bikes in Freiburg kaufen ✓ City, Trekking & Mountain E-Bikes ✓ Bosch, Shimano & mehr ✓ 2 Jahre Garantie ✓ Faire Preise. Jetzt im Showroom ansehen — Bike Haus Freiburg.',
+    eBikesTitle: 'E-Bikes Freiburg',
+    eBikesSub: 'Neue E-Bikes mit 2 Jahren Geschäftsgarantie.',
+    eBikesNoItems: 'Aktuell keine E-Bikes verfügbar.',
+    eBikesBackToList: 'Zurück zur Übersicht',
+    eBikesInterested: 'Interesse an diesem E-Bike?',
+    eBikeMotorBrand: 'Motor',
+    eBikeMotorPosition: 'Motorposition',
+    eBikeBatteryCapacity: 'Akkukapazität',
+    eBikeRange: 'Reichweite',
+    eBikeTorque: 'Drehmoment',
+    filterMotorBrand: 'Motor',
+    filterMotorPosition: 'Motorposition',
+    filterBatteryRange: 'Akku (Wh)',
+    filterRange: 'Reichweite (km)',
 
     // Ratgeber / Blog
     ratgeberNav: 'Ratgeber',
@@ -1867,6 +1909,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     filterCondition: 'Condition',
     filterCategory: 'Category',
+    filterAll: 'All',
     filterTireSize: 'Tire Size (inches)',
     filterGears: 'Gears',
     gearsUnit: 'gears',
@@ -1926,6 +1969,26 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     neueFahrraederNoItems: 'No new bikes available at the moment.',
     neueFahrraederContactUs: 'Contact Us',
     neueFahrraederInterested: 'Interested in this bike?',
+
+    eBikesNav: 'E-Bikes',
+    eBikes: 'E-Bikes',
+    eBikesMetaTitle: 'Buy E-Bikes Freiburg | City, Trekking & Mountain E-Bikes',
+    eBikesMetaDescription:
+      'Buy e-bikes in Freiburg ✓ City, Trekking & Mountain e-bikes ✓ Bosch, Shimano & more ✓ 2 year warranty ✓ Fair prices. Visit our showroom — Bike Haus Freiburg.',
+    eBikesTitle: 'E-Bikes Freiburg',
+    eBikesSub: 'New e-bikes with 2 years shop warranty.',
+    eBikesNoItems: 'No e-bikes available at the moment.',
+    eBikesBackToList: 'Back to List',
+    eBikesInterested: 'Interested in this e-bike?',
+    eBikeMotorBrand: 'Motor',
+    eBikeMotorPosition: 'Motor Position',
+    eBikeBatteryCapacity: 'Battery Capacity',
+    eBikeRange: 'Range',
+    eBikeTorque: 'Torque',
+    filterMotorBrand: 'Motor',
+    filterMotorPosition: 'Motor Position',
+    filterBatteryRange: 'Battery (Wh)',
+    filterRange: 'Range (km)',
 
     // Ratgeber / Blog
     ratgeberNav: 'Guide',
@@ -2552,6 +2615,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     // Showroom filters
     filterCondition: 'État',
     filterCategory: 'Catégorie',
+    filterAll: 'Tous',
     filterTireSize: 'Taille de pneu (pouces)',
     filterGears: 'Vitesses',
     gearsUnit: 'vitesses',
@@ -2617,6 +2681,27 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     neueFahrraederNoItems: 'Aucun vélo neuf disponible actuellement.',
     neueFahrraederContactUs: 'Contactez-nous',
     neueFahrraederInterested: 'Intéressé par ce vélo ?',
+
+    eBikesNav: 'Vélos électriques',
+    eBikes: 'Vélos électriques',
+    eBikesMetaTitle:
+      'Acheter des vélos électriques Fribourg | Ville, Trekking & VTT',
+    eBikesMetaDescription:
+      'Achetez des vélos électriques à Fribourg ✓ Ville, Trekking & VTT électriques ✓ Bosch, Shimano & plus ✓ 2 ans de garantie ✓ Prix justes. Découvrez notre showroom — Bike Haus Freiburg.',
+    eBikesTitle: 'Vélos électriques Fribourg',
+    eBikesSub: 'Vélos électriques neufs avec 2 ans de garantie magasin.',
+    eBikesNoItems: 'Aucun vélo électrique disponible actuellement.',
+    eBikesBackToList: 'Retour à la liste',
+    eBikesInterested: 'Intéressé par ce vélo électrique ?',
+    eBikeMotorBrand: 'Moteur',
+    eBikeMotorPosition: 'Position du moteur',
+    eBikeBatteryCapacity: 'Capacité de la batterie',
+    eBikeRange: 'Autonomie',
+    eBikeTorque: 'Couple',
+    filterMotorBrand: 'Moteur',
+    filterMotorPosition: 'Position du moteur',
+    filterBatteryRange: 'Batterie (Wh)',
+    filterRange: 'Autonomie (km)',
 
     // Ratgeber / Blog
     ratgeberNav: 'Guide',
@@ -3238,6 +3323,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     // Showroom filters
     filterCondition: 'Durum',
     filterCategory: 'Kategori',
+    filterAll: 'Tümü',
     filterTireSize: 'Lastik Boyutu (inç)',
     filterGears: 'Vites',
     gearsUnit: 'Vites',
@@ -3303,6 +3389,27 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     neueFahrraederNoItems: 'Şu anda yeni bisiklet mevcut değil.',
     neueFahrraederContactUs: 'Bize Ulaşın',
     neueFahrraederInterested: 'Bu bisikletle ilgileniyor musunuz?',
+
+    eBikesNav: 'E-Bisikletler',
+    eBikes: 'E-Bisikletler',
+    eBikesMetaTitle:
+      "Freiburg'da E-Bisiklet | Şehir, Trekking & Dağ E-Bisikletleri",
+    eBikesMetaDescription:
+      "Freiburg'da e-bisiklet satın alın ✓ Şehir, Trekking & Dağ e-bisikletleri ✓ Bosch, Shimano & daha fazlası ✓ 2 yıl garanti ✓ Uygun fiyat. Bike Haus Freiburg.",
+    eBikesTitle: "Freiburg'da E-Bisikletler",
+    eBikesSub: '2 yıl mağaza garantili yeni e-bisikletler.',
+    eBikesNoItems: 'Şu anda e-bisiklet mevcut değil.',
+    eBikesBackToList: 'Listeye Dön',
+    eBikesInterested: 'Bu e-bisikletle ilgileniyor musunuz?',
+    eBikeMotorBrand: 'Motor',
+    eBikeMotorPosition: 'Motor Konumu',
+    eBikeBatteryCapacity: 'Batarya Kapasitesi',
+    eBikeRange: 'Menzil',
+    eBikeTorque: 'Tork',
+    filterMotorBrand: 'Motor',
+    filterMotorPosition: 'Motor Konumu',
+    filterBatteryRange: 'Batarya (Wh)',
+    filterRange: 'Menzil (km)',
 
     // Ratgeber / Blog
     ratgeberNav: 'Rehber',
