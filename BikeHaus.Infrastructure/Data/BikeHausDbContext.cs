@@ -25,6 +25,8 @@ public class BikeHausDbContext : DbContext
     public DbSet<KleinanzeigenImage> KleinanzeigenImages => Set<KleinanzeigenImage>();
     public DbSet<NeueFahrrad> NeueFahrraeder => Set<NeueFahrrad>();
     public DbSet<NeueFahrradImage> NeueFahrradImages => Set<NeueFahrradImage>();
+    public DbSet<EBike> EBikes => Set<EBike>();
+    public DbSet<EBikeImage> EBikeImages => Set<EBikeImage>();
     public DbSet<BicycleImage> BicycleImages => Set<BicycleImage>();
     public DbSet<RepairShowcase> RepairShowcases => Set<RepairShowcase>();
     public DbSet<RepairShowcaseImage> RepairShowcaseImages => Set<RepairShowcaseImage>();
@@ -479,6 +481,40 @@ public class BikeHausDbContext : DbContext
             entity.HasOne(e => e.Fahrrad)
                 .WithMany(f => f.Images)
                 .HasForeignKey(e => e.NeueFahrradId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── EBike Configuration ──
+        modelBuilder.Entity<EBike>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Titel).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.Beschreibung).HasMaxLength(5000);
+            entity.Property(e => e.Preis).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.PreisText).HasMaxLength(100);
+            entity.Property(e => e.Kategorie).HasMaxLength(200);
+            entity.Property(e => e.Marke).HasMaxLength(100);
+            entity.Property(e => e.Modell).HasMaxLength(100);
+            entity.Property(e => e.Farbe).HasMaxLength(150);
+            entity.Property(e => e.Rahmengroesse).HasMaxLength(20);
+            entity.Property(e => e.Reifengroesse).HasMaxLength(20);
+            entity.Property(e => e.Gangschaltung).HasMaxLength(50);
+            entity.Property(e => e.Zustand).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => e.IsActive);
+            entity.HasIndex(e => e.Kategorie);
+            entity.HasIndex(e => e.Marke);
+            entity.HasIndex(e => e.MotorMarke);
+        });
+
+        // ── EBikeImage Configuration ──
+        modelBuilder.Entity<EBikeImage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FilePath).IsRequired().HasMaxLength(500);
+
+            entity.HasOne(e => e.EBike)
+                .WithMany(f => f.Images)
+                .HasForeignKey(e => e.EBikeId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
