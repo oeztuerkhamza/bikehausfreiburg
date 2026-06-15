@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
         services.AddScoped<IKleinanzeigenListingRepository, KleinanzeigenListingRepository>();
         services.AddScoped<INeueFahrradRepository, NeueFahrradRepository>();
+        services.AddScoped<IEBikeRepository, EBikeRepository>();
         services.AddScoped<IRepairShowcaseRepository, RepairShowcaseRepository>();
         services.AddScoped<IHomepageAccessoryRepository, HomepageAccessoryRepository>();
         services.AddScoped<IRentalRepository, RentalRepository>();
