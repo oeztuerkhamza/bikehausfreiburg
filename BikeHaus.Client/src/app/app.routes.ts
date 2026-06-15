@@ -214,6 +214,30 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'e-bikes',
+    loadComponent: () =>
+      import('./pages/e-bikes/e-bike-list.component').then(
+        (m) => m.EBikeListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'e-bikes/new',
+    loadComponent: () =>
+      import('./pages/e-bikes/e-bike-form.component').then(
+        (m) => m.EBikeFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'e-bikes/edit/:id',
+    loadComponent: () =>
+      import('./pages/e-bikes/e-bike-form.component').then(
+        (m) => m.EBikeFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'homepage-accessories',
     loadComponent: () =>
       import('./pages/homepage-accessories/homepage-accessory-list.component').then(
