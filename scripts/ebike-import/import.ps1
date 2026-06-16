@@ -37,15 +37,19 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)] [string] $ApiBase,
-    [Parameter(Mandatory = $true)] [string] $Username,
+    [string] $Username,
     [string] $Password,
+    [string] $Token,
     [switch] $Active
 )
 
 $ErrorActionPreference = 'Stop'
 $ApiBase = $ApiBase.TrimEnd('/')
 
-if (-not $Password) {
+if (-not $Token -and -not $Username) {
+    throw "Provide either -Token <jwt> or -Username <admin> (with -Password or prompt)."
+}
+if (-not $Token -and -not $Password) {
     $sec = Read-Host -AsSecureString "Password for '$Username'"
     $Password = [System.Net.NetworkCredential]::new('', $sec).Password
 }
@@ -55,13 +59,19 @@ if (-not (Test-Path $jsonPath)) { throw "Dataset not found: $jsonPath" }
 $bikes = Get-Content $jsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
 Write-Host "Loaded $($bikes.Count) e-bikes from dataset."
 
-# --- Login ---------------------------------------------------------------
-$loginBody = @{ username = $Username; password = $Password } | ConvertTo-Json
-$login = Invoke-RestMethod -Method Post -Uri "$ApiBase/auth/login" -ContentType 'application/json' -Body $loginBody
-$token = $login.token
-if (-not $token) { throw "Login failed: no token returned." }
+# --- Auth ----------------------------------------------------------------
+if ($Token) {
+    $token = $Token
+    Write-Host "Using supplied bearer token."
+}
+else {
+    $loginBody = @{ username = $Username; password = $Password } | ConvertTo-Json
+    $login = Invoke-RestMethod -Method Post -Uri "$ApiBase/auth/login" -ContentType 'application/json' -Body $loginBody
+    $token = $login.token
+    if (-not $token) { throw "Login failed: no token returned." }
+    Write-Host "Logged in as $Username."
+}
 $authHeader = @{ Authorization = "Bearer $token" }
-Write-Host "Logged in as $Username."
 
 # --- Existing titles (idempotency) --------------------------------------
 $existing = Invoke-RestMethod -Method Get -Uri "$ApiBase/e-bikes" -Headers $authHeader
