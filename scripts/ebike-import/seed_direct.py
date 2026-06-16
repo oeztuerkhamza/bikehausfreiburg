@@ -72,13 +72,28 @@ def main():
             dest_dir = os.path.join(ebike_dir, str(ebike_id))
             os.makedirs(dest_dir, exist_ok=True)
             dest = os.path.join(dest_dir, fname)
+            # Wix "fill" URLs without a height return HTTP 400; fall back to the
+            # original media URL (everything before "/v1/"), which always works.
+            candidates = [url]
+            if "/v1/" in url:
+                candidates.append(url.split("/v1/")[0])
             try:
-                subprocess.run(
-                    ["curl", "-fsSL", "-A",
-                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "-o", dest, url],
-                    check=True, timeout=60)
-                if os.path.getsize(dest) < 1000:
-                    raise RuntimeError("downloaded file too small")
+                ok = False
+                for cand in candidates:
+                    try:
+                        subprocess.run(
+                            ["curl", "-fsSL", "-A",
+                             "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "-o", dest, cand],
+                            check=True, timeout=60)
+                        if os.path.getsize(dest) < 1000:
+                            raise RuntimeError("downloaded file too small")
+                        ok = True
+                        break
+                    except Exception:
+                        if os.path.exists(dest):
+                            os.remove(dest)
+                if not ok:
+                    raise RuntimeError("all candidate URLs failed")
                 cur.execute("""
                     INSERT INTO EBikeImages (EBikeId,FilePath,SortOrder,CreatedAt,UpdatedAt)
                     VALUES (?,?,?,?,NULL)
