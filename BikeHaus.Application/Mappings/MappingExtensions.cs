@@ -534,4 +534,60 @@ public static class MappingExtensions
             entity.EndDatum < DateTime.UtcNow && entity.Status == Domain.Enums.RentalStatus.Active
         );
     }
+
+    // ── EBike Mappings ──
+    public static EBikeImageDto ToDto(this EBikeImage entity) => new(
+        entity.Id,
+        entity.FilePath,
+        entity.SortOrder
+    );
+
+    public static EBikeDto ToDto(this EBike entity) => new(
+        entity.Id,
+        entity.Titel,
+        entity.Beschreibung,
+        entity.Preis,
+        entity.PreisText,
+        entity.Kategorie,
+        entity.Marke,
+        entity.Modell,
+        entity.Farbe,
+        entity.Rahmengroesse,
+        entity.Reifengroesse,
+        entity.Gangschaltung,
+        entity.Zustand,
+        entity.Angebot,
+        entity.IsActive,
+        entity.MotorMarke,
+        entity.MotorPosition,
+        entity.AkkuKapazitaetWh,
+        entity.ReichweiteKm,
+        entity.MotorLeistungNm,
+        entity.CreatedAt,
+        entity.Images.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList()
+    );
+
+    public static PublicEBikeDto ToPublicDto(this EBike entity) => new(
+        entity.Id,
+        entity.Titel,
+        entity.Beschreibung,
+        entity.Preis,
+        entity.PreisText,
+        entity.Kategorie,
+        entity.Marke,
+        entity.Modell,
+        entity.Farbe,
+        entity.Rahmengroesse,
+        entity.Reifengroesse,
+        entity.Gangschaltung,
+        entity.Zustand,
+        entity.Angebot,
+        entity.MotorMarke,
+        entity.MotorPosition,
+        entity.AkkuKapazitaetWh,
+        entity.ReichweiteKm,
+        entity.MotorLeistungNm,
+        entity.CreatedAt,
+        entity.Images.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList()
+    );
 }

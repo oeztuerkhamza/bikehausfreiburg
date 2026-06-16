@@ -115,6 +115,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'e-bikes',
+        loadComponent: () =>
+          import('./pages/e-bikes/e-bikes.component').then(
+            (m) => m.EBikesComponent,
+          ),
+      },
+      {
+        path: 'e-bikes/:id',
+        loadComponent: () =>
+          import('./pages/e-bikes/e-bike-detail.component').then(
+            (m) => m.EBikeDetailComponent,
+          ),
+      },
+      {
         path: 'about',
         loadComponent: () =>
           import('./pages/about/about.component').then((m) => m.AboutComponent),

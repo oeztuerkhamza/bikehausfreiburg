@@ -716,6 +716,37 @@ export interface Translations {
   neueFahrradUploadPhotos: string;
   neueFahrradSelectCategory: string;
 
+  // E-Bikes
+  eBikes: string;
+  eBikeNew: string;
+  eBikeEdit: string;
+  eBikeTitle: string;
+  eBikeDescription: string;
+  eBikePrice: string;
+  eBikeCategory: string;
+  eBikeBrand: string;
+  eBikeModel: string;
+  eBikeColor: string;
+  eBikeFrameSize: string;
+  eBikeWheelSize: string;
+  eBikeGears: string;
+  eBikeCondition: string;
+  eBikeActive: string;
+  eBikePhotos: string;
+  eBikeNoItems: string;
+  eBikeDeleteConfirm: string;
+  eBikeSaved: string;
+  eBikeDeleted: string;
+  eBikeUploadPhotos: string;
+  eBikeSelectCategory: string;
+  eBikeMotorSection: string;
+  eBikeMotorBrand: string;
+  eBikeMotorPosition: string;
+  eBikeSelectMotorPosition: string;
+  eBikeAkkuKapazitaet: string;
+  eBikeReichweite: string;
+  eBikeMotorLeistung: string;
+
   // Homepage Accessories
   homepageAccessories: string;
   homepageAccessoryNew: string;
@@ -1516,6 +1547,37 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrradUploadPhotos: 'Fotos hochladen',
     neueFahrradSelectCategory: 'Kategorie wählen',
 
+    // E-Bikes
+    eBikes: 'E-Bikes',
+    eBikeNew: 'Neues E-Bike hinzufügen',
+    eBikeEdit: 'E-Bike bearbeiten',
+    eBikeTitle: 'Titel',
+    eBikeDescription: 'Beschreibung',
+    eBikePrice: 'Preis (€)',
+    eBikeCategory: 'Kategorie',
+    eBikeBrand: 'Marke',
+    eBikeModel: 'Modell',
+    eBikeColor: 'Farbe',
+    eBikeFrameSize: 'Rahmengröße',
+    eBikeWheelSize: 'Reifengröße',
+    eBikeGears: 'Gangschaltung',
+    eBikeCondition: 'Zustand',
+    eBikeActive: 'Aktiv',
+    eBikePhotos: 'Fotos',
+    eBikeNoItems: 'Keine E-Bikes vorhanden.',
+    eBikeDeleteConfirm: 'Möchten Sie dieses E-Bike wirklich löschen?',
+    eBikeSaved: 'E-Bike gespeichert!',
+    eBikeDeleted: 'E-Bike gelöscht!',
+    eBikeUploadPhotos: 'Fotos hochladen',
+    eBikeSelectCategory: 'Kategorie wählen',
+    eBikeMotorSection: 'Antrieb / Motor & Akku',
+    eBikeMotorBrand: 'Motor-Marke',
+    eBikeMotorPosition: 'Motor-Position',
+    eBikeSelectMotorPosition: 'Position wählen',
+    eBikeAkkuKapazitaet: 'Akku-Kapazität (Wh)',
+    eBikeReichweite: 'Reichweite (km)',
+    eBikeMotorLeistung: 'Drehmoment (Nm)',
+
     // Homepage Accessories
     homepageAccessories: 'Zubehör (Homepage)',
     homepageAccessoryNew: 'Neues Zubehör hinzufügen',
@@ -2314,6 +2376,37 @@ const TRANSLATIONS: Record<Language, Translations> = {
     neueFahrradDeleted: 'Bisiklet silindi!',
     neueFahrradUploadPhotos: 'Fotoğraf yükle',
     neueFahrradSelectCategory: 'Kategori seçin',
+
+    // E-Bikes
+    eBikes: 'E-Bisikletler',
+    eBikeNew: 'Yeni E-Bisiklet Ekle',
+    eBikeEdit: 'E-Bisikleti Düzenle',
+    eBikeTitle: 'Başlık',
+    eBikeDescription: 'Açıklama',
+    eBikePrice: 'Fiyat (€)',
+    eBikeCategory: 'Kategori',
+    eBikeBrand: 'Marka',
+    eBikeModel: 'Model',
+    eBikeColor: 'Renk',
+    eBikeFrameSize: 'Kadro Boyutu',
+    eBikeWheelSize: 'Tekerlek Boyutu',
+    eBikeGears: 'Vites',
+    eBikeCondition: 'Durum',
+    eBikeActive: 'Aktif',
+    eBikePhotos: 'Fotoğraflar',
+    eBikeNoItems: 'Henüz e-bisiklet eklenmedi.',
+    eBikeDeleteConfirm: 'Bu e-bisikleti silmek istediğinize emin misiniz?',
+    eBikeSaved: 'E-Bisiklet kaydedildi!',
+    eBikeDeleted: 'E-Bisiklet silindi!',
+    eBikeUploadPhotos: 'Fotoğraf yükle',
+    eBikeSelectCategory: 'Kategori seçin',
+    eBikeMotorSection: 'Motor & Batarya',
+    eBikeMotorBrand: 'Motor Markası',
+    eBikeMotorPosition: 'Motor Konumu',
+    eBikeSelectMotorPosition: 'Konum seçin',
+    eBikeAkkuKapazitaet: 'Batarya Kapasitesi (Wh)',
+    eBikeReichweite: 'Menzil (km)',
+    eBikeMotorLeistung: 'Tork (Nm)',
 
     // Homepage Accessories
     homepageAccessories: 'Aksesuarlar (Homepage)',
