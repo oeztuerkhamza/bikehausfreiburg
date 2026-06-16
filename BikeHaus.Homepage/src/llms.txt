@@ -23,7 +23,6 @@ Bike Haus Freiburg ist ein Fahrradgeschäft in der Heckerstraße 27, 79114 Freib
 - Fahrradankauf — wir kaufen gebrauchte Fahrräder in gutem Zustand an
 - Fahrradverleih für Touristen und Einheimische
 - Fahrrad-Service: Inspektion, Wartung, Pflege, Einstellung von Bremsen & Schaltung, Reifenwechsel, E-Bike Check (kein Termin nötig)
-- KI-Fahrradberater: kostenloser KI-Assistent hilft bei der Fahrradwahl
 
 ## Besonderheiten
 
@@ -33,7 +32,6 @@ Bike Haus Freiburg ist ein Fahrradgeschäft in der Heckerstraße 27, 79114 Freib
 - 3 Monate Garantie auf Gebrauchträder, 24 Monate auf Neuräder
 - Faire, transparente Preise
 - Beratung auf Deutsch, Englisch, Französisch und Türkisch
-- KI-Fahrradberater online verfügbar — fragt nach Alter, Größe, Budget und empfiehlt passende Räder aus dem Bestand
 
 ## Fahrrad-Größentabelle (Kinderfahrräder)
 
@@ -103,7 +101,7 @@ Ja, wir kaufen gebrauchte Fahrräder in gutem Zustand zu fairen Preisen an.
 Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder, Hollandräder und Rennräder — neu und gebraucht.
 
 **Welches Fahrrad für welches Alter?**
-Für ein 6-jähriges Kind empfehlen wir ein 20-Zoll-Rad, für ein 9-jähriges ein 24-Zoll-Rad. Unser KI-Berater hilft unter: https://bikehausfreiburg.com/de/ki-berater
+Für ein 6-jähriges Kind empfehlen wir ein 20-Zoll-Rad, für ein 9-jähriges ein 24-Zoll-Rad.
 
 **Was kostet ein Fahrrad bei Bike Haus Freiburg?**
 Gebrauchte Stadträder ab 180 €, Kinderfahrräder ab 60 €, gebrauchte E-Bikes ab 800 €, neue Fahrräder je nach Modell.
@@ -121,7 +119,6 @@ Ja. Wir bieten Inspektion, Wartung und Pflege für Fahrräder und E-Bikes — Br
 
 ## Links
 
-- KI-Fahrradberater: https://bikehausfreiburg.com/de/ki-berater
 - Showroom: https://bikehausfreiburg.com/de/showroom
 - Neue Fahrräder: https://bikehausfreiburg.com/de/neue-fahrraeder
 - Mietfahrräder: https://bikehausfreiburg.com/de/mietfahrraeder
@@ -234,8 +231,6 @@ Oui, notre équipe peut vous aider en français.
 
 Bike Haus Freiburg, Almanya'nın Freiburg im Breisgau şehrinde Heckerstraße 27, 79114 adresinde bir bisiklet mağazasıdır. Yeni ve ikinci el bisikletler satıyoruz — şehir bisikleti, trekking bisikleti, e-bisiklet, çocuk bisikleti — tüm ikinci el bisikletler teknik kontrol ile 3 ay garantili. Bisiklet kiralama hizmetimizde 1–7 gün için her bisiklete özel günlük fiyat uygulanır; 8. günden itibaren sabit ek gün ücreti eklenir.
 
-**YZ Bisiklet Danışmanı (Türkçe):** https://bikehausfreiburg.com/tr/ki-berater — Yaş, boy, bütçe ve kullanım amacına göre stoğumuzdan uygun bisikleti bulan ücretsiz yapay zeka asistanı.
-
 **Sık sorulan sorular (Türkçe):**
 
 **Freiburg'da nereden bisiklet alınır?**
@@ -245,7 +240,7 @@ Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. 100+ bisiklet stokta. Rand
 Fiyatlar bisiklet başına 1–7 gün için ayrı ayrı belirlenir. 8. günden itibaren 7 günlük fiyata sabit ek gün ücreti eklenir. Şehir bisikleti kiralama başlangıç fiyatı 30 EUR/gün. Kask ve kilit dahil.
 
 **Çocuğuma hangi bisiklet bedeni uygun?**
-4–6 yaş: 16 inç, 5–8 yaş: 20 inç, 7–10 yaş: 24 inç, 10 yaş+: 26 inç. YZ danışmanımız: https://bikehausfreiburg.com/tr/ki-berater
+4–6 yaş: 16 inç, 5–8 yaş: 20 inç, 7–10 yaş: 24 inç, 10 yaş+: 26 inç.
 
 **Türkçe hizmet var mı?**
 Evet, ekibimiz Türkçe yardımcı olabilir.

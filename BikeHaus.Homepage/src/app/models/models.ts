@@ -307,12 +307,6 @@ export interface RentalReviewCreate {
   yorum: string;
 }
 
-// ── KI-Fahrradberater ──
-export interface BikeAdviserMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
 export interface KleinanzeigenCard {
   id: number;
   title: string;
@@ -324,21 +318,3 @@ export interface KleinanzeigenCard {
   source?: 'showroom' | 'kleinanzeigen';
 }
 
-export interface ChatMessage extends BikeAdviserMessage {
-  bikes?: PublicBicycle[];
-  listings?: KleinanzeigenCard[];
-  isStreaming?: boolean;
-}
-
-export interface BikeAdviserShopCta {
-  show: boolean;
-  type?: 'showroom' | 'contact' | 'rental';
-}
-
-export interface BikeAdviserSseEvent {
-  type: 'delta' | 'bikes' | 'listings' | 'done';
-  text?: string;
-  bikes?: PublicBicycle[];
-  listings?: KleinanzeigenCard[];
-  shopCta?: BikeAdviserShopCta;
-}

@@ -20,7 +20,6 @@ import {
   RentalBookingCreate,
   RentalBookingResponse,
   RentalReviewPublic,
-  BikeAdviserMessage,
   RentalReviewCreate,
   CheckoutRequest,
   CheckoutSessionResponse,
@@ -236,16 +235,6 @@ export class ApiService {
       `${this.baseUrl}/checkout/create-session`,
       dto,
     );
-  }
-
-  // ── KI-Fahrradberater ──
-
-  streamBikeChat(messages: BikeAdviserMessage[], language: string): Promise<Response> {
-    return fetch(`${this.baseUrl}/bike-adviser/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages, language }),
-    });
   }
 
   // ── Helper Methods ──

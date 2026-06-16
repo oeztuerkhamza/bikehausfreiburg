@@ -685,7 +685,6 @@ export class NavbarComponent {
   }
 
   navLinks = [
-    { path: '', label: () => this.t().home, exact: true },
     { path: 'showroom', label: () => this.t().showroom, exact: false },
     {
       path: 'neue-fahrraeder',
@@ -705,11 +704,6 @@ export class NavbarComponent {
     {
       path: 'service',
       label: () => this.t().bikeService,
-      exact: false,
-    },
-    {
-      path: 'ki-berater',
-      label: () => this.t().kiBeraterNav,
       exact: false,
     },
     { path: 'about', label: () => this.t().about, exact: false },

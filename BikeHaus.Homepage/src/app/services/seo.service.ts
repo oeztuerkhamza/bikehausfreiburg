@@ -38,17 +38,6 @@ function getRentalCatalogPath(lang: string): string {
   if (lang === 'fr') return 'velos-de-location';
   return 'mietfahrraeder';
 }
-// KI-Fahrradberater — uses language-specific slugs
-const KI_BERATER_SEGMENTS = new Set([
-  'ki-berater',
-  'ai-bike-adviser',
-  'conseiller-velo',
-]);
-function getKiBeraterPath(lang: string): string {
-  if (lang === 'en') return 'ai-bike-adviser';
-  if (lang === 'fr') return 'conseiller-velo';
-  return 'ki-berater';
-}
 // Fahrrad-Service — uses language-specific slugs
 const SERVICE_SEGMENTS = new Set(['service', 'bike-service', 'entretien-velo']);
 function getServicePath(lang: string): string {
@@ -183,16 +172,6 @@ export class SeoService {
         'x-default',
         `${BASE_URL}/${DEFAULT_LANGUAGE}/mietfahrraeder/${bikeId}`,
       );
-      this.updateMetaProperty('og:url', canonicalUrl);
-      return;
-    }
-
-    // ── KI-Fahrradberater: /:lang/(ki-berater|ai-bike-adviser|conseiller-velo) ──
-    if (pathSegments.length === 2 && KI_BERATER_SEGMENTS.has(pathSegments[1])) {
-      for (const lang of SUPPORTED_LANGUAGES) {
-        this.addHreflangLink(lang, `${BASE_URL}/${lang}/${getKiBeraterPath(lang)}`);
-      }
-      this.addHreflangLink('x-default', `${BASE_URL}/${DEFAULT_LANGUAGE}/ki-berater`);
       this.updateMetaProperty('og:url', canonicalUrl);
       return;
     }

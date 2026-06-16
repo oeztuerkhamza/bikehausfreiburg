@@ -319,31 +319,6 @@ export const routes: Routes = [
             (m) => m.FahrradStadtComponent,
           ),
       },
-      // ── KI-Fahrradberater ──
-      // DE/TR/ES/IT/AR/RU: /ki-berater
-      {
-        path: 'ki-berater',
-        loadComponent: () =>
-          import('./pages/ki-berater/ki-berater.component').then(
-            (m) => m.KiBeraterComponent,
-          ),
-      },
-      // EN canonical: /en/ai-bike-adviser
-      {
-        path: 'ai-bike-adviser',
-        loadComponent: () =>
-          import('./pages/ki-berater/ki-berater.component').then(
-            (m) => m.KiBeraterComponent,
-          ),
-      },
-      // FR canonical: /fr/conseiller-velo
-      {
-        path: 'conseiller-velo',
-        loadComponent: () =>
-          import('./pages/ki-berater/ki-berater.component').then(
-            (m) => m.KiBeraterComponent,
-          ),
-      },
       // ── Fahrrad-Service (Inspektion, Wartung, Pflege) ──
       // DE/TR/ES/IT/AR/RU: /service
       {
