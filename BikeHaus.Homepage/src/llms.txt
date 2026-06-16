@@ -17,7 +17,7 @@ Bike Haus Freiburg ist ein Fahrradgeschäft in der Heckerstraße 27, 79114 Freib
 
 - Neue Fahrräder (Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder)
 - Gebrauchte Fahrräder mit 3 Monaten Garantie
-- E-Bikes — neu und gebraucht, Akku-Zustand dokumentiert
+- E-Bikes / Pedelecs — neue E-Bikes der Marken IDEAL und Feldmeier (FE) mit Bosch- und Shimano-Mittelmotor (City, Trekking, MTB), dazu gebrauchte E-Bikes mit dokumentiertem Akku-Zustand. Online ansehen und filtern: https://bikehausfreiburg.com/de/e-bikes
 - Kinderfahrräder in allen Größen
 - Fahrradzubehör (Schlösser, Helme, Beleuchtung, Körbe, Satteltaschen)
 - Fahrradankauf — wir kaufen gebrauchte Fahrräder in gutem Zustand an
@@ -100,6 +100,9 @@ Ja, wir kaufen gebrauchte Fahrräder in gutem Zustand zu fairen Preisen an.
 **Welche Fahrradtypen haben Sie?**
 Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder, Hollandräder und Rennräder — neu und gebraucht.
 
+**Wo kann ich in Freiburg ein E-Bike kaufen?**
+Bei Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Wir führen neue E-Bikes der Marken IDEAL und Feldmeier (FE) als E-City, E-Trekking und E-MTB mit Bosch- und Shimano-Mittelmotor (bis 800 Wh Akku), dazu gebrauchte E-Bikes. Alle Modelle online filterbar nach Typ, Marke, Motor, Akku und Preis: https://bikehausfreiburg.com/de/e-bikes — Probefahrt ohne Termin.
+
 **Welches Fahrrad für welches Alter?**
 Für ein 6-jähriges Kind empfehlen wir ein 20-Zoll-Rad, für ein 9-jähriges ein 24-Zoll-Rad.
 
@@ -120,6 +123,7 @@ Ja. Wir bieten Inspektion, Wartung und Pflege für Fahrräder und E-Bikes — Br
 ## Links
 
 - Showroom: https://bikehausfreiburg.com/de/showroom
+- E-Bikes: https://bikehausfreiburg.com/de/e-bikes
 - Neue Fahrräder: https://bikehausfreiburg.com/de/neue-fahrraeder
 - Mietfahrräder: https://bikehausfreiburg.com/de/mietfahrraeder
 - Zubehör: https://bikehausfreiburg.com/de/zubehoer

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
@@ -890,6 +890,7 @@ export class EBikeDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private title = inject(Title);
   private meta = inject(Meta);
+  private document = inject(DOCUMENT);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -934,17 +935,134 @@ export class EBikeDetailComponent implements OnInit {
 
   private setSeo(bike: EBike): void {
     const lang = this.lang();
-    const pageUrl = `https://bikehausfreiburg.com/${lang}/e-bikes/${bike.id}`;
-    const description = `${bike.titel} — ${bike.preisText || bike.preis + ' €'} — E-Bikes bei Bike Haus Freiburg.`;
+    const baseUrl = 'https://bikehausfreiburg.com';
+    const pageUrl = `${baseUrl}/${lang}/e-bikes/${bike.id}`;
+    const priceStr = bike.preisText || `${bike.preis} €`;
 
-    this.title.setTitle(`${bike.titel} — Bike Haus Freiburg`);
+    // Keyword-rich spec snippet for the meta description.
+    const specs = [
+      bike.motorMarke
+        ? `${bike.motorMarke}${bike.motorPosition ? ' ' + bike.motorPosition : ' Motor'}`
+        : null,
+      bike.akkuKapazitaetWh ? `${bike.akkuKapazitaetWh} Wh Akku` : null,
+      bike.motorLeistungNm ? `${bike.motorLeistungNm} Nm` : null,
+    ].filter(Boolean);
+
+    const title = `${bike.titel} – E-Bike kaufen in Freiburg | Bike Haus Freiburg`;
+    const description = `${bike.titel}${specs.length ? ': ' + specs.join(', ') : ''} – ${priceStr}. Neues E-Bike kaufen bei Bike Haus Freiburg, Heckerstraße 27. Probefahrt ohne Termin.`;
+    const imageUrl = bike.images?.length
+      ? this.getImageUrl(bike.images[0].filePath)
+      : `${baseUrl}/assets/og-default.jpg`;
+
+    this.title.setTitle(title);
     this.meta.updateTag({ name: 'description', content: description });
-    this.meta.updateTag({
-      property: 'og:title',
-      content: `${bike.titel} — Bike Haus Freiburg`,
-    });
+    this.meta.updateTag({ property: 'og:title', content: title });
     this.meta.updateTag({ property: 'og:description', content: description });
     this.meta.updateTag({ property: 'og:url', content: pageUrl });
+    this.meta.updateTag({ property: 'og:type', content: 'product' });
+    this.meta.updateTag({ property: 'og:image', content: imageUrl });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+
+    let canonical = this.document.querySelector<HTMLLinkElement>(
+      'link[rel="canonical"]',
+    );
+    if (!canonical) {
+      canonical = this.document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      this.document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', pageUrl);
+
+    this.injectJsonLd(bike, pageUrl, imageUrl, lang, baseUrl);
+  }
+
+  private injectJsonLd(
+    bike: EBike,
+    pageUrl: string,
+    imageUrl: string,
+    lang: string,
+    baseUrl: string,
+  ): void {
+    this.document
+      .querySelectorAll('script[data-e-bike-detail-ld]')
+      .forEach((el) => el.remove());
+
+    const props = [
+      bike.motorMarke
+        ? { '@type': 'PropertyValue', name: 'Motor', value: bike.motorMarke }
+        : null,
+      bike.motorPosition
+        ? { '@type': 'PropertyValue', name: 'Motorposition', value: bike.motorPosition }
+        : null,
+      bike.akkuKapazitaetWh
+        ? { '@type': 'PropertyValue', name: 'Akkukapazität', value: `${bike.akkuKapazitaetWh} Wh`, unitText: 'Wh' }
+        : null,
+      bike.motorLeistungNm
+        ? { '@type': 'PropertyValue', name: 'Drehmoment', value: `${bike.motorLeistungNm} Nm`, unitText: 'Nm' }
+        : null,
+      bike.rahmengroesse
+        ? { '@type': 'PropertyValue', name: 'Rahmengröße', value: bike.rahmengroesse }
+        : null,
+      bike.reifengroesse
+        ? { '@type': 'PropertyValue', name: 'Reifengröße', value: bike.reifengroesse }
+        : null,
+    ].filter(Boolean);
+
+    const product = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: bike.titel,
+      sku: `ebike-${bike.id}`,
+      category: bike.kategorie || 'E-Bike',
+      ...(bike.beschreibung ? { description: bike.beschreibung } : {}),
+      ...(bike.marke ? { brand: { '@type': 'Brand', name: bike.marke } } : {}),
+      ...(bike.images?.length ? { image: imageUrl } : {}),
+      itemCondition:
+        bike.zustand === 'Gebraucht'
+          ? 'https://schema.org/UsedCondition'
+          : 'https://schema.org/NewCondition',
+      ...(props.length ? { additionalProperty: props } : {}),
+      offers: {
+        '@type': 'Offer',
+        price: bike.preis,
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        url: pageUrl,
+        itemCondition:
+          bike.zustand === 'Gebraucht'
+            ? 'https://schema.org/UsedCondition'
+            : 'https://schema.org/NewCondition',
+        seller: {
+          '@type': 'LocalBusiness',
+          name: 'Bike Haus Freiburg',
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: 'Heckerstraße 27',
+            postalCode: '79114',
+            addressLocality: 'Freiburg im Breisgau',
+            addressCountry: 'DE',
+          },
+        },
+      },
+    };
+
+    const breadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Bike Haus Freiburg', item: `${baseUrl}/${lang}` },
+        { '@type': 'ListItem', position: 2, name: 'E-Bikes', item: `${baseUrl}/${lang}/e-bikes` },
+        { '@type': 'ListItem', position: 3, name: bike.titel, item: pageUrl },
+      ],
+    };
+
+    [product, breadcrumb].forEach((schema) => {
+      const script = this.document.createElement('script');
+      script.type = 'application/ld+json';
+      script.setAttribute('data-e-bike-detail-ld', '');
+      script.textContent = JSON.stringify(schema);
+      this.document.head.appendChild(script);
+    });
   }
 
   getImageUrl(path: string): string {

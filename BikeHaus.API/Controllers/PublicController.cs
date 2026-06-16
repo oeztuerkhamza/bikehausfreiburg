@@ -414,6 +414,28 @@ public class PublicController : ControllerBase
             }
         }
 
+        // E-Bikes
+        var eBikes = await _eBikeService.GetAllActiveAsync();
+        if (eBikes != null)
+        {
+            foreach (var bike in eBikes)
+            {
+                foreach (var lang in langs)
+                {
+                    sb.AppendLine("  <url>");
+                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/e-bikes/{bike.Id}</loc>");
+                    foreach (var altLang in langs)
+                    {
+                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/e-bikes/{bike.Id}\"/>");
+                    }
+                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
+                    sb.AppendLine("    <changefreq>weekly</changefreq>");
+                    sb.AppendLine("    <priority>0.8</priority>");
+                    sb.AppendLine("  </url>");
+                }
+            }
+        }
+
         // Homepage Accessories
         var accessories = await _homepageAccessoryService.GetAllActiveAsync();
         if (accessories != null)

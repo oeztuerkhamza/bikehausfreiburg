@@ -1386,7 +1386,7 @@ export class EBikesComponent implements OnInit, OnDestroy {
             seller: { '@type': 'LocalBusiness', name: 'Bike Haus Freiburg' },
           },
           ...(bike.images[0]
-            ? { image: `${apiBase}/uploads/${bike.images[0].filePath}` }
+            ? { image: `${apiBase}${bike.images[0].filePath}` }
             : {}),
           url: `${pageUrl}/${bike.id}`,
         },
