@@ -3359,8 +3359,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       geo: {
         '@type': 'GeoCoordinates',
-        latitude: 47.999,
-        longitude: 7.8421,
+        latitude: 47.9893,
+        longitude: 7.8009,
       },
       aggregateRating: {
         '@type': 'AggregateRating',

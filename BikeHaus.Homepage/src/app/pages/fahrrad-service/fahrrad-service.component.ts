@@ -399,7 +399,7 @@ export class FahrradServiceComponent implements OnInit, OnDestroy {
 
     const localBusiness = {
       '@type': 'LocalBusiness',
-      '@id': `${BASE_URL}/#localbusiness`,
+      '@id': `${BASE_URL}/#organization`,
       name: 'Bike Haus Freiburg',
       image: `${BASE_URL}/assets/images/og-image.jpg`,
       telephone: '+4915566300011',
@@ -412,8 +412,8 @@ export class FahrradServiceComponent implements OnInit, OnDestroy {
       },
       geo: {
         '@type': 'GeoCoordinates',
-        latitude: 47.9877,
-        longitude: 7.8194,
+        latitude: 47.9893,
+        longitude: 7.8009,
       },
       availableLanguage: ['German', 'English', 'French', 'Turkish'],
     };

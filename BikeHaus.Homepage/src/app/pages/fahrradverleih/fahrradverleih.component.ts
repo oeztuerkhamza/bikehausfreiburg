@@ -1414,7 +1414,7 @@ interface BikeSlot {
                 {{ t().viewAll }} ({{ t().rentalCatalogLabel }}) →
               </a>
               <a
-                href="https://wa.me/491556630011"
+                href="https://wa.me/4915566300011"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="hero-cta-wa"

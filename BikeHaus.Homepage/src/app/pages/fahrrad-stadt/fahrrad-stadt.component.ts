@@ -466,7 +466,7 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
     const schema = {
       '@context': 'https://schema.org',
       '@type': 'LocalBusiness',
-      '@id': `https://bikehausfreiburg.com/${this.lang()}/${c.slug}#localbusiness`,
+      '@id': 'https://bikehausfreiburg.com/#organization',
       name: 'Bike Haus Freiburg',
       image: 'https://bikehausfreiburg.com/assets/images/og-image.jpg',
       url: `https://bikehausfreiburg.com/${this.lang()}/${c.slug}`,
@@ -480,8 +480,8 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
       },
       geo: {
         '@type': 'GeoCoordinates',
-        latitude: 47.9877,
-        longitude: 7.8194,
+        latitude: 47.9893,
+        longitude: 7.8009,
       },
       areaServed: {
         '@type': 'City',
