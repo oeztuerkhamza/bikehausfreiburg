@@ -14,6 +14,11 @@ import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { BikeCardComponent } from '../../components/bike-card/bike-card.component';
 import { KleinanzeigenListing, PublicBicycle } from '../../models/models';
+import {
+  SHOWROOM_FAQ,
+  CATEGORY_FAQ_HEADING,
+  CategoryFaqItem,
+} from '../../services/category-faq.data';
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
 
@@ -540,6 +545,21 @@ const TYP_PATTERN =
           </footer>
         </main>
       </div>
+
+      <!-- FAQ — quotable answers for AI search & rich results (bikes mode only) -->
+      <section class="cat-faq" *ngIf="!isAccessoriesMode()">
+        <h2>{{ faqHeading() }}</h2>
+        <div class="cat-faq-list">
+          <details
+            class="cat-faq-item"
+            *ngFor="let item of faqItems(); let first = first"
+            [attr.open]="first ? '' : null"
+          >
+            <summary>{{ item.q }}</summary>
+            <p>{{ item.a }}</p>
+          </details>
+        </div>
+      </section>
     </div>
   `,
   styles: [
@@ -1212,6 +1232,55 @@ const TYP_PATTERN =
           padding: 0.8rem;
         }
       }
+
+      /* ═══ CATEGORY FAQ ═══ */
+      .cat-faq {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 1rem 1.25rem 2.5rem;
+      }
+      .cat-faq h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0 0 1rem;
+      }
+      .cat-faq-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .cat-faq-item {
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 0.9rem 1.2rem;
+      }
+      .cat-faq-item summary {
+        cursor: pointer;
+        font-weight: 600;
+        list-style: none;
+        position: relative;
+        padding-right: 1.5rem;
+      }
+      .cat-faq-item summary::-webkit-details-marker {
+        display: none;
+      }
+      .cat-faq-item summary::after {
+        content: '+';
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: 1.3rem;
+        color: #ff5722;
+      }
+      .cat-faq-item[open] summary::after {
+        content: '−';
+      }
+      .cat-faq-item p {
+        margin: 0.7rem 0 0;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.7;
+      }
     `,
   ],
 })
@@ -1226,6 +1295,14 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   private itemListSchemaElement: HTMLScriptElement | null = null;
 
   t = this.translationService.translations;
+  lang = this.translationService.currentLanguage;
+
+  faqLang = computed<'de' | 'en' | 'fr' | 'tr'>(() => {
+    const l = this.lang();
+    return l === 'en' || l === 'fr' || l === 'tr' ? l : 'de';
+  });
+  faqItems = computed<CategoryFaqItem[]>(() => SHOWROOM_FAQ[this.faqLang()]);
+  faqHeading = computed(() => CATEGORY_FAQ_HEADING[this.faqLang()]);
 
   // Mode: 'bikes' (default showroom) or 'zubehoer' (accessories only)
   isAccessoriesMode = signal(false);
@@ -1494,10 +1571,6 @@ export class ShowroomComponent implements OnInit, OnDestroy {
     const metaDesc = this.isAccessoriesMode()
       ? this.t().accessoriesMetaDescription
       : this.t().showroomMetaDescription;
-    const ogUrl = this.isAccessoriesMode()
-      ? 'https://bikehausfreiburg.com/zubehoer'
-      : 'https://bikehausfreiburg.com/showroom';
-
     this.titleService.setTitle(metaTitle);
     this.metaService.updateTag({ name: 'description', content: metaDesc });
     this.metaService.updateTag({ property: 'og:title', content: metaTitle });
@@ -1505,7 +1578,8 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       property: 'og:description',
       content: metaDesc,
     });
-    this.metaService.updateTag({ property: 'og:url', content: ogUrl });
+    // og:url + canonical are set globally (with the correct /:lang/ prefix) by SeoService.
+    this.injectFaqSchema();
 
     this.loadData();
   }
@@ -1622,7 +1696,7 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       item: {
         '@type': 'Product',
         name: listing.title,
-        url: `https://bikehausfreiburg.com/showroom/${listing.id}`,
+        url: `https://bikehausfreiburg.com/${this.lang()}/showroom/${listing.id}`,
         image: listing.images?.[0]?.imageUrl || '',
         offers: {
           '@type': 'Offer',
@@ -1655,6 +1729,29 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       );
       this.itemListSchemaElement = null;
     }
+  }
+
+  private injectFaqSchema(): void {
+    if (this.isAccessoriesMode()) return;
+    this.document
+      .querySelectorAll('script[data-showroom-faq-ld]')
+      .forEach((el) => el.remove());
+    const pageUrl = `https://bikehausfreiburg.com/${this.lang()}/showroom`;
+    const faqPage = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      '@id': `${pageUrl}#faq`,
+      mainEntity: this.faqItems().map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    };
+    const script = this.document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-showroom-faq-ld', '');
+    script.textContent = JSON.stringify(faqPage);
+    this.document.head.appendChild(script);
   }
 
   ngOnDestroy(): void {

@@ -124,3 +124,6 @@
 /de/fahrrad-breisach
 /de/fahrrad-gundelfingen
 /de/fahrrad-march
+/de/fahrrad-wiehre
+/de/fahrrad-herdern
+/de/fahrrad-stuehlinger

@@ -612,6 +612,14 @@ export class RentalCategoryComponent implements OnInit {
     const existing = this.document.getElementById('rental-category-schema');
     if (existing) existing.remove();
 
+    // Real "ab X €/Tag" floor price per category (see rental-category-content.ts).
+    const dayFromByCategory: Record<string, number> = {
+      ebike: 15,
+      trekking: 12,
+      kinder: 6,
+    };
+    const dayFrom = dayFromByCategory[category.id] ?? 12;
+
     const schema = {
       '@context': 'https://schema.org',
       '@graph': [
@@ -621,6 +629,22 @@ export class RentalCategoryComponent implements OnInit {
           name: content.heroTitle,
           description: content.metaDescription,
           serviceType: content.breadcrumbLabel,
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+            priceSpecification: {
+              '@type': 'UnitPriceSpecification',
+              price: dayFrom,
+              priceCurrency: 'EUR',
+              unitCode: 'DAY',
+              referenceQuantity: {
+                '@type': 'QuantitativeValue',
+                value: 1,
+                unitCode: 'DAY',
+              },
+            },
+          },
           provider: {
             '@type': 'LocalBusiness',
             '@id': 'https://bikehausfreiburg.com/#organization',

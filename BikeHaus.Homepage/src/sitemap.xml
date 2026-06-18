@@ -29,6 +29,19 @@
     <priority>0.97</priority>
   </url>
 
+  <!-- E-Bikes (Sales catalog) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/de/e-bikes</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/e-bikes"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/e-bikes"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/e-bikes"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/e-bikes"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/e-bikes"/>
+    <lastmod>2026-06-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+
   <!-- About -->
   <url>
     <loc>https://bikehausfreiburg.com/de/about</loc>
@@ -551,6 +564,36 @@
     <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrrad-march"/>
     <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrrad-march"/>
     <lastmod>2026-04-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/de/fahrrad-wiehre</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrrad-wiehre"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrrad-wiehre"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrrad-wiehre"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrrad-wiehre"/>
+    <lastmod>2026-06-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/de/fahrrad-herdern</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrrad-herdern"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrrad-herdern"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrrad-herdern"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrrad-herdern"/>
+    <lastmod>2026-06-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bikehausfreiburg.com/de/fahrrad-stuehlinger</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/fahrrad-stuehlinger"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/fahrrad-stuehlinger"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/fahrrad-stuehlinger"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/fahrrad-stuehlinger"/>
+    <lastmod>2026-06-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

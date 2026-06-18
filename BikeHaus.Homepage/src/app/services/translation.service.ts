@@ -816,7 +816,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Gebrauchträder verlängern Lebenszyklen und schonen Ressourcen.',
 
     showroomLabel: 'SHOWROOM',
-    showroomTitle: 'Fahrräder kaufen in Freiburg.',
+    showroomTitle: 'Gebrauchte Fahrräder kaufen in Freiburg.',
     showroomSub: 'Entdecken Sie unser Sortiment — regelmäßig aktualisiert.',
     viewAll: 'Alle ansehen',
     viewDetails: 'Details',
@@ -1291,7 +1291,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     eBikesMetaTitle: 'E-Bikes kaufen Freiburg | City, Trekking & Mountain E-Bikes',
     eBikesMetaDescription:
       'E-Bikes in Freiburg kaufen ✓ City, Trekking & Mountain E-Bikes ✓ Bosch, Shimano & mehr ✓ 2 Jahre Garantie ✓ Faire Preise. Jetzt im Showroom ansehen — Bike Haus Freiburg.',
-    eBikesTitle: 'E-Bikes Freiburg',
+    eBikesTitle: 'E-Bikes kaufen in Freiburg',
     eBikesSub: 'Neue E-Bikes mit 2 Jahren Geschäftsgarantie.',
     eBikesNoItems: 'Aktuell keine E-Bikes verfügbar.',
     eBikesBackToList: 'Zurück zur Übersicht',
@@ -1522,7 +1522,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     value4Desc: 'Used bikes extend lifecycles and conserve resources.',
 
     showroomLabel: 'SHOWROOM',
-    showroomTitle: 'Buy Bikes in Freiburg.',
+    showroomTitle: 'Buy Used Bikes in Freiburg.',
     showroomSub: 'Discover our selection — regularly updated.',
     viewAll: 'View All',
     viewDetails: 'Details',
@@ -1975,7 +1975,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     eBikesMetaTitle: 'Buy E-Bikes Freiburg | City, Trekking & Mountain E-Bikes',
     eBikesMetaDescription:
       'Buy e-bikes in Freiburg ✓ City, Trekking & Mountain e-bikes ✓ Bosch, Shimano & more ✓ 2 year warranty ✓ Fair prices. Visit our showroom — Bike Haus Freiburg.',
-    eBikesTitle: 'E-Bikes Freiburg',
+    eBikesTitle: 'Buy E-Bikes in Freiburg',
     eBikesSub: 'New e-bikes with 2 years shop warranty.',
     eBikesNoItems: 'No e-bikes available at the moment.',
     eBikesBackToList: 'Back to List',
@@ -2209,7 +2209,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "Les vélos d'occasion prolongent les cycles de vie et préservent les ressources.",
 
     showroomLabel: 'SHOWROOM',
-    showroomTitle: 'Acheter des vélos à Fribourg.',
+    showroomTitle: "Acheter des vélos d'occasion à Fribourg.",
     showroomSub: 'Découvrez notre sélection — mise à jour régulièrement.',
     viewAll: 'Tout voir',
     viewDetails: 'Détails',
@@ -2688,7 +2688,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Acheter des vélos électriques Fribourg | Ville, Trekking & VTT',
     eBikesMetaDescription:
       'Achetez des vélos électriques à Fribourg ✓ Ville, Trekking & VTT électriques ✓ Bosch, Shimano & plus ✓ 2 ans de garantie ✓ Prix justes. Découvrez notre showroom — Bike Haus Freiburg.',
-    eBikesTitle: 'Vélos électriques Fribourg',
+    eBikesTitle: 'Acheter un vélo électrique à Fribourg',
     eBikesSub: 'Vélos électriques neufs avec 2 ans de garantie magasin.',
     eBikesNoItems: 'Aucun vélo électrique disponible actuellement.',
     eBikesBackToList: 'Retour à la liste',
@@ -2921,7 +2921,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'İkinci el bisikletler yaşam döngülerini uzatır ve kaynakları korur.',
 
     showroomLabel: 'SHOWROOM',
-    showroomTitle: "Freiburg'da Bisiklet Satın Al.",
+    showroomTitle: "Freiburg'da İkinci El Bisiklet Satın Al.",
     showroomSub: 'Seçkimizi keşfedin — düzenli olarak güncellenir.',
     viewAll: 'Tümünü Gör',
     viewDetails: 'Detaylar',
@@ -3396,7 +3396,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "Freiburg'da E-Bisiklet | Şehir, Trekking & Dağ E-Bisikletleri",
     eBikesMetaDescription:
       "Freiburg'da e-bisiklet satın alın ✓ Şehir, Trekking & Dağ e-bisikletleri ✓ Bosch, Shimano & daha fazlası ✓ 2 yıl garanti ✓ Uygun fiyat. Bike Haus Freiburg.",
-    eBikesTitle: "Freiburg'da E-Bisikletler",
+    eBikesTitle: "Freiburg'da E-Bisiklet Satın Al",
     eBikesSub: '2 yıl mağaza garantili yeni e-bisikletler.',
     eBikesNoItems: 'Şu anda e-bisiklet mevcut değil.',
     eBikesBackToList: 'Listeye Dön',

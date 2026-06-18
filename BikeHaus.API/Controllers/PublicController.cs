@@ -362,7 +362,7 @@ public class PublicController : ControllerBase
     {
         var baseUrl = "https://bikehausfreiburg.com";
         var now = DateTime.UtcNow.ToString("yyyy-MM-dd");
-        var langs = new[] { "de", "fr", "tr" };
+        var langs = new[] { "de", "en", "fr", "tr" };
 
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -529,7 +529,7 @@ public class PublicController : ControllerBase
     public async Task<IActionResult> NotifyIndexNow([FromServices] IIndexNowService indexNowService)
     {
         var baseUrl = "https://bikehausfreiburg.com";
-        var langs = new[] { "de", "fr", "tr" };
+        var langs = new[] { "de", "en", "fr", "tr" };
         var urls = new List<string>();
 
         // Static pages

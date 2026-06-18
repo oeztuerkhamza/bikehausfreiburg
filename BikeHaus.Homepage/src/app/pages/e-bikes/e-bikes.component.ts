@@ -14,6 +14,11 @@ import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { EBikeCardComponent } from '../../components/e-bike-card/e-bike-card.component';
 import { EBike, EBikeCategory } from '../../models/models';
+import {
+  EBIKE_FAQ,
+  CATEGORY_FAQ_HEADING,
+  CategoryFaqItem,
+} from '../../services/category-faq.data';
 
 type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
 
@@ -528,6 +533,23 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
           </div>
         </main>
       </div>
+
+      <!-- FAQ — quotable answers for AI search & rich results -->
+      <section class="cat-faq">
+        <div class="container">
+          <h2>{{ faqHeading() }}</h2>
+          <div class="cat-faq-list">
+            <details
+              class="cat-faq-item"
+              *ngFor="let item of faqItems(); let first = first"
+              [attr.open]="first ? '' : null"
+            >
+              <summary>{{ item.q }}</summary>
+              <p>{{ item.a }}</p>
+            </details>
+          </div>
+        </div>
+      </section>
     </div>
   `,
   styles: [
@@ -1116,6 +1138,53 @@ type SortOption = 'newest' | 'price-asc' | 'price-desc' | 'az';
           border-radius: 22px;
         }
       }
+
+      /* ═══ CATEGORY FAQ ═══ */
+      .cat-faq {
+        padding: 1rem 0 2.5rem;
+      }
+      .cat-faq h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0 0 1rem;
+      }
+      .cat-faq-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .cat-faq-item {
+        background: rgba(255, 255, 255, 0.035);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 0.9rem 1.2rem;
+      }
+      .cat-faq-item summary {
+        cursor: pointer;
+        font-weight: 600;
+        list-style: none;
+        position: relative;
+        padding-right: 1.5rem;
+      }
+      .cat-faq-item summary::-webkit-details-marker {
+        display: none;
+      }
+      .cat-faq-item summary::after {
+        content: '+';
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: 1.3rem;
+        color: #ff5722;
+      }
+      .cat-faq-item[open] summary::after {
+        content: '−';
+      }
+      .cat-faq-item p {
+        margin: 0.7rem 0 0;
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.7;
+      }
     `,
   ],
 })
@@ -1129,6 +1198,13 @@ export class EBikesComponent implements OnInit, OnDestroy {
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+
+  faqLang = computed<'de' | 'en' | 'fr' | 'tr'>(() => {
+    const l = this.lang();
+    return l === 'en' || l === 'fr' || l === 'tr' ? l : 'de';
+  });
+  faqItems = computed<CategoryFaqItem[]>(() => EBIKE_FAQ[this.faqLang()]);
+  faqHeading = computed(() => CATEGORY_FAQ_HEADING[this.faqLang()]);
 
   bikes = signal<EBike[]>([]);
   categories = signal<EBikeCategory[]>([]);
@@ -1288,6 +1364,7 @@ export class EBikesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadData();
     this.setSeo();
+    this.injectFaqSchema();
   }
 
   ngOnDestroy(): void {}
@@ -1331,6 +1408,28 @@ export class EBikesComponent implements OnInit, OnDestroy {
       'link[rel="canonical"]',
     );
     if (canonical) canonical.href = pageUrl;
+  }
+
+  private injectFaqSchema(): void {
+    this.document
+      .querySelectorAll('script[data-e-bikes-faq-ld]')
+      .forEach((el) => el.remove());
+    const pageUrl = `https://bikehausfreiburg.com/${this.lang()}/e-bikes`;
+    const faqPage = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      '@id': `${pageUrl}#faq`,
+      mainEntity: this.faqItems().map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    };
+    const script = this.document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-e-bikes-faq-ld', '');
+    script.textContent = JSON.stringify(faqPage);
+    this.document.head.appendChild(script);
   }
 
   private injectJsonLd(bikes: EBike[]): void {
