@@ -288,6 +288,16 @@ const MONTH_NAMES = [
             <input type="hidden" [(ngModel)]="endDatum" name="endDatum" required />
 
             <div class="form-grid" style="margin-top: 16px;">
+              <div class="field full" *ngIf="isEditMode">
+                <label>Beleg-Nr</label>
+                <input
+                  [(ngModel)]="mietvertragNummer"
+                  name="mietvertragNummer"
+                  placeholder="z.B. 042"
+                  autocomplete="off"
+                />
+                <span style="font-size:0.75rem;color:var(--text-muted,#94a3b8);margin-top:4px;">Belegnummer des Mietvertrags. Leer lassen, um sie nicht zu ändern.</span>
+              </div>
               <div class="field full">
                 <label>Notizen</label>
                 <textarea [(ngModel)]="notizen" name="notizen" rows="3"></textarea>
@@ -1815,6 +1825,7 @@ export class RentalFormComponent implements OnInit {
   isEditMode = false;
   rentalId: number | null = null;
   existingSignature = '';
+  mietvertragNummer = '';
   private removedExistingBikeIds: number[] = [];
 
   availableBikes: Bicycle[] = [];
@@ -2480,6 +2491,7 @@ export class RentalFormComponent implements OnInit {
         email: rental.customer.email || '',
       };
     }
+    this.mietvertragNummer = rental.mietvertragNummer || '';
     this.notizen = rental.notizen || '';
     this.agbAkzeptiert = rental.agbAkzeptiert || false;
     this.unterschriftOrt = rental.unterschriftOrt || 'Freiburg';
@@ -3052,6 +3064,7 @@ export class RentalFormComponent implements OnInit {
 
           const update: RentalUpdate = {
             customer: this.customer,
+            mietvertragNummer: this.mietvertragNummer?.trim() || undefined,
             startDatum: this.startDatum,
             endDatum: this.endDatum,
             rabatt: firstBike.rabatt || 0,

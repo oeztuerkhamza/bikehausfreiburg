@@ -67,6 +67,19 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         return $"{maxNumber + 1:D3}";
     }
 
+    public async Task<bool> MietvertragNummerExistsAsync(string mietvertragNummer, int excludeRentalId)
+    {
+        // Vergeben, wenn eine andere Vermietung diese Nummer trägt …
+        var existsInRentals = await _dbSet
+            .AnyAsync(r => r.Id != excludeRentalId && r.MietvertragNummer == mietvertragNummer);
+        if (existsInRentals)
+            return true;
+
+        // … oder ein Verkauf, da Verkauf + Vermietung sich einen Nummernkreis teilen.
+        return await _dbContext.Sales
+            .AnyAsync(s => s.BelegNummer == mietvertragNummer);
+    }
+
     public override async Task<IEnumerable<Rental>> GetAllAsync()
     {
         return await _dbSet

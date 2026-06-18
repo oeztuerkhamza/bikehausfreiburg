@@ -158,5 +158,6 @@ public record RentalUpdateDto(
     List<RentalBikeUpdateDto>? Bikes,
     List<RentalBikeCreateDto>? NewBikes,
     List<int>? RemoveBikeIds,
-    List<RentalAccessoryItemCreateDto>? Accessories
+    List<RentalAccessoryItemCreateDto>? Accessories,
+    string? MietvertragNummer = null
 );

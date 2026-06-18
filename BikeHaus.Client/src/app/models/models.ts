@@ -994,6 +994,7 @@ export interface RentalUpdate {
   newBikes?: RentalBikeCreate[];
   removeBikeIds?: number[];
   accessories?: RentalAccessoryItemCreate[];
+  mietvertragNummer?: string;
 }
 
 // ── Rental Booking (Homepage) ──

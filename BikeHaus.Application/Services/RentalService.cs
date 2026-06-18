@@ -275,6 +275,17 @@ public class RentalService : IRentalService
         if (dto.UnterschriftOrt != null)
             rental.UnterschriftOrt = dto.UnterschriftOrt;
 
+        // Beleg-Nr (Mietvertragsnummer) manuell änderbar — Eindeutigkeit prüfen
+        // (gemeinsamer Nummernkreis mit Verkäufen). Leer = unverändert lassen.
+        if (!string.IsNullOrWhiteSpace(dto.MietvertragNummer)
+            && dto.MietvertragNummer.Trim() != rental.MietvertragNummer)
+        {
+            var neueNummer = dto.MietvertragNummer.Trim();
+            if (await _rentalRepository.MietvertragNummerExistsAsync(neueNummer, rental.Id))
+                throw new InvalidOperationException($"Die Beleg-Nr {neueNummer} ist bereits vergeben.");
+            rental.MietvertragNummer = neueNummer;
+        }
+
         // Deposit return cascades to every bike in this rental
         if (dto.KautionZurueckgegeben.HasValue)
         {
