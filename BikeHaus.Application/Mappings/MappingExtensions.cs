@@ -167,7 +167,11 @@ public static class MappingExtensions
         entity.VerkaufspreisVorschlag,
         entity.Zahlungsart,
         entity.Kaufdatum,
-        entity.Sale != null
+        entity.Sale != null,
+        entity.Bicycle.Marke,
+        entity.Bicycle.Reifengroesse,
+        entity.Bicycle.Images.OrderBy(i => i.SortOrder).FirstOrDefault()?.FilePath,
+        entity.Bicycle.Images.Count
     );
 
     // ── Sale Mappings ──

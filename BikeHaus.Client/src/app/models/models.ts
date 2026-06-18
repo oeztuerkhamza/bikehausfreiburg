@@ -224,6 +224,10 @@ export interface PurchaseList {
   zahlungsart: PaymentMethod;
   kaufdatum: string;
   hasSale: boolean;
+  marke: string;
+  reifengroesse: string;
+  coverImagePath?: string;
+  imageCount: number;
 }
 
 export interface PurchaseCreate {

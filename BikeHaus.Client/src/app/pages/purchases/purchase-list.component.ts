@@ -19,6 +19,7 @@ import {
 } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { EditableCellComponent } from '../../components/editable-cell/editable-cell.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-purchase-list',
@@ -75,6 +76,27 @@ import { EditableCellComponent } from '../../components/editable-cell/editable-c
         >
           ✕ {{ t.clearFilters }}
         </button>
+
+        <div class="view-toggle">
+          <button
+            type="button"
+            class="view-btn"
+            [class.active]="viewMode === 'cards'"
+            (click)="setViewMode('cards')"
+            title="Karten"
+          >
+            ▦
+          </button>
+          <button
+            type="button"
+            class="view-btn"
+            [class.active]="viewMode === 'table'"
+            (click)="setViewMode('table')"
+            title="Tabelle"
+          >
+            ☰
+          </button>
+        </div>
       </div>
 
       <!-- Advanced Filters Row -->
@@ -140,7 +162,7 @@ import { EditableCellComponent } from '../../components/editable-cell/editable-c
         </div>
       </div>
 
-      <div class="table-container">
+      <div class="table-container" *ngIf="viewMode === 'table'">
         <table>
           <thead>
             <tr>
@@ -239,6 +261,101 @@ import { EditableCellComponent } from '../../components/editable-cell/editable-c
           (pageSizeChange)="onPageSizeChange($event)"
         ></app-pagination>
       </div>
+
+      <!-- Card view -->
+      <div class="cards-grid" *ngIf="viewMode === 'cards'">
+        <div
+          class="purchase-card"
+          *ngFor="let p of paginatedResult?.items"
+          [class.card-with-sale]="p.hasSale"
+          (click)="toggleMenu($event, p)"
+        >
+          <div class="card-photo">
+            <img
+              *ngIf="p.coverImagePath"
+              [src]="getCoverUrl(p)"
+              [alt]="p.marke"
+              loading="lazy"
+            />
+            <div class="card-photo-empty" *ngIf="!p.coverImagePath">🚲</div>
+            <span class="photo-badge" *ngIf="p.imageCount > 1"
+              >📷 {{ p.imageCount }}</span
+            >
+          </div>
+          <div class="card-body">
+            <div class="card-seller">{{ p.sellerName }}</div>
+            <div class="card-rows">
+              <div class="card-row">
+                <span class="card-label">{{ t.receiptNo }}</span>
+                <span class="card-val mono">{{ p.belegNummer || '–' }}</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">{{ t.brand }}</span>
+                <span class="card-val">{{ p.marke || '–' }}</span>
+              </div>
+              <div class="card-row">
+                <span class="card-label">Reifengröße</span>
+                <span class="card-val">{{
+                  p.reifengroesse ? p.reifengroesse + '"' : '–'
+                }}</span>
+              </div>
+            </div>
+            <div class="card-price">{{ p.preis | number: '1.2-2' }} €</div>
+          </div>
+          <button class="card-menu-btn" (click)="toggleMenu($event, p)">⋮</button>
+          <div
+            *ngIf="activeMenuId === p.id"
+            class="popup-menu card-popup"
+            (click)="$event.stopPropagation()"
+          >
+            <button class="popup-item" (click)="printPdf(p)">
+              <span class="popup-icon">🖨️</span>
+              {{ t.printDocument }}
+            </button>
+            <button class="popup-item" (click)="goToEdit(p)">
+              <span class="popup-icon">✏️</span>
+              {{ t.editDocument }}
+            </button>
+            <button class="popup-item" (click)="previewPdf(p)">
+              <span class="popup-icon">👁️</span>
+              {{ t.preview }}
+            </button>
+            <button class="popup-item" (click)="downloadPdf(p)">
+              <span class="popup-icon">⬇️</span>
+              {{ t.download }}
+            </button>
+            <div class="popup-divider"></div>
+            <button
+              class="popup-item popup-item-danger"
+              (click)="deletePurchase(p)"
+            >
+              <span class="popup-icon">🗑️</span>
+              {{ t.delete }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <p
+        *ngIf="viewMode === 'cards' && paginatedResult?.items?.length === 0"
+        class="empty"
+      >
+        {{ t.noPurchases }}
+      </p>
+      <app-pagination
+        *ngIf="
+          viewMode === 'cards' &&
+          paginatedResult &&
+          paginatedResult.totalCount > 0
+        "
+        [currentPage]="currentPage"
+        [pageSize]="pageSize"
+        [totalCount]="paginatedResult.totalCount"
+        [totalPages]="paginatedResult.totalPages"
+        [hasPrevious]="paginatedResult.hasPrevious"
+        [hasNext]="paginatedResult.hasNext"
+        (pageChange)="onPageChange($event)"
+        (pageSizeChange)="onPageSizeChange($event)"
+      ></app-pagination>
     </div>
   `,
   styles: [
@@ -543,6 +660,165 @@ import { EditableCellComponent } from '../../components/editable-cell/editable-c
         color: var(--text-secondary, #94a3b8);
       }
 
+      /* ── View toggle ── */
+      .view-toggle {
+        display: flex;
+        margin-left: auto;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: var(--radius-md, 10px);
+        overflow: hidden;
+      }
+      .view-btn {
+        padding: 8px 14px;
+        border: none;
+        background: var(--bg-card, #fff);
+        color: var(--text-secondary, #64748b);
+        font-size: 1.05rem;
+        line-height: 1;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .view-btn:hover {
+        background: var(--table-hover, #f1f5f9);
+      }
+      .view-btn.active {
+        background: var(--accent-primary, #6366f1);
+        color: #fff;
+      }
+
+      /* ── Card grid ── */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+        margin-top: 4px;
+      }
+      .purchase-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-card);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg, 14px);
+        box-shadow: var(--shadow-sm);
+        cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      }
+      .purchase-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md, 0 6px 16px rgba(0, 0, 0, 0.1));
+        border-color: var(--accent-primary, #6366f1);
+      }
+      .card-with-sale {
+        border-color: rgba(236, 72, 153, 0.5);
+        background: rgba(236, 72, 153, 0.06);
+      }
+      .card-photo {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        background: var(--bg-secondary, #f1f5f9);
+        border-radius: var(--radius-lg, 14px) var(--radius-lg, 14px) 0 0;
+        overflow: hidden;
+      }
+      .card-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .card-photo-empty {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.6rem;
+        opacity: 0.3;
+      }
+      .photo-badge {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 50px;
+      }
+      .card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px 14px 14px;
+      }
+      .card-seller {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .card-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .card-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .card-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--text-secondary, #64748b);
+      }
+      .card-val {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        text-align: right;
+      }
+      .card-price {
+        margin-top: 2px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--accent-primary, #6366f1);
+        font-variant-numeric: tabular-nums;
+      }
+      .card-menu-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        z-index: 2;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        background: var(--bg-card, #fff);
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .card-menu-btn:hover {
+        color: var(--text-primary);
+        border-color: var(--accent-primary, #6366f1);
+      }
+      .card-popup {
+        top: 40px;
+        right: 6px;
+      }
+
       @media (max-width: 640px) {
         .filters {
           flex-direction: column;
@@ -581,6 +857,8 @@ export class PurchaseListComponent implements OnInit {
   showFilters = false;
   activeMenuId: number | null = null;
   missingCount = 0;
+  viewMode: 'table' | 'cards' = 'cards';
+  private readonly viewModeKey = 'purchaseViewMode';
 
   get t() {
     return this.translationService.translations();
@@ -597,6 +875,10 @@ export class PurchaseListComponent implements OnInit {
   }
 
   ngOnInit() {
+    const savedView = localStorage.getItem(this.viewModeKey);
+    if (savedView === 'table' || savedView === 'cards') {
+      this.viewMode = savedView;
+    }
     this.load();
     this.purchaseService.getMissingSalesCount().subscribe({
       next: (res) => (this.missingCount = res.count),
@@ -693,6 +975,15 @@ export class PurchaseListComponent implements OnInit {
       default:
         return method;
     }
+  }
+
+  setViewMode(mode: 'table' | 'cards') {
+    this.viewMode = mode;
+    localStorage.setItem(this.viewModeKey, mode);
+  }
+
+  getCoverUrl(p: PurchaseList): string {
+    return `${environment.apiUrl}/public/gallery-image/${p.coverImagePath}`;
   }
 
   downloadPdf(p: PurchaseList) {

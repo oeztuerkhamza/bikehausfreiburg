@@ -42,7 +42,11 @@ public record PurchaseListDto(
     decimal? VerkaufspreisVorschlag,
     PaymentMethod Zahlungsart,
     DateTime Kaufdatum,
-    bool HasSale
+    bool HasSale,
+    string Marke,
+    string Reifengroesse,
+    string? CoverImagePath,
+    int ImageCount
 );
 
 // Update DTO - for editing existing purchases

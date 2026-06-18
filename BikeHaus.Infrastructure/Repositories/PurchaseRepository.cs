@@ -66,7 +66,7 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
     public override async Task<IEnumerable<Purchase>> GetAllAsync()
     {
         return await _dbSet
-            .Include(p => p.Bicycle)
+            .Include(p => p.Bicycle).ThenInclude(b => b.Images)
             .Include(p => p.Seller)
             .Include(p => p.Sale)
             .OrderByDescending(p => p.Kaufdatum)
@@ -79,7 +79,7 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
         Expression<Func<Purchase, bool>>? predicate = null)
     {
         var query = _dbSet
-            .Include(p => p.Bicycle)
+            .Include(p => p.Bicycle).ThenInclude(b => b.Images)
             .Include(p => p.Seller)
             .Include(p => p.Sale)
             .AsQueryable();
