@@ -167,6 +167,8 @@ export interface Translations {
   newBikesTitle: string;
   newBikesSub: string;
   browseNewBikes: string;
+  ebikeAngeboteTitle: string;
+  ebikeAngeboteSub: string;
   usedBikesLabel: string;
   usedBikesTitle: string;
   usedBikesSub: string;
@@ -828,6 +830,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     newBikesTitle: 'Neue Fahrräder entdecken.',
     newBikesSub: 'Fabrikneue Räder mit 2 Jahren Geschäftsgarantie.',
     browseNewBikes: 'Neue Räder ansehen',
+    ebikeAngeboteTitle: 'E-Bike Angebote',
+    ebikeAngeboteSub:
+      'Aktuelle Sonderangebote auf ausgewählte E-Bikes — solange der Vorrat reicht.',
     usedBikesLabel: 'GEPRÜFT & BEREIT',
     usedBikesTitle: 'Gebrauchträder entdecken.',
     usedBikesSub: 'Sorgfältig geprüft, aufbereitet und sofort fahrbereit.',
@@ -1534,6 +1539,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     newBikesTitle: 'Discover New Bikes.',
     newBikesSub: 'Brand new bikes with 2 years shop warranty.',
     browseNewBikes: 'Browse New Bikes',
+    ebikeAngeboteTitle: 'E-Bike Offers',
+    ebikeAngeboteSub:
+      'Current special offers on selected e-bikes — while stocks last.',
     usedBikesLabel: 'CERTIFIED & READY',
     usedBikesTitle: 'Discover Used Bikes.',
     usedBikesSub: 'Carefully inspected, refurbished, and ready to ride.',
@@ -2221,6 +2229,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     newBikesTitle: 'Découvrez nos vélos neufs.',
     newBikesSub: 'Vélos neufs avec 2 ans de garantie magasin.',
     browseNewBikes: 'Voir les vélos neufs',
+    ebikeAngeboteTitle: 'Offres E-Bike',
+    ebikeAngeboteSub:
+      'Offres spéciales sur une sélection de vélos électriques — jusqu’à épuisement des stocks.',
     usedBikesLabel: 'CONTRÔLÉS & PRÊTS',
     usedBikesTitle: "Découvrez nos vélos d'occasion.",
     usedBikesSub: 'Vérifiés avec soin, remis en état et prêts à rouler.',
@@ -2933,6 +2944,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     newBikesTitle: 'Yeni bisikletleri keşfedin.',
     newBikesSub: '2 yıl mağaza garantili sıfır bisikletler.',
     browseNewBikes: 'Yeni bisikletleri gör',
+    ebikeAngeboteTitle: 'E-Bike Fırsatları',
+    ebikeAngeboteSub:
+      'Seçili e-bike’larda güncel indirimler — stoklarla sınırlı.',
     usedBikesLabel: 'KONTROL EDİLMİŞ & HAZIR',
     usedBikesTitle: 'İkinci el bisikletleri keşfedin.',
     usedBikesSub: 'Titizlikle kontrol edilmiş, yenilenmiş ve sürüşe hazır.',

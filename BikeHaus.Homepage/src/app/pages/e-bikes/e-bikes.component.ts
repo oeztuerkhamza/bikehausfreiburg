@@ -1331,6 +1331,13 @@ export class EBikesComponent implements OnInit, OnDestroy {
         break;
     }
 
+    // Angebot-Bikes immer zuerst (stabil: behält die gewählte Sortierung je Gruppe)
+    items = [...items].sort(
+      (a, b) =>
+        (b.angebot && b.angebot > 0 ? 1 : 0) -
+        (a.angebot && a.angebot > 0 ? 1 : 0),
+    );
+
     return items;
   });
 

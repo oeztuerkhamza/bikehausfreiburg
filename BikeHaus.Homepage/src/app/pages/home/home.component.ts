@@ -14,6 +14,7 @@ import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { BikeCardComponent } from '../../components/bike-card/bike-card.component';
 import { NeueBikeCardComponent } from '../../components/neue-bike-card/neue-bike-card.component';
+import { EBikeCardComponent } from '../../components/e-bike-card/e-bike-card.component';
 import { HeroSectionComponent } from './hero-section.component';
 import { environment } from '../../../environments/environment';
 import {
@@ -21,6 +22,7 @@ import {
   KleinanzeigenCategory,
   PublicShopInfo,
   NeueFahrrad,
+  EBike,
   RepairShowcase,
   GoogleReview,
 } from '../../models/models';
@@ -41,6 +43,7 @@ interface Testimonial {
     RouterModule,
     BikeCardComponent,
     NeueBikeCardComponent,
+    EBikeCardComponent,
     HeroSectionComponent,
   ],
   template: `
@@ -365,6 +368,48 @@ interface Testimonial {
             *ngFor="let bike of neueFahrraeder().slice(0, 6)"
             [bike]="bike"
           ></app-neue-bike-card>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Section 3c — E-BIKE ANGEBOTE ═══ -->
+    <section
+      class="section"
+      aria-labelledby="ebike-angebote-heading"
+      *ngIf="eBikeAngebote().length"
+    >
+      <div class="container">
+        <div class="section-head-row">
+          <div>
+            <span class="section-label fade-in">{{ t().eBikes }}</span>
+            <h2 id="ebike-angebote-heading" class="section-title fade-in d1">
+              {{ t().ebikeAngeboteTitle }}
+            </h2>
+            <p class="section-subtitle fade-in d2">
+              {{ t().ebikeAngeboteSub }}
+            </p>
+          </div>
+          <a
+            [routerLink]="['/' + lang(), 'e-bikes']"
+            class="btn-secondary view-all-btn fade-in d2"
+            >{{ t().viewAll }}
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+        <div class="bike-grid">
+          <app-e-bike-card
+            *ngFor="let bike of eBikeAngebote()"
+            [bike]="bike"
+          ></app-e-bike-card>
         </div>
       </div>
     </section>
@@ -2965,6 +3010,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   categories = signal<KleinanzeigenCategory[]>([]);
   shopInfo = signal<PublicShopInfo | null>(null);
   neueFahrraeder = signal<NeueFahrrad[]>([]);
+  eBikes = signal<EBike[]>([]);
   loading = signal(true);
 
   // ── Service Carousel ──
@@ -2984,6 +3030,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.neueFahrraeder()
       .filter((b) => b.angebot && b.angebot > 0)
       .slice(0, 3);
+  }
+
+  eBikeAngebote() {
+    return this.eBikes()
+      .filter((b) => b.angebot && b.angebot > 0)
+      .slice(0, 6);
   }
 
   get carouselTransform(): string {
@@ -3447,6 +3499,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.apiService.getNeueFahrraeder().subscribe({
       next: (data) => this.neueFahrraeder.set(data),
+    });
+
+    this.apiService.getEBikes().subscribe({
+      next: (data) => this.eBikes.set(data),
     });
 
     this.apiService.getRepairShowcases().subscribe({
