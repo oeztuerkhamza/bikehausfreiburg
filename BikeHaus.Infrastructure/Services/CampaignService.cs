@@ -159,6 +159,17 @@ public class CampaignService : ICampaignService
 
         var suppressed = (await _unsubscribe.GetUnsubscribedEmailsAsync()).ToHashSet();
 
+        // Already-contacted within the de-dup window (same rule the per-send loop
+        // enforces). Excluded here too so the preview count and the campaign total
+        // reflect only genuinely-new recipients — "An alle senden" never re-mails
+        // someone who already received the request.
+        var since = DateTime.UtcNow.AddDays(-Math.Max(1, _reviewOptions.MinIntervalDays));
+        var alreadyContacted = (await _db.ReviewRequests
+            .Where(r => r.SentAt >= since)
+            .Select(r => r.Email)
+            .ToListAsync())
+            .ToHashSet();
+
         var seen = new HashSet<string>();
         var eligible = new List<Recipient>();
         var skipped = 0;
@@ -176,6 +187,9 @@ public class CampaignService : ICampaignService
                 skipped++;
                 continue;
             }
+
+            if (alreadyContacted.Contains(normalized))
+                continue; // already received the request — skip silently
 
             eligible.Add(new Recipient(c.Vorname ?? string.Empty, c.Email!.Trim()));
         }
