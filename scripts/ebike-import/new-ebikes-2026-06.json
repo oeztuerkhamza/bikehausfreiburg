@@ -1,0 +1,46 @@
+[
+  {
+    "sourceUrl": "https://www.feldmeier-bike.com/product-page/feldmeier-fe-12t-eco-5",
+    "titel": "Feldmeier FE 12T ECO Trapez",
+    "marke": "Feldmeier",
+    "modell": "FE 12T ECO",
+    "preis": 2499.00,
+    "beschreibung": "28\" eTREKKING Trapez, semiintegriert. Motor: BOSCH Performance Line BES2, 250W, 65Nm. Akku: BOSCH PowerPack 500 - semiintegriert/36V/14Ah/500Wh, INTUVIA Display. Federgabel: SUNTOUR NEX-E25 DS, 63 mm. Schaltung: 9 Gang microSHIFT MEZZO / microSHIFT CS, 11-36 Zaehne. Bremsen: SHIMANO Disc BR-MT200, 180/160 mm. Reifen: SCHWALBE LAND CRUISER PLUS 28 x 2.00 (50-622). 4 Modi, Unterstuetzung bis 25 km/h.",
+    "motorMarke": "Bosch",
+    "motorPosition": "Mittelmotor",
+    "motorLeistungNm": 65,
+    "akkuKapazitaetWh": 500,
+    "reichweiteKm": null,
+    "rahmengroesse": "45cm / 50cm / 55cm",
+    "reifengroesse": "28\"",
+    "gangschaltung": "9 Gang microSHIFT MEZZO / microSHIFT CS, 11-36 Zaehne",
+    "farbe": "champagner matt; Dekor schwarz/lime",
+    "zustand": "Neu",
+    "kategorie": "E-Trekking",
+    "imageUrls": [
+      "https://static.wixstatic.com/media/ed1141_a5abd8a3e3f54118b53e1b7a0201afc8~mv2.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://de.idealbikes.net/produkt/futour-6109/",
+    "titel": "IDEAL FUTOUR-6109",
+    "marke": "IDEAL",
+    "modell": "FUTOUR-6109",
+    "preis": 2499.00,
+    "beschreibung": "28\" eTREKKING semiintegriert, Aluminium. Motor: SHIMANO STEPS DU-E6100 Mittelmotor, 250W, 60Nm. Akku: SHIMANO STEPS BT-E8016 - semiintegriert/504Wh. Display: SHIMANO STEPS SC-E6100. Federgabel: RST Volant-T, 60 mm, Coil. Schaltung: 9 Gang SHIMANO CUES RD-U4000 Shadow Kettenschaltung. Bremsen: SHIMANO BR-MT200 / BL-MT201 Disc, 180/180 mm. Reifen: SCHWALBE LAND CRUISER PLUS PunctureGuard (50-622).",
+    "motorMarke": "Shimano",
+    "motorPosition": "Mittelmotor",
+    "motorLeistungNm": 60,
+    "akkuKapazitaetWh": 504,
+    "reichweiteKm": null,
+    "rahmengroesse": "46cm / 50cm",
+    "reifengroesse": "28\"",
+    "gangschaltung": "9 Gang SHIMANO CUES RD-U4000 Shadow",
+    "farbe": "grau matt",
+    "zustand": "Neu",
+    "kategorie": "E-Trekking",
+    "imageUrls": [
+      "https://de.idealbikes.net/mocunab/2024/02/FUTOUR-6109-W-1920x1227.jpg"
+    ]
+  }
+]
