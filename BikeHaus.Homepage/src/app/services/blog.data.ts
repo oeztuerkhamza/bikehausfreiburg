@@ -1249,7 +1249,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       'fahrrad inspektion',
       'wartung',
       'kosten',
-      'reparatur',
+      'fahrrad service',
       'fahrrad check',
     ],
     relatedSlugs: ['gebrauchtes-fahrrad-kaufen-tipps', 'fahrradladen-freiburg'],
@@ -1261,7 +1261,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaDescription:
           'Fahrradinspektion Kosten 2026: Basis 20–30 €, Standard 40–60 €, groß 60–180 €, E-Bike bis 100 €. Was wird geprüft? Ablauf & Checkliste vom Fahrradladen Freiburg.',
         excerpt:
-          'Eine regelmäßige Inspektion hält Ihr Fahrrad sicher und verhindert teure Reparaturen. Hier erfahren Sie, was geprüft wird und was es kostet.',
+          'Eine regelmäßige Inspektion hält Ihr Fahrrad sicher und verhindert teure Folgeschäden. Hier erfahren Sie, was geprüft wird und was es kostet.',
         tldr: 'Eine Fahrrad-Inspektion kostet je nach Umfang 30–180 €. Geprüft werden Bremsen, Schaltung, Reifen, Kette, Lager, Beleuchtung und Speichenspannung. Empfohlen: 1× pro Jahr oder alle 2.000 km.',
         sections: [
           {
@@ -1306,7 +1306,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'tip',
             content:
-              'Tipp: Bringen Sie Ihr Fahrrad im Frühling zur Inspektion — vor der Hauptsaison. So haben Werkstätten kürzere Wartezeiten und Ihr Rad ist rechtzeitig fit.',
+              'Tipp: Bringen Sie Ihr Fahrrad im Frühling zur Inspektion — vor der Hauptsaison. So sind die Wartezeiten kürzer und Ihr Rad ist rechtzeitig fit.',
           },
           {
             type: 'heading',
@@ -1377,7 +1377,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaDescription:
           'Bike inspection costs 2026: basic check €20–30, standard €40–60, full service €60–80, e-bike up to €100. What gets checked? Process & checklist from Freiburg bike shop.',
         excerpt:
-          'A regular inspection keeps your bike safe and prevents expensive repairs. Learn what gets checked and what it costs.',
+          'A regular inspection keeps your bike safe and prevents expensive follow-up damage. Learn what gets checked and what it costs.',
         tldr: 'A bike inspection costs €30–80 depending on scope. Brakes, gears, tires, chain, bearings, lights and spoke tension are checked. Recommended: once a year or every 2,000 km.',
         sections: [
           {
@@ -1408,7 +1408,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'tip',
             content:
-              'Tip: Bring your bike for inspection in spring — before peak season. Workshops have shorter wait times and your bike is ready in time.',
+              'Tip: Bring your bike for inspection in spring — before peak season. Wait times are shorter and your bike is ready in time.',
           },
           {
             type: 'cta',
@@ -1426,7 +1426,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaDescription:
           'Combien coûte une révision vélo? Que vérifie-t-on? Déroulement, coûts (30–180 €) et checklist ✓ Conseils du vélociste à Freiburg.',
         excerpt:
-          'Une révision régulière garde votre vélo en sécurité et évite les réparations coûteuses.',
+          'Une révision régulière garde votre vélo en sécurité et évite des dommages coûteux.',
         tldr: 'Une révision vélo coûte entre 30 et 180 €. Freins, vitesses, pneus, chaîne, roulements et éclairage sont vérifiés. Recommandé : 1× par an.',
         sections: [
           {
@@ -1453,7 +1453,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         metaDescription:
           'Bisiklet bakımı ne kadara mal olur? Neler kontrol edilir? Süreç, maliyetler (30–180 €) ve kontrol listesi ✓ Freiburg bisikletçisinden ipuçları.',
         excerpt:
-          'Düzenli bakım bisikletinizi güvende tutar ve pahalı tamirleri önler.',
+          'Düzenli bakım bisikletinizi güvende tutar ve pahalı hasarları önler.',
         tldr: "Bisiklet bakımı 30–180 € arası. Frenler, vitesler, lastikler, zincir, rulmanlar ve ışıklar kontrol edilir. Önerilen: yılda 1 kez veya 2.000 km'de bir.",
         sections: [
           {
