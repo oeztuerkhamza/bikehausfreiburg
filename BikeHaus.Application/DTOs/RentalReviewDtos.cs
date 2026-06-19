@@ -23,7 +23,7 @@ public record RentalReviewPublicDto(
 
 public record RentalReviewCreateDto(
     string Ad,
-    [property: OptionalEmailAddress] string? Email,
+    [OptionalEmailAddress] string? Email,
     int Sterne,
     string Yorum
 );
