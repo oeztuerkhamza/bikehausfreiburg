@@ -18,9 +18,12 @@ COPY BikeHaus.Application/BikeHaus.Application.csproj BikeHaus.Application/
 COPY BikeHaus.Domain/BikeHaus.Domain.csproj BikeHaus.Domain/
 COPY BikeHaus.Infrastructure/BikeHaus.Infrastructure.csproj BikeHaus.Infrastructure/
 
-# Cache NuGet packages — only re-downloads if csproj files changed
-RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet restore BikeHaus.API/BikeHaus.API.csproj -r linux-x64
+# Restore NuGet packages — only re-runs if csproj files changed (Docker layer cache).
+# NOTE: do NOT use --mount=type=cache for the NuGet folder here. On ephemeral CI
+# runners the BuildKit cache mount is empty while the restore *layer* is a gha
+# cache hit, so the later `--no-restore` publish can't find packages (NETSDK1064).
+# Restoring into the layer filesystem makes the packages persist for publish.
+RUN dotnet restore BikeHaus.API/BikeHaus.API.csproj -r linux-x64
 
 # Copy backend source only (Client lives in its own image)
 COPY BikeHaus.API/ BikeHaus.API/
@@ -28,8 +31,7 @@ COPY BikeHaus.Application/ BikeHaus.Application/
 COPY BikeHaus.Domain/ BikeHaus.Domain/
 COPY BikeHaus.Infrastructure/ BikeHaus.Infrastructure/
 
-RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet publish BikeHaus.API/BikeHaus.API.csproj \
+RUN dotnet publish BikeHaus.API/BikeHaus.API.csproj \
         -c Release -r linux-x64 --no-self-contained \
         -o /app/publish --no-restore
 
