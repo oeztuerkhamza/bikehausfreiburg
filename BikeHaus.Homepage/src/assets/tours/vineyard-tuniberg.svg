@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Tuniberg vineyard hill at sunset">
+  <defs>
+    <linearGradient id="tuSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb066"/>
+      <stop offset="0.55" stop-color="#ffd9a0"/>
+      <stop offset="1" stop-color="#fff1d8"/>
+    </linearGradient>
+    <linearGradient id="tuHill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9bbf63"/>
+      <stop offset="1" stop-color="#6f9a48"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#tuSky)"/>
+  <circle cx="400" cy="150" r="56" fill="#ff8a4b"/>
+  <circle cx="400" cy="150" r="56" fill="#ffb074" opacity="0.45"/>
+  <!-- far Kaiserstuhl silhouette -->
+  <path d="M0 230 L160 195 L340 225 L520 188 L700 222 L800 200 L800 250 L0 250 Z" fill="#caa278" opacity="0.7"/>
+  <!-- rolling vineyard hill -->
+  <path d="M0 250 Q400 200 800 255 L800 450 L0 450 Z" fill="url(#tuHill)"/>
+  <!-- vine rows following the slope -->
+  <g stroke="#577d3c" stroke-width="3" opacity="0.8" fill="none">
+    <path d="M40 300 Q400 256 770 304"/>
+    <path d="M40 330 Q400 286 770 334"/>
+    <path d="M40 362 Q400 318 770 366"/>
+    <path d="M40 396 Q400 352 770 400"/>
+  </g>
+  <!-- dashed ridge route -->
+  <path d="M70 268 Q400 222 740 270" fill="none" stroke="#ff5722" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 16"/>
+  <!-- lone tree on the ridge -->
+  <rect x="612" y="232" width="7" height="26" fill="#6b4a2f"/><circle cx="615" cy="226" r="20" fill="#5e8a44"/>
+</svg>

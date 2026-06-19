@@ -344,6 +344,31 @@ export const routes: Routes = [
             (m) => m.FahrradServiceComponent,
           ),
       },
+      // ── Fahrradtouren (bike tours) — language-specific slugs ──
+      // DE/TR/ES/IT/AR/RU: /fahrradtouren
+      {
+        path: 'fahrradtouren',
+        loadComponent: () =>
+          import('./pages/bike-tours/bike-tours.component').then(
+            (m) => m.BikeToursComponent,
+          ),
+      },
+      // EN canonical: /en/bike-tours
+      {
+        path: 'bike-tours',
+        loadComponent: () =>
+          import('./pages/bike-tours/bike-tours.component').then(
+            (m) => m.BikeToursComponent,
+          ),
+      },
+      // FR canonical: /fr/circuits-velo
+      {
+        path: 'circuits-velo',
+        loadComponent: () =>
+          import('./pages/bike-tours/bike-tours.component').then(
+            (m) => m.BikeToursComponent,
+          ),
+      },
     ],
   },
   {

@@ -10,6 +10,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     accessories: 'Accesorios',
     about: 'Acerca de',
     contact: 'Contacto',
+    bikeToursNav: 'Rutas en Bici',
 
     heroH1: 'Bicicletas en Freiburg — nuevas y usadas.',
     heroSub:
@@ -681,6 +682,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     accessories: 'Accessori',
     about: 'Chi siamo',
     contact: 'Contatti',
+    bikeToursNav: 'Tour in Bici',
     heroH1: 'Biciclette a Friburgo — nuove e usate.',
     heroSub:
       'Acquista o noleggia una bici a Friburgo ✓ Bici usate controllate da 180 € ✓ Noleggio con prezzi giornalieri per bici ✓ City, Trekking ed E-Bike ✓ Ritiro immediato.',
@@ -1309,6 +1311,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     accessories: 'الملحقات',
     about: 'عنا',
     contact: 'اتصل',
+    bikeToursNav: 'جولات الدراجات',
     heroH1: 'الدراجات في فرايبورج — جديدة وعرضة للاستخدام.',
     heroSub:
       'شراء أو استئجار دراجة في فرايبورج ✓ دراجات عرضة للاستخدام معاينة من 80 يورو ✓ إيجار دراجة بأسعار يومية لكل دراجة ✓ مدينة، تريكينج ودراجات كهربائية ✓ الاستلام بنفس اليوم.',
@@ -1837,6 +1840,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     accessories: 'Аксессуары',
     about: 'О нас',
     contact: 'Контакты',
+    bikeToursNav: 'Велотуры',
     heroH1: 'Велосипеды во Фрайбурге — новые и подержанные.',
     heroSub:
       'Покупайте или арендуйте велосипед во Фрайбурге ✓ Проверенные подержанные велосипеды от 180 € ✓ Аренда с индивидуальными дневными ценами ✓ Городские, треккинг и электровелосипеды ✓ Самовывоз в день обращения.',

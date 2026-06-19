@@ -1635,6 +1635,11 @@ interface BikeSlot {
               </a>
             </li>
             <li>
+              <a [routerLink]="['/' + lang() + '/' + toursSlug()]">
+                {{ t().bikeToursNav }}
+              </a>
+            </li>
+            <li>
               <a [routerLink]="['/' + lang() + '/faq']">
                 {{ t().rentalLinkFaq }}
               </a>
@@ -4790,6 +4795,12 @@ export class FahrradverleihComponent implements OnInit {
     if (l === 'fr') return 'velos-de-location';
     return 'mietfahrraeder';
   });
+  toursSlug = computed(() => {
+    const l = this.lang();
+    if (l === 'en') return 'bike-tours';
+    if (l === 'fr') return 'circuits-velo';
+    return 'fahrradtouren';
+  });
   rentalGuideSlug = computed(() => {
     const l = this.lang();
     const base = l === 'en' ? 'guide' : 'ratgeber';
@@ -5022,6 +5033,7 @@ export class FahrradverleihComponent implements OnInit {
         {
           '@type': 'Service',
           '@id': `${pageUrl}#service`,
+          serviceType: 'BikeRental',
           name: serviceNameByLang[schemaLang] ?? 'Fahrradverleih Freiburg',
           alternateName: [
             'Bike Rental Freiburg',
@@ -5044,6 +5056,43 @@ export class FahrradverleihComponent implements OnInit {
             },
             telephone: '+49-155-66300011',
             url: 'https://bikehausfreiburg.com/de',
+            geo: {
+              '@type': 'GeoCoordinates',
+              latitude: 47.9893,
+              longitude: 7.8009,
+            },
+            openingHoursSpecification: [
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: ['Monday', 'Tuesday', 'Thursday'],
+                opens: '11:00',
+                closes: '17:30',
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: 'Wednesday',
+                opens: '14:00',
+                closes: '17:30',
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: 'Friday',
+                opens: '11:00',
+                closes: '13:00',
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: 'Friday',
+                opens: '15:00',
+                closes: '18:00',
+              },
+              {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: 'Saturday',
+                opens: '11:30',
+                closes: '17:00',
+              },
+            ],
           },
           areaServed: {
             '@type': 'City',

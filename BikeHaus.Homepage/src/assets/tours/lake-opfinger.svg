@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Opfinger lake with forest">
+  <defs>
+    <linearGradient id="opSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ec8ec"/>
+      <stop offset="1" stop-color="#d8f0f7"/>
+    </linearGradient>
+    <linearGradient id="opLake" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fd2ea"/>
+      <stop offset="1" stop-color="#3f95c4"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#opSky)"/>
+  <circle cx="160" cy="100" r="44" fill="#fff4cf"/>
+  <circle cx="160" cy="100" r="44" fill="#ffe08a" opacity="0.4"/>
+  <!-- distant tree line -->
+  <path d="M0 230 L800 230 L800 280 L0 280 Z" fill="#3f7a5e"/>
+  <g fill="#356b51">
+    <polygon points="60,196 80,234 40,234"/><polygon points="120,200 140,234 100,234"/>
+    <polygon points="200,194 222,234 178,234"/><polygon points="300,198 320,234 280,234"/>
+    <polygon points="430,196 452,234 408,234"/><polygon points="560,200 580,234 540,234"/>
+    <polygon points="680,194 702,234 658,234"/><polygon points="740,198 760,234 720,234"/>
+  </g>
+  <!-- shoreline meadow -->
+  <path d="M0 270 Q400 250 800 272 L800 300 L0 300 Z" fill="#7ab964"/>
+  <!-- lake -->
+  <ellipse cx="400" cy="370" rx="430" ry="92" fill="url(#opLake)"/>
+  <!-- sun reflection -->
+  <path d="M160 320 q4 60 0 96" stroke="#fff4cf" stroke-width="10" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <!-- ripples -->
+  <g stroke="#cdeaf6" stroke-width="3" opacity="0.7" fill="none" stroke-linecap="round">
+    <path d="M300 360 q20 -6 40 0"/><path d="M470 388 q22 -6 44 0"/><path d="M360 410 q20 -6 40 0"/>
+  </g>
+  <!-- dashed lakeside route -->
+  <path d="M70 300 C260 282 540 282 730 300" fill="none" stroke="#ff5722" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 16"/>
+  <rect x="715" y="250" width="6" height="22" fill="#6b4a2f"/><circle cx="718" cy="244" r="20" fill="#4e8a55"/>
+</svg>
