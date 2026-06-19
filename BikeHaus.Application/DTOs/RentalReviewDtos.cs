@@ -1,3 +1,5 @@
+using BikeHaus.Application.Validation;
+
 namespace BikeHaus.Application.DTOs;
 
 public record RentalReviewDto(
@@ -21,7 +23,7 @@ public record RentalReviewPublicDto(
 
 public record RentalReviewCreateDto(
     string Ad,
-    string? Email,
+    [property: OptionalEmailAddress] string? Email,
     int Sterne,
     string Yorum
 );

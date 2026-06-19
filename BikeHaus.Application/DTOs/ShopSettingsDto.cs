@@ -1,6 +1,7 @@
 namespace BikeHaus.Application.DTOs;
 
 using System.ComponentModel.DataAnnotations;
+using BikeHaus.Application.Validation;
 
 public class ShopSettingsDto
 {
@@ -41,7 +42,7 @@ public class UpdateShopSettingsDto
     public string? PLZ { get; set; }
     public string? Stadt { get; set; }
     public string? Telefon { get; set; }
-    public string? Email { get; set; }
+    [OptionalEmailAddress] public string? Email { get; set; }
     public string? Website { get; set; }
     public string? Steuernummer { get; set; }
     public string? UstIdNr { get; set; }

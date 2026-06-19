@@ -1,3 +1,5 @@
+using BikeHaus.Application.Validation;
+
 namespace BikeHaus.Application.DTOs;
 
 // ── Customer DTOs ──
@@ -24,7 +26,7 @@ public record CustomerCreateDto(
     string? PLZ,
     string? Stadt,
     string? Telefon,
-    string? Email,
+    [property: OptionalEmailAddress] string? Email,
     string? Steuernummer = null
 );
 
@@ -36,6 +38,6 @@ public record CustomerUpdateDto(
     string? PLZ,
     string? Stadt,
     string? Telefon,
-    string? Email,
+    [property: OptionalEmailAddress] string? Email,
     string? Steuernummer = null
 );

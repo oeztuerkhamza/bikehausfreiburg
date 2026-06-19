@@ -13,6 +13,30 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        // Auto model-validation (e.g. [OptionalEmailAddress]) returns a body the
+        // Angular forms already understand: { message, errors }. Without this the
+        // default ValidationProblemDetails has no "message" field, so the UI would
+        // only show a generic fallback instead of the precise reason.
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var message = context.ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .FirstOrDefault(m => !string.IsNullOrWhiteSpace(m)) ?? "Ungültige Eingabe.";
+
+            var errors = context.ModelState
+                .Where(kvp => kvp.Value!.Errors.Count > 0)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray());
+
+            // Expose under both keys: different Angular forms read either
+            // err.error.message or err.error.error.
+            return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new { message, error = message, errors });
+        };
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;

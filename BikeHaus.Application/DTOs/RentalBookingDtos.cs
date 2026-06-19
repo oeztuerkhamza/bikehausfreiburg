@@ -1,3 +1,4 @@
+using BikeHaus.Application.Validation;
 using BikeHaus.Domain.Enums;
 
 namespace BikeHaus.Application.DTOs;
@@ -43,7 +44,7 @@ public record RentalBookingCreateDto(
     List<RentalBookingBikeCreateDto> Bikes,
     string Vorname,
     string Nachname,
-    string? Email,
+    [property: OptionalEmailAddress] string? Email,
     string? Telefon,
     string? Strasse,
     string? HausNr,
