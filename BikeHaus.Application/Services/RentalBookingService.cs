@@ -205,23 +205,46 @@ public class RentalBookingService : IRentalBookingService
         if (withDetails == null)
             throw new InvalidOperationException("Buchung konnte nach dem Speichern nicht geladen werden.");
 
+        // E-Mails sind "best effort": Die Buchung ist bereits persistiert und darf
+        // nicht verloren gehen, nur weil der Mailserver gerade nicht erreichbar ist
+        // (Mailcow/DKIM/DMARC-Aussetzer). Fehler werden protokolliert; die Buchung
+        // bleibt bestehen und ist im Admin-Portal als "Pending" sichtbar.
         try
         {
             var emailModel = await BuildEmailModelAsync(withDetails, bicycles);
-            await _emailService.SendRentalBookingReceivedAsync(emailModel);
-            await _emailService.SendRentalBookingAdminPendingNotificationAsync(
-                emailModel,
-                DefaultAdminRentalBookingsUrl);
+
+            try
+            {
+                await _emailService.SendRentalBookingReceivedAsync(emailModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to send booking confirmation email to customer for booking {BookingNumber}.",
+                    withDetails.BuchungsNummer);
+            }
+
+            try
+            {
+                await _emailService.SendRentalBookingAdminPendingNotificationAsync(
+                    emailModel,
+                    DefaultAdminRentalBookingsUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to send admin pending notification email for booking {BookingNumber}.",
+                    withDetails.BuchungsNummer);
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(
                 ex,
-                "Failed to send booking received email for booking {BookingNumber}. Rolling back booking creation.",
-                withDetails?.BuchungsNummer ?? booking.BuchungsNummer);
-
-            await _bookingRepository.DeleteAsync(created.Id);
-            throw new InvalidOperationException("Buchung konnte nicht abgeschlossen werden, da die Bestaetigungs-E-Mail nicht gesendet werden konnte. Bitte erneut versuchen.");
+                "Failed to build email model for booking {BookingNumber}.",
+                withDetails.BuchungsNummer);
         }
 
         return withDetails.ToDto();

@@ -125,6 +125,33 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAngular");
+
+// Global exception guard. Without this an unhandled exception produces an empty
+// 500 whose response is missing the CORS headers, so the browser misreports it
+// as a generic "blocked by CORS / No Access-Control-Allow-Origin" failure and
+// the real cause stays hidden from the frontend. Sitting inside UseCors, the
+// CORS OnStarting callback still fires here, so the JSON error keeps its headers.
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Unhandled exception for {Method} {Path}",
+            context.Request.Method, context.Request.Path);
+
+        if (!context.Response.HasStarted)
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/json";
+            const string message = "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.";
+            await context.Response.WriteAsJsonAsync(new { message, error = message });
+        }
+    }
+});
+
 app.UseResponseCompression();
 
 // Ensure uploads directory exists
