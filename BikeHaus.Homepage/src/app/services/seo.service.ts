@@ -45,6 +45,17 @@ function getServicePath(lang: string): string {
   if (lang === 'fr') return 'entretien-velo';
   return 'service';
 }
+// Bike tours — uses language-specific slugs
+const TOURS_SEGMENTS = new Set([
+  'fahrradtouren',
+  'bike-tours',
+  'circuits-velo',
+]);
+function getToursPath(lang: string): string {
+  if (lang === 'en') return 'bike-tours';
+  if (lang === 'fr') return 'circuits-velo';
+  return 'fahrradtouren';
+}
 
 @Injectable({ providedIn: 'root' })
 export class SeoService {
@@ -186,6 +197,22 @@ export class SeoService {
       }
       this.addHreflangLink('x-default', `${BASE_URL}/${DEFAULT_LANGUAGE}/service`);
       this.updateMetaProperty('og:url', canonicalServiceUrl);
+      return;
+    }
+
+    // ── Bike tours: /:lang/(fahrradtouren|bike-tours|circuits-velo) ──
+    // Consolidate any non-canonical tours slug onto the language canonical.
+    if (pathSegments.length === 2 && TOURS_SEGMENTS.has(pathSegments[1])) {
+      const canonicalToursUrl = `${BASE_URL}/${currentLang}/${getToursPath(currentLang)}`;
+      canonical.href = canonicalToursUrl;
+      for (const lang of SUPPORTED_LANGUAGES) {
+        this.addHreflangLink(lang, `${BASE_URL}/${lang}/${getToursPath(lang)}`);
+      }
+      this.addHreflangLink(
+        'x-default',
+        `${BASE_URL}/${DEFAULT_LANGUAGE}/fahrradtouren`,
+      );
+      this.updateMetaProperty('og:url', canonicalToursUrl);
       return;
     }
 

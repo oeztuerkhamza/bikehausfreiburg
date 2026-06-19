@@ -659,6 +659,9 @@ export interface Translations {
   filterBatteryRange: string;
   filterRange: string;
 
+  // Bike Tours
+  bikeToursNav: string;
+
   // Ratgeber / Blog
   ratgeberNav: string;
   ratgeberLabel: string;
@@ -1312,6 +1315,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     filterRange: 'Reichweite (km)',
 
     // Ratgeber / Blog
+    bikeToursNav: 'Fahrradtouren',
     ratgeberNav: 'Ratgeber',
     ratgeberLabel: 'Wissen & Tipps',
     ratgeberTitle: 'Fahrrad Ratgeber',
@@ -1999,6 +2003,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     filterRange: 'Range (km)',
 
     // Ratgeber / Blog
+    bikeToursNav: 'Bike Tours',
     ratgeberNav: 'Guide',
     ratgeberLabel: 'Knowledge & Tips',
     ratgeberTitle: 'Bike Guide',
@@ -2715,6 +2720,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     filterRange: 'Autonomie (km)',
 
     // Ratgeber / Blog
+    bikeToursNav: 'Circuits vélo',
     ratgeberNav: 'Guide',
     ratgeberLabel: 'Savoir & Conseils',
     ratgeberTitle: 'Guide Vélo',
@@ -3426,6 +3432,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     filterRange: 'Menzil (km)',
 
     // Ratgeber / Blog
+    bikeToursNav: 'Bisiklet Turları',
     ratgeberNav: 'Rehber',
     ratgeberLabel: 'Bilgi & İpuçları',
     ratgeberTitle: 'Bisiklet Rehberi',

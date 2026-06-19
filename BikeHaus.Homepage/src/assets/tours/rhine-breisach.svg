@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Breisach on the Rhine">
+  <defs>
+    <linearGradient id="brSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8fc9e8"/>
+      <stop offset="1" stop-color="#f0ecdc"/>
+    </linearGradient>
+    <linearGradient id="brRhine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a7d6ea"/>
+      <stop offset="1" stop-color="#5aa3c8"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#brSky)"/>
+  <circle cx="120" cy="96" r="40" fill="#fff2c9"/>
+  <!-- far Vosges/France line -->
+  <path d="M0 210 L200 185 L420 210 L620 185 L800 208 L800 250 L0 250 Z" fill="#9fb1c4" opacity="0.6"/>
+  <!-- Münsterberg hill with the cathedral -->
+  <path d="M470 250 Q590 150 720 250 Z" fill="#7aa86a"/>
+  <g>
+    <rect x="560" y="158" width="20" height="64" fill="#e7ddcb"/>
+    <rect x="585" y="176" width="44" height="46" fill="#ddd2bd"/>
+    <polygon points="556,158 570,134 584,158" fill="#9a5a3a"/>
+    <polygon points="585,176 607,150 629,176" fill="#9a5a3a"/>
+  </g>
+  <!-- plain / vineyards -->
+  <path d="M0 250 Q400 232 800 252 L800 320 L0 320 Z" fill="#86b86a"/>
+  <g stroke="#5e8a44" stroke-width="2.5" opacity="0.6">
+    <line x1="20" y1="280" x2="430" y2="270"/><line x1="20" y1="300" x2="430" y2="290"/>
+  </g>
+  <!-- Rhine -->
+  <path d="M0 320 Q400 300 800 322 L800 450 L0 450 Z" fill="url(#brRhine)"/>
+  <g stroke="#d6eef7" stroke-width="3" opacity="0.7" fill="none" stroke-linecap="round">
+    <path d="M120 360 q24 -6 48 0"/><path d="M520 380 q24 -6 48 0"/><path d="M300 410 q24 -6 48 0"/>
+  </g>
+  <!-- riverside dashed route -->
+  <path d="M60 318 C260 300 560 300 760 320" fill="none" stroke="#ff5722" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 16"/>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Glottertal Black Forest valley">
+  <defs>
+    <linearGradient id="glSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9cfdd"/>
+      <stop offset="1" stop-color="#e7f0ec"/>
+    </linearGradient>
+    <linearGradient id="glValley" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5e9466"/>
+      <stop offset="1" stop-color="#7fb472"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#glSky)"/>
+  <!-- mist layers -->
+  <path d="M0 170 Q400 150 800 175 L800 205 L0 205 Z" fill="#ffffff" opacity="0.35"/>
+  <!-- layered forest hills converging into a valley -->
+  <path d="M0 150 L320 320 L0 320 Z" fill="#2f5d4a"/>
+  <path d="M800 150 L480 320 L800 320 Z" fill="#34664f"/>
+  <path d="M0 210 L300 360 L0 360 Z" fill="#3c7257"/>
+  <path d="M800 210 L500 360 L800 360 Z" fill="#43795c"/>
+  <!-- pine texture on slopes -->
+  <g fill="#274f3f">
+    <polygon points="120,250 134,290 106,290"/><polygon points="180,280 194,318 166,318"/>
+    <polygon points="660,252 674,292 646,292"/><polygon points="610,282 624,320 596,320"/>
+  </g>
+  <!-- valley floor -->
+  <path d="M0 320 Q400 300 800 320 L800 450 L0 450 Z" fill="url(#glValley)"/>
+  <!-- winding valley road -->
+  <path d="M400 320 C360 360 470 380 420 410 C385 432 460 442 430 450" fill="none" stroke="#e9e3d6" stroke-width="14" stroke-linecap="round" opacity="0.85"/>
+  <path d="M120 440 C260 400 330 372 400 332 C470 372 540 400 690 440" fill="none" stroke="#ff5722" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 16"/>
+  <!-- black forest farmhouse -->
+  <g>
+    <rect x="470" y="350" width="44" height="30" fill="#caa57e"/>
+    <polygon points="464,350 492,326 520,350" fill="#5a3d28"/>
+    <rect x="486" y="360" width="12" height="20" fill="#5a3d28"/>
+  </g>
+</svg>

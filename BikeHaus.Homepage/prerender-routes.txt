@@ -63,6 +63,14 @@
 /it/service
 /ar/service
 /ru/service
+/de/fahrradtouren
+/en/bike-tours
+/fr/circuits-velo
+/tr/fahrradtouren
+/es/fahrradtouren
+/it/fahrradtouren
+/ar/fahrradtouren
+/ru/fahrradtouren
 /de/garantie
 /en/garantie
 /fr/garantie
