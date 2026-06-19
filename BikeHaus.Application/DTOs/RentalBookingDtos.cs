@@ -44,7 +44,7 @@ public record RentalBookingCreateDto(
     List<RentalBookingBikeCreateDto> Bikes,
     string Vorname,
     string Nachname,
-    [property: OptionalEmailAddress] string? Email,
+    [OptionalEmailAddress] string? Email,
     string? Telefon,
     string? Strasse,
     string? HausNr,

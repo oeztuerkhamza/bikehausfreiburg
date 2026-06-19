@@ -26,7 +26,7 @@ public record CustomerCreateDto(
     string? PLZ,
     string? Stadt,
     string? Telefon,
-    [property: OptionalEmailAddress] string? Email,
+    [OptionalEmailAddress] string? Email,
     string? Steuernummer = null
 );
 
@@ -38,6 +38,6 @@ public record CustomerUpdateDto(
     string? PLZ,
     string? Stadt,
     string? Telefon,
-    [property: OptionalEmailAddress] string? Email,
+    [OptionalEmailAddress] string? Email,
     string? Steuernummer = null
 );
