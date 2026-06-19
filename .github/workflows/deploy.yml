@@ -2,6 +2,7 @@ name: Deploy to Netcup
 
 permissions:
   contents: read
+  packages: write
 
 on:
   push:
@@ -56,6 +57,79 @@ jobs:
               - 'docker-compose.yml'
               - 'nginx/**'
               - '.github/workflows/deploy.yml'
+
+  # ───────────────────────────────────────────────────────────────
+  # Build images on GitHub's runners (fast CPU/RAM + buildx layer
+  # cache) and push to GHCR. The VPS no longer builds API/Client —
+  # it only pulls — which removes the multi-minute on-server builds.
+  # ───────────────────────────────────────────────────────────────
+  build-api:
+    needs: changes
+    if: |
+      needs.changes.outputs.api == 'true' ||
+      needs.changes.outputs.infra == 'true' ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}-api
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          platforms: linux/amd64
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+
+  build-client:
+    needs: changes
+    if: |
+      needs.changes.outputs.client == 'true' ||
+      needs.changes.outputs.infra == 'true' ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}-client
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./BikeHaus.Client
+          file: ./BikeHaus.Client/Dockerfile
+          push: true
+          platforms: linux/amd64
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=client
+          cache-to: type=gha,mode=max,scope=client
 
   # ───────────────────────────────────────────────────────────────
   # Sync repository on the server (always runs when anything is
@@ -137,10 +211,11 @@ jobs:
   # Deploy API (.NET backend) — runs first, heaviest build
   # ───────────────────────────────────────────────────────────────
   deploy-api:
-    needs: [changes, sync-server]
+    needs: [changes, sync-server, build-api]
     if: |
       always() &&
       needs.sync-server.result == 'success' &&
+      needs.build-api.result == 'success' &&
       (
         needs.changes.outputs.api == 'true' ||
         needs.changes.outputs.infra == 'true' ||
@@ -148,27 +223,29 @@ jobs:
       )
     runs-on: ubuntu-latest
     steps:
-      - name: Build and recreate API container
+      - name: Pull & recreate API container
         uses: appleboy/ssh-action@v1
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          command_timeout: 30m
+          command_timeout: 15m
+          envs: GHCR_TOKEN,GHCR_USER
           script: |
             set -euo pipefail
             cd /opt/bikehaus
 
-            echo "==> Pulling base images (sequential to avoid memory pressure)"
-            docker pull mcr.microsoft.com/dotnet/sdk:9.0
-            docker pull mcr.microsoft.com/playwright/dotnet:v1.49.0-noble
-            docker pull mcr.microsoft.com/dotnet/aspnet:9.0
+            echo "==> Logging in to GHCR"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
-            echo "==> Building API image"
-            docker compose build bikehaus
+            echo "==> Pulling prebuilt API image from GHCR"
+            docker compose pull bikehaus
 
             echo "==> Recreating API container"
-            docker compose up -d --force-recreate bikehaus
+            docker compose up -d bikehaus
 
             echo "==> Ensuring rental pricing columns exist in SQLite"
             docker run --rm --volumes-from bikehaus-app python:3.12-alpine python -c 'import sqlite3; db="/app/data/BikeHausFreiburg.db"; cols=["RentalPriceDay2","RentalPriceDay4","RentalPriceDay5","RentalPriceDay6","RentalPriceAdditionalDayAfter7"]; conn=sqlite3.connect(db); cur=conn.cursor(); cur.execute("PRAGMA table_info(Bicycles)"); existing={r[1] for r in cur.fetchall()}; [cur.execute(f"ALTER TABLE Bicycles ADD COLUMN {c} REAL NULL") for c in cols if c not in existing]; conn.commit(); conn.close(); print("Schema ensure complete")'
@@ -183,10 +260,11 @@ jobs:
   # Deploy Client (Angular admin SPA) — runs after API
   # ───────────────────────────────────────────────────────────────
   deploy-client:
-    needs: [changes, sync-server, deploy-api]
+    needs: [changes, sync-server, deploy-api, build-client]
     if: |
       always() &&
       needs.sync-server.result == 'success' &&
+      needs.build-client.result == 'success' &&
       needs.deploy-api.result != 'failure' &&
       needs.deploy-api.result != 'cancelled' &&
       (
@@ -196,26 +274,29 @@ jobs:
       )
     runs-on: ubuntu-latest
     steps:
-      - name: Build and recreate Client container
+      - name: Pull & recreate Client container
         uses: appleboy/ssh-action@v1
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          command_timeout: 20m
+          command_timeout: 15m
+          envs: GHCR_TOKEN,GHCR_USER
           script: |
             set -euo pipefail
             cd /opt/bikehaus
 
-            echo "==> Pulling base images (sequential)"
-            docker pull node:20-alpine
-            docker pull nginx:alpine
+            echo "==> Logging in to GHCR"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
-            echo "==> Building Client image"
-            docker compose build client
+            echo "==> Pulling prebuilt Client image from GHCR"
+            docker compose pull client
 
             echo "==> Recreating Client container"
-            docker compose up -d --force-recreate client
+            docker compose up -d client
 
             echo "==> Client status"
             docker compose ps client
@@ -373,15 +454,20 @@ jobs:
         uses: appleboy/ssh-action@v1
         env:
           INFRA_CHANGED: ${{ needs.changes.outputs.infra }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          envs: INFRA_CHANGED
+          envs: INFRA_CHANGED,GHCR_TOKEN,GHCR_USER
           command_timeout: 10m
           script: |
             set -euo pipefail
             cd /opt/bikehaus
+
+            echo "==> Logging in to GHCR (for any image pulls)"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin || true
 
             # Make sure every backend service nginx proxies to is actually
             # up before we touch nginx. `up -d` without --force-recreate

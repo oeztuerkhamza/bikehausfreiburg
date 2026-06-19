@@ -1,5 +1,6 @@
 services:
   bikehaus:
+    image: ghcr.io/oeztuerkhamza/bikehausfreiburg-api:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -35,6 +36,7 @@ services:
       - bikehaus-network
 
   client:
+    image: ghcr.io/oeztuerkhamza/bikehausfreiburg-client:latest
     build:
       context: ./BikeHaus.Client
       dockerfile: Dockerfile
