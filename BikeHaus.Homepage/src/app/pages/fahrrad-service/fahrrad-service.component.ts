@@ -14,6 +14,7 @@ import {
   SERVICE_CONTENT,
   ServiceTranslation,
 } from '../../services/service-landing.data';
+import { AREA_SERVED } from '../../services/area-served.data';
 
 const BASE_URL = 'https://bikehausfreiburg.com';
 
@@ -428,10 +429,7 @@ export class FahrradServiceComponent implements OnInit, OnDestroy {
           serviceType: s.heroTitle,
           description: s.metaDescription,
           url,
-          areaServed: {
-            '@type': 'City',
-            name: 'Freiburg im Breisgau',
-          },
+          areaServed: AREA_SERVED,
           provider: localBusiness,
           hasOfferCatalog: {
             '@type': 'OfferCatalog',

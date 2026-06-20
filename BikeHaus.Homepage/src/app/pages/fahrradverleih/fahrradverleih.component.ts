@@ -23,6 +23,7 @@ import {
   isSupportedLanguage,
 } from '../../services/language-config';
 import { ApiService } from '../../services/api.service';
+import { AREA_SERVED } from '../../services/area-served.data';
 import {
   PublicRentalBicycle,
   RentalBookingCreate,
@@ -5094,10 +5095,7 @@ export class FahrradverleihComponent implements OnInit {
               },
             ],
           },
-          areaServed: {
-            '@type': 'City',
-            name: 'Freiburg im Breisgau',
-          },
+          areaServed: AREA_SERVED,
           offers: {
             '@type': 'Offer',
             priceSpecification: [
