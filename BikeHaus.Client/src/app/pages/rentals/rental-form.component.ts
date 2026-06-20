@@ -244,7 +244,7 @@ const MONTH_NAMES = [
                   >
                     <span *ngIf="day">{{ day.getDate() }}</span>
                     <div class="busy-tooltip closed-tooltip" *ngIf="day && isClosedDay(day)">
-                      {{ day.getDay() === 0 ? 'Sonntag' : 'Feiertag' }}
+                      Feiertag
                     </div>
                   </div>
                 </div>
@@ -2240,7 +2240,7 @@ export class RentalFormComponent implements OnInit {
   }
 
   isClosedDay(date: Date): boolean {
-    if (date.getDay() === 0) return true; // Sonntag
+    // Sonntage werden im Client (Mietvertrag) nicht gesperrt – nur Feiertage.
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     return this.getBWHolidays(date.getFullYear()).has(key);
   }
