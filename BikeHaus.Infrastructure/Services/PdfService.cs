@@ -1621,29 +1621,22 @@ public class PdfService : IPdfService
                             {
                                 columns.RelativeColumn(3);
                                 columns.ConstantColumn(40);
-                                columns.RelativeColumn(1);
                             });
 
                             // Header row
                             table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Bezeichnung").FontSize(9).Bold().FontColor(PrimaryColor);
                             table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).AlignCenter().Text("Menge").FontSize(9).Bold().FontColor(PrimaryColor);
-                            table.Cell().Border(1).BorderColor("#ef4444").Padding(4).AlignRight().Text("Verlustgebühr").FontSize(9).Bold().FontColor("#ef4444");
 
                             foreach (var acc in rental.Accessories)
                             {
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(acc.Bezeichnung).FontSize(9);
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(acc.Menge.ToString()).FontSize(9);
-                                var verlust = acc.Verlustgebuehr ?? 30m;
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignRight()
-                                    .Text($"{verlust:N2} €")
-                                    .FontSize(9).Bold()
-                                    .FontColor("#ef4444");
                             }
                         });
                         col.Item().PaddingTop(3).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(text =>
                         {
                             text.Span("Hinweis: ").Bold().FontSize(8);
-                            text.Span("Das Zubehör ist im Mietpreis inklusive. Bei Verlust oder Beschädigung wird die angegebene Verlustgebühr in Rechnung gestellt.").FontSize(8).FontColor(Colors.Grey.Darken2);
+                            text.Span("Das Zubehör ist im Mietpreis inklusive.").FontSize(8).FontColor(Colors.Grey.Darken2);
                         });
                     }
 
