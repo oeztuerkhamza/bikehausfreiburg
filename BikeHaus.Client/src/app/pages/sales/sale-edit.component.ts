@@ -1025,6 +1025,15 @@ export class SaleEditComponent implements OnInit {
       ];
     }
 
+    // A single payment always covers the full total. Recompute it on save so
+    // it stays in sync when accessories / price / discount change during edit
+    // (mirrors sale-form). Otherwise the loaded amount sticks and the receipt
+    // shows e.g. "Karte 625 €" while the Gesamtbetrag is 645 €. Split payments
+    // (length > 1) are left exactly as the user entered them.
+    if (this.zahlungen.length === 1 && this.effectiveGrandTotal > 0) {
+      this.zahlungen[0].betrag = this.effectiveGrandTotal;
+    }
+
     this.submitting = true;
 
     // Update the (possibly sold) bicycle first, then the sale itself
