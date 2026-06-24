@@ -13,6 +13,7 @@ import {
   RentalBookingBikeCreate,
 } from '../../models/models';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
+import { isClosureDay, rangeOverlapsClosure } from '../../utils/rental-closures';
 
 interface CartBike {
   bike: PublicRentalBicycle;
@@ -81,6 +82,22 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         <h2>
           {{ t().rentalSteps?.selectDates ?? 'Wählen Sie einen Zeitraum' }}
         </h2>
+        <div class="closure-notice" *ngIf="closureNotice()" role="note">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>{{ closureNotice() }}</span>
+        </div>
         <div class="calendar-shell" id="rental-calendar">
           <div class="calendar-header">
             <button
@@ -927,6 +944,27 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         font-size: 1rem;
         background: var(--rb-surface);
         color: var(--rb-text);
+      }
+
+      .closure-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        margin: 1rem 0 0;
+        padding: 0.85rem 1rem;
+        border-radius: 10px;
+        background: rgba(255, 87, 34, 0.12);
+        border: 1px solid rgba(255, 87, 34, 0.45);
+        color: var(--rb-text);
+        font-size: 0.92rem;
+        font-weight: 600;
+        line-height: 1.45;
+      }
+
+      .closure-notice svg {
+        flex-shrink: 0;
+        margin-top: 1px;
+        color: var(--rb-accent);
       }
 
       /* Calendar styles */
@@ -1801,6 +1839,9 @@ export class RentalBookingStepsComponent implements OnInit {
   });
   selectedStartDate = '';
   selectedEndDate = '';
+  // Holiday-closure banner shown above the calendar (empty string when there is
+  // no upcoming closure to announce).
+  closureNotice = computed(() => this.t().rentalSteps?.closureNotice ?? '');
   calendarMonth = signal(this.getInitialCalendarMonth());
   selectedBike = signal<PublicRentalBicycle | null>(null);
   selectedBikeColor = '';
@@ -2057,6 +2098,7 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   isClosedDay(date: Date): boolean {
+    if (isClosureDay(date)) return true;
     if (date.getDay() === 0) return true;
     return this.getBWHolidays(date.getFullYear()).has(this.formatDateKey(date));
   }
@@ -2092,6 +2134,12 @@ export class RentalBookingStepsComponent implements OnInit {
     bikeId: number,
     done: () => void,
   ): void {
+    // A deep link spanning the holiday closure must not pre-fill the cart —
+    // drop to the empty date-selection step so the user picks valid dates.
+    if (rangeOverlapsClosure(start, end)) {
+      done();
+      return;
+    }
     this.selectedStartDate = start;
     this.selectedEndDate = end;
     // Re-check availability for the range — the bike may have been booked since
@@ -2201,6 +2249,17 @@ export class RentalBookingStepsComponent implements OnInit {
       this.dateRangeError.set(
         this.t().rentalSteps?.invalidDateRange ??
           'Enddatum muss nach Startdatum liegen',
+      );
+      return;
+    }
+
+    // The shop is on holiday during the closure window — reject ranges that
+    // begin before and end after it (individual closure days are already
+    // un-selectable in the calendar).
+    if (rangeOverlapsClosure(this.selectedStartDate, this.selectedEndDate)) {
+      this.dateRangeError.set(
+        this.t().rentalSteps?.closurePeriodError ??
+          'In diesem Zeitraum machen wir Urlaub. Bitte wählen Sie andere Daten.',
       );
       return;
     }

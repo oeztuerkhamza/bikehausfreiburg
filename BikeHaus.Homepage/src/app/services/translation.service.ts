@@ -110,6 +110,10 @@ interface RentalStepsTranslations {
   closeLabel: string;
   prevImage: string;
   nextImage: string;
+  /** Holiday-closure banner above the date picker. */
+  closureNotice: string;
+  /** Error when a selected range overlaps a holiday closure. */
+  closurePeriodError: string;
 }
 
 export interface Translations {
@@ -3704,6 +3708,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     closeLabel: 'Schließen',
     prevImage: 'Vorheriges Bild',
     nextImage: 'Nächstes Bild',
+    closureNotice:
+      'Urlaubspause: Vom 15. bis 30. August 2026 ist unser Fahrradverleih geschlossen. In diesem Zeitraum sind keine Buchungen möglich.',
+    closurePeriodError:
+      'In diesem Zeitraum (15.–30. August 2026) machen wir Urlaub. Bitte wählen Sie andere Daten.',
   },
   en: {
     dateSelection: 'Choose date',
@@ -3800,6 +3808,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     closeLabel: 'Close',
     prevImage: 'Previous image',
     nextImage: 'Next image',
+    closureNotice:
+      'Holiday break: our bike rental is closed from 15 to 30 August 2026. No bookings are possible during this period.',
+    closurePeriodError:
+      'We are on holiday during this period (15–30 August 2026). Please choose different dates.',
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -3896,6 +3908,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     closeLabel: 'Fermer',
     prevImage: 'Image précédente',
     nextImage: 'Image suivante',
+    closureNotice:
+      "Congés : notre location de vélos est fermée du 15 au 30 août 2026. Aucune réservation n'est possible pendant cette période.",
+    closurePeriodError:
+      "Nous sommes en congés durant cette période (15–30 août 2026). Veuillez choisir d'autres dates.",
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -3992,6 +4008,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     closeLabel: 'Kapat',
     prevImage: 'Önceki görsel',
     nextImage: 'Sonraki görsel',
+    closureNotice:
+      'Tatil molası: Bisiklet kiralama hizmetimiz 15–30 Ağustos 2026 tarihleri arasında kapalıdır. Bu dönemde rezervasyon yapılamaz.',
+    closurePeriodError:
+      'Bu tarihlerde (15–30 Ağustos 2026) tatildeyiz. Lütfen farklı tarihler seçin.',
   },
   es: {
     dateSelection: 'Elegir fecha',
@@ -4088,6 +4108,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     closeLabel: 'Cerrar',
     prevImage: 'Imagen anterior',
     nextImage: 'Imagen siguiente',
+    closureNotice:
+      'Vacaciones: nuestro alquiler de bicicletas está cerrado del 15 al 30 de agosto de 2026. No es posible reservar durante este periodo.',
+    closurePeriodError:
+      'Estamos de vacaciones durante este periodo (15–30 de agosto de 2026). Elija otras fechas.',
   },
   it: {
     dateSelection: 'Scegli data',
@@ -4185,6 +4209,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     closeLabel: 'Chiudi',
     prevImage: 'Immagine precedente',
     nextImage: 'Immagine successiva',
+    closureNotice:
+      'Pausa estiva: il nostro noleggio biciclette è chiuso dal 15 al 30 agosto 2026. Durante questo periodo non sono possibili prenotazioni.',
+    closurePeriodError:
+      'Siamo in ferie in questo periodo (15–30 agosto 2026). Scegli altre date.',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
@@ -4281,6 +4309,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     closeLabel: 'إغلاق',
     prevImage: 'الصورة السابقة',
     nextImage: 'الصورة التالية',
+    closureNotice:
+      'إجازة: خدمة تأجير الدراجات لدينا مغلقة من 15 إلى 30 أغسطس 2026. لا يمكن إجراء أي حجز خلال هذه الفترة.',
+    closurePeriodError:
+      'نحن في إجازة خلال هذه الفترة (15–30 أغسطس 2026). يرجى اختيار تواريخ أخرى.',
   },
   ru: {
     dateSelection: 'Выбор даты',
@@ -4377,6 +4409,10 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     closeLabel: 'Закрыть',
     prevImage: 'Предыдущее изображение',
     nextImage: 'Следующее изображение',
+    closureNotice:
+      'Отпуск: прокат велосипедов закрыт с 15 по 30 августа 2026 года. В этот период бронирование невозможно.',
+    closurePeriodError:
+      'В этот период (15–30 августа 2026) у нас отпуск. Пожалуйста, выберите другие даты.',
   },
 };
 

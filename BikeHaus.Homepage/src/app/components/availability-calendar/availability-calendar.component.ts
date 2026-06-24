@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslationService } from '../../services/translation.service';
+import { isClosureDay } from '../../utils/rental-closures';
 
 export interface CalendarBusyPeriod {
   start: string; // ISO date or YYYY-MM-DD
@@ -18,8 +19,8 @@ export interface CalendarBusyPeriod {
 /**
  * Mobile-friendly month calendar for picking a rental date range.
  *
- * - Closed days (Sundays + Baden-Württemberg holidays) and any day inside a
- *   `busyPeriods` entry are disabled and cannot be selected.
+ * - Closed days (Sundays + Baden-Württemberg holidays + fixed rental closures)
+ *   and any day inside a `busyPeriods` entry are disabled and cannot be selected.
  * - Two-way bindable via [(start)] / [(end)] ("YYYY-MM-DD"); also emits
  *   (rangeChange) whenever the selection changes.
  * - Picking an end date that would span a closed/busy day restarts the range
@@ -321,6 +322,7 @@ export class AvailabilityCalendarComponent {
     return this._busyKeys.has(this.key(d));
   }
   isClosed(d: Date): boolean {
+    if (isClosureDay(d)) return true;
     if (d.getDay() === 0) return true;
     return this.bwHolidays(d.getFullYear()).has(this.key(d));
   }
