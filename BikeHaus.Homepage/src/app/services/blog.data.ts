@@ -1719,7 +1719,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'Fahrrad mieten in Freiburg ✓ 1 bis 7 Tage individuell pro Fahrrad ✓ ab Tag 8 mit Zusatzpreis ✓ Schloss & Helm inklusive ✓ Kein Vorausbezahlen. Bike Haus Freiburg.',
         excerpt:
           'Fahrrad mieten in Freiburg: faire Preise, sofort verfügbar, ohne versteckte Kosten. Alles was Sie wissen müssen.',
-        tldr: 'Bike Haus Freiburg vermietet Fahrräder mit individuell gepflegten Tagespreisen pro Fahrrad. Für 1 bis 7 Tage gilt der jeweilige Fahrradpreis, danach der 7-Tage-Preis plus Zusatz pro weiterem Tag. Schloss & Helm inklusive. Kaution: 300 € bar.',
+        tldr: 'Bike Haus Freiburg vermietet Fahrräder mit individuell gepflegten Tagespreisen pro Fahrrad. Für 1 bis 7 Tage gilt der jeweilige Fahrradpreis, danach der 7-Tage-Preis plus Zusatz pro weiterem Tag. Schloss & Helm inklusive. Kaution: je nach Fahrrad 100–200 € bar.',
         sections: [
           {
             type: 'heading',
@@ -1782,7 +1782,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'Rent a bike in Freiburg ✓ days 1 to 7 priced individually per bike ✓ fixed extra-day surcharge from day 8 ✓ lock & helmet included. Bike Haus Freiburg.',
         excerpt:
           'Everything you need to know about bike rental in Freiburg: prices, pickup, included equipment and tips for exploring the city.',
-        tldr: 'Bike Haus Freiburg rents bikes with individually configured daily prices per bike. Days 1 to 7 use the bike-specific rate, and from day 8 onward the 7-day price is extended by a fixed extra-day surcharge. Lock & helmet included. Deposit: €300 cash.',
+        tldr: 'Bike Haus Freiburg rents bikes with individually configured daily prices per bike. Days 1 to 7 use the bike-specific rate, and from day 8 onward the 7-day price is extended by a fixed extra-day surcharge. Lock & helmet included. Deposit: €100–200 cash, depending on the bike.',
         sections: [
           {
             type: 'heading',
@@ -1808,7 +1808,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
             items: [
               'Folding lock',
               'Bicycle basket',
-              'Deposit: €300 cash (fully refunded on return)',
+              'Deposit: €100–200 cash, by bike type (fully refunded on return)',
             ],
           },
           {
@@ -1856,7 +1856,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           'Louer un vélo à Fribourg-en-Brisgau ✓ tarifs 1 à 7 jours définis par vélo ✓ supplément fixe à partir du 8e jour ✓ cadenas & casque inclus. Bike Haus Freiburg.',
         excerpt:
           'Tout ce que vous devez savoir sur la location de vélos à Fribourg : tarifs, retrait, équipement inclus et conseils pour explorer la ville.',
-        tldr: 'Bike Haus Freiburg loue des vélos avec des tarifs journaliers définis individuellement pour chaque vélo. De 1 à 7 jours, le prix dépend du vélo choisi, puis le tarif 7 jours est prolongé par un supplément fixe par jour ajouté. Cadenas & casque inclus. Caution : 300 € en espèces.',
+        tldr: 'Bike Haus Freiburg loue des vélos avec des tarifs journaliers définis individuellement pour chaque vélo. De 1 à 7 jours, le prix dépend du vélo choisi, puis le tarif 7 jours est prolongé par un supplément fixe par jour ajouté. Cadenas & casque inclus. Caution : 100–200 € en espèces selon le vélo.',
         sections: [
           {
             type: 'heading',
@@ -1882,7 +1882,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
             items: [
               'Cadenas pliable',
               'Panier vélo',
-              'Caution : 300 € en espèces (intégralement remboursée au retour)',
+              'Caution : 100–200 € en espèces selon le vélo (intégralement remboursée au retour)',
             ],
           },
           {
@@ -1925,7 +1925,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           "Freiburg'da bisiklet kiralayın ✓ 1-7 gün için bisiklet bazlı fiyat ✓ 8. günden sonra sabit ek gün ücreti ✓ kilit & kask dahil ✓ Bike Haus Freiburg.",
         excerpt:
           "Freiburg'da bisiklet kiralama hakkında bilmeniz gereken her şey: fiyatlar, teslim, dahil ekipman ve ipuçları.",
-        tldr: 'Bike Haus Freiburg her bisiklet için günlük fiyatları ayrı tanımlar. 1-7 gün arasında seçilen bisikletin fiyatı geçerlidir, 8. günden sonra ise 7 günlük fiyatın üstüne sabit ek gün ücreti eklenir. Kilit & kask dahil. Depozito: 300 € nakit.',
+        tldr: 'Bike Haus Freiburg her bisiklet için günlük fiyatları ayrı tanımlar. 1-7 gün arasında seçilen bisikletin fiyatı geçerlidir, 8. günden sonra ise 7 günlük fiyatın üstüne sabit ek gün ücreti eklenir. Kilit & kask dahil. Depozito: bisikletine göre 100–200 € nakit.',
         sections: [
           {
             type: 'heading',

@@ -215,7 +215,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalMonth: 'Alquiler a largo plazo: cálculo automático',
     bikeRentalDepositTitle: 'Depósito',
     bikeRentalDepositText:
-      'La tarifa de alquiler se paga por adelantado. Además, se requiere un depósito en efectivo de 300 € por bicicleta. Si la bicicleta se devuelve correctamente sin daños ni pérdidas, el depósito se reembolsa completamente.',
+      'La tarifa de alquiler se paga por adelantado. Además, se requiere un depósito en efectivo por bicicleta, según el tipo de bici — de 100 € a 200 € (p. ej. bici de ciudad 100 €, bici de carretera/gravel 150 €, e-bike 200 €). Verás el importe exacto al reservar. Si la bicicleta se devuelve correctamente sin daños ni pérdidas, el depósito se reembolsa completamente.',
     bikeRentalNoteTitle: 'Nota',
     bikeRentalNoteText:
       'La entrega es posible de lunes a viernes a partir de las 10:00 y los sábados a partir de las 11:00; la devolución debe realizarse como muy tarde a las 18:00. Si la bicicleta está disponible al día siguiente, puede prolongar el alquiler avisándonos; cada día adicional se cobra a la tarifa diaria normal.',
@@ -871,7 +871,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalMonth: 'Noleggio lungo: calcolo automatico',
     bikeRentalDepositTitle: 'Deposito',
     bikeRentalDepositText:
-      'La tariffa di noleggio viene pagata in anticipo. Inoltre, è richiesto un deposito in contanti di 300 € per bici. Se la bici viene restituita correttamente senza danni o perdite, il deposito viene rimborsato integralmente.',
+      'La tariffa di noleggio viene pagata in anticipo. Inoltre, è richiesto un deposito in contanti per bici, in base al tipo di bici — da 100 € a 200 € (es. city bike 100 €, bici da corsa/gravel 150 €, e-bike 200 €). Vedrai l'importo esatto durante la prenotazione. Se la bici viene restituita correttamente senza danni o perdite, il deposito viene rimborsato integralmente.',
     bikeRentalNoteTitle: 'Nota',
     bikeRentalNoteText:
       'La consegna è possibile dal lunedì al venerdì dalle 10:00 e il sabato dalle 11:00, la restituzione deve essere entro le 18:00. Se la bici è disponibile il giorno successivo, il noleggio può essere prolungato avvisandoci; ogni giorno aggiuntivo viene addebitato alla normale tariffa giornaliera.',
@@ -1489,7 +1489,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalMonth: 'إيجار طويل: حساب تلقائي',
     bikeRentalDepositTitle: 'الإيداع',
     bikeRentalDepositText:
-      'يتم دفع رسم الإيجار مقدمًا. بالإضافة إلى ذلك، يلزم إيداع نقدي بقيمة 300 يورو لكل دراجة. إذا تم إرجاع الدراجة بشكل صحيح دون ضرر أو فقدان، يتم رد الإيداع بالكامل.',
+      'يتم دفع رسم الإيجار مقدمًا. بالإضافة إلى ذلك، يلزم إيداع نقدي لكل دراجة حسب نوع الدراجة — من 100 إلى 200 يورو (مثلاً دراجة المدينة 100 يورو، دراجة السباق/غرافيل 150 يورو، الدراجة الكهربائية 200 يورو). ستظهر القيمة الدقيقة عند الحجز. إذا تم إرجاع الدراجة بشكل صحيح دون ضرر أو فقدان، يتم رد الإيداع بالكامل.',
     bikeRentalNoteTitle: 'ملاحظة',
     bikeRentalNoteText:
       'التسليم ممكن من الإثنين إلى الجمعة من الساعة 10:00 ويوم السبت من الساعة 11:00، والعودة يجب أن تكتمل بحلول الساعة 18:00 على الأبعد. إذا كانت الدراجة متاحة في اليوم التالي، يمكن تمديد الإيجار بعد إبلاغنا؛ ويُحتسب كل يوم إضافي بسعر اليوم العادي.',
@@ -2027,7 +2027,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalMonth: 'Длительная аренда: автоматический расчет',
     bikeRentalDepositTitle: 'Залог',
     bikeRentalDepositText:
-      'Стоимость аренды оплачивается заранее. Кроме того, требуется денежный залог в размере 300 € за велосипед. При надлежащем возврате без повреждений или потерь залог полностью возвращается.',
+      'Стоимость аренды оплачивается заранее. Кроме того, требуется денежный залог за велосипед в зависимости от типа велосипеда — от 100 € до 200 € (напр. городской велосипед 100 €, шоссейный/гравийный 150 €, электровелосипед 200 €). Точную сумму вы увидите при бронировании. При надлежащем возврате без повреждений или потерь залог полностью возвращается.',
     bikeRentalNoteTitle: 'Примечание',
     bikeRentalNoteText:
       'Передача возможна с понедельника по пятницу с 10:00 и в субботу с 11:00, возврат должен быть завершен не позднее 18:00. Если велосипед свободен на следующий день, аренду можно продлить, предупредив нас; каждый дополнительный день оплачивается по обычному дневному тарифу.',

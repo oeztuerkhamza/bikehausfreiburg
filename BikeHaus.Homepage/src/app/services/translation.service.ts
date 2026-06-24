@@ -1013,7 +1013,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalMonth: 'Langzeit: automatisch berechnet',
     bikeRentalDepositTitle: 'Kaution',
     bikeRentalDepositText:
-      'Die Mietgebühr wird im Voraus bezahlt. Zusätzlich ist pro Fahrrad eine Kaution in Höhe von 300 € in bar zu hinterlegen. Bei ordnungsgemäßer Rückgabe ohne Schäden oder Verluste wird die Kaution vollständig erstattet.',
+      'Die Mietgebühr wird im Voraus bezahlt. Zusätzlich ist pro Fahrrad eine Kaution in bar zu hinterlegen – je nach Fahrradtyp 100 € bis 200 € (z. B. City-Rad 100 €, Rennrad/Gravel 150 €, E-Bike 200 €). Den genauen Betrag siehst du bei der Buchung. Bei ordnungsgemäßer Rückgabe ohne Schäden oder Verluste wird die Kaution vollständig erstattet.',
     bikeRentalNoteTitle: 'Hinweis',
     bikeRentalNoteText:
       'Die Übergabe ist Mo-Fr ab 10:00 Uhr und Sa ab 11:00 Uhr möglich, die Rückgabe spätestens bis 18:00 Uhr. Ist das Fahrrad am Folgetag verfügbar, kann die Miete nach Absprache verlängert werden; pro zusätzlichem Tag wird der reguläre Tagespreis berechnet.',
@@ -1720,7 +1720,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalMonth: 'Long rental: automatic calculation',
     bikeRentalDepositTitle: 'Deposit',
     bikeRentalDepositText:
-      'The rental fee is paid in advance. In addition, a cash deposit of 300 € is required per bicycle. If the bicycle is returned properly without damage or loss, the deposit is fully refunded.',
+      'The rental fee is paid in advance. In addition, a cash deposit is required per bicycle, depending on the bike type — from 100 € to 200 € (e.g. city bike 100 €, road/gravel bike 150 €, e-bike 200 €). You will see the exact amount at booking. If the bicycle is returned properly without damage or loss, the deposit is fully refunded.',
     bikeRentalNoteTitle: 'Note',
     bikeRentalNoteText:
       'Handover is possible Mon-Fri from 10:00 and Sat from 11:00, and return must be completed by 18:00 at the latest. If the bike is available the next day, the rental can be extended by letting us know; each additional day is charged at the regular daily rate.',
@@ -2416,7 +2416,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalMonth: 'Longue durée : calcul automatique',
     bikeRentalDepositTitle: 'Caution',
     bikeRentalDepositText:
-      "Le prix de location est payé à l'avance. En plus, une caution en espèces de 300 € est exigée par vélo. Si le vélo est retourné correctement, sans dommage ni perte, la caution est remboursée intégralement.",
+      "Le prix de location est payé à l'avance. En plus, une caution en espèces est exigée par vélo, selon le type de vélo — de 100 € à 200 € (par ex. vélo de ville 100 €, vélo de course/gravel 150 €, vélo électrique 200 €). Le montant exact s'affiche lors de la réservation. Si le vélo est retourné correctement, sans dommage ni perte, la caution est remboursée intégralement.",
     bikeRentalNoteTitle: 'Remarque',
     bikeRentalNoteText:
       'La remise du vélo est possible du lundi au vendredi à partir de 10:00 et le samedi à partir de 11:00 ; le retour doit être effectué au plus tard à 18:00. Si le vélo est disponible le lendemain, la location peut être prolongée en nous prévenant ; chaque jour supplémentaire est facturé au tarif journalier normal.',
@@ -3131,7 +3131,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     bikeRentalMonth: 'Uzun kiralama: otomatik hesaplanır',
     bikeRentalDepositTitle: 'Depozito',
     bikeRentalDepositText:
-      'Kiralama ücreti peşin ödenir. Buna ek olarak her bisiklet için 300 € nakit depozito alınır. Bisiklet hasar veya kayıp olmadan düzgün şekilde iade edilirse depozito tamamen geri ödenir.',
+      'Kiralama ücreti peşin ödenir. Buna ek olarak her bisiklet için bisiklet tipine göre nakit depozito alınır — 100 € ile 200 € arası (ör. şehir bisikleti 100 €, yarış/gravel 150 €, e-bisiklet 200 €). Kesin tutarı rezervasyonda görürsün. Bisiklet hasar veya kayıp olmadan düzgün şekilde iade edilirse depozito tamamen geri ödenir.',
     bikeRentalNoteTitle: 'Not',
     bikeRentalNoteText:
       "Teslimat hafta içi 10:00'dan, cumartesi 11:00'dan itibaren mümkündür, iade ise en geç 18:00'e kadar yapılmalıdır. Bisiklet ertesi gün müsaitse bize haber vererek kiralamayı uzatabilirsiniz; her ek gün için normal günlük ücret alınır.",
