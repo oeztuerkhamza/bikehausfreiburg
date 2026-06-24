@@ -190,15 +190,28 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
               {{ t().filters }}
               <span class="active-badge" *ngIf="activeFilterCount() > 0">{{ activeFilterCount() }}</span>
             </button>
-            <div class="toolbar-spacer"></div>
             <button
-              class="filter-toggle"
+              class="date-toggle"
+              [class.active]="!!filterStart && !!filterEnd"
               type="button"
               (click)="dateFilterOpen.set(!dateFilterOpen())"
             >
-              📅 {{ dateBtnLabel() }}
-              <span class="active-badge" *ngIf="filterStart && filterEnd">✓</span>
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              {{ dateBtnLabel() }}
             </button>
+            <div class="toolbar-spacer"></div>
             <div class="sort-wrap">
               <label class="sort-label" for="rental-sort">{{ t().sortBy }}:</label>
               <select
@@ -223,7 +236,7 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
             *ngIf="dateFilterOpen()"
             style="
               max-width: 380px;
-              margin: 0 0 1.25rem auto;
+              margin: 0 0 1.25rem 0;
               background: rgba(255, 255, 255, 0.02);
               border: 1px solid rgba(255, 255, 255, 0.08);
               border-radius: 16px;
@@ -546,6 +559,29 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
       font-weight: 700;
     }
     .toolbar-spacer { flex: 1; }
+    .date-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.55rem 1rem;
+      background: var(--color-surface);
+      border: 1.5px solid rgba(255, 87, 34, 0.5);
+      border-radius: 999px;
+      color: var(--color-text);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .date-toggle:hover {
+      border-color: var(--color-accent);
+      background: rgba(255, 87, 34, 0.08);
+    }
+    .date-toggle.active {
+      background: var(--color-accent);
+      color: #fff;
+      border-color: var(--color-accent);
+    }
     .sort-wrap { display: flex; align-items: center; gap: 0.55rem; }
     .sort-label { color: var(--color-text-muted); font-size: 0.85rem; }
     .sort-select {
