@@ -871,7 +871,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     bikeRentalMonth: 'Noleggio lungo: calcolo automatico',
     bikeRentalDepositTitle: 'Deposito',
     bikeRentalDepositText:
-      'La tariffa di noleggio viene pagata in anticipo. Inoltre, è richiesto un deposito in contanti per bici, in base al tipo di bici — da 100 € a 200 € (es. city bike 100 €, bici da corsa/gravel 150 €, e-bike 200 €). Vedrai l'importo esatto durante la prenotazione. Se la bici viene restituita correttamente senza danni o perdite, il deposito viene rimborsato integralmente.',
+      "La tariffa di noleggio viene pagata in anticipo. Inoltre, è richiesto un deposito in contanti per bici, in base al tipo di bici — da 100 € a 200 € (es. city bike 100 €, bici da corsa/gravel 150 €, e-bike 200 €). Vedrai l'importo esatto durante la prenotazione. Se la bici viene restituita correttamente senza danni o perdite, il deposito viene rimborsato integralmente.",
     bikeRentalNoteTitle: 'Nota',
     bikeRentalNoteText:
       'La consegna è possibile dal lunedì al venerdì dalle 10:00 e il sabato dalle 11:00, la restituzione deve essere entro le 18:00. Se la bici è disponibile il giorno successivo, il noleggio può essere prolungato avvisandoci; ogni giorno aggiuntivo viene addebitato alla normale tariffa giornaliera.',
