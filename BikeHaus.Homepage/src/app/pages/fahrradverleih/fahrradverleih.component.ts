@@ -111,8 +111,8 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Wie hoch ist die Kaution?',
         answers: [
-          'Normale Fahrräder & einfache E-Bikes: 300 EUR',
-          'Mittelmotor E-Bikes: 700 EUR',
+          'Normale Fahrräder & einfache E-Bikes: 100 EUR',
+          'Mittelmotor E-Bikes: 200 EUR',
           'Kaution nur in bar',
         ],
       },
@@ -261,8 +261,8 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Depot de garantie',
         answers: [
-          'Velos classiques & e-bikes simples : 300 EUR',
-          'E-bikes moteur central : 700 EUR',
+          'Velos classiques & e-bikes simples : 100 EUR',
+          'E-bikes moteur central : 200 EUR',
           'Depot uniquement en especes',
         ],
       },
@@ -336,8 +336,8 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Depozito',
         answers: [
-          'Normal bisikletler ve temel e-bisikletler: 300 EUR',
-          'Orta motor e-bisikletler: 700 EUR',
+          'Normal bisikletler ve temel e-bisikletler: 100 EUR',
+          'Orta motor e-bisikletler: 200 EUR',
           'Depozito sadece nakit',
         ],
       },
@@ -411,8 +411,8 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Deposito',
         answers: [
-          'Bicis normales y e-bikes basicas: 300 EUR',
-          'E-bikes de motor central: 700 EUR',
+          'Bicis normales y e-bikes basicas: 100 EUR',
+          'E-bikes de motor central: 200 EUR',
           'Deposito solo en efectivo',
         ],
       },
@@ -486,8 +486,8 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Cauzione',
         answers: [
-          'Bici normali ed e-bike base: 300 EUR',
-          'E-bike con motore centrale: 700 EUR',
+          'Bici normali ed e-bike base: 100 EUR',
+          'E-bike con motore centrale: 200 EUR',
           'Cauzione solo in contanti',
         ],
       },
@@ -633,8 +633,8 @@ const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
       {
         question: 'Залог',
         answers: [
-          'Обычные велосипеды и простые e-bike: 300 EUR',
-          'E-bike со средним мотором: 700 EUR',
+          'Обычные велосипеды и простые e-bike: 100 EUR',
+          'E-bike со средним мотором: 200 EUR',
           'Залог только наличными',
         ],
       },
@@ -758,7 +758,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       'Schloss inklusive',
       'Helm kostenlos',
       'Sofort verfugbar',
-      '300 EUR Kaution (bar)',
+      '100 EUR Kaution (bar)',
     ],
     heroPriceCard: {
       badge: 'Individuelle Preislogik',
@@ -831,7 +831,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
     ],
     pricingInfo: [
-      { title: 'Kaution', text: '300 EUR bar, wird bei Ruckgabe erstattet' },
+      { title: 'Kaution', text: '100 EUR bar, wird bei Ruckgabe erstattet' },
       {
         title: 'Immer dabei',
         text: 'Schloss & Helm kostenlos - ohne Aufpreis',
@@ -1040,7 +1040,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       'Antivol inclus',
       'Casque gratuit',
       'Disponible immediatement',
-      'Depot de 300 EUR (especes)',
+      'Depot de 100 EUR (especes)',
     ],
     heroPriceCard: {
       badge: 'Logique tarifaire individuelle',
@@ -1125,7 +1125,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
     ],
     pricingInfo: [
-      { title: 'Depot', text: '300 EUR en especes, rembourse au retour' },
+      { title: 'Depot', text: '100 EUR en especes, rembourse au retour' },
       {
         title: 'Toujours inclus',
         text: 'Antivol et casque inclus sans supplement',
@@ -1194,7 +1194,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       'Kilit dahil',
       'Kask ücretsiz',
       'Hemen mevcut',
-      '300 EUR depozito (nakit)',
+      '100 EUR depozito (nakit)',
     ],
     heroPriceCard: {
       badge: 'Bireysel fiyat mantığı',
@@ -1267,7 +1267,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
     ],
     pricingInfo: [
-      { title: 'Depozito', text: '300 EUR nakit, iade sırasında geri verilir' },
+      { title: 'Depozito', text: '100 EUR nakit, iade sırasında geri verilir' },
       {
         title: 'Dahil olanlar',
         text: 'Kilit ve kask ekstra ücret olmadan dahildir',
@@ -1555,15 +1555,22 @@ interface BikeSlot {
                 <div class="seat-name">{{ bike.marke }} {{ bike.modell }}</div>
                 <div class="seat-specs">
                   <span *ngIf="bike.rahmengroesse" class="spec-row">
-                    <span class="spec-label">{{ pageCopy().bikeFactLabels.frame }}</span>
+                    <span class="spec-label">{{
+                      pageCopy().bikeFactLabels.frame
+                    }}</span>
                     {{ bike.rahmengroesse }} cm
                   </span>
                   <span *ngIf="bike.reifengroesse" class="spec-row">
-                    <span class="spec-label">{{ pageCopy().bikeFactLabels.tire }}</span>
-                    {{ bike.reifengroesse }} {{ pageCopy().bikeFactLabels.tireUnit }}
+                    <span class="spec-label">{{
+                      pageCopy().bikeFactLabels.tire
+                    }}</span>
+                    {{ bike.reifengroesse }}
+                    {{ pageCopy().bikeFactLabels.tireUnit }}
                   </span>
                   <span *ngIf="bike.farbe" class="spec-row">
-                    <span class="spec-label">{{ pageCopy().bikeFactLabels.color }}</span>
+                    <span class="spec-label">{{
+                      pageCopy().bikeFactLabels.color
+                    }}</span>
                     {{ bike.farbe }}
                   </span>
                 </div>
@@ -1668,7 +1675,9 @@ interface BikeSlot {
               </svg>
             </div>
             <h2 class="booking-cta-title">
-              {{ t().rentalSteps?.bookingCtaTitle ?? 'Jetzt Fahrrad reservieren' }}
+              {{
+                t().rentalSteps?.bookingCtaTitle ?? 'Jetzt Fahrrad reservieren'
+              }}
             </h2>
             <p class="booking-cta-text">
               {{
@@ -3262,7 +3271,9 @@ interface BikeSlot {
         font-size: 1.05rem;
         text-decoration: none;
         box-shadow: 0 10px 30px rgba(255, 87, 34, 0.4);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
       }
 
       .booking-cta-btn:hover {
@@ -4817,7 +4828,11 @@ export class FahrradverleihComponent implements OnInit {
     const l = this.lang();
     if (l !== 'de' && l !== 'en' && l !== 'fr') return [];
     const parent =
-      l === 'en' ? 'bike-rental' : l === 'fr' ? 'location-velo' : 'fahrradverleih';
+      l === 'en'
+        ? 'bike-rental'
+        : l === 'fr'
+          ? 'location-velo'
+          : 'fahrradverleih';
     return RENTAL_CATEGORIES.map((c) => ({
       label: c.translations[l].breadcrumbLabel,
       url: `/${l}/${parent}/${c.slugs[l]}`,
@@ -4921,17 +4936,40 @@ export class FahrradverleihComponent implements OnInit {
     this.metaService.updateTag({ property: 'og:type', content: 'website' });
     this.metaService.updateTag({
       property: 'og:image',
-      content: 'https://bikehausfreiburg.com/assets/images/fahrradverleih-freiburg.jpg',
+      content:
+        'https://bikehausfreiburg.com/assets/images/fahrradverleih-freiburg.jpg',
     });
     this.metaService.updateTag({ property: 'og:image:width', content: '1200' });
     this.metaService.updateTag({ property: 'og:image:height', content: '630' });
-    this.metaService.updateTag({ property: 'og:locale', content: lang === 'de' ? 'de_DE' : lang === 'en' ? 'en_GB' : lang === 'fr' ? 'fr_FR' : lang === 'tr' ? 'tr_TR' : 'de_DE' });
-    this.metaService.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.metaService.updateTag({ name: 'twitter:title', content: t.bikeRentalMetaTitle });
-    this.metaService.updateTag({ name: 'twitter:description', content: t.bikeRentalMetaDescription });
+    this.metaService.updateTag({
+      property: 'og:locale',
+      content:
+        lang === 'de'
+          ? 'de_DE'
+          : lang === 'en'
+            ? 'en_GB'
+            : lang === 'fr'
+              ? 'fr_FR'
+              : lang === 'tr'
+                ? 'tr_TR'
+                : 'de_DE',
+    });
+    this.metaService.updateTag({
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    });
+    this.metaService.updateTag({
+      name: 'twitter:title',
+      content: t.bikeRentalMetaTitle,
+    });
+    this.metaService.updateTag({
+      name: 'twitter:description',
+      content: t.bikeRentalMetaDescription,
+    });
     this.metaService.updateTag({
       name: 'twitter:image',
-      content: 'https://bikehausfreiburg.com/assets/images/fahrradverleih-freiburg.jpg',
+      content:
+        'https://bikehausfreiburg.com/assets/images/fahrradverleih-freiburg.jpg',
     });
 
     // Update canonical link

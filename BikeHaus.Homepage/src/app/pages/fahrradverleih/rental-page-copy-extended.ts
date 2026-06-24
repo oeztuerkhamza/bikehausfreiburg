@@ -23,7 +23,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       'Candado incluido',
       'Casco gratis',
       'Disponible inmediatamente',
-      'Depósito de 300 EUR (efectivo)',
+      'Depósito de 100 EUR (efectivo)',
     ],
     heroPriceCard: {
       badge: 'Lógica de precios personalizada',
@@ -108,7 +108,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
     ],
     pricingInfo: [
-      { title: 'Depósito', text: '300 EUR en efectivo, reembolsado al retiro' },
+      { title: 'Depósito', text: '100 EUR en efectivo, reembolsado al retiro' },
       {
         title: 'Incluido',
         text: 'Candado y casco incluidos sin cargo adicional',
@@ -176,7 +176,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       'Lucchetto incluso',
       'Casco gratuito',
       'Disponibile subito',
-      'Deposito 300 EUR (contanti)',
+      'Deposito 100 EUR (contanti)',
     ],
     heroPriceCard: {
       badge: 'Logica di prezzo personalizzata',
@@ -249,7 +249,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
     ],
     pricingInfo: [
-      { title: 'Deposito', text: '300 EUR contanti, rimborsato al ritiro' },
+      { title: 'Deposito', text: '100 EUR contanti, rimborsato al ritiro' },
       {
         title: 'Sempre incluso',
         text: 'Lucchetto e casco inclusi senza costi aggiuntivi',
@@ -465,7 +465,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       'Замок включен',
       'Шлем бесплатно',
       'Доступно сразу',
-      '300 EUR залог (наличные)',
+      '100 EUR залог (наличные)',
     ],
     heroPriceCard: {
       badge: 'Индивидуальная логика ценообразования',
@@ -538,7 +538,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
     ],
     pricingInfo: [
-      { title: 'Залог', text: '300 EUR наличными, возвращается при возврате' },
+      { title: 'Залог', text: '100 EUR наличными, возвращается при возврате' },
       {
         title: 'Всегда включено',
         text: 'Замок и шлем включены без дополнительной платы',
