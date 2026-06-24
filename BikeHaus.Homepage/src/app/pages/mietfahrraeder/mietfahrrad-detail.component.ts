@@ -7,18 +7,22 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
 import { TranslationService } from '../../services/translation.service';
 import { getRentalBookingPath } from '../../services/language-config';
 import { PublicRentalBicycle } from '../../models/models';
+import {
+  AvailabilityCalendarComponent,
+  CalendarBusyPeriod,
+} from '../../components/availability-calendar/availability-calendar.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-mietfahrrad-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AvailabilityCalendarComponent],
   template: `
     <div *ngIf="loading()" class="loading-wrap">
       <div class="container">
@@ -198,12 +202,40 @@ import { environment } from '../../../environments/environment';
                 <p class="description-text">{{ bike()!.beschreibung }}</p>
               </section>
 
-              <!-- CTA → dedicated booking flow -->
-              <div class="cta-row">
-                <a [routerLink]="bookingPath()" class="cta-primary">
-                  {{ t().rentalDetailReserveCta }}
-                </a>
-              </div>
+              <!-- Availability calendar + booking CTA -->
+              <section class="section">
+                <h2 class="section-heading">{{ availabilityHeading }}</h2>
+                <app-availability-calendar
+                  [busyPeriods]="busyPeriods()"
+                  [start]="rangeStart"
+                  [end]="rangeEnd"
+                  (rangeChange)="onRangeChange($event)"
+                ></app-availability-calendar>
+                <div class="cta-row" style="margin-top: 1rem;">
+                  <button
+                    type="button"
+                    class="cta-primary"
+                    [disabled]="!rangeStart || !rangeEnd"
+                    [style.opacity]="!rangeStart || !rangeEnd ? 0.5 : 1"
+                    [style.cursor]="
+                      !rangeStart || !rangeEnd ? 'not-allowed' : 'pointer'
+                    "
+                    (click)="rentSelected()"
+                  >
+                    {{ t().rentalDetailReserveCta }}
+                  </button>
+                </div>
+                <p
+                  *ngIf="!rangeStart || !rangeEnd"
+                  style="
+                    font-size: 0.85rem;
+                    color: rgba(255, 255, 255, 0.55);
+                    margin-top: 0.6rem;
+                  "
+                >
+                  {{ availabilityHint }}
+                </p>
+              </section>
             </div>
           </aside>
         </article>
@@ -479,6 +511,7 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
   private titleService = inject(Title);
   private metaService = inject(Meta);
   private document = inject(DOCUMENT);
+  private router = inject(Router);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -486,6 +519,9 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
   bike = signal<PublicRentalBicycle | null>(null);
   loading = signal(true);
   selectedImage = signal(0);
+  busyPeriods = signal<CalendarBusyPeriod[]>([]);
+  rangeStart = '';
+  rangeEnd = '';
 
   private productSchemaElement: HTMLScriptElement | null = null;
 
@@ -498,7 +534,67 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
 
   bookingPath = computed(() => getRentalBookingPath(this.lang()));
 
+  private static readonly L: Record<
+    string,
+    { heading: string; hint: string }
+  > = {
+    de: {
+      heading: 'Verfügbarkeit',
+      hint: 'Wähle Start- und Enddatum im Kalender, um fortzufahren.',
+    },
+    en: {
+      heading: 'Availability',
+      hint: 'Pick a start and end date in the calendar to continue.',
+    },
+    fr: {
+      heading: 'Disponibilité',
+      hint: 'Choisissez une date de début et de fin dans le calendrier pour continuer.',
+    },
+    tr: {
+      heading: 'Müsaitlik',
+      hint: 'Devam etmek için takvimden başlangıç ve bitiş tarihini seç.',
+    },
+  };
+  private labels() {
+    return (
+      MietfahrradDetailComponent.L[this.lang()] ??
+      MietfahrradDetailComponent.L['en']
+    );
+  }
+  get availabilityHeading(): string {
+    return this.labels().heading;
+  }
+  get availabilityHint(): string {
+    return this.labels().hint;
+  }
+
+  onRangeChange(range: { start: string; end: string }): void {
+    this.rangeStart = range.start;
+    this.rangeEnd = range.end;
+  }
+
+  /** Jump straight into the booking flow's cart/summary step with this bike + dates. */
+  rentSelected(): void {
+    const b = this.bike();
+    if (!b || !this.rangeStart || !this.rangeEnd) return;
+    this.router.navigate([this.bookingPath()], {
+      queryParams: {
+        step: 'choose-next',
+        start: this.rangeStart,
+        end: this.rangeEnd,
+        bikeId: b.id,
+      },
+    });
+  }
+
   ngOnInit(): void {
+    // Carry over a date range chosen on the fleet page (if any).
+    const qp = this.route.snapshot.queryParamMap;
+    const start = qp.get('start');
+    const end = qp.get('end');
+    if (start) this.rangeStart = start;
+    if (end) this.rangeEnd = end;
+
     this.route.paramMap.subscribe((params) => {
       const idStr = params.get('id');
       const id = idStr ? Number(idStr) : NaN;
@@ -524,6 +620,7 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
         if (found) {
           this.applySeo(found);
           this.addProductSchema(found);
+          this.loadBusyPeriods(id);
         } else {
           this.titleService.setTitle('404 — Bike Haus Freiburg');
         }
@@ -531,6 +628,13 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
       error: () => {
         this.loading.set(false);
       },
+    });
+  }
+
+  private loadBusyPeriods(id: number): void {
+    this.apiService.getBusyPeriods(id).subscribe({
+      next: (periods) => this.busyPeriods.set(periods),
+      error: () => this.busyPeriods.set([]),
     });
   }
 

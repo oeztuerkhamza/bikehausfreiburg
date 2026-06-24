@@ -13,6 +13,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
 import { TranslationService } from '../../services/translation.service';
 import { PublicRentalBicycle } from '../../models/models';
+import { AvailabilityCalendarComponent } from '../../components/availability-calendar/availability-calendar.component';
 import { environment } from '../../../environments/environment';
 
 type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
@@ -20,7 +21,7 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
 @Component({
   selector: 'app-mietfahrraeder',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, AvailabilityCalendarComponent],
   template: `
     <div class="catalog-page">
       <header class="page-header">
@@ -190,6 +191,14 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
               <span class="active-badge" *ngIf="activeFilterCount() > 0">{{ activeFilterCount() }}</span>
             </button>
             <div class="toolbar-spacer"></div>
+            <button
+              class="filter-toggle"
+              type="button"
+              (click)="dateFilterOpen.set(!dateFilterOpen())"
+            >
+              📅 {{ dateBtnLabel() }}
+              <span class="active-badge" *ngIf="filterStart && filterEnd">✓</span>
+            </button>
             <div class="sort-wrap">
               <label class="sort-label" for="rental-sort">{{ t().sortBy }}:</label>
               <select
@@ -208,6 +217,62 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
             </span>
           </div>
 
+          <!-- Date-range availability filter panel -->
+          <div
+            class="date-panel"
+            *ngIf="dateFilterOpen()"
+            style="
+              max-width: 380px;
+              margin: 0 0 1.25rem auto;
+              background: rgba(255, 255, 255, 0.02);
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              border-radius: 16px;
+              padding: 0.85rem;
+            "
+          >
+            <app-availability-calendar
+              [start]="filterStart"
+              [end]="filterEnd"
+              (rangeChange)="onFilterRange($event)"
+            ></app-availability-calendar>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0.5rem;
+                margin-top: 0.6rem;
+              "
+            >
+              <span
+                style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6)"
+                *ngIf="availLoading()"
+                >…</span
+              >
+              <span
+                style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6)"
+                *ngIf="!availLoading() && availableIds() !== null"
+                >{{ filteredBikes().length }} {{ t().rentalCatalogSub }}</span
+              >
+              <button
+                type="button"
+                *ngIf="filterStart || filterEnd"
+                (click)="clearDateFilter()"
+                style="
+                  background: none;
+                  border: 1px solid rgba(255, 255, 255, 0.18);
+                  color: inherit;
+                  border-radius: 10px;
+                  padding: 0.4rem 0.8rem;
+                  cursor: pointer;
+                  font-size: 0.82rem;
+                "
+              >
+                {{ clearDatesLabel() }}
+              </button>
+            </div>
+          </div>
+
           <!-- Skeleton -->
           <div *ngIf="loading()" class="bike-grid">
             <div *ngFor="let i of skeletonCards" class="skeleton-card">
@@ -224,6 +289,7 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
             <a
               *ngFor="let bike of filteredBikes(); let i = index"
               [routerLink]="['/' + lang(), detailSlug(), bike.id]"
+              [queryParams]="dateQueryParams()"
               class="bike-card"
             >
               <div class="card-img-wrap">
@@ -697,6 +763,13 @@ export class MietfahrraederComponent implements OnInit, OnDestroy {
   selectedFrameSizes = signal<string[]>([]);
   maxDailyPrice = signal<number | null>(null);
 
+  // ── Date-range availability filter (toolbar) ──
+  dateFilterOpen = signal(false);
+  filterStart = '';
+  filterEnd = '';
+  availableIds = signal<Set<number> | null>(null); // null = no date filter active
+  availLoading = signal(false);
+
   private itemListSchemaElement: HTMLScriptElement | null = null;
 
   availableBrands = computed(() => this.countBy(this.bikes(), (b) => b.marke));
@@ -717,8 +790,10 @@ export class MietfahrraederComponent implements OnInit, OnDestroy {
     const tires = this.selectedTireSizes();
     const frames = this.selectedFrameSizes();
     const maxPrice = this.maxDailyPrice();
+    const avail = this.availableIds();
 
     let result = this.bikes().filter((b) => {
+      if (avail !== null && !avail.has(b.id)) return false;
       if (query) {
         const hay = `${b.marke} ${b.modell} ${b.beschreibung || ''} ${b.fahrradtyp || ''} ${b.art || ''}`.toLowerCase();
         if (!hay.includes(query)) return false;
@@ -856,6 +931,68 @@ export class MietfahrraederComponent implements OnInit, OnDestroy {
     this.selectedTireSizes.set([]);
     this.selectedFrameSizes.set([]);
     this.maxDailyPrice.set(null);
+  }
+
+  // ── Date-range availability filter ──
+  onFilterRange(range: { start: string; end: string }): void {
+    this.filterStart = range.start;
+    this.filterEnd = range.end;
+    if (range.start && range.end) {
+      this.availLoading.set(true);
+      this.apiService
+        .getAvailableBikes(new Date(range.start), new Date(range.end))
+        .subscribe({
+          next: (bikes) => {
+            this.availableIds.set(new Set(bikes.map((b) => b.id)));
+            this.availLoading.set(false);
+          },
+          error: () => {
+            this.availableIds.set(new Set());
+            this.availLoading.set(false);
+          },
+        });
+    } else {
+      // Only a start picked so far — don't filter yet.
+      this.availableIds.set(null);
+    }
+  }
+
+  clearDateFilter(): void {
+    this.filterStart = '';
+    this.filterEnd = '';
+    this.availableIds.set(null);
+  }
+
+  dateQueryParams(): Record<string, string> {
+    return this.filterStart && this.filterEnd
+      ? { start: this.filterStart, end: this.filterEnd }
+      : {};
+  }
+
+  private dateLabels(): { pick: string; clear: string } {
+    const m: Record<string, { pick: string; clear: string }> = {
+      de: { pick: 'Zeitraum', clear: 'Zurücksetzen' },
+      en: { pick: 'Dates', clear: 'Reset' },
+      fr: { pick: 'Dates', clear: 'Réinitialiser' },
+      tr: { pick: 'Tarih', clear: 'Sıfırla' },
+    };
+    return m[this.lang()] ?? m['en'];
+  }
+
+  dateBtnLabel(): string {
+    if (this.filterStart && this.filterEnd) {
+      return `${this.fmtShort(this.filterStart)} – ${this.fmtShort(this.filterEnd)}`;
+    }
+    return this.dateLabels().pick;
+  }
+
+  clearDatesLabel(): string {
+    return this.dateLabels().clear;
+  }
+
+  private fmtShort(key: string): string {
+    const parts = key.split('-'); // YYYY-MM-DD
+    return parts.length === 3 ? `${parts[2]}.${parts[1]}` : key;
   }
 
   minDailyPrice(bike: PublicRentalBicycle): string {

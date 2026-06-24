@@ -2062,6 +2062,63 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const qp = this.route.snapshot.queryParamMap;
+    const start = qp.get('start');
+    const end = qp.get('end');
+    const bikeId = qp.get('bikeId');
+    const wantsDeepLink =
+      isPlatformBrowser(this.platformId) &&
+      !!start &&
+      !!end &&
+      !!bikeId &&
+      this.cartBikes().length === 0 &&
+      !this.bookingNumber();
+
+    if (wantsDeepLink) {
+      // Came from the fleet/detail page with dates + a chosen bike: pre-fill the
+      // cart so the flow resolves straight to the requested step (choose-next).
+      this.applyDeepLink(start!, end!, Number(bikeId), () =>
+        this.listenToStepParam(),
+      );
+    } else {
+      this.listenToStepParam();
+    }
+  }
+
+  /** Pre-populates dates + cart from a deep link, then runs `done()`. */
+  private applyDeepLink(
+    start: string,
+    end: string,
+    bikeId: number,
+    done: () => void,
+  ): void {
+    this.selectedStartDate = start;
+    this.selectedEndDate = end;
+    // Re-check availability for the range — the bike may have been booked since
+    // the fleet/detail page was loaded.
+    this.apiService.getAvailableBikes(new Date(start), new Date(end)).subscribe({
+      next: (bikes) => {
+        const bike = bikes.find((b) => b.id === bikeId);
+        if (bike) {
+          this.availableBikes.set(bikes);
+          this.bikesLoaded.set(true);
+          this.selectedBike.set(bike);
+          this.cartBikes.set([
+            {
+              bike,
+              kaution: bike.kaution || 300,
+              calculatedPrice: this.calculatePrice(bike, this.daysCount()),
+            },
+          ]);
+        }
+        done();
+      },
+      error: () => done(),
+    });
+  }
+
+  /** Mirrors the URL `?step=` into component state (and normalizes bad links). */
+  private listenToStepParam(): void {
     // Steps live in the URL (?step=…) so the browser back button moves one
     // step back instead of leaving the page and losing all state.
     this.route.queryParamMap
