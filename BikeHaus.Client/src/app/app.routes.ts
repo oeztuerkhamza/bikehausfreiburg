@@ -166,6 +166,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'rental-statistics',
+    loadComponent: () =>
+      import('./pages/rental-statistics/rental-statistics.component').then(
+        (m) => m.RentalStatisticsComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'email-kampagne',
     loadComponent: () =>
       import('./pages/email-campaign/email-campaign.component').then(
