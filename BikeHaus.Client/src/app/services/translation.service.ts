@@ -391,6 +391,13 @@ export interface Translations {
   loadingStatistics: string;
   averagePerSale: string;
   dailyOverview: string;
+  rentalStatistics: string;
+  totalRentalDays: string;
+  rentedBikesCount: string;
+  rentalRevenue: string;
+  newRentals: string;
+  topRentedBikes: string;
+  rentalDaysUnit: string;
   purchaseValue: string;
   saleValue: string;
   topBrands: string;
@@ -1218,6 +1225,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     loadingStatistics: 'Lade Statistiken...',
     averagePerSale: 'Ø pro Verkauf',
     dailyOverview: 'Tägliche Übersicht',
+    rentalStatistics: 'Vermietungs-Statistik',
+    totalRentalDays: 'Gesamt-Miettage',
+    rentedBikesCount: 'Vermietete Räder',
+    rentalRevenue: 'Mieteinnahmen',
+    newRentals: 'Neue Mieten',
+    topRentedBikes: 'Meistvermietete Räder',
+    rentalDaysUnit: 'Tage',
     purchaseValue: 'Einkaufswert',
     saleValue: 'Verkaufswert',
     topBrands: 'Top Marken (nach Umsatz)',
@@ -2047,6 +2061,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     loadingStatistics: 'İstatistikler yükleniyor...',
     averagePerSale: 'Satış başına ort.',
     dailyOverview: 'Günlük Özet',
+    rentalStatistics: 'Kiralama İstatistikleri',
+    totalRentalDays: 'Toplam Kiralama Günü',
+    rentedBikesCount: 'Kiralanan Bisiklet',
+    rentalRevenue: 'Kiralama Geliri',
+    newRentals: 'Yeni Kiralama',
+    topRentedBikes: 'En Çok Kiralanan Bisikletler',
+    rentalDaysUnit: 'Gün',
     purchaseValue: 'Alım değeri',
     saleValue: 'Satış değeri',
     topBrands: 'En İyi Markalar (Ciro)',
