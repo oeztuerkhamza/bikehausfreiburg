@@ -2,7 +2,12 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { RentalBookingService } from '../../services/rental-booking.service';
+import {
+  RentalService,
+  RentalCalendarItem,
+} from '../../services/rental.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { TranslationService } from '../../services/translation.service';
@@ -18,9 +23,26 @@ interface CalDay {
   isToday: boolean;
 }
 
-/** One booking rendered as a bar across the visible week. */
+/**
+ * Unified calendar entry — either an online booking (Mietanfrage) or a
+ * formal rental contract (Mietvertrag created in the client). Both are shown
+ * in the calendar view; the list view still shows bookings only.
+ */
+interface CalItem {
+  kind: 'booking' | 'rental';
+  id: number;
+  number: string; // Buchungs-/Mietvertrag-Nr.
+  customerName: string;
+  bikeInfo: string;
+  hasEBike: boolean;
+  isPending: boolean; // dashed style (only pending bookings)
+  startDatum: string;
+  endDatum: string;
+}
+
+/** One calendar entry rendered as a bar across the visible week. */
 interface CalBar {
-  booking: RentalBookingList;
+  item: CalItem;
   colStart: number; // 1-based grid column
   colEnd: number; // inclusive
   continuesLeft: boolean;
@@ -103,28 +125,33 @@ interface CalBar {
           <a
             *ngFor="let bar of calBars; let i = index"
             class="cal-bar"
-            [class.ebike]="bar.booking.hasEBike"
-            [class.pending]="bar.booking.status === BookingStatus.Pending"
+            [class.ebike]="bar.item.hasEBike"
+            [class.pending]="bar.item.isPending"
+            [class.rental]="bar.item.kind === 'rental'"
             [class.cont-left]="bar.continuesLeft"
             [class.cont-right]="bar.continuesRight"
             [style.grid-column]="bar.colStart + ' / ' + (bar.colEnd + 1)"
             [style.grid-row]="i + 1"
-            [routerLink]="['/rental-bookings', bar.booking.id]"
+            [routerLink]="
+              bar.item.kind === 'rental'
+                ? ['/rentals', bar.item.id]
+                : ['/rental-bookings', bar.item.id]
+            "
             [title]="
-              bar.booking.buchungsNummer +
+              bar.item.number +
               ' · ' +
-              bar.booking.customerName +
+              bar.item.customerName +
               ' · ' +
-              bar.booking.bikeInfo +
+              bar.item.bikeInfo +
               ' · ' +
-              (bar.booking.startDatum | date: 'dd.MM.') +
+              (bar.item.startDatum | date: 'dd.MM.') +
               '–' +
-              (bar.booking.endDatum | date: 'dd.MM.yyyy')
+              (bar.item.endDatum | date: 'dd.MM.yyyy')
             "
           >
             <span class="bar-label">
-              <strong>{{ bar.booking.customerName }}</strong>
-              <span class="bar-bike">· {{ bar.booking.bikeInfo }}</span>
+              <strong>{{ bar.item.customerName }}</strong>
+              <span class="bar-bike">· {{ bar.item.bikeInfo }}</span>
             </span>
           </a>
         </div>
@@ -653,6 +680,11 @@ interface CalBar {
         border-color: #f59e0b;
         color: #b45309;
       }
+      /* formal rental contract (Mietvertrag) — white left marker to tell it
+         apart from an online booking of the same bike type */
+      .cal-bar.rental {
+        box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.75);
+      }
       /* booking continues beyond the visible week */
       .cal-bar.cont-left {
         border-top-left-radius: 0;
@@ -700,6 +732,7 @@ interface CalBar {
 })
 export class RentalBookingListComponent implements OnInit {
   private service = inject(RentalBookingService);
+  private rentalService = inject(RentalService);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
   private translationService = inject(TranslationService);
@@ -716,7 +749,7 @@ export class RentalBookingListComponent implements OnInit {
     (localStorage.getItem('rental-bookings-view') as 'list' | 'calendar') ||
     'list';
   calWeekStart = this.mondayOf(new Date());
-  calBookings: RentalBookingList[] = [];
+  calItems: CalItem[] = [];
   calDays: CalDay[] = [];
   calBars: CalBar[] = [];
   todayCol = -1;
@@ -772,17 +805,68 @@ export class RentalBookingListComponent implements OnInit {
 
   loadCalendar() {
     const weekEnd = this.addDays(this.calWeekStart, 6);
-    this.service
-      .getCalendar(this.toIso(this.calWeekStart), this.toIso(weekEnd))
-      .subscribe({
-        next: (items) => {
-          this.calBookings = items;
-          this.buildCalendar();
-        },
-        error: () => {
-          this.notificationService.error(this.t.saveError);
-        },
-      });
+    const from = this.toIso(this.calWeekStart);
+    const to = this.toIso(weekEnd);
+    // Calendar merges online bookings (Mietanfragen) with formal rental
+    // contracts (Mietverträge) so both show up on the timeline.
+    forkJoin({
+      bookings: this.service.getCalendar(from, to),
+      rentals: this.rentalService.getCalendar(from, to),
+    }).subscribe({
+      next: ({ bookings, rentals }) => {
+        const bookingItems = bookings.map((b) => this.bookingToItem(b));
+        // A booking converted into a Mietvertrag exists as BOTH an approved
+        // booking and a rental (no DB link between them). Skip the rental if a
+        // booking with the same customer + date range is already shown, so
+        // converted rentals aren't duplicated — but rentals created directly in
+        // the client (no matching booking) still appear.
+        const bookingKeys = new Set(
+          bookingItems.map((i) => this.calItemKey(i)),
+        );
+        const rentalItems = rentals
+          .map((r) => this.rentalToItem(r))
+          .filter((i) => !bookingKeys.has(this.calItemKey(i)));
+        this.calItems = [...bookingItems, ...rentalItems];
+        this.buildCalendar();
+      },
+      error: () => {
+        this.notificationService.error(this.t.saveError);
+      },
+    });
+  }
+
+  private bookingToItem(b: RentalBookingList): CalItem {
+    return {
+      kind: 'booking',
+      id: b.id,
+      number: b.buchungsNummer,
+      customerName: b.customerName,
+      bikeInfo: b.bikeInfo,
+      hasEBike: b.hasEBike,
+      isPending: b.status === RentalBookingStatus.Pending,
+      startDatum: b.startDatum,
+      endDatum: b.endDatum,
+    };
+  }
+
+  /** Dedup key: same customer + same date range = likely the same rental. */
+  private calItemKey(i: CalItem): string {
+    const name = i.customerName.trim().toLowerCase();
+    return `${name}|${this.toIso(this.dateOnly(i.startDatum))}|${this.toIso(this.dateOnly(i.endDatum))}`;
+  }
+
+  private rentalToItem(r: RentalCalendarItem): CalItem {
+    return {
+      kind: 'rental',
+      id: r.id,
+      number: r.mietvertragNummer,
+      customerName: r.customerName,
+      bikeInfo: r.bikeInfo,
+      hasEBike: r.hasEBike,
+      isPending: false,
+      startDatum: r.startDatum,
+      endDatum: r.endDatum,
+    };
   }
 
   private buildCalendar() {
@@ -797,22 +881,22 @@ export class RentalBookingListComponent implements OnInit {
     });
     this.todayCol = this.calDays.findIndex((d) => d.isToday);
 
-    const sorted = [...this.calBookings].sort(
+    const sorted = [...this.calItems].sort(
       (a, b) =>
         new Date(a.startDatum).getTime() - new Date(b.startDatum).getTime() ||
         a.id - b.id,
     );
 
-    // One lane per booking: a continuous bar clamped to the visible week.
+    // One lane per entry: a continuous bar clamped to the visible week.
     this.calBars = sorted
-      .map((booking) => {
-        const start = this.dateOnly(booking.startDatum);
-        const end = this.dateOnly(booking.endDatum);
+      .map((item) => {
+        const start = this.dateOnly(item.startDatum);
+        const end = this.dateOnly(item.endDatum);
         if (end < weekStart || start > weekEnd) return null;
         const clampedStart = start < weekStart ? weekStart : start;
         const clampedEnd = end > weekEnd ? weekEnd : end;
         return {
-          booking,
+          item,
           colStart: this.dayDiff(weekStart, clampedStart) + 1,
           colEnd: this.dayDiff(weekStart, clampedEnd) + 1,
           continuesLeft: start < weekStart,

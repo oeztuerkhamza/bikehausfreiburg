@@ -39,6 +39,12 @@ public class RentalService : IRentalService
         return rentals.Select(r => r.ToListDto());
     }
 
+    public async Task<IEnumerable<RentalCalendarItemDto>> GetCalendarAsync(DateTime from, DateTime to)
+    {
+        var rentals = await _rentalRepository.GetOverlappingRangeWithBikesAsync(from, to);
+        return rentals.Select(r => r.ToCalendarItemDto());
+    }
+
     public async Task<PaginatedResult<RentalListDto>> GetPaginatedAsync(PaginationParams paginationParams)
     {
         System.Linq.Expressions.Expression<Func<Rental, bool>>? predicate = null;

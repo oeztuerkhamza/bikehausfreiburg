@@ -46,6 +46,19 @@ public class RentalsController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>All non-cancelled rental contracts overlapping the given range (calendar view).</summary>
+    [HttpGet("calendar")]
+    public async Task<ActionResult<IEnumerable<RentalCalendarItemDto>>> GetCalendar(
+        [FromQuery] DateTime from,
+        [FromQuery] DateTime to)
+    {
+        if (to < from || (to - from).TotalDays > 62)
+            return BadRequest(new { error = "Ungültiger Zeitraum" });
+
+        var items = await _rentalService.GetCalendarAsync(from, to);
+        return Ok(items);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<RentalDto>> GetById(int id)
     {

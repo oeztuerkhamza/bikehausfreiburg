@@ -539,6 +539,26 @@ public static class MappingExtensions
         );
     }
 
+    public static RentalCalendarItemDto ToCalendarItemDto(this Rental entity)
+    {
+        var bikeInfo = entity.Bikes.Any()
+            ? string.Join(" + ", entity.Bikes.Select(bk =>
+                $"{bk.Bicycle?.Marke ?? ""} {bk.Bicycle?.Modell ?? ""}".Trim()))
+            : string.Empty;
+        var hasEBike = entity.Bikes.Any(bk => IsEBike(bk.Bicycle));
+
+        return new RentalCalendarItemDto(
+            entity.Id,
+            entity.MietvertragNummer,
+            bikeInfo,
+            entity.Customer?.FullName ?? string.Empty,
+            entity.StartDatum,
+            entity.EndDatum,
+            entity.Status,
+            hasEBike
+        );
+    }
+
     // ── EBike Mappings ──
     public static EBikeImageDto ToDto(this EBikeImage entity) => new(
         entity.Id,

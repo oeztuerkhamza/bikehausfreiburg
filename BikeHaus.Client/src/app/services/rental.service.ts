@@ -11,11 +11,29 @@ import {
   PaginatedResult,
 } from '../models/models';
 
+export interface RentalCalendarItem {
+  id: number;
+  mietvertragNummer: string;
+  bikeInfo: string;
+  customerName: string;
+  startDatum: string;
+  endDatum: string;
+  status: string;
+  hasEBike: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class RentalService {
   private url = `${environment.apiUrl}/rentals`;
 
   constructor(private http: HttpClient) {}
+
+  getCalendar(from: string, to: string): Observable<RentalCalendarItem[]> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get<RentalCalendarItem[]>(`${this.url}/calendar`, {
+      params,
+    });
+  }
 
   getAll(): Observable<RentalList[]> {
     return this.http.get<RentalList[]>(this.url);

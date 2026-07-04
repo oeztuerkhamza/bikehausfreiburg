@@ -89,6 +89,19 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Rental>> GetOverlappingRangeWithBikesAsync(DateTime from, DateTime to)
+    {
+        // Belegungs-/Kalenderansicht: alle nicht-stornierten Mietverträge, die den Zeitraum berühren.
+        return await _dbSet
+            .Include(r => r.Bikes).ThenInclude(b => b.Bicycle)
+            .Include(r => r.Customer)
+            .Where(r => r.Status != RentalStatus.Cancelled
+                && r.StartDatum.Date <= to.Date
+                && r.EndDatum.Date >= from.Date)
+            .OrderBy(r => r.StartDatum)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<int>> GetBusyBicycleIdsForPeriodAsync(DateOnly start, DateOnly end)
     {
         var startDt = start.ToDateTime(TimeOnly.MinValue);

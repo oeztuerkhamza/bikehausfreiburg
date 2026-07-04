@@ -96,6 +96,18 @@ public record RentalListDto(
     bool IsOverdue
 );
 
+// Kompaktes Element für die Belegungs-/Kalenderansicht (formale Mietverträge).
+public record RentalCalendarItemDto(
+    int Id,
+    string MietvertragNummer,
+    string BikeInfo,
+    string CustomerName,
+    DateTime StartDatum,
+    DateTime EndDatum,
+    RentalStatus Status,
+    bool HasEBike
+);
+
 // ── Return checklist DTOs ──
 public record RentalBikeReturnDto(
     int RentalBikeId,

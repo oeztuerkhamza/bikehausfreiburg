@@ -6,6 +6,7 @@ public interface IRentalService
 {
     Task<IEnumerable<RentalListDto>> GetAllAsync();
     Task<PaginatedResult<RentalListDto>> GetPaginatedAsync(PaginationParams paginationParams);
+    Task<IEnumerable<RentalCalendarItemDto>> GetCalendarAsync(DateTime from, DateTime to);
     Task<RentalDto?> GetByIdAsync(int id);
     Task<RentalDto> CreateAsync(RentalCreateDto dto);
     Task<RentalDto> UpdateAsync(int id, RentalUpdateDto dto);
