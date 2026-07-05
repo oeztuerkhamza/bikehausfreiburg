@@ -2430,6 +2430,7 @@ export class RentalBookingStepsComponent implements OnInit {
         return this.bookingNumber() ? 'success' : 'date-selection';
       case 'review':
       case 'customer-info':
+      case 'accessory-selection':
       case 'choose-next':
         return this.cartBikes().length > 0 ? requested : 'date-selection';
       case 'bike-details':
