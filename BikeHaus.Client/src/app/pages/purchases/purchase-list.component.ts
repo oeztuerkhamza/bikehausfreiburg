@@ -182,6 +182,7 @@ import { environment } from '../../../environments/environment';
               *ngFor="let p of paginatedResult?.items"
               class="clickable-row"
               [class.row-with-sale]="p.hasSale"
+              [class.duplicate-rahmen]="isDuplicateRahmen(p)"
               (click)="toggleMenu($event, p)"
             >
               <td class="mono">{{ p.belegNummer }}</td>
@@ -270,6 +271,7 @@ import { environment } from '../../../environments/environment';
           class="purchase-card"
           *ngFor="let p of paginatedResult?.items"
           [class.card-with-sale]="p.hasSale"
+          [class.duplicate-rahmen]="isDuplicateRahmen(p)"
           (click)="toggleMenu($event, p)"
         >
           <div class="card-photo">
@@ -566,6 +568,33 @@ import { environment } from '../../../environments/environment';
       }
       .row-with-sale:hover td {
         background: rgba(236, 72, 153, 0.32);
+      }
+      /* Duplicate Rahmennummer → blinking red warning */
+      @keyframes rahmenBlink {
+        0%,
+        100% {
+          background-color: rgba(239, 68, 68, 0.08);
+        }
+        50% {
+          background-color: rgba(239, 68, 68, 0.34);
+        }
+      }
+      tr.duplicate-rahmen td {
+        animation: rahmenBlink 1s ease-in-out infinite;
+        color: #b91c1c;
+        font-weight: 600;
+      }
+      .purchase-card.duplicate-rahmen {
+        animation: rahmenBlink 1s ease-in-out infinite;
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        tr.duplicate-rahmen td,
+        .purchase-card.duplicate-rahmen {
+          animation: none;
+          background-color: rgba(239, 68, 68, 0.18);
+        }
       }
       .actions-cell {
         position: relative;
@@ -902,7 +931,28 @@ export class PurchaseListComponent implements OnInit {
       )
       .subscribe((data) => {
         this.paginatedResult = data;
+        this.computeDuplicateRahmen();
       });
+  }
+
+  /** Rahmennummern that appear on more than one purchase in the loaded list. */
+  duplicateRahmen = new Set<string>();
+
+  private computeDuplicateRahmen() {
+    const counts = new Map<string, number>();
+    for (const p of this.paginatedResult?.items ?? []) {
+      const rn = p.rahmennummer?.trim().toUpperCase();
+      if (!rn) continue;
+      counts.set(rn, (counts.get(rn) ?? 0) + 1);
+    }
+    this.duplicateRahmen = new Set(
+      [...counts.entries()].filter(([, n]) => n > 1).map(([rn]) => rn),
+    );
+  }
+
+  isDuplicateRahmen(p: PurchaseList): boolean {
+    const rn = p.rahmennummer?.trim().toUpperCase();
+    return !!rn && this.duplicateRahmen.has(rn);
   }
 
   clearFilters() {
