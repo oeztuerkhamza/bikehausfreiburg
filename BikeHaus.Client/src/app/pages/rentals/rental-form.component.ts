@@ -1337,6 +1337,9 @@ const MONTH_NAMES = [
         display: flex;
         flex-direction: column;
         gap: 2px;
+        flex: 1;
+        min-width: 0;
+        overflow-wrap: anywhere;
       }
       .accessory-quantity-item label .acc-price {
         font-size: 0.75rem;
@@ -1344,6 +1347,7 @@ const MONTH_NAMES = [
         color: var(--text-secondary, #64748b);
       }
       .accessory-quantity-item input {
+        flex-shrink: 0;
         width: 70px;
         padding: 6px 8px;
         border: 1.5px solid var(--border-color);
