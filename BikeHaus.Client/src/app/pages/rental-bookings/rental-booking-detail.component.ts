@@ -325,6 +325,31 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
           </div>
         </div>
 
+        <div
+          class="info-card"
+          *ngIf="booking.accessories && booking.accessories.length > 0"
+        >
+          <h3>{{ t.rentalAccessories }}</h3>
+          <table class="accessory-table">
+            <thead>
+              <tr>
+                <th>{{ t.designation }}</th>
+                <th>Menge</th>
+                <th>{{ t.rentalAccessoryDayPrice }}</th>
+                <th>{{ t.total }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let acc of booking.accessories">
+                <td>{{ acc.bezeichnung }}</td>
+                <td>{{ acc.menge }}×</td>
+                <td>{{ acc.tagespreis | number: '1.2-2' }} €</td>
+                <td>{{ acc.gesamtpreis | number: '1.2-2' }} €</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         <div class="info-card">
           <h3>{{ t.rentalBookingDates }}</h3>
           <div class="info-row">
