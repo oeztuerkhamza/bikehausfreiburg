@@ -326,28 +326,30 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
         </div>
 
         <div
-          class="info-card"
+          class="info-card accessory-card"
           *ngIf="booking.accessories && booking.accessories.length > 0"
         >
           <h3>{{ t.rentalAccessories }}</h3>
-          <table class="accessory-table">
-            <thead>
-              <tr>
-                <th>{{ t.designation }}</th>
-                <th>Menge</th>
-                <th>{{ t.rentalAccessoryDayPrice }}</th>
-                <th>{{ t.total }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let acc of booking.accessories">
-                <td>{{ acc.bezeichnung }}</td>
-                <td>{{ acc.menge }}×</td>
-                <td>{{ acc.tagespreis | number: '1.2-2' }} €</td>
-                <td>{{ acc.gesamtpreis | number: '1.2-2' }} €</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="accessory-scroll">
+            <table class="accessory-table">
+              <thead>
+                <tr>
+                  <th>{{ t.designation }}</th>
+                  <th>Menge</th>
+                  <th>{{ t.rentalAccessoryDayPrice }}</th>
+                  <th>{{ t.total }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let acc of booking.accessories">
+                  <td>{{ acc.bezeichnung }}</td>
+                  <td>{{ acc.menge }}×</td>
+                  <td>{{ acc.tagespreis | number: '1.2-2' }} €</td>
+                  <td>{{ acc.gesamtpreis | number: '1.2-2' }} €</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div class="info-card">
@@ -440,10 +442,21 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
         padding: 4px 0;
         font-size: 0.9rem;
       }
+      .info-card.accessory-card {
+        grid-column: 1 / -1;
+      }
+      .accessory-scroll {
+        overflow-x: auto;
+      }
       .accessory-table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 8px;
+      }
+      .accessory-table th:not(:first-child),
+      .accessory-table td:not(:first-child) {
+        white-space: nowrap;
+        text-align: right;
       }
       .accessory-table th {
         text-align: left;
