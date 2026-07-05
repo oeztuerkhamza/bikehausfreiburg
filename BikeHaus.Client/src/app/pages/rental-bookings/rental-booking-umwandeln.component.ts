@@ -12,6 +12,7 @@ import {
   RentalBookingStatus,
   RentalCreate,
   RentalBikeCreate,
+  RentalAccessoryItemCreate,
   PaymentMethod,
   BikeConditionAtHandover,
 } from '../../models/models';
@@ -382,6 +383,17 @@ export class RentalBookingUmwandelnComponent implements OnInit {
       };
     });
 
+    // Carry the booking's accessories over into the rental contract so the
+    // Zubehör (and its price) isn't lost during conversion.
+    const accessories: RentalAccessoryItemCreate[] = (
+      this.booking.accessories ?? []
+    ).map((acc) => ({
+      rentalAccessoryId: acc.rentalAccessoryId,
+      bezeichnung: acc.bezeichnung,
+      tagespreis: acc.tagespreis,
+      menge: acc.menge,
+    }));
+
     const payload: RentalCreate = {
       bikes,
       customer,
@@ -391,6 +403,7 @@ export class RentalBookingUmwandelnComponent implements OnInit {
       notizen: this.notizen || undefined,
       mieterUnterschrift: this.mieterUnterschrift || undefined,
       agbAkzeptiert: !!this.mieterUnterschrift,
+      accessories: accessories.length > 0 ? accessories : undefined,
     };
 
     this.rentalService.create(payload).subscribe({

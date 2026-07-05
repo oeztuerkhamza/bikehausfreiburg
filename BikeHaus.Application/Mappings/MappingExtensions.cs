@@ -347,7 +347,8 @@ public static class MappingExtensions
         entity.Bezeichnung,
         entity.Tagespreis,
         entity.Menge,
-        entity.Tagespreis * entity.Menge * Math.Max(1, days)
+        entity.Tagespreis * entity.Menge * Math.Max(1, days),
+        entity.RentalAccessoryId
     );
 
     public static RentalBookingBikeDto ToDto(this RentalBookingBike entity) => new(

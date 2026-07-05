@@ -600,20 +600,31 @@ const MONTH_NAMES = [
             <div class="section-header">
               <h2>Zubehör</h2>
             </div>
-            <div class="accessory-quantity-grid">
-              <div class="accessory-quantity-item" *ngFor="let key of accessoryKeys">
-                <label [attr.for]="'acc_' + key">{{ accessoryLabels[key] }}</label>
+            <div class="accessory-empty" *ngIf="availableAccessories.length === 0">
+              Noch kein Mietzubehör angelegt. Unter „Mietzubehör" können Sie
+              Artikel (mit Foto und Preis) hinzufügen.
+            </div>
+            <div class="accessory-quantity-grid" *ngIf="availableAccessories.length > 0">
+              <div class="accessory-quantity-item" *ngFor="let acc of availableAccessories">
+                <label [attr.for]="'acc_' + acc.id">
+                  {{ acc.bezeichnung }}
+                  <span class="acc-price">{{ acc.tagespreis | number: '1.2-2' }} €/Tag</span>
+                </label>
                 <input
                   type="number"
                   min="0"
                   step="1"
-                  [id]="'acc_' + key"
-                  [name]="'accessoryQty_' + key"
-                  [ngModel]="accessoryQuantities[key]"
-                  (ngModelChange)="onAccessoryQuantityChange(key, $event)"
+                  [id]="'acc_' + acc.id"
+                  [name]="'accessoryQty_' + acc.id"
+                  [ngModel]="catalogAccessoryQty[acc.id] || 0"
+                  (ngModelChange)="onCatalogAccessoryQtyChange(acc.id, $event)"
                   placeholder="0"
                 />
               </div>
+            </div>
+            <div class="accessory-total-row" *ngIf="accessoryGrandTotal() > 0">
+              <span>Zubehör gesamt ({{ rentalDays }} Tage):</span>
+              <strong>{{ accessoryGrandTotal() | number: '1.2-2' }} €</strong>
             </div>
           </div>
           </ng-container>
@@ -1323,6 +1334,14 @@ const MONTH_NAMES = [
         font-weight: 600;
         color: var(--text-primary);
         margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .accessory-quantity-item label .acc-price {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: var(--text-secondary, #64748b);
       }
       .accessory-quantity-item input {
         width: 70px;
@@ -2049,6 +2068,56 @@ export class RentalFormComponent implements OnInit {
     this.accessoryQuantities[key] = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
   }
 
+  // ── Catalog-driven Zubehör (managed Mietzubehör items) ──
+  catalogAccessoryQty: Record<number, number> = {};
+  /** Existing accessories to pre-select once the catalog has loaded. */
+  private prefillAccessories: { bezeichnung: string; menge: number }[] = [];
+
+  onCatalogAccessoryQtyChange(id: number, value: unknown) {
+    const n = Number(value);
+    const qty = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+    if (qty > 0) this.catalogAccessoryQty[id] = qty;
+    else delete this.catalogAccessoryQty[id];
+  }
+
+  accessoryGrandTotal(): number {
+    const days = this.rentalDays > 0 ? this.rentalDays : 1;
+    return this.availableAccessories.reduce((sum, acc) => {
+      const qty = this.catalogAccessoryQty[acc.id] || 0;
+      return sum + acc.tagespreis * qty * days;
+    }, 0);
+  }
+
+  /** Builds the accessory payload (priced per day server-side) from the catalog selection. */
+  private buildCatalogAccessories(): RentalAccessoryItemCreate[] {
+    return this.availableAccessories
+      .filter((acc) => (this.catalogAccessoryQty[acc.id] || 0) > 0)
+      .map((acc) => ({
+        rentalAccessoryId: acc.id,
+        bezeichnung: acc.bezeichnung,
+        tagespreis: acc.tagespreis,
+        verlustgebuehr: acc.verlustgebuehr,
+        menge: this.catalogAccessoryQty[acc.id],
+      }));
+  }
+
+  /** Re-applies pre-fill once both the catalog and the source entity are loaded. */
+  private applyAccessoryPrefill() {
+    if (
+      this.prefillAccessories.length === 0 ||
+      this.availableAccessories.length === 0
+    )
+      return;
+    for (const item of this.prefillAccessories) {
+      const match = this.availableAccessories.find(
+        (a) =>
+          a.bezeichnung.trim().toLowerCase() ===
+          item.bezeichnung.trim().toLowerCase(),
+      );
+      if (match && item.menge > 0) this.catalogAccessoryQty[match.id] = item.menge;
+    }
+  }
+
   // ── Calendar ──
   readonly weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
   calendarYear = new Date().getFullYear();
@@ -2357,7 +2426,10 @@ export class RentalFormComponent implements OnInit {
     this.updateIsMobile();
 
     this.accessoryService.getActive().subscribe({
-      next: (list) => (this.availableAccessories = list),
+      next: (list) => {
+        this.availableAccessories = list;
+        this.applyAccessoryPrefill();
+      },
     });
 
     this.bicycleService.getBrands().subscribe({
@@ -2398,14 +2470,11 @@ export class RentalFormComponent implements OnInit {
           }
 
           if (booking.accessories && booking.accessories.length > 0) {
-            for (const key of ACCESSORY_KEYS) {
-              const match = booking.accessories.find((a) =>
-                this.matchesAccessoryKey(a.bezeichnung, key),
-              );
-              this.accessoryQuantities[key] = match
-                ? Math.max(0, Math.floor(Number(match.menge) || 0)) || 1
-                : 0;
-            }
+            this.prefillAccessories = booking.accessories.map((a) => ({
+              bezeichnung: a.bezeichnung,
+              menge: Math.max(0, Math.floor(Number(a.menge) || 0)),
+            }));
+            this.applyAccessoryPrefill();
           }
 
           const allBikes = booking.bikes?.length > 0 ? booking.bikes : null;
@@ -2536,15 +2605,12 @@ export class RentalFormComponent implements OnInit {
     });
     if (this.bikes.length === 0) this.bikes = [createEmptyBikeEntry()];
 
-    // Accessories → predefined quantities
-    for (const key of ACCESSORY_KEYS) {
-      const match = rental.accessories?.find((a) =>
-        this.matchesAccessoryKey(a.bezeichnung, key),
-      );
-      this.accessoryQuantities[key] = match
-        ? Math.max(0, Math.floor(Number(match.menge) || 0))
-        : 0;
-    }
+    // Accessories → pre-select the matching catalog items
+    this.prefillAccessories = (rental.accessories ?? []).map((a) => ({
+      bezeichnung: a.bezeichnung,
+      menge: Math.max(0, Math.floor(Number(a.menge) || 0)),
+    }));
+    this.applyAccessoryPrefill();
 
     this.recalcDaysAndPrices();
     this.loadAvailableForPeriod();
@@ -2899,21 +2965,8 @@ export class RentalFormComponent implements OnInit {
         .pipe(map(() => sel.id));
     });
 
-    const accessoriesPayload: RentalAccessoryItemCreate[] = ACCESSORY_KEYS
-      .filter((key) => (this.accessoryQuantities[key] || 0) > 0)
-      .map((key) => {
-        const accessory = this.buildAccessoryFromKey(
-          key,
-          this.accessoryQuantities[key],
-        );
-        return {
-          rentalAccessoryId: accessory.rentalAccessoryId,
-          bezeichnung: accessory.bezeichnung,
-          tagespreis: accessory.tagespreis,
-          verlustgebuehr: accessory.verlustgebuehr,
-          menge: accessory.menge,
-        };
-      });
+    const accessoriesPayload: RentalAccessoryItemCreate[] =
+      this.buildCatalogAccessories();
 
     forkJoin(bikeIdResolves)
       .pipe(
@@ -3014,18 +3067,8 @@ export class RentalFormComponent implements OnInit {
     if (!this.rentalId) return;
     this.submitting = true;
 
-    const accessoriesPayload: RentalAccessoryItemCreate[] = ACCESSORY_KEYS
-      .filter((key) => (this.accessoryQuantities[key] || 0) > 0)
-      .map((key) => {
-        const accessory = this.buildAccessoryFromKey(key, this.accessoryQuantities[key]);
-        return {
-          rentalAccessoryId: accessory.rentalAccessoryId,
-          bezeichnung: accessory.bezeichnung,
-          tagespreis: accessory.tagespreis,
-          verlustgebuehr: accessory.verlustgebuehr,
-          menge: accessory.menge,
-        };
-      });
+    const accessoriesPayload: RentalAccessoryItemCreate[] =
+      this.buildCatalogAccessories();
 
     const resolves = this.bikes.map((b) =>
       this.resolveBicycleId(b).pipe(map((bicycleId) => ({ b, bicycleId }))),

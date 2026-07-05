@@ -13,7 +13,8 @@ public record RentalBookingAccessoryDto(
     string Bezeichnung,
     decimal Tagespreis,
     int Menge,
-    decimal Gesamtpreis
+    decimal Gesamtpreis,
+    int? RentalAccessoryId
 );
 
 public record RentalBookingBikeCreateDto(

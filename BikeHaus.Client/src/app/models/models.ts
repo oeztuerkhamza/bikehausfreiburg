@@ -1083,6 +1083,7 @@ export interface RentalBookingAccessory {
   tagespreis: number;
   menge: number;
   gesamtpreis: number;
+  rentalAccessoryId?: number;
 }
 
 export interface RentalBookingBike {
