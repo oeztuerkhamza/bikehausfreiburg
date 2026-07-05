@@ -305,6 +305,10 @@ export interface Translations {
   rentalAccessoryDayPrice: string;
   rentalAccessoryDescription: string;
   rentalAccessoryActive: string;
+  rentalAccessoryPhoto: string;
+  rentalAccessoryUploadPhoto: string;
+  rentalAccessoryRemovePhoto: string;
+  rentalAccessoryPhotoHint: string;
   rentalAccessoryNew: string;
   rentalAccessoryEdit: string;
   rentalAccessoryNoItems: string;
@@ -1136,6 +1140,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalAccessoryDayPrice: 'Tagespreis (€)',
     rentalAccessoryDescription: 'Beschreibung',
     rentalAccessoryActive: 'Aktiv',
+    rentalAccessoryPhoto: 'Foto',
+    rentalAccessoryUploadPhoto: 'Foto hochladen',
+    rentalAccessoryRemovePhoto: 'Foto entfernen',
+    rentalAccessoryPhotoHint: 'Bitte zuerst speichern, danach kann ein Foto hochgeladen werden.',
     rentalAccessoryNew: 'Neues Mietzubehör',
     rentalAccessoryEdit: 'Mietzubehör bearbeiten',
     rentalAccessoryNoItems: 'Kein Mietzubehör vorhanden.',
@@ -1972,6 +1980,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalAccessoryDayPrice: 'Günlük Ücret (€)',
     rentalAccessoryDescription: 'Açıklama',
     rentalAccessoryActive: 'Aktif',
+    rentalAccessoryPhoto: 'Fotoğraf',
+    rentalAccessoryUploadPhoto: 'Fotoğraf yükle',
+    rentalAccessoryRemovePhoto: 'Fotoğrafı kaldır',
+    rentalAccessoryPhotoHint: 'Lütfen önce kaydedin, ardından fotoğraf yükleyebilirsiniz.',
     rentalAccessoryNew: 'Yeni Kiralama Aksesuarı',
     rentalAccessoryEdit: 'Kiralama Aksesuarı Düzenle',
     rentalAccessoryNoItems: 'Kiralama aksesuarı yok.',

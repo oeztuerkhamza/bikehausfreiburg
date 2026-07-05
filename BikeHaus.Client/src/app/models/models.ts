@@ -1047,6 +1047,7 @@ export interface RentalAccessory {
   verlustgebuehr?: number;
   aktiv: boolean;
   beschreibung?: string;
+  bildPfad?: string;
   createdAt: string;
 }
 
@@ -1056,6 +1057,8 @@ export interface RentalAccessoryList {
   tagespreis: number;
   verlustgebuehr?: number;
   aktiv: boolean;
+  beschreibung?: string;
+  bildPfad?: string;
   createdAt: string;
 }
 

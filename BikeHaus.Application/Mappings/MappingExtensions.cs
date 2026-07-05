@@ -322,6 +322,7 @@ public static class MappingExtensions
         entity.Verlustgebuehr,
         entity.Aktiv,
         entity.Beschreibung,
+        entity.BildPfad,
         entity.CreatedAt
     );
 
@@ -331,16 +332,22 @@ public static class MappingExtensions
         entity.Tagespreis,
         entity.Verlustgebuehr,
         entity.Aktiv,
+        entity.Beschreibung,
+        entity.BildPfad,
         entity.CreatedAt
     );
 
     // ── RentalBooking Mappings ──
-    public static RentalBookingAccessoryDto ToDto(this RentalBookingAccessory entity) => new(
+    /// <summary>Zubehör-Zeilensumme = Tagespreis × Menge × Miettage (inklusive).</summary>
+    private static int InclusiveRentalDays(DateTime start, DateTime end)
+        => Math.Max(1, (end.Date - start.Date).Days + 1);
+
+    public static RentalBookingAccessoryDto ToDto(this RentalBookingAccessory entity, int days) => new(
         entity.Id,
         entity.Bezeichnung,
         entity.Tagespreis,
         entity.Menge,
-        entity.Tagespreis * entity.Menge
+        entity.Tagespreis * entity.Menge * Math.Max(1, days)
     );
 
     public static RentalBookingBikeDto ToDto(this RentalBookingBike entity) => new(
@@ -400,7 +407,7 @@ public static class MappingExtensions
             entity.CreatedAt,
             entity.ApprovedAt,
             entity.CancelledAt,
-            entity.Accessories.Select(a => a.ToDto()).ToList(),
+            entity.Accessories.Select(a => a.ToDto(InclusiveRentalDays(entity.StartDatum, entity.EndDatum))).ToList(),
             entity.AusweisPhotoPath
         );
     }
@@ -460,13 +467,13 @@ public static class MappingExtensions
     );
 
     // ── Rental Mappings ──
-    public static RentalAccessoryItemDto ToDto(this RentalAccessoryItem entity) => new(
+    public static RentalAccessoryItemDto ToDto(this RentalAccessoryItem entity, int days) => new(
         entity.Id,
         entity.Bezeichnung,
         entity.Tagespreis,
         entity.Verlustgebuehr,
         entity.Menge,
-        entity.Tagespreis * entity.Menge,
+        entity.Tagespreis * entity.Menge * Math.Max(1, days),
         entity.Zurueckgegeben
     );
 
@@ -506,7 +513,7 @@ public static class MappingExtensions
         entity.Status,
         entity.Notizen,
         entity.CreatedAt,
-        entity.Accessories.Select(a => a.ToDto()).ToList(),
+        entity.Accessories.Select(a => a.ToDto(InclusiveRentalDays(entity.StartDatum, entity.EndDatum))).ToList(),
         entity.MieterUnterschrift,
         entity.AgbAkzeptiert,
         entity.UnterschriftOrt,

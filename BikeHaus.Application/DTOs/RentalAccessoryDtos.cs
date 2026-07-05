@@ -7,6 +7,7 @@ public record RentalAccessoryDto(
     decimal? Verlustgebuehr,
     bool Aktiv,
     string? Beschreibung,
+    string? BildPfad,
     DateTime CreatedAt
 );
 
@@ -16,6 +17,8 @@ public record RentalAccessoryListDto(
     decimal Tagespreis,
     decimal? Verlustgebuehr,
     bool Aktiv,
+    string? Beschreibung,
+    string? BildPfad,
     DateTime CreatedAt
 );
 

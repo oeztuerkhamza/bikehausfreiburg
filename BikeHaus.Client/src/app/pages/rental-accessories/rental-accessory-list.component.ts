@@ -10,6 +10,7 @@ import {
   RentalAccessoryList,
   RentalAccessoryUpdate,
 } from '../../models/models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-rental-accessory-list',
@@ -67,6 +68,7 @@ import {
         <table>
           <thead>
             <tr>
+              <th>{{ t.rentalAccessoryPhoto }}</th>
               <th>{{ t.designation }}</th>
               <th>{{ t.rentalAccessoryDayPrice }}</th>
               <th>Verlustgebühr</th>
@@ -76,9 +78,18 @@ import {
           </thead>
           <tbody>
             <tr *ngIf="filteredItems.length === 0">
-              <td colspan="5" class="empty">{{ t.rentalAccessoryNoItems }}</td>
+              <td colspan="6" class="empty">{{ t.rentalAccessoryNoItems }}</td>
             </tr>
             <tr *ngFor="let item of filteredItems">
+              <td>
+                <img
+                  *ngIf="item.bildPfad"
+                  [src]="getImageUrl(item.bildPfad)"
+                  [alt]="item.bezeichnung"
+                  class="thumb"
+                />
+                <span *ngIf="!item.bildPfad" class="thumb thumb-empty">–</span>
+              </td>
               <td>{{ item.bezeichnung }}</td>
               <td>{{ item.tagespreis | number: '1.2-2' }} €</td>
               <td>
@@ -153,6 +164,46 @@ import {
           <div class="field">
             <label>{{ t.rentalAccessoryDescription }}</label>
             <textarea rows="3" [(ngModel)]="formData.beschreibung"></textarea>
+          </div>
+          <div class="field">
+            <label>{{ t.rentalAccessoryPhoto }}</label>
+            <div class="foto-row" *ngIf="editingItem">
+              <img
+                *ngIf="formData.bildPfad"
+                [src]="getImageUrl(formData.bildPfad)"
+                alt="Foto"
+                class="foto-preview"
+              />
+              <div class="foto-actions">
+                <input
+                  #fotoInput
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  (change)="onFotoSelected($event)"
+                />
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline"
+                  (click)="fotoInput.click()"
+                  [disabled]="uploadingFoto"
+                >
+                  {{ uploadingFoto ? t.saving : t.rentalAccessoryUploadPhoto }}
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                  *ngIf="formData.bildPfad"
+                  (click)="deleteFoto()"
+                  [disabled]="uploadingFoto"
+                >
+                  {{ t.rentalAccessoryRemovePhoto }}
+                </button>
+              </div>
+            </div>
+            <p class="foto-hint" *ngIf="!editingItem">
+              {{ t.rentalAccessoryPhotoHint }}
+            </p>
           </div>
           <div class="field">
             <label class="checkbox-label">
@@ -444,6 +495,45 @@ import {
       .btn-danger:hover {
         background: rgba(239, 68, 68, 0.15);
       }
+      .thumb {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-sm, 8px);
+        object-fit: cover;
+        border: 1px solid var(--border-light, #e2e8f0);
+        display: block;
+      }
+      .thumb-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted, #94a3b8);
+        background: var(--bg-secondary, #f8fafc);
+      }
+      .foto-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .foto-preview {
+        width: 72px;
+        height: 72px;
+        border-radius: var(--radius-md, 10px);
+        object-fit: cover;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+      }
+      .foto-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .foto-hint {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #64748b);
+        margin: 4px 0 0;
+        text-transform: none;
+        letter-spacing: normal;
+      }
     `,
   ],
 })
@@ -466,8 +556,18 @@ export class RentalAccessoryListComponent implements OnInit {
     verlustgebuehr: undefined as number | undefined,
     beschreibung: '',
     aktiv: true,
+    bildPfad: undefined as string | undefined,
   };
   saving = false;
+  uploadingFoto = false;
+
+  getImageUrl(path: string): string {
+    if (environment.production) {
+      const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+      return `${environment.apiUrl}/public/gallery-image/${cleanPath}`;
+    }
+    return `${environment.apiUrl.replace('/api', '')}${path}`;
+  }
 
   get t() {
     return this.translationService.translations();
@@ -514,6 +614,7 @@ export class RentalAccessoryListComponent implements OnInit {
       verlustgebuehr: undefined,
       beschreibung: '',
       aktiv: true,
+      bildPfad: undefined,
     };
     this.showDialog = true;
   }
@@ -528,6 +629,7 @@ export class RentalAccessoryListComponent implements OnInit {
           verlustgebuehr: full.verlustgebuehr,
           beschreibung: full.beschreibung || '',
           aktiv: full.aktiv,
+          bildPfad: full.bildPfad,
         };
         this.showDialog = true;
       },
@@ -585,6 +687,45 @@ export class RentalAccessoryListComponent implements OnInit {
         },
       });
     }
+  }
+
+  onFotoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || !this.editingItem) return;
+
+    this.uploadingFoto = true;
+    this.service.uploadFoto(this.editingItem.id, file).subscribe({
+      next: (updated) => {
+        this.uploadingFoto = false;
+        this.formData.bildPfad = updated.bildPfad;
+        input.value = '';
+        this.notificationService.success(this.t.saveSuccess);
+        this.loadItems();
+      },
+      error: () => {
+        this.uploadingFoto = false;
+        input.value = '';
+        this.notificationService.error(this.t.saveError);
+      },
+    });
+  }
+
+  deleteFoto() {
+    if (!this.editingItem) return;
+    this.uploadingFoto = true;
+    this.service.deleteFoto(this.editingItem.id).subscribe({
+      next: () => {
+        this.uploadingFoto = false;
+        this.formData.bildPfad = undefined;
+        this.notificationService.success(this.t.deleteSuccess);
+        this.loadItems();
+      },
+      error: () => {
+        this.uploadingFoto = false;
+        this.notificationService.error(this.t.deleteError);
+      },
+    });
   }
 
   deleteItem(item: RentalAccessoryList) {

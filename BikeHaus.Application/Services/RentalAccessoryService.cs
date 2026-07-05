@@ -66,6 +66,25 @@ public class RentalAccessoryService : IRentalAccessoryService
         return entity.ToDto();
     }
 
+    public async Task<RentalAccessoryDto> SetBildPfadAsync(int id, string? bildPfad)
+    {
+        var entity = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Rental accessory with ID {id} not found.");
+
+        entity.BildPfad = bildPfad;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        await _repository.UpdateAsync(entity);
+        return entity.ToDto();
+    }
+
+    public async Task<string?> GetBildPfadAsync(int id)
+    {
+        var entity = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Rental accessory with ID {id} not found.");
+        return entity.BildPfad;
+    }
+
     public async Task DeleteAsync(int id)
     {
         await _repository.DeleteAsync(id);

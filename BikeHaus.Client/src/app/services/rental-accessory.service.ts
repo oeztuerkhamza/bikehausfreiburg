@@ -38,4 +38,14 @@ export class RentalAccessoryService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
+
+  uploadFoto(id: number, file: File): Observable<RentalAccessory> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<RentalAccessory>(`${this.url}/${id}/foto`, formData);
+  }
+
+  deleteFoto(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}/foto`);
+  }
 }

@@ -11,6 +11,8 @@ import {
   RentalBikeImage,
   RentalBookingCreate,
   RentalBookingBikeCreate,
+  RentalAccessoryPublic,
+  RentalBookingAccessoryCreate,
 } from '../../models/models';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
 import { isClosureDay, rangeOverlapsClosure } from '../../utils/rental-closures';
@@ -28,6 +30,7 @@ type BookingStep =
   | 'bike-selection'
   | 'bike-details'
   | 'choose-next'
+  | 'accessory-selection'
   | 'customer-info'
   | 'review'
   | 'success';
@@ -37,20 +40,22 @@ const BOOKING_STEPS: readonly BookingStep[] = [
   'bike-selection',
   'bike-details',
   'choose-next',
+  'accessory-selection',
   'customer-info',
   'review',
   'success',
 ];
 
-/** Which of the 4 indicator positions a step belongs to. */
+/** Which of the 5 indicator positions a step belongs to. */
 const INDICATOR_INDEX: Record<BookingStep, number> = {
   'date-selection': 1,
   'bike-selection': 2,
   'bike-details': 2,
   'choose-next': 2,
-  'customer-info': 3,
-  review: 4,
-  success: 5,
+  'accessory-selection': 3,
+  'customer-info': 4,
+  review: 5,
+  success: 6,
 };
 
 @Component({
@@ -428,13 +433,93 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         </div>
 
         <div class="choose-next-actions">
-          <button (click)="goToStep('customer-info')" class="btn-primary">
+          <button (click)="goToAccessoryStep()" class="btn-primary">
             {{ t().rentalSteps?.continueToBooking ?? 'Mit Buchung fortfahren' }}
           </button>
           <button (click)="goToStep('bike-selection')" class="btn-secondary">
             {{
               t().rentalSteps?.addAnotherBike ?? '+ Weiteres Fahrrad hinzufügen'
             }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3c: Accessory Selection (optional add-ons) -->
+      <div
+        *ngIf="currentStep() === 'accessory-selection'"
+        class="step-container"
+      >
+        <h2>{{ t().rentalSteps?.accessoryTitle ?? 'Zubehör hinzufügen' }}</h2>
+        <p class="accessory-intro">
+          {{
+            t().rentalSteps?.accessorySubtitle ??
+              'Optionales Zubehör für Ihre Miete (Preis pro Tag).'
+          }}
+        </p>
+
+        <div *ngIf="loadingAccessories()" class="accessory-loading">
+          {{ t().rentalSteps?.loading ?? 'Laden...' }}
+        </div>
+
+        <div
+          *ngIf="!loadingAccessories() && accessories().length === 0"
+          class="accessory-empty"
+        >
+          {{ t().rentalSteps?.accessoryNone ?? 'Kein Zubehör verfügbar.' }}
+        </div>
+
+        <div class="accessory-grid" *ngIf="accessories().length > 0">
+          <div
+            *ngFor="let acc of accessories()"
+            class="accessory-card"
+            [class.selected]="accessoryQty(acc.id) > 0"
+          >
+            <div class="accessory-photo">
+              <img
+                *ngIf="acc.bildPfad"
+                [src]="getImageUrl(acc.bildPfad)"
+                [alt]="acc.bezeichnung"
+              />
+              <div *ngIf="!acc.bildPfad" class="accessory-photo-empty">🚲</div>
+            </div>
+            <div class="accessory-body">
+              <h3>{{ acc.bezeichnung }}</h3>
+              <p *ngIf="acc.beschreibung" class="accessory-desc">
+                {{ acc.beschreibung }}
+              </p>
+              <p class="accessory-price">
+                €{{ acc.tagespreis }} /
+                {{ t().rentalSteps?.day ?? 'Tag' }}
+              </p>
+            </div>
+            <div class="accessory-qty">
+              <button
+                type="button"
+                (click)="decAccessory(acc.id)"
+                [disabled]="accessoryQty(acc.id) === 0"
+                aria-label="−"
+              >
+                −
+              </button>
+              <span>{{ accessoryQty(acc.id) }}</span>
+              <button type="button" (click)="incAccessory(acc.id)" aria-label="+">
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="accessory-summary" *ngIf="accessoryTotal() > 0">
+          <span>{{ t().rentalSteps?.accessoryTotal ?? 'Zubehör gesamt' }}:</span>
+          <strong>€{{ accessoryTotal() }}</strong>
+        </div>
+
+        <div class="accessory-actions">
+          <button (click)="goToStep('customer-info')" class="btn-primary">
+            {{ t().rentalSteps?.continue ?? 'Weiter' }}
+          </button>
+          <button (click)="goToStep('choose-next')" class="btn-secondary">
+            {{ t().rentalSteps?.back ?? 'Zurück' }}
           </button>
         </div>
       </div>
@@ -604,6 +689,24 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           </div>
         </div>
 
+        <div class="review-section" *ngIf="selectedAccessories().length > 0">
+          <h3>{{ t().rentalSteps?.accessoryTitle ?? 'Zubehör' }}:</h3>
+          <div
+            *ngFor="let sel of selectedAccessories()"
+            class="review-item accessory-review-item"
+          >
+            <p>
+              <strong>{{ sel.menge }}× {{ sel.accessory.bezeichnung }}</strong>
+            </p>
+            <p class="price">
+              €{{ sel.accessory.tagespreis }} ×
+              {{ daysCount() }} {{ t().rentalSteps?.days ?? 'Tage' }} = €{{
+                sel.lineTotal
+              }}
+            </p>
+          </div>
+        </div>
+
         <div class="review-section">
           <h3>{{ t().rentalSteps?.contactInfo ?? 'Kontaktinformationen' }}:</h3>
           <p>{{ bookingForm.vorname }} {{ bookingForm.nachname }}</p>
@@ -619,6 +722,10 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
         <div class="price-summary">
           <h3>{{ t().rentalSteps?.priceSummary ?? 'Preisübersicht' }}:</h3>
+          <p *ngIf="accessoryTotal() > 0">
+            {{ t().rentalSteps?.accessoryTotal ?? 'Zubehör gesamt' }}:
+            <strong>€{{ accessoryTotal() }}</strong>
+          </p>
           <p>
             {{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:
             <strong>€{{ getTotalPrice() }}</strong>
@@ -1597,6 +1704,117 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         color: var(--rb-text);
       }
 
+      .accessory-intro {
+        color: var(--rb-muted, #94a3b8);
+        margin: 0 0 1.25rem;
+        font-size: 0.95rem;
+      }
+      .accessory-loading,
+      .accessory-empty {
+        padding: 1.5rem 0;
+        color: var(--rb-muted, #94a3b8);
+      }
+      .accessory-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .accessory-card {
+        display: flex;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1.5px solid rgba(255, 255, 255, 0.09);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .accessory-card.selected {
+        border-color: var(--rb-accent);
+        box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.25);
+      }
+      .accessory-photo {
+        aspect-ratio: 4 / 3;
+        background: rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .accessory-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .accessory-photo-empty {
+        font-size: 2rem;
+        opacity: 0.5;
+      }
+      .accessory-body {
+        padding: 0.75rem 0.9rem;
+        flex: 1;
+      }
+      .accessory-body h3 {
+        margin: 0 0 0.35rem;
+        font-size: 1rem;
+      }
+      .accessory-desc {
+        margin: 0 0 0.4rem;
+        font-size: 0.82rem;
+        color: var(--rb-muted, #94a3b8);
+      }
+      .accessory-price {
+        margin: 0;
+        color: var(--rb-accent);
+        font-weight: 700;
+      }
+      .accessory-qty {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.6rem 0.9rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .accessory-qty button {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        background: transparent;
+        color: inherit;
+        font-size: 1.15rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .accessory-qty button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .accessory-qty span {
+        min-width: 1.5rem;
+        text-align: center;
+        font-weight: 700;
+      }
+      .accessory-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.2rem;
+        background: rgba(255, 87, 34, 0.09);
+        border-radius: 8px;
+        border-left: 4px solid var(--rb-accent);
+        margin-bottom: 1.25rem;
+        font-size: 1.05rem;
+      }
+      .accessory-summary strong {
+        color: var(--rb-accent);
+      }
+      .accessory-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
       .review-item {
         background: rgba(255, 255, 255, 0.04);
         padding: 1rem;
@@ -1833,6 +2051,7 @@ export class RentalBookingStepsComponent implements OnInit {
     return [
       steps?.dateSelection ?? 'Termin wählen',
       steps?.bikeSelection ?? 'Fahrrad wählen',
+      steps?.accessoryStep ?? 'Zubehör',
       steps?.customerInfo ?? 'Daten eintragen',
       steps?.review ?? 'Bestätigung',
     ];
@@ -2314,10 +2533,89 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   getTotalPrice(): number {
-    return this.cartBikes().reduce(
-      (sum, item) => sum + (item.calculatedPrice || 0),
-      0,
+    return (
+      this.cartBikes().reduce((sum, item) => sum + (item.calculatedPrice || 0), 0) +
+      this.accessoryTotal()
     );
+  }
+
+  // ── Zubehör (accessories) ──
+  accessories = signal<RentalAccessoryPublic[]>([]);
+  loadingAccessories = signal(false);
+  accessoriesLoaded = false;
+  /** Map accessoryId → selected quantity. */
+  accessoryQtys = signal<Record<number, number>>({});
+
+  /** Inclusive rental days across the selected date range. */
+  getRentalDays(): number {
+    if (!this.selectedStartDate || !this.selectedEndDate) return 1;
+    const start = new Date(this.selectedStartDate);
+    const end = new Date(this.selectedEndDate);
+    const diff = Math.round(
+      (end.getTime() - start.getTime()) / 86_400_000,
+    );
+    return Math.max(1, diff + 1);
+  }
+
+  accessoryQty(id: number): number {
+    return this.accessoryQtys()[id] ?? 0;
+  }
+
+  incAccessory(id: number): void {
+    const map = { ...this.accessoryQtys() };
+    map[id] = (map[id] ?? 0) + 1;
+    this.accessoryQtys.set(map);
+  }
+
+  decAccessory(id: number): void {
+    const map = { ...this.accessoryQtys() };
+    const next = (map[id] ?? 0) - 1;
+    if (next <= 0) delete map[id];
+    else map[id] = next;
+    this.accessoryQtys.set(map);
+  }
+
+  /** Zubehör-Summe = Σ (Tagespreis × Menge × Miettage). */
+  accessoryTotal = computed(() => {
+    const days = this.getRentalDays();
+    const qtys = this.accessoryQtys();
+    return this.accessories().reduce((sum, acc) => {
+      const qty = qtys[acc.id] ?? 0;
+      return sum + acc.tagespreis * qty * days;
+    }, 0);
+  });
+
+  /** Accessories with a positive quantity, for the review/summary lists. */
+  selectedAccessories = computed(() => {
+    const qtys = this.accessoryQtys();
+    return this.accessories()
+      .filter((acc) => (qtys[acc.id] ?? 0) > 0)
+      .map((acc) => ({
+        accessory: acc,
+        menge: qtys[acc.id],
+        lineTotal: acc.tagespreis * qtys[acc.id] * this.getRentalDays(),
+      }));
+  });
+
+  goToAccessoryStep(): void {
+    this.loadAccessories();
+    this.goToStep('accessory-selection');
+  }
+
+  loadAccessories(): void {
+    if (this.accessoriesLoaded) return;
+    this.loadingAccessories.set(true);
+    this.apiService.getRentalAccessories().subscribe({
+      next: (items) => {
+        this.accessories.set((items ?? []).filter((a) => a.aktiv));
+        this.accessoriesLoaded = true;
+        this.loadingAccessories.set(false);
+      },
+      error: () => {
+        this.accessories.set([]);
+        this.loadingAccessories.set(false);
+      },
+    });
   }
 
   getTotalDeposit(): number {
@@ -2345,6 +2643,10 @@ export class RentalBookingStepsComponent implements OnInit {
       kaution: item.kaution,
     }));
 
+    const accessories: RentalBookingAccessoryCreate[] = this.selectedAccessories().map(
+      (sel) => ({ rentalAccessoryId: sel.accessory.id, menge: sel.menge }),
+    );
+
     const dto: RentalBookingCreate = {
       bikes,
       vorname: this.bookingForm.vorname,
@@ -2357,6 +2659,7 @@ export class RentalBookingStepsComponent implements OnInit {
       ort: this.bookingForm.ort || undefined,
       sprache: this.bookingForm.sprache,
       notizen: this.bookingForm.notizen || undefined,
+      accessories: accessories.length > 0 ? accessories : undefined,
     };
 
     this.apiService.createRentalBooking(dto).subscribe({

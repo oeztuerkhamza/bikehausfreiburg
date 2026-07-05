@@ -22,6 +22,11 @@ interface RentalStepsTranslations {
   bikeSelection: string;
   customerInfo: string;
   review: string;
+  accessoryStep?: string;
+  accessoryTitle?: string;
+  accessorySubtitle?: string;
+  accessoryNone?: string;
+  accessoryTotal?: string;
   selectDates: string;
   startDate: string;
   endDate: string;
@@ -3616,6 +3621,11 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
   de: {
     dateSelection: 'Termin wählen',
     bikeSelection: 'Fahrrad wählen',
+    accessoryStep: 'Zubehör',
+    accessoryTitle: 'Zubehör hinzufügen',
+    accessorySubtitle: 'Optionales Zubehör für Ihre Miete (Preis pro Tag).',
+    accessoryNone: 'Kein Zubehör verfügbar.',
+    accessoryTotal: 'Zubehör gesamt',
     customerInfo: 'Daten eintragen',
     review: 'Bestätigung',
     selectDates: 'Wählen Sie einen Zeitraum',
@@ -3716,6 +3726,11 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
   en: {
     dateSelection: 'Choose date',
     bikeSelection: 'Choose bike',
+    accessoryStep: 'Accessories',
+    accessoryTitle: 'Add accessories',
+    accessorySubtitle: 'Optional accessories for your rental (price per day).',
+    accessoryNone: 'No accessories available.',
+    accessoryTotal: 'Accessories total',
     customerInfo: 'Enter details',
     review: 'Confirmation',
     selectDates: 'Choose a rental period',
@@ -3816,6 +3831,11 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
   fr: {
     dateSelection: 'Choisir la date',
     bikeSelection: 'Choisir un vélo',
+    accessoryStep: 'Accessoires',
+    accessoryTitle: 'Ajouter des accessoires',
+    accessorySubtitle: 'Accessoires en option pour votre location (prix par jour).',
+    accessoryNone: 'Aucun accessoire disponible.',
+    accessoryTotal: 'Total accessoires',
     customerInfo: 'Saisir les informations',
     review: 'Confirmation',
     selectDates: 'Choisissez une période',
@@ -3916,6 +3936,11 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
   tr: {
     dateSelection: 'Tarih seç',
     bikeSelection: 'Bisiklet seç',
+    accessoryStep: 'Aksesuar',
+    accessoryTitle: 'Aksesuar ekle',
+    accessorySubtitle: 'Kiralamanız için opsiyonel aksesuarlar (günlük fiyat).',
+    accessoryNone: 'Uygun aksesuar yok.',
+    accessoryTotal: 'Aksesuar toplamı',
     customerInfo: 'Bilgileri gir',
     review: 'Onay',
     selectDates: 'Tarih aralığı seçin',

@@ -187,6 +187,12 @@ public class RentalService : IRentalService
             }
         }
 
+        // Zubehör pro Miettag berechnen (Tagespreis × Menge × Tage) und zur
+        // Gesamtmiete addieren. Miettage = gesamter Vertragszeitraum (inklusive).
+        var rentalDays = RentalPricingCalculator.CalculateDaysInclusive(startDatum, endDatum);
+        rental.Gesamtmiete = gesamtmiete
+            + rental.Accessories.Sum(a => a.Tagespreis * a.Menge * rentalDays);
+
         // Mietvertragsnummer atomar vergeben (erzeugen + speichern unter Sperre);
         // teilt sich den Nummernkreis mit dem Verkauf.
         var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.VerkaufMiete, async () =>
@@ -435,9 +441,12 @@ public class RentalService : IRentalService
             }
         }
 
-        if (dto.Bikes != null || dto.NewBikes != null || dto.RemoveBikeIds != null)
+        if (dto.Bikes != null || dto.NewBikes != null || dto.RemoveBikeIds != null || dto.Accessories != null)
         {
-            rental.Gesamtmiete = rental.Bikes.Sum(b => b.Mietpreis) - (rental.Rabatt);
+            // Zubehör pro Miettag (Tagespreis × Menge × Tage) zur Gesamtmiete addieren.
+            var rentalDays = RentalPricingCalculator.CalculateDaysInclusive(rental.StartDatum, rental.EndDatum);
+            var accessoryTotal = rental.Accessories.Sum(a => a.Tagespreis * a.Menge * rentalDays);
+            rental.Gesamtmiete = rental.Bikes.Sum(b => b.Mietpreis) + accessoryTotal - rental.Rabatt;
             rental.Kaution = rental.Bikes.Sum(b => b.Kaution);
         }
 

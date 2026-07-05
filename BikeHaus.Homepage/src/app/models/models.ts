@@ -182,6 +182,9 @@ export interface RentalAccessoryPublic {
   id: number;
   bezeichnung: string;
   tagespreis: number;
+  verlustgebuehr?: number;
+  beschreibung?: string;
+  bildPfad?: string;
   aktiv: boolean;
 }
 

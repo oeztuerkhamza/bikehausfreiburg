@@ -189,7 +189,11 @@ public class RentalBookingService : IRentalBookingService
             }
         }
 
-        booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m);
+        // Zubehör wird pro Miettag berechnet (Tagespreis × Menge × Tage) und zum
+        // Gesamtpreis addiert. Miettage = gesamter Buchungszeitraum (inklusive).
+        var bookingDays = CalculateDaysInclusive(minStart, maxEnd);
+        var accessoryTotal = booking.Accessories.Sum(a => a.Tagespreis * a.Menge * bookingDays);
+        booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m) + accessoryTotal;
         if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
 
         if (string.IsNullOrWhiteSpace(booking.Email))
@@ -453,7 +457,9 @@ public class RentalBookingService : IRentalBookingService
         bookingBike.Gesamtpreis = RentalPricingCalculator.CalculateBikePrice(newBicycle, days);
         bookingBike.UpdatedAt = DateTime.UtcNow;
 
-        booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m);
+        var bookingDays = CalculateDaysInclusive(booking.StartDatum, booking.EndDatum);
+        var accessoryTotal = booking.Accessories.Sum(a => a.Tagespreis * a.Menge * bookingDays);
+        booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m) + accessoryTotal;
         if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
         booking.UpdatedAt = DateTime.UtcNow;
 
