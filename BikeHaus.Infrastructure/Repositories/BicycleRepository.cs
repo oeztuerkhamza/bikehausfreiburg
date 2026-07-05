@@ -41,6 +41,22 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             .ToList();
     }
 
+    public async Task<Dictionary<string, int>> GetLagernummernByRahmennummerAsync()
+    {
+        // Pull the bikes that actually carry a stock number, then normalise the
+        // frame number in memory (trim + case-insensitive) — same reasoning as
+        // GetDuplicateRahmennummernAsync, SQLite collation quirks otherwise bite.
+        var rows = await _dbSet
+            .Where(b => b.Lagernummer != null && b.Rahmennummer != null && b.Rahmennummer != "")
+            .Select(b => new { b.Rahmennummer, b.Lagernummer })
+            .ToListAsync();
+
+        return rows
+            .GroupBy(r => r.Rahmennummer!.Trim().ToUpperInvariant())
+            // If a frame number is (wrongly) shared by several stock bikes, pick the lowest.
+            .ToDictionary(g => g.Key, g => g.Min(r => r.Lagernummer!.Value));
+    }
+
     public async Task<Bicycle?> GetWithDetailsAsync(int id)
     {
         return await _dbSet

@@ -9,6 +9,9 @@ public interface IBicycleRepository : IRepository<Bicycle>
     Task<Bicycle?> GetByRahmennummerAsync(string rahmennummer);
     // Normalised (trimmed, upper-case) Rahmennummer values shared by more than one bicycle.
     Task<List<string>> GetDuplicateRahmennummernAsync();
+    // Maps normalised (trimmed, upper-case) Rahmennummer -> Lagernummer for bikes that have a stock number.
+    // Lets records without their own stock number (e.g. sales) inherit it via frame-number match.
+    Task<Dictionary<string, int>> GetLagernummernByRahmennummerAsync();
     Task<Bicycle?> GetWithDetailsAsync(int id);
     Task<(IEnumerable<Bicycle> Items, int TotalCount)> GetPaginatedAsync(
         int page, int pageSize,

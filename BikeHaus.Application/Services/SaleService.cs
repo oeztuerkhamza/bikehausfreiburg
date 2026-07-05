@@ -37,7 +37,37 @@ public class SaleService : ISaleService
     public async Task<IEnumerable<SaleListDto>> GetAllAsync()
     {
         var sales = await _saleRepository.GetAllAsync();
-        return sales.Select(s => s.ToListDto());
+        return await FillStockNumbersByFrameNumberAsync(sales.Select(s => s.ToListDto()));
+    }
+
+    // A sale keeps its own bike, which may not carry a stock number (Lagernummer) —
+    // stock numbers get assigned on the Ankauf side. When the same frame number does
+    // exist on a stock bike, surface that number on the sale row automatically so the
+    // Verkäufe list matches the Ankäufe list instead of showing "–".
+    private async Task<List<SaleListDto>> FillStockNumbersByFrameNumberAsync(IEnumerable<SaleListDto> sales)
+    {
+        var list = sales.ToList();
+
+        static bool NeedsMatch(SaleListDto d) =>
+            d.Lagernummer == null &&
+            !string.IsNullOrWhiteSpace(d.Rahmennummer) &&
+            !d.Rahmennummer!.StartsWith("ACC-");
+
+        if (!list.Any(NeedsMatch))
+            return list;
+
+        var lagerByFrame = await _bicycleRepository.GetLagernummernByRahmennummerAsync();
+        for (var i = 0; i < list.Count; i++)
+        {
+            var d = list[i];
+            if (NeedsMatch(d) &&
+                lagerByFrame.TryGetValue(d.Rahmennummer!.Trim().ToUpperInvariant(), out var lagernummer))
+            {
+                list[i] = d with { Lagernummer = lagernummer };
+            }
+        }
+
+        return list;
     }
 
     public async Task<PaginatedResult<SaleListDto>> GetPaginatedAsync(PaginationParams paginationParams)
@@ -77,7 +107,7 @@ public class SaleService : ISaleService
 
         return new PaginatedResult<SaleListDto>
         {
-            Items = items.Select(s => s.ToListDto()),
+            Items = await FillStockNumbersByFrameNumberAsync(items.Select(s => s.ToListDto())),
             TotalCount = totalCount,
             Page = paginationParams.Page,
             PageSize = paginationParams.PageSize
