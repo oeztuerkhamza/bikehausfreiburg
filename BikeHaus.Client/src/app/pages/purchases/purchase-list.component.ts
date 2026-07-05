@@ -168,6 +168,7 @@ import { environment } from '../../../environments/environment';
             <tr>
               <th>{{ t.receiptNo }}</th>
               <th>{{ t.bicycle }}</th>
+              <th>Zoll</th>
               <th>{{ t.stockNumber }}</th>
               <th>{{ t.frameNumber }}</th>
               <th>{{ t.seller }}</th>
@@ -185,6 +186,7 @@ import { environment } from '../../../environments/environment';
             >
               <td class="mono">{{ p.belegNummer }}</td>
               <td>{{ p.bikeInfo }}</td>
+              <td>{{ p.reifengroesse ? p.reifengroesse + '"' : '–' }}</td>
               <td class="mono">{{ p.lagernummer ?? '–' }}</td>
               <td class="mono" style="text-transform: uppercase">
                 {{ p.rahmennummer || '–' }}
