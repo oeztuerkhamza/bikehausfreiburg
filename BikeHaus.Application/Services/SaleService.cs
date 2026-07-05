@@ -13,6 +13,7 @@ public class SaleService : ISaleService
     private const string AccessoryOnlyRahmennummer = "ACC-ACCESSORY-ONLY";
     private readonly ISaleRepository _saleRepository;
     private readonly IBicycleRepository _bicycleRepository;
+    private readonly IPurchaseRepository _purchaseRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IPdfService _pdfService;
     private readonly IEmailService _emailService;
@@ -21,6 +22,7 @@ public class SaleService : ISaleService
     public SaleService(
         ISaleRepository saleRepository,
         IBicycleRepository bicycleRepository,
+        IPurchaseRepository purchaseRepository,
         ICustomerRepository customerRepository,
         IPdfService pdfService,
         IEmailService emailService,
@@ -28,6 +30,7 @@ public class SaleService : ISaleService
     {
         _saleRepository = saleRepository;
         _bicycleRepository = bicycleRepository;
+        _purchaseRepository = purchaseRepository;
         _customerRepository = customerRepository;
         _pdfService = pdfService;
         _emailService = emailService;
@@ -37,34 +40,53 @@ public class SaleService : ISaleService
     public async Task<IEnumerable<SaleListDto>> GetAllAsync()
     {
         var sales = await _saleRepository.GetAllAsync();
-        return await FillStockNumbersByFrameNumberAsync(sales.Select(s => s.ToListDto()));
+        return await EnrichByFrameNumberAsync(sales.Select(s => s.ToListDto()));
     }
 
-    // A sale keeps its own bike, which may not carry a stock number (Lagernummer) —
-    // stock numbers get assigned on the Ankauf side. When the same frame number does
-    // exist on a stock bike, surface that number on the sale row automatically so the
-    // Verkäufe list matches the Ankäufe list instead of showing "–".
-    private async Task<List<SaleListDto>> FillStockNumbersByFrameNumberAsync(IEnumerable<SaleListDto> sales)
+    // Cross-references each sale's frame number against the Ankauf side. Two things:
+    //  1. A sale keeps its own bike, which may not carry a stock number (Lagernummer) —
+    //     those get assigned on the Ankauf side. If the same frame number exists on a
+    //     stock bike, surface that number so the Verkäufe list matches the Ankäufe list
+    //     instead of showing "–".
+    //  2. Flag second-hand sales whose frame number appears on an Ankauf receipt, so the
+    //     list can colour those rows (matched purchase).
+    // Accessory-only sales (ACC- frame numbers) are ignored.
+    private async Task<List<SaleListDto>> EnrichByFrameNumberAsync(IEnumerable<SaleListDto> sales)
     {
         var list = sales.ToList();
 
-        static bool NeedsMatch(SaleListDto d) =>
-            d.Lagernummer == null &&
+        static bool HasRealFrame(SaleListDto d) =>
             !string.IsNullOrWhiteSpace(d.Rahmennummer) &&
             !d.Rahmennummer!.StartsWith("ACC-");
 
-        if (!list.Any(NeedsMatch))
+        if (!list.Any(HasRealFrame))
             return list;
 
         var lagerByFrame = await _bicycleRepository.GetLagernummernByRahmennummerAsync();
+        var purchaseFrames = await _purchaseRepository.GetPurchaseRahmennummernAsync();
+
         for (var i = 0; i < list.Count; i++)
         {
             var d = list[i];
-            if (NeedsMatch(d) &&
-                lagerByFrame.TryGetValue(d.Rahmennummer!.Trim().ToUpperInvariant(), out var lagernummer))
+            if (!HasRealFrame(d))
+                continue;
+
+            var frame = d.Rahmennummer!.Trim().ToUpperInvariant();
+
+            // Inherit the stock number from a matching stock bike when the sale lacks one.
+            if (d.Lagernummer == null &&
+                lagerByFrame.TryGetValue(frame, out var lagernummer))
             {
-                list[i] = d with { Lagernummer = lagernummer };
+                d = d with { Lagernummer = lagernummer };
             }
+
+            // Mark second-hand sales that correspond to an Ankauf receipt.
+            if (d.Zustand != BikeCondition.Neu && purchaseFrames.Contains(frame))
+            {
+                d = d with { HasMatchingPurchase = true };
+            }
+
+            list[i] = d;
         }
 
         return list;
@@ -107,7 +129,7 @@ public class SaleService : ISaleService
 
         return new PaginatedResult<SaleListDto>
         {
-            Items = await FillStockNumbersByFrameNumberAsync(items.Select(s => s.ToListDto())),
+            Items = await EnrichByFrameNumberAsync(items.Select(s => s.ToListDto())),
             TotalCount = totalCount,
             Page = paginationParams.Page,
             PageSize = paginationParams.PageSize

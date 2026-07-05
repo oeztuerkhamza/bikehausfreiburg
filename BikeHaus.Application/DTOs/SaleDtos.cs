@@ -87,7 +87,10 @@ public record SaleListDto(
     List<SalePaymentDto> Zahlungen,
     DateTime Verkaufsdatum,
     bool Garantie,
-    BikeCondition Zustand
+    BikeCondition Zustand,
+    // True when this (second-hand) sale's frame number also appears on an Ankauf receipt.
+    // Set in SaleService, not in the mapping — defaults to false.
+    bool HasMatchingPurchase = false
 );
 
 // Update DTO - for editing existing sales

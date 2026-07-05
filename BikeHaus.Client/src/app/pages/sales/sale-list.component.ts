@@ -190,7 +190,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <tr
               *ngFor="let s of paginatedResult?.items"
               class="clickable-row"
-              [class.row-with-purchase]="hasPurchase(s)"
+              [class.row-with-purchase]="hasPurchase(s) || isSecondHandPurchaseMatch(s)"
               [class.row-new-bike]="isNewBikeSale(s)"
               [class.row-accessory]="isAccessoryOnlySale(s)"
               (click)="toggleMenu($event, s)"
@@ -823,6 +823,16 @@ export class SaleListComponent implements OnInit {
 
   hasPurchase(s: SaleList): boolean {
     return !!s.purchaseId;
+  }
+
+  // Second-hand sale whose frame number also appears on an Ankauf receipt, even
+  // without a direct purchase link — colour it like a matched purchase (green).
+  isSecondHandPurchaseMatch(s: SaleList): boolean {
+    return (
+      s.zustand === 'Gebraucht' &&
+      !!s.hasMatchingPurchase &&
+      !this.isAccessoryOnlySale(s)
+    );
   }
 
   isAccessoryOnlySale(s: SaleList): boolean {

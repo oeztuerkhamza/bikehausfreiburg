@@ -21,6 +21,20 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
+    public async Task<HashSet<string>> GetPurchaseRahmennummernAsync()
+    {
+        // Pull the frame numbers off the purchased bikes, then normalise in memory
+        // (trim + case-insensitive) to match GetDuplicateRahmennummernAsync's logic.
+        var frames = await _dbSet
+            .Where(p => p.Bicycle.Rahmennummer != null && p.Bicycle.Rahmennummer != "")
+            .Select(p => p.Bicycle.Rahmennummer!)
+            .ToListAsync();
+
+        return frames
+            .Select(r => r.Trim().ToUpperInvariant())
+            .ToHashSet();
+    }
+
     public async Task<Purchase?> GetByBicycleIdAsync(int bicycleId)
     {
         return await _dbSet

@@ -348,6 +348,7 @@ export interface SaleList {
   verkaufsdatum: string;
   garantie: boolean;
   zustand: BikeCondition;
+  hasMatchingPurchase?: boolean;
 }
 
 export interface SaleCreate {
