@@ -503,77 +503,6 @@ const MONTH_NAMES = [
                 </div>
               </div>
             </div>
-
-            <!-- Per-bike pricing & payment -->
-            <div class="bike-pricing" *ngIf="b.selectedBike || b.isQuickAddMode">
-              <div class="price-calc" *ngIf="rentalDays > 0 && b.selectedBike">
-                <div class="calc-header">
-                  <span class="calc-days">{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span>
-                  <span class="calc-price">
-                    Berechneter Preis: {{ b.berechneterPreis | number: '1.2-2' }} €
-                  </span>
-                </div>
-                <div class="calc-breakdown" *ngIf="b.preisInfo">
-                  <span class="calc-info">{{ b.preisInfo }}</span>
-                </div>
-              </div>
-
-              <div class="form-grid" style="margin-top: 16px;">
-                <div class="field">
-                  <label>Gesamtmiete (€, inkl. MwSt.) *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    [(ngModel)]="b.gesamtmiete"
-                    [name]="'gesamtmiete_' + i"
-                    required
-                    min="0"
-                  />
-                </div>
-                <div class="field">
-                  <label>Rabatt (€)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    [(ngModel)]="b.rabatt"
-                    [name]="'rabatt_' + i"
-                    min="0"
-                    (ngModelChange)="onRabattChanged(i)"
-                  />
-                </div>
-                <div class="field">
-                  <label>Kaution (€) *</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    [(ngModel)]="b.kaution"
-                    [name]="'kaution_' + i"
-                    required
-                    min="0"
-                  />
-                </div>
-                <div class="field">
-                  <label>Zahlungsart Miete *</label>
-                  <select [(ngModel)]="b.zahlungsart" [name]="'zahlungsart_' + i" required>
-                    <option value="" disabled>Bitte wählen…</option>
-                    <option value="Bar">Bar</option>
-                    <option value="PayPal">PayPal</option>
-                    <option value="Karte">Karte</option>
-                    <option value="Überweisung">Überweisung</option>
-                  </select>
-                </div>
-                <div class="field">
-                  <label>Zahlungsart Kaution *</label>
-                  <select [(ngModel)]="b.kautionZahlungsart" [name]="'kautionZahlungsart_' + i" required>
-                    <option value="" disabled>Bitte wählen…</option>
-                    <option value="Bar">Bar</option>
-                    <option value="PayPal">PayPal</option>
-                    <option value="Karte">Karte</option>
-                    <option value="Überweisung">Überweisung</option>
-                  </select>
-                </div>
-              </div>
-            </div>
             </div>
           </div>
 
@@ -704,8 +633,118 @@ const MONTH_NAMES = [
           </div>
           <!-- /STEP 3 -->
 
-          <!-- STEP 4: AGB & Unterschrift -->
+          <!-- STEP 4: Preise & Zahlung — final review before signature -->
           <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 4">
+          <ng-container *ngIf="datesReady">
+          <div class="form-card">
+            <h2>Preise &amp; Zahlung</h2>
+            <p class="preise-hint">
+              Miete und Kaution je Fahrrad prüfen und ggf. anpassen. Der berechnete
+              Preis ist ein Vorschlag – der Endpreis kann manuell geändert werden.
+            </p>
+
+            <div class="preise-bike" *ngFor="let b of bikes; let i = index; trackBy: trackByIndex">
+              <ng-container *ngIf="b.selectedBike || b.isQuickAddMode">
+                <div class="preise-bike-header">
+                  <span class="preise-bike-name">
+                    {{ bikes.length > 1 ? (i + 1) + '. ' : '' }}{{ b.bikeEdit.marke || 'Fahrrad' }} {{ b.bikeEdit.modell }}
+                  </span>
+                  <span class="preise-bike-frame" *ngIf="b.bikeEdit.rahmennummer">
+                    {{ b.bikeEdit.rahmennummer }}
+                  </span>
+                </div>
+
+                <div class="price-calc" *ngIf="rentalDays > 0 && b.selectedBike">
+                  <div class="calc-header">
+                    <span class="calc-days">{{ rentalDays }} Tag{{ rentalDays > 1 ? 'e' : '' }}</span>
+                    <span class="calc-price">
+                      Berechneter Preis: {{ b.berechneterPreis | number: '1.2-2' }} €
+                    </span>
+                  </div>
+                  <div class="calc-breakdown" *ngIf="b.preisInfo">
+                    <span class="calc-info">{{ b.preisInfo }}</span>
+                  </div>
+                </div>
+
+                <div class="form-grid" style="margin-top: 12px;">
+                  <div class="field">
+                    <label>Gesamtmiete (€, inkl. MwSt.) *</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      [(ngModel)]="b.gesamtmiete"
+                      [name]="'gesamtmiete_' + i"
+                      required
+                      min="0"
+                    />
+                  </div>
+                  <div class="field">
+                    <label>Rabatt (€)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      [(ngModel)]="b.rabatt"
+                      [name]="'rabatt_' + i"
+                      min="0"
+                      (ngModelChange)="onRabattChanged(i)"
+                    />
+                  </div>
+                  <div class="field">
+                    <label>Kaution (€) *</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      [(ngModel)]="b.kaution"
+                      [name]="'kaution_' + i"
+                      required
+                      min="0"
+                    />
+                  </div>
+                  <div class="field">
+                    <label>Zahlungsart Miete *</label>
+                    <select [(ngModel)]="b.zahlungsart" [name]="'zahlungsart_' + i" required>
+                      <option value="" disabled>Bitte wählen…</option>
+                      <option value="Bar">Bar</option>
+                      <option value="PayPal">PayPal</option>
+                      <option value="Karte">Karte</option>
+                      <option value="Überweisung">Überweisung</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>Zahlungsart Kaution *</label>
+                    <select [(ngModel)]="b.kautionZahlungsart" [name]="'kautionZahlungsart_' + i" required>
+                      <option value="" disabled>Bitte wählen…</option>
+                      <option value="Bar">Bar</option>
+                      <option value="PayPal">PayPal</option>
+                      <option value="Karte">Karte</option>
+                      <option value="Überweisung">Überweisung</option>
+                    </select>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
+            <div class="preise-totals">
+              <div class="preise-total-row" *ngIf="accessoryGrandTotal() > 0">
+                <span>Zubehör ({{ rentalDays }} Tage)</span>
+                <strong>{{ accessoryGrandTotal() | number: '1.2-2' }} €</strong>
+              </div>
+              <div class="preise-total-row grand">
+                <span>Gesamtmiete{{ accessoryGrandTotal() > 0 ? ' inkl. Zubehör' : '' }}</span>
+                <strong>{{ totalMiete() | number: '1.2-2' }} €</strong>
+              </div>
+              <div class="preise-total-row">
+                <span>Kaution gesamt</span>
+                <strong>{{ totalKaution() | number: '1.2-2' }} €</strong>
+              </div>
+            </div>
+          </div>
+          </ng-container>
+          </div>
+          <!-- /STEP 4 -->
+
+          <!-- STEP 5: AGB & Unterschrift -->
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 5">
           <ng-container *ngIf="datesReady">
           <!-- AGB & Unterschrift -->
           <div class="form-card">
@@ -739,7 +778,7 @@ const MONTH_NAMES = [
           </div>
           </ng-container>
           </div>
-          <!-- /STEP 4 -->
+          <!-- /STEP 5 -->
 
         </div>
 
@@ -1288,6 +1327,70 @@ const MONTH_NAMES = [
         margin-top: 6px;
         font-size: 0.82rem;
         color: var(--text-secondary, #64748b);
+      }
+
+      /* ── Preise step ── */
+      .preise-hint {
+        margin: 0 0 16px 0;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+      .preise-bike {
+        padding: 16px 0;
+        border-top: 1px solid var(--border-light);
+      }
+      .preise-bike:first-of-type {
+        border-top: none;
+        padding-top: 0;
+      }
+      .preise-bike-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+      .preise-bike-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .preise-bike-frame {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .preise-totals {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 2px solid var(--border-light);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .preise-total-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 0.9rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .preise-total-row strong {
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .preise-total-row.grand {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .preise-total-row.grand strong {
+        color: var(--accent-primary, #6366f1);
+        font-size: 1.15rem;
       }
 
       /* ── Accessory section ── */
@@ -1900,7 +2003,7 @@ export class RentalFormComponent implements OnInit {
   // ── Mobile wizard ──
   isMobile = false;
   currentStep = 0;
-  readonly wizardSteps = ['Mietdauer', 'Fahrrad', 'Zubehör', 'Mieter', 'Unterschrift'];
+  readonly wizardSteps = ['Mietdauer', 'Fahrrad', 'Zubehör', 'Mieter', 'Preise', 'Unterschrift'];
 
   get totalSteps(): number {
     return this.wizardSteps.length;
@@ -1993,6 +2096,8 @@ export class RentalFormComponent implements OnInit {
         return this.validateBikesStep();
       case 3:
         return this.validateMieterStep();
+      case 4:
+        return this.validatePreiseStep();
       default:
         return true;
     }
@@ -2016,18 +2121,39 @@ export class RentalFormComponent implements OnInit {
         );
         return false;
       }
+    }
+    return true;
+  }
+
+  private validatePreiseStep(): boolean {
+    for (let i = 0; i < this.bikes.length; i++) {
+      const b = this.bikes[i];
+      if (!b.selectedBike && !b.isQuickAddMode) continue;
       if (!b.zahlungsart) {
-        b.isCollapsed = false;
         this.notificationService.error(`Fahrrad ${i + 1}: Zahlungsart Miete wählen`);
         return false;
       }
       if (!b.kautionZahlungsart) {
-        b.isCollapsed = false;
         this.notificationService.error(`Fahrrad ${i + 1}: Zahlungsart Kaution wählen`);
         return false;
       }
     }
     return true;
+  }
+
+  totalMiete(): number {
+    const bikes = this.bikes.reduce(
+      (sum, b) => sum + (b.selectedBike || b.isQuickAddMode ? Number(b.gesamtmiete) || 0 : 0),
+      0,
+    );
+    return bikes + this.accessoryGrandTotal();
+  }
+
+  totalKaution(): number {
+    return this.bikes.reduce(
+      (sum, b) => sum + (b.selectedBike || b.isQuickAddMode ? Number(b.kaution) || 0 : 0),
+      0,
+    );
   }
 
   private validateMieterStep(): boolean {
