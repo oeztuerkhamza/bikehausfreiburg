@@ -117,17 +117,17 @@ public class RentalService : IRentalService
         var customer = dto.Customer.ToEntity();
         customer = await _customerRepository.AddAsync(customer);
 
-        // Mietpreis pro Fahrrad serverseitig aus der Preistabelle des Fahrrads
-        // und der (inklusiven) Tageszahl berechnen. So wird nie 0 gespeichert,
-        // auch wenn das Frontend keinen Preis mitschickt. Hat ein Fahrrad keine
-        // Preistabelle, wird ersatzweise der vom Formular gesendete Wert benutzt.
+        // Mietpreis pro Fahrrad: den vom Formular gesendeten Wert bevorzugen, damit
+        // ein manuell angepasster Endpreis erhalten bleibt. Schickt das Formular
+        // keinen Preis (0), auf den serverseitig aus der Preistabelle berechneten
+        // Wert zurückfallen, damit nie versehentlich 0 gespeichert wird.
         var bikePrices = new List<decimal>(dto.Bikes.Count);
         for (int i = 0; i < dto.Bikes.Count; i++)
         {
             var bikeDto = dto.Bikes[i];
             var days = RentalPricingCalculator.CalculateDaysInclusive(bikeDto.StartDatum, bikeDto.EndDatum);
             var calculated = RentalPricingCalculator.CalculateBikePrice(bicycles[i], days);
-            bikePrices.Add(calculated ?? bikeDto.Mietpreis);
+            bikePrices.Add(bikeDto.Mietpreis > 0 ? bikeDto.Mietpreis : (calculated ?? 0m));
         }
 
         // Aggregate dates/totals across bikes
