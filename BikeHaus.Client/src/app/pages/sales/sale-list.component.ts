@@ -17,6 +17,8 @@ import {
   SaleList,
   PaginatedResult,
   PurchaseCreateForExistingBike,
+  PurchaseInlineUpdate,
+  PaymentMethod,
 } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 
@@ -250,6 +252,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                     <span class="popup-icon">🧾</span>
                     Ankauf detail hinzufügen
                   </button>
+                  <button
+                    class="popup-item"
+                    *ngIf="canEditPurchase(s)"
+                    (click)="openEditPurchaseDialog(s)"
+                  >
+                    <span class="popup-icon">🧾</span>
+                    Ankauf detail bearbeiten
+                  </button>
                   <div class="popup-divider"></div>
                   <button
                     class="popup-item popup-item-danger"
@@ -283,7 +293,13 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         (click)="closeAddPurchaseDialog()"
       >
         <div class="purchase-dialog" (click)="$event.stopPropagation()">
-          <h3>Ankauf detail hinzufügen</h3>
+          <h3>
+            {{
+              editingPurchaseId
+                ? 'Ankauf detail bearbeiten'
+                : 'Ankauf detail hinzufügen'
+            }}
+          </h3>
           <div class="form-grid">
             <div class="field">
               <label>Ankauf Beleg-Nr.</label>
@@ -682,6 +698,11 @@ export class SaleListComponent implements OnInit {
   showAddPurchaseDialog = false;
   savingPurchase = false;
   selectedSaleForPurchase: SaleList | null = null;
+  editingPurchaseId: number | null = null;
+  // Preserved from the existing purchase when editing, so the inline update
+  // round-trips them instead of clobbering them.
+  private editPurchaseZahlungsart: PaymentMethod = PaymentMethod.Bar;
+  private editPurchaseVerkaufspreisVorschlag: number | undefined;
   purchaseDialog = {
     belegNummer: '',
     preis: null as number | null,
@@ -849,9 +870,14 @@ export class SaleListComponent implements OnInit {
     );
   }
 
+  canEditPurchase(s: SaleList): boolean {
+    return this.hasPurchase(s) && !this.isAccessoryOnlySale(s);
+  }
+
   openAddPurchaseDialog(s: SaleList) {
     this.closeMenu();
     this.selectedSaleForPurchase = s;
+    this.editingPurchaseId = null;
     this.purchaseDialog = {
       belegNummer: '',
       preis: null,
@@ -860,10 +886,35 @@ export class SaleListComponent implements OnInit {
     this.showAddPurchaseDialog = true;
   }
 
+  openEditPurchaseDialog(s: SaleList) {
+    this.closeMenu();
+    if (!s.purchaseId) return;
+    this.selectedSaleForPurchase = s;
+    this.editingPurchaseId = s.purchaseId;
+    this.showAddPurchaseDialog = true;
+    // Pre-fill from the existing Ankauf.
+    this.purchaseService.getById(s.purchaseId).subscribe({
+      next: (p) => {
+        this.purchaseDialog = {
+          belegNummer: p.belegNummer || '',
+          preis: p.preis,
+          kaufdatum: p.kaufdatum ? p.kaufdatum.substring(0, 10) : '',
+        };
+        this.editPurchaseZahlungsart = p.zahlungsart;
+        this.editPurchaseVerkaufspreisVorschlag = p.verkaufspreisVorschlag;
+      },
+      error: () => {
+        this.notificationService.error('Ankauf konnte nicht geladen werden.');
+        this.closeAddPurchaseDialog();
+      },
+    });
+  }
+
   closeAddPurchaseDialog() {
     if (this.savingPurchase) return;
     this.showAddPurchaseDialog = false;
     this.selectedSaleForPurchase = null;
+    this.editingPurchaseId = null;
   }
 
   savePurchaseDetails() {
@@ -877,6 +928,35 @@ export class SaleListComponent implements OnInit {
       this.notificationService.error(
         'Bitte Ankaufdatum und einen Preis größer als 0 eingeben.',
       );
+      return;
+    }
+
+    // Editing an existing Ankauf: patch just price/date/Beleg, preserving the
+    // rest (payment method, planned selling price, seller).
+    if (this.editingPurchaseId) {
+      const patch: PurchaseInlineUpdate = {
+        preis: this.purchaseDialog.preis,
+        verkaufspreisVorschlag: this.editPurchaseVerkaufspreisVorschlag,
+        zahlungsart: this.editPurchaseZahlungsart,
+        kaufdatum: this.purchaseDialog.kaufdatum,
+        belegNummer: this.purchaseDialog.belegNummer || undefined,
+      };
+      this.savingPurchase = true;
+      this.purchaseService.inlineUpdate(this.editingPurchaseId, patch).subscribe({
+        next: () => {
+          this.savingPurchase = false;
+          this.showAddPurchaseDialog = false;
+          this.selectedSaleForPurchase = null;
+          this.editingPurchaseId = null;
+          this.notificationService.success('Ankauf erfolgreich aktualisiert.');
+        },
+        error: (err) => {
+          this.savingPurchase = false;
+          this.notificationService.error(
+            err?.error?.error || 'Ankauf konnte nicht aktualisiert werden.',
+          );
+        },
+      });
       return;
     }
 

@@ -70,7 +70,8 @@ public record PurchaseInlineUpdateDto(
     decimal Preis,
     decimal? VerkaufspreisVorschlag,
     PaymentMethod Zahlungsart,
-    DateTime Kaufdatum
+    DateTime Kaufdatum,
+    string? BelegNummer = null
 );
 
 // Bulk Purchase DTO - for buying multiple identical bicycles at once

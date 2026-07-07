@@ -261,6 +261,7 @@ export interface PurchaseInlineUpdate {
   verkaufspreisVorschlag?: number;
   zahlungsart: PaymentMethod;
   kaufdatum: string;
+  belegNummer?: string;
 }
 
 export interface BulkPurchaseCreate {

@@ -273,6 +273,10 @@ public class PurchaseService : IPurchaseService
         purchase.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
         purchase.Zahlungsart = dto.Zahlungsart;
         purchase.Kaufdatum = dto.Kaufdatum;
+        // Only overwrite the Beleg-Nr when one is supplied, so the purchase-list
+        // inline cell edit (which omits it) never clears an existing number.
+        if (!string.IsNullOrWhiteSpace(dto.BelegNummer))
+            purchase.BelegNummer = dto.BelegNummer;
         purchase.UpdatedAt = DateTime.UtcNow;
 
         // VerkaufspreisVorschlag: Purchase is the source of truth — keep the Bicycle in sync.
