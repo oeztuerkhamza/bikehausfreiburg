@@ -37,6 +37,7 @@ interface RentalStepsTranslations {
   noBikesAvailable: string;
   from: string;
   day: string;
+  free: string;
   to: string;
   calendarHint: string;
   previousMonth: string;
@@ -3638,6 +3639,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     noBikesAvailable: 'Keine Fahrräder für diesen Zeitraum verfügbar',
     from: 'ab',
     day: 'Tag',
+    free: 'Kostenlos',
     to: 'bis',
     calendarHint:
       'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage und Feiertage sind geschlossen.',
@@ -3743,6 +3745,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     noBikesAvailable: 'No bikes available for this period',
     from: 'from',
     day: 'day',
+    free: 'Free',
     to: 'to',
     calendarHint:
       'Select the start date first and then the end date. Sundays and public holidays are closed.',
@@ -3848,6 +3851,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     noBikesAvailable: 'Aucun vélo disponible pour cette période',
     from: 'à partir de',
     day: 'jour',
+    free: 'Gratuit',
     to: 'au',
     calendarHint:
       'Sélectionnez d’abord la date de début puis la date de fin. Les dimanches et jours fériés sont fermés.',
@@ -3953,6 +3957,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     noBikesAvailable: 'Bu aralık için uygun bisiklet yok',
     from: 'itibaren',
     day: 'gün',
+    free: 'Ücretsiz',
     to: 'ile',
     calendarHint:
       'Önce başlangıç tarihini, sonra bitiş tarihini seçin. Pazar ve resmi tatiller kapalıdır.',
@@ -4053,6 +4058,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     noBikesAvailable: 'No hay bicicletas disponibles para este período',
     from: 'desde',
     day: 'día',
+    free: 'Gratis',
     to: 'hasta',
     calendarHint:
       'Selecciona primero la fecha de inicio y luego la de fin. Los domingos y festivos están cerrados.',
@@ -4153,6 +4159,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     noBikesAvailable: 'Nessuna bici disponibile per questo periodo',
     from: 'da',
     day: 'giorno',
+    free: 'Gratis',
     to: 'a',
     calendarHint:
       'Seleziona prima la data di inizio e poi la data di fine. Le domeniche e i giorni festivi sono chiusi.',
@@ -4254,6 +4261,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     noBikesAvailable: 'لا توجد دراجات متاحة لهذه الفترة',
     from: 'من',
     day: 'يوم',
+    free: 'مجانًا',
     to: 'إلى',
     calendarHint:
       'اختر تاريخ البدء أولاً ثم تاريخ الانتهاء. أيام الأحد والعطل الرسمية مغلقة.',
@@ -4354,6 +4362,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     noBikesAvailable: 'Нет доступных велосипедов на этот период',
     from: 'от',
     day: 'день',
+    free: 'Бесплатно',
     to: 'до',
     calendarHint:
       'Сначала выберите дату начала, затем дату окончания. Воскресенья и официальные праздники закрыты.',

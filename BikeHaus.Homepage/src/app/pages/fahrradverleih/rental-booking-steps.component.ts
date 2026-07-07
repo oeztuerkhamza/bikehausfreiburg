@@ -488,8 +488,13 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 {{ acc.beschreibung }}
               </p>
               <p class="accessory-price">
-                €{{ acc.tagespreis }} /
-                {{ t().rentalSteps?.day ?? 'Tag' }}
+                <ng-container *ngIf="acc.tagespreis > 0; else accFree">
+                  €{{ acc.tagespreis }} /
+                  {{ t().rentalSteps?.day ?? 'Tag' }}
+                </ng-container>
+                <ng-template #accFree>{{
+                  t().rentalSteps?.free ?? 'Kostenlos'
+                }}</ng-template>
               </p>
             </div>
             <div class="accessory-qty">
@@ -699,10 +704,15 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               <strong>{{ sel.menge }}× {{ sel.accessory.bezeichnung }}</strong>
             </p>
             <p class="price">
-              €{{ sel.accessory.tagespreis }} ×
-              {{ daysCount() }} {{ t().rentalSteps?.days ?? 'Tage' }} = €{{
-                sel.lineTotal
-              }}
+              <ng-container *ngIf="sel.accessory.tagespreis > 0; else selFree">
+                €{{ sel.accessory.tagespreis }} ×
+                {{ daysCount() }} {{ t().rentalSteps?.days ?? 'Tage' }} = €{{
+                  sel.lineTotal
+                }}
+              </ng-container>
+              <ng-template #selFree>{{
+                t().rentalSteps?.free ?? 'Kostenlos'
+              }}</ng-template>
             </p>
           </div>
         </div>
