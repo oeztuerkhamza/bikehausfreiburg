@@ -328,6 +328,8 @@ export interface Sale {
   zahlungen: SalePayment[];
   rabatt: number;
   gesamtbetrag: number;
+  ankaufPreis?: number;
+  ankaufDatum?: string;
   createdAt: string;
 }
 
@@ -383,6 +385,8 @@ export interface SaleUpdate {
   zahlungen?: SalePaymentCreate[];
   rabatt?: number;
   belegNummer?: string;
+  ankaufPreis?: number;
+  ankaufDatum?: string;
 }
 
 // ── Document ──

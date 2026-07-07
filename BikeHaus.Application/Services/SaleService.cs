@@ -333,6 +333,24 @@ public class SaleService : ISaleService
             sale.BelegNummer = dto.BelegNummer;
         sale.UpdatedAt = DateTime.UtcNow;
 
+        // Ankauf price/date. If a Kaufbeleg (Purchase) is linked, that stays the
+        // source of truth — edit it. Otherwise store the values on the sale so
+        // the export documents can still show them.
+        if (sale.Purchase != null)
+        {
+            if (dto.AnkaufPreis.HasValue) sale.Purchase.Preis = dto.AnkaufPreis.Value;
+            if (dto.AnkaufDatum.HasValue) sale.Purchase.Kaufdatum = dto.AnkaufDatum.Value;
+            sale.Purchase.UpdatedAt = DateTime.UtcNow;
+            await _purchaseRepository.UpdateAsync(sale.Purchase);
+            sale.AnkaufPreis = null;
+            sale.AnkaufDatum = null;
+        }
+        else
+        {
+            sale.AnkaufPreis = dto.AnkaufPreis;
+            sale.AnkaufDatum = dto.AnkaufDatum;
+        }
+
         // Update Accessories - clear and recreate
         sale.Accessories.Clear();
         if (dto.Accessories != null && dto.Accessories.Count > 0)

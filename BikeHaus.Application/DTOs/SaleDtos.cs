@@ -48,6 +48,10 @@ public record SaleDto(
     List<SalePaymentDto> Zahlungen,
     decimal Rabatt,
     decimal Gesamtbetrag,
+    // Effective Ankauf values: from the linked Purchase if present, else the
+    // sale-level fallback fields. Used for the export documents.
+    decimal? AnkaufPreis,
+    DateTime? AnkaufDatum,
     DateTime CreatedAt
 );
 
@@ -105,5 +109,9 @@ public record SaleUpdateDto(
     List<SaleAccessoryCreateDto>? Accessories,
     List<SalePaymentCreateDto>? Zahlungen = null,
     decimal Rabatt = 0,
-    string? BelegNummer = null
+    string? BelegNummer = null,
+    // Ankauf price/date. Applied to the linked Purchase when one exists,
+    // otherwise stored on the sale as the export fallback.
+    decimal? AnkaufPreis = null,
+    DateTime? AnkaufDatum = null
 );

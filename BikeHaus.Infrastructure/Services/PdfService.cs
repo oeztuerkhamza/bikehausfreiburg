@@ -570,8 +570,15 @@ public class PdfService : IPdfService
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Column(c =>
                             {
                                 c.Item().Text(matchedPurchase?.BelegNummer ?? "-").FontSize(10);
-                                if (includeAnkaufPreis && matchedPurchase != null)
-                                    c.Item().Text($"Ankaufpreis: {matchedPurchase.Preis:N2} €").FontSize(8).FontColor(Colors.Grey.Darken2);
+                                // Effective Ankauf: sale-level override wins, else the resolved purchase.
+                                var ankaufPreis = sale.AnkaufPreis ?? matchedPurchase?.Preis;
+                                var ankaufDatum = sale.AnkaufDatum ?? matchedPurchase?.Kaufdatum;
+                                if (includeAnkaufPreis && ankaufPreis.HasValue)
+                                {
+                                    c.Item().Text($"Ankaufpreis: {ankaufPreis.Value:N2} €").FontSize(8).FontColor(Colors.Grey.Darken2);
+                                    if (ankaufDatum.HasValue)
+                                        c.Item().Text($"Ankaufdatum: {ankaufDatum.Value:dd.MM.yyyy}").FontSize(8).FontColor(Colors.Grey.Darken2);
+                                }
                             });
 
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Fahrradtyp").FontSize(9).FontColor(Colors.Grey.Darken2);

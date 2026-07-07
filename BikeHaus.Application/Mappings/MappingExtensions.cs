@@ -193,6 +193,9 @@ public static class MappingExtensions
         entity.Zahlungen.Select(z => z.ToDto()).ToList(),
         entity.Rabatt,
         entity.Gesamtbetrag,
+        // Effective Ankauf: linked Purchase wins, else the sale-level fallback.
+        entity.Purchase != null ? entity.Purchase.Preis : entity.AnkaufPreis,
+        entity.Purchase != null ? entity.Purchase.Kaufdatum : entity.AnkaufDatum,
         entity.CreatedAt
     );
 

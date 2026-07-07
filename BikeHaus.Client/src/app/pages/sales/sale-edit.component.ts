@@ -291,6 +291,25 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                   {{ garantieBedingungen }}
                 </div>
               </div>
+              <div class="field" *ngIf="!isAccessoryOnlySale">
+                <label>Ankaufpreis (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  [(ngModel)]="ankaufPreis"
+                  name="ankaufPreis"
+                />
+                <small class="field-hint">Für Export-Dokumente</small>
+              </div>
+              <div class="field" *ngIf="!isAccessoryOnlySale">
+                <label>Ankaufdatum</label>
+                <input
+                  type="date"
+                  [(ngModel)]="ankaufDatum"
+                  name="ankaufDatum"
+                />
+              </div>
               <div class="field full">
                 <label>{{ t.notes }}</label>
                 <textarea
@@ -828,6 +847,8 @@ export class SaleEditComponent implements OnInit {
   garantieBedingungen = '';
   accessories: SaleAccessoryCreate[] = [];
   rabatt = 0;
+  ankaufPreis: number | null = null;
+  ankaufDatum = '';
 
   get t() {
     return this.translationService.translations();
@@ -945,6 +966,18 @@ export class SaleEditComponent implements OnInit {
     this.notizen = sale.notizen || '';
     this.garantie = sale.garantie;
     this.garantieBedingungen = sale.garantieBedingungen || '';
+
+    // Effective Ankauf values (from linked Kaufbeleg or sale-level fallback).
+    this.ankaufPreis = sale.ankaufPreis ?? null;
+    if (sale.ankaufDatum) {
+      const ad = new Date(sale.ankaufDatum);
+      const y = ad.getFullYear();
+      const m = String(ad.getMonth() + 1).padStart(2, '0');
+      const d = String(ad.getDate()).padStart(2, '0');
+      this.ankaufDatum = `${y}-${m}-${d}`;
+    } else {
+      this.ankaufDatum = '';
+    }
 
     // Load accessories
     if (sale.accessories && sale.accessories.length > 0) {
@@ -1106,6 +1139,11 @@ export class SaleEditComponent implements OnInit {
           : undefined,
       rabatt: this.rabatt > 0 ? this.rabatt : undefined,
       belegNummer: this.belegNummer || undefined,
+      ankaufPreis:
+        this.ankaufPreis != null && this.ankaufPreis >= 0
+          ? this.ankaufPreis
+          : undefined,
+      ankaufDatum: this.ankaufDatum || undefined,
     };
 
     this.saleService.update(this.sale.id, update).subscribe({

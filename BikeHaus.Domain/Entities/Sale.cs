@@ -16,6 +16,12 @@ public class Sale : BaseEntity
     public string BelegNummer { get; set; } = string.Empty;     // Receipt Number
     public decimal Rabatt { get; set; }                          // Discount amount
 
+    // Fallback Ankauf (purchase) values used for exports when there is no linked
+    // Kaufbeleg (PurchaseId). When a Purchase IS linked, that record stays the
+    // source of truth and these remain null.
+    public decimal? AnkaufPreis { get; set; }                    // Purchase price
+    public DateTime? AnkaufDatum { get; set; }                   // Purchase date
+
     // Signature FK
     public int? BuyerSignatureId { get; set; }
     public int? SellerSignatureId { get; set; }
