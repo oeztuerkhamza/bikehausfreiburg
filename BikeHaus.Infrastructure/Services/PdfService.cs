@@ -21,7 +21,6 @@ public class PdfService : IPdfService
     private readonly IRentalBookingRepository _rentalBookingRepository;
     private readonly IBicycleRepository _bicycleRepository;
     private readonly IFileStorageService _fileStorage;
-    private readonly IDocumentRepository _documentRepository;
 
     // Print-Friendly Colors (optimized for less ink consumption)
     private static readonly string PrimaryColor = "#2c5282";       // Medium blue (for text)
@@ -73,8 +72,7 @@ public class PdfService : IPdfService
         IRentalRepository rentalRepository,
         IRentalBookingRepository rentalBookingRepository,
         IBicycleRepository bicycleRepository,
-        IFileStorageService fileStorage,
-        IDocumentRepository documentRepository)
+        IFileStorageService fileStorage)
     {
         _purchaseRepository = purchaseRepository;
         _saleRepository = saleRepository;
@@ -86,7 +84,6 @@ public class PdfService : IPdfService
         _rentalBookingRepository = rentalBookingRepository;
         _bicycleRepository = bicycleRepository;
         _fileStorage = fileStorage;
-        _documentRepository = documentRepository;
     }
 
     // Helper to get shop info from DB settings or use defaults
@@ -198,18 +195,12 @@ public class PdfService : IPdfService
 
         var shop = await GetShopInfoAsync();
 
-        // Load the Ankauf photos (screenshots / uploaded images) so they can be
-        // appended at the bottom of the receipt. Photos can be attached either to
-        // the purchase itself (Einkaufsfotos/Screenshots) or to its bicycle
-        // (DocumentType.Image uploaded on the bike detail page), so both sources
-        // are gathered and de-duplicated. Non-image documents (e.g. PDFs) cannot
-        // be embedded and are skipped.
-        var bicycleDocuments = await _documentRepository.GetByBicycleIdAsync(purchase.BicycleId);
-        var photoDocuments = purchase.Documents
-            .Concat(bicycleDocuments)
-            .GroupBy(d => d.Id)
-            .Select(g => g.First());
-        var ankaufPhotos = await LoadImageDocumentsAsync(photoDocuments);
+        // Append the bicycle's gallery photos (the same images shown on the
+        // purchase card) to the bottom of the receipt. Files missing on disk are
+        // skipped so a broken image never breaks the receipt.
+        var bicycleWithImages = await _bicycleRepository.GetWithImagesAsync(purchase.BicycleId);
+        var galleryImages = bicycleWithImages?.Images ?? new List<BicycleImage>();
+        var ankaufPhotos = await LoadBicycleGalleryImagesAsync(galleryImages);
 
         QuestPDF.Settings.License = LicenseType.Community;
 
@@ -387,27 +378,27 @@ public class PdfService : IPdfService
                         });
                     });
 
-                    // Ankauf photos (screenshots / uploaded images) at the bottom
+                    // Bicycle gallery photos at the bottom — 3 per row, height-capped
+                    // so three photos fit within roughly half a page.
                     if (ankaufPhotos.Count > 0)
                     {
                         col.Item().PaddingTop(8).Element(SectionHeader).Text("FOTOS ZUM ANKAUF");
                         col.Item().PaddingTop(4).Column(photoCol =>
                         {
-                            // 2-per-row grid; each row holds up to two photos
-                            for (int i = 0; i < ankaufPhotos.Count; i += 2)
+                            for (int i = 0; i < ankaufPhotos.Count; i += 3)
                             {
                                 photoCol.Item().PaddingBottom(6).Row(photoRow =>
                                 {
-                                    photoRow.RelativeItem().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(2)
-                                        .MaxHeight(360).AlignCenter().Image(ankaufPhotos[i]).FitArea();
-
-                                    photoRow.ConstantItem(6);
-
-                                    if (i + 1 < ankaufPhotos.Count)
-                                        photoRow.RelativeItem().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(2)
-                                            .MaxHeight(360).AlignCenter().Image(ankaufPhotos[i + 1]).FitArea();
-                                    else
-                                        photoRow.RelativeItem(); // keep last odd photo left-aligned at half width
+                                    for (int j = 0; j < 3; j++)
+                                    {
+                                        if (j > 0) photoRow.ConstantItem(6);
+                                        int idx = i + j;
+                                        if (idx < ankaufPhotos.Count)
+                                            photoRow.RelativeItem().MaxHeight(250).AlignTop().AlignCenter()
+                                                .Image(ankaufPhotos[idx]).FitArea();
+                                        else
+                                            photoRow.RelativeItem(); // keep the row left-aligned when < 3 photos
+                                    }
                                 });
                             }
                         });
@@ -429,28 +420,34 @@ public class PdfService : IPdfService
         return document.GeneratePdf();
     }
 
-    // Reads the raw bytes of every image document (jpg/png/etc.) so they can be
-    // embedded into a QuestPDF document. PDFs and other non-image documents are
-    // skipped, and any file that can no longer be found on disk is ignored.
-    private async Task<List<byte[]>> LoadImageDocumentsAsync(IEnumerable<BikeHaus.Domain.Entities.Document> documents)
+    // Reads the raw bytes of the bicycle's gallery images (in sort order) so they
+    // can be embedded into a QuestPDF document. BicycleImage.FilePath is stored as
+    // "uploads/gallery/{id}/{file}"; the leading "uploads/" is stripped so it
+    // resolves against the FileStorage base path in both dev and production. Files
+    // that can no longer be found on disk are ignored.
+    private async Task<List<byte[]>> LoadBicycleGalleryImagesAsync(IEnumerable<BicycleImage> images)
     {
-        var images = new List<byte[]>();
+        var result = new List<byte[]>();
 
-        foreach (var doc in documents.OrderBy(d => d.CreatedAt))
+        foreach (var img in images.OrderBy(i => i.SortOrder))
         {
-            var isImage = doc.ContentType?.StartsWith("image/", StringComparison.OrdinalIgnoreCase) == true;
-            if (!isImage || string.IsNullOrEmpty(doc.FilePath))
+            if (string.IsNullOrEmpty(img.FilePath))
                 continue;
 
-            if (!_fileStorage.FileExists(doc.FilePath))
+            var relativePath = img.FilePath;
+            if (relativePath.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase))
+                relativePath = relativePath.Substring("uploads/".Length);
+            relativePath = relativePath.Replace('/', Path.DirectorySeparatorChar);
+
+            if (!_fileStorage.FileExists(relativePath))
                 continue;
 
             try
             {
-                using var stream = await _fileStorage.GetFileAsync(doc.FilePath);
+                using var stream = await _fileStorage.GetFileAsync(relativePath);
                 using var ms = new MemoryStream();
                 await stream.CopyToAsync(ms);
-                images.Add(ms.ToArray());
+                result.Add(ms.ToArray());
             }
             catch
             {
@@ -458,7 +455,7 @@ public class PdfService : IPdfService
             }
         }
 
-        return images;
+        return result;
     }
 
     public async Task<byte[]> GenerateVerkaufsbelegAsync(int saleId, bool includeAnkaufPreis = false)

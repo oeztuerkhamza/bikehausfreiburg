@@ -5,6 +5,7 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
 import { SaleService } from '../../services/sale.service';
 import { DocumentService } from '../../services/document.service';
+import { BicycleService } from '../../services/bicycle.service';
 import { TranslationService } from '../../services/translation.service';
 import {
   Purchase,
@@ -14,8 +15,10 @@ import {
   BikeStatus,
   Sale,
   Document as DocModel,
+  BicycleImage,
 } from '../../models/models';
 import { forkJoin } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-purchase-edit',
@@ -367,6 +370,18 @@ import { forkJoin } from 'rxjs';
               </div>
             </div>
           </div>
+
+          <!-- Bicycle gallery photos (shown on the card & appended to the Kaufbeleg) -->
+          <div class="form-card" *ngIf="bicycleImages.length > 0">
+            <h2>📷 Fahrrad-Fotos</h2>
+            <div class="gallery-section">
+              <div class="gallery-grid">
+                <div class="gallery-item" *ngFor="let img of bicycleImages">
+                  <img [src]="getGalleryImageUrl(img)" alt="Fahrrad-Foto" loading="lazy" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="form-actions">
@@ -698,6 +713,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
   uploadingSale = false;
   documents: DocModel[] = [];
   saleDocuments: DocModel[] = [];
+  bicycleImages: BicycleImage[] = [];
   previewImage: string | null = null;
   private docBlobUrls: Map<number, string> = new Map();
 
@@ -749,6 +765,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     private purchaseService: PurchaseService,
     private saleService: SaleService,
     private documentService: DocumentService,
+    private bicycleService: BicycleService,
     private router: Router,
     private route: ActivatedRoute,
   ) {}
@@ -766,6 +783,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
         this.purchase = purchase;
         this.loadFormData(purchase);
         this.loadDocuments(+id);
+        this.loadBicycleImages(purchase.bicycle.id);
         this.loadSaleData(purchase.bicycle.id);
         this.loading = false;
       },
@@ -804,6 +822,21 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
         // silently fail - photos are optional
       },
     });
+  }
+
+  loadBicycleImages(bicycleId: number) {
+    this.bicycleService.getGallery(bicycleId).subscribe({
+      next: (imgs) => {
+        this.bicycleImages = imgs;
+      },
+      error: () => {
+        // silently fail - photos are optional
+      },
+    });
+  }
+
+  getGalleryImageUrl(img: BicycleImage): string {
+    return `${environment.apiUrl}/public/gallery-image/${img.filePath}`;
   }
 
   private loadBlobUrl(doc: DocModel) {
