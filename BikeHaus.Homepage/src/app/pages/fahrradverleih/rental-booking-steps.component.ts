@@ -627,6 +627,35 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             <input type="text" [(ngModel)]="bookingForm.ort" name="ort" required />
           </div>
           <div class="form-group">
+            <label
+              >{{ t().rentalSteps?.pickupTime ?? 'Abholzeit' }} *:</label
+            >
+            <select
+              [(ngModel)]="bookingForm.abholzeit"
+              name="abholzeit"
+              required
+            >
+              <option value="" disabled>
+                {{ t().rentalSteps?.pickupTimeSelect ?? 'Uhrzeit wählen' }}
+              </option>
+              <option *ngFor="let slot of abholzeitSlots()" [value]="slot">
+                {{ slot }} {{ t().rentalSteps?.oClock ?? 'Uhr' }}
+              </option>
+            </select>
+            <small class="field-hint" *ngIf="abholzeitSlots().length === 0">
+              {{
+                t().rentalSteps?.pickupTimeClosed ??
+                  'An diesem Tag ist der Laden geschlossen. Bitte ein anderes Startdatum wählen.'
+              }}
+            </small>
+            <small class="field-hint" *ngIf="abholzeitSlots().length > 0">
+              {{
+                t().rentalSteps?.pickupTimeHint ??
+                  'Zu welcher Uhrzeit möchten Sie das Fahrrad abholen?'
+              }}
+            </small>
+          </div>
+          <div class="form-group">
             <label>{{ t().rentalSteps?.notes ?? 'Notizen' }}:</label>
             <textarea
               [(ngModel)]="bookingForm.notizen"
@@ -727,6 +756,10 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           </p>
           <p *ngIf="bookingForm.plz">
             {{ bookingForm.plz }} {{ bookingForm.ort }}
+          </p>
+          <p *ngIf="bookingForm.abholzeit">
+            <strong>{{ t().rentalSteps?.pickupTime ?? 'Abholzeit' }}:</strong>
+            {{ bookingForm.abholzeit }} {{ t().rentalSteps?.oClock ?? 'Uhr' }}
           </p>
         </div>
 
@@ -2111,7 +2144,35 @@ export class RentalBookingStepsComponent implements OnInit {
     ort: '',
     sprache: this.lang(),
     notizen: '',
+    abholzeit: '',
   };
+
+  // Pickup-time slots (30-min) for the START day, based on the shop's rental
+  // handover hours: Mon–Thu 10:00–18:00, Fri 10:00–13:00 & 15:00–18:00 (lunch
+  // break), Sat 11:00–18:00, Sun closed. Last pickup is 17:30 (return by 18:00).
+  abholzeitSlots(): string[] {
+    if (!this.selectedStartDate) return [];
+    const day = new Date(`${this.selectedStartDate}T00:00:00`).getDay();
+    const slots: string[] = [];
+    const push = (fromH: number, fromM: number, toH: number, toM: number) => {
+      for (let t = fromH * 60 + fromM; t <= toH * 60 + toM; t += 30) {
+        const h = Math.floor(t / 60);
+        const mm = t % 60;
+        slots.push(
+          `${String(h).padStart(2, '0')}:${String(mm).padStart(2, '0')}`,
+        );
+      }
+    };
+    if (day >= 1 && day <= 4) {
+      push(10, 0, 17, 30); // Mon–Thu
+    } else if (day === 5) {
+      push(10, 0, 12, 30); // Fri morning
+      push(15, 0, 17, 30); // Fri afternoon (after 13–15 break)
+    } else if (day === 6) {
+      push(11, 0, 17, 30); // Sat
+    }
+    return slots;
+  }
 
   // Plain method, NOT computed(): selectedStart/EndDate are not signals, so a
   // computed would cache its first value forever (stale day counts → prices).
@@ -2671,6 +2732,7 @@ export class RentalBookingStepsComponent implements OnInit {
       sprache: this.bookingForm.sprache,
       notizen: this.bookingForm.notizen || undefined,
       accessories: accessories.length > 0 ? accessories : undefined,
+      abholzeit: this.bookingForm.abholzeit || undefined,
     };
 
     this.apiService.createRentalBooking(dto).subscribe({
@@ -2742,6 +2804,16 @@ export class RentalBookingStepsComponent implements OnInit {
       );
       return false;
     }
+    if (
+      !this.bookingForm.abholzeit ||
+      !this.abholzeitSlots().includes(this.bookingForm.abholzeit)
+    ) {
+      this.bookingError.set(
+        this.t().rentalSteps?.pickupTimeRequired ??
+          'Bitte wählen Sie eine Abholzeit',
+      );
+      return false;
+    }
     this.bookingError.set('');
     return true;
   }
@@ -2769,6 +2841,7 @@ export class RentalBookingStepsComponent implements OnInit {
       ort: '',
       sprache: this.lang(),
       notizen: '',
+      abholzeit: '',
     };
     this.goToStep('date-selection');
   }

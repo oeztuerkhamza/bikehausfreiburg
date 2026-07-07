@@ -9,6 +9,7 @@ public class RentalBooking : BaseEntity
 
     public DateTime StartDatum { get; set; }
     public DateTime EndDatum { get; set; }
+    public string? Abholzeit { get; set; }                      // Pickup time on the start day, "HH:mm"
 
     public string Vorname { get; set; } = string.Empty;
     public string Nachname { get; set; } = string.Empty;

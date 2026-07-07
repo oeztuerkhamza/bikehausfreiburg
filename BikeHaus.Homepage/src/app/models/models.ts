@@ -215,6 +215,7 @@ export interface RentalBookingCreate {
   sprache: string;
   notizen?: string;
   accessories?: RentalBookingAccessoryCreate[];
+  abholzeit?: string;
 }
 
 export interface RentalBookingResponse {

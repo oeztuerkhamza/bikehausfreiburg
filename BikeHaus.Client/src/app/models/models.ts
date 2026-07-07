@@ -1114,6 +1114,7 @@ export interface RentalBooking {
   bikes: RentalBookingBike[];
   startDatum: string;
   endDatum: string;
+  abholzeit?: string;
   vorname: string;
   nachname: string;
   email?: string;

@@ -38,6 +38,12 @@ interface RentalStepsTranslations {
   from: string;
   day: string;
   free: string;
+  pickupTime?: string;
+  pickupTimeSelect?: string;
+  pickupTimeHint?: string;
+  pickupTimeClosed?: string;
+  pickupTimeRequired?: string;
+  oClock?: string;
   to: string;
   calendarHint: string;
   previousMonth: string;
@@ -3640,6 +3646,13 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'ab',
     day: 'Tag',
     free: 'Kostenlos',
+    pickupTime: 'Abholzeit',
+    pickupTimeSelect: 'Uhrzeit wählen',
+    pickupTimeHint: 'Zu welcher Uhrzeit möchten Sie das Fahrrad abholen?',
+    pickupTimeClosed:
+      'An diesem Tag ist der Laden geschlossen. Bitte ein anderes Startdatum wählen.',
+    pickupTimeRequired: 'Bitte wählen Sie eine Abholzeit',
+    oClock: 'Uhr',
     to: 'bis',
     calendarHint:
       'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage und Feiertage sind geschlossen.',
@@ -3746,6 +3759,13 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'from',
     day: 'day',
     free: 'Free',
+    pickupTime: 'Pickup time',
+    pickupTimeSelect: 'Select a time',
+    pickupTimeHint: 'What time would you like to pick up the bike?',
+    pickupTimeClosed:
+      'We are closed on this day. Please choose a different start date.',
+    pickupTimeRequired: 'Please select a pickup time',
+    oClock: '',
     to: 'to',
     calendarHint:
       'Select the start date first and then the end date. Sundays and public holidays are closed.',
@@ -3852,6 +3872,13 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'à partir de',
     day: 'jour',
     free: 'Gratuit',
+    pickupTime: 'Heure de retrait',
+    pickupTimeSelect: 'Choisir une heure',
+    pickupTimeHint: 'À quelle heure souhaitez-vous récupérer le vélo ?',
+    pickupTimeClosed:
+      'Nous sommes fermés ce jour-là. Veuillez choisir une autre date de début.',
+    pickupTimeRequired: 'Veuillez choisir une heure de retrait',
+    oClock: '',
     to: 'au',
     calendarHint:
       'Sélectionnez d’abord la date de début puis la date de fin. Les dimanches et jours fériés sont fermés.',
@@ -3958,6 +3985,13 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     from: 'itibaren',
     day: 'gün',
     free: 'Ücretsiz',
+    pickupTime: 'Alış saati',
+    pickupTimeSelect: 'Saat seçin',
+    pickupTimeHint: 'Bisikleti saat kaçta almak istiyorsunuz?',
+    pickupTimeClosed:
+      'Bu gün kapalıyız. Lütfen başka bir başlangıç tarihi seçin.',
+    pickupTimeRequired: 'Lütfen bir alış saati seçin',
+    oClock: '',
     to: 'ile',
     calendarHint:
       'Önce başlangıç tarihini, sonra bitiş tarihini seçin. Pazar ve resmi tatiller kapalıdır.',

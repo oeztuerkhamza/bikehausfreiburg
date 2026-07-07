@@ -362,6 +362,10 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
             <span>{{ t.to }}:</span>
             <strong>{{ booking.endDatum | date: 'dd.MM.yyyy' }}</strong>
           </div>
+          <div class="info-row" *ngIf="booking.abholzeit">
+            <span>{{ t.abholzeit }}:</span>
+            <strong>{{ booking.abholzeit }} Uhr</strong>
+          </div>
           <div class="info-row">
             <span>{{ t.total }}:</span>
             <strong>{{ booking.gesamtpreis | number: '1.2-2' }} €</strong>

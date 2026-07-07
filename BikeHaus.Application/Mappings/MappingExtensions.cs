@@ -395,6 +395,7 @@ public static class MappingExtensions
             bikes,
             entity.StartDatum,
             entity.EndDatum,
+            entity.Abholzeit,
             entity.Vorname,
             entity.Nachname,
             entity.Email,

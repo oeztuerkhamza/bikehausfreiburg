@@ -11,6 +11,7 @@ public record RentalBookingEmailModel(
     string? Color,
     DateTime StartDate,
     DateTime EndDate,
+    string? PickupTime,
     int Days,
     decimal? TotalPrice,
     decimal? Deposit,

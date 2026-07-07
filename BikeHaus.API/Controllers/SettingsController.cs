@@ -131,6 +131,7 @@ public class SettingsController : ControllerBase
                 Color: null,
                 StartDate: DateTime.Today,
                 EndDate: DateTime.Today.AddDays(3),
+                PickupTime: "10:30",
                 Days: 3,
                 TotalPrice: null,
                 Deposit: null,

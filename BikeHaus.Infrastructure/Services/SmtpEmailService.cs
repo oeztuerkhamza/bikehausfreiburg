@@ -433,6 +433,7 @@ Viele Gruesse
         var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
             ? "Keine"
             : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nGewuenschte Abholzeit: {m.PickupTime} Uhr";
 
         return $@"Hallo {m.ToName},
 
@@ -443,7 +444,7 @@ Deine Buchungsdetails:
 
 Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
-Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)
+Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
 Zubehoer (inklusive): {accessoriesText}
 Mietpreis: {totalPriceText}
 
@@ -509,6 +510,7 @@ Dein Team vom Bike Haus Freiburg
         var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
             ? "Keine"
             : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nGewuenschte Abholzeit: {m.PickupTime} Uhr";
 
         return $@"Hallo {m.ToName},
 
@@ -518,7 +520,7 @@ deine Anfrage ist erfolgreich bei uns eingegangen und wird gerade geprueft.
 
 Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
-Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)
+Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
 Geschaetzter Mietpreis: {totalPriceText}
 Zubehoer: {accessoriesText}
 
@@ -549,6 +551,7 @@ Dein Team vom Bike Haus Freiburg
         var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
             ? "Keine"
             : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"<strong>Gewuenschte Abholzeit:</strong> {m.PickupTime} Uhr<br />\n";
 
         return $@"<p>Hallo Team,</p>
 <p>es ist eine neue Mietanfrage eingegangen und wartet auf Bearbeitung.</p>
@@ -558,7 +561,7 @@ Dein Team vom Bike Haus Freiburg
 <strong>E-Mail:</strong> {m.ToEmail}<br />
 <strong>Fahrrad:</strong> {m.BikeBrand} {m.BikeModel}<br />
 <strong>Zeitraum:</strong> {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)<br />
-<strong>Geschaetzter Mietpreis:</strong> {totalPriceText}<br />
+{abholzeitLine}<strong>Geschaetzter Mietpreis:</strong> {totalPriceText}<br />
 <strong>Zubehoer:</strong> {accessoriesText}
 </p>
 <p>

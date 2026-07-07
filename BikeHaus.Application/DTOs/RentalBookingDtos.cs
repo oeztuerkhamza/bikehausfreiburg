@@ -53,7 +53,8 @@ public record RentalBookingCreateDto(
     string? Ort,
     string Sprache,
     string? Notizen,
-    List<RentalBookingAccessoryCreateDto>? Accessories
+    List<RentalBookingAccessoryCreateDto>? Accessories,
+    string? Abholzeit = null
 );
 
 public record RentalBookingDto(
@@ -63,6 +64,7 @@ public record RentalBookingDto(
     List<RentalBookingBikeDto> Bikes,
     DateTime StartDatum,
     DateTime EndDatum,
+    string? Abholzeit,
     string Vorname,
     string Nachname,
     string? Email,

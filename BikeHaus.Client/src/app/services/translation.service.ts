@@ -383,6 +383,7 @@ export interface Translations {
   rentalBookingAdminNotes: string;
   rentalBookingNotes: string;
   rentalBookingDates: string;
+  abholzeit: string;
   rentalBookingCreatedAt: string;
   rentalBookingApprovedAt: string;
   rentalBookingCancelledAt: string;
@@ -1220,6 +1221,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingAdminNotes: 'Admin-Notizen',
     rentalBookingNotes: 'Notizen',
     rentalBookingDates: 'Zeitraum',
+    abholzeit: 'Abholzeit',
     rentalBookingCreatedAt: 'Angelegt',
     rentalBookingApprovedAt: 'Bestätigt am',
     rentalBookingCancelledAt: 'Storniert am',
@@ -2061,6 +2063,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingAdminNotes: 'Yönetici Notları',
     rentalBookingNotes: 'Notlar',
     rentalBookingDates: 'Tarih Aralığı',
+    abholzeit: 'Alış Saati',
     rentalBookingCreatedAt: 'Oluşturma',
     rentalBookingApprovedAt: 'Onaylandı',
     rentalBookingCancelledAt: 'İptal edildi',
