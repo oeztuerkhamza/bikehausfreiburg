@@ -21,6 +21,7 @@ public class PdfService : IPdfService
     private readonly IRentalBookingRepository _rentalBookingRepository;
     private readonly IBicycleRepository _bicycleRepository;
     private readonly IFileStorageService _fileStorage;
+    private readonly IDocumentRepository _documentRepository;
 
     // Print-Friendly Colors (optimized for less ink consumption)
     private static readonly string PrimaryColor = "#2c5282";       // Medium blue (for text)
@@ -72,7 +73,8 @@ public class PdfService : IPdfService
         IRentalRepository rentalRepository,
         IRentalBookingRepository rentalBookingRepository,
         IBicycleRepository bicycleRepository,
-        IFileStorageService fileStorage)
+        IFileStorageService fileStorage,
+        IDocumentRepository documentRepository)
     {
         _purchaseRepository = purchaseRepository;
         _saleRepository = saleRepository;
@@ -84,6 +86,7 @@ public class PdfService : IPdfService
         _rentalBookingRepository = rentalBookingRepository;
         _bicycleRepository = bicycleRepository;
         _fileStorage = fileStorage;
+        _documentRepository = documentRepository;
     }
 
     // Helper to get shop info from DB settings or use defaults
@@ -196,9 +199,17 @@ public class PdfService : IPdfService
         var shop = await GetShopInfoAsync();
 
         // Load the Ankauf photos (screenshots / uploaded images) so they can be
-        // appended at the bottom of the receipt. Non-image documents (e.g. PDFs)
-        // cannot be embedded and are skipped.
-        var ankaufPhotos = await LoadImageDocumentsAsync(purchase.Documents);
+        // appended at the bottom of the receipt. Photos can be attached either to
+        // the purchase itself (Einkaufsfotos/Screenshots) or to its bicycle
+        // (DocumentType.Image uploaded on the bike detail page), so both sources
+        // are gathered and de-duplicated. Non-image documents (e.g. PDFs) cannot
+        // be embedded and are skipped.
+        var bicycleDocuments = await _documentRepository.GetByBicycleIdAsync(purchase.BicycleId);
+        var photoDocuments = purchase.Documents
+            .Concat(bicycleDocuments)
+            .GroupBy(d => d.Id)
+            .Select(g => g.First());
+        var ankaufPhotos = await LoadImageDocumentsAsync(photoDocuments);
 
         QuestPDF.Settings.License = LicenseType.Community;
 
