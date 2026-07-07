@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -27,14 +27,14 @@ import {
           >
             ✏️ Bearbeiten
           </a>
-          <button class="btn btn-outline" (click)="printMietvertrag()">
-            🖨️ Mietvertrag drucken
+          <button class="btn btn-outline" (click)="previewMietvertrag()">
+            🖨️ Mietvertrag
           </button>
-          <button class="btn btn-outline" (click)="printKaution()">
-            🖨️ Kautionsquittung drucken
+          <button class="btn btn-outline" (click)="previewKaution()">
+            🖨️ Kautionsquittung
           </button>
-          <button class="btn btn-outline" (click)="printBedingungen()">
-            🖨️ Mietbedingungen drucken
+          <button class="btn btn-outline" (click)="previewBedingungen()">
+            🖨️ Mietbedingungen
           </button>
           <button
             *ngIf="rental.ausweisPhotoPath"
@@ -513,6 +513,7 @@ import {
         <div class="modal-body pdf-preview-body">
           <iframe
             *ngIf="pdfPreviewUrl"
+            #pdfPreviewIframe
             [src]="pdfPreviewUrl"
             class="pdf-iframe"
           ></iframe>
@@ -954,6 +955,7 @@ export class RentalDetailComponent implements OnInit {
   pdfPreviewTitle = '';
   private currentPdfBlob: Blob | null = null;
   private currentPdfFilename = '';
+  @ViewChild('pdfPreviewIframe') pdfPreviewIframe?: ElementRef<HTMLIFrameElement>;
 
   // Signature modal
   showSignatureModal = false;
@@ -1297,30 +1299,9 @@ export class RentalDetailComponent implements OnInit {
   }
 
   // ── PDF ──
-  printMietvertrag() {
-    if (!this.rental) return;
-    this.rentalService.downloadMietvertragPdf(this.rental.id).subscribe({
-      next: (blob) => this.printBlob(blob),
-      error: () => this.notificationService.error('Fehler beim Drucken'),
-    });
-  }
-
-  printBedingungen() {
-    if (!this.rental) return;
-    this.rentalService.downloadMietbedingungenPdf(this.rental.id).subscribe({
-      next: (blob) => this.printBlob(blob),
-      error: () => this.notificationService.error('Fehler beim Drucken'),
-    });
-  }
-
-  printKaution() {
-    if (!this.rental) return;
-    this.rentalService.downloadKautionsquittungPdf(this.rental.id).subscribe({
-      next: (blob) => this.printBlob(blob),
-      error: () => this.notificationService.error('Fehler beim Drucken'),
-    });
-  }
-
+  // All three buttons open a preview modal that offers "Download" and "Drucken".
+  // Rendering the PDF in a visible iframe first avoids the race where printing
+  // straight from a hidden iframe captured a not-yet-rendered (garbled) PDF.
   previewMietvertrag() {
     if (!this.rental) return;
     this.rentalService.downloadMietvertragPdf(this.rental.id).subscribe({
@@ -1349,6 +1330,20 @@ export class RentalDetailComponent implements OnInit {
     });
   }
 
+  previewBedingungen() {
+    if (!this.rental) return;
+    this.rentalService.downloadMietbedingungenPdf(this.rental.id).subscribe({
+      next: (blob) => {
+        this.currentPdfBlob = blob;
+        this.currentPdfFilename = `Mietbedingungen-${this.rental!.mietvertragNummer}.pdf`;
+        this.pdfPreviewUrl = URL.createObjectURL(blob);
+        this.pdfPreviewTitle = 'Mietbedingungen';
+        this.showPdfPreview = true;
+      },
+      error: () => this.notificationService.error('Fehler beim Laden des PDF'),
+    });
+  }
+
   downloadCurrentPdf() {
     if (!this.currentPdfBlob) return;
     const url = URL.createObjectURL(this.currentPdfBlob);
@@ -1360,6 +1355,15 @@ export class RentalDetailComponent implements OnInit {
   }
 
   printCurrentPdf() {
+    // Print the already-rendered preview iframe. Because the user sees the PDF
+    // fully rendered before clicking, there is no race against an unpainted PDF.
+    const win = this.pdfPreviewIframe?.nativeElement?.contentWindow;
+    if (win) {
+      win.focus();
+      win.print();
+      return;
+    }
+    // Fallback: print from a hidden iframe if the preview ref is unavailable.
     if (!this.currentPdfBlob) return;
     const url = URL.createObjectURL(this.currentPdfBlob);
     const iframe = document.createElement('iframe');
@@ -1367,7 +1371,7 @@ export class RentalDetailComponent implements OnInit {
     iframe.src = url;
     document.body.appendChild(iframe);
     iframe.onload = () => {
-      iframe.contentWindow?.print();
+      setTimeout(() => iframe.contentWindow?.print(), 250);
       setTimeout(() => {
         document.body.removeChild(iframe);
         URL.revokeObjectURL(url);
@@ -1419,20 +1423,5 @@ export class RentalDetailComponent implements OnInit {
       },
       error: () => this.notificationService.error('Fehler beim Herunterladen'),
     });
-  }
-
-  private printBlob(blob: Blob) {
-    const url = URL.createObjectURL(blob);
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = url;
-    document.body.appendChild(iframe);
-    iframe.onload = () => {
-      iframe.contentWindow?.print();
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-        URL.revokeObjectURL(url);
-      }, 1000);
-    };
   }
 }
