@@ -20,6 +20,7 @@ public class PdfService : IPdfService
     private readonly IRentalRepository _rentalRepository;
     private readonly IRentalBookingRepository _rentalBookingRepository;
     private readonly IBicycleRepository _bicycleRepository;
+    private readonly IFileStorageService _fileStorage;
 
     // Print-Friendly Colors (optimized for less ink consumption)
     private static readonly string PrimaryColor = "#2c5282";       // Medium blue (for text)
@@ -70,7 +71,8 @@ public class PdfService : IPdfService
         IExpenseRepository expenseRepository,
         IRentalRepository rentalRepository,
         IRentalBookingRepository rentalBookingRepository,
-        IBicycleRepository bicycleRepository)
+        IBicycleRepository bicycleRepository,
+        IFileStorageService fileStorage)
     {
         _purchaseRepository = purchaseRepository;
         _saleRepository = saleRepository;
@@ -81,6 +83,7 @@ public class PdfService : IPdfService
         _rentalRepository = rentalRepository;
         _rentalBookingRepository = rentalBookingRepository;
         _bicycleRepository = bicycleRepository;
+        _fileStorage = fileStorage;
     }
 
     // Helper to get shop info from DB settings or use defaults
@@ -192,6 +195,11 @@ public class PdfService : IPdfService
 
         var shop = await GetShopInfoAsync();
 
+        // Load the Ankauf photos (screenshots / uploaded images) so they can be
+        // appended at the bottom of the receipt. Non-image documents (e.g. PDFs)
+        // cannot be embedded and are skipped.
+        var ankaufPhotos = await LoadImageDocumentsAsync(purchase.Documents);
+
         QuestPDF.Settings.License = LicenseType.Community;
 
         var document = QuestPDF.Fluent.Document.Create(container =>
@@ -289,12 +297,12 @@ public class PdfService : IPdfService
                         row.RelativeItem().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(8).Column(c =>
                         {
                             c.Item().Text("VERKÄUFER (VORBESITZER)").FontSize(9).Bold().FontColor(PrimaryColor);
-                            c.Item().PaddingTop(4).Text(purchase.Seller.FullName ?? "-").FontSize(10).Bold();
-                            if (!string.IsNullOrEmpty(purchase.Seller.FullAddress))
+                            c.Item().PaddingTop(4).Text(purchase.Seller?.FullName ?? "-").FontSize(10).Bold();
+                            if (!string.IsNullOrEmpty(purchase.Seller?.FullAddress))
                                 c.Item().Text(purchase.Seller.FullAddress).FontSize(9);
-                            if (!string.IsNullOrEmpty(purchase.Seller.Telefon))
+                            if (!string.IsNullOrEmpty(purchase.Seller?.Telefon))
                                 c.Item().Text($"Tel: {purchase.Seller.Telefon}").FontSize(9);
-                            if (!string.IsNullOrEmpty(purchase.Seller.Email))
+                            if (!string.IsNullOrEmpty(purchase.Seller?.Email))
                                 c.Item().Text(purchase.Seller.Email).FontSize(9);
                         });
                     });
@@ -368,24 +376,31 @@ public class PdfService : IPdfService
                         });
                     });
 
-                    // Notes if present
-                    if (!string.IsNullOrEmpty(purchase.Notizen))
+                    // Ankauf photos (screenshots / uploaded images) at the bottom
+                    if (ankaufPhotos.Count > 0)
                     {
-                        col.Item().PaddingTop(6).Element(SectionHeader).Text("NOTIZEN");
-                        col.Item().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8).Text(purchase.Notizen).FontSize(9);
-                    }
-
-                    // Suggested Sale Price
-                    if (purchase.VerkaufspreisVorschlag.HasValue && purchase.VerkaufspreisVorschlag.Value > 0)
-                    {
-                        col.Item().PaddingTop(6).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Row(row =>
+                        col.Item().PaddingTop(8).Element(SectionHeader).Text("FOTOS ZUM ANKAUF");
+                        col.Item().PaddingTop(4).Column(photoCol =>
                         {
-                            row.RelativeItem().Text("Geplanter Verkaufspreis:").FontSize(9);
-                            row.ConstantItem(100).Text($"{purchase.VerkaufspreisVorschlag:N2} €").FontSize(11).Bold().FontColor(PrimaryColor).AlignRight();
+                            // 2-per-row grid; each row holds up to two photos
+                            for (int i = 0; i < ankaufPhotos.Count; i += 2)
+                            {
+                                photoCol.Item().PaddingBottom(6).Row(photoRow =>
+                                {
+                                    photoRow.RelativeItem().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(2)
+                                        .MaxHeight(360).AlignCenter().Image(ankaufPhotos[i]).FitArea();
+
+                                    photoRow.ConstantItem(6);
+
+                                    if (i + 1 < ankaufPhotos.Count)
+                                        photoRow.RelativeItem().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(2)
+                                            .MaxHeight(360).AlignCenter().Image(ankaufPhotos[i + 1]).FitArea();
+                                    else
+                                        photoRow.RelativeItem(); // keep last odd photo left-aligned at half width
+                                });
+                            }
                         });
                     }
-
-
                 });
 
                 // Footer
@@ -401,6 +416,38 @@ public class PdfService : IPdfService
         });
 
         return document.GeneratePdf();
+    }
+
+    // Reads the raw bytes of every image document (jpg/png/etc.) so they can be
+    // embedded into a QuestPDF document. PDFs and other non-image documents are
+    // skipped, and any file that can no longer be found on disk is ignored.
+    private async Task<List<byte[]>> LoadImageDocumentsAsync(IEnumerable<BikeHaus.Domain.Entities.Document> documents)
+    {
+        var images = new List<byte[]>();
+
+        foreach (var doc in documents.OrderBy(d => d.CreatedAt))
+        {
+            var isImage = doc.ContentType?.StartsWith("image/", StringComparison.OrdinalIgnoreCase) == true;
+            if (!isImage || string.IsNullOrEmpty(doc.FilePath))
+                continue;
+
+            if (!_fileStorage.FileExists(doc.FilePath))
+                continue;
+
+            try
+            {
+                using var stream = await _fileStorage.GetFileAsync(doc.FilePath);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                images.Add(ms.ToArray());
+            }
+            catch
+            {
+                // Ignore unreadable files – a broken photo must not break the receipt.
+            }
+        }
+
+        return images;
     }
 
     public async Task<byte[]> GenerateVerkaufsbelegAsync(int saleId, bool includeAnkaufPreis = false)

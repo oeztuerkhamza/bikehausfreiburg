@@ -60,8 +60,8 @@ public class PurchaseService : IPurchaseService
                 p.Bicycle.Modell.ToLower().Contains(term) ||
                 (p.Bicycle.Rahmennummer != null && p.Bicycle.Rahmennummer.ToLower().Contains(term)) ||
                 (isNumeric && p.Bicycle.Lagernummer == lagerNr) ||
-                p.Seller.Vorname.ToLower().Contains(term) ||
-                p.Seller.Nachname.ToLower().Contains(term)) &&
+                (p.Seller != null && p.Seller.Vorname.ToLower().Contains(term)) ||
+                (p.Seller != null && p.Seller.Nachname.ToLower().Contains(term))) &&
             // Bicycle property filters
             (string.IsNullOrEmpty(marke) || p.Bicycle.Marke.ToLower().Contains(marke)) &&
             (string.IsNullOrEmpty(fahrradtyp) || (p.Bicycle.Fahrradtyp != null && p.Bicycle.Fahrradtyp.ToLower().Contains(fahrradtyp))) &&
@@ -205,19 +205,40 @@ public class PurchaseService : IPurchaseService
         bicycle.UpdatedAt = DateTime.UtcNow;
         await _bicycleRepository.UpdateAsync(bicycle);
 
-        // Update Seller
+        // Update Seller. A purchase may have no seller (quick Ankauf-Detail); in
+        // that case only create one if the user actually entered a name.
         var seller = purchase.Seller;
-        seller.Vorname = dto.Seller.Vorname;
-        seller.Nachname = dto.Seller.Nachname;
-        seller.Strasse = dto.Seller.Strasse;
-        seller.Hausnummer = dto.Seller.Hausnummer;
-        seller.PLZ = dto.Seller.PLZ;
-        seller.Stadt = dto.Seller.Stadt;
-        seller.Telefon = dto.Seller.Telefon;
-        seller.Email = dto.Seller.Email;
-        seller.Steuernummer = dto.Seller.Steuernummer;
-        seller.UpdatedAt = DateTime.UtcNow;
-        await _customerRepository.UpdateAsync(seller);
+        if (seller != null)
+        {
+            seller.Vorname = dto.Seller.Vorname;
+            seller.Nachname = dto.Seller.Nachname;
+            seller.Strasse = dto.Seller.Strasse;
+            seller.Hausnummer = dto.Seller.Hausnummer;
+            seller.PLZ = dto.Seller.PLZ;
+            seller.Stadt = dto.Seller.Stadt;
+            seller.Telefon = dto.Seller.Telefon;
+            seller.Email = dto.Seller.Email;
+            seller.Steuernummer = dto.Seller.Steuernummer;
+            seller.UpdatedAt = DateTime.UtcNow;
+            await _customerRepository.UpdateAsync(seller);
+        }
+        else if (!string.IsNullOrWhiteSpace(dto.Seller.Vorname) ||
+                 !string.IsNullOrWhiteSpace(dto.Seller.Nachname))
+        {
+            var newSeller = await _customerRepository.AddAsync(new Customer
+            {
+                Vorname = dto.Seller.Vorname,
+                Nachname = dto.Seller.Nachname,
+                Strasse = dto.Seller.Strasse,
+                Hausnummer = dto.Seller.Hausnummer,
+                PLZ = dto.Seller.PLZ,
+                Stadt = dto.Seller.Stadt,
+                Telefon = dto.Seller.Telefon,
+                Email = dto.Seller.Email,
+                Steuernummer = dto.Seller.Steuernummer,
+            });
+            purchase.SellerId = newSeller.Id;
+        }
 
         // Update Purchase
         purchase.Preis = dto.Preis;
@@ -327,7 +348,7 @@ public class PurchaseService : IPurchaseService
     {
         var purchases = await _purchaseRepository.GetAllAsync();
         return purchases
-            .Select(p => p.Seller.Nachname)
+            .Select(p => p.Seller?.Nachname)
             .Where(n => !string.IsNullOrWhiteSpace(n))
             .Distinct()
             .OrderBy(n => n)
@@ -356,15 +377,20 @@ public class PurchaseService : IPurchaseService
             await _bicycleRepository.UpdateAsync(bicycle);
         }
 
-        // Create or find Seller
-        var seller = dto.Seller.ToEntity();
-        seller = await _customerRepository.AddAsync(seller);
+        // Create Seller only if provided. A quick "Ankauf-Detail" (just price/date/
+        // Beleg) is allowed to have no seller, so we don't fabricate a placeholder.
+        int? sellerId = null;
+        if (dto.Seller != null)
+        {
+            var seller = await _customerRepository.AddAsync(dto.Seller.ToEntity());
+            sellerId = seller.Id;
+        }
 
         // Create Purchase for existing bicycle
         var purchase = new Purchase
         {
             BicycleId = dto.BicycleId,
-            SellerId = seller.Id,
+            SellerId = sellerId,
             Preis = dto.Preis,
             VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag,
             Zahlungsart = dto.Zahlungsart,

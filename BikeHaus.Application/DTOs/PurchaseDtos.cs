@@ -8,7 +8,7 @@ public record PurchaseDto(
     string? BelegNummer,
     string? AnzeigeNr,
     BicycleDto Bicycle,
-    CustomerDto Seller,
+    CustomerDto? Seller,
     decimal Preis,
     decimal? VerkaufspreisVorschlag,
     PaymentMethod Zahlungsart,
@@ -37,7 +37,7 @@ public record PurchaseListDto(
     string BikeInfo,
     string? Rahmennummer,
     int? Lagernummer,
-    string SellerName,
+    string? SellerName,
     decimal Preis,
     decimal? VerkaufspreisVorschlag,
     PaymentMethod Zahlungsart,
@@ -119,7 +119,7 @@ public record MissingPurchaseSaleDto(
 // Create purchase for an existing bicycle (no new bike creation)
 public record PurchaseCreateForExistingBikeDto(
     int BicycleId,
-    CustomerCreateDto Seller,
+    CustomerCreateDto? Seller,
     decimal Preis,
     decimal? VerkaufspreisVorschlag,
     PaymentMethod Zahlungsart,

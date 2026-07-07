@@ -200,7 +200,7 @@ export interface SignatureCreate {
 export interface Purchase {
   id: number;
   bicycle: Bicycle;
-  seller: Customer;
+  seller?: Customer;
   preis: number;
   verkaufspreisVorschlag?: number;
   zahlungsart: PaymentMethod;
@@ -218,7 +218,7 @@ export interface PurchaseList {
   bikeInfo: string;
   rahmennummer?: string;
   lagernummer?: number;
-  sellerName: string;
+  sellerName?: string;
   preis: number;
   verkaufspreisVorschlag?: number;
   zahlungsart: PaymentMethod;
@@ -813,7 +813,7 @@ export interface MissingSale {
 
 export interface PurchaseCreateForExistingBike {
   bicycleId: number;
-  seller: CustomerCreate;
+  seller?: CustomerCreate;
   preis: number;
   verkaufspreisVorschlag?: number;
   zahlungsart: PaymentMethod;

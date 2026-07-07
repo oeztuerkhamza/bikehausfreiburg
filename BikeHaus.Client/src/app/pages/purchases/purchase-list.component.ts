@@ -192,7 +192,7 @@ import { environment } from '../../../environments/environment';
               <td class="mono" style="text-transform: uppercase">
                 {{ p.rahmennummer || '–' }}
               </td>
-              <td>{{ p.sellerName }}</td>
+              <td>{{ p.sellerName || '–' }}</td>
               <td (click)="$event.stopPropagation()">
                 <app-editable-cell
                   type="number"
@@ -287,7 +287,7 @@ import { environment } from '../../../environments/environment';
             >
           </div>
           <div class="card-body">
-            <div class="card-seller">{{ p.sellerName }}</div>
+            <div class="card-seller">{{ p.sellerName || '–' }}</div>
             <div class="card-rows">
               <div class="card-row">
                 <span class="card-label">{{ t.receiptNo }}</span>

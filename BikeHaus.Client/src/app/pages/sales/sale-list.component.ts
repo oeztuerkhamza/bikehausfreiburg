@@ -882,10 +882,7 @@ export class SaleListComponent implements OnInit {
 
     const payload: PurchaseCreateForExistingBike = {
       bicycleId: sale.bicycleId,
-      seller: {
-        vorname: 'Unbekannt',
-        nachname: 'Verkaeufer',
-      },
+      // No seller: this quick Ankauf-Detail only records price/date/Beleg.
       preis: this.purchaseDialog.preis,
       verkaufspreisVorschlag: sale.preis,
       zahlungsart: 'Bar' as any,
