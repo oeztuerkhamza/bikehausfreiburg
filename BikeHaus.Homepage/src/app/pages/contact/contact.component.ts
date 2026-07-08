@@ -187,6 +187,7 @@ import { PublicShopInfo } from '../../models/models';
                 </div>
               </div>
               <p class="hours-note">{{ t().rentalByAppointment }}</p>
+              <p class="hours-note">{{ t().rentalReturnUntil }}</p>
             </div>
           </div>
         </section>
