@@ -1,4 +1,12 @@
-import { Component, computed, DestroyRef, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +24,6 @@ import {
 } from '../../models/models';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
 import {
-  hasUpcomingClosure,
   isClosureDay,
   rangeOverlapsClosure,
 } from '../../utils/rental-closures';
@@ -133,15 +140,14 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           <p class="calendar-hint">
             {{
               t().rentalSteps?.calendarHint ??
-                'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage und Feiertage sind geschlossen.'
+                'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage sind geschlossen; Feiertage bitte vorab per WhatsApp anfragen.'
             }}
           </p>
 
           <!-- Live selection state — makes it obvious what to tap next -->
           <p class="selection-hint" *ngIf="!selectedStartDate">
             {{
-              t().rentalSteps?.chooseStartDate ??
-                'Bitte Starttermin antippen'
+              t().rentalSteps?.chooseStartDate ?? 'Bitte Starttermin antippen'
             }}
           </p>
           <p
@@ -149,8 +155,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             *ngIf="selectedStartDate && !selectedEndDate"
           >
             {{
-              t().rentalSteps?.chooseEndDate ??
-                'Jetzt den Endtermin antippen'
+              t().rentalSteps?.chooseEndDate ?? 'Jetzt den Endtermin antippen'
             }}
           </p>
 
@@ -511,7 +516,11 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 −
               </button>
               <span>{{ accessoryQty(acc.id) }}</span>
-              <button type="button" (click)="incAccessory(acc.id)" aria-label="+">
+              <button
+                type="button"
+                (click)="incAccessory(acc.id)"
+                aria-label="+"
+              >
                 +
               </button>
             </div>
@@ -519,7 +528,9 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         </div>
 
         <div class="accessory-summary" *ngIf="accessoryTotal() > 0">
-          <span>{{ t().rentalSteps?.accessoryTotal ?? 'Zubehör gesamt' }}:</span>
+          <span
+            >{{ t().rentalSteps?.accessoryTotal ?? 'Zubehör gesamt' }}:</span
+          >
           <strong>€{{ accessoryTotal() }}</strong>
         </div>
 
@@ -620,20 +631,35 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           </div>
           <div class="form-group">
             <label>{{ t().rentalSteps?.houseNumber ?? 'Hausnummer' }} *:</label>
-            <input type="text" [(ngModel)]="bookingForm.hausNr" name="hausNr" required />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.postalCode ?? 'Postleitzahl' }} *:</label>
-            <input type="text" [(ngModel)]="bookingForm.plz" name="plz" required />
-          </div>
-          <div class="form-group">
-            <label>{{ t().rentalSteps?.city ?? 'Stadt' }} *:</label>
-            <input type="text" [(ngModel)]="bookingForm.ort" name="ort" required />
+            <input
+              type="text"
+              [(ngModel)]="bookingForm.hausNr"
+              name="hausNr"
+              required
+            />
           </div>
           <div class="form-group">
             <label
-              >{{ t().rentalSteps?.pickupTime ?? 'Abholzeit' }} *:</label
+              >{{ t().rentalSteps?.postalCode ?? 'Postleitzahl' }} *:</label
             >
+            <input
+              type="text"
+              [(ngModel)]="bookingForm.plz"
+              name="plz"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.city ?? 'Stadt' }} *:</label>
+            <input
+              type="text"
+              [(ngModel)]="bookingForm.ort"
+              name="ort"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label>{{ t().rentalSteps?.pickupTime ?? 'Abholzeit' }} *:</label>
             <select
               [(ngModel)]="bookingForm.abholzeit"
               name="abholzeit"
@@ -738,10 +764,8 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             </p>
             <p class="price">
               <ng-container *ngIf="sel.accessory.tagespreis > 0; else selFree">
-                €{{ sel.accessory.tagespreis }} ×
-                {{ daysCount() }} {{ t().rentalSteps?.days ?? 'Tage' }} = €{{
-                  sel.lineTotal
-                }}
+                €{{ sel.accessory.tagespreis }} × {{ daysCount() }}
+                {{ t().rentalSteps?.days ?? 'Tage' }} = €{{ sel.lineTotal }}
               </ng-container>
               <ng-template #selFree>{{
                 t().rentalSteps?.free ?? 'Kostenlos'
@@ -804,7 +828,10 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 target="_blank"
                 rel="noopener"
                 class="terms-link"
-              >{{ t().rentalSteps?.termsLinkText ?? 'Fahrradverleih-Bedingungen' }}</a>
+                >{{
+                  t().rentalSteps?.termsLinkText ?? 'Fahrradverleih-Bedingungen'
+                }}</a
+              >
             </span>
           </label>
         </div>
@@ -924,9 +951,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             type="button"
             class="lb-nav lb-prev"
             (click)="lbStep(-1); $event.stopPropagation()"
-            [attr.aria-label]="
-              t().rentalSteps?.prevImage ?? 'Vorheriges Bild'
-            "
+            [attr.aria-label]="t().rentalSteps?.prevImage ?? 'Vorheriges Bild'"
           >
             ‹
           </button>
@@ -1774,7 +1799,9 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         border: 1.5px solid rgba(255, 255, 255, 0.09);
         border-radius: 10px;
         overflow: hidden;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
       }
       .accessory-card.selected {
         border-color: var(--rb-accent);
@@ -2107,9 +2134,7 @@ export class RentalBookingStepsComponent implements OnInit {
   selectedEndDate = '';
   // Holiday-closure banner shown above the calendar (empty string when there is
   // no upcoming closure to announce).
-  closureNotice = computed(() =>
-    hasUpcomingClosure() ? (this.t().rentalSteps?.closureNotice ?? '') : '',
-  );
+  closureNotice = computed(() => this.t().rentalSteps?.closureNotice ?? '');
   calendarMonth = signal(this.getInitialCalendarMonth());
   selectedBike = signal<PublicRentalBicycle | null>(null);
   selectedBikeColor = '';
@@ -2456,25 +2481,27 @@ export class RentalBookingStepsComponent implements OnInit {
     this.selectedEndDate = end;
     // Re-check availability for the range — the bike may have been booked since
     // the fleet/detail page was loaded.
-    this.apiService.getAvailableBikes(new Date(start), new Date(end)).subscribe({
-      next: (bikes) => {
-        const bike = bikes.find((b) => b.id === bikeId);
-        if (bike) {
-          this.availableBikes.set(bikes);
-          this.bikesLoaded.set(true);
-          this.selectedBike.set(bike);
-          this.cartBikes.set([
-            {
-              bike,
-              kaution: bike.kaution || 300,
-              calculatedPrice: this.calculatePrice(bike, this.daysCount()),
-            },
-          ]);
-        }
-        done();
-      },
-      error: () => done(),
-    });
+    this.apiService
+      .getAvailableBikes(new Date(start), new Date(end))
+      .subscribe({
+        next: (bikes) => {
+          const bike = bikes.find((b) => b.id === bikeId);
+          if (bike) {
+            this.availableBikes.set(bikes);
+            this.bikesLoaded.set(true);
+            this.selectedBike.set(bike);
+            this.cartBikes.set([
+              {
+                bike,
+                kaution: bike.kaution || 300,
+                calculatedPrice: this.calculatePrice(bike, this.daysCount()),
+              },
+            ]);
+          }
+          done();
+        },
+        error: () => done(),
+      });
   }
 
   /** Mirrors the URL `?step=` into component state (and normalizes bad links). */
@@ -2628,8 +2655,10 @@ export class RentalBookingStepsComponent implements OnInit {
 
   getTotalPrice(): number {
     return (
-      this.cartBikes().reduce((sum, item) => sum + (item.calculatedPrice || 0), 0) +
-      this.accessoryTotal()
+      this.cartBikes().reduce(
+        (sum, item) => sum + (item.calculatedPrice || 0),
+        0,
+      ) + this.accessoryTotal()
     );
   }
 
@@ -2645,9 +2674,7 @@ export class RentalBookingStepsComponent implements OnInit {
     if (!this.selectedStartDate || !this.selectedEndDate) return 1;
     const start = new Date(this.selectedStartDate);
     const end = new Date(this.selectedEndDate);
-    const diff = Math.round(
-      (end.getTime() - start.getTime()) / 86_400_000,
-    );
+    const diff = Math.round((end.getTime() - start.getTime()) / 86_400_000);
     return Math.max(1, diff + 1);
   }
 
@@ -2737,9 +2764,11 @@ export class RentalBookingStepsComponent implements OnInit {
       kaution: item.kaution,
     }));
 
-    const accessories: RentalBookingAccessoryCreate[] = this.selectedAccessories().map(
-      (sel) => ({ rentalAccessoryId: sel.accessory.id, menge: sel.menge }),
-    );
+    const accessories: RentalBookingAccessoryCreate[] =
+      this.selectedAccessories().map((sel) => ({
+        rentalAccessoryId: sel.accessory.id,
+        menge: sel.menge,
+      }));
 
     const dto: RentalBookingCreate = {
       bikes,
@@ -3123,10 +3152,7 @@ export class RentalBookingStepsComponent implements OnInit {
       const img = stage?.querySelector('img');
       if (stage && img) {
         maxX = Math.max(0, (img.clientWidth * scale - stage.clientWidth) / 2);
-        maxY = Math.max(
-          0,
-          (img.clientHeight * scale - stage.clientHeight) / 2,
-        );
+        maxY = Math.max(0, (img.clientHeight * scale - stage.clientHeight) / 2);
       }
     }
     this.lightboxTx.set(Math.min(maxX, Math.max(-maxX, tx)));

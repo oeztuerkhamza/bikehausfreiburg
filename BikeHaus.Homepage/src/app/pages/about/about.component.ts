@@ -292,7 +292,7 @@ import { PublicShopInfo } from '../../models/models';
                 </div>
                 <div class="hour-row closed">
                   <span>{{ t().sunday }}</span
-                  ><span>{{ t().restDay }}</span>
+                  ><span>Geschlossen</span>
                 </div>
               </div>
               <p class="hours-note">{{ t().rentalByAppointment }}</p>

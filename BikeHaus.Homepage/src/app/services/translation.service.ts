@@ -570,8 +570,6 @@ export interface Translations {
   sunday: string;
   closed: string;
   restDay: string;
-  rentalByAppointment: string;
-  rentalReturnUntil: string;
   openGoogleMaps: string;
 
   // Days (short) for contact
@@ -1220,8 +1218,6 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     sunday: 'Sonntag',
     closed: 'Geschlossen',
     restDay: 'Ruhetag',
-    rentalByAppointment: 'Fahrradverleih 10:00–13:00 nur mit Termin',
-    rentalReturnUntil: 'Fahrradrückgabe bis 18:00 Uhr',
     openGoogleMaps: 'Google Maps öffnen',
 
     // Days (short)
@@ -1238,7 +1234,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     contactMetaTitle:
       'Fahrradladen Freiburg — Kontakt, Adresse & Öffnungszeiten | Bike Haus',
     contactMetaDescription:
-      'Bike Haus Freiburg Haid — Heckerstraße 27, 79114 Freiburg ✓ Öffnungszeiten: Mo–Sa 13:00–17:00 ✓ WhatsApp: +49 155 6630 0011.',
+      'Bike Haus Freiburg Haid — Heckerstraße 27, 79114 Freiburg ✓ Öffnungszeiten: Mo/Di/Mi/Do 13–17, Fr 11–13 & 15–18, Sa 11:30–17, So geschlossen ✓ WhatsApp: +49 155 6630 0011.',
 
     // Home trust badges
     trustBadgeSince: 'Seit 2020 in Freiburg',
@@ -1316,7 +1312,8 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     eBikesNav: 'E-Bikes',
     eBikes: 'E-Bikes',
-    eBikesMetaTitle: 'E-Bikes kaufen Freiburg | City, Trekking & Mountain E-Bikes',
+    eBikesMetaTitle:
+      'E-Bikes kaufen Freiburg | City, Trekking & Mountain E-Bikes',
     eBikesMetaDescription:
       'E-Bikes in Freiburg kaufen ✓ City, Trekking & Mountain E-Bikes ✓ Bosch, Shimano & mehr ✓ 2 Jahre Garantie ✓ Faire Preise. Jetzt im Showroom ansehen — Bike Haus Freiburg.',
     eBikesTitle: 'E-Bikes kaufen in Freiburg',
@@ -1393,7 +1390,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder, Hollandräder und Rennräder — sowohl neu als auch gebraucht.',
     faqQ9: 'Was sind Ihre Öffnungszeiten?',
     faqA9:
-      'Montag bis Samstag: 13:00–17:00 Uhr. Sonn- und feiertags geschlossen.',
+      'Mo, Di, Mi, Do: 13:00–17:00 Uhr. Freitag: 11:00–13:00 & 15:00–18:00 Uhr. Samstag: 11:30–17:00 Uhr. Sonn- und feiertags geschlossen.',
     faqQ10: 'Kann ich mein altes Fahrrad in Zahlung geben?',
     faqA10:
       'Ja, in Einzelfällen ist eine Inzahlungnahme möglich. Sprechen Sie uns einfach an — wir finden eine Lösung.',
@@ -1920,8 +1917,6 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     sunday: 'Sunday',
     closed: 'Closed',
     restDay: 'Rest Day',
-    rentalByAppointment: 'Bike rental 10:00–13:00 by appointment only',
-    rentalReturnUntil: 'Bike return until 18:00',
     openGoogleMaps: 'Open Google Maps',
 
     monShort: 'Mon',
@@ -1935,7 +1930,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     contactWhatsappHint: 'Write directly',
     contactMetaTitle: 'Contact — Bike Haus Freiburg | Address & Hours',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Mon–Sat 1pm–5pm ✓ WhatsApp: +49 155 6630 0011 ✓ No appointment needed — just drop by!',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Mon–Sat 11am–5:30pm ✓ WhatsApp: +49 155 6630 0011 ✓ No appointment needed — just drop by!',
 
     trustBadgeSince: 'In Freiburg since 2020',
     trustBadgeCustomers: '500+ satisfied customers',
@@ -2085,7 +2080,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "City bikes, trekking bikes, mountain bikes, e-bikes, children's bikes, Dutch bikes and road bikes — both new and used.",
     faqQ9: 'What are your opening hours?',
     faqA9:
-      'Monday to Saturday: 13:00–17:00. Sunday and holidays: closed.',
+      'Monday, Tuesday, Wednesday, Thursday: 13:00–17:00. Friday: 11:00–13:00 & 15:00–18:00. Saturday: 11:30–17:00. Sunday and holidays: closed.',
     faqQ10: 'Can I rent a bike in Freiburg?',
     faqA10:
       'Yes. Bike Haus Freiburg rents city bikes, trekking bikes and e-bikes with prices configured per bike for days 1 to 7. From day 8 onward, a fixed extra-day surcharge is added to the 7-day price. No reservation needed — just come by Heckerstraße 27.',
@@ -2628,8 +2623,6 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     sunday: 'Dimanche',
     closed: 'Fermé',
     restDay: 'Jour de repos',
-    rentalByAppointment: 'Location de vélos 10h00–13h00 uniquement sur rendez-vous',
-    rentalReturnUntil: 'Retour des vélos jusqu’à 18h00',
     openGoogleMaps: 'Ouvrir Google Maps',
 
     // Days (short)
@@ -2645,7 +2638,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     contactWhatsappHint: 'Écrire directement',
     contactMetaTitle: 'Contact — Bike Haus Freiburg | Adresse & Horaires',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27, Fribourg ✓ Lun–Sam 13h–17h ✓ WhatsApp: +49 155 6630 0011 ✓ Sans rendez-vous — venez nous rendre visite !',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, Fribourg ✓ Lun–Sam 11h–17h30 ✓ WhatsApp: +49 155 6630 0011 ✓ Sans rendez-vous — venez nous rendre visite !',
 
     // Home trust badges
     trustBadgeSince: 'Depuis 2020 à Fribourg',
@@ -2802,15 +2795,14 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Vélos de ville, trekking, VTT, VAE, vélos enfants, hollandais et vélos de route — neufs et occasion.',
     faqQ9: 'Quels sont vos horaires ?',
     faqA9:
-      'Du lundi au samedi : 13:00–17:00. Dimanche et jours fériés : fermé.',
+      'Lundi, mardi, mercredi, jeudi : 13:00–17:00. Vendredi : 11:00–13:00 & 15:00–18:00. Samedi : 11:30–17:00. Dimanche et jours fériés : fermé.',
     faqQ10: 'Louez-vous des vélos à Fribourg ?',
     faqA10:
       'Oui. Bike Haus Freiburg loue des vélos city, trekking et VAE avec des tarifs configurés par vélo pour 1 à 7 jours. À partir du 8e jour, un supplément fixe est ajouté au prix 7 jours. Sans réservation — venez directement Heckerstraße 27.',
 
     svcRepairBadge: 'Service',
     svcRepairTitle: 'Service vélo',
-    svcRepairSub:
-      'Entretien & service professionnels – rapide, fiable, juste.',
+    svcRepairSub: 'Entretien & service professionnels – rapide, fiable, juste.',
     svcRepairItem1: 'Freins, Vitesses, Pneus',
     svcRepairItem2: 'Inspection complète',
     svcRepairItem3: 'Diagnostic & entretien E-Bike',
@@ -3341,8 +3333,6 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     sunday: 'Pazar',
     closed: 'Kapalı',
     restDay: 'Tatil günü',
-    rentalByAppointment: 'Bisiklet kiralama 10:00–13:00 yalnızca randevuyla',
-    rentalReturnUntil: 'Bisiklet teslimi 18:00’e kadar',
     openGoogleMaps: "Google Maps'i aç",
 
     // Days (short)
@@ -3359,7 +3349,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     contactMetaTitle:
       'İletişim — Bike Haus Freiburg | Adres & Çalışma Saatleri',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Pzt–Cmt 13:00–17:00 ✓ WhatsApp: +49 155 6630 0011 ✓ Randevu gerekmez — bizi ziyaret edin!',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Pzt–Prş 13:00–17:00, Cum 11:00–13:00 & 15:00–18:00, Cmt 11:30–17:00, Paz kapalı ✓ WhatsApp: +49 155 6630 0011 ✓ Randevu gerekmez — bizi ziyaret edin!',
 
     // Home trust badges
     trustBadgeSince: "2020'den beri Freiburg'da",
@@ -3517,7 +3507,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Şehir, trekking, dağ, e-bisiklet, çocuk, Hollanda ve yol bisikletleri — yeni ve ikinci el.',
     faqQ9: 'Çalışma saatleriniz nedir?',
     faqA9:
-      'Pazartesi–Cumartesi: 13:00–17:00. Pazar ve tatil günleri: kapalı.',
+      'Pazartesi, Salı, Çarşamba, Perşembe: 13:00–17:00. Cuma: 11:00–13:00 & 15:00–18:00. Cumartesi: 11:30–17:00. Pazar ve tatil günleri: kapalı.',
     faqQ10: 'Eski bisikletimi takas edebilir miyim?',
     faqA10:
       'Evet, bireysel durumlarda takas mümkündür. Bize danışın — bir çözüm buluruz.',
@@ -3665,7 +3655,7 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     oClock: 'Uhr',
     to: 'bis',
     calendarHint:
-      'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage und Feiertage sind geschlossen.',
+      'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage sind geschlossen; Feiertage bitte vorab per WhatsApp anfragen.',
     previousMonth: 'Vorheriger Monat',
     nextMonth: 'Nächster Monat',
     back: 'Zurück',
@@ -3707,7 +3697,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Gesamtmiete',
     totalDeposit: 'Gesamtkaution',
     depositNote: 'Die Kaution wird bei Rückgabe des Fahrrads erstattet.',
-    depositCashNote: 'Wichtig: Die Kaution kann ausschließlich in bar bezahlt werden.',
+    depositCashNote:
+      'Wichtig: Die Kaution kann ausschließlich in bar bezahlt werden.',
     confirm: 'Buchung bestätigen',
     bookingSuccess: 'Buchung erfolgreich!',
     confirmationSent: 'Eine Bestätigungsmail wurde an',
@@ -3864,7 +3855,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     bikeSelection: 'Choisir un vélo',
     accessoryStep: 'Accessoires',
     accessoryTitle: 'Ajouter des accessoires',
-    accessorySubtitle: 'Accessoires en option pour votre location (prix par jour).',
+    accessorySubtitle:
+      'Accessoires en option pour votre location (prix par jour).',
     accessoryNone: 'Aucun accessoire disponible.',
     accessoryTotal: 'Total accessoires',
     customerInfo: 'Saisir les informations',
@@ -3931,7 +3923,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Location totale',
     totalDeposit: 'Caution totale',
     depositNote: 'La caution est remboursée lors de la restitution du vélo.',
-    depositCashNote: 'Important : la caution est payable uniquement en espèces.',
+    depositCashNote:
+      'Important : la caution est payable uniquement en espèces.',
     confirm: 'Confirmer la réservation',
     bookingSuccess: 'Réservation réussie !',
     confirmationSent: 'Un e-mail de confirmation a été envoyé à',
@@ -4243,7 +4236,8 @@ const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
     totalRental: 'Totale noleggio',
     totalDeposit: 'Totale deposito',
     depositNote: 'Il deposito viene restituito alla riconsegna della bici.',
-    depositCashNote: 'Importante: il deposito può essere pagato solo in contanti.',
+    depositCashNote:
+      'Importante: il deposito può essere pagato solo in contanti.',
     confirm: 'Conferma prenotazione',
     bookingSuccess: 'Prenotazione completata!',
     confirmationSent: 'Una email di conferma è stata inviata a',

@@ -382,8 +382,6 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     sunday: 'Domingo',
     closed: 'Cerrado',
     restDay: 'Día de Descanso',
-    rentalByAppointment: 'Alquiler de bicicletas 10:00–13:00 solo con cita previa',
-    rentalReturnUntil: 'Devolución de bicicletas hasta las 18:00',
     openGoogleMaps: 'Abrir Google Maps',
 
     monShort: 'Lun',
@@ -397,7 +395,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     contactWhatsappHint: 'Escribir Directamente',
     contactMetaTitle: 'Contacto — Bike Haus Freiburg | Dirección y Horario',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Lun–Sab 13:00–17:00 ✓ WhatsApp: +49 155 6630 0011 ✓ Sin cita previa — ¡simplemente ven!',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Lun–Sab 11am–5:30pm ✓ WhatsApp: +49 155 6630 0011 ✓ Sin cita previa — ¡simplemente ven!',
 
     trustBadgeSince: 'En Freiburg desde 2020',
     trustBadgeCustomers: '500+ clientes satisfechos',
@@ -549,7 +547,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'Bicicletas urbanas, bicicletas de trekking, bicicletas de montaña, e-bikes, bicicletas infantiles, bicicletas holandesas y bicicletas de carrera — tanto nuevas como usadas.',
     faqQ9: '¿Cuál es tu horario?',
     faqA9:
-      'De lunes a sábado: 13:00–17:00. Domingo y festivos: cerrado.',
+      'Lunes, martes, miércoles, jueves: 13:00–17:00. Viernes: 11:00–13:00 y 15:00–18:00. Sábado: 11:30–17:00. Domingo y festivos: cerrado.',
     faqQ10: '¿Puedo alquilar una bicicleta en Freiburg?',
     faqA10:
       'Sí. Bike Haus Freiburg alquila bicicletas urbanas, de trekking y e-bikes con precios configurados por bicicleta para los días 1 a 7. A partir del día 8 se agrega un complemento diario fijo al precio de 7 días. No se requiere reserva — simplemente ven a Heckerstraße 27.',
@@ -1028,8 +1026,6 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     sunday: 'Domenica',
     closed: 'Chiuso',
     restDay: 'Giorno di riposo',
-    rentalByAppointment: 'Noleggio bici 10:00–13:00 solo su appuntamento',
-    rentalReturnUntil: 'Riconsegna bici entro le 18:00',
     openGoogleMaps: 'Apri Google Maps',
     monShort: 'Lun',
     tueShort: 'Mar',
@@ -1041,7 +1037,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     contactWhatsappHint: 'Scrivi direttamente',
     contactMetaTitle: 'Contatti — Bike Haus Friburgo | Indirizzo e orari',
     contactMetaDescription:
-      'Bike Haus Friburgo ✓ Heckerstraße 27, 79114 Friburgo ✓ Lun–Sab 13:00–17:00 ✓ WhatsApp: +49 155 6630 0011 ✓ Senza appuntamento — visita!',
+      'Bike Haus Friburgo ✓ Heckerstraße 27, 79114 Friburgo ✓ Lun–Sab 11-17:30 ✓ WhatsApp: +49 155 6630 0011 ✓ Senza appuntamento — visita!',
     trustBadgeSince: 'A Friburgo dal 2020',
     trustBadgeCustomers: '500+ clienti soddisfatti',
     ariaStarsRating: '5 su 5 stelle',
@@ -1183,7 +1179,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'Bici da città, trekking, mountain bike, e-bike, bici per bambini, bici olandesi e bici da corsa — nuove e usate.',
     faqQ9: 'Quali sono i vostri orari di apertura?',
     faqA9:
-      'Dal lunedì al sabato: 13:00–17:00. Domenica e festivi: chiuso.',
+      'Lunedì, martedì, giovedì: 11:00-17:30. Mercoledì: 14:00-17:30. Venerdì: 11:00-13:00 & 15:00-18:00. Sabato: 11:30-17:00. Domenica e festivi: chiuso.',
     faqQ10: 'Posso noleggiare una bici a Friburgo?',
     faqA10:
       'Sì. Bike Haus Friburgo noleggia bici da città, trekking e e-bike con prezzi configurati per bici per 1-7 giorni. Dal giorno 8, un supplemento fisso viene aggiunto al prezzo 7 giorni. Senza prenotazione — vieni direttamente a Heckerstraße 27.',
@@ -1639,8 +1635,6 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     sunday: 'الأحد',
     closed: 'مغلق',
     restDay: 'يوم راحة',
-    rentalByAppointment: 'تأجير الدراجات من 10:00 إلى 13:00 بموعد مسبق فقط',
-    rentalReturnUntil: 'إعادة الدراجات حتى الساعة 18:00',
     openGoogleMaps: 'فتح Google Maps',
     monShort: 'الاثنين',
     tueShort: 'الثلاثاء',
@@ -1652,7 +1646,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     contactWhatsappHint: 'اكتب مباشرة',
     contactMetaTitle: 'اتصل — Bike Haus Freiburg | العنوان والساعات',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27، 79114 فرايبورج ✓ الاثنين-السبت 13:00–17:00 ✓ WhatsApp: +49 155 6630 0011 ✓ بدون موعد — فقط توقف عن الاتصال!',
+      'Bike Haus Freiburg ✓ Heckerstraße 27، 79114 فرايبورج ✓ الاثنين-السبت 11 صباحًا–5:30 مساءً ✓ WhatsApp: +49 155 6630 0011 ✓ بدون موعد — فقط توقف عن الاتصال!',
     trustBadgeSince: 'في فرايبورج منذ 2020',
     trustBadgeCustomers: '500+ عميل راضٍ',
     ariaStarsRating: '5 من 5 نجوم',
@@ -1792,7 +1786,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'دراجات المدينة ودراجات التريكينج ودراجات الجبال والدراجات الكهربائية ودراجات الأطفال ودراجات هولندا ودراجات الطريق — جديدة ومستعملة.',
     faqQ9: 'ما ساعات العمل الخاصة بك؟',
     faqA9:
-      'من الاثنين إلى السبت: 13:00–17:00. الأحد والعطل: مغلق.',
+      'الاثنين والثلاثاء والأربعاء والخميس: 13:00–17:00. الجمعة: 11:00–13:00 و 15:00–18:00. السبت: 11:30–17:00. الأحد والعطل: مغلق.',
     faqQ10: 'هل يمكنني استئجار دراجة في فرايبورج؟',
     faqA10:
       'نعم. Bike Haus Freiburg تستأجر دراجات المدينة ودراجات التريكينج والدراجات الكهربائية بأسعار تم تكوينها لكل دراجة من 1 إلى 7 أيام. من اليوم 8 فما فوق، يتم إضافة رسم إضافي ثابت إلى سعر 7 أيام. بدون حجز مطلوب — فقط توقف عن Heckerstraße 27.',
@@ -2187,8 +2181,6 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     sunday: 'Воскресенье',
     closed: 'Закрыто',
     restDay: 'Выходной',
-    rentalByAppointment: 'Аренда велосипедов 10:00–13:00 только по записи',
-    rentalReturnUntil: 'Возврат велосипедов до 18:00',
     openGoogleMaps: 'Открыть Google Maps',
     monShort: 'Пн',
     tueShort: 'Вт',
@@ -2200,7 +2192,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
     contactWhatsappHint: 'Написать напрямую',
     contactMetaTitle: 'Контакты — Bike Haus Freiburg | Адрес и часы',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27, Фрайбург ✓ Пн–Сб 13:00–17:00 ✓ WhatsApp: +49 155 6630 0011 ✓ Без предварительной записи — просто приходите!',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, Фрайбург ✓ Пн–Сб 11–17:30 ✓ WhatsApp: +49 155 6630 0011 ✓ Без предварительной записи — просто приходите!',
     trustBadgeSince: 'Во Фрайбурге с 2020 года',
     trustBadgeCustomers: '500+ довольных клиентов',
     ariaStarsRating: '5 из 5 звезд',
@@ -2342,7 +2334,7 @@ export const EXTENDED_TRANSLATION_OVERRIDES = {
       'Городские велосипеды, треккинговые, горные, электровелосипеды, детские, голландские и шоссейные велосипеды — как новые, так и подержанные.',
     faqQ9: 'Каковы ваши часы работы?',
     faqA9:
-      'Пн–Сб: 13:00–17:00. Вс и праздники: закрыто.',
+      'Пн, Вт, Ср, Чт: 13:00–17:00. Пт: 11:00–13:00 и 15:00–18:00. Сб: 11:30–17:00. Вс и праздники: закрыто.',
     faqQ10: 'Можно ли арендовать велосипед во Фрайбурге?',
     faqA10:
       'Да. Bike Haus Freiburg предоставляет в аренду городские, треккинговые и электровелосипеды с индивидуальными ценами за велосипед на 1-7 дней. С 8-го дня добавляется фиксированная доплата. Предварительная запись не требуется.',
