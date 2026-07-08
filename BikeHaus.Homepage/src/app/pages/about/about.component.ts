@@ -295,6 +295,8 @@ import { PublicShopInfo } from '../../models/models';
                   ><span>{{ t().restDay }}</span>
                 </div>
               </div>
+              <p class="hours-note">{{ t().rentalByAppointment }}</p>
+              <p class="hours-note">{{ t().rentalReturnUntil }}</p>
             </div>
 
             <div class="info-card">
@@ -926,6 +928,14 @@ import { PublicShopInfo } from '../../models/models';
 
       .hour-row.closed span:last-child {
         color: var(--color-text-muted);
+      }
+
+      .hours-note {
+        margin: 0.6rem 0 0;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--color-text-secondary);
+        line-height: 1.4;
       }
 
       /* CTA */

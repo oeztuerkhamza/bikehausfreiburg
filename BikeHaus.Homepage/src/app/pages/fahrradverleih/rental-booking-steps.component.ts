@@ -15,7 +15,11 @@ import {
   RentalBookingAccessoryCreate,
 } from '../../models/models';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
-import { isClosureDay, rangeOverlapsClosure } from '../../utils/rental-closures';
+import {
+  hasUpcomingClosure,
+  isClosureDay,
+  rangeOverlapsClosure,
+} from '../../utils/rental-closures';
 
 interface CartBike {
   bike: PublicRentalBicycle;
@@ -2103,7 +2107,9 @@ export class RentalBookingStepsComponent implements OnInit {
   selectedEndDate = '';
   // Holiday-closure banner shown above the calendar (empty string when there is
   // no upcoming closure to announce).
-  closureNotice = computed(() => this.t().rentalSteps?.closureNotice ?? '');
+  closureNotice = computed(() =>
+    hasUpcomingClosure() ? (this.t().rentalSteps?.closureNotice ?? '') : '',
+  );
   calendarMonth = signal(this.getInitialCalendarMonth());
   selectedBike = signal<PublicRentalBicycle | null>(null);
   selectedBikeColor = '';

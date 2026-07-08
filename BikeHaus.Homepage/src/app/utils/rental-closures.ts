@@ -16,8 +16,8 @@ export interface RentalClosure {
 }
 
 export const RENTAL_CLOSURES: readonly RentalClosure[] = [
-  // Sommer-/Urlaubspause 2026 — shop closed, no rentals.
-  { start: '2026-08-15', end: '2026-08-30' },
+  // No active closures — rental is open. Add a { start, end } entry here to
+  // close the rental for a period (e.g. a holiday break).
 ];
 
 /** Local `YYYY-MM-DD` key for a Date (no UTC shift). */
@@ -38,4 +38,14 @@ export function isClosureDay(date: Date | string): boolean {
 export function rangeOverlapsClosure(startKey: string, endKey: string): boolean {
   if (!startKey || !endKey) return false;
   return RENTAL_CLOSURES.some((c) => startKey <= c.end && endKey >= c.start);
+}
+
+/**
+ * True when there is a closure period that has not fully passed yet, i.e. one
+ * worth announcing to visitors. Returns false once every closure is over (and
+ * when the array is empty), so the closure banner hides automatically.
+ */
+export function hasUpcomingClosure(reference: Date = new Date()): boolean {
+  const key = toClosureKey(reference);
+  return RENTAL_CLOSURES.some((c) => c.end >= key);
 }
