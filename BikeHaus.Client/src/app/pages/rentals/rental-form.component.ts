@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { forkJoin, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, catchError } from 'rxjs/operators';
 import { RentalService } from '../../services/rental.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
@@ -743,8 +743,39 @@ const MONTH_NAMES = [
           </div>
           <!-- /STEP 4 -->
 
-          <!-- STEP 5: AGB & Unterschrift -->
+          <!-- STEP 5: Ausweis-Foto -->
           <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 5">
+          <ng-container *ngIf="datesReady">
+          <div class="form-card">
+            <h2>Ausweis-Foto</h2>
+            <p style="font-size:0.85rem;color:#64748b;margin-bottom:12px;">
+              Ausweis des Mieters fotografieren oder hochladen (optional).
+            </p>
+
+            <div *ngIf="ausweisPreviewUrl" style="margin-bottom:12px;">
+              <img [src]="ausweisPreviewUrl" style="max-width:100%;max-height:260px;border:1px solid #e2e8f0;border-radius:8px;" />
+            </div>
+            <div *ngIf="!ausweisPreviewUrl && ausweisFile" style="margin-bottom:12px;font-size:0.85rem;color:#334155;">
+              📄 {{ ausweisFile.name }}
+            </div>
+            <div *ngIf="!ausweisFile && existingAusweisPhotoPath" style="margin-bottom:12px;font-size:0.85rem;color:#16a34a;">
+              ✓ Foto vorhanden — neues Foto wählen, um es zu ersetzen.
+            </div>
+
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <label class="btn btn-outline" style="cursor:pointer;margin:0;">
+                📷 {{ ausweisFile ? 'Anderes Foto' : 'Foto aufnehmen / wählen' }}
+                <input type="file" accept="image/*,.pdf" capture="environment" style="display:none" (change)="onAusweisSelected($event)" />
+              </label>
+              <button *ngIf="ausweisFile" type="button" class="btn btn-outline" (click)="removeAusweisSelection()">Entfernen</button>
+            </div>
+          </div>
+          </ng-container>
+          </div>
+          <!-- /STEP 5 -->
+
+          <!-- STEP 6: AGB & Unterschrift -->
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 6">
           <ng-container *ngIf="datesReady">
           <!-- AGB & Unterschrift -->
           <div class="form-card">
@@ -778,7 +809,7 @@ const MONTH_NAMES = [
           </div>
           </ng-container>
           </div>
-          <!-- /STEP 5 -->
+          <!-- /STEP 6 -->
 
         </div>
 
@@ -1947,6 +1978,11 @@ export class RentalFormComponent implements OnInit {
   fromBookingId: number | null = null;
   fromBookingAusweisPhotoPath: string | undefined = undefined;
 
+  // ── Ausweis photo (captured in the wizard, uploaded after create/update) ──
+  ausweisFile: File | null = null;
+  ausweisPreviewUrl: string | null = null;
+  existingAusweisPhotoPath = '';
+
   // ── Edit mode ──
   isEditMode = false;
   rentalId: number | null = null;
@@ -2003,7 +2039,7 @@ export class RentalFormComponent implements OnInit {
   // ── Mobile wizard ──
   isMobile = false;
   currentStep = 0;
-  readonly wizardSteps = ['Mietdauer', 'Fahrrad', 'Zubehör', 'Mieter', 'Preise', 'Unterschrift'];
+  readonly wizardSteps = ['Mietdauer', 'Fahrrad', 'Zubehör', 'Mieter', 'Preise', 'Ausweis', 'Unterschrift'];
 
   get totalSteps(): number {
     return this.wizardSteps.length;
@@ -2082,6 +2118,38 @@ export class RentalFormComponent implements OnInit {
     }
     this.currentStep = step;
     this.scrollToTop();
+  }
+
+  onAusweisSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.ausweisFile = file;
+    if (this.ausweisPreviewUrl) URL.revokeObjectURL(this.ausweisPreviewUrl);
+    this.ausweisPreviewUrl = file.type.startsWith('image/')
+      ? URL.createObjectURL(file)
+      : null;
+  }
+
+  removeAusweisSelection() {
+    this.ausweisFile = null;
+    if (this.ausweisPreviewUrl) {
+      URL.revokeObjectURL(this.ausweisPreviewUrl);
+      this.ausweisPreviewUrl = null;
+    }
+  }
+
+  /** Uploads the captured Ausweis photo to the given rental, if one was selected. */
+  private uploadAusweisIfSelected(rentalId: number): Observable<unknown> {
+    if (!this.ausweisFile) return of(null);
+    return this.rentalService.uploadAusweis(rentalId, this.ausweisFile).pipe(
+      catchError(() => {
+        this.notificationService.error(
+          'Ausweis-Foto konnte nicht hochgeladen werden.',
+        );
+        return of(null);
+      }),
+    );
   }
 
   private validateStep(step: number): boolean {
@@ -2695,6 +2763,7 @@ export class RentalFormComponent implements OnInit {
     this.agbAkzeptiert = rental.agbAkzeptiert || false;
     this.unterschriftOrt = rental.unterschriftOrt || 'Freiburg';
     this.existingSignature = rental.mieterUnterschrift || '';
+    this.existingAusweisPhotoPath = rental.ausweisPhotoPath || '';
 
     // Dates
     if (rental.startDatum) this.startDatum = rental.startDatum.split('T')[0];
@@ -3129,6 +3198,7 @@ export class RentalFormComponent implements OnInit {
           };
           return this.rentalService.create(payload);
         }),
+        switchMap((rental) => this.uploadAusweisIfSelected(rental.id)),
       )
       .subscribe({
         next: () => {
@@ -3255,6 +3325,7 @@ export class RentalFormComponent implements OnInit {
           };
           return this.rentalService.update(this.rentalId!, update);
         }),
+        switchMap(() => this.uploadAusweisIfSelected(this.rentalId!)),
       )
       .subscribe({
         next: () => {
