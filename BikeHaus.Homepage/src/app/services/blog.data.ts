@@ -805,10 +805,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              'Mo, Di, Do: 11:00 – 17:30 Uhr',
-              'Mittwoch: 14:00 – 17:30 Uhr',
-              'Freitag: 11:00 – 13:00 & 15:00 – 18:00 Uhr',
-              'Samstag: 11:30 – 17:00 Uhr',
+              'Montag – Samstag: 13:00 – 17:00 Uhr',
               'Sonn- und feiertags geschlossen',
               'WhatsApp: +49 155 6630 0011',
               'E-Mail: info.bikehausfreiburg@gmail.com',
@@ -1760,10 +1757,8 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              'Mo, Di, Do: 11:00–17:30',
-              'Mittwoch: 14:00–17:30',
-              'Freitag: 11:00–13:00 & 15:00–18:00',
-              'Samstag: 11:30–17:00',
+              'Montag – Samstag: 13:00–17:00',
+              'Sonntag: geschlossen',
             ],
           },
           {
@@ -1823,7 +1818,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'paragraph',
             content:
-              'Bike Haus Freiburg is located at Heckerstraße 27, 79114 Freiburg im Breisgau — in the Haslach district. Easily reachable by tram or car (free parking available). Opening hours: Mon, Tue, Thu 11:00–17:30 | Wed 14:00–17:30 | Fri 11:00–13:00 & 15:00–18:00 | Sat 11:30–17:00.',
+              'Bike Haus Freiburg is located at Heckerstraße 27, 79114 Freiburg im Breisgau — in the Haslach district. Easily reachable by tram or car (free parking available). Opening hours: Mon–Sat 13:00–17:00, Sun closed.',
           },
           {
             type: 'heading',
@@ -1897,7 +1892,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'paragraph',
             content:
-              'Bike Haus Freiburg se trouve au Heckerstraße 27, 79114 Fribourg-en-Brisgau, dans le quartier Haslach. Facilement accessible en tramway ou en voiture (parking gratuit). Horaires : lun, mar, jeu 11h00–17h30 | mer 14h00–17h30 | ven 11h00–13h00 & 15h00–18h00 | sam 11h30–17h00.',
+              'Bike Haus Freiburg se trouve au Heckerstraße 27, 79114 Fribourg-en-Brisgau, dans le quartier Haslach. Facilement accessible en tramway ou en voiture (parking gratuit). Horaires : lun–sam 13h00–17h00, dim fermé.',
           },
           { type: 'heading', content: 'FAQ — Location vélo Fribourg' },
           {

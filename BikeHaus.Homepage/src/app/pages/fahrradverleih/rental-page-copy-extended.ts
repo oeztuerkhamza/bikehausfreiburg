@@ -115,7 +115,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
       {
         title: 'Horario de apertura',
-        text: 'Lun, Mar, Jue 11-17:30 · Mié 14-17:30 · Vie 11-13 y 15-18 · Sab 11:30-17',
+        text: 'Lun–Sáb 13:00–17:00 · Dom cerrado',
       },
     ],
     bikePriceFrom: 'desde',
@@ -256,7 +256,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
       {
         title: 'Orari di apertura',
-        text: 'Lun, Mar, Gio 11-17:30 · Mer 14-17:30 · Ven 11-13 & 15-18 · Sab 11:30-17',
+        text: 'Lun–Sab 13:00–17:00 · Dom chiuso',
       },
     ],
     bikePriceFrom: 'da',
@@ -397,7 +397,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
       {
         title: 'ساعات العمل',
-        text: 'الاثنين والثلاثاء والخميس 11-17:30 · الأربعاء 14-17:30 · الجمعة 11-13 & 15-18 · السبت 11:30-17',
+        text: 'الاثنين–السبت 13:00–17:00 · الأحد مغلق',
       },
     ],
     bikePriceFrom: 'من',
@@ -545,7 +545,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
       {
         title: 'Часы работы',
-        text: 'Пн, Вт, Чт 11-17:30 · Ср 14-17:30 · Пт 11-13 и 15-18 · Сб 11:30-17',
+        text: 'Пн–Сб 13:00–17:00 · Вс закрыто',
       },
     ],
     bikePriceFrom: 'от',

@@ -838,7 +838,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Offnungszeiten',
-        text: 'Mo, Di, Do 11-17:30 · Mi 14-17:30 · Fr 11-13 & 15-18 · Sa 11:30-17',
+        text: 'Mo–Sa 13:00–17:00 · So geschlossen',
       },
     ],
     bikePriceFrom: 'ab',
@@ -979,7 +979,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Opening hours',
-        text: 'Mon, Tue, Thu 11-17:30 · Wed 14-17:30 · Fri 11-13 & 15-18 · Sat 11:30-17',
+        text: 'Mon–Sat 13:00–17:00 · Sun closed',
       },
     ],
     bikePriceFrom: 'from',
@@ -1132,7 +1132,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Horaires',
-        text: 'Lun, Mar, Jeu 11-17:30 · Mer 14-17:30 · Ven 11-13 & 15-18 · Sam 11:30-17',
+        text: 'Lun–Sam 13h00–17h00 · Dim fermé',
       },
     ],
     bikePriceFrom: 'a partir de',
@@ -1274,7 +1274,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Çalışma saatleri',
-        text: 'Pzt, Sal, Per 11-17:30 · Çar 14-17:30 · Cum 11-13 & 15-18 · Cmt 11:30-17',
+        text: 'Pzt–Cmt 13:00–17:00 · Paz kapalı',
       },
     ],
     bikePriceFrom: 'başlayan',
@@ -5103,32 +5103,15 @@ export class FahrradverleihComponent implements OnInit {
             openingHoursSpecification: [
               {
                 '@type': 'OpeningHoursSpecification',
-                dayOfWeek: ['Monday', 'Tuesday', 'Thursday'],
-                opens: '11:00',
-                closes: '17:30',
-              },
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: 'Wednesday',
-                opens: '14:00',
-                closes: '17:30',
-              },
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: 'Friday',
-                opens: '11:00',
-                closes: '13:00',
-              },
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: 'Friday',
-                opens: '15:00',
-                closes: '18:00',
-              },
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: 'Saturday',
-                opens: '11:30',
+                dayOfWeek: [
+                  'Monday',
+                  'Tuesday',
+                  'Wednesday',
+                  'Thursday',
+                  'Friday',
+                  'Saturday',
+                ],
+                opens: '13:00',
                 closes: '17:00',
               },
             ],

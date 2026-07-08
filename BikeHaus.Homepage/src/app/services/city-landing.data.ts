@@ -69,7 +69,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Jetzt vorbeikommen!',
         ctaText:
-          'Besuchen Sie uns in der Heckerstraße 27, 79114 Freiburg. Geöffnet Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. Oder schreiben Sie uns auf WhatsApp: +49 155 6630 0011.',
+          'Besuchen Sie uns in der Heckerstraße 27, 79114 Freiburg. Geöffnet Mo–Sa 13:00–17:00 Uhr, So geschlossen. Oder schreiben Sie uns auf WhatsApp: +49 155 6630 0011.',
         directions:
           'Von Emmendingen über die B3 Richtung Freiburg. In Freiburg auf die Heckerstraße abbiegen. Kostenlose Parkplätze vorhanden.',
       },
@@ -104,7 +104,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Visit us now!',
         ctaText:
-          'Visit us at Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. Or message us on WhatsApp: +49 155 6630 0011.',
+          'Visit us at Heckerstraße 27, 79114 Freiburg. Open Mon–Sat 13:00–17:00, Sun closed. Or message us on WhatsApp: +49 155 6630 0011.',
         directions:
           'From Emmendingen via the B3 towards Freiburg. Turn onto Heckerstraße in Freiburg. Free parking available.',
       },
@@ -176,7 +176,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Hemen gelin!',
         ctaText:
-          "Heckerstraße 27, 79114 Freiburg adresine gelin. Açılış saatleri: Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. Ya da WhatsApp'tan yazın: +49 155 6630 0011.",
+          "Heckerstraße 27, 79114 Freiburg adresine gelin. Açılış saatleri: Pzt–Cmt 13:00–17:00, Paz kapalı. Ya da WhatsApp'tan yazın: +49 155 6630 0011.",
         directions:
           "Emmendingen'den B3 üzerinden Freiburg yönüne gidin. Freiburg'da Heckerstraße'ye dönün. Ücretsiz park yeri mevcut.",
       },
@@ -218,7 +218,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Besuchen Sie uns!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Mo–Sa 13:00–17:00 Uhr, So geschlossen. WhatsApp: +49 155 6630 0011.',
         directions:
           'Von Bad Krozingen über die B3 Richtung Freiburg-Süd. Dauer: ca. 22 Minuten. Kostenlose Parkplätze vor dem Geschäft.',
       },
@@ -251,7 +251,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Visit us!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Open Mon–Sat 13:00–17:00, Sun closed. WhatsApp: +49 155 6630 0011.',
         directions:
           'From Bad Krozingen via the B3 towards Freiburg-Süd. Duration: approx. 22 minutes. Free parking in front of the shop.',
       },
@@ -319,7 +319,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Bizi ziyaret edin!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Pzt–Cmt 13:00–17:00, Paz kapalı. WhatsApp: +49 155 6630 0011.',
         directions:
           "Bad Krozingen'den B3 üzerinden Freiburg-Süd yönüne. Süre: yaklaşık 22 dakika. Mağaza önünde ücretsiz park yeri.",
       },
@@ -360,7 +360,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Kommen Sie vorbei!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Mo–Sa 13:00–17:00 Uhr, So geschlossen. WhatsApp: +49 155 6630 0011.',
         directions:
           'Von Breisach über die B31 Richtung Freiburg. In ca. 28 Minuten bei uns. Parkplätze vorhanden.',
       },
@@ -393,7 +393,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Come visit us!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Open Mon–Sat 13:00–17:00, Sun closed. WhatsApp: +49 155 6630 0011.',
         directions:
           'From Breisach via the B31 towards Freiburg. About 28 minutes to reach us. Parking available.',
       },
@@ -459,7 +459,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Bize uğrayın!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Pzt–Cmt 13:00–17:00, Paz kapalı. WhatsApp: +49 155 6630 0011.',
         directions:
           "Breisach'dan B31 üzerinden Freiburg yönüne. Yaklaşık 28 dakikada bizde. Park yeri mevcut.",
       },
@@ -500,7 +500,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Jetzt vorbeikommen!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Mo–Sa 13:00–17:00 Uhr, So geschlossen. WhatsApp: +49 155 6630 0011.',
         directions:
           'Von Gundelfingen über die Freiburger Landstraße Richtung Freiburg-Haslach. Nur 12 Minuten.',
       },
@@ -532,7 +532,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Visit us now!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Open Mon–Sat 13:00–17:00, Sun closed. WhatsApp: +49 155 6630 0011.',
         directions:
           'From Gundelfingen via Freiburger Landstraße towards Freiburg-Haslach. Only 12 minutes.',
       },
@@ -598,7 +598,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Hemen gelin!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Pzt–Cmt 13:00–17:00, Paz kapalı. WhatsApp: +49 155 6630 0011.',
         directions:
           "Gundelfingen'den Freiburger Landstraße üzerinden Freiburg-Haslach yönüne. Sadece 12 dakika.",
       },
@@ -638,7 +638,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Besuchen Sie uns!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Mo–Sa 13:00–17:00 Uhr, So geschlossen. WhatsApp: +49 155 6630 0011.',
         directions:
           'Von March über Hugstetten/Umkirch direkt nach Freiburg-Haslach. Nur 15 Minuten.',
       },
@@ -670,7 +670,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Visit us!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Open Mon–Sat 13:00–17:00, Sun closed. WhatsApp: +49 155 6630 0011.',
         directions:
           'From March via Hugstetten/Umkirch directly to Freiburg-Haslach. Only 15 minutes.',
       },
@@ -734,7 +734,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Bizi ziyaret edin!',
         ctaText:
-          'Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Heckerstraße 27, 79114 Freiburg. Pzt–Cmt 13:00–17:00, Paz kapalı. WhatsApp: +49 155 6630 0011.',
         directions:
           "March'dan Hugstetten/Umkirch üzerinden doğrudan Freiburg-Haslach'a. Sadece 15 dakika.",
       },
@@ -776,7 +776,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Schauen Sie vorbei!',
         ctaText:
-          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Mo–Sa 13:00–17:00 Uhr, So geschlossen. WhatsApp: +49 155 6630 0011.',
         directions:
           'Von der Wiehre über die Dreisam Richtung Haslach. Mit dem Rad über den Dreisam-Radweg in ca. 10 Minuten, mit dem Auto in ca. 8 Minuten. Kostenlose Parkplätze vorhanden.',
       },
@@ -810,7 +810,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Drop by!',
         ctaText:
-          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Open Mon–Sat 13:00–17:00, Sun closed. WhatsApp: +49 155 6630 0011.',
         directions:
           'From Wiehre across the Dreisam towards Haslach. About 10 minutes by bike along the Dreisam cycle path, about 8 minutes by car. Free parking available.',
       },
@@ -878,7 +878,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Bize uğrayın!',
         ctaText:
-          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Pzt–Cmt 13:00–17:00, Paz kapalı. WhatsApp: +49 155 6630 0011.',
         directions:
           "Wiehre'den Dreisam'ı geçerek Haslach yönüne. Dreisam bisiklet yolundan bisikletle yaklaşık 10 dakika, arabayla yaklaşık 8 dakika. Ücretsiz park yeri mevcut.",
       },
@@ -920,7 +920,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Schauen Sie vorbei!',
         ctaText:
-          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Mo–Sa 13:00–17:00 Uhr, So geschlossen. WhatsApp: +49 155 6630 0011.',
         directions:
           'Von Herdern durch die Innenstadt Richtung Freiburg-Haslach. Mit dem Auto in ca. 12 Minuten. Kostenlose Parkplätze vor dem Geschäft.',
       },
@@ -954,7 +954,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Drop by!',
         ctaText:
-          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Open Mon–Sat 13:00–17:00, Sun closed. WhatsApp: +49 155 6630 0011.',
         directions:
           'From Herdern through the city centre towards Freiburg-Haslach. About 12 minutes by car. Free parking in front of the shop.',
       },
@@ -1022,7 +1022,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Bize uğrayın!',
         ctaText:
-          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Pzt–Cmt 13:00–17:00, Paz kapalı. WhatsApp: +49 155 6630 0011.',
         directions:
           "Herdern'den şehir merkezi üzerinden Freiburg-Haslach yönüne. Arabayla yaklaşık 12 dakika. Mağaza önünde ücretsiz park yeri.",
       },
@@ -1064,7 +1064,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Schauen Sie vorbei!',
         ctaText:
-          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Mo/Di/Do 11–18 Uhr, Fr 11–13 + 15–18 Uhr, Sa 11:30–17 Uhr. WhatsApp: +49 155 6630 0011.',
+          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Mo–Sa 13:00–17:00 Uhr, So geschlossen. WhatsApp: +49 155 6630 0011.',
         directions:
           'Vom Stühlinger über den Hauptbahnhof Richtung Freiburg-Haslach. Mit dem Rad in ca. 10 Minuten, mit dem Auto in ca. 9 Minuten. Kostenlose Parkplätze vorhanden.',
       },
@@ -1098,7 +1098,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Drop by!',
         ctaText:
-          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Open Mon/Tue/Thu 11–18, Fri 11–13 + 15–18, Sat 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Open Mon–Sat 13:00–17:00, Sun closed. WhatsApp: +49 155 6630 0011.',
         directions:
           'From Stühlinger past the main station towards Freiburg-Haslach. About 10 minutes by bike, about 9 minutes by car. Free parking available.',
       },
@@ -1166,7 +1166,7 @@ export const CITY_LANDINGS: CityLanding[] = [
         ],
         ctaHeading: 'Bize uğrayın!',
         ctaText:
-          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Pzt/Sal/Per 11–18, Cum 11–13 + 15–18, Cmt 11:30–17. WhatsApp: +49 155 6630 0011.',
+          'Bike Haus Freiburg, Heckerstraße 27, 79114 Freiburg. Pzt–Cmt 13:00–17:00, Paz kapalı. WhatsApp: +49 155 6630 0011.',
         directions:
           "Stühlinger'den ana gar üzerinden Freiburg-Haslach yönüne. Bisikletle yaklaşık 10 dakika, arabayla yaklaşık 9 dakika. Ücretsiz park yeri mevcut.",
       },

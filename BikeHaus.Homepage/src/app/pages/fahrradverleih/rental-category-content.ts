@@ -96,7 +96,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           { q: 'Wie weit komme ich mit einer Akkuladung?', a: 'Je nach Modell, Gewicht und Unterstützungsstufe zwischen 60 und 120 Kilometern. Für längere Touren empfehlen wir ein Ersatzakku oder eine Routenplanung mit Ladestopp.' },
           { q: 'Was kostet ein E-Bike pro Tag?', a: 'Die Tagespreise beginnen bei 15 €. Ab dem 8. Tag zahlst du nur noch 12 € pro Tag – ideal für längere Aufenthalte.' },
           { q: 'Welche Rahmengrößen habt ihr verfügbar?', a: 'Wir bieten Rahmen in S, M, L und XL für Körpergrößen von ca. 155 bis 195 cm. Eine Probefahrt vor Ort ist immer möglich.' },
-          { q: 'Kann ich das E-Bike auch am Wochenende abholen?', a: 'Ja, Samstag von 11:30 bis 17:00 Uhr. Für Sonntag/Feiertag-Abholungen vereinbare bitte vorher per WhatsApp einen Termin.' },
+          { q: 'Kann ich das E-Bike auch am Wochenende abholen?', a: 'Ja, Samstag von 13:00 bis 17:00 Uhr. Für Sonntag/Feiertag-Abholungen vereinbare bitte vorher per WhatsApp einen Termin.' },
         ],
         ctaHeading: 'Bereit für deine E-Bike-Tour?',
         ctaText:

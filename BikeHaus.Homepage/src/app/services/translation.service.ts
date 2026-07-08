@@ -1238,7 +1238,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     contactMetaTitle:
       'Fahrradladen Freiburg — Kontakt, Adresse & Öffnungszeiten | Bike Haus',
     contactMetaDescription:
-      'Bike Haus Freiburg Haid — Heckerstraße 27, 79114 Freiburg ✓ Öffnungszeiten: Mo/Di/Do 11–17:30, Mi 14–17:30, Fr 11–13 & 15–18, Sa 11:30–17 ✓ WhatsApp: +49 155 6630 0011.',
+      'Bike Haus Freiburg Haid — Heckerstraße 27, 79114 Freiburg ✓ Öffnungszeiten: Mo–Sa 13:00–17:00 ✓ WhatsApp: +49 155 6630 0011.',
 
     // Home trust badges
     trustBadgeSince: 'Seit 2020 in Freiburg',
@@ -1393,7 +1393,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Citybikes, Trekkingräder, Mountainbikes, E-Bikes, Kinderfahrräder, Hollandräder und Rennräder — sowohl neu als auch gebraucht.',
     faqQ9: 'Was sind Ihre Öffnungszeiten?',
     faqA9:
-      'Mo, Di, Do: 11:00–17:30 Uhr. Mittwoch: 14:00–17:30 Uhr. Freitag: 11:00–13:00 & 15:00–18:00 Uhr. Samstag: 11:30–17:00 Uhr. Sonn- und feiertags geschlossen.',
+      'Montag bis Samstag: 13:00–17:00 Uhr. Sonn- und feiertags geschlossen.',
     faqQ10: 'Kann ich mein altes Fahrrad in Zahlung geben?',
     faqA10:
       'Ja, in Einzelfällen ist eine Inzahlungnahme möglich. Sprechen Sie uns einfach an — wir finden eine Lösung.',
@@ -1935,7 +1935,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     contactWhatsappHint: 'Write directly',
     contactMetaTitle: 'Contact — Bike Haus Freiburg | Address & Hours',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Mon–Sat 11am–5:30pm ✓ WhatsApp: +49 155 6630 0011 ✓ No appointment needed — just drop by!',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Mon–Sat 1pm–5pm ✓ WhatsApp: +49 155 6630 0011 ✓ No appointment needed — just drop by!',
 
     trustBadgeSince: 'In Freiburg since 2020',
     trustBadgeCustomers: '500+ satisfied customers',
@@ -2085,7 +2085,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       "City bikes, trekking bikes, mountain bikes, e-bikes, children's bikes, Dutch bikes and road bikes — both new and used.",
     faqQ9: 'What are your opening hours?',
     faqA9:
-      'Monday, Tuesday, Thursday: 11:00–17:30. Wednesday: 14:00–17:30. Friday: 11:00–13:00 & 15:00–18:00. Saturday: 11:30–17:00. Sunday and holidays: closed.',
+      'Monday to Saturday: 13:00–17:00. Sunday and holidays: closed.',
     faqQ10: 'Can I rent a bike in Freiburg?',
     faqA10:
       'Yes. Bike Haus Freiburg rents city bikes, trekking bikes and e-bikes with prices configured per bike for days 1 to 7. From day 8 onward, a fixed extra-day surcharge is added to the 7-day price. No reservation needed — just come by Heckerstraße 27.',
@@ -2645,7 +2645,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     contactWhatsappHint: 'Écrire directement',
     contactMetaTitle: 'Contact — Bike Haus Freiburg | Adresse & Horaires',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27, Fribourg ✓ Lun–Sam 11h–17h30 ✓ WhatsApp: +49 155 6630 0011 ✓ Sans rendez-vous — venez nous rendre visite !',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, Fribourg ✓ Lun–Sam 13h–17h ✓ WhatsApp: +49 155 6630 0011 ✓ Sans rendez-vous — venez nous rendre visite !',
 
     // Home trust badges
     trustBadgeSince: 'Depuis 2020 à Fribourg',
@@ -2802,7 +2802,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Vélos de ville, trekking, VTT, VAE, vélos enfants, hollandais et vélos de route — neufs et occasion.',
     faqQ9: 'Quels sont vos horaires ?',
     faqA9:
-      'Lundi, mardi, jeudi : 11:00–17:30. Mercredi : 14:00–17:30. Vendredi : 11:00–13:00 & 15:00–18:00. Samedi : 11:30–17:00. Dimanche et jours fériés : fermé.',
+      'Du lundi au samedi : 13:00–17:00. Dimanche et jours fériés : fermé.',
     faqQ10: 'Louez-vous des vélos à Fribourg ?',
     faqA10:
       'Oui. Bike Haus Freiburg loue des vélos city, trekking et VAE avec des tarifs configurés par vélo pour 1 à 7 jours. À partir du 8e jour, un supplément fixe est ajouté au prix 7 jours. Sans réservation — venez directement Heckerstraße 27.',
@@ -3359,7 +3359,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     contactMetaTitle:
       'İletişim — Bike Haus Freiburg | Adres & Çalışma Saatleri',
     contactMetaDescription:
-      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Pzt–Cmt 11:00–17:30 ✓ WhatsApp: +49 155 6630 0011 ✓ Randevu gerekmez — bizi ziyaret edin!',
+      'Bike Haus Freiburg ✓ Heckerstraße 27, 79114 Freiburg ✓ Pzt–Cmt 13:00–17:00 ✓ WhatsApp: +49 155 6630 0011 ✓ Randevu gerekmez — bizi ziyaret edin!',
 
     // Home trust badges
     trustBadgeSince: "2020'den beri Freiburg'da",
@@ -3517,7 +3517,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Şehir, trekking, dağ, e-bisiklet, çocuk, Hollanda ve yol bisikletleri — yeni ve ikinci el.',
     faqQ9: 'Çalışma saatleriniz nedir?',
     faqA9:
-      'Pazartesi, Salı, Perşembe: 11:00–17:30. Çarşamba: 14:00–17:30. Cuma: 11:00–13:00 & 15:00–18:00. Cumartesi: 11:30–17:00. Pazar ve tatil günleri: kapalı.',
+      'Pazartesi–Cumartesi: 13:00–17:00. Pazar ve tatil günleri: kapalı.',
     faqQ10: 'Eski bisikletimi takas edebilir miyim?',
     faqA10:
       'Evet, bireysel durumlarda takas mümkündür. Bize danışın — bir çözüm buluruz.',
