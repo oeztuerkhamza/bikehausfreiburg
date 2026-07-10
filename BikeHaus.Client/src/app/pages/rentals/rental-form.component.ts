@@ -2348,11 +2348,24 @@ export class RentalFormComponent implements OnInit {
     return this.bikes.every((b) => !!b.selectedBike || b.isQuickAddMode);
   }
 
+  /**
+   * Children's bikes (Art = "Kinder") are generic/pooled listings (e.g. a single
+   * "24 Zoll" ad standing in for several interchangeable bikes), so the same
+   * listing may be added to more than one bike slot.
+   */
+  isChildrensBike(bike: Bicycle | null | undefined): boolean {
+    return (bike?.art ?? '').toLowerCase().includes('kinder');
+  }
+
   getAvailableBikesFor(i: number): Bicycle[] {
     const otherSelectedIds = this.bikes
       .map((b, idx) => (idx !== i ? b.selectedBike?.id : null))
       .filter((x): x is number => x != null);
-    return this.availableBikes.filter((b) => !otherSelectedIds.includes(b.id));
+    // A children's-bike listing is pooled, so it stays selectable in other slots
+    // even after it was picked once; only regular bikes are unique per contract.
+    return this.availableBikes.filter(
+      (b) => this.isChildrensBike(b) || !otherSelectedIds.includes(b.id),
+    );
   }
 
   addBike() {
