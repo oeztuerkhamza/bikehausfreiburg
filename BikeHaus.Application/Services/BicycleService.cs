@@ -1,6 +1,7 @@
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Application.Mappings;
+using BikeHaus.Domain;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
@@ -391,14 +392,24 @@ public class BicycleService : IBicycleService
             b.IsRentable &&
             !(b.Marke == "Zubehör" && b.Modell == "Direktverkauf" && b.Rahmennummer != null && b.Rahmennummer.StartsWith("ACC-")));
 
+        // Children's bikes are generic/pooled listings — they stay available even
+        // when an overlapping rental/booking exists; the physical bike is assigned
+        // manually in the shop. So they are never filtered out as "busy".
         return bikes
-            .Where(b => !allBusyIds.Contains(b.Id))
+            .Where(b => BicycleCategory.IsChildrens(b.Art) || !allBusyIds.Contains(b.Id))
             .Select(b => b.ToDto());
     }
 
     public async Task<IEnumerable<BusyPeriodDto>> GetBusyPeriodsAsync(int bicycleId)
     {
         var result = new List<BusyPeriodDto>();
+
+        // Children's bikes are generic/pooled listings — several interchangeable
+        // physical bikes behind one ad — so they are never "busy": the concrete bike
+        // is assigned in the shop. Report no busy periods so calendars stay open.
+        var bicycle = await _repository.GetByIdAsync(bicycleId);
+        if (bicycle != null && BicycleCategory.IsChildrens(bicycle.Art))
+            return result;
 
         // Active rentals (Mietvertrag) — include only the bike line matching this bicycle
         var allRentals = await _rentalRepository.GetAllAsync();

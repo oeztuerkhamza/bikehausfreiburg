@@ -1,5 +1,6 @@
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
+using BikeHaus.Domain;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -67,6 +68,16 @@ public class PublicRentalsController : ControllerBase
 
         foreach (var bike in allBikes)
         {
+            // Children's bikes are generic/pooled listings (e.g. "20 Zoll Fahrrad")
+            // that stand in for several interchangeable bikes, so they stay bookable
+            // regardless of overlapping bookings — the concrete bike is assigned in
+            // the shop. They skip the busy-period check.
+            if (BicycleCategory.IsChildrens(bike.Art))
+            {
+                availableBikes.Add(bike);
+                continue;
+            }
+
             var busyPeriods = await _bicycleService.GetBusyPeriodsAsync(bike.Id);
 
             // Check if bike is available for the entire date range (inclusive bounds)

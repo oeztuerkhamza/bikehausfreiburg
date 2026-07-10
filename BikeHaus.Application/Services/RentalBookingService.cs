@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Application.Mappings;
+using BikeHaus.Domain;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
@@ -107,11 +108,6 @@ public class RentalBookingService : IRentalBookingService
                 throw new InvalidOperationException("Das Enddatum muss nach dem Startdatum liegen.");
         }
 
-        var bikeChecks = dto.Bikes.Select(b => (b.BicycleId, b.StartDatum.Date, b.EndDatum.Date));
-        var hasOverlap = await _bookingRepository.ExistsActiveOverlapForBikesAsync(bikeChecks);
-        if (hasOverlap)
-            throw new InvalidOperationException("Eines der ausgewaehlten Fahrraeder ist im gewaehlten Zeitraum bereits gebucht.");
-
         var bicycles = new List<Bicycle>();
         foreach (var bikeDto in dto.Bikes)
         {
@@ -122,6 +118,24 @@ public class RentalBookingService : IRentalBookingService
                 throw new InvalidOperationException($"Das Fahrrad '{bicycle.Marke} {bicycle.Modell}' ist nicht fuer den Verleih aktiviert.");
 
             bicycles.Add(bicycle);
+        }
+
+        // Children's bikes are generic/pooled listings and stay bookable regardless
+        // of overlaps (the physical bike is assigned in the shop), so they are
+        // excluded from the overlap check.
+        var childrensIds = bicycles
+            .Where(b => BicycleCategory.IsChildrens(b.Art))
+            .Select(b => b.Id)
+            .ToHashSet();
+        var bikeChecks = dto.Bikes
+            .Where(b => !childrensIds.Contains(b.BicycleId))
+            .Select(b => (b.BicycleId, b.StartDatum.Date, b.EndDatum.Date))
+            .ToList();
+        if (bikeChecks.Count > 0)
+        {
+            var hasOverlap = await _bookingRepository.ExistsActiveOverlapForBikesAsync(bikeChecks);
+            if (hasOverlap)
+                throw new InvalidOperationException("Eines der ausgewaehlten Fahrraeder ist im gewaehlten Zeitraum bereits gebucht.");
         }
 
         var language = NormalizeLanguage(dto.Sprache);
@@ -263,11 +277,21 @@ public class RentalBookingService : IRentalBookingService
         if (booking.Status == RentalBookingStatus.Cancelled)
             throw new InvalidOperationException("Stornierte Buchungen koennen nicht bestaetigt werden.");
 
+        // Children's bikes are generic/pooled listings and never block on overlaps
+        // (the physical bike is assigned in the shop), so they are exempt here too.
         bool hasOverlap;
         if (booking.Bikes.Any())
         {
-            var bikeChecks = booking.Bikes.Select(bk => (bk.BicycleId, bk.StartDatum, bk.EndDatum));
-            hasOverlap = await _bookingRepository.ExistsApprovedOverlapForBikesAsync(bikeChecks, booking.Id);
+            var bikeChecks = booking.Bikes
+                .Where(bk => !BicycleCategory.IsChildrens(bk.Bicycle?.Art))
+                .Select(bk => (bk.BicycleId, bk.StartDatum, bk.EndDatum))
+                .ToList();
+            hasOverlap = bikeChecks.Count > 0 &&
+                await _bookingRepository.ExistsApprovedOverlapForBikesAsync(bikeChecks, booking.Id);
+        }
+        else if (BicycleCategory.IsChildrens(booking.Bicycle?.Art))
+        {
+            hasOverlap = false;
         }
         else
         {
