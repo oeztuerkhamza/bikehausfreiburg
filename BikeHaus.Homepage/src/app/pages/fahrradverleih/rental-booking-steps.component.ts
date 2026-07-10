@@ -2129,9 +2129,21 @@ export class RentalBookingStepsComponent implements OnInit {
   cartBikes = signal<CartBike[]>([]);
 
   selectableBikes = computed(() => {
-    const cartIds = new Set(this.cartBikes().map((item) => item.bike.id));
+    // Children's bikes (Art = "Kinder") are generic/pooled listings (e.g. one
+    // "24 Zoll" ad standing in for several interchangeable bikes), so they stay
+    // selectable even after being added and can be booked more than once. Regular
+    // bikes disappear from the list once they are in the cart.
+    const cartIds = new Set(
+      this.cartBikes()
+        .filter((item) => !this.isChildrensBike(item.bike))
+        .map((item) => item.bike.id),
+    );
     return this.availableBikes().filter((bike) => !cartIds.has(bike.id));
   });
+
+  isChildrensBike(bike: PublicRentalBicycle | null | undefined): boolean {
+    return (bike?.art ?? '').toLowerCase().includes('kinder');
+  }
 
   dateRangeError = signal('');
   bookingError = signal('');
