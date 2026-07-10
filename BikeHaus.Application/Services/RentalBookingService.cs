@@ -124,7 +124,7 @@ public class RentalBookingService : IRentalBookingService
         // of overlaps (the physical bike is assigned in the shop), so they are
         // excluded from the overlap check.
         var childrensIds = bicycles
-            .Where(b => BicycleCategory.IsChildrens(b.Art))
+            .Where(b => BicycleCategory.IsChildrens(b.Art, b.Fahrradtyp))
             .Select(b => b.Id)
             .ToHashSet();
         var bikeChecks = dto.Bikes
@@ -283,13 +283,13 @@ public class RentalBookingService : IRentalBookingService
         if (booking.Bikes.Any())
         {
             var bikeChecks = booking.Bikes
-                .Where(bk => !BicycleCategory.IsChildrens(bk.Bicycle?.Art))
+                .Where(bk => !BicycleCategory.IsChildrens(bk.Bicycle?.Art, bk.Bicycle?.Fahrradtyp))
                 .Select(bk => (bk.BicycleId, bk.StartDatum, bk.EndDatum))
                 .ToList();
             hasOverlap = bikeChecks.Count > 0 &&
                 await _bookingRepository.ExistsApprovedOverlapForBikesAsync(bikeChecks, booking.Id);
         }
-        else if (BicycleCategory.IsChildrens(booking.Bicycle?.Art))
+        else if (BicycleCategory.IsChildrens(booking.Bicycle?.Art, booking.Bicycle?.Fahrradtyp))
         {
             hasOverlap = false;
         }

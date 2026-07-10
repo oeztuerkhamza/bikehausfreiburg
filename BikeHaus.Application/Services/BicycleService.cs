@@ -396,7 +396,7 @@ public class BicycleService : IBicycleService
         // when an overlapping rental/booking exists; the physical bike is assigned
         // manually in the shop. So they are never filtered out as "busy".
         return bikes
-            .Where(b => BicycleCategory.IsChildrens(b.Art) || !allBusyIds.Contains(b.Id))
+            .Where(b => BicycleCategory.IsChildrens(b.Art, b.Fahrradtyp) || !allBusyIds.Contains(b.Id))
             .Select(b => b.ToDto());
     }
 
@@ -408,7 +408,7 @@ public class BicycleService : IBicycleService
         // physical bikes behind one ad — so they are never "busy": the concrete bike
         // is assigned in the shop. Report no busy periods so calendars stay open.
         var bicycle = await _repository.GetByIdAsync(bicycleId);
-        if (bicycle != null && BicycleCategory.IsChildrens(bicycle.Art))
+        if (bicycle != null && BicycleCategory.IsChildrens(bicycle.Art, bicycle.Fahrradtyp))
             return result;
 
         // Active rentals (Mietvertrag) — include only the bike line matching this bicycle

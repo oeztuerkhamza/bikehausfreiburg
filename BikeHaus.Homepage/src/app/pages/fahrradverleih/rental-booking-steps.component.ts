@@ -2142,7 +2142,11 @@ export class RentalBookingStepsComponent implements OnInit {
   });
 
   isChildrensBike(bike: PublicRentalBicycle | null | undefined): boolean {
-    return (bike?.art ?? '').toLowerCase().includes('kinder');
+    // The "Kinder" marker can live in Art (gender) or Fahrradtyp (bike type),
+    // depending on how the bike was created, so check both.
+    return `${bike?.art ?? ''} ${bike?.fahrradtyp ?? ''}`
+      .toLowerCase()
+      .includes('kinder');
   }
 
   dateRangeError = signal('');

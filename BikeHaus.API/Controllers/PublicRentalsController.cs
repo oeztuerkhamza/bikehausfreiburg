@@ -72,7 +72,7 @@ public class PublicRentalsController : ControllerBase
             // that stand in for several interchangeable bikes, so they stay bookable
             // regardless of overlapping bookings — the concrete bike is assigned in
             // the shop. They skip the busy-period check.
-            if (BicycleCategory.IsChildrens(bike.Art))
+            if (BicycleCategory.IsChildrens(bike.Art, bike.Fahrradtyp))
             {
                 availableBikes.Add(bike);
                 continue;
