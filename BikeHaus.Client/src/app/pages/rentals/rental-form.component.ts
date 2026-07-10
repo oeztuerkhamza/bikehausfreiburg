@@ -298,10 +298,6 @@ const MONTH_NAMES = [
                 />
                 <span style="font-size:0.75rem;color:var(--text-muted,#94a3b8);margin-top:4px;">Belegnummer des Mietvertrags. Leer lassen, um sie nicht zu ändern.</span>
               </div>
-              <div class="field full">
-                <label>Notizen</label>
-                <textarea [(ngModel)]="notizen" name="notizen" rows="3"></textarea>
-              </div>
             </div>
           </div>
           </div>
@@ -805,6 +801,13 @@ const MONTH_NAMES = [
               </div>
               <app-signature-pad [(ngModel)]="mieterUnterschrift" name="mieterUnterschrift"></app-signature-pad>
               <p *ngIf="isEditMode" style="font-size:0.75rem;color:#94a3b8;margin-top:4px;">Neu unterschreiben, um die vorhandene Unterschrift zu ersetzen.</p>
+            </div>
+          </div>
+          <div class="form-card">
+            <h2>Notizen</h2>
+            <div class="field full">
+              <label>Notizen</label>
+              <textarea [(ngModel)]="notizen" name="notizen" rows="3" placeholder="Interne Notizen zum Mietvertrag…"></textarea>
             </div>
           </div>
           </ng-container>
