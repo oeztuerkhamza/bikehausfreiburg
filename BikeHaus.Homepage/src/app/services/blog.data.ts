@@ -805,8 +805,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              'Mo, Di, Mi, Do: 13:00 – 17:00 Uhr',
-              'Mittwoch: 13:00 – 17:00 Uhr',
+              'Mo, Di, Mi, Do, : 13:00 – 17:00 Uhr',
               'Freitag: 11:00 – 13:00 & 15:00 – 18:00 Uhr',
               'Samstag: 11:30 – 17:00 Uhr',
               'Sonn- und feiertags geschlossen',
