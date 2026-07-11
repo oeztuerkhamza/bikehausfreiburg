@@ -28,6 +28,7 @@ export interface ShopSettings {
   kleinanzeigenUrl?: string;
   googleReviewUrl?: string;
   oeffnungszeiten?: string;
+  oeffnungszeitenJson?: string;
   zusatzinfo?: string;
   companyEmails?: string;
   fullAddress?: string;
@@ -53,6 +54,7 @@ export interface UpdateShopSettings {
   kleinanzeigenUrl?: string;
   googleReviewUrl?: string;
   oeffnungszeiten?: string;
+  oeffnungszeitenJson?: string;
   zusatzinfo?: string;
   companyEmails?: string;
 }

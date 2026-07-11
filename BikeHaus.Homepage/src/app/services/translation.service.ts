@@ -570,6 +570,8 @@ export interface Translations {
   sunday: string;
   closed: string;
   restDay: string;
+  rentalByAppointment: string;
+  rentalReturnUntil: string;
   openGoogleMaps: string;
 
   // Days (short) for contact
@@ -1218,6 +1220,8 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     sunday: 'Sonntag',
     closed: 'Geschlossen',
     restDay: 'Ruhetag',
+    rentalByAppointment: 'Fahrradverleih 10:00–13:00 nur mit Termin',
+    rentalReturnUntil: 'Fahrradrückgabe bis 18:00 Uhr',
     openGoogleMaps: 'Google Maps öffnen',
 
     // Days (short)
@@ -1917,6 +1921,8 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     sunday: 'Sunday',
     closed: 'Closed',
     restDay: 'Rest Day',
+    rentalByAppointment: 'Bike rental 10:00–13:00 by appointment only',
+    rentalReturnUntil: 'Bike returns until 18:00',
     openGoogleMaps: 'Open Google Maps',
 
     monShort: 'Mon',
@@ -2623,6 +2629,8 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     sunday: 'Dimanche',
     closed: 'Fermé',
     restDay: 'Jour de repos',
+    rentalByAppointment: 'Location de vélos 10:00–13:00 uniquement sur rendez-vous',
+    rentalReturnUntil: "Retour des vélos jusqu'à 18h00",
     openGoogleMaps: 'Ouvrir Google Maps',
 
     // Days (short)
@@ -3333,6 +3341,8 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     sunday: 'Pazar',
     closed: 'Kapalı',
     restDay: 'Tatil günü',
+    rentalByAppointment: 'Bisiklet kiralama 10:00–13:00 sadece randevuyla',
+    rentalReturnUntil: "Bisiklet iadesi en geç 18:00",
     openGoogleMaps: "Google Maps'i aç",
 
     // Days (short)

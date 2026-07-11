@@ -625,6 +625,120 @@ interface EmailAccountForm {
           </div>
         </section>
 
+        <!-- Öffnungszeiten Section -->
+        <section class="settings-section">
+          <h2>🕒 Öffnungszeiten</h2>
+          <div class="settings-card">
+            <p
+              style="color: var(--text-secondary, #64748b); font-size: 0.82rem; margin-top: 0;"
+            >
+              Pro Tag bis zu zwei Zeiträume (z. B. Fr 10:00–13:00 &amp;
+              15:00–18:00). „Geschlossen" markiert Ruhetage. Diese Zeiten
+              erscheinen auf der Website (Über uns / Kontakt).
+            </p>
+
+            <div class="oh-list">
+              <div
+                *ngFor="let day of openingDays; let i = index"
+                style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap; padding:0.5rem 0; border-bottom:1px solid var(--border-light, #e5e7eb);"
+              >
+                <span style="width:2.4rem; font-weight:700;">{{
+                  dayLabels[i]
+                }}</span>
+                <label
+                  style="display:inline-flex; align-items:center; gap:0.35rem; font-size:0.85rem; cursor:pointer;"
+                >
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="day.closed"
+                    [name]="'ohClosed' + i"
+                  />
+                  Geschlossen
+                </label>
+                <ng-container *ngIf="!day.closed">
+                  <span
+                    style="display:inline-flex; align-items:center; gap:0.25rem;"
+                  >
+                    <input
+                      type="time"
+                      style="width:6.6rem;"
+                      [(ngModel)]="day.ranges[0].from"
+                      [name]="'ohR0f' + i"
+                    />
+                    <span>–</span>
+                    <input
+                      type="time"
+                      style="width:6.6rem;"
+                      [(ngModel)]="day.ranges[0].to"
+                      [name]="'ohR0t' + i"
+                    />
+                  </span>
+                  <span
+                    style="display:inline-flex; align-items:center; gap:0.25rem;"
+                    title="Optionaler zweiter Zeitraum"
+                  >
+                    <input
+                      type="time"
+                      style="width:6.6rem;"
+                      [(ngModel)]="day.ranges[1].from"
+                      [name]="'ohR1f' + i"
+                    />
+                    <span>–</span>
+                    <input
+                      type="time"
+                      style="width:6.6rem;"
+                      [(ngModel)]="day.ranges[1].to"
+                      [name]="'ohR1t' + i"
+                    />
+                  </span>
+                </ng-container>
+              </div>
+            </div>
+
+            <h3 style="margin-top: 1.25rem;">Hinweise</h3>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              <div
+                *ngFor="let note of openingNotes; let i = index; trackBy: trackByIndex"
+                style="display:flex; align-items:center; gap:0.5rem;"
+              >
+                <input
+                  type="text"
+                  style="flex:1;"
+                  [(ngModel)]="openingNotes[i]"
+                  [name]="'ohNote' + i"
+                  placeholder="z. B. Fahrradrückgabe bis 18:00 Uhr"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="removeNote(i)"
+                >
+                  ✕
+                </button>
+              </div>
+              <button
+                type="button"
+                class="btn btn-outline"
+                style="align-self:flex-start;"
+                (click)="addNote()"
+              >
+                + Hinweis hinzufügen
+              </button>
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-primary"
+                [disabled]="saving"
+                (click)="saveSettings()"
+              >
+                {{ saving ? t.loading : t.save }}
+              </button>
+            </div>
+          </div>
+        </section>
+
         <!-- Email Test Section -->
         <section class="settings-section">
           <h2>📧 E-Mail Test</h2>
@@ -1789,6 +1903,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     kleinanzeigenUrl: '',
     googleReviewUrl: '',
     oeffnungszeiten: '',
+    oeffnungszeitenJson: undefined,
     zusatzinfo: '',
     companyEmails: undefined,
     logoBase64: undefined,
@@ -1798,6 +1913,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   };
 
   ownerSignatureData = '';
+
+  // Structured opening-hours editor
+  dayLabels = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  openingDays: { closed: boolean; ranges: { from: string; to: string }[] }[] =
+    [];
+  openingNotes: string[] = [];
+  trackByIndex = (i: number) => i;
 
   // Company Emails Management
   companyEmailsList: string[] = [];
@@ -1954,11 +2076,69 @@ export class SettingsComponent implements OnInit, OnDestroy {
       });
   }
 
+  parseOpeningHours(): void {
+    const blank = () => ({ from: '', to: '' });
+    const ensure2 = (ranges: unknown): { from: string; to: string }[] => {
+      const r = Array.isArray(ranges)
+        ? ranges.map((x: any) => ({ from: x?.from || '', to: x?.to || '' }))
+        : [];
+      while (r.length < 2) r.push(blank());
+      return r.slice(0, 2);
+    };
+    try {
+      const raw = this.settings.oeffnungszeitenJson;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const days: any[] = Array.isArray(parsed?.days) ? parsed.days : [];
+        this.openingDays = Array.from({ length: 7 }, (_, i) => ({
+          closed: !!days[i]?.closed,
+          ranges: ensure2(days[i]?.ranges),
+        }));
+        this.openingNotes = Array.isArray(parsed?.notes)
+          ? parsed.notes.map((n: any) => String(n))
+          : [];
+        return;
+      }
+    } catch {
+      /* fall through to defaults */
+    }
+    // Default: Mo–Sa 13:00–17:00, So closed + the standard notes.
+    this.openingDays = Array.from({ length: 7 }, (_, i) => ({
+      closed: i === 6,
+      ranges:
+        i === 6 ? ensure2([]) : ensure2([{ from: '13:00', to: '17:00' }]),
+    }));
+    this.openingNotes = [
+      'Fahrradverleih 10:00–13:00 nur mit Termin',
+      'Fahrradrückgabe bis 18:00 Uhr',
+    ];
+  }
+
+  serializeOpeningHours(): string {
+    const days = this.openingDays.map((d) => ({
+      closed: d.closed,
+      ranges: d.closed ? [] : d.ranges.filter((r) => r.from && r.to),
+    }));
+    const notes = this.openingNotes
+      .map((n) => n.trim())
+      .filter((n) => n.length > 0);
+    return JSON.stringify({ days, notes });
+  }
+
+  addNote(): void {
+    this.openingNotes.push('');
+  }
+
+  removeNote(i: number): void {
+    this.openingNotes.splice(i, 1);
+  }
+
   loadSettings(): void {
     this.loading = true;
     this.settingsService.getSettings().subscribe({
       next: (data) => {
         this.settings = data;
+        this.parseOpeningHours();
         if (data.companyEmails) {
           try {
             this.companyEmailsList = JSON.parse(data.companyEmails);
@@ -1998,6 +2178,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         kleinanzeigenUrl: this.settings.kleinanzeigenUrl,
         googleReviewUrl: this.settings.googleReviewUrl,
         oeffnungszeiten: this.settings.oeffnungszeiten,
+        oeffnungszeitenJson: this.serializeOpeningHours(),
         zusatzinfo: this.settings.zusatzinfo,
         companyEmails: JSON.stringify(this.companyEmailsList) || undefined,
       })

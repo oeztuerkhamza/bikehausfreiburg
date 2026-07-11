@@ -1,10 +1,15 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { PublicShopInfo } from '../../models/models';
+import {
+  parseOpeningHours,
+  DEFAULT_HOURS_ROWS,
+  HoursRow,
+} from '../../services/opening-hours.util';
 
 @Component({
   selector: 'app-contact',
@@ -157,39 +162,18 @@ import { PublicShopInfo } from '../../models/models';
             <div class="card-content">
               <h3>{{ t().openingHours }}</h3>
               <div class="hours-table">
-                <div class="hour-row">
-                  <span>{{ t().monShort }}</span
-                  ><span>13:00 – 17:00</span>
-                </div>
-                <div class="hour-row">
-                  <span>{{ t().tueShort }}</span
-                  ><span>13:00 – 17:00</span>
-                </div>
-                <div class="hour-row">
-                  <span>{{ t().wedShort }}</span
-                  ><span>13:00 – 17:00</span>
-                </div>
-                <div class="hour-row">
-                  <span>{{ t().thuShort }}</span
-                  ><span>13:00 – 17:00</span>
-                </div>
-                <div class="hour-row">
-                  <span>{{ t().friShort }}</span
-                  ><span>11:00 – 13:00 15:00 – 18:00</span>
-                </div>
-                <div class="hour-row">
-                  <span>{{ t().satShort }}</span
-                  ><span>11:30 – 17:00</span>
-                </div>
-                <div class="hour-row closed">
-                  <span>{{ t().sunShort }}</span
-                  ><span>Geschlossen</span>
+                <div
+                  class="hour-row"
+                  *ngFor="let row of hoursRows(); let i = index"
+                  [class.closed]="row.closed"
+                >
+                  <span>{{ dayLabels[i] }}</span
+                  ><span>{{ row.closed ? t().closed : row.text }}</span>
                 </div>
               </div>
-              <p class="hours-note">
-                Nur nach Terminabsprache für Sonderfälle.
+              <p class="hours-note" *ngFor="let note of hoursNotes()">
+                {{ note }}
               </p>
-              <p class="hours-note">Rückgabe bitte bis 18:00 Uhr.</p>
             </div>
           </div>
         </section>
@@ -774,6 +758,31 @@ export class ContactComponent implements OnInit {
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
   shopInfo = signal<PublicShopInfo | null>(null);
+
+  private parsedHours = computed(() =>
+    parseOpeningHours(this.shopInfo()?.oeffnungszeitenJson),
+  );
+  hoursRows = computed<HoursRow[]>(
+    () => this.parsedHours()?.rows ?? DEFAULT_HOURS_ROWS,
+  );
+  hoursNotes = computed<string[]>(() => {
+    const n = this.parsedHours()?.notes;
+    return n && n.length
+      ? n
+      : [this.t().rentalByAppointment, this.t().rentalReturnUntil];
+  });
+  get dayLabels(): string[] {
+    const x = this.t();
+    return [
+      x.monShort,
+      x.tueShort,
+      x.wedShort,
+      x.thuShort,
+      x.friShort,
+      x.satShort,
+      x.sunShort,
+    ];
+  }
 
   ngOnInit(): void {
     // SEO

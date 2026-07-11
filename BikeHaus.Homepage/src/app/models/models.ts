@@ -111,6 +111,7 @@ export interface PublicShopInfo {
   logoBase64?: string;
   logoFileName?: string;
   oeffnungszeiten?: string;
+  oeffnungszeitenJson?: string;
   fullAddress?: string;
   totalActiveListings?: number;
   kleinanzeigenUrl?: string;
