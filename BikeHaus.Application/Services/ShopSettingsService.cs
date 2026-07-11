@@ -53,6 +53,7 @@ public class ShopSettingsService : IShopSettingsService
                 KleinanzeigenUrl = dto.KleinanzeigenUrl,
                 GoogleReviewUrl = dto.GoogleReviewUrl,
                 Oeffnungszeiten = dto.Oeffnungszeiten,
+                OeffnungszeitenJson = dto.OeffnungszeitenJson,
                 Zusatzinfo = dto.Zusatzinfo,
                 CompanyEmails = dto.CompanyEmails
             };
@@ -80,6 +81,7 @@ public class ShopSettingsService : IShopSettingsService
             settings.KleinanzeigenUrl = dto.KleinanzeigenUrl;
             settings.GoogleReviewUrl = dto.GoogleReviewUrl;
             settings.Oeffnungszeiten = dto.Oeffnungszeiten;
+            settings.OeffnungszeitenJson = dto.OeffnungszeitenJson;
             settings.Zusatzinfo = dto.Zusatzinfo;
             settings.CompanyEmails = dto.CompanyEmails;
             settings.UpdatedAt = DateTime.UtcNow;
@@ -225,6 +227,7 @@ public class ShopSettingsService : IShopSettingsService
             KleinanzeigenUrl = settings.KleinanzeigenUrl,
             GoogleReviewUrl = settings.GoogleReviewUrl,
             Oeffnungszeiten = settings.Oeffnungszeiten,
+            OeffnungszeitenJson = settings.OeffnungszeitenJson,
             Zusatzinfo = settings.Zusatzinfo,
             FullAddress = settings.FullAddress,
             CompanyEmails = settings.CompanyEmails

@@ -53,6 +53,7 @@ public class PublicShopInfoDto
     public string? LogoBase64 { get; set; }
     public string? LogoFileName { get; set; }
     public string? Oeffnungszeiten { get; set; }
+    public string? OeffnungszeitenJson { get; set; }
     public string? FullAddress { get; set; }
     public int TotalActiveListings { get; set; }
     public string? KleinanzeigenUrl { get; set; }

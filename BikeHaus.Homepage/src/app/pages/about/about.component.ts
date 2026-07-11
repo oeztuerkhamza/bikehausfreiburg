@@ -295,8 +295,10 @@ import { PublicShopInfo } from '../../models/models';
                   ><span>Geschlossen</span>
                 </div>
               </div>
-              <p class="hours-note">{{ t().rentalByAppointment }}</p>
-              <p class="hours-note">{{ t().rentalReturnUntil }}</p>
+              <p class="hours-note">
+                Nur nach Terminabsprache für Sonderfälle.
+              </p>
+              <p class="hours-note">Rückgabe bitte bis 18:00 Uhr.</p>
             </div>
 
             <div class="info-card">

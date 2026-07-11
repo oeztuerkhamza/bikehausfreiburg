@@ -29,6 +29,7 @@ public class ShopSettingsDto
     public string? KleinanzeigenUrl { get; set; }
     public string? GoogleReviewUrl { get; set; }
     public string? Oeffnungszeiten { get; set; }
+    public string? OeffnungszeitenJson { get; set; }
     public string? Zusatzinfo { get; set; }
     public string? FullAddress { get; set; }
     public string? CompanyEmails { get; set; }
@@ -55,6 +56,7 @@ public class UpdateShopSettingsDto
     public string? KleinanzeigenUrl { get; set; }
     public string? GoogleReviewUrl { get; set; }
     public string? Oeffnungszeiten { get; set; }
+    public string? OeffnungszeitenJson { get; set; }
     public string? Zusatzinfo { get; set; }
     public string? CompanyEmails { get; set; }
 }

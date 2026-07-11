@@ -85,6 +85,7 @@ public class KleinanzeigenService : IKleinanzeigenService
             LogoBase64 = settings.LogoBase64,
             LogoFileName = settings.LogoFileName,
             Oeffnungszeiten = settings.Oeffnungszeiten,
+            OeffnungszeitenJson = settings.OeffnungszeitenJson,
             FullAddress = settings.FullAddress,
             TotalActiveListings = activeListings.Count(),
             KleinanzeigenUrl = settings.KleinanzeigenUrl,

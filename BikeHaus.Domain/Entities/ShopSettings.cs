@@ -37,7 +37,11 @@ public class ShopSettings : BaseEntity
     public string? GoogleReviewUrl { get; set; }   // Google Review URL
 
     // Additional Info
-    public string? Oeffnungszeiten { get; set; }   // Opening Hours
+    public string? Oeffnungszeiten { get; set; }   // Opening Hours (legacy free text, printed on documents)
+    // Structured opening hours, JSON:
+    // { "days": [ { "closed": bool, "ranges": [ { "from": "HH:mm", "to": "HH:mm" } ] } x7 (Mon..Sun) ],
+    //   "notes": [ "..." ] }
+    public string? OeffnungszeitenJson { get; set; }
     public string? Zusatzinfo { get; set; }        // Additional Info for documents
 
     // Company Emails
