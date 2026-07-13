@@ -814,18 +814,19 @@ export class RentalBookingListComponent implements OnInit {
       rentals: this.rentalService.getCalendar(from, to),
     }).subscribe({
       next: ({ bookings, rentals }) => {
-        const bookingItems = bookings.map((b) => this.bookingToItem(b));
+        const rentalItems = rentals.map((r) => this.rentalToItem(r));
         // A booking converted into a Mietvertrag exists as BOTH an approved
-        // booking and a rental (no DB link between them). Skip the rental if a
-        // booking with the same customer + date range is already shown, so
-        // converted rentals aren't duplicated — but rentals created directly in
-        // the client (no matching booking) still appear.
-        const bookingKeys = new Set(
-          bookingItems.map((i) => this.calItemKey(i)),
+        // booking and a rental (no DB link between them). Prefer the rental
+        // (Vertrag): once a booking has been turned into a contract, drop the
+        // booking with the same customer + date range so the calendar entry
+        // opens the Mietvertrag, not the Anfrage. Bookings without a matching
+        // rental (e.g. still pending) keep showing as bookings.
+        const rentalKeys = new Set(
+          rentalItems.map((i) => this.calItemKey(i)),
         );
-        const rentalItems = rentals
-          .map((r) => this.rentalToItem(r))
-          .filter((i) => !bookingKeys.has(this.calItemKey(i)));
+        const bookingItems = bookings
+          .map((b) => this.bookingToItem(b))
+          .filter((i) => !rentalKeys.has(this.calItemKey(i)));
         this.calItems = [...bookingItems, ...rentalItems];
         this.buildCalendar();
       },
