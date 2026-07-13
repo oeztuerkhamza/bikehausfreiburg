@@ -45,7 +45,7 @@ public class RentalService : IRentalService
         return rentals.Select(r => r.ToCalendarItemDto());
     }
 
-    public async Task<PaginatedResult<RentalListDto>> GetPaginatedAsync(PaginationParams paginationParams)
+    public async Task<PaginatedResult<RentalListDto>> GetPaginatedAsync(PaginationParams paginationParams, bool includeCompleted = false)
     {
         System.Linq.Expressions.Expression<Func<Rental, bool>>? predicate = null;
 
@@ -82,7 +82,8 @@ public class RentalService : IRentalService
         var (items, totalCount) = await _rentalRepository.GetPaginatedAsync(
             paginationParams.Page,
             paginationParams.PageSize,
-            predicate);
+            predicate,
+            includeCompleted);
 
         return new PaginatedResult<RentalListDto>
         {

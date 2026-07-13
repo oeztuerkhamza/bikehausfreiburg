@@ -59,6 +59,16 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <option value="Cancelled">Storniert</option>
           </select>
         </div>
+        <div class="filter-group">
+          <label class="show-completed">
+            <input
+              type="checkbox"
+              [(ngModel)]="showCompleted"
+              (change)="onFilterChange()"
+            />
+            <span>Abgeschlossene anzeigen</span>
+          </label>
+        </div>
       </div>
 
       <div class="table-wrap">
@@ -173,6 +183,21 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       }
       .filter-group {
         position: relative;
+      }
+      .show-completed {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 100%;
+        font-size: 0.88rem;
+        color: var(--text-secondary, var(--text-primary));
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .show-completed input {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
       }
       .search-group {
         flex: 1;
@@ -499,6 +524,7 @@ export class RentalListComponent implements OnInit {
   paginatedResult: PaginatedResult<RentalList> | null = null;
   searchText = '';
   filterStatus = '';
+  showCompleted = false;
   currentPage = 1;
   pageSize = 1000;
 
@@ -517,6 +543,7 @@ export class RentalListComponent implements OnInit {
         this.pageSize,
         this.filterStatus || undefined,
         this.searchText || undefined,
+        this.showCompleted,
       )
       .subscribe({
         next: (data) => (this.paginatedResult = data),

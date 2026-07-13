@@ -117,15 +117,19 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
 
     public async Task<(IEnumerable<Rental> Items, int TotalCount)> GetPaginatedAsync(
         int page, int pageSize,
-        Expression<Func<Rental, bool>>? predicate = null)
+        Expression<Func<Rental, bool>>? predicate = null,
+        bool includeCompleted = false)
     {
         var query = _dbSet
             .Include(r => r.Bikes).ThenInclude(b => b.Bicycle)
             .Include(r => r.Customer)
-            // Fully completed rentals — returned AND every bike's deposit refunded —
-            // are considered done and are hidden from the Mietvertrag list.
-            .Where(r => !(r.Status == RentalStatus.Returned && r.Bikes.All(b => b.KautionZurueckgegeben)))
             .AsQueryable();
+
+        // Fully completed rentals — returned AND every bike's deposit refunded —
+        // are considered done and hidden by default; the caller can opt in to see
+        // them (e.g. via the "show completed" checkbox in the list).
+        if (!includeCompleted)
+            query = query.Where(r => !(r.Status == RentalStatus.Returned && r.Bikes.All(b => b.KautionZurueckgegeben)));
 
         if (predicate != null)
             query = query.Where(predicate);

@@ -44,6 +44,7 @@ export class RentalService {
     pageSize: number,
     status?: string,
     search?: string,
+    includeCompleted = false,
   ): Observable<PaginatedResult<RentalList>> {
     let params = new HttpParams()
       .set('page', page.toString())
@@ -51,6 +52,7 @@ export class RentalService {
 
     if (status) params = params.set('status', status);
     if (search) params = params.set('search', search);
+    if (includeCompleted) params = params.set('includeCompleted', 'true');
 
     return this.http.get<PaginatedResult<RentalList>>(`${this.url}/paginated`, {
       params,

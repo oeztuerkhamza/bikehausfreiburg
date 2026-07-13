@@ -33,7 +33,8 @@ public class RentalsController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? status = null,
-        [FromQuery] string? search = null)
+        [FromQuery] string? search = null,
+        [FromQuery] bool includeCompleted = false)
     {
         var paginationParams = new PaginationParams
         {
@@ -42,7 +43,7 @@ public class RentalsController : ControllerBase
             Status = status,
             SearchTerm = search
         };
-        var result = await _rentalService.GetPaginatedAsync(paginationParams);
+        var result = await _rentalService.GetPaginatedAsync(paginationParams, includeCompleted);
         return Ok(result);
     }
 
