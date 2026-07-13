@@ -369,6 +369,7 @@ export interface Translations {
   rentalBookingPending: string;
   rentalBookingApproved: string;
   rentalBookingCancelled: string;
+  rentalBookingShowCompleted: string;
   rentalBookingNoItems: string;
   rentalBookingViewList: string;
   rentalBookingViewCalendar: string;
@@ -1207,6 +1208,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingPending: 'Ausstehend',
     rentalBookingApproved: 'Bestätigt',
     rentalBookingCancelled: 'Storniert',
+    rentalBookingShowCompleted: 'Abgeschlossene anzeigen',
     rentalBookingNoItems: 'Keine Mietanfragen vorhanden.',
     rentalBookingViewList: 'Liste',
     rentalBookingViewCalendar: 'Kalender',
@@ -2049,6 +2051,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingPending: 'Beklemede',
     rentalBookingApproved: 'Onaylandı',
     rentalBookingCancelled: 'İptal',
+    rentalBookingShowCompleted: 'Tamamlananları göster',
     rentalBookingNoItems: 'Kiralama talebi yok.',
     rentalBookingViewList: 'Liste',
     rentalBookingViewCalendar: 'Takvim',

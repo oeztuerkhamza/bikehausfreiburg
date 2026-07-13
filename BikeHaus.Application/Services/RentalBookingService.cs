@@ -43,7 +43,7 @@ public class RentalBookingService : IRentalBookingService
         _logger = logger;
     }
 
-    public async Task<PaginatedResult<RentalBookingListDto>> GetPaginatedAsync(PaginationParams paginationParams)
+    public async Task<PaginatedResult<RentalBookingListDto>> GetPaginatedAsync(PaginationParams paginationParams, bool includeCompleted = false)
     {
         Expression<Func<RentalBooking, bool>>? predicate = null;
 
@@ -80,7 +80,8 @@ public class RentalBookingService : IRentalBookingService
         var (items, totalCount) = await _bookingRepository.GetPaginatedAsync(
             paginationParams.Page,
             paginationParams.PageSize,
-            predicate);
+            predicate,
+            includeCompleted);
 
         return new PaginatedResult<RentalBookingListDto>
         {

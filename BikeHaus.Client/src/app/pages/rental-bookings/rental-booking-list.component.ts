@@ -198,6 +198,16 @@ interface CalBar {
             <option value="Cancelled">{{ t.rentalBookingCancelled }}</option>
           </select>
         </div>
+        <div class="filter-group">
+          <label class="show-completed">
+            <input
+              type="checkbox"
+              [(ngModel)]="showCompleted"
+              (change)="onFilterChange()"
+            />
+            <span>{{ t.rentalBookingShowCompleted }}</span>
+          </label>
+        </div>
       </div>
 
       <div *ngIf="viewMode === 'list'" class="table-wrap">
@@ -320,6 +330,21 @@ interface CalBar {
       }
       .filter-group {
         position: relative;
+      }
+      .show-completed {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 100%;
+        font-size: 0.88rem;
+        color: var(--text-secondary, var(--text-primary));
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .show-completed input {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
       }
       .search-group {
         flex: 1;
@@ -741,6 +766,7 @@ export class RentalBookingListComponent implements OnInit {
   pageSize = 1000;
   filterStatus = '';
   searchText = '';
+  showCompleted = false;
 
   BookingStatus = RentalBookingStatus;
 
@@ -939,6 +965,7 @@ export class RentalBookingListComponent implements OnInit {
         this.pageSize,
         this.filterStatus,
         this.searchText,
+        this.showCompleted,
       )
       .subscribe({
         next: (result) => {

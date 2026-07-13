@@ -4,7 +4,7 @@ namespace BikeHaus.Application.Interfaces;
 
 public interface IRentalBookingService
 {
-    Task<PaginatedResult<RentalBookingListDto>> GetPaginatedAsync(PaginationParams paginationParams);
+    Task<PaginatedResult<RentalBookingListDto>> GetPaginatedAsync(PaginationParams paginationParams, bool includeCompleted = false);
     Task<RentalBookingDto?> GetByIdAsync(int id);
     Task<RentalBookingDto> CreateAsync(RentalBookingCreateDto dto);
     Task<RentalBookingDto> ApproveAsync(int id, RentalBookingApproveDto dto);

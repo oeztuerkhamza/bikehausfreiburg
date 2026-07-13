@@ -40,13 +40,28 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
     public async Task<(IEnumerable<RentalBooking> Items, int TotalCount)> GetPaginatedAsync(
         int page,
         int pageSize,
-        Expression<Func<RentalBooking, bool>>? predicate = null)
+        Expression<Func<RentalBooking, bool>>? predicate = null,
+        bool includeCompleted = false)
     {
         var query = _dbSet
             .Include(b => b.Bicycle)
             .Include(b => b.Bikes).ThenInclude(bk => bk.Bicycle)
             .Include(b => b.Accessories)
             .AsQueryable();
+
+        // A booking that has already been turned into a Mietvertrag — a rental with
+        // the same customer and date range exists — is done: the bike was handed
+        // over via the contract. Hide such bookings by default; the caller can opt
+        // in to see them (there is no FK link, so match on customer + dates like
+        // the calendar view does).
+        if (!includeCompleted)
+        {
+            query = query.Where(b => !_context.Rentals.Any(r =>
+                r.Customer.Vorname == b.Vorname &&
+                r.Customer.Nachname == b.Nachname &&
+                r.StartDatum.Date == b.StartDatum.Date &&
+                r.EndDatum.Date == b.EndDatum.Date));
+        }
 
         if (predicate != null)
             query = query.Where(predicate);

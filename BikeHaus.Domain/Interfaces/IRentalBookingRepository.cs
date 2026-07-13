@@ -11,7 +11,8 @@ public interface IRentalBookingRepository : IRepository<RentalBooking>
     Task<(IEnumerable<RentalBooking> Items, int TotalCount)> GetPaginatedAsync(
         int page,
         int pageSize,
-        Expression<Func<RentalBooking, bool>>? predicate = null);
+        Expression<Func<RentalBooking, bool>>? predicate = null,
+        bool includeCompleted = false);
     Task<IEnumerable<RentalBooking>> GetApprovedByBicycleIdAsync(int bicycleId);
     Task<IEnumerable<RentalBooking>> GetPendingByBicycleIdAsync(int bicycleId);
     Task<IEnumerable<RentalBooking>> GetByStatusesWithBikesAsync(IEnumerable<Enums.RentalBookingStatus> statuses);

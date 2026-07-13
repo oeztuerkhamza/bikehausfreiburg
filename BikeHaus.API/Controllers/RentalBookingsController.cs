@@ -26,7 +26,8 @@ public class RentalBookingsController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         [FromQuery] string? status = null,
-        [FromQuery] string? search = null)
+        [FromQuery] string? search = null,
+        [FromQuery] bool includeCompleted = false)
     {
         var paginationParams = new PaginationParams
         {
@@ -36,7 +37,7 @@ public class RentalBookingsController : ControllerBase
             SearchTerm = search
         };
 
-        var result = await _service.GetPaginatedAsync(paginationParams);
+        var result = await _service.GetPaginatedAsync(paginationParams, includeCompleted);
         return Ok(result);
     }
 
