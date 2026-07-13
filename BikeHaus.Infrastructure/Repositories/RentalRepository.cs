@@ -122,6 +122,9 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         var query = _dbSet
             .Include(r => r.Bikes).ThenInclude(b => b.Bicycle)
             .Include(r => r.Customer)
+            // Fully completed rentals — returned AND every bike's deposit refunded —
+            // are considered done and are hidden from the Mietvertrag list.
+            .Where(r => !(r.Status == RentalStatus.Returned && r.Bikes.All(b => b.KautionZurueckgegeben)))
             .AsQueryable();
 
         if (predicate != null)
@@ -130,10 +133,9 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         var totalCount = await query.CountAsync();
 
         var items = await query
-            // Aktive (laufende) Mietverträge immer oben, nach Startdatum sortiert;
-            // danach die übrigen (zurückgegeben/storniert) nach Startdatum absteigend.
+            // Aktive (laufende) Mietverträge immer oben; innerhalb jeder Gruppe die
+            // aktuellsten zuerst (nach Startdatum absteigend).
             .OrderBy(r => r.Status == RentalStatus.Active ? 0 : 1)
-            .ThenBy(r => r.Status == RentalStatus.Active ? r.StartDatum : DateTime.MaxValue)
             .ThenByDescending(r => r.StartDatum)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
