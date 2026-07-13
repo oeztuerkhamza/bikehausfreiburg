@@ -289,8 +289,20 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         background: rgba(239, 68, 68, 0.07);
         box-shadow: inset 3px 0 0 var(--accent-danger, #ef4444);
       }
+      /* Overdue (Rückgabe überfällig) — blinkt, damit sofort auffällt, dass das
+         Fahrrad nicht zurückgebracht wurde. */
       .overdue-row {
         background: var(--accent-danger-light, rgba(239, 68, 68, 0.04));
+        animation: overdue-row-blink 1.1s ease-in-out infinite;
+      }
+      @keyframes overdue-row-blink {
+        0%,
+        100% {
+          background: rgba(239, 68, 68, 0.05);
+        }
+        50% {
+          background: rgba(239, 68, 68, 0.24);
+        }
       }
       .overdue-date {
         color: var(--accent-danger, #ef4444);
@@ -308,6 +320,26 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
         font-size: 0.7rem;
         font-weight: 700;
         margin-left: 6px;
+        animation: overdue-badge-blink 1s ease-in-out infinite;
+      }
+      @keyframes overdue-badge-blink {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+        }
+        50% {
+          opacity: 0.4;
+          transform: scale(1.2);
+          box-shadow: 0 0 0 5px rgba(239, 68, 68, 0);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .overdue-row,
+        .overdue-badge {
+          animation: none;
+        }
       }
       .status-badge {
         display: inline-block;
