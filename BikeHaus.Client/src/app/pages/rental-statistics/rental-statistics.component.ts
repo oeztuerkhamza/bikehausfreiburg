@@ -108,7 +108,7 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
             <h2>{{ t.dailyOverview }}</h2>
             <div class="legend">
               <span class="legend-item">
-                <span class="swatch bikes"></span>{{ t.rentedBikesCount }}
+                <span class="swatch bikes"></span>{{ t.newRentals }}
               </span>
               <span class="legend-item">
                 <span class="swatch revenue"></span>{{ t.rentalRevenue }}
@@ -126,10 +126,10 @@ type PeriodType = 'today' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
                 <div class="bars">
                   <div
                     class="bar bikes"
-                    [style.height.%]="pct(day.rentedBikeCount, maxBikes())"
+                    [style.height.%]="pct(day.newRentalCount, maxBikes())"
                   >
-                    <span class="bar-value" *ngIf="day.rentedBikeCount > 0">{{
-                      day.rentedBikeCount
+                    <span class="bar-value" *ngIf="day.newRentalCount > 0">{{
+                      day.newRentalCount
                     }}</span>
                   </div>
                   <div
@@ -595,7 +595,7 @@ export class RentalStatisticsComponent implements OnInit {
   loading = signal(false);
 
   maxBikes = computed(() =>
-    Math.max(1, ...(this.stats()?.dailyBreakdown ?? []).map((d) => d.rentedBikeCount)),
+    Math.max(1, ...(this.stats()?.dailyBreakdown ?? []).map((d) => d.newRentalCount)),
   );
   maxRevenue = computed(() =>
     Math.max(1, ...(this.stats()?.dailyBreakdown ?? []).map((d) => d.revenue)),
@@ -688,13 +688,13 @@ export class RentalStatisticsComponent implements OnInit {
 
   tooltip(day: {
     date: string;
-    rentedBikeCount: number;
+    newRentalCount: number;
     revenue: number;
   }): string {
     const rev = day.revenue.toLocaleString('de-DE', {
       style: 'currency',
       currency: 'EUR',
     });
-    return `${this.formatDate(day.date)}\n${this.t.rentedBikesCount}: ${day.rentedBikeCount}\n${this.t.rentalRevenue}: ${rev}`;
+    return `${this.formatDate(day.date)}\n${this.t.newRentals}: ${day.newRentalCount}\n${this.t.rentalRevenue}: ${rev}`;
   }
 }
