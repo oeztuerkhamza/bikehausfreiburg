@@ -134,9 +134,13 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
 
         var items = await query
             // Aktive (laufende) Mietverträge immer oben; innerhalb jeder Gruppe die
-            // aktuellsten zuerst (nach Startdatum absteigend).
+            // aktuellsten zuerst (nach Startdatum absteigend). Bei gleichem Startdatum
+            // die höchste Mietvertrag-Nr zuerst — erst nach Länge, dann lexikografisch,
+            // damit die (nullgefüllten) Nummern numerisch korrekt absteigend sortieren.
             .OrderBy(r => r.Status == RentalStatus.Active ? 0 : 1)
             .ThenByDescending(r => r.StartDatum)
+            .ThenByDescending(r => r.MietvertragNummer.Length)
+            .ThenByDescending(r => r.MietvertragNummer)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
