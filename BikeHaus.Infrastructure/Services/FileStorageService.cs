@@ -10,8 +10,11 @@ public class FileStorageService : IFileStorageService
     private readonly string _basePath;
     private static readonly HashSet<string> _imageExtensions = new(StringComparer.OrdinalIgnoreCase)
         { ".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff" };
-    private const int MaxImageWidth = 1280;
-    private const int JpegQuality = 72;
+    // Images are already downscaled/compressed client-side before upload; keep
+    // the server pass high-quality so it doesn't degrade them further. Acts as
+    // a safety net for the rare upload that bypasses the client (e.g. API).
+    private const int MaxImageWidth = 2048;
+    private const int JpegQuality = 85;
 
     public FileStorageService(string basePath)
     {

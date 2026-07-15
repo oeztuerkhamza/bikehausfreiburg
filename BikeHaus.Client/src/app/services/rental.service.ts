@@ -102,6 +102,8 @@ export class RentalService {
   }
 
   uploadAusweis(id: number, file: File): Observable<{ path: string }> {
+    // Image scans are compressed centrally by imageCompressionInterceptor;
+    // PDF scans pass through unchanged.
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<{ path: string }>(`${this.url}/${id}/ausweis`, formData);

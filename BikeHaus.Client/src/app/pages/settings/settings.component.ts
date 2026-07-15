@@ -12,6 +12,7 @@ import {
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { BackupService } from '../../services/backup.service';
+import { compressImageFile } from '../../utils/image-compression';
 import {
   KleinanzeigenService,
   KleinanzeigenSyncResult,
@@ -2198,26 +2199,29 @@ export class SettingsComponent implements OnInit, OnDestroy {
   onLogoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const reader = new FileReader();
+      // This endpoint takes base64 JSON (not FormData), so it bypasses the
+      // imageCompressionInterceptor — compress the file here before encoding.
+      compressImageFile(input.files[0]).then((file) => {
+        const reader = new FileReader();
 
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        this.settingsService
-          .uploadLogo({
-            logoBase64: base64,
-            fileName: file.name,
-          })
-          .subscribe({
-            next: (data) => {
-              this.settings = data;
-              this.showSuccessMessage();
-            },
-            error: (err) => console.error('Error uploading logo:', err),
-          });
-      };
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          this.settingsService
+            .uploadLogo({
+              logoBase64: base64,
+              fileName: file.name,
+            })
+            .subscribe({
+              next: (data) => {
+                this.settings = data;
+                this.showSuccessMessage();
+              },
+              error: (err) => console.error('Error uploading logo:', err),
+            });
+        };
 
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      });
     }
   }
 
@@ -2252,26 +2256,29 @@ export class SettingsComponent implements OnInit, OnDestroy {
   onSignatureSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const reader = new FileReader();
+      // base64 JSON endpoint — compress before encoding (PNG transparency is
+      // preserved by compressImageFile, so scanned signatures stay clean).
+      compressImageFile(input.files[0]).then((file) => {
+        const reader = new FileReader();
 
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        this.settingsService
-          .uploadOwnerSignature({
-            signatureBase64: base64,
-            fileName: file.name,
-          })
-          .subscribe({
-            next: (data) => {
-              this.settings = data;
-              this.showSuccessMessage();
-            },
-            error: (err) => console.error('Error uploading signature:', err),
-          });
-      };
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          this.settingsService
+            .uploadOwnerSignature({
+              signatureBase64: base64,
+              fileName: file.name,
+            })
+            .subscribe({
+              next: (data) => {
+                this.settings = data;
+                this.showSuccessMessage();
+              },
+              error: (err) => console.error('Error uploading signature:', err),
+            });
+        };
 
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      });
     }
   }
 

@@ -132,6 +132,7 @@ export class BicycleService {
   }
 
   uploadGalleryImage(bicycleId: number, file: File): Observable<BicycleImage> {
+    // Images are downscaled/compressed centrally by imageCompressionInterceptor.
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<BicycleImage>(`${this.url}/${bicycleId}/gallery`, formData);

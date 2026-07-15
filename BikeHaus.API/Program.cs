@@ -11,6 +11,18 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Allow larger multipart uploads (full-resolution phone photos). The client
+// downscales images before upload, but this is the safety net so an
+// occasional large original isn't hard-rejected. Kept in sync with nginx
+// `client_max_body_size 50M`.
+const long MaxUploadBytes = 52_428_800; // 50 MB
+builder.WebHost.ConfigureKestrel(options =>
+    options.Limits.MaxRequestBodySize = MaxUploadBytes);
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = MaxUploadBytes;
+});
+
 // Add services to the container.
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
