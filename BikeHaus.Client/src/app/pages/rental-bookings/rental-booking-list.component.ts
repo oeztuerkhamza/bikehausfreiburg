@@ -857,7 +857,13 @@ export class RentalBookingListComponent implements OnInit {
         const bookingItems = bookings
           .map((b) => this.bookingToItem(b))
           .filter((i) => !rentalKeys.has(this.calItemKey(i)));
-        this.calItems = [...bookingItems, ...rentalItems];
+        // Abgeschlossene Einträge ausblenden: alles, dessen Enddatum vor heute
+        // liegt, wird nicht mehr angezeigt (auch ohne Rückgabe-Markierung), so
+        // dass der Kalender nur laufende und kommende Mieten zeigt.
+        const today = this.dateOnly(new Date().toISOString());
+        this.calItems = [...bookingItems, ...rentalItems].filter(
+          (i) => this.dateOnly(i.endDatum) >= today,
+        );
         this.buildCalendar();
       },
       error: () => {
