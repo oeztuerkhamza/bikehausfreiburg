@@ -840,7 +840,11 @@ export class RentalBookingListComponent implements OnInit {
       rentals: this.rentalService.getCalendar(from, to),
     }).subscribe({
       next: ({ bookings, rentals }) => {
-        const rentalItems = rentals.map((r) => this.rentalToItem(r));
+        const rentalItems = rentals
+          // Zurückgegebene Mietverträge ausblenden — der Kalender zeigt nur
+          // laufende Mieten, damit er nicht mit abgeschlossenen überfüllt.
+          .filter((r) => r.status !== 'Returned')
+          .map((r) => this.rentalToItem(r));
         // A booking converted into a Mietvertrag exists as BOTH an approved
         // booking and a rental (no DB link between them). Prefer the rental
         // (Vertrag): once a booking has been turned into a contract, drop the
