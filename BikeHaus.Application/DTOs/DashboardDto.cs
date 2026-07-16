@@ -16,5 +16,8 @@ public record DashboardDto(
     IEnumerable<PurchaseListDto> RecentPurchases,
     IEnumerable<SaleListDto> RecentSales,
     IEnumerable<RentalListDto> RecentRentals,
-    IEnumerable<RentalBookingListDto> RecentPendingBookings
+    IEnumerable<RentalBookingListDto> RecentPendingBookings,
+    // Heute abzuholen bzw. heute zurückzugeben — die beiden Tagesaufgaben.
+    IEnumerable<RentalBookingListDto> BookingsStartingToday,
+    IEnumerable<RentalListDto> OverdueRentalItems
 );

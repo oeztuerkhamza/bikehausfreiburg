@@ -54,6 +54,24 @@ public class DashboardService : IDashboardService
         var (recentRentalItems, _) = await _rentalRepository.GetPaginatedAsync(1, 5, r => r.Status == RentalStatus.Active);
         var (recentPendingItems, _) = await _bookingRepository.GetPaginatedAsync(1, 5, b => b.Status == RentalBookingStatus.Pending);
 
+        // Heute startende Anfragen: Abholungen für heute, die noch nicht per
+        // Mietvertrag übergeben wurden (bereits übergebene blendet das Repository
+        // standardmäßig aus). StartDatum ist ein reines Datum, daher DateTime.Today.
+        // Als Bereich statt .Date == today: das übersetzt ohne SQL-Datumsfunktion
+        // und vermeidet Formatunterschiede beim Vergleich in SQLite.
+        var today = DateTime.Today;
+        var tomorrow = today.AddDays(1);
+        var (startingTodayItems, _) = await _bookingRepository.GetPaginatedAsync(
+            1, 10,
+            b => b.Status != RentalBookingStatus.Cancelled
+                 && b.StartDatum >= today && b.StartDatum < tomorrow);
+
+        // Rückgabetermin erreicht, Fahrrad aber noch nicht zurück. Gleiche
+        // Bedingung wie der OverdueRentals-Zähler; am längsten überfällig zuerst
+        // (das Repository sortiert nach Startdatum, nicht nach Fälligkeit).
+        var (overdueItems, _) = await _rentalRepository.GetPaginatedAsync(
+            1, 100, r => r.Status == RentalStatus.Active && r.EndDatum < now);
+
         return new DashboardDto(
             TotalBicycles: totalBicycles,
             AvailableBicycles: availableBicycles,
@@ -69,7 +87,9 @@ public class DashboardService : IDashboardService
             RecentPurchases: recentPurchases.Select(p => p.ToListDto()),
             RecentSales: recentSales.Select(s => s.ToListDto()),
             RecentRentals: recentRentalItems.Select(r => r.ToListDto()),
-            RecentPendingBookings: recentPendingItems.Select(b => b.ToListDto())
+            RecentPendingBookings: recentPendingItems.Select(b => b.ToListDto()),
+            BookingsStartingToday: startingTodayItems.Select(b => b.ToListDto()),
+            OverdueRentalItems: overdueItems.OrderBy(r => r.EndDatum).Take(10).Select(r => r.ToListDto())
         );
     }
 }

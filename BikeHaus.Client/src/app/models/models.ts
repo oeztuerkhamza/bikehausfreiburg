@@ -468,6 +468,8 @@ export interface Dashboard {
   recentSales: SaleList[];
   recentRentals: RentalList[];
   recentPendingBookings: RentalBookingList[];
+  bookingsStartingToday: RentalBookingList[];
+  overdueRentalItems: RentalList[];
 }
 
 // ── AccessoryCatalog ──

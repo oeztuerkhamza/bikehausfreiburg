@@ -248,6 +248,78 @@ import { TranslationService } from '../../services/translation.service';
         </div>
       </div>
 
+      <!-- Tagesaufgaben: heute abholen / überfällig zurück -->
+      <div
+        class="recent-sections"
+        *ngIf="data.bookingsStartingToday.length || data.overdueRentalItems.length"
+      >
+        <div class="recent-section" *ngIf="data.bookingsStartingToday.length">
+          <div class="section-header">
+            <h2>Heute startende Anfragen</h2>
+            <a routerLink="/rental-bookings" class="view-all">Alle anzeigen
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nr.</th>
+                  <th>Fahrrad</th>
+                  <th>Kunde</th>
+                  <th>Von</th>
+                  <th>Bis</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let b of data.bookingsStartingToday" class="clickable-row" (click)="navigateTo('/rental-bookings/' + b.id)">
+                  <td><span class="badge-mono badge-pending">{{ b.buchungsNummer }}</span></td>
+                  <td>{{ b.bikeInfo }}</td>
+                  <td>{{ b.customerName }}</td>
+                  <td class="date">{{ b.startDatum | date: 'dd.MM.yyyy' }}</td>
+                  <td class="date">{{ b.endDatum | date: 'dd.MM.yyyy' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="recent-section" *ngIf="data.overdueRentalItems.length">
+          <div class="section-header">
+            <h2>Überfällige Rückgaben</h2>
+            <a routerLink="/rentals" class="view-all">Alle anzeigen
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nr.</th>
+                  <th>Fahrrad</th>
+                  <th>Mieter</th>
+                  <th>Fällig</th>
+                  <th>Betrag</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of data.overdueRentalItems" class="clickable-row" (click)="navigateTo('/rentals/' + r.id)">
+                  <td><span class="badge-mono">{{ r.mietvertragNummer }}</span></td>
+                  <td>{{ r.bikeInfo }}</td>
+                  <td>{{ r.customerName }}</td>
+                  <td class="date overdue">{{ r.endDatum | date: 'dd.MM.yyyy' }}</td>
+                  <td class="price">{{ r.gesamtmiete | number: '1.2-2' }} €</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <div class="recent-sections">
         <div class="recent-section">
           <div class="section-header">
