@@ -1,0 +1,8 @@
+node_modules/
+.env
+.wwebjs_auth/
+.wwebjs_cache/
+data/
+*.log
+run.log
+run.err.log

@@ -47,6 +47,31 @@ services:
     networks:
       - bikehaus-network
 
+  whatsapp:
+    image: ghcr.io/oeztuerkhamza/bikehausfreiburg-whatsapp:latest
+    build:
+      context: ./whatsapp-assistant
+      dockerfile: Dockerfile
+    container_name: bikehaus-whatsapp
+    restart: unless-stopped
+    init: true
+    expose:
+      - '3000'
+    volumes:
+      - whatsapp-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - AUTO_DRAFT=false
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-opus-4-8}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ISSUER=BikeHausFreiburg
+      - JWT_AUDIENCE=BikeHausApp
+      - FRAME_ANCESTORS=https://admin.bikehausfreiburg.com
+    networks:
+      - bikehaus-network
+
   homepage:
     build:
       context: ./BikeHaus.Homepage
@@ -80,6 +105,7 @@ services:
       - bikehaus
       - client
       - homepage
+      - whatsapp
     networks:
       - bikehaus-network
 
@@ -96,6 +122,8 @@ services:
 
 volumes:
   bikehaus-data:
+    driver: local
+  whatsapp-data:
     driver: local
   certbot-etc:
     driver: local

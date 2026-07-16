@@ -381,5 +381,13 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'whatsapp',
+    loadComponent: () =>
+      import('./pages/whatsapp/whatsapp.component').then(
+        (m) => m.WhatsappComponent,
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];

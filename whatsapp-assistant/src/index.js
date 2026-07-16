@@ -1,0 +1,191 @@
+import "dotenv/config";
+import express from "express";
+import http from "node:http";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { Server as SocketServer } from "socket.io";
+
+import * as store from "./store.js";
+import * as wa from "./whatsapp.js";
+import * as ai from "./ai.js";
+import { saveEnv } from "./config.js";
+import { requireAuth, socketAuth } from "./auth.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PORT = process.env.PORT || 3000;
+const AUTO_DRAFT = (process.env.AUTO_DRAFT ?? "true") !== "false";
+// Admin panelinden iframe ile gömülmeye izin verilen ek origin'ler.
+// 'self' her zaman eklenir; env yalnızca ek origin(ler) sağlar.
+const FRAME_EXTRA =
+  process.env.FRAME_ANCESTORS ||
+  "https://admin.bikehausfreiburg.com http://localhost:4200";
+
+const app = express();
+app.disable("x-powered-by");
+// iframe gömme izni (X-Frame-Options yerine CSP frame-ancestors)
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", `frame-ancestors 'self' ${FRAME_EXTRA}`);
+  next();
+});
+app.use(express.json());
+// Statik dosyalar (index.html, app.js) herkese açık; token sayfa yüklendikten
+// sonra hash ile gelir. Veri uçları (/api) ve socket JWT ile korunur.
+app.use(express.static(path.join(__dirname, "..", "public")));
+app.use("/api", requireAuth);
+
+const server = http.createServer(app);
+const io = new SocketServer(server);
+io.use(socketAuth);
+
+// --- WhatsApp olayları ---
+let synced = false;
+async function syncChats() {
+  try {
+    const chats = await wa.getRecentChats();
+    for (const c of chats) {
+      const conv = store.importChat(c.chatId, c.name, c.messages);
+      io.emit("conversation", conv);
+    }
+    console.log(`[sync] ${chats.length} sohbet yüklendi.`);
+    return { ok: true, count: chats.length };
+  } catch (err) {
+    console.error("[sync] hata:", err?.message, "\n", err?.stack);
+    return { ok: false, count: 0, error: err?.message || "bilinmeyen" };
+  }
+}
+
+wa.events.on("status", (s) => {
+  io.emit("status", s);
+  if (s.status === "ready" && !synced) {
+    synced = true;
+    // Geçmişi yüklemeyi dene (WhatsApp Web sürümüne göre çalışmayabilir).
+    (async () => {
+      await new Promise((r) => setTimeout(r, 5000));
+      const res = await syncChats();
+      if (!res.ok) {
+        console.log("[sync] Geçmiş yüklenemedi (WhatsApp Web uyumsuzluğu). Canlı mod: yeni gelen mesajlar yine de görünecek.");
+        io.emit("history-unavailable");
+      }
+    })();
+  }
+});
+
+wa.events.on("message", async (m) => {
+  console.log(`[mesaj] ${m.name} (${m.chatId}): ${m.body}`);
+  const conv = store.addMessage(m.chatId, m.name, {
+    id: m.id, direction: "in", body: m.body, ts: m.ts,
+  });
+  io.emit("conversation", conv);
+});
+
+// --- REST API ---
+app.get("/api/state", (_req, res) => {
+  res.json({ wa: wa.state, aiEnabled: ai.isEnabled(), autoDraft: AUTO_DRAFT });
+});
+
+// Ayarları oku (anahtar maskeli döner)
+app.get("/api/settings", (_req, res) => {
+  res.json({ ...ai.getConfig(), autoDraft: AUTO_DRAFT });
+});
+
+// Ayarları kaydet (API anahtarı / model). Çalışırken uygular + .env'e yazar.
+app.post("/api/settings", (req, res) => {
+  const { apiKey, model } = req.body || {};
+  const cfg = ai.configure({ apiKey, model });
+  const toSave = {};
+  if (typeof apiKey === "string" && apiKey.trim()) toSave.ANTHROPIC_API_KEY = apiKey.trim();
+  if (typeof model === "string" && model.trim()) toSave.ANTHROPIC_MODEL = model.trim();
+  if (Object.keys(toSave).length) {
+    try { saveEnv(toSave); } catch (e) { console.error("[settings] .env yazılamadı:", e.message); }
+  }
+  console.log(`[settings] güncellendi — AI ${ai.isEnabled() ? "AÇIK" : "kapalı"}, model ${cfg.model}`);
+  res.json(cfg);
+});
+
+app.get("/api/conversations", (_req, res) => {
+  res.json(store.list());
+});
+
+// Mevcut sohbetleri WhatsApp'tan elle yeniden yükle
+app.post("/api/sync", async (_req, res) => {
+  if (wa.state.status !== "ready") {
+    return res.status(503).json({ error: "WhatsApp henüz hazır değil" });
+  }
+  const result = await syncChats();
+  res.json(result);
+});
+
+app.get("/api/conversations/:chatId", (req, res) => {
+  const conv = store.get(req.params.chatId);
+  if (!conv) return res.status(404).json({ error: "bulunamadı" });
+  store.markRead(req.params.chatId);
+  res.json(conv);
+});
+
+// Taslağı elle güncelle (kullanıcı düzenlerken)
+app.put("/api/conversations/:chatId/draft", (req, res) => {
+  const conv = store.setDraft(req.params.chatId, req.body.draft ?? "");
+  if (!conv) return res.status(404).json({ error: "bulunamadı" });
+  res.json(conv);
+});
+
+// Gelen mesajları Türkçeye çevir (henüz çevrilmemiş olanları)
+app.post("/api/conversations/:chatId/translate", async (req, res) => {
+  const conv = store.get(req.params.chatId);
+  if (!conv) return res.status(404).json({ error: "bulunamadı" });
+  if (!ai.isEnabled()) return res.status(400).json({ error: "AI devre dışı — Ayarlar'dan API anahtarı gir" });
+  const pending = conv.messages.filter((m) => m.direction === "in" && !m.translation && m.body);
+  for (const m of pending) {
+    const r = await ai.translateToTurkish(m.body);
+    if (r.ok) store.setTranslation(conv.chatId, m.id, r.text);
+  }
+  res.json(store.get(conv.chatId));
+});
+
+// Operatörün Türkçe talimatından müşteri diliyle cevap oluştur
+app.post("/api/conversations/:chatId/compose", async (req, res) => {
+  const conv = store.get(req.params.chatId);
+  if (!conv) return res.status(404).json({ error: "bulunamadı" });
+  if (!ai.isEnabled()) return res.status(400).json({ error: "AI devre dışı — Ayarlar'dan API anahtarı gir" });
+  const instruction = (req.body.instruction ?? "").trim();
+  if (!instruction) return res.status(400).json({ error: "Önce Türkçe olarak ne demek istediğini yaz" });
+  io.emit("drafting", { chatId: conv.chatId });
+  const result = await ai.composeReply(conv.messages, instruction);
+  if (!result.ok) return res.status(500).json({ error: result.error });
+  const updated = store.setDraft(conv.chatId, result.draft);
+  io.emit("conversation", updated);
+  res.json(updated);
+});
+
+// Onaylanan cevabı gönder
+app.post("/api/conversations/:chatId/send", async (req, res) => {
+  const chatId = req.params.chatId;
+  const text = (req.body.text ?? "").trim();
+  if (!text) return res.status(400).json({ error: "boş mesaj" });
+  if (wa.state.status !== "ready") {
+    return res.status(503).json({ error: "WhatsApp henüz hazır değil" });
+  }
+  try {
+    await wa.sendMessage(chatId, text);
+    const conv = store.addMessage(chatId, null, {
+      id: "out-" + Date.now(), direction: "out", body: text, ts: Date.now(),
+    });
+    store.setDraft(chatId, ""); // gönderince taslağı temizle
+    io.emit("conversation", store.get(chatId));
+    res.json(conv);
+  } catch (err) {
+    console.error("[send] hata:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+io.on("connection", (socket) => {
+  socket.emit("status", wa.state);
+});
+
+server.listen(PORT, () => {
+  console.log(`\n  Web arayüzü:  http://localhost:${PORT}`);
+  console.log(`  AI taslak:    ${ai.isEnabled() ? "AÇIK (" + ai.getConfig().model + ")" : "KAPALI — Ayarlar'dan anahtar gir"}`);
+  console.log(`  Oto-taslak:   ${AUTO_DRAFT ? "açık" : "kapalı"}\n`);
+  wa.start();
+});

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BikeHaus WhatsApp Asistan</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header id="topbar">
+    <div class="brand">🚲 BikeHaus <span>WhatsApp Asistan</span></div>
+    <div class="top-right">
+      <div id="status" class="status">bağlanıyor…</div>
+      <button id="btn-settings" class="icon-btn" title="Ayarlar">⚙️</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <aside id="sidebar">
+      <div class="side-head">
+        <span>Konuşmalar</span>
+        <button id="btn-sync" class="btn-sync" title="WhatsApp'tan sohbetleri yükle">↻ Yükle</button>
+      </div>
+      <ul id="conv-list"></ul>
+    </aside>
+
+    <section id="chat">
+      <div id="empty" class="empty">Soldan bir konuşma seç.</div>
+      <div id="thread" class="thread hidden">
+        <div id="chat-head" class="chat-head"></div>
+        <div id="messages" class="messages"></div>
+        <div id="composer" class="composer">
+          <div class="instruction-box">
+            <div class="draft-label">
+              <span>💬 Türkçe yaz — AI müşterinin dilinde cevap yazsın</span>
+              <span id="draft-badge"></span>
+            </div>
+            <textarea id="instruction" placeholder="Örn: Evet bu bisiklet müsait, yarın 10'dan sonra mağazaya gelebilir. Kaporası 50 euro."></textarea>
+            <div class="actions">
+              <button id="btn-compose" class="btn primary">✨ Cevap oluştur</button>
+            </div>
+          </div>
+
+          <div class="draft-box">
+            <div class="draft-label">
+              <span>✍️ AI cevabı — düzenleyip gönder</span>
+            </div>
+            <textarea id="draft" placeholder="AI cevabı burada görünecek… (düzenleyebilirsin)"></textarea>
+            <div class="actions">
+              <button id="btn-send" class="btn primary">Gönder ➤</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Ayarlar modal -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-card settings">
+      <h2>⚙️ Ayarlar</h2>
+      <label class="field">
+        <span>Anthropic API Anahtarı</span>
+        <input id="set-key" type="password" placeholder="sk-ant-... (kayıtlıysa boş bırak)" autocomplete="off" />
+        <small id="key-status" class="hint"></small>
+      </label>
+      <label class="field">
+        <span>Model</span>
+        <select id="set-model">
+          <option value="claude-opus-4-8">claude-opus-4-8 (en güçlü)</option>
+          <option value="claude-sonnet-5">claude-sonnet-5 (dengeli)</option>
+          <option value="claude-haiku-4-5">claude-haiku-4-5 (en ucuz/hızlı)</option>
+        </select>
+      </label>
+      <p class="hint">Anahtarı <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> adresinden alırsın. Yerel <code>.env</code> dosyasına kaydedilir.</p>
+      <div class="actions">
+        <button id="set-cancel" class="btn ghost">İptal</button>
+        <button id="set-save" class="btn primary">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR modal -->
+  <div id="qr-modal" class="modal hidden">
+    <div class="modal-card">
+      <h2>WhatsApp'ı bağla</h2>
+      <p>Telefonunda WhatsApp &rarr; Ayarlar &rarr; Bağlı Cihazlar &rarr; Cihaz Bağla ile QR'ı tara.</p>
+      <img id="qr-img" alt="QR" />
+    </div>
+  </div>
+
+  <script src="socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

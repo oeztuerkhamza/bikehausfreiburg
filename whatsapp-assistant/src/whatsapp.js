@@ -1,0 +1,126 @@
+// whatsapp-web.js sarmalayıcısı. Olayları EventEmitter üzerinden yayar.
+import pkg from 'whatsapp-web.js';
+import qrcodeTerminal from 'qrcode-terminal';
+import QRCode from 'qrcode';
+import { EventEmitter } from 'node:events';
+
+const { Client, LocalAuth } = pkg;
+
+export const events = new EventEmitter();
+export const state = { status: 'starting', qrDataUrl: null, me: null };
+
+const client = new Client({
+  // Allow overriding the LocalAuth data path via env so parallel runs don't conflict.
+  authStrategy: new LocalAuth({
+    dataPath: process.env.WWEBJS_DATA_PATH || '.wwebjs_auth',
+  }),
+  puppeteer: {
+    headless: true,
+    // Konteynerde sistem Chromium'u; yerelde puppeteer'ın kendi indirdiği.
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+    ],
+  },
+});
+
+client.on('qr', async (qr) => {
+  state.status = 'qr';
+  qrcodeTerminal.generate(qr, { small: true });
+  console.log('[whatsapp] QR kodu tarayın (yukarıdaki kod veya web arayüzü).');
+  try {
+    state.qrDataUrl = await QRCode.toDataURL(qr);
+  } catch {
+    state.qrDataUrl = null;
+  }
+  events.emit('status', state);
+});
+
+client.on('authenticated', () => {
+  state.status = 'authenticated';
+  events.emit('status', state);
+});
+
+client.on('ready', () => {
+  state.status = 'ready';
+  state.qrDataUrl = null;
+  state.me = client.info?.wid?.user || null;
+  console.log(`[whatsapp] Hazır. Bağlı numara: ${state.me}`);
+  events.emit('status', state);
+});
+
+client.on('disconnected', (reason) => {
+  state.status = 'disconnected';
+  console.log('[whatsapp] Bağlantı koptu:', reason);
+  events.emit('status', state);
+});
+
+// Gelen müşteri mesajları
+client.on('message', async (msg) => {
+  // Grup mesajlarını ve durum güncellemelerini atla
+  if (msg.from === 'status@broadcast' || msg.from.endsWith('@g.us')) return;
+  if (msg.type !== 'chat') return; // şimdilik sadece metin
+
+  let name = msg.from;
+  try {
+    const contact = await msg.getContact();
+    name = contact.pushname || contact.name || contact.number || msg.from;
+  } catch {}
+
+  events.emit('message', {
+    chatId: msg.from,
+    name,
+    id: msg.id?._serialized || String(Date.now()),
+    body: msg.body,
+    ts: (msg.timestamp || Math.floor(Date.now() / 1000)) * 1000,
+  });
+});
+
+export async function sendMessage(chatId, text) {
+  return client.sendMessage(chatId, text);
+}
+
+// Mevcut (bireysel) sohbetleri son mesajlarıyla birlikte getir.
+export async function getRecentChats(limit = 20, perChatMessages = 12) {
+  const chats = await client.getChats();
+  const individual = chats.filter((c) => !c.isGroup).slice(0, limit);
+  const result = [];
+  for (const chat of individual) {
+    const chatId = chat.id?._serialized;
+    if (!chatId) continue;
+    let raw = [];
+    try {
+      raw = await chat.fetchMessages({ limit: perChatMessages });
+    } catch (err) {
+      console.error('[whatsapp] fetchMessages hata:', chatId, err.message);
+    }
+    let name = chat.name || chatId;
+    try {
+      const contact = await chat.getContact();
+      name =
+        contact.pushname ||
+        contact.name ||
+        chat.name ||
+        contact.number ||
+        chatId;
+    } catch {}
+    const messages = raw
+      .filter((m) => m.type === 'chat' && m.body)
+      .map((m) => ({
+        id: m.id?._serialized || String(m.timestamp),
+        direction: m.fromMe ? 'out' : 'in',
+        body: m.body,
+        ts: (m.timestamp || 0) * 1000,
+      }));
+    result.push({ chatId, name, messages });
+  }
+  return result;
+}
+
+export function start() {
+  console.log('[whatsapp] İstemci başlatılıyor...');
+  client.initialize();
+}

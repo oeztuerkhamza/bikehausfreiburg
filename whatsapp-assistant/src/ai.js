@@ -1,0 +1,112 @@
+// Claude ile taslak cevap üretimi. Anahtar/model çalışırken değiştirilebilir.
+import Anthropic from "@anthropic-ai/sdk";
+import { SHOP_CONTEXT } from "./shop-context.js";
+
+let apiKey = process.env.ANTHROPIC_API_KEY || "";
+let model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+let client = apiKey ? new Anthropic({ apiKey }) : null;
+
+/** Anahtar/model'i çalışırken güncelle. */
+export function configure({ apiKey: k, model: m } = {}) {
+  if (typeof k === "string" && k.trim()) {
+    apiKey = k.trim();
+    client = new Anthropic({ apiKey });
+  }
+  if (typeof m === "string" && m.trim()) {
+    model = m.trim();
+  }
+  return getConfig();
+}
+
+export function isEnabled() {
+  return !!client;
+}
+
+export function getConfig() {
+  return {
+    hasKey: !!apiKey,
+    model,
+    keyMasked: apiKey ? apiKey.slice(0, 8) + "…" + apiKey.slice(-4) : "",
+  };
+}
+
+/**
+ * WhatsApp geçmişini Claude'un beklediği alternating role formatına çevirir.
+ * Ardışık aynı-rol mesajları tek turda birleştirir.
+ */
+function toMessages(history) {
+  const turns = [];
+  for (const m of history) {
+    const role = m.direction === "in" ? "user" : "assistant";
+    const last = turns[turns.length - 1];
+    if (last && last.role === role) last.content += "\n" + m.body;
+    else turns.push({ role, content: m.body });
+  }
+  while (turns.length && turns[0].role !== "user") turns.shift();
+  return turns;
+}
+
+function textOf(resp) {
+  return resp.content
+    .filter((b) => b.type === "text")
+    .map((b) => b.text)
+    .join("\n")
+    .trim();
+}
+
+/** Gelen (yabancı) mesajı Türkçeye çevir. */
+export async function translateToTurkish(text) {
+  if (!client) return { ok: false, error: "API anahtarı ayarlı değil." };
+  if (!text || !text.trim()) return { ok: true, text: "" };
+  try {
+    const resp = await client.messages.create({
+      model,
+      max_tokens: 600,
+      system:
+        "Sen bir çevirmensin. Verilen WhatsApp mesajını doğal, akıcı Türkçeye çevir. SADECE çeviriyi yaz — açıklama, tırnak veya ek metin yok. Mesaj zaten Türkçeyse aynen geri ver.",
+      messages: [{ role: "user", content: text }],
+    });
+    return { ok: true, text: textOf(resp) };
+  } catch (err) {
+    console.error("[ai] çeviri hatası:", err?.message || err);
+    return { ok: false, error: err?.message || "Çeviri hatası" };
+  }
+}
+
+/**
+ * Operatörün TÜRKÇE talimatından, müşterinin dilinde hazır cevap üretir.
+ * @param {Array<{direction:"in"|"out", body:string}>} history
+ * @param {string} instructionTr  Operatörün "şunu söyle" diye Türkçe yazdığı metin
+ */
+export async function composeReply(history, instructionTr) {
+  if (!client) return { ok: false, error: "API anahtarı ayarlı değil — Ayarlar'dan gir." };
+  if (!instructionTr || !instructionTr.trim()) {
+    return { ok: false, error: "Önce Türkçe olarak ne demek istediğini yaz." };
+  }
+  const messages = toMessages(history);
+  const convMessages = messages.length
+    ? messages
+    : [{ role: "user", content: "(Müşteri henüz mesaj yazmadı.)" }];
+
+  const guide =
+    "Bir müşteri hizmetleri operatörü, müşteriye ne söylenmesi gerektiğini TÜRKÇE olarak aşağıda tarif ediyor. " +
+    "Görevin: bu tarifi, yukarıdaki kurallara uyarak MÜŞTERİNİN DİLİNDE (Türkçe değil — müşteri hangi dilde yazdıysa o dilde) düzgün bir WhatsApp cevabına dönüştürmek. " +
+    "Sadece gönderilecek cevap metnini ver.\n\n" +
+    "Operatörün Türkçe talimatı:\n\"\"\"\n" + instructionTr.trim() + "\n\"\"\"";
+
+  try {
+    const resp = await client.messages.create({
+      model,
+      max_tokens: 1024,
+      system: [
+        { type: "text", text: SHOP_CONTEXT, cache_control: { type: "ephemeral" } },
+        { type: "text", text: guide },
+      ],
+      messages: convMessages,
+    });
+    return { ok: true, draft: textOf(resp) };
+  } catch (err) {
+    console.error("[ai] cevap üretim hatası:", err?.message || err);
+    return { ok: false, error: err?.message || "Bilinmeyen AI hatası" };
+  }
+}

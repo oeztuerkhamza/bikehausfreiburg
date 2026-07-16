@@ -35,6 +35,7 @@ jobs:
       api: ${{ steps.filter.outputs.api }}
       client: ${{ steps.filter.outputs.client }}
       homepage: ${{ steps.filter.outputs.homepage }}
+      whatsapp: ${{ steps.filter.outputs.whatsapp }}
       infra: ${{ steps.filter.outputs.infra }}
     steps:
       - uses: actions/checkout@v6
@@ -53,6 +54,8 @@ jobs:
               - 'BikeHaus.Client/**'
             homepage:
               - 'BikeHaus.Homepage/**'
+            whatsapp:
+              - 'whatsapp-assistant/**'
             infra:
               - 'docker-compose.yml'
               - 'nginx/**'
@@ -130,6 +133,40 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=client
           cache-to: type=gha,mode=max,scope=client
+
+  build-whatsapp:
+    needs: changes
+    if: |
+      needs.changes.outputs.whatsapp == 'true' ||
+      needs.changes.outputs.infra == 'true' ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}-whatsapp
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./whatsapp-assistant
+          file: ./whatsapp-assistant/Dockerfile
+          push: true
+          platforms: linux/amd64
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=whatsapp
+          cache-to: type=gha,mode=max,scope=whatsapp
 
   # ───────────────────────────────────────────────────────────────
   # Sync repository on the server (always runs when anything is
@@ -302,6 +339,49 @@ jobs:
             docker compose ps client
 
   # ───────────────────────────────────────────────────────────────
+  # Deploy WhatsApp assistant (Node + Chromium microservice)
+  # ───────────────────────────────────────────────────────────────
+  deploy-whatsapp:
+    needs: [changes, sync-server, build-whatsapp]
+    if: |
+      always() &&
+      needs.sync-server.result == 'success' &&
+      needs.build-whatsapp.result == 'success' &&
+      (
+        needs.changes.outputs.whatsapp == 'true' ||
+        needs.changes.outputs.infra == 'true' ||
+        github.event_name == 'workflow_dispatch'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull & recreate WhatsApp container
+        uses: appleboy/ssh-action@v1
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 15m
+          envs: GHCR_TOKEN,GHCR_USER
+          script: |
+            set -euo pipefail
+            cd /opt/bikehaus
+
+            echo "==> Logging in to GHCR"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+
+            echo "==> Pulling prebuilt WhatsApp image from GHCR"
+            docker compose pull whatsapp
+
+            echo "==> Recreating WhatsApp container"
+            docker compose up -d whatsapp
+
+            echo "==> WhatsApp status"
+            docker compose ps whatsapp
+
+  # ───────────────────────────────────────────────────────────────
   # Build Homepage on the runner (fast: 16GB RAM, 4 vCPU, npm cache).
   # The SSR bundle Angular emits is fully self-contained, so the
   # container only needs the dist/ folder + Node at runtime.
@@ -432,20 +512,23 @@ jobs:
   # Reload nginx after the service chain finishes
   # ───────────────────────────────────────────────────────────────
   reload-nginx:
-    needs: [changes, sync-server, deploy-api, deploy-client, deploy-homepage]
+    needs: [changes, sync-server, deploy-api, deploy-client, deploy-homepage, deploy-whatsapp]
     if: |
       always() &&
       needs.sync-server.result == 'success' &&
       needs.deploy-api.result != 'failure' &&
       needs.deploy-client.result != 'failure' &&
       needs.deploy-homepage.result != 'failure' &&
+      needs.deploy-whatsapp.result != 'failure' &&
       needs.deploy-api.result != 'cancelled' &&
       needs.deploy-client.result != 'cancelled' &&
       needs.deploy-homepage.result != 'cancelled' &&
+      needs.deploy-whatsapp.result != 'cancelled' &&
       (
         needs.deploy-api.result == 'success' ||
         needs.deploy-client.result == 'success' ||
         needs.deploy-homepage.result == 'success' ||
+        needs.deploy-whatsapp.result == 'success' ||
         needs.changes.outputs.infra == 'true'
       )
     runs-on: ubuntu-latest
@@ -477,7 +560,7 @@ jobs:
             # backend container is in restart-loop or has been stopped
             # out of band.
             echo "==> Ensuring backend services are up"
-            docker compose up -d bikehaus client homepage
+            docker compose up -d bikehaus client homepage whatsapp
 
             # Wait up to ~90s for the API to answer its healthcheck. nginx
             # uses a request-time resolver (see nginx.conf), so DNS would
