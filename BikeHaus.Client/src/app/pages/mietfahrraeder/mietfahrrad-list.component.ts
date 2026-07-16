@@ -6,10 +6,25 @@ import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { TranslationService } from '../../services/translation.service';
-import { Bicycle, PaginatedResult } from '../../models/models';
+import { Bicycle, BicycleUpdate, PaginatedResult } from '../../models/models';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
-import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
+import {
+  getConfiguredRentalPriceLines,
+  RentalPriceLine,
+} from '../../utils/rental-pricing';
 import { environment } from '../../../environments/environment';
+
+/** Per Doppelklick direkt auf der Karte änderbare Zahlenfelder. */
+type EditableField =
+  | 'rentalPriceDay1'
+  | 'rentalPriceDay2'
+  | 'rentalPriceDay3'
+  | 'rentalPriceDay4'
+  | 'rentalPriceDay5'
+  | 'rentalPriceDay6'
+  | 'rentalPriceDay7'
+  | 'rentalPriceAdditionalDayAfter7'
+  | 'kaution';
 
 @Component({
   selector: 'app-mietfahrrad-list',
@@ -160,26 +175,87 @@ import { environment } from '../../../environments/environment';
               <span *ngIf="bike.farbe">{{ bike.farbe }}</span>
             </div>
 
-            <!-- Prices -->
+            <!-- Prices + Kaution (Doppelklick zum Ändern) -->
             <div class="bike-prices" *ngIf="bike.isRentable">
               <div
                 class="price-pill"
-                *ngFor="let item of getPriceLines(bike)"
+                *ngFor="let item of getPriceLines(bike); trackBy: trackByDay"
                 [class.featured]="item.day === 7"
+                [class.editing]="isEditing(bike, priceField(item.day))"
+                (dblclick)="startEdit(bike, priceField(item.day))"
+                title="Doppelklick zum Ändern"
               >
-                <span>{{ item.shortLabel }}</span
-                ><strong>{{ item.price | number: '1.0-0' }}€</strong>
+                <span>{{ item.shortLabel }}</span>
+                <input
+                  *ngIf="isEditing(bike, priceField(item.day))"
+                  class="pill-input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  [(ngModel)]="editValue"
+                  (keydown.enter)="saveEdit(bike, priceField(item.day))"
+                  (keydown.escape)="cancelEdit()"
+                  (blur)="saveEdit(bike, priceField(item.day))"
+                />
+                <strong *ngIf="!isEditing(bike, priceField(item.day))"
+                  >{{ item.price | number: '1.0-0' }}€</strong
+                >
               </div>
               <div
                 class="price-pill price-pill-accent"
-                *ngIf="bike.rentalPriceAdditionalDayAfter7 != null"
+                *ngIf="
+                  bike.rentalPriceAdditionalDayAfter7 != null ||
+                  isEditing(bike, 'rentalPriceAdditionalDayAfter7')
+                "
+                [class.editing]="
+                  isEditing(bike, 'rentalPriceAdditionalDayAfter7')
+                "
+                (dblclick)="startEdit(bike, 'rentalPriceAdditionalDayAfter7')"
+                title="Doppelklick zum Ändern"
               >
-                <span>+1T</span
-                ><strong
+                <span>+1T</span>
+                <input
+                  *ngIf="isEditing(bike, 'rentalPriceAdditionalDayAfter7')"
+                  class="pill-input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  [(ngModel)]="editValue"
+                  (keydown.enter)="
+                    saveEdit(bike, 'rentalPriceAdditionalDayAfter7')
+                  "
+                  (keydown.escape)="cancelEdit()"
+                  (blur)="saveEdit(bike, 'rentalPriceAdditionalDayAfter7')"
+                />
+                <strong *ngIf="!isEditing(bike, 'rentalPriceAdditionalDayAfter7')"
                   >{{
                     bike.rentalPriceAdditionalDayAfter7 | number: '1.0-0'
                   }}€</strong
                 >
+              </div>
+              <div
+                class="price-pill price-pill-kaution"
+                [class.editing]="isEditing(bike, 'kaution')"
+                (dblclick)="startEdit(bike, 'kaution')"
+                title="Doppelklick zum Ändern"
+              >
+                <span>Kaution</span>
+                <input
+                  *ngIf="isEditing(bike, 'kaution')"
+                  class="pill-input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  [(ngModel)]="editValue"
+                  (keydown.enter)="saveEdit(bike, 'kaution')"
+                  (keydown.escape)="cancelEdit()"
+                  (blur)="saveEdit(bike, 'kaution')"
+                />
+                <strong *ngIf="!isEditing(bike, 'kaution')">{{
+                  bike.kaution != null
+                    ? (bike.kaution | number: '1.0-0') + '€'
+                    : '–'
+                }}</strong>
               </div>
             </div>
             <div class="no-prices" *ngIf="!bike.isRentable">
@@ -510,6 +586,32 @@ import { environment } from '../../../environments/environment';
       .price-pill.featured strong {
         color: var(--accent-primary);
       }
+      .price-pill-kaution {
+        border-style: dashed;
+      }
+      .price-pill-kaution strong {
+        color: var(--text-secondary);
+      }
+      .price-pill.editing {
+        border-color: var(--accent-primary);
+      }
+      .pill-input {
+        width: 52px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: var(--accent-primary);
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-align: center;
+        outline: none;
+        -moz-appearance: textfield;
+      }
+      .pill-input::-webkit-outer-spin-button,
+      .pill-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
       .no-prices {
         font-size: 0.8rem;
         color: var(--text-muted);
@@ -588,6 +690,8 @@ export class MietfahrradListComponent implements OnInit {
 
   paginatedResult: PaginatedResult<Bicycle> | null = null;
   loading = signal(true);
+  editingKey = signal<string | null>(null);
+  editValue: number | null = null;
   currentPage = 1;
   pageSize = 1000;
   searchText = '';
@@ -658,6 +762,84 @@ export class MietfahrradListComponent implements OnInit {
     this.loadBikes();
   }
 
+  // Das Update-Endpoint überschreibt jedes Feld, das im DTO steht — fehlende
+  // Werte (z.B. Kaution) würden dadurch geleert. Immer vollständig senden.
+  private buildUpdateDto(bike: Bicycle): BicycleUpdate {
+    return {
+      marke: bike.marke,
+      modell: bike.modell ?? '',
+      rahmennummer: bike.rahmennummer,
+      rahmengroesse: bike.rahmengroesse,
+      farbe: bike.farbe,
+      reifengroesse: bike.reifengroesse,
+      fahrradtyp: bike.fahrradtyp,
+      art: bike.art,
+      beschreibung: bike.beschreibung,
+      status: bike.status,
+      zustand: bike.zustand,
+      verkaufspreisVorschlag: bike.verkaufspreisVorschlag,
+      isRentable: bike.isRentable,
+      rentalPriceDay1: bike.rentalPriceDay1,
+      rentalPriceDay2: bike.rentalPriceDay2,
+      rentalPriceDay3: bike.rentalPriceDay3,
+      rentalPriceDay4: bike.rentalPriceDay4,
+      rentalPriceDay5: bike.rentalPriceDay5,
+      rentalPriceDay6: bike.rentalPriceDay6,
+      rentalPriceDay7: bike.rentalPriceDay7,
+      rentalPriceAdditionalDayAfter7: bike.rentalPriceAdditionalDayAfter7,
+      kaution: bike.kaution,
+    };
+  }
+
+  // getPriceLines() liefert bei jedem Change-Detection-Lauf neue Objekte —
+  // ohne trackBy würde das offene Eingabefeld neu erzeugt und verlöre den Fokus.
+  trackByDay = (_: number, item: RentalPriceLine) => item.day;
+
+  priceField(day: number): EditableField {
+    return `rentalPriceDay${day}` as EditableField;
+  }
+
+  isEditing(bike: Bicycle, field: EditableField): boolean {
+    return this.editingKey() === `${bike.id}:${field}`;
+  }
+
+  startEdit(bike: Bicycle, field: EditableField) {
+    this.editValue = bike[field] ?? null;
+    this.editingKey.set(`${bike.id}:${field}`);
+    // Es ist immer nur ein Feld offen.
+    setTimeout(() => {
+      const input = document.querySelector<HTMLInputElement>('.pill-input');
+      input?.focus();
+      input?.select();
+    });
+  }
+
+  cancelEdit() {
+    this.editingKey.set(null);
+  }
+
+  saveEdit(bike: Bicycle, field: EditableField) {
+    if (!this.isEditing(bike, field)) return; // blur nach Enter/Escape
+    const value = this.editValue;
+    if (value != null && (!isFinite(value) || value < 0)) {
+      this.notificationService.error('Ungültiger Wert');
+      return;
+    }
+    this.editingKey.set(null);
+    const previous = bike[field];
+    const next = value ?? undefined;
+    if (next === previous) return;
+
+    bike[field] = next;
+    this.bicycleService.update(bike.id, this.buildUpdateDto(bike)).subscribe({
+      next: () => this.notificationService.success(this.t.saveSuccess),
+      error: () => {
+        bike[field] = previous;
+        this.notificationService.error(this.t.saveError);
+      },
+    });
+  }
+
   toggleRentable(bike: Bicycle) {
     const msg = bike.isRentable
       ? 'Verleih für dieses Fahrrad deaktivieren?'
@@ -667,28 +849,10 @@ export class MietfahrradListComponent implements OnInit {
       .then((confirmed) => {
         if (!confirmed) return;
         const dto = {
-          marke: bike.marke,
-          modell: bike.modell ?? '',
-          rahmennummer: bike.rahmennummer,
-          rahmengroesse: bike.rahmengroesse,
-          farbe: bike.farbe,
-          reifengroesse: bike.reifengroesse,
-          fahrradtyp: bike.fahrradtyp,
-          art: bike.art,
-          beschreibung: bike.beschreibung,
-          status: bike.status,
-          zustand: bike.zustand,
+          ...this.buildUpdateDto(bike),
           isRentable: !bike.isRentable,
-          rentalPriceDay1: bike.rentalPriceDay1,
-          rentalPriceDay2: bike.rentalPriceDay2,
-          rentalPriceDay3: bike.rentalPriceDay3,
-          rentalPriceDay4: bike.rentalPriceDay4,
-          rentalPriceDay5: bike.rentalPriceDay5,
-          rentalPriceDay6: bike.rentalPriceDay6,
-          rentalPriceDay7: bike.rentalPriceDay7,
-          rentalPriceAdditionalDayAfter7: bike.rentalPriceAdditionalDayAfter7,
         };
-        this.bicycleService.update(bike.id, dto as any).subscribe({
+        this.bicycleService.update(bike.id, dto).subscribe({
           next: () => {
             this.notificationService.success(this.t.saveSuccess);
             this.loadBikes();
