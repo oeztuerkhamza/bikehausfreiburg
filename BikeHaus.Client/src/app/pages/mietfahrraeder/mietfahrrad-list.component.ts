@@ -617,7 +617,7 @@ export class MietfahrradListComponent implements OnInit {
       )
       .subscribe({
         next: (result) => {
-          this.paginatedResult = result;
+          this.paginatedResult = { ...result, items: this.sortBikes(result.items) };
           this.loading.set(false);
         },
         error: () => {
@@ -625,6 +625,19 @@ export class MietfahrradListComponent implements OnInit {
           this.loading.set(false);
         },
       });
+  }
+
+  // Karten alphabetisch nach Marke, dann Modell (Backend liefert nach CreatedAt).
+  private sortBikes(bikes: Bicycle[]): Bicycle[] {
+    const collator = new Intl.Collator('de', {
+      sensitivity: 'base',
+      numeric: true,
+    });
+    return [...bikes].sort(
+      (a, b) =>
+        collator.compare(a.marke, b.marke) ||
+        collator.compare(a.modell, b.modell),
+    );
   }
 
   onSearch() {
