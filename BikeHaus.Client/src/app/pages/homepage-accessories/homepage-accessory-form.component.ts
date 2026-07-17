@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { HomepageAccessoryService } from '../../services/homepage-accessory.service';
 import { TranslationService } from '../../services/translation.service';
+import { DialogService } from '../../services/dialog.service';
 import {
   HomepageAccessory,
   HomepageAccessoryCreate,
@@ -359,6 +360,7 @@ import { environment } from '../../../environments/environment';
 export class HomepageAccessoryFormComponent implements OnInit {
   private translationService = inject(TranslationService);
   private service = inject(HomepageAccessoryService);
+  private dialogService = inject(DialogService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -444,15 +446,20 @@ export class HomepageAccessoryFormComponent implements OnInit {
   }
 
   deleteImage(imageId: number) {
-    this.service.deleteImage(imageId).subscribe({
-      next: () => {
-        if (this.existingItem) {
-          this.existingItem.images = this.existingItem.images.filter(
-            (i) => i.id !== imageId,
-          );
-        }
-      },
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.service.deleteImage(imageId).subscribe({
+          next: () => {
+            if (this.existingItem) {
+              this.existingItem.images = this.existingItem.images.filter(
+                (i) => i.id !== imageId,
+              );
+            }
+          },
+        });
+      });
   }
 
   submit() {

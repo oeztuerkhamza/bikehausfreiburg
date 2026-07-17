@@ -5,6 +5,7 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
+import { DialogService } from '../../services/dialog.service';
 import { Bicycle, BicycleImage } from '../../models/models';
 import { environment } from '../../../environments/environment';
 import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
@@ -1156,6 +1157,7 @@ export class MietfahrradFormComponent implements OnInit {
   private bicycleService = inject(BicycleService);
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
+  private dialogService = inject(DialogService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -1350,11 +1352,18 @@ export class MietfahrradFormComponent implements OnInit {
 
   deleteImage(img: BicycleImage) {
     if (!this.bikeId) return;
-    this.bicycleService.deleteGalleryImage(this.bikeId, img.id).subscribe({
-      next: () =>
-        this.images.update((imgs) => imgs.filter((i) => i.id !== img.id)),
-      error: () => this.notificationService.error(this.t.saveError),
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.bicycleService
+          .deleteGalleryImage(this.bikeId!, img.id)
+          .subscribe({
+            next: () =>
+              this.images.update((imgs) => imgs.filter((i) => i.id !== img.id)),
+            error: () => this.notificationService.error(this.t.saveError),
+          });
+      });
   }
 
   // ── Reordering / Titelbild ──

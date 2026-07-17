@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { NeueFahrradService } from '../../services/neue-fahrrad.service';
 import { TranslationService } from '../../services/translation.service';
+import { DialogService } from '../../services/dialog.service';
 import {
   NeueFahrrad,
   NeueFahrradCreate,
@@ -509,6 +510,7 @@ import { environment } from '../../../environments/environment';
 export class NeueFahrradFormComponent implements OnInit {
   private translationService = inject(TranslationService);
   private service = inject(NeueFahrradService);
+  private dialogService = inject(DialogService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -668,15 +670,20 @@ export class NeueFahrradFormComponent implements OnInit {
   }
 
   deleteImage(imageId: number) {
-    this.service.deleteImage(imageId).subscribe({
-      next: () => {
-        if (this.existingItem) {
-          this.existingItem.images = this.existingItem.images.filter(
-            (i) => i.id !== imageId,
-          );
-        }
-      },
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.service.deleteImage(imageId).subscribe({
+          next: () => {
+            if (this.existingItem) {
+              this.existingItem.images = this.existingItem.images.filter(
+                (i) => i.id !== imageId,
+              );
+            }
+          },
+        });
+      });
   }
 
   submit() {

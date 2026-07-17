@@ -9,6 +9,7 @@ import {
   TranslationService,
   Language,
 } from '../../services/translation.service';
+import { DialogService } from '../../services/dialog.service';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { BackupService } from '../../services/backup.service';
@@ -1831,6 +1832,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   themeService = inject(ThemeService);
   private translationService = inject(TranslationService);
   private authService = inject(AuthService);
+  private dialogService = inject(DialogService);
 
   loading = true;
   saving = false;
@@ -2226,14 +2228,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   deleteLogo(): void {
-    this.settingsService.deleteLogo().subscribe({
-      next: () => {
-        this.settings.logoBase64 = undefined;
-        this.settings.logoFileName = undefined;
-        this.showSuccessMessage();
-      },
-      error: (err) => console.error('Error deleting logo:', err),
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.settingsService.deleteLogo().subscribe({
+          next: () => {
+            this.settings.logoBase64 = undefined;
+            this.settings.logoFileName = undefined;
+            this.showSuccessMessage();
+          },
+          error: (err) => console.error('Error deleting logo:', err),
+        });
+      });
   }
 
   saveOwnerSignature(): void {
@@ -2283,14 +2290,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   deleteOwnerSignature(): void {
-    this.settingsService.deleteOwnerSignature().subscribe({
-      next: () => {
-        this.settings.inhaberSignatureBase64 = undefined;
-        this.settings.inhaberSignatureFileName = undefined;
-        this.showSuccessMessage();
-      },
-      error: (err) => console.error('Error deleting signature:', err),
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.settingsService.deleteOwnerSignature().subscribe({
+          next: () => {
+            this.settings.inhaberSignatureBase64 = undefined;
+            this.settings.inhaberSignatureFileName = undefined;
+            this.showSuccessMessage();
+          },
+          error: (err) => console.error('Error deleting signature:', err),
+        });
+      });
   }
 
   changeLanguage(lang: Language): void {

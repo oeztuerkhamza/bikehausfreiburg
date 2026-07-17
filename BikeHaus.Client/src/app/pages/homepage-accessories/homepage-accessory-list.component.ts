@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HomepageAccessoryService } from '../../services/homepage-accessory.service';
 import { TranslationService } from '../../services/translation.service';
+import { DialogService } from '../../services/dialog.service';
 import { HomepageAccessory } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
@@ -353,6 +354,7 @@ import { environment } from '../../../environments/environment';
 export class HomepageAccessoryListComponent implements OnInit {
   private translationService = inject(TranslationService);
   private service = inject(HomepageAccessoryService);
+  private dialogService = inject(DialogService);
 
   items: HomepageAccessory[] = [];
   filteredItems: HomepageAccessory[] = [];
@@ -412,12 +414,16 @@ export class HomepageAccessoryListComponent implements OnInit {
   }
 
   deleteItem(item: HomepageAccessory) {
-    if (!confirm(this.t.homepageAccessoryDeleteConfirm)) return;
-    this.service.delete(item.id).subscribe({
-      next: () => {
-        this.items = this.items.filter((i) => i.id !== item.id);
-        this.filterItems();
-      },
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.homepageAccessoryDeleteConfirm)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.service.delete(item.id).subscribe({
+          next: () => {
+            this.items = this.items.filter((i) => i.id !== item.id);
+            this.filterItems();
+          },
+        });
+      });
   }
 }

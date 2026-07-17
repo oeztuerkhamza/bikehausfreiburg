@@ -7,6 +7,7 @@ import { SaleService } from '../../services/sale.service';
 import { DocumentService } from '../../services/document.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { TranslationService } from '../../services/translation.service';
+import { DialogService } from '../../services/dialog.service';
 import {
   Purchase,
   PurchaseUpdate,
@@ -768,6 +769,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     private bicycleService: BicycleService,
     private router: Router,
     private route: ActivatedRoute,
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit() {
@@ -887,17 +889,21 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
   }
 
   deleteDocument(doc: DocModel) {
-    if (!confirm('Löschen?')) return;
-    this.documentService.delete(doc.id).subscribe({
-      next: () => {
-        const url = this.docBlobUrls.get(doc.id);
-        if (url) {
-          URL.revokeObjectURL(url);
-          this.docBlobUrls.delete(doc.id);
-        }
-        this.documents = this.documents.filter((d) => d.id !== doc.id);
-      },
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.documentService.delete(doc.id).subscribe({
+          next: () => {
+            const url = this.docBlobUrls.get(doc.id);
+            if (url) {
+              URL.revokeObjectURL(url);
+              this.docBlobUrls.delete(doc.id);
+            }
+            this.documents = this.documents.filter((d) => d.id !== doc.id);
+          },
+        });
+      });
   }
 
   onSalePhotosSelected(event: Event) {
@@ -933,17 +939,23 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
   }
 
   deleteSaleDocument(doc: DocModel) {
-    if (!confirm('Löschen?')) return;
-    this.documentService.delete(doc.id).subscribe({
-      next: () => {
-        const url = this.docBlobUrls.get(doc.id);
-        if (url) {
-          URL.revokeObjectURL(url);
-          this.docBlobUrls.delete(doc.id);
-        }
-        this.saleDocuments = this.saleDocuments.filter((d) => d.id !== doc.id);
-      },
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.documentService.delete(doc.id).subscribe({
+          next: () => {
+            const url = this.docBlobUrls.get(doc.id);
+            if (url) {
+              URL.revokeObjectURL(url);
+              this.docBlobUrls.delete(doc.id);
+            }
+            this.saleDocuments = this.saleDocuments.filter(
+              (d) => d.id !== doc.id,
+            );
+          },
+        });
+      });
   }
 
   openImagePreview(doc: DocModel) {

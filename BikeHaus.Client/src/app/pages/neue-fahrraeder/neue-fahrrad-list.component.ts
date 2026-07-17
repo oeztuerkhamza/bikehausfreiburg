@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NeueFahrradService } from '../../services/neue-fahrrad.service';
 import { TranslationService } from '../../services/translation.service';
+import { DialogService } from '../../services/dialog.service';
 import { NeueFahrrad } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
@@ -363,6 +364,7 @@ import { environment } from '../../../environments/environment';
 export class NeueFahrradListComponent implements OnInit {
   private translationService = inject(TranslationService);
   private service = inject(NeueFahrradService);
+  private dialogService = inject(DialogService);
 
   items: NeueFahrrad[] = [];
   filteredItems: NeueFahrrad[] = [];
@@ -423,12 +425,16 @@ export class NeueFahrradListComponent implements OnInit {
   }
 
   deleteItem(item: NeueFahrrad) {
-    if (!confirm(this.t.neueFahrradDeleteConfirm)) return;
-    this.service.delete(item.id).subscribe({
-      next: () => {
-        this.items = this.items.filter((i) => i.id !== item.id);
-        this.filterItems();
-      },
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.neueFahrradDeleteConfirm)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.service.delete(item.id).subscribe({
+          next: () => {
+            this.items = this.items.filter((i) => i.id !== item.id);
+            this.filterItems();
+          },
+        });
+      });
   }
 }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { EBikeService } from '../../services/e-bike.service';
 import { TranslationService } from '../../services/translation.service';
+import { DialogService } from '../../services/dialog.service';
 import { EBike, EBikeCreate, EBikeUpdate } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
@@ -557,6 +558,7 @@ import { environment } from '../../../environments/environment';
 export class EBikeFormComponent implements OnInit {
   private translationService = inject(TranslationService);
   private service = inject(EBikeService);
+  private dialogService = inject(DialogService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -726,15 +728,20 @@ export class EBikeFormComponent implements OnInit {
   }
 
   deleteImage(imageId: number) {
-    this.service.deleteImage(imageId).subscribe({
-      next: () => {
-        if (this.existingItem) {
-          this.existingItem.images = this.existingItem.images.filter(
-            (i) => i.id !== imageId,
-          );
-        }
-      },
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.service.deleteImage(imageId).subscribe({
+          next: () => {
+            if (this.existingItem) {
+              this.existingItem.images = this.existingItem.images.filter(
+                (i) => i.id !== imageId,
+              );
+            }
+          },
+        });
+      });
   }
 
   submit() {

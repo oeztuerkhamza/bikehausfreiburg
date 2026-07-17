@@ -713,19 +713,24 @@ export class RentalAccessoryListComponent implements OnInit {
 
   deleteFoto() {
     if (!this.editingItem) return;
-    this.uploadingFoto = true;
-    this.service.deleteFoto(this.editingItem.id).subscribe({
-      next: () => {
-        this.uploadingFoto = false;
-        this.formData.bildPfad = undefined;
-        this.notificationService.success(this.t.deleteSuccess);
-        this.loadItems();
-      },
-      error: () => {
-        this.uploadingFoto = false;
-        this.notificationService.error(this.t.deleteError);
-      },
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed || !this.editingItem) return;
+        this.uploadingFoto = true;
+        this.service.deleteFoto(this.editingItem.id).subscribe({
+          next: () => {
+            this.uploadingFoto = false;
+            this.formData.bildPfad = undefined;
+            this.notificationService.success(this.t.deleteSuccess);
+            this.loadItems();
+          },
+          error: () => {
+            this.uploadingFoto = false;
+            this.notificationService.error(this.t.deleteError);
+          },
+        });
+      });
   }
 
   deleteItem(item: RentalAccessoryList) {

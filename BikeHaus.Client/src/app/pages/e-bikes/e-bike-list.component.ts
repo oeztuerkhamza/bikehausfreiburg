@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { EBikeService } from '../../services/e-bike.service';
 import { TranslationService } from '../../services/translation.service';
+import { DialogService } from '../../services/dialog.service';
 import { EBike } from '../../models/models';
 import { environment } from '../../../environments/environment';
 
@@ -363,6 +364,7 @@ import { environment } from '../../../environments/environment';
 export class EBikeListComponent implements OnInit {
   private translationService = inject(TranslationService);
   private service = inject(EBikeService);
+  private dialogService = inject(DialogService);
 
   items: EBike[] = [];
   filteredItems: EBike[] = [];
@@ -423,12 +425,16 @@ export class EBikeListComponent implements OnInit {
   }
 
   deleteItem(item: EBike) {
-    if (!confirm(this.t.eBikeDeleteConfirm)) return;
-    this.service.delete(item.id).subscribe({
-      next: () => {
-        this.items = this.items.filter((i) => i.id !== item.id);
-        this.filterItems();
-      },
-    });
+    this.dialogService
+      .danger(this.t.delete, this.t.eBikeDeleteConfirm)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.service.delete(item.id).subscribe({
+          next: () => {
+            this.items = this.items.filter((i) => i.id !== item.id);
+            this.filterItems();
+          },
+        });
+      });
   }
 }
