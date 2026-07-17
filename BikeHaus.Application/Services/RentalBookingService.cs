@@ -539,6 +539,20 @@ public class RentalBookingService : IRentalBookingService
         return Math.Max(1, days);
     }
 
+    // Gesamtkaution der Buchung. Bevorzugt die bei der Buchung erfassten
+    // Kautionswerte je Fahrrad (RentalBookingBike.Kaution); faellt fuer aeltere
+    // Ein-Fahrrad-Buchungen ohne Bikes-Zeilen auf die aktuelle Kaution des
+    // Fahrrads zurueck. So zeigt die Bestaetigungs-E-Mail denselben Betrag wie
+    // die Buchungsseite, statt eines fest verdrahteten Standardwerts.
+    private static decimal? CalculateDeposit(RentalBooking booking, Bicycle? primaryBicycle)
+    {
+        decimal? deposit = booking.Bikes.Any()
+            ? booking.Bikes.Sum(bk => bk.Kaution ?? 0m)
+            : primaryBicycle?.Kaution;
+
+        return deposit == 0m ? null : deposit;
+    }
+
     private static decimal? CalculateTotalPrice(Bicycle bicycle, RentalBooking booking)
     {
         var days = CalculateDaysInclusive(booking.StartDatum, booking.EndDatum);
@@ -576,6 +590,7 @@ public class RentalBookingService : IRentalBookingService
         var primaryBicycle = bicycles.FirstOrDefault();
         var days = CalculateDaysInclusive(booking.StartDatum, booking.EndDatum);
         var accessoriesText = BuildAccessoriesText(booking, booking.Sprache);
+        var deposit = CalculateDeposit(booking, primaryBicycle);
 
         string bikeBrand, bikeModel;
         if (bicycles.Count == 1)
@@ -603,7 +618,7 @@ public class RentalBookingService : IRentalBookingService
             booking.Abholzeit,
             days,
             booking.Gesamtpreis,
-            null,
+            deposit,
             accessoriesText,
             shop.PickupLocation,
             shop.Phone,
