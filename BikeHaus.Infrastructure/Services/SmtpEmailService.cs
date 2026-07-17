@@ -640,6 +640,7 @@ Your Bike Haus Freiburg team
     private static string BuildReceivedBodyDe(RentalBookingEmailModel m)
     {
         var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "wird nach Pruefung bestaetigt";
+        var depositAmount = m.Deposit ?? 300m;
         var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
             ? "Keine"
             : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
@@ -655,6 +656,7 @@ Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
 Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
 Geschaetzter Mietpreis: {totalPriceText}
+Kaution: {depositAmount:0.00} EUR (in bar bei Abholung, wird bei Rueckgabe erstattet)
 Zubehoer: {accessoriesText}
 
 Wie geht es jetzt weiter?
@@ -681,6 +683,7 @@ Dein Team vom Bike Haus Freiburg
     private static string BuildReceivedBodyEn(RentalBookingEmailModel m)
     {
         var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "will be confirmed after review";
+        var depositAmount = m.Deposit ?? 300m;
         var accessoriesText = IsNoAccessories(m.AccessoriesText)
             ? "None"
             : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
@@ -696,6 +699,7 @@ Booking number: {m.BuchungsNummer}
 Bike: {m.BikeBrand} {m.BikeModel}
 Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days){abholzeitLine}
 Estimated rental price: {totalPriceText}
+Deposit: {depositAmount:0.00} EUR (cash on pickup, refunded on return)
 Accessories: {accessoriesText}
 
 What happens next?
