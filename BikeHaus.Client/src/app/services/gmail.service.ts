@@ -39,7 +39,8 @@ export interface GmailMessage {
 }
 
 const SCOPES = [
-  'https://www.googleapis.com/auth/gmail.readonly',
+  // modify enthält Lesezugriff + Labels ändern (gelesen/ungelesen) + Papierkorb.
+  'https://www.googleapis.com/auth/gmail.modify',
   'https://www.googleapis.com/auth/gmail.send',
 ].join(' ');
 
@@ -231,6 +232,19 @@ export class GmailService {
       method: 'POST',
       body: JSON.stringify({ raw, threadId: opts.threadId }),
     });
+  }
+
+  /** Markiert eine Nachricht als gelesen (entfernt das UNREAD-Label). */
+  async markAsRead(id: string): Promise<void> {
+    await this.api(`/messages/${id}/modify`, {
+      method: 'POST',
+      body: JSON.stringify({ removeLabelIds: ['UNREAD'] }),
+    });
+  }
+
+  /** Verschiebt eine Nachricht in den Papierkorb (wiederherstellbar in Gmail). */
+  async trashMessage(id: string): Promise<void> {
+    await this.api(`/messages/${id}/trash`, { method: 'POST' });
   }
 
   // ── intern: GIS + Token ────────────────────────────────────────────────

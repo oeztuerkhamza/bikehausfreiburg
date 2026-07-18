@@ -139,20 +139,53 @@ interface EmailGroup {
                 <span class="unread-dot" *ngIf="g.unreadCount > 0" title="Ungelesen"></span>
                 <span class="g-count" *ngIf="g.items.length > 1" title="Nachrichten">{{ g.items.length }}</span>
               </div>
-              <button
+              <div
                 *ngFor="let m of g.items"
                 class="inbox-item"
+                role="button"
+                tabindex="0"
                 [class.active]="selected()?.id === m.id"
                 [class.unread]="m.unread"
                 (click)="openEmail(m)"
+                (keyup.enter)="openEmail(m)"
               >
                 <span class="unread-indicator" *ngIf="m.unread" aria-label="Ungelesen"></span>
-                <div class="row1">
-                  <span class="subject">{{ m.subject }}</span>
-                  <span class="date">{{ formatDate(m.date) }}</span>
+                <div class="item-main">
+                  <div class="row1">
+                    <span class="subject">{{ m.subject }}</span>
+                    <span class="date">{{ formatDate(m.date) }}</span>
+                  </div>
+                  <div class="snippet">{{ m.snippet }}</div>
                 </div>
-                <div class="snippet">{{ m.snippet }}</div>
-              </button>
+                <div class="item-actions">
+                  <button
+                    *ngIf="m.unread"
+                    type="button"
+                    class="act-btn"
+                    (click)="markRead(m, $event)"
+                    title="Als gelesen markieren"
+                    aria-label="Als gelesen markieren"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="act-btn danger"
+                    (click)="deleteMail(m, $event)"
+                    title="In den Papierkorb"
+                    aria-label="Löschen"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <ng-template #listSkeleton>
@@ -372,13 +405,23 @@ interface EmailGroup {
       }
 
       .inbox-item {
-        position: relative; display: block; width: 100%; text-align: left;
-        padding: 7px 14px 9px 30px; border: none; background: transparent; cursor: pointer;
+        position: relative; display: flex; align-items: center; gap: 6px; width: 100%; text-align: left;
+        padding: 7px 12px 9px 30px; border: none; background: transparent; cursor: pointer;
         transition: background 0.12s;
       }
       .inbox-item:hover { background: var(--bg-hover, rgba(0,0,0,0.03)); }
       .inbox-item.active { background: var(--accent-primary-light, rgba(99,102,241,0.1)); }
       .inbox-item.unread .subject { font-weight: 700; color: var(--text-primary); }
+      .item-main { flex: 1; min-width: 0; }
+      .item-actions { display: flex; gap: 4px; flex-shrink: 0; opacity: 0.45; transition: opacity 0.12s; }
+      .inbox-item:hover .item-actions, .inbox-item.active .item-actions { opacity: 1; }
+      .act-btn {
+        width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border-color);
+        background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer;
+        display: flex; align-items: center; justify-content: center; transition: all 0.12s; padding: 0;
+      }
+      .act-btn:hover { color: var(--accent-primary, #6366f1); border-color: var(--accent-primary, #6366f1); }
+      .act-btn.danger:hover { color: #ef4444; border-color: #ef4444; background: rgba(239, 68, 68, 0.06); }
       .inbox-item.unread { animation: rowpulse 1.6s ease-in-out infinite; }
       .unread-indicator {
         position: absolute; left: 13px; top: 13px; width: 8px; height: 8px; border-radius: 50%;
@@ -599,11 +642,51 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
     try {
       const msg = await this.gmail.getMessage(item.id);
       this.selected.set(msg);
+      // Beim Öffnen automatisch als gelesen markieren.
+      if (item.unread) this.markReadSilently(item.id);
     } catch (e: any) {
       this.notify.error('E-Mail konnte nicht geladen werden: ' + (e?.message || ''));
     } finally {
       this.loadingDetail.set(false);
     }
+  }
+
+  /** Explizit als gelesen markieren (Button im Posteingang). */
+  markRead(m: GmailListItem, ev: Event): void {
+    ev.stopPropagation();
+    if (!m.unread) return;
+    this.markReadSilently(m.id);
+  }
+
+  private markReadSilently(id: string): void {
+    this.gmail
+      .markAsRead(id)
+      .then(() => {
+        this.emails.update((list) =>
+          list.map((x) => (x.id === id ? { ...x, unread: false } : x)),
+        );
+      })
+      .catch(() => {
+        this.notify.error('Konnte nicht als gelesen markiert werden.');
+      });
+  }
+
+  /** Nachricht in den Papierkorb verschieben. */
+  deleteMail(m: GmailListItem, ev: Event): void {
+    ev.stopPropagation();
+    this.gmail
+      .trashMessage(m.id)
+      .then(() => {
+        this.emails.update((list) => list.filter((x) => x.id !== m.id));
+        if (this.selected()?.id === m.id) {
+          this.selected.set(null);
+          this.resetComposer();
+        }
+        this.notify.success('In den Papierkorb verschoben.');
+      })
+      .catch(() => {
+        this.notify.error('Löschen fehlgeschlagen.');
+      });
   }
 
   generate(): void {
