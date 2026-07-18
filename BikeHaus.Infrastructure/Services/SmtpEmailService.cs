@@ -71,13 +71,7 @@ public class SmtpEmailService : IEmailService
     {
         var subject = $"Neue Mietanfrage (Pending) - {model.BuchungsNummer} | Bike Haus Freiburg";
         var body = BuildAdminPendingNotificationBodyDe(model, adminPortalUrl);
-        return SendAsync(
-            "info.bikehausfreiburg@gmail.com",
-            "Bike Haus Freiburg",
-            subject,
-            body,
-            "MietanfrageAdminBenachrichtigung",
-            isHtml: true);
+        return true;
     }
 
     public Task SendDepositRefundConfirmationAsync(string toEmail, string toName, string mietvertragNummer)
