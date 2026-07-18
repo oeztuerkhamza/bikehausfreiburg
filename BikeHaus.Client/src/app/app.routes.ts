@@ -389,5 +389,13 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'ai-email',
+    loadComponent: () =>
+      import('./pages/ai-email-assistant/ai-email-assistant.component').then(
+        (m) => m.AiEmailAssistantComponent,
+      ),
+    canActivate: [authGuard],
+  },
   { path: '**', redirectTo: '' },
 ];
