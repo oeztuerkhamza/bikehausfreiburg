@@ -107,3 +107,23 @@ public record RentalBookingSignatureDto(string MieterUnterschrift);
 public record RentalBookingRangeDto(DateTime StartDatum, DateTime EndDatum);
 
 public record RentalBookingUpdateBikeDto(int NewBicycleId);
+
+// Report for the one-off repair that undoes bookings wrongly cancelled by the
+// self-cancel email link (see RevertErroneousStornosAsync). Runs as a dry-run
+// by default so the candidates can be reviewed before anything is changed.
+public record RevertStornoItemDto(
+    string BuchungsNummer,
+    string CustomerName,
+    string? Email,
+    DateTime StartDatum,
+    DateTime EndDatum,
+    string NewStatus,
+    DateTime? CancelledAt);
+
+public record RevertStornoResultDto(
+    int Candidates,
+    int Reverted,
+    int EmailsSent,
+    int EmailsFailed,
+    bool Applied,
+    IReadOnlyList<RevertStornoItemDto> Items);

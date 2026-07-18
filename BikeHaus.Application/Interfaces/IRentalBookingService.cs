@@ -18,4 +18,17 @@ public interface IRentalBookingService
     Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath);
     Task<string?> GetAusweisPhotoPathAsync(int id);
     Task<RentalBookingDto> UpdateBookingBikeAsync(int bookingId, int bookingBikeId, int newBicycleId);
+
+    /// <summary>
+    /// Undoes bookings that were cancelled by the self-cancel email link bug
+    /// (identified by the "Self-Storno" note on a Cancelled booking). Dry-run by
+    /// default (<paramref name="apply"/> = false) — returns the candidate list
+    /// without changing anything. When applied, restores each booking to its
+    /// prior status (Approved if it had been approved, otherwise Pending),
+    /// clears the cancellation, and emails the customer that it is active again.
+    /// <paramref name="cancelledBefore"/> optionally limits candidates to
+    /// cancellations before a given time (e.g. the deploy of the fix), so
+    /// genuine cancellations made afterwards are left untouched.
+    /// </summary>
+    Task<RevertStornoResultDto> RevertErroneousStornosAsync(bool apply, DateTime? cancelledBefore = null);
 }

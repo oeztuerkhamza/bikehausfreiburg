@@ -53,6 +53,13 @@ public class SmtpEmailService : IEmailService
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietvertragStorniert");
     }
 
+    public Task SendRentalBookingReactivatedAsync(RentalBookingEmailModel model)
+    {
+        var subject = $"Buchung wieder aktiv / Booking reactivated - {model.BuchungsNummer} | Bike Haus Freiburg";
+        var body = Bilingual(BuildReactivatedBodyDe(model), BuildReactivatedBodyEn(model));
+        return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageReaktiviert");
+    }
+
     public Task SendRentalBookingReceivedAsync(RentalBookingEmailModel model)
     {
         var subject = $"Mietanfrage eingegangen / Request received - {model.BuchungsNummer} | Bike Haus Freiburg";
@@ -571,6 +578,52 @@ Your Bike Haus Freiburg team
 
 {m.ShopPhone}
 bikehausfreiburg.com
+{m.ShopEmail}
+";
+    }
+
+    private static string BuildReactivatedBodyDe(RentalBookingEmailModel m)
+    {
+        return $@"Hallo {m.ToName},
+
+kurze Entschuldigung vorweg: Du hast vor Kurzem faelschlicherweise eine Stornierungs-Bestaetigung von uns erhalten. Das war ein technischer Fehler - deine Buchung wurde NICHT von dir storniert.
+
+Gute Nachricht: Deine Buchung ist wieder aktiv.
+
+Buchungsnummer: {m.BuchungsNummer}
+Fahrrad: {m.BikeBrand} {m.BikeModel}
+Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)
+
+Du musst nichts weiter tun. Falls du Fragen hast oder tatsaechlich stornieren moechtest, antworte einfach auf diese E-Mail oder ruf kurz durch.
+
+Entschuldige bitte die Verwirrung.
+
+Viele Gruesse
+Dein Team vom Bike Haus Freiburg
+{m.ShopPhone}
+{m.ShopEmail}
+";
+    }
+
+    private static string BuildReactivatedBodyEn(RentalBookingEmailModel m)
+    {
+        return $@"Hello {m.ToName},
+
+first of all, our apologies: you recently received a cancellation confirmation from us by mistake. That was a technical error - your booking was NOT cancelled by you.
+
+Good news: your booking is active again.
+
+Booking number: {m.BuchungsNummer}
+Bike: {m.BikeBrand} {m.BikeModel}
+Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days)
+
+There is nothing you need to do. If you have any questions or actually want to cancel, simply reply to this email or give us a quick call.
+
+Sorry for the confusion.
+
+Best regards
+Your Bike Haus Freiburg team
+{m.ShopPhone}
 {m.ShopEmail}
 ";
     }

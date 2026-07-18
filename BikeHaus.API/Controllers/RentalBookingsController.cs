@@ -48,6 +48,20 @@ public class RentalBookingsController : ControllerBase
         return Ok(new { count });
     }
 
+    // One-off repair for bookings wrongly cancelled by the self-cancel email
+    // link. Dry-run by default: POST without ?apply=true only lists candidates.
+    // Pass ?apply=true to restore them and notify the customers. Optionally pass
+    // ?cancelledBefore=2026-07-18T00:00:00Z to exclude genuine cancellations
+    // made after the fix was deployed.
+    [HttpPost("revert-erroneous-stornos")]
+    public async Task<ActionResult<RevertStornoResultDto>> RevertErroneousStornos(
+        [FromQuery] bool apply = false,
+        [FromQuery] DateTime? cancelledBefore = null)
+    {
+        var result = await _service.RevertErroneousStornosAsync(apply, cancelledBefore);
+        return Ok(result);
+    }
+
     /// <summary>All non-cancelled bookings overlapping the given range (calendar view).</summary>
     [HttpGet("calendar")]
     public async Task<ActionResult<IEnumerable<RentalBookingListDto>>> GetCalendar(

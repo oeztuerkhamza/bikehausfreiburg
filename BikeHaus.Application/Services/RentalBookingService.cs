@@ -495,6 +495,79 @@ public class RentalBookingService : IRentalBookingService
         return withDetails!.ToDto();
     }
 
+    private const string StornoRevertNote =
+        "Storno (Fehler im Self-Storno-Link) automatisch zurueckgenommen.";
+
+    public async Task<RevertStornoResultDto> RevertErroneousStornosAsync(bool apply, DateTime? cancelledBefore = null)
+    {
+        var cancelled = await _bookingRepository.GetByStatusesWithBikesAsync(
+            new[] { RentalBookingStatus.Cancelled });
+
+        // The self-cancel path (customer link) is the only one that stamps
+        // "Self-Storno" onto AdminNotizen, so it isolates the bug-caused
+        // cancellations from admin cancellations (which carry a free-text note).
+        var candidates = cancelled
+            .Where(b => !string.IsNullOrWhiteSpace(b.AdminNotizen) &&
+                        b.AdminNotizen.Contains("Self-Storno", StringComparison.OrdinalIgnoreCase))
+            .Where(b => cancelledBefore == null ||
+                        (b.CancelledAt.HasValue && b.CancelledAt.Value < cancelledBefore.Value))
+            .OrderBy(b => b.CancelledAt)
+            .ToList();
+
+        var items = new List<RevertStornoItemDto>();
+        int reverted = 0, emailsSent = 0, emailsFailed = 0;
+
+        foreach (var candidate in candidates)
+        {
+            var newStatus = candidate.ApprovedAt.HasValue
+                ? RentalBookingStatus.Approved
+                : RentalBookingStatus.Pending;
+
+            items.Add(new RevertStornoItemDto(
+                candidate.BuchungsNummer,
+                $"{candidate.Vorname} {candidate.Nachname}".Trim(),
+                candidate.Email,
+                candidate.StartDatum,
+                candidate.EndDatum,
+                newStatus.ToString(),
+                candidate.CancelledAt));
+
+            if (!apply)
+                continue;
+
+            var booking = await _bookingRepository.GetWithDetailsAsync(candidate.Id) ?? candidate;
+            booking.Status = newStatus;
+            booking.CancelledAt = null;
+            booking.AdminNotizen = string.IsNullOrWhiteSpace(booking.AdminNotizen)
+                ? StornoRevertNote
+                : $"{booking.AdminNotizen}\n{StornoRevertNote}";
+            booking.UpdatedAt = DateTime.UtcNow;
+            await _bookingRepository.UpdateAsync(booking);
+            reverted++;
+
+            if (!string.IsNullOrWhiteSpace(booking.Email))
+            {
+                try
+                {
+                    var bicycles = await GetBicyclesForBookingAsync(booking);
+                    var emailModel = await BuildEmailModelAsync(booking, bicycles);
+                    await _emailService.SendRentalBookingReactivatedAsync(emailModel);
+                    emailsSent++;
+                }
+                catch (Exception ex)
+                {
+                    emailsFailed++;
+                    _logger.LogError(
+                        ex,
+                        "Failed to send reactivation email for booking {BookingNumber}",
+                        booking.BuchungsNummer);
+                }
+            }
+        }
+
+        return new RevertStornoResultDto(candidates.Count, reverted, emailsSent, emailsFailed, apply, items);
+    }
+
     public async Task<bool> DeleteAsync(int id)
     {
         var booking = await _bookingRepository.GetByIdAsync(id);
