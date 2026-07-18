@@ -69,9 +69,9 @@ public class SmtpEmailService : IEmailService
 
     public Task SendRentalBookingAdminPendingNotificationAsync(RentalBookingEmailModel model, string adminPortalUrl)
     {
-        var subject = $"Neue Mietanfrage (Pending) - {model.BuchungsNummer} | Bike Haus Freiburg";
-        var body = BuildAdminPendingNotificationBodyDe(model, adminPortalUrl);
-        return true;
+        // Versand der Admin-Benachrichtigung bei neuer Mietanfrage ist deaktiviert.
+        // Methode bleibt als No-op erhalten, damit die Aufrufer unveraendert bleiben.
+        return Task.CompletedTask;
     }
 
     public Task SendDepositRefundConfirmationAsync(string toEmail, string toName, string mietvertragNummer)
