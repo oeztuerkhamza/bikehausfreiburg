@@ -206,7 +206,9 @@ import { forkJoin, Observable } from 'rxjs';
                   [(ngModel)]="bicycle.zustand"
                   name="bikeZustand"
                   required
+                  [class.input-error]="!bicycle.zustand"
                 >
+                  <option value="" disabled>{{ t.selectOption }}</option>
                   <option value="Gebraucht">
                     {{ t.usedCondition }}
                   </option>
@@ -420,12 +422,27 @@ import { forkJoin, Observable } from 'rxjs';
                 multiple
                 style="display: none"
               />
+              <input
+                type="file"
+                #galleryCamera
+                (change)="onGalleryFilesSelected($event)"
+                accept="image/*"
+                capture="environment"
+                style="display: none"
+              />
               <button
                 type="button"
                 class="btn btn-outline"
                 (click)="galleryInput.click()"
               >
-                📷 {{ t.selectPhotos }}
+                🖼️ {{ t.selectPhotos }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="galleryCamera.click()"
+              >
+                📸 {{ t.takePhoto }}
               </button>
               <span class="file-count" *ngIf="galleryFiles.length > 0">
                 {{ galleryFiles.length }} {{ t.photosSelected }}
@@ -463,12 +480,27 @@ import { forkJoin, Observable } from 'rxjs';
                 multiple
                 style="display: none"
               />
+              <input
+                type="file"
+                #fileCamera
+                (change)="onFilesSelected($event)"
+                accept="image/*"
+                capture="environment"
+                style="display: none"
+              />
               <button
                 type="button"
                 class="btn btn-outline"
                 (click)="fileInput.click()"
               >
-                📷 {{ t.selectPhotos }}
+                🖼️ {{ t.selectPhotos }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="fileCamera.click()"
+              >
+                📸 {{ t.takePhoto }}
               </button>
               <span class="file-count" *ngIf="selectedFiles.length > 0">
                 {{ selectedFiles.length }} {{ t.photosSelected }}
@@ -507,6 +539,9 @@ import { forkJoin, Observable } from 'rxjs';
           </p>
           <p *ngIf="!bicycle.reifengroesse.trim()" class="error-msg">
             ⚠️ {{ t.wheelSizeIsRequired }}
+          </p>
+          <p *ngIf="!bulkMode && !bicycle.zustand" class="error-msg">
+            ⚠️ {{ t.conditionIsRequired }}
           </p>
           <p *ngIf="!preis || preis <= 0" class="error-msg">
             ⚠️ {{ t.priceMustBeGreaterThanZero }}
@@ -934,6 +969,10 @@ import { forkJoin, Observable } from 'rxjs';
         color: var(--accent-danger, #ef4444);
         margin: 4px 0;
       }
+      select.input-error {
+        border-color: var(--accent-danger, #ef4444) !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+      }
 
       /* ── Mobile wizard ── */
       .wizard-progress {
@@ -1147,6 +1186,10 @@ export class PurchaseFormComponent implements OnInit {
           this.notificationService.error(this.t.wheelSizeIsRequired);
           return false;
         }
+        if (!this.bulkMode && !this.bicycle.zustand) {
+          this.notificationService.error(this.t.conditionIsRequired);
+          return false;
+        }
         return true;
       case 1:
         if (!this.preis || this.preis <= 0) {
@@ -1223,7 +1266,7 @@ export class PurchaseFormComponent implements OnInit {
     fahrradtyp: '',
     art: '',
     beschreibung: '',
-    zustand: BikeCondition.Gebraucht,
+    zustand: '' as BikeCondition | '',
     isRentable: false,
     rentalPriceDay1: undefined as number | undefined,
     rentalPriceDay2: undefined as number | undefined,
@@ -1269,7 +1312,8 @@ export class PurchaseFormComponent implements OnInit {
 
   ngOnInit() {
     this.updateIsMobile();
-    this.bicycle.zustand = BikeCondition.Gebraucht;
+    // Zustand bewusst leer lassen → muss aktiv gewählt werden (Pflichtfeld).
+    this.bicycle.zustand = '';
 
     this.kaufdatum = new Date().toISOString().split('T')[0];
     this.purchaseService.getNextBelegNummer().subscribe({
@@ -1337,8 +1381,8 @@ export class PurchaseFormComponent implements OnInit {
 
   setBulkMode(isBulk: boolean) {
     this.bulkMode = isBulk;
-    // Set the correct Zustand based on mode
-    this.bicycle.zustand = isBulk ? BikeCondition.Neu : BikeCondition.Gebraucht;
+    // Bulk = immer Neu; Einzelankauf = Zustand muss aktiv gewählt werden.
+    this.bicycle.zustand = isBulk ? BikeCondition.Neu : '';
   }
 
   onBrandChange() {
@@ -1376,8 +1420,9 @@ export class PurchaseFormComponent implements OnInit {
       );
     }
 
+    // Einzelankauf: Zustand ist Pflicht (Neu oder Gebraucht).
     // Seller vorname and nachname are now optional
-    return baseValid;
+    return baseValid && !!this.bicycle.zustand;
   }
 
   updateSignerName() {
@@ -1490,7 +1535,7 @@ export class PurchaseFormComponent implements OnInit {
 
   private submitSingle() {
     const purchase: PurchaseCreate = {
-      bicycle: this.bicycle,
+      bicycle: { ...this.bicycle, zustand: this.bicycle.zustand as BikeCondition },
       seller: this.seller,
       preis: this.preis,
       verkaufspreisVorschlag: this.verkaufspreisVorschlag || undefined,

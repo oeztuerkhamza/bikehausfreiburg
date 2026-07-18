@@ -1,9 +1,17 @@
-import { Component, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GmailService, GmailListItem, GmailMessage } from '../../services/gmail.service';
 import { AiEmailService } from '../../services/ai-email.service';
 import { NotificationService } from '../../services/notification.service';
+
+/** Gruppierung des Posteingangs: alle Nachrichten desselben Absenders zusammen. */
+interface EmailGroup {
+  fromName: string;
+  fromEmail: string;
+  items: GmailListItem[];
+  unreadCount: number;
+}
 
 /**
  * KI-E-Mail-Assistent.
@@ -110,20 +118,28 @@ import { NotificationService } from '../../services/notification.service';
 
           <div class="inbox-list" *ngIf="!loadingList(); else listSkeleton">
             <div class="empty" *ngIf="emails().length === 0">Keine E-Mails gefunden.</div>
-            <button
-              *ngFor="let m of emails()"
-              class="inbox-item"
-              [class.active]="selected()?.id === m.id"
-              [class.unread]="m.unread"
-              (click)="openEmail(m)"
-            >
-              <div class="row1">
-                <span class="from">{{ m.fromName || m.fromEmail }}</span>
-                <span class="date">{{ formatDate(m.date) }}</span>
+            <div class="group" *ngFor="let g of groupedEmails()">
+              <div class="group-head" [class.has-unread]="g.unreadCount > 0">
+                <div class="avatar-sm">{{ initials(g.fromName) }}</div>
+                <span class="g-name" [title]="g.fromEmail">{{ g.fromName }}</span>
+                <span class="unread-dot" *ngIf="g.unreadCount > 0" title="Ungelesen"></span>
+                <span class="g-count" *ngIf="g.items.length > 1" title="Nachrichten">{{ g.items.length }}</span>
               </div>
-              <div class="subject">{{ m.subject }}</div>
-              <div class="snippet">{{ m.snippet }}</div>
-            </button>
+              <button
+                *ngFor="let m of g.items"
+                class="inbox-item"
+                [class.active]="selected()?.id === m.id"
+                [class.unread]="m.unread"
+                (click)="openEmail(m)"
+              >
+                <span class="unread-indicator" *ngIf="m.unread" aria-label="Ungelesen"></span>
+                <div class="row1">
+                  <span class="subject">{{ m.subject }}</span>
+                  <span class="date">{{ formatDate(m.date) }}</span>
+                </div>
+                <div class="snippet">{{ m.snippet }}</div>
+              </button>
+            </div>
           </div>
           <ng-template #listSkeleton>
             <div class="inbox-list">
@@ -320,19 +336,53 @@ import { NotificationService } from '../../services/notification.service';
 
       .inbox-list { overflow-y: auto; flex: 1; }
       .empty { padding: 30px 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+      /* Gruppe = ein Absender */
+      .group { border-bottom: 1px solid var(--border-light); }
+      .group-head { display: flex; align-items: center; gap: 8px; padding: 10px 14px 4px; }
+      .avatar-sm {
+        width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0;
+        background: linear-gradient(135deg, var(--accent-primary, #6366f1), var(--accent-primary-hover, #4f46e5));
+        color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.64rem; font-weight: 700;
+      }
+      .g-name {
+        flex: 1; min-width: 0; font-size: 0.83rem; font-weight: 700; color: var(--text-primary);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .g-count {
+        font-size: 0.68rem; font-weight: 700; color: var(--text-muted);
+        background: var(--bg-hover, rgba(0,0,0,0.06)); border-radius: 999px; padding: 1px 7px; flex-shrink: 0;
+      }
+      .unread-dot {
+        width: 9px; height: 9px; border-radius: 50%; background: #ef4444; flex-shrink: 0;
+        animation: blink 1s ease-in-out infinite;
+      }
+
       .inbox-item {
-        display: block; width: 100%; text-align: left; padding: 12px 14px; border: none;
-        border-bottom: 1px solid var(--border-light); background: transparent; cursor: pointer;
+        position: relative; display: block; width: 100%; text-align: left;
+        padding: 7px 14px 9px 30px; border: none; background: transparent; cursor: pointer;
         transition: background 0.12s;
       }
       .inbox-item:hover { background: var(--bg-hover, rgba(0,0,0,0.03)); }
       .inbox-item.active { background: var(--accent-primary-light, rgba(99,102,241,0.1)); }
-      .inbox-item.unread .from, .inbox-item.unread .subject { font-weight: 700; }
-      .row1 { display: flex; justify-content: space-between; gap: 8px; }
-      .from { font-size: 0.85rem; color: var(--text-primary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .inbox-item.unread .subject { font-weight: 700; color: var(--text-primary); }
+      .inbox-item.unread { animation: rowpulse 1.6s ease-in-out infinite; }
+      .unread-indicator {
+        position: absolute; left: 13px; top: 13px; width: 8px; height: 8px; border-radius: 50%;
+        background: #ef4444; animation: blink 1s ease-in-out infinite;
+      }
+      .row1 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
       .date { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
-      .subject { font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .subject { flex: 1; min-width: 0; font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       .snippet { font-size: 0.76rem; color: var(--text-muted); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.12; } }
+      @keyframes rowpulse {
+        0%, 100% { background: rgba(239, 68, 68, 0.03); }
+        50% { background: rgba(239, 68, 68, 0.11); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .unread-dot, .unread-indicator, .inbox-item.unread { animation: none; }
+        .inbox-item.unread { background: rgba(239, 68, 68, 0.07); }
+      }
       .sk-item { height: 62px; margin: 10px 12px; border-radius: 8px; background: var(--bg-hover, rgba(0,0,0,0.05)); animation: pulse 1.4s ease-in-out infinite; }
       @keyframes pulse { 50% { opacity: 0.5; } }
 
@@ -412,6 +462,23 @@ export class AiEmailAssistantComponent implements OnDestroy {
   searchQuery = '';
   loadingList = signal(false);
   emails = signal<GmailListItem[]>([]);
+
+  /** Nachrichten nach Absender gruppiert (gleiche Person = eine Gruppe). */
+  groupedEmails = computed<EmailGroup[]>(() => {
+    const map = new Map<string, EmailGroup>();
+    for (const m of this.emails()) {
+      const key = (m.fromEmail || m.fromName || m.id).toLowerCase();
+      let g = map.get(key);
+      if (!g) {
+        g = { fromName: m.fromName || m.fromEmail || '(Unbekannt)', fromEmail: m.fromEmail, items: [], unreadCount: 0 };
+        map.set(key, g);
+      }
+      g.items.push(m);
+      if (m.unread) g.unreadCount++;
+    }
+    // Gmail liefert bereits nach Datum absteigend → Reihenfolge (erste Erwähnung) beibehalten.
+    return Array.from(map.values());
+  });
 
   // Detail
   selected = signal<GmailMessage | null>(null);

@@ -267,6 +267,7 @@ export interface Translations {
   newCondition: string;
   invoiceRequired: string;
   selectPhotos: string;
+  takePhoto: string;
   photosSelected: string;
   purchaseReceipt: string;
   totalPurchases: string;
@@ -468,6 +469,7 @@ export interface Translations {
   sellerFirstNameRequired: string;
   sellerLastNameRequired: string;
   brandIsRequired: string;
+  conditionIsRequired: string;
   modelIsRequired: string;
   frameNumberIsRequired: string;
   wheelSizeIsRequired: string;
@@ -1106,6 +1108,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     newCondition: 'Neu (2 Jahre Gewährleistung)',
     invoiceRequired: 'Rechnung (Kaufbeleg) *',
     selectPhotos: 'Fotos auswählen',
+    takePhoto: 'Kamera',
     photosSelected: 'Foto(s) ausgewählt',
     purchaseReceipt: 'Kaufbeleg',
     totalPurchases: 'Einkauf gesamt',
@@ -1310,6 +1313,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     sellerFirstNameRequired: 'Vorname des Verkäufers ist erforderlich',
     sellerLastNameRequired: 'Nachname des Verkäufers ist erforderlich',
     brandIsRequired: 'Marke ist erforderlich',
+    conditionIsRequired: 'Bitte Zustand wählen (Neu oder Gebraucht)',
     modelIsRequired: 'Modell ist erforderlich',
     frameNumberIsRequired: 'Rahmennummer ist erforderlich',
     wheelSizeIsRequired: 'Reifengröße ist erforderlich',
@@ -1950,6 +1954,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     newCondition: 'Yeni (2 Yıl Garanti)',
     invoiceRequired: 'Fatura (Alış Belgesi) *',
     selectPhotos: 'Fotoğraf seç',
+    takePhoto: 'Kamera',
     photosSelected: 'fotoğraf seçildi',
     purchaseReceipt: 'Alış belgesi',
     totalPurchases: 'Toplam alımlar',
@@ -2155,6 +2160,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     sellerFirstNameRequired: 'Satıcı adı gerekli',
     sellerLastNameRequired: 'Satıcı soyadı gerekli',
     brandIsRequired: 'Marka gerekli',
+    conditionIsRequired: 'Lütfen durumu seçin (Sıfır veya İkinci el)',
     modelIsRequired: 'Model gerekli',
     frameNumberIsRequired: 'Şase numarası gerekli',
     wheelSizeIsRequired: 'Tekerlek boyutu gerekli',
