@@ -407,64 +407,6 @@ import { forkJoin, Observable } from 'rxjs';
             class="wizard-step"
             [class.wizard-hidden]="isMobile && currentStep !== 3"
           >
-          <!-- Verkaufsfotos (for Website & Kleinanzeigen) -->
-          <div class="form-card" *ngIf="!bulkMode">
-            <h2>📸 {{ t.salesPhotos }}</h2>
-            <p class="hint-text">
-              {{ t.salesPhotosHint }}
-            </p>
-            <div class="upload-area">
-              <input
-                type="file"
-                #galleryInput
-                (change)="onGalleryFilesSelected($event)"
-                accept="image/*"
-                multiple
-                style="display: none"
-              />
-              <input
-                type="file"
-                #galleryCamera
-                (change)="onGalleryFilesSelected($event)"
-                accept="image/*"
-                capture="environment"
-                style="display: none"
-              />
-              <button
-                type="button"
-                class="btn btn-outline"
-                (click)="galleryInput.click()"
-              >
-                🖼️ {{ t.selectPhotos }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline"
-                (click)="galleryCamera.click()"
-              >
-                📸 {{ t.takePhoto }}
-              </button>
-              <span class="file-count" *ngIf="galleryFiles.length > 0">
-                {{ galleryFiles.length }} {{ t.photosSelected }}
-              </span>
-            </div>
-            <div class="preview-grid" *ngIf="galleryPreviewUrls.length > 0">
-              <div
-                class="preview-item"
-                *ngFor="let url of galleryPreviewUrls; let i = index"
-              >
-                <img [src]="url" alt="Galerie Vorschau" />
-                <button
-                  type="button"
-                  class="remove-btn"
-                  (click)="removeGalleryFile(i)"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          </div>
-
           <!-- Einkaufsfotos (internal documentation) -->
           <div class="form-card" *ngIf="!bulkMode">
             <h2>📄 {{ t.purchasePhotos }}</h2>
