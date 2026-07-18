@@ -46,6 +46,10 @@ const SCOPES = [
 const GIS_SRC = 'https://accounts.google.com/gsi/client';
 const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me';
 const CLIENT_ID_KEY = 'bh_gmail_client_id';
+const TOKEN_KEY = 'bh_gmail_token';
+const TOKEN_EXP_KEY = 'bh_gmail_token_exp';
+const EMAIL_KEY = 'bh_gmail_email';
+const SESSION_KEY = 'bh_gmail_session';
 
 @Injectable({ providedIn: 'root' })
 export class GmailService {
@@ -57,6 +61,25 @@ export class GmailService {
   private tokenExpiry = 0;
   private tokenClient: any = null;
   private gisLoading: Promise<void> | null = null;
+
+  constructor() {
+    // Gespeicherte Sitzung wiederherstellen, damit ein Seiten-Reload nicht
+    // sofort abmeldet. Ein noch gültiges Token wird direkt weiterverwendet;
+    // andernfalls versucht tryRestore() ein stilles Erneuern.
+    try {
+      const t = localStorage.getItem(TOKEN_KEY);
+      const exp = Number(localStorage.getItem(TOKEN_EXP_KEY) || 0);
+      const email = localStorage.getItem(EMAIL_KEY) || '';
+      if (email) this.userEmail.set(email);
+      if (t && Date.now() < exp - 60_000) {
+        this.accessToken = t;
+        this.tokenExpiry = exp;
+        this.connected.set(true);
+      }
+    } catch {
+      /* localStorage nicht verfügbar */
+    }
+  }
 
   // ── Client-ID Verwaltung ───────────────────────────────────────────────
   getClientId(): string {
@@ -81,9 +104,42 @@ export class GmailService {
       await this.loadGis();
       await this.requestToken(clientId);
       await this.loadProfile();
+      localStorage.setItem(SESSION_KEY, '1');
       this.connected.set(true);
     } finally {
       this.connecting.set(false);
+    }
+  }
+
+  /**
+   * Stellt nach einem Seiten-Reload die Verbindung wieder her – ohne erneutes
+   * Anklicken/Zustimmen, solange der Nutzer im Browser bei Google angemeldet ist
+   * und die Berechtigung schon einmal erteilt wurde.
+   */
+  async tryRestore(): Promise<boolean> {
+    // Noch gültiges Token im Speicher? Dann sind wir bereits verbunden.
+    if (this.accessToken && Date.now() < this.tokenExpiry - 60_000) {
+      this.connected.set(true);
+      if (!this.userEmail()) {
+        try { await this.loadProfile(); } catch { /* ignore */ }
+      }
+      return true;
+    }
+
+    const hadSession = localStorage.getItem(SESSION_KEY) === '1';
+    const clientId = this.getClientId();
+    if (!hadSession || !clientId) return false;
+
+    try {
+      await this.loadGis();
+      await this.requestToken(clientId, true); // silent
+      await this.loadProfile();
+      this.connected.set(true);
+      return true;
+    } catch {
+      // Stilles Erneuern fehlgeschlagen → Nutzer muss einmal neu verbinden.
+      this.connected.set(false);
+      return false;
     }
   }
 
@@ -100,6 +156,26 @@ export class GmailService {
     this.tokenExpiry = 0;
     this.connected.set(false);
     this.userEmail.set('');
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(TOKEN_EXP_KEY);
+      localStorage.removeItem(EMAIL_KEY);
+      localStorage.removeItem(SESSION_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  private persistToken(): void {
+    try {
+      if (this.accessToken) {
+        localStorage.setItem(TOKEN_KEY, this.accessToken);
+        localStorage.setItem(TOKEN_EXP_KEY, String(this.tokenExpiry));
+        localStorage.setItem(SESSION_KEY, '1');
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
   // ── Gmail-Operationen ──────────────────────────────────────────────────
@@ -179,36 +255,36 @@ export class GmailService {
     return this.gisLoading;
   }
 
-  private requestToken(clientId: string): Promise<void> {
+  private requestToken(clientId: string, silent = false): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const google = (window as any).google;
+      const onResp = (resp: any) => {
+        if (resp.error) {
+          reject(new Error(resp.error));
+          return;
+        }
+        this.accessToken = resp.access_token;
+        this.tokenExpiry = Date.now() + (Number(resp.expires_in) || 3600) * 1000;
+        this.persistToken();
+        resolve();
+      };
+      const onErr = (err: any) => reject(new Error(err?.type || 'OAUTH_ERROR'));
+
       if (!this.tokenClient) {
         this.tokenClient = google.accounts.oauth2.initTokenClient({
           client_id: clientId,
           scope: SCOPES,
-          callback: (resp: any) => {
-            if (resp.error) {
-              reject(new Error(resp.error));
-              return;
-            }
-            this.accessToken = resp.access_token;
-            this.tokenExpiry = Date.now() + (Number(resp.expires_in) || 3600) * 1000;
-            resolve();
-          },
-          error_callback: (err: any) => reject(new Error(err?.type || 'OAUTH_ERROR')),
+          callback: onResp,
+          error_callback: onErr,
         });
       } else {
-        this.tokenClient.callback = (resp: any) => {
-          if (resp.error) {
-            reject(new Error(resp.error));
-            return;
-          }
-          this.accessToken = resp.access_token;
-          this.tokenExpiry = Date.now() + (Number(resp.expires_in) || 3600) * 1000;
-          resolve();
-        };
+        this.tokenClient.callback = onResp;
+        this.tokenClient.error_callback = onErr;
       }
-      this.tokenClient.requestAccessToken({ prompt: this.accessToken ? '' : 'consent' });
+      // silent = kein UI (nur wenn Session + Zustimmung schon vorhanden);
+      // sonst nur bei fehlendem Token einmal Zustimmung anfordern.
+      const prompt = silent ? '' : this.accessToken ? '' : 'consent';
+      this.tokenClient.requestAccessToken({ prompt });
     });
   }
 
@@ -217,13 +293,17 @@ export class GmailService {
     const clientId = this.getClientId();
     if (!clientId) throw new Error('NO_CLIENT_ID');
     await this.loadGis();
-    await this.requestToken(clientId);
+    // Beim Ablauf mitten in der Sitzung still erneuern (Nutzer hat schon zugestimmt).
+    await this.requestToken(clientId, true);
   }
 
   private async loadProfile(): Promise<void> {
     try {
       const p = await this.api<{ emailAddress?: string }>('/profile');
-      if (p.emailAddress) this.userEmail.set(p.emailAddress);
+      if (p.emailAddress) {
+        this.userEmail.set(p.emailAddress);
+        try { localStorage.setItem(EMAIL_KEY, p.emailAddress); } catch { /* ignore */ }
+      }
     } catch {
       /* ignore */
     }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GmailService, GmailListItem, GmailMessage } from '../../services/gmail.service';
@@ -44,8 +44,22 @@ interface EmailGroup {
         </div>
       </div>
 
+      <!-- ══ Wiederverbinden nach Reload ══ -->
+      <div class="connect-card" *ngIf="!gmail.connected() && restoring()">
+        <div class="connect-inner">
+          <div class="gmail-badge">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="spin">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+            </svg>
+          </div>
+          <h2>Verbinde mit Gmail…</h2>
+          <p>Sitzung wird wiederhergestellt.</p>
+        </div>
+      </div>
+
       <!-- ══ Nicht verbunden ══ -->
-      <div class="connect-card" *ngIf="!gmail.connected()">
+      <div class="connect-card" *ngIf="!gmail.connected() && !restoring()">
         <div class="connect-inner">
           <div class="gmail-badge">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
@@ -449,10 +463,13 @@ interface EmailGroup {
     `,
   ],
 })
-export class AiEmailAssistantComponent implements OnDestroy {
+export class AiEmailAssistantComponent implements OnInit, OnDestroy {
   readonly gmail = inject(GmailService);
   private ai = inject(AiEmailService);
   private notify = inject(NotificationService);
+
+  // Wird beim Laden versucht: stille Wiederverbindung nach Seiten-Reload.
+  restoring = signal(false);
 
   // Client-ID
   clientIdInput = '';
@@ -501,6 +518,20 @@ export class AiEmailAssistantComponent implements OnDestroy {
   constructor() {
     const SR = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     this.speechSupported = !!SR;
+  }
+
+  async ngOnInit(): Promise<void> {
+    if (this.gmail.connected()) {
+      this.loadInbox();
+      return;
+    }
+    this.restoring.set(true);
+    try {
+      const ok = await this.gmail.tryRestore();
+      if (ok) this.loadInbox();
+    } finally {
+      this.restoring.set(false);
+    }
   }
 
   ngOnDestroy(): void {
