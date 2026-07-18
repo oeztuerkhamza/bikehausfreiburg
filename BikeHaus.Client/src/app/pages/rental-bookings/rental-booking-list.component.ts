@@ -253,9 +253,9 @@ interface CalBar {
                 <button
                   class="btn btn-sm btn-primary"
                   (click)="approveBooking(booking)"
-                  *ngIf="booking.status === BookingStatus.Pending"
+                  *ngIf="booking.status === BookingStatus.Pending || booking.status === BookingStatus.Cancelled"
                 >
-                  {{ t.rentalBookingApprove }}
+                  {{ booking.status === BookingStatus.Cancelled ? t.rentalBookingReactivate : t.rentalBookingApprove }}
                 </button>
                 <button
                   class="btn btn-sm btn-danger"
@@ -1023,6 +1023,7 @@ export class RentalBookingListComponent implements OnInit {
   }
 
   approveBooking(booking: RentalBookingList) {
+    const wasCancelled = booking.status === RentalBookingStatus.Cancelled;
     this.dialogService
       .confirm({
         title: this.t.confirm,
@@ -1032,7 +1033,11 @@ export class RentalBookingListComponent implements OnInit {
         if (!confirmed) return;
         this.service.approve(booking.id, {}).subscribe({
           next: () => {
-            this.notificationService.success(this.t.saveSuccess);
+            this.notificationService.success(
+              wasCancelled
+                ? this.t.rentalBookingReactivated
+                : this.t.saveSuccess,
+            );
             this.loadBookings();
           },
           error: (err) => {

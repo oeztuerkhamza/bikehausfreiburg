@@ -380,6 +380,8 @@ export interface Translations {
   rentalBookingCalEmpty: string;
   rentalBookingDetails: string;
   rentalBookingApprove: string;
+  rentalBookingReactivate: string;
+  rentalBookingReactivated: string;
   rentalBookingCancel: string;
   rentalBookingAdminNotes: string;
   rentalBookingNotes: string;
@@ -1219,6 +1221,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingCalEmpty: 'Keine Mietanfragen in dieser Woche.',
     rentalBookingDetails: 'Mietanfrage',
     rentalBookingApprove: 'Bestätigen',
+    rentalBookingReactivate: 'Wieder aktivieren',
+    rentalBookingReactivated: 'Buchung wurde wieder aktiviert.',
     rentalBookingCancel: 'Stornieren',
     rentalBookingAdminNotes: 'Admin-Notizen',
     rentalBookingNotes: 'Notizen',
@@ -2062,6 +2066,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingCalEmpty: 'Bu hafta kiralama talebi yok.',
     rentalBookingDetails: 'Kiralama Talebi',
     rentalBookingApprove: 'Onayla',
+    rentalBookingReactivate: 'Tekrar aktifleştir',
+    rentalBookingReactivated: 'Rezervasyon tekrar aktif edildi.',
     rentalBookingCancel: 'İptal Et',
     rentalBookingAdminNotes: 'Yönetici Notları',
     rentalBookingNotes: 'Notlar',

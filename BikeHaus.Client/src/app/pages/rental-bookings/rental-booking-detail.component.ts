@@ -21,9 +21,9 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
           <button
             class="btn btn-primary"
             (click)="approveBooking()"
-            *ngIf="booking.status === BookingStatus.Pending"
+            *ngIf="booking.status === BookingStatus.Pending || booking.status === BookingStatus.Cancelled"
           >
-            {{ t.rentalBookingApprove }}
+            {{ booking.status === BookingStatus.Cancelled ? t.rentalBookingReactivate : t.rentalBookingApprove }}
           </button>
           <button
             class="btn btn-success"
@@ -887,6 +887,7 @@ export class RentalBookingDetailComponent implements OnInit {
 
   approveBooking() {
     if (!this.booking) return;
+    const wasCancelled = this.booking.status === RentalBookingStatus.Cancelled;
     this.dialogService
       .confirm({
         title: this.t.confirm,
@@ -901,7 +902,11 @@ export class RentalBookingDetailComponent implements OnInit {
           .subscribe({
             next: (updated) => {
               this.booking = updated;
-              this.notificationService.success(this.t.saveSuccess);
+              this.notificationService.success(
+                wasCancelled
+                  ? this.t.rentalBookingReactivated
+                  : this.t.saveSuccess,
+              );
             },
             error: (err) => {
               this.notificationService.error(

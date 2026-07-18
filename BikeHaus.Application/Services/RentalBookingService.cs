@@ -275,8 +275,11 @@ public class RentalBookingService : IRentalBookingService
         var booking = await _bookingRepository.GetWithDetailsAsync(id)
             ?? throw new KeyNotFoundException($"Booking with ID {id} not found.");
 
-        if (booking.Status == RentalBookingStatus.Cancelled)
-            throw new InvalidOperationException("Stornierte Buchungen koennen nicht bestaetigt werden.");
+        // A cancelled request can be approved again (e.g. to undo a wrongful
+        // storno). We remember it was cancelled so the customer gets the
+        // "reactivated" mail instead of the normal confirmation, and so the
+        // cancellation timestamp is cleared below.
+        var wasCancelled = booking.Status == RentalBookingStatus.Cancelled;
 
         // Children's bikes are generic/pooled listings and never block on overlaps
         // (the physical bike is assigned in the shop), so they are exempt here too.
@@ -308,6 +311,10 @@ public class RentalBookingService : IRentalBookingService
             booking.ApprovedAt = DateTime.UtcNow;
         }
 
+        // Reactivation: drop the cancellation so the booking counts as active again.
+        if (wasCancelled)
+            booking.CancelledAt = null;
+
         if (!string.IsNullOrWhiteSpace(dto.AdminNotizen))
             booking.AdminNotizen = dto.AdminNotizen;
 
@@ -338,7 +345,10 @@ public class RentalBookingService : IRentalBookingService
             try
             {
                 var emailModel = await BuildEmailModelAsync(booking, bicycles);
-                await _emailService.SendRentalBookingApprovedAsync(emailModel);
+                if (wasCancelled)
+                    await _emailService.SendRentalBookingReactivatedAsync(emailModel);
+                else
+                    await _emailService.SendRentalBookingApprovedAsync(emailModel);
             }
             catch (Exception ex)
             {
