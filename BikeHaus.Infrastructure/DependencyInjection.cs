@@ -88,6 +88,8 @@ public static class DependencyInjection
         services.AddScoped<IGoogleReviewsService, GoogleReviewsService>();
         services.AddScoped<IBikeAdviserService, BikeAdviserService>();
         services.AddScoped<IAiEmailAssistantService, AiEmailAssistantService>();
+        services.AddSingleton<IGmailConnectionStore, FileGmailConnectionStore>();
+        services.AddHttpClient<IGmailService, GmailService>();
         services.AddScoped<IExportService>(sp =>
         {
             var uploadsPath = configuration["FileStorage:BasePath"]

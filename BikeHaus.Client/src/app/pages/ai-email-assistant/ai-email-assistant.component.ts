@@ -70,40 +70,17 @@ interface EmailGroup {
           </div>
           <h2>Mit Gmail verbinden</h2>
           <p>
-            Melde dich mit deinem Gmail-Konto an, um eingehende Kunden-E-Mails zu lesen und
-            KI-gestützte Antworten direkt aus deinem Postfach zu versenden.
+            Einmalig mit dem Gmail-Konto anmelden. Die Verbindung wird zentral gespeichert –
+            danach ist sie von jedem Rechner und Browser aus ohne erneute Anmeldung nutzbar.
           </p>
-
-          <div class="client-id-box" *ngIf="!hasClientId() || showClientIdEdit()">
-            <label>Google OAuth Client-ID</label>
-            <input
-              type="text"
-              [(ngModel)]="clientIdInput"
-              placeholder="xxxxxxxx.apps.googleusercontent.com"
-              autocomplete="off"
-            />
-            <small>
-              Einmalig nötig: eine Google-OAuth-2.0-Web-Client-ID (Gmail-API aktiviert,
-              autorisierte JavaScript-Herkunft = diese Admin-URL). Wird nur lokal gespeichert.
-            </small>
-            <button class="btn btn-secondary" (click)="saveClientId()">Client-ID speichern</button>
-          </div>
 
           <button
             class="btn btn-primary btn-connect"
-            *ngIf="hasClientId() && !showClientIdEdit()"
             [disabled]="gmail.connecting()"
             (click)="connect()"
           >
             <span *ngIf="!gmail.connecting()">Mit Google anmelden</span>
             <span *ngIf="gmail.connecting()">Verbinde…</span>
-          </button>
-          <button
-            class="btn btn-link"
-            *ngIf="hasClientId() && !showClientIdEdit()"
-            (click)="showClientIdEdit.set(true); clientIdInput = gmail.getClientId()"
-          >
-            Client-ID ändern
           </button>
         </div>
       </div>
@@ -511,12 +488,8 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
   private ai = inject(AiEmailService);
   private notify = inject(NotificationService);
 
-  // Wird beim Laden versucht: stille Wiederverbindung nach Seiten-Reload.
+  // Wird beim Laden geprüft: besteht die (server-seitige) Verbindung?
   restoring = signal(false);
-
-  // Client-ID
-  clientIdInput = '';
-  showClientIdEdit = signal(false);
 
   // Inbox
   searchQuery = '';
@@ -587,37 +560,24 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
   get replyBodyModel() { return this.replyBody(); }
   set replyBodyModel(v: string) { this.replyBody.set(v); }
 
-  hasClientId(): boolean { return !!this.gmail.getClientId(); }
-
-  saveClientId(): void {
-    if (!this.clientIdInput.trim()) {
-      this.notify.warning('Bitte eine Client-ID eingeben.');
-      return;
-    }
-    this.gmail.setClientId(this.clientIdInput);
-    this.showClientIdEdit.set(false);
-    this.notify.success('Client-ID gespeichert.');
-  }
-
   async connect(): Promise<void> {
     try {
       await this.gmail.connect();
       this.notify.success('Mit Gmail verbunden.');
       this.loadInbox();
     } catch (e: any) {
-      if (e?.message === 'NO_CLIENT_ID') {
-        this.showClientIdEdit.set(true);
-        this.notify.warning('Bitte zuerst die Google Client-ID eingeben.');
-      } else if (e?.message === 'GIS_LOAD_FAILED') {
-        this.notify.error('Google-Login konnte nicht geladen werden (Netzwerk/Blocker?).');
+      if (e?.message === 'POPUP_BLOCKED') {
+        this.notify.error('Popup wurde blockiert. Bitte Popups für diese Seite erlauben.');
+      } else if (e?.message === 'CANCELLED') {
+        this.notify.warning('Anmeldung abgebrochen.');
       } else {
         this.notify.error('Anmeldung fehlgeschlagen: ' + (e?.message || 'Unbekannter Fehler'));
       }
     }
   }
 
-  disconnect(): void {
-    this.gmail.disconnect();
+  async disconnect(): Promise<void> {
+    await this.gmail.disconnect();
     this.emails.set([]);
     this.selected.set(null);
     this.resetComposer();
