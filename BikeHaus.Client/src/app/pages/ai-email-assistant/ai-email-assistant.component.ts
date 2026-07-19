@@ -277,6 +277,7 @@ interface EmailGroup {
   styles: [
     `
       :host { display: block; }
+      .ai-email { max-width: 100%; overflow-x: hidden; }
       .page-header {
         display: flex; justify-content: space-between; align-items: flex-start;
         gap: 16px; margin-bottom: 22px; flex-wrap: wrap;
@@ -365,7 +366,7 @@ interface EmailGroup {
       .inbox {
         background: var(--bg-secondary); border: 1px solid var(--border-light);
         border-radius: 14px; overflow: hidden; display: flex; flex-direction: column;
-        max-height: calc(100vh - 200px);
+        max-height: calc(100vh - 200px); min-width: 0;
       }
       .inbox-toolbar { display: flex; gap: 8px; padding: 12px; border-bottom: 1px solid var(--border-light); }
       .search {
@@ -445,7 +446,7 @@ interface EmailGroup {
       /* Detail */
       .detail {
         background: var(--bg-secondary); border: 1px solid var(--border-light);
-        border-radius: 14px; padding: 20px; min-height: 300px;
+        border-radius: 14px; padding: 20px; min-height: 300px; min-width: 0; overflow: hidden;
       }
       .placeholder, .loading-detail {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -460,10 +461,14 @@ interface EmailGroup {
       }
       .mail-meta { flex: 1; min-width: 0; }
       .mail-from { font-weight: 700; color: var(--text-primary); }
-      .mail-email { font-size: 0.8rem; color: var(--text-muted); }
+      .mail-email { font-size: 0.8rem; color: var(--text-muted); overflow-wrap: anywhere; }
       .mail-date { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
-      .mail-subject { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin: 14px 0 8px; }
-      .mail-body { white-space: pre-wrap; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; max-height: 320px; overflow-y: auto; }
+      .mail-subject { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin: 14px 0 8px; overflow-wrap: anywhere; }
+      .mail-body {
+        white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;
+        color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;
+        max-height: 320px; overflow-y: auto;
+      }
 
       /* Composer */
       .composer-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
