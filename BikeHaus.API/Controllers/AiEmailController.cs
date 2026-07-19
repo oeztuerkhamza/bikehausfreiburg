@@ -33,4 +33,23 @@ public class AiEmailController(IAiEmailAssistantService assistantService) : Cont
             return StatusCode(503, new { message = ex.Message });
         }
     }
+
+    [HttpPost("translate")]
+    public async Task<ActionResult<AiTranslateResponse>> Translate(
+        [FromBody] AiTranslateRequest request,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(request.Text))
+            return Ok(new AiTranslateResponse(string.Empty));
+
+        try
+        {
+            var translation = await assistantService.TranslateToTurkishAsync(request.Text, ct);
+            return Ok(new AiTranslateResponse(translation));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return StatusCode(503, new { message = ex.Message });
+        }
+    }
 }

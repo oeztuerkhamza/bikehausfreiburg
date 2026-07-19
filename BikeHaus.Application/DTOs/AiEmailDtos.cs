@@ -19,3 +19,7 @@ public record AiEmailReplyResponse(
     string DetectedLanguageName,
     string ReplySubject,
     string ReplyBody);
+
+public record AiTranslateRequest(string Text);
+
+public record AiTranslateResponse(string Translation);

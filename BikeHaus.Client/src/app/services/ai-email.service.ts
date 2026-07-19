@@ -28,4 +28,8 @@ export class AiEmailService {
   generateReply(req: AiEmailReplyRequest): Observable<AiEmailReplyResponse> {
     return this.http.post<AiEmailReplyResponse>(`${this.url}/generate-reply`, req);
   }
+
+  translate(text: string): Observable<{ translation: string }> {
+    return this.http.post<{ translation: string }>(`${this.url}/translate`, { text });
+  }
 }

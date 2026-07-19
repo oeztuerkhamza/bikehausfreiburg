@@ -207,6 +207,16 @@ interface EmailGroup {
               <div class="mail-body">{{ msg.body }}</div>
             </div>
 
+            <!-- Türkische Übersetzung der eingehenden Nachricht -->
+            <div class="translation-card" *ngIf="translating() || translation()">
+              <div class="translation-head">
+                <span>🇹🇷 Türkçe çeviri</span>
+                <span class="tr-loading" *ngIf="translating()">çevriliyor…</span>
+              </div>
+              <div class="translation-body" *ngIf="translation()">{{ translation() }}</div>
+              <div class="tr-skeleton" *ngIf="translating() && !translation()"></div>
+            </div>
+
             <!-- Composer -->
             <div class="composer">
               <div class="composer-head">
@@ -470,6 +480,26 @@ interface EmailGroup {
         max-height: 320px; overflow-y: auto;
       }
 
+      /* Türkische Übersetzung */
+      .translation-card {
+        border: 1px solid var(--accent-primary-light, rgba(99, 102, 241, 0.25));
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
+        border-radius: 12px; padding: 14px; margin-bottom: 18px;
+      }
+      .translation-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px;
+      }
+      .tr-loading { font-weight: 500; color: var(--text-muted); font-size: 0.78rem; }
+      .translation-body {
+        white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text-primary);
+        font-size: 0.9rem; line-height: 1.6; max-height: 260px; overflow-y: auto;
+      }
+      .tr-skeleton {
+        height: 48px; border-radius: 8px; background: var(--bg-hover, rgba(0, 0, 0, 0.05));
+        animation: pulse 1.4s ease-in-out infinite;
+      }
+
       /* Composer */
       .composer-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
       .composer-head h3 { margin: 0; font-size: 1.05rem; color: var(--text-primary); }
@@ -543,6 +573,10 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
   // Detail
   selected = signal<GmailMessage | null>(null);
   loadingDetail = signal(false);
+
+  // Türkische Übersetzung der eingehenden Nachricht
+  translating = signal(false);
+  translation = signal('');
 
   // Composer
   instruction = '';
@@ -637,6 +671,8 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
       this.selected.set(msg);
       // Beim Öffnen automatisch als gelesen markieren.
       if (item.unread) this.markReadSilently(item.id);
+      // Eingehende Nachricht ins Türkische übersetzen.
+      this.translateEmail(msg.body);
     } catch (e: any) {
       this.notify.error('E-Mail konnte nicht geladen werden: ' + (e?.message || ''));
     } finally {
@@ -680,6 +716,21 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
       .catch(() => {
         this.notify.error('Löschen fehlgeschlagen.');
       });
+  }
+
+  private translateEmail(body: string): void {
+    this.translation.set('');
+    if (!body?.trim()) return;
+    this.translating.set(true);
+    this.ai.translate(body).subscribe({
+      next: (r) => {
+        this.translation.set(r.translation || '');
+        this.translating.set(false);
+      },
+      error: () => {
+        this.translating.set(false);
+      },
+    });
   }
 
   generate(): void {
@@ -798,6 +849,8 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
     this.replyBody.set('');
     this.generating.set(false);
     this.sending.set(false);
+    this.translating.set(false);
+    this.translation.set('');
   }
 
   initials(name: string): string {

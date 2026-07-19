@@ -52,6 +52,37 @@ public class AiEmailAssistantService(
         return ParseResponse(text, request.Subject);
     }
 
+    public async Task<string> TranslateToTurkishAsync(string text, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return string.Empty;
+
+        var apiKey = configuration["Anthropic:ApiKey"] ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(apiKey))
+            throw new InvalidOperationException("Anthropic API-Schlüssel ist nicht konfiguriert (Anthropic:ApiKey).");
+
+        const string system =
+            "Du bist ein professioneller Übersetzer. Übersetze den folgenden eingehenden " +
+            "E-Mail-Text ins Türkische. Gib AUSSCHLIESSLICH die türkische Übersetzung zurück – " +
+            "ohne Vorbemerkung, ohne Anführungszeichen, ohne Erklärung. Behalte Absätze und " +
+            "Zeilenumbrüche bei. Ist der Text bereits Türkisch, gib ihn unverändert zurück. " +
+            "Übersetze keine URLs, E-Mail-Adressen oder Telefonnummern.";
+
+        var client = new AnthropicClient(new APIAuthentication(apiKey));
+        var response = await client.Messages.GetClaudeMessageAsync(
+            new MessageParameters
+            {
+                Model = AnthropicModels.Claude45Haiku,
+                MaxTokens = 1500,
+                System = [new SystemMessage(system, null!)],
+                Messages =
+                [
+                    new Message { Role = RoleType.User, Content = [new TextContent { Text = text }] }
+                ]
+            }, ct);
+
+        return string.Concat(response.Content.OfType<TextContent>().Select(c => c.Text)).Trim();
+    }
+
     // ── Prompt building ──────────────────────────────────────────────────────
 
     private async Task<string> BuildShopContextAsync()
