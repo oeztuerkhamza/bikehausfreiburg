@@ -86,7 +86,7 @@ interface EmailGroup {
       </div>
 
       <!-- ══ Verbunden ══ -->
-      <div class="workspace" *ngIf="gmail.connected()">
+      <div class="workspace" *ngIf="gmail.connected()" [class.detail-open]="!!selected() || loadingDetail()">
         <!-- Inbox -->
         <aside class="inbox">
           <div class="inbox-toolbar">
@@ -174,6 +174,13 @@ interface EmailGroup {
 
         <!-- Detail + Composer -->
         <section class="detail">
+          <button class="mobile-back" (click)="closeDetail()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Posteingang
+          </button>
           <div class="placeholder" *ngIf="!selected() && !loadingDetail()">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
@@ -321,24 +328,39 @@ interface EmailGroup {
       .connect-inner h2 { margin: 0 0 8px; font-size: 1.25rem; color: var(--text-primary); }
       .connect-inner p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin: 0 0 20px; }
       .btn-connect { width: 100%; padding: 12px; font-size: 0.95rem; }
-      .client-id-box {
-        text-align: left; background: var(--bg-primary); border: 1px solid var(--border-light);
-        border-radius: 12px; padding: 16px; margin-bottom: 18px;
-      }
-      .client-id-box label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; color: var(--text-secondary); }
-      .client-id-box input {
-        width: 100%; padding: 10px 12px; border: 1px solid var(--border-color);
-        border-radius: 8px; font-size: 0.85rem; background: var(--bg-secondary);
-        color: var(--text-primary); box-sizing: border-box;
-      }
-      .client-id-box small { display: block; color: var(--text-muted); font-size: 0.74rem; margin: 8px 0 12px; line-height: 1.4; }
 
       /* Workspace */
       .workspace {
         display: grid; grid-template-columns: 340px 1fr; gap: 18px;
         align-items: start;
       }
-      @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
+      .mobile-back {
+        display: none; align-items: center; justify-content: center; gap: 6px;
+        width: 100%; margin: 0 0 14px; padding: 11px 14px; cursor: pointer;
+        background: var(--bg-primary); border: 1px solid var(--border-light);
+        border-radius: 10px; font-size: 0.9rem; font-weight: 700; color: var(--text-primary);
+      }
+      .mobile-back:hover { color: var(--accent-primary, #6366f1); border-color: var(--accent-primary, #6366f1); }
+
+      @media (max-width: 900px) {
+        .workspace { grid-template-columns: 1fr; gap: 0; }
+        .inbox { max-height: none; border-radius: 12px; }
+        .workspace.detail-open .inbox { display: none; }
+        .workspace:not(.detail-open) .detail { display: none; }
+        .detail { padding: 14px; }
+        .mobile-back { display: flex; }
+        .page-header { margin-bottom: 16px; }
+        .page-header h1 { font-size: 1.35rem; }
+        .header-actions { width: 100%; }
+        .account-chip { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mail-body { max-height: 220px; }
+        .composer-head { align-items: flex-start; }
+        .tone-toggle { width: 100%; }
+        .tone-toggle button { flex: 1; }
+        .composer-actions { flex-direction: column-reverse; }
+        .composer-actions .btn { width: 100%; }
+        .reply-body { min-height: 200px; }
+      }
 
       .inbox {
         background: var(--bg-secondary); border: 1px solid var(--border-light);
@@ -579,6 +601,12 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
   async disconnect(): Promise<void> {
     await this.gmail.disconnect();
     this.emails.set([]);
+    this.selected.set(null);
+    this.resetComposer();
+  }
+
+  /** Mobil: zurück zur Posteingangsliste. */
+  closeDetail(): void {
     this.selected.set(null);
     this.resetComposer();
   }
