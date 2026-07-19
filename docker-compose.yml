@@ -32,6 +32,9 @@ services:
       - CampaignSmtp__FromName=${CAMPAIGN_SMTP_FROMNAME:-Cevdet Akarsu}
       - Anthropic__ApiKey=${ANTHROPIC_API_KEY}
       - Api__PublicBaseUrl=https://api.bikehausfreiburg.com
+      - Google__ClientId=${GOOGLE_CLIENT_ID:-288460928101-h17vdae2ctjl3l08n50tsnhk8ca5ije5.apps.googleusercontent.com}
+      - Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
+      - Google__RedirectUri=${GOOGLE_REDIRECT_URI:-https://api.bikehausfreiburg.com/api/gmail/callback}
     networks:
       - bikehaus-network
 
