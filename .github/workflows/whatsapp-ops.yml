@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: 'diagnose | restart | recreate'
+        description: 'diagnose | restart | recreate | add-swap | reset-session'
         required: false
         default: 'diagnose'
         type: choice
@@ -19,6 +19,8 @@ on:
           - diagnose
           - restart
           - recreate
+          - add-swap
+          - reset-session
 
 jobs:
   ops:
@@ -96,6 +98,34 @@ jobs:
               sleep 6
               docker compose ps whatsapp
               docker compose logs --tail=40 --no-color whatsapp 2>&1
+            elif [ "${ACTION:-diagnose}" = "add-swap" ]; then
+              echo ""
+              echo "==> Ensuring 2G swapfile (Chromium OOM koruması)"
+              if swapon --show | grep -q '/swapfile'; then
+                echo "swap zaten aktif"
+              else
+                fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048
+                chmod 600 /swapfile
+                mkswap /swapfile
+                swapon /swapfile
+                grep -q '^/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+                # Swap'ı erken kullan (Chromium için baş alan aç)
+                sysctl -w vm.swappiness=30 || true
+              fi
+              echo "--- swap durumu ---"
+              swapon --show
+              free -h
+            elif [ "${ACTION:-diagnose}" = "reset-session" ]; then
+              echo ""
+              echo "==> Clearing wwebjs session locks in volume + recreate"
+              docker compose stop whatsapp
+              docker run --rm --volumes-from bikehaus-whatsapp busybox sh -c \
+                'rm -f /app/data/wwebjs_auth/session*/SingletonLock /app/data/wwebjs_auth/session*/SingletonCookie /app/data/wwebjs_auth/session*/SingletonSocket 2>/dev/null; echo "kilitler temizlendi"' \
+                || echo "[WARN] lock cleanup container failed"
+              docker compose up -d whatsapp
+              sleep 8
+              docker compose ps whatsapp
+              docker compose logs --tail=50 --no-color whatsapp 2>&1
             fi
 
             exit 0

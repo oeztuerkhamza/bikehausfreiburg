@@ -3,17 +3,43 @@ import pkg from 'whatsapp-web.js';
 import qrcodeTerminal from 'qrcode-terminal';
 import QRCode from 'qrcode';
 import { EventEmitter } from 'node:events';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const { Client, LocalAuth } = pkg;
 
 export const events = new EventEmitter();
 export const state = { status: 'starting', qrDataUrl: null, me: null };
 
+const DATA_PATH = process.env.WWEBJS_DATA_PATH || '.wwebjs_auth';
+
+// Docker'da container yeniden oluşunca (yeni hostname) Chromium'un profil
+// klasöründe kalan SingletonLock/Cookie/Socket dosyaları "profile in use"
+// hatasına yol açar ve çökme döngüsü oluşur. Başlamadan önce bunları temizle.
+function cleanStaleLocks() {
+  try {
+    if (!fs.existsSync(DATA_PATH)) return;
+    for (const entry of fs.readdirSync(DATA_PATH, { withFileTypes: true })) {
+      if (!entry.isDirectory() || !entry.name.startsWith('session')) continue;
+      const dir = path.join(DATA_PATH, entry.name);
+      for (const lock of ['SingletonLock', 'SingletonCookie', 'SingletonSocket']) {
+        const p = path.join(dir, lock);
+        try {
+          if (fs.existsSync(p) || fs.lstatSync(p)) {
+            fs.rmSync(p, { force: true });
+            console.log('[whatsapp] bayat kilit silindi:', p);
+          }
+        } catch {}
+      }
+    }
+  } catch (err) {
+    console.error('[whatsapp] kilit temizleme hatası:', err?.message);
+  }
+}
+
 const client = new Client({
   // Allow overriding the LocalAuth data path via env so parallel runs don't conflict.
-  authStrategy: new LocalAuth({
-    dataPath: process.env.WWEBJS_DATA_PATH || '.wwebjs_auth',
-  }),
+  authStrategy: new LocalAuth({ dataPath: DATA_PATH }),
   puppeteer: {
     headless: true,
     // Konteynerde sistem Chromium'u; yerelde puppeteer'ın kendi indirdiği.
@@ -23,6 +49,10 @@ const client = new Client({
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--disable-gpu',
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-extensions',
+      '--disable-background-networking',
     ],
   },
 });
@@ -120,7 +150,24 @@ export async function getRecentChats(limit = 20, perChatMessages = 12) {
   return result;
 }
 
+let starting = false;
 export function start() {
+  if (starting) return;
+  starting = true;
+  cleanStaleLocks();
   console.log('[whatsapp] İstemci başlatılıyor...');
-  client.initialize();
+  client.initialize().catch((err) => {
+    // Chromium başlatma hatası node'u çökertmesin (yoksa restart döngüsü).
+    state.status = 'error';
+    console.error('[whatsapp] initialize hatası:', err?.message);
+    events.emit('status', state);
+    // Kilidi temizleyip bir kez daha dene.
+    setTimeout(() => {
+      cleanStaleLocks();
+      console.log('[whatsapp] yeniden deneniyor...');
+      client.initialize().catch((e) =>
+        console.error('[whatsapp] yeniden deneme hatası:', e?.message),
+      );
+    }, 8000);
+  });
 }
