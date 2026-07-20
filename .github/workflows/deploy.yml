@@ -179,6 +179,7 @@ jobs:
       needs.changes.outputs.api == 'true' ||
       needs.changes.outputs.client == 'true' ||
       needs.changes.outputs.homepage == 'true' ||
+      needs.changes.outputs.whatsapp == 'true' ||
       needs.changes.outputs.infra == 'true' ||
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
