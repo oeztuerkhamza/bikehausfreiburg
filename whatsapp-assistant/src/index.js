@@ -106,6 +106,19 @@ app.get("/api/conversations", (_req, res) => {
   res.json(store.list());
 });
 
+// Bağlı numarayı çıkar (Abmeldung) — başka numarayla giriş için.
+// Oturumu + eski sohbetleri temizler, servisi yeniden başlatır → yeni QR.
+app.post("/api/logout", async (_req, res) => {
+  if (wa.state.status !== "ready" && wa.state.status !== "qr" && wa.state.status !== "authenticated") {
+    // yine de devam et; en kötü ihtimalle temiz yeniden başlatma
+  }
+  res.json({ ok: true });
+  console.log("[logout] numara çıkarılıyor, oturum + sohbetler temizleniyor...");
+  store.clearAll();
+  io.emit("status", { status: "loggingout", qrDataUrl: null, me: null });
+  await wa.logout();
+});
+
 // Mevcut sohbetleri WhatsApp'tan elle yeniden yükle
 app.post("/api/sync", async (_req, res) => {
   if (wa.state.status !== "ready") {

@@ -113,6 +113,38 @@ export async function sendMessage(chatId, text) {
   return client.sendMessage(chatId, text);
 }
 
+// Bağlı numarayı çıkar (Abmeldung) → oturumu temizle → süreç yeniden başlar
+// (docker restart eder), yeni QR üretilir. Başka numarayla giriş için.
+export async function logout() {
+  state.status = 'loggingout';
+  events.emit('status', state);
+  try {
+    if (client.info) await client.logout();
+  } catch (err) {
+    console.error('[whatsapp] logout hatası:', err?.message);
+  }
+  try {
+    await client.destroy();
+  } catch {}
+  // Oturum klasörlerini tamamen sil (aksi halde aynı numarayla otomatik girer).
+  try {
+    if (fs.existsSync(DATA_PATH)) {
+      for (const entry of fs.readdirSync(DATA_PATH)) {
+        if (entry.startsWith('session')) {
+          fs.rmSync(path.join(DATA_PATH, entry), { recursive: true, force: true });
+        }
+      }
+    }
+    console.log('[whatsapp] oturum silindi.');
+  } catch (err) {
+    console.error('[whatsapp] oturum silme hatası:', err?.message);
+  }
+  // Temiz yeniden başlatma için süreçten çık — docker yeni container ile
+  // baştan başlatır ve yeni QR üretir.
+  console.log('[whatsapp] çıkış yapıldı, süreç yeniden başlatılıyor...');
+  setTimeout(() => process.exit(0), 400);
+}
+
 // Mevcut (bireysel) sohbetleri son mesajlarıyla birlikte getir.
 export async function getRecentChats(limit = 20, perChatMessages = 12) {
   const chats = await client.getChats();

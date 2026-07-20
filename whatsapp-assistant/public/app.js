@@ -37,10 +37,15 @@ function renderStatus(s) {
     authenticated: ['Doğrulanıyor…', ''],
     ready: ['Bağlı ✓ ' + (s.me || ''), 'ready'],
     disconnected: ['Bağlantı koptu', ''],
+    loggingout: ['Çıkış yapılıyor…', ''],
   };
   const [txt, cls] = map[s.status] || [s.status, ''];
   el.textContent = txt;
   el.className = 'status ' + cls;
+
+  // "Numara değiştir" butonu sadece bağlıyken görünür.
+  const lo = $('btn-logout');
+  if (lo) lo.classList.toggle('hidden', s.status !== 'ready');
 
   const modal = $('qr-modal');
   if (s.status === 'qr' && s.qrDataUrl) {
@@ -248,6 +253,30 @@ $('set-save').onclick = async () => {
   } finally {
     btn.disabled = false;
   }
+};
+
+$('btn-logout').onclick = async () => {
+  const ok = confirm(
+    'Bağlı numarayı çıkarmak istediğine emin misin?\n\n' +
+      'Mevcut oturum kapanacak, sohbetler temizlenecek ve başka bir numarayla ' +
+      'giriş için yeni bir QR gösterilecek.',
+  );
+  if (!ok) return;
+  const btn = $('btn-logout');
+  btn.disabled = true;
+  try {
+    await fetch('/api/logout', { method: 'POST' });
+  } catch {}
+  // Servis yeniden başlıyor; arayüzü sıfırla, socket yeniden bağlanınca 'qr' gelir.
+  conversations = [];
+  activeId = null;
+  renderList();
+  $('thread').classList.add('hidden');
+  $('empty').classList.remove('hidden');
+  $('status').textContent = 'Çıkış yapıldı, yeni QR hazırlanıyor…';
+  $('status').className = 'status';
+  btn.classList.add('hidden');
+  btn.disabled = false;
 };
 
 $('btn-sync').onclick = async () => {

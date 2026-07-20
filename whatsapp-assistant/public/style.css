@@ -27,6 +27,9 @@ body {
 .top-right { display: flex; align-items: center; gap: 12px; }
 .icon-btn { background: transparent; border: none; font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 6px; }
 .icon-btn:hover { background: var(--panel); }
+.btn-logout { background: transparent; color: #f0b8b8; border: 1px solid #5a3b3b; border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+.btn-logout:hover { background: #3b2b2b; color: #ffd0d0; }
+.btn-logout:disabled { opacity: .5; cursor: not-allowed; }
 .status { font-size: 13px; padding: 4px 10px; border-radius: 20px; background: #3b2b2b; color: #f0b8b8; }
 .status.ready { background: #10321f; color: #7ee2a8; }
 .status.qr { background: #33280f; color: #f0d08a; }

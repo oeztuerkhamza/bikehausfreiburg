@@ -103,4 +103,16 @@ export function list() {
   return [...conversations.values()].sort((a, b) => b.updatedAt - a.updatedAt);
 }
 
+// Tüm sohbetleri sil (numara değiştirince eski numaranın sohbetleri karışmasın).
+// Süreç hemen ardından çıkacağı için senkron yazar.
+export function clearAll() {
+  conversations.clear();
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(DB_FILE, "[]");
+  } catch (err) {
+    console.error("[store] temizleme hatası:", err.message);
+  }
+}
+
 load();
