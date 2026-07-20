@@ -11,6 +11,8 @@ const { Client, LocalAuth } = pkg;
 export const events = new EventEmitter();
 export const state = { status: 'starting', qrDataUrl: null, me: null };
 
+const DATA_PATH = process.env.WWEBJS_DATA_PATH || '.wwebjs_auth';
+
 let client = null;
 
 function cleanStaleLocks() {
