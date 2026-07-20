@@ -89,31 +89,35 @@ export async function composeReply(history, instructionTr) {
   if (!instructionTr || !instructionTr.trim()) {
     return { ok: false, error: "Önce Türkçe olarak ne demek istediğini yaz." };
   }
-  const messages = toMessages(history);
-  const convMessages = messages.length
-    ? messages
-    : [{ role: "user", content: "(Müşteri henüz mesaj yazmadı.)" }];
 
-  // KI-E-Mail-Assistent ile aynı mantık: sahibin notları TÜRKÇE içerik
-  // talimatıdır; asla kelimesi kelimesine verilmez, müşterinin dilinde ifade edilir.
-  const guide =
-    "=== NOTIZEN DES INHABERS (Türkisch – Inhalt der Antwort) ===\n" +
+  // Sohbet geçmişini düz metin olarak özetle (system prompt'a koy)
+  const historyText = history
+    .filter((m) => m.body)
+    .map((m) => (m.direction === "in" ? `Kunde: ${m.body}` : `Wir: ${m.body}`))
+    .join("\n");
+
+  const conversationContext = historyText
+    ? `\n\n## Bisheriger Chatverlauf\n${historyText}`
+    : "\n\n## Bisheriger Chatverlauf\n(Noch keine Nachrichten.)";
+
+  // Operatör talimatını user mesajı olarak gönder — Claude bunu cevaplar
+  const userPrompt =
+    `=== NOTIZEN DES INHABERS (Türkisch – Inhalt der Antwort) ===\n` +
     instructionTr.trim() +
-    "\n\n" +
-    "Formuliere aus diesen türkischen Notizen die passende WhatsApp-Antwort in der " +
-    "SPRACHE DES KUNDEN (nicht Türkisch – in der Sprache, in der der Kunde geschrieben hat). " +
-    "Gib die türkischen Notizen niemals wörtlich wieder. Erfinde keine Preise, Termine oder " +
-    "Zusagen, die nicht in den Notizen stehen. Gib AUSSCHLIESSLICH den fertigen Antworttext aus.";
+    `\n\n` +
+    `Formuliere aus diesen türkischen Notizen die passende WhatsApp-Antwort in der ` +
+    `SPRACHE DES KUNDEN (nicht Türkisch – in der Sprache, in der der Kunde geschrieben hat). ` +
+    `Gib die türkischen Notizen niemals wörtlich wieder. Erfinde keine Preise, Termine oder ` +
+    `Zusagen, die nicht in den Notizen stehen. Gib AUSSCHLIESSLICH den fertigen Antworttext aus.`;
 
   try {
     const resp = await client.messages.create({
       model,
       max_tokens: 1024,
       system: [
-        { type: "text", text: SHOP_CONTEXT, cache_control: { type: "ephemeral" } },
-        { type: "text", text: guide },
+        { type: "text", text: SHOP_CONTEXT + conversationContext, cache_control: { type: "ephemeral" } },
       ],
-      messages: convMessages,
+      messages: [{ role: "user", content: userPrompt }],
     });
     return { ok: true, draft: textOf(resp) };
   } catch (err) {
