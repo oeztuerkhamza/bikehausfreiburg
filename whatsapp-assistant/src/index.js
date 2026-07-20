@@ -56,6 +56,10 @@ async function syncChats() {
 
 wa.events.on("status", (s) => {
   io.emit("status", s);
+  // Logout veya bağlantı kopunca synced'i sıfırla, yeniden bağlanınca tekrar senkronize etsin.
+  if (s.status === "loggingout" || s.status === "disconnected") {
+    synced = false;
+  }
   if (s.status === "ready" && !synced) {
     synced = true;
     // Geçmişi yüklemeyi dene (WhatsApp Web sürümüne göre çalışmayabilir).
