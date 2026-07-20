@@ -11,7 +11,7 @@
     <div class="brand">🚲 BikeHaus <span>WhatsApp Asistan</span></div>
     <div class="top-right">
       <div id="status" class="status">bağlanıyor…</div>
-      <button id="btn-logout" class="btn-logout hidden" title="Bağlı numarayı çıkar (başka numarayla giriş için)">🔓 Numara değiştir</button>
+      <button id="btn-logout" class="btn-logout" title="Oturumu sonlandır ve yeni QR kodu al">🚪 Çıkış / Yeni QR</button>
       <button id="btn-settings" class="icon-btn" title="Ayarlar">⚙️</button>
     </div>
   </header>
@@ -87,6 +87,9 @@
       <h2>WhatsApp'ı bağla</h2>
       <p>Telefonunda WhatsApp &rarr; Ayarlar &rarr; Bağlı Cihazlar &rarr; Cihaz Bağla ile QR'ı tara.</p>
       <img id="qr-img" alt="QR" />
+      <div style="margin-top: 16px;">
+        <button id="btn-qr-reset" class="btn-logout" style="width: 100%;">🔄 QR Kod Gelmedi mi? Oturumu Sıfırla & Yeni QR Al</button>
+      </div>
     </div>
   </div>
 
