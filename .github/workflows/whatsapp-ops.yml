@@ -1,0 +1,101 @@
+name: WhatsApp Ops (diagnose/restart)
+
+# Manuel tetiklenen tanı + operasyon workflow'u: canlı whatsapp
+# container'ının durumunu, loglarını, RAM'i inceler. İsteğe bağlı olarak
+# container'ı yeniden başlatır/yeniden oluşturur.
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'diagnose | restart | recreate'
+        required: false
+        default: 'diagnose'
+        type: choice
+        options:
+          - diagnose
+          - restart
+          - recreate
+
+jobs:
+  ops:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect / manage whatsapp container
+        uses: appleboy/ssh-action@v1
+        env:
+          ACTION: ${{ github.event.inputs.action }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 10m
+          envs: ACTION,GHCR_TOKEN,GHCR_USER
+          script: |
+            set +e
+            cd /opt/bikehaus
+
+            echo "=================================================="
+            echo "1) docker compose ps whatsapp"
+            echo "=================================================="
+            docker compose ps whatsapp
+
+            echo ""
+            echo "=================================================="
+            echo "2) inspect (state/health/restarts)"
+            echo "=================================================="
+            docker inspect bikehaus-whatsapp --format 'Status={{.State.Status}}  Running={{.State.Running}}  Restarting={{.State.Restarting}}  RestartCount={{.RestartCount}}  ExitCode={{.State.ExitCode}}  OOMKilled={{.State.OOMKilled}}  StartedAt={{.State.StartedAt}}  FinishedAt={{.State.FinishedAt}}' 2>&1
+
+            echo ""
+            echo "=================================================="
+            echo "3) Last 150 log lines from whatsapp"
+            echo "=================================================="
+            docker compose logs --tail=150 --no-color whatsapp 2>&1
+
+            echo ""
+            echo "=================================================="
+            echo "4) Host memory (free -h) + swap"
+            echo "=================================================="
+            free -h
+            echo "--- per-container memory ---"
+            docker stats --no-stream --format 'table {{.Name}}\t{{.MemUsage}}\t{{.CPUPerc}}' 2>&1
+
+            echo ""
+            echo "=================================================="
+            echo "5) Reachability: nginx -> whatsapp:3000"
+            echo "=================================================="
+            docker compose exec -T nginx sh -c \
+              'getent hosts whatsapp; wget -q -S -O- --timeout=5 http://whatsapp:3000/ 2>&1 | head -20' \
+              || echo "[FAIL] exec into nginx failed"
+
+            echo ""
+            echo "=================================================="
+            echo "6) chromium binary present in container?"
+            echo "=================================================="
+            docker compose exec -T whatsapp sh -c \
+              'echo PUPPETEER_EXECUTABLE_PATH=$PUPPETEER_EXECUTABLE_PATH; ls -la /usr/bin/chromium* 2>&1; chromium --version 2>&1 | head -1' \
+              || echo "[FAIL] exec into whatsapp failed (container not running)"
+
+            if [ "${ACTION:-diagnose}" = "restart" ]; then
+              echo ""
+              echo "==> RESTART whatsapp"
+              docker compose restart whatsapp
+              sleep 5
+              docker compose ps whatsapp
+            elif [ "${ACTION:-diagnose}" = "recreate" ]; then
+              echo ""
+              echo "==> RECREATE whatsapp (pull + up -d --force-recreate)"
+              echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin || true
+              docker compose pull whatsapp || true
+              docker compose up -d --force-recreate whatsapp
+              sleep 6
+              docker compose ps whatsapp
+              docker compose logs --tail=40 --no-color whatsapp 2>&1
+            fi
+
+            exit 0
