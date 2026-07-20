@@ -3,7 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { SHOP_CONTEXT } from "./shop-context.js";
 
 let apiKey = process.env.ANTHROPIC_API_KEY || "";
-let model = process.env.ANTHROPIC_MODEL || "claude-opus-4-8";
+// KI-E-Mail-Assistent ile aynı model (hız + maliyet + RAM dostu).
+let model = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5";
 let client = apiKey ? new Anthropic({ apiKey }) : null;
 
 /** Anahtar/model'i çalışırken güncelle. */
@@ -61,9 +62,14 @@ export async function translateToTurkish(text) {
   try {
     const resp = await client.messages.create({
       model,
-      max_tokens: 600,
+      max_tokens: 1500,
+      // KI-E-Mail-Assistent ile aynı çevirmen mantığı (WhatsApp'a uyarlandı).
       system:
-        "Sen bir çevirmensin. Verilen WhatsApp mesajını doğal, akıcı Türkçeye çevir. SADECE çeviriyi yaz — açıklama, tırnak veya ek metin yok. Mesaj zaten Türkçeyse aynen geri ver.",
+        "Du bist ein professioneller Übersetzer. Übersetze die folgende eingehende " +
+        "WhatsApp-Nachricht ins Türkische. Gib AUSSCHLIESSLICH die türkische Übersetzung " +
+        "zurück – ohne Vorbemerkung, ohne Anführungszeichen, ohne Erklärung. Behalte Absätze " +
+        "und Zeilenumbrüche bei. Ist der Text bereits Türkisch, gib ihn unverändert zurück. " +
+        "Übersetze keine URLs, E-Mail-Adressen oder Telefonnummern.",
       messages: [{ role: "user", content: text }],
     });
     return { ok: true, text: textOf(resp) };
@@ -88,11 +94,16 @@ export async function composeReply(history, instructionTr) {
     ? messages
     : [{ role: "user", content: "(Müşteri henüz mesaj yazmadı.)" }];
 
+  // KI-E-Mail-Assistent ile aynı mantık: sahibin notları TÜRKÇE içerik
+  // talimatıdır; asla kelimesi kelimesine verilmez, müşterinin dilinde ifade edilir.
   const guide =
-    "Bir müşteri hizmetleri operatörü, müşteriye ne söylenmesi gerektiğini TÜRKÇE olarak aşağıda tarif ediyor. " +
-    "Görevin: bu tarifi, yukarıdaki kurallara uyarak MÜŞTERİNİN DİLİNDE (Türkçe değil — müşteri hangi dilde yazdıysa o dilde) düzgün bir WhatsApp cevabına dönüştürmek. " +
-    "Sadece gönderilecek cevap metnini ver.\n\n" +
-    "Operatörün Türkçe talimatı:\n\"\"\"\n" + instructionTr.trim() + "\n\"\"\"";
+    "=== NOTIZEN DES INHABERS (Türkisch – Inhalt der Antwort) ===\n" +
+    instructionTr.trim() +
+    "\n\n" +
+    "Formuliere aus diesen türkischen Notizen die passende WhatsApp-Antwort in der " +
+    "SPRACHE DES KUNDEN (nicht Türkisch – in der Sprache, in der der Kunde geschrieben hat). " +
+    "Gib die türkischen Notizen niemals wörtlich wieder. Erfinde keine Preise, Termine oder " +
+    "Zusagen, die nicht in den Notizen stehen. Gib AUSSCHLIESSLICH den fertigen Antworttext aus.";
 
   try {
     const resp = await client.messages.create({
