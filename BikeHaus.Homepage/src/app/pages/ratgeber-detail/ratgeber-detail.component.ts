@@ -794,9 +794,9 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
             'Empfohlen wird einmal jährlich oder alle 1.500–2.000 km. Pendler und Vielfahrer sollten alle 6 Monate eine Inspektion machen lassen. Nach jedem Winter ist eine Inspektion sinnvoll, da Salz und Nässe Kette, Züge und Lager stark belasten.',
         },
         {
-          question: 'Was kostet eine E-Bike Inspektion?',
+          question: 'Kann ich mein Fahrrad selbst inspizieren?',
           answer:
-            'Eine E-Bike Inspektion kostet in der Regel 70–120 €. Neben der mechanischen Prüfung werden Akku-Kapazität, Motor, Display und Softwareversion geprüft. Der genaue Preis hängt vom Antriebssystem ab (Bosch, Shimano Steps, Brose usw.).',
+            'Ja, Sie können Ihr Fahrrad selbst inspizieren. Achten Sie dabei auf den Zustand der Bremsen, Schaltung, Reifen und aller Verschraubungen. Für eine umfassende Inspektion empfehlen wir jedoch einen Fachmann.',
         },
       ],
       'kinderfahrrad-groesse': [
