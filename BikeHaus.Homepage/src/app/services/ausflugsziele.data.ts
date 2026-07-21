@@ -91,6 +91,11 @@ export const AUSFLUGSZIELE_FAKTEN: ZielFakten[] = [
   {
     id: 'seepark',
     image: '/assets/ausflugsziele/seepark.jpg',
+    credit: {
+      autor: 'CrazyD',
+      lizenz: 'CC BY-SA 3.0',
+      quelleUrl: 'https://commons.wikimedia.org/wiki/File:Fl%C3%BCckiger_See_1.jpg',
+    },
     distanzKm: 4,
     schwierigkeit: 'leicht',
     familie: 3,
@@ -154,6 +159,12 @@ export const AUSFLUGSZIELE_FAKTEN: ZielFakten[] = [
   {
     id: 'schlossberg',
     image: '/assets/ausflugsziele/schlossberg.jpg',
+    credit: {
+      autor: 'Zerohund',
+      lizenz: 'CC BY-SA 3.0',
+      quelleUrl:
+        'https://commons.wikimedia.org/wiki/File:Freiburg_Schlossbergturm_von_Eichhalde_Oktober_2009.JPG',
+    },
     distanzKm: 2,
     schwierigkeit: 'mittel',
     familie: 2,
@@ -172,6 +183,11 @@ export const AUSFLUGSZIELE_FAKTEN: ZielFakten[] = [
   {
     id: 'kaiserstuhl',
     image: '/assets/ausflugsziele/kaiserstuhl.jpg',
+    credit: {
+      autor: 'Wladyslaw Sojka',
+      lizenz: 'CC BY-SA 3.0',
+      quelleUrl: 'https://commons.wikimedia.org/wiki/File:Kaiserstuhl_Totenkopf.JPG',
+    },
     distanzKm: 20,
     schwierigkeit: 'anspruchsvoll',
     familie: 2,
@@ -181,6 +197,12 @@ export const AUSFLUGSZIELE_FAKTEN: ZielFakten[] = [
   {
     id: 'staufen',
     image: '/assets/ausflugsziele/staufen.jpg',
+    credit: {
+      autor: 'W. Bulach',
+      lizenz: 'CC BY-SA 4.0',
+      quelleUrl:
+        'https://commons.wikimedia.org/wiki/File:00_3319_Burgruine_Staufen_bei_der_Stadt_Staufen_im_Breisgau.jpg',
+    },
     distanzKm: 20,
     schwierigkeit: 'mittel',
     familie: 2,
@@ -190,6 +212,11 @@ export const AUSFLUGSZIELE_FAKTEN: ZielFakten[] = [
   {
     id: 'breisach',
     image: '/assets/ausflugsziele/breisach.jpg',
+    credit: {
+      autor: 'Rémi Stosskopf',
+      lizenz: 'CC BY-SA 3.0',
+      quelleUrl: 'https://commons.wikimedia.org/wiki/File:Breisach_et_le_Rhin.JPG',
+    },
     distanzKm: 25,
     schwierigkeit: 'mittel',
     familie: 2,
@@ -208,6 +235,11 @@ export const AUSFLUGSZIELE_FAKTEN: ZielFakten[] = [
   {
     id: 'titisee',
     image: '/assets/ausflugsziele/titisee.jpg',
+    credit: {
+      autor: 'Runner1928',
+      lizenz: 'CC BY-SA 3.0',
+      quelleUrl: 'https://commons.wikimedia.org/wiki/File:Titisee_Rundfahrt.JPG',
+    },
     distanzKm: 35,
     schwierigkeit: 'anspruchsvoll',
     familie: 3,
@@ -217,6 +249,11 @@ export const AUSFLUGSZIELE_FAKTEN: ZielFakten[] = [
   {
     id: 'schluchsee',
     image: '/assets/ausflugsziele/schluchsee.jpg',
+    credit: {
+      autor: 'Filzstift',
+      lizenz: 'Gemeinfrei',
+      quelleUrl: 'https://commons.wikimedia.org/wiki/File:Schluchsee.jpg',
+    },
     distanzKm: 45,
     schwierigkeit: 'anspruchsvoll',
     familie: 3,
