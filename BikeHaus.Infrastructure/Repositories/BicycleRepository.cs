@@ -145,12 +145,16 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             .ToListAsync();
     }
 
+    // Nach Name sortiert (nicht nach Aufnahmedatum): speist sowohl die
+    // Verleihliste der Homepage als auch die Verfügbarkeitsprüfung, und dort
+    // sucht man das Rad über Marke/Modell, nicht über das Eingangsdatum.
     public async Task<IEnumerable<Bicycle>> GetRentableBicyclesAsync()
     {
         return await _dbSet
             .Include(b => b.Images)
             .Where(b => b.IsRentable)
-            .OrderByDescending(b => b.CreatedAt)
+            .OrderBy(b => b.Marke)
+            .ThenBy(b => b.Modell)
             .ToListAsync();
     }
 
