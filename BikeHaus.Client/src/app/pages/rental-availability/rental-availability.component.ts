@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { BicycleService } from '../../services/bicycle.service';
 import { Bicycle } from '../../models/models';
@@ -87,13 +87,13 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
       <p class="date-error" *ngIf="dateError()">⚠️ {{ dateError() }}</p>
 
       <!-- Suche + Filter -->
-      <div class="filter-bar">
-        <div class="filter-group search-group">
+      <div class="filters">
+        <div class="search-group">
           <input
             type="text"
             class="filter-input search-input"
             [(ngModel)]="searchText"
-            placeholder="Marke, Modell, Rahmen-/Lagernummer…"
+            placeholder="Suchen…"
           />
           <span class="search-icon">
             <svg
@@ -111,32 +111,58 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
           </span>
         </div>
 
-        <select class="filter-input" [(ngModel)]="filterTyp">
-          <option value="">Alle Typen</option>
-          <option *ngFor="let o of typOptions()" [value]="o">{{ o }}</option>
-        </select>
+        <!-- Kurze Platzhalter statt "Alle Rahmengrößen": die langen Labels
+             haben die Selects auf schmalen Displays aus dem Layout gedrückt. -->
+        <div class="filter-grid">
+          <select
+            class="filter-input"
+            aria-label="Typ"
+            [class.set]="filterTyp"
+            [(ngModel)]="filterTyp"
+          >
+            <option value="">Typ</option>
+            <option *ngFor="let o of typOptions()" [value]="o">{{ o }}</option>
+          </select>
 
-        <select class="filter-input" [(ngModel)]="filterMarke">
-          <option value="">Alle Marken</option>
-          <option *ngFor="let o of markeOptions()" [value]="o">{{ o }}</option>
-        </select>
+          <select
+            class="filter-input"
+            aria-label="Marke"
+            [class.set]="filterMarke"
+            [(ngModel)]="filterMarke"
+          >
+            <option value="">Marke</option>
+            <option *ngFor="let o of markeOptions()" [value]="o">{{ o }}</option>
+          </select>
 
-        <select class="filter-input" [(ngModel)]="filterRahmen">
-          <option value="">Alle Rahmengrößen</option>
-          <option *ngFor="let o of rahmenOptions()" [value]="o">{{ o }}</option>
-        </select>
+          <select
+            class="filter-input"
+            aria-label="Rahmengröße"
+            [class.set]="filterRahmen"
+            [(ngModel)]="filterRahmen"
+          >
+            <option value="">Rahmen</option>
+            <option *ngFor="let o of rahmenOptions()" [value]="o">{{ o }}</option>
+          </select>
 
-        <select class="filter-input" [(ngModel)]="filterReifen">
-          <option value="">Alle Reifengrößen</option>
-          <option *ngFor="let o of reifenOptions()" [value]="o">{{ o }}"</option>
-        </select>
+          <select
+            class="filter-input"
+            aria-label="Reifengröße"
+            [class.set]="filterReifen"
+            [(ngModel)]="filterReifen"
+          >
+            <option value="">Reifen</option>
+            <option *ngFor="let o of reifenOptions()" [value]="o">
+              {{ o }}"
+            </option>
+          </select>
+        </div>
 
         <button
           class="btn-reset"
           *ngIf="hasActiveFilters()"
           (click)="resetFilters()"
         >
-          Filter zurücksetzen
+          ✕ Filter zurücksetzen
         </button>
       </div>
 
@@ -183,7 +209,37 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
 
       <!-- Ergebnis -->
       <div class="bike-grid" *ngIf="!loading() && !error()">
-        <div class="bike-card" *ngFor="let b of filtered()">
+        <div
+          class="bike-card"
+          *ngFor="let b of filtered()"
+          [class.selected]="isSelected(b.id)"
+        >
+          <button
+            class="pick"
+            [class.on]="isSelected(b.id)"
+            (click)="toggleSelect(b.id)"
+            [attr.aria-pressed]="isSelected(b.id)"
+            [attr.aria-label]="
+              (isSelected(b.id) ? 'Abwählen: ' : 'Auswählen: ') +
+              b.marke +
+              ' ' +
+              b.modell
+            "
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </button>
+
           <a class="card-img" [routerLink]="['/bicycles', b.id]">
             <img
               *ngIf="b.images?.length"
@@ -227,9 +283,30 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
                 Kaution {{ b.kaution | number: '1.2-2' }} €
               </div>
             </div>
+
+            <!-- Rad + Zeitraum stehen fest → direkt in den Mietvertrag. -->
+            <button class="btn-rent" (click)="rent(b)" [disabled]="days() <= 0">
+              Vermieten →
+            </button>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Sammelaktion für mehrere Räder -->
+    <div class="select-bar" *ngIf="selectedCount() > 0">
+      <span class="sel-count">
+        <strong>{{ selectedCount() }}</strong>
+        {{ selectedCount() === 1 ? 'Rad' : 'Räder' }} ausgewählt
+      </span>
+      <button class="sel-clear" (click)="clearSelection()">Aufheben</button>
+      <button
+        class="sel-rent"
+        (click)="rentSelected()"
+        [disabled]="days() <= 0"
+      >
+        Vermieten →
+      </button>
     </div>
   `,
   styles: [
@@ -323,33 +400,45 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
         font-size: 0.85rem;
         margin: 0 0 12px;
       }
-      .filter-bar {
+      /* Kompakte, mitwachsende Filterzeile: Suche oben, darunter ein Raster,
+         das je nach Breite 2–4 Selects nebeneinander legt. */
+      .filters {
         display: flex;
-        gap: 12px;
+        flex-direction: column;
+        gap: 8px;
         margin-bottom: 16px;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      .filter-group {
-        position: relative;
       }
       .search-group {
-        flex: 1;
-        min-width: 220px;
+        position: relative;
+        width: 100%;
         max-width: 360px;
       }
+      .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+        gap: 8px;
+        max-width: 640px;
+      }
       .filter-input {
-        padding: 10px 14px;
+        min-width: 0;
+        padding: 9px 11px;
         border: 1.5px solid var(--border-color);
-        border-radius: 10px;
+        border-radius: 9px;
         background: var(--bg-card);
         color: var(--text-primary);
-        font-size: 0.88rem;
+        font-size: 0.85rem;
         transition: all 0.2s;
+      }
+      /* Gesetzte Filter heben sich ab, weil der Platzhalter nur "Typ"/"Rahmen"
+         heißt und sonst nicht erkennbar wäre, ob gefiltert wird. */
+      select.filter-input.set {
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+        font-weight: 600;
       }
       .search-input {
         width: 100%;
-        padding-right: 38px;
+        padding-right: 36px;
       }
       .filter-input:focus {
         outline: none;
@@ -414,6 +503,7 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
         gap: 16px;
       }
       .bike-card {
+        position: relative;
         background: var(--bg-card);
         border: 1.5px solid var(--border-color);
         border-radius: 12px;
@@ -424,6 +514,79 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
         border-color: var(--accent-primary);
         transform: translateY(-2px);
         box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+      .bike-card.selected {
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px var(--accent-primary) inset;
+      }
+      .pick {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 2;
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        border: 2px solid #fff;
+        background: rgba(15, 23, 42, 0.45);
+        color: transparent;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        backdrop-filter: blur(2px);
+        transition: all 0.15s;
+      }
+      .pick.on {
+        background: var(--accent-primary);
+        border-color: var(--accent-primary);
+        color: #fff;
+      }
+      .select-bar {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%);
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: var(--text-primary);
+        color: var(--bg-card);
+        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+        max-width: calc(100vw - 24px);
+      }
+      .sel-count {
+        font-size: 0.86rem;
+        white-space: nowrap;
+      }
+      .sel-count strong {
+        font-size: 1rem;
+      }
+      .sel-clear {
+        border: none;
+        background: transparent;
+        color: inherit;
+        opacity: 0.7;
+        font-size: 0.82rem;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+      .sel-rent {
+        border: none;
+        border-radius: 999px;
+        background: var(--accent-primary);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.86rem;
+        padding: 8px 16px;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .sel-rent:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
       }
       .card-img {
         display: block;
@@ -503,13 +666,56 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
         font-size: 0.74rem;
         color: var(--text-secondary);
       }
+      .btn-rent {
+        width: 100%;
+        margin-top: 10px;
+        padding: 9px 12px;
+        border: none;
+        border-radius: 9px;
+        background: var(--accent-primary);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: filter 0.15s, transform 0.05s;
+      }
+      .btn-rent:hover {
+        filter: brightness(1.08);
+      }
+      .btn-rent:active {
+        transform: scale(0.985);
+      }
+      .btn-rent:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
       @media (max-width: 640px) {
+        .date-bar {
+          padding: 12px;
+          gap: 10px;
+        }
+        .date-field {
+          flex: 1 1 42%;
+        }
         .quick-picks {
           margin-left: 0;
           width: 100%;
+          overflow-x: auto;
+          flex-wrap: nowrap;
+          padding-bottom: 2px;
+        }
+        .quick-picks .chip {
+          flex: 0 0 auto;
+        }
+        .search-group {
+          max-width: none;
         }
         .bike-grid {
-          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 12px;
+        }
+        .card-body {
+          padding: 10px 11px 12px;
         }
       }
     `,
@@ -517,6 +723,7 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
 })
 export class RentalAvailabilityComponent implements OnInit {
   private bicycleService = inject(BicycleService);
+  private router = inject(Router);
 
   startDate = '';
   endDate = '';
@@ -602,6 +809,13 @@ export class RentalAvailabilityComponent implements OnInit {
       .subscribe({
         next: (list) => {
           this.bikes.set(list ?? []);
+          // Zeitraum geändert → vorher gewählte Räder können jetzt belegt sein.
+          // Nur noch verfügbare Auswahl behalten, sonst landet ein belegtes Rad
+          // im Mietvertrag.
+          const stillFree = new Set((list ?? []).map((b) => b.id));
+          for (const id of [...this.selected]) {
+            if (!stillFree.has(id)) this.selected.delete(id);
+          }
           this.loading.set(false);
         },
         error: (err) => {
@@ -685,6 +899,49 @@ export class RentalAvailabilityComponent implements OnInit {
     const d = this.days();
     if (d <= 0) return null;
     return calculateRentalPrice(bike, d).total;
+  }
+
+  // ── Mehrfachauswahl ──
+  private selected = new Set<number>();
+
+  isSelected(id: number): boolean {
+    return this.selected.has(id);
+  }
+  selectedCount(): number {
+    return this.selected.size;
+  }
+  toggleSelect(id: number): void {
+    if (!this.selected.delete(id)) this.selected.add(id);
+  }
+  clearSelection(): void {
+    this.selected.clear();
+  }
+
+  /**
+   * Direkt in den Mietvertrag: Rad und Zeitraum sind hier schon gewählt, das
+   * Formular liest sie aus den Query-Params und wählt die Räder selbst aus.
+   */
+  rent(bike: Bicycle): void {
+    this.goToRental([bike.id]);
+  }
+
+  rentSelected(): void {
+    this.goToRental([...this.selected]);
+  }
+
+  private goToRental(ids: number[]): void {
+    if (this.days() <= 0 || ids.length === 0) return;
+    this.router.navigate(['/rentals/new'], {
+      queryParams: {
+        // Das Formular versteht beide Formen; die Einzahl bleibt für einen
+        // sprechenden Link bei nur einem Rad.
+        ...(ids.length === 1
+          ? { bicycleId: ids[0] }
+          : { bicycleIds: ids.join(',') }),
+        start: this.startDate,
+        end: this.endDate,
+      },
+    });
   }
 
   getImageUrl(path: string): string {

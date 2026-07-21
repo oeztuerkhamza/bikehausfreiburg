@@ -2751,6 +2751,39 @@ export class RentalFormComponent implements OnInit {
           this.notificationService.error('Buchung konnte nicht geladen werden');
         },
       });
+      return;
+    }
+
+    // Direkteinstieg aus der Verfügbarkeitssuche (ohne Buchung):
+    //   /rentals/new?bicycleId=42&start=…&end=…            (ein Rad)
+    //   /rentals/new?bicycleIds=42,43,44&start=…&end=…     (mehrere Räder)
+    // Räder und Zeitraum stehen schon fest, es fehlt nur noch der Mieter.
+    const bicycleIdsParam = this.route.snapshot.queryParamMap.get('bicycleIds');
+    if (bicycleIdParam || bicycleIdsParam) {
+      const start = this.route.snapshot.queryParamMap.get('start');
+      const end = this.route.snapshot.queryParamMap.get('end');
+      if (start && end) {
+        this.startDatum = start;
+        this.endDatum = end;
+        this.pickingState = 'start';
+        const s = new Date(start);
+        this.calendarMonth = s.getMonth();
+        this.calendarYear = s.getFullYear();
+      }
+
+      const ids = (bicycleIdsParam ?? bicycleIdParam ?? '')
+        .split(',')
+        .map((v) => Number(v.trim()))
+        .filter((v) => Number.isFinite(v) && v > 0);
+
+      if (ids.length > 1) {
+        // srcBike bleibt leer: die Räder kommen aus der Verfügbarkeitsliste,
+        // stehen also im gleichen Zeitraum garantiert zur Auswahl.
+        this.pendingMultiBikes = ids.map((id) => ({ bikeId: id, srcBike: null }));
+      } else if (ids.length === 1) {
+        this.pendingBikeIdToSelect = ids[0];
+      }
+      this.onDatesChanged(); // lädt Verfügbarkeit → wählt die Räder automatisch
     }
   }
 
