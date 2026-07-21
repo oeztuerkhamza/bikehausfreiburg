@@ -13,6 +13,10 @@ import { DialogService } from '../../services/dialog.service';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { AuthService, UserInfo } from '../../services/auth.service';
 import { BackupService } from '../../services/backup.service';
+import {
+  AppReleaseService,
+  AppReleaseInfo,
+} from '../../services/app-release.service';
 import { compressImageFile } from '../../utils/image-compression';
 import {
   KleinanzeigenService,
@@ -1156,6 +1160,46 @@ interface EmailAccountForm {
             </div>
           </div>
         </section>
+
+        <!-- ═══════════ Mobile App (Android) ═══════════ -->
+        <section class="settings-section">
+          <h2>📱 Mobile App (Android)</h2>
+          <div class="settings-card">
+            <div class="backup-section">
+              <div class="backup-info">
+                <div class="backup-icon">🤖</div>
+                <div class="backup-text">
+                  <h3>BikeHaus Asistan — APK</h3>
+                  <p>
+                    Mail- und WhatsApp-Assistent für Android. Der Download ist nur
+                    hier im Adminbereich verfügbar.
+                  </p>
+                  <p *ngIf="apkInfo?.available">
+                    📦 {{ apkInfo?.fileName }} · {{ apkSizeMb }} MB ·
+                    {{ apkInfo?.updatedAt | date: 'dd.MM.yyyy HH:mm' }}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                class="btn btn-primary"
+                *ngIf="apkInfo?.available"
+                [disabled]="downloadingApk"
+                (click)="downloadApk()"
+              >
+                {{ downloadingApk ? 'Wird geladen…' : 'APK herunterladen' }}
+              </button>
+
+              <div class="restore-warning" *ngIf="apkInfo && !apkInfo.available">
+                <span class="warning-icon">⚠️</span>
+                <span>Noch keine APK auf dem Server hinterlegt.</span>
+              </div>
+
+              <div class="success-msg" *ngIf="apkSuccess">{{ apkSuccess }}</div>
+              <div class="error-msg" *ngIf="apkError">{{ apkError }}</div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   `,
@@ -1827,6 +1871,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   private settingsService = inject(SettingsService);
   private backupService = inject(BackupService);
+  private appReleaseService = inject(AppReleaseService);
   private kleinanzeigenService = inject(KleinanzeigenService);
   private http = inject(HttpClient);
   themeService = inject(ThemeService);
@@ -1854,6 +1899,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   restoreError = '';
   showRestoreConfirm = false;
   selectedRestoreFile: File | null = null;
+
+  // Mobile App (APK)
+  apkInfo: AppReleaseInfo | null = null;
+  downloadingApk = false;
+  apkSuccess = '';
+  apkError = '';
 
   // Email test
   testEmailAddress = '';
@@ -1939,6 +1990,49 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.loadCurrentUser();
     this.loadLastSyncTime();
     this.loadEmailAccounts();
+    this.loadApkInfo();
+  }
+
+  // ─── Mobile App (APK) ───
+  get apkSizeMb(): string {
+    const bytes = this.apkInfo?.sizeBytes ?? 0;
+    return (bytes / (1024 * 1024)).toFixed(2);
+  }
+
+  loadApkInfo(): void {
+    this.appReleaseService.getInfo().subscribe({
+      next: (info) => (this.apkInfo = info),
+      error: () => (this.apkInfo = { available: false }),
+    });
+  }
+
+  downloadApk(): void {
+    this.downloadingApk = true;
+    this.apkSuccess = '';
+    this.apkError = '';
+
+    this.appReleaseService.download().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = this.apkInfo?.fileName ?? 'bikehaus-asistan.apk';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        this.apkSuccess = 'Download gestartet.';
+        this.downloadingApk = false;
+        setTimeout(() => (this.apkSuccess = ''), 5000);
+      },
+      error: (err) => {
+        console.error('APK download error:', err);
+        this.apkError = 'Download fehlgeschlagen.';
+        this.downloadingApk = false;
+        setTimeout(() => (this.apkError = ''), 5000);
+      },
+    });
   }
 
   loadLastSyncTime(): void {
