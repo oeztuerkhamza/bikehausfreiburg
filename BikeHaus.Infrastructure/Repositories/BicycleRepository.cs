@@ -161,7 +161,8 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             .ToListAsync();
 
         return bikes
-            .OrderBy(b => BicycleNaming.SortKey(b.Marke), BicycleNaming.NameComparer)
+            .OrderByDescending(b => BicycleNaming.IsEbike(b.Fahrradtyp))
+            .ThenBy(b => BicycleNaming.SortKey(b.Marke), BicycleNaming.NameComparer)
             .ThenBy(b => b.Modell, BicycleNaming.NameComparer)
             .ToList();
     }

@@ -30,4 +30,11 @@ public static partial class BicycleNaming
     /// <summary>Vergleicher für die Namenssortierung (Marke, dann Modell).</summary>
     public static readonly StringComparer NameComparer =
         StringComparer.InvariantCultureIgnoreCase;
+
+    /// <summary>
+    /// E-Bike anhand des Fahrradtyps. Zuverlässiger als der "E"-Präfix im Namen:
+    /// im Bestand tragen alle E-Bikes Fahrradtyp "E-Bike".
+    /// </summary>
+    public static bool IsEbike(string? fahrradtyp) =>
+        string.Equals(fahrradtyp?.Trim(), "E-Bike", StringComparison.OrdinalIgnoreCase);
 }
