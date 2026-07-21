@@ -209,23 +209,21 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
 
       <!-- Ergebnis -->
       <div class="bike-grid" *ngIf="!loading() && !error()">
+        <!-- Die ganze Karte schaltet die Auswahl um — hier wird ausgewählt,
+             nicht bearbeitet. -->
         <div
           class="bike-card"
           *ngFor="let b of filtered()"
           [class.selected]="isSelected(b.id)"
+          role="button"
+          tabindex="0"
+          [attr.aria-pressed]="isSelected(b.id)"
+          (click)="toggleSelect(b.id)"
+          (keydown.enter)="toggleSelect(b.id)"
+          (keydown.space)="$event.preventDefault(); toggleSelect(b.id)"
         >
-          <button
-            class="pick"
-            [class.on]="isSelected(b.id)"
-            (click)="toggleSelect(b.id)"
-            [attr.aria-pressed]="isSelected(b.id)"
-            [attr.aria-label]="
-              (isSelected(b.id) ? 'Abwählen: ' : 'Auswählen: ') +
-              b.marke +
-              ' ' +
-              b.modell
-            "
-          >
+          <!-- Rein visuell: der Klick wird von der Karte behandelt. -->
+          <div class="pick" [class.on]="isSelected(b.id)" aria-hidden="true">
             <svg
               width="14"
               height="14"
@@ -238,9 +236,9 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
             >
               <polyline points="20 6 9 17 4 12" />
             </svg>
-          </button>
+          </div>
 
-          <a class="card-img" [routerLink]="['/bicycles', b.id]">
+          <div class="card-img">
             <img
               *ngIf="b.images?.length"
               [src]="getImageUrl(b.images![0].filePath)"
@@ -248,12 +246,10 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
               loading="lazy"
             />
             <div class="img-placeholder" *ngIf="!b.images?.length">🚲</div>
-          </a>
+          </div>
 
           <div class="card-body">
-            <a class="card-title" [routerLink]="['/bicycles', b.id]">
-              {{ b.marke }} {{ b.modell }}
-            </a>
+            <div class="card-title">{{ b.marke }} {{ b.modell }}</div>
 
             <div class="badges">
               <span class="badge" *ngIf="b.fahrradtyp">{{ b.fahrradtyp }}</span>
@@ -283,11 +279,6 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
                 Kaution {{ b.kaution | number: '1.2-2' }} €
               </div>
             </div>
-
-            <!-- Rad + Zeitraum stehen fest → direkt in den Mietvertrag. -->
-            <button class="btn-rent" (click)="rent(b)" [disabled]="days() <= 0">
-              Vermieten →
-            </button>
           </div>
         </div>
       </div>
@@ -509,6 +500,12 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
         border-radius: 12px;
         overflow: hidden;
         transition: all 0.2s;
+        cursor: pointer;
+        user-select: none;
+      }
+      .bike-card:focus-visible {
+        outline: 2px solid var(--accent-primary);
+        outline-offset: 2px;
       }
       .bike-card:hover {
         border-color: var(--accent-primary);
@@ -532,7 +529,7 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
         color: transparent;
         display: grid;
         place-items: center;
-        cursor: pointer;
+        pointer-events: none;
         backdrop-filter: blur(2px);
         transition: all 0.15s;
       }
@@ -610,15 +607,10 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
         padding: 12px 14px 14px;
       }
       .card-title {
-        display: block;
         font-weight: 700;
         color: var(--text-primary);
-        text-decoration: none;
         font-size: 0.98rem;
         margin-bottom: 8px;
-      }
-      .card-title:hover {
-        color: var(--accent-primary);
       }
       .badges {
         display: flex;
@@ -665,29 +657,6 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
       .kaution {
         font-size: 0.74rem;
         color: var(--text-secondary);
-      }
-      .btn-rent {
-        width: 100%;
-        margin-top: 10px;
-        padding: 9px 12px;
-        border: none;
-        border-radius: 9px;
-        background: var(--accent-primary);
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: filter 0.15s, transform 0.05s;
-      }
-      .btn-rent:hover {
-        filter: brightness(1.08);
-      }
-      .btn-rent:active {
-        transform: scale(0.985);
-      }
-      .btn-rent:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
       }
       @media (max-width: 640px) {
         .date-bar {
@@ -918,18 +887,11 @@ export class RentalAvailabilityComponent implements OnInit {
   }
 
   /**
-   * Direkt in den Mietvertrag: Rad und Zeitraum sind hier schon gewählt, das
+   * Direkt in den Mietvertrag: Räder und Zeitraum sind hier schon gewählt, das
    * Formular liest sie aus den Query-Params und wählt die Räder selbst aus.
    */
-  rent(bike: Bicycle): void {
-    this.goToRental([bike.id]);
-  }
-
   rentSelected(): void {
-    this.goToRental([...this.selected]);
-  }
-
-  private goToRental(ids: number[]): void {
+    const ids = [...this.selected];
     if (this.days() <= 0 || ids.length === 0) return;
     this.router.navigate(['/rentals/new'], {
       queryParams: {

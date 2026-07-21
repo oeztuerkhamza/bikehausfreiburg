@@ -397,8 +397,8 @@ public class BicycleService : IBicycleService
         // manually in the shop. So they are never filtered out as "busy".
         return bikes
             .Where(b => BicycleCategory.IsChildrens(b.Art, b.Fahrradtyp) || !allBusyIds.Contains(b.Id))
-            .OrderBy(b => b.Marke)
-            .ThenBy(b => b.Modell)
+            .OrderBy(b => BicycleNaming.SortKey(b.Marke), BicycleNaming.NameComparer)
+            .ThenBy(b => b.Modell, BicycleNaming.NameComparer)
             .Select(b => b.ToDto());
     }
 

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using BikeHaus.Domain;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
@@ -148,14 +149,21 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
     // Nach Name sortiert (nicht nach Aufnahmedatum): speist sowohl die
     // Verleihliste der Homepage als auch die Verfügbarkeitsprüfung, und dort
     // sucht man das Rad über Marke/Modell, nicht über das Eingangsdatum.
+    //
+    // Sortiert wird in-memory: der Schlüssel schneidet die führende
+    // Bestandsnummer ab (siehe BicycleNaming), was sich in SQL nicht abbilden
+    // lässt. Bei der Größe des Verleihbestands ist das unkritisch.
     public async Task<IEnumerable<Bicycle>> GetRentableBicyclesAsync()
     {
-        return await _dbSet
+        var bikes = await _dbSet
             .Include(b => b.Images)
             .Where(b => b.IsRentable)
-            .OrderBy(b => b.Marke)
-            .ThenBy(b => b.Modell)
             .ToListAsync();
+
+        return bikes
+            .OrderBy(b => BicycleNaming.SortKey(b.Marke), BicycleNaming.NameComparer)
+            .ThenBy(b => b.Modell, BicycleNaming.NameComparer)
+            .ToList();
     }
 
     public async Task<Bicycle?> GetRentableBicycleByIdAsync(int id)
