@@ -14,6 +14,7 @@ export interface Translations {
   rentalBookings: string;
   rentalAccessories: string;
   mietfahrraeder: string;
+  rentalAvailability: string;
   bicycleCalendar: string;
   statistics: string;
   settings: string;
@@ -850,6 +851,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookings: 'Mietanfragen',
     rentalAccessories: 'Mietzubehör',
     mietfahrraeder: 'Mietfahrräder',
+    rentalAvailability: 'Verfügbarkeit',
     bicycleCalendar: 'Belegungsplan',
     statistics: 'Statistiken',
     settings: 'Einstellungen',
@@ -1698,6 +1700,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookings: 'Kiralama Talepleri',
     rentalAccessories: 'Kiralama Aksesuarları',
     mietfahrraeder: 'Kiralık Bisikletler',
+    rentalAvailability: 'Müsaitlik',
     bicycleCalendar: 'Doluluk Takvimi',
     statistics: 'İstatistikler',
     settings: 'Ayarlar',

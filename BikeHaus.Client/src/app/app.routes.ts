@@ -294,6 +294,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'rental-availability',
+    loadComponent: () =>
+      import(
+        './pages/rental-availability/rental-availability.component'
+      ).then((m) => m.RentalAvailabilityComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'rentals',
     loadComponent: () =>
       import('./pages/rentals/rental-list.component').then(
