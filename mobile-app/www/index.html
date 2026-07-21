@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#202c33" />
+  <title>BikeHaus Asistan</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════ LOGIN ═══════════ -->
+  <section id="login-screen" class="screen">
+    <div class="login-wrapper">
+      <div class="login-logo">
+        <span class="logo-icon">🚲</span>
+        <h1>BikeHaus</h1>
+        <p class="subtitle">Freiburg · Asistan</p>
+      </div>
+      <form id="login-form" autocomplete="on">
+        <div class="field">
+          <label for="username">Benutzername</label>
+          <input id="username" type="text" autocomplete="username" required placeholder="admin" />
+        </div>
+        <div class="field">
+          <label for="password">Passwort</label>
+          <input id="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+        </div>
+        <p id="login-error" class="error hidden"></p>
+        <button id="login-btn" type="submit" class="btn-primary btn-login">
+          <span class="btn-text">Giriş Yap</span>
+          <span class="btn-loader hidden"></span>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══════════ SPLASH (oto-login kontrolü) ═══════════ -->
+  <section id="splash" class="screen">
+    <div class="splash-inner">
+      <span class="logo-icon big">🚲</span>
+      <div class="spinner"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ ANA UYGULAMA ═══════════ -->
+  <section id="app-screen" class="screen hidden">
+
+    <!-- ─── WHATSAPP: LİSTE ─── -->
+    <div id="view-wa-list" class="view active">
+      <header class="topbar">
+        <div class="topbar-title">
+          <span class="wa-logo">💬</span> WhatsApp
+        </div>
+        <div class="topbar-actions">
+          <span id="wa-conn" class="conn-dot" title="Bağlantı durumu"></span>
+          <button id="wa-refresh" class="icon-btn" title="Yenile" aria-label="Yenile">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+        </div>
+      </header>
+      <div id="wa-list" class="list scroll">
+        <div class="list-empty" id="wa-empty">
+          <div class="spinner"></div>
+          <p>Sohbetler yükleniyor…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── WHATSAPP: SOHBET ─── -->
+    <div id="view-wa-thread" class="view">
+      <header class="topbar">
+        <button class="icon-btn back" data-back="wa" aria-label="Geri">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="peer">
+          <div class="peer-avatar" id="wa-peer-avatar">·</div>
+          <div class="peer-meta">
+            <div class="peer-name" id="wa-peer-name">—</div>
+            <div class="peer-sub" id="wa-peer-sub"></div>
+          </div>
+        </div>
+      </header>
+
+      <div id="wa-messages" class="messages scroll wallpaper"></div>
+
+      <!-- Compose + çeviri/onay paneli -->
+      <div class="composer">
+        <div id="wa-compose-panel" class="compose-panel hidden">
+          <div class="cp-row">
+            <label>🇩🇪 Gönderilecek mesaj (müşteri dili)</label>
+            <span id="wa-lang-badge" class="lang-badge"></span>
+          </div>
+          <textarea id="wa-draft" class="cp-textarea" rows="3" placeholder="AI cevabı burada…"></textarea>
+
+          <div class="cp-row">
+            <label>🇹🇷 Türkçe kontrol</label>
+            <button id="wa-regen" class="mini-btn" title="Türkçeden yeniden oluştur">↻ Yeniden oluştur</button>
+          </div>
+          <textarea id="wa-draft-tr" class="cp-textarea tr" rows="3" placeholder="Kontrol için Türkçe çeviri…"></textarea>
+
+          <div class="cp-actions">
+            <button id="wa-send" class="btn-primary">Gönder ➤</button>
+          </div>
+        </div>
+
+        <div class="instruction-bar">
+          <textarea id="wa-instruction" class="instruction-input" rows="1" placeholder="Türkçe yaz: müşteriye ne diyeyim?"></textarea>
+          <button id="wa-generate" class="round-btn" title="AI cevabı oluştur" aria-label="Oluştur">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── MAIL: LİSTE ─── -->
+    <div id="view-mail-list" class="view">
+      <header class="topbar">
+        <div class="topbar-title"><span class="mail-logo">📧</span> Mail</div>
+        <div class="topbar-actions">
+          <span id="mail-conn" class="conn-dot" title="Gmail durumu"></span>
+          <button id="mail-refresh" class="icon-btn" title="Yenile" aria-label="Yenile">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+        </div>
+      </header>
+      <div id="mail-connect" class="connect-panel hidden">
+        <span class="logo-icon">📭</span>
+        <p>Gmail bağlı değil.</p>
+        <button id="mail-connect-btn" class="btn-primary">Gmail'e Bağlan</button>
+        <small>Bağlantı merkezi olarak saklanır; her cihazdan tek girişle kullanılır.</small>
+      </div>
+      <div id="mail-list" class="list scroll">
+        <div class="list-empty" id="mail-empty">
+          <div class="spinner"></div>
+          <p>Gelen kutusu yükleniyor…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── MAIL: DETAY ─── -->
+    <div id="view-mail-detail" class="view">
+      <header class="topbar">
+        <button class="icon-btn back" data-back="mail" aria-label="Geri">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="peer">
+          <div class="peer-meta">
+            <div class="peer-name" id="mail-peer-name">—</div>
+            <div class="peer-sub" id="mail-peer-sub"></div>
+          </div>
+        </div>
+      </header>
+
+      <div id="mail-body-scroll" class="mail-detail scroll">
+        <div class="mail-subject" id="mail-subject"></div>
+        <div class="mail-orig" id="mail-orig"></div>
+        <div class="mail-block">
+          <div class="block-label">🇹🇷 Türkçe çeviri</div>
+          <div class="mail-translation" id="mail-translation"><em>çevriliyor…</em></div>
+        </div>
+
+        <!-- Cevap oluşturma -->
+        <div class="mail-reply">
+          <div class="cp-row"><label>Türkçe talimat</label></div>
+          <textarea id="mail-instruction" class="cp-textarea" rows="2" placeholder="Türkçe yaz: müşteriye ne diyeyim?"></textarea>
+          <button id="mail-generate" class="btn-primary full">✨ Cevap oluştur</button>
+
+          <div id="mail-compose-panel" class="compose-panel hidden">
+            <div class="cp-row">
+              <label>Gönderilecek cevap (müşteri dili)</label>
+              <span id="mail-lang-badge" class="lang-badge"></span>
+            </div>
+            <textarea id="mail-draft" class="cp-textarea" rows="6"></textarea>
+
+            <div class="cp-row">
+              <label>🇹🇷 Türkçe kontrol</label>
+              <button id="mail-regen" class="mini-btn">↻ Yeniden oluştur</button>
+            </div>
+            <textarea id="mail-draft-tr" class="cp-textarea tr" rows="6"></textarea>
+
+            <button id="mail-send" class="btn-primary full">Gönder ➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── ALT TAB BAR ─── -->
+    <nav id="tabbar">
+      <button class="tab active" data-tab="wa">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        <span>WhatsApp</span>
+        <span class="tab-badge hidden" id="wa-tabbadge"></span>
+      </button>
+      <button class="tab" data-tab="mail">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
+        <span>Mail</span>
+        <span class="tab-badge hidden" id="mail-tabbadge"></span>
+      </button>
+      <button class="tab" data-tab="menu">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Ayarlar</span>
+      </button>
+    </nav>
+
+    <!-- ─── MENÜ / AYARLAR ─── -->
+    <div id="view-menu" class="view">
+      <header class="topbar"><div class="topbar-title">⚙️ Ayarlar</div></header>
+      <div class="menu scroll">
+        <div class="menu-user">
+          <div class="peer-avatar big" id="menu-avatar">·</div>
+          <div>
+            <div class="peer-name" id="menu-name">—</div>
+            <div class="peer-sub">Giriş yapıldı</div>
+          </div>
+        </div>
+        <div class="menu-section">
+          <div class="menu-item" id="menu-notif">
+            <span>🔔 Bildirimler</span>
+            <span class="menu-value" id="menu-notif-state">—</span>
+          </div>
+          <div class="menu-item" id="menu-wa-logout">
+            <span>📴 WhatsApp numarasını değiştir</span>
+            <span class="menu-value">›</span>
+          </div>
+        </div>
+        <div class="menu-section">
+          <button id="menu-logout" class="btn-danger full">Çıkış Yap</button>
+        </div>
+        <p class="version">BikeHaus Asistan · v1.0</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

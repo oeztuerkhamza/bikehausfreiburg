@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BikeHaus Asistan</string>
+    <string name="title_activity_main">BikeHaus Asistan</string>
+    <string name="package_name">com.bikehausfreiburg.assistant</string>
+    <string name="custom_url_scheme">com.bikehausfreiburg.assistant</string>
+</resources>
