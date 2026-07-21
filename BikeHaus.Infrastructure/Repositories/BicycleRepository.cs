@@ -94,6 +94,23 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Wie die Basisimplementierung, aber mit geladenen Bildern.
+    ///
+    /// BicycleDto transportiert immer auch die Bilder; ohne Include kämen sie
+    /// als leere Liste an und die Oberfläche zeigt nur Platzhalter. Alle anderen
+    /// Lesepfade dieses Repositories laden die Bilder ebenfalls mit — die
+    /// generische FindAsync war die einzige Lücke.
+    /// </summary>
+    public override async Task<IEnumerable<Bicycle>> FindAsync(
+        Expression<Func<Bicycle, bool>> predicate)
+    {
+        return await _dbSet
+            .Include(b => b.Images)
+            .Where(predicate)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<string>> GetUniqueBrandsAsync()
     {
         return await _dbSet
