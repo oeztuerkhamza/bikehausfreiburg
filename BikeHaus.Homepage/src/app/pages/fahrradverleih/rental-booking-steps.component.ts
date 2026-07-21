@@ -1807,17 +1807,22 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         border-color: var(--rb-accent);
         box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.25);
       }
+      /* Flaches 4:1-Band: hält die Zubehörliste auf dem Handy kompakt, statt
+         dass jedes Foto den halben Bildschirm füllt. object-fit: contain, damit
+         hochformatige Artikel (z. B. ein Schloss) nicht zu einem unkenntlichen
+         Streifen beschnitten werden. */
       .accessory-photo {
-        aspect-ratio: 4 / 3;
+        aspect-ratio: 4 / 1;
         background: rgba(255, 255, 255, 0.06);
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 6px;
       }
       .accessory-photo img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
       }
       .accessory-photo-empty {
         font-size: 2rem;
