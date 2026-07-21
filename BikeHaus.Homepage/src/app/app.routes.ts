@@ -344,6 +344,14 @@ export const routes: Routes = [
             (m) => m.FahrradServiceComponent,
           ),
       },
+      // ── Ausflugsziele (destinations by bike) — Start Deutsch ──
+      {
+        path: 'ausflugsziele',
+        loadComponent: () =>
+          import('./pages/ausflugsziele/ausflugsziele.component').then(
+            (m) => m.AusflugszieleComponent,
+          ),
+      },
       // ── Fahrradtouren (bike tours) — language-specific slugs ──
       // DE/TR/ES/IT/AR/RU: /fahrradtouren
       {

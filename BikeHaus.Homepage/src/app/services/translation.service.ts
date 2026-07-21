@@ -679,6 +679,7 @@ export interface Translations {
 
   // Bike Tours
   bikeToursNav: string;
+  ausflugszieleNav: string;
 
   // Ratgeber / Blog
   ratgeberNav: string;
@@ -1337,6 +1338,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     // Ratgeber / Blog
     bikeToursNav: 'Fahrradtouren',
+    ausflugszieleNav: 'Ausflugsziele',
     ratgeberNav: 'Ratgeber',
     ratgeberLabel: 'Wissen & Tipps',
     ratgeberTitle: 'Fahrrad Ratgeber',
@@ -2027,6 +2029,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     // Ratgeber / Blog
     bikeToursNav: 'Bike Tours',
+    ausflugszieleNav: 'Excursions',
     ratgeberNav: 'Guide',
     ratgeberLabel: 'Knowledge & Tips',
     ratgeberTitle: 'Bike Guide',
@@ -2746,6 +2749,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     // Ratgeber / Blog
     bikeToursNav: 'Circuits vélo',
+    ausflugszieleNav: 'Excursions',
     ratgeberNav: 'Guide',
     ratgeberLabel: 'Savoir & Conseils',
     ratgeberTitle: 'Guide Vélo',
@@ -3459,6 +3463,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
 
     // Ratgeber / Blog
     bikeToursNav: 'Bisiklet Turları',
+    ausflugszieleNav: 'Geziler',
     ratgeberNav: 'Rehber',
     ratgeberLabel: 'Bilgi & İpuçları',
     ratgeberTitle: 'Bisiklet Rehberi',

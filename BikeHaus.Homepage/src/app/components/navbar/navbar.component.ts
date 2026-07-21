@@ -707,6 +707,11 @@ export class NavbarComponent {
       exact: false,
     },
     {
+      path: 'ausflugsziele',
+      label: () => this.t().ausflugszieleNav,
+      exact: false,
+    },
+    {
       path: 'service',
       label: () => this.t().bikeService,
       exact: false,

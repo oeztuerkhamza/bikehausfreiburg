@@ -71,6 +71,14 @@
 /it/fahrradtouren
 /ar/fahrradtouren
 /ru/fahrradtouren
+/de/ausflugsziele
+/en/ausflugsziele
+/fr/ausflugsziele
+/tr/ausflugsziele
+/es/ausflugsziele
+/it/ausflugsziele
+/ar/ausflugsziele
+/ru/ausflugsziele
 /de/garantie
 /en/garantie
 /fr/garantie
