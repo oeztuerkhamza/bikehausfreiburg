@@ -1887,9 +1887,13 @@ const MONTH_NAMES = [
         display: flex;
         gap: 12px;
         margin-top: 16px;
-        padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+        /* Zusätzlicher Abstand nach unten, damit die Buttons klar über der
+           Browserleiste (iOS Safari) liegen und leicht tippbar sind. Braucht
+           viewport-fit=cover in index.html, damit env(safe-area-*) greift. */
+        padding: 12px 0 calc(20px + env(safe-area-inset-bottom, 0px));
         background: var(--bg-card);
         border-top: 1px solid var(--border-light);
+        box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.18);
       }
       .wizard-nav .wizard-next {
         flex: 1;
@@ -1898,7 +1902,8 @@ const MONTH_NAMES = [
         flex: 0 0 auto;
       }
       .wizard-nav .btn {
-        padding: 14px 18px;
+        padding: 15px 18px;
+        min-height: 50px;
         font-size: 1rem;
         justify-content: center;
       }
