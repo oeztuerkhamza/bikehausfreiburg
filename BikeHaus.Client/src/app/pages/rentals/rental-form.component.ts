@@ -1880,17 +1880,19 @@ const MONTH_NAMES = [
       .wizard-hidden {
         display: none;
       }
+      /* Fest am unteren Rand verankert (nicht sticky): sticky bottom:0
+         "springt" auf iOS beim Overscroll. fixed bleibt ruhig stehen.
+         Braucht viewport-fit=cover in index.html, damit env(safe-area-*) greift,
+         und unten padding am Formular, damit nichts verdeckt wird. */
       .wizard-nav {
-        position: sticky;
+        position: fixed;
+        left: 0;
+        right: 0;
         bottom: 0;
         z-index: 50;
         display: flex;
         gap: 12px;
-        margin-top: 16px;
-        /* Zusätzlicher Abstand nach unten, damit die Buttons klar über der
-           Browserleiste (iOS Safari) liegen und leicht tippbar sind. Braucht
-           viewport-fit=cover in index.html, damit env(safe-area-*) greift. */
-        padding: 12px 0 calc(20px + env(safe-area-inset-bottom, 0px));
+        padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
         background: var(--bg-card);
         border-top: 1px solid var(--border-light);
         box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.18);
@@ -1909,6 +1911,18 @@ const MONTH_NAMES = [
       }
 
       @media (max-width: 640px) {
+        /* Platz für die fest verankerte Wizard-Leiste + kein horizontales
+           Überlaufen mehr (Grid-/Flex-Kinder dürfen schrumpfen). */
+        form {
+          padding-bottom: 120px;
+          overflow-x: hidden;
+        }
+        .wizard-step,
+        .form-card,
+        .bike-details-form {
+          min-width: 0;
+          max-width: 100%;
+        }
         .form-grid {
           grid-template-columns: 1fr;
         }

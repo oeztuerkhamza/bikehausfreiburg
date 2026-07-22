@@ -384,15 +384,24 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         align-items: flex-start;
         gap: 12px;
         margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      /* Textblock darf schrumpfen, damit lange Namen umbrechen statt zu
+         überlaufen (sonst kippt das ganze Panel horizontal). */
+      .detail-header > div {
+        flex: 1 1 60%;
+        min-width: 0;
       }
       .detail-header h4 {
         margin: 0;
         font-size: 1rem;
+        overflow-wrap: anywhere;
       }
       .detail-header p {
         margin: 3px 0 0;
         font-size: 0.85rem;
         color: var(--text-secondary, #555);
+        overflow-wrap: anywhere;
       }
       .detail-loading {
         font-size: 0.88rem;
@@ -402,6 +411,11 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         display: grid;
         grid-template-columns: 1.2fr 1fr;
         gap: 12px;
+      }
+      /* Grid-Spalten dürfen schrumpfen (min-width:auto würde sonst überlaufen). */
+      .photo-column,
+      .price-column {
+        min-width: 0;
       }
       .photo-column {
         display: flex;
@@ -464,14 +478,21 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 8px;
+        min-width: 0;
         border: 1px solid var(--border-light, #e5e7eb);
         border-radius: 8px;
         padding: 7px 10px;
         font-size: 0.85rem;
         background: #fff;
       }
+      .price-line span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
       .price-line strong {
         color: #0f766e;
+        white-space: nowrap;
       }
       .no-prices {
         font-size: 0.85rem;
