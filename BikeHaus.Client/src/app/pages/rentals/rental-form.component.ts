@@ -367,7 +367,7 @@ const MONTH_NAMES = [
               [selectedBike]="b.selectedBike"
               (selectedBikeChange)="onSelectedBikeUpdated(i, $event)"
               [allowQuickAdd]="true"
-              [requireConfirmSelection]="true"
+              [requireConfirmSelection]="false"
               (bikeSelected)="onBikeSelected(i, $event)"
               (quickAddRequested)="onQuickAddBike(i)"
             ></app-bike-selector>
