@@ -425,6 +425,10 @@ const MONTH_NAMES = [
                   />
                   <span class="error-msg" *ngIf="b.bikeErrors['marke']">Pflichtfeld</span>
                 </div>
+                <!-- Bei einem neu angelegten Rad (nicht in der Liste) reichen
+                     Marke, Rahmennummer, Miete und Kaution für den Vertrag.
+                     Die übrigen Felder nur für vorhandene Räder zeigen. -->
+                <ng-container *ngIf="!b.isQuickAddMode">
                 <div class="field">
                   <label>Modell</label>
                   <input
@@ -496,6 +500,31 @@ const MONTH_NAMES = [
                     [name]="'bikeBeschr_' + i"
                     rows="3"
                   ></textarea>
+                </div>
+                </ng-container>
+
+                <!-- Neu angelegtes Rad: Miete + Kaution direkt hier erfassen -->
+                <div class="field" *ngIf="b.isQuickAddMode">
+                  <label>Miete (€) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    [(ngModel)]="b.gesamtmiete"
+                    [name]="'qaMiete_' + i"
+                    placeholder="z.B. 50"
+                  />
+                </div>
+                <div class="field" *ngIf="b.isQuickAddMode">
+                  <label>Kaution (€) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    [(ngModel)]="b.kaution"
+                    [name]="'qaKaution_' + i"
+                    placeholder="z.B. 150"
+                  />
                 </div>
               </div>
             </div>
