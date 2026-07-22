@@ -336,14 +336,18 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         border-color: var(--accent-primary, #6366f1);
         color: #fff;
       }
+      /* Feste Höhe statt aspect-ratio: verhindert zuverlässig das Kollabieren
+         der Fotohöhe (sonst nur ein dünner Streifen sichtbar). */
       .card-img {
         display: block;
-        aspect-ratio: 4 / 3;
+        width: 100%;
+        height: 132px;
         background: var(--bg-hover, rgba(127, 127, 127, 0.08));
       }
       .card-img img {
+        display: block;
         width: 100%;
-        height: 100%;
+        height: 132px;
         object-fit: cover;
       }
       .img-placeholder {

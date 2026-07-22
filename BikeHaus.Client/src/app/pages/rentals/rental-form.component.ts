@@ -725,28 +725,42 @@ const MONTH_NAMES = [
                       min="0"
                     />
                   </div>
-                  <div class="field">
-                    <label>Zahlungsart Miete *</label>
-                    <select [(ngModel)]="b.zahlungsart" [name]="'zahlungsart_' + i" required>
-                      <option value="" disabled>Bitte wählen…</option>
-                      <option value="Bar">Bar</option>
-                      <option value="PayPal">PayPal</option>
-                      <option value="Karte">Karte</option>
-                      <option value="Überweisung">Überweisung</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label>Zahlungsart Kaution *</label>
-                    <select [(ngModel)]="b.kautionZahlungsart" [name]="'kautionZahlungsart_' + i" required>
-                      <option value="" disabled>Bitte wählen…</option>
-                      <option value="Bar">Bar</option>
-                      <option value="PayPal">PayPal</option>
-                      <option value="Karte">Karte</option>
-                      <option value="Überweisung">Überweisung</option>
-                    </select>
-                  </div>
                 </div>
               </ng-container>
+            </div>
+
+            <!-- Zahlungsart einmal für alle Räder (statt je Rad). -->
+            <div class="form-grid zahlungsart-global">
+              <div class="field">
+                <label>Zahlungsart Miete *</label>
+                <select
+                  [(ngModel)]="zahlungsartMiete"
+                  name="zahlungsartMiete"
+                  (ngModelChange)="applyPaymentToAll()"
+                  required
+                >
+                  <option value="" disabled>Bitte wählen…</option>
+                  <option value="Bar">Bar</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Karte">Karte</option>
+                  <option value="Überweisung">Überweisung</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Zahlungsart Kaution *</label>
+                <select
+                  [(ngModel)]="zahlungsartKaution"
+                  name="zahlungsartKaution"
+                  (ngModelChange)="applyPaymentToAll()"
+                  required
+                >
+                  <option value="" disabled>Bitte wählen…</option>
+                  <option value="Bar">Bar</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Karte">Karte</option>
+                  <option value="Überweisung">Überweisung</option>
+                </select>
+              </div>
             </div>
 
             <div class="preise-totals">
@@ -2245,19 +2259,28 @@ export class RentalFormComponent implements OnInit {
     return true;
   }
 
-  private validatePreiseStep(): boolean {
-    for (let i = 0; i < this.bikes.length; i++) {
-      const b = this.bikes[i];
-      if (!b.selectedBike && !b.isQuickAddMode) continue;
-      if (!b.zahlungsart) {
-        this.notificationService.error(`Fahrrad ${i + 1}: Zahlungsart Miete wählen`);
-        return false;
-      }
-      if (!b.kautionZahlungsart) {
-        this.notificationService.error(`Fahrrad ${i + 1}: Zahlungsart Kaution wählen`);
-        return false;
-      }
+  // Zahlungsart gilt einmal für den ganzen Vertrag (nicht je Rad).
+  zahlungsartMiete: PaymentMethod | '' = '';
+  zahlungsartKaution: PaymentMethod | '' = '';
+
+  /** Überträgt die eine Zahlungsart-Auswahl auf alle Räder. */
+  applyPaymentToAll(): void {
+    for (const b of this.bikes) {
+      b.zahlungsart = this.zahlungsartMiete;
+      b.kautionZahlungsart = this.zahlungsartKaution;
     }
+  }
+
+  private validatePreiseStep(): boolean {
+    if (!this.zahlungsartMiete) {
+      this.notificationService.error('Zahlungsart Miete wählen');
+      return false;
+    }
+    if (!this.zahlungsartKaution) {
+      this.notificationService.error('Zahlungsart Kaution wählen');
+      return false;
+    }
+    this.applyPaymentToAll();
     return true;
   }
 
@@ -2905,6 +2928,9 @@ export class RentalFormComponent implements OnInit {
       return entry;
     });
     if (this.bikes.length === 0) this.bikes = [createEmptyBikeEntry()];
+    // Eine Zahlungsart für den ganzen Vertrag (aus dem Rental übernehmen).
+    this.zahlungsartMiete = (rental.zahlungsart as PaymentMethod) || '';
+    this.zahlungsartKaution = (rental.kautionZahlungsart as PaymentMethod) || '';
 
     // Accessories → pre-select the matching catalog items
     this.prefillAccessories = (rental.accessories ?? []).map((a) => ({
@@ -3221,6 +3247,8 @@ export class RentalFormComponent implements OnInit {
 
     this.submitting = true;
 
+    this.applyPaymentToAll();
+
     const bikeIdResolves = this.bikes.map((b) => {
       if (b.isQuickAddMode) {
         return this.bicycleService
@@ -3368,6 +3396,7 @@ export class RentalFormComponent implements OnInit {
   private submitEdit() {
     if (!this.rentalId) return;
     this.submitting = true;
+    this.applyPaymentToAll();
 
     const accessoriesPayload: RentalAccessoryItemCreate[] =
       this.buildCatalogAccessories();
