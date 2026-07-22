@@ -2981,6 +2981,9 @@ export class RentalFormComponent implements OnInit {
     if (bike.kaution != null) {
       b.kaution = bike.kaution;
     }
+    // Nach der Auswahl aus der Liste die Karte automatisch einklappen
+    // (Zusammenfassung + „Erweitern"), damit die Ansicht kompakt bleibt.
+    b.isCollapsed = true;
     this.loadBusyPeriodsFor(i, bike.id);
     this.recalcPriceFor(i);
   }
