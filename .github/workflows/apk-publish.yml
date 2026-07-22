@@ -1,0 +1,55 @@
+# BikeHaus Asistan APK'sini sunucuya yayinlar.
+#
+# Akis: yerelde APK derlenir -> `gh release upload apk-latest <apk> --clobber` ile
+# GitHub Release'e yuklenir -> bu workflow tetiklenir (gh workflow run apk-publish.yml)
+# -> runner release'ten indirir -> scp ile VPS'e -> docker cp ile bikehaus-app
+# konteynerinin /app/data/apk dizinine koyar (AppReleaseController en yeni dosyayi sunar).
+name: Publish APK to server
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download APK from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p apk-out
+          gh release download apk-latest -R "${{ github.repository }}" -p '*.apk' -D apk-out
+          ls -la apk-out
+          COUNT=$(ls apk-out/*.apk | wc -l)
+          if [ "$COUNT" -ne 1 ]; then echo "ERROR: expected exactly 1 apk, got $COUNT"; exit 1; fi
+
+      - name: Ship APK to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: 'apk-out/'
+          target: '/tmp/bikehaus-apk-staging'
+          strip_components: 1
+          rm: true
+
+      - name: Install APK into container volume
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 5m
+          script: |
+            set -euo pipefail
+            APK=$(ls /tmp/bikehaus-apk-staging/*.apk | head -1)
+            echo "==> Installing $(basename "$APK") into bikehaus-app:/app/data/apk/"
+            docker exec bikehaus-app mkdir -p /app/data/apk
+            # Eski APK'lari temizle (indirme karti en yeni dosyayi gosterir)
+            docker exec bikehaus-app sh -c 'rm -f /app/data/apk/*.apk'
+            docker cp "$APK" bikehaus-app:/app/data/apk/
+            docker exec bikehaus-app ls -la /app/data/apk
+            rm -rf /tmp/bikehaus-apk-staging
+            echo "==> Done"
