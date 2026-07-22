@@ -81,44 +81,45 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
       </div>
 
       <div class="bike-grid">
-        <button
-          type="button"
+        <div
           *ngFor="let bike of filteredBikes"
-          class="bike-photo-card"
+          class="bike-card"
           [class.selected]="selectedBike?.id === bike.id"
+          role="button"
+          tabindex="0"
+          [attr.aria-pressed]="selectedBike?.id === bike.id"
           (click)="onBikeCardClick(bike)"
+          (keydown.enter)="onBikeCardClick(bike)"
+          (keydown.space)="$event.preventDefault(); onBikeCardClick(bike)"
         >
-          <span class="bpc-check" *ngIf="selectedBike?.id === bike.id">
+          <div class="pick" [class.on]="selectedBike?.id === bike.id" aria-hidden="true">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          </span>
-          <span class="bpc-photo">
+          </div>
+          <div class="card-img">
             <img
               *ngIf="getMainImage(bike) as m"
               [src]="getImageUrl(m.filePath)"
               [alt]="bike.marke + ' ' + bike.modell"
               loading="lazy"
             />
-            <span class="bpc-noimg" *ngIf="!getMainImage(bike)">🚲</span>
-          </span>
-          <span class="bpc-body">
-            <span class="bpc-name">{{ bike.marke }} {{ bike.modell }}</span>
-            <span class="bpc-chips">
-              <span class="chip" *ngIf="getBikeArt(bike)">{{ getBikeArt(bike) }}</span>
-              <span class="chip" *ngIf="bike.rahmengroesse">Size {{ bike.rahmengroesse }}</span>
-              <span class="chip" *ngIf="bike.reifengroesse">{{ bike.reifengroesse }}"</span>
-            </span>
-            <span class="bpc-price" *ngIf="getStartingPrice(bike) as startPrice">
-              ab {{ startPrice | number: '1.0-0' }} €
-            </span>
-          </span>
-        </button>
+            <div class="img-placeholder" *ngIf="!getMainImage(bike)">🚲</div>
+          </div>
+          <div class="card-body">
+            <div class="card-title">{{ bike.marke }} {{ bike.modell }}</div>
+            <div class="badges">
+              <span class="badge" *ngIf="getBikeArt(bike)">{{ getBikeArt(bike) }}</span>
+              <span class="badge" *ngIf="bike.rahmengroesse">Size {{ bike.rahmengroesse }}</span>
+              <span class="badge" *ngIf="bike.reifengroesse">{{ bike.reifengroesse }}"</span>
+            </div>
+          </div>
+        </div>
 
         <p *ngIf="filteredBikes.length === 0" class="empty">
           {{ t.noAvailableBikes }}
         </p>
       </div>
 
-      <div class="bike-detail-panel" *ngIf="activeBike">
+      <div class="bike-detail-panel" *ngIf="activeBike && requireConfirmSelection">
         <div class="detail-header">
           <div>
             <h4>{{ activeBike.marke }} {{ activeBike.modell }}</h4>
@@ -282,95 +283,99 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         color: var(--accent-danger, #dc3545);
         font-size: 0.85rem;
       }
-      /* Fotokarten-Raster: Rad per Tipp auswählen (wie die Verfügbarkeitsseite). */
+      /* Fotokarten-Raster wie auf der Verfügbarkeitsseite: Rad per Tipp wählen. */
       .bike-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 10px;
-        max-height: 60vh;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+        max-height: 62vh;
         overflow-y: auto;
         padding: 2px;
       }
-      .bike-photo-card {
+      .bike-card {
         position: relative;
-        display: flex;
-        flex-direction: column;
-        text-align: left;
-        padding: 0;
-        border: 1.5px solid var(--border-light, #e5e7eb);
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--border-color, #e5e7eb);
         border-radius: 12px;
         overflow: hidden;
-        background: var(--bg-card, #fff);
+        transition: all 0.2s;
         cursor: pointer;
-        transition:
-          border-color 0.15s,
-          box-shadow 0.15s,
-          transform 0.05s;
+        user-select: none;
       }
-      .bike-photo-card:hover {
+      .bike-card:focus-visible {
+        outline: 2px solid var(--accent-primary, #6366f1);
+        outline-offset: 2px;
+      }
+      .bike-card:hover {
         border-color: var(--accent-primary, #6366f1);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
       }
-      .bike-photo-card:active {
-        transform: scale(0.99);
-      }
-      .bike-photo-card.selected {
+      .bike-card.selected {
         border-color: var(--accent-primary, #6366f1);
         box-shadow: 0 0 0 2px var(--accent-primary, #6366f1) inset;
       }
-      .bpc-check {
+      .pick {
         position: absolute;
-        top: 6px;
-        left: 6px;
+        top: 8px;
+        left: 8px;
         z-index: 2;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: var(--accent-primary, #6366f1);
-        color: #fff;
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        border: 2px solid #fff;
+        background: rgba(15, 23, 42, 0.45);
+        color: transparent;
         display: grid;
         place-items: center;
+        pointer-events: none;
+        backdrop-filter: blur(2px);
+        transition: all 0.15s;
       }
-      .bpc-photo {
+      .pick.on {
+        background: var(--accent-primary, #6366f1);
+        border-color: var(--accent-primary, #6366f1);
+        color: #fff;
+      }
+      .card-img {
         display: block;
         aspect-ratio: 4 / 3;
-        background: var(--bg-secondary, #f1f5f9);
+        background: var(--bg-hover, rgba(127, 127, 127, 0.08));
       }
-      .bpc-photo img {
+      .card-img img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        display: block;
       }
-      .bpc-noimg {
+      .img-placeholder {
         width: 100%;
         height: 100%;
         display: grid;
         place-items: center;
-        font-size: 1.8rem;
-        opacity: 0.4;
+        font-size: 2.4rem;
+        opacity: 0.35;
       }
-      .bpc-body {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        padding: 8px 10px 10px;
-        min-width: 0;
+      .card-body {
+        padding: 10px 12px 12px;
       }
-      .bpc-name {
+      .card-title {
         font-weight: 700;
-        font-size: 0.85rem;
         color: var(--text-primary, #1e293b);
+        font-size: 0.92rem;
+        margin-bottom: 8px;
         overflow-wrap: anywhere;
       }
-      .bpc-chips {
+      .badges {
         display: flex;
+        gap: 5px;
         flex-wrap: wrap;
-        gap: 4px;
       }
-      .bpc-price {
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: #059669;
+      .badge {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: var(--bg-hover, rgba(127, 127, 127, 0.1));
+        color: var(--text-secondary, #555);
       }
       .bike-main-row {
         display: flex;
