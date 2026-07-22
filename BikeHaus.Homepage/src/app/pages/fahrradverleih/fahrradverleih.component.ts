@@ -81,7 +81,7 @@ const BOOKING_LANGUAGE_OPTIONS: RentalLangOption[] = SUPPORTED_LANGUAGES.map(
   (code) => ({ code, label: LANGUAGE_LABELS[code] }),
 );
 
-const RENTAL_FAQ_CONTENT: Record<Language, RentalFaqContent> = {
+const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
   de: {
     sectionLabel: 'FAQ',
     sectionTitle: 'Häufige Fragen zum Fahrradverleih',
@@ -4843,7 +4843,7 @@ export class FahrradverleihComponent implements OnInit {
   );
   rentalFaq = computed(
     () =>
-      RENTAL_FAQ_CONTENT[this.getCurrentLanguage()] ?? RENTAL_FAQ_CONTENT.en,
+      RENTAL_FAQ_CONTENT[this.getCurrentLanguage()] ?? RENTAL_FAQ_CONTENT.en!,
   );
 
   bikes = signal<PublicRentalBicycle[]>([]);
@@ -5045,7 +5045,9 @@ export class FahrradverleihComponent implements OnInit {
     if (existing) existing.remove();
 
     const schemaLang = isSupportedLanguage(lang) ? lang : DEFAULT_LANGUAGE;
-    const faqs = RENTAL_FAQ_CONTENT[schemaLang].items;
+    const faqs = (
+      RENTAL_FAQ_CONTENT[schemaLang] ?? RENTAL_FAQ_CONTENT.en!
+    ).items;
 
     const serviceNameByLang: Record<string, string> = {
       de: 'Fahrradverleih Freiburg',

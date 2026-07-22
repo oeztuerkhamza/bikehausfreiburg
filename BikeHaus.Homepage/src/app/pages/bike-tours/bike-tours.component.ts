@@ -15,6 +15,7 @@ import {
   BIKE_TOURS_FACTS,
   BIKE_TOURS_TEXT,
   BikeTourFacts,
+  BikeToursPageText,
 } from '../../services/bike-tours.data';
 
 const BASE_URL = 'https://bikehausfreiburg.com';
@@ -619,7 +620,7 @@ export class BikeToursComponent implements OnInit, OnDestroy {
   tr = this.ts.translations;
   facts = BIKE_TOURS_FACTS;
 
-  tx = computed(() => BIKE_TOURS_TEXT[this.lang()] ?? BIKE_TOURS_TEXT.en);
+  tx = computed(() => BIKE_TOURS_TEXT[this.lang()] ?? BIKE_TOURS_TEXT.en!);
   isRtl = computed(() => this.lang() === 'ar');
   rentalSlug = computed(() => getRentalSlug(this.lang()));
   bookingPath = computed(() => getRentalBookingPath(this.lang()));
@@ -647,7 +648,7 @@ export class BikeToursComponent implements OnInit, OnDestroy {
 
   difficultyLabel(
     d: BikeTourFacts['difficulty'],
-    t: (typeof BIKE_TOURS_TEXT)['en'],
+    t: BikeToursPageText,
   ): string {
     return d === 'easy'
       ? t.difficultyEasy
@@ -658,7 +659,7 @@ export class BikeToursComponent implements OnInit, OnDestroy {
 
   bikeLabel(
     b: BikeTourFacts['recommendedBike'],
-    t: (typeof BIKE_TOURS_TEXT)['en'],
+    t: BikeToursPageText,
   ): string {
     switch (b) {
       case 'city':

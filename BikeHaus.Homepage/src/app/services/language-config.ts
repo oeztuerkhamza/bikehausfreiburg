@@ -7,6 +7,10 @@ export const SUPPORTED_LANGUAGES = [
   'it',
   'ar',
   'ru',
+  'no',
+  'da',
+  'nl',
+  'pl',
 ] as const;
 
 export type SupportedLanguageCode = (typeof SUPPORTED_LANGUAGES)[number];
@@ -24,6 +28,10 @@ export const LANGUAGE_LABELS: Record<SupportedLanguageCode, string> = {
   it: 'Italiano',
   ar: 'العربية',
   ru: 'Русский',
+  no: 'Norsk',
+  da: 'Dansk',
+  nl: 'Nederlands',
+  pl: 'Polski',
 };
 
 export const LOCALE_BY_LANGUAGE: Record<SupportedLanguageCode, string> = {
@@ -35,6 +43,10 @@ export const LOCALE_BY_LANGUAGE: Record<SupportedLanguageCode, string> = {
   it: 'it-IT',
   ar: 'ar-SA',
   ru: 'ru-RU',
+  no: 'no-NO',
+  da: 'da-DK',
+  nl: 'nl-NL',
+  pl: 'pl-PL',
 };
 
 export const OG_LOCALE_BY_LANGUAGE: Record<SupportedLanguageCode, string> = {
@@ -46,6 +58,10 @@ export const OG_LOCALE_BY_LANGUAGE: Record<SupportedLanguageCode, string> = {
   it: 'it_IT',
   ar: 'ar_SA',
   ru: 'ru_RU',
+  no: 'nb_NO',
+  da: 'da_DK',
+  nl: 'nl_NL',
+  pl: 'pl_PL',
 };
 
 export const SCHEMA_AVAILABLE_LANGUAGES = [
@@ -57,9 +73,14 @@ export const SCHEMA_AVAILABLE_LANGUAGES = [
   'Italian',
   'Arabic',
   'Russian',
+  'Norwegian',
+  'Danish',
+  'Dutch',
+  'Polish',
 ];
 
-export const HOME_ROUTE_REGEX = /^\/(de|en|fr|tr|es|it|ar|ru)\/?$/;
+export const HOME_ROUTE_REGEX =
+  /^\/(de|en|fr|tr|es|it|ar|ru|no|da|nl|pl)\/?$/;
 
 export function isSupportedLanguage(
   value: string | null | undefined,

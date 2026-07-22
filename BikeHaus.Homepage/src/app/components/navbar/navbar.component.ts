@@ -646,6 +646,10 @@ export class NavbarComponent {
     it: '/assets/images/sections/flags/image%20copy%207.png',
     ar: '/assets/images/sections/flags/image%20copy%203.png',
     ru: '/assets/images/sections/flags/image%20copy%202.png',
+    no: '/assets/images/sections/flags/no.svg',
+    da: '/assets/images/sections/flags/da.svg',
+    nl: '/assets/images/sections/flags/nl.svg',
+    pl: '/assets/images/sections/flags/pl.svg',
   };
 
   get menuOpen(): boolean {

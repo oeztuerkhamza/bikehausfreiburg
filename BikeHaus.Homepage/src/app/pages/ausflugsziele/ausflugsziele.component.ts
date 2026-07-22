@@ -414,7 +414,7 @@ export class AusflugszieleComponent implements OnInit, OnDestroy {
   fakten = AUSFLUGSZIELE_FAKTEN;
 
   t = computed(
-    () => AUSFLUGSZIELE_TEXT[this.lang()] ?? AUSFLUGSZIELE_TEXT.de,
+    () => AUSFLUGSZIELE_TEXT[this.lang()] ?? AUSFLUGSZIELE_TEXT.de!,
   );
   isRtl = computed(() => this.lang() === 'ar');
   bookingPath = computed(() => getRentalBookingPath(this.lang()));

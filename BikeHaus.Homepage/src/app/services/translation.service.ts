@@ -3639,7 +3639,9 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
   },
 };
 
-const RENTAL_STEPS_TRANSLATIONS: Record<Language, RentalStepsTranslations> = {
+const RENTAL_STEPS_TRANSLATIONS: Partial<
+  Record<Language, RentalStepsTranslations>
+> = {
   de: {
     dateSelection: 'Termin wählen',
     bikeSelection: 'Fahrrad wählen',
@@ -4499,7 +4501,8 @@ function getTranslations(language: Language): Translations {
   if (language in TRANSLATIONS) {
     return {
       ...TRANSLATIONS[language as BaseLanguage],
-      rentalSteps: RENTAL_STEPS_TRANSLATIONS[language],
+      rentalSteps:
+        RENTAL_STEPS_TRANSLATIONS[language] ?? RENTAL_STEPS_TRANSLATIONS.en!,
     };
   }
 
@@ -4512,7 +4515,8 @@ function getTranslations(language: Language): Translations {
   return {
     ...fallback,
     ...(overrides as Partial<Translations>),
-    rentalSteps: RENTAL_STEPS_TRANSLATIONS[language],
+    rentalSteps:
+      RENTAL_STEPS_TRANSLATIONS[language] ?? RENTAL_STEPS_TRANSLATIONS.en!,
   };
 }
 

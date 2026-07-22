@@ -1453,7 +1453,7 @@ const RU: BikeToursPageText = {
   }
 };
 
-export const BIKE_TOURS_TEXT: Record<Language, BikeToursPageText> = {
+export const BIKE_TOURS_TEXT: Partial<Record<Language, BikeToursPageText>> = {
   de: DE,
   en: EN,
   fr: FR,

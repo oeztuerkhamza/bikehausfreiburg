@@ -493,14 +493,13 @@ const DE: AusflugszielePageText = {
   },
 };
 
-/** Text pro Sprache — vorerst überall Deutsch (Start-Sprache). */
-export const AUSFLUGSZIELE_TEXT: Record<Language, AusflugszielePageText> = {
+/**
+ * Text pro Sprache. Start ist Deutsch; die Komponente fällt für alle anderen
+ * Sprachen auf Deutsch zurück (`?? AUSFLUGSZIELE_TEXT.de`). Übersetzungen werden
+ * hier ergänzt, ohne dass fehlende Sprachen den Build brechen.
+ */
+export const AUSFLUGSZIELE_TEXT: Partial<
+  Record<Language, AusflugszielePageText>
+> = {
   de: DE,
-  en: DE,
-  fr: DE,
-  tr: DE,
-  es: DE,
-  it: DE,
-  ar: DE,
-  ru: DE,
 };
