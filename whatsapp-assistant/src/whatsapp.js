@@ -14,6 +14,26 @@ export const state = { status: 'starting', qrDataUrl: null, me: null };
 const DATA_PATH = process.env.WWEBJS_DATA_PATH || '.wwebjs_auth';
 
 let client = null;
+let intentionalLogout = false;
+
+// --- Takılma bekçisi ---
+// client.initialize() bazen sessizce asılı kalıyor (ne hata ne olay üretir; konteyner
+// "running" göründüğü için Docker restart devreye girmez). Süre dolduğunda hâlâ
+// QR/Hazır olamadıysak süreci bitiririz; Docker (canlı) / watchdog.ps1 (yerel) temiz başlatır.
+const BOOT_TIMEOUT_MS = Number(process.env.WA_BOOT_TIMEOUT_MS || 5 * 60 * 1000);
+let stuckTimer = null;
+function armStuckWatchdog(label) {
+  clearTimeout(stuckTimer);
+  stuckTimer = setTimeout(() => {
+    if (state.status !== 'ready' && state.status !== 'qr') {
+      console.error(
+        `[watchdog] ${label}: ${Math.round(BOOT_TIMEOUT_MS / 60000)} dk içinde QR/Hazır olamadı (durum: ${state.status}) — temiz başlangıç için süreç kapatılıyor.`,
+      );
+      process.exit(1);
+    }
+  }, BOOT_TIMEOUT_MS);
+  if (stuckTimer.unref) stuckTimer.unref();
+}
 
 function cleanStaleLocks() {
   try {
@@ -72,6 +92,8 @@ function createClient() {
   client.on('authenticated', () => {
     state.status = 'authenticated';
     events.emit('status', state);
+    // QR tarandı ama 'ready' hiç gelmezse de takılmış say.
+    armStuckWatchdog('kimlik doğrulama sonrası');
   });
 
   client.on('ready', () => {
@@ -80,12 +102,19 @@ function createClient() {
     state.me = client.info?.wid?.user || null;
     console.log(`[whatsapp] Hazır. Bağlı numara: ${state.me}`);
     events.emit('status', state);
+    clearTimeout(stuckTimer);
   });
 
   client.on('disconnected', (reason) => {
     state.status = 'disconnected';
     console.log('[whatsapp] Bağlantı koptu:', reason);
     events.emit('status', state);
+    // İstenmeyen kopmada süreci bitir → dışarıdaki denetleyici temiz oturumla yeniden başlatır.
+    if (!intentionalLogout) {
+      console.error('[watchdog] Beklenmeyen kopma — 15 sn içinde süreç yeniden başlatılacak.');
+      const t = setTimeout(() => process.exit(1), 15000);
+      if (t.unref) t.unref();
+    }
   });
 
   // Gelen müşteri mesajları
@@ -119,6 +148,8 @@ export async function sendMessage(chatId, text) {
 
 // Bağlı numarayı çıkar (Abmeldung) → oturumu temizle → yeni QR üret.
 export async function logout() {
+  intentionalLogout = true;
+  clearTimeout(stuckTimer);
   state.status = 'loggingout';
   state.qrDataUrl = null;
   state.me = null;
@@ -152,6 +183,7 @@ export async function logout() {
   }
 
   starting = false;
+  intentionalLogout = false;
   console.log('[whatsapp] çıkış yapıldı, yeniden başlatılıyor ve yeni QR bekleniyor...');
   start();
 }
@@ -206,6 +238,7 @@ export function start() {
   }
   cleanStaleLocks();
   console.log('[whatsapp] İstemci başlatılıyor...');
+  armStuckWatchdog('başlatma');
   client.initialize().catch((err) => {
     // Chromium başlatma hatası node'u çökertmesin (yoksa restart döngüsü).
     state.status = 'error';
