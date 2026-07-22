@@ -304,7 +304,7 @@ const MONTH_NAMES = [
           <!-- /STEP 0 -->
 
           <!-- STEP 1: Fahrrad — Verfügbarkeit + Fahrradkarten -->
-          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 0">
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 1">
           <!-- Availability status after date selection -->
           <div class="avail-loading-bar" *ngIf="availabilityLoading">
             <span>Verfügbare Fahrräder werden geladen…</span>
@@ -367,7 +367,7 @@ const MONTH_NAMES = [
               [selectedBike]="b.selectedBike"
               (selectedBikeChange)="onSelectedBikeUpdated(i, $event)"
               [allowQuickAdd]="true"
-              [requireConfirmSelection]="false"
+              [requireConfirmSelection]="true"
               (bikeSelected)="onBikeSelected(i, $event)"
               (quickAddRequested)="onQuickAddBike(i)"
             ></app-bike-selector>
@@ -425,9 +425,9 @@ const MONTH_NAMES = [
                   />
                   <span class="error-msg" *ngIf="b.bikeErrors['marke']">Pflichtfeld</span>
                 </div>
-                <!-- Bei einem neu angelegten Rad (nicht in der Liste) reichen
-                     Marke, Rahmennummer, Miete und Kaution für den Vertrag.
-                     Die übrigen Felder nur für vorhandene Räder zeigen. -->
+                <!-- Neu angelegtes Rad (nicht in der Liste): nur Marke,
+                     Rahmennummer, Miete und Kaution nötig. Übrige Felder nur
+                     für vorhandene Räder. -->
                 <ng-container *ngIf="!b.isQuickAddMode">
                 <div class="field">
                   <label>Modell</label>
@@ -503,7 +503,7 @@ const MONTH_NAMES = [
                 </div>
                 </ng-container>
 
-                <!-- Neu angelegtes Rad: Miete + Kaution direkt hier erfassen -->
+                <!-- Neu angelegtes Rad: Miete + Kaution direkt hier -->
                 <div class="field" *ngIf="b.isQuickAddMode">
                   <label>Miete (€) *</label>
                   <input
@@ -547,7 +547,7 @@ const MONTH_NAMES = [
           <!-- /STEP 1 -->
 
           <!-- STEP 2: Zubehör -->
-          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 1">
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 2">
           <ng-container *ngIf="datesReady">
           <!-- Zubehör -->
           <div class="form-card">
@@ -586,7 +586,7 @@ const MONTH_NAMES = [
           <!-- /STEP 2 -->
 
           <!-- STEP 3: Mieter -->
-          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 2">
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 3">
           <ng-container *ngIf="datesReady">
           <!-- Mieter -->
           <div class="form-card">
@@ -659,7 +659,7 @@ const MONTH_NAMES = [
           <!-- /STEP 3 -->
 
           <!-- STEP 4: Preise & Zahlung — final review before signature -->
-          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 3">
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 4">
           <ng-container *ngIf="datesReady">
           <div class="form-card">
             <h2>Preise &amp; Zahlung</h2>
@@ -783,7 +783,7 @@ const MONTH_NAMES = [
           <!-- /STEP 4 -->
 
           <!-- STEP 5: Ausweis-Foto -->
-          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 4">
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 5">
           <ng-container *ngIf="datesReady">
           <div class="form-card">
             <h2>Ausweis-Foto</h2>
@@ -814,7 +814,7 @@ const MONTH_NAMES = [
           <!-- /STEP 5 -->
 
           <!-- STEP 6: AGB & Unterschrift -->
-          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 5">
+          <div class="wizard-step" [class.wizard-hidden]="isMobile && currentStep !== 6">
           <ng-container *ngIf="datesReady">
           <!-- AGB & Unterschrift -->
           <div class="form-card">
@@ -2104,9 +2104,7 @@ export class RentalFormComponent implements OnInit {
   // ── Mobile wizard ──
   isMobile = false;
   currentStep = 0;
-  // Zeitraum und Fahrradauswahl liegen auf einer Seite: erst Datum wählen,
-  // dann direkt darunter aus den verfügbaren Rädern auswählen.
-  readonly wizardSteps = ['Zeitraum & Fahrrad', 'Zubehör', 'Mieter', 'Preise', 'Ausweis', 'Unterschrift'];
+  readonly wizardSteps = ['Mietdauer', 'Fahrrad', 'Zubehör', 'Mieter', 'Preise', 'Ausweis', 'Unterschrift'];
 
   get totalSteps(): number {
     return this.wizardSteps.length;
@@ -2221,16 +2219,17 @@ export class RentalFormComponent implements OnInit {
 
   private validateStep(step: number): boolean {
     switch (step) {
-      // Schritt 0: Zeitraum + Fahrradauswahl auf einer Seite
       case 0:
         if (!this.datesReady) {
           this.notificationService.error('Bitte Mietbeginn und Mietende auswählen.');
           return false;
         }
+        return true;
+      case 1:
         return this.validateBikesStep();
-      case 2:
-        return this.validateMieterStep();
       case 3:
+        return this.validateMieterStep();
+      case 4:
         return this.validatePreiseStep();
       default:
         return true;

@@ -80,37 +80,41 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         <small *ngIf="searchError" class="error-text">{{ searchError }}</small>
       </div>
 
-      <div class="bike-grid">
+      <div class="bike-list" [class.compact-list]="!enableAdvancedFilters">
         <div
           *ngFor="let bike of filteredBikes"
-          class="bike-card"
+          class="bike-item"
           [class.selected]="selectedBike?.id === bike.id"
-          role="button"
-          tabindex="0"
-          [attr.aria-pressed]="selectedBike?.id === bike.id"
+          [class.active-detail]="activeBike?.id === bike.id"
           (click)="onBikeCardClick(bike)"
-          (keydown.enter)="onBikeCardClick(bike)"
-          (keydown.space)="$event.preventDefault(); onBikeCardClick(bike)"
         >
-          <div class="pick" [class.on]="selectedBike?.id === bike.id" aria-hidden="true">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <div class="card-img">
-            <img
-              *ngIf="getMainImage(bike) as m"
-              [src]="getImageUrl(m.filePath)"
-              [alt]="bike.marke + ' ' + bike.modell"
-              loading="lazy"
-            />
-            <div class="img-placeholder" *ngIf="!getMainImage(bike)">🚲</div>
-          </div>
-          <div class="card-body">
-            <div class="card-title">{{ bike.marke }} {{ bike.modell }}</div>
-            <div class="badges">
-              <span class="badge" *ngIf="getBikeArt(bike)">{{ getBikeArt(bike) }}</span>
-              <span class="badge" *ngIf="bike.rahmengroesse">Size {{ bike.rahmengroesse }}</span>
-              <span class="badge" *ngIf="bike.reifengroesse">{{ bike.reifengroesse }}"</span>
+          <div class="bike-main-row">
+            <div class="bike-main">
+              <span class="bike-id">#{{ bike.id }}</span>
+              <span class="bike-brand">{{ bike.marke }} {{ bike.modell }}</span>
+              <span class="bike-frame" *ngIf="bike.rahmennummer">{{
+                bike.rahmennummer
+              }}</span>
             </div>
+            <div
+              class="start-price"
+              *ngIf="getStartingPrice(bike) as startPrice"
+            >
+              ab {{ startPrice | number: '1.0-0' }} €
+            </div>
+          </div>
+
+          <div class="bike-details">
+            <span class="chip" *ngIf="bike.marke">{{ bike.marke }}</span>
+            <span class="chip" *ngIf="getBikeArt(bike)">{{
+              getBikeArt(bike)
+            }}</span>
+            <span class="chip" *ngIf="bike.rahmengroesse"
+              >Size {{ bike.rahmengroesse }}</span
+            >
+            <span class="chip" *ngIf="bike.reifengroesse"
+              >{{ bike.reifengroesse }}"</span
+            >
           </div>
         </div>
 
@@ -119,7 +123,7 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         </p>
       </div>
 
-      <div class="bike-detail-panel" *ngIf="activeBike && requireConfirmSelection">
+      <div class="bike-detail-panel" *ngIf="activeBike">
         <div class="detail-header">
           <div>
             <h4>{{ activeBike.marke }} {{ activeBike.modell }}</h4>
@@ -137,7 +141,6 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
           </div>
 
           <button
-            *ngIf="requireConfirmSelection"
             type="button"
             class="btn btn-primary add-btn"
             (click)="confirmActiveBikeSelection()"
@@ -283,103 +286,38 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         color: var(--accent-danger, #dc3545);
         font-size: 0.85rem;
       }
-      /* Fotokarten-Raster wie auf der Verfügbarkeitsseite: Rad per Tipp wählen. */
-      .bike-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 12px;
-        max-height: 62vh;
+      .bike-list {
+        max-height: 320px;
         overflow-y: auto;
-        padding: 2px;
+        border: 1px solid var(--border-light, #eee);
+        border-radius: 8px;
+        background: var(--bg-secondary, #fafafa);
       }
-      .bike-card {
-        position: relative;
-        background: var(--bg-card, #fff);
-        border: 1.5px solid var(--border-color, #e5e7eb);
-        border-radius: 12px;
-        overflow: hidden;
-        transition: all 0.2s;
+      .bike-list.compact-list {
+        max-height: 260px;
+      }
+      .bike-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-light, #eee);
         cursor: pointer;
-        user-select: none;
-      }
-      .bike-card:focus-visible {
-        outline: 2px solid var(--accent-primary, #6366f1);
-        outline-offset: 2px;
-      }
-      .bike-card:hover {
-        border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-      }
-      .bike-card.selected {
-        border-color: var(--accent-primary, #6366f1);
-        box-shadow: 0 0 0 2px var(--accent-primary, #6366f1) inset;
-      }
-      .pick {
-        position: absolute;
-        top: 8px;
-        left: 8px;
-        z-index: 2;
-        width: 26px;
-        height: 26px;
-        border-radius: 7px;
-        border: 2px solid #fff;
-        background: rgba(15, 23, 42, 0.45);
-        color: transparent;
-        display: grid;
-        place-items: center;
-        pointer-events: none;
-        backdrop-filter: blur(2px);
-        transition: all 0.15s;
-      }
-      .pick.on {
-        background: var(--accent-primary, #6366f1);
-        border-color: var(--accent-primary, #6366f1);
-        color: #fff;
-      }
-      /* Feste Höhe statt aspect-ratio: verhindert zuverlässig das Kollabieren
-         der Fotohöhe (sonst nur ein dünner Streifen sichtbar). */
-      .card-img {
-        display: block;
-        width: 100%;
-        height: 132px;
-        background: var(--bg-hover, rgba(127, 127, 127, 0.08));
-      }
-      .card-img img {
-        display: block;
-        width: 100%;
-        height: 132px;
-        object-fit: cover;
-      }
-      .img-placeholder {
-        width: 100%;
-        height: 100%;
-        display: grid;
-        place-items: center;
-        font-size: 2.4rem;
-        opacity: 0.35;
-      }
-      .card-body {
-        padding: 10px 12px 12px;
-      }
-      .card-title {
-        font-weight: 700;
+        transition:
+          background 0.15s,
+          border-color 0.15s;
         color: var(--text-primary, #1e293b);
-        font-size: 0.92rem;
-        margin-bottom: 8px;
-        overflow-wrap: anywhere;
+        border-left: 3px solid transparent;
       }
-      .badges {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
+      .bike-item:last-child {
+        border-bottom: none;
       }
-      .badge {
-        font-size: 0.72rem;
-        font-weight: 600;
-        padding: 3px 8px;
-        border-radius: 6px;
-        background: var(--bg-hover, rgba(127, 127, 127, 0.1));
-        color: var(--text-secondary, #555);
+      .bike-item:hover {
+        background: var(--accent-primary-light, #f0f7ff);
+      }
+      .bike-item.selected {
+        background: var(--accent-primary-light, #e3f2fd);
+        border-left: 3px solid var(--accent-primary, #2196f3);
+      }
+      .bike-item.active-detail {
+        border-left-color: #0ea5e9;
       }
       .bike-main-row {
         display: flex;
