@@ -7,9 +7,11 @@ import {
   DEFAULT_LANGUAGE,
   OG_LOCALE_BY_LANGUAGE,
   RENTAL_BOOKING_SLUGS,
+  RENTAL_PAGE_SLUGS,
   SUPPORTED_LANGUAGES,
   getLanguageDirection,
   getRentalBookingPath,
+  getRentalSlug,
   isSupportedLanguage,
 } from './language-config';
 
@@ -21,12 +23,9 @@ function getBlogBasePath(lang: Language): string {
   return lang === 'de' || lang === 'tr' ? 'ratgeber' : 'guide';
 }
 // Rental page uses language-specific slugs
-const RENTAL_SEGMENTS = new Set(['bike-rental', 'fahrradverleih', 'location-velo']);
-function getRentalPath(lang: string): string {
-  if (lang === 'en') return 'bike-rental';
-  if (lang === 'fr') return 'location-velo';
-  return 'fahrradverleih';
-}
+// Alle lokalisierten Miet-Slugs (Quelle: language-config).
+const RENTAL_SEGMENTS = new Set(RENTAL_PAGE_SLUGS);
+const getRentalPath = getRentalSlug;
 // Rental bike catalog (listing) — uses language-specific slugs
 const RENTAL_CATALOG_SEGMENTS = new Set([
   'mietfahrraeder',
@@ -137,14 +136,20 @@ export class SeoService {
       return;
     }
 
-    // ── Rental page: /:lang/(bike-rental|fahrradverleih) ──
-    // EN uses /en/bike-rental; all other langs use /xx/fahrradverleih
+    // ── Rental page: /:lang/(lokalisierter Miet-Slug) ──
+    // Jede Sprache hat einen eigenen Slug (z. B. /nl/fietsverhuur). Ein
+    // abweichender Slug wird auf den Sprach-Canonical konsolidiert.
     if (pathSegments.length === 2 && RENTAL_SEGMENTS.has(pathSegments[1])) {
+      const canonicalRentalUrl = `${BASE_URL}/${currentLang}/${getRentalPath(currentLang)}`;
+      canonical.href = canonicalRentalUrl;
       for (const lang of SUPPORTED_LANGUAGES) {
         this.addHreflangLink(lang, `${BASE_URL}/${lang}/${getRentalPath(lang)}`);
       }
-      this.addHreflangLink('x-default', `${BASE_URL}/${DEFAULT_LANGUAGE}/fahrradverleih`);
-      this.updateMetaProperty('og:url', canonicalUrl);
+      this.addHreflangLink(
+        'x-default',
+        `${BASE_URL}/${DEFAULT_LANGUAGE}/${getRentalPath(DEFAULT_LANGUAGE)}`,
+      );
+      this.updateMetaProperty('og:url', canonicalRentalUrl);
       return;
     }
 

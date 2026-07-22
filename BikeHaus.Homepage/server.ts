@@ -4,6 +4,10 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
+import {
+  RENTAL_SLUG_BY_LANGUAGE,
+  RENTAL_BOOKING_SLUG_BY_LANGUAGE,
+} from './src/app/services/language-config';
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -33,15 +37,24 @@ export function app(): express.Express {
   server.get('/showroom/danke', (_req, res) => res.redirect(301, '/de/showroom/danke'));
   server.get('/showroom/:id', (req, res) => res.redirect(301, `/de/showroom/${req.params['id']}`));
 
-  // /en/fahrradverleih → /en/bike-rental (canonical EN slug)
-  server.get('/en/fahrradverleih', (_req, res) => {
-    res.redirect(301, '/en/bike-rental');
-  });
-
-  // /fr/fahrradverleih → /fr/location-velo (canonical FR slug)
-  server.get('/fr/fahrradverleih', (_req, res) => {
-    res.redirect(301, '/fr/location-velo');
-  });
+  // Fahrradverleih: jede Sprache hat einen eigenen Slug. Der generische
+  // /xx/fahrradverleih (und der deutsche Buchungspfad) wird per 301 auf den
+  // lokalisierten Slug umgeleitet, damit keine Duplicate-Content-URLs entstehen.
+  for (const [lang, slug] of Object.entries(RENTAL_SLUG_BY_LANGUAGE)) {
+    if (lang === 'de' || slug === 'fahrradverleih') continue;
+    const bookingSlug = RENTAL_BOOKING_SLUG_BY_LANGUAGE[
+      lang as keyof typeof RENTAL_BOOKING_SLUG_BY_LANGUAGE
+    ];
+    server.get(`/${lang}/fahrradverleih`, (_req, res) => {
+      res.redirect(301, `/${lang}/${slug}`);
+    });
+    server.get(`/${lang}/fahrradverleih/buchen`, (_req, res) => {
+      res.redirect(301, `/${lang}/${slug}/${bookingSlug}`);
+    });
+    server.get(`/${lang}/fahrradverleih/:category`, (req, res) => {
+      res.redirect(301, `/${lang}/${slug}/${req.params['category']}`);
+    });
+  }
 
   // Bike service: ensure canonical EN/FR slugs are used
   // /en/service → /en/bike-service

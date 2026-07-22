@@ -19,7 +19,9 @@ import {
   DEFAULT_LANGUAGE,
   LANGUAGE_LABELS,
   LOCALE_BY_LANGUAGE,
+  OG_LOCALE_BY_LANGUAGE,
   SUPPORTED_LANGUAGES,
+  getRentalSlug,
   isSupportedLanguage,
 } from '../../services/language-config';
 import { ApiService } from '../../services/api.service';
@@ -4908,12 +4910,7 @@ export class FahrradverleihComponent implements OnInit {
   ngOnInit(): void {
     const t = this.t();
     const lang = this.lang();
-    const rentalSlug =
-      lang === 'en'
-        ? 'bike-rental'
-        : lang === 'fr'
-          ? 'location-velo'
-          : 'fahrradverleih';
+    const rentalSlug = getRentalSlug(lang);
     const pageUrl = `https://bikehausfreiburg.com/${lang}/${rentalSlug}`;
 
     this.bookingForm.sprache = this.getCurrentLanguage();
@@ -4943,16 +4940,7 @@ export class FahrradverleihComponent implements OnInit {
     this.metaService.updateTag({ property: 'og:image:height', content: '630' });
     this.metaService.updateTag({
       property: 'og:locale',
-      content:
-        lang === 'de'
-          ? 'de_DE'
-          : lang === 'en'
-            ? 'en_GB'
-            : lang === 'fr'
-              ? 'fr_FR'
-              : lang === 'tr'
-                ? 'tr_TR'
-                : 'de_DE',
+      content: OG_LOCALE_BY_LANGUAGE[lang] ?? 'de_DE',
     });
     this.metaService.updateTag({
       name: 'twitter:card',

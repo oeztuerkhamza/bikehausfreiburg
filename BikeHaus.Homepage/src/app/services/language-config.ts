@@ -94,23 +94,60 @@ export function getLanguageDirection(
   return language === 'ar' ? 'rtl' : 'ltr';
 }
 
-// ── Rental booking page (dedicated flow) — language-specific slugs ──
-export const RENTAL_BOOKING_SLUGS = new Set([
-  'buchen',
-  'booking',
-  'reservation',
-]);
+// ── Fahrradverleih (bike rental) — language-specific slugs ──
+// Zentrale Quelle für lokalisierte Miet-Slugs. Alle SEO-Stellen (Routen,
+// Canonical, hreflang, 301-Weiterleitungen) leiten sich hieraus ab, damit jede
+// Sprache eine eigene, suchmaschinenfreundliche URL für "Fahrrad mieten" hat.
+export const RENTAL_SLUG_BY_LANGUAGE: Record<SupportedLanguageCode, string> = {
+  de: 'fahrradverleih',
+  en: 'bike-rental',
+  fr: 'location-velo',
+  tr: 'bisiklet-kiralama',
+  es: 'alquiler-bicicletas',
+  it: 'noleggio-biciclette',
+  ar: 'taajir-darrajat',
+  ru: 'prokat-velosipedov',
+  no: 'sykkelutleie',
+  da: 'cykeludlejning',
+  nl: 'fietsverhuur',
+  pl: 'wypozyczalnia-rowerow',
+};
+
+export const RENTAL_BOOKING_SLUG_BY_LANGUAGE: Record<
+  SupportedLanguageCode,
+  string
+> = {
+  de: 'buchen',
+  en: 'booking',
+  fr: 'reservation',
+  tr: 'rezervasyon',
+  es: 'reserva',
+  it: 'prenotazione',
+  ar: 'hajz',
+  ru: 'bronirovanie',
+  no: 'bestilling',
+  da: 'booking',
+  nl: 'reserveren',
+  pl: 'rezerwacja',
+};
+
+export const RENTAL_BOOKING_SLUGS = new Set(
+  Object.values(RENTAL_BOOKING_SLUG_BY_LANGUAGE),
+);
+
+/** Alle Miet-Slugs (für Route-Generierung und Segment-Erkennung). */
+export const RENTAL_PAGE_SLUGS = Object.values(RENTAL_SLUG_BY_LANGUAGE);
 
 export function getRentalSlug(lang: string): string {
-  if (lang === 'en') return 'bike-rental';
-  if (lang === 'fr') return 'location-velo';
-  return 'fahrradverleih';
+  return (
+    RENTAL_SLUG_BY_LANGUAGE[lang as SupportedLanguageCode] ?? 'fahrradverleih'
+  );
 }
 
 export function getRentalBookingSlug(lang: string): string {
-  if (lang === 'en') return 'booking';
-  if (lang === 'fr') return 'reservation';
-  return 'buchen';
+  return (
+    RENTAL_BOOKING_SLUG_BY_LANGUAGE[lang as SupportedLanguageCode] ?? 'buchen'
+  );
 }
 
 /** Absolute path of the dedicated booking page, e.g. `/de/fahrradverleih/buchen`. */

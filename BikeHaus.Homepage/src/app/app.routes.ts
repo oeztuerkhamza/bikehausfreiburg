@@ -4,8 +4,42 @@ import { Router, CanActivateFn } from '@angular/router';
 import { TranslationService, Language } from './services/translation.service';
 import {
   DEFAULT_LANGUAGE,
+  RENTAL_BOOKING_SLUG_BY_LANGUAGE,
+  RENTAL_SLUG_BY_LANGUAGE,
+  SUPPORTED_LANGUAGES,
   isSupportedLanguage,
 } from './services/language-config';
+
+// Miet-Routen für jede Sprache aus dem lokalisierten Slug generiert
+// (Hauptseite, Buchungsflow, Kategorien). Der Buchungspfad muss vor `:category`
+// stehen, damit er nicht als Kategorie interpretiert wird.
+const rentalRoutes: Routes = SUPPORTED_LANGUAGES.flatMap((lang) => {
+  const slug = RENTAL_SLUG_BY_LANGUAGE[lang];
+  const bookingSlug = RENTAL_BOOKING_SLUG_BY_LANGUAGE[lang];
+  return [
+    {
+      path: slug,
+      loadComponent: () =>
+        import('./pages/fahrradverleih/fahrradverleih.component').then(
+          (m) => m.FahrradverleihComponent,
+        ),
+    },
+    {
+      path: `${slug}/${bookingSlug}`,
+      loadComponent: () =>
+        import('./pages/fahrradverleih/rental-booking-page.component').then(
+          (m) => m.RentalBookingPageComponent,
+        ),
+    },
+    {
+      path: `${slug}/:category`,
+      loadComponent: () =>
+        import('./pages/fahrradverleih/rental-category.component').then(
+          (m) => m.RentalCategoryComponent,
+        ),
+    },
+  ];
+});
 
 export const languageGuard: CanActivateFn = (route) => {
   const lang = route.paramMap.get('lang');
@@ -161,77 +195,8 @@ export const routes: Routes = [
             (m) => m.GarantieComponent,
           ),
       },
-      {
-        path: 'fahrradverleih',
-        loadComponent: () =>
-          import('./pages/fahrradverleih/fahrradverleih.component').then(
-            (m) => m.FahrradverleihComponent,
-          ),
-      },
-      // Dedicated booking flow (must be registered before :category)
-      {
-        path: 'fahrradverleih/buchen',
-        loadComponent: () =>
-          import('./pages/fahrradverleih/rental-booking-page.component').then(
-            (m) => m.RentalBookingPageComponent,
-          ),
-      },
-      // DE sub-categories
-      {
-        path: 'fahrradverleih/:category',
-        loadComponent: () =>
-          import('./pages/fahrradverleih/rental-category.component').then(
-            (m) => m.RentalCategoryComponent,
-          ),
-      },
-      // EN canonical alias: /en/bike-rental
-      {
-        path: 'bike-rental',
-        loadComponent: () =>
-          import('./pages/fahrradverleih/fahrradverleih.component').then(
-            (m) => m.FahrradverleihComponent,
-          ),
-      },
-      // EN booking flow (must be registered before :category)
-      {
-        path: 'bike-rental/booking',
-        loadComponent: () =>
-          import('./pages/fahrradverleih/rental-booking-page.component').then(
-            (m) => m.RentalBookingPageComponent,
-          ),
-      },
-      // EN sub-categories
-      {
-        path: 'bike-rental/:category',
-        loadComponent: () =>
-          import('./pages/fahrradverleih/rental-category.component').then(
-            (m) => m.RentalCategoryComponent,
-          ),
-      },
-      // FR canonical alias: /fr/location-velo
-      {
-        path: 'location-velo',
-        loadComponent: () =>
-          import('./pages/fahrradverleih/fahrradverleih.component').then(
-            (m) => m.FahrradverleihComponent,
-          ),
-      },
-      // FR booking flow (must be registered before :category)
-      {
-        path: 'location-velo/reservation',
-        loadComponent: () =>
-          import('./pages/fahrradverleih/rental-booking-page.component').then(
-            (m) => m.RentalBookingPageComponent,
-          ),
-      },
-      // FR sub-categories
-      {
-        path: 'location-velo/:category',
-        loadComponent: () =>
-          import('./pages/fahrradverleih/rental-category.component').then(
-            (m) => m.RentalCategoryComponent,
-          ),
-      },
+      // Fahrradverleih — lokalisierte Slugs pro Sprache (generiert)
+      ...rentalRoutes,
       // ── Rental bike catalog (filterable, SEO-optimised) ──
       // DE/TR/ES/IT/AR/RU: /mietfahrraeder
       {
