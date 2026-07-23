@@ -7,6 +7,7 @@ import bootstrap from './src/main.server';
 import {
   RENTAL_SLUG_BY_LANGUAGE,
   RENTAL_BOOKING_SLUG_BY_LANGUAGE,
+  MEMORIES_SLUG_BY_LANGUAGE,
 } from './src/app/services/language-config';
 
 // The Express app is exported so that it can be used by serverless Functions.
@@ -53,6 +54,15 @@ export function app(): express.Express {
     });
     server.get(`/${lang}/fahrradverleih/:category`, (req, res) => {
       res.redirect(301, `/${lang}/${slug}/${req.params['category']}`);
+    });
+  }
+
+  // Erinnerungen: jede Sprache hat einen eigenen Slug. Der generische deutsche
+  // /xx/erinnerungen wird per 301 auf den lokalisierten Slug umgeleitet.
+  for (const [lang, slug] of Object.entries(MEMORIES_SLUG_BY_LANGUAGE)) {
+    if (lang === 'de' || slug === 'erinnerungen') continue;
+    server.get(`/${lang}/erinnerungen`, (_req, res) => {
+      res.redirect(301, `/${lang}/${slug}`);
     });
   }
 

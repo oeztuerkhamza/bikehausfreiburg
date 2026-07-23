@@ -23,6 +23,8 @@ import {
   RentalReviewCreate,
   CheckoutRequest,
   CheckoutSessionResponse,
+  MemoryPublic,
+  MemoryPage,
 } from '../models/models';
 
 @Injectable({
@@ -224,6 +226,38 @@ export class ApiService {
       `${this.baseUrl}/rentals/reviews`,
       dto,
     );
+  }
+
+  // ── Erinnerungen (Anı Köşesi / Memory Corner) ──
+  getMemories(page = 1, pageSize = 12): Observable<MemoryPage> {
+    return this.http
+      .get<MemoryPage>(
+        `${this.baseUrl}/memories?page=${page}&pageSize=${pageSize}`,
+      )
+      .pipe(
+        catchError(() =>
+          of<MemoryPage>({
+            items: [],
+            totalCount: 0,
+            page,
+            pageSize,
+            totalPages: 0,
+            hasPrevious: false,
+            hasNext: false,
+          }),
+        ),
+      );
+  }
+
+  getLatestMemories(count = 4): Observable<MemoryPublic[]> {
+    return this.http
+      .get<MemoryPublic[]>(`${this.baseUrl}/memories/latest?count=${count}`)
+      .pipe(catchError(() => of([])));
+  }
+
+  /** Reicht eine Erinnerung ein. Content-Type NICHT setzen — Browser setzt die multipart-Boundary. */
+  createMemory(formData: FormData): Observable<MemoryPublic> {
+    return this.http.post<MemoryPublic>(`${this.baseUrl}/memories`, formData);
   }
 
   // ── Checkout / Payment ──

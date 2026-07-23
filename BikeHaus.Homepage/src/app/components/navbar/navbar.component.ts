@@ -16,6 +16,7 @@ import { ShopInfoService } from '../../services/shop-info.service';
 import {
   LANGUAGE_LABELS,
   SUPPORTED_LANGUAGES,
+  getMemoriesSlug,
 } from '../../services/language-config';
 
 @Component({
@@ -63,6 +64,12 @@ import {
             [routerLinkActiveOptions]="{ exact: link.exact }"
             (click)="menuOpen = false"
             >{{ link.label() }}</a
+          >
+          <a
+            [routerLink]="['/' + currentLang(), getMemoriesSlug(currentLang())]"
+            routerLinkActive="active"
+            (click)="menuOpen = false"
+            >{{ t().navMemories }}</a
           >
 
           <div class="lang-switch" [class.open]="languageMenuOpen()">
@@ -632,6 +639,7 @@ export class NavbarComponent {
 
   t = this.translationService.translations;
   currentLang = this.translationService.currentLanguage;
+  getMemoriesSlug = getMemoriesSlug;
   logoUrl = this.shopInfoService.logoUrl;
   private _menuOpen = false;
   languageMenuOpen = signal(false);

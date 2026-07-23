@@ -406,6 +406,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'erinnerungen',
+    loadComponent: () =>
+      import('./pages/erinnerungen/erinnerung-list.component').then(
+        (m) => m.ErinnerungListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'whatsapp',
     loadComponent: () =>
       import('./pages/whatsapp/whatsapp.component').then(

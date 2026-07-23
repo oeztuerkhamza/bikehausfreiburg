@@ -25,7 +25,9 @@ import {
   EBike,
   RepairShowcase,
   GoogleReview,
+  MemoryPublic,
 } from '../../models/models';
+import { getMemoriesSlug } from '../../services/language-config';
 
 interface Testimonial {
   name: string;
@@ -1011,6 +1013,49 @@ interface Testimonial {
       </section>
     }
 
+    <!-- ═══ Section 7c — ERINNERUNGEN (Anı Köşesi) Vitrine ═══ -->
+    @if (latestMemories().length > 0) {
+      <section class="mem-teaser" aria-labelledby="mem-teaser-heading">
+        <div class="container">
+          <span class="section-label fade-in">{{ t().memoriesTitle }}</span>
+          <h2 id="mem-teaser-heading" class="section-title fade-in d1">
+            {{ t().memoriesSubtitle }}
+          </h2>
+
+          <div class="mem-teaser-grid fade-in d2">
+            @for (m of latestMemories(); track m.id) {
+              <a
+                class="mem-teaser-card"
+                [routerLink]="['/', lang(), memoriesSlug()]"
+              >
+                <div class="mem-teaser-media">
+                  @if (m.fotos.length > 0) {
+                    <img
+                      [src]="getMemoryImageUrl(m.fotos[0].filePath)"
+                      [alt]="m.ad + ' – ' + m.ort"
+                      loading="lazy"
+                      width="300"
+                      height="220"
+                    />
+                  }
+                </div>
+                <div class="mem-teaser-body">
+                  <strong>{{ m.ad }}</strong>
+                  <span class="mem-teaser-ort">📍 {{ m.ort }}</span>
+                </div>
+              </a>
+            }
+          </div>
+
+          <div class="mem-teaser-cta fade-in d3">
+            <a class="btn-outline" [routerLink]="['/', lang(), memoriesSlug()]">{{
+              t().memoriesSeeAll
+            }}</a>
+          </div>
+        </div>
+      </section>
+    }
+
     <!-- ═══ Section 8 — GOOGLE REVIEWS ═══ -->
     <section
       class="testimonials-section"
@@ -1895,6 +1940,54 @@ interface Testimonial {
       }
 
       /* ═══ REPAIR SHOWCASE SECTION ═══ */
+      .mem-teaser {
+        padding: 5rem 0;
+      }
+      .mem-teaser-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-top: 2rem;
+      }
+      .mem-teaser-card {
+        display: block;
+        border-radius: 14px;
+        overflow: hidden;
+        background: var(--bg-card, #fff);
+        border: 1px solid var(--border-light, #e2e8f0);
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+      }
+      .mem-teaser-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      }
+      .mem-teaser-media {
+        aspect-ratio: 4 / 3;
+        background: #f1f5f9;
+        overflow: hidden;
+      }
+      .mem-teaser-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .mem-teaser-body {
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .mem-teaser-ort {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .mem-teaser-cta {
+        text-align: center;
+        margin-top: 2.5rem;
+      }
       .repair-section {
         padding: 6rem 0;
         background: linear-gradient(
@@ -3088,6 +3181,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.startCarouselTimer();
   }
 
+  // Erinnerungen (Anı Köşesi) — Startseiten-Vitrine
+  latestMemories = signal<MemoryPublic[]>([]);
+
   // Repair Showcases
   repairShowcases = signal<RepairShowcase[]>([]);
   repairActiveIndex = 0;
@@ -3497,6 +3593,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
     });
 
+    this.apiService.getLatestMemories(4).subscribe({
+      next: (data) => this.latestMemories.set(data),
+    });
+
     this.apiService.getGoogleReviews().subscribe({
       next: (data) => {
         if (data.reviews?.length) {
@@ -3519,6 +3619,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   // ── Repair Showcase Slideshow ──
   getRepairImageUrl(path: string): string {
     return `${environment.apiUrl.replace('/api/public', '')}${path}`;
+  }
+
+  // ── Erinnerungen (Anı Köşesi) ──
+  getMemoryImageUrl(path: string): string {
+    return `${environment.apiUrl.replace('/api/public', '')}${path}`;
+  }
+  memoriesSlug(): string {
+    return getMemoriesSlug(this.lang());
   }
 
   getInitials(name: string): string {

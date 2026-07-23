@@ -16,6 +16,8 @@ public class PublicController : ControllerBase
     private readonly IRepairShowcaseService _repairShowcaseService;
     private readonly IHomepageAccessoryService _homepageAccessoryService;
     private readonly IGoogleReviewsService _googleReviewsService;
+    private readonly IErinnerungService _erinnerungService;
+    private readonly IFileStorageService _fileStorage;
     private readonly IWebHostEnvironment _env;
     private readonly IConfiguration _config;
 
@@ -27,6 +29,8 @@ public class PublicController : ControllerBase
         IRepairShowcaseService repairShowcaseService,
         IHomepageAccessoryService homepageAccessoryService,
         IGoogleReviewsService googleReviewsService,
+        IErinnerungService erinnerungService,
+        IFileStorageService fileStorage,
         IWebHostEnvironment env,
         IConfiguration config)
     {
@@ -37,6 +41,8 @@ public class PublicController : ControllerBase
         _repairShowcaseService = repairShowcaseService;
         _homepageAccessoryService = homepageAccessoryService;
         _googleReviewsService = googleReviewsService;
+        _erinnerungService = erinnerungService;
+        _fileStorage = fileStorage;
         _env = env;
         _config = config;
     }
@@ -264,6 +270,105 @@ public class PublicController : ControllerBase
         var item = await _repairShowcaseService.GetByIdAsync(id);
         if (item == null) return NotFound();
         return Ok(item);
+    }
+
+    // ═══ Erinnerungen (Anı Köşesi) ═══
+
+    private static readonly HashSet<string> _memoryPhotoExtensions =
+        new(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".webp" };
+    private const long MaxMemoryPhotoBytes = 8 * 1024 * 1024; // 8 MB
+    private const int MaxMemoryPhotos = 5;
+
+    /// <summary>Freigegebene Erinnerungen (paginiert, neueste zuerst).</summary>
+    [HttpGet("memories")]
+    public async Task<ActionResult<PaginatedResult<ErinnerungPublicDto>>> GetMemories(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 12)
+    {
+        if (page < 1) page = 1;
+        pageSize = Math.Clamp(pageSize, 1, 48);
+        var result = await _erinnerungService.GetApprovedAsync(page, pageSize);
+        return Ok(result);
+    }
+
+    /// <summary>Neueste freigegebene Erinnerungen für die Startseiten-Vitrine.</summary>
+    [HttpGet("memories/latest")]
+    public async Task<ActionResult<IEnumerable<ErinnerungPublicDto>>> GetLatestMemories(
+        [FromQuery] int count = 4)
+    {
+        count = Math.Clamp(count, 1, 10);
+        var items = await _erinnerungService.GetLatestApprovedAsync(count);
+        return Ok(items);
+    }
+
+    /// <summary>Öffentliche Einreichung einer Erinnerung (Fotos + Text) in einem multipart-Request.</summary>
+    [HttpPost("memories")]
+    public async Task<IActionResult> SubmitMemory(
+        [FromForm] string? ad,
+        [FromForm] string? ort,
+        [FromForm] string? geschichte,
+        [FromForm] string? website,          // Honeypot — muss leer sein
+        [FromForm] List<IFormFile>? fotos)
+    {
+        // Honeypot: von Bots ausgefüllt → so tun als ob, aber nichts speichern.
+        if (!string.IsNullOrWhiteSpace(website))
+            return Ok(new { ok = true });
+
+        ad = ad?.Trim();
+        ort = ort?.Trim();
+        geschichte = geschichte?.Trim();
+
+        if (string.IsNullOrWhiteSpace(ad) || string.IsNullOrWhiteSpace(ort) || string.IsNullOrWhiteSpace(geschichte))
+            return BadRequest(new { error = "Name, Ort und Geschichte sind erforderlich." });
+        if (ad.Length > 200 || ort.Length > 200)
+            return BadRequest(new { error = "Name und Ort dürfen höchstens 200 Zeichen lang sein." });
+        if (geschichte.Length > 1000)
+            return BadRequest(new { error = "Die Geschichte darf höchstens 1000 Zeichen lang sein." });
+
+        fotos ??= new List<IFormFile>();
+        if (fotos.Count < 1)
+            return BadRequest(new { error = "Bitte lade mindestens ein Foto hoch." });
+        if (fotos.Count > MaxMemoryPhotos)
+            return BadRequest(new { error = $"Es sind höchstens {MaxMemoryPhotos} Fotos erlaubt." });
+
+        foreach (var foto in fotos)
+        {
+            if (foto.Length <= 0 || foto.Length > MaxMemoryPhotoBytes)
+                return BadRequest(new { error = "Jedes Foto darf höchstens 8 MB groß sein." });
+            var ext = Path.GetExtension(foto.FileName);
+            if (!_memoryPhotoExtensions.Contains(ext))
+                return BadRequest(new { error = "Nur JPG-, PNG- oder WebP-Bilder sind erlaubt." });
+        }
+
+        var created = await _erinnerungService.CreateAsync(ad, ort, geschichte);
+
+        var savedRelativePaths = new List<string>();
+        try
+        {
+            int sortOrder = 0;
+            foreach (var foto in fotos)
+            {
+                using var stream = foto.OpenReadStream();
+                // FileStorageService: GUID-Name + ImageSharp-Resize (2048px, JPEG q85).
+                var relativePath = await _fileStorage.SaveFileAsync(stream, foto.FileName, $"memories/{created.Id}");
+                savedRelativePaths.Add(relativePath);
+                var webPath = "/uploads/" + relativePath.Replace('\\', '/');
+                await _erinnerungService.AddFotoAsync(created.Id, webPath, sortOrder++);
+            }
+        }
+        catch (Exception)
+        {
+            // Bei korruptem/ungültigem Bild: bereits gespeicherte Dateien + Zeile entfernen.
+            foreach (var rel in savedRelativePaths)
+            {
+                try { await _fileStorage.DeleteFileAsync(rel); } catch { }
+            }
+            await _erinnerungService.DeleteAsync(created.Id);
+            return BadRequest(new { error = "Eines der Bilder konnte nicht verarbeitet werden. Bitte versuche es mit anderen Fotos." });
+        }
+
+        var result = await _erinnerungService.GetByIdAsync(created.Id);
+        return Ok(result);
     }
 
     // ═══ Homepage Accessories ═══

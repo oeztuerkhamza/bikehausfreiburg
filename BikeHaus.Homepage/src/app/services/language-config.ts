@@ -154,3 +154,28 @@ export function getRentalBookingSlug(lang: string): string {
 export function getRentalBookingPath(lang: string): string {
   return `/${lang}/${getRentalSlug(lang)}/${getRentalBookingSlug(lang)}`;
 }
+
+// ── Erinnerungen (Anı Köşesi / Memory Corner) — language-specific slugs ──
+export const MEMORIES_SLUG_BY_LANGUAGE: Record<SupportedLanguageCode, string> = {
+  de: 'erinnerungen',
+  en: 'memories',
+  fr: 'souvenirs',
+  tr: 'anilar',
+  es: 'recuerdos',
+  it: 'ricordi',
+  ar: 'dhikrayat',
+  ru: 'vospominaniya',
+  no: 'minner',
+  da: 'minder',
+  nl: 'herinneringen',
+  pl: 'wspomnienia',
+};
+
+/** Alle Erinnerungs-Slugs (für Route-Generierung und Segment-Erkennung). */
+export const MEMORIES_PAGE_SLUGS = Object.values(MEMORIES_SLUG_BY_LANGUAGE);
+
+export function getMemoriesSlug(lang: string): string {
+  return (
+    MEMORIES_SLUG_BY_LANGUAGE[lang as SupportedLanguageCode] ?? 'erinnerungen'
+  );
+}

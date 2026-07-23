@@ -44,6 +44,8 @@ public class BikeHausDbContext : DbContext
     public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
     public DbSet<EmailLog> EmailLogs => Set<EmailLog>();
     public DbSet<RentalReview> RentalReviews => Set<RentalReview>();
+    public DbSet<Erinnerung> Erinnerungen => Set<Erinnerung>();
+    public DbSet<ErinnerungFoto> ErinnerungFotos => Set<ErinnerungFoto>();
     public DbSet<EmailUnsubscribe> EmailUnsubscribes => Set<EmailUnsubscribe>();
     public DbSet<ReviewRequest> ReviewRequests => Set<ReviewRequest>();
 
@@ -536,6 +538,29 @@ public class BikeHausDbContext : DbContext
             entity.HasOne(e => e.RepairShowcase)
                 .WithMany(r => r.Images)
                 .HasForeignKey(e => e.RepairShowcaseId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── Erinnerung (Anı Köşesi) Configuration ──
+        modelBuilder.Entity<Erinnerung>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Ad).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Ort).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Geschichte).IsRequired().HasMaxLength(1000);
+            entity.Property(e => e.AdminNotiz).HasMaxLength(1000);
+            entity.HasIndex(e => e.Onaylandi);
+        });
+
+        // ── ErinnerungFoto Configuration ──
+        modelBuilder.Entity<ErinnerungFoto>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FilePath).IsRequired().HasMaxLength(500);
+
+            entity.HasOne(e => e.Erinnerung)
+                .WithMany(r => r.Fotos)
+                .HasForeignKey(e => e.ErinnerungId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

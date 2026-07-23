@@ -469,6 +469,31 @@ export interface Translations {
   rentalReviewsFormError: string;
   rentalReviewsFormValidation: string;
 
+  // Erinnerungen (Anı Köşesi / Memory Corner)
+  navMemories: string;
+  memoriesTitle: string;
+  memoriesSubtitle: string;
+  memoriesIntro: string;
+  memoriesEmpty: string;
+  memoriesLoadMore: string;
+  memoriesSeeAll: string;
+  memoryPhotoCountLabel: string;
+  memoryFormTitle: string;
+  memoryFormName: string;
+  memoryFormLocation: string;
+  memoryFormStory: string;
+  memoryFormPhotos: string;
+  memoryFormPhotosHint: string;
+  memoryFormConsent: string;
+  memoryFormSubmit: string;
+  memoryFormSending: string;
+  memoryFormSuccess: string;
+  memoryFormError: string;
+  memoryFormValidation: string;
+  memoryFormPhotoTooLarge: string;
+  memoryFormTooManyPhotos: string;
+  memoryFormConsentRequired: string;
+
   // General
   loading: string;
   error: string;
@@ -1109,6 +1134,34 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalReviewsFormError:
       'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
     rentalReviewsFormValidation: 'Bitte füllen Sie Name und Kommentar aus.',
+
+    // Erinnerungen (Anı Köşesi)
+    navMemories: 'Erinnerungen',
+    memoriesTitle: 'Erinnerungsecke',
+    memoriesSubtitle: 'Momente unserer Kunden auf zwei Rädern',
+    memoriesIntro: 'Teile deine schönsten Radtour-Momente mit uns!',
+    memoriesEmpty: 'Noch keine Erinnerungen — sei die/der Erste!',
+    memoriesLoadMore: 'Mehr laden',
+    memoriesSeeAll: 'Alle Erinnerungen ansehen',
+    memoryPhotoCountLabel: 'Fotos',
+    memoryFormTitle: 'Deine Erinnerung teilen',
+    memoryFormName: 'Dein Name',
+    memoryFormLocation: 'Ausflugsziel / Ort',
+    memoryFormStory: 'Deine Geschichte (2–3 Sätze)',
+    memoryFormPhotos: 'Fotos',
+    memoryFormPhotosHint: 'max. 5 Fotos, je max. 8 MB (JPG, PNG, WebP)',
+    memoryFormConsent:
+      'Ich stimme der Veröffentlichung meines Namens und meiner Fotos zu und habe die Datenschutzerklärung gelesen.',
+    memoryFormSubmit: 'Erinnerung senden',
+    memoryFormSending: 'Wird gesendet...',
+    memoryFormSuccess:
+      'Danke! Deine Erinnerung wird nach Prüfung veröffentlicht.',
+    memoryFormError: 'Senden fehlgeschlagen. Bitte versuche es erneut.',
+    memoryFormValidation: 'Bitte fülle Name, Ort und Geschichte aus.',
+    memoryFormPhotoTooLarge: 'Jedes Foto darf höchstens 8 MB groß sein.',
+    memoryFormTooManyPhotos: 'Es sind höchstens 5 Fotos erlaubt.',
+    memoryFormConsentRequired:
+      'Bitte stimme der Veröffentlichung zu, um fortzufahren.',
 
     loading: 'Wird geladen...',
     error: 'Ein Fehler ist aufgetreten.',
@@ -1819,6 +1872,32 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalReviewsFormError: 'An error occurred. Please try again.',
     rentalReviewsFormValidation: 'Please fill in your name and comment.',
 
+    // Memory Corner
+    navMemories: 'Memories',
+    memoriesTitle: 'Memory Corner',
+    memoriesSubtitle: "Our customers' moments on two wheels",
+    memoriesIntro: 'Share your favorite bike trip moments with us!',
+    memoriesEmpty: 'No memories yet — be the first!',
+    memoriesLoadMore: 'Load more',
+    memoriesSeeAll: 'See all memories',
+    memoryPhotoCountLabel: 'photos',
+    memoryFormTitle: 'Share your memory',
+    memoryFormName: 'Your name',
+    memoryFormLocation: 'Trip location',
+    memoryFormStory: 'Your story (2–3 sentences)',
+    memoryFormPhotos: 'Photos',
+    memoryFormPhotosHint: 'max. 5 photos, 8 MB each (JPG, PNG, WebP)',
+    memoryFormConsent:
+      'I agree to the publication of my name and photos and have read the privacy policy.',
+    memoryFormSubmit: 'Submit memory',
+    memoryFormSending: 'Sending...',
+    memoryFormSuccess: 'Thank you! Your memory will be published after review.',
+    memoryFormError: 'Submission failed. Please try again.',
+    memoryFormValidation: 'Please fill in name, location and story.',
+    memoryFormPhotoTooLarge: 'Each photo may be at most 8 MB.',
+    memoryFormTooManyPhotos: 'A maximum of 5 photos is allowed.',
+    memoryFormConsentRequired: 'Please agree to publication to continue.',
+
     loading: 'Loading...',
     error: 'An error occurred.',
     homeServicesAria: 'Services',
@@ -2520,6 +2599,34 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     rentalReviewsFormError: 'Une erreur est survenue. Veuillez réessayer.',
     rentalReviewsFormValidation:
       'Veuillez remplir votre nom et votre commentaire.',
+
+    // Coin des souvenirs
+    navMemories: 'Souvenirs',
+    memoriesTitle: 'Coin des souvenirs',
+    memoriesSubtitle: 'Les moments de nos clients à vélo',
+    memoriesIntro: 'Partagez vos plus beaux moments à vélo !',
+    memoriesEmpty: 'Pas encore de souvenirs — soyez le premier !',
+    memoriesLoadMore: 'Voir plus',
+    memoriesSeeAll: 'Voir tous les souvenirs',
+    memoryPhotoCountLabel: 'photos',
+    memoryFormTitle: 'Partager votre souvenir',
+    memoryFormName: 'Votre nom',
+    memoryFormLocation: "Lieu de l'excursion",
+    memoryFormStory: 'Votre histoire (2–3 phrases)',
+    memoryFormPhotos: 'Photos',
+    memoryFormPhotosHint: 'max. 5 photos, 8 Mo chacune (JPG, PNG, WebP)',
+    memoryFormConsent:
+      'J’accepte la publication de mon nom et de mes photos et j’ai lu la politique de confidentialité.',
+    memoryFormSubmit: 'Envoyer',
+    memoryFormSending: 'Envoi...',
+    memoryFormSuccess:
+      'Merci ! Votre souvenir sera publié après vérification.',
+    memoryFormError: "Échec de l'envoi. Veuillez réessayer.",
+    memoryFormValidation: 'Veuillez remplir le nom, le lieu et l’histoire.',
+    memoryFormPhotoTooLarge: 'Chaque photo ne doit pas dépasser 8 Mo.',
+    memoryFormTooManyPhotos: '5 photos au maximum sont autorisées.',
+    memoryFormConsentRequired:
+      'Veuillez accepter la publication pour continuer.',
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
@@ -3235,6 +3342,32 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
       'Teşekkürler! Yorumunuz incelendikten sonra yayınlanacak.',
     rentalReviewsFormError: 'Bir hata oluştu. Lütfen tekrar deneyin.',
     rentalReviewsFormValidation: 'Lütfen adınızı ve yorumunuzu doldurun.',
+
+    // Anı Köşesi
+    navMemories: 'Anılar',
+    memoriesTitle: 'Anı Köşesi',
+    memoriesSubtitle: 'Müşterilerimizin iki teker üzerindeki anları',
+    memoriesIntro: 'En güzel bisiklet turu anılarını bizimle paylaş!',
+    memoriesEmpty: 'Henüz anı yok — ilk sen ol!',
+    memoriesLoadMore: 'Daha fazla',
+    memoriesSeeAll: 'Tüm anıları gör',
+    memoryPhotoCountLabel: 'fotoğraf',
+    memoryFormTitle: 'Anını paylaş',
+    memoryFormName: 'Adın',
+    memoryFormLocation: 'Gezi yeri',
+    memoryFormStory: 'Hikayen (2–3 cümle)',
+    memoryFormPhotos: 'Fotoğraflar',
+    memoryFormPhotosHint: 'en fazla 5 fotoğraf, her biri en fazla 8 MB (JPG, PNG, WebP)',
+    memoryFormConsent:
+      'Adımın ve fotoğraflarımın yayınlanmasını kabul ediyorum ve gizlilik politikasını okudum.',
+    memoryFormSubmit: 'Anıyı gönder',
+    memoryFormSending: 'Gönderiliyor...',
+    memoryFormSuccess: 'Teşekkürler! Anın incelendikten sonra yayınlanacak.',
+    memoryFormError: 'Gönderim başarısız. Lütfen tekrar dene.',
+    memoryFormValidation: 'Lütfen ad, yer ve hikaye alanlarını doldur.',
+    memoryFormPhotoTooLarge: 'Her fotoğraf en fazla 8 MB olabilir.',
+    memoryFormTooManyPhotos: 'En fazla 5 fotoğraf yükleyebilirsin.',
+    memoryFormConsentRequired: 'Devam etmek için lütfen yayın iznini onayla.',
 
     loading: 'Yükleniyor...',
     error: 'Bir hata oluştu.',

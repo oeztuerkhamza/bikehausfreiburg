@@ -42,6 +42,18 @@
     <priority>0.95</priority>
   </url>
 
+  <!-- Erinnerungen (Anı Köşesi / Memory Corner) -->
+  <url>
+    <loc>https://bikehausfreiburg.com/de/erinnerungen</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://bikehausfreiburg.com/de/erinnerungen"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bikehausfreiburg.com/en/memories"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://bikehausfreiburg.com/fr/souvenirs"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://bikehausfreiburg.com/tr/anilar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://bikehausfreiburg.com/de/erinnerungen"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
   <!-- About -->
   <url>
     <loc>https://bikehausfreiburg.com/de/about</loc>

@@ -1058,6 +1058,29 @@ export interface RentalReviewApprove {
   adminNotiz?: string;
 }
 
+// ── Erinnerungen (Anı Köşesi) ──
+export interface ErinnerungFoto {
+  id: number;
+  filePath: string;
+  sortOrder: number;
+}
+
+export interface Erinnerung {
+  id: number;
+  ad: string;
+  ort: string;
+  geschichte: string;
+  onaylandi: boolean;
+  adminNotiz?: string;
+  createdAt: string;
+  fotos: ErinnerungFoto[];
+}
+
+export interface ErinnerungApprove {
+  onaylandi: boolean;
+  adminNotiz?: string;
+}
+
 export interface RentalAccessory {
   id: number;
   bezeichnung: string;

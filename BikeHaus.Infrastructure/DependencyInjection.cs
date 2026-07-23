@@ -40,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<IRentalBookingRepository, RentalBookingRepository>();
         services.AddScoped<IRenovationCostRepository, RenovationCostRepository>();
         services.AddScoped<IRentalReviewRepository, RentalReviewRepository>();
+        services.AddScoped<IErinnerungRepository, ErinnerungRepository>();
 
         // Services
         services.AddScoped<IBicycleService, BikeHaus.Application.Services.BicycleService>();
@@ -65,6 +66,7 @@ public static class DependencyInjection
         services.AddScoped<IRentalBookingService, BikeHaus.Application.Services.RentalBookingService>();
         services.AddScoped<IRenovationCostService, BikeHaus.Application.Services.RenovationCostService>();
         services.AddScoped<IRentalReviewService, BikeHaus.Application.Services.RentalReviewService>();
+        services.AddScoped<IErinnerungService, BikeHaus.Application.Services.ErinnerungService>();
         services.AddScoped<IInvoiceRepository, BikeHaus.Infrastructure.Repositories.InvoiceRepository>();
         services.AddScoped<IInvoiceService, BikeHaus.Application.Services.InvoiceService>();
         services.AddScoped<IKleinanzeigenScraperService, KleinanzeigenScraperService>();
