@@ -155,6 +155,36 @@ public class ReturnService : IReturnService
         return result!.ToDto();
     }
 
+    public async Task<ReturnDto> UpdateAsync(int id, ReturnUpdateDto dto)
+    {
+        var returnEntity = await _returnRepository.GetWithDetailsAsync(id)
+            ?? throw new KeyNotFoundException($"Rückgabe mit ID {id} wurde nicht gefunden.");
+
+        // Belegnummer darf geaendert werden, muss aber eindeutig bleiben.
+        var newBelegNummer = dto.BelegNummer?.Trim();
+        if (!string.IsNullOrWhiteSpace(newBelegNummer) &&
+            !string.Equals(newBelegNummer, returnEntity.BelegNummer, StringComparison.Ordinal))
+        {
+            if (await _returnRepository.BelegNummerExistsAsync(newBelegNummer))
+                throw new InvalidOperationException($"Die Belegnummer '{newBelegNummer}' ist bereits vergeben.");
+            returnEntity.BelegNummer = newBelegNummer;
+        }
+
+        if (dto.Rueckgabedatum.HasValue)
+            returnEntity.Rueckgabedatum = dto.Rueckgabedatum.Value;
+        returnEntity.Grund = dto.Grund;
+        returnEntity.GrundDetails = dto.GrundDetails;
+        returnEntity.Erstattungsbetrag = dto.Erstattungsbetrag;
+        returnEntity.Zahlungsart = dto.Zahlungsart;
+        returnEntity.Notizen = dto.Notizen;
+        returnEntity.UpdatedAt = DateTime.UtcNow;
+
+        await _returnRepository.UpdateAsync(returnEntity);
+
+        var result = await _returnRepository.GetWithDetailsAsync(id);
+        return result!.ToDto();
+    }
+
     public async Task DeleteAsync(int id)
     {
         var returnEntity = await _returnRepository.GetWithDetailsAsync(id)

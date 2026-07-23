@@ -33,6 +33,16 @@ public record ReturnCreateDto(
     string? BelegNummer = null
 );
 
+public record ReturnUpdateDto(
+    string? BelegNummer,
+    DateTime? Rueckgabedatum,
+    ReturnReason Grund,
+    string? GrundDetails,
+    decimal Erstattungsbetrag,
+    PaymentMethod Zahlungsart,
+    string? Notizen
+);
+
 public record ReturnListDto(
     int Id,
     string BelegNummer,

@@ -7,13 +7,14 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReturnService } from '../../services/return.service';
 import { SaleService } from '../../services/sale.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
 import {
   ReturnCreate,
+  ReturnUpdate,
   SaleList,
   PaymentMethod,
   ReturnReason,
@@ -26,7 +27,7 @@ import {
   template: `
     <div class="page">
       <div class="page-header">
-        <h1>{{ t.newReturnTitle }}</h1>
+        <h1>{{ editId ? 'Rückgabe bearbeiten' : t.newReturnTitle }}</h1>
         <a routerLink="/returns" class="btn btn-outline">{{ t.back }}</a>
       </div>
 
@@ -65,7 +66,16 @@ import {
           <!-- Sale selection -->
           <div class="form-card">
             <h2>{{ t.selectSale }}</h2>
-            <div class="field sale-search-wrap">
+            <!-- Edit-Modus: Verkauf ist fix und kann nicht geändert werden -->
+            <div *ngIf="editId && editInfo" class="sale-preview">
+              <div class="sale-preview-badge">🔒 Verkauf (fest)</div>
+              <span
+                ><strong>{{ editInfo.saleBelegNummer }}</strong></span
+              >
+              <span>{{ t.bicycle }}: {{ editInfo.bikeInfo }}</span>
+              <span>{{ t.buyer }}: {{ editInfo.customerName }}</span>
+            </div>
+            <div class="field sale-search-wrap" *ngIf="!editId">
               <label>{{ t.saleRequired }}</label>
               <div class="sale-search-box">
                 <span class="sale-search-icon">
@@ -268,7 +278,7 @@ import {
             type="submit"
             class="btn btn-primary wizard-next"
             *ngIf="isLastStep"
-            [disabled]="!f.valid || !selectedSaleId"
+            [disabled]="!f.valid || (!selectedSaleId && !editId)"
           >
             {{ t.saveReturn }}
           </button>
@@ -278,7 +288,7 @@ import {
           <button
             type="submit"
             class="btn btn-primary"
-            [disabled]="!f.valid || !selectedSaleId"
+            [disabled]="!f.valid || (!selectedSaleId && !editId)"
           >
             {{ t.saveReturn }}
           </button>
@@ -747,7 +757,7 @@ export class ReturnFormComponent implements OnInit {
   }
 
   private validateStep(step: number): boolean {
-    if (step === 0 && !this.selectedSaleId) {
+    if (step === 0 && !this.selectedSaleId && !this.editId) {
       this.notificationService.error('Bitte zuerst einen Verkauf auswählen.');
       return false;
     }
@@ -769,14 +779,30 @@ export class ReturnFormComponent implements OnInit {
   notizen = '';
   belegNummer = '';
 
+  editId: number | null = null;
+  editInfo: {
+    saleBelegNummer: string;
+    bikeInfo: string;
+    customerName: string;
+  } | null = null;
+
   constructor(
     private returnService: ReturnService,
     private saleService: SaleService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
     this.updateIsMobile();
+
+    const idParam = this.route.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.editId = +idParam;
+      this.loadReturnForEdit(this.editId);
+      return;
+    }
+
     this.rueckgabedatum = new Date().toISOString().split('T')[0];
     this.loadSales();
     this.returnService.getNextBelegNummer().subscribe({
@@ -784,6 +810,33 @@ export class ReturnFormComponent implements OnInit {
         this.belegNummer = res.belegNummer;
       },
       error: () => {},
+    });
+  }
+
+  private loadReturnForEdit(id: number) {
+    this.returnService.getById(id).subscribe({
+      next: (r) => {
+        this.belegNummer = r.belegNummer;
+        this.rueckgabedatum = r.rueckgabedatum.substring(0, 10);
+        this.grund = r.grund;
+        this.grundDetails = r.grundDetails || '';
+        this.erstattungsbetrag = r.erstattungsbetrag;
+        this.zahlungsart = r.zahlungsart;
+        this.notizen = r.notizen || '';
+        this.editInfo = {
+          saleBelegNummer: r.sale?.belegNummer || '—',
+          bikeInfo: r.bicycle
+            ? `${r.bicycle.marke} ${r.bicycle.modell}`
+            : '—',
+          customerName: r.customer
+            ? `${r.customer.vorname} ${r.customer.nachname}`
+            : '—',
+        };
+      },
+      error: () => {
+        this.notificationService.error(this.t.saveError);
+        this.router.navigate(['/returns']);
+      },
     });
   }
 
@@ -827,7 +880,32 @@ export class ReturnFormComponent implements OnInit {
   }
 
   submit() {
-    if (!this.selectedSaleId || !this.grund) return;
+    if (!this.grund) return;
+
+    if (this.editId) {
+      const dto: ReturnUpdate = {
+        belegNummer: this.belegNummer || undefined,
+        rueckgabedatum: this.rueckgabedatum || undefined,
+        grund: this.grund as ReturnReason,
+        grundDetails: this.grundDetails || undefined,
+        erstattungsbetrag: this.erstattungsbetrag,
+        zahlungsart: this.zahlungsart,
+        notizen: this.notizen || undefined,
+      };
+      this.returnService.update(this.editId, dto).subscribe({
+        next: () => {
+          this.notificationService.success(this.t.saveSuccess);
+          this.router.navigate(['/returns']);
+        },
+        error: (err) =>
+          this.notificationService.error(
+            err.error?.error || this.t.returnSaveError,
+          ),
+      });
+      return;
+    }
+
+    if (!this.selectedSaleId) return;
 
     const dto: ReturnCreate = {
       saleId: +this.selectedSaleId,

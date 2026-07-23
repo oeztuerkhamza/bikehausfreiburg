@@ -60,6 +60,24 @@ public class ReturnsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = returnDto.Id }, returnDto);
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult<ReturnDto>> Update(int id, [FromBody] ReturnUpdateDto dto)
+    {
+        try
+        {
+            var updated = await _returnService.UpdateAsync(id, dto);
+            return Ok(updated);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
     [HttpGet("next-belegnummer")]
     public async Task<ActionResult<object>> GetNextBelegNummer()
     {

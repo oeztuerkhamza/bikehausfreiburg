@@ -128,6 +128,10 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                     {{ t.download }}
                   </button>
                   <div class="popup-divider"></div>
+                  <button class="popup-item" (click)="editReturn(r)">
+                    <span class="popup-icon">✏️</span>
+                    {{ t.edit }}
+                  </button>
                   <button
                     class="popup-item popup-item-danger"
                     (click)="deleteReturn(r)"
@@ -507,6 +511,11 @@ export class ReturnListComponent implements OnInit {
         };
       }
     });
+  }
+
+  editReturn(r: ReturnList) {
+    this.activeMenuId = null;
+    this.router.navigate(['/returns/edit', r.id]);
   }
 
   deleteReturn(r: ReturnList) {

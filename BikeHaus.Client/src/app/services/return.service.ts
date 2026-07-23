@@ -6,6 +6,7 @@ import {
   Return,
   ReturnCreate,
   ReturnList,
+  ReturnUpdate,
   PaginatedResult,
 } from '../models/models';
 
@@ -43,6 +44,10 @@ export class ReturnService {
 
   create(returnData: ReturnCreate): Observable<Return> {
     return this.http.post<Return>(this.url, returnData);
+  }
+
+  update(id: number, returnData: ReturnUpdate): Observable<Return> {
+    return this.http.put<Return>(`${this.url}/${id}`, returnData);
   }
 
   getNextBelegNummer(): Observable<{ belegNummer: string }> {
