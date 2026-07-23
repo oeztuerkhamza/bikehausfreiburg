@@ -285,6 +285,23 @@ type SubmitStep = 'email' | 'code' | 'form';
             <span>{{ t().memoryFormConsent }}</span>
           </label>
 
+          <label class="mem-consent">
+            <input
+              type="checkbox"
+              name="privacyConsent"
+              [(ngModel)]="privacyConsent"
+            />
+            <span
+              >{{ t().memoryFormPrivacyPre
+              }}<a
+                [routerLink]="['/', lang(), 'datenschutz']"
+                target="_blank"
+                rel="noopener"
+                >{{ t().memoryFormPrivacyLink }}</a
+              >{{ t().memoryFormPrivacyPost }}</span
+            >
+          </label>
+
           <p class="mem-form-error" *ngIf="formError()">{{ formError() }}</p>
 
           <button
@@ -639,6 +656,10 @@ type SubmitStep = 'email' | 'code' | 'form';
       .mem-consent input {
         margin-top: 3px;
       }
+      .mem-consent a {
+        color: var(--primary, #16a34a);
+        text-decoration: underline;
+      }
       .mem-form-error {
         color: #dc2626;
         font-size: 0.85rem;
@@ -720,6 +741,7 @@ export class ErinnerungenComponent implements OnInit {
   code = '';
   form = { ad: '', alter: null as number | null, land: '', geschichte: '', website: '' };
   consent = false;
+  privacyConsent = false;
   photos = signal<SelectedPhoto[]>([]);
   sending = signal(false);
   formSuccess = signal(false);
@@ -945,6 +967,10 @@ export class ErinnerungenComponent implements OnInit {
     }
     if (!this.consent) {
       this.formError.set(t.memoryFormConsentRequired);
+      return;
+    }
+    if (!this.privacyConsent) {
+      this.formError.set(t.memoryFormPrivacyRequired);
       return;
     }
 

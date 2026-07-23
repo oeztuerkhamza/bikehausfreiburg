@@ -508,6 +508,10 @@ export interface Translations {
   memoryChangeEmail: string;
   memoryViewsLabel: string;
   memoryEmailVerified: string;
+  memoryFormPrivacyPre: string;
+  memoryFormPrivacyLink: string;
+  memoryFormPrivacyPost: string;
+  memoryFormPrivacyRequired: string;
 
   // General
   loading: string;
@@ -1166,7 +1170,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryFormPhotos: 'Fotos',
     memoryFormPhotosHint: 'max. 5 Fotos, je max. 8 MB (JPG, PNG, WebP)',
     memoryFormConsent:
-      'Ich stimme der Veröffentlichung meines Namens und meiner Fotos zu und habe die Datenschutzerklärung gelesen.',
+      'Ich stimme der Veröffentlichung meines Namens und meiner Fotos zu.',
     memoryFormSubmit: 'Erinnerung senden',
     memoryFormSending: 'Wird gesendet...',
     memoryFormSuccess:
@@ -1194,6 +1198,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryChangeEmail: 'E-Mail ändern',
     memoryViewsLabel: 'Aufrufe',
     memoryEmailVerified: 'E-Mail bestätigt',
+    memoryFormPrivacyPre: 'Ich habe die ',
+    memoryFormPrivacyLink: 'Datenschutzerklärung',
+    memoryFormPrivacyPost: ' gelesen und stimme der Verarbeitung meiner Daten zu.',
+    memoryFormPrivacyRequired:
+      'Bitte bestätige die Datenschutzerklärung, um fortzufahren.',
 
     loading: 'Wird geladen...',
     error: 'Ein Fehler ist aufgetreten.',
@@ -1920,7 +1929,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryFormPhotos: 'Photos',
     memoryFormPhotosHint: 'max. 5 photos, 8 MB each (JPG, PNG, WebP)',
     memoryFormConsent:
-      'I agree to the publication of my name and photos and have read the privacy policy.',
+      'I agree to the publication of my name and photos.',
     memoryFormSubmit: 'Submit memory',
     memoryFormSending: 'Sending...',
     memoryFormSuccess: 'Thank you! Your memory will be published after review.',
@@ -1946,6 +1955,10 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryChangeEmail: 'Change email',
     memoryViewsLabel: 'views',
     memoryEmailVerified: 'Email confirmed',
+    memoryFormPrivacyPre: 'I have read the ',
+    memoryFormPrivacyLink: 'privacy policy',
+    memoryFormPrivacyPost: ' and agree to the processing of my data.',
+    memoryFormPrivacyRequired: 'Please accept the privacy policy to continue.',
 
     loading: 'Loading...',
     error: 'An error occurred.',
@@ -2665,7 +2678,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryFormPhotos: 'Photos',
     memoryFormPhotosHint: 'max. 5 photos, 8 Mo chacune (JPG, PNG, WebP)',
     memoryFormConsent:
-      'J’accepte la publication de mon nom et de mes photos et j’ai lu la politique de confidentialité.',
+      'J’accepte la publication de mon nom et de mes photos.',
     memoryFormSubmit: 'Envoyer',
     memoryFormSending: 'Envoi...',
     memoryFormSuccess:
@@ -2693,6 +2706,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryChangeEmail: "Changer d'e-mail",
     memoryViewsLabel: 'vues',
     memoryEmailVerified: 'E-mail confirmé',
+    memoryFormPrivacyPre: 'J’ai lu la ',
+    memoryFormPrivacyLink: 'politique de confidentialité',
+    memoryFormPrivacyPost: ' et j’accepte le traitement de mes données.',
+    memoryFormPrivacyRequired:
+      'Veuillez accepter la politique de confidentialité pour continuer.',
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
@@ -3425,7 +3443,7 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryFormPhotos: 'Fotoğraflar',
     memoryFormPhotosHint: 'en fazla 5 fotoğraf, her biri en fazla 8 MB (JPG, PNG, WebP)',
     memoryFormConsent:
-      'Adımın ve fotoğraflarımın yayınlanmasını kabul ediyorum ve gizlilik politikasını okudum.',
+      'Adımın ve fotoğraflarımın yayınlanmasını kabul ediyorum.',
     memoryFormSubmit: 'Anıyı gönder',
     memoryFormSending: 'Gönderiliyor...',
     memoryFormSuccess: 'Teşekkürler! Anın incelendikten sonra yayınlanacak.',
@@ -3451,6 +3469,11 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryChangeEmail: 'E-postayı değiştir',
     memoryViewsLabel: 'görüntülenme',
     memoryEmailVerified: 'E-posta doğrulandı',
+    memoryFormPrivacyPre: '',
+    memoryFormPrivacyLink: 'Gizlilik politikasını',
+    memoryFormPrivacyPost: ' okudum ve verilerimin işlenmesini kabul ediyorum.',
+    memoryFormPrivacyRequired:
+      'Devam etmek için lütfen gizlilik politikasını onayla.',
 
     loading: 'Yükleniyor...',
     error: 'Bir hata oluştu.',
