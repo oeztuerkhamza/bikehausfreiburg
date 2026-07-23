@@ -39,6 +39,14 @@ public class SmtpEmailService : IEmailService
     /// <summary>Optional per-send sender override (SMTP login + From identity).</summary>
     private sealed record SenderIdentity(string Username, string Password, string FromEmail, string FromName);
 
+    /// <summary>
+    /// E-Mail-Typen, die als Marketing gelten und die Abmelde-Liste respektieren
+    /// MÜSSEN. Transaktionsmails (Belege, Bestätigungen, Verifizierungscode)
+    /// stehen bewusst NICHT hier — sie werden immer zugestellt.
+    /// </summary>
+    private static readonly HashSet<string> MarketingEmailTypes =
+        new(StringComparer.OrdinalIgnoreCase) { "Newsletter", "ErinnerungEinladung" };
+
     public Task SendRentalBookingApprovedAsync(RentalBookingEmailModel model)
     {
         var subject = $"Anfrage bestaetigt / Booking confirmed - {model.BuchungsNummer} | Bike Haus Freiburg";
@@ -343,6 +351,24 @@ Wenn Sie keine weiteren E-Mails moechten, koennen Sie sich hier abmelden:
         IDictionary<string, string>? extraHeaders = null,
         SenderIdentity? sender = null)
     {
+        // Harte Sicherheitsschranke: Marketing-/Kampagnen-Mails gehen NIEMALS an
+        // abgemeldete Adressen — unabhängig davon, ob der Aufrufer schon geprüft
+        // hat. Transaktionsmails (Bestätigungen, Belege, Bestätigungscode) sind
+        // NICHT betroffen. Letzte Verteidigungslinie gegen versehentliche Sends.
+        if (MarketingEmailTypes.Contains(emailType))
+        {
+            var normalizedTo = (toEmail ?? string.Empty).Trim().ToLowerInvariant();
+            if (!string.IsNullOrEmpty(normalizedTo) &&
+                await _db.EmailUnsubscribes.AnyAsync(e => e.Email == normalizedTo))
+            {
+                _logger.LogInformation(
+                    "Suppressed marketing email ({Type}) to unsubscribed address {To}.",
+                    emailType, toEmail);
+                await LogEmailAsync(toEmail, toName, subject, emailType, "Übersprungen", "Empfänger abgemeldet.", null);
+                return;
+            }
+        }
+
         var dbAccount = await _db.EmailAccounts
             .Where(a => a.IsDefault && a.IsActive)
             .FirstOrDefaultAsync();
