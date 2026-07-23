@@ -101,6 +101,26 @@ import { DialogService } from '../../services/dialog.service';
         </button>
       </div>
 
+      <!-- ── Erinnerungsecke-Einladung ── -->
+      <div class="card">
+        <h2>3. Erinnerungsecke-Einladung an Miet-Kunden</h2>
+        <p class="hint">
+          Lädt <strong>{{ memoryPreview()?.recipientCount ?? 0 }}</strong> bisherige
+          Miet-Kunden ein, ihre Radtour-Fotos in der Erinnerungsecke zu teilen
+          (DE + EN, mit Abmelde-Link). Jede Adresse wird höchstens einmal
+          eingeladen. Neue Rückgaben werden automatisch am Folgetag um 08:00 Uhr
+          eingeladen.
+        </p>
+
+        <button
+          class="btn-primary"
+          (click)="startMemorySend()"
+          [disabled]="isRunning() || (memoryPreview()?.recipientCount ?? 0) === 0"
+        >
+          {{ isRunning() ? 'Versand läuft…' : 'Einladung an alle Miet-Kunden senden' }}
+        </button>
+      </div>
+
       <!-- ── Abgemeldete verwalten ── -->
       <div class="card">
         <h2>Abgemeldete Adressen</h2>
@@ -332,6 +352,7 @@ export class EmailCampaignComponent implements OnInit, OnDestroy {
   private dialog = inject(DialogService);
 
   preview = signal<CampaignPreview | null>(null);
+  memoryPreview = signal<CampaignPreview | null>(null);
   status = signal<CampaignStatus | null>(null);
   unsubscribed = signal<string[]>([]);
   loading = signal(false);
@@ -344,6 +365,7 @@ export class EmailCampaignComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadPreview();
+    this.loadMemoryPreview();
     this.loadStatus();
     this.loadUnsubscribed();
   }
@@ -378,6 +400,13 @@ export class EmailCampaignComponent implements OnInit, OnDestroy {
         this.notify.error('Empfänger konnten nicht geladen werden.');
         this.loading.set(false);
       },
+    });
+  }
+
+  loadMemoryPreview(): void {
+    this.campaignService.memoryPreview().subscribe({
+      next: (p) => this.memoryPreview.set(p),
+      error: () => {},
     });
   }
 
@@ -432,6 +461,34 @@ export class EmailCampaignComponent implements OnInit, OnDestroy {
       next: (r) => {
         this.notify.success(r.message);
         this.startPolling();
+      },
+      error: (err) => {
+        this.notify.error(
+          err?.error?.message || 'Versand konnte nicht gestartet werden.',
+        );
+      },
+    });
+  }
+
+  async startMemorySend(): Promise<void> {
+    const count = this.memoryPreview()?.recipientCount ?? 0;
+    if (count === 0) return;
+
+    const ok = await this.dialog.confirm({
+      title: 'Einladung senden',
+      message: `Die Erinnerungsecke-Einladung wird an ${count} Miet-Kunden gesendet (jede Adresse nur einmal). Fortfahren?`,
+      type: 'danger',
+      confirmText: `An ${count} senden`,
+      cancelText: 'Abbrechen',
+    });
+    if (!ok) return;
+
+    this.campaignService.memorySend().subscribe({
+      next: (r) => {
+        this.notify.success(r.message);
+        this.startPolling();
+        // Nach kurzer Zeit die Vorschau aktualisieren (Eingeladene fallen raus).
+        setTimeout(() => this.loadMemoryPreview(), 4000);
       },
       error: (err) => {
         this.notify.error(

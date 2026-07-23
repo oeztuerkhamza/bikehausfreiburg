@@ -30,4 +30,20 @@ public interface ICampaignService
     /// </summary>
     Task<ReviewSendOutcome> SendReviewRequestAsync(
         string email, string? vorname, ReviewRequestSource source, CancellationToken cancellationToken = default);
+
+    // ── Erinnerungsecke ("Anı Köşesi") Einladungs-Kampagne ──
+
+    /// <summary>Wie viele Miet-Kunden würden die Einladung erhalten (noch nicht eingeladen, nicht abgemeldet).</summary>
+    Task<CampaignPreviewDto> GetMemoryInvitePreviewAsync();
+
+    /// <summary>Sendet die Einladung an ALLE bisherigen Miet-Kunden. Für einen Background-Task gedacht.</summary>
+    Task RunMemoryInviteCampaignAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Sendet EINE Einladung — nur wenn geeignet: gültige Adresse, nicht abgemeldet,
+    /// noch nie eingeladen. Schreibt bei Erfolg einen <c>MemoryInvite</c>. Geteilt von
+    /// der manuellen Kampagne und dem automatischen Ablauf (Folgetag 08:00 nach Rückgabe).
+    /// </summary>
+    Task<ReviewSendOutcome> SendMemoryInviteAsync(
+        string email, string? vorname, MemoryInviteSource source, CancellationToken cancellationToken = default);
 }

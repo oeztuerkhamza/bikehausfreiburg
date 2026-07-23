@@ -49,6 +49,20 @@ export class CampaignService {
     return this.http.get<CampaignStatus>(`${this.url}/campaign/status`);
   }
 
+  // ── Erinnerungsecke ("Anı Köşesi") invite campaign ──
+  memoryPreview(): Observable<CampaignPreview> {
+    return this.http.get<CampaignPreview>(
+      `${this.url}/memory-invite/preview`,
+    );
+  }
+
+  memorySend(): Observable<CampaignActionResult> {
+    return this.http.post<CampaignActionResult>(
+      `${this.url}/memory-invite/send`,
+      {},
+    );
+  }
+
   // ── opt-out (Abmelde-) list management ──
   getUnsubscribed(): Observable<string[]> {
     return this.http.get<string[]>(`${this.url}/unsubscribed`);

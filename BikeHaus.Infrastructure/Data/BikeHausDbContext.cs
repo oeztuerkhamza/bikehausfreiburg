@@ -49,6 +49,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<ErinnerungVerification> ErinnerungVerifications => Set<ErinnerungVerification>();
     public DbSet<EmailUnsubscribe> EmailUnsubscribes => Set<EmailUnsubscribe>();
     public DbSet<ReviewRequest> ReviewRequests => Set<ReviewRequest>();
+    public DbSet<MemoryInvite> MemoryInvites => Set<MemoryInvite>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -698,6 +699,17 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Source).HasConversion<string>().HasMaxLength(20);
             // De-dup lookups: "any request to this address since <date>".
             entity.HasIndex(e => new { e.Email, e.SentAt });
+        });
+
+        // ── MemoryInvite Configuration ──
+        modelBuilder.Entity<MemoryInvite>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Vorname).HasMaxLength(100);
+            entity.Property(e => e.Source).HasConversion<string>().HasMaxLength(20);
+            // De-dup: "wurde diese Adresse jemals eingeladen?"
+            entity.HasIndex(e => e.Email);
         });
 
         // ── RentalAccessoryItem Configuration ──

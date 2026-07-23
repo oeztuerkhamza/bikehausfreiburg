@@ -533,6 +533,7 @@ public class RentalService : IRentalService
         }
 
         rental.Status = RentalStatus.Returned;
+        rental.RueckgabeAt = DateTime.UtcNow;
         rental.UpdatedAt = DateTime.UtcNow;
         await _rentalRepository.UpdateAsync(rental);
 

@@ -26,6 +26,10 @@ public class Rental : BaseEntity
     // Status (applies to all bikes in this rental)
     public RentalStatus Status { get; set; } = RentalStatus.Active;
 
+    // Zeitpunkt der Rückgabe (gesetzt, wenn Status → Returned). Stabiler Anker
+    // für die automatische Erinnerungs-Einladung (Folgetag 08:00).
+    public DateTime? RueckgabeAt { get; set; }
+
     // Notizen
     public string? Notizen { get; set; }
     public string? AusweisPhotoPath { get; set; }

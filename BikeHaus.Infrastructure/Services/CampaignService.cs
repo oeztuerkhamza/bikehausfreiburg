@@ -148,6 +148,122 @@ public class CampaignService : ICampaignService
         return ReviewSendOutcome.Sent;
     }
 
+    // ── Erinnerungsecke ("Anı Köşesi") Einladungs-Kampagne ───────────────
+
+    public async Task<CampaignPreviewDto> GetMemoryInvitePreviewAsync()
+    {
+        var (eligible, skipped) = await BuildMemoryRecipientsAsync();
+        return new CampaignPreviewDto(eligible.Count, skipped);
+    }
+
+    public async Task RunMemoryInviteCampaignAsync(CancellationToken cancellationToken)
+    {
+        var (recipients, _) = await BuildMemoryRecipientsAsync();
+        _status.SetTotal(recipients.Count);
+        _logger.LogInformation("Memory invite campaign started: {Count} recipients.", recipients.Count);
+
+        foreach (var r in recipients)
+        {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                _logger.LogWarning("Memory invite campaign cancelled after partial send.");
+                break;
+            }
+
+            var outcome = await SendMemoryInviteAsync(r.Email, r.Vorname, MemoryInviteSource.ManualCampaign, cancellationToken);
+            if (outcome == ReviewSendOutcome.Sent)
+                _status.IncrementSent();
+            else if (outcome == ReviewSendOutcome.Failed)
+                _status.IncrementFailed();
+
+            try { await Task.Delay(ThrottleMs, cancellationToken); }
+            catch (TaskCanceledException) { break; }
+        }
+
+        _status.Complete();
+        _logger.LogInformation("Memory invite campaign finished.");
+    }
+
+    public async Task<ReviewSendOutcome> SendMemoryInviteAsync(
+        string email, string? vorname, MemoryInviteSource source, CancellationToken cancellationToken = default)
+    {
+        var normalized = (email ?? string.Empty).Trim().ToLowerInvariant();
+        if (!IsValidEmail(normalized))
+            return ReviewSendOutcome.SkippedInvalidEmail;
+
+        if (await _unsubscribe.IsUnsubscribedAsync(normalized))
+            return ReviewSendOutcome.SkippedUnsubscribed;
+
+        // Einmal-pro-Adresse: jede Adresse wird höchstens EINMAL eingeladen
+        // (geteilt zwischen manueller Kampagne und Auto-Ablauf).
+        var alreadyInvited = await _db.MemoryInvites
+            .AnyAsync(m => m.Email == normalized, cancellationToken);
+        if (alreadyInvited)
+            return ReviewSendOutcome.SkippedAlreadySent;
+
+        var address = email!.Trim();
+        var url = _unsubscribe.BuildUnsubscribeUrl(address);
+
+        try
+        {
+            await _email.SendMemoryInviteAsync(address, vorname, url);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Memory invite mail to {Email} failed.", normalized);
+            return ReviewSendOutcome.Failed;
+        }
+
+        _db.MemoryInvites.Add(new MemoryInvite
+        {
+            Email = normalized,
+            Vorname = string.IsNullOrWhiteSpace(vorname) ? null : vorname.Trim(),
+            SentAt = DateTime.UtcNow,
+            Source = source,
+        });
+        await _db.SaveChangesAsync(cancellationToken);
+
+        return ReviewSendOutcome.Sent;
+    }
+
+    // Empfänger = alle bisherigen Miet-Kunden (formale Mietverträge + öffentliche
+    // Buchungen), dedupliziert, ohne Abgemeldete und ohne bereits Eingeladene.
+    private async Task<(List<Recipient> Eligible, int Skipped)> BuildMemoryRecipientsAsync()
+    {
+        var fromRentals = await _db.Rentals
+            .Where(r => r.Customer.Email != null && r.Customer.Email != "")
+            .Select(r => new { r.Customer.Email, r.Customer.Vorname })
+            .ToListAsync();
+
+        var fromBookings = await _db.RentalBookings
+            .Where(b => b.Status != RentalBookingStatus.Cancelled && b.Email != null && b.Email != "")
+            .Select(b => new { b.Email, Vorname = b.Vorname })
+            .ToListAsync();
+
+        var suppressed = (await _unsubscribe.GetUnsubscribedEmailsAsync()).ToHashSet();
+        var alreadyInvited = (await _db.MemoryInvites.Select(m => m.Email).ToListAsync()).ToHashSet();
+
+        var seen = new HashSet<string>();
+        var eligible = new List<Recipient>();
+        var skipped = 0;
+
+        void Consider(string? rawEmail, string? vorname)
+        {
+            if (string.IsNullOrWhiteSpace(rawEmail)) return;
+            var normalized = rawEmail.Trim().ToLowerInvariant();
+            if (!IsValidEmail(normalized)) return;
+            if (!seen.Add(normalized)) return;         // deduplizieren
+            if (suppressed.Contains(normalized)) { skipped++; return; }
+            if (alreadyInvited.Contains(normalized)) return; // schon eingeladen — still überspringen
+            eligible.Add(new Recipient(vorname ?? string.Empty, rawEmail.Trim()));
+        }
+
+        foreach (var r in fromRentals) Consider(r.Email, r.Vorname);
+        foreach (var b in fromBookings) Consider(b.Email, b.Vorname);
+
+        return (eligible, skipped);
+    }
+
     // ── recipient selection ──────────────────────────────────────────────
 
     private async Task<(List<Recipient> Eligible, int Skipped)> BuildRecipientsAsync()

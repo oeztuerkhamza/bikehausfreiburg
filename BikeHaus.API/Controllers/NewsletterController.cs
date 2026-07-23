@@ -118,4 +118,43 @@ public class NewsletterController : ControllerBase
 
         return Accepted(new CampaignActionResult(true, "Kampagne gestartet.", preview.RecipientCount));
     }
+
+    // ── Erinnerungsecke ("Anı Köşesi") Einladungs-Kampagne ───────────────
+
+    /// <summary>Empfängerzahl der Erinnerungs-Einladung (alle Miet-Kunden, noch nicht eingeladen).</summary>
+    [HttpGet("memory-invite/preview")]
+    public async Task<ActionResult<CampaignPreviewDto>> MemoryInvitePreview()
+    {
+        var preview = await _campaign.GetMemoryInvitePreviewAsync();
+        return Ok(preview);
+    }
+
+    /// <summary>Startet den Massenversand der Einladung an alle Miet-Kunden. 202 + Empfängerzahl.</summary>
+    [HttpPost("memory-invite/send")]
+    public async Task<ActionResult<CampaignActionResult>> MemoryInviteSend()
+    {
+        var preview = await _campaign.GetMemoryInvitePreviewAsync();
+        if (preview.RecipientCount == 0)
+            return BadRequest(new CampaignActionResult(false, "Keine Empfänger (alle bereits eingeladen, abgemeldet oder ohne E-Mail)."));
+
+        if (!_status.TryBegin(preview.RecipientCount))
+            return Conflict(new CampaignActionResult(false, "Eine Kampagne läuft bereits."));
+
+        _ = Task.Run(async () =>
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var campaign = scope.ServiceProvider.GetRequiredService<ICampaignService>();
+            try
+            {
+                await campaign.RunMemoryInviteCampaignAsync(CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Memory invite campaign crashed.");
+                _status.Fail(ex.Message);
+            }
+        });
+
+        return Accepted(new CampaignActionResult(true, "Einladungs-Kampagne gestartet.", preview.RecipientCount));
+    }
 }

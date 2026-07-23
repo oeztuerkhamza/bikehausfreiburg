@@ -82,6 +82,7 @@ public static class DependencyInjection
         services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));
         services.Configure<CampaignSmtpOptions>(configuration.GetSection("CampaignSmtp"));
         services.Configure<ReviewAutomationOptions>(configuration.GetSection("ReviewAutomation"));
+        services.Configure<MemoryInviteAutomationOptions>(configuration.GetSection("MemoryInviteAutomation"));
         services.Configure<MailboxProvisioningOptions>(configuration.GetSection("MailboxProvisioning"));
         services.AddHttpClient<IMailboxProvisioningService, MailcowMailboxProvisioningService>();
         services.AddHttpClient("IndexNow");

@@ -237,6 +237,63 @@ Your Bike Haus Freiburg team";
             });
     }
 
+    public Task SendMemoryInviteAsync(string toEmail, string? vorname, string unsubscribeUrl)
+    {
+        var subject = "Ihre schönste Radtour teilen / Share your best bike ride | Bike Haus Freiburg";
+        var anredeDe = string.IsNullOrWhiteSpace(vorname) ? "Hallo," : $"Hallo {vorname!.Trim()},";
+        var anredeEn = string.IsNullOrWhiteSpace(vorname) ? "Hello," : $"Hello {vorname!.Trim()},";
+
+        var body =
+$@"{anredeDe}
+
+vielen Dank, dass Sie bei Bike Haus Freiburg ein Rad gemietet haben.
+Wir starten eine kleine Erinnerungsecke auf unserer Website - echte Momente von
+Kundinnen und Kunden, die mit unseren Raedern unterwegs waren. Wir wuerden uns
+sehr freuen, wenn Ihre Erinnerung dabei ist.
+
+Kurz E-Mail bestaetigen (4-stelliger Code), bis zu 5 Fotos hochladen, ein paar
+Saetze schreiben - fertig. Jede Einsendung pruefen wir vor der Veroeffentlichung.
+
+https://bikehausfreiburg.com/de/erinnerungen
+
+------------------------------------------------------------
+
+{anredeEn}
+
+thank you for renting a bike from Bike Haus Freiburg. We are starting a little
+Memory Corner on our website - real moments from customers who explored the
+world on our bikes. We would love for your memory to be part of it.
+
+Just confirm your email (4-digit code), upload up to 5 photos and write a few
+sentences - done. We review every submission before it goes live.
+
+https://bikehausfreiburg.com/en/memories
+
+------------------------------------------------------------
+
+Viele Gruesse / Best regards
+Cevdet Akarsu
+Bike Haus Freiburg
+Heckerstrasse 27, 79114 Freiburg im Breisgau
+Telefon / WhatsApp: +49 155 6630 0011
+
+Wenn Sie keine weiteren E-Mails moechten, koennen Sie sich hier abmelden:
+{unsubscribeUrl}
+";
+
+        // Wie die Bewertungs-Kampagne: reiner Text, vom Kampagnen-Absender,
+        // damit es persoenlich wirkt und nicht im Werbung-Tab landet.
+        return SendAsync(
+            toEmail,
+            vorname ?? string.Empty,
+            subject,
+            body,
+            "ErinnerungEinladung",
+            attachments: null,
+            isHtml: false,
+            sender: ResolveCampaignSender());
+    }
+
     public Task SendNewsletterAsync(string toEmail, string toName, string subject, string textBody)
     {
         // Plain text, no List-Unsubscribe headers, no HTML — deliberately
