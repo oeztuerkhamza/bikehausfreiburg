@@ -1,0 +1,403 @@
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { RentalBookingService } from '../../services/rental-booking.service';
+import { BicycleService } from '../../services/bicycle.service';
+import { NotificationService } from '../../services/notification.service';
+import { TranslationService } from '../../services/translation.service';
+import { Bicycle, RentalBookingCreate } from '../../models/models';
+
+/**
+ * Admin-seitige Anlage einer neuen Mietanfrage (z.B. Telefon/Laufkundschaft).
+ * E-Mail ist optional — ohne E-Mail wird keine Kundenbestätigung verschickt.
+ */
+@Component({
+  selector: 'app-rental-booking-form',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink],
+  template: `
+    <div class="page">
+      <div class="page-header">
+        <h1>Neue Mietanfrage</h1>
+        <a routerLink="/rental-bookings" class="btn btn-outline">{{ t.back }}</a>
+      </div>
+
+      <form (ngSubmit)="submit()" #f="ngForm">
+        <div class="form-sections">
+          <!-- Zeitraum -->
+          <div class="form-card">
+            <h2>Zeitraum</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>{{ t.from }} *</label>
+                <input
+                  type="date"
+                  [(ngModel)]="startDatum"
+                  name="startDatum"
+                  required
+                  (change)="onDatesChanged()"
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.to }} *</label>
+                <input
+                  type="date"
+                  [(ngModel)]="endDatum"
+                  name="endDatum"
+                  required
+                  (change)="onDatesChanged()"
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.abholzeit }}</label>
+                <input type="time" [(ngModel)]="abholzeit" name="abholzeit" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Fahrräder -->
+          <div class="form-card">
+            <h2>
+              Fahrräder
+              <span class="selected-count" *ngIf="selectedBikeIds().size > 0"
+                >{{ selectedBikeIds().size }} ausgewählt</span
+              >
+            </h2>
+            <p class="hint" *ngIf="!datesValid()">
+              Bitte zuerst einen gültigen Zeitraum wählen.
+            </p>
+            <ng-container *ngIf="datesValid()">
+              <input
+                type="text"
+                class="bike-filter"
+                placeholder="Suchen (Marke, Modell)..."
+                [ngModel]="bikeSearch()"
+                (ngModelChange)="bikeSearch.set($event)"
+                name="bikeSearch"
+              />
+              <p class="hint" *ngIf="loadingBikes()">Wird geladen...</p>
+              <p class="hint" *ngIf="!loadingBikes() && filteredBikes().length === 0">
+                Keine verfügbaren Mieträder für diesen Zeitraum.
+              </p>
+              <div class="bike-list">
+                <label
+                  *ngFor="let b of filteredBikes()"
+                  class="bike-option"
+                  [class.selected]="selectedBikeIds().has(b.id)"
+                >
+                  <input
+                    type="checkbox"
+                    [checked]="selectedBikeIds().has(b.id)"
+                    (change)="toggleBike(b.id)"
+                  />
+                  <span class="bike-option-body">
+                    <span class="bike-option-name">{{ b.marke }} {{ b.modell }}</span>
+                    <span class="bike-option-meta">
+                      <span *ngIf="b.rahmengroesse">{{ b.rahmengroesse }} · </span>
+                      <span *ngIf="b.farbe">{{ b.farbe }} · </span>
+                      <span *ngIf="b.rentalPriceDay1"
+                        >ab {{ b.rentalPriceDay1 | number: '1.2-2' }} €/Tag</span
+                      >
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </ng-container>
+          </div>
+
+          <!-- Kunde -->
+          <div class="form-card">
+            <h2>{{ t.customer }}</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>Vorname *</label>
+                <input [(ngModel)]="vorname" name="vorname" required />
+              </div>
+              <div class="field">
+                <label>Nachname *</label>
+                <input [(ngModel)]="nachname" name="nachname" required />
+              </div>
+              <div class="field">
+                <label>E-Mail (optional)</label>
+                <input type="email" [(ngModel)]="email" name="email" />
+              </div>
+              <div class="field">
+                <label>{{ t.phone }}</label>
+                <input [(ngModel)]="telefon" name="telefon" />
+              </div>
+              <div class="field">
+                <label>{{ t.language }}</label>
+                <select [(ngModel)]="sprache" name="sprache">
+                  <option value="de">Deutsch</option>
+                  <option value="en">English</option>
+                  <option value="fr">Français</option>
+                  <option value="tr">Türkçe</option>
+                </select>
+              </div>
+              <div class="field full">
+                <label>{{ t.notes }}</label>
+                <textarea [(ngModel)]="notizen" name="notizen" rows="2"></textarea>
+              </div>
+            </div>
+            <p class="hint">
+              Ohne E-Mail-Adresse erhält der Kunde keine Bestätigungs-Mails.
+            </p>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="!f.valid || selectedBikeIds().size === 0 || saving()"
+          >
+            {{ saving() ? 'Wird gespeichert...' : 'Anfrage anlegen' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  `,
+  styles: [
+    `
+      .page {
+        max-width: 700px;
+        margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+      .form-card {
+        background: var(--bg-card, #fff);
+        border-radius: var(--radius-lg, 14px);
+        padding: 20px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 16px;
+      }
+      .form-card h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .selected-count {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--primary, #2563eb);
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .field.full {
+        grid-column: 1 / -1;
+      }
+      .field label {
+        font-size: 0.82rem;
+        font-weight: 600;
+      }
+      .field input,
+      .field select,
+      .field textarea,
+      .bike-filter {
+        padding: 8px 10px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: var(--bg-input, #fff);
+        color: inherit;
+      }
+      .bike-filter {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .hint {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #64748b);
+        margin: 6px 0 0;
+      }
+      .bike-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        max-height: 320px;
+        overflow-y: auto;
+      }
+      .bike-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .bike-option.selected {
+        border-color: var(--primary, #2563eb);
+        background: var(--primary-soft, rgba(37, 99, 235, 0.06));
+      }
+      .bike-option-body {
+        display: flex;
+        flex-direction: column;
+      }
+      .bike-option-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .bike-option-meta {
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 8px;
+      }
+    `,
+  ],
+})
+export class RentalBookingFormComponent implements OnInit {
+  private bookingService = inject(RentalBookingService);
+  private bicycleService = inject(BicycleService);
+  private notificationService = inject(NotificationService);
+  private translationService = inject(TranslationService);
+  private router = inject(Router);
+
+  startDatum = '';
+  endDatum = '';
+  abholzeit = '';
+  vorname = '';
+  nachname = '';
+  email = '';
+  telefon = '';
+  sprache = 'de';
+  notizen = '';
+
+  availableBikes = signal<Bicycle[]>([]);
+  selectedBikeIds = signal<Set<number>>(new Set());
+  bikeSearch = signal('');
+  loadingBikes = signal(false);
+  saving = signal(false);
+
+  filteredBikes = computed(() => {
+    const term = this.bikeSearch().toLowerCase();
+    const bikes = this.availableBikes();
+    if (!term) return bikes;
+    return bikes.filter(
+      (b) =>
+        b.marke.toLowerCase().includes(term) ||
+        b.modell.toLowerCase().includes(term),
+    );
+  });
+
+  get t() {
+    return this.translationService.translations();
+  }
+
+  ngOnInit() {
+    const today = new Date().toISOString().split('T')[0];
+    this.startDatum = today;
+    this.endDatum = today;
+    this.onDatesChanged();
+  }
+
+  datesValid(): boolean {
+    return (
+      !!this.startDatum && !!this.endDatum && this.endDatum >= this.startDatum
+    );
+  }
+
+  onDatesChanged() {
+    if (!this.datesValid()) {
+      this.availableBikes.set([]);
+      return;
+    }
+    this.loadingBikes.set(true);
+    this.bicycleService
+      .getAvailableForPeriod(this.startDatum, this.endDatum)
+      .subscribe({
+        next: (bikes) => {
+          this.availableBikes.set(bikes);
+          // Auswahl auf noch verfügbare Räder beschränken
+          const availableIds = new Set(bikes.map((b) => b.id));
+          this.selectedBikeIds.update((sel) => {
+            const next = new Set<number>();
+            sel.forEach((id) => {
+              if (availableIds.has(id)) next.add(id);
+            });
+            return next;
+          });
+          this.loadingBikes.set(false);
+        },
+        error: () => {
+          this.loadingBikes.set(false);
+          this.notificationService.error(this.t.saveError);
+        },
+      });
+  }
+
+  toggleBike(id: number) {
+    this.selectedBikeIds.update((sel) => {
+      const next = new Set(sel);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  submit() {
+    if (!this.datesValid() || this.selectedBikeIds().size === 0) return;
+    if (!this.vorname.trim() || !this.nachname.trim()) return;
+
+    const dto: RentalBookingCreate = {
+      bikes: Array.from(this.selectedBikeIds()).map((bicycleId) => ({
+        bicycleId,
+        startDatum: this.startDatum,
+        endDatum: this.endDatum,
+      })),
+      vorname: this.vorname.trim(),
+      nachname: this.nachname.trim(),
+      email: this.email.trim() || undefined,
+      telefon: this.telefon.trim() || undefined,
+      sprache: this.sprache,
+      notizen: this.notizen.trim() || undefined,
+      abholzeit: this.abholzeit || undefined,
+    };
+
+    this.saving.set(true);
+    this.bookingService.create(dto).subscribe({
+      next: (created) => {
+        this.saving.set(false);
+        this.notificationService.success(this.t.saveSuccess);
+        this.router.navigate(['/rental-bookings', created.id]);
+      },
+      error: (err) => {
+        this.saving.set(false);
+        this.notificationService.error(err.error?.error || this.t.saveError);
+      },
+    });
+  }
+}

@@ -57,6 +57,9 @@ interface CalBar {
     <div class="page">
       <div class="page-header">
         <h1>{{ t.rentalBookings }}</h1>
+        <a routerLink="/rental-bookings/new" class="btn btn-primary">
+          + Neue Anfrage
+        </a>
         <div class="view-toggle">
           <button
             type="button"

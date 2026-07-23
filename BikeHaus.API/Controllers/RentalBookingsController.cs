@@ -75,6 +75,25 @@ public class RentalBookingsController : ControllerBase
         return Ok(items);
     }
 
+    /// <summary>Admin-seitige Anlage einer Mietanfrage (E-Mail optional, z.B. Telefon/Laufkundschaft).</summary>
+    [HttpPost]
+    public async Task<ActionResult<RentalBookingDto>> Create([FromBody] RentalBookingCreateDto dto)
+    {
+        try
+        {
+            var created = await _service.CreateAsync(dto, requireEmail: false);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<RentalBookingDto>> GetById(int id)
     {

@@ -451,6 +451,16 @@ export interface ReturnCreate {
   belegNummer?: string;
 }
 
+export interface ReturnUpdate {
+  belegNummer?: string;
+  rueckgabedatum?: string;
+  grund: ReturnReason;
+  grundDetails?: string;
+  erstattungsbetrag: number;
+  zahlungsart: PaymentMethod;
+  notizen?: string;
+}
+
 // ── Dashboard ──
 export interface Dashboard {
   totalBicycles: number;
@@ -1152,6 +1162,31 @@ export interface RentalBookingList {
 
 export interface RentalBookingApprove {
   adminNotizen?: string;
+}
+
+export interface RentalBookingBikeCreate {
+  bicycleId: number;
+  startDatum: string;
+  endDatum: string;
+  rahmennummer?: string;
+  farbe?: string;
+  kaution?: number;
+}
+
+export interface RentalBookingCreate {
+  bikes: RentalBookingBikeCreate[];
+  vorname: string;
+  nachname: string;
+  email?: string;
+  telefon?: string;
+  strasse?: string;
+  hausNr?: string;
+  plz?: string;
+  ort?: string;
+  sprache: string;
+  notizen?: string;
+  accessories?: { rentalAccessoryId: number; menge: number }[];
+  abholzeit?: string;
 }
 
 export interface RentalBookingCancel {

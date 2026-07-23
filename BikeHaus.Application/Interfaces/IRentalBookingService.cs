@@ -6,7 +6,7 @@ public interface IRentalBookingService
 {
     Task<PaginatedResult<RentalBookingListDto>> GetPaginatedAsync(PaginationParams paginationParams, bool includeCompleted = false);
     Task<RentalBookingDto?> GetByIdAsync(int id);
-    Task<RentalBookingDto> CreateAsync(RentalBookingCreateDto dto);
+    Task<RentalBookingDto> CreateAsync(RentalBookingCreateDto dto, bool requireEmail = true);
     Task<RentalBookingDto> ApproveAsync(int id, RentalBookingApproveDto dto);
     Task<RentalBookingDto> CancelAsync(int id, RentalBookingCancelDto dto);
     Task<RentalBookingDto> CancelByCustomerAsync(string bookingNumber, string email);

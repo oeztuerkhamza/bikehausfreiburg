@@ -128,6 +128,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'returns/edit/:id',
+    loadComponent: () =>
+      import('./pages/returns/return-form.component').then(
+        (m) => m.ReturnFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'parts',
     loadComponent: () =>
       import('./pages/parts/parts-list.component').then(
@@ -346,6 +354,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/rental-bookings/rental-booking-list.component').then(
         (m) => m.RentalBookingListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'rental-bookings/new',
+    loadComponent: () =>
+      import('./pages/rental-bookings/rental-booking-form.component').then(
+        (m) => m.RentalBookingFormComponent,
       ),
     canActivate: [authGuard],
   },

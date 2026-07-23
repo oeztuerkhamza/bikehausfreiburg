@@ -98,7 +98,7 @@ public class RentalBookingService : IRentalBookingService
         return booking?.ToDto();
     }
 
-    public async Task<RentalBookingDto> CreateAsync(RentalBookingCreateDto dto)
+    public async Task<RentalBookingDto> CreateAsync(RentalBookingCreateDto dto, bool requireEmail = true)
     {
         if (dto.Bikes == null || dto.Bikes.Count == 0)
             throw new InvalidOperationException("Mindestens ein Fahrrad muss ausgewaehlt werden.");
@@ -212,7 +212,9 @@ public class RentalBookingService : IRentalBookingService
         booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m) + accessoryTotal;
         if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
 
-        if (string.IsNullOrWhiteSpace(booking.Email))
+        // Öffentliche Buchungen brauchen eine E-Mail; Admin-seitig angelegte
+        // Anfragen (z.B. Telefon/Laufkundschaft) dürfen ohne E-Mail angelegt werden.
+        if (requireEmail && string.IsNullOrWhiteSpace(booking.Email))
             throw new InvalidOperationException("Bitte geben Sie eine gueltige E-Mail-Adresse an.");
 
         // Buchungsnummer atomar vergeben (erzeugen + speichern unter Sperre).
@@ -233,16 +235,20 @@ public class RentalBookingService : IRentalBookingService
         {
             var emailModel = await BuildEmailModelAsync(withDetails, bicycles);
 
-            try
+            // Ohne E-Mail-Adresse (Admin-Anlage) gibt es keine Kundenbestaetigung.
+            if (!string.IsNullOrWhiteSpace(withDetails.Email))
             {
-                await _emailService.SendRentalBookingReceivedAsync(emailModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Failed to send booking confirmation email to customer for booking {BookingNumber}.",
-                    withDetails.BuchungsNummer);
+                try
+                {
+                    await _emailService.SendRentalBookingReceivedAsync(emailModel);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                        ex,
+                        "Failed to send booking confirmation email to customer for booking {BookingNumber}.",
+                        withDetails.BuchungsNummer);
+                }
             }
 
             try

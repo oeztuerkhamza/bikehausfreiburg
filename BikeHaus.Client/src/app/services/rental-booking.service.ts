@@ -7,6 +7,7 @@ import {
   RentalBooking,
   RentalBookingApprove,
   RentalBookingCancel,
+  RentalBookingCreate,
   RentalBookingList,
 } from '../models/models';
 
@@ -71,6 +72,11 @@ export class RentalBookingService {
 
   updateBike(bookingId: number, bikeId: number, newBicycleId: number): Observable<RentalBooking> {
     return this.http.patch<RentalBooking>(`${this.url}/${bookingId}/bikes/${bikeId}`, { newBicycleId });
+  }
+
+  /** Admin-seitige Anlage einer Mietanfrage (E-Mail optional). */
+  create(dto: RentalBookingCreate): Observable<RentalBooking> {
+    return this.http.post<RentalBooking>(this.url, dto);
   }
 
   /** Zeitraum ändern — Preis wird serverseitig neu berechnet, Kunde per E-Mail informiert. */
