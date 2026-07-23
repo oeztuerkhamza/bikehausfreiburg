@@ -254,8 +254,10 @@ export interface MemoryPhoto {
 export interface MemoryPublic {
   id: number;
   ad: string;
-  ort: string;
+  alter?: number;
+  land: string;
   geschichte: string;
+  aufrufe: number;
   createdAt: string;
   fotos: MemoryPhoto[];
 }

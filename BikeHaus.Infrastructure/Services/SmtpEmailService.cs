@@ -60,6 +60,43 @@ public class SmtpEmailService : IEmailService
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageReaktiviert");
     }
 
+    public Task SendErinnerungVerificationCodeAsync(string toEmail, string code)
+    {
+        var subject = $"Dein Code / Your code: {code} | Bike Haus Freiburg";
+        var germanBody = $@"Hallo,
+
+schön, dass du deine Rad-Erinnerung mit uns und unseren Kundinnen und Kunden teilen möchtest!
+
+Dein Bestätigungscode lautet:
+
+    {code}
+
+Gib diesen 4-stelligen Code auf der Seite ein, um fortzufahren. Der Code ist 15 Minuten gültig.
+
+Wenn du das nicht angefordert hast, kannst du diese E-Mail einfach ignorieren.
+
+Viele Gruesse
+Dein Team vom Bike Haus Freiburg";
+
+        var englishBody = $@"Hello,
+
+thank you for wanting to share your cycling memory with us and our community!
+
+Your confirmation code is:
+
+    {code}
+
+Enter this 4-digit code on the page to continue. The code is valid for 15 minutes.
+
+If you did not request this, simply ignore this email.
+
+Best regards
+Your Bike Haus Freiburg team";
+
+        var body = Bilingual(germanBody, englishBody);
+        return SendAsync(toEmail, toEmail, subject, body, "ErinnerungCode");
+    }
+
     public Task SendRentalBookingUpdatedAsync(RentalBookingEmailModel model)
     {
         var subject = $"Buchung aktualisiert / Booking updated - {model.BuchungsNummer} | Bike Haus Freiburg";

@@ -260,6 +260,28 @@ export class ApiService {
     return this.http.post<MemoryPublic>(`${this.baseUrl}/memories`, formData);
   }
 
+  /** Fordert einen 4-stelligen Bestätigungscode per E-Mail an. */
+  requestMemoryCode(email: string): Observable<{ ok: boolean }> {
+    return this.http.post<{ ok: boolean }>(`${this.baseUrl}/memories/request-code`, {
+      email,
+    });
+  }
+
+  /** Prüft den Code (ohne ihn zu verbrauchen). */
+  verifyMemoryCode(email: string, code: string): Observable<{ ok: boolean }> {
+    return this.http.post<{ ok: boolean }>(`${this.baseUrl}/memories/verify-code`, {
+      email,
+      code,
+    });
+  }
+
+  /** Zählt einen Aufruf einer Erinnerung hoch. */
+  incrementMemoryView(id: number): Observable<{ aufrufe: number }> {
+    return this.http
+      .post<{ aufrufe: number }>(`${this.baseUrl}/memories/${id}/view`, {})
+      .pipe(catchError(() => of({ aufrufe: 0 })));
+  }
+
   // ── Checkout / Payment ──
 
   createCheckoutSession(

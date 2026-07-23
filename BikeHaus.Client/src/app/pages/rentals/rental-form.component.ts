@@ -3150,6 +3150,8 @@ export class RentalFormComponent implements OnInit {
               };
               if (entry.mietpreis) slot.gesamtmiete = entry.mietpreis;
               if (entry.srcBike.kaution != null) slot.kaution = entry.srcBike.kaution;
+              // Beim Umwandeln kompakt: vorbefülltes Rad eingeklappt zeigen.
+              slot.isCollapsed = true;
               this.loadBusyPeriodsFor(i, entry.bikeId);
             }
           });

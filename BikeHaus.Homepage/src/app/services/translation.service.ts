@@ -493,6 +493,21 @@ export interface Translations {
   memoryFormPhotoTooLarge: string;
   memoryFormTooManyPhotos: string;
   memoryFormConsentRequired: string;
+  memoryFormAge: string;
+  memoryFormCountry: string;
+  memoryFormEmail: string;
+  memoryStepEmailTitle: string;
+  memoryStepEmailHint: string;
+  memoryRequestCode: string;
+  memoryCodeSent: string;
+  memoryFormCode: string;
+  memoryVerifyContinue: string;
+  memoryCodeInvalid: string;
+  memoryEmailInvalid: string;
+  memoryResendCode: string;
+  memoryChangeEmail: string;
+  memoryViewsLabel: string;
+  memoryEmailVerified: string;
 
   // General
   loading: string;
@@ -1162,6 +1177,23 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryFormTooManyPhotos: 'Es sind höchstens 5 Fotos erlaubt.',
     memoryFormConsentRequired:
       'Bitte stimme der Veröffentlichung zu, um fortzufahren.',
+    memoryFormAge: 'Alter',
+    memoryFormCountry: 'Land',
+    memoryFormEmail: 'E-Mail-Adresse',
+    memoryStepEmailTitle: 'Bestätige deine E-Mail',
+    memoryStepEmailHint:
+      'Wir senden dir einen 4-stelligen Code. So stellen wir sicher, dass deine Erinnerung echt ist.',
+    memoryRequestCode: 'Code anfordern',
+    memoryCodeSent:
+      'Wir haben dir einen Code geschickt. Bitte prüfe dein Postfach (auch den Spam-Ordner).',
+    memoryFormCode: '4-stelliger Code',
+    memoryVerifyContinue: 'Weiter',
+    memoryCodeInvalid: 'Der Code ist ungültig oder abgelaufen.',
+    memoryEmailInvalid: 'Bitte gib eine gültige E-Mail-Adresse an.',
+    memoryResendCode: 'Code erneut senden',
+    memoryChangeEmail: 'E-Mail ändern',
+    memoryViewsLabel: 'Aufrufe',
+    memoryEmailVerified: 'E-Mail bestätigt',
 
     loading: 'Wird geladen...',
     error: 'Ein Fehler ist aufgetreten.',
@@ -1897,6 +1929,23 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryFormPhotoTooLarge: 'Each photo may be at most 8 MB.',
     memoryFormTooManyPhotos: 'A maximum of 5 photos is allowed.',
     memoryFormConsentRequired: 'Please agree to publication to continue.',
+    memoryFormAge: 'Age',
+    memoryFormCountry: 'Country',
+    memoryFormEmail: 'Email address',
+    memoryStepEmailTitle: 'Confirm your email',
+    memoryStepEmailHint:
+      'We will send you a 4-digit code. This is how we make sure your memory is genuine.',
+    memoryRequestCode: 'Request code',
+    memoryCodeSent:
+      'We have sent you a code. Please check your inbox (and spam folder).',
+    memoryFormCode: '4-digit code',
+    memoryVerifyContinue: 'Continue',
+    memoryCodeInvalid: 'The code is invalid or has expired.',
+    memoryEmailInvalid: 'Please enter a valid email address.',
+    memoryResendCode: 'Resend code',
+    memoryChangeEmail: 'Change email',
+    memoryViewsLabel: 'views',
+    memoryEmailVerified: 'Email confirmed',
 
     loading: 'Loading...',
     error: 'An error occurred.',
@@ -2627,6 +2676,23 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryFormTooManyPhotos: '5 photos au maximum sont autorisées.',
     memoryFormConsentRequired:
       'Veuillez accepter la publication pour continuer.',
+    memoryFormAge: 'Âge',
+    memoryFormCountry: 'Pays',
+    memoryFormEmail: 'Adresse e-mail',
+    memoryStepEmailTitle: 'Confirmez votre e-mail',
+    memoryStepEmailHint:
+      'Nous vous enverrons un code à 4 chiffres. Cela nous permet de vérifier que votre souvenir est authentique.',
+    memoryRequestCode: 'Demander le code',
+    memoryCodeSent:
+      'Nous vous avons envoyé un code. Veuillez vérifier votre boîte de réception (et les spams).',
+    memoryFormCode: 'Code à 4 chiffres',
+    memoryVerifyContinue: 'Continuer',
+    memoryCodeInvalid: 'Le code est invalide ou a expiré.',
+    memoryEmailInvalid: 'Veuillez saisir une adresse e-mail valide.',
+    memoryResendCode: 'Renvoyer le code',
+    memoryChangeEmail: "Changer d'e-mail",
+    memoryViewsLabel: 'vues',
+    memoryEmailVerified: 'E-mail confirmé',
 
     loading: 'Chargement...',
     error: 'Une erreur est survenue.',
@@ -3368,6 +3434,23 @@ const TRANSLATIONS: Record<BaseLanguage, Translations> = {
     memoryFormPhotoTooLarge: 'Her fotoğraf en fazla 8 MB olabilir.',
     memoryFormTooManyPhotos: 'En fazla 5 fotoğraf yükleyebilirsin.',
     memoryFormConsentRequired: 'Devam etmek için lütfen yayın iznini onayla.',
+    memoryFormAge: 'Yaş',
+    memoryFormCountry: 'Ülke',
+    memoryFormEmail: 'E-posta adresi',
+    memoryStepEmailTitle: 'E-postanı doğrula',
+    memoryStepEmailHint:
+      'Sana 4 haneli bir kod göndereceğiz. Böylece anının gerçek olduğundan emin oluyoruz.',
+    memoryRequestCode: 'Kod iste',
+    memoryCodeSent:
+      'Sana bir kod gönderdik. Lütfen gelen kutunu (ve spam klasörünü) kontrol et.',
+    memoryFormCode: '4 haneli kod',
+    memoryVerifyContinue: 'Devam et',
+    memoryCodeInvalid: 'Kod geçersiz veya süresi dolmuş.',
+    memoryEmailInvalid: 'Lütfen geçerli bir e-posta adresi gir.',
+    memoryResendCode: 'Kodu tekrar gönder',
+    memoryChangeEmail: 'E-postayı değiştir',
+    memoryViewsLabel: 'görüntülenme',
+    memoryEmailVerified: 'E-posta doğrulandı',
 
     loading: 'Yükleniyor...',
     error: 'Bir hata oluştu.',

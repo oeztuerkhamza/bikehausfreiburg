@@ -77,7 +77,10 @@ import { Erinnerung } from '../../models/models';
             <div class="mem-head">
               <div>
                 <strong class="mem-name">{{ m.ad }}</strong>
-                <span class="mem-ort">📍 {{ m.ort }}</span>
+                <span class="mem-ort">
+                  <ng-container *ngIf="m.alter">{{ m.alter }} · </ng-container
+                  >📍 {{ m.land }}
+                </span>
               </div>
               <span
                 class="status-badge"
@@ -89,6 +92,11 @@ import { Erinnerung } from '../../models/models';
             </div>
 
             <p class="mem-story">{{ m.geschichte }}</p>
+
+            <div class="mem-subline">
+              <span *ngIf="m.email" class="mem-email">✉ {{ m.email }}</span>
+              <span class="mem-aufrufe">👁 {{ m.aufrufe }}</span>
+            </div>
 
             <label class="admin-note">
               <span>Admin-Notiz</span>
@@ -274,6 +282,15 @@ import { Erinnerung } from '../../models/models';
         font-size: 0.9rem;
         line-height: 1.5;
         margin: 0;
+      }
+      .mem-subline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
+        flex-wrap: wrap;
       }
       .admin-note {
         display: flex;

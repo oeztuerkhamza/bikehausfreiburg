@@ -1068,8 +1068,11 @@ export interface ErinnerungFoto {
 export interface Erinnerung {
   id: number;
   ad: string;
-  ort: string;
+  alter?: number;
+  land: string;
   geschichte: string;
+  email?: string;
+  aufrufe: number;
   onaylandi: boolean;
   adminNotiz?: string;
   createdAt: string;

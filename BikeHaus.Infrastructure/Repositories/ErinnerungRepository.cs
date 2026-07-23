@@ -55,4 +55,40 @@ public class ErinnerungRepository : Repository<Erinnerung>, IErinnerungRepositor
             .Include(e => e.Fotos.OrderBy(f => f.SortOrder))
             .FirstOrDefaultAsync(e => e.Id == id);
     }
+
+    public async Task<int?> IncrementViewAsync(int id)
+    {
+        var entity = await _dbSet.FirstOrDefaultAsync(e => e.Id == id && e.Onaylandi);
+        if (entity == null) return null;
+        entity.Aufrufe++;
+        await _context.SaveChangesAsync();
+        return entity.Aufrufe;
+    }
+
+    // ── E-Mail-Verifizierung ──
+    public async Task AddVerificationAsync(ErinnerungVerification verification)
+    {
+        _context.Set<ErinnerungVerification>().Add(verification);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<ErinnerungVerification?> GetActiveVerificationAsync(string email, string code)
+    {
+        var normalized = email.Trim().ToLower();
+        return await _context.Set<ErinnerungVerification>()
+            .Where(v => v.Email == normalized && v.Code == code && !v.Used && v.ExpiresAt > DateTime.UtcNow)
+            .OrderByDescending(v => v.CreatedAt)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task MarkVerificationUsedAsync(ErinnerungVerification verification)
+    {
+        verification.Used = true;
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> HasValidVerificationAsync(string email, string code)
+    {
+        return await GetActiveVerificationAsync(email, code) != null;
+    }
 }

@@ -9,11 +9,19 @@ public class ErinnerungService : IErinnerungService
 {
     private readonly IErinnerungRepository _repository;
     private readonly IFileStorageService _fileStorage;
+    private readonly IEmailService _emailService;
 
-    public ErinnerungService(IErinnerungRepository repository, IFileStorageService fileStorage)
+    // Verifizierungscode: 15 Minuten gültig.
+    private static readonly TimeSpan CodeLifetime = TimeSpan.FromMinutes(15);
+
+    public ErinnerungService(
+        IErinnerungRepository repository,
+        IFileStorageService fileStorage,
+        IEmailService emailService)
     {
         _repository = repository;
         _fileStorage = fileStorage;
+        _emailService = emailService;
     }
 
     public async Task<IEnumerable<ErinnerungDto>> GetAllAsync()
@@ -52,13 +60,15 @@ public class ErinnerungService : IErinnerungService
         return item == null ? null : MapToDto(item);
     }
 
-    public async Task<ErinnerungDto> CreateAsync(string ad, string ort, string geschichte)
+    public async Task<ErinnerungDto> CreateAsync(string ad, int? alter, string land, string geschichte, string email)
     {
         var entity = new Erinnerung
         {
             Ad = ad.Trim(),
-            Ort = ort.Trim(),
+            Alter = alter,
+            Land = land.Trim(),
             Geschichte = geschichte.Trim(),
+            Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim().ToLower(),
             Onaylandi = false,
         };
         var created = await _repository.AddAsync(entity);
@@ -114,6 +124,41 @@ public class ErinnerungService : IErinnerungService
         return true;
     }
 
+    public Task<int?> IncrementViewAsync(int id) => _repository.IncrementViewAsync(id);
+
+    // ── E-Mail-Verifizierung ──
+    public async Task RequestCodeAsync(string email)
+    {
+        var normalized = email.Trim().ToLower();
+        // 4-stelliger Code (1000–9999).
+        var code = System.Security.Cryptography.RandomNumberGenerator.GetInt32(1000, 10000).ToString();
+
+        await _repository.AddVerificationAsync(new ErinnerungVerification
+        {
+            Email = normalized,
+            Code = code,
+            ExpiresAt = DateTime.UtcNow.Add(CodeLifetime),
+            Used = false,
+        });
+
+        await _emailService.SendErinnerungVerificationCodeAsync(normalized, code);
+    }
+
+    public async Task<bool> VerifyCodeAsync(string email, string code)
+    {
+        return await _repository.HasValidVerificationAsync(email.Trim().ToLower(), code.Trim());
+    }
+
+    public Task<bool> IsCodeValidAsync(string email, string code) =>
+        _repository.HasValidVerificationAsync(email.Trim().ToLower(), code.Trim());
+
+    public async Task ConsumeCodeAsync(string email, string code)
+    {
+        var verification = await _repository.GetActiveVerificationAsync(email.Trim().ToLower(), code.Trim());
+        if (verification != null)
+            await _repository.MarkVerificationUsedAsync(verification);
+    }
+
     // Wandelt den gespeicherten Web-Pfad ("/uploads/memories/1/x.jpg") in den
     // Pfad relativ zum FileStorage-BasePath ("memories/1/x.jpg") um.
     private static string ToStorageRelativePath(string webPath)
@@ -126,11 +171,11 @@ public class ErinnerungService : IErinnerungService
     }
 
     private static ErinnerungDto MapToDto(Erinnerung e) =>
-        new(e.Id, e.Ad, e.Ort, e.Geschichte, e.Onaylandi, e.AdminNotiz, e.CreatedAt,
+        new(e.Id, e.Ad, e.Alter, e.Land, e.Geschichte, e.Email, e.Aufrufe, e.Onaylandi, e.AdminNotiz, e.CreatedAt,
             e.Fotos.OrderBy(f => f.SortOrder).Select(MapFoto).ToList());
 
     private static ErinnerungPublicDto MapToPublicDto(Erinnerung e) =>
-        new(e.Id, e.Ad, e.Ort, e.Geschichte, e.CreatedAt,
+        new(e.Id, e.Ad, e.Alter, e.Land, e.Geschichte, e.Aufrufe, e.CreatedAt,
             e.Fotos.OrderBy(f => f.SortOrder).Select(MapFoto).ToList());
 
     private static ErinnerungFotoDto MapFoto(ErinnerungFoto f) =>

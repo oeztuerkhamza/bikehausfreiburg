@@ -301,12 +301,53 @@ public class PublicController : ControllerBase
         return Ok(items);
     }
 
+    /// <summary>Fordert einen 4-stelligen Bestätigungscode per E-Mail an.</summary>
+    [HttpPost("memories/request-code")]
+    public async Task<IActionResult> RequestMemoryCode([FromBody] ErinnerungRequestCodeDto dto)
+    {
+        var email = dto?.Email?.Trim();
+        if (string.IsNullOrWhiteSpace(email) || !email.Contains('@') || email.Length > 200)
+            return BadRequest(new { error = "Bitte gib eine gültige E-Mail-Adresse an." });
+
+        // E-Mail-Versand ist best effort; ein Fehler soll den Ablauf nicht mit
+        // Details verraten. Wir antworten immer mit ok.
+        try { await _erinnerungService.RequestCodeAsync(email); } catch { }
+        return Ok(new { ok = true });
+    }
+
+    /// <summary>Prüft einen Code, ohne ihn zu verbrauchen (damit die UI weiterblättern kann).</summary>
+    [HttpPost("memories/verify-code")]
+    public async Task<IActionResult> VerifyMemoryCode([FromBody] ErinnerungVerifyCodeDto dto)
+    {
+        var email = dto?.Email?.Trim();
+        var code = dto?.Code?.Trim();
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code))
+            return BadRequest(new { error = "E-Mail und Code sind erforderlich." });
+
+        var valid = await _erinnerungService.VerifyCodeAsync(email, code);
+        if (!valid)
+            return BadRequest(new { error = "Der Code ist ungültig oder abgelaufen." });
+        return Ok(new { ok = true });
+    }
+
+    /// <summary>Zählt einen öffentlichen Aufruf einer freigegebenen Erinnerung hoch.</summary>
+    [HttpPost("memories/{id}/view")]
+    public async Task<IActionResult> ViewMemory(int id)
+    {
+        var views = await _erinnerungService.IncrementViewAsync(id);
+        if (views == null) return NotFound();
+        return Ok(new { aufrufe = views.Value });
+    }
+
     /// <summary>Öffentliche Einreichung einer Erinnerung (Fotos + Text) in einem multipart-Request.</summary>
     [HttpPost("memories")]
     public async Task<IActionResult> SubmitMemory(
         [FromForm] string? ad,
-        [FromForm] string? ort,
+        [FromForm] int? alter,
+        [FromForm] string? land,
         [FromForm] string? geschichte,
+        [FromForm] string? email,
+        [FromForm] string? code,
         [FromForm] string? website,          // Honeypot — muss leer sein
         [FromForm] List<IFormFile>? fotos)
     {
@@ -315,15 +356,24 @@ public class PublicController : ControllerBase
             return Ok(new { ok = true });
 
         ad = ad?.Trim();
-        ort = ort?.Trim();
+        land = land?.Trim();
         geschichte = geschichte?.Trim();
+        email = email?.Trim();
+        code = code?.Trim();
 
-        if (string.IsNullOrWhiteSpace(ad) || string.IsNullOrWhiteSpace(ort) || string.IsNullOrWhiteSpace(geschichte))
-            return BadRequest(new { error = "Name, Ort und Geschichte sind erforderlich." });
-        if (ad.Length > 200 || ort.Length > 200)
-            return BadRequest(new { error = "Name und Ort dürfen höchstens 200 Zeichen lang sein." });
+        // E-Mail muss verifiziert sein (gültiger, unbenutzter Code).
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code) ||
+            !await _erinnerungService.IsCodeValidAsync(email, code))
+            return BadRequest(new { error = "Bitte bestätige zuerst deine E-Mail-Adresse mit dem Code." });
+
+        if (string.IsNullOrWhiteSpace(ad) || string.IsNullOrWhiteSpace(land) || string.IsNullOrWhiteSpace(geschichte))
+            return BadRequest(new { error = "Name, Land und Geschichte sind erforderlich." });
+        if (ad.Length > 200 || land.Length > 100)
+            return BadRequest(new { error = "Name (max. 200) und Land (max. 100) sind zu lang." });
         if (geschichte.Length > 1000)
             return BadRequest(new { error = "Die Geschichte darf höchstens 1000 Zeichen lang sein." });
+        if (alter.HasValue && (alter < 1 || alter > 120))
+            return BadRequest(new { error = "Bitte gib ein gültiges Alter an." });
 
         fotos ??= new List<IFormFile>();
         if (fotos.Count < 1)
@@ -340,7 +390,10 @@ public class PublicController : ControllerBase
                 return BadRequest(new { error = "Nur JPG-, PNG- oder WebP-Bilder sind erlaubt." });
         }
 
-        var created = await _erinnerungService.CreateAsync(ad, ort, geschichte);
+        // Code jetzt verbrauchen, damit er nicht mehrfach genutzt werden kann.
+        await _erinnerungService.ConsumeCodeAsync(email, code);
+
+        var created = await _erinnerungService.CreateAsync(ad, alter, land, geschichte, email);
 
         var savedRelativePaths = new List<string>();
         try

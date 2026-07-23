@@ -46,6 +46,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<RentalReview> RentalReviews => Set<RentalReview>();
     public DbSet<Erinnerung> Erinnerungen => Set<Erinnerung>();
     public DbSet<ErinnerungFoto> ErinnerungFotos => Set<ErinnerungFoto>();
+    public DbSet<ErinnerungVerification> ErinnerungVerifications => Set<ErinnerungVerification>();
     public DbSet<EmailUnsubscribe> EmailUnsubscribes => Set<EmailUnsubscribe>();
     public DbSet<ReviewRequest> ReviewRequests => Set<ReviewRequest>();
 
@@ -546,10 +547,20 @@ public class BikeHausDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Ad).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Ort).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Land).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Geschichte).IsRequired().HasMaxLength(1000);
+            entity.Property(e => e.Email).HasMaxLength(200);
             entity.Property(e => e.AdminNotiz).HasMaxLength(1000);
             entity.HasIndex(e => e.Onaylandi);
+        });
+
+        // ── ErinnerungVerification Configuration ──
+        modelBuilder.Entity<ErinnerungVerification>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Code).IsRequired().HasMaxLength(8);
+            entity.HasIndex(e => new { e.Email, e.Code });
         });
 
         // ── ErinnerungFoto Configuration ──

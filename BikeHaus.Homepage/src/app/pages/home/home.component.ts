@@ -1032,7 +1032,7 @@ interface Testimonial {
                   @if (m.fotos.length > 0) {
                     <img
                       [src]="getMemoryImageUrl(m.fotos[0].filePath)"
-                      [alt]="m.ad + ' – ' + m.ort"
+                      [alt]="m.ad + ' – ' + m.land"
                       loading="lazy"
                       width="300"
                       height="220"
@@ -1041,7 +1041,7 @@ interface Testimonial {
                 </div>
                 <div class="mem-teaser-body">
                   <strong>{{ m.ad }}</strong>
-                  <span class="mem-teaser-ort">📍 {{ m.ort }}</span>
+                  <span class="mem-teaser-ort">📍 {{ m.land }}</span>
                 </div>
               </a>
             }
