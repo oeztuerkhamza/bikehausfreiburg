@@ -113,12 +113,20 @@ public class CampaignService : ICampaignService
         if (await _unsubscribe.IsUnsubscribedAsync(normalized))
             return ReviewSendOutcome.SkippedUnsubscribed;
 
-        // De-dup: at most one request per address per MinIntervalDays — shared by
-        // the manual campaign and the automatic flow via the ReviewRequest table.
+        // Harte Obergrenze: eine Adresse wird INSGESAMT höchstens
+        // MaxSendsPerCustomer (Standard 2) mal kontaktiert — über die gesamte
+        // Historie, geteilt von manueller Kampagne und Auto-Ablauf.
+        var maxSends = Math.Max(1, _reviewOptions.MaxSendsPerCustomer);
+        var totalContacted = await _db.ReviewRequests
+            .CountAsync(r => r.Email == normalized, cancellationToken);
+        if (totalContacted >= maxSends)
+            return ReviewSendOutcome.SkippedAlreadySent;
+
+        // Zusätzlich Mindestabstand: nicht zweimal innerhalb MinIntervalDays.
         var since = DateTime.UtcNow.AddDays(-Math.Max(1, _reviewOptions.MinIntervalDays));
-        var alreadyContacted = await _db.ReviewRequests
+        var recentlyContacted = await _db.ReviewRequests
             .AnyAsync(r => r.Email == normalized && r.SentAt >= since, cancellationToken);
-        if (alreadyContacted)
+        if (recentlyContacted)
             return ReviewSendOutcome.SkippedAlreadySent;
 
         var address = email!.Trim();
@@ -286,6 +294,16 @@ public class CampaignService : ICampaignService
             .ToListAsync())
             .ToHashSet();
 
+        // Harte Obergrenze: Adressen, die insgesamt bereits MaxSendsPerCustomer
+        // mal kontaktiert wurden, bekommen nie wieder eine Anfrage.
+        var maxSends = Math.Max(1, _reviewOptions.MaxSendsPerCustomer);
+        var capped = (await _db.ReviewRequests
+            .GroupBy(r => r.Email)
+            .Where(g => g.Count() >= maxSends)
+            .Select(g => g.Key)
+            .ToListAsync())
+            .ToHashSet();
+
         var seen = new HashSet<string>();
         var eligible = new List<Recipient>();
         var skipped = 0;
@@ -303,6 +321,9 @@ public class CampaignService : ICampaignService
                 skipped++;
                 continue;
             }
+
+            if (capped.Contains(normalized))
+                continue; // 2x-Limit erreicht — nie wieder kontaktieren
 
             if (alreadyContacted.Contains(normalized))
                 continue; // already received the request — skip silently

@@ -15,6 +15,13 @@ public class ReviewAutomationOptions
     /// <summary>Minimum days between two review requests to the same address (shared with the manual campaign).</summary>
     public int MinIntervalDays { get; set; } = 90;
 
+    /// <summary>
+    /// Absolute Obergrenze, wie oft eine Adresse INSGESAMT (über die gesamte
+    /// Historie) eine Bewertungsanfrage erhält. Standard 2. Geteilt von der
+    /// manuellen Kampagne und dem automatischen Ablauf.
+    /// </summary>
+    public int MaxSendsPerCustomer { get; set; } = 2;
+
     /// <summary>Transactions older than this are no longer retried (bounds the scan + avoids infinite retries on bad addresses).</summary>
     public int MaxAgeDays { get; set; } = 7;
 
