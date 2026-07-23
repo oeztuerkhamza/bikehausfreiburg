@@ -108,6 +108,8 @@ public record RentalBookingRangeDto(DateTime StartDatum, DateTime EndDatum);
 
 public record RentalBookingUpdateBikeDto(int NewBicycleId);
 
+public record RentalBookingUpdateDatesDto(DateTime StartDatum, DateTime EndDatum, string? Abholzeit);
+
 // Report for the one-off repair that undoes bookings wrongly cancelled by the
 // self-cancel email link (see RevertErroneousStornosAsync). Runs as a dry-run
 // by default so the candidates can be reviewed before anything is changed.

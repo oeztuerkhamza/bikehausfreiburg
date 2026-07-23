@@ -18,6 +18,7 @@ public interface IRentalBookingService
     Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath);
     Task<string?> GetAusweisPhotoPathAsync(int id);
     Task<RentalBookingDto> UpdateBookingBikeAsync(int bookingId, int bookingBikeId, int newBicycleId);
+    Task<RentalBookingDto> UpdateDatesAsync(int id, RentalBookingUpdateDatesDto dto);
 
     /// <summary>
     /// Undoes bookings that were cancelled by the self-cancel email link bug

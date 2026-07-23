@@ -505,6 +505,99 @@ public class RentalBookingService : IRentalBookingService
         return withDetails!.ToDto();
     }
 
+    public async Task<RentalBookingDto> UpdateDatesAsync(int id, RentalBookingUpdateDatesDto dto)
+    {
+        var booking = await _bookingRepository.GetWithDetailsAsync(id)
+            ?? throw new KeyNotFoundException($"Booking with ID {id} not found.");
+
+        if (booking.Status == RentalBookingStatus.Cancelled)
+            throw new InvalidOperationException("Eine stornierte Buchung kann nicht bearbeitet werden. Bitte zuerst reaktivieren.");
+
+        var start = dto.StartDatum.Date;
+        var end = dto.EndDatum.Date;
+        if (end < start)
+            throw new InvalidOperationException("Das Enddatum darf nicht vor dem Startdatum liegen.");
+
+        // Verfuegbarkeit im neuen Zeitraum pruefen — gleiche Regeln wie beim
+        // Bestaetigen (Kinderraeder sind gepoolte Angebote und blocken nie).
+        if (booking.Bikes.Any())
+        {
+            var bikeChecks = booking.Bikes
+                .Where(bk => !BicycleCategory.IsChildrens(bk.Bicycle?.Art, bk.Bicycle?.Fahrradtyp))
+                .Select(bk => (bk.BicycleId, Start: start, End: end))
+                .ToList();
+            if (bikeChecks.Count > 0 &&
+                await _bookingRepository.ExistsApprovedOverlapForBikesAsync(bikeChecks, booking.Id))
+                throw new InvalidOperationException("Der neue Zeitraum ueberschneidet sich mit einer anderen bestaetigten Buchung.");
+        }
+        else if (!BicycleCategory.IsChildrens(booking.Bicycle?.Art, booking.Bicycle?.Fahrradtyp))
+        {
+            if (await _bookingRepository.ExistsApprovedOverlapAsync(booking.BicycleId, start, end, booking.Id))
+                throw new InvalidOperationException("Der neue Zeitraum ueberschneidet sich mit einer anderen bestaetigten Buchung.");
+        }
+
+        booking.StartDatum = start;
+        booking.EndDatum = end;
+        booking.Abholzeit = string.IsNullOrWhiteSpace(dto.Abholzeit) ? null : dto.Abholzeit.Trim();
+
+        // Preise fuer den neuen Zeitraum neu berechnen (gleiches Muster wie
+        // UpdateBookingBikeAsync: je Fahrrad Staffelpreis, Zubehoer pro Miettag).
+        var days = CalculateDaysInclusive(start, end);
+        var bicycles = new List<Bicycle>();
+
+        if (booking.Bikes.Any())
+        {
+            foreach (var bk in booking.Bikes)
+            {
+                bk.StartDatum = start;
+                bk.EndDatum = end;
+                var bicycle = await _bicycleRepository.GetByIdAsync(bk.BicycleId);
+                if (bicycle != null)
+                {
+                    bicycles.Add(bicycle);
+                    bk.Gesamtpreis = RentalPricingCalculator.CalculateBikePrice(bicycle, days);
+                }
+                bk.UpdatedAt = DateTime.UtcNow;
+            }
+
+            var accessoryTotal = booking.Accessories.Sum(a => a.Tagespreis * a.Menge * days);
+            booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m) + accessoryTotal;
+            if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
+        }
+        else
+        {
+            var bicycle = await _bicycleRepository.GetByIdAsync(booking.BicycleId);
+            if (bicycle != null)
+            {
+                bicycles.Add(bicycle);
+                booking.Gesamtpreis = CalculateTotalPrice(bicycle, booking);
+            }
+        }
+
+        booking.UpdatedAt = DateTime.UtcNow;
+        await _bookingRepository.UpdateAsync(booking);
+
+        // Kunde per E-Mail informieren — best effort wie bei allen Buchungsmails.
+        if (!string.IsNullOrWhiteSpace(booking.Email))
+        {
+            try
+            {
+                var emailModel = await BuildEmailModelAsync(booking, bicycles);
+                await _emailService.SendRentalBookingUpdatedAsync(emailModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to send booking updated email for booking {BookingNumber}",
+                    booking.BuchungsNummer);
+            }
+        }
+
+        var withDetails = await _bookingRepository.GetWithDetailsAsync(id);
+        return withDetails!.ToDto();
+    }
+
     private const string StornoRevertNote =
         "Storno (Fehler im Self-Storno-Link) automatisch zurueckgenommen.";
 

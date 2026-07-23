@@ -141,6 +141,24 @@ public class RentalBookingsController : ControllerBase
         }
     }
 
+    [HttpPatch("{id}/dates")]
+    public async Task<ActionResult<RentalBookingDto>> UpdateDates(int id, [FromBody] RentalBookingUpdateDatesDto dto)
+    {
+        try
+        {
+            var updated = await _service.UpdateDatesAsync(id, dto);
+            return Ok(updated);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
     [HttpPatch("{bookingId}/bikes/{bikeId}")]
     public async Task<ActionResult<RentalBookingDto>> UpdateBike(int bookingId, int bikeId, [FromBody] RentalBookingUpdateBikeDto dto)
     {

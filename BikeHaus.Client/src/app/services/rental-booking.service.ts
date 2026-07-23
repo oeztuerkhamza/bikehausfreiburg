@@ -73,6 +73,14 @@ export class RentalBookingService {
     return this.http.patch<RentalBooking>(`${this.url}/${bookingId}/bikes/${bikeId}`, { newBicycleId });
   }
 
+  /** Zeitraum ändern — Preis wird serverseitig neu berechnet, Kunde per E-Mail informiert. */
+  updateDates(
+    id: number,
+    dto: { startDatum: string; endDatum: string; abholzeit?: string | null },
+  ): Observable<RentalBooking> {
+    return this.http.patch<RentalBooking>(`${this.url}/${id}/dates`, dto);
+  }
+
   downloadRechnungPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.url}/${id}/rechnung-pdf`, {
       responseType: 'blob',

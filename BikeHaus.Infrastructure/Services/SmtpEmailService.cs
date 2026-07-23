@@ -60,6 +60,13 @@ public class SmtpEmailService : IEmailService
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageReaktiviert");
     }
 
+    public Task SendRentalBookingUpdatedAsync(RentalBookingEmailModel model)
+    {
+        var subject = $"Buchung aktualisiert / Booking updated - {model.BuchungsNummer} | Bike Haus Freiburg";
+        var body = Bilingual(BuildUpdatedBodyDe(model), BuildUpdatedBodyEn(model));
+        return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageAktualisiert");
+    }
+
     public Task SendRentalBookingReceivedAsync(RentalBookingEmailModel model)
     {
         var subject = $"Mietanfrage eingegangen / Request received - {model.BuchungsNummer} | Bike Haus Freiburg";
@@ -566,6 +573,68 @@ You can cancel your booking yourself via this link:
 
 We already wish you a really great ride.
 If you have any questions, simply reply to this email or give us a quick call.
+
+Best regards
+Your Bike Haus Freiburg team
+
+{m.ShopPhone}
+bikehausfreiburg.com
+{m.ShopEmail}
+";
+    }
+
+    private static string BuildUpdatedBodyDe(RentalBookingEmailModel m)
+    {
+        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "wird im Laden bestaetigt";
+        var accessoriesText = IsNoAccessories(m.AccessoriesText)
+            ? "Keine"
+            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nGewuenschte Abholzeit: {m.PickupTime} Uhr";
+
+        return $@"Hallo {m.ToName},
+
+wir haben deine Buchung angepasst. Hier sind die aktualisierten Details:
+
+Buchungsnummer: {m.BuchungsNummer}
+Fahrrad: {m.BikeBrand} {m.BikeModel}
+Neuer Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
+Zubehoer (inklusive): {accessoriesText}
+Neuer Mietpreis: {totalPriceText}
+
+Alle anderen Details deiner Buchung bleiben unveraendert.
+
+Falls etwas nicht stimmt oder du Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
+
+Viele Gruesse
+Dein Team vom Bike Haus Freiburg
+
+{m.ShopPhone}
+bikehausfreiburg.com
+{m.ShopEmail}
+";
+    }
+
+    private static string BuildUpdatedBodyEn(RentalBookingEmailModel m)
+    {
+        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "will be confirmed in store";
+        var accessoriesText = IsNoAccessories(m.AccessoriesText)
+            ? "None"
+            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nPreferred pickup time: {m.PickupTime}";
+
+        return $@"Hello {m.ToName},
+
+we have updated your booking. Here are the updated details:
+
+Booking number: {m.BuchungsNummer}
+Bike: {m.BikeBrand} {m.BikeModel}
+New period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days){abholzeitLine}
+Accessories (included): {accessoriesText}
+New rental price: {totalPriceText}
+
+All other details of your booking remain unchanged.
+
+If something is not right or you have any questions, simply reply to this email or give us a quick call.
 
 Best regards
 Your Bike Haus Freiburg team

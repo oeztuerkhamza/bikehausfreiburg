@@ -320,19 +320,60 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
         </div>
 
         <div class="info-card">
-          <h3>{{ t.rentalBookingDates }}</h3>
-          <div class="info-row">
-            <span>{{ t.from }}:</span>
-            <strong>{{ booking.startDatum | date: 'dd.MM.yyyy' }}</strong>
-          </div>
-          <div class="info-row">
-            <span>{{ t.to }}:</span>
-            <strong>{{ booking.endDatum | date: 'dd.MM.yyyy' }}</strong>
-          </div>
-          <div class="info-row" *ngIf="booking.abholzeit">
-            <span>{{ t.abholzeit }}:</span>
-            <strong>{{ booking.abholzeit }} Uhr</strong>
-          </div>
+          <h3>
+            {{ t.rentalBookingDates }}
+            <button
+              class="btn btn-sm btn-change-bike"
+              *ngIf="!editingDates() && booking.status !== BookingStatus.Cancelled"
+              (click)="startEditDates()"
+            >
+              Bearbeiten
+            </button>
+          </h3>
+          <ng-container *ngIf="!editingDates()">
+            <div class="info-row">
+              <span>{{ t.from }}:</span>
+              <strong>{{ booking.startDatum | date: 'dd.MM.yyyy' }}</strong>
+            </div>
+            <div class="info-row">
+              <span>{{ t.to }}:</span>
+              <strong>{{ booking.endDatum | date: 'dd.MM.yyyy' }}</strong>
+            </div>
+            <div class="info-row" *ngIf="booking.abholzeit">
+              <span>{{ t.abholzeit }}:</span>
+              <strong>{{ booking.abholzeit }} Uhr</strong>
+            </div>
+          </ng-container>
+          <ng-container *ngIf="editingDates()">
+            <div class="edit-dates-row">
+              <label>{{ t.from }}</label>
+              <input type="date" [(ngModel)]="editDates.start" class="search-input" />
+            </div>
+            <div class="edit-dates-row">
+              <label>{{ t.to }}</label>
+              <input type="date" [(ngModel)]="editDates.end" class="search-input" />
+            </div>
+            <div class="edit-dates-row">
+              <label>{{ t.abholzeit }}</label>
+              <input type="time" [(ngModel)]="editDates.abholzeit" class="search-input" />
+            </div>
+            <p class="edit-dates-hint">
+              Der Mietpreis wird automatisch neu berechnet und der Kunde per
+              E-Mail über die Änderung informiert.
+            </p>
+            <div class="edit-dates-actions">
+              <button class="btn btn-outline btn-sm" (click)="editingDates.set(false)">
+                Abbrechen
+              </button>
+              <button
+                class="btn btn-primary btn-sm"
+                [disabled]="savingDates() || !editDates.start || !editDates.end"
+                (click)="saveDates()"
+              >
+                {{ savingDates() ? 'Wird gespeichert...' : 'Speichern' }}
+              </button>
+            </div>
+          </ng-container>
           <div class="info-row">
             <span>{{ t.total }}:</span>
             <strong>{{ booking.gesamtpreis | number: '1.2-2' }} €</strong>
@@ -405,6 +446,35 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
         margin-bottom: 12px;
         font-size: 1rem;
         font-weight: 700;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .edit-dates-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 4px 0;
+        font-size: 0.9rem;
+      }
+      .edit-dates-row label {
+        flex-shrink: 0;
+      }
+      .edit-dates-row input {
+        max-width: 170px;
+      }
+      .edit-dates-hint {
+        font-size: 0.8rem;
+        color: var(--text-secondary, #64748b);
+        margin: 8px 0;
+      }
+      .edit-dates-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-bottom: 8px;
       }
       .info-row {
         display: flex;
@@ -848,6 +918,10 @@ export class RentalBookingDetailComponent implements OnInit {
     rentalPriceAdditionalDayAfter7: null as number | null,
   };
 
+  editingDates = signal(false);
+  savingDates = signal(false);
+  editDates = { start: '', end: '', abholzeit: '' };
+
   get t() {
     return this.translationService.translations();
   }
@@ -912,6 +986,50 @@ export class RentalBookingDetailComponent implements OnInit {
               this.notificationService.error(
                 err.error?.error || this.t.saveError,
               );
+            },
+          });
+      });
+  }
+
+  startEditDates() {
+    if (!this.booking) return;
+    this.editDates.start = this.booking.startDatum.substring(0, 10);
+    this.editDates.end = this.booking.endDatum.substring(0, 10);
+    this.editDates.abholzeit = this.booking.abholzeit || '';
+    this.editingDates.set(true);
+  }
+
+  saveDates() {
+    if (!this.booking || !this.editDates.start || !this.editDates.end) return;
+    if (this.editDates.end < this.editDates.start) {
+      this.notificationService.error('Das Enddatum darf nicht vor dem Startdatum liegen');
+      return;
+    }
+    this.dialogService
+      .confirm({
+        title: this.t.confirm,
+        message:
+          'Zeitraum ändern? Der Mietpreis wird neu berechnet und der Kunde per E-Mail informiert.',
+      })
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.savingDates.set(true);
+        this.service
+          .updateDates(this.booking!.id, {
+            startDatum: this.editDates.start,
+            endDatum: this.editDates.end,
+            abholzeit: this.editDates.abholzeit || null,
+          })
+          .subscribe({
+            next: (updated) => {
+              this.booking = updated;
+              this.savingDates.set(false);
+              this.editingDates.set(false);
+              this.notificationService.success(this.t.saveSuccess);
+            },
+            error: (err) => {
+              this.savingDates.set(false);
+              this.notificationService.error(err.error?.error || this.t.saveError);
             },
           });
       });
