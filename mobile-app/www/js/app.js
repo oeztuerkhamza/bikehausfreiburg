@@ -178,9 +178,32 @@ function goBack() {
   return false;
 }
 
+// Klavye açılınca yazı alanının altta kalmaması için: görünür yükseklik
+// (visualViewport) app'e --app-h olarak yansıtılır + odaklanan alan görünür kalır.
+function initKeyboardViewport() {
+  const vv = window.visualViewport;
+  const root = document.documentElement;
+  if (vv) {
+    const apply = () => root.style.setProperty('--app-h', Math.round(vv.height) + 'px');
+    vv.addEventListener('resize', apply);
+    vv.addEventListener('scroll', apply);
+    apply();
+  }
+  // Bir metin alanına odaklanınca klavye animasyonundan sonra görünür yap.
+  document.addEventListener('focusin', (e) => {
+    const el = e.target;
+    if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) {
+      setTimeout(() => {
+        try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch {}
+      }, 280);
+    }
+  });
+}
+
 // ─────────────────────────── Başlangıç ───────────────────────────
 (async function boot() {
   bindEvents();
+  initKeyboardViewport();
 
   WA.mount({ isForeground, showThread: () => showView('view-wa-thread') });
   Mail.mount({ isForeground, showDetail: () => showView('view-mail-detail') });

@@ -87,7 +87,9 @@ input, textarea, button { font-family: inherit; }
 .splash-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
 
 /* ═══════════ APP ═══════════ */
-#app-screen { background: var(--bg); }
+/* Klavye açılınca app'in görünür yüksekliği (visualViewport) --app-h ile gelir,
+   böylece alttaki yazı alanı klavyenin altında kalmaz. */
+#app-screen { background: var(--bg); height: var(--app-h, 100%); bottom: auto; }
 
 .view {
   position: absolute; inset: 0; bottom: calc(58px + var(--safe-bottom));
