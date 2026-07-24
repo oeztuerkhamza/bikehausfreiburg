@@ -715,6 +715,7 @@ export interface Translations {
   colorGreen: string;
   colorYellow: string;
   colorOrange: string;
+  colorBraun: string;
   colorGray: string;
   colorSilver: string;
   colorPink: string;
@@ -1564,6 +1565,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     colorGreen: 'Grün',
     colorYellow: 'Gelb',
     colorOrange: 'Orange',
+    colorBraun: 'Braun',
     colorGray: 'Grau',
     colorSilver: 'Silber',
     colorPink: 'Pink',
@@ -2412,6 +2414,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     colorGreen: 'Yeşil',
     colorYellow: 'Sarı',
     colorOrange: 'Turuncu',
+    colorBraun: 'Kahverengi',
     colorGray: 'Gri',
     colorSilver: 'Gümüş',
     colorPink: 'Pembe',

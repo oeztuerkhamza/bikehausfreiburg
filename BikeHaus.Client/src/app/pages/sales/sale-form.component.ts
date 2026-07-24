@@ -1546,6 +1546,7 @@ export class SaleFormComponent implements OnInit {
     { value: 'Grün', label: 'Grün', hex: '#22c55e' },
     { value: 'Gelb', label: 'Gelb', hex: '#eab308' },
     { value: 'Orange', label: 'Orange', hex: '#f97316' },
+    { value: 'Braun', label: 'Braun', hex: '#92400e' },
     { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
     { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
     { value: 'Pink', label: 'Pink', hex: '#ec4899' },
@@ -1812,6 +1813,8 @@ export class SaleFormComponent implements OnInit {
           this.rahmenSearchResults = bikes.filter(
             (b) =>
               b.status !== 'Sold' &&
+              // Mietfahrräder nicht im Verkaufs-Autocomplete anzeigen.
+              !b.isRentable &&
               (b.rahmennummer
                 ?.toUpperCase()
                 .includes(value.trim().toUpperCase()) ||
@@ -1840,7 +1843,10 @@ export class SaleFormComponent implements OnInit {
       return;
     }
     this.lagerSearchResults = this.availableBikes.filter(
-      (b) => b.lagernummer != null && String(b.lagernummer).startsWith(term),
+      (b) =>
+        !b.isRentable &&
+        b.lagernummer != null &&
+        String(b.lagernummer).startsWith(term),
     );
     this.showLagerDropdown = this.lagerSearchResults.length > 0;
   }

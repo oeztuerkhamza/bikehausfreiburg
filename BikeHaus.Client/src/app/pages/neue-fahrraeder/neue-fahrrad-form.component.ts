@@ -551,6 +551,7 @@ export class NeueFahrradFormComponent implements OnInit {
       { value: 'Grün', label: this.t.colorGreen, hex: '#22c55e' },
       { value: 'Gelb', label: this.t.colorYellow, hex: '#eab308' },
       { value: 'Orange', label: this.t.colorOrange, hex: '#f97316' },
+      { value: 'Braun', label: this.t.colorBraun, hex: '#92400e' },
       { value: 'Grau', label: this.t.colorGray, hex: '#9ca3af' },
       { value: 'Silber', label: this.t.colorSilver, hex: '#c0c0c0' },
       { value: 'Pink', label: this.t.colorPink, hex: '#ec4899' },

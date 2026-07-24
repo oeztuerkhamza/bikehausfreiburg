@@ -805,6 +805,7 @@ export class SaleEditComponent implements OnInit {
     { value: 'Grün', label: 'Grün', hex: '#22c55e' },
     { value: 'Gelb', label: 'Gelb', hex: '#eab308' },
     { value: 'Orange', label: 'Orange', hex: '#f97316' },
+    { value: 'Braun', label: 'Braun', hex: '#92400e' },
     { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
     { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
     { value: 'Pink', label: 'Pink', hex: '#ec4899' },

@@ -1202,6 +1202,8 @@ export class MietfahrradFormComponent implements OnInit {
     { value: 'Rot', hex: '#dc2626' },
     { value: 'Grün', hex: '#16a34a' },
     { value: 'Gelb', hex: '#facc15' },
+    { value: 'Orange', hex: '#f97316' },
+    { value: 'Braun', hex: '#92400e' },
   ];
 
   get t() {

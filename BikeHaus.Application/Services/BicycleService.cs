@@ -161,6 +161,24 @@ public class BicycleService : IBicycleService
     {
         var entity = dto.ToEntity();
 
+        // Beim Verkauf angelegte (nicht-verleihbare) Räder: Kollidiert die
+        // Rahmennummer mit einem VERLEIH-Rad (gleiche physische Nummer, anderer
+        // Zweck), hängen wir "-verkauf" an, damit der eindeutige Index nicht
+        // verletzt wird und der Verkauf trotzdem angelegt werden kann.
+        if (!entity.IsRentable && !string.IsNullOrWhiteSpace(entity.Rahmennummer))
+        {
+            var baseNr = entity.Rahmennummer.Trim();
+            var existing = await _repository.GetByRahmennummerAsync(baseNr);
+            if (existing != null && existing.IsRentable)
+            {
+                var candidate = $"{baseNr}-verkauf";
+                var suffix = 2;
+                while (await _repository.GetByRahmennummerAsync(candidate) != null)
+                    candidate = $"{baseNr}-verkauf-{suffix++}";
+                entity.Rahmennummer = candidate;
+            }
+        }
+
         var created = await _repository.AddAsync(entity);
         return created.ToDto();
     }
