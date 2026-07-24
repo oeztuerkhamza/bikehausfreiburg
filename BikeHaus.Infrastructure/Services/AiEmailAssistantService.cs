@@ -155,6 +155,12 @@ public class AiEmailAssistantService(
             5. Struktur: passende Anrede, klarer Textkörper, freundlicher Abschluss und Signatur
                mit dem Shop-Namen und den relevanten Kontaktdaten.
 
+            KÜRZE — WICHTIG:
+            - Gib GENAU den Inhalt der Notizen wieder — nicht mehr. Der Textkörper bleibt KURZ
+              (meist 2–4 Sätze). Füge NICHTS hinzu, was nicht in den Notizen steht: keine
+              zusätzlichen Angebote, keine Erklärungen, keine Werbefloskeln, kein Aufzählen von
+              Leistungen. Anrede, Abschluss und Signatur bleiben knapp.
+
             ABSOLUTE REGELN:
             - ERFINDE KEINE Preise, Verfügbarkeiten, Termine oder Öffnungszeiten. Nutze nur, was
               in den Notizen oder den SHOP-INFORMATIONEN steht. Wenn du eine konkrete Zahl nicht

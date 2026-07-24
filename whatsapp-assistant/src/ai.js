@@ -105,10 +105,11 @@ export async function composeReply(history, instructionTr) {
     `=== NOTIZEN DES INHABERS (Türkisch – Inhalt der Antwort) ===\n` +
     instructionTr.trim() +
     `\n\n` +
-    `Formuliere aus diesen türkischen Notizen die passende WhatsApp-Antwort in der ` +
-    `SPRACHE DES KUNDEN (nicht Türkisch – in der Sprache, in der der Kunde geschrieben hat). ` +
-    `Gib die türkischen Notizen niemals wörtlich wieder. Erfinde keine Preise, Termine oder ` +
-    `Zusagen, die nicht in den Notizen stehen. Gib AUSSCHLIESSLICH den fertigen Antworttext aus.`;
+    `Bringe NUR diese Notiz höflich in die SPRACHE DES KUNDEN (nicht Türkisch – die Sprache, ` +
+    `in der der Kunde geschrieben hat). Bleib KURZ und nah an der Notiz: meist 1–2 Sätze. ` +
+    `Füge NICHTS hinzu, was nicht in der Notiz steht – keine zusätzlichen Angebote, Rückfragen, ` +
+    `Erklärungen oder Floskeln. Gib die türkischen Notizen niemals wörtlich wieder und erfinde ` +
+    `keine Preise, Termine oder Zusagen. Gib AUSSCHLIESSLICH den fertigen, knappen Antworttext aus.`;
 
   try {
     const resp = await client.messages.create({
