@@ -200,7 +200,7 @@ Von GitHub aus, ohne SSH: **Actions → SSL Ops → Run workflow → `diagnose`*
 | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | nginx hält das Zertifikat im Speicher; certbot erneuert im eigenen Container → nie geladen | nginx-Container fährt eine Reload-Schleife (alle 6h), siehe `command:` in `docker-compose.yml`   |
 | certbot-Container startet nach Host-Reboot nicht wieder → keine Erneuerung mehr            | `restart: unless-stopped` am certbot-Service                                                     |
-| Domain hat einen 443-Block, fehlt aber im Zertifikat (z. B. `mail.`)                       | Alle Hostnamen stehen in `DOMAINS` in `deploy/setup-ssl.sh`; `--expand` ergänzt sie              |
+| `setup-ssl.sh` listete `mail.` nicht, obwohl das Zertifikat es (manuell ergänzt) enthält — ein Lauf des Skripts hätte die Domain wieder **entfernt** | Alle Hostnamen stehen in `DOMAINS`; die CI erzwingt das (`nginx-config-check.yml`)               |
 | Erneuerung schlägt still fehl, niemand merkt es bis zum Ablauf                             | Täglicher Wächter `.github/workflows/ssl-ops.yml` — repariert automatisch, mailt bei Misserfolg  |
 | Zertifikat fehlt → nginx startet nicht → Port 80 tot → ACME unmöglich (Henne-Ei)           | `deploy/setup-ssl.sh` legt zuerst ein Self-signed-Platzhalter an, damit nginx immer hochkommt    |
 
