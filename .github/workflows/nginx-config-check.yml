@@ -1,0 +1,105 @@
+name: nginx config check
+
+# Validiert nginx/nginx.conf mit dem echten nginx-Binary, BEVOR sie auf den
+# Server kommt. Ein Syntaxfehler oder ein nicht auflösbarer proxy_pass-Host
+# lässt nginx gar nicht erst starten — und weil nginx der einzige Weg nach
+# innen ist, wäre dann die komplette Seite offline (inkl. Port 80, also auch
+# keine ACME-Validierung mehr).
+#
+# Der Job bildet die Produktionsumgebung so weit nach, wie nginx sie beim
+# Config-Load braucht:
+#   - Zertifikatsdateien unter dem erwarteten Let's-Encrypt-Pfad
+#   - host.docker.internal (in prod via extra_hosts gesetzt), sonst scheitert
+#     der literale proxy_pass im mail.-Block mit "host not found in upstream"
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - 'nginx/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/nginx-config-check.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'nginx/**'
+      - 'docker-compose.yml'
+  workflow_dispatch:
+
+jobs:
+  nginx-t:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Generate dummy certificates
+        run: |
+          set -euo pipefail
+          # Gleicher Pfad wie in nginx.conf; nginx -t öffnet die Dateien
+          # wirklich und schlägt sonst mit "cannot load certificate" fehl.
+          DIR=fake-letsencrypt/live/bikehausfreiburg.com
+          mkdir -p "$DIR"
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+            -keyout "$DIR/privkey.pem" -out "$DIR/fullchain.pem" \
+            -subj '/CN=bikehausfreiburg.com' 2>/dev/null
+          echo "Dummy-Zertifikat erzeugt."
+
+      - name: Validate nginx.conf
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            --add-host host.docker.internal:127.0.0.1 \
+            -v "$PWD/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
+            -v "$PWD/fake-letsencrypt:/etc/letsencrypt:ro" \
+            nginx:alpine nginx -t
+
+      - name: Assert every TLS server_name is covered by setup-ssl.sh
+        run: |
+          set -euo pipefail
+          # Ein 443-Block für einen Hostnamen, der nicht im Zertifikat steht,
+          # liefert einen Namensfehler aus — und weil auf der Apex-Domain HSTS
+          # mit includeSubDomains gesetzt ist, kann ihn niemand wegklicken.
+          # Genau so war mail.bikehausfreiburg.com unbemerkt kaputt.
+          missing=0
+          hosts="$(awk '
+            /listen[^;]*443/ { in443 = 1 }
+            in443 && /server_name/ {
+              sub(/^[ \t]*server_name[ \t]*/, ""); sub(/;.*$/, "");
+              print; in443 = 0
+            }
+          ' nginx/nginx.conf | tr ' ' '\n' | grep -v '^_\?$' | sort -u)"
+
+          # DOMAINS-Array aus setup-ssl.sh exakt auflösen (die Einträge sind
+          # "$DOMAIN"/"www.$DOMAIN"/... — ein reines grep würde daran
+          # vorbeigreifen bzw. über die Apex-Domain immer treffen).
+          domains_src="$(sed -n '/^DOMAINS=(/,/^)/p' deploy/setup-ssl.sh)"
+          if [ -z "$domains_src" ]; then
+            echo "DOMAINS-Array in deploy/setup-ssl.sh nicht gefunden."
+            exit 1
+          fi
+          covered="$(DOMAIN=bikehausfreiburg.com bash -c \
+            "$domains_src"'; printf "%s\n" "${DOMAINS[@]}"')"
+
+          echo "Von setup-ssl.sh beantragt:"
+          echo "$covered" | sed 's/^/  /'
+          echo ""
+          echo "In nginx.conf per TLS bediente Hostnamen:"
+          for h in $hosts; do
+            if printf '%s\n' "$covered" | grep -qxF "$h"; then
+              echo "  ✓ $h"
+            else
+              echo "  ✗ $h — fehlt in DOMAINS in deploy/setup-ssl.sh"
+              missing=1
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            echo ""
+            echo "Jeder Hostname mit 443-Block muss in DOMAINS in"
+            echo "deploy/setup-ssl.sh stehen, sonst bekommt er ein"
+            echo "Zertifikat mit falschem Namen."
+            exit 1
+          fi
+          echo "Alle TLS-Hostnamen sind abgedeckt."

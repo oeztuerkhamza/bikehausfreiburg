@@ -563,7 +563,12 @@ jobs:
             # backend container is in restart-loop or has been stopped
             # out of band.
             echo "==> Ensuring backend services are up"
-            docker compose up -d bikehaus client homepage whatsapp
+            # certbot gehört mit in die Liste: der Renew-Loop läuft in einem
+            # eigenen Container, der sonst nie neu erzeugt wird — Änderungen
+            # an seinem entrypoint/restart-policy in docker-compose.yml
+            # würden nie greifen, und ein nach einem Host-Reboot gestoppter
+            # certbot bliebe unbemerkt unten, bis das Zertifikat abläuft.
+            docker compose up -d bikehaus client homepage whatsapp certbot
 
             # Wait up to ~90s for the API to answer its healthcheck. nginx
             # uses a request-time resolver (see nginx.conf), so DNS would
