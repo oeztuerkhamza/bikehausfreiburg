@@ -1,0 +1,205 @@
+name: SSL Ops (monitor / diagnose / repair)
+
+# Zwei Aufgaben in einem Workflow:
+#
+#  1. TÄGLICHER WÄCHTER (schedule): prüft von außen, welches Zertifikat
+#     jeder Hostname im TLS-Handshake wirklich ausliefert. Ist etwas kaputt
+#     oder die Restlaufzeit zu kurz, repariert der Workflow automatisch
+#     (renew + nginx reload) und schlägt fehl, falls das nicht hilft —
+#     GitHub schickt dann eine Mail. Vorher lief ein Zertifikatsproblem
+#     unbemerkt, bis Besucher den Browser-Fehler sahen.
+#
+#  2. MANUELLE OPS (workflow_dispatch): diagnose / reload / renew /
+#     reissue / bootstrap.
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    # Täglich 04:17 UTC — versetzt, damit es nicht mit Deploys kollidiert.
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'diagnose | reload | renew | reissue | bootstrap'
+        required: false
+        default: 'diagnose'
+        type: choice
+        options:
+          - diagnose # nur Status ausgeben, nichts ändern
+          - reload # nginx neu laden (liest Zertifikat neu ein)
+          - renew # certbot renew + nginx reload
+          - reissue # Zertifikat sofort neu ausstellen (--force-renewal)
+          - bootstrap # deploy/setup-ssl.sh — Erstausstellung / Domains ergänzen
+
+concurrency:
+  group: ssl-ops
+  cancel-in-progress: false
+
+env:
+  WARN_DAYS: '21'
+
+jobs:
+  # ───────────────────────────────────────────────────────────────
+  # Manuelle Aktion auf dem Server ausführen
+  # ───────────────────────────────────────────────────────────────
+  ops:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run SSL action on server
+        uses: appleboy/ssh-action@v1
+        env:
+          ACTION: ${{ github.event.inputs.action }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: ACTION
+          command_timeout: 15m
+          script: |
+            set -uo pipefail
+            cd /opt/bikehaus
+
+            echo "==> Aktion: ${ACTION:-diagnose}"
+
+            case "${ACTION:-diagnose}" in
+              reload)
+                docker compose exec -T nginx nginx -t && \
+                docker compose exec -T nginx nginx -s reload && \
+                echo "[OK] nginx neu geladen"
+                ;;
+              renew)
+                docker compose run --rm --entrypoint certbot certbot renew \
+                  --webroot --webroot-path=/var/lib/letsencrypt --non-interactive
+                docker compose exec -T nginx nginx -s reload
+                echo "[OK] renew + reload"
+                ;;
+              reissue)
+                # --force-renewal umgeht die "not yet due"-Prüfung. Sparsam
+                # einsetzen: Let's Encrypt erlaubt 5 identische Zertifikate
+                # pro Woche.
+                docker compose run --rm --entrypoint certbot certbot renew \
+                  --webroot --webroot-path=/var/lib/letsencrypt \
+                  --force-renewal --non-interactive
+                docker compose exec -T nginx nginx -s reload
+                echo "[OK] reissue + reload"
+                ;;
+              bootstrap)
+                chmod +x deploy/setup-ssl.sh deploy/ssl-status.sh
+                deploy/setup-ssl.sh
+                ;;
+              *)
+                echo "(diagnose — keine Änderung)"
+                ;;
+            esac
+
+            echo ""
+            echo "==> Statusbericht"
+            chmod +x deploy/ssl-status.sh
+            deploy/ssl-status.sh || true
+
+            exit 0
+
+  # ───────────────────────────────────────────────────────────────
+  # Externe Prüfung: was liefert der Server im Handshake wirklich aus?
+  # Läuft bewusst OHNE SSH, also genau so, wie ein Besucher es sieht.
+  # ───────────────────────────────────────────────────────────────
+  check:
+    needs: [ops]
+    if: always() && needs.ops.result != 'cancelled'
+    runs-on: ubuntu-latest
+    outputs:
+      healthy: ${{ steps.probe.outputs.healthy }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Probe live certificates
+        id: probe
+        run: |
+          chmod +x deploy/ssl-status.sh
+          if WARN_DAYS="${WARN_DAYS}" deploy/ssl-status.sh; then
+            echo "healthy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "healthy=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ───────────────────────────────────────────────────────────────
+  # Selbstheilung: Beim täglichen Lauf reparieren, statt nur zu meckern.
+  # Der häufigste Fall — nginx hält ein altes Zertifikat im Speicher —
+  # ist mit einem Reload erledigt.
+  # ───────────────────────────────────────────────────────────────
+  auto-repair:
+    needs: [check]
+    if: github.event_name == 'schedule' && needs.check.outputs.healthy == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Renew and reload on server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 15m
+          script: |
+            set -uo pipefail
+            cd /opt/bikehaus
+
+            echo "==> nginx läuft?"
+            docker compose ps nginx
+            docker compose up -d nginx
+
+            echo "==> Reload (holt ein bereits erneuertes Zertifikat in den Speicher)"
+            if docker compose exec -T nginx nginx -t; then
+              docker compose exec -T nginx nginx -s reload
+            else
+              docker compose up -d --force-recreate nginx
+            fi
+
+            echo "==> certbot renew"
+            docker compose run --rm --entrypoint certbot certbot renew \
+              --webroot --webroot-path=/var/lib/letsencrypt --non-interactive || true
+
+            echo "==> Reload nach renew"
+            docker compose exec -T nginx nginx -s reload || true
+
+            echo "==> Renew-Loop-Container sicherstellen"
+            docker compose up -d certbot
+
+            exit 0
+
+      - uses: actions/checkout@v6
+
+      - name: Verify repair
+        run: |
+          # Kurz warten, bis der Reload durch ist.
+          sleep 15
+          chmod +x deploy/ssl-status.sh
+          WARN_DAYS="${WARN_DAYS}" deploy/ssl-status.sh
+
+  # ───────────────────────────────────────────────────────────────
+  # Ergebnis hart machen, damit GitHub bei einem echten Problem
+  # benachrichtigt — auch wenn auto-repair gar nicht erst lief.
+  # ───────────────────────────────────────────────────────────────
+  report:
+    needs: [check, auto-repair]
+    if: always() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if certificates are still broken
+        run: |
+          healthy="${{ needs.check.outputs.healthy }}"
+          repair="${{ needs.auto-repair.result }}"
+          echo "check.healthy=$healthy  auto-repair=$repair"
+          if [ "$healthy" = "true" ]; then
+            echo "✓ Zertifikate in Ordnung."
+            exit 0
+          fi
+          if [ "$repair" = "success" ]; then
+            echo "✓ Problem erkannt und automatisch repariert."
+            exit 0
+          fi
+          echo "✗ Zertifikatsproblem besteht weiter — manuell prüfen:"
+          echo "  gh workflow run ssl-ops.yml -f action=diagnose"
+          exit 1

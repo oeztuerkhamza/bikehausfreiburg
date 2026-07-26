@@ -68,6 +68,13 @@ Add these A records pointing to your server IP:
 - `www.bikehausfreiburg.com` → 152.53.138.135
 - `admin.bikehausfreiburg.com` → 152.53.138.135
 - `api.bikehausfreiburg.com` → 152.53.138.135
+- `mail.bikehausfreiburg.com` → 152.53.138.135
+
+> Jeder Hostname mit einem 443-Serverblock in `nginx/nginx.conf` muss auch in
+> `DOMAINS` in [setup-ssl.sh](setup-ssl.sh) stehen. Fehlt er im Zertifikat,
+> liefert nginx für ihn den falschen Namen aus — und weil auf der Apex-Domain
+> HSTS mit `includeSubDomains` gesetzt ist, kann der Besucher den
+> Zertifikatsfehler nicht wegklicken.
 
 ### 4. Initialize Secrets & Start Services
 
@@ -174,16 +181,52 @@ docker cp bikehaus-app:/app/data/BikeHausFreiburg.db ./backup.db
 
 ## Troubleshooting
 
-### SSL Certificate Issues
+### SSL / HTTPS Issues
+
+**Erste Anlaufstelle — der Statusbericht.** Er prüft, welches Zertifikat der
+Server im TLS-Handshake tatsächlich ausliefert (nicht nur, was auf der Platte
+liegt) und meldet Ablauf, Namensfehler und eine nicht erreichbare
+ACME-Challenge:
 
 ```bash
-# Check certificate status
-docker compose run --rm certbot certificates
-
-# Force renewal
-docker compose run --rm certbot renew --force-renewal
-docker compose restart nginx
+deploy/ssl-status.sh
 ```
+
+Von GitHub aus, ohne SSH: **Actions → SSL Ops → Run workflow → `diagnose`**.
+
+**Wie HTTPS hier kaputtgeht — und warum es jetzt nicht mehr passiert:**
+
+| Ursache                                                                                   | Dauerhafte Absicherung                                                                          |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| nginx hält das Zertifikat im Speicher; certbot erneuert im eigenen Container → nie geladen | nginx-Container fährt eine Reload-Schleife (alle 6h), siehe `command:` in `docker-compose.yml`   |
+| certbot-Container startet nach Host-Reboot nicht wieder → keine Erneuerung mehr            | `restart: unless-stopped` am certbot-Service                                                     |
+| Domain hat einen 443-Block, fehlt aber im Zertifikat (z. B. `mail.`)                       | Alle Hostnamen stehen in `DOMAINS` in `deploy/setup-ssl.sh`; `--expand` ergänzt sie              |
+| Erneuerung schlägt still fehl, niemand merkt es bis zum Ablauf                             | Täglicher Wächter `.github/workflows/ssl-ops.yml` — repariert automatisch, mailt bei Misserfolg  |
+| Zertifikat fehlt → nginx startet nicht → Port 80 tot → ACME unmöglich (Henne-Ei)           | `deploy/setup-ssl.sh` legt zuerst ein Self-signed-Platzhalter an, damit nginx immer hochkommt    |
+
+**Manuelle Eingriffe:**
+
+```bash
+# Zertifikate auf der Platte anzeigen
+docker compose run --rm --entrypoint certbot certbot certificates
+
+# Häufigster Fix: nginx das vorhandene Zertifikat neu einlesen lassen
+docker compose exec -T nginx nginx -t && docker compose exec -T nginx nginx -s reload
+
+# Erneuerung anstoßen (nur wenn fällig) + Reload
+docker compose run --rm --entrypoint certbot certbot renew \
+  --webroot --webroot-path=/var/lib/letsencrypt --non-interactive
+docker compose exec -T nginx nginx -s reload
+
+# Erstausstellung / fehlende Domain ergänzen (idempotent)
+deploy/setup-ssl.sh
+```
+
+> **Kein `--force-renewal` aus Gewohnheit.** Let's Encrypt stellt pro Woche nur
+> 5 identische Zertifikate aus. Wer bei einer Störung mehrfach neu ausstellt,
+> sperrt sich für den Rest der Woche selbst aus — und dann hilft gar nichts
+> mehr. Erst `deploy/ssl-status.sh` lesen, dann handeln; in fast allen Fällen
+> ist ein `nginx -s reload` die Lösung.
 
 ### Homepage Not Updating
 

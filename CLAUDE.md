@@ -281,8 +281,8 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 | `bikehaus` | root [Dockerfile](Dockerfile)                                | 5000:5000           | API + Playwright Chromium; volume `bikehaus-data` for `/app/data`                                      |
 | `client`   | [BikeHaus.Client/Dockerfile](BikeHaus.Client/Dockerfile)     | internal 80         | Angular admin → nginx alpine                                                                           |
 | `homepage` | [BikeHaus.Homepage/Dockerfile](BikeHaus.Homepage/Dockerfile) | 4000:4000           | Node SSR (prebuilt dist expected)                                                                      |
-| `nginx`    | `nginx:alpine`                                               | 80, 443             | Reverse proxy + TLS; mounts [nginx/nginx.conf](nginx/nginx.conf) + certbot volumes + `./homepage-dist` |
-| `certbot`  | `certbot/certbot`                                            | —                   | Auto-renew loop every 12h                                                                              |
+| `nginx`    | `nginx:alpine`                                               | 80, 443             | Reverse proxy + TLS; mounts [nginx/nginx.conf](nginx/nginx.conf) + certbot volumes + `./homepage-dist`; **reloads itself every 6h** to pick up renewed certs |
+| `certbot`  | `certbot/certbot`                                            | —                   | Auto-renew loop every 12h, `restart: unless-stopped`                                                   |
 
 `.env` at root provides: `JWT_SECRET_KEY`, `INDEXNOW_API_KEY`, `GOOGLE_PLACES_API_KEY`, `SMTP_*`.
 
@@ -307,7 +307,10 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 
 - [deploy.sh](deploy/deploy.sh) — main deploy: build bikehaus + homepage images, recreate containers, sync homepage dist to `./homepage-dist/browser` for nginx, restart nginx, health-check.
 - [server-setup.sh](deploy/server-setup.sh) — first-time VPS bootstrap (Docker, ufw 22/80/443, dirs).
-- [setup-ssl.sh](deploy/setup-ssl.sh) — Let's Encrypt cert bootstrap for all subdomains.
+- [setup-ssl.sh](deploy/setup-ssl.sh) — idempotent Let's Encrypt bootstrap/repair for all subdomains (apex, www, admin, api, mail). Safe to re-run; no `--force-renewal`.
+- [ssl-status.sh](deploy/ssl-status.sh) — TLS health report: what each host actually serves in the handshake, expiry, SAN coverage, ACME reachability. Exit 1 = broken, 2 = renewal overdue.
+
+TLS is also watched daily by [.github/workflows/ssl-ops.yml](.github/workflows/ssl-ops.yml) (monitor + auto-repair + manual `diagnose`/`reload`/`renew`/`reissue`/`bootstrap`).
 
 ### Windows installer — [build-installer.bat](build-installer.bat)
 
@@ -406,6 +409,7 @@ The codebase uses **German field/entity names**. Use this when generating code o
 10. **CORS in prod = `AllowAnyOrigin`** (see Program.cs). API access is gated by JWT, not CORS, so this is intentional, but be careful with cookie-based auth if you ever add it.
 11. **JWT key**: must be ≥32 bytes. The default in appsettings is a placeholder — env var `Jwt__Key` (double underscore for nested config) overrides.
 12. **Two parallel rental concepts**: `RentalBooking` (public, multi-bike, online flow) ≠ `Rental` (formal in-store contract). Approving a `RentalBooking` admin-side typically materializes into one or more `Rental` rows. Don't conflate them in queries/services.
+13. **TLS certs live in nginx's memory, not on disk.** certbot renews inside its own container; nginx only re-reads the files on reload. The nginx service therefore runs a 6h self-reload loop (`command:` in docker-compose.yml) — don't remove it, or HTTPS silently dies the next time the in-memory cert expires. Adding a new `server_name` with a 443 block also means adding that host to `DOMAINS` in `deploy/setup-ssl.sh` and re-running it; otherwise the host gets a wrong-name cert that HSTS (`includeSubDomains` on the apex) makes unbypassable. Diagnose with `deploy/ssl-status.sh`, never with reflexive `--force-renewal` (Let's Encrypt: 5 duplicate certs/week).
 
 ---
 

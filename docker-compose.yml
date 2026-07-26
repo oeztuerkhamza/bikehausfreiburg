@@ -95,6 +95,22 @@ services:
     restart: unless-stopped
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+    # nginx liest das TLS-Zertifikat nur beim Start bzw. beim Reload ein.
+    # Certbot erneuert es in einem EIGENEN Container — ohne diese Schleife
+    # bliebe das alte Zertifikat im Speicher, bis es abläuft, und HTTPS wäre
+    # tot, obwohl auf der Platte längst ein gültiges Zertifikat liegt.
+    # Ein Reload alle 6h ist billig und idempotent.
+    command:
+      - /bin/sh
+      - -c
+      - |
+        # 21600s = 6h. Sekunden statt "6h", weil das Suffix in busybox von
+        # einem Build-Flag abhängt — hier darf nichts vom Zufall abhängen.
+        while :; do
+          sleep 21600 & wait $${!}
+          nginx -t > /dev/null 2>&1 && nginx -s reload
+        done &
+        exec nginx -g 'daemon off;'
     ports:
       - '80:80'
       - '443:443'
@@ -116,12 +132,27 @@ services:
   certbot:
     image: certbot/certbot
     container_name: bikehaus-certbot
+    # Ohne restart-policy bliebe der Renew-Loop nach einem Host-Reboot für
+    # immer aus — das Zertifikat liefe still ab.
+    restart: unless-stopped
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
     depends_on:
       - nginx
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    # --webroot-path wird explizit gesetzt, damit die Erneuerung nicht davon
+    # abhängt, welcher Pfad zufällig in der renewal-conf steht (z. B. nach
+    # einem --standalone-Lauf). nginx serviert genau diesen Pfad unter
+    # /.well-known/acme-challenge/ auf Port 80.
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        trap exit TERM
+        while :; do
+          certbot renew --webroot --webroot-path=/var/lib/letsencrypt --non-interactive
+          sleep 43200 & wait $${!}   # 12h
+        done
 
 volumes:
   bikehaus-data:
