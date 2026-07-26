@@ -104,11 +104,24 @@ services:
       - /bin/sh
       - -c
       - |
-        # 21600s = 6h. Sekunden statt "6h", weil das Suffix in busybox von
-        # einem Build-Flag abhängt — hier darf nichts vom Zufall abhängen.
+        # Primär: auf die Zertifikatsdatei schauen und innerhalb von 5 Minuten
+        # nach einer Erneuerung neu laden. Ein reiner 6h-Takt reichte nicht —
+        # certbot erneuerte, und nginx lieferte bis zum nächsten Tick weiter
+        # das abgelaufene Zertifikat aus.
+        # Sekunden statt "5m"/"6h", weil das Suffix in busybox von einem
+        # Build-Flag abhängt. Fehlt stat, bleibt der 6h-Takt als Rückfall.
+        cert=/etc/letsencrypt/live/bikehausfreiburg.com/fullchain.pem
+        last=""
+        i=0
         while :; do
-          sleep 21600 & wait $${!}
-          nginx -t > /dev/null 2>&1 && nginx -s reload
+          sleep 300 & wait $${!}
+          i=$$((i + 1))
+          now=$$(stat -c %Y "$$cert" 2>/dev/null || echo "")
+          if { [ -n "$$now" ] && [ -n "$$last" ] && [ "$$now" != "$$last" ]; } || [ "$$i" -ge 72 ]; then
+            nginx -t > /dev/null 2>&1 && nginx -s reload
+            i=0
+          fi
+          [ -n "$$now" ] && last="$$now"
         done &
         exec nginx -g 'daemon off;'
     ports:

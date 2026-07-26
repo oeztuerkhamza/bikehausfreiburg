@@ -182,9 +182,12 @@ jobs:
   # Ergebnis hart machen, damit GitHub bei einem echten Problem
   # benachrichtigt — auch wenn auto-repair gar nicht erst lief.
   # ───────────────────────────────────────────────────────────────
+  # Läuft für JEDEN Auslöser, nicht nur den Zeitplan: ein manueller
+  # diagnose-Lauf über einem abgelaufenen Zertifikat wäre sonst grün
+  # durchgegangen, weil der check-Job den Statusbericht bewusst abfängt.
   report:
     needs: [check, auto-repair]
-    if: always() && github.event_name == 'schedule'
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Fail if certificates are still broken
@@ -200,6 +203,6 @@ jobs:
             echo "✓ Problem erkannt und automatisch repariert."
             exit 0
           fi
-          echo "✗ Zertifikatsproblem besteht weiter — manuell prüfen:"
-          echo "  gh workflow run ssl-ops.yml -f action=diagnose"
+          echo "✗ Zertifikatsproblem — Statusbericht im check-Job lesen."
+          echo "  Häufigster Fix: SSL Ops -> action=reload"
           exit 1
