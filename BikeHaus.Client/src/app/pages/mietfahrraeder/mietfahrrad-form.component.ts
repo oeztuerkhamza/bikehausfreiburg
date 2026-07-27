@@ -1285,10 +1285,10 @@ export class MietfahrradFormComponent implements OnInit {
       rentalPriceDay7: this.form.rentalPriceDay7 || null,
       rentalPriceAdditionalDayAfter7:
         this.form.rentalPriceAdditionalDayAfter7 || null,
-      // ?? statt ||: eine eingetragene 0 muss als 0 rausgehen. Mit || würde
-      // sie zu null, und null heißt backendseitig "Wert beibehalten" — die
-      // Kaution ließe sich hier dann nicht mehr auf 0 setzen.
-      kaution: this.form.kaution ?? null,
+      // ?? 0 statt || null: null heißt backendseitig "Wert beibehalten".
+      // Eine eingetragene 0 UND ein geleertes Feld müssen beide als 0
+      // rausgehen, sonst lässt sich die Kaution hier nicht mehr entfernen.
+      kaution: this.form.kaution ?? 0,
     };
 
     if (this.isEdit) {

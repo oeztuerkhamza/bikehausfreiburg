@@ -199,20 +199,33 @@ public class BicycleService : IBicycleService
         entity.Farbe = dto.Farbe;
         entity.Reifengroesse = dto.Reifengroesse;
         entity.Fahrradtyp = dto.Fahrradtyp;
-        entity.Art = dto.Art;
+        // Art: null = behalten, "" = leeren. Die Formulare, die Art besitzen,
+        // schicken bei leerer Auswahl "" (mietfahrrad-form lädt art ?? ''),
+        // Aufrufer ohne Art-Feld schicken den Schlüssel gar nicht erst.
+        if (dto.Art != null)
+            entity.Art = dto.Art;
         entity.Beschreibung = dto.Beschreibung;
         entity.Status = dto.Status;
         entity.Zustand = dto.Zustand;
-        entity.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag;
-        entity.IsRentable = dto.IsRentable;
-        entity.RentalPriceDay1 = dto.RentalPriceDay1;
-        entity.RentalPriceDay2 = dto.RentalPriceDay2;
-        entity.RentalPriceDay3 = dto.RentalPriceDay3;
-        entity.RentalPriceDay4 = dto.RentalPriceDay4;
-        entity.RentalPriceDay5 = dto.RentalPriceDay5;
-        entity.RentalPriceDay6 = dto.RentalPriceDay6;
-        entity.RentalPriceDay7 = dto.RentalPriceDay7;
-        entity.RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7;
+        // Alles ab hier: null = aktuellen Wert behalten, Wert = setzen.
+        // Siehe Kommentar bei Kaution weiter unten — dieselbe Begründung gilt
+        // für jedes Feld auf diesem Vollersatz-Pfad, das ein Aufrufer nicht
+        // selbst bearbeitet. Ohne die Guards löschte z. B. das Umwandeln einer
+        // Buchung in einen Mietvertrag die komplette Tagespreis-Staffel und
+        // nahm das Rad per IsRentable=false aus der Vermietflotte.
+        if (dto.VerkaufspreisVorschlag.HasValue)
+            entity.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag.Value;
+        if (dto.IsRentable.HasValue)
+            entity.IsRentable = dto.IsRentable.Value;
+        if (dto.RentalPriceDay1.HasValue) entity.RentalPriceDay1 = dto.RentalPriceDay1.Value;
+        if (dto.RentalPriceDay2.HasValue) entity.RentalPriceDay2 = dto.RentalPriceDay2.Value;
+        if (dto.RentalPriceDay3.HasValue) entity.RentalPriceDay3 = dto.RentalPriceDay3.Value;
+        if (dto.RentalPriceDay4.HasValue) entity.RentalPriceDay4 = dto.RentalPriceDay4.Value;
+        if (dto.RentalPriceDay5.HasValue) entity.RentalPriceDay5 = dto.RentalPriceDay5.Value;
+        if (dto.RentalPriceDay6.HasValue) entity.RentalPriceDay6 = dto.RentalPriceDay6.Value;
+        if (dto.RentalPriceDay7.HasValue) entity.RentalPriceDay7 = dto.RentalPriceDay7.Value;
+        if (dto.RentalPriceAdditionalDayAfter7.HasValue)
+            entity.RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7.Value;
         // Kaution: null = keep current, Wert (auch 0) = setzen.
         // PUT /api/bicycles ersetzt vollständig, aber mehrere Aufrufer schicken
         // nur die Felder, die sie selbst bearbeiten (Vermietungs- und

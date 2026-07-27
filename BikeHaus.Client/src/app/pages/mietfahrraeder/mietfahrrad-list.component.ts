@@ -827,7 +827,11 @@ export class MietfahrradListComponent implements OnInit {
     }
     this.editingKey.set(null);
     const previous = bike[field];
-    const next = value ?? undefined;
+    // Kaution: ein geleertes Feld muss als 0 rausgehen. undefined bedeutet
+    // serverseitig "behalten" — sonst meldete das Leeren Erfolg, zeigte "–"
+    // an und der alte Wert stand weiter in der Datenbank. Die Preisfelder
+    // sollen dagegen weiterhin auf null/behalten laufen.
+    const next = value ?? (field === 'kaution' ? 0 : undefined);
     if (next === previous) return;
 
     bike[field] = next;

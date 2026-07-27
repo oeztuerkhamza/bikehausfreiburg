@@ -58,6 +58,11 @@ const ACCESSORY_KEYS: PredefinedAccessoryKey[] = [
 
 interface BikeEntry {
   selectedBike: Bicycle | null;
+  // true, wenn selectedBike nur ein { id }-Platzhalter ist (Umwandeln einer
+  // Buchung: das Rad ist über seine eigene Buchung belegt und taucht deshalb
+  // nicht in availableBikes auf). Aus so einem Platzhalter darf KEIN
+  // Fahrrad-Update gebaut werden — alle Felder wären undefined.
+  isStubBike: boolean;
   isQuickAddMode: boolean;
   isCollapsed: boolean;
   // Edit-mode tracking (null/false for the "new rental" flow)
@@ -94,6 +99,7 @@ interface BikeEntry {
 function createEmptyBikeEntry(): BikeEntry {
   return {
     selectedBike: null,
+    isStubBike: false,
     isQuickAddMode: false,
     isCollapsed: false,
     rentalBikeId: null,
@@ -2907,6 +2913,9 @@ export class RentalFormComponent implements OnInit {
       entry.isExisting = true;
       entry.originalBicycleId = rb.bicycleId;
       entry.selectedBike = rb.bicycle ?? ({ id: rb.bicycleId } as Bicycle);
+      // Liefert der Vertrag das Fahrrad nicht mit, ist das ebenfalls nur ein
+      // Platzhalter — beim Speichern kein Fahrrad-Update daraus bauen.
+      entry.isStubBike = rb.bicycle == null;
       entry.isCollapsed = idx > 0;
       entry.bikeEdit = {
         rahmennummer: rb.rahmennummer || rb.bicycle?.rahmennummer || '',
@@ -2966,6 +2975,8 @@ export class RentalFormComponent implements OnInit {
     const b = this.bikes[i];
     if (!b) return;
     b.selectedBike = bike;
+    // Ab hier liegen die echten Stammdaten vor — kein Platzhalter mehr.
+    b.isStubBike = false;
     b.isQuickAddMode = false;
     b.bikeEdit = {
       rahmennummer: bike.rahmennummer || '',
@@ -3138,6 +3149,7 @@ export class RentalFormComponent implements OnInit {
               const slot = this.bikes[i];
               slot.isQuickAddMode = false;
               slot.selectedBike = { id: entry.bikeId } as Bicycle;
+              slot.isStubBike = true;
               slot.bikeEdit = {
                 rahmennummer: '',
                 marke: entry.srcBike.marke || '',
@@ -3168,6 +3180,7 @@ export class RentalFormComponent implements OnInit {
             const firstBike = this.bikes[0];
             firstBike.isQuickAddMode = false;
             firstBike.selectedBike = { id: srcBike.bicycleId ?? srcBike.id } as Bicycle;
+            firstBike.isStubBike = true;
             firstBike.bikeEdit = {
               rahmennummer: '',
               marke: srcBike.marke || '',
@@ -3273,6 +3286,11 @@ export class RentalFormComponent implements OnInit {
           .pipe(map((bike) => bike.id));
       }
       const sel = b.selectedBike!;
+      // Platzhalter (Buchungsumwandlung): es gibt keine geladenen Stammdaten,
+      // die man zurückschreiben könnte. Jedes Feld wäre undefined — u. a.
+      // Status, das serverseitig NICHT per null-behalten geschützt ist und
+      // damit auf "Available" zurückfiele. Also gar nicht erst schicken.
+      if (b.isStubBike) return of(sel.id);
       const bikeUpdate: BicycleUpdate = {
         marke: b.bikeEdit.marke,
         modell: b.bikeEdit.modell,
@@ -3382,6 +3400,9 @@ export class RentalFormComponent implements OnInit {
     }
     const sel = b.selectedBike;
     if (!sel) return of(0);
+    // Siehe Anlege-Pfad: aus einem { id }-Platzhalter darf kein Update gebaut
+    // werden, sonst löscht das Speichern die Stammdaten des Fahrrads.
+    if (b.isStubBike) return of(sel.id);
     const bikeUpdate: BicycleUpdate = {
       marke: b.bikeEdit.marke,
       modell: b.bikeEdit.modell,
