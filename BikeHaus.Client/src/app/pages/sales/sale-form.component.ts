@@ -2153,6 +2153,10 @@ export class SaleFormComponent implements OnInit {
       rentalPriceDay7: this.selectedBike?.rentalPriceDay7,
       rentalPriceAdditionalDayAfter7:
         this.selectedBike?.rentalPriceAdditionalDayAfter7,
+      // Unverändert durchreichen: das Verkaufsformular bearbeitet die Kaution
+      // nicht, ohne dieses Feld kam sie als null an und wurde gelöscht.
+      kaution: this.selectedBike?.kaution,
+      art: this.selectedBike?.art,
     };
   }
 

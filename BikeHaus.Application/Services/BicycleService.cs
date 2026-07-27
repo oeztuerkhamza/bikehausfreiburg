@@ -213,7 +213,15 @@ public class BicycleService : IBicycleService
         entity.RentalPriceDay6 = dto.RentalPriceDay6;
         entity.RentalPriceDay7 = dto.RentalPriceDay7;
         entity.RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7;
-        entity.Kaution = dto.Kaution;
+        // Kaution: null = keep current, Wert (auch 0) = setzen.
+        // PUT /api/bicycles ersetzt vollständig, aber mehrere Aufrufer schicken
+        // nur die Felder, die sie selbst bearbeiten (Vermietungs- und
+        // Verkaufsformular). Ohne diesen Schutz kam Kaution als null an und die
+        // am Fahrrad hinterlegte Kaution wurde bei jedem Speichern gelöscht.
+        // Zum Entfernen der Kaution 0 senden — fachlich identisch zu "keine
+        // Kaution" und eindeutig von "Feld nicht mitgeschickt" unterscheidbar.
+        if (dto.Kaution.HasValue)
+            entity.Kaution = dto.Kaution.Value;
         entity.UpdatedAt = DateTime.UtcNow;
 
         await _repository.UpdateAsync(entity);
