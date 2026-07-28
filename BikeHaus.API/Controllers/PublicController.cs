@@ -1,4 +1,4 @@
-using BikeHaus.Application.DTOs;
+﻿using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +16,6 @@ public class PublicController : ControllerBase
     private readonly IRepairShowcaseService _repairShowcaseService;
     private readonly IHomepageAccessoryService _homepageAccessoryService;
     private readonly IGoogleReviewsService _googleReviewsService;
-    private readonly IErinnerungService _erinnerungService;
     private readonly IFileStorageService _fileStorage;
     private readonly IWebHostEnvironment _env;
     private readonly IConfiguration _config;
@@ -29,7 +28,6 @@ public class PublicController : ControllerBase
         IRepairShowcaseService repairShowcaseService,
         IHomepageAccessoryService homepageAccessoryService,
         IGoogleReviewsService googleReviewsService,
-        IErinnerungService erinnerungService,
         IFileStorageService fileStorage,
         IWebHostEnvironment env,
         IConfiguration config)
@@ -41,7 +39,6 @@ public class PublicController : ControllerBase
         _repairShowcaseService = repairShowcaseService;
         _homepageAccessoryService = homepageAccessoryService;
         _googleReviewsService = googleReviewsService;
-        _erinnerungService = erinnerungService;
         _fileStorage = fileStorage;
         _env = env;
         _config = config;
@@ -270,158 +267,6 @@ public class PublicController : ControllerBase
         var item = await _repairShowcaseService.GetByIdAsync(id);
         if (item == null) return NotFound();
         return Ok(item);
-    }
-
-    // ═══ Erinnerungen (Anı Köşesi) ═══
-
-    private static readonly HashSet<string> _memoryPhotoExtensions =
-        new(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".webp" };
-    private const long MaxMemoryPhotoBytes = 8 * 1024 * 1024; // 8 MB
-    private const int MaxMemoryPhotos = 5;
-
-    /// <summary>Freigegebene Erinnerungen (paginiert, neueste zuerst).</summary>
-    [HttpGet("memories")]
-    public async Task<ActionResult<PaginatedResult<ErinnerungPublicDto>>> GetMemories(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 12)
-    {
-        if (page < 1) page = 1;
-        pageSize = Math.Clamp(pageSize, 1, 48);
-        var result = await _erinnerungService.GetApprovedAsync(page, pageSize);
-        return Ok(result);
-    }
-
-    /// <summary>Neueste freigegebene Erinnerungen für die Startseiten-Vitrine.</summary>
-    [HttpGet("memories/latest")]
-    public async Task<ActionResult<IEnumerable<ErinnerungPublicDto>>> GetLatestMemories(
-        [FromQuery] int count = 4)
-    {
-        count = Math.Clamp(count, 1, 10);
-        var items = await _erinnerungService.GetLatestApprovedAsync(count);
-        return Ok(items);
-    }
-
-    /// <summary>Fordert einen 4-stelligen Bestätigungscode per E-Mail an.</summary>
-    [HttpPost("memories/request-code")]
-    public async Task<IActionResult> RequestMemoryCode([FromBody] ErinnerungRequestCodeDto dto)
-    {
-        var email = dto?.Email?.Trim();
-        if (string.IsNullOrWhiteSpace(email) || !email.Contains('@') || email.Length > 200)
-            return BadRequest(new { error = "Bitte gib eine gültige E-Mail-Adresse an." });
-
-        // E-Mail-Versand ist best effort; ein Fehler soll den Ablauf nicht mit
-        // Details verraten. Wir antworten immer mit ok.
-        try { await _erinnerungService.RequestCodeAsync(email); } catch { }
-        return Ok(new { ok = true });
-    }
-
-    /// <summary>Prüft einen Code, ohne ihn zu verbrauchen (damit die UI weiterblättern kann).</summary>
-    [HttpPost("memories/verify-code")]
-    public async Task<IActionResult> VerifyMemoryCode([FromBody] ErinnerungVerifyCodeDto dto)
-    {
-        var email = dto?.Email?.Trim();
-        var code = dto?.Code?.Trim();
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code))
-            return BadRequest(new { error = "E-Mail und Code sind erforderlich." });
-
-        var valid = await _erinnerungService.VerifyCodeAsync(email, code);
-        if (!valid)
-            return BadRequest(new { error = "Der Code ist ungültig oder abgelaufen." });
-        return Ok(new { ok = true });
-    }
-
-    /// <summary>Zählt einen öffentlichen Aufruf einer freigegebenen Erinnerung hoch.</summary>
-    [HttpPost("memories/{id}/view")]
-    public async Task<IActionResult> ViewMemory(int id)
-    {
-        var views = await _erinnerungService.IncrementViewAsync(id);
-        if (views == null) return NotFound();
-        return Ok(new { aufrufe = views.Value });
-    }
-
-    /// <summary>Öffentliche Einreichung einer Erinnerung (Fotos + Text) in einem multipart-Request.</summary>
-    [HttpPost("memories")]
-    public async Task<IActionResult> SubmitMemory(
-        [FromForm] string? ad,
-        [FromForm] int? alter,
-        [FromForm] string? land,
-        [FromForm] string? geschichte,
-        [FromForm] string? email,
-        [FromForm] string? code,
-        [FromForm] string? website,          // Honeypot — muss leer sein
-        [FromForm] List<IFormFile>? fotos)
-    {
-        // Honeypot: von Bots ausgefüllt → so tun als ob, aber nichts speichern.
-        if (!string.IsNullOrWhiteSpace(website))
-            return Ok(new { ok = true });
-
-        ad = ad?.Trim();
-        land = land?.Trim();
-        geschichte = geschichte?.Trim();
-        email = email?.Trim();
-        code = code?.Trim();
-
-        // E-Mail muss verifiziert sein (gültiger, unbenutzter Code).
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code) ||
-            !await _erinnerungService.IsCodeValidAsync(email, code))
-            return BadRequest(new { error = "Bitte bestätige zuerst deine E-Mail-Adresse mit dem Code." });
-
-        if (string.IsNullOrWhiteSpace(ad) || string.IsNullOrWhiteSpace(land) || string.IsNullOrWhiteSpace(geschichte))
-            return BadRequest(new { error = "Name, Land und Geschichte sind erforderlich." });
-        if (ad.Length > 200 || land.Length > 100)
-            return BadRequest(new { error = "Name (max. 200) und Land (max. 100) sind zu lang." });
-        if (geschichte.Length > 1000)
-            return BadRequest(new { error = "Die Geschichte darf höchstens 1000 Zeichen lang sein." });
-        if (alter.HasValue && (alter < 1 || alter > 120))
-            return BadRequest(new { error = "Bitte gib ein gültiges Alter an." });
-
-        fotos ??= new List<IFormFile>();
-        if (fotos.Count < 1)
-            return BadRequest(new { error = "Bitte lade mindestens ein Foto hoch." });
-        if (fotos.Count > MaxMemoryPhotos)
-            return BadRequest(new { error = $"Es sind höchstens {MaxMemoryPhotos} Fotos erlaubt." });
-
-        foreach (var foto in fotos)
-        {
-            if (foto.Length <= 0 || foto.Length > MaxMemoryPhotoBytes)
-                return BadRequest(new { error = "Jedes Foto darf höchstens 8 MB groß sein." });
-            var ext = Path.GetExtension(foto.FileName);
-            if (!_memoryPhotoExtensions.Contains(ext))
-                return BadRequest(new { error = "Nur JPG-, PNG- oder WebP-Bilder sind erlaubt." });
-        }
-
-        // Code jetzt verbrauchen, damit er nicht mehrfach genutzt werden kann.
-        await _erinnerungService.ConsumeCodeAsync(email, code);
-
-        var created = await _erinnerungService.CreateAsync(ad, alter, land, geschichte, email);
-
-        var savedRelativePaths = new List<string>();
-        try
-        {
-            int sortOrder = 0;
-            foreach (var foto in fotos)
-            {
-                using var stream = foto.OpenReadStream();
-                // FileStorageService: GUID-Name + ImageSharp-Resize (2048px, JPEG q85).
-                var relativePath = await _fileStorage.SaveFileAsync(stream, foto.FileName, $"memories/{created.Id}");
-                savedRelativePaths.Add(relativePath);
-                var webPath = "/uploads/" + relativePath.Replace('\\', '/');
-                await _erinnerungService.AddFotoAsync(created.Id, webPath, sortOrder++);
-            }
-        }
-        catch (Exception)
-        {
-            // Bei korruptem/ungültigem Bild: bereits gespeicherte Dateien + Zeile entfernen.
-            foreach (var rel in savedRelativePaths)
-            {
-                try { await _fileStorage.DeleteFileAsync(rel); } catch { }
-            }
-            await _erinnerungService.DeleteAsync(created.Id);
-            return BadRequest(new { error = "Eines der Bilder konnte nicht verarbeitet werden. Bitte versuche es mit anderen Fotos." });
-        }
-
-        var result = await _erinnerungService.GetByIdAsync(created.Id);
-        return Ok(result);
     }
 
     // ═══ Homepage Accessories ═══

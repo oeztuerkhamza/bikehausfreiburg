@@ -25,9 +25,7 @@ import {
   EBike,
   RepairShowcase,
   GoogleReview,
-  MemoryPublic,
 } from '../../models/models';
-import { getMemoriesSlug } from '../../services/language-config';
 
 interface Testimonial {
   name: string;
@@ -1008,49 +1006,6 @@ interface Testimonial {
                 }
               </div>
             }
-          </div>
-        </div>
-      </section>
-    }
-
-    <!-- ═══ Section 7c — ERINNERUNGEN (Anı Köşesi) Vitrine ═══ -->
-    @if (latestMemories().length > 0) {
-      <section class="mem-teaser" aria-labelledby="mem-teaser-heading">
-        <div class="container">
-          <span class="section-label fade-in">{{ t().memoriesTitle }}</span>
-          <h2 id="mem-teaser-heading" class="section-title fade-in d1">
-            {{ t().memoriesSubtitle }}
-          </h2>
-
-          <div class="mem-teaser-grid fade-in d2">
-            @for (m of latestMemories(); track m.id) {
-              <a
-                class="mem-teaser-card"
-                [routerLink]="['/', lang(), memoriesSlug()]"
-              >
-                <div class="mem-teaser-media">
-                  @if (m.fotos.length > 0) {
-                    <img
-                      [src]="getMemoryImageUrl(m.fotos[0].filePath)"
-                      [alt]="m.ad + ' – ' + m.land"
-                      loading="lazy"
-                      width="300"
-                      height="220"
-                    />
-                  }
-                </div>
-                <div class="mem-teaser-body">
-                  <strong>{{ m.ad }}</strong>
-                  <span class="mem-teaser-ort">📍 {{ m.land }}</span>
-                </div>
-              </a>
-            }
-          </div>
-
-          <div class="mem-teaser-cta fade-in d3">
-            <a class="btn-outline" [routerLink]="['/', lang(), memoriesSlug()]">{{
-              t().memoriesSeeAll
-            }}</a>
           </div>
         </div>
       </section>
@@ -3181,9 +3136,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.startCarouselTimer();
   }
 
-  // Erinnerungen (Anı Köşesi) — Startseiten-Vitrine
-  latestMemories = signal<MemoryPublic[]>([]);
-
   // Repair Showcases
   repairShowcases = signal<RepairShowcase[]>([]);
   repairActiveIndex = 0;
@@ -3593,10 +3545,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
     });
 
-    this.apiService.getLatestMemories(4).subscribe({
-      next: (data) => this.latestMemories.set(data),
-    });
-
     this.apiService.getGoogleReviews().subscribe({
       next: (data) => {
         if (data.reviews?.length) {
@@ -3619,14 +3567,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   // ── Repair Showcase Slideshow ──
   getRepairImageUrl(path: string): string {
     return `${environment.apiUrl.replace('/api/public', '')}${path}`;
-  }
-
-  // ── Erinnerungen (Anı Köşesi) ──
-  getMemoryImageUrl(path: string): string {
-    return `${environment.apiUrl.replace('/api/public', '')}${path}`;
-  }
-  memoriesSlug(): string {
-    return getMemoriesSlug(this.lang());
   }
 
   getInitials(name: string): string {

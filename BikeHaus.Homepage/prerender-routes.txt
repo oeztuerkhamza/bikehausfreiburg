@@ -75,14 +75,6 @@
 /it/fahrradtouren
 /ar/fahrradtouren
 /ru/fahrradtouren
-/de/erinnerungen
-/en/memories
-/fr/souvenirs
-/tr/anilar
-/es/recuerdos
-/it/ricordi
-/ar/dhikrayat
-/ru/vospominaniya
 /no/minner
 /da/minder
 /nl/herinneringen

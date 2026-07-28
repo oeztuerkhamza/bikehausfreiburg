@@ -6,7 +6,6 @@ import { ShopInfoService } from '../../services/shop-info.service';
 import {
   LANGUAGE_LABELS,
   SUPPORTED_LANGUAGES,
-  getMemoriesSlug,
 } from '../../services/language-config';
 
 @Component({
@@ -45,9 +44,6 @@ import {
             }}</a>
             <a [routerLink]="['/' + lang(), 'fahrradtouren']">{{
               t().bikeToursNav
-            }}</a>
-            <a [routerLink]="['/' + lang(), getMemoriesSlug(lang())]">{{
-              t().navMemories
             }}</a>
             <a [routerLink]="['/' + lang(), 'ratgeber']">{{
               t().ratgeberNav
@@ -415,7 +411,6 @@ export class FooterComponent {
   private shopInfoService = inject(ShopInfoService);
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
-  getMemoriesSlug = getMemoriesSlug;
   logoUrl = this.shopInfoService.logoUrl;
   languages = SUPPORTED_LANGUAGES.map((code) => ({
     code,

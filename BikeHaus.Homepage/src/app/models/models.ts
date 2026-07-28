@@ -244,33 +244,6 @@ export interface RepairShowcase {
   images: RepairShowcaseImage[];
 }
 
-// ── Erinnerungen (Anı Köşesi / Memory Corner) ──
-export interface MemoryPhoto {
-  id: number;
-  filePath: string;
-  sortOrder: number;
-}
-
-export interface MemoryPublic {
-  id: number;
-  ad: string;
-  alter?: number;
-  land: string;
-  geschichte: string;
-  aufrufe: number;
-  createdAt: string;
-  fotos: MemoryPhoto[];
-}
-
-export interface MemoryPage {
-  items: MemoryPublic[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-  hasPrevious: boolean;
-  hasNext: boolean;
-}
 
 // ── Homepage Accessories ──
 export interface HomepageAccessoryImage {

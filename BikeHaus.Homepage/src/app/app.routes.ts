@@ -6,7 +6,6 @@ import {
   DEFAULT_LANGUAGE,
   RENTAL_BOOKING_SLUG_BY_LANGUAGE,
   RENTAL_SLUG_BY_LANGUAGE,
-  MEMORIES_SLUG_BY_LANGUAGE,
   SUPPORTED_LANGUAGES,
   isSupportedLanguage,
 } from './services/language-config';
@@ -41,16 +40,6 @@ const rentalRoutes: Routes = SUPPORTED_LANGUAGES.flatMap((lang) => {
     },
   ];
 });
-
-// Erinnerungs-Routen ("Anı Köşesi") — pro Sprache ein lokalisierter Slug,
-// alle auf dieselbe Komponente.
-const memoriesRoutes: Routes = SUPPORTED_LANGUAGES.map((lang) => ({
-  path: MEMORIES_SLUG_BY_LANGUAGE[lang],
-  loadComponent: () =>
-    import('./pages/erinnerungen/erinnerungen.component').then(
-      (m) => m.ErinnerungenComponent,
-    ),
-}));
 
 export const languageGuard: CanActivateFn = (route) => {
   const lang = route.paramMap.get('lang');
@@ -208,7 +197,6 @@ export const routes: Routes = [
       },
       // Fahrradverleih — lokalisierte Slugs pro Sprache (generiert)
       ...rentalRoutes,
-      ...memoriesRoutes,
       // ── Rental bike catalog (filterable, SEO-optimised) ──
       // DE/TR/ES/IT/AR/RU: /mietfahrraeder
       {

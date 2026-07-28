@@ -8,12 +8,10 @@ import {
   OG_LOCALE_BY_LANGUAGE,
   RENTAL_BOOKING_SLUGS,
   RENTAL_PAGE_SLUGS,
-  MEMORIES_PAGE_SLUGS,
   SUPPORTED_LANGUAGES,
   getLanguageDirection,
   getRentalBookingPath,
   getRentalSlug,
-  getMemoriesSlug,
   isSupportedLanguage,
 } from './language-config';
 
@@ -46,9 +44,6 @@ function getServicePath(lang: string): string {
   if (lang === 'fr') return 'entretien-velo';
   return 'service';
 }
-// Erinnerungen (Anı Köşesi) — uses language-specific slugs
-const MEMORIES_SEGMENTS = new Set(MEMORIES_PAGE_SLUGS);
-const getMemoriesPath = getMemoriesSlug;
 // Bike tours — uses language-specific slugs
 const TOURS_SEGMENTS = new Set([
   'fahrradtouren',
@@ -207,21 +202,6 @@ export class SeoService {
       }
       this.addHreflangLink('x-default', `${BASE_URL}/${DEFAULT_LANGUAGE}/service`);
       this.updateMetaProperty('og:url', canonicalServiceUrl);
-      return;
-    }
-
-    // ── Erinnerungen: /:lang/(erinnerungen|memories|souvenirs|…) ──
-    if (pathSegments.length === 2 && MEMORIES_SEGMENTS.has(pathSegments[1])) {
-      const canonicalMemoriesUrl = `${BASE_URL}/${currentLang}/${getMemoriesPath(currentLang)}`;
-      canonical.href = canonicalMemoriesUrl;
-      for (const lang of SUPPORTED_LANGUAGES) {
-        this.addHreflangLink(lang, `${BASE_URL}/${lang}/${getMemoriesPath(lang)}`);
-      }
-      this.addHreflangLink(
-        'x-default',
-        `${BASE_URL}/${DEFAULT_LANGUAGE}/${getMemoriesPath(DEFAULT_LANGUAGE)}`,
-      );
-      this.updateMetaProperty('og:url', canonicalMemoriesUrl);
       return;
     }
 

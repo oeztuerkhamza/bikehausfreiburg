@@ -127,9 +127,6 @@ builder.Services.AddHostedService<BikeHaus.Infrastructure.Services.Kleinanzeigen
 // Automatic Google-review request ~4h after each Sale/Rental
 builder.Services.AddHostedService<BikeHaus.Infrastructure.Services.ReviewAutomationBackgroundService>();
 
-// Automatic memory-corner invite the day after a rental return (08:00 local)
-builder.Services.AddHostedService<BikeHaus.Infrastructure.Services.MemoryInviteAutomationBackgroundService>();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
