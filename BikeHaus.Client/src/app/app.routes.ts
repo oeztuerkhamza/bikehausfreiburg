@@ -135,6 +135,43 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  // Reservierungen. Die Komponenten existierten schon, waren aber nie
+  // verdrahtet — ohne diese Routen war der ganze Bereich in der App nicht
+  // erreichbar. Die Pfade entsprechen den routerLinks in den Komponenten
+  // (/reservations, /reservations/new, /reservations/:id,
+  // /reservations/:id/convert).
+  {
+    path: 'reservations',
+    loadComponent: () =>
+      import('./pages/reservations/reservation-list.component').then(
+        (m) => m.ReservationListComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reservations/new',
+    loadComponent: () =>
+      import('./pages/reservations/reservation-form.component').then(
+        (m) => m.ReservationFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reservations/:id/convert',
+    loadComponent: () =>
+      import('./pages/reservations/reservation-convert.component').then(
+        (m) => m.ReservationConvertComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reservations/:id',
+    loadComponent: () =>
+      import('./pages/reservations/reservation-form.component').then(
+        (m) => m.ReservationFormComponent,
+      ),
+    canActivate: [authGuard],
+  },
   {
     path: 'parts',
     loadComponent: () =>
