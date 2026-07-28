@@ -3436,12 +3436,11 @@ export class RentalFormComponent implements OnInit {
         rentalPriceDay6: sel.rentalPriceDay6,
         rentalPriceDay7: sel.rentalPriceDay7,
         rentalPriceAdditionalDayAfter7: sel.rentalPriceAdditionalDayAfter7,
-        // Stammdaten des Fahrrads unverändert zurückschicken. Die Kaution im
-        // Formular gehört zum Mietvertrag (RentalBike), nicht zum Fahrrad —
-        // wer sie hier ändert, darf die am Fahrrad hinterlegte Kaution nicht
-        // überschreiben. Fehlten diese Felder, kamen sie als null an und
-        // wurden beim Speichern gelöscht.
-        kaution: sel.kaution,
+        // Stammdaten des Fahrrads unverändert zurückschicken. Fehlten diese
+        // Felder, kamen sie als null an und wurden beim Speichern gelöscht.
+        // Die Kaution ist hier gar nicht mehr enthalten: die im Formular
+        // gehört zum Mietvertrag (RentalBike), und die am Fahrrad hinterlegte
+        // lässt sich ausschließlich über die Seite „Mietfahrräder" ändern.
         art: sel.art,
         verkaufspreisVorschlag: sel.verkaufspreisVorschlag,
       };
@@ -3557,9 +3556,9 @@ export class RentalFormComponent implements OnInit {
       rentalPriceDay6: sel.rentalPriceDay6,
       rentalPriceDay7: sel.rentalPriceDay7,
       rentalPriceAdditionalDayAfter7: sel.rentalPriceAdditionalDayAfter7,
-      // Siehe Kommentar im Anlege-Pfad: Kaution/Art/Verkaufspreisvorschlag
-      // gehören dem Fahrrad und werden hier nur unverändert durchgereicht.
-      kaution: sel.kaution,
+      // Siehe Kommentar im Anlege-Pfad: Art/Verkaufspreisvorschlag gehören dem
+      // Fahrrad und werden nur unverändert durchgereicht; die Kaution wird von
+      // hier aus überhaupt nicht mehr geschickt.
       art: sel.art,
       verkaufspreisVorschlag: sel.verkaufspreisVorschlag,
     };

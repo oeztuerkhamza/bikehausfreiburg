@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -787,7 +788,8 @@ export class MietfahrradListComponent implements OnInit {
       rentalPriceDay6: bike.rentalPriceDay6,
       rentalPriceDay7: bike.rentalPriceDay7,
       rentalPriceAdditionalDayAfter7: bike.rentalPriceAdditionalDayAfter7,
-      kaution: bike.kaution,
+      // Kaution ist nicht Teil des allgemeinen Updates — sie hat einen eigenen
+      // Endpunkt (siehe saveEdit), damit sie nur von dieser Seite aus änderbar ist.
     };
   }
 
@@ -827,15 +829,21 @@ export class MietfahrradListComponent implements OnInit {
     }
     this.editingKey.set(null);
     const previous = bike[field];
-    // Kaution: ein geleertes Feld muss als 0 rausgehen. undefined bedeutet
-    // serverseitig "behalten" — sonst meldete das Leeren Erfolg, zeigte "–"
-    // an und der alte Wert stand weiter in der Datenbank. Die Preisfelder
-    // sollen dagegen weiterhin auf null/behalten laufen.
-    const next = value ?? (field === 'kaution' ? 0 : undefined);
+    // Preisfelder: leeres Feld = undefined = serverseitig "behalten".
+    const next = value ?? undefined;
     if (next === previous) return;
 
     bike[field] = next;
-    this.bicycleService.update(bike.id, this.buildUpdateDto(bike)).subscribe({
+
+    const save$: Observable<unknown> =
+      // Die Kaution des Fahrrads hat einen eigenen Endpunkt und ist bewusst
+      // kein Feld des allgemeinen Updates mehr (sonst konnte sie jedes andere
+      // Formular mitschicken und leeren). Leeres Feld = keine Kaution.
+      field === 'kaution'
+        ? this.bicycleService.setKaution(bike.id, value ?? null)
+        : this.bicycleService.update(bike.id, this.buildUpdateDto(bike));
+
+    save$.subscribe({
       next: () => this.notificationService.success(this.t.saveSuccess),
       error: () => {
         bike[field] = previous;

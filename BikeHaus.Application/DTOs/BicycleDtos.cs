@@ -83,7 +83,12 @@ public record BicycleUpdateDto(
     decimal? RentalPriceDay6 = null,
     decimal? RentalPriceDay7 = null,
     decimal? RentalPriceAdditionalDayAfter7 = null,
-    decimal? Kaution = null,
+    // Kaution fehlt hier bewusst: die am Fahrrad hinterlegte Kaution lässt sich
+    // NUR über PUT /api/bicycles/{id}/kaution ändern (Seite „Mietfahrräder").
+    // Solange sie Teil dieses Vollersatz-DTOs war, konnte sie jedes Formular
+    // mitschicken, das nebenbei ein Fahrrad speichert — beim Anlegen eines
+    // Mietvertrags wurde sie so geleert. Ein trotzdem mitgeschicktes Feld
+    // landet jetzt im Nirwana, statt den Wert zu überschreiben.
     int? Lagernummer = null
 );
 
@@ -96,6 +101,10 @@ public record BicycleImageDto(
 
 // ── Request DTOs ──
 public record SetAnzeigeNrRequest(string AnzeigeNr);
+
+// Einziger Weg, die am Fahrrad hinterlegte Kaution zu ändern (Seite
+// „Mietfahrräder"). null = keine Kaution hinterlegt.
+public record SetKautionRequest(decimal? Kaution);
 
 // ── Public Bicycle DTO (for website display) ──
 public record PublicBicycleDto(int Id,

@@ -10,6 +10,8 @@ public interface IBicycleService
     Task<IEnumerable<BicycleDto>> GetAvailableAsync();
     Task<BicycleDto> CreateAsync(BicycleCreateDto dto);
     Task<BicycleDto> UpdateAsync(int id, BicycleUpdateDto dto);
+    // Kaution ist bewusst nicht Teil von UpdateAsync — siehe BicycleUpdateDto.
+    Task<BicycleDto> SetKautionAsync(int id, decimal? kaution);
     Task DeleteAsync(int id);
     Task<IEnumerable<BicycleDto>> SearchAsync(string searchTerm);
     Task<IEnumerable<string>> GetUniqueBrandsAsync();

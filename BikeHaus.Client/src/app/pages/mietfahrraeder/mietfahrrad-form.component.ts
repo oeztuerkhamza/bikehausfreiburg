@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { switchMap } from 'rxjs/operators';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
@@ -1285,26 +1286,37 @@ export class MietfahrradFormComponent implements OnInit {
       rentalPriceDay7: this.form.rentalPriceDay7 || null,
       rentalPriceAdditionalDayAfter7:
         this.form.rentalPriceAdditionalDayAfter7 || null,
-      // ?? 0 statt || null: null heißt backendseitig "Wert beibehalten".
-      // Eine eingetragene 0 UND ein geleertes Feld müssen beide als 0
-      // rausgehen, sonst lässt sich die Kaution hier nicht mehr entfernen.
-      kaution: this.form.kaution ?? 0,
     };
 
     if (this.isEdit) {
-      this.bicycleService.update(this.bikeId!, dto as any).subscribe({
-        next: () => {
-          this.notificationService.success(this.t.mietfahrradSaveSuccess);
-          this.saving.set(false);
-          this.loadBike();
-        },
-        error: () => {
-          this.notificationService.error(this.t.saveError);
-          this.saving.set(false);
-        },
-      });
+      // Die Kaution läuft über ihren eigenen Endpunkt — sie ist bewusst kein
+      // Feld des allgemeinen Fahrrad-Updates mehr, damit kein anderes Formular
+      // sie überschreiben kann. Diese Seite ist der einzige Ort, an dem sie
+      // geändert werden darf. Leeres Feld = keine Kaution (null).
+      this.bicycleService
+        .update(this.bikeId!, dto as any)
+        .pipe(
+          switchMap(() =>
+            this.bicycleService.setKaution(this.bikeId!, this.form.kaution ?? null),
+          ),
+        )
+        .subscribe({
+          next: () => {
+            this.notificationService.success(this.t.mietfahrradSaveSuccess);
+            this.saving.set(false);
+            this.loadBike();
+          },
+          error: () => {
+            this.notificationService.error(this.t.saveError);
+            this.saving.set(false);
+          },
+        });
     } else {
-      const createDto = { ...dto, isPublishedOnWebsite: false };
+      const createDto = {
+        ...dto,
+        kaution: this.form.kaution ?? null,
+        isPublishedOnWebsite: false,
+      };
       this.bicycleService.create(createDto as any).subscribe({
         next: (created) => {
           this.notificationService.success(this.t.mietfahrradSaveSuccess);

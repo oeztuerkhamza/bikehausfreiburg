@@ -1110,7 +1110,8 @@ export class SaleEditComponent implements OnInit {
       rentalPriceDay6: bike.rentalPriceDay6,
       rentalPriceDay7: bike.rentalPriceDay7,
       rentalPriceAdditionalDayAfter7: bike.rentalPriceAdditionalDayAfter7,
-      kaution: bike.kaution,
+      // Kaution wird von hier gar nicht mehr geschickt — sie ist nur über die
+      // Seite „Mietfahrräder" änderbar und bleibt damit garantiert unberührt.
       rentalPriceDay14: bike.rentalPriceDay14,
       rentalPriceDay30: bike.rentalPriceDay30,
       rentalPricePerDayFrom10: bike.rentalPricePerDayFrom10,

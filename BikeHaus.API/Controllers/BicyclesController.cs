@@ -133,6 +133,22 @@ public class BicyclesController : ControllerBase
         return Ok(bicycle);
     }
 
+    // Eigener Endpunkt statt eines Feldes im Update-DTO: die Kaution des
+    // Fahrrads darf ausschließlich von der Seite „Mietfahrräder" geändert
+    // werden, nie beiläufig durch ein anderes Formular (Mietvertrag, Verkauf).
+    [Authorize]
+    [HttpPut("{id}/kaution")]
+    public async Task<ActionResult<BicycleDto>> SetKaution(int id, [FromBody] SetKautionRequest request)
+    {
+        try
+        {
+            var bicycle = await _bicycleService.SetKautionAsync(id, request.Kaution);
+            return Ok(bicycle);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
     [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)

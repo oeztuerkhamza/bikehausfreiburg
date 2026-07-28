@@ -226,17 +226,30 @@ public class BicycleService : IBicycleService
         if (dto.RentalPriceDay7.HasValue) entity.RentalPriceDay7 = dto.RentalPriceDay7.Value;
         if (dto.RentalPriceAdditionalDayAfter7.HasValue)
             entity.RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7.Value;
-        // Kaution: null = keep current, Wert (auch 0) = setzen.
-        // PUT /api/bicycles ersetzt vollständig, aber mehrere Aufrufer schicken
-        // nur die Felder, die sie selbst bearbeiten (Vermietungs- und
-        // Verkaufsformular). Ohne diesen Schutz kam Kaution als null an und die
-        // am Fahrrad hinterlegte Kaution wurde bei jedem Speichern gelöscht.
-        // Zum Entfernen der Kaution 0 senden — fachlich identisch zu "keine
-        // Kaution" und eindeutig von "Feld nicht mitgeschickt" unterscheidbar.
-        if (dto.Kaution.HasValue)
-            entity.Kaution = dto.Kaution.Value;
+        // Kaution wird hier bewusst NICHT angefasst — sie gehört dem Fahrrad und
+        // ist nur über SetKautionAsync (Seite „Mietfahrräder") änderbar. Jedes
+        // andere Formular, das nebenbei ein Fahrrad speichert (Mietvertrag,
+        // Verkauf), kann sie damit weder überschreiben noch leeren.
         entity.UpdatedAt = DateTime.UtcNow;
 
+        await _repository.UpdateAsync(entity);
+        return entity.ToDto();
+    }
+
+    /// <summary>
+    /// Einziger Schreibpfad für die am Fahrrad hinterlegte Kaution (Seite
+    /// „Mietfahrräder"). null = keine Kaution hinterlegt.
+    /// </summary>
+    public async Task<BicycleDto> SetKautionAsync(int id, decimal? kaution)
+    {
+        if (kaution is < 0)
+            throw new InvalidOperationException("Die Kaution darf nicht negativ sein.");
+
+        var entity = await _repository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Fahrrad mit ID {id} nicht gefunden.");
+
+        entity.Kaution = kaution;
+        entity.UpdatedAt = DateTime.UtcNow;
         await _repository.UpdateAsync(entity);
         return entity.ToDto();
     }

@@ -134,10 +134,10 @@ export interface BicycleUpdate {
   rentalPriceDay6?: number;
   rentalPriceDay7?: number;
   rentalPriceAdditionalDayAfter7?: number;
-  // null/undefined = keep current value, 0 = no deposit (backend contract).
-  // Do not omit this when updating a bicycle whose deposit you are not
-  // editing — send the current value back unchanged.
-  kaution?: number;
+  // kaution fehlt hier bewusst: die Kaution des Fahrrads wird ausschließlich
+  // über bicycleService.setKaution() (Seite „Mietfahrräder") geändert. Sie war
+  // Teil dieses DTOs und wurde deshalb beim Speichern eines Mietvertrags
+  // mitgeschickt — und dabei geleert.
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;

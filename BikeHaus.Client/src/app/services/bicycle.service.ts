@@ -70,6 +70,15 @@ export class BicycleService {
     return this.http.put<void>(`${this.url}/${id}`, bicycle);
   }
 
+  /**
+   * Einziger Weg, die am Fahrrad hinterlegte Kaution zu ändern — bewusst nicht
+   * Teil von update(), damit kein anderes Formular sie nebenbei überschreibt.
+   * null = keine Kaution hinterlegt.
+   */
+  setKaution(id: number, kaution: number | null): Observable<Bicycle> {
+    return this.http.put<Bicycle>(`${this.url}/${id}/kaution`, { kaution });
+  }
+
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
