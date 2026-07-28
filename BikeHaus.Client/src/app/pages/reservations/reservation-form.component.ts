@@ -8,6 +8,7 @@ import { TranslationService } from '../../services/translation.service';
 import {
   ReservationCreate,
   Bicycle,
+  BikeCondition,
   CustomerCreate,
   PaymentMethod,
 } from '../../models/models';
@@ -29,8 +30,22 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
           <!-- Bicycle selection — gleiche Bedienung wie im Verkaufsformular:
                Lager- oder Rahmennummer tippen, aus dem Vorschlag wählen. -->
           <div class="form-card">
-            <h2>{{ t.selectBicycle }}</h2>
-            <div class="form-grid">
+            <div class="card-header-row">
+              <h2>
+                <span *ngIf="isQuickAddMode" class="quick-add-badge"
+                  >🆕 {{ t.newBicycle }}</span
+                >
+                <span *ngIf="!isQuickAddMode">{{ t.selectBicycle }}</span>
+              </h2>
+              <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                (click)="isQuickAddMode ? cancelQuickAdd() : startQuickAdd()"
+              >
+                {{ isQuickAddMode ? '↩︎ ' + t.selectBicycle : '🆕 ' + t.newBicycle }}
+              </button>
+            </div>
+            <div class="form-grid" *ngIf="!isQuickAddMode">
               <div class="field rahmen-autocomplete-wrapper">
                 <label>{{ t.stockNumber }}</label>
                 <input
@@ -92,7 +107,129 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
               </div>
             </div>
 
-            <div class="selected-bike" *ngIf="selectedBike">
+            <!-- Fahrrad ist noch nicht im Bestand: hier direkt anlegen —
+                 gleiche Felder wie im Verkaufsformular. Das Rad wird beim
+                 Speichern der Reservierung erzeugt. -->
+            <div class="form-grid" *ngIf="isQuickAddMode">
+              <div class="field">
+                <label>{{ t.stockNumber }}</label>
+                <input
+                  type="number"
+                  min="1"
+                  [(ngModel)]="newBike.lagernummer"
+                  name="newBikeLagernummer"
+                  placeholder="z.B. 128"
+                />
+              </div>
+              <div class="field" [class.field-error]="newBikeErrors['rahmennummer']">
+                <label>{{ t.frameNumber }} *</label>
+                <input
+                  [(ngModel)]="newBike.rahmennummer"
+                  name="newBikeRahmennummer"
+                  style="text-transform: uppercase"
+                  (ngModelChange)="newBikeErrors['rahmennummer'] = false"
+                />
+                <span class="error-msg" *ngIf="newBikeErrors['rahmennummer']">{{
+                  t.requiredField
+                }}</span>
+              </div>
+              <div class="field" [class.field-error]="newBikeErrors['marke']">
+                <label>{{ t.brand }} *</label>
+                <input
+                  [(ngModel)]="newBike.marke"
+                  name="newBikeMarke"
+                  (ngModelChange)="newBikeErrors['marke'] = false"
+                />
+                <span class="error-msg" *ngIf="newBikeErrors['marke']">{{
+                  t.requiredField
+                }}</span>
+              </div>
+              <div class="field">
+                <label>{{ t.model }}</label>
+                <input [(ngModel)]="newBike.modell" name="newBikeModell" />
+              </div>
+              <div class="field">
+                <label>{{ t.frameSize }}</label>
+                <input
+                  [(ngModel)]="newBike.rahmengroesse"
+                  name="newBikeRahmengroesse"
+                  placeholder="z.B. 52, 56, M, L"
+                />
+              </div>
+              <div class="field">
+                <label>{{ t.color }}</label>
+                <div class="color-chips">
+                  <button
+                    type="button"
+                    *ngFor="let c of colorOptions"
+                    class="color-chip"
+                    [class.selected]="isColorSelected(newBike.farbe, c.value)"
+                    [style.--chip-color]="c.hex"
+                    (click)="newBike.farbe = toggleColor(newBike.farbe, c.value)"
+                  >
+                    <span class="chip-dot"></span>
+                    {{ c.label }}
+                  </button>
+                </div>
+              </div>
+              <div class="field">
+                <label>{{ t.wheelSize }}</label>
+                <select [(ngModel)]="newBike.reifengroesse" name="newBikeReifen">
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="12">12"</option>
+                  <option value="14">14"</option>
+                  <option value="16">16"</option>
+                  <option value="18">18"</option>
+                  <option value="20">20"</option>
+                  <option value="24">24"</option>
+                  <option value="26">26"</option>
+                  <option value="27.5">27.5"</option>
+                  <option value="28">28"</option>
+                  <option value="29">29"</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>{{ t.bicycleType }}</label>
+                <select [(ngModel)]="newBike.fahrradtyp" name="newBikeFahrradtyp">
+                  <option value="">-- {{ t.selectOption }} --</option>
+                  <option value="E-Bike">E-Bike</option>
+                  <option value="E-Trekking Pedelec">E-Trekking Pedelec</option>
+                  <option value="Trekking">Trekking</option>
+                  <option value="City">City</option>
+                  <option value="MTB">Mountainbike (MTB)</option>
+                  <option value="Rennrad">Rennrad</option>
+                  <option value="Kinderfahrrad">Kinderfahrrad</option>
+                  <option value="Lastenrad">Lastenrad</option>
+                  <option value="Sonstige">Sonstige</option>
+                </select>
+              </div>
+              <div class="field" [class.field-error]="newBikeErrors['zustand']">
+                <label>{{ t.condition }} *</label>
+                <select
+                  [(ngModel)]="newBike.zustand"
+                  name="newBikeZustand"
+                  (ngModelChange)="newBikeErrors['zustand'] = false"
+                >
+                  <!-- Ohne Vorauswahl: Neu/Gebraucht steuert später die Garantie. -->
+                  <option value="" disabled>-- {{ t.selectOption }} --</option>
+                  <option value="Gebraucht">{{ t.usedCondition }}</option>
+                  <option value="Neu">{{ t.newCondition }}</option>
+                </select>
+                <span class="error-msg" *ngIf="newBikeErrors['zustand']">{{
+                  t.requiredField
+                }}</span>
+              </div>
+              <div class="field full">
+                <label>{{ t.descriptionEquipment }}</label>
+                <textarea
+                  [(ngModel)]="newBike.beschreibung"
+                  name="newBikeBeschreibung"
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="selected-bike" *ngIf="selectedBike && !isQuickAddMode">
               <div class="selected-bike-head">
                 <strong>{{ selectedBike.marke }} {{ selectedBike.modell }}</strong>
                 <button type="button" class="btn btn-outline btn-sm" (click)="clearBike()">
@@ -265,7 +402,7 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
 
         <!-- Validation messages -->
         <div class="validation-errors" *ngIf="!canSubmit() && !submitting">
-          <p *ngIf="!selectedBike" class="error-msg">
+          <p *ngIf="!selectedBike && !isQuickAddMode" class="error-msg">
             ⚠️ {{ t.selectBicycleWarning }}
           </p>
           <p *ngIf="!customer.vorname.trim()" class="error-msg">
@@ -387,6 +524,60 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
       .btn-sm {
         padding: 6px 12px;
         font-size: 0.85rem;
+      }
+
+      .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .quick-add-badge {
+        color: var(--accent-primary, #6366f1);
+      }
+
+      .field-error input,
+      .field-error select {
+        border-color: #ef4444 !important;
+      }
+
+      /* ── Farbauswahl (wie im Verkaufsformular) ── */
+      .color-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .color-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        border-radius: 20px;
+        background: var(--bg-card, #fff);
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .color-chip:hover {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--table-hover, #f1f5f9);
+      }
+      .color-chip.selected {
+        border-color: var(--accent-primary, #6366f1);
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        font-weight: 600;
+      }
+      .chip-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--chip-color, #ccc);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        flex-shrink: 0;
       }
 
       /* ── Fahrradsuche (wie im Verkaufsformular) ── */
@@ -633,6 +824,52 @@ export class ReservationFormComponent implements OnInit {
   kundenUnterschrift: string | null = null;
   notizen: string = '';
 
+  // ── Fahrrad ist nicht im Bestand: direkt hier anlegen ──
+  isQuickAddMode = false;
+  newBikeErrors: { [key: string]: boolean } = {};
+  newBike = {
+    lagernummer: null as number | null,
+    rahmennummer: '',
+    marke: '',
+    modell: '',
+    rahmengroesse: '',
+    farbe: '',
+    reifengroesse: '',
+    fahrradtyp: '',
+    beschreibung: '',
+    zustand: '' as BikeCondition | '',
+  };
+
+  colorOptions = [
+    { value: 'Schwarz', label: 'Schwarz', hex: '#1a1a1a' },
+    { value: 'Weiß', label: 'Weiß', hex: '#f5f5f5' },
+    { value: 'Rot', label: 'Rot', hex: '#ef4444' },
+    { value: 'Blau', label: 'Blau', hex: '#3b82f6' },
+    { value: 'Grün', label: 'Grün', hex: '#22c55e' },
+    { value: 'Gelb', label: 'Gelb', hex: '#eab308' },
+    { value: 'Orange', label: 'Orange', hex: '#f97316' },
+    { value: 'Braun', label: 'Braun', hex: '#92400e' },
+    { value: 'Grau', label: 'Grau', hex: '#9ca3af' },
+    { value: 'Silber', label: 'Silber', hex: '#c0c0c0' },
+    { value: 'Pink', label: 'Pink', hex: '#ec4899' },
+    { value: 'Türkis', label: 'Türkis', hex: '#06b6d4' },
+    { value: 'Lila', label: 'Lila', hex: '#a855f7' },
+    { value: 'Dunkelblau', label: 'Dunkelblau', hex: '#1e3a5f' },
+  ];
+
+  isColorSelected(farbe: string, color: string): boolean {
+    if (!farbe) return false;
+    return farbe.split(/[,\/]\s*/).includes(color);
+  }
+
+  toggleColor(farbe: string, color: string): string {
+    const colors = farbe ? farbe.split(/[,\/]\s*/).filter(Boolean) : [];
+    const idx = colors.indexOf(color);
+    if (idx >= 0) colors.splice(idx, 1);
+    else colors.push(color);
+    return colors.join('/');
+  }
+
   // Fahrradsuche wie im Verkaufsformular
   lagernummerInput: number | null = null;
   rahmennummerInput = '';
@@ -726,8 +963,24 @@ export class ReservationFormComponent implements OnInit {
     setTimeout(() => (this.showRahmenDropdown = false), 200);
   }
 
+  startQuickAdd() {
+    this.isQuickAddMode = true;
+    this.selectedBike = null;
+    this.newBikeErrors = {};
+    // Bereits getippte Nummern übernehmen — meistens hat der Nutzer sie
+    // gesucht, nicht gefunden und legt genau dieses Rad jetzt an.
+    this.newBike.rahmennummer = this.rahmennummerInput || '';
+    this.newBike.lagernummer = this.lagernummerInput;
+  }
+
+  cancelQuickAdd() {
+    this.isQuickAddMode = false;
+    this.newBikeErrors = {};
+  }
+
   selectBike(bike: Bicycle) {
     this.selectedBike = bike;
+    this.isQuickAddMode = false;
     this.showLagerDropdown = false;
     this.showRahmenDropdown = false;
     this.lagerSearchResults = [];
@@ -763,9 +1016,19 @@ export class ReservationFormComponent implements OnInit {
     return (Number(this.verkaufspreis) || 0) - (Number(this.anzahlung) || 0);
   }
 
+  /** Pflichtfelder des neu anzulegenden Fahrrads. */
+  private validateNewBike(): boolean {
+    this.newBikeErrors = {};
+    if (!this.newBike.rahmennummer.trim())
+      this.newBikeErrors['rahmennummer'] = true;
+    if (!this.newBike.marke.trim()) this.newBikeErrors['marke'] = true;
+    if (!this.newBike.zustand) this.newBikeErrors['zustand'] = true;
+    return !Object.values(this.newBikeErrors).some((v) => v);
+  }
+
   canSubmit(): boolean {
     return !!(
-      this.selectedBike &&
+      (this.selectedBike || this.isQuickAddMode) &&
       this.customer.vorname.trim() &&
       this.customer.nachname.trim() &&
       this.customer.strasse?.trim() &&
@@ -782,11 +1045,52 @@ export class ReservationFormComponent implements OnInit {
   submit() {
     if (!this.canSubmit()) return;
 
+    if (this.isQuickAddMode) {
+      if (!this.validateNewBike()) {
+        this.errorMessage = this.t.requiredField;
+        return;
+      }
+      this.submitting = true;
+      this.errorMessage = null;
+      // Erst das Fahrrad anlegen, dann darauf reservieren. Der Server setzt
+      // es anschließend auf „Reserviert".
+      this.bicycleService
+        .create({
+          rahmennummer: this.newBike.rahmennummer.trim().toUpperCase(),
+          marke: this.newBike.marke.trim(),
+          modell: this.newBike.modell || undefined,
+          rahmengroesse: this.newBike.rahmengroesse || undefined,
+          farbe: this.newBike.farbe || undefined,
+          // Leerer String statt fehlendem Schlüssel: Reifengroesse ist im
+          // BicycleCreateDto nicht nullable und damit implizit Pflicht.
+          reifengroesse: this.newBike.reifengroesse || '',
+          fahrradtyp: this.newBike.fahrradtyp || undefined,
+          beschreibung: this.newBike.beschreibung || undefined,
+          zustand: this.newBike.zustand as BikeCondition,
+          lagernummer: this.newBike.lagernummer ?? undefined,
+          // Reservierter Preis wird auch am Rad als Vorschlagspreis hinterlegt.
+          verkaufspreisVorschlag: this.verkaufspreis ?? undefined,
+          isRentable: false,
+        } as any)
+        .subscribe({
+          next: (created) => this.createReservation(created.id),
+          error: (err) => {
+            this.submitting = false;
+            this.errorMessage =
+              err.error?.message || err.error?.error || this.t.saveError;
+          },
+        });
+      return;
+    }
+
     this.submitting = true;
     this.errorMessage = null;
+    this.createReservation(this.selectedBike!.id);
+  }
 
+  private createReservation(bicycleId: number) {
     const reservation: ReservationCreate = {
-      bicycleId: this.selectedBike!.id,
+      bicycleId,
       customer: this.customer,
       reservierungsDatum: this.reservierungsDatum || undefined,
       ablaufDatum: this.ablaufDatum || undefined,

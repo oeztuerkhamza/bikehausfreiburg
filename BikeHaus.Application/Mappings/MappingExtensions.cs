@@ -83,7 +83,8 @@ public static class MappingExtensions
         RentalPriceDay7 = dto.RentalPriceDay7,
         RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7,
         Kaution = dto.Kaution,
-        Lagernummer = dto.Lagernummer
+        Lagernummer = dto.Lagernummer,
+        VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag
     };
 
     public static PublicRentalBicycleDto ToPublicRentalDto(this Bicycle entity) => new(

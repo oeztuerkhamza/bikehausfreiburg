@@ -88,6 +88,8 @@ export interface BicycleCreate {
   modell: string;
   rahmennummer?: string;
   lagernummer?: number;
+  /** Beim Anlegen erlaubt — später läuft der Preis über BicycleUpdate. */
+  verkaufspreisVorschlag?: number;
   rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;

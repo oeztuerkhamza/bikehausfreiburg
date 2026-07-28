@@ -56,7 +56,11 @@ public record BicycleCreateDto(
     decimal? RentalPriceDay7 = null,
     decimal? RentalPriceAdditionalDayAfter7 = null,
     decimal? Kaution = null,
-    int? Lagernummer = null
+    int? Lagernummer = null,
+    // Beim Anlegen erlaubt (anders als die Kaution): wer ein Rad direkt aus
+    // einem Beleg heraus anlegt — etwa beim Reservieren eines noch nicht
+    // erfassten Fahrrads — soll den vereinbarten Preis gleich hinterlegen.
+    decimal? VerkaufspreisVorschlag = null
 );
 
 public record BicycleUpdateDto(
