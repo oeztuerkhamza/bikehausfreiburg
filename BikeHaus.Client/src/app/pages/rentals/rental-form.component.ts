@@ -58,6 +58,11 @@ const ACCESSORY_KEYS: PredefinedAccessoryKey[] = [
 
 interface BikeEntry {
   selectedBike: Bicycle | null;
+  // true, wenn selectedBike nur ein { id }-Platzhalter ist (Umwandeln einer
+  // Buchung: das Rad ist über seine eigene Buchung belegt und taucht deshalb
+  // nicht in availableBikes auf). Aus so einem Platzhalter darf KEIN
+  // Fahrrad-Update gebaut werden — alle Felder wären undefined.
+  isStubBike: boolean;
   isQuickAddMode: boolean;
   isCollapsed: boolean;
   // Edit-mode tracking (null/false for the "new rental" flow)
@@ -94,6 +99,7 @@ interface BikeEntry {
 function createEmptyBikeEntry(): BikeEntry {
   return {
     selectedBike: null,
+    isStubBike: false,
     isQuickAddMode: false,
     isCollapsed: false,
     rentalBikeId: null,
@@ -608,32 +614,33 @@ const MONTH_NAMES = [
                   required
                 />
               </div>
+              <!-- Adresse und E-Mail sind optional: für Laufkundschaft, die
+                   bar zahlt, reicht der Name. Serverseitig sind diese Felder
+                   ohnehin nullable (CustomerCreateDto), nur Vor- und Nachname
+                   sind Pflicht. -->
               <div class="field">
-                <label>Straße *</label>
+                <label>Straße</label>
                 <input
                   [(ngModel)]="customer.strasse"
                   name="customerStrasse"
-                  required
                 />
               </div>
               <div class="field">
-                <label>Hausnummer *</label>
+                <label>Hausnummer</label>
                 <input
                   [(ngModel)]="customer.hausnummer"
                   name="customerHausnr"
-                  required
                 />
               </div>
               <div class="field">
-                <label>PLZ *</label>
-                <input [(ngModel)]="customer.plz" name="customerPlz" required />
+                <label>PLZ</label>
+                <input [(ngModel)]="customer.plz" name="customerPlz" />
               </div>
               <div class="field">
-                <label>Stadt *</label>
+                <label>Stadt</label>
                 <input
                   [(ngModel)]="customer.stadt"
                   name="customerStadt"
-                  required
                 />
               </div>
               <div class="field">
@@ -644,12 +651,11 @@ const MONTH_NAMES = [
                 />
               </div>
               <div class="field">
-                <label>E-Mail *</label>
+                <label>E-Mail</label>
                 <input
                   [(ngModel)]="customer.email"
                   name="customerEmail"
                   type="email"
-                  required
                 />
               </div>
             </div>
@@ -2260,8 +2266,11 @@ export class RentalFormComponent implements OnInit {
   }
 
   // Zahlungsart gilt einmal für den ganzen Vertrag (nicht je Rad).
-  zahlungsartMiete: PaymentMethod | '' = '';
-  zahlungsartKaution: PaymentMethod | '' = '';
+  // Vorbelegt mit Bar — der mit Abstand häufigste Fall am Tresen. Beide Felder
+  // bleiben änderbar; ohne Vorbelegung blockierte jeder Vertrag zweimal an
+  // einer Auswahl, die fast immer dieselbe ist.
+  zahlungsartMiete: PaymentMethod | '' = PaymentMethod.Bar;
+  zahlungsartKaution: PaymentMethod | '' = PaymentMethod.Bar;
 
   /** Überträgt die eine Zahlungsart-Auswahl auf alle Räder. */
   applyPaymentToAll(): void {
@@ -2301,16 +2310,12 @@ export class RentalFormComponent implements OnInit {
 
   private validateMieterStep(): boolean {
     const c = this.customer;
-    if (
-      !c.vorname ||
-      !c.nachname ||
-      !c.strasse ||
-      !c.hausnummer ||
-      !c.plz ||
-      !c.stadt ||
-      !c.email
-    ) {
-      this.notificationService.error('Bitte alle Pflichtfelder des Mieters ausfüllen.');
+    // Nur Vor- und Nachname sind Pflicht — das sind auch die einzigen beiden
+    // nicht-nullable Felder im CustomerCreateDto. Adresse, PLZ, Stadt und
+    // E-Mail sind bewusst optional: Barzahlende Laufkundschaft ohne E-Mail
+    // muss bedient werden können, ohne dass jemand a@a.de eintippt.
+    if (!c.vorname || !c.nachname) {
+      this.notificationService.error('Bitte Vor- und Nachname des Mieters ausfüllen.');
       return false;
     }
     return true;
@@ -2907,6 +2912,9 @@ export class RentalFormComponent implements OnInit {
       entry.isExisting = true;
       entry.originalBicycleId = rb.bicycleId;
       entry.selectedBike = rb.bicycle ?? ({ id: rb.bicycleId } as Bicycle);
+      // Liefert der Vertrag das Fahrrad nicht mit, ist das ebenfalls nur ein
+      // Platzhalter — beim Speichern kein Fahrrad-Update daraus bauen.
+      entry.isStubBike = rb.bicycle == null;
       entry.isCollapsed = idx > 0;
       entry.bikeEdit = {
         rahmennummer: rb.rahmennummer || rb.bicycle?.rahmennummer || '',
@@ -2966,6 +2974,8 @@ export class RentalFormComponent implements OnInit {
     const b = this.bikes[i];
     if (!b) return;
     b.selectedBike = bike;
+    // Ab hier liegen die echten Stammdaten vor — kein Platzhalter mehr.
+    b.isStubBike = false;
     b.isQuickAddMode = false;
     b.bikeEdit = {
       rahmennummer: bike.rahmennummer || '',
@@ -3138,6 +3148,7 @@ export class RentalFormComponent implements OnInit {
               const slot = this.bikes[i];
               slot.isQuickAddMode = false;
               slot.selectedBike = { id: entry.bikeId } as Bicycle;
+              slot.isStubBike = true;
               slot.bikeEdit = {
                 rahmennummer: '',
                 marke: entry.srcBike.marke || '',
@@ -3168,6 +3179,7 @@ export class RentalFormComponent implements OnInit {
             const firstBike = this.bikes[0];
             firstBike.isQuickAddMode = false;
             firstBike.selectedBike = { id: srcBike.bicycleId ?? srcBike.id } as Bicycle;
+            firstBike.isStubBike = true;
             firstBike.bikeEdit = {
               rahmennummer: '',
               marke: srcBike.marke || '',
@@ -3263,7 +3275,13 @@ export class RentalFormComponent implements OnInit {
             modell: b.bikeEdit.modell,
             rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
             farbe: b.bikeEdit.farbe || undefined,
-            reifengroesse: b.bikeEdit.reifengroesse || undefined,
+            // '' statt undefined: Reifengroesse ist im BicycleCreateDto ein
+            // nicht-nullable string und damit implizit Pflicht. Beim Schnell-
+            // anlegen ist das Feld gar nicht eingeblendet, ein fehlender
+            // Schlüssel ließ die API mit "field is required" ablehnen — die
+            // Vermietung war dann nicht speicherbar. Leer ist erlaubt (die
+            // Spalte ist NOT NULL, nicht "nicht leer").
+            reifengroesse: b.bikeEdit.reifengroesse || '',
             fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
             beschreibung: b.bikeEdit.beschreibung || undefined,
             status: 'Available',
@@ -3273,6 +3291,11 @@ export class RentalFormComponent implements OnInit {
           .pipe(map((bike) => bike.id));
       }
       const sel = b.selectedBike!;
+      // Platzhalter (Buchungsumwandlung): es gibt keine geladenen Stammdaten,
+      // die man zurückschreiben könnte. Jedes Feld wäre undefined — u. a.
+      // Status, das serverseitig NICHT per null-behalten geschützt ist und
+      // damit auf "Available" zurückfiele. Also gar nicht erst schicken.
+      if (b.isStubBike) return of(sel.id);
       const bikeUpdate: BicycleUpdate = {
         marke: b.bikeEdit.marke,
         modell: b.bikeEdit.modell,
@@ -3293,6 +3316,14 @@ export class RentalFormComponent implements OnInit {
         rentalPriceDay6: sel.rentalPriceDay6,
         rentalPriceDay7: sel.rentalPriceDay7,
         rentalPriceAdditionalDayAfter7: sel.rentalPriceAdditionalDayAfter7,
+        // Stammdaten des Fahrrads unverändert zurückschicken. Die Kaution im
+        // Formular gehört zum Mietvertrag (RentalBike), nicht zum Fahrrad —
+        // wer sie hier ändert, darf die am Fahrrad hinterlegte Kaution nicht
+        // überschreiben. Fehlten diese Felder, kamen sie als null an und
+        // wurden beim Speichern gelöscht.
+        kaution: sel.kaution,
+        art: sel.art,
+        verkaufspreisVorschlag: sel.verkaufspreisVorschlag,
       };
       return this.bicycleService
         .update(sel.id, bikeUpdate)
@@ -3347,7 +3378,13 @@ export class RentalFormComponent implements OnInit {
         error: (err) => {
           this.submitting = false;
           this.notificationService.error(
-            err.error?.error || 'Fehler beim Anlegen der Vermietung',
+            // Die API liefert bei Validierungsfehlern { message, errors }
+            // (siehe InvalidModelStateResponseFactory in Program.cs). Ohne
+            // 'message' blieb nur der generische Text übrig und der eigentliche
+            // Grund war nirgends sichtbar.
+            err.error?.message ||
+              err.error?.error ||
+              'Fehler beim Anlegen der Vermietung',
           );
         },
       });
@@ -3363,7 +3400,8 @@ export class RentalFormComponent implements OnInit {
           modell: b.bikeEdit.modell,
           rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
           farbe: b.bikeEdit.farbe || undefined,
-          reifengroesse: b.bikeEdit.reifengroesse || undefined,
+          // Siehe Anlege-Pfad: leerer String statt fehlendem Schlüssel.
+          reifengroesse: b.bikeEdit.reifengroesse || '',
           fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
           beschreibung: b.bikeEdit.beschreibung || undefined,
           status: 'Available',
@@ -3374,6 +3412,9 @@ export class RentalFormComponent implements OnInit {
     }
     const sel = b.selectedBike;
     if (!sel) return of(0);
+    // Siehe Anlege-Pfad: aus einem { id }-Platzhalter darf kein Update gebaut
+    // werden, sonst löscht das Speichern die Stammdaten des Fahrrads.
+    if (b.isStubBike) return of(sel.id);
     const bikeUpdate: BicycleUpdate = {
       marke: b.bikeEdit.marke,
       modell: b.bikeEdit.modell,
@@ -3394,6 +3435,11 @@ export class RentalFormComponent implements OnInit {
       rentalPriceDay6: sel.rentalPriceDay6,
       rentalPriceDay7: sel.rentalPriceDay7,
       rentalPriceAdditionalDayAfter7: sel.rentalPriceAdditionalDayAfter7,
+      // Siehe Kommentar im Anlege-Pfad: Kaution/Art/Verkaufspreisvorschlag
+      // gehören dem Fahrrad und werden hier nur unverändert durchgereicht.
+      kaution: sel.kaution,
+      art: sel.art,
+      verkaufspreisVorschlag: sel.verkaufspreisVorschlag,
     };
     return this.bicycleService.update(sel.id, bikeUpdate).pipe(map(() => sel.id));
   }
@@ -3471,7 +3517,9 @@ export class RentalFormComponent implements OnInit {
         error: (err) => {
           this.submitting = false;
           this.notificationService.error(
-            err.error?.error || 'Fehler beim Speichern der Änderungen',
+            err.error?.message ||
+              err.error?.error ||
+              'Fehler beim Speichern der Änderungen',
           );
         },
       });

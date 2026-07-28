@@ -72,7 +72,9 @@ public record BicycleUpdateDto(
     BikeStatus Status,
     BikeCondition Zustand,
     decimal? VerkaufspreisVorschlag = null,
-    bool IsRentable = false,
+    // bool? statt bool: ein fehlendes Feld darf nicht als "false" ankommen und
+    // das Rad stillschweigend aus der Vermietflotte nehmen. null = behalten.
+    bool? IsRentable = null,
     decimal? RentalPriceDay1 = null,
     decimal? RentalPriceDay2 = null,
     decimal? RentalPriceDay3 = null,

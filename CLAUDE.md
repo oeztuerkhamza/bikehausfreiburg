@@ -161,7 +161,9 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 - `RepairShowcase` + `RepairShowcaseImage` — workshop gallery.
 - `KleinanzeigenListing` + `KleinanzeigenImage` — scraped marketplace ads.
 
-**Unique-indexed fields**: `Bicycle.Rahmennummer`, `Purchase.BelegNummer`, `Sale.BelegNummer`, `Return.BelegNummer`, `Rental.MietvertragNummer`, `RentalBooking.BuchungsNummer`, `Reservation.ReservierungsNummer`, `Invoice.RechnungsNummer`, `User.Username`, `KleinanzeigenListing.ExternalId`.
+**Unique-indexed fields**: `Purchase.BelegNummer`, `Sale.BelegNummer`, `Return.BelegNummer`, `Rental.MietvertragNummer`, `RentalBooking.BuchungsNummer`, `Reservation.ReservierungsNummer`, `Invoice.RechnungsNummer`, `User.Username`, `KleinanzeigenListing.ExternalId`.
+
+> `Bicycle.Rahmennummer` is **indexed but NOT unique** — `entity.HasIndex(e => e.Rahmennummer)` in [BikeHausDbContext.cs](BikeHaus.Infrastructure/Data/BikeHausDbContext.cs) has no `.IsUnique()`, and no migration adds one. Two bicycles can carry the same frame number, so nothing stops a duplicate record if the same bike is entered twice (e.g. via the rental form's quick-add). This file previously claimed the field was unique; it is not.
 
 ### Enums — [BikeHaus.Domain/Enums/](BikeHaus.Domain/Enums/)
 

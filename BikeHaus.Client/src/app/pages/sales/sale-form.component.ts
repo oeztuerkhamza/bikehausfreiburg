@@ -306,16 +306,23 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                     <option value="Sonstige">Sonstige</option>
                   </select>
                 </div>
-                <div class="field">
+                <div class="field" [class.field-error]="bikeErrors['zustand']">
                   <label>{{ t.condition }} *</label>
                   <select
                     [(ngModel)]="bikeEdit.zustand"
                     name="bikeZustand"
                     required
+                    (ngModelChange)="bikeErrors['zustand'] = false"
                   >
+                    <!-- Bewusst ohne Vorauswahl: Neu/Gebraucht steuert die
+                         Garantie, das darf kein stiller Default entscheiden. -->
+                    <option value="" disabled>-- {{ t.selectOption }} --</option>
                     <option value="Gebraucht">{{ t.usedCondition }}</option>
                     <option value="Neu">{{ t.newCondition }}</option>
                   </select>
+                  <span class="error-msg" *ngIf="bikeErrors['zustand']">{{
+                    t.requiredField
+                  }}</span>
                 </div>
                 <div class="field" [class.field-error]="bikeErrors['preis']">
                   <label>Preis (€) *</label>
@@ -1616,7 +1623,9 @@ export class SaleFormComponent implements OnInit {
     reifengroesse: '',
     fahrradtyp: '',
     beschreibung: '',
-    zustand: 'Gebraucht' as BikeCondition,
+    // '' = noch nicht gewählt. Kein Default, weil Neu/Gebraucht die Garantie
+    // bestimmt — validateBike() erzwingt die Auswahl vor dem Speichern.
+    zustand: '' as BikeCondition | '',
   };
   brands: string[] = [];
   models: string[] = [];
@@ -1746,7 +1755,9 @@ export class SaleFormComponent implements OnInit {
       reifengroesse: bike.reifengroesse || '',
       fahrradtyp: bike.fahrradtyp || '',
       beschreibung: bike.beschreibung || '',
-      zustand: bike.zustand || BikeCondition.Gebraucht,
+      // Kein Fallback auf Gebraucht: hat das Rad keinen Zustand, muss er
+      // bewusst gewählt werden.
+      zustand: bike.zustand || '',
     };
   }
 
@@ -1789,7 +1800,7 @@ export class SaleFormComponent implements OnInit {
       reifengroesse: '',
       fahrradtyp: '',
       beschreibung: '',
-      zustand: BikeCondition.Gebraucht,
+      zustand: '',
     };
 
     // Expand the form to enter details
@@ -1876,7 +1887,9 @@ export class SaleFormComponent implements OnInit {
       reifengroesse: bike.reifengroesse || '',
       fahrradtyp: bike.fahrradtyp || '',
       beschreibung: bike.beschreibung || '',
-      zustand: bike.zustand || BikeCondition.Gebraucht,
+      // Kein Fallback auf Gebraucht: hat das Rad keinen Zustand, muss er
+      // bewusst gewählt werden.
+      zustand: bike.zustand || '',
     };
     this.bikeErrors = {};
   }
@@ -1896,7 +1909,9 @@ export class SaleFormComponent implements OnInit {
       reifengroesse: bike.reifengroesse || '',
       fahrradtyp: bike.fahrradtyp || '',
       beschreibung: bike.beschreibung || '',
-      zustand: bike.zustand || BikeCondition.Gebraucht,
+      // Kein Fallback auf Gebraucht: hat das Rad keinen Zustand, muss er
+      // bewusst gewählt werden.
+      zustand: bike.zustand || '',
     };
   }
 
@@ -1959,6 +1974,7 @@ export class SaleFormComponent implements OnInit {
     if (!this.bikeEdit.farbe) this.bikeErrors['farbe'] = true;
     if (!this.bikeEdit.reifengroesse) this.bikeErrors['reifengroesse'] = true;
     if (!this.bikeEdit.fahrradtyp) this.bikeErrors['fahrradtyp'] = true;
+    if (!this.bikeEdit.zustand) this.bikeErrors['zustand'] = true;
     if (this.preis <= 0) this.bikeErrors['preis'] = true;
     return Object.keys(this.bikeErrors).length === 0;
   }
@@ -2042,6 +2058,11 @@ export class SaleFormComponent implements OnInit {
 
     if (!this.isAccessoryOnly && !this.validateBike()) {
       this.bikeEditExpanded = true;
+      // Ohne Meldung sah der Nutzer nur, dass nichts passiert — die roten
+      // Felder liegen u. U. weit oben auf der Seite.
+      this.notificationService.error(
+        'Bitte alle Pflichtfelder des Fahrrads ausfüllen.',
+      );
       return;
     }
 
@@ -2065,7 +2086,8 @@ export class SaleFormComponent implements OnInit {
         fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
         beschreibung: this.bikeEdit.beschreibung || undefined,
         status: 'Verfügbar' as any,
-        zustand: this.bikeEdit.zustand,
+        // validateBike() lässt '' nicht bis hierher durch.
+        zustand: this.bikeEdit.zustand as BikeCondition,
         isRentable: false,
         rentalPriceDay1: undefined,
         rentalPriceDay2: undefined,
@@ -2084,7 +2106,7 @@ export class SaleFormComponent implements OnInit {
           const bikeUpdate = this.buildBikeUpdate(createdBike.status);
           this.bicycleService.update(createdBike.id, bikeUpdate).subscribe({
             next: () => {
-              this.selectedBike!.zustand = this.bikeEdit.zustand;
+              this.selectedBike!.zustand = this.bikeEdit.zustand as BikeCondition;
               this.selectedBike!.verkaufspreisVorschlag =
                 bikeUpdate.verkaufspreisVorschlag;
               this.createSale();
@@ -2116,7 +2138,7 @@ export class SaleFormComponent implements OnInit {
     this.bicycleService.update(selectedBike.id, bikeUpdate).subscribe({
       next: () => {
         // Update local selectedBike to reflect changes (for warranty calculation)
-        this.selectedBike!.zustand = this.bikeEdit.zustand;
+        this.selectedBike!.zustand = this.bikeEdit.zustand as BikeCondition;
         this.selectedBike!.verkaufspreisVorschlag =
           bikeUpdate.verkaufspreisVorschlag;
         this.createSale();
@@ -2141,7 +2163,8 @@ export class SaleFormComponent implements OnInit {
       fahrradtyp: this.bikeEdit.fahrradtyp || undefined,
       beschreibung: this.bikeEdit.beschreibung || undefined,
       status,
-      zustand: this.bikeEdit.zustand,
+      // validateBike() lässt '' nicht bis hierher durch.
+      zustand: this.bikeEdit.zustand as BikeCondition,
       verkaufspreisVorschlag: this.preis > 0 ? this.preis : undefined,
       isRentable: this.selectedBike?.isRentable ?? false,
       rentalPriceDay1: this.selectedBike?.rentalPriceDay1,
@@ -2153,6 +2176,10 @@ export class SaleFormComponent implements OnInit {
       rentalPriceDay7: this.selectedBike?.rentalPriceDay7,
       rentalPriceAdditionalDayAfter7:
         this.selectedBike?.rentalPriceAdditionalDayAfter7,
+      // Unverändert durchreichen: das Verkaufsformular bearbeitet die Kaution
+      // nicht, ohne dieses Feld kam sie als null an und wurde gelöscht.
+      kaution: this.selectedBike?.kaution,
+      art: this.selectedBike?.art,
     };
   }
 
