@@ -1654,7 +1654,11 @@ public class PdfService : IPdfService
                                     var sigData = shop.OwnerSignatureBase64;
                                     if (sigData.Contains(","))
                                         sigData = sigData.Substring(sigData.IndexOf(",") + 1);
-                                    c.Item().Height(35).AlignLeft().Image(Convert.FromBase64String(sigData));
+                                    // Kein AlignLeft: zusammen mit der festen Höhe
+                                    // wirft QuestPDF eine DocumentLayoutException
+                                    // („conflicting size constraints") — dieselbe
+                                    // Schreibweise wie in den Mietbelegen.
+                                    c.Item().Height(35).Image(Convert.FromBase64String(sigData));
                                 }
                                 catch { c.Item().Height(35); }
                             }
@@ -1675,7 +1679,11 @@ public class PdfService : IPdfService
                                     var sigData = reservation.KundenUnterschrift!;
                                     if (sigData.Contains(","))
                                         sigData = sigData.Substring(sigData.IndexOf(",") + 1);
-                                    c.Item().Height(35).AlignLeft().Image(Convert.FromBase64String(sigData));
+                                    // Kein AlignLeft: zusammen mit der festen Höhe
+                                    // wirft QuestPDF eine DocumentLayoutException
+                                    // („conflicting size constraints") — dieselbe
+                                    // Schreibweise wie in den Mietbelegen.
+                                    c.Item().Height(35).Image(Convert.FromBase64String(sigData));
                                 }
                                 catch { c.Item().Height(35); }
                             }

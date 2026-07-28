@@ -4,6 +4,7 @@ using BikeHaus.Application.Mappings;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace BikeHaus.Application.Services;
 
@@ -15,6 +16,7 @@ public class ReservationService : IReservationService
     private readonly ISaleRepository _saleRepository;
     private readonly IPdfService _pdfService;
     private readonly IEmailService _emailService;
+    private readonly ILogger<ReservationService> _logger;
 
     public ReservationService(
         IReservationRepository reservationRepository,
@@ -22,8 +24,10 @@ public class ReservationService : IReservationService
         ICustomerRepository customerRepository,
         ISaleRepository saleRepository,
         IPdfService pdfService,
-        IEmailService emailService)
+        IEmailService emailService,
+        ILogger<ReservationService> logger)
     {
+        _logger = logger;
         _reservationRepository = reservationRepository;
         _bicycleRepository = bicycleRepository;
         _customerRepository = customerRepository;
@@ -177,9 +181,15 @@ public class ReservationService : IReservationService
                 reservation.AblaufDatum,
                 pdf);
         }
-        catch
+        catch (Exception ex)
         {
-            // Beleg lässt sich jederzeit manuell aus der Liste erneut senden.
+            // Der Versand darf die bereits angelegte Reservierung nicht scheitern
+            // lassen — aber schweigen darf er auch nicht: ein stilles catch hat
+            // eine kaputte PDF-Erzeugung als „Mail kommt einfach nicht an"
+            // getarnt. Der Beleg lässt sich jederzeit aus der Liste neu senden.
+            _logger.LogError(ex,
+                "Anzahlungsbeleg für Reservierung {Nummer} konnte nicht gesendet werden.",
+                reservation.ReservierungsNummer);
         }
     }
 
