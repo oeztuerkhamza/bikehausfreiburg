@@ -122,17 +122,43 @@ export class GmailService {
     this.userEmail.set('');
   }
 
-  // ── Gmail-Operationen ───────────────────────────────────────────────────
-  listInbox(query = '', maxResults = 20): Promise<GmailListItem[]> {
-    const params: Record<string, string> = { max: String(maxResults) };
-    if (query) params['q'] = query;
-    return firstValueFrom(
-      this.http.get<GmailListItem[]>(`${this.url}/messages`, { params }),
-    );
+  /**
+   * Der Server antwortet mit 409, wenn die Google-Verbindung nicht (mehr)
+   * nutzbar ist. Dann die Oberfläche zurück auf „nicht verbunden" setzen —
+   * sonst bleibt der Posteingang sichtbar und wirft bei jedem Klick denselben
+   * Fehler, ohne je den Verbinden-Button anzubieten. Die Fehlermeldung des
+   * Servers nach vorn holen; ohne das steht in der Notification nur der
+   * nichtssagende HTTP-Text ("Http failure response … 409 OK").
+   */
+  private handleGmailError(err: any): never {
+    if (err?.status === 409) {
+      this.connected.set(false);
+      this.userEmail.set('');
+    }
+    throw new Error(err?.error?.message || err?.message || 'Unbekannter Fehler');
   }
 
-  getMessage(id: string): Promise<GmailMessage> {
-    return firstValueFrom(this.http.get<GmailMessage>(`${this.url}/messages/${id}`));
+  // ── Gmail-Operationen ───────────────────────────────────────────────────
+  async listInbox(query = '', maxResults = 20): Promise<GmailListItem[]> {
+    const params: Record<string, string> = { max: String(maxResults) };
+    if (query) params['q'] = query;
+    try {
+      return await firstValueFrom(
+        this.http.get<GmailListItem[]>(`${this.url}/messages`, { params }),
+      );
+    } catch (err) {
+      return this.handleGmailError(err);
+    }
+  }
+
+  async getMessage(id: string): Promise<GmailMessage> {
+    try {
+      return await firstValueFrom(
+        this.http.get<GmailMessage>(`${this.url}/messages/${id}`),
+      );
+    } catch (err) {
+      return this.handleGmailError(err);
+    }
   }
 
   async markAsRead(id: string): Promise<void> {

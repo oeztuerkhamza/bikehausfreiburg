@@ -129,6 +129,20 @@ public class GmailService(
         if (!res.IsSuccessStatusCode)
         {
             logger.LogError("Gmail Token-Refresh fehlgeschlagen: {Status} {Body}", res.StatusCode, json);
+
+            // invalid_grant heißt: der Refresh-Token ist endgültig weg (abgelaufen,
+            // widerrufen, Passwort geändert, oder der OAuth-Consent-Screen steht
+            // noch auf „Testing" — dort verfallen Refresh-Token nach 7 Tagen).
+            // Die gespeicherte Verbindung ist damit wertlos: löschen, sonst meldet
+            // /status weiter „verbunden" und jede Abfrage läuft in denselben Fehler,
+            // ohne dass die Oberfläche je den Verbinden-Button zeigt.
+            if (json.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase))
+            {
+                store.Clear();
+                throw new InvalidOperationException(
+                    "Die Google-Anmeldung ist abgelaufen oder wurde widerrufen. Bitte oben erneut mit Google verbinden.");
+            }
+
             throw new InvalidOperationException("Gmail-Sitzung abgelaufen. Bitte erneut verbinden.");
         }
 

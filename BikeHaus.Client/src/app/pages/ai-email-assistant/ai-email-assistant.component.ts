@@ -656,7 +656,15 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
       const items = await this.gmail.listInbox(this.searchQuery.trim(), 20);
       this.emails.set(items);
     } catch (e: any) {
-      this.notify.error('Posteingang konnte nicht geladen werden: ' + (e?.message || ''));
+      // Ist die Google-Verbindung weg, hat der Service bereits auf „nicht
+      // verbunden" geschaltet — dann zeigt die Seite die Verbinden-Karte und
+      // die Meldung nennt den Grund, statt einen HTTP-Statuscode.
+      this.emails.set([]);
+      this.notify.error(
+        this.gmail.connected()
+          ? 'Posteingang konnte nicht geladen werden: ' + (e?.message || '')
+          : e?.message || 'Google-Verbindung ist nicht mehr gültig.',
+      );
     } finally {
       this.loadingList.set(false);
     }
