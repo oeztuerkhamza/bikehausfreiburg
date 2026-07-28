@@ -10,6 +10,7 @@ public interface IPdfService
     Task<byte[]> GenerateMietvertragAsync(int rentalId);
     Task<byte[]> GenerateMietbedingungenpdfAsync(int rentalId);
     Task<byte[]> GenerateKautionsquittungAsync(int rentalId);
+    Task<byte[]> GenerateAnzahlungsbelegAsync(int reservationId);
     Task<byte[]> GenerateBookingRechnungAsync(int bookingId);
     Task<byte[]> GenerateBookingKautionsquittungAsync(int bookingId);
 }

@@ -37,12 +37,27 @@ public class ReservationRepository : Repository<Reservation>, IReservationReposi
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Fortlaufende Nummer ab 1 (001, 002, …) — dieselbe Systematik wie die
+    /// Belegnummer beim Ankauf (PurchaseRepository.GenerateBelegNummerAsync).
+    /// Vorher war es RES-yyyyMMdd-NNN, was täglich wieder bei 001 begann.
+    /// Nur rein numerische Nummern zählen mit, deshalb kollidiert die neue
+    /// Zählung nicht mit eventuell vorhandenen alten RES-… Nummern; sie
+    /// startet daneben sauber bei 001.
+    /// </summary>
     public async Task<string> GenerateReservierungsNummerAsync()
     {
-        var today = DateTime.UtcNow;
-        var prefix = $"RES-{today:yyyyMMdd}";
-        var count = await _dbSet.CountAsync(r => r.ReservierungsNummer.StartsWith(prefix));
-        return $"{prefix}-{(count + 1):D3}";
+        var alle = await _dbSet
+            .Select(r => r.ReservierungsNummer)
+            .ToListAsync();
+
+        var maxNumber = alle
+            .Where(n => !string.IsNullOrWhiteSpace(n) && int.TryParse(n, out _))
+            .Select(n => int.Parse(n))
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return $"{maxNumber + 1:D3}";
     }
 
     public override async Task<IEnumerable<Reservation>> GetAllAsync()

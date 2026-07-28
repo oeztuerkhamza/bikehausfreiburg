@@ -182,6 +182,60 @@ Your Bike Haus Freiburg team";
             });
     }
 
+    public Task SendReservationAnzahlungAsync(
+        string toEmail,
+        string toName,
+        string reservierungsNummer,
+        DateTime ablaufDatum,
+        byte[] pdfBytes)
+    {
+        var subject = $"Reservierung / Reservation - {reservierungsNummer} | Bike Haus Freiburg";
+        var germanBody = $@"Hallo {toName},
+
+vielen Dank fuer deine Reservierung.
+
+anbei findest du deinen Anzahlungsbeleg als PDF.
+
+Reservierungsnummer: {reservierungsNummer}
+Reserviert bis: {ablaufDatum:dd.MM.yyyy}
+
+Deine Anzahlung wird beim Kauf vollstaendig auf den Kaufpreis angerechnet.
+Bitte hol das Fahrrad bis zum genannten Datum ab.
+
+Wenn du noch Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
+
+Viele Gruesse
+Dein Team vom Bike Haus Freiburg";
+        var englishBody = $@"Hello {toName},
+
+thank you for your reservation.
+
+please find your down payment receipt attached as a PDF.
+
+Reservation number: {reservierungsNummer}
+Reserved until: {ablaufDatum:dd.MM.yyyy}
+
+Your down payment will be credited in full against the purchase price.
+Please collect the bike by the date above.
+
+If you have any questions, simply reply to this email or give us a quick call.
+
+Best regards
+Your Bike Haus Freiburg team";
+        var body = Bilingual(germanBody, englishBody);
+
+        return SendAsync(
+            toEmail,
+            toName,
+            subject,
+            body,
+            "Reservierung",
+            new[]
+            {
+                (Bytes: pdfBytes, FileName: $"Anzahlungsbeleg-{reservierungsNummer}.pdf")
+            });
+    }
+
     public Task SendRentalDocumentsAsync(
         string toEmail,
         string toName,

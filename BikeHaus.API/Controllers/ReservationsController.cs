@@ -11,10 +11,49 @@ namespace BikeHaus.API.Controllers;
 public class ReservationsController : ControllerBase
 {
     private readonly IReservationService _reservationService;
+    private readonly IPdfService _pdfService;
+    private readonly IEmailService _emailService;
 
-    public ReservationsController(IReservationService reservationService)
+    public ReservationsController(
+        IReservationService reservationService,
+        IPdfService pdfService,
+        IEmailService emailService)
     {
         _reservationService = reservationService;
+        _pdfService = pdfService;
+        _emailService = emailService;
+    }
+
+    /// <summary>Anzahlungsbeleg als PDF herunterladen.</summary>
+    [HttpGet("{id}/anzahlungsbeleg")]
+    public async Task<IActionResult> DownloadAnzahlungsbeleg(int id)
+    {
+        var reservation = await _reservationService.GetByIdAsync(id);
+        if (reservation == null)
+            return NotFound(new { error = "Reservierung nicht gefunden." });
+
+        var pdfBytes = await _pdfService.GenerateAnzahlungsbelegAsync(id);
+        return File(pdfBytes, "application/pdf", $"Anzahlungsbeleg_{reservation.ReservierungsNummer}.pdf");
+    }
+
+    /// <summary>Anzahlungsbeleg per E-Mail an den Kunden schicken.</summary>
+    [HttpPost("{id}/send-anzahlungsbeleg")]
+    public async Task<IActionResult> SendAnzahlungsbeleg(int id, [FromQuery] string? overrideEmail = null)
+    {
+        var reservation = await _reservationService.GetByIdAsync(id);
+        if (reservation == null)
+            return NotFound(new { error = "Reservierung nicht gefunden." });
+
+        var toEmail = overrideEmail ?? reservation.Customer?.Email;
+        if (string.IsNullOrWhiteSpace(toEmail))
+            return BadRequest(new { error = "Keine E-Mail-Adresse für diesen Kunden hinterlegt." });
+
+        var pdfBytes = await _pdfService.GenerateAnzahlungsbelegAsync(id);
+        var name = reservation.Customer?.FullName ?? "Kunde";
+        await _emailService.SendReservationAnzahlungAsync(
+            toEmail, name, reservation.ReservierungsNummer, reservation.AblaufDatum, pdfBytes);
+
+        return Ok(new { message = $"Anzahlungsbeleg {reservation.ReservierungsNummer} wurde an {toEmail} gesendet." });
     }
 
     [HttpGet]

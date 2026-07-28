@@ -735,7 +735,11 @@ const MONTH_NAMES = [
               </ng-container>
             </div>
 
-            <!-- Zahlungsart einmal für alle Räder (statt je Rad). -->
+            <!-- Zahlungsart einmal für alle Räder (statt je Rad).
+                 Bewusst ohne `required` an den Selects: das HTML-Flag würde nur
+                 den Speichern-Button ausgrauen, ohne zu sagen warum. Die
+                 Prüfung sitzt in submit() und validatePreiseStep() und nennt
+                 den Grund. -->
             <div class="form-grid zahlungsart-global">
               <div class="field">
                 <label>Zahlungsart Miete *</label>
@@ -743,7 +747,6 @@ const MONTH_NAMES = [
                   [(ngModel)]="zahlungsartMiete"
                   name="zahlungsartMiete"
                   (ngModelChange)="applyPaymentToAll()"
-                  required
                 >
                   <option value="" disabled>Bitte wählen…</option>
                   <option value="Bar">Bar</option>
@@ -758,7 +761,6 @@ const MONTH_NAMES = [
                   [(ngModel)]="zahlungsartKaution"
                   name="zahlungsartKaution"
                   (ngModelChange)="applyPaymentToAll()"
-                  required
                 >
                   <option value="" disabled>Bitte wählen…</option>
                   <option value="Bar">Bar</option>
@@ -2266,11 +2268,12 @@ export class RentalFormComponent implements OnInit {
   }
 
   // Zahlungsart gilt einmal für den ganzen Vertrag (nicht je Rad).
-  // Vorbelegt mit Bar — der mit Abstand häufigste Fall am Tresen. Beide Felder
-  // bleiben änderbar; ohne Vorbelegung blockierte jeder Vertrag zweimal an
-  // einer Auswahl, die fast immer dieselbe ist.
-  zahlungsartMiete: PaymentMethod | '' = PaymentMethod.Bar;
-  zahlungsartKaution: PaymentMethod | '' = PaymentMethod.Bar;
+  // Bewusst OHNE Vorbelegung: die Zahlungsart muss jedes Mal aktiv gewählt
+  // werden. validatePreiseStep blockiert das Speichern, solange eine der
+  // beiden leer ist — ein stiller Default würde sonst falsche Zahlungsarten
+  // in die Verträge schreiben.
+  zahlungsartMiete: PaymentMethod | '' = '';
+  zahlungsartKaution: PaymentMethod | '' = '';
 
   /** Überträgt die eine Zahlungsart-Auswahl auf alle Räder. */
   applyPaymentToAll(): void {
@@ -3243,6 +3246,22 @@ export class RentalFormComponent implements OnInit {
           return;
         }
       }
+    }
+
+    // Zahlungsart wird bewusst nicht vorbelegt und muss aktiv gewählt werden.
+    // validatePreiseStep deckt nur den mobilen Assistenten ab; auf dem Desktop
+    // läuft keine Schrittprüfung, deshalb hier noch einmal.
+    if (!this.zahlungsartMiete || !this.zahlungsartKaution) {
+      this.notificationService.error(
+        !this.zahlungsartMiete
+          ? 'Zahlungsart Miete wählen'
+          : 'Zahlungsart Kaution wählen',
+      );
+      if (this.isMobile) {
+        const preiseStep = this.wizardSteps.indexOf('Preise');
+        if (preiseStep >= 0) this.currentStep = preiseStep;
+      }
+      return;
     }
 
     if (!this.agbAkzeptiert) {

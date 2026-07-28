@@ -131,6 +131,21 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
                 >
                   ✖
                 </button>
+                <button
+                  class="btn btn-sm"
+                  title="Anzahlungsbeleg (PDF)"
+                  (click)="printAnzahlungsbeleg(r)"
+                >
+                  🖨️
+                </button>
+                <button
+                  class="btn btn-sm"
+                  title="Anzahlungsbeleg per E-Mail senden"
+                  [disabled]="sendingEmailId === r.id"
+                  (click)="emailAnzahlungsbeleg(r)"
+                >
+                  {{ sendingEmailId === r.id ? '…' : '✉️' }}
+                </button>
                 <a
                   [routerLink]="['/reservations', r.id]"
                   class="btn btn-sm"
@@ -536,6 +551,8 @@ export class ReservationListComponent implements OnInit {
 
   showDeleteModal = false;
   selectedReservation: ReservationList | null = null;
+  /** id der Reservierung, deren Mail gerade rausgeht (verhindert Doppelklicks) */
+  sendingEmailId: number | null = null;
 
   get t() {
     return this.translationService.translations();
@@ -650,5 +667,40 @@ export class ReservationListComponent implements OnInit {
 
   deleteReservation() {
     // This method is deprecated - delete is now handled in confirmDelete
+  }
+
+  /** Öffnet den Anzahlungsbeleg als PDF in einem neuen Tab. */
+  printAnzahlungsbeleg(reservation: ReservationList) {
+    this.reservationService.downloadAnzahlungsbeleg(reservation.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        // Erst freigeben, wenn der neue Tab die Datei geladen hat.
+        setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      },
+      error: (err) => {
+        this.notificationService.error(
+          err.error?.message || err.error?.error || 'Beleg konnte nicht erstellt werden',
+        );
+      },
+    });
+  }
+
+  /** Schickt den Anzahlungsbeleg an die hinterlegte E-Mail des Kunden. */
+  emailAnzahlungsbeleg(reservation: ReservationList) {
+    if (this.sendingEmailId !== null) return;
+    this.sendingEmailId = reservation.id;
+    this.reservationService.sendAnzahlungsbeleg(reservation.id).subscribe({
+      next: (res) => {
+        this.sendingEmailId = null;
+        this.notificationService.success(res?.message || 'E-Mail gesendet');
+      },
+      error: (err) => {
+        this.sendingEmailId = null;
+        this.notificationService.error(
+          err.error?.message || err.error?.error || 'E-Mail konnte nicht gesendet werden',
+        );
+      },
+    });
   }
 }

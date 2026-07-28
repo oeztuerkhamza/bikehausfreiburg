@@ -70,4 +70,25 @@ export class ReservationService {
   expireOld(): Observable<void> {
     return this.http.post<void>(`${this.url}/expire-old`, {});
   }
+
+  /** Anzahlungsbeleg als PDF laden (zum Drucken/Speichern). */
+  downloadAnzahlungsbeleg(id: number): Observable<Blob> {
+    return this.http.get(`${this.url}/${id}/anzahlungsbeleg`, {
+      responseType: 'blob',
+    });
+  }
+
+  /** Anzahlungsbeleg per E-Mail an den Kunden schicken. */
+  sendAnzahlungsbeleg(
+    id: number,
+    overrideEmail?: string,
+  ): Observable<{ message: string }> {
+    const query = overrideEmail
+      ? `?overrideEmail=${encodeURIComponent(overrideEmail)}`
+      : '';
+    return this.http.post<{ message: string }>(
+      `${this.url}/${id}/send-anzahlungsbeleg${query}`,
+      {},
+    );
+  }
 }
