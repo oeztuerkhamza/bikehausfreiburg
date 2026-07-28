@@ -3276,7 +3276,13 @@ export class RentalFormComponent implements OnInit {
             modell: b.bikeEdit.modell,
             rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
             farbe: b.bikeEdit.farbe || undefined,
-            reifengroesse: b.bikeEdit.reifengroesse || undefined,
+            // '' statt undefined: Reifengroesse ist im BicycleCreateDto ein
+            // nicht-nullable string und damit implizit Pflicht. Beim Schnell-
+            // anlegen ist das Feld gar nicht eingeblendet, ein fehlender
+            // Schlüssel ließ die API mit "field is required" ablehnen — die
+            // Vermietung war dann nicht speicherbar. Leer ist erlaubt (die
+            // Spalte ist NOT NULL, nicht "nicht leer").
+            reifengroesse: b.bikeEdit.reifengroesse || '',
             fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
             beschreibung: b.bikeEdit.beschreibung || undefined,
             status: 'Available',
@@ -3373,7 +3379,13 @@ export class RentalFormComponent implements OnInit {
         error: (err) => {
           this.submitting = false;
           this.notificationService.error(
-            err.error?.error || 'Fehler beim Anlegen der Vermietung',
+            // Die API liefert bei Validierungsfehlern { message, errors }
+            // (siehe InvalidModelStateResponseFactory in Program.cs). Ohne
+            // 'message' blieb nur der generische Text übrig und der eigentliche
+            // Grund war nirgends sichtbar.
+            err.error?.message ||
+              err.error?.error ||
+              'Fehler beim Anlegen der Vermietung',
           );
         },
       });
@@ -3389,7 +3401,8 @@ export class RentalFormComponent implements OnInit {
           modell: b.bikeEdit.modell,
           rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
           farbe: b.bikeEdit.farbe || undefined,
-          reifengroesse: b.bikeEdit.reifengroesse || undefined,
+          // Siehe Anlege-Pfad: leerer String statt fehlendem Schlüssel.
+          reifengroesse: b.bikeEdit.reifengroesse || '',
           fahrradtyp: b.bikeEdit.fahrradtyp || undefined,
           beschreibung: b.bikeEdit.beschreibung || undefined,
           status: 'Available',
@@ -3505,7 +3518,9 @@ export class RentalFormComponent implements OnInit {
         error: (err) => {
           this.submitting = false;
           this.notificationService.error(
-            err.error?.error || 'Fehler beim Speichern der Änderungen',
+            err.error?.message ||
+              err.error?.error ||
+              'Fehler beim Speichern der Änderungen',
           );
         },
       });
