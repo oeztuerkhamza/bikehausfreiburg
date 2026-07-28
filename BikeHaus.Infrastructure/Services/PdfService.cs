@@ -20,6 +20,7 @@ public class PdfService : IPdfService
     private readonly IRentalRepository _rentalRepository;
     private readonly IRentalBookingRepository _rentalBookingRepository;
     private readonly IBicycleRepository _bicycleRepository;
+    private readonly IReservationRepository _reservationRepository;
     private readonly IFileStorageService _fileStorage;
 
     // Print-Friendly Colors (optimized for less ink consumption)
@@ -72,6 +73,7 @@ public class PdfService : IPdfService
         IRentalRepository rentalRepository,
         IRentalBookingRepository rentalBookingRepository,
         IBicycleRepository bicycleRepository,
+        IReservationRepository reservationRepository,
         IFileStorageService fileStorage)
     {
         _purchaseRepository = purchaseRepository;
@@ -83,6 +85,7 @@ public class PdfService : IPdfService
         _rentalRepository = rentalRepository;
         _rentalBookingRepository = rentalBookingRepository;
         _bicycleRepository = bicycleRepository;
+        _reservationRepository = reservationRepository;
         _fileStorage = fileStorage;
     }
 
@@ -1448,6 +1451,193 @@ public class PdfService : IPdfService
 
                     // Footer
                     col.Item().PaddingTop(30).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}").FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
+                });
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // RESERVIERUNG / ANZAHLUNGSBELEG PDF
+    // Quittung über die Anzahlung auf ein reserviertes Fahrrad. Dient dem
+    // Kunden als Nachweis, bis die Reservierung in einen Verkauf übergeht.
+    // ══════════════════════════════════════════════════════════════
+    public async Task<byte[]> GenerateAnzahlungsbelegAsync(int reservationId)
+    {
+        var reservation = await _reservationRepository.GetWithDetailsAsync(reservationId)
+            ?? throw new KeyNotFoundException($"Reservierung mit ID {reservationId} nicht gefunden.");
+
+        var shop = await GetShopInfoAsync();
+        var kunde = reservation.Customer;
+        var rad = reservation.Bicycle;
+        var anzahlung = reservation.Anzahlung ?? 0m;
+        var kaufpreis = rad?.VerkaufspreisVorschlag;
+        var restbetrag = kaufpreis.HasValue ? kaufpreis.Value - anzahlung : (decimal?)null;
+
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = QuestPDF.Fluent.Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(1.5f, Unit.Centimetre);
+                page.DefaultTextStyle(x => x.FontSize(9).FontColor(Colors.Grey.Darken4));
+
+                page.Header().Container().Column(col =>
+                {
+                    col.Item().Row(row =>
+                    {
+                        row.RelativeItem().Column(leftCol =>
+                        {
+                            if (!string.IsNullOrEmpty(shop.LogoBase64))
+                            {
+                                try
+                                {
+                                    var base64Data = shop.LogoBase64;
+                                    if (base64Data.Contains(","))
+                                        base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
+                                    var logoBytes = Convert.FromBase64String(base64Data);
+                                    leftCol.Item().Height(32).Image(logoBytes);
+                                }
+                                catch { }
+                            }
+                            leftCol.Item().Text(shop.ShopName).FontSize(16).Bold().FontColor(PrimaryColor);
+                            leftCol.Item().Text(shop.OwnerName).FontSize(9).FontColor(Colors.Grey.Darken2);
+                            leftCol.Item().PaddingTop(4).Text(shop.Street).FontSize(8);
+                            leftCol.Item().Text(shop.City).FontSize(8);
+                        });
+
+                        row.ConstantItem(160).AlignRight().Column(rightCol =>
+                        {
+                            rightCol.Item().Border(2).BorderColor(PrimaryColor).Padding(8).Column(box =>
+                            {
+                                box.Item().Text("ANZAHLUNGSBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text($"Nr. {reservation.ReservierungsNummer}").FontSize(12).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text($"{reservation.ReservierungsDatum:dd.MM.yyyy}").FontSize(9).FontColor(Colors.Grey.Darken1).AlignCenter();
+                            });
+                        });
+                    });
+                });
+
+                page.Content().PaddingTop(20).Column(col =>
+                {
+                    // ── Kunde ──
+                    col.Item().Text("Reserviert für").FontSize(8).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(4).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8).Column(kCol =>
+                    {
+                        kCol.Item().Text(kunde?.FullName ?? "-").FontSize(10).Bold();
+                        if (!string.IsNullOrWhiteSpace(kunde?.FullAddress))
+                            kCol.Item().Text(kunde.FullAddress!).FontSize(9);
+                        if (!string.IsNullOrWhiteSpace(kunde?.Telefon))
+                            kCol.Item().Text($"Tel: {kunde.Telefon}").FontSize(9);
+                        if (!string.IsNullOrWhiteSpace(kunde?.Email))
+                            kCol.Item().Text($"E-Mail: {kunde.Email}").FontSize(9);
+                    });
+
+                    // ── Fahrrad ──
+                    col.Item().PaddingTop(14).Text("Reserviertes Fahrrad").FontSize(8).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(4).Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn(2);
+                        });
+
+                        void Zeile(string label, string wert)
+                        {
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                                .Text(label).FontSize(8).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                                .Text(wert).FontSize(9);
+                        }
+
+                        var markeModell = $"{rad?.Marke} {rad?.Modell}".Trim();
+                        Zeile("Marke / Modell", string.IsNullOrWhiteSpace(markeModell) ? "-" : markeModell);
+                        Zeile("Rahmennummer", string.IsNullOrWhiteSpace(rad?.Rahmennummer) ? "-" : rad!.Rahmennummer!);
+                        Zeile("Farbe", string.IsNullOrWhiteSpace(rad?.Farbe) ? "-" : rad!.Farbe!);
+                        Zeile("Rahmengröße", string.IsNullOrWhiteSpace(rad?.Rahmengroesse) ? "-" : rad!.Rahmengroesse!);
+                        Zeile("Zustand", rad?.Zustand.ToString() ?? "-");
+                    });
+
+                    // ── Beträge ──
+                    col.Item().PaddingTop(14).Text("Anzahlung").FontSize(8).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(4).Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                        });
+
+                        if (kaufpreis.HasValue)
+                        {
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                                .Text("Kaufpreis").FontSize(8).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                                .Text($"{kaufpreis.Value:N2} €").FontSize(9);
+                        }
+
+                        table.Cell().Border(1).BorderColor(AccentColor).Padding(6)
+                            .Text("Erhaltene Anzahlung").FontSize(8).Bold().FontColor(AccentColor);
+                        table.Cell().Border(1).BorderColor(AccentColor).Padding(6)
+                            .Text($"{anzahlung:N2} €").FontSize(11).Bold().FontColor(AccentColor);
+
+                        if (restbetrag.HasValue)
+                        {
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                                .Text("Restbetrag bei Abholung").FontSize(8).FontColor(Colors.Grey.Darken2);
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                                .Text($"{restbetrag.Value:N2} €").FontSize(9).Bold();
+                        }
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                            .Text("Reserviert bis").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
+                            .Text($"{reservation.AblaufDatum:dd.MM.yyyy}").FontSize(9).Bold();
+                    });
+
+                    if (!string.IsNullOrWhiteSpace(reservation.Notizen))
+                    {
+                        col.Item().PaddingTop(12).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8).Column(nCol =>
+                        {
+                            nCol.Item().Text("Notizen:").FontSize(8).Bold().FontColor(Colors.Grey.Darken1);
+                            nCol.Item().PaddingTop(2).Text(reservation.Notizen!).FontSize(8);
+                        });
+                    }
+
+                    // ── Bedingungen ──
+                    col.Item().PaddingTop(14).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8).Column(bCol =>
+                    {
+                        bCol.Item().Text("Bedingungen der Reservierung").FontSize(8).Bold().FontColor(PrimaryColor);
+                        bCol.Item().PaddingTop(3).Text(
+                            "Das oben genannte Fahrrad wird bis zum angegebenen Datum für den Kunden zurückgelegt. " +
+                            "Die Anzahlung wird beim Kauf vollständig auf den Kaufpreis angerechnet. " +
+                            "Wird das Fahrrad bis zum Ablaufdatum nicht abgeholt, verfällt die Reservierung und " +
+                            "das Fahrrad kann anderweitig verkauft werden.")
+                            .FontSize(8);
+                    });
+
+                    // ── Unterschriften ──
+                    col.Item().PaddingTop(28).Row(row =>
+                    {
+                        row.RelativeItem().Column(c =>
+                        {
+                            c.Item().PaddingTop(18).LineHorizontal(0.5f).LineColor(Colors.Grey.Darken1);
+                            c.Item().PaddingTop(3).Text("Bike Haus Freiburg").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        });
+                        row.ConstantItem(30);
+                        row.RelativeItem().Column(c =>
+                        {
+                            c.Item().PaddingTop(18).LineHorizontal(0.5f).LineColor(Colors.Grey.Darken1);
+                            c.Item().PaddingTop(3).Text(kunde?.FullName ?? "Kunde").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        });
+                    });
+
+                    col.Item().PaddingTop(24).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}")
+                        .FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
                 });
             });
         });
