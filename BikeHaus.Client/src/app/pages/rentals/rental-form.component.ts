@@ -736,7 +736,7 @@ const MONTH_NAMES = [
             </div>
 
             <!-- Zahlungsart einmal für alle Räder (statt je Rad).
-                 Bewusst ohne `required` an den Selects: das HTML-Flag würde nur
+                 Bewusst ohne das HTML-Attribut required an den Selects: es würde nur
                  den Speichern-Button ausgrauen, ohne zu sagen warum. Die
                  Prüfung sitzt in submit() und validatePreiseStep() und nennt
                  den Grund. -->

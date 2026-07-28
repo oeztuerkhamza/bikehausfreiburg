@@ -719,7 +719,8 @@ export class ReservationConvertComponent implements OnInit {
   addAccessoryFromCatalog(item: AccessoryCatalogList) {
     this.accessories.push({
       bezeichnung: item.bezeichnung,
-      preis: item.standardpreis,
+      // standardpreis ist optional im Katalog, preis auf der Position nicht.
+      preis: item.standardpreis ?? 0,
       menge: 1,
     });
   }
