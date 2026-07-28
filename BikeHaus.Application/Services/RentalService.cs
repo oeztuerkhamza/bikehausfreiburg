@@ -447,7 +447,11 @@ public class RentalService : IRentalService
             // Zubehör pro Miettag (Tagespreis × Menge × Tage) zur Gesamtmiete addieren.
             var rentalDays = RentalPricingCalculator.CalculateDaysInclusive(rental.StartDatum, rental.EndDatum);
             var accessoryTotal = rental.Accessories.Sum(a => a.Tagespreis * a.Menge * rentalDays);
-            rental.Gesamtmiete = rental.Bikes.Sum(b => b.Mietpreis) + accessoryTotal - rental.Rabatt;
+            // Kein Rabattabzug mehr: die vom Formular gelieferten Mietpreise
+            // sind bereits die vereinbarten Endpreise (der Mietvertrag hat kein
+            // Rabattfeld mehr). Der frühere Abzug zog den Rabatt ein zweites Mal
+            // ab — jedes erneute Speichern eines Altvertrags senkte die Summe.
+            rental.Gesamtmiete = rental.Bikes.Sum(b => b.Mietpreis) + accessoryTotal;
             rental.Kaution = rental.Bikes.Sum(b => b.Kaution);
         }
 

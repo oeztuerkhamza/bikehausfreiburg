@@ -2087,16 +2087,34 @@ public class PdfService : IPdfService
                     ).FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
 
                     // § 4 Kaution
+                    // rental.Kaution ist die Gesamtkaution des Vertrags, nicht der
+                    // Betrag je Fahrrad — bei mehreren Rädern wird sie gleichmäßig
+                    // aufgeteilt und der Einzelbetrag zusätzlich genannt. Ist keine
+                    // Kaution vereinbart (0 €), entfällt der Absatz.
                     col.Item().PaddingTop(8).Text("§ 4 Kaution").FontSize(11).Bold().FontColor(PrimaryColor);
-                    col.Item().PaddingTop(2).Text(
-                        $"Pro Fahrrad ist eine Kaution in Höhe von {rental.Kaution:N2} € in bar zu hinterlegen. " +
-                        "Die Kaution wird spätestens innerhalb von 14 Tagen nach ordnungsgemäßer Rückgabe des Fahrrads ohne Schäden und vollständigem Zubehör zurückerstattet."
-                    ).FontSize(9);
-                    col.Item().PaddingTop(3).Text("Bei folgenden Fällen kann die Kaution ganz oder teilweise einbehalten werden:").FontSize(9);
-                    col.Item().PaddingLeft(12).Text("•  Schäden am Fahrrad").FontSize(9);
-                    col.Item().PaddingLeft(12).Text("•  Verlust oder Diebstahl").FontSize(9);
-                    col.Item().PaddingLeft(12).Text("•  unsachgemäße Nutzung").FontSize(9);
-                    col.Item().PaddingLeft(12).Text("•  fehlendes Zubehör").FontSize(9);
+                    if (rental.Kaution > 0)
+                    {
+                        var bikeCount = rental.Bikes?.Count ?? 0;
+                        var kautionSatz = bikeCount > 1
+                            ? $"Für diese Vermietung ist eine Kaution in Höhe von insgesamt {rental.Kaution:N2} € zu hinterlegen (je Fahrrad {rental.Kaution / bikeCount:N2} €). "
+                            : $"Für diese Vermietung ist eine Kaution in Höhe von {rental.Kaution:N2} € zu hinterlegen. ";
+                        col.Item().PaddingTop(2).Text(
+                            kautionSatz +
+                            "Die Kaution wird spätestens innerhalb von 14 Tagen nach ordnungsgemäßer Rückgabe des Fahrrads ohne Schäden und vollständigem Zubehör zurückerstattet."
+                        ).FontSize(9);
+                        col.Item().PaddingTop(3).Text("Bei folgenden Fällen kann die Kaution ganz oder teilweise einbehalten werden:").FontSize(9);
+                        col.Item().PaddingLeft(12).Text("•  Schäden am Fahrrad").FontSize(9);
+                        col.Item().PaddingLeft(12).Text("•  Verlust oder Diebstahl").FontSize(9);
+                        col.Item().PaddingLeft(12).Text("•  unsachgemäße Nutzung").FontSize(9);
+                        col.Item().PaddingLeft(12).Text("•  fehlendes Zubehör").FontSize(9);
+                    }
+                    else
+                    {
+                        col.Item().PaddingTop(2).Text(
+                            "Für diese Vermietung wurde keine Kaution vereinbart. Die Haftung des Mieters für Schäden, " +
+                            "Verlust und unsachgemäße Nutzung nach § 6 bleibt davon unberührt."
+                        ).FontSize(9);
+                    }
 
                     // § 5 Übergabe & Öffnungszeiten
                     col.Item().PaddingTop(8).Text("§ 5 Übergabe & Öffnungszeiten").FontSize(11).Bold().FontColor(PrimaryColor);

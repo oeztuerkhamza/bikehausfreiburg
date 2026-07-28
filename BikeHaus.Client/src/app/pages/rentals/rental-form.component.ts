@@ -85,7 +85,12 @@ interface BikeEntry {
   showRahmenDropdown: boolean;
   rahmenSearchTimeout: any;
   gesamtmiete: number;
-  rabatt: number;
+  /**
+   * true, sobald die Miete von Hand gesetzt wurde (ausgehandelter Preis) oder
+   * aus einem bestehenden Vertrag geladen wurde. Schützt den Betrag davor,
+   * bei einer Datumsänderung wieder auf den berechneten Preis zu springen.
+   */
+  mieteManuell: boolean;
   berechneterPreis: number;
   preisInfo: string;
   kaution: number;
@@ -121,7 +126,7 @@ function createEmptyBikeEntry(): BikeEntry {
     showRahmenDropdown: false,
     rahmenSearchTimeout: null,
     gesamtmiete: 0,
-    rabatt: 0,
+    mieteManuell: false,
     berechneterPreis: 0,
     preisInfo: '',
     kaution: 0,
@@ -519,10 +524,11 @@ const MONTH_NAMES = [
                     [(ngModel)]="b.gesamtmiete"
                     [name]="'qaMiete_' + i"
                     placeholder="z.B. 50"
+                    (ngModelChange)="onMieteEdited(i)"
                   />
                 </div>
                 <div class="field" *ngIf="b.isQuickAddMode">
-                  <label>Kaution (€) *</label>
+                  <label>Kaution (€)</label>
                   <input
                     type="number"
                     step="0.01"
@@ -707,27 +713,18 @@ const MONTH_NAMES = [
                       [name]="'gesamtmiete_' + i"
                       required
                       min="0"
+                      (ngModelChange)="onMieteEdited(i)"
                     />
                   </div>
+                  <!-- Kaution bewusst ohne required: 0 € Kaution ist erlaubt.
+                       Die Miete dagegen muss > 0 sein, das prüft submit(). -->
                   <div class="field">
-                    <label>Rabatt (€)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      [(ngModel)]="b.rabatt"
-                      [name]="'rabatt_' + i"
-                      min="0"
-                      (ngModelChange)="onRabattChanged(i)"
-                    />
-                  </div>
-                  <div class="field">
-                    <label>Kaution (€) *</label>
+                    <label>Kaution (€)</label>
                     <input
                       type="number"
                       step="0.01"
                       [(ngModel)]="b.kaution"
                       [name]="'kaution_' + i"
-                      required
                       min="0"
                     />
                   </div>
@@ -780,9 +777,25 @@ const MONTH_NAMES = [
                 <span>Gesamtmiete{{ accessoryGrandTotal() > 0 ? ' inkl. Zubehör' : '' }}</span>
                 <strong>{{ totalMiete() | number: '1.2-2' }} €</strong>
               </div>
-              <div class="preise-total-row">
+              <!-- Kaution gesamt ist der Betrag, über den mit dem Kunden
+                   gesprochen wird ("machen wir 400"). Er ist direkt
+                   editierbar und wird gleichmäßig auf die Räder verteilt;
+                   der Rundungsrest landet beim ersten Rad, damit die Summe
+                   exakt dem eingegebenen Betrag entspricht. -->
+              <div class="preise-total-row kaution-total">
                 <span>Kaution gesamt</span>
-                <strong>{{ totalKaution() | number: '1.2-2' }} €</strong>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  class="kaution-total-input"
+                  [(ngModel)]="kautionGesamt"
+                  name="kautionGesamt"
+                />
+              </div>
+              <div class="preise-total-hint" *ngIf="activeBikeCount() > 1">
+                Wird gleichmäßig auf {{ activeBikeCount() }} Fahrräder verteilt
+                (je {{ kautionGesamt / activeBikeCount() | number: '1.2-2' }} €).
               </div>
             </div>
           </div>
@@ -1476,6 +1489,30 @@ const MONTH_NAMES = [
       .preise-total-row.grand strong {
         color: var(--accent-primary, #6366f1);
         font-size: 1.15rem;
+      }
+      .preise-total-row.kaution-total {
+        align-items: center;
+      }
+      .kaution-total-input {
+        width: 130px;
+        padding: 6px 10px;
+        text-align: right;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        background: var(--bg-input, #fff);
+        border: 1px solid var(--border-light, #e2e8f0);
+        border-radius: 8px;
+      }
+      .kaution-total-input:focus {
+        outline: none;
+        border-color: var(--accent-primary, #6366f1);
+      }
+      .preise-total-hint {
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
+        text-align: right;
+        margin-top: -4px;
       }
 
       /* ── Accessory section ── */
@@ -2284,6 +2321,7 @@ export class RentalFormComponent implements OnInit {
   }
 
   private validatePreiseStep(): boolean {
+    if (!this.validateMietbetraege()) return false;
     if (!this.zahlungsartMiete) {
       this.notificationService.error('Zahlungsart Miete wählen');
       return false;
@@ -2309,6 +2347,50 @@ export class RentalFormComponent implements OnInit {
       (sum, b) => sum + (b.selectedBike || b.isQuickAddMode ? Number(b.kaution) || 0 : 0),
       0,
     );
+  }
+
+  /** Räder, die tatsächlich im Vertrag landen (ausgewählt oder neu angelegt). */
+  activeBikeCount(): number {
+    return this.bikes.filter((b) => b.selectedBike || b.isQuickAddMode).length;
+  }
+
+  get kautionGesamt(): number {
+    return this.totalKaution();
+  }
+
+  /**
+   * Gesamt-Kaution gleichmäßig auf die Räder verteilen. In Cent gerechnet und
+   * der Rest dem ersten Rad zugeschlagen, damit die Summe der Einzelbeträge
+   * exakt dem eingegebenen Gesamtbetrag entspricht (400 € / 3 Räder =
+   * 133,34 + 133,33 + 133,33).
+   */
+  set kautionGesamt(value: number) {
+    const active = this.bikes.filter((b) => b.selectedBike || b.isQuickAddMode);
+    if (active.length === 0) return;
+    const totalCents = Math.max(0, Math.round((Number(value) || 0) * 100));
+    const base = Math.floor(totalCents / active.length);
+    const rest = totalCents - base * active.length;
+    active.forEach((b, idx) => {
+      b.kaution = (base + (idx === 0 ? rest : 0)) / 100;
+    });
+  }
+
+  /**
+   * Miete muss > 0 sein — ein Vertrag über 0 € Miete ist keine Vermietung.
+   * Die Kaution darf dagegen ausdrücklich 0 sein.
+   */
+  private validateMietbetraege(): boolean {
+    for (let i = 0; i < this.bikes.length; i++) {
+      const b = this.bikes[i];
+      if (!b.selectedBike && !b.isQuickAddMode) continue;
+      if (!(Number(b.gesamtmiete) > 0)) {
+        this.notificationService.error(
+          `Fahrrad ${i + 1}: Miete eintragen (muss größer als 0 € sein)`,
+        );
+        return false;
+      }
+    }
+    return true;
   }
 
   private validateMieterStep(): boolean {
@@ -2932,8 +3014,10 @@ export class RentalFormComponent implements OnInit {
       };
       entry.gesamtmiete = rb.mietpreis;
       entry.kaution = rb.kaution;
+      // Der gespeicherte Preis ist der vereinbarte Preis — beim Bearbeiten
+      // darf ihn eine Datumsänderung nicht überschreiben.
+      entry.mieteManuell = true;
       // Rental-level fields live on the first bike (mirrors the create flow)
-      entry.rabatt = idx === 0 ? rental.rabatt || 0 : 0;
       entry.zahlungsart = rental.zahlungsart || '';
       entry.kautionZahlungsart = rental.kautionZahlungsart || '';
       return entry;
@@ -2998,6 +3082,8 @@ export class RentalFormComponent implements OnInit {
     // Nach der Auswahl aus der Liste die Karte automatisch einklappen
     // (Zusammenfassung + „Erweitern"), damit die Ansicht kompakt bleibt.
     b.isCollapsed = true;
+    // Anderes Rad = anderer Preis: der berechnete Vorschlag darf wieder greifen.
+    b.mieteManuell = false;
     this.loadBusyPeriodsFor(i, bike.id);
     this.recalcPriceFor(i);
   }
@@ -3099,7 +3185,9 @@ export class RentalFormComponent implements OnInit {
     if (!b) return;
     if (this.rentalDays > 0) {
       b.berechneterPreis = this.calculatePriceFor(i, this.rentalDays);
-      b.gesamtmiete = Math.max(0, b.berechneterPreis - (b.rabatt || 0));
+      // Einen von Hand eingetragenen (ausgehandelten) Preis nicht überschreiben.
+      // Der berechnete Preis bleibt als Vorschlag über dem Feld sichtbar.
+      if (!b.mieteManuell) b.gesamtmiete = b.berechneterPreis;
     }
   }
 
@@ -3204,11 +3292,15 @@ export class RentalFormComponent implements OnInit {
     });
   }
 
-  onRabattChanged(i: number) {
+  /**
+   * Die Miete wurde von Hand geändert. Ab jetzt gilt dieser Betrag: er
+   * überlebt Datumsänderungen. Ein Rabattfeld gibt es im Mietvertrag nicht
+   * mehr — ein ausgehandelter Preis wird direkt hier eingetragen.
+   */
+  onMieteEdited(i: number) {
     const b = this.bikes[i];
     if (!b) return;
-    if (b.berechneterPreis > 0)
-      b.gesamtmiete = Math.max(0, b.berechneterPreis - (b.rabatt || 0));
+    b.mieteManuell = true;
   }
 
   calculatePriceFor(i: number, days: number): number {
@@ -3246,6 +3338,15 @@ export class RentalFormComponent implements OnInit {
           return;
         }
       }
+    }
+
+    // 0 € Miete ist kein gültiger Mietvertrag (0 € Kaution dagegen schon).
+    if (!this.validateMietbetraege()) {
+      if (this.isMobile) {
+        const preiseStep = this.wizardSteps.indexOf('Preise');
+        if (preiseStep >= 0) this.currentStep = preiseStep;
+      }
+      return;
     }
 
     // Zahlungsart wird bewusst nicht vorbelegt und muss aktiv gewählt werden.
@@ -3359,7 +3460,9 @@ export class RentalFormComponent implements OnInit {
           const firstBike = this.bikes[0];
           const payload: RentalCreate = {
             customer: this.customer,
-            rabatt: firstBike.rabatt || 0,
+            // Kein Rabattfeld mehr im Mietvertrag: ein ausgehandelter Preis
+            // wird direkt als Gesamtmiete eingetragen.
+            rabatt: 0,
             zahlungsart: firstBike.zahlungsart as PaymentMethod,
             kautionZahlungsart: firstBike.kautionZahlungsart as PaymentMethod,
             notizen: this.notizen || undefined,
@@ -3511,7 +3614,9 @@ export class RentalFormComponent implements OnInit {
             mietvertragNummer: this.mietvertragNummer?.trim() || undefined,
             startDatum: this.startDatum,
             endDatum: this.endDatum,
-            rabatt: firstBike.rabatt || 0,
+            // rabatt bewusst nicht mitschicken: bei Altverträgen mit Rabatt
+            // bleibt der gespeicherte Wert so erhalten, statt beim Bearbeiten
+            // stillschweigend auf 0 gesetzt zu werden.
             zahlungsart: firstBike.zahlungsart as PaymentMethod,
             kautionZahlungsart: firstBike.kautionZahlungsart as PaymentMethod,
             notizen: this.notizen || undefined,
