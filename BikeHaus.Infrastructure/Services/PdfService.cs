@@ -1463,6 +1463,15 @@ public class PdfService : IPdfService
     // Quittung über die Anzahlung auf ein reserviertes Fahrrad. Dient dem
     // Kunden als Nachweis, bis die Reservierung in einen Verkauf übergeht.
     // ══════════════════════════════════════════════════════════════
+    private static string ZahlungsartText(Domain.Enums.PaymentMethod zahlungsart) => zahlungsart switch
+    {
+        Domain.Enums.PaymentMethod.Bar => "Bar",
+        Domain.Enums.PaymentMethod.PayPal => "PayPal",
+        Domain.Enums.PaymentMethod.Karte => "Karte",
+        Domain.Enums.PaymentMethod.Überweisung => "Überweisung",
+        _ => zahlungsart.ToString()
+    };
+
     public async Task<byte[]> GenerateAnzahlungsbelegAsync(int reservationId)
     {
         var reservation = await _reservationRepository.GetWithDetailsAsync(reservationId)
@@ -1472,7 +1481,9 @@ public class PdfService : IPdfService
         var kunde = reservation.Customer;
         var rad = reservation.Bicycle;
         var anzahlung = reservation.Anzahlung ?? 0m;
-        var kaufpreis = rad?.VerkaufspreisVorschlag;
+        // Der bei der Reservierung vereinbarte Preis hat Vorrang vor dem
+        // Vorschlagspreis am Fahrrad — der kann sich später ändern.
+        var kaufpreis = reservation.Verkaufspreis ?? rad?.VerkaufspreisVorschlag;
         var restbetrag = kaufpreis.HasValue ? kaufpreis.Value - anzahlung : (decimal?)null;
 
         QuestPDF.Settings.License = LicenseType.Community;
@@ -1575,9 +1586,9 @@ public class PdfService : IPdfService
                         if (kaufpreis.HasValue)
                         {
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
-                                .Text("Kaufpreis").FontSize(8).FontColor(Colors.Grey.Darken2);
+                                .Text("Verkaufspreis des Fahrrads").FontSize(8).FontColor(Colors.Grey.Darken2);
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
-                                .Text($"{kaufpreis.Value:N2} €").FontSize(9);
+                                .Text($"{kaufpreis.Value:N2} €").FontSize(9).Bold();
                         }
 
                         table.Cell().Border(1).BorderColor(AccentColor).Padding(6)
@@ -1585,12 +1596,20 @@ public class PdfService : IPdfService
                         table.Cell().Border(1).BorderColor(AccentColor).Padding(6)
                             .Text($"{anzahlung:N2} €").FontSize(11).Bold().FontColor(AccentColor);
 
-                        if (restbetrag.HasValue)
+                        if (reservation.AnzahlungZahlungsart.HasValue)
                         {
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
-                                .Text("Restbetrag bei Abholung").FontSize(8).FontColor(Colors.Grey.Darken2);
+                                .Text("Zahlungsart der Anzahlung").FontSize(8).FontColor(Colors.Grey.Darken2);
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
-                                .Text($"{restbetrag.Value:N2} €").FontSize(9).Bold();
+                                .Text(ZahlungsartText(reservation.AnzahlungZahlungsart.Value)).FontSize(9);
+                        }
+
+                        if (restbetrag.HasValue)
+                        {
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(6)
+                                .Text("Offener Restbetrag bei Abholung").FontSize(8).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(6)
+                                .Text($"{restbetrag.Value:N2} €").FontSize(11).Bold().FontColor(PrimaryColor);
                         }
 
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6)
@@ -1621,17 +1640,50 @@ public class PdfService : IPdfService
                     });
 
                     // ── Unterschriften ──
+                    // Links die hinterlegte Inhaber-Unterschrift (Einstellungen),
+                    // rechts die auf dem Tablet erfasste Unterschrift des Kunden.
+                    // Fehlt eine von beiden, bleibt die Linie zum Unterschreiben stehen.
                     col.Item().PaddingTop(28).Row(row =>
                     {
                         row.RelativeItem().Column(c =>
                         {
-                            c.Item().PaddingTop(18).LineHorizontal(0.5f).LineColor(Colors.Grey.Darken1);
-                            c.Item().PaddingTop(3).Text("Bike Haus Freiburg").FontSize(8).FontColor(Colors.Grey.Darken2);
+                            if (!string.IsNullOrEmpty(shop.OwnerSignatureBase64))
+                            {
+                                try
+                                {
+                                    var sigData = shop.OwnerSignatureBase64;
+                                    if (sigData.Contains(","))
+                                        sigData = sigData.Substring(sigData.IndexOf(",") + 1);
+                                    c.Item().Height(35).AlignLeft().Image(Convert.FromBase64String(sigData));
+                                }
+                                catch { c.Item().Height(35); }
+                            }
+                            else
+                            {
+                                c.Item().Height(35);
+                            }
+                            c.Item().LineHorizontal(0.5f).LineColor(Colors.Grey.Darken1);
+                            c.Item().PaddingTop(3).Text(shop.ShopName).FontSize(8).FontColor(Colors.Grey.Darken2);
                         });
                         row.ConstantItem(30);
                         row.RelativeItem().Column(c =>
                         {
-                            c.Item().PaddingTop(18).LineHorizontal(0.5f).LineColor(Colors.Grey.Darken1);
+                            if (!string.IsNullOrEmpty(reservation.KundenUnterschrift))
+                            {
+                                try
+                                {
+                                    var sigData = reservation.KundenUnterschrift!;
+                                    if (sigData.Contains(","))
+                                        sigData = sigData.Substring(sigData.IndexOf(",") + 1);
+                                    c.Item().Height(35).AlignLeft().Image(Convert.FromBase64String(sigData));
+                                }
+                                catch { c.Item().Height(35); }
+                            }
+                            else
+                            {
+                                c.Item().Height(35);
+                            }
+                            c.Item().LineHorizontal(0.5f).LineColor(Colors.Grey.Darken1);
                             c.Item().PaddingTop(3).Text(kunde?.FullName ?? "Kunde").FontSize(8).FontColor(Colors.Grey.Darken2);
                         });
                     });

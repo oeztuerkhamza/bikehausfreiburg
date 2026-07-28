@@ -537,6 +537,12 @@ export interface Reservation {
   saleId?: number;
   createdAt: string;
   isExpired: boolean;
+  anzahlungZahlungsart?: PaymentMethod;
+  /** Vereinbarter Verkaufspreis zum Zeitpunkt der Reservierung. */
+  verkaufspreis?: number;
+  /** Verkaufspreis − Anzahlung, serverseitig gerechnet. */
+  restbetrag?: number;
+  kundenUnterschrift?: string;
 }
 
 export interface ReservationList {
@@ -555,15 +561,23 @@ export interface ReservationCreate {
   bicycleId: number;
   customer: CustomerCreate;
   reservierungsDatum?: string;
+  /** Aus dem Kalender gewählt; reservierungsTage ist nur die Rückfallebene. */
+  ablaufDatum?: string;
   reservierungsTage: number;
   anzahlung?: number;
   notizen?: string;
+  anzahlungZahlungsart?: PaymentMethod;
+  verkaufspreis?: number;
+  kundenUnterschrift?: string;
 }
 
 export interface ReservationUpdate {
   ablaufDatum?: string;
   anzahlung?: number;
   notizen?: string;
+  anzahlungZahlungsart?: PaymentMethod;
+  verkaufspreis?: number;
+  kundenUnterschrift?: string;
 }
 
 export interface ReservationConvertToSale {

@@ -9,13 +9,14 @@ import {
   ReservationCreate,
   Bicycle,
   CustomerCreate,
+  PaymentMethod,
 } from '../../models/models';
-import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
+import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 
 @Component({
   selector: 'app-reservation-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BikeSelectorComponent],
+  imports: [CommonModule, FormsModule, RouterLink, SignaturePadComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -25,16 +26,89 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
-          <!-- Bicycle selection -->
+          <!-- Bicycle selection — gleiche Bedienung wie im Verkaufsformular:
+               Lager- oder Rahmennummer tippen, aus dem Vorschlag wählen. -->
           <div class="form-card">
             <h2>{{ t.selectBicycle }}</h2>
-            <app-bike-selector
-              [bikes]="availableBikes"
-              [(selectedBike)]="selectedBike"
-              [enableAdvancedFilters]="true"
-              [requireConfirmSelection]="true"
-              (bikeSelected)="onBikeSelected($event)"
-            ></app-bike-selector>
+            <div class="form-grid">
+              <div class="field rahmen-autocomplete-wrapper">
+                <label>{{ t.stockNumber }}</label>
+                <input
+                  type="number"
+                  min="1"
+                  [(ngModel)]="lagernummerInput"
+                  name="lagernummerInput"
+                  (ngModelChange)="onLagernummerChange($event)"
+                  (focus)="onLagernummerChange(lagernummerInput)"
+                  (blur)="hideLagerDropdown()"
+                  placeholder="Lagernummer eingeben..."
+                  autocomplete="off"
+                />
+                <div
+                  class="rahmen-dropdown"
+                  *ngIf="lagerSearchResults.length > 0 && showLagerDropdown"
+                >
+                  <div
+                    class="rahmen-dropdown-item"
+                    *ngFor="let bike of lagerSearchResults"
+                    (mousedown)="selectBike(bike)"
+                  >
+                    <span class="rahmen-nr">#{{ bike.lagernummer }}</span>
+                    <span class="rahmen-info">{{ bike.marke }} {{ bike.modell }}</span>
+                    <span class="rahmen-badge">{{ t.available }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field rahmen-autocomplete-wrapper">
+                <label>{{ t.frameNumber }}</label>
+                <input
+                  [(ngModel)]="rahmennummerInput"
+                  name="rahmennummerInput"
+                  (ngModelChange)="onRahmennummerChange($event)"
+                  (focus)="onRahmennummerChange(rahmennummerInput)"
+                  (blur)="hideRahmenDropdown()"
+                  style="text-transform: uppercase"
+                  placeholder="Rahmennummer eingeben..."
+                  autocomplete="off"
+                />
+                <div
+                  class="rahmen-dropdown"
+                  *ngIf="rahmenSearchResults.length > 0 && showRahmenDropdown"
+                >
+                  <div
+                    class="rahmen-dropdown-item"
+                    *ngFor="let bike of rahmenSearchResults"
+                    (mousedown)="selectBike(bike)"
+                  >
+                    <span class="rahmen-nr" *ngIf="bike.lagernummer != null"
+                      >#{{ bike.lagernummer }}</span
+                    >
+                    <span class="rahmen-nr">{{ bike.rahmennummer }}</span>
+                    <span class="rahmen-info">{{ bike.marke }} {{ bike.modell }}</span>
+                    <span class="rahmen-badge">{{ t.available }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="selected-bike" *ngIf="selectedBike">
+              <div class="selected-bike-head">
+                <strong>{{ selectedBike.marke }} {{ selectedBike.modell }}</strong>
+                <button type="button" class="btn btn-outline btn-sm" (click)="clearBike()">
+                  ✕ {{ t.change }}
+                </button>
+              </div>
+              <div class="selected-bike-facts">
+                <span *ngIf="selectedBike.lagernummer != null">#{{ selectedBike.lagernummer }}</span>
+                <span *ngIf="selectedBike.rahmennummer">{{ selectedBike.rahmennummer }}</span>
+                <span *ngIf="selectedBike.farbe">{{ selectedBike.farbe }}</span>
+                <span *ngIf="selectedBike.rahmengroesse">{{ selectedBike.rahmengroesse }}</span>
+                <span *ngIf="selectedBike.verkaufspreisVorschlag != null">
+                  {{ selectedBike.verkaufspreisVorschlag | number: '1.2-2' }} €
+                </span>
+              </div>
+            </div>
           </div>
 
           <!-- Customer info -->
@@ -116,19 +190,31 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
                   name="reservierungsDatum"
                 />
               </div>
+              <!-- „Reserviert bis" direkt aus dem Kalender statt einer
+                   Tagesanzahl — das ist die Angabe, die auch auf dem Beleg steht. -->
               <div class="field">
-                <label>{{ t.reservationDays }} *</label>
+                <label>{{ t.reservedUntil }} *</label>
                 <input
-                  type="number"
-                  min="1"
-                  max="90"
-                  [(ngModel)]="reservierungsTage"
-                  name="reservierungsTage"
+                  type="date"
+                  [(ngModel)]="ablaufDatum"
+                  name="ablaufDatum"
+                  [min]="reservierungsDatum"
                   required
                 />
-                <small class="hint"
-                  >{{ t.expirationDateColon }} {{ getExpirationDate() }}</small
-                >
+                <small class="hint" *ngIf="reservationDays() > 0">
+                  {{ reservationDays() }} {{ reservationDays() === 1 ? t.day : t.days }}
+                </small>
+              </div>
+              <div class="field">
+                <label>{{ t.salePrice }} (€)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  [(ngModel)]="verkaufspreis"
+                  name="verkaufspreis"
+                />
+                <small class="hint">{{ t.salePriceHint }}</small>
               </div>
               <div class="field">
                 <label>{{ t.deposit }} (€)</label>
@@ -140,6 +226,20 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
                   name="anzahlung"
                 />
               </div>
+              <div class="field">
+                <label>{{ t.depositPaymentMethod }}</label>
+                <select [(ngModel)]="anzahlungZahlungsart" name="anzahlungZahlungsart">
+                  <option value="">{{ t.selectOption }}</option>
+                  <option value="Bar">Bar</option>
+                  <option value="PayPal">PayPal</option>
+                  <option value="Karte">Karte</option>
+                  <option value="Überweisung">Überweisung</option>
+                </select>
+              </div>
+              <div class="field full rest-row" *ngIf="verkaufspreis">
+                <span>{{ t.remainingAmount }}</span>
+                <strong>{{ restbetrag() | number: '1.2-2' }} €</strong>
+              </div>
               <div class="field full">
                 <label>{{ t.notes }}</label>
                 <textarea
@@ -149,6 +249,17 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
                 ></textarea>
               </div>
             </div>
+          </div>
+
+          <!-- Unterschrift des Kunden; die Firmenunterschrift kommt aus den
+               Einstellungen und wird direkt auf den Beleg gedruckt. -->
+          <div class="form-card">
+            <h2>{{ t.customerSignature }}</h2>
+            <app-signature-pad
+              [(ngModel)]="kundenUnterschrift"
+              name="kundenUnterschrift"
+            ></app-signature-pad>
+            <small class="hint">{{ t.companySignatureHint }}</small>
           </div>
         </div>
 
@@ -178,8 +289,8 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
           <p *ngIf="!customer.telefon?.trim()" class="error-msg">
             ⚠️ {{ t.phoneRequiredMsg }}
           </p>
-          <p *ngIf="reservierungsTage <= 0" class="error-msg">
-            ⚠️ {{ t.reservationDaysWarning }}
+          <p *ngIf="!ablaufDatum" class="error-msg">
+            ⚠️ {{ t.reservedUntilWarning }}
           </p>
         </div>
 
@@ -271,6 +382,100 @@ import { BikeSelectorComponent } from '../../components/bike-selector/bike-selec
       .btn-large {
         padding: 14px 32px;
         font-size: 1rem;
+      }
+
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+      }
+
+      /* ── Fahrradsuche (wie im Verkaufsformular) ── */
+      .rahmen-autocomplete-wrapper {
+        position: relative;
+      }
+      .rahmen-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: var(--bg-card, #fff);
+        border: 1.5px solid var(--accent-primary, #6366f1);
+        border-radius: 0 0 var(--radius-md, 10px) var(--radius-md, 10px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        max-height: 240px;
+        overflow-y: auto;
+      }
+      .rahmen-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: background 0.1s;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+      }
+      .rahmen-dropdown-item:last-child {
+        border-bottom: none;
+      }
+      .rahmen-dropdown-item:hover {
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+      }
+      .rahmen-nr {
+        font-weight: 700;
+        font-family: monospace;
+        font-size: 0.88rem;
+        text-transform: uppercase;
+        color: var(--accent-primary, #6366f1);
+      }
+      .rahmen-info {
+        font-size: 0.85rem;
+        color: var(--text-primary);
+      }
+      .rahmen-badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 99px;
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        margin-left: auto;
+      }
+
+      .selected-bike {
+        margin-top: 16px;
+        border: 1.5px solid var(--accent-primary, #6366f1);
+        border-radius: var(--radius-md, 10px);
+        padding: 12px 14px;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.06));
+      }
+      .selected-bike-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+      .selected-bike-facts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        margin-top: 6px;
+        font-size: 0.85rem;
+        color: var(--text-secondary, #64748b);
+      }
+
+      .rest-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        border-top: 1.5px solid var(--border-light, #e2e8f0);
+        padding-top: 12px;
+        font-size: 0.95rem;
+      }
+      .rest-row strong {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--accent-primary, #6366f1);
       }
 
       .validation-errors {
@@ -420,9 +625,28 @@ export class ReservationFormComponent implements OnInit {
   };
 
   reservierungsDatum: string = new Date().toISOString().split('T')[0];
-  reservierungsTage: number = 7;
+  /** „Reserviert bis" — aus dem Kalender, Vorbelegung: heute + 7 Tage. */
+  ablaufDatum: string = ReservationFormComponent.datePlusDays(7);
   anzahlung: number | null = null;
+  anzahlungZahlungsart: PaymentMethod | '' = '';
+  verkaufspreis: number | null = null;
+  kundenUnterschrift: string | null = null;
   notizen: string = '';
+
+  // Fahrradsuche wie im Verkaufsformular
+  lagernummerInput: number | null = null;
+  rahmennummerInput = '';
+  lagerSearchResults: Bicycle[] = [];
+  rahmenSearchResults: Bicycle[] = [];
+  showLagerDropdown = false;
+  showRahmenDropdown = false;
+  private rahmenSearchTimeout: any = null;
+
+  private static datePlusDays(days: number): string {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split('T')[0];
+  }
 
   get t() {
     return this.translationService.translations();
@@ -443,7 +667,7 @@ export class ReservationFormComponent implements OnInit {
             (b) => b.id === +bicycleId,
           );
           if (preselected) {
-            this.selectedBike = preselected;
+            this.selectBike(preselected);
           }
         }
       },
@@ -451,16 +675,92 @@ export class ReservationFormComponent implements OnInit {
     });
   }
 
-  onBikeSelected(bike: Bicycle) {
-    this.selectedBike = bike;
+  // ── Fahrradsuche: gleiche Bedienung wie im Verkaufsformular ──
+
+  /** Lagernummer: sofortiger Präfix-Treffer über die verfügbaren Räder. */
+  onLagernummerChange(value: number | string | null | undefined) {
+    this.lagerSearchResults = [];
+    const term = value != null ? String(value).trim() : '';
+    if (!term) {
+      this.showLagerDropdown = false;
+      return;
+    }
+    this.lagerSearchResults = this.availableBikes.filter(
+      (b) => b.lagernummer != null && String(b.lagernummer).startsWith(term),
+    );
+    this.showLagerDropdown = this.lagerSearchResults.length > 0;
   }
 
-  getExpirationDate(): string {
-    const date = this.reservierungsDatum
-      ? new Date(this.reservierungsDatum)
-      : new Date();
-    date.setDate(date.getDate() + this.reservierungsTage);
-    return date.toLocaleDateString('de-DE');
+  hideLagerDropdown() {
+    // Kurze Verzögerung, damit mousedown auf dem Eintrag zuerst greift.
+    setTimeout(() => (this.showLagerDropdown = false), 200);
+  }
+
+  /** Rahmennummer: serverseitige Suche ab zwei Zeichen. */
+  onRahmennummerChange(value: string) {
+    this.rahmenSearchResults = [];
+    if (this.rahmenSearchTimeout) clearTimeout(this.rahmenSearchTimeout);
+    const term = value?.trim() ?? '';
+    if (term.length < 2) {
+      this.showRahmenDropdown = false;
+      return;
+    }
+    this.rahmenSearchTimeout = setTimeout(() => {
+      this.bicycleService.search(term).subscribe({
+        // Reservieren geht nur bei verfügbaren Rädern — verkaufte, bereits
+        // reservierte und vermietete gehören nicht in den Vorschlag.
+        next: (bikes) => {
+          this.rahmenSearchResults = bikes.filter(
+            (b) =>
+              b.status === 'Available' &&
+              b.rahmennummer?.toUpperCase().includes(term.toUpperCase()),
+          );
+          this.showRahmenDropdown = this.rahmenSearchResults.length > 0;
+        },
+        error: () => {},
+      });
+    }, 300);
+  }
+
+  hideRahmenDropdown() {
+    setTimeout(() => (this.showRahmenDropdown = false), 200);
+  }
+
+  selectBike(bike: Bicycle) {
+    this.selectedBike = bike;
+    this.showLagerDropdown = false;
+    this.showRahmenDropdown = false;
+    this.lagerSearchResults = [];
+    this.rahmenSearchResults = [];
+    this.lagernummerInput = bike.lagernummer ?? null;
+    this.rahmennummerInput = bike.rahmennummer || '';
+    // Verkaufspreis aus dem Fahrrad vorbelegen, solange nichts Eigenes drinsteht.
+    if (this.verkaufspreis == null && bike.verkaufspreisVorschlag != null) {
+      this.verkaufspreis = bike.verkaufspreisVorschlag;
+    }
+  }
+
+  clearBike() {
+    this.selectedBike = null;
+    this.lagernummerInput = null;
+    this.rahmennummerInput = '';
+    this.verkaufspreis = null;
+  }
+
+  /** Reservierungsdauer in Tagen — nur als Hinweis unter dem Datumsfeld. */
+  reservationDays(): number {
+    if (!this.reservierungsDatum || !this.ablaufDatum) return 0;
+    const start = new Date(this.reservierungsDatum);
+    const end = new Date(this.ablaufDatum);
+    const diff = Math.round(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    return Math.max(0, diff);
+  }
+
+  /** Offener Restbetrag = Verkaufspreis − Anzahlung. */
+  restbetrag(): number {
+    return (Number(this.verkaufspreis) || 0) - (Number(this.anzahlung) || 0);
   }
 
   canSubmit(): boolean {
@@ -473,7 +773,8 @@ export class ReservationFormComponent implements OnInit {
       this.customer.plz?.trim() &&
       this.customer.stadt?.trim() &&
       this.customer.telefon?.trim() &&
-      this.reservierungsTage > 0 &&
+      this.ablaufDatum &&
+      this.reservationDays() >= 0 &&
       !this.submitting
     );
   }
@@ -488,8 +789,14 @@ export class ReservationFormComponent implements OnInit {
       bicycleId: this.selectedBike!.id,
       customer: this.customer,
       reservierungsDatum: this.reservierungsDatum || undefined,
-      reservierungsTage: this.reservierungsTage,
-      anzahlung: this.anzahlung || undefined,
+      ablaufDatum: this.ablaufDatum || undefined,
+      // Rückfallebene, falls kein Datum gesetzt ist — der Server nimmt dann Tage.
+      reservierungsTage: this.reservationDays() || 7,
+      anzahlung: this.anzahlung ?? undefined,
+      anzahlungZahlungsart:
+        (this.anzahlungZahlungsart as PaymentMethod) || undefined,
+      verkaufspreis: this.verkaufspreis ?? undefined,
+      kundenUnterschrift: this.kundenUnterschrift || undefined,
       notizen: this.notizen || undefined,
     };
 

@@ -314,7 +314,13 @@ public static class MappingExtensions
         entity.Status,
         entity.SaleId,
         entity.CreatedAt,
-        entity.AblaufDatum < DateTime.UtcNow && entity.Status == Domain.Enums.ReservationStatus.Active
+        entity.AblaufDatum < DateTime.UtcNow && entity.Status == Domain.Enums.ReservationStatus.Active,
+        entity.AnzahlungZahlungsart,
+        entity.Verkaufspreis,
+        entity.Verkaufspreis.HasValue
+            ? entity.Verkaufspreis.Value - (entity.Anzahlung ?? 0m)
+            : null,
+        entity.KundenUnterschrift
     );
 
     // ── RentalAccessory Mappings ──

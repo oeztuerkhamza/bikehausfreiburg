@@ -13,17 +13,23 @@ public class ReservationService : IReservationService
     private readonly IBicycleRepository _bicycleRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly ISaleRepository _saleRepository;
+    private readonly IPdfService _pdfService;
+    private readonly IEmailService _emailService;
 
     public ReservationService(
         IReservationRepository reservationRepository,
         IBicycleRepository bicycleRepository,
         ICustomerRepository customerRepository,
-        ISaleRepository saleRepository)
+        ISaleRepository saleRepository,
+        IPdfService pdfService,
+        IEmailService emailService)
     {
         _reservationRepository = reservationRepository;
         _bicycleRepository = bicycleRepository;
         _customerRepository = customerRepository;
         _saleRepository = saleRepository;
+        _pdfService = pdfService;
+        _emailService = emailService;
     }
 
     public async Task<IEnumerable<ReservationListDto>> GetAllAsync()
@@ -110,13 +116,24 @@ public class ReservationService : IReservationService
 
         // Create reservation
         var reservationDate = dto.ReservierungsDatum ?? DateTime.UtcNow;
+        // Ablaufdatum kommt aus dem Kalender; die Tagesangabe ist nur noch die
+        // Rückfallebene für Aufrufer, die kein Datum schicken.
+        var ablaufDatum = dto.AblaufDatum ?? reservationDate.AddDays(dto.ReservierungsTage);
+        if (ablaufDatum.Date < reservationDate.Date)
+            throw new InvalidOperationException("Das Ablaufdatum darf nicht vor dem Reservierungsdatum liegen.");
+
         var reservation = new Reservation
         {
             BicycleId = dto.BicycleId,
             CustomerId = customer.Id,
             ReservierungsDatum = reservationDate,
-            AblaufDatum = reservationDate.AddDays(dto.ReservierungsTage),
+            AblaufDatum = ablaufDatum,
             Anzahlung = dto.Anzahlung,
+            AnzahlungZahlungsart = dto.AnzahlungZahlungsart,
+            // Ohne eigene Angabe den am Fahrrad hinterlegten Vorschlagspreis
+            // festschreiben — der Beleg soll immer einen Preis zeigen können.
+            Verkaufspreis = dto.Verkaufspreis ?? bicycle.VerkaufspreisVorschlag,
+            KundenUnterschrift = dto.KundenUnterschrift,
             Notizen = dto.Notizen,
             Status = ReservationStatus.Active
         };
@@ -134,7 +151,36 @@ public class ReservationService : IReservationService
         await _bicycleRepository.UpdateAsync(bicycle);
 
         var result = await _reservationRepository.GetWithDetailsAsync(created.Id);
+        if (result != null)
+            await TrySendAnzahlungsbelegAsync(result);
+
         return result!.ToDto();
+    }
+
+    /// <summary>
+    /// Schickt den Anzahlungsbeleg direkt nach dem Anlegen an den Kunden.
+    /// Bewusst fehlertolerant: ein Mailproblem darf die bereits angelegte
+    /// Reservierung nicht scheitern lassen (gleiches Muster wie beim Mietvertrag).
+    /// </summary>
+    private async Task TrySendAnzahlungsbelegAsync(Reservation reservation)
+    {
+        if (string.IsNullOrWhiteSpace(reservation.Customer?.Email))
+            return;
+
+        try
+        {
+            var pdf = await _pdfService.GenerateAnzahlungsbelegAsync(reservation.Id);
+            await _emailService.SendReservationAnzahlungAsync(
+                reservation.Customer.Email!,
+                reservation.Customer.FullName,
+                reservation.ReservierungsNummer,
+                reservation.AblaufDatum,
+                pdf);
+        }
+        catch
+        {
+            // Beleg lässt sich jederzeit manuell aus der Liste erneut senden.
+        }
     }
 
     public async Task<ReservationDto> UpdateAsync(int id, ReservationUpdateDto dto)
@@ -150,6 +196,15 @@ public class ReservationService : IReservationService
 
         if (dto.Anzahlung.HasValue)
             reservation.Anzahlung = dto.Anzahlung.Value;
+
+        if (dto.AnzahlungZahlungsart.HasValue)
+            reservation.AnzahlungZahlungsart = dto.AnzahlungZahlungsart.Value;
+
+        if (dto.Verkaufspreis.HasValue)
+            reservation.Verkaufspreis = dto.Verkaufspreis.Value;
+
+        if (dto.KundenUnterschrift != null)
+            reservation.KundenUnterschrift = dto.KundenUnterschrift;
 
         if (dto.Notizen != null)
             reservation.Notizen = dto.Notizen;

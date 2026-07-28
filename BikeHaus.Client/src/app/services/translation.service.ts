@@ -350,6 +350,14 @@ export interface Translations {
   reservationDate: string;
   expirationDate: string;
   reservationDays: string;
+  reservedUntil: string;
+  reservedUntilWarning: string;
+  salePriceHint: string;
+  depositPaymentMethod: string;
+  companySignatureHint: string;
+  change: string;
+  day: string;
+  days: string;
   deposit: string;
   notes: string;
   convertToSale: string;
@@ -1195,6 +1203,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     reservationDate: 'Reservierungsdatum',
     expirationDate: 'Ablaufdatum',
     reservationDays: 'Reservierungstage',
+    reservedUntil: 'Reserviert bis',
+    reservedUntilWarning: 'Bitte auswählen, bis wann das Fahrrad reserviert wird',
+    salePriceHint: 'Aus dem Fahrrad übernommen — kann angepasst werden',
+    depositPaymentMethod: 'Zahlungsart der Anzahlung',
+    companySignatureHint:
+      'Die in den Einstellungen hinterlegte Firmenunterschrift wird automatisch auf den Beleg gedruckt.',
+    change: 'Ändern',
+    day: 'Tag',
+    days: 'Tage',
     deposit: 'Anzahlung',
     notes: 'Notizen',
     convertToSale: 'In Verkauf umwandeln',
@@ -2043,6 +2060,15 @@ const TRANSLATIONS: Record<Language, Translations> = {
     reservationDate: 'Rezervasyon Tarihi',
     expirationDate: 'Bitiş Tarihi',
     reservationDays: 'Rezervasyon Günleri',
+    reservedUntil: 'Rezervasyon bitiş tarihi',
+    reservedUntilWarning: 'Bisikletin ne zamana kadar rezerve edileceğini seçin',
+    salePriceHint: 'Bisikletten alındı — değiştirilebilir',
+    depositPaymentMethod: 'Kapora ödeme şekli',
+    companySignatureHint:
+      'Ayarlarda kayıtlı firma imzası belgeye otomatik olarak basılır.',
+    change: 'Değiştir',
+    day: 'gün',
+    days: 'gün',
     deposit: 'Kapora',
     notes: 'Notlar',
     convertToSale: 'Satışa Dönüştür',
