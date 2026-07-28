@@ -614,32 +614,33 @@ const MONTH_NAMES = [
                   required
                 />
               </div>
+              <!-- Adresse und E-Mail sind optional: für Laufkundschaft, die
+                   bar zahlt, reicht der Name. Serverseitig sind diese Felder
+                   ohnehin nullable (CustomerCreateDto), nur Vor- und Nachname
+                   sind Pflicht. -->
               <div class="field">
-                <label>Straße *</label>
+                <label>Straße</label>
                 <input
                   [(ngModel)]="customer.strasse"
                   name="customerStrasse"
-                  required
                 />
               </div>
               <div class="field">
-                <label>Hausnummer *</label>
+                <label>Hausnummer</label>
                 <input
                   [(ngModel)]="customer.hausnummer"
                   name="customerHausnr"
-                  required
                 />
               </div>
               <div class="field">
-                <label>PLZ *</label>
-                <input [(ngModel)]="customer.plz" name="customerPlz" required />
+                <label>PLZ</label>
+                <input [(ngModel)]="customer.plz" name="customerPlz" />
               </div>
               <div class="field">
-                <label>Stadt *</label>
+                <label>Stadt</label>
                 <input
                   [(ngModel)]="customer.stadt"
                   name="customerStadt"
-                  required
                 />
               </div>
               <div class="field">
@@ -650,12 +651,11 @@ const MONTH_NAMES = [
                 />
               </div>
               <div class="field">
-                <label>E-Mail *</label>
+                <label>E-Mail</label>
                 <input
                   [(ngModel)]="customer.email"
                   name="customerEmail"
                   type="email"
-                  required
                 />
               </div>
             </div>
@@ -2266,8 +2266,11 @@ export class RentalFormComponent implements OnInit {
   }
 
   // Zahlungsart gilt einmal für den ganzen Vertrag (nicht je Rad).
-  zahlungsartMiete: PaymentMethod | '' = '';
-  zahlungsartKaution: PaymentMethod | '' = '';
+  // Vorbelegt mit Bar — der mit Abstand häufigste Fall am Tresen. Beide Felder
+  // bleiben änderbar; ohne Vorbelegung blockierte jeder Vertrag zweimal an
+  // einer Auswahl, die fast immer dieselbe ist.
+  zahlungsartMiete: PaymentMethod | '' = PaymentMethod.Bar;
+  zahlungsartKaution: PaymentMethod | '' = PaymentMethod.Bar;
 
   /** Überträgt die eine Zahlungsart-Auswahl auf alle Räder. */
   applyPaymentToAll(): void {
@@ -2307,16 +2310,12 @@ export class RentalFormComponent implements OnInit {
 
   private validateMieterStep(): boolean {
     const c = this.customer;
-    if (
-      !c.vorname ||
-      !c.nachname ||
-      !c.strasse ||
-      !c.hausnummer ||
-      !c.plz ||
-      !c.stadt ||
-      !c.email
-    ) {
-      this.notificationService.error('Bitte alle Pflichtfelder des Mieters ausfüllen.');
+    // Nur Vor- und Nachname sind Pflicht — das sind auch die einzigen beiden
+    // nicht-nullable Felder im CustomerCreateDto. Adresse, PLZ, Stadt und
+    // E-Mail sind bewusst optional: Barzahlende Laufkundschaft ohne E-Mail
+    // muss bedient werden können, ohne dass jemand a@a.de eintippt.
+    if (!c.vorname || !c.nachname) {
+      this.notificationService.error('Bitte Vor- und Nachname des Mieters ausfüllen.');
       return false;
     }
     return true;
