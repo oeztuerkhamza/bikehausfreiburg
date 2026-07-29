@@ -2420,8 +2420,23 @@ export class RentalBookingStepsComponent implements OnInit {
         .filter((item) => !this.isChildrensBike(item.bike))
         .map((item) => item.bike.id),
     );
-    return this.availableBikes().filter((bike) => !cartIds.has(bike.id));
+    // Immer alphabetisch nach dem angezeigten Namen: die Reihenfolge aus der
+    // API ist die Anlagereihenfolge im Bestand und wechselt daher von Anfrage
+    // zu Anfrage. Zahlen werden dabei als Zahl verglichen, damit "20 Zoll" vor
+    // "24 Zoll" und "100" nicht vor "20" steht.
+    const collator = new Intl.Collator(
+      LOCALE_BY_LANGUAGE[this.lang()] ?? 'de-DE',
+      { numeric: true, sensitivity: 'base' },
+    );
+    return this.availableBikes()
+      .filter((bike) => !cartIds.has(bike.id))
+      .sort((a, b) => collator.compare(this.bikeLabel(a), this.bikeLabel(b)));
   });
+
+  /** Name der Kachel: Marke und Modell, so wie sie dort auch stehen. */
+  bikeLabel(bike: PublicRentalBicycle): string {
+    return `${bike.marke ?? ''} ${bike.modell ?? ''}`.trim();
+  }
 
   /** Aktiver Typ-Filter im Auswahlschritt ("all" = keiner). */
   bikeTypeFilter = signal<string>('all');
