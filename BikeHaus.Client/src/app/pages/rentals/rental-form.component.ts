@@ -903,7 +903,7 @@ const MONTH_NAMES = [
             type="submit"
             class="btn btn-primary wizard-next"
             *ngIf="isLastStep"
-            [disabled]="submitting || !canSubmit || !f.form.valid"
+            [disabled]="submitting"
           >
             {{ submitButtonLabel }}
           </button>
@@ -914,7 +914,7 @@ const MONTH_NAMES = [
           <button
             type="submit"
             class="btn btn-primary"
-            [disabled]="submitting || !canSubmit || !f.form.valid"
+            [disabled]="submitting"
           >
             {{ submitButtonLabel }}
           </button>
@@ -3316,8 +3316,32 @@ export class RentalFormComponent implements OnInit {
     return result.total ?? 0;
   }
 
+  /**
+   * Springt im mobilen Assistenten zum Schritt, in dem das fehlende Feld steht.
+   * Auf dem Desktop stehen ohnehin alle Schritte untereinander.
+   */
+  private jumpToStep(name: string): void {
+    if (!this.isMobile) return;
+    const idx = this.wizardSteps.indexOf(name);
+    if (idx >= 0) this.currentStep = idx;
+  }
+
   submit() {
     if (this.submitting) return;
+
+    // Der Speichern-Knopf ist bewusst nicht mehr ausgegraut: ein grauer Knopf
+    // sagt nicht, was fehlt. Stattdessen prüft submit() jede Bedingung und
+    // nennt sie beim Namen — auf dem Desktop genauso wie im Assistenten.
+    if (!this.startDatum || !this.endDatum) {
+      this.notificationService.error('Mietzeitraum wählen (Start- und Enddatum).');
+      this.jumpToStep('Mietdauer');
+      return;
+    }
+
+    if (!this.validateMieterStep()) {
+      this.jumpToStep('Mieter');
+      return;
+    }
 
     for (let i = 0; i < this.bikes.length; i++) {
       const b = this.bikes[i];
