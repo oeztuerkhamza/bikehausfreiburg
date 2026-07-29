@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -50,20 +50,87 @@ interface RentalForm {
             {{ bike()!.marke }} {{ bike()!.modell }}
           </p>
         </div>
-        <a routerLink="/mietfahrraeder" class="btn btn-outline">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          {{ t.back }}
-        </a>
+        <div class="header-actions">
+          <!-- Räder werden meist in Serie gepflegt (Preise, Körpergröße). Ohne
+               diese Pfeile geht es für jedes Rad über die Liste zurück. -->
+          <div class="bike-nav" *ngIf="isEdit && navBikes().length > 1">
+            <button
+              type="button"
+              class="btn btn-outline btn-nav"
+              [disabled]="!prevBike()"
+              [title]="
+                prevBike()
+                  ? t.mietfahrradPrev + ': ' + bikeLabel(prevBike()!)
+                  : t.mietfahrradPrev
+              "
+              [attr.aria-label]="t.mietfahrradPrev"
+              (click)="goToNeighbour(prevBike())"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <span class="bike-nav-position">
+              <ng-container *ngIf="navIndex() >= 0">
+                {{ navIndex() + 1 }} / {{ navBikes().length }}
+              </ng-container>
+              <ng-container *ngIf="navIndex() < 0">
+                – / {{ navBikes().length }}
+              </ng-container>
+            </span>
+            <button
+              type="button"
+              class="btn btn-outline btn-nav"
+              [disabled]="!nextBike()"
+              [title]="
+                nextBike()
+                  ? t.mietfahrradNext + ': ' + bikeLabel(nextBike()!)
+                  : t.mietfahrradNext
+              "
+              [attr.aria-label]="t.mietfahrradNext"
+              (click)="goToNeighbour(nextBike())"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+          <a routerLink="/mietfahrraeder" class="btn btn-outline">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            {{ t.back }}
+          </a>
+        </div>
       </div>
+
+      <p
+        class="nav-inactive-hint"
+        *ngIf="isEdit && navBikes().length > 1 && navIndex() < 0 && !pageLoading()"
+      >
+        {{ t.mietfahrradNavInactive }}
+      </p>
 
       <div class="loading-wrap" *ngIf="pageLoading()">
         <div class="spinner"></div>
@@ -666,6 +733,34 @@ interface RentalForm {
         font-size: 0.88rem;
       }
 
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .bike-nav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .btn-nav {
+        padding: 10px 12px;
+      }
+      .bike-nav-position {
+        min-width: 62px;
+        text-align: center;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-variant-numeric: tabular-nums;
+      }
+      .nav-inactive-hint {
+        margin: -18px 0 22px;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+      }
+
       .loading-wrap {
         display: flex;
         justify-content: center;
@@ -1207,9 +1302,56 @@ export class MietfahrradFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   isEdit = false;
-  bikeId: number | null = null;
+  bikeId = signal<number | null>(null);
   bike = signal<Bicycle | null>(null);
   images = signal<BicycleImage[]>([]);
+  /** Aktive Mietfahrräder für die Vor/Zurück-Pfeile (Reihenfolge wie in der Liste). */
+  navBikes = signal<Bicycle[]>([]);
+  /** Formularstand nach dem Laden — Vergleichsbasis für "ungespeichert". */
+  private pristineForm = '';
+  private readonly navCollator = new Intl.Collator('de', {
+    sensitivity: 'base',
+    numeric: true,
+  });
+
+  /** Position des offenen Rads in der aktiven Liste; -1 wenn es nicht aktiv ist. */
+  navIndex = computed(() => {
+    const id = this.bikeId();
+    if (id === null) return -1;
+    return this.navBikes().findIndex((b) => b.id === id);
+  });
+
+  /**
+   * Stelle, an der das offene Rad in der aktiven Liste stünde. Gebraucht für
+   * inaktive Räder: die Pfeile sollen dann zum alphabetischen Nachbarn führen
+   * statt gar nichts zu tun.
+   */
+  private navInsertionIndex = computed(() => {
+    const current = this.bike();
+    const bikes = this.navBikes();
+    if (!current) return bikes.length;
+    const label = this.bikeLabel(current);
+    const idx = bikes.findIndex(
+      (b) => this.navCollator.compare(this.bikeLabel(b), label) > 0,
+    );
+    return idx < 0 ? bikes.length : idx;
+  });
+
+  prevBike = computed(() => {
+    const bikes = this.navBikes();
+    const i = this.navIndex();
+    if (i >= 0) return i > 0 ? bikes[i - 1] : null;
+    const at = this.navInsertionIndex();
+    return at > 0 ? bikes[at - 1] : null;
+  });
+
+  nextBike = computed(() => {
+    const bikes = this.navBikes();
+    const i = this.navIndex();
+    if (i >= 0) return i < bikes.length - 1 ? bikes[i + 1] : null;
+    const at = this.navInsertionIndex();
+    return at < bikes.length ? bikes[at] : null;
+  });
   pageLoading = signal(true);
   saving = signal(false);
   uploadingCount = signal(0);
@@ -1259,18 +1401,85 @@ export class MietfahrradFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
-      this.isEdit = true;
-      this.bikeId = +idParam;
-      this.loadBike();
-    } else {
-      this.pageLoading.set(false);
+    // Beim Sprung von Rad zu Rad bleibt die Route dieselbe, Angular verwendet
+    // die Komponente also wieder — mit route.snapshot stünden beim zweiten Rad
+    // noch die Daten des ersten im Formular.
+    this.route.paramMap.subscribe((params) => {
+      const idParam = params.get('id');
+      this.isEdit = !!idParam;
+      this.bikeId.set(idParam ? +idParam : null);
+      if (this.bikeId()) {
+        this.pageLoading.set(true);
+        this.loadBike();
+        if (!this.navBikes().length) this.loadNavBikes();
+        window.scrollTo({ top: 0 });
+      } else {
+        this.pageLoading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Aktive Mietfahrräder in genau der Reihenfolge der Übersichtsliste, damit
+   * die Pfeile dieselbe Nachbarschaft haben wie die Karten davor.
+   */
+  private loadNavBikes() {
+    this.bicycleService
+      .getPaginated(
+        1,
+        1000,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        true,
+      )
+      .subscribe({
+        // Die Navigation ist Komfort: scheitert der Aufruf, verschwinden nur
+        // die Pfeile, das Formular bleibt benutzbar.
+        next: (result) => this.navBikes.set(this.sortNavBikes(result.items)),
+        error: () => this.navBikes.set([]),
+      });
+  }
+
+  private sortNavBikes(bikes: Bicycle[]): Bicycle[] {
+    return [...bikes].sort(
+      (a, b) =>
+        this.navCollator.compare(a.marke ?? '', b.marke ?? '') ||
+        this.navCollator.compare(a.modell ?? '', b.modell ?? ''),
+    );
+  }
+
+  bikeLabel(bike: Bicycle): string {
+    return `${bike.marke ?? ''} ${bike.modell ?? ''}`.trim();
+  }
+
+  /**
+   * Wechselt zum Nachbarrad. Nicht gespeicherte Eingaben gehen dabei verloren,
+   * also vorher nachfragen — sonst ist eine halbe Preistabelle weg.
+   */
+  async goToNeighbour(bike: Bicycle | null) {
+    if (!bike) return;
+    if (this.isDirty()) {
+      const proceed = await this.dialogService.confirm({
+        title: this.t.mietfahrradUnsavedTitle,
+        message: this.t.mietfahrradUnsavedMessage,
+        type: 'danger',
+        confirmText: this.t.mietfahrradUnsavedDiscard,
+      });
+      if (!proceed) return;
     }
+    this.router.navigate(['/mietfahrraeder/edit', bike.id]);
+  }
+
+  private isDirty(): boolean {
+    return this.pristineForm !== JSON.stringify(this.form);
   }
 
   loadBike() {
-    this.bicycleService.getById(this.bikeId!).subscribe({
+    this.bicycleService.getById(this.bikeId()!).subscribe({
       next: (bike) => {
         this.bike.set(bike);
         this.form = {
@@ -1299,6 +1508,7 @@ export class MietfahrradFormComponent implements OnInit {
           koerpergroesseBisCm: bike.koerpergroesseBisCm ?? null,
         };
         this.images.set(bike.images ?? []);
+        this.pristineForm = JSON.stringify(this.form);
         this.pageLoading.set(false);
       },
       error: () => {
@@ -1350,10 +1560,10 @@ export class MietfahrradFormComponent implements OnInit {
       // sie überschreiben kann. Diese Seite ist der einzige Ort, an dem sie
       // geändert werden darf. Leeres Feld = keine Kaution (null).
       this.bicycleService
-        .update(this.bikeId!, dto as any)
+        .update(this.bikeId()!, dto as any)
         .pipe(
           switchMap(() =>
-            this.bicycleService.setKaution(this.bikeId!, this.form.kaution ?? null),
+            this.bicycleService.setKaution(this.bikeId()!, this.form.kaution ?? null),
           ),
         )
         .subscribe({
@@ -1361,6 +1571,9 @@ export class MietfahrradFormComponent implements OnInit {
             this.notificationService.success(this.t.mietfahrradSaveSuccess);
             this.saving.set(false);
             this.loadBike();
+            // "Für Verleih aktiv" kann gerade umgeschaltet worden sein — dann
+            // stimmt die Nachbarschaft der Pfeile nicht mehr.
+            this.loadNavBikes();
           },
           error: () => {
             this.notificationService.error(this.t.saveError);
@@ -1402,11 +1615,11 @@ export class MietfahrradFormComponent implements OnInit {
   }
 
   uploadFiles(files: File[]) {
-    if (!this.bikeId) return;
+    if (!this.bikeId()) return;
     this.uploadingCount.set(files.length);
     let done = 0;
     for (const file of files) {
-      this.bicycleService.uploadGalleryImage(this.bikeId, file).subscribe({
+      this.bicycleService.uploadGalleryImage(this.bikeId()!, file).subscribe({
         next: (img) => {
           this.images.update((imgs) => [...imgs, img]);
           done++;
@@ -1424,13 +1637,13 @@ export class MietfahrradFormComponent implements OnInit {
   }
 
   deleteImage(img: BicycleImage) {
-    if (!this.bikeId) return;
+    if (!this.bikeId()) return;
     this.dialogService
       .danger(this.t.delete, this.t.confirmDelete)
       .then((confirmed) => {
         if (!confirmed) return;
         this.bicycleService
-          .deleteGalleryImage(this.bikeId!, img.id)
+          .deleteGalleryImage(this.bikeId()!, img.id)
           .subscribe({
             next: () =>
               this.images.update((imgs) => imgs.filter((i) => i.id !== img.id)),
@@ -1481,9 +1694,9 @@ export class MietfahrradFormComponent implements OnInit {
   }
 
   private persistOrder() {
-    if (!this.bikeId) return;
+    if (!this.bikeId()) return;
     const ids = this.images().map((i) => i.id);
-    this.bicycleService.reorderGalleryImages(this.bikeId, ids).subscribe({
+    this.bicycleService.reorderGalleryImages(this.bikeId()!, ids).subscribe({
       next: (imgs) => this.images.set(imgs),
       error: () => {
         this.notificationService.error(this.t.mietfahrradOrderSaveError);

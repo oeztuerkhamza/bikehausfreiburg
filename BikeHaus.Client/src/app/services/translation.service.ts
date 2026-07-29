@@ -825,6 +825,12 @@ export interface Translations {
   mietfahrradMoveRight: string;
   mietfahrradPhotoOrderHint: string;
   mietfahrradOrderSaveError: string;
+  mietfahrradPrev: string;
+  mietfahrradNext: string;
+  mietfahrradNavInactive: string;
+  mietfahrradUnsavedTitle: string;
+  mietfahrradUnsavedMessage: string;
+  mietfahrradUnsavedDiscard: string;
 
   // Rental Reviews
   rentalReviews: string;
@@ -1686,6 +1692,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Ziehen zum Sortieren. Das erste Foto ist das Titelbild.',
     mietfahrradOrderSaveError:
       'Reihenfolge konnte nicht gespeichert werden.',
+    mietfahrradPrev: 'Vorheriges Rad',
+    mietfahrradNext: 'Nächstes Rad',
+    mietfahrradNavInactive:
+      'Dieses Rad ist nicht für den Verleih aktiv — die Pfeile springen zum alphabetisch nächsten aktiven Rad.',
+    mietfahrradUnsavedTitle: 'Nicht gespeicherte Änderungen',
+    mietfahrradUnsavedMessage:
+      'Die Änderungen an diesem Rad sind noch nicht gespeichert. Beim Wechseln gehen sie verloren.',
+    mietfahrradUnsavedDiscard: 'Verwerfen und wechseln',
 
     // Rental Reviews
     rentalReviews: 'Kundenbewertungen',
@@ -2544,6 +2558,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     mietfahrradPhotoOrderHint:
       'Sıralamak için sürükle. İlk fotoğraf kapak fotoğrafıdır.',
     mietfahrradOrderSaveError: 'Sıralama kaydedilemedi.',
+    mietfahrradPrev: 'Önceki bisiklet',
+    mietfahrradNext: 'Sonraki bisiklet',
+    mietfahrradNavInactive:
+      'Bu bisiklet kiralamada aktif değil — oklar alfabetik olarak sıradaki aktif bisiklete gider.',
+    mietfahrradUnsavedTitle: 'Kaydedilmemiş değişiklikler',
+    mietfahrradUnsavedMessage:
+      'Bu bisiklette kaydedilmemiş değişiklikler var. Geçiş yapınca kaybolurlar.',
+    mietfahrradUnsavedDiscard: 'Vazgeç ve geç',
 
     // Rental Reviews
     rentalReviews: 'Müşteri Yorumları',
