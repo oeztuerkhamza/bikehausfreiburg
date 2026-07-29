@@ -114,6 +114,10 @@ interface RentalStepsTranslations {
   chooseStartDate: string;
   chooseEndDate: string;
   selectThisBike: string;
+  /** Chip label for the unfiltered bike list in the selection step. */
+  filterAll: string;
+  /** Reads as "<price> for 4 days" on the bike cards. */
+  forDays: string;
   bookingPageTitle: string;
   backToInfo: string;
   bookingCtaTitle: string;
@@ -3981,6 +3985,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Bitte wählen Sie den Starttermin',
     chooseEndDate: 'Jetzt den Endtermin antippen',
     selectThisBike: 'Auswählen',
+    filterAll: 'Alle',
+    forDays: 'für',
     bookingPageTitle: 'Fahrrad online buchen',
     backToInfo: 'Zurück zum Fahrradverleih',
     bookingCtaTitle: 'Jetzt Fahrrad reservieren',
@@ -4093,6 +4099,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Please tap your start date',
     chooseEndDate: 'Now tap your end date',
     selectThisBike: 'Select',
+    filterAll: 'All',
+    forDays: 'for',
     bookingPageTitle: 'Book a bike online',
     backToInfo: 'Back to bike rental',
     bookingCtaTitle: 'Reserve your bike now',
@@ -4207,6 +4215,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Veuillez sélectionner la date de début',
     chooseEndDate: 'Sélectionnez maintenant la date de fin',
     selectThisBike: 'Choisir',
+    filterAll: 'Tous',
+    forDays: 'pour',
     bookingPageTitle: 'Réserver un vélo en ligne',
     backToInfo: 'Retour à la location de vélos',
     bookingCtaTitle: 'Réservez votre vélo maintenant',
@@ -4319,6 +4329,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Lütfen başlangıç tarihini seçin',
     chooseEndDate: 'Şimdi bitiş tarihini seçin',
     selectThisBike: 'Seç',
+    filterAll: 'Tümü',
+    forDays: 'için',
     bookingPageTitle: 'Online bisiklet kirala',
     backToInfo: 'Bisiklet kiralama sayfasına dön',
     bookingCtaTitle: 'Hemen bisiklet rezerve edin',
@@ -4419,6 +4431,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Seleccione la fecha de inicio',
     chooseEndDate: 'Ahora seleccione la fecha de fin',
     selectThisBike: 'Seleccionar',
+    filterAll: 'Todas',
+    forDays: 'por',
     bookingPageTitle: 'Reservar una bicicleta en línea',
     backToInfo: 'Volver al alquiler de bicicletas',
     bookingCtaTitle: 'Reserve su bicicleta ahora',
@@ -4521,6 +4535,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Seleziona la data di inizio',
     chooseEndDate: 'Ora seleziona la data di fine',
     selectThisBike: 'Seleziona',
+    filterAll: 'Tutte',
+    forDays: 'per',
     bookingPageTitle: 'Prenota una bici online',
     backToInfo: 'Torna al noleggio bici',
     bookingCtaTitle: 'Prenota subito la tua bici',
@@ -4621,6 +4637,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'يرجى اختيار تاريخ البدء',
     chooseEndDate: 'اختر الآن تاريخ الانتهاء',
     selectThisBike: 'اختيار',
+    filterAll: 'الكل',
+    forDays: 'لمدة',
     bookingPageTitle: 'احجز دراجة عبر الإنترنت',
     backToInfo: 'العودة إلى تأجير الدراجات',
     bookingCtaTitle: 'احجز دراجتك الآن',
@@ -4721,6 +4739,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Пожалуйста, выберите дату начала',
     chooseEndDate: 'Теперь выберите дату окончания',
     selectThisBike: 'Выбрать',
+    filterAll: 'Все',
+    forDays: 'на',
     bookingPageTitle: 'Забронировать велосипед онлайн',
     backToInfo: 'Назад к прокату велосипедов',
     bookingCtaTitle: 'Забронируйте велосипед сейчас',
@@ -4834,6 +4854,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Tik op je startdatum',
     chooseEndDate: 'Tik nu op je einddatum',
     selectThisBike: 'Kiezen',
+    filterAll: 'Alle',
+    forDays: 'voor',
     bookingPageTitle: 'Fiets online boeken',
     backToInfo: 'Terug naar fietsverhuur',
     bookingCtaTitle: 'Reserveer nu je fiets',
@@ -4947,6 +4969,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Tryk på din startdato',
     chooseEndDate: 'Tryk nu på din slutdato',
     selectThisBike: 'Vælg',
+    filterAll: 'Alle',
+    forDays: 'i',
     bookingPageTitle: 'Book en cykel online',
     backToInfo: 'Tilbage til cykeludlejning',
     bookingCtaTitle: 'Reservér din cykel nu',
@@ -5060,6 +5084,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Trykk på startdatoen din',
     chooseEndDate: 'Trykk nå på sluttdatoen din',
     selectThisBike: 'Velg',
+    filterAll: 'Alle',
+    forDays: 'i',
     bookingPageTitle: 'Bestill en sykkel online',
     backToInfo: 'Tilbake til sykkelutleie',
     bookingCtaTitle: 'Reserver sykkelen din nå',
@@ -5173,6 +5199,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Dotknij daty rozpoczęcia',
     chooseEndDate: 'Teraz dotknij daty zakończenia',
     selectThisBike: 'Wybierz',
+    filterAll: 'Wszystkie',
+    forDays: 'na',
     bookingPageTitle: 'Zarezerwuj rower online',
     backToInfo: 'Powrót do wypożyczalni rowerów',
     bookingCtaTitle: 'Zarezerwuj swój rower teraz',

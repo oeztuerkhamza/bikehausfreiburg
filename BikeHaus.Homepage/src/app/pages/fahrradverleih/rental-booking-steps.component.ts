@@ -27,6 +27,7 @@ import {
   isClosureDay,
   rangeOverlapsClosure,
 } from '../../utils/rental-closures';
+import { LOCALE_BY_LANGUAGE } from '../../services/language-config';
 
 interface CartBike {
   bike: PublicRentalBicycle;
@@ -250,12 +251,42 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           }}
         </div>
 
+        <!-- Anzahl + Typ-Filter: eine lange, ungefilterte Liste ist der Punkt,
+             an dem Gäste am ehesten aussteigen. Die Filter entstehen aus den
+             tatsächlich verfügbaren Rädern, es gibt also nie eine leere Auswahl. -->
         <div
           *ngIf="!loadingAvailableBikes() && selectableBikes().length > 0"
+          class="bike-filter-bar"
+        >
+          <div class="bike-filter-chips">
+            <button
+              type="button"
+              class="filter-chip"
+              [class.active]="bikeTypeFilter() === 'all'"
+              (click)="bikeTypeFilter.set('all')"
+            >
+              {{ t().rentalSteps?.filterAll ?? 'Alle' }}
+              <span class="chip-count">{{ selectableBikes().length }}</span>
+            </button>
+            <button
+              type="button"
+              class="filter-chip"
+              *ngFor="let group of bikeTypeGroups()"
+              [class.active]="bikeTypeFilter() === group.key"
+              (click)="bikeTypeFilter.set(group.key)"
+            >
+              {{ group.label }}
+              <span class="chip-count">{{ group.count }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div
+          *ngIf="!loadingAvailableBikes() && filteredBikes().length > 0"
           class="bike-grid"
         >
           <div
-            *ngFor="let bike of selectableBikes()"
+            *ngFor="let bike of filteredBikes()"
             (click)="selectBikeForDetails(bike)"
             class="bike-card"
           >
@@ -283,10 +314,23 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                   {{ bike.reifengroesse }}
                 </li>
               </ul>
-              <p class="bike-price" *ngIf="bike.preise.day1 !== undefined">
-                {{ t().rentalSteps?.from ?? 'ab' }} €{{ bike.preise.day1 }}/{{
-                  t().rentalSteps?.day ?? 'Tag'
-                }}
+              <!-- Der Zeitraum steht bereits fest, also den Preis für genau
+                   diesen Zeitraum zeigen statt "ab X €/Tag": bisher musste man
+                   jedes Rad öffnen, um zu erfahren, was es wirklich kostet. -->
+              <p class="bike-price" *ngIf="daysCount() > 0">
+                <strong>{{ formatPrice(calculatePrice(bike, daysCount())) }}</strong>
+                <span class="price-period">
+                  {{ t().rentalSteps?.forDays ?? 'für' }} {{ daysCount() }}
+                  {{
+                    daysCount() === 1
+                      ? (t().rentalSteps?.day ?? 'Tag')
+                      : (t().rentalSteps?.days ?? 'Tage')
+                  }}
+                </span>
+              </p>
+              <p class="bike-deposit" *ngIf="bike.kaution">
+                {{ t().rentalSteps?.deposit ?? 'Kaution' }}:
+                {{ formatPrice(bike.kaution) }}
               </p>
               <!-- Visible affordance; click bubbles to the card handler -->
               <button type="button" class="btn-select-bike">
@@ -294,7 +338,14 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               </button>
             </div>
           </div>
+        </div>
 
+        <!-- Der Zurück-Knopf stand im Grid und wurde dadurch wie eine weitere
+             Fahrradkachel zwischen die Räder gesetzt. -->
+        <div
+          class="selection-actions"
+          *ngIf="!loadingAvailableBikes() && selectableBikes().length > 0"
+        >
           <button (click)="goToStep('date-selection')" class="btn-secondary">
             {{ t().rentalSteps?.back ?? 'Zurück' }}
           </button>
@@ -1398,6 +1449,67 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         color: var(--rb-accent);
         font-weight: 600;
         margin: 0.5rem 0 0 0;
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+      }
+      .bike-price strong {
+        font-size: 1.25rem;
+        font-weight: 800;
+      }
+      .price-period {
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--rb-text-muted, #6b7280);
+      }
+      .bike-deposit {
+        margin: 0.25rem 0 0 0;
+        font-size: 0.82rem;
+        color: var(--rb-text-muted, #6b7280);
+      }
+
+      /* ── Typ-Filter über dem Raster ── */
+      .bike-filter-bar {
+        margin: 1.25rem 0 0.25rem;
+      }
+      .bike-filter-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        border: 1px solid var(--rb-border);
+        background: transparent;
+        color: inherit;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .filter-chip:hover {
+        border-color: var(--rb-accent);
+      }
+      .filter-chip.active {
+        border-color: var(--rb-accent);
+        background: rgba(255, 87, 34, 0.14);
+        color: var(--rb-accent);
+      }
+      .chip-count {
+        font-size: 0.75rem;
+        font-weight: 700;
+        opacity: 0.7;
+      }
+
+      .selection-actions {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
       }
 
       .btn-select-bike {
@@ -2170,6 +2282,71 @@ export class RentalBookingStepsComponent implements OnInit {
     );
     return this.availableBikes().filter((bike) => !cartIds.has(bike.id));
   });
+
+  /** Aktiver Typ-Filter im Auswahlschritt ("all" = keiner). */
+  bikeTypeFilter = signal<string>('all');
+
+  /**
+   * Typ-Gruppen aus den verfügbaren Rädern (Art bzw. Fahrradtyp), alphabetisch
+   * und jeweils mit Anzahl. Bewusst aus den Daten abgeleitet statt fest
+   * verdrahtet: so gibt es keine Filter, hinter denen nichts steht.
+   */
+  /**
+   * Die Typangaben im Bestand sind über Jahre frei getippt worden: "City" und
+   * "Cityrad", "Trekking" und "Trekkingrad" stehen nebeneinander. Ungefiltert
+   * ergäbe das doppelte Chips für dieselbe Sache — also auf eine gemeinsame
+   * Bezeichnung ziehen. Unbekannte Werte bleiben, wie sie sind.
+   */
+  private normalizeBikeType(bike: PublicRentalBicycle): string {
+    const raw = (bike.art || bike.fahrradtyp || '').trim();
+    const key = raw.toLowerCase();
+    if (!key) return '';
+    if (key.includes('kinder')) return 'Kinderrad';
+    if (key.includes('e-bike') || key.includes('ebike') || key.includes('pedelec'))
+      return 'E-Bike';
+    if (key.includes('mtb') || key.includes('mountain')) return 'Mountainbike';
+    if (key.includes('renn')) return 'Rennrad';
+    if (key.includes('trekking')) return 'Trekking';
+    if (key.includes('city')) return 'City';
+    if (key.includes('lasten')) return 'Lastenrad';
+    return raw;
+  }
+
+  bikeTypeGroups = computed(() => {
+    const counts = new Map<string, number>();
+    for (const bike of this.selectableBikes()) {
+      const label = this.normalizeBikeType(bike);
+      if (!label) continue;
+      counts.set(label, (counts.get(label) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .map(([label, count]) => ({ key: label, label, count }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  });
+
+  filteredBikes = computed(() => {
+    const filter = this.bikeTypeFilter();
+    if (filter === 'all') return this.selectableBikes();
+    return this.selectableBikes().filter(
+      (bike) => this.normalizeBikeType(bike) === filter,
+    );
+  });
+
+  /**
+   * Beträge in der Sprache des Besuchers: 25,00 € statt €25. Vorher stand das
+   * Euro-Zeichen vorne und ohne Nachkommastellen — in keiner der acht Sprachen
+   * die übliche Schreibweise.
+   */
+  formatPrice(value: number | null | undefined): string {
+    const amount = Number(value) || 0;
+    const locale = LOCALE_BY_LANGUAGE[this.lang()] ?? 'de-DE';
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  }
 
   isChildrensBike(bike: PublicRentalBicycle | null | undefined): boolean {
     // The "Kinder" marker can live in Art (gender) or Fahrradtyp (bike type),
