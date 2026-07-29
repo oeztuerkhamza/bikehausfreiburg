@@ -307,18 +307,22 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 {{ t().rentalSteps?.riderHeight ?? 'Körpergröße' }}:
                 {{ riderHeight(bike) }}
               </p>
+              <!-- Die Größe ist bei der Auswahl genauso wichtig wie der Name,
+                   also steht sie auf jeder Kachel – auch auf dem Handy. Gezeigt
+                   wird nur das Maß, der ausführliche Satz aus den Stammdaten
+                   steht in der Detailansicht. -->
               <ul class="bike-specs-inline">
-                <li *ngIf="bike.rahmengroesse">
+                <li *ngIf="shortSize(bike.rahmengroesse)">
                   <span class="spec-label"
                     >{{ t().rentalSteps?.frameSize ?? 'Rahmengröße' }}:</span
                   >
-                  {{ bike.rahmengroesse }}
+                  {{ shortSize(bike.rahmengroesse) }}
                 </li>
-                <li *ngIf="bike.reifengroesse">
+                <li *ngIf="shortSize(bike.reifengroesse)">
                   <span class="spec-label"
                     >{{ t().rentalSteps?.tireSize ?? 'Reifengröße' }}:</span
                   >
-                  {{ bike.reifengroesse }}
+                  {{ shortSize(bike.reifengroesse) }}
                 </li>
               </ul>
               <!-- Der Zeitraum steht bereits fest, also den Preis für genau
@@ -339,6 +343,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 {{ t().rentalSteps?.deposit ?? 'Kaution' }}:
                 {{ formatPrice(bike.kaution) }}
               </p>
+              <span class="bike-info-spacer" aria-hidden="true"></span>
               <!-- Visible affordance; click bubbles to the card handler -->
               <button type="button" class="btn-select-bike">
                 {{ t().rentalSteps?.selectThisBike ?? 'Auswählen' }} →
@@ -1410,6 +1415,10 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         overflow: hidden;
         cursor: pointer;
         transition: all 0.3s ease;
+        /* Vollständige Namen brauchen je Rad unterschiedlich viele Zeilen; die
+           Spalte hält den Auswählen-Knopf trotzdem auf einer Linie. */
+        display: flex;
+        flex-direction: column;
       }
 
       .bike-card:hover {
@@ -1433,18 +1442,19 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
       .bike-info {
         padding: 1rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
       }
 
       .bike-info h3 {
         margin: 0 0 0.5rem 0;
         font-size: 1.05rem;
-        /* Namen wie "E17 - Conway 625 grau - 53 size Cairon C 2.0" liefen über
-           drei Zeilen; da alle Kacheln einer Reihe auf die höchste wachsen,
-           zog eine einzige Kachel die ganze Reihe in die Länge. */
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        /* Marke und Modell stehen immer vollständig da: ein abgeschnittener
+           Name ("24 - 24 zoll Kinder…") verrät nicht, welches Rad das ist, und
+           genau danach wird hier ausgewählt. Die Kacheln einer Reihe wachsen
+           dafür auf die höchste – lieber eine Zeile mehr als ein halber Name. */
+        overflow-wrap: anywhere;
       }
 
       .bike-type {
@@ -1465,8 +1475,8 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
       .bike-specs-inline li {
         font-size: 0.85rem;
         color: var(--rb-text-soft);
-        /* Die Rahmengröße ist ein ganzer Satz ("50 cm – geeignet für ca.
-           165–180 cm Körpergröße"); vollständig steht sie in der Detailansicht. */
+        /* Notbremse für Stammdaten, die trotz shortSize() ein ganzer Satz
+           bleiben; das Maß steht darin vorn, der Rest in der Detailansicht. */
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -1501,6 +1511,13 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         margin: 0.15rem 0 0 0;
         font-size: 0.82rem;
         color: var(--rb-text-soft);
+      }
+
+      /* Schiebt den Auswählen-Knopf an den Kachelboden, mit garantiertem
+         Mindestabstand zum Text darüber. */
+      .bike-info-spacer {
+        flex: 1 1 auto;
+        min-height: 0.85rem;
       }
 
       .bike-deposit {
@@ -1554,7 +1571,6 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
       .btn-select-bike {
         width: 100%;
-        margin-top: 0.85rem;
         padding: 0.7rem 1rem;
         background: rgba(255, 87, 34, 0.14);
         border: 1px solid rgba(255, 87, 34, 0.55);
@@ -2241,10 +2257,9 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         .bike-info h3 {
           font-size: 0.8rem;
           margin-bottom: 0.2rem;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
+          /* Auch auf der schmalen Kachel vollständig – notfalls über mehrere
+             Zeilen, statt "24 - 24 zoll Kinder…" zu zeigen. */
+          line-height: 1.25;
         }
 
         .bike-type {
@@ -2252,11 +2267,16 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           margin: 0;
         }
 
-        /* Rahmen- und Reifengröße stehen als ganzer Satz in den Stammdaten
-           ("50 cm – geeignet für ca. 165–180 cm Körpergröße"). Auf dem Handy
-           sprengt das die Kachel; in der Detailansicht steht alles vollständig. */
+        /* Die Größe bleibt auf dem Handy sichtbar: shortSize() kürzt den Satz
+           aus den Stammdaten auf das Maß, damit die Kachel eng bleibt. */
         .bike-specs-inline {
-          display: none;
+          margin: 0.25rem 0;
+          gap: 0.1rem;
+        }
+
+        .bike-specs-inline li {
+          font-size: 0.68rem;
+          -webkit-line-clamp: 1;
         }
 
         .bike-price strong {
@@ -2269,8 +2289,11 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           font-size: 0.68rem;
         }
 
+        .bike-info-spacer {
+          min-height: 0.4rem;
+        }
+
         .btn-select-bike {
-          margin-top: 0.4rem;
           padding: 0.45rem 0.5rem;
           font-size: 0.75rem;
         }
@@ -2477,6 +2500,20 @@ export class RentalBookingStepsComponent implements OnInit {
     if (from) return `ab ${from} cm`;
     if (to) return `bis ${to} cm`;
     return '';
+  }
+
+  /**
+   * Rahmen- und Reifengröße werden in den Stammdaten häufig als ganzer Satz
+   * gepflegt ("50 cm – geeignet für ca. 165–180 cm Körpergröße"). Für die
+   * Auswahlkachel bleibt nur das Maß davor stehen ("50 cm"); der vollständige
+   * Text steht in der Detailansicht. Bindestriche werden nicht getrennt, damit
+   * Angaben wie "26-28 Zoll" oder "M - 50 cm" ganz bleiben.
+   */
+  shortSize(value: string | null | undefined): string {
+    const raw = (value ?? '').trim();
+    if (!raw) return '';
+    const measure = raw.split(/[–—(;,]/)[0].trim();
+    return measure || raw;
   }
 
   isChildrensBike(bike: PublicRentalBicycle | null | undefined): boolean {
