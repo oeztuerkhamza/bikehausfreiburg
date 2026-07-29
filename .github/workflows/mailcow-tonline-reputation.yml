@@ -1,0 +1,331 @@
+name: Mailcow T-Online Reputation
+
+# T-Online (t-online.de, magenta.de) nimmt Mail nur von Servern an, die es
+# kennt: unbekannte IPs werden schon beim Verbindungsaufbau mit
+# "554 IP=... - None/bad reputation ... (NOWL)" abgewiesen — NOWL heisst
+# "not on whitelist". Der Block hat nichts mit dem Inhalt einer Mail zu tun
+# und geht nicht von selbst weg, er muss bei T-Online zurueckgesetzt werden.
+#
+# diagnose    : prueft die Voraussetzungen, testet live gegen die T-Online-MX
+#               und druckt den fertigen Antragstext mit echten Werten.
+# flush-queue : nach der Freischaltung die zurueckgehaltenen Mails erneut
+#               ausliefern, bevor sie nach 5 Tagen verfallen.
+#
+# Runbook: deploy/MAIL-DELIVERABILITY.md
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "diagnose = pruefen + Antragstext, flush-queue = Warteschlange erneut zustellen"
+        default: diagnose
+        type: choice
+        options:
+          - diagnose
+          - flush-queue
+
+jobs:
+  tonline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: T-Online Reputation
+        uses: appleboy/ssh-action@v1
+        env:
+          ACTION: ${{ inputs.action }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 8m
+          envs: ACTION
+          script: |
+            set +e
+            ACTION="${ACTION:-diagnose}"
+
+            MAILCOW_DIR=""
+            for d in /opt/mailcow-dockerized /opt/mailcow /root/mailcow-dockerized /root/mailcow ~/mailcow-dockerized ~/mailcow; do
+              if [ -d "$d" ] && [ -f "$d/mailcow.conf" ]; then
+                MAILCOW_DIR="$d"; break
+              fi
+            done
+            [ -z "$MAILCOW_DIR" ] && echo "ERROR: mailcow.conf bulunamadi" && exit 1
+            cd "$MAILCOW_DIR"
+            source mailcow.conf
+
+            DOMAIN="bikehausfreiburg.com"
+            HOSTNAME="${MAILCOW_HOSTNAME:-mail.$DOMAIN}"
+            command -v dig >/dev/null 2>&1 || apt-get install -y dnsutils >/dev/null 2>&1
+            command -v python3 >/dev/null 2>&1 || apt-get install -y python3 >/dev/null 2>&1
+
+            PUB4=$(curl -s4 --max-time 10 https://api.ipify.org 2>/dev/null)
+            PUB6=$(curl -s6 --max-time 10 https://api6.ipify.org 2>/dev/null)
+            TONLINE_RE="t-online\.de|magenta\.de|telekom\.de"
+
+            # ---------------------------------------------------------------
+            if [ "$ACTION" = "flush-queue" ]; then
+              echo "=========================================="
+              echo "T-ONLINE KUYRUGU: YENIDEN GONDERIM"
+              echo "=========================================="
+              echo "--- Once: bekleyen t-online alicilari ---"
+              docker compose exec -T postfix-mailcow postqueue -p 2>/dev/null \
+                | grep -iE "$TONLINE_RE" | head -20
+              echo "--- postqueue -f (tum kuyrugu tazele) ---"
+              docker compose exec -T postfix-mailcow postqueue -f 2>&1
+              echo "--- 20 sn sonra tekrar ---"
+              sleep 20
+              docker compose exec -T postfix-mailcow postqueue -p 2>/dev/null \
+                | grep -iE "$TONLINE_RE" | head -20
+              echo "--- Son teslimat loglari ---"
+              docker compose logs --tail=400 postfix-mailcow 2>/dev/null \
+                | grep -iE "to=<[^>]*@(t-online|magenta|telekom)\.de" | tail -20
+              echo ""
+              echo "Not: 'None/bad reputation' hala goruluyorsa freischaltung"
+              echo "     tamamlanmamis demektir; action=diagnose ile tekrar bak."
+              exit 0
+            fi
+
+            FAIL=0
+
+            echo "=========================================="
+            echo "1. IP + rDNS (T-Online'in ilk sarti)"
+            echo "=========================================="
+            echo "IPv4: ${PUB4:-(yok)}"
+            echo "IPv6: ${PUB6:-(yok)}"
+            echo "MAILCOW_HOSTNAME: $HOSTNAME"
+            for ip in $PUB4 $PUB6; do
+              PTR=$(dig +short -x "$ip" | sed 's/\.$//' | head -1)
+              if [ -z "$PTR" ]; then
+                echo "  $ip -> PTR YOK  <-- T-Online bunu sart kosuyor"
+                FAIL=1
+                continue
+              fi
+              # Forward-confirmed rDNS: der PTR-Name muss auf dieselbe IP
+              # zurueckzeigen, sonst gilt der Absender als anonym.
+              BACK=$( (dig +short A "$PTR"; dig +short AAAA "$PTR") | tr '\n' ' ')
+              if echo " $BACK " | grep -qF " $ip "; then
+                echo "  $ip -> $PTR (geri dogrulama TAMAM)"
+              else
+                echo "  $ip -> $PTR ama geri dogrulama YOK ($BACK)  <-- duzeltilmeli"
+                FAIL=1
+              fi
+              if [ "$PTR" != "$HOSTNAME" ]; then
+                echo "     UYARI: PTR, MAILCOW_HOSTNAME ($HOSTNAME) ile ayni degil"
+              fi
+            done
+
+            echo ""
+            echo "=========================================="
+            echo "2. HELO / myhostname"
+            echo "=========================================="
+            docker compose exec -T postfix-mailcow postconf -n 2>/dev/null \
+              | grep -E "^(myhostname|smtp_helo_name|smtpd_banner|smtp_address_preference)"
+            echo "==> HELO adi PTR ile ayni olmali."
+
+            echo ""
+            echo "=========================================="
+            echo "3. SPF / DKIM / DMARC"
+            echo "=========================================="
+            SPF=$(dig TXT "$DOMAIN" +short | grep -i 'v=spf1')
+            DMARC=$(dig TXT "_dmarc.$DOMAIN" +short)
+            DKIM=$(dig TXT "dkim._domainkey.$DOMAIN" +short)
+            echo "SPF  : ${SPF:-YOK}"
+            [ -z "$SPF" ] && FAIL=1
+            [ -n "$PUB4" ] && [ -n "$SPF" ] && { echo "$SPF" | grep -qF "$PUB4" || echo "  UYARI: SPF icinde $PUB4 yok"; }
+            echo "DKIM : $(echo "${DKIM:-YOK}" | head -c 110)..."
+            [ -z "$DKIM" ] && FAIL=1
+            echo "DMARC: ${DMARC:-YOK}"
+            [ -z "$DMARC" ] && FAIL=1
+
+            echo ""
+            echo "=========================================="
+            echo "4. postmaster@ / abuse@ (T-Online buraya yazar)"
+            echo "=========================================="
+            for a in postmaster abuse; do
+              N=$(docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" -N \
+                -e "SELECT COUNT(*) FROM alias WHERE address='$a@$DOMAIN' AND active=1;" 2>/dev/null | tr -dc '0-9')
+              M=$(docker compose exec -T mysql-mailcow mysql -u"$DBUSER" -p"$DBPASS" "$DBNAME" -N \
+                -e "SELECT COUNT(*) FROM mailbox WHERE username='$a@$DOMAIN' AND active=1;" 2>/dev/null | tr -dc '0-9')
+              if [ "${N:-0}" -gt 0 ] 2>/dev/null || [ "${M:-0}" -gt 0 ] 2>/dev/null; then
+                echo "  $a@$DOMAIN VAR"
+              else
+                echo "  $a@$DOMAIN YOK  <-- mailcow-spam-fix.yml bunu olusturur"
+                FAIL=1
+              fi
+            done
+
+            echo ""
+            echo "=========================================="
+            echo "5. Web sitesi + Impressum"
+            echo "=========================================="
+            # T-Online will hinter der PTR-Domain eine erreichbare Website mit
+            # vollstaendigen Kontaktdaten sehen, bevor eine IP freigeschaltet wird.
+            for u in "https://$DOMAIN/de/impressum" "https://$DOMAIN/"; do
+              echo "  $u -> HTTP $(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$u")"
+            done
+
+            echo ""
+            echo "=========================================="
+            echo "6. CANLI TEST: T-Online MX kabul ediyor mu?"
+            echo "=========================================="
+            export HELO_NAME="$HOSTNAME"
+            python3 - <<'PY'
+            import os, socket
+
+            helo = os.environ.get("HELO_NAME") or socket.getfqdn()
+            verdict = {"blocked": 0, "ok": 0, "unreachable": 0}
+
+
+            def read_reply(sock):
+                """Liest eine komplette SMTP-Antwort (letzte Zeile: 'NNN ' ohne Bindestrich)."""
+                buf = b""
+                while True:
+                    try:
+                        chunk = sock.recv(4096)
+                    except socket.timeout:
+                        break
+                    if not chunk:
+                        break
+                    buf += chunk
+                    text = buf.decode("utf-8", "replace")
+                    if text.endswith("\r\n") or text.endswith("\n"):
+                        lines = [l for l in text.replace("\r\n", "\n").split("\n") if l]
+                        if lines and len(lines[-1]) >= 4 and lines[-1][3] == " ":
+                            break
+                return buf.decode("utf-8", "replace").strip()
+
+
+            def probe(host, ip, family, label):
+                sock = socket.socket(family, socket.SOCK_STREAM)
+                sock.settimeout(15)
+                try:
+                    sock.connect((ip, 25))
+                except Exception as exc:
+                    verdict["unreachable"] += 1
+                    print(f"  {label} {host} [{ip}]: baglanti kurulamadi ({exc})")
+                    sock.close()
+                    return
+                try:
+                    greet = read_reply(sock)
+                    first = greet.splitlines()[0] if greet else ""
+                    if first.startswith("554") or "reputation" in greet.lower():
+                        verdict["blocked"] += 1
+                        print(f"  {label} {host} [{ip}]: BLOKLU")
+                    elif first.startswith("220"):
+                        sock.sendall(f"EHLO {helo}\r\n".encode())
+                        ehlo = read_reply(sock)
+                        code = ehlo[:3] if ehlo else "???"
+                        if code == "250":
+                            verdict["ok"] += 1
+                            print(f"  {label} {host} [{ip}]: KABUL (220 + EHLO 250)")
+                        else:
+                            verdict["blocked"] += 1
+                            print(f"  {label} {host} [{ip}]: EHLO reddedildi")
+                            greet = greet + "\n" + ehlo
+                    else:
+                        print(f"  {label} {host} [{ip}]: beklenmedik yanit")
+                    for line in greet.splitlines():
+                        print(f"        | {line}")
+                    sock.sendall(b"QUIT\r\n")
+                finally:
+                    sock.close()
+
+
+            for host in ("mx00.t-online.de", "mx01.t-online.de", "mx02.t-online.de", "mx03.t-online.de"):
+                for family, label in ((socket.AF_INET, "IPv4"), (socket.AF_INET6, "IPv6")):
+                    try:
+                        infos = socket.getaddrinfo(host, 25, family, socket.SOCK_STREAM)
+                    except socket.gaierror:
+                        continue
+                    probe(host, infos[0][4][0], family, label)
+
+            print()
+            if verdict["blocked"] and not verdict["ok"]:
+                print("SONUC: T-Online bu sunucuyu hala REDDEDIYOR -> asagidaki")
+                print("       antragstext'i tobr@rx.t-online.de adresine gonder.")
+            elif verdict["ok"] and not verdict["blocked"]:
+                print("SONUC: T-Online baglantiyi KABUL ediyor. Freischaltung tamam;")
+                print("       bekleyen mailler icin action=flush-queue calistir.")
+            elif verdict["ok"] and verdict["blocked"]:
+                print("SONUC: KISMEN kabul — muhtemelen sadece bir adres ailesi")
+                print("       (IPv4 veya IPv6) freischalt edilmis.")
+            else:
+                print("SONUC: 25/tcp cikisi yok gibi gorunuyor — hosting saglayicinin")
+                print("       port 25 blogunu kontrol et.")
+            PY
+
+            echo ""
+            echo "=========================================="
+            echo "7. Bekleyen T-Online mailleri"
+            echo "=========================================="
+            docker compose exec -T postfix-mailcow postqueue -p 2>/dev/null \
+              | grep -iE "$TONLINE_RE" | head -20
+            docker compose exec -T postfix-mailcow sh -c 'postqueue -p | tail -1' 2>/dev/null
+            echo "==> Postfix 5 gun boyunca dener; freischaltung sonrasi"
+            echo "    action=flush-queue ile hemen tekrar gonderilir."
+
+            echo ""
+            echo "=========================================="
+            echo "8. ANTRAGSTEXT (tobr@rx.t-online.de)"
+            echo "=========================================="
+            PTR4=$([ -n "$PUB4" ] && dig +short -x "$PUB4" | sed 's/\.$//' | head -1)
+            PTR6=$([ -n "$PUB6" ] && dig +short -x "$PUB6" | sed 's/\.$//' | head -1)
+            MXLIST=$(dig MX "$DOMAIN" +short | tr '\n' ' ')
+            cat <<TEXT
+            An: tobr@rx.t-online.de
+            Betreff: Bitte Reputation zuruecksetzen / Freischaltung fuer $PUB4 ($HOSTNAME)
+
+            Sehr geehrtes Postmaster-Team,
+
+            unser Mailserver wird von Ihren MX bereits beim Verbindungsaufbau
+            abgewiesen:
+
+              554 IP=$PUB4 - None/bad reputation. Ask your postmaster for help
+              or to contact tobr(at)rx.t-online.de for reset. (NOWL)
+
+            Es handelt sich um den Mailserver eines Fahrradgeschaefts in Freiburg.
+            Versendet werden ausschliesslich transaktionale Mails an eigene Kunden
+            (Buchungsbestaetigungen, Rechnungen, Antworten auf Anfragen) sowie die
+            Geschaeftskorrespondenz. Kein Massenversand, kein Adresshandel,
+            Double-Opt-in fuer alle Formulare, jede Mail mit Abmeldemoeglichkeit.
+
+              Domain            : $DOMAIN
+              Mailserver (HELO) : $HOSTNAME
+              IPv4              : $PUB4 (PTR: ${PTR4:-fehlt})
+              IPv6              : ${PUB6:-(nicht genutzt)} (PTR: ${PTR6:-fehlt})
+              MX                : $MXLIST
+              SPF               : $SPF
+              DKIM              : Selektor "dkim" (RSA 2048)
+              DMARC             : $DMARC
+              Hoster            : netcup GmbH, statische IP (kein dynamischer Bereich)
+              Volumen           : wenige Mails pro Tag
+              Impressum         : https://$DOMAIN/de/impressum
+              Kontakt           : postmaster@$DOMAIN (Postfach existiert, wird gelesen)
+              Abuse             : abuse@$DOMAIN
+
+            PTR und A/AAAA sind beidseitig konsistent, SPF/DKIM/DMARC sind
+            eingerichtet, TLS ist aktiv, der Server ist kein offenes Relay und
+            steht auf keiner der gaengigen Blacklists (Spamhaus, SpamCop,
+            Barracuda, SORBS, UCEPROTECT, PSBL, Mailspike - alle sauber).
+
+            Wir bitten um Zuruecksetzung der Reputation bzw. Aufnahme in Ihre
+            Whitelist. Fuer Rueckfragen erreichen Sie uns unter
+            postmaster@$DOMAIN.
+
+            Mit freundlichen Gruessen
+            Bike Haus Freiburg
+            TEXT
+            echo ""
+            echo "Not: Bu talebi kendi sunucumuzdan GONDEREMEZSIN — tobr@rx.t-online.de"
+            echo "     de T-Online tarafinda ve IP'miz blokta. Baska bir mailbox"
+            echo "     (orn. Gmail) kullan ve yanit adresi olarak postmaster@$DOMAIN yaz."
+
+            if [ "$FAIL" -ne 0 ]; then
+              echo ""
+              echo "UYARI: yukarida en az bir onkosul eksik — freischaltung istemeden"
+              echo "       once onu duzelt, aksi halde talep reddedilir."
+              exit 1
+            fi
+            exit 0
