@@ -128,6 +128,7 @@ import { environment } from '../../../environments/environment';
                   <option value="City">City</option>
                   <option value="MTB">Mountainbike (MTB)</option>
                   <option value="Rennrad">Rennrad</option>
+                  <option value="Gravelbike">Gravelbike</option>
                   <option value="Kinderfahrrad">Kinderfahrrad</option>
                   <option value="Lastenrad">Lastenrad</option>
                   <option value="Sonstige">Sonstige</option>

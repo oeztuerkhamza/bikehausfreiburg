@@ -2403,6 +2403,7 @@ export class RentalBookingStepsComponent implements OnInit {
       return 'E-Bike';
     if (key.includes('mtb') || key.includes('mountain')) return 'Mountainbike';
     if (key.includes('renn')) return 'Rennrad';
+    if (key.includes('gravel')) return 'Gravelbike';
     if (key.includes('trekking')) return 'Trekking';
     if (key.includes('city')) return 'City';
     if (key.includes('lasten')) return 'Lastenrad';

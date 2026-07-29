@@ -123,6 +123,7 @@ interface RentalForm {
                     <option>MTB</option>
                     <option>E-Bike</option>
                     <option>Rennrad</option>
+                    <option>Gravelbike</option>
                     <option>Kinderrad</option>
                     <option>Hollandrad</option>
                     <option>Lastenrad</option>
