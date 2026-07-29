@@ -1377,9 +1377,17 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
       .bike-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin: 2rem 0;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 1rem;
+        margin: 1.25rem 0 2rem;
+      }
+
+      /* Ab Desktop-Breite feste vier Spalten: die Kacheln sollen nebeneinander
+         vergleichbar sein, nicht einzeln bildschirmfüllend. */
+      @media (min-width: 1100px) {
+        .bike-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
       }
 
       .bike-card {
@@ -1399,7 +1407,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
       .bike-image {
         width: 100%;
-        height: 200px;
+        height: 150px;
         background: rgba(255, 255, 255, 0.04);
         overflow: hidden;
       }
@@ -1416,7 +1424,14 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
       .bike-info h3 {
         margin: 0 0 0.5rem 0;
-        font-size: 1.1rem;
+        font-size: 1.05rem;
+        /* Namen wie "E17 - Conway 625 grau - 53 size Cairon C 2.0" liefen über
+           drei Zeilen; da alle Kacheln einer Reihe auf die höchste wachsen,
+           zog eine einzige Kachel die ganze Reihe in die Länge. */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .bike-type {
@@ -1437,6 +1452,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
       .bike-specs-inline li {
         font-size: 0.85rem;
         color: var(--rb-text-soft);
+        /* Die Rahmengröße ist ein ganzer Satz ("50 cm – geeignet für ca.
+           165–180 cm Körpergröße"); vollständig steht sie in der Detailansicht. */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .bike-specs-inline .spec-label {
@@ -2178,14 +2199,90 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         }
 
         .date-inputs,
-        .bike-grid,
         .bike-details,
         .customer-form {
           grid-template-columns: 1fr;
         }
 
+        /* Zwei Kacheln nebeneinander: vorher füllte eine einzige Karte den
+           ganzen Bildschirm, sodass man 46 Räder blind durchscrollen musste. */
         .bike-grid {
-          grid-template-columns: 1fr;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.7rem;
+        }
+
+        .bike-image {
+          height: 84px;
+        }
+
+        .bike-info {
+          padding: 0.5rem 0.55rem 0.6rem;
+        }
+
+        .bike-info h3 {
+          font-size: 0.8rem;
+          margin-bottom: 0.2rem;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .bike-type {
+          font-size: 0.7rem;
+          margin: 0;
+        }
+
+        /* Rahmen- und Reifengröße stehen als ganzer Satz in den Stammdaten
+           ("50 cm – geeignet für ca. 165–180 cm Körpergröße"). Auf dem Handy
+           sprengt das die Kachel; in der Detailansicht steht alles vollständig. */
+        .bike-specs-inline {
+          display: none;
+        }
+
+        .bike-price strong {
+          font-size: 1rem;
+        }
+
+        .price-period,
+        .bike-deposit {
+          font-size: 0.68rem;
+        }
+
+        .btn-select-bike {
+          margin-top: 0.4rem;
+          padding: 0.45rem 0.5rem;
+          font-size: 0.75rem;
+        }
+
+        /* Eine scrollbare Zeile statt drei umbrechender Reihen: die Chips
+           schoben das Raster sonst weit unter die Bildschirmkante. */
+        .bike-filter-chips {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          padding-bottom: 0.2rem;
+        }
+
+        .bike-filter-chips::-webkit-scrollbar {
+          display: none;
+        }
+
+        .filter-chip {
+          padding: 0.3rem 0.6rem;
+          font-size: 0.75rem;
+          white-space: nowrap;
+          flex: 0 0 auto;
+        }
+
+        .bike-filter-bar {
+          margin: 0.75rem 0 0;
+        }
+
+        .date-range-display {
+          font-size: 0.78rem;
+          margin: 0.3rem 0 0;
         }
 
         .steps-indicator {
