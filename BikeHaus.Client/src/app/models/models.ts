@@ -72,6 +72,10 @@ export interface Bicycle {
   isPublishedOnKleinanzeigen: boolean;
   verkaufspreisVorschlag?: number;
   kleinanzeigenAnzeigeNr?: string;
+  /** Nur Mietfahrräder, nur intern — nie Teil der öffentlichen DTOs. */
+  fahrradnummer?: string;
+  koerpergroesseVonCm?: number;
+  koerpergroesseBisCm?: number;
   createdAt: string;
   images?: BicycleImage[];
 }
@@ -90,6 +94,9 @@ export interface BicycleCreate {
   lagernummer?: number;
   /** Beim Anlegen erlaubt — später läuft der Preis über BicycleUpdate. */
   verkaufspreisVorschlag?: number;
+  fahrradnummer?: string;
+  koerpergroesseVonCm?: number;
+  koerpergroesseBisCm?: number;
   rahmengroesse?: string;
   farbe?: string;
   reifengroesse: string;
@@ -140,6 +147,10 @@ export interface BicycleUpdate {
   // über bicycleService.setKaution() (Seite „Mietfahrräder") geändert. Sie war
   // Teil dieses DTOs und wurde deshalb beim Speichern eines Mietvertrags
   // mitgeschickt — und dabei geleert.
+  // null/undefined = beibehalten; "" bzw. 0 löschen den Wert.
+  fahrradnummer?: string;
+  koerpergroesseVonCm?: number;
+  koerpergroesseBisCm?: number;
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;

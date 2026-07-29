@@ -1,4 +1,4 @@
-using BikeHaus.Domain.Enums;
+﻿using BikeHaus.Domain.Enums;
 
 namespace BikeHaus.Application.DTOs;
 
@@ -32,7 +32,11 @@ public record BicycleDto(
     string? KleinanzeigenAnzeigeNr,
     DateTime CreatedAt,
     List<BicycleImageDto>? Images = null,
-    int? Lagernummer = null
+    int? Lagernummer = null,
+    // Nur Mietfahrräder; die Nummer bleibt intern (siehe PublicRentalBicycleDto).
+    string? Fahrradnummer = null,
+    int? KoerpergroesseVonCm = null,
+    int? KoerpergroesseBisCm = null
 );
 
 public record BicycleCreateDto(
@@ -60,7 +64,10 @@ public record BicycleCreateDto(
     // Beim Anlegen erlaubt (anders als die Kaution): wer ein Rad direkt aus
     // einem Beleg heraus anlegt — etwa beim Reservieren eines noch nicht
     // erfassten Fahrrads — soll den vereinbarten Preis gleich hinterlegen.
-    decimal? VerkaufspreisVorschlag = null
+    decimal? VerkaufspreisVorschlag = null,
+    string? Fahrradnummer = null,
+    int? KoerpergroesseVonCm = null,
+    int? KoerpergroesseBisCm = null
 );
 
 public record BicycleUpdateDto(
@@ -93,7 +100,12 @@ public record BicycleUpdateDto(
     // mitschicken, das nebenbei ein Fahrrad speichert — beim Anlegen eines
     // Mietvertrags wurde sie so geleert. Ein trotzdem mitgeschicktes Feld
     // landet jetzt im Nirwana, statt den Wert zu überschreiben.
-    int? Lagernummer = null
+    int? Lagernummer = null,
+    // null = beibehalten (gleiche Regel wie bei den Preisfeldern), damit ein
+    // Formular ohne diese Felder sie nicht leert.
+    string? Fahrradnummer = null,
+    int? KoerpergroesseVonCm = null,
+    int? KoerpergroesseBisCm = null
 );
 
 public record BicycleImageDto(

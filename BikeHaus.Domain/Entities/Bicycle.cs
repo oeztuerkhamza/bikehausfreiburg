@@ -29,6 +29,17 @@ public class Bicycle : BaseEntity
 
     // Rental settings
     public bool IsRentable { get; set; } = false;
+
+    // Interne Nummer des Mietrads ("E7", "12"). Steht am Rahmen und dient der
+    // Zuordnung im Laden — sie wird bewusst NICHT an Kunden ausgeliefert und
+    // fehlt deshalb im PublicRentalBicycleDto.
+    public string? Fahrradnummer { get; set; }
+
+    // Empfohlene Körpergröße des Fahrers in cm (nur bei Mietfahrrädern
+    // gepflegt). Als zwei Zahlen statt als Satz, damit sie überall gleich
+    // dargestellt und später auch gefiltert werden kann.
+    public int? KoerpergroesseVonCm { get; set; }
+    public int? KoerpergroesseBisCm { get; set; }
     public decimal? RentalPriceDay1 { get; set; }
     public decimal? RentalPriceDay2 { get; set; }
     public decimal? RentalPriceDay3 { get; set; }

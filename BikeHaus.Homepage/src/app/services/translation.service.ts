@@ -114,6 +114,8 @@ interface RentalStepsTranslations {
   chooseStartDate: string;
   chooseEndDate: string;
   selectThisBike: string;
+  /** Label for the recommended rider height on the bike cards. */
+  riderHeight: string;
   /** Chip label for the unfiltered bike list in the selection step. */
   filterAll: string;
   /** Reads as "<price> for 4 days" on the bike cards. */
@@ -3985,6 +3987,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Bitte wählen Sie den Starttermin',
     chooseEndDate: 'Jetzt den Endtermin antippen',
     selectThisBike: 'Auswählen',
+    riderHeight: 'Körpergröße',
     filterAll: 'Alle',
     forDays: 'für',
     bookingPageTitle: 'Fahrrad online buchen',
@@ -4099,6 +4102,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Please tap your start date',
     chooseEndDate: 'Now tap your end date',
     selectThisBike: 'Select',
+    riderHeight: 'Rider height',
     filterAll: 'All',
     forDays: 'for',
     bookingPageTitle: 'Book a bike online',
@@ -4215,6 +4219,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Veuillez sélectionner la date de début',
     chooseEndDate: 'Sélectionnez maintenant la date de fin',
     selectThisBike: 'Choisir',
+    riderHeight: 'Taille',
     filterAll: 'Tous',
     forDays: 'pour',
     bookingPageTitle: 'Réserver un vélo en ligne',
@@ -4329,6 +4334,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Lütfen başlangıç tarihini seçin',
     chooseEndDate: 'Şimdi bitiş tarihini seçin',
     selectThisBike: 'Seç',
+    riderHeight: 'Boy',
     filterAll: 'Tümü',
     forDays: 'için',
     bookingPageTitle: 'Online bisiklet kirala',
@@ -4431,6 +4437,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Seleccione la fecha de inicio',
     chooseEndDate: 'Ahora seleccione la fecha de fin',
     selectThisBike: 'Seleccionar',
+    riderHeight: 'Estatura',
     filterAll: 'Todas',
     forDays: 'por',
     bookingPageTitle: 'Reservar una bicicleta en línea',
@@ -4535,6 +4542,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Seleziona la data di inizio',
     chooseEndDate: 'Ora seleziona la data di fine',
     selectThisBike: 'Seleziona',
+    riderHeight: 'Altezza',
     filterAll: 'Tutte',
     forDays: 'per',
     bookingPageTitle: 'Prenota una bici online',
@@ -4637,6 +4645,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'يرجى اختيار تاريخ البدء',
     chooseEndDate: 'اختر الآن تاريخ الانتهاء',
     selectThisBike: 'اختيار',
+    riderHeight: 'الطول',
     filterAll: 'الكل',
     forDays: 'لمدة',
     bookingPageTitle: 'احجز دراجة عبر الإنترنت',
@@ -4739,6 +4748,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Пожалуйста, выберите дату начала',
     chooseEndDate: 'Теперь выберите дату окончания',
     selectThisBike: 'Выбрать',
+    riderHeight: 'Рост',
     filterAll: 'Все',
     forDays: 'на',
     bookingPageTitle: 'Забронировать велосипед онлайн',
@@ -4854,6 +4864,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Tik op je startdatum',
     chooseEndDate: 'Tik nu op je einddatum',
     selectThisBike: 'Kiezen',
+    riderHeight: 'Lichaamslengte',
     filterAll: 'Alle',
     forDays: 'voor',
     bookingPageTitle: 'Fiets online boeken',
@@ -4969,6 +4980,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Tryk på din startdato',
     chooseEndDate: 'Tryk nu på din slutdato',
     selectThisBike: 'Vælg',
+    riderHeight: 'Højde',
     filterAll: 'Alle',
     forDays: 'i',
     bookingPageTitle: 'Book en cykel online',
@@ -5084,6 +5096,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Trykk på startdatoen din',
     chooseEndDate: 'Trykk nå på sluttdatoen din',
     selectThisBike: 'Velg',
+    riderHeight: 'Høyde',
     filterAll: 'Alle',
     forDays: 'i',
     bookingPageTitle: 'Bestill en sykkel online',
@@ -5199,6 +5212,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     chooseStartDate: 'Dotknij daty rozpoczęcia',
     chooseEndDate: 'Teraz dotknij daty zakończenia',
     selectThisBike: 'Wybierz',
+    riderHeight: 'Wzrost',
     filterAll: 'Wszystkie',
     forDays: 'na',
     bookingPageTitle: 'Zarezerwuj rower online',

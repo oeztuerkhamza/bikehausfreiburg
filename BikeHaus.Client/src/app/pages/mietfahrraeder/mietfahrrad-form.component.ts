@@ -31,6 +31,10 @@ interface RentalForm {
   rentalPriceDay7: number | null;
   rentalPriceAdditionalDayAfter7: number | null;
   kaution: number | null;
+  /** Interne Nummer am Rahmen — nur im System, nie auf der Website. */
+  fahrradnummer: string;
+  koerpergroesseVonCm: number | null;
+  koerpergroesseBisCm: number | null;
 }
 
 @Component({
@@ -113,6 +117,38 @@ interface RentalForm {
                     name="rahmennummer"
                     placeholder="z.B. BHF-2026-001"
                   />
+                </div>
+                <div class="field">
+                  <label>Fahrradnummer</label>
+                  <input
+                    [(ngModel)]="form.fahrradnummer"
+                    name="fahrradnummer"
+                    placeholder="z.B. E7"
+                  />
+                  <small class="field-hint">Nur intern — steht nie auf der Website.</small>
+                </div>
+                <div class="field">
+                  <label>Körpergröße von (cm)</label>
+                  <input
+                    type="number"
+                    min="80"
+                    max="230"
+                    [(ngModel)]="form.koerpergroesseVonCm"
+                    name="koerpergroesseVonCm"
+                    placeholder="z.B. 165"
+                  />
+                </div>
+                <div class="field">
+                  <label>Körpergröße bis (cm)</label>
+                  <input
+                    type="number"
+                    min="80"
+                    max="230"
+                    [(ngModel)]="form.koerpergroesseBisCm"
+                    name="koerpergroesseBisCm"
+                    placeholder="z.B. 180"
+                  />
+                  <small class="field-hint">Wird Kunden bei der Fahrradauswahl angezeigt.</small>
                 </div>
                 <div class="field">
                   <label>{{ t.mietfahrradType }}</label>
@@ -697,6 +733,13 @@ interface RentalForm {
         font-weight: 700;
       }
 
+      .field-hint {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.72rem;
+        color: var(--text-secondary, #64748b);
+      }
+
       .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -1193,6 +1236,9 @@ export class MietfahrradFormComponent implements OnInit {
     rentalPriceDay7: null,
     rentalPriceAdditionalDayAfter7: null,
     kaution: null,
+    fahrradnummer: '',
+    koerpergroesseVonCm: null,
+    koerpergroesseBisCm: null,
   };
 
   colorOptions = [
@@ -1248,6 +1294,9 @@ export class MietfahrradFormComponent implements OnInit {
           rentalPriceAdditionalDayAfter7:
             bike.rentalPriceAdditionalDayAfter7 ?? null,
           kaution: bike.kaution ?? null,
+          fahrradnummer: bike.fahrradnummer ?? '',
+          koerpergroesseVonCm: bike.koerpergroesseVonCm ?? null,
+          koerpergroesseBisCm: bike.koerpergroesseBisCm ?? null,
         };
         this.images.set(bike.images ?? []);
         this.pageLoading.set(false);
@@ -1287,6 +1336,12 @@ export class MietfahrradFormComponent implements OnInit {
       rentalPriceDay7: this.form.rentalPriceDay7 || null,
       rentalPriceAdditionalDayAfter7:
         this.form.rentalPriceAdditionalDayAfter7 || null,
+      // Leerer String statt null: null hieße serverseitig "behalten", die
+      // Nummer ließe sich sonst nicht mehr entfernen. Gleiches gilt für die
+      // Körpergröße, dort steht 0 für "nicht gepflegt".
+      fahrradnummer: this.form.fahrradnummer?.trim() ?? '',
+      koerpergroesseVonCm: this.form.koerpergroesseVonCm ?? 0,
+      koerpergroesseBisCm: this.form.koerpergroesseBisCm ?? 0,
     };
 
     if (this.isEdit) {

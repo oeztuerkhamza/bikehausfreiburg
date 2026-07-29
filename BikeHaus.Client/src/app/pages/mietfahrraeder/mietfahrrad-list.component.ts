@@ -169,11 +169,19 @@ type EditableField =
 
           <!-- Info -->
           <div class="bike-info">
-            <div class="bike-name">{{ bike.marke }} {{ bike.modell }}</div>
+            <div class="bike-name">
+              <span class="bike-nr" *ngIf="bike.fahrradnummer">{{
+                bike.fahrradnummer
+              }}</span>
+              {{ bike.marke }} {{ bike.modell }}
+            </div>
             <div class="bike-meta">
               <span *ngIf="bike.fahrradtyp">{{ bike.fahrradtyp }}</span>
               <span *ngIf="bike.reifengroesse">{{ bike.reifengroesse }}"</span>
               <span *ngIf="bike.farbe">{{ bike.farbe }}</span>
+              <span *ngIf="bike.koerpergroesseVonCm || bike.koerpergroesseBisCm">
+                {{ bike.koerpergroesseVonCm }}–{{ bike.koerpergroesseBisCm }} cm
+              </span>
             </div>
 
             <!-- Prices + Kaution (Doppelklick zum Ändern) -->
@@ -534,6 +542,18 @@ type EditableField =
       .bike-info {
         padding: 14px 16px 8px;
       }
+      /* Interne Fahrradnummer — bewusst nur hier im System sichtbar. */
+      .bike-nr {
+        display: inline-block;
+        margin-right: 6px;
+        padding: 1px 7px;
+        border-radius: 6px;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.12));
+        color: var(--accent-primary, #6366f1);
+        font-family: monospace;
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
       .bike-name {
         font-size: 1rem;
         font-weight: 700;
@@ -788,6 +808,9 @@ export class MietfahrradListComponent implements OnInit {
       rentalPriceDay6: bike.rentalPriceDay6,
       rentalPriceDay7: bike.rentalPriceDay7,
       rentalPriceAdditionalDayAfter7: bike.rentalPriceAdditionalDayAfter7,
+      fahrradnummer: bike.fahrradnummer,
+      koerpergroesseVonCm: bike.koerpergroesseVonCm,
+      koerpergroesseBisCm: bike.koerpergroesseBisCm,
       // Kaution ist nicht Teil des allgemeinen Updates — sie hat einen eigenen
       // Endpunkt (siehe saveEdit), damit sie nur von dieser Seite aus änderbar ist.
     };

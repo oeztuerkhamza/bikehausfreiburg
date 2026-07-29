@@ -226,6 +226,21 @@ public class BicycleService : IBicycleService
         if (dto.RentalPriceDay7.HasValue) entity.RentalPriceDay7 = dto.RentalPriceDay7.Value;
         if (dto.RentalPriceAdditionalDayAfter7.HasValue)
             entity.RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7.Value;
+        // Mietrad-Angaben: null = behalten, Wert = setzen (gleiche Regel wie bei
+        // den Preisfeldern). So kann ein Formular ohne diese Felder sie nicht leeren.
+        if (dto.Fahrradnummer != null)
+            entity.Fahrradnummer = string.IsNullOrWhiteSpace(dto.Fahrradnummer)
+                ? null
+                : dto.Fahrradnummer.Trim();
+        if (dto.KoerpergroesseVonCm.HasValue)
+            entity.KoerpergroesseVonCm = dto.KoerpergroesseVonCm.Value == 0
+                ? null
+                : dto.KoerpergroesseVonCm;
+        if (dto.KoerpergroesseBisCm.HasValue)
+            entity.KoerpergroesseBisCm = dto.KoerpergroesseBisCm.Value == 0
+                ? null
+                : dto.KoerpergroesseBisCm;
+
         // Kaution wird hier bewusst NICHT angefasst — sie gehört dem Fahrrad und
         // ist nur über SetKautionAsync (Seite „Mietfahrräder") änderbar. Jedes
         // andere Formular, das nebenbei ein Fahrrad speichert (Mietvertrag,

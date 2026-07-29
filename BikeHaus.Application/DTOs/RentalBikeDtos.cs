@@ -1,4 +1,4 @@
-namespace BikeHaus.Application.DTOs;
+﻿namespace BikeHaus.Application.DTOs;
 
 public record RentalPriceDto(
     decimal? Day1,
@@ -24,5 +24,9 @@ public record PublicRentalBicycleDto(
     string? Rahmengroesse,
     decimal? Kaution,
     List<BicycleImageDto> Images,
-    RentalPriceDto Preise
+    RentalPriceDto Preise,
+    // Empfohlene Körpergröße — die einzige der neuen Mietrad-Angaben, die nach
+    // außen geht. Die interne Fahrradnummer fehlt hier bewusst.
+    int? KoerpergroesseVonCm = null,
+    int? KoerpergroesseBisCm = null
 );

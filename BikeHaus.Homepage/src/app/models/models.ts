@@ -177,6 +177,9 @@ export interface PublicRentalBicycle {
   kaution?: number;
   images: RentalBikeImage[];
   preise: RentalPrice;
+  /** Empfohlene Körpergröße des Fahrers (nur Mietfahrräder). */
+  koerpergroesseVonCm?: number;
+  koerpergroesseBisCm?: number;
 }
 
 export interface RentalAccessoryPublic {

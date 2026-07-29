@@ -1,4 +1,4 @@
-using BikeHaus.Application.DTOs;
+﻿using BikeHaus.Application.DTOs;
 using BikeHaus.Domain.Entities;
 
 namespace BikeHaus.Application.Mappings;
@@ -35,7 +35,10 @@ public static class MappingExtensions
         entity.KleinanzeigenAnzeigeNr,
         entity.CreatedAt,
         entity.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList(),
-        entity.Lagernummer
+        entity.Lagernummer,
+        entity.Fahrradnummer,
+        entity.KoerpergroesseVonCm,
+        entity.KoerpergroesseBisCm
     );
 
     public static BicycleImageDto ToDto(this BicycleImage entity) => new(
@@ -84,7 +87,10 @@ public static class MappingExtensions
         RentalPriceAdditionalDayAfter7 = dto.RentalPriceAdditionalDayAfter7,
         Kaution = dto.Kaution,
         Lagernummer = dto.Lagernummer,
-        VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag
+        VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag,
+        Fahrradnummer = dto.Fahrradnummer,
+        KoerpergroesseVonCm = dto.KoerpergroesseVonCm,
+        KoerpergroesseBisCm = dto.KoerpergroesseBisCm
     };
 
     public static PublicRentalBicycleDto ToPublicRentalDto(this Bicycle entity) => new(
@@ -109,7 +115,9 @@ public static class MappingExtensions
             entity.RentalPriceDay6,
             entity.RentalPriceDay7,
             entity.RentalPriceAdditionalDayAfter7
-        )
+        ),
+        entity.KoerpergroesseVonCm,
+        entity.KoerpergroesseBisCm
     );
 
     // ── Customer Mappings ──

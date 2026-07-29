@@ -300,6 +300,13 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             <div class="bike-info">
               <h3>{{ bike.marke }} {{ bike.modell }}</h3>
               <p class="bike-type">{{ bike.art || bike.fahrradtyp }}</p>
+              <!-- Kurz genug, um auch auf dem Handy zu bleiben (dort ist die
+                   ausführliche Spec-Liste ausgeblendet) und die wichtigste
+                   Frage bei der Auswahl: passt das Rad zu mir? -->
+              <p class="bike-size" *ngIf="riderHeight(bike)">
+                {{ t().rentalSteps?.riderHeight ?? 'Körpergröße' }}:
+                {{ riderHeight(bike) }}
+              </p>
               <ul class="bike-specs-inline">
                 <li *ngIf="bike.rahmengroesse">
                   <span class="spec-label"
@@ -413,6 +420,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             <div class="spec" *ngIf="selectedBike()!.fahrradtyp">
               <strong>{{ t().rentalSteps?.type ?? 'Typ' }}:</strong>
               {{ selectedBike()!.fahrradtyp }}
+            </div>
+            <div class="spec" *ngIf="riderHeight(selectedBike()!)">
+              <strong
+                >{{ t().rentalSteps?.riderHeight ?? 'Körpergröße' }}:</strong
+              >
+              {{ riderHeight(selectedBike()!) }}
             </div>
             <div class="spec" *ngIf="selectedBike()!.rahmengroesse">
               <strong
@@ -1484,6 +1497,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         font-weight: 500;
         color: var(--rb-text-muted, #6b7280);
       }
+      .bike-size {
+        margin: 0.15rem 0 0 0;
+        font-size: 0.82rem;
+        color: var(--rb-text-soft);
+      }
+
       .bike-deposit {
         margin: 0.25rem 0 0 0;
         font-size: 0.82rem;
@@ -2245,7 +2264,8 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         }
 
         .price-period,
-        .bike-deposit {
+        .bike-deposit,
+        .bike-size {
           font-size: 0.68rem;
         }
 
@@ -2444,6 +2464,19 @@ export class RentalBookingStepsComponent implements OnInit {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
+  }
+
+  /**
+   * Empfohlene Körpergröße als kurzer Text ("165–180 cm"). Ist nur eine Grenze
+   * gepflegt, wird daraus "ab 165 cm" bzw. "bis 180 cm"; ohne Angabe leer.
+   */
+  riderHeight(bike: PublicRentalBicycle | null | undefined): string {
+    const from = bike?.koerpergroesseVonCm ?? null;
+    const to = bike?.koerpergroesseBisCm ?? null;
+    if (from && to) return `${from}–${to} cm`;
+    if (from) return `ab ${from} cm`;
+    if (to) return `bis ${to} cm`;
+    return '';
   }
 
   isChildrensBike(bike: PublicRentalBicycle | null | undefined): boolean {
