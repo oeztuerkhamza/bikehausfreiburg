@@ -6,11 +6,18 @@
  * und auf der Buchungskachel stand ein halber Satz. Jetzt wird sie in ganzen
  * Zentimetern ausgewählt, und die empfohlene Körpergröße ergibt sich daraus.
  *
- * Die Tabelle folgt den üblichen Trekking-/City-Empfehlungen deutscher
- * Fahrradhändler und ist bewusst als Spanne angelegt: eine Rahmenhöhe passt
- * nie genau einer Körpergröße, und die Bereiche überlappen sich an den Rändern.
- * Der Vorschlag ist deshalb nur ein Vorschlag — im Formular bleiben beide
- * Felder frei überschreibbar.
+ * Die Bänder sind bewusst weit und überlappen sich um 5–10 cm. Sie stammen
+ * nicht aus einer Kauf-Größentabelle: dort wird der Rahmen auf eine Person
+ * eingepasst, hier wird ein Rad an wechselnde Gäste verliehen, und die
+ * Sattelhöhe deckt einen großen Teil des Unterschieds ab. Ein 50er Trekkingrad
+ * passt im Verleih von etwa 165 bis 180 cm — genau die Spanne, die im Bestand
+ * früher als Freitext an der Rahmenhöhe stand.
+ *
+ * Zu enge Bänder wären hier der teurere Fehler: die Körpergröße ist auf der
+ * Website reiner Hinweistext und filtert nichts, ein zu knapper Bereich lässt
+ * also nur passende Räder unpassend aussehen — und zwingt dazu, die Zahlen bei
+ * jedem Rad von Hand zu weiten. Der Vorschlag bleibt ein Vorschlag: im
+ * Formular sind beide Felder frei überschreibbar.
  */
 
 /** Empfohlene Körpergröße in cm (von/bis). */
@@ -25,16 +32,16 @@ interface FrameHeightBand extends RiderHeightRange {
 }
 
 const BANDS: FrameHeightBand[] = [
-  { maxFrameCm: 32, von: 120, bis: 135 },
-  { maxFrameCm: 36, von: 130, bis: 145 },
-  { maxFrameCm: 41, von: 145, bis: 158 },
-  { maxFrameCm: 46, von: 155, bis: 168 },
-  { maxFrameCm: 49, von: 163, bis: 172 },
-  { maxFrameCm: 52, von: 170, bis: 178 },
-  { maxFrameCm: 55, von: 176, bis: 184 },
-  { maxFrameCm: 58, von: 182, bis: 189 },
-  { maxFrameCm: 61, von: 187, bis: 195 },
-  { maxFrameCm: 999, von: 193, bis: 202 },
+  { maxFrameCm: 32, von: 115, bis: 135 }, // Kinderrad ~20"
+  { maxFrameCm: 36, von: 128, bis: 145 }, // Kinderrad ~24"
+  { maxFrameCm: 41, von: 140, bis: 158 }, // Jugendrad ~26"
+  { maxFrameCm: 46, von: 152, bis: 170 },
+  { maxFrameCm: 49, von: 160, bis: 175 },
+  { maxFrameCm: 52, von: 165, bis: 180 },
+  { maxFrameCm: 55, von: 172, bis: 186 },
+  { maxFrameCm: 58, von: 178, bis: 192 },
+  { maxFrameCm: 61, von: 185, bis: 198 },
+  { maxFrameCm: 999, von: 190, bis: 205 },
 ];
 
 /** Auswahlbereich der Rahmenhöhe — von Kinderrädern bis zum größten Rahmen. */
