@@ -6,12 +6,12 @@
  * und auf der Buchungskachel stand ein halber Satz. Jetzt wird sie in ganzen
  * Zentimetern ausgewählt, und die empfohlene Körpergröße ergibt sich daraus.
  *
- * Die Bänder sind bewusst weit und überlappen sich um 5–10 cm. Sie stammen
- * nicht aus einer Kauf-Größentabelle: dort wird der Rahmen auf eine Person
- * eingepasst, hier wird ein Rad an wechselnde Gäste verliehen, und die
- * Sattelhöhe deckt einen großen Teil des Unterschieds ab. Ein 50er Trekkingrad
- * passt im Verleih von etwa 165 bis 180 cm — genau die Spanne, die im Bestand
- * früher als Freitext an der Rahmenhöhe stand.
+ * Die Bänder stammen nicht aus einer Kauf-Größentabelle: dort wird der Rahmen
+ * auf eine Person eingepasst, hier wird ein Rad an wechselnde Gäste verliehen,
+ * und die Sattelhöhe deckt einen großen Teil des Unterschieds ab. Der Kern
+ * eines 50er Trekkingrads ist deshalb 165–180 cm — genau die Spanne, die im
+ * Bestand früher als Freitext an der Rahmenhöhe stand. Auf diesen Kern kommt
+ * die Toleranz unten drauf, sodass die Bänder am Ende gut 20 cm breit sind.
  *
  * Zu enge Bänder wären hier der teurere Fehler: die Körpergröße ist auf der
  * Website reiner Hinweistext und filtert nichts, ein zu knapper Bereich lässt
@@ -31,6 +31,15 @@ interface FrameHeightBand extends RiderHeightRange {
   maxFrameCm: number;
 }
 
+/**
+ * Toleranz, die auf jedes Band oben wie unten aufgeschlagen wird. Sie steht
+ * bewusst getrennt von der Tabelle: die Kernwerte sind die fachliche Aussage,
+ * die Toleranz ist die Stellschraube dafür, wie großzügig der Verleih sein
+ * will. Einmal hier ändern wirkt auf alle Rahmenhöhen.
+ */
+export const RIDER_HEIGHT_TOLERANCE_CM = 4;
+
+/** Kernbereiche ohne Toleranz — nicht direkt verwenden, siehe riderHeightForFrame(). */
 const BANDS: FrameHeightBand[] = [
   { maxFrameCm: 32, von: 115, bis: 135 }, // Kinderrad ~20"
   { maxFrameCm: 36, von: 128, bis: 145 }, // Kinderrad ~24"
@@ -83,7 +92,11 @@ export function riderHeightForFrame(
 ): RiderHeightRange | null {
   if (frameCm === null) return null;
   const band = BANDS.find((b) => frameCm <= b.maxFrameCm);
-  return band ? { von: band.von, bis: band.bis } : null;
+  if (!band) return null;
+  return {
+    von: band.von - RIDER_HEIGHT_TOLERANCE_CM,
+    bis: band.bis + RIDER_HEIGHT_TOLERANCE_CM,
+  };
 }
 
 /** Empfohlene Körpergröße direkt aus dem gespeicherten Freitext/Wert. */
