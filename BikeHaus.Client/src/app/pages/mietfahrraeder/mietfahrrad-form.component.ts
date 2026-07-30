@@ -10,6 +10,13 @@ import { DialogService } from '../../services/dialog.service';
 import { Bicycle, BicycleImage } from '../../models/models';
 import { environment } from '../../../environments/environment';
 import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
+import {
+  FRAME_HEIGHT_OPTIONS,
+  isPlainFrameHeight,
+  parseFrameHeightCm,
+  riderHeightForFrameValue,
+  RiderHeightRange,
+} from '../../utils/frame-height';
 
 interface RentalForm {
   marke: string;
@@ -216,6 +223,15 @@ interface RentalForm {
                     placeholder="z.B. 180"
                   />
                   <small class="field-hint">Wird Kunden bei der Fahrradauswahl angezeigt.</small>
+                  <!-- Eigene Werte werden nie überschrieben; weicht der
+                       Vorschlag ab, ist er einen Klick entfernt. -->
+                  <small class="field-hint" *ngIf="suggestionDiffers()">
+                    {{ t.mietfahrradSuggestion }}:
+                    {{ frameSuggestion()!.von }}–{{ frameSuggestion()!.bis }} cm
+                    <button type="button" class="link-button" (click)="applySuggestion()">
+                      {{ t.mietfahrradApplySuggestion }}
+                    </button>
+                  </small>
                 </div>
                 <div class="field">
                   <label>{{ t.mietfahrradType }}</label>
@@ -242,12 +258,27 @@ interface RentalForm {
                   />
                 </div>
                 <div class="field">
-                  <label>{{ t.mietfahrradFrameSize }}</label>
-                  <input
+                  <label>{{ t.mietfahrradFrameHeight }}</label>
+                  <select
                     [(ngModel)]="form.rahmengroesse"
+                    (ngModelChange)="onFrameHeightChange()"
                     name="rahmengroesse"
-                    placeholder="z.B. 54cm / M"
-                  />
+                  >
+                    <option value="">Bitte wählen</option>
+                    <!-- Altwerte wie "54cm / M" gehen nicht verloren: sie
+                         bleiben als eigene Option stehen, bis jemand eine
+                         Höhe auswählt. -->
+                    <option *ngIf="legacyFrameValue()" [value]="legacyFrameValue()">
+                      {{ legacyFrameValue() }}
+                    </option>
+                    <option *ngFor="let option of frameHeightOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                  <small class="field-hint" *ngIf="frameSuggestion()">
+                    {{ t.mietfahrradFrameHeightHint }}
+                    {{ frameSuggestion()!.von }}–{{ frameSuggestion()!.bis }} cm
+                  </small>
                 </div>
                 <div class="field">
                   <label>{{ t.mietfahrradColor }}</label>
@@ -834,6 +865,17 @@ interface RentalForm {
         font-size: 0.72rem;
         color: var(--text-secondary, #64748b);
       }
+      .link-button {
+        background: none;
+        border: none;
+        padding: 0;
+        margin-left: 4px;
+        font: inherit;
+        color: var(--accent-primary);
+        font-weight: 600;
+        text-decoration: underline;
+        cursor: pointer;
+      }
 
       .form-grid {
         display: grid;
@@ -1314,6 +1356,12 @@ export class MietfahrradFormComponent implements OnInit {
     numeric: true,
   });
 
+  frameHeightOptions = FRAME_HEIGHT_OPTIONS;
+  /** Gespeicherter Freitext, der keine Rahmenhöhe ist — bleibt wählbar. */
+  legacyFrameValue = signal<string>('');
+  /** Rahmenhöhe vor der letzten Auswahl: daran hängt, ob ein Vorschlag noch "unberührt" ist. */
+  private frameHeightBefore = '';
+
   /** Position des offenen Rads in der aktiven Liste; -1 wenn es nicht aktiv ist. */
   navIndex = computed(() => {
     const id = this.bikeId();
@@ -1508,6 +1556,20 @@ export class MietfahrradFormComponent implements OnInit {
           koerpergroesseBisCm: bike.koerpergroesseBisCm ?? null,
         };
         this.images.set(bike.images ?? []);
+        // "54" und "54 cm" tragen dieselbe Information wie die Option "54 cm" —
+        // das darf normalisiert werden. Ein ganzer Satz nicht: der bleibt
+        // sichtbar, sonst verschwände er beim nächsten Speichern unbemerkt.
+        const rawFrame = this.form.rahmengroesse;
+        const frameCm = parseFrameHeightCm(rawFrame);
+        if (frameCm !== null && isPlainFrameHeight(rawFrame)) {
+          this.form.rahmengroesse = `${frameCm} cm`;
+          this.legacyFrameValue.set('');
+        } else {
+          this.legacyFrameValue.set(rawFrame.trim());
+        }
+        this.frameHeightBefore = this.form.rahmengroesse;
+        // Snapshot erst nach der Normalisierung, damit das Formular nicht
+        // schon beim Öffnen als geändert gilt.
         this.pristineForm = JSON.stringify(this.form);
         this.pageLoading.set(false);
       },
@@ -1516,6 +1578,57 @@ export class MietfahrradFormComponent implements OnInit {
         this.pageLoading.set(false);
       },
     });
+  }
+
+  /** Empfohlene Körpergröße zur gewählten Rahmenhöhe. */
+  frameSuggestion(): RiderHeightRange | null {
+    return riderHeightForFrameValue(this.form.rahmengroesse);
+  }
+
+  /** True, wenn der Vorschlag von den eingetragenen Werten abweicht. */
+  suggestionDiffers(): boolean {
+    const suggestion = this.frameSuggestion();
+    if (!suggestion) return false;
+    return (
+      this.form.koerpergroesseVonCm !== suggestion.von ||
+      this.form.koerpergroesseBisCm !== suggestion.bis
+    );
+  }
+
+  applySuggestion() {
+    const suggestion = this.frameSuggestion();
+    if (!suggestion) return;
+    this.form.koerpergroesseVonCm = suggestion.von;
+    this.form.koerpergroesseBisCm = suggestion.bis;
+  }
+
+  /**
+   * Füllt die Körpergröße aus der Rahmenhöhe — aber nur, solange dort nichts
+   * Eigenes steht: leere Felder oder der Vorschlag der vorherigen Rahmenhöhe.
+   * Von Hand eingetragene Werte bleiben, dafür gibt es den Übernehmen-Knopf.
+   */
+  onFrameHeightChange() {
+    const previous = this.frameHeightBefore;
+    this.frameHeightBefore = this.form.rahmengroesse;
+
+    // Sobald eine echte Höhe gewählt ist, hat der alte Freitext keinen Zweck mehr.
+    if (parseFrameHeightCm(this.form.rahmengroesse) !== null) {
+      this.legacyFrameValue.set('');
+    }
+
+    const suggestion = this.frameSuggestion();
+    if (!suggestion) return;
+
+    const previousSuggestion = riderHeightForFrameValue(previous);
+    const untouched =
+      (this.form.koerpergroesseVonCm === null &&
+        this.form.koerpergroesseBisCm === null) ||
+      (previousSuggestion !== null &&
+        this.form.koerpergroesseVonCm === previousSuggestion.von &&
+        this.form.koerpergroesseBisCm === previousSuggestion.bis);
+    if (!untouched) return;
+
+    this.applySuggestion();
   }
 
   submit() {

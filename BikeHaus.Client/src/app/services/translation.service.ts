@@ -815,6 +815,10 @@ export interface Translations {
   mietfahrradPriceAdditionalDayAfter7: string;
   mietfahrradDescription: string;
   mietfahrradFrameSize: string;
+  mietfahrradFrameHeight: string;
+  mietfahrradFrameHeightHint: string;
+  mietfahrradApplySuggestion: string;
+  mietfahrradSuggestion: string;
   mietfahrradIsRentable: string;
   mietfahrradToggleRentable: string;
   mietfahrradBasicInfo: string;
@@ -1680,6 +1684,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     mietfahrradPriceAdditionalDayAfter7: 'Zusatz pro weiterem Tag ab Tag 8',
     mietfahrradDescription: 'Beschreibung',
     mietfahrradFrameSize: 'Rahmengröße',
+    mietfahrradFrameHeight: 'Rahmenhöhe (cm)',
+    mietfahrradFrameHeightHint: 'Passend für Körpergröße',
+    mietfahrradApplySuggestion: 'übernehmen',
+    mietfahrradSuggestion: 'Vorschlag aus der Rahmenhöhe',
     mietfahrradIsRentable: 'Für Verleih aktiv',
     mietfahrradToggleRentable: 'Verleih aktivieren/deaktivieren',
     mietfahrradBasicInfo: 'Grundinformationen',
@@ -2547,6 +2555,10 @@ const TRANSLATIONS: Record<Language, Translations> = {
     mietfahrradPriceAdditionalDayAfter7: '8. günden sonra her ek gün için',
     mietfahrradDescription: 'Açıklama',
     mietfahrradFrameSize: 'Çerçeve Boyutu',
+    mietfahrradFrameHeight: 'Kadro yüksekliği (cm)',
+    mietfahrradFrameHeightHint: 'Uygun boy aralığı',
+    mietfahrradApplySuggestion: 'uygula',
+    mietfahrradSuggestion: 'Kadro yüksekliğine göre öneri',
     mietfahrradIsRentable: 'Kiralama aktif',
     mietfahrradToggleRentable: 'Kiralamayı aç/kapat',
     mietfahrradBasicInfo: 'Temel Bilgiler',
