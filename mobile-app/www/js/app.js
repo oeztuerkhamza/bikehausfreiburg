@@ -4,6 +4,7 @@ import { loadSession, displayName, isLoggedIn } from './session.js';
 import { login, validateSession, logout } from './auth.js';
 import { $, toast, initials, autoGrow, setText } from './ui.js';
 import * as Notify from './notify.js';
+import * as Keyboard from './keyboard.js';
 import * as WA from './whatsapp.js';
 import * as Mail from './mail.js';
 
@@ -178,32 +179,21 @@ function goBack() {
   return false;
 }
 
-// Klavye açılınca yazı alanının altta kalmaması için: görünür yükseklik
-// (visualViewport) app'e --app-h olarak yansıtılır + odaklanan alan görünür kalır.
-function initKeyboardViewport() {
-  const vv = window.visualViewport;
-  const root = document.documentElement;
-  if (vv) {
-    const apply = () => root.style.setProperty('--app-h', Math.round(vv.height) + 'px');
-    vv.addEventListener('resize', apply);
-    vv.addEventListener('scroll', apply);
-    apply();
-  }
-  // Bir metin alanına odaklanınca klavye animasyonundan sonra görünür yap.
-  document.addEventListener('focusin', (e) => {
-    const el = e.target;
-    if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) {
-      setTimeout(() => {
-        try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch {}
-      }, 280);
-    }
+// Klavye açılınca sohbetin son mesajları da klavyenin üstünde kalsın.
+function initKeyboard() {
+  Keyboard.init();
+  Keyboard.onChange((open) => {
+    if (!open || currentView !== 'view-wa-thread') return;
+    const box = $('wa-messages');
+    // Yükseklik değişimi uygulandıktan sonra en alta kaydır.
+    requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
   });
 }
 
 // ─────────────────────────── Başlangıç ───────────────────────────
 (async function boot() {
   bindEvents();
-  initKeyboardViewport();
+  initKeyboard();
 
   WA.mount({ isForeground, showThread: () => showView('view-wa-thread') });
   Mail.mount({ isForeground, showDetail: () => showView('view-mail-detail') });

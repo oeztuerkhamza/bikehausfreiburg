@@ -17,6 +17,12 @@ const config: CapacitorConfig = {
     CapacitorHttp: {
       enabled: true,
     },
+    // Klavye yüksekliğini JS'e bildirir (Android 15+ edge-to-edge'de pencere
+    // küçülmediği için tek güvenilir kaynak). Yerleşimi biz yapıyoruz → resize: none.
+    Keyboard: {
+      resize: 'none',
+      resizeOnFullScreen: false,
+    },
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#202c33',
