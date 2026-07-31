@@ -1724,13 +1724,7 @@ public class PdfService : IPdfService
             _ => "Gut"
         };
 
-        var zahlungsartText = rental.Zahlungsart switch
-        {
-            Domain.Enums.PaymentMethod.Bar => "Bar",
-            Domain.Enums.PaymentMethod.PayPal => "PayPal",
-            Domain.Enums.PaymentMethod.Karte => "Karte",
-            _ => "Bar"
-        };
+        var zahlungsartText = ZahlungsartText(rental.Zahlungsart);
 
         var rentalBikes = rental.Bikes.OrderBy(b => b.Id).ToList();
         var mietTage = (rental.EndDatum - rental.StartDatum).Days + 1;
@@ -2323,13 +2317,7 @@ public class PdfService : IPdfService
         var shop = await GetShopInfoAsync();
         QuestPDF.Settings.License = LicenseType.Community;
 
-        var zahlungsartText = rental.KautionZahlungsart switch
-        {
-            Domain.Enums.PaymentMethod.Bar => "Bar",
-            Domain.Enums.PaymentMethod.PayPal => "PayPal",
-            Domain.Enums.PaymentMethod.Karte => "Karte",
-            _ => "Bar"
-        };
+        var zahlungsartText = ZahlungsartText(rental.KautionZahlungsart);
 
         var document = QuestPDF.Fluent.Document.Create(container =>
         {
