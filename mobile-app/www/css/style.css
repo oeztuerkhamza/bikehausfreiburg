@@ -247,17 +247,31 @@ body.kb-open .view { bottom: 0; }
 .topbar.ka .topbar-title { gap: 8px; }
 .peer-avatar.ka { color: var(--ka); }
 
-/* İlan başlığı şeridi (sohbetin neyle ilgili olduğu hep görünsün) */
+/* İlan şeridi: fotoğraf + başlık + fiyat (sohbetin neyle ilgili olduğu hep görünsün) */
 .ad-chip {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 10px;
   background: var(--panel); border-bottom: 1px solid var(--divider);
   padding: 7px 12px; font-size: 13px; color: var(--text-dim);
 }
+.ad-chip.clickable:active { background: var(--topbar); }
+.ad-thumb {
+  width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;
+  background: var(--topbar-2);
+}
+.ad-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 .ad-chip .ad-title {
   color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis; flex: 1; min-width: 0;
+  text-overflow: ellipsis;
 }
+.ad-meta { display: flex; gap: 8px; align-items: baseline; }
+.ad-chip .ad-price { color: var(--ka); font-weight: 700; font-size: 12.5px; }
 .ad-chip .ad-id { font-size: 11px; color: var(--text-dim2); flex-shrink: 0; }
+
+/* Listede ilan fotoğrafı (avatar yerine) */
+.li-photo {
+  width: 46px; height: 46px; border-radius: 10px; object-fit: cover;
+  flex-shrink: 0; background: var(--topbar-2);
+}
 
 /* Listede ilan başlığı (isim ile önizleme arasında) */
 .li-ad {

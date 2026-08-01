@@ -220,6 +220,9 @@ public class KleinanzeigenChatService(
 
     // ── Aufbau der Unterhaltungen ────────────────────────────────────────────
 
+    /// <summary>Anzeigendaten aus dem gescrapten Bestand (Bild, Preis, Link).</summary>
+    private sealed record AdInfo(string? Title, decimal? Price, string? Url, string? ImageUrl);
+
     /// <summary>Eine geparste Nachricht, bevor Übersetzung/Entwurf angehängt werden.</summary>
     private sealed record ParsedMessage(
         string Id,
@@ -227,6 +230,7 @@ public class KleinanzeigenChatService(
         string Alias,
         string Direction,
         string PeerName,
+        string? PeerPhone,
         string AdTitle,
         string? AdId,
         string Body,
@@ -245,6 +249,25 @@ public class KleinanzeigenChatService(
         var translations = await db.KleinanzeigenChatTranslations
             .Where(t => ids.Contains(t.GmailMessageId))
             .ToDictionaryAsync(t => t.GmailMessageId, t => t.TranslationTr, ct);
+
+        // Bild, Preis und Link der Anzeige kommen aus den gescrapten Anzeigen —
+        // Abgleich ueber die Anzeigennummer aus der Mail.
+        var adIds = parsed.Select(p => p.AdId).Where(a => !string.IsNullOrEmpty(a)).Distinct().ToList()!;
+        var listings = adIds.Count == 0
+            ? new Dictionary<string, AdInfo>()
+            : await db.KleinanzeigenListings
+                .Where(l => adIds.Contains(l.ExternalId))
+                .Select(l => new
+                {
+                    l.ExternalId,
+                    l.Title,
+                    l.Price,
+                    l.ExternalUrl,
+                    ImageUrl = l.Images.OrderBy(i => i.SortOrder).Select(i => i.ImageUrl).FirstOrDefault(),
+                })
+                .ToDictionaryAsync(
+                    l => l.ExternalId,
+                    l => new AdInfo(l.Title, l.Price, l.ExternalUrl, l.ImageUrl), ct);
 
         var aliases = parsed.Select(p => p.Alias).Distinct().ToList();
         var drafts = await db.KleinanzeigenChatDrafts
@@ -270,12 +293,22 @@ public class KleinanzeigenChatService(
 
             drafts.TryGetValue(group.Key, out var draft);
 
+            AdInfo? ad = null;
+            if (!string.IsNullOrEmpty(lastIn.AdId)) listings.TryGetValue(lastIn.AdId, out ad);
+
+            // Telefonnummer: die zuletzt genannte gewinnt.
+            var phone = ordered.LastOrDefault(m => !string.IsNullOrWhiteSpace(m.PeerPhone))?.PeerPhone;
+
             result.Add(new KleinanzeigenChatDto(
                 Id: EncodeId(group.Key),
                 Alias: group.Key,
                 PeerName: lastIn.PeerName,
-                AdTitle: lastIn.AdTitle,
+                PeerPhone: phone,
+                AdTitle: string.IsNullOrWhiteSpace(ad?.Title) ? lastIn.AdTitle : ad!.Title,
                 AdId: lastIn.AdId,
+                AdImageUrl: ad?.ImageUrl,
+                AdPrice: ad?.Price,
+                AdUrl: ad?.Url,
                 ThreadId: lastIn.ThreadId,
                 UpdatedAt: last.Ts,
                 Unread: ordered.Count(m => m.Unread),
@@ -338,16 +371,29 @@ public class KleinanzeigenChatService(
 
             if (alias == null) continue;   // gehört nicht zum Kleinanzeigen-Chat
 
-            var body = outgoing
-                ? KleinanzeigenMailParser.ExtractOutgoingText(m.Body)
-                : KleinanzeigenMailParser.ExtractIncomingText(m.Body);
+            string body;
+            var peerName = string.Empty;
+            string? phone = null;
+
+            if (outgoing)
+            {
+                body = KleinanzeigenMailParser.ExtractOutgoingText(m.Body);
+            }
+            else
+            {
+                // Der Name aus dem Von-Kopf hilft dem Parser, wenn in der Mail
+                // nichts den Namen vom Text trennt ("Antwort von Kelvin Ok.").
+                var fromName = string.IsNullOrWhiteSpace(m.FromName)
+                    ? null
+                    : KleinanzeigenMailParser.CleanPeerName(m.FromName, null);
+
+                var parsed = KleinanzeigenMailParser.ParseIncoming(m.Body, fromName);
+                body = parsed.Text;
+                phone = parsed.Phone;
+                peerName = KleinanzeigenMailParser.CleanPeerName(parsed.SenderName ?? m.FromName, alias);
+            }
 
             if (string.IsNullOrWhiteSpace(body)) continue;
-
-            var peerName = outgoing
-                ? string.Empty
-                : KleinanzeigenMailParser.CleanPeerName(
-                    KleinanzeigenMailParser.ExtractSenderFromBody(m.Body) ?? m.FromName, alias);
 
             result.Add(new ParsedMessage(
                 Id: m.Id,
@@ -355,6 +401,7 @@ public class KleinanzeigenChatService(
                 Alias: alias,
                 Direction: outgoing ? "out" : "in",
                 PeerName: peerName,
+                PeerPhone: phone,
                 AdTitle: KleinanzeigenMailParser.ExtractAdTitle(m.Subject),
                 AdId: KleinanzeigenMailParser.ExtractAdId(m.Body),
                 Body: body,

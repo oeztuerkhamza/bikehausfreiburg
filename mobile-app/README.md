@@ -16,6 +16,7 @@ tutulduğu için **her cihazdan aynı sohbetler** görünür.
 | **İki yönlü düzenleme** | Almanca (müşteri dili) kutusunu doğrudan düzeltip gönderebilirsin. Türkçe kutusunu düzeltip **↻ Yeniden oluştur**'a basarsan, düzeltilmiş Türkçeden yeni bir müşteri-dili cevap üretilir ve Türkçesi tazelenir. |
 | **Kleinanzeigen sohbeti** | İlanlara gelen mesajlar Gmail'e `…@mail.kleinanzeigen.de` alias'ından mail olarak düşer. Sunucu bunları ayrıştırıp (kişi, ilan başlığı, ilan no, mesaj) **sohbet** haline getirir; cevap aynı alias'a mail olarak gider ve alıcının Kleinanzeigen uygulamasında görünür. Bu mailler Mail sekmesinden filtrelenir. |
 | **Ayrı Gmail hesabı** | Kleinanzeigen kendi Gmail hesabına bağlanabilir (ilanlar başka adreste olabilir). Ayarlar'da "Mail hesabı" ve "Kleinanzeigen hesabı" satırları var: dokununca bağla / çıkar. Kleinanzeigen hesabı yoksa Mail hesabı kullanılır. |
+| **İlan kartı** | Sohbetin üstünde ilanın fotoğrafı, başlığı ve fiyatı durur (ilan numarasından, scraper verisinden eşleşir); dokununca ilan tarayıcıda açılır. Listede de ilan fotoğrafı görünür. Gelen kişinin telefonu maildeyse başlıkta gösterilir. |
 | **Kısa cevap üslubu** | Kleinanzeigen cevapları sohbet dilinde ve kısadır (selam + 1-3 cümle + `Viele Grüße / BikeHaus Freiburg`). Gönderilirken alıntı geçmiş temizlenir — alıcıya sadece yeni metin gider. |
 | **Bildirimler** | Yerel bildirim (`@capacitor/local-notifications`). Uygulama ön plandayken yoklama ile yeni mesaj/mail saptanır, bildirim çalar. Bildirime dokununca ilgili sohbet açılır. |
 

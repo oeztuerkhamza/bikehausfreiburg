@@ -155,11 +155,17 @@
         </div>
       </header>
 
-      <!-- İlan başlığı şeridi -->
+      <!-- İlan şeridi: fotoğraf + başlık + fiyat (dokununca ilan açılır) -->
       <div class="ad-chip" id="ka-ad-chip">
-        <span class="ad-icon">🏷️</span>
-        <span class="ad-title" id="ka-ad-title"></span>
-        <span class="ad-id" id="ka-ad-id"></span>
+        <img class="ad-thumb hidden" id="ka-ad-thumb" alt="" />
+        <span class="ad-icon" id="ka-ad-icon">🏷️</span>
+        <span class="ad-text">
+          <span class="ad-title" id="ka-ad-title"></span>
+          <span class="ad-meta">
+            <span class="ad-price" id="ka-ad-price"></span>
+            <span class="ad-id" id="ka-ad-id"></span>
+          </span>
+        </span>
       </div>
 
       <div id="ka-messages" class="messages scroll wallpaper"></div>
@@ -322,7 +328,7 @@
         <div class="menu-section">
           <button id="menu-logout" class="btn-danger full">Çıkış Yap</button>
         </div>
-        <p class="version">BikeHaus Asistan · v1.3</p>
+        <p class="version">BikeHaus Asistan · v1.4</p>
       </div>
     </div>
 

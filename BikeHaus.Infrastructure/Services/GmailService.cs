@@ -437,6 +437,12 @@ public class GmailService(
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         text = System.Text.RegularExpressions.Regex.Replace(text, "</\\s*p\\s*>", "\n\n",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        // Blockelemente ebenfalls als Zeilenumbruch: Newsletter-Mails (u. a. die von
+        // Kleinanzeigen) bauen ihren Text in Tabellen/Divs ohne <p> oder <br> — ohne
+        // das hier käme alles als eine einzige Zeile an und ließe sich nicht zerlegen.
+        text = System.Text.RegularExpressions.Regex.Replace(
+            text, "</\\s*(div|td|tr|table|li|ul|ol|h[1-6]|blockquote|section|article)\\s*>", "\n",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         text = System.Text.RegularExpressions.Regex.Replace(text, "<[^>]+>", "");
         text = System.Net.WebUtility.HtmlDecode(text);
         text = System.Text.RegularExpressions.Regex.Replace(text, "\n{3,}", "\n\n");

@@ -5,6 +5,10 @@ namespace BikeHaus.Application.DTOs;
 /// Alias-Adresse (<c>…@mail.kleinanzeigen.de</c>) laufen – also ein Interessent
 /// zu einer Anzeige. Wird als Chatverlauf dargestellt.
 ///
+/// <para>Titel, Bild, Preis und Link der Anzeige kommen — soweit vorhanden — aus
+/// den gescrapten Kleinanzeigen-Daten (Abgleich über die Anzeigennummer);
+/// sonst bleibt nur, was in der Mail stand.</para>
+///
 /// <para><c>Id</c> ist die Base64Url-kodierte Alias-Adresse (URL-tauglich),
 /// <c>Alias</c> die Antwortadresse: eine E-Mail dorthin landet im Kleinanzeigen-Chat
 /// des Interessenten. <c>LastDirection</c> ist "in" oder "out".</para>
@@ -13,8 +17,12 @@ public record KleinanzeigenChatDto(
     string Id,
     string Alias,
     string PeerName,
+    string? PeerPhone,
     string AdTitle,
     string? AdId,
+    string? AdImageUrl,
+    decimal? AdPrice,
+    string? AdUrl,
     string ThreadId,
     long UpdatedAt,
     int Unread,

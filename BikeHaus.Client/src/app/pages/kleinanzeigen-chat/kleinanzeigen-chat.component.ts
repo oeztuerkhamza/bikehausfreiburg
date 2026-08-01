@@ -88,7 +88,8 @@ import { firstValueFrom } from 'rxjs';
               [class.active]="selected()?.id === c.id"
               (click)="open(c)"
             >
-              <span class="avatar">{{ initials(c.peerName) }}</span>
+              <img class="ad-photo" *ngIf="c.adImageUrl" [src]="c.adImageUrl" alt="" />
+              <span class="avatar" *ngIf="!c.adImageUrl">{{ initials(c.peerName) }}</span>
               <span class="ci-body">
                 <span class="ci-top">
                   <span class="ci-name" [class.unread]="c.unread > 0">{{ c.peerName }}</span>
@@ -116,11 +117,19 @@ import { firstValueFrom } from 'rxjs';
 
           <ng-container *ngIf="selected() as c">
             <header class="thread-head">
-              <span class="avatar">{{ initials(c.peerName) }}</span>
+              <a *ngIf="c.adImageUrl" [href]="c.adUrl || null" target="_blank" rel="noopener" class="ad-link">
+                <img class="ad-photo big" [src]="c.adImageUrl" alt="" />
+              </a>
+              <span class="avatar" *ngIf="!c.adImageUrl">{{ initials(c.peerName) }}</span>
               <div class="th-meta">
-                <div class="th-name">{{ c.peerName }}</div>
+                <div class="th-name">
+                  {{ c.peerName }}
+                  <a class="th-phone" *ngIf="c.peerPhone" [href]="'tel:' + c.peerPhone">📞 {{ c.peerPhone }}</a>
+                </div>
                 <div class="th-ad">
-                  {{ c.adTitle }}
+                  <a *ngIf="c.adUrl; else plainTitle" [href]="c.adUrl" target="_blank" rel="noopener">{{ c.adTitle }}</a>
+                  <ng-template #plainTitle>{{ c.adTitle }}</ng-template>
+                  <span class="th-price" *ngIf="c.adPrice != null">{{ c.adPrice }} €</span>
                   <span class="th-adid" *ngIf="c.adId">· Nr. {{ c.adId }}</span>
                 </div>
               </div>
@@ -330,6 +339,19 @@ import { firstValueFrom } from 'rxjs';
         display: flex; align-items: center; gap: 10px; padding: 12px 16px;
         border-bottom: 1px solid var(--border-light);
       }
+      .ad-photo {
+        width: 38px; height: 38px; border-radius: 10px; object-fit: cover;
+        flex-shrink: 0; background: var(--bg-primary);
+      }
+      .ad-photo.big { width: 46px; height: 46px; border-radius: 11px; }
+      .ad-link { display: block; line-height: 0; }
+      .th-phone {
+        margin-left: 8px; font-size: 0.78rem; font-weight: 600;
+        color: var(--accent-primary, #6366f1); text-decoration: none;
+      }
+      .th-price { color: #6bbf00; font-weight: 700; margin-left: 6px; }
+      .th-ad a { color: inherit; text-decoration: none; }
+      .th-ad a:hover { text-decoration: underline; }
       .th-meta { min-width: 0; }
       .th-name { font-size: 0.98rem; font-weight: 700; color: var(--text-primary); }
       .th-ad {

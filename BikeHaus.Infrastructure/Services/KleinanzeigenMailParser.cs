@@ -47,6 +47,9 @@ public static class KleinanzeigenMailParser
         "Neue Nachricht zu deiner Anzeige",
         "Nachricht zu deiner Anzeige",
         "Antwort auf deine Anzeige",
+        "Antwort zur Anzeige",
+        "Du hast eine Antwort",
+        "Du hast eine neue Nachricht",
         "Deine Anzeige",
         "Antworten",
         "kleinanzeigen",
@@ -56,8 +59,10 @@ public static class KleinanzeigenMailParser
     ];
 
     private static readonly Regex AdIdRegex = new(@"Anzeigennummer:?\s*(\d{5,})", RegexOptions.Compiled);
-    private static readonly Regex SenderLineRegex =
-        new(@"^\s*Nachricht von\s+(.+?)\s*$", RegexOptions.Compiled | RegexOptions.Multiline);
+
+    /// <summary>Ab hier steht der Text des Interessenten: "Nachricht von X" bzw. "Antwort von X".</summary>
+    private static readonly Regex SenderMarkerRegex =
+        new(@"(?:Nachricht|Antwort)\s+von\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex QuoteHeaderRegex =
         new(@"^\s*(Am .+ schrieb .+:|-{2,}\s*Ursprüngliche Nachricht\s*-{2,}|On .+ wrote:)\s*$",
             RegexOptions.Compiled | RegexOptions.Multiline);
@@ -119,38 +124,83 @@ public static class KleinanzeigenMailParser
         return m.Success ? m.Groups[1].Value : null;
     }
 
-    /// <summary>Name aus der Zeile "Nachricht von …", falls vorhanden.</summary>
-    public static string? ExtractSenderFromBody(string? body)
-    {
-        if (string.IsNullOrWhiteSpace(body)) return null;
-        var m = SenderLineRegex.Match(body);
-        return m.Success ? m.Groups[1].Value.Trim() : null;
-    }
+    /// <summary>Ergebnis der Zerlegung einer eingehenden Benachrichtigungsmail.</summary>
+    public record IncomingMessage(string Text, string? SenderName, string? Phone);
 
     /// <summary>
-    /// Der eigentliche Text des Interessenten. Beginnt nach "Nachricht von …"
-    /// und endet vor dem ersten Kleinanzeigen-Rahmenblock.
+    /// Zerlegt die Mail in Name, Telefonnummer und den eigentlichen Text.
+    ///
+    /// Der Block hinter "Nachricht von" kommt in zwei Varianten vor — mal steht der
+    /// Name allein auf seiner Zeile, mal folgt direkt eine Telefonnummer und der
+    /// Text hängt in derselben Zeile dahinter:
+    /// <code>
+    ///   Nachricht von Tayfun\nHallo, ist das Rad noch da?
+    ///   Nachricht von Kelvin (Tel.: 1633688266) Hallo. Das Rad kostet 349?
+    ///   Antwort von Kelvin Ok.
+    /// </code>
+    /// Deshalb wird hier bewusst nicht zeilenweise gearbeitet. Im letzten Fall
+    /// steht der Name ohne jedes Trennzeichen vor dem Text — dann hilft
+    /// <paramref name="knownSenderName"/> (aus dem Von-Kopf der Mail): fängt der
+    /// Rest damit an, wird genau dieser Vorspann abgeschnitten.
     /// </summary>
-    public static string ExtractIncomingText(string? body)
+    public static IncomingMessage ParseIncoming(string? body, string? knownSenderName = null)
     {
-        if (string.IsNullOrWhiteSpace(body)) return string.Empty;
+        if (string.IsNullOrWhiteSpace(body)) return new IncomingMessage(string.Empty, null, null);
 
         var text = body.Replace("\r\n", "\n").Replace('\r', '\n');
+        string? name = null, phone = null;
 
-        var sender = SenderLineRegex.Match(text);
-        if (sender.Success)
-            text = text[(sender.Index + sender.Length)..];
+        // Erste Anfrage: "Nachricht von …", jede weitere Antwort: "Antwort von …".
+        var marker = SenderMarkerRegex.Match(text);
+        if (marker.Success)
+        {
+            var rest = text[(marker.Index + marker.Length)..];
+
+            // 1) "Name (Tel.: 0123…) Text" — die Klammer begrenzt den Namen.
+            var withPhone = Regex.Match(rest,
+                @"^\s*(?<name>[^\n(]{1,60}?)\s*\(\s*Tel\.?\s*:?\s*(?<tel>[^)]{3,40})\s*\)\s*(?<msg>.*)$",
+                RegexOptions.Singleline);
+            // 2) "Name\nText" — Name steht allein auf der Zeile.
+            var withLine = Regex.Match(rest,
+                @"^[ \t]*(?<name>[^\n]{1,60})\n(?<msg>.*)$",
+                RegexOptions.Singleline);
+
+            if (withPhone.Success)
+            {
+                name = withPhone.Groups["name"].Value.Trim();
+                phone = withPhone.Groups["tel"].Value.Trim();
+                text = withPhone.Groups["msg"].Value;
+            }
+            else if (withLine.Success)
+            {
+                name = withLine.Groups["name"].Value.Trim();
+                text = withLine.Groups["msg"].Value;
+            }
+            else if (!string.IsNullOrWhiteSpace(knownSenderName) &&
+                     rest.TrimStart().StartsWith(knownSenderName.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                // 3) "Antwort von Kelvin Ok." — nichts trennt Name und Text außer
+                //    dem Namen selbst, den wir aus dem Von-Kopf kennen.
+                var trimmed = rest.TrimStart();
+                name = knownSenderName.Trim();
+                text = trimmed[name.Length..].TrimStart(' ', '\t', ':', ',', '-', '\n');
+            }
+            else
+            {
+                text = rest;
+            }
+        }
 
         var cut = FirstMarkerIndex(text);
         if (cut > 0) text = text[..cut];
 
         var cleaned = CleanBlock(text);
-        if (cleaned.Length > 0) return cleaned;
-
         // Ändert Kleinanzeigen das Mailformat, bleibt vom Filtern womöglich nichts
         // übrig. Dann lieber den Rohtext zeigen als die Nachricht verschwinden
         // lassen — der Chat muss vollständig bleiben.
-        return text.Trim();
+        if (cleaned.Length == 0) cleaned = text.Trim();
+
+        return new IncomingMessage(cleaned, string.IsNullOrWhiteSpace(name) ? null : name, phone);
     }
 
     /// <summary>

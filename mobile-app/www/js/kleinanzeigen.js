@@ -33,6 +33,8 @@ export function mount({ isForeground, showThread }) {
     messages: $('ka-messages'),
     peerName: $('ka-peer-name'), peerSub: $('ka-peer-sub'), peerAvatar: $('ka-peer-avatar'),
     adTitle: $('ka-ad-title'), adId: $('ka-ad-id'),
+    adThumb: $('ka-ad-thumb'), adIcon: $('ka-ad-icon'), adPrice: $('ka-ad-price'),
+    adChip: $('ka-ad-chip'),
     instruction: $('ka-instruction'), generate: $('ka-generate'),
     panel: $('ka-compose-panel'), draft: $('ka-draft'), draftTr: $('ka-draft-tr'),
     regen: $('ka-regen'), send: $('ka-send'), langBadge: $('ka-lang-badge'),
@@ -50,6 +52,10 @@ export function mount({ isForeground, showThread }) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); onGenerate(); }
   });
   D.draft.addEventListener('blur', persistDraft);
+  // İlan şeridine dokununca ilan tarayıcıda açılır.
+  D.adChip.addEventListener('click', () => {
+    if (active?.adUrl) window.open(active.adUrl, '_system');
+  });
 }
 
 export function activate() { refreshAccount(); refreshList(false); }
@@ -194,7 +200,9 @@ function renderList() {
     const item = document.createElement('div');
     item.className = 'list-item';
     item.innerHTML = `
-      <div class="peer-avatar ka"></div>
+      ${c.adImageUrl
+        ? `<img class="li-photo" alt="" />`
+        : `<div class="peer-avatar ka"></div>`}
       <div class="li-body">
         <div class="li-top">
           <span class="li-name ${unread ? 'unread' : ''}"></span>
@@ -206,7 +214,9 @@ function renderList() {
           ${unread ? `<span class="li-badge">${unread}</span>` : ''}
         </div>
       </div>`;
-    item.querySelector('.peer-avatar').textContent = initials(c.peerName);
+    const photo = item.querySelector('.li-photo');
+    if (photo) photo.src = c.adImageUrl;
+    else item.querySelector('.peer-avatar').textContent = initials(c.peerName);
     item.querySelector('.li-name').textContent = c.peerName;
     item.querySelector('.li-ad').textContent = c.adTitle || '';
     item.querySelector('.li-preview').textContent = preview;
@@ -244,10 +254,24 @@ export async function openConversation(id) {
 
 function renderPeer(c) {
   setText(D.peerName, c.peerName);
-  setText(D.peerSub, c.adTitle || '');
+  // Başlık zaten ilan şeridinde; burada telefon daha işe yarar.
+  setText(D.peerSub, c.peerPhone ? `📞 ${c.peerPhone}` : (c.adTitle || ''));
   setText(D.peerAvatar, initials(c.peerName));
+
   setText(D.adTitle, c.adTitle || '');
   setText(D.adId, c.adId ? `Nr. ${c.adId}` : '');
+  setText(D.adPrice, c.adPrice != null ? `${formatPrice(c.adPrice)} €` : '');
+
+  const hasPhoto = !!c.adImageUrl;
+  D.adThumb.classList.toggle('hidden', !hasPhoto);
+  D.adIcon.classList.toggle('hidden', hasPhoto);
+  if (hasPhoto) D.adThumb.src = c.adImageUrl;
+  D.adChip.classList.toggle('clickable', !!c.adUrl);
+}
+
+function formatPrice(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n.toLocaleString('de-DE', { maximumFractionDigits: 2 }) : v;
 }
 
 function renderMessages(c, opts = {}) {

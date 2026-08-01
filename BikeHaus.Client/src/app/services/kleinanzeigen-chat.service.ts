@@ -32,8 +32,13 @@ export interface KleinanzeigenChat {
   id: string;
   alias: string;
   peerName: string;
+  peerPhone: string | null;
   adTitle: string;
   adId: string | null;
+  /** Foto/Preis/Link kommen aus den gescrapten Anzeigen (Abgleich per Anzeigennummer). */
+  adImageUrl: string | null;
+  adPrice: number | null;
+  adUrl: string | null;
   threadId: string;
   updatedAt: number;
   unread: number;
