@@ -118,6 +118,12 @@ public class AiEmailAssistantService(
 
     private static string BuildSystemPrompt(string shopContext, string tone)
     {
+        // Kleinanzeigen-Chat: die Antwort erscheint beim Interessenten nicht als
+        // E-Mail, sondern als Chatnachricht in der Kleinanzeigen-App. Deshalb kurz,
+        // ohne Betreffzeile und ohne Signaturblock — nur ein knapper Gruß.
+        if (string.Equals(tone, "chat", StringComparison.OrdinalIgnoreCase))
+            return BuildChatSystemPrompt(shopContext);
+
         var toneText = tone?.ToLowerInvariant() switch
         {
             "friendly" or "samimi" or "freundlich" => "warm und freundlich, aber dennoch professionell",
@@ -182,14 +188,86 @@ public class AiEmailAssistantService(
             """;
     }
 
+    /// <summary>
+    /// Antwort für den Kleinanzeigen-Chat: kurz wie eine Chatnachricht, mit knapper
+    /// Grußzeile statt Signaturblock, in der Anredeform des Interessenten (du/Sie).
+    /// </summary>
+    private static string BuildChatSystemPrompt(string shopContext)
+    {
+        return $$"""
+            Du bist die Kundenservice-Assistenz von BikeHaus Freiburg, einem Fahrradgeschäft.
+            Du schreibst Antworten im CHAT von Kleinanzeigen (kleinanzeigen.de). Ein Mitarbeiter
+            prüft die Antwort vor dem Senden.
+
+            WAS WIR ANBIETEN:
+            - Verkauf von gebrauchten und neuen Fahrrädern (inkl. E-Bikes)
+            - Fahrradverleih / Vermietung (tageweise, mit Kaution)
+            - Fahrrad-Service und Wartung
+            - Zubehör
+
+            SHOP-INFORMATIONEN:
+            {{shopContext}}
+
+            SEHR WICHTIGE Sprachregel für den Service-Bereich:
+            - Nenne unsere Werkstattleistungen IMMER "Service" oder "Wartung".
+            - Verwende NIEMALS die Wörter "Reparatur", "reparieren" oder "Werkstatt".
+
+            DEINE AUFGABE:
+            1. Erkenne die Sprache der Nachricht des Interessenten und antworte AUSSCHLIESSLICH
+               in genau dieser Sprache.
+            2. Die Notizen des Inhabers sind auf TÜRKISCH und sagen, WAS geantwortet werden soll.
+               Formuliere den Inhalt in der Sprache des Interessenten aus — gib die türkischen
+               Notizen niemals wörtlich wieder.
+            3. Übernimm die Anredeform des Interessenten: schreibt er "du", antworte mit "du";
+               schreibt er "Sie", antworte mit "Sie". Im Zweifel "du" (auf Kleinanzeigen üblich).
+
+            FORMAT — SEHR WICHTIG (das ist eine Chatnachricht, keine E-Mail):
+            - GANZ KURZ: kurze Begrüßung mit dem Namen (falls bekannt) + 1 bis 3 Sätze Inhalt.
+            - Danach GENAU zwei Zeilen als Abschluss:
+              Viele Grüße
+              BikeHaus Freiburg
+            - KEIN Betreff, KEINE förmliche Anrede ("Sehr geehrte…"), KEIN Signaturblock mit
+              Adresse, Telefon, Website oder Öffnungszeiten. Keine Aufzählung von Leistungen,
+              keine Werbefloskeln.
+
+            ABSOLUTE REGELN:
+            - ERFINDE KEINE Preise, Verfügbarkeiten, Termine oder Öffnungszeiten. Nutze nur, was
+              in den Notizen oder den SHOP-INFORMATIONEN steht. Was du nicht sicher weißt, wird
+              nicht behauptet — dann lieber kurz nachfragen.
+            - Keine Telefonnummern oder Adressen nennen, außer die Notizen verlangen es
+              ausdrücklich.
+            - Ist die Anfrage unklar, stelle EINE kurze Rückfrage.
+
+            ANTWORTFORMAT – gib AUSSCHLIESSLICH ein einzelnes JSON-Objekt zurück, ohne Markdown,
+            ohne Code-Fences, ohne weiteren Text:
+            {
+              "detectedLanguage": "ISO-639-1 Code der Sprache des Interessenten, z.B. de, en, tr",
+              "detectedLanguageName": "Name der Sprache",
+              "replySubject": "",
+              "replyBody": "Die kurze Chatnachricht, mit \n als Zeilenumbruch"
+            }
+            """;
+    }
+
     private static string BuildUserPrompt(AiEmailReplyRequest request)
     {
+        var isChat = string.Equals(request.Tone, "chat", StringComparison.OrdinalIgnoreCase);
         var sb = new StringBuilder();
-        sb.AppendLine("=== EINGEHENDE KUNDEN-E-MAIL ===");
-        if (!string.IsNullOrWhiteSpace(request.FromName) || !string.IsNullOrWhiteSpace(request.FromEmail))
-            sb.AppendLine($"Von: {request.FromName} <{request.FromEmail}>");
-        if (!string.IsNullOrWhiteSpace(request.Subject))
-            sb.AppendLine($"Betreff: {request.Subject}");
+        sb.AppendLine(isChat ? "=== BISHERIGER CHATVERLAUF ===" : "=== EINGEHENDE KUNDEN-E-MAIL ===");
+        if (isChat)
+        {
+            if (!string.IsNullOrWhiteSpace(request.FromName))
+                sb.AppendLine($"Interessent: {request.FromName}");
+            if (!string.IsNullOrWhiteSpace(request.Subject))
+                sb.AppendLine($"Anzeige: {request.Subject}");
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(request.FromName) || !string.IsNullOrWhiteSpace(request.FromEmail))
+                sb.AppendLine($"Von: {request.FromName} <{request.FromEmail}>");
+            if (!string.IsNullOrWhiteSpace(request.Subject))
+                sb.AppendLine($"Betreff: {request.Subject}");
+        }
         sb.AppendLine();
         sb.AppendLine(string.IsNullOrWhiteSpace(request.Body) ? "(kein Text)" : request.Body);
         sb.AppendLine();

@@ -16,6 +16,13 @@ public interface IGmailService
 
     Task<List<GmailListItemDto>> ListInboxAsync(string? query, int maxResults, CancellationToken ct);
     Task<GmailMessageDto> GetMessageAsync(string id, CancellationToken ct);
+
+    /// <summary>Threads zu einer Gmail-Suchanfrage (nur IDs/HistoryId – günstig, für Cache-Prüfung).</summary>
+    Task<List<GmailThreadSummaryDto>> ListThreadsAsync(string? query, int maxResults, CancellationToken ct);
+
+    /// <summary>Kompletter Thread mit allen Nachrichten (ein- und ausgehend).</summary>
+    Task<GmailThreadDto> GetThreadAsync(string threadId, CancellationToken ct);
+
     Task MarkAsReadAsync(string id, CancellationToken ct);
     Task TrashAsync(string id, CancellationToken ct);
     Task SendReplyAsync(GmailSendRequest request, CancellationToken ct);

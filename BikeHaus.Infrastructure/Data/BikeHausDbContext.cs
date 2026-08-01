@@ -50,6 +50,8 @@ public class BikeHausDbContext : DbContext
     public DbSet<EmailUnsubscribe> EmailUnsubscribes => Set<EmailUnsubscribe>();
     public DbSet<ReviewRequest> ReviewRequests => Set<ReviewRequest>();
     public DbSet<MemoryInvite> MemoryInvites => Set<MemoryInvite>();
+    public DbSet<KleinanzeigenChatTranslation> KleinanzeigenChatTranslations => Set<KleinanzeigenChatTranslation>();
+    public DbSet<KleinanzeigenChatDraft> KleinanzeigenChatDrafts => Set<KleinanzeigenChatDraft>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -710,6 +712,23 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Source).HasConversion<string>().HasMaxLength(20);
             // De-dup: "wurde diese Adresse jemals eingeladen?"
             entity.HasIndex(e => e.Email);
+        });
+
+        // ── Kleinanzeigen-Chat Configuration ──
+        // Nur Zusatzdaten zum Gmail-Postfach: Übersetzungen je Nachricht,
+        // Entwürfe je Unterhaltung (Alias-Adresse).
+        modelBuilder.Entity<KleinanzeigenChatTranslation>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.GmailMessageId).IsRequired().HasMaxLength(100);
+            entity.HasIndex(e => e.GmailMessageId).IsUnique();
+        });
+
+        modelBuilder.Entity<KleinanzeigenChatDraft>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ConversationKey).IsRequired().HasMaxLength(300);
+            entity.HasIndex(e => e.ConversationKey).IsUnique();
         });
 
         // ── RentalAccessoryItem Configuration ──

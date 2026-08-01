@@ -451,6 +451,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'kleinanzeigen-chat',
+    loadComponent: () =>
+      import('./pages/kleinanzeigen-chat/kleinanzeigen-chat.component').then(
+        (m) => m.KleinanzeigenChatComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'ai-email',
     loadComponent: () =>
       import('./pages/ai-email-assistant/ai-email-assistant.component').then(

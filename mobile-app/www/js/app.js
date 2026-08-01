@@ -1,23 +1,25 @@
 // Uygulama kabuğu: oturum, sekme/görünüm yönlendirmesi, global yoklama + bildirimler.
-import { POLL_WA_MS, POLL_MAIL_MS } from './config.js';
+import { POLL_WA_MS, POLL_MAIL_MS, POLL_KA_MS } from './config.js';
 import { loadSession, displayName, isLoggedIn } from './session.js';
 import { login, validateSession, logout } from './auth.js';
 import { $, toast, initials, autoGrow, setText } from './ui.js';
 import * as Notify from './notify.js';
 import * as Keyboard from './keyboard.js';
 import * as WA from './whatsapp.js';
+import * as KA from './kleinanzeigen.js';
 import * as Mail from './mail.js';
 
 // ─────────────────────────── Durum ───────────────────────────
 let activeTab = 'wa';
 let currentView = 'view-wa-list';
 let appIsActive = true;
-let waTimer = null, mailTimer = null;
+let waTimer = null, mailTimer = null, kaTimer = null;
 
 const isForeground = () => appIsActive && document.visibilityState === 'visible';
 
 // ─────────────────────── Görünüm yönetimi ───────────────────────
-const VIEWS = ['view-wa-list', 'view-wa-thread', 'view-mail-list', 'view-mail-detail', 'view-menu'];
+const VIEWS = ['view-wa-list', 'view-wa-thread', 'view-ka-list', 'view-ka-thread',
+               'view-mail-list', 'view-mail-detail', 'view-menu'];
 
 function showView(id) {
   currentView = id;
@@ -28,6 +30,7 @@ function switchTab(tab) {
   activeTab = tab;
   document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
   if (tab === 'wa')   { showView('view-wa-list');   WA.activate(); }
+  if (tab === 'ka')   { showView('view-ka-list');   KA.activate(); }
   if (tab === 'mail') { showView('view-mail-list'); Mail.activate(); }
   if (tab === 'menu') { showView('view-menu');      renderMenu(); }
 }
@@ -56,12 +59,15 @@ function showApp() {
 function startPolling() {
   stopPolling();
   WA.poll();
+  KA.poll();
   Mail.poll();
   waTimer   = setInterval(() => { if (isForeground()) WA.poll(); },   POLL_WA_MS);
+  kaTimer   = setInterval(() => { if (isForeground()) KA.poll(); },   POLL_KA_MS);
   mailTimer = setInterval(() => { if (isForeground()) Mail.poll(); }, POLL_MAIL_MS);
 }
 function stopPolling() {
   if (waTimer)   { clearInterval(waTimer);   waTimer = null; }
+  if (kaTimer)   { clearInterval(kaTimer);   kaTimer = null; }
   if (mailTimer) { clearInterval(mailTimer); mailTimer = null; }
 }
 
@@ -72,6 +78,7 @@ async function initNotifications() {
   updateNotifState();
   Notify.onTap((extra) => {
     if (extra?.tab === 'wa' && extra.chatId) { switchTab('wa'); WA.openConversation(extra.chatId); }
+    else if (extra?.tab === 'ka' && extra.chatId) { switchTab('ka'); KA.openConversation(extra.chatId); }
     else if (extra?.tab === 'mail' && extra.mailId) { switchTab('mail'); Mail.openMessage(extra.mailId); }
   });
 }
@@ -162,18 +169,19 @@ function bindEvents() {
     });
     CapApp.addListener('appStateChange', ({ isActive }) => {
       appIsActive = isActive;
-      if (isActive && isLoggedIn()) { WA.poll(); Mail.poll(); }
+      if (isActive && isLoggedIn()) { WA.poll(); KA.poll(); Mail.poll(); }
     });
   }
 
   document.addEventListener('visibilitychange', () => {
-    if (isForeground() && isLoggedIn()) WA.poll();
+    if (isForeground() && isLoggedIn()) { WA.poll(); KA.poll(); }
   });
 }
 
 // Geri navigasyonu. true → içeride bir adım geri gidildi.
 function goBack() {
   if (currentView === 'view-wa-thread')   { showView('view-wa-list');   return true; }
+  if (currentView === 'view-ka-thread')   { showView('view-ka-list');   return true; }
   if (currentView === 'view-mail-detail') { showView('view-mail-list'); return true; }
   if (activeTab !== 'wa') { switchTab('wa'); return true; }
   return false;
@@ -183,8 +191,11 @@ function goBack() {
 function initKeyboard() {
   Keyboard.init();
   Keyboard.onChange((open) => {
-    if (!open || currentView !== 'view-wa-thread') return;
-    const box = $('wa-messages');
+    if (!open) return;
+    const box = currentView === 'view-wa-thread' ? $('wa-messages')
+              : currentView === 'view-ka-thread' ? $('ka-messages')
+              : null;
+    if (!box) return;
     // Yükseklik değişimi uygulandıktan sonra en alta kaydır.
     requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
   });
@@ -196,9 +207,11 @@ function initKeyboard() {
   initKeyboard();
 
   WA.mount({ isForeground, showThread: () => showView('view-wa-thread') });
+  KA.mount({ isForeground, showThread: () => showView('view-ka-thread') });
   Mail.mount({ isForeground, showDetail: () => showView('view-mail-detail') });
 
   autoGrow($('wa-instruction'));
+  autoGrow($('ka-instruction'));
 
   // Durum çubuğu rengi
   try { await window.Capacitor?.Plugins?.StatusBar?.setBackgroundColor({ color: '#202c33' }); } catch {}

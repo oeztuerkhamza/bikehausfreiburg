@@ -90,6 +90,10 @@ public static class DependencyInjection
         services.AddScoped<IAiEmailAssistantService, AiEmailAssistantService>();
         services.AddSingleton<IGmailConnectionStore, FileGmailConnectionStore>();
         services.AddHttpClient<IGmailService, GmailService>();
+        // Kleinanzeigen-Chat: liest Threads aus Gmail; unveränderte Threads kommen
+        // beim Pollen aus dem Cache statt erneut über die Gmail-API.
+        services.AddMemoryCache();
+        services.AddScoped<IKleinanzeigenChatService, KleinanzeigenChatService>();
         services.AddScoped<IExportService>(sp =>
         {
             var uploadsPath = configuration["FileStorage:BasePath"]

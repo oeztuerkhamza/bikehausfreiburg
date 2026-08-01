@@ -16,6 +16,7 @@
   --text-dim2:     #667781;
   --divider:       rgba(134,150,160,.15);
   --tr:            #ffd479;   /* Türkçe çeviri rengi */
+  --ka:            #9ceb00;   /* Kleinanzeigen yeşili */
   --danger:        #f15c6d;
   --unread:        #00a884;
   --radius:        12px;
@@ -111,7 +112,7 @@ body.kb-open .view { bottom: 0; }
 @keyframes viewIn { from { opacity: .4; } to { opacity: 1; } }
 
 /* thread/detay tam ekran (tabbar'ın üstünü kapatır) */
-#view-wa-thread, #view-mail-detail { bottom: 0; z-index: 20; }
+#view-wa-thread, #view-ka-thread, #view-mail-detail { bottom: 0; z-index: 20; }
 
 /* ─── Topbar ─── */
 .topbar {
@@ -237,6 +238,33 @@ body.kb-open .view { bottom: 0; }
   position: sticky; bottom: 0; background: var(--topbar); padding-top: 6px;
 }
 
+/* ─── Kleinanzeigen ─── */
+.ka-logo {
+  display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px;
+  background: var(--ka); color: #10240a; font-weight: 800; font-size: 15px; line-height: 1;
+}
+.ka-logo.tabicon { width: 24px; height: 24px; font-size: 14px; border-radius: 6px; }
+.topbar.ka .topbar-title { gap: 8px; }
+.peer-avatar.ka { color: var(--ka); }
+
+/* İlan başlığı şeridi (sohbetin neyle ilgili olduğu hep görünsün) */
+.ad-chip {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--panel); border-bottom: 1px solid var(--divider);
+  padding: 7px 12px; font-size: 13px; color: var(--text-dim);
+}
+.ad-chip .ad-title {
+  color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; flex: 1; min-width: 0;
+}
+.ad-chip .ad-id { font-size: 11px; color: var(--text-dim2); flex-shrink: 0; }
+
+/* Listede ilan başlığı (isim ile önizleme arasında) */
+.li-ad {
+  font-size: 12px; color: var(--ka); margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
 /* ─── Mail ─── */
 .connect-panel { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 50px 24px; text-align: center; color: var(--text-dim); }
 .connect-panel small { max-width: 280px; }
@@ -269,10 +297,14 @@ body.kb-open .view { bottom: 0; }
   border-top: 1px solid var(--divider);
 }
 .tab {
-  flex: 1; background: none; border: none; color: var(--text-dim); cursor: pointer;
+  flex: 1; min-width: 0; background: none; border: none; color: var(--text-dim); cursor: pointer;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-  font-size: 11px; position: relative; padding-top: 6px;
+  font-size: 10.5px; position: relative; padding: 6px 2px 0;
 }
+.tab > span:not(.tab-badge):not(.ka-logo) {
+  max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tab[data-tab="ka"].active .ka-logo { box-shadow: 0 0 6px rgba(156,235,0,.5); }
 .tab.active { color: var(--accent-2); }
 .tab.active svg { filter: drop-shadow(0 0 4px rgba(6,207,156,.4)); }
 .tab-badge {

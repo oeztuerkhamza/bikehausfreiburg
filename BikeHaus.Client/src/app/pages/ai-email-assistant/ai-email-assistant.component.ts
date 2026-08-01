@@ -650,10 +650,22 @@ export class AiEmailAssistantComponent implements OnInit, OnDestroy {
     this.resetComposer();
   }
 
+  /**
+   * Kleinanzeigen-Anfragen laufen über die Alias-Adressen von
+   * mail.kleinanzeigen.de und werden auf der Seite „Kleinanzeigen Chat"
+   * als Chatverlauf geführt — hier gehören sie nicht noch einmal hin.
+   * Andere Kleinanzeigen-Benachrichtigungen (Anzeige läuft ab o. Ä.) bleiben.
+   */
+  private inboxQuery(): string {
+    const exclude = '-from:mail.kleinanzeigen.de';
+    const search = this.searchQuery.trim();
+    return search ? `${search} ${exclude}` : exclude;
+  }
+
   async loadInbox(): Promise<void> {
     this.loadingList.set(true);
     try {
-      const items = await this.gmail.listInbox(this.searchQuery.trim(), 20);
+      const items = await this.gmail.listInbox(this.inboxQuery(), 20);
       this.emails.set(items);
     } catch (e: any) {
       // Ist die Google-Verbindung weg, hat der Service bereits auf „nicht

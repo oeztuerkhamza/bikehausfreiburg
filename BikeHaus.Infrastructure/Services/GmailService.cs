@@ -255,6 +255,72 @@ public class GmailService(
             ExtractBody(payload));
     }
 
+    public async Task<List<GmailThreadSummaryDto>> ListThreadsAsync(string? query, int maxResults, CancellationToken ct)
+    {
+        var path = $"/threads?maxResults={maxResults}";
+        if (!string.IsNullOrWhiteSpace(query))
+            path += $"&q={Uri.EscapeDataString(query)}";
+
+        using var res = await SendAsync(HttpMethod.Get, path, null, ct);
+        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
+        var result = new List<GmailThreadSummaryDto>();
+        if (!doc.RootElement.TryGetProperty("threads", out var threads) || threads.ValueKind != JsonValueKind.Array)
+            return result;
+
+        foreach (var t in threads.EnumerateArray())
+        {
+            result.Add(new GmailThreadSummaryDto(
+                t.GetProperty("id").GetString()!,
+                t.TryGetProperty("historyId", out var h) ? h.GetString() ?? "" : "",
+                t.TryGetProperty("snippet", out var s) ? DecodeEntities(s.GetString() ?? "") : ""));
+        }
+        return result;
+    }
+
+    public async Task<GmailThreadDto> GetThreadAsync(string threadId, CancellationToken ct)
+    {
+        using var res = await SendAsync(HttpMethod.Get, $"/threads/{threadId}?format=full", null, ct);
+        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
+        var root = doc.RootElement;
+        var messages = new List<GmailThreadMessageDto>();
+
+        if (root.TryGetProperty("messages", out var msgs) && msgs.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var m in msgs.EnumerateArray())
+            {
+                var headers = GetHeaders(m);
+                var (name, mail) = ParseAddress(HeaderValue(headers, "From"));
+                var labels = m.TryGetProperty("labelIds", out var l) && l.ValueKind == JsonValueKind.Array
+                    ? l.EnumerateArray().Select(x => x.GetString()).ToList()
+                    : new List<string?>();
+                var ts = m.TryGetProperty("internalDate", out var idate) &&
+                         long.TryParse(idate.GetString(), out var parsed)
+                    ? parsed
+                    : 0L;
+
+                messages.Add(new GmailThreadMessageDto(
+                    m.GetProperty("id").GetString()!,
+                    threadId,
+                    HeaderValue(headers, "Message-ID") is { Length: > 0 } mid ? mid : HeaderValue(headers, "Message-Id"),
+                    HeaderValue(headers, "References"),
+                    name,
+                    mail,
+                    HeaderValue(headers, "To"),
+                    HeaderValue(headers, "Subject"),
+                    HeaderValue(headers, "Date"),
+                    ExtractBody(m.TryGetProperty("payload", out var p) ? p : default),
+                    labels.Contains("UNREAD"),
+                    labels.Contains("SENT"),
+                    ts));
+            }
+        }
+
+        return new GmailThreadDto(
+            threadId,
+            root.TryGetProperty("historyId", out var hid) ? hid.GetString() ?? "" : "",
+            messages.OrderBy(m => m.TimestampMs).ToList());
+    }
+
     public async Task MarkAsReadAsync(string id, CancellationToken ct)
     {
         var content = JsonContent.Create(new { removeLabelIds = new[] { "UNREAD" } });

@@ -138,6 +138,7 @@ dotnet run --project KleinSync            # Manual Kleinanzeigen sync
 | [SettingsController](BikeHaus.API/Controllers/SettingsController.cs)                       | auth + GET public | Shop config                                             |
 | [BackupController](BikeHaus.API/Controllers/BackupController.cs)                           | auth              | DB + uploads backup                                     |
 | [KleinanzeigenController](BikeHaus.API/Controllers/KleinanzeigenController.cs)             | auth              | Scraper control                                         |
+| [KleinanzeigenChatController](BikeHaus.API/Controllers/KleinanzeigenChatController.cs)     | auth              | Kleinanzeigen-Nachrichten als Chat (über Gmail-Alias)   |
 | [EmailAccountsController](BikeHaus.API/Controllers/EmailAccountsController.cs)             | auth              | SMTP config                                             |
 | WeatherForecastController                                                                  | demo              | Default template leftover — ignore                      |
 
@@ -160,6 +161,7 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 - `AccessoryCatalog` — generic accessory master.
 - `RepairShowcase` + `RepairShowcaseImage` — workshop gallery.
 - `KleinanzeigenListing` + `KleinanzeigenImage` — scraped marketplace ads.
+- `KleinanzeigenChatTranslation` + `KleinanzeigenChatDraft` — **kein** Nachrichtenspiegel: nur türkische Übersetzungen je Gmail-Nachricht und Antwort-Entwürfe je Unterhaltung. Die Kleinanzeigen-Chats selbst leben im verbundenen Gmail-Postfach (Alias `…@mail.kleinanzeigen.de`).
 
 **Unique-indexed fields**: `Purchase.BelegNummer`, `Sale.BelegNummer`, `Return.BelegNummer`, `Rental.MietvertragNummer`, `RentalBooking.BuchungsNummer`, `Reservation.ReservierungsNummer`, `Invoice.RechnungsNummer`, `User.Username`, `KleinanzeigenListing.ExternalId`.
 
@@ -186,7 +188,7 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 
 - **DbContext**: [BikeHausDbContext.cs](BikeHaus.Infrastructure/Data/BikeHausDbContext.cs), 33 DbSets.
 - **Repositories**: generic `IRepository<T>` + 21 specific repos (e.g. `BicycleRepository` for paginated filtered queries). All auto-`SaveChangesAsync` per op.
-- **Migrations**: 43 total. Latest: `20260514074811_FixRentalPriceCorruption`. Naming = `<UTC-timestamp>_<PascalCase>`.
+- **Migrations**: latest `20260801065846_AddKleinanzeigenChat`. Naming = `<UTC-timestamp>_<PascalCase>`.
 - **External services**: `KleinanzeigenScraperService` (HTTP scraper), `MailcowMailboxProvisioningService` (mailbox auto-provision, gated by `MailboxProvisioning:Enabled`), `IndexNowService`, `GoogleReviewsService`, `SmtpEmailService` (MailKit), `PdfService`, `BackupService`.
 
 ### appsettings — [BikeHaus.API/appsettings.json](BikeHaus.API/appsettings.json)
@@ -218,6 +220,7 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 - **Rental Bookings (public-incoming)**: `/rental-bookings`, `/rental-bookings/:id`
 - **Catalogs**: `/neue-fahrraeder`, `/mietfahrraeder`, `/homepage-accessories`, `/rental-accessories`
 - **Operations**: `/parts`, `/expenses`, `/invoices`, `/renovation-costs`, `/rental-reviews`
+- **Assistenten**: `/whatsapp`, `/ai-email`, `/kleinanzeigen-chat` (Kleinanzeigen-Anfragen als Chat)
 - **Admin**: `/settings`, `/archive`, `/statistics`, `/export`
 - **Auth**: `/login` (only unguarded)
 

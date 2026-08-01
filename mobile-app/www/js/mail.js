@@ -7,6 +7,10 @@ import { $, toast, initials, fmtListTime, setText } from './ui.js';
 import { notify } from './notify.js';
 
 const gm = (p) => `${API_BASE}/api/gmail${p}`;
+
+// Kleinanzeigen mesajları kendi sekmesinde sohbet olarak gösteriliyor →
+// gelen kutusundan çıkar. (kleinanzeigen.de'den gelen diğer bildirimler kalır.)
+const INBOX_QUERY = encodeURIComponent('-from:mail.kleinanzeigen.de');
 const ae = (p) => `${API_BASE}/api/aiemail${p}`;
 
 let connected = false;
@@ -73,14 +77,14 @@ async function connectGmail() {
 export async function poll() {
   if (!connected) { await refreshStatus(); if (!connected) return; }
   try {
-    const items = await http.get(gm('/messages?max=25'));
+    const items = await http.get(gm(`/messages?max=25&q=${INBOX_QUERY}`));
     ingest(items);
   } catch { /* sessiz */ }
 }
 
 async function loadInbox(manual) {
   try {
-    const items = await http.get(gm('/messages?max=25'));
+    const items = await http.get(gm(`/messages?max=25&q=${INBOX_QUERY}`));
     ingest(items);
     if (manual) toast('Güncellendi');
   } catch (e) {

@@ -1,6 +1,6 @@
 # BikeHaus Asistan — Android Uygulaması
 
-Sadece **Mail AI** ve **WhatsApp AI** içeren mobil asistan. Capacitor + native ekranlar
+**Mail AI**, **WhatsApp AI** ve **Kleinanzeigen AI** içeren mobil asistan. Capacitor + native ekranlar
 (iframe yok). Mevcut sistemin JWT'siyle giriş yapar, mesajlar sunucuda merkezî
 tutulduğu için **her cihazdan aynı sohbetler** görünür.
 
@@ -14,6 +14,8 @@ tutulduğu için **her cihazdan aynı sohbetler** görünür.
 | **Gelen mesaj altında Türkçe** | WhatsApp servisinin `/translate` ucu gelen mesajları Türkçeye çevirir ve **sunucuda saklar** (bir kez çevrilir, her cihazda görünür). Balonun altında sarı italik olarak çıkar. |
 | **AI cevabı + Türkçe kontrol** | Türkçe talimat → AI müşteri dilinde cevap üretir → o cevap **geri Türkçeye çevrilip** ayrı kutuda gösterilir. Gönderilen metin hep müşteri dilindeki kutudur. |
 | **İki yönlü düzenleme** | Almanca (müşteri dili) kutusunu doğrudan düzeltip gönderebilirsin. Türkçe kutusunu düzeltip **↻ Yeniden oluştur**'a basarsan, düzeltilmiş Türkçeden yeni bir müşteri-dili cevap üretilir ve Türkçesi tazelenir. |
+| **Kleinanzeigen sohbeti** | İlanlara gelen mesajlar Gmail'e `…@mail.kleinanzeigen.de` alias'ından mail olarak düşer. Sunucu bunları ayrıştırıp (kişi, ilan başlığı, ilan no, mesaj) **sohbet** haline getirir; cevap aynı alias'a mail olarak gider ve alıcının Kleinanzeigen uygulamasında görünür. Bu mailler Mail sekmesinden filtrelenir. |
+| **Kısa cevap üslubu** | Kleinanzeigen cevapları sohbet dilinde ve kısadır (selam + 1-3 cümle + `Viele Grüße / BikeHaus Freiburg`). Gönderilirken alıntı geçmiş temizlenir — alıcıya sadece yeni metin gider. |
 | **Bildirimler** | Yerel bildirim (`@capacitor/local-notifications`). Uygulama ön plandayken yoklama ile yeni mesaj/mail saptanır, bildirim çalar. Bildirime dokununca ilgili sohbet açılır. |
 
 > **Not:** Bildirimler şu an *yerel*. Uygulama tamamen kapalıyken bildirim gelmez.
@@ -29,6 +31,7 @@ tutulduğu için **her cihazdan aynı sohbetler** görünür.
 | Mail AI (üretim + çeviri) | `https://api.bikehausfreiburg.com/api/aiemail/*` |
 | Gmail (kutu, oku, gönder) | `https://api.bikehausfreiburg.com/api/gmail/*` |
 | WhatsApp servisi | `https://admin.bikehausfreiburg.com/wa/api/*` |
+| Kleinanzeigen sohbeti | `https://api.bikehausfreiburg.com/api/kleinanzeigenchat/*` |
 
 `CapacitorHttp` açık → istekler native katmandan gider, **CORS sorunu olmaz**.
 WhatsApp servisi ana API ile **aynı `JWT_SECRET_KEY`** ile doğrular, o yüzden tek token her ikisinde geçerli.
@@ -109,10 +112,12 @@ www/
     http.js             fetch sarmalayıcı, Bearer token, 401 → otomatik çıkış
     auth.js             login / oturum doğrulama
     whatsapp.js         Sohbet listesi, thread, çeviri, AI cevap, gönderim
+    kleinanzeigen.js    Kleinanzeigen sohbetleri (aynı akış, Gmail üzerinden)
     mail.js             Gmail kutusu, mail detayı, AI cevap, gönderim
     translate.js        Ortak "Türkçeye çevir" (taslak kontrolü için)
     notify.js           Yerel bildirimler
     ui.js               Toast, tarih/isim biçimleme
+    keyboard.js         Klavye açıkken görünür alan (--app-h / --kb)
 android/                Capacitor'ün ürettiği native proje
 ```
 
