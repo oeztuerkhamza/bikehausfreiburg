@@ -2894,12 +2894,14 @@ export class RentalFormComponent implements OnInit {
             this.calendarMonth = start.getMonth();
             this.calendarYear = start.getFullYear();
 
+            // Der online gebuchte Preis ist bereits mit dem Kunden vereinbart:
+            // als manuelle Miete übernehmen, damit ihn weder die Datumslogik
+            // noch die spätere Fahrradauswahl neu berechnet.
             const firstBike = this.bikes[0];
-            if (bookingBike?.gesamtpreis) {
-              firstBike.gesamtmiete = bookingBike.gesamtpreis;
-            } else if (booking.gesamtpreis) {
-              firstBike.gesamtmiete = booking.gesamtpreis;
-            }
+            this.setVereinbarteMiete(
+              firstBike,
+              bookingBike?.gesamtpreis ?? booking.gesamtpreis,
+            );
 
             const bikeId = targetBikeId ?? bookingBike?.bicycleId ?? booking.bicycle?.id;
             if (bikeId) {
@@ -3013,11 +3015,12 @@ export class RentalFormComponent implements OnInit {
         beschreibung: rb.bicycle?.beschreibung || '',
         zustand: rb.bicycle?.zustand || BikeCondition.Gebraucht,
       };
-      entry.gesamtmiete = rb.mietpreis;
       entry.kaution = rb.kaution;
       // Der gespeicherte Preis ist der vereinbarte Preis — beim Bearbeiten
-      // darf ihn eine Datumsänderung nicht überschreiben.
-      entry.mieteManuell = true;
+      // darf ihn eine Datumsänderung nicht überschreiben. Steht dort nichts
+      // (Altvertrag ohne Preis), bleibt das Feld offen für den berechneten
+      // Vorschlag, statt dauerhaft auf 0 zu stehen.
+      this.setVereinbarteMiete(entry, rb.mietpreis);
       // Rental-level fields live on the first bike (mirrors the create flow)
       entry.zahlungsart = rental.zahlungsart || '';
       entry.kautionZahlungsart = rental.kautionZahlungsart || '';
@@ -3050,12 +3053,9 @@ export class RentalFormComponent implements OnInit {
     } else {
       this.rentalDays = 0;
     }
-    if (this.rentalDays > 0) {
-      this.bikes.forEach((_, i) => {
-        const b = this.bikes[i];
-        if (b.selectedBike) b.berechneterPreis = this.calculatePriceFor(i, this.rentalDays);
-      });
-    }
+    // Nicht nur den Vorschlag oben neu rechnen, sondern ihn auch ins Feld
+    // „Gesamtmiete" übernehmen (recalcPriceFor schützt manuelle Beträge).
+    this.bikes.forEach((_, i) => this.recalcPriceFor(i));
   }
 
   onBikeSelected(i: number, bike: Bicycle) {
@@ -3102,9 +3102,9 @@ export class RentalFormComponent implements OnInit {
     if (bike.marke) b.bikeEdit.marke = bike.marke;
     if (bike.modell) b.bikeEdit.modell = bike.modell;
     if (bike.kaution != null) b.kaution = bike.kaution;
-    if (this.rentalDays > 0) {
-      b.berechneterPreis = this.calculatePriceFor(i, this.rentalDays);
-    }
+    // Erst hier liegen die Miettarife des Rades vor: Vorschlag neu rechnen und
+    // in die Gesamtmiete übernehmen, solange sie nicht von Hand gesetzt wurde.
+    this.recalcPriceFor(i);
   }
 
   onQuickAddBike(i: number) {
@@ -3184,12 +3184,40 @@ export class RentalFormComponent implements OnInit {
   recalcPriceFor(i: number) {
     const b = this.bikes[i];
     if (!b) return;
-    if (this.rentalDays > 0) {
-      b.berechneterPreis = this.calculatePriceFor(i, this.rentalDays);
-      // Einen von Hand eingetragenen (ausgehandelten) Preis nicht überschreiben.
-      // Der berechnete Preis bleibt als Vorschlag über dem Feld sichtbar.
-      if (!b.mieteManuell) b.gesamtmiete = b.berechneterPreis;
-    }
+    b.berechneterPreis = this.rentalDays > 0 ? this.calculatePriceFor(i, this.rentalDays) : 0;
+    this.applyBerechnetenPreis(b);
+  }
+
+  /**
+   * Überträgt den berechneten Vorschlag in das Feld „Gesamtmiete".
+   *
+   * Drei Regeln, die zusammen dafür sorgen, dass das Feld nie leer bzw. 0
+   * bleibt, während oben ein Preis steht:
+   *  - Ohne berechneten Preis (Rad oder Preistabelle noch nicht geladen) wird
+   *    nichts geschrieben — sonst überschreibt eine 0 einen bereits
+   *    eingetragenen Betrag.
+   *  - Ein von Hand eingetragener (ausgehandelter) Preis bleibt stehen.
+   *  - Eine leere oder 0-Miete gilt nie als ausgehandelt: dort landet immer
+   *    der berechnete Preis, auch in Verträgen, die ohne Preis gespeichert
+   *    wurden.
+   */
+  private applyBerechnetenPreis(b: BikeEntry) {
+    const berechnet = Number(b.berechneterPreis) || 0;
+    if (berechnet <= 0) return;
+    if (b.mieteManuell && Number(b.gesamtmiete) > 0) return;
+    b.gesamtmiete = berechnet;
+  }
+
+  /**
+   * Übernimmt einen bereits vereinbarten Betrag (aus einer Online-Buchung oder
+   * einem bestehenden Vertrag) als Miete. Solche Preise sind ausgehandelt und
+   * dürfen von einer späteren Neuberechnung nicht überschrieben werden.
+   */
+  private setVereinbarteMiete(b: BikeEntry, betrag: number | null | undefined) {
+    const wert = Number(betrag) || 0;
+    if (wert <= 0) return;
+    b.gesamtmiete = wert;
+    b.mieteManuell = true;
   }
 
   onDatesChanged() {
@@ -3235,7 +3263,8 @@ export class RentalFormComponent implements OnInit {
             if (match) {
               if (i > 0) this.bikes[i - 1].isCollapsed = true;
               this.onBikeSelected(i, match);
-              if (entry.mietpreis) this.bikes[i].gesamtmiete = entry.mietpreis;
+              // Gebuchter Preis schlägt den berechneten Vorschlag.
+              this.setVereinbarteMiete(this.bikes[i], entry.mietpreis);
             } else if (entry.srcBike) {
               const slot = this.bikes[i];
               slot.isQuickAddMode = false;
@@ -3252,7 +3281,7 @@ export class RentalFormComponent implements OnInit {
                 beschreibung: '',
                 zustand: BikeCondition.Gebraucht,
               };
-              if (entry.mietpreis) slot.gesamtmiete = entry.mietpreis;
+              this.setVereinbarteMiete(slot, entry.mietpreis);
               if (entry.srcBike.kaution != null) slot.kaution = entry.srcBike.kaution;
               // Beim Umwandeln kompakt: vorbefülltes Rad eingeklappt zeigen.
               slot.isCollapsed = true;
@@ -3297,11 +3326,15 @@ export class RentalFormComponent implements OnInit {
    * Die Miete wurde von Hand geändert. Ab jetzt gilt dieser Betrag: er
    * überlebt Datumsänderungen. Ein Rabattfeld gibt es im Mietvertrag nicht
    * mehr — ein ausgehandelter Preis wird direkt hier eingetragen.
+   *
+   * Leert der Benutzer das Feld (oder trägt 0 ein), gilt das nicht als
+   * ausgehandelter Preis: dann darf der berechnete Vorschlag wieder greifen,
+   * statt eine 0 stehen zu lassen, die das Speichern ohnehin ablehnt.
    */
   onMieteEdited(i: number) {
     const b = this.bikes[i];
     if (!b) return;
-    b.mieteManuell = true;
+    b.mieteManuell = Number(b.gesamtmiete) > 0;
   }
 
   calculatePriceFor(i: number, days: number): number {
