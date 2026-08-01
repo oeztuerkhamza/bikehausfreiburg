@@ -144,7 +144,13 @@ public static class KleinanzeigenMailParser
         var cut = FirstMarkerIndex(text);
         if (cut > 0) text = text[..cut];
 
-        return CleanBlock(text);
+        var cleaned = CleanBlock(text);
+        if (cleaned.Length > 0) return cleaned;
+
+        // Ändert Kleinanzeigen das Mailformat, bleibt vom Filtern womöglich nichts
+        // übrig. Dann lieber den Rohtext zeigen als die Nachricht verschwinden
+        // lassen — der Chat muss vollständig bleiben.
+        return text.Trim();
     }
 
     /// <summary>
