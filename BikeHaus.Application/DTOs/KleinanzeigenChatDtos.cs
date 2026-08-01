@@ -51,6 +51,9 @@ public record KleinanzeigenChatMessageDto(
 /// </summary>
 public record KleinanzeigenAccountDto(bool Connected, string? Email, bool OwnAccount);
 
+/// <summary>Titel, Preis, Link und Foto einer Anzeige.</summary>
+public record KleinanzeigenAdInfoDto(string? Title, decimal? Price, string Url, string? ImageUrl);
+
 public record KleinanzeigenComposeRequest(string Instruction);
 
 public record KleinanzeigenSendRequest(string Text);

@@ -94,6 +94,12 @@ public static class DependencyInjection
         // beim Pollen aus dem Cache statt erneut über die Gmail-API.
         services.AddMemoryCache();
         services.AddScoped<IKleinanzeigenChatService, KleinanzeigenChatService>();
+        // Anzeigendaten (Foto/Preis) direkt von der Anzeigenseite — für Anzeigen,
+        // die der Scraper nicht kennt (anderes Konto, frisch eingestellt).
+        services.AddHttpClient<IKleinanzeigenAdLookup, KleinanzeigenAdLookupService>(c =>
+        {
+            c.Timeout = TimeSpan.FromSeconds(12);
+        });
         services.AddScoped<IExportService>(sp =>
         {
             var uploadsPath = configuration["FileStorage:BasePath"]

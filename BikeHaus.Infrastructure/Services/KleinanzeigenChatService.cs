@@ -25,6 +25,7 @@ namespace BikeHaus.Infrastructure.Services;
 public class KleinanzeigenChatService(
     IGmailService gmail,
     IGmailConnectionStore connections,
+    IKleinanzeigenAdLookup adLookup,
     IAiEmailAssistantService ai,
     BikeHausDbContext db,
     IMemoryCache cache,
@@ -268,6 +269,29 @@ public class KleinanzeigenChatService(
                 .ToDictionaryAsync(
                     l => l.ExternalId,
                     l => new AdInfo(l.Title, l.Price, l.ExternalUrl, l.ImageUrl), ct);
+
+        // Was der Scraper nicht kennt (anderes Kleinanzeigen-Konto, frisch
+        // eingestellt) oder wo das Foto fehlt: einmalig von der Anzeigenseite
+        // holen. Die Ergebnisse liegen im Cache, das Pollen kostet also nichts.
+        var missing = adIds
+            .Where(id => !listings.TryGetValue(id!, out var l) || string.IsNullOrEmpty(l.ImageUrl))
+            .ToList();
+        if (missing.Count > 0)
+        {
+            var fetched = await Task.WhenAll(missing.Select(async id =>
+                (Id: id!, Info: await adLookup.GetAsync(id!, ct))));
+
+            foreach (var (id, live) in fetched)
+            {
+                if (live?.ImageUrl == null) continue;
+                listings.TryGetValue(id, out var known);
+                listings[id] = new AdInfo(
+                    known?.Title ?? live.Title,
+                    known?.Price ?? live.Price,
+                    string.IsNullOrEmpty(known?.Url) ? live.Url : known!.Url,
+                    live.ImageUrl);
+            }
+        }
 
         var aliases = parsed.Select(p => p.Alias).Distinct().ToList();
         var drafts = await db.KleinanzeigenChatDrafts
