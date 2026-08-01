@@ -24,11 +24,37 @@ namespace BikeHaus.Infrastructure.Services;
 /// </summary>
 public class KleinanzeigenChatService(
     IGmailService gmail,
+    IGmailConnectionStore connections,
     IAiEmailAssistantService ai,
     BikeHausDbContext db,
     IMemoryCache cache,
     ILogger<KleinanzeigenChatService> logger) : IKleinanzeigenChatService
 {
+    /// <summary>
+    /// Postfach der Kleinanzeigen-Chats. Ist ein eigenes Konto verbunden, wird es
+    /// genommen; sonst faellt es auf das Konto des KI-E-Mail-Assistenten zurueck —
+    /// so laeuft der Chat auch ohne zweite Anmeldung, und wer die Anzeigen ueber ein
+    /// anderes Postfach fuehrt, verbindet dieses einmal zusaetzlich.
+    /// </summary>
+    private string Account =>
+        connections.Get(GmailAccounts.Kleinanzeigen) is { RefreshToken.Length: > 0 }
+            ? GmailAccounts.Kleinanzeigen
+            : GmailAccounts.Default;
+
+    public KleinanzeigenAccountDto GetAccountStatus()
+    {
+        var own = connections.Get(GmailAccounts.Kleinanzeigen);
+        if (own is { RefreshToken.Length: > 0 })
+            return new KleinanzeigenAccountDto(true, own.Email, true);
+
+        var fallback = connections.Get(GmailAccounts.Default);
+        return fallback is { RefreshToken.Length: > 0 }
+            ? new KleinanzeigenAccountDto(true, fallback.Email, false)
+            : new KleinanzeigenAccountDto(false, null, false);
+    }
+
+    public void DisconnectAccount() => connections.Clear(GmailAccounts.Kleinanzeigen);
+
     /// <summary>Gmail-Suche: alles, was über den Nachrichten-Alias läuft (ein- und ausgehend).</summary>
     private const string Query =
         $"from:{KleinanzeigenMailParser.AliasDomain} OR to:{KleinanzeigenMailParser.AliasDomain}";
@@ -135,7 +161,7 @@ public class KleinanzeigenChatService(
             Body: body,
             ThreadId: conv.ThreadId,
             InReplyTo: context.MessageIdHeader,
-            References: context.References), ct);
+            References: context.References), ct, Account);
 
         var draftRow = await db.KleinanzeigenChatDrafts.FirstOrDefaultAsync(d => d.ConversationKey == alias, ct);
         if (draftRow != null)
@@ -187,7 +213,7 @@ public class KleinanzeigenChatService(
         var conv = await GetConversationAsync(id, ct);
         foreach (var m in conv.Messages.Where(m => m.Unread))
         {
-            try { await gmail.MarkAsReadAsync(m.Id, ct); }
+            try { await gmail.MarkAsReadAsync(m.Id, ct, Account); }
             catch (Exception ex) { logger.LogDebug(ex, "Kleinanzeigen-Nachricht {Id} nicht als gelesen markierbar.", m.Id); }
         }
     }
@@ -270,7 +296,7 @@ public class KleinanzeigenChatService(
     /// </summary>
     private async Task<List<ParsedMessage>> LoadParsedMessagesAsync(CancellationToken ct)
     {
-        var threads = await gmail.ListThreadsAsync(Query, MaxThreads, ct);
+        var threads = await gmail.ListThreadsAsync(Query, MaxThreads, ct, Account);
         var all = new List<ParsedMessage>();
 
         foreach (var t in threads)
@@ -284,7 +310,7 @@ public class KleinanzeigenChatService(
 
             try
             {
-                var thread = await gmail.GetThreadAsync(t.Id, ct);
+                var thread = await gmail.GetThreadAsync(t.Id, ct, Account);
                 var parsed = ParseThread(thread);
                 cache.Set(key, parsed, CacheTtl);
                 all.AddRange(parsed);

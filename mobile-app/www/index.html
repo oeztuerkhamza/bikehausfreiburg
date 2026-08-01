@@ -126,6 +126,12 @@
           </button>
         </div>
       </header>
+      <div id="ka-connect" class="connect-panel hidden">
+        <span class="logo-icon">🏷️</span>
+        <p>Kleinanzeigen posta kutusu bağlı değil.</p>
+        <button id="ka-connect-btn" class="btn-primary">Gmail'e Bağlan</button>
+        <small>İlanlarının bağlı olduğu Gmail hesabını seç — Mail sekmesindekinden farklı olabilir.</small>
+      </div>
       <div id="ka-list" class="list scroll">
         <div class="list-empty" id="ka-empty">
           <div class="spinner"></div>
@@ -294,6 +300,16 @@
           </div>
         </div>
         <div class="menu-section">
+          <div class="menu-item" id="menu-mail-account">
+            <span>📧 Mail hesabı</span>
+            <span class="menu-value" id="menu-mail-account-state">—</span>
+          </div>
+          <div class="menu-item" id="menu-ka-account">
+            <span>🏷️ Kleinanzeigen hesabı</span>
+            <span class="menu-value" id="menu-ka-account-state">—</span>
+          </div>
+        </div>
+        <div class="menu-section">
           <div class="menu-item" id="menu-notif">
             <span>🔔 Bildirimler</span>
             <span class="menu-value" id="menu-notif-state">—</span>
@@ -306,7 +322,7 @@
         <div class="menu-section">
           <button id="menu-logout" class="btn-danger full">Çıkış Yap</button>
         </div>
-        <p class="version">BikeHaus Asistan · v1.2</p>
+        <p class="version">BikeHaus Asistan · v1.3</p>
       </div>
     </div>
 

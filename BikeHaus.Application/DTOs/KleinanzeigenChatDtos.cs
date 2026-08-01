@@ -36,6 +36,13 @@ public record KleinanzeigenChatMessageDto(
     long Ts,
     bool Unread);
 
+/// <summary>
+/// Welches Google-Postfach die Kleinanzeigen-Chats gerade benutzen.
+/// <c>OwnAccount</c> = ein eigens dafür verbundenes Konto (sonst läuft es über
+/// das Konto des KI-E-Mail-Assistenten).
+/// </summary>
+public record KleinanzeigenAccountDto(bool Connected, string? Email, bool OwnAccount);
+
 public record KleinanzeigenComposeRequest(string Instruction);
 
 public record KleinanzeigenSendRequest(string Text);

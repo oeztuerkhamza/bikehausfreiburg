@@ -32,7 +32,12 @@ function switchTab(tab) {
   if (tab === 'wa')   { showView('view-wa-list');   WA.activate(); }
   if (tab === 'ka')   { showView('view-ka-list');   KA.activate(); }
   if (tab === 'mail') { showView('view-mail-list'); Mail.activate(); }
-  if (tab === 'menu') { showView('view-menu');      renderMenu(); }
+  if (tab === 'menu') {
+    showView('view-menu');
+    renderMenu();
+    // Durumları tazeleyip satırları güncelle (başka cihazda değişmiş olabilir).
+    Promise.all([Mail.refresh(), KA.refreshAccount()]).then(renderAccountRows).catch(() => {});
+  }
 }
 
 // ─────────────────────────── Ekranlar ───────────────────────────
@@ -95,6 +100,20 @@ function renderMenu() {
   setText($('menu-name'), displayName() || 'Kullanıcı');
   setText($('menu-avatar'), initials(displayName() || 'BH'));
   updateNotifState();
+  renderAccountRows();
+}
+
+// Mail ve Kleinanzeigen ayrı Gmail hesaplarına bağlanabilir; ikisi de buradan
+// bağlanır/çıkarılır. Kleinanzeigen kendi hesabı yoksa Mail hesabını kullanır.
+function renderAccountRows() {
+  const mail = Mail.getStatus();
+  setText($('menu-mail-account-state'), mail.connected ? (mail.email || 'bağlı ✓') : 'bağlı değil — dokun');
+
+  const ka = KA.getAccount();
+  setText($('menu-ka-account-state'),
+    !ka.connected ? 'bağlı değil — dokun'
+      : ka.ownAccount ? (ka.email || 'bağlı ✓')
+      : `${ka.email || 'Mail hesabı'} (Mail hesabı)`);
 }
 
 // ─────────────────────────── Olaylar ───────────────────────────
@@ -147,6 +166,26 @@ function bindEvents() {
     updateNotifState();
     if (Notify.isGranted()) toast('Bildirimler açık');
     else toast('İzin verilmedi — telefon ayarlarından açabilirsin', 3600);
+  });
+  $('menu-mail-account').addEventListener('click', async () => {
+    const mail = Mail.getStatus();
+    if (mail.connected) {
+      if (!confirm(`Mail hesabını (${mail.email}) çıkarmak istiyor musun?`)) return;
+      await Mail.disconnect();
+    } else {
+      await Mail.connect();
+    }
+    renderAccountRows();
+  });
+  $('menu-ka-account').addEventListener('click', async () => {
+    const ka = KA.getAccount();
+    if (ka.ownAccount) {
+      if (!confirm(`Kleinanzeigen hesabını (${ka.email}) çıkarmak istiyor musun?`)) return;
+      await KA.disconnectAccount();
+    } else {
+      await KA.connectAccount();
+    }
+    renderAccountRows();
   });
   $('menu-wa-logout').addEventListener('click', () => {
     if (confirm('WhatsApp numarasını çıkarmak istiyor musun? Sohbetler temizlenir ve yeni QR gerekir.')) {

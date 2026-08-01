@@ -35,16 +35,18 @@ public class GmailService(
         ?? $"{(configuration["Api:PublicBaseUrl"] ?? "http://localhost:5196").TrimEnd('/')}/api/gmail/callback";
 
     // ── Status / OAuth ───────────────────────────────────────────────────────
-    public GmailStatusDto GetStatus()
+    public GmailStatusDto GetStatus(string? account = null)
     {
-        var conn = store.Get();
+        var conn = store.Get(GmailAccounts.Normalize(account));
         return conn == null || string.IsNullOrEmpty(conn.RefreshToken)
             ? new GmailStatusDto(false, null)
             : new GmailStatusDto(true, conn.Email);
     }
 
-    public string BuildAuthUrl(string state)
+    public string BuildAuthUrl(string state, string? account = null)
     {
+        // Welches Konto verbunden wird, steckt im state-Parameter (siehe GmailController).
+        _ = GmailAccounts.Normalize(account);
         var query = new Dictionary<string, string?>
         {
             ["client_id"] = ClientId,
@@ -52,7 +54,11 @@ public class GmailService(
             ["response_type"] = "code",
             ["scope"] = Scopes,
             ["access_type"] = "offline",
-            ["prompt"] = "consent",
+            // select_account: Google zeigt die Kontoauswahl, statt stillschweigend das
+            // gerade angemeldete Konto zu nehmen. Wichtig, weil hier bewusst ein
+            // ZWEITES Postfach (Kleinanzeigen) verbunden werden kann.
+            // consent: erzwingt einen frischen Refresh-Token.
+            ["prompt"] = "select_account consent",
             ["include_granted_scopes"] = "true",
             ["state"] = state,
         };
@@ -62,8 +68,9 @@ public class GmailService(
         return $"{AuthEndpoint}?{qs}";
     }
 
-    public async Task HandleCallbackAsync(string code, CancellationToken ct)
+    public async Task HandleCallbackAsync(string code, string? account, CancellationToken ct)
     {
+        var slot = GmailAccounts.Normalize(account);
         if (string.IsNullOrWhiteSpace(ClientId) || string.IsNullOrWhiteSpace(ClientSecret))
             throw new InvalidOperationException("Google OAuth ist nicht konfiguriert (Google:ClientId / Google:ClientSecret).");
 
@@ -90,7 +97,7 @@ public class GmailService(
         var expiresIn = root.TryGetProperty("expires_in", out var ei) ? ei.GetInt32() : 3600;
 
         // Bestehenden Refresh-Token behalten, falls Google keinen neuen zurückgibt.
-        var existing = store.Get();
+        var existing = store.Get(slot);
         if (string.IsNullOrEmpty(refreshToken))
             refreshToken = existing?.RefreshToken;
         if (string.IsNullOrEmpty(refreshToken))
@@ -105,15 +112,15 @@ public class GmailService(
             AccessToken = accessToken,
             AccessTokenExpiryUtc = DateTime.UtcNow.AddSeconds(expiresIn),
             ConnectedAtUtc = DateTime.UtcNow,
-        });
+        }, slot);
     }
 
-    public void Disconnect() => store.Clear();
+    public void Disconnect(string? account = null) => store.Clear(GmailAccounts.Normalize(account));
 
     // ── Access-Token-Verwaltung ────────────────────────────────────────────────
-    private async Task<string> GetAccessTokenAsync(CancellationToken ct)
+    private async Task<string> GetAccessTokenAsync(string account, CancellationToken ct)
     {
-        var conn = store.Get() ?? throw new InvalidOperationException("Gmail ist nicht verbunden.");
+        var conn = store.Get(account) ?? throw new InvalidOperationException("Gmail ist nicht verbunden.");
         if (!string.IsNullOrEmpty(conn.AccessToken) && DateTime.UtcNow < conn.AccessTokenExpiryUtc.AddSeconds(-60))
             return conn.AccessToken!;
 
@@ -138,7 +145,7 @@ public class GmailService(
             // ohne dass die Oberfläche je den Verbinden-Button zeigt.
             if (json.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase))
             {
-                store.Clear();
+                store.Clear(account);
                 throw new InvalidOperationException(
                     "Die Google-Anmeldung ist abgelaufen oder wurde widerrufen. Bitte oben erneut mit Google verbinden.");
             }
@@ -151,13 +158,15 @@ public class GmailService(
         conn.AccessToken = root.GetProperty("access_token").GetString();
         var expiresIn = root.TryGetProperty("expires_in", out var ei) ? ei.GetInt32() : 3600;
         conn.AccessTokenExpiryUtc = DateTime.UtcNow.AddSeconds(expiresIn);
-        store.Save(conn);
+        store.Save(conn, account);
         return conn.AccessToken!;
     }
 
-    private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content, CancellationToken ct)
+    private async Task<HttpResponseMessage> SendAsync(
+        HttpMethod method, string path, HttpContent? content, CancellationToken ct, string? account = null)
     {
-        var token = await GetAccessTokenAsync(ct);
+        var slot = GmailAccounts.Normalize(account);
+        var token = await GetAccessTokenAsync(slot, ct);
         using var req = new HttpRequestMessage(method, $"{GmailApi}{path}") { Content = content };
         req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var res = await http.SendAsync(req, ct);
@@ -189,13 +198,14 @@ public class GmailService(
     }
 
     // ── Gmail-Operationen ──────────────────────────────────────────────────────
-    public async Task<List<GmailListItemDto>> ListInboxAsync(string? query, int maxResults, CancellationToken ct)
+    public async Task<List<GmailListItemDto>> ListInboxAsync(
+        string? query, int maxResults, CancellationToken ct, string? account = null)
     {
         var path = $"/messages?maxResults={maxResults}&labelIds=INBOX";
         if (!string.IsNullOrWhiteSpace(query))
             path += $"&q={Uri.EscapeDataString(query)}";
 
-        using var listRes = await SendAsync(HttpMethod.Get, path, null, ct);
+        using var listRes = await SendAsync(HttpMethod.Get, path, null, ct, account);
         using var listDoc = JsonDocument.Parse(await listRes.Content.ReadAsStringAsync(ct));
         var result = new List<GmailListItemDto>();
         if (!listDoc.RootElement.TryGetProperty("messages", out var msgs) || msgs.ValueKind != JsonValueKind.Array)
@@ -208,7 +218,7 @@ public class GmailService(
             {
                 using var res = await SendAsync(HttpMethod.Get,
                     $"/messages/{id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date",
-                    null, ct);
+                    null, ct, account);
                 using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
                 var root = doc.RootElement;
                 var headers = GetHeaders(root);
@@ -234,9 +244,9 @@ public class GmailService(
         return result;
     }
 
-    public async Task<GmailMessageDto> GetMessageAsync(string id, CancellationToken ct)
+    public async Task<GmailMessageDto> GetMessageAsync(string id, CancellationToken ct, string? account = null)
     {
-        using var res = await SendAsync(HttpMethod.Get, $"/messages/{id}?format=full", null, ct);
+        using var res = await SendAsync(HttpMethod.Get, $"/messages/{id}?format=full", null, ct, account);
         using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
         var root = doc.RootElement;
         var headers = GetHeaders(root);
@@ -255,13 +265,14 @@ public class GmailService(
             ExtractBody(payload));
     }
 
-    public async Task<List<GmailThreadSummaryDto>> ListThreadsAsync(string? query, int maxResults, CancellationToken ct)
+    public async Task<List<GmailThreadSummaryDto>> ListThreadsAsync(
+        string? query, int maxResults, CancellationToken ct, string? account = null)
     {
         var path = $"/threads?maxResults={maxResults}";
         if (!string.IsNullOrWhiteSpace(query))
             path += $"&q={Uri.EscapeDataString(query)}";
 
-        using var res = await SendAsync(HttpMethod.Get, path, null, ct);
+        using var res = await SendAsync(HttpMethod.Get, path, null, ct, account);
         using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
         var result = new List<GmailThreadSummaryDto>();
         if (!doc.RootElement.TryGetProperty("threads", out var threads) || threads.ValueKind != JsonValueKind.Array)
@@ -277,9 +288,9 @@ public class GmailService(
         return result;
     }
 
-    public async Task<GmailThreadDto> GetThreadAsync(string threadId, CancellationToken ct)
+    public async Task<GmailThreadDto> GetThreadAsync(string threadId, CancellationToken ct, string? account = null)
     {
-        using var res = await SendAsync(HttpMethod.Get, $"/threads/{threadId}?format=full", null, ct);
+        using var res = await SendAsync(HttpMethod.Get, $"/threads/{threadId}?format=full", null, ct, account);
         using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
         var root = doc.RootElement;
         var messages = new List<GmailThreadMessageDto>();
@@ -321,23 +332,24 @@ public class GmailService(
             messages.OrderBy(m => m.TimestampMs).ToList());
     }
 
-    public async Task MarkAsReadAsync(string id, CancellationToken ct)
+    public async Task MarkAsReadAsync(string id, CancellationToken ct, string? account = null)
     {
         var content = JsonContent.Create(new { removeLabelIds = new[] { "UNREAD" } });
-        (await SendAsync(HttpMethod.Post, $"/messages/{id}/modify", content, ct)).Dispose();
+        (await SendAsync(HttpMethod.Post, $"/messages/{id}/modify", content, ct, account)).Dispose();
     }
 
-    public async Task TrashAsync(string id, CancellationToken ct)
+    public async Task TrashAsync(string id, CancellationToken ct, string? account = null)
     {
-        (await SendAsync(HttpMethod.Post, $"/messages/{id}/trash", null, ct)).Dispose();
+        (await SendAsync(HttpMethod.Post, $"/messages/{id}/trash", null, ct, account)).Dispose();
     }
 
-    public async Task SendReplyAsync(GmailSendRequest request, CancellationToken ct)
+    public async Task SendReplyAsync(GmailSendRequest request, CancellationToken ct, string? account = null)
     {
-        var conn = store.Get() ?? throw new InvalidOperationException("Gmail ist nicht verbunden.");
+        var slot = GmailAccounts.Normalize(account);
+        var conn = store.Get(slot) ?? throw new InvalidOperationException("Gmail ist nicht verbunden.");
         var raw = BuildRawMessage(conn.Email, request);
         var content = JsonContent.Create(new { raw, threadId = request.ThreadId });
-        (await SendAsync(HttpMethod.Post, "/messages/send", content, ct)).Dispose();
+        (await SendAsync(HttpMethod.Post, "/messages/send", content, ct, slot)).Dispose();
     }
 
     // ── Parsing / Encoding ──────────────────────────────────────────────────────

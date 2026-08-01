@@ -11,6 +11,12 @@ namespace BikeHaus.Application.Interfaces;
 /// </summary>
 public interface IKleinanzeigenChatService
 {
+    /// <summary>Verbundenes Postfach der Kleinanzeigen-Chats.</summary>
+    KleinanzeigenAccountDto GetAccountStatus();
+
+    /// <summary>Meldet das eigene Kleinanzeigen-Postfach ab (das Mail-Konto bleibt unberührt).</summary>
+    void DisconnectAccount();
+
     /// <summary>Unterhaltungen (neueste zuerst), ohne Nachrichtenverlauf.</summary>
     Task<List<KleinanzeigenChatDto>> ListConversationsAsync(CancellationToken ct);
 

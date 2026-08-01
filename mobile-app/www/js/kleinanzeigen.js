@@ -11,6 +11,7 @@ import { $, toast, initials, fmtTime, fmtListTime, autoGrow, setText } from './u
 import { notify } from './notify.js';
 
 const api = (p) => `${API_BASE}/api/kleinanzeigenchat${p}`;
+const gm  = (p) => `${API_BASE}/api/gmail${p}`;
 
 let conversations = [];
 let activeId = null;
@@ -21,6 +22,7 @@ const lastNotified = new Map(); // konuşma id → son bildirilen gelen mesaj ts
 let appActive = () => true;
 let onOpenThread = () => {};
 let generating = false;
+let account = { connected: false, email: null, ownAccount: false };
 
 let D = {};
 export function mount({ isForeground, showThread }) {
@@ -37,7 +39,9 @@ export function mount({ isForeground, showThread }) {
     tabBadge: $('ka-tabbadge'),
   };
 
-  $('ka-refresh').addEventListener('click', () => refreshList(true));
+  D.connect = $('ka-connect');
+  $('ka-refresh').addEventListener('click', () => { refreshAccount(); refreshList(true); });
+  $('ka-connect-btn').addEventListener('click', connectAccount);
   D.generate.addEventListener('click', onGenerate);
   D.regen.addEventListener('click', onRegenerate);
   D.send.addEventListener('click', onSend);
@@ -48,7 +52,59 @@ export function mount({ isForeground, showThread }) {
   D.draft.addEventListener('blur', persistDraft);
 }
 
-export function activate() { refreshList(false); }
+export function activate() { refreshAccount(); refreshList(false); }
+
+// ─────────────────────── Gmail hesabı ───────────────────────
+// Kleinanzeigen kendi hesabına bağlanabilir; bağlı değilse Mail sekmesinin
+// hesabı kullanılır (sunucu öyle davranıyor).
+export function getAccount() { return account; }
+
+export async function refreshAccount() {
+  try {
+    account = await http.get(api('/account'));
+  } catch {
+    account = { connected: false, email: null, ownAccount: false };
+  }
+  renderConnectPanel();
+  return account;
+}
+
+function renderConnectPanel() {
+  const missing = !account.connected;
+  if (D.connect) D.connect.classList.toggle('hidden', !missing);
+  D.list.classList.toggle('hidden', missing);
+  setConn(account.connected);
+  if (D.conn) {
+    D.conn.title = account.connected
+      ? `Kleinanzeigen: ${account.email}${account.ownAccount ? '' : ' (Mail hesabı)'}`
+      : 'Gmail bağlı değil';
+  }
+}
+
+/** İlanların bağlı olduğu Gmail hesabını bağla (Mail hesabına dokunmaz). */
+export async function connectAccount() {
+  try {
+    const { url } = await http.get(gm('/auth-url?account=kleinanzeigen'));
+    window.open(url, '_system');
+    toast('Tarayıcıda hesabı seç, dönünce Yenile’ye bas', 4600);
+  } catch (e) {
+    toast('Bağlantı adresi alınamadı: ' + e.message);
+  }
+}
+
+/** Sadece Kleinanzeigen hesabını çıkar; Mail hesabı bağlı kalır. */
+export async function disconnectAccount() {
+  try {
+    await http.post(api('/account/disconnect'), {});
+    conversations = [];
+    activeId = null; active = null;
+    renderList();
+    await refreshAccount();
+    toast('Kleinanzeigen hesabı çıkarıldı');
+  } catch (e) {
+    toast('Çıkarılamadı: ' + e.message);
+  }
+}
 
 // ─────────────────────────── Yoklama ───────────────────────────
 export async function poll() {
@@ -57,7 +113,7 @@ export async function poll() {
     setConn(true);
     ingest(convs);
   } catch (e) {
-    if (e.status === 409) setConn(false);
+    if (e.status === 409) { setConn(false); refreshAccount(); }
   }
 }
 
@@ -70,7 +126,7 @@ async function refreshList(manual) {
   } catch (e) {
     if (e.status === 409) {
       setConn(false);
-      D.list.innerHTML = '<div class="list-empty"><p>Gmail bağlı değil.<br><small>Mail sekmesinden bağlan.</small></p></div>';
+      refreshAccount();
     } else if (manual) {
       toast('Yenilenemedi: ' + e.message);
     }
@@ -126,9 +182,8 @@ function updateTabBadge() {
 function renderList() {
   updateTabBadge();
   if (!conversations.length) {
-    D.list.innerHTML = connected
-      ? '<div class="list-empty"><p>Henüz mesaj yok.<br><small>İlanlarına gelen mesajlar burada çıkar.</small></p></div>'
-      : '<div class="list-empty"><p>Gmail bağlı değil.<br><small>Mail sekmesinden bağlan.</small></p></div>';
+    D.list.innerHTML =
+      '<div class="list-empty"><p>Henüz mesaj yok.<br><small>İlanlarına gelen mesajlar burada çıkar.</small></p></div>';
     return;
   }
   D.list.innerHTML = '';

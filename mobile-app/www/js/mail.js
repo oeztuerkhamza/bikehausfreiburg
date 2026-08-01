@@ -21,6 +21,7 @@ const notified = new Set();  // bildirilen mail id'leri
 let onOpenDetail = () => {};
 let appActive = () => true;
 let generating = false;
+let statusEmail = '';
 
 let D = {};
 export function mount({ isForeground, showDetail }) {
@@ -53,19 +54,38 @@ async function refreshStatus() {
   try {
     const s = await http.get(gm('/status'));
     connected = !!s.connected;
+    statusEmail = s.email || '';
     D.conn.className = 'conn-dot ' + (connected ? 'ok' : 'err');
     D.conn.title = connected ? `Gmail: ${s.email || 'bağlı'}` : 'Gmail bağlı değil';
     D.connect.classList.toggle('hidden', connected);
     D.list.classList.toggle('hidden', !connected);
   } catch {
     connected = false;
+    statusEmail = '';
     D.conn.className = 'conn-dot err';
   }
 }
 
+export function getStatus() { return { connected, email: statusEmail }; }
+
+/** Mail (KI E-Mail) hesabını çıkar. Kleinanzeigen hesabı etkilenmez. */
+export async function disconnect() {
+  try {
+    await http.post(gm('/disconnect?account=default'), {});
+    messages = [];
+    renderList();
+    await refreshStatus();
+    toast('Mail hesabı çıkarıldı');
+  } catch (e) {
+    toast('Çıkarılamadı: ' + e.message);
+  }
+}
+
+export { connectGmail as connect, refreshStatus as refresh };
+
 async function connectGmail() {
   try {
-    const { url } = await http.get(gm('/auth-url'));
+    const { url } = await http.get(gm('/auth-url?account=default'));
     window.open(url, '_system');
     toast('Tarayıcıda bağlan, dönünce Yenile’ye bas', 4200);
   } catch (e) {

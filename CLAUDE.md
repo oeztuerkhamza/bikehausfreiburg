@@ -139,6 +139,8 @@ dotnet run --project KleinSync            # Manual Kleinanzeigen sync
 | [BackupController](BikeHaus.API/Controllers/BackupController.cs)                           | auth              | DB + uploads backup                                     |
 | [KleinanzeigenController](BikeHaus.API/Controllers/KleinanzeigenController.cs)             | auth              | Scraper control                                         |
 | [KleinanzeigenChatController](BikeHaus.API/Controllers/KleinanzeigenChatController.cs)     | auth              | Kleinanzeigen-Nachrichten als Chat (über Gmail-Alias)   |
+
+> **Zwei Gmail-Postfächer:** `IGmailService`/`IGmailConnectionStore` kennen einen `account`-Slot (`GmailAccounts.Default` = KI-E-Mail, `GmailAccounts.Kleinanzeigen`). Jeder Slot hat eine eigene Datei unter `uploads/gmail/` und wird getrennt verbunden/abgemeldet (`/api/gmail/auth-url?account=…`, `/api/kleinanzeigenchat/account`). Ist kein Kleinanzeigen-Konto verbunden, fällt der Chat auf das Standardkonto zurück. Der OAuth-Callback liest den Slot aus dem `state`-Parameter.
 | [EmailAccountsController](BikeHaus.API/Controllers/EmailAccountsController.cs)             | auth              | SMTP config                                             |
 | WeatherForecastController                                                                  | demo              | Default template leftover — ignore                      |
 

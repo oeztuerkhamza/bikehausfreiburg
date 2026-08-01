@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
+  KleinanzeigenAccount,
   KleinanzeigenChat,
   KleinanzeigenChatService,
 } from '../../services/kleinanzeigen-chat.service';
@@ -35,6 +36,18 @@ import { firstValueFrom } from 'rxjs';
           </p>
         </div>
         <div class="header-actions">
+          <span class="account-chip" *ngIf="account()?.connected" [title]="account()?.ownAccount
+              ? 'Eigenes Kleinanzeigen-Postfach' : 'Postfach des KI-E-Mail-Assistenten'">
+            <span class="dot" [class.shared]="!account()?.ownAccount"></span>
+            {{ account()?.email }}
+            <em *ngIf="!account()?.ownAccount">(Mail-Konto)</em>
+          </span>
+          <button class="btn btn-secondary" (click)="connectAccount()" [disabled]="connecting()">
+            {{ connecting() ? 'Öffnet…' : (account()?.ownAccount ? 'Konto wechseln' : 'Eigenes Konto verbinden') }}
+          </button>
+          <button class="btn btn-ghost" *ngIf="account()?.ownAccount" (click)="disconnectAccount()">
+            Abmelden
+          </button>
           <button class="btn btn-secondary" (click)="reload()" [disabled]="loadingList()">
             {{ loadingList() ? 'Lädt…' : 'Aktualisieren' }}
           </button>
@@ -44,11 +57,15 @@ import { firstValueFrom } from 'rxjs';
       <!-- Gmail nicht verbunden -->
       <div class="connect-card" *ngIf="disconnected()">
         <div class="connect-inner">
-          <h2>Gmail ist nicht verbunden</h2>
+          <h2>Kein Postfach verbunden</h2>
           <p>
-            Die Kleinanzeigen-Nachrichten kommen aus dem Gmail-Postfach. Verbinde es einmalig
-            im KI-E-Mail-Assistenten – danach erscheinen die Unterhaltungen hier automatisch.
+            Die Kleinanzeigen-Nachrichten kommen aus einem Gmail-Postfach. Verbinde hier das
+            Konto, auf dem deine Anzeigen laufen — es kann ein anderes sein als das des
+            KI-E-Mail-Assistenten.
           </p>
+          <button class="btn btn-primary" (click)="connectAccount()" [disabled]="connecting()">
+            {{ connecting() ? 'Öffnet…' : 'Mit Google verbinden' }}
+          </button>
         </div>
       </div>
 
@@ -221,13 +238,28 @@ import { firstValueFrom } from 'rxjs';
         color: var(--accent-primary, #6366f1); font-size: 0.78rem; font-weight: 600;
       }
 
+      .account-chip {
+        display: inline-flex; align-items: center; gap: 7px; font-size: 0.8rem; font-weight: 600;
+        color: var(--text-secondary); background: var(--bg-secondary);
+        border: 1px solid var(--border-light); padding: 6px 12px; border-radius: 999px;
+        max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .account-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+      .account-chip .dot.shared { background: #f59e0b; }
+      .account-chip em { font-style: normal; color: var(--text-muted); font-weight: 500; }
+      .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+      .btn-ghost {
+        background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color);
+      }
+      .btn-ghost:hover { color: var(--accent-danger, #ef4444); border-color: var(--accent-danger, #ef4444); }
+
       .connect-card { display: flex; justify-content: center; padding: 40px 20px; }
       .connect-inner {
         max-width: 460px; text-align: center; background: var(--bg-secondary);
         border: 1px solid var(--border-light); border-radius: 16px; padding: 32px 28px;
       }
       .connect-inner h2 { margin: 0 0 8px; font-size: 1.2rem; color: var(--text-primary); }
-      .connect-inner p { margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+      .connect-inner p { margin: 0 0 18px; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
 
       .workspace { display: grid; grid-template-columns: 340px 1fr; gap: 18px; align-items: start; }
 
@@ -396,6 +428,8 @@ export class KleinanzeigenChatComponent implements OnInit, OnDestroy {
   readonly generating = signal(false);
   readonly sending = signal(false);
   readonly disconnected = signal(false);
+  readonly account = signal<KleinanzeigenAccount | null>(null);
+  readonly connecting = signal(false);
 
   readonly instruction = signal('');
   readonly draft = signal('');
@@ -406,6 +440,7 @@ export class KleinanzeigenChatComponent implements OnInit, OnDestroy {
   private timer?: ReturnType<typeof setInterval>;
 
   ngOnInit(): void {
+    this.refreshAccount();
     this.reload();
     this.timer = setInterval(() => this.reload(true), 45_000);
   }
@@ -414,12 +449,47 @@ export class KleinanzeigenChatComponent implements OnInit, OnDestroy {
     if (this.timer) clearInterval(this.timer);
   }
 
+  private async refreshAccount(): Promise<void> {
+    this.account.set(await this.api.account());
+  }
+
+  /** Eigenes Google-Konto für die Kleinanzeigen-Chats verbinden. */
+  async connectAccount(): Promise<void> {
+    this.connecting.set(true);
+    try {
+      await this.api.connectAccount();
+      await this.refreshAccount();
+      this.notify.success('Konto verbunden ✓');
+      await this.reload();
+    } catch (e: any) {
+      if (e?.message !== 'CANCELLED') this.notify.error('Verbindung fehlgeschlagen: ' + (e?.message || ''));
+    } finally {
+      this.connecting.set(false);
+    }
+  }
+
+  async disconnectAccount(): Promise<void> {
+    if (!confirm('Kleinanzeigen-Postfach abmelden? Die Chats sind dann erst nach erneutem Verbinden sichtbar.'))
+      return;
+    try {
+      await this.api.disconnectAccount();
+      await this.refreshAccount();
+      this.chats.set([]);
+      this.selected.set(null);
+      await this.reload();
+      this.notify.success('Abgemeldet');
+    } catch (e: any) {
+      this.notify.error('Abmelden fehlgeschlagen: ' + (e?.message || ''));
+    }
+  }
+
   async reload(silent = false): Promise<void> {
     if (!silent) this.loadingList.set(true);
     try {
       const list = await this.api.list();
       this.chats.set(list);
       this.disconnected.set(false);
+      if (!silent) this.refreshAccount();
 
       // Offene Unterhaltung mitziehen, wenn neue Nachrichten da sind.
       const open = this.selected();
@@ -433,7 +503,7 @@ export class KleinanzeigenChatComponent implements OnInit, OnDestroy {
     } catch (e: any) {
       if (e?.status === 409) {
         this.disconnected.set(true);
-        this.gmail.connected.set(false);
+        this.account.set({ connected: false, email: null, ownAccount: false });
       } else if (!silent) {
         this.notify.error('Nachrichten konnten nicht geladen werden: ' + (e?.message || ''));
       }

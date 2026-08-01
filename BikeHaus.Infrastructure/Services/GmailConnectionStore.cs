@@ -1,4 +1,5 @@
 using System.Text.Json;
+using BikeHaus.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 
 namespace BikeHaus.Infrastructure.Services;
@@ -19,18 +20,17 @@ public class GmailConnection
 
 public interface IGmailConnectionStore
 {
-    GmailConnection? Get();
-    void Save(GmailConnection connection);
-    void Clear();
+    GmailConnection? Get(string account = GmailAccounts.Default);
+    void Save(GmailConnection connection, string account = GmailAccounts.Default);
+    void Clear(string account = GmailAccounts.Default);
 }
 
 public class FileGmailConnectionStore : IGmailConnectionStore
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
-    private readonly string _filePath;
+    private readonly string _dir;
     private readonly object _lock = new();
-    private GmailConnection? _cached;
-    private bool _loaded;
+    private readonly Dictionary<string, GmailConnection?> _cache = new();
 
     public FileGmailConnectionStore(IConfiguration configuration)
     {
@@ -38,52 +38,60 @@ public class FileGmailConnectionStore : IGmailConnectionStore
             ?? Path.Combine(Directory.GetCurrentDirectory(), "uploads");
         if (!Path.IsPathRooted(basePath))
             basePath = Path.Combine(Directory.GetCurrentDirectory(), basePath);
-        var dir = Path.Combine(basePath, "gmail");
-        Directory.CreateDirectory(dir);
-        _filePath = Path.Combine(dir, "connection.json");
+        _dir = Path.Combine(basePath, "gmail");
+        Directory.CreateDirectory(_dir);
     }
 
-    public GmailConnection? Get()
+    // Das Standardkonto behält den alten Dateinamen — eine bereits bestehende
+    // Verbindung bleibt nach dem Update ohne erneutes Anmelden gültig.
+    private string FilePath(string account) =>
+        account == GmailAccounts.Default
+            ? Path.Combine(_dir, "connection.json")
+            : Path.Combine(_dir, $"connection-{account}.json");
+
+    public GmailConnection? Get(string account = GmailAccounts.Default)
     {
+        account = GmailAccounts.Normalize(account);
         lock (_lock)
         {
-            if (!_loaded)
+            if (_cache.TryGetValue(account, out var cached)) return cached;
+
+            GmailConnection? conn = null;
+            var path = FilePath(account);
+            if (File.Exists(path))
             {
-                if (File.Exists(_filePath))
+                try
                 {
-                    try
-                    {
-                        _cached = JsonSerializer.Deserialize<GmailConnection>(File.ReadAllText(_filePath));
-                    }
-                    catch
-                    {
-                        _cached = null;
-                    }
+                    conn = JsonSerializer.Deserialize<GmailConnection>(File.ReadAllText(path));
                 }
-                _loaded = true;
+                catch
+                {
+                    conn = null;
+                }
             }
-            return _cached;
+            _cache[account] = conn;
+            return conn;
         }
     }
 
-    public void Save(GmailConnection connection)
+    public void Save(GmailConnection connection, string account = GmailAccounts.Default)
     {
+        account = GmailAccounts.Normalize(account);
         lock (_lock)
         {
-            _cached = connection;
-            _loaded = true;
-            File.WriteAllText(_filePath, JsonSerializer.Serialize(connection, JsonOptions));
+            _cache[account] = connection;
+            File.WriteAllText(FilePath(account), JsonSerializer.Serialize(connection, JsonOptions));
         }
     }
 
-    public void Clear()
+    public void Clear(string account = GmailAccounts.Default)
     {
+        account = GmailAccounts.Normalize(account);
         lock (_lock)
         {
-            _cached = null;
-            _loaded = true;
-            if (File.Exists(_filePath))
-                File.Delete(_filePath);
+            _cache[account] = null;
+            var path = FilePath(account);
+            if (File.Exists(path)) File.Delete(path);
         }
     }
 }

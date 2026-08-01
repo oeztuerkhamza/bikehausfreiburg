@@ -21,6 +21,13 @@ export interface KleinanzeigenChatMessage {
   unread: boolean;
 }
 
+export interface KleinanzeigenAccount {
+  connected: boolean;
+  email: string | null;
+  /** true = eigenes Konto; false = es läuft über das Konto des Mail-Assistenten. */
+  ownAccount: boolean;
+}
+
 export interface KleinanzeigenChat {
   id: string;
   alias: string;
@@ -52,6 +59,60 @@ export class KleinanzeigenChatService {
     const e = new Error(message) as Error & { status?: number };
     e.status = status;
     throw e;
+  }
+
+  /** Welches Postfach die Chats gerade benutzen. */
+  async account(): Promise<KleinanzeigenAccount> {
+    try {
+      return await firstValueFrom(this.http.get<KleinanzeigenAccount>(`${this.url}/account`));
+    } catch {
+      return { connected: false, email: null, ownAccount: false };
+    }
+  }
+
+  /**
+   * Verbindet ein eigenes Google-Konto NUR für die Kleinanzeigen-Chats.
+   * Das Konto des Mail-Assistenten bleibt unangetastet — die Anzeigen laufen oft
+   * über eine andere Adresse.
+   */
+  async connectAccount(): Promise<void> {
+    const { url } = await firstValueFrom(
+      this.http.get<{ url: string }>(`${environment.apiUrl}/gmail/auth-url`, {
+        params: { account: 'kleinanzeigen' },
+      }),
+    );
+    const popup = window.open(url, 'gmail_ka_oauth', 'width=520,height=680');
+    if (!popup) throw new Error('Popup wurde blockiert.');
+
+    await new Promise<void>((resolve, reject) => {
+      let done = false;
+      const finish = (fn: () => void) => {
+        if (done) return;
+        done = true;
+        window.removeEventListener('message', onMessage);
+        clearInterval(poll);
+        fn();
+      };
+      const onMessage = (ev: MessageEvent) => {
+        const d = ev.data;
+        if (!d || typeof d !== 'object') return;
+        if (d.type === 'gmail-connected') finish(resolve);
+        else if (d.type === 'gmail-error') finish(() => reject(new Error(d.error || 'OAUTH_ERROR')));
+      };
+      window.addEventListener('message', onMessage);
+      // Fallback: Fenster geschlossen → Status entscheidet.
+      const poll = setInterval(async () => {
+        if (popup.closed) {
+          const st = await this.account();
+          finish(st.ownAccount ? resolve : () => reject(new Error('CANCELLED')));
+        }
+      }, 800);
+    });
+  }
+
+  /** Eigenes Kleinanzeigen-Konto abmelden (Mail-Konto bleibt verbunden). */
+  async disconnectAccount(): Promise<void> {
+    await firstValueFrom(this.http.post(`${this.url}/account/disconnect`, {}));
   }
 
   async list(): Promise<KleinanzeigenChat[]> {

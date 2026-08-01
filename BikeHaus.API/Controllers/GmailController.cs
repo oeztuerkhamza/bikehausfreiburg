@@ -15,16 +15,22 @@ namespace BikeHaus.API.Controllers;
 [Authorize]
 public class GmailController(IGmailService gmail) : ControllerBase
 {
+    /// <summary>
+    /// Status eines Postfachs. <paramref name="account"/> ist "default" (KI-E-Mail)
+    /// oder "kleinanzeigen" — beide koennen unabhaengig verbunden/abgemeldet werden.
+    /// </summary>
     [HttpGet("status")]
-    public ActionResult<GmailStatusDto> Status() => Ok(gmail.GetStatus());
+    public ActionResult<GmailStatusDto> Status([FromQuery] string? account = null) => Ok(gmail.GetStatus(account));
 
     [HttpGet("auth-url")]
-    public ActionResult<object> AuthUrl()
+    public ActionResult<object> AuthUrl([FromQuery] string? account = null)
     {
-        var state = Guid.NewGuid().ToString("N");
+        // Google gibt den state unveraendert an den Callback zurueck — dort steht
+        // deshalb drin, welches Postfach gerade verbunden wird.
+        var state = $"{GmailAccounts.Normalize(account)}.{Guid.NewGuid():N}";
         try
         {
-            return Ok(new { url = gmail.BuildAuthUrl(state) });
+            return Ok(new { url = gmail.BuildAuthUrl(state, account) });
         }
         catch (InvalidOperationException ex)
         {
@@ -35,7 +41,8 @@ public class GmailController(IGmailService gmail) : ControllerBase
     /// <summary>OAuth-Redirect-Ziel von Google. Öffentlich, da ohne JWT aufgerufen.</summary>
     [HttpGet("callback")]
     [AllowAnonymous]
-    public async Task<IActionResult> Callback([FromQuery] string? code, [FromQuery] string? error, CancellationToken ct)
+    public async Task<IActionResult> Callback(
+        [FromQuery] string? code, [FromQuery] string? error, [FromQuery] string? state, CancellationToken ct)
     {
         if (!string.IsNullOrEmpty(error))
             return ClosePopup(false, error);
@@ -44,7 +51,8 @@ public class GmailController(IGmailService gmail) : ControllerBase
 
         try
         {
-            await gmail.HandleCallbackAsync(code, ct);
+            var account = GmailAccounts.Normalize(state?.Split('.').FirstOrDefault());
+            await gmail.HandleCallbackAsync(code, account, ct);
             return ClosePopup(true, null);
         }
         catch (Exception ex)
@@ -54,19 +62,19 @@ public class GmailController(IGmailService gmail) : ControllerBase
     }
 
     [HttpPost("disconnect")]
-    public IActionResult Disconnect()
+    public IActionResult Disconnect([FromQuery] string? account = null)
     {
-        gmail.Disconnect();
+        gmail.Disconnect(account);
         return Ok(new { ok = true });
     }
 
     [HttpGet("messages")]
     public async Task<ActionResult<List<GmailListItemDto>>> Messages(
-        [FromQuery] string? q, [FromQuery] int max, CancellationToken ct)
+        [FromQuery] string? q, [FromQuery] int max, [FromQuery] string? account, CancellationToken ct)
     {
         try
         {
-            var items = await gmail.ListInboxAsync(q, max <= 0 ? 20 : Math.Min(max, 50), ct);
+            var items = await gmail.ListInboxAsync(q, max <= 0 ? 20 : Math.Min(max, 50), ct, account);
             return Ok(items);
         }
         catch (InvalidOperationException ex)
@@ -76,11 +84,12 @@ public class GmailController(IGmailService gmail) : ControllerBase
     }
 
     [HttpGet("messages/{id}")]
-    public async Task<ActionResult<GmailMessageDto>> Message(string id, CancellationToken ct)
+    public async Task<ActionResult<GmailMessageDto>> Message(
+        string id, [FromQuery] string? account, CancellationToken ct)
     {
         try
         {
-            return Ok(await gmail.GetMessageAsync(id, ct));
+            return Ok(await gmail.GetMessageAsync(id, ct, account));
         }
         catch (InvalidOperationException ex)
         {
@@ -89,25 +98,26 @@ public class GmailController(IGmailService gmail) : ControllerBase
     }
 
     [HttpPost("messages/{id}/read")]
-    public async Task<IActionResult> MarkRead(string id, CancellationToken ct)
+    public async Task<IActionResult> MarkRead(string id, [FromQuery] string? account, CancellationToken ct)
     {
-        await gmail.MarkAsReadAsync(id, ct);
+        await gmail.MarkAsReadAsync(id, ct, account);
         return Ok(new { ok = true });
     }
 
     [HttpPost("messages/{id}/trash")]
-    public async Task<IActionResult> Trash(string id, CancellationToken ct)
+    public async Task<IActionResult> Trash(string id, [FromQuery] string? account, CancellationToken ct)
     {
-        await gmail.TrashAsync(id, ct);
+        await gmail.TrashAsync(id, ct, account);
         return Ok(new { ok = true });
     }
 
     [HttpPost("send")]
-    public async Task<IActionResult> Send([FromBody] GmailSendRequest request, CancellationToken ct)
+    public async Task<IActionResult> Send(
+        [FromBody] GmailSendRequest request, [FromQuery] string? account, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(request.To) || string.IsNullOrWhiteSpace(request.Body))
             return BadRequest(new { message = "Empfänger und Text erforderlich." });
-        await gmail.SendReplyAsync(request, ct);
+        await gmail.SendReplyAsync(request, ct, account);
         return Ok(new { ok = true });
     }
 

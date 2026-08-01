@@ -20,6 +20,21 @@ namespace BikeHaus.API.Controllers;
 [Authorize]
 public class KleinanzeigenChatController(IKleinanzeigenChatService chat) : ControllerBase
 {
+    /// <summary>
+    /// Welches Postfach die Chats gerade benutzen. Ein eigenes Konto verbindet man
+    /// über <c>GET /api/gmail/auth-url?account=kleinanzeigen</c>.
+    /// </summary>
+    [HttpGet("account")]
+    public ActionResult<KleinanzeigenAccountDto> Account() => Ok(chat.GetAccountStatus());
+
+    /// <summary>Eigenes Kleinanzeigen-Postfach abmelden (Mail-Konto bleibt verbunden).</summary>
+    [HttpPost("account/disconnect")]
+    public IActionResult DisconnectAccount()
+    {
+        chat.DisconnectAccount();
+        return Ok(new { ok = true });
+    }
+
     [HttpGet("conversations")]
     public async Task<ActionResult<List<KleinanzeigenChatDto>>> Conversations(CancellationToken ct)
     {
