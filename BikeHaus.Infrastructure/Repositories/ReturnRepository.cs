@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Interfaces;
 using BikeHaus.Infrastructure.Data;
@@ -55,20 +56,31 @@ public class ReturnRepository : Repository<Return>, IReturnRepository
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Fortlaufende Rückgabe-Belegnummer: höchste vergebene Nummer + 1.
+    ///
+    /// Verglichen wird der Zahlenwert, nicht der Text. Ein rein alphabetischer
+    /// Vergleich ("999" &gt; "1000", "9" &gt; "12") liefert nicht die zuletzt
+    /// vergebene Nummer und erzeugt dadurch Duplikate. Von jeder Belegnummer
+    /// zählt die Ziffernfolge am Ende, damit auch manuell vergebene Nummern
+    /// mit Präfix (z. B. "RG-012") die Sequenz weiterzählen.
+    /// </summary>
     public async Task<string> GenerateBelegNummerAsync()
     {
-        var lastBeleg = await _dbSet
-            .OrderByDescending(r => r.BelegNummer)
+        var alleBelege = await _dbSet
             .Select(r => r.BelegNummer)
-            .FirstOrDefaultAsync();
+            .Where(b => !string.IsNullOrWhiteSpace(b))
+            .ToListAsync();
 
-        var nextNumber = 1;
-        if (!string.IsNullOrEmpty(lastBeleg) && int.TryParse(lastBeleg, out var parsed))
+        var maxNumber = 0;
+        foreach (var beleg in alleBelege)
         {
-            nextNumber = parsed + 1;
+            var match = Regex.Match(beleg, @"(\d+)$");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var parsed) && parsed > maxNumber)
+                maxNumber = parsed;
         }
 
-        return $"{nextNumber:D3}";
+        return $"{maxNumber + 1:D3}";
     }
 
     public async Task<bool> BelegNummerExistsAsync(string belegNummer)
