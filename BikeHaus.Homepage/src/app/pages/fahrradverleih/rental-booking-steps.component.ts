@@ -258,26 +258,62 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           *ngIf="!loadingAvailableBikes() && selectableBikes().length > 0"
           class="bike-filter-bar"
         >
-          <div class="bike-filter-chips">
-            <button
-              type="button"
-              class="filter-chip"
-              [class.active]="bikeTypeFilter() === 'all'"
-              (click)="bikeTypeFilter.set('all')"
-            >
-              {{ t().rentalSteps?.filterAll ?? 'Alle' }}
-              <span class="chip-count">{{ selectableBikes().length }}</span>
-            </button>
-            <button
-              type="button"
-              class="filter-chip"
-              *ngFor="let group of bikeTypeGroups()"
-              [class.active]="bikeTypeFilter() === group.key"
-              (click)="bikeTypeFilter.set(group.key)"
-            >
-              {{ group.label }}
-              <span class="chip-count">{{ group.count }}</span>
-            </button>
+          <div class="bike-filter-row">
+            <span class="filter-row-label">{{
+              t().rentalSteps?.filterType ?? 'Typ'
+            }}</span>
+            <div class="bike-filter-chips">
+              <button
+                type="button"
+                class="filter-chip"
+                [class.active]="effectiveTypeFilter() === 'all'"
+                (click)="bikeTypeFilter.set('all')"
+              >
+                {{ t().rentalSteps?.filterAll ?? 'Alle' }}
+                <span class="chip-count">{{ selectableBikes().length }}</span>
+              </button>
+              <button
+                type="button"
+                class="filter-chip"
+                *ngFor="let group of bikeTypeGroups()"
+                [class.active]="effectiveTypeFilter() === group.key"
+                (click)="bikeTypeFilter.set(group.key)"
+              >
+                {{ group.label }}
+                <span class="chip-count">{{ group.count }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Zweite Zeile: "passt das Rad zu mir?" ist die Frage, die vor dem
+               Typ kommt. Die Stufen sind fest, gezeigt wird aber nur, wofür es
+               im gewählten Typ auch wirklich Räder gibt; ohne gepflegte
+               Körpergrößen bleibt die Zeile ganz weg. -->
+          <div class="bike-filter-row" *ngIf="heightGroups().length > 0">
+            <span class="filter-row-label">
+              {{ t().rentalSteps?.riderHeight ?? 'Körpergröße' }} (cm)
+            </span>
+            <div class="bike-filter-chips">
+              <button
+                type="button"
+                class="filter-chip"
+                [class.active]="effectiveHeightFilter() === 'all'"
+                (click)="bikeHeightFilter.set('all')"
+              >
+                {{ t().rentalSteps?.filterAll ?? 'Alle' }}
+                <span class="chip-count">{{ typeFilteredBikes().length }}</span>
+              </button>
+              <button
+                type="button"
+                class="filter-chip"
+                *ngFor="let group of heightGroups()"
+                [class.active]="effectiveHeightFilter() === group.key"
+                (click)="bikeHeightFilter.set(group.key)"
+              >
+                {{ group.label }}
+                <span class="chip-count">{{ group.count }}</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1526,9 +1562,24 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         color: var(--rb-text-muted, #6b7280);
       }
 
-      /* ── Typ-Filter über dem Raster ── */
+      /* ── Typ- und Körpergrößen-Filter über dem Raster ── */
       .bike-filter-bar {
         margin: 1.25rem 0 0.25rem;
+      }
+      .bike-filter-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .bike-filter-row + .bike-filter-row {
+        margin-top: 0.7rem;
+      }
+      .filter-row-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--rb-text-muted, #6b7280);
       }
       .bike-filter-chips {
         display: flex;
@@ -2323,6 +2374,10 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           margin: 0.75rem 0 0;
         }
 
+        .bike-filter-row + .bike-filter-row {
+          margin-top: 0.5rem;
+        }
+
         .date-range-display {
           font-size: 0.78rem;
           margin: 0.3rem 0 0;
@@ -2480,11 +2535,90 @@ export class RentalBookingStepsComponent implements OnInit {
       .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
   });
 
-  filteredBikes = computed(() => {
-    const filter = this.bikeTypeFilter();
+  /**
+   * Ein gewählter Chip kann verschwinden, sobald sich der Zeitraum (und damit
+   * die Verfügbarkeit) ändert. Statt dann ein leeres Raster zu zeigen, fällt
+   * der Filter auf "Alle" zurück, ohne dass die Auswahl aktiv zurückgesetzt
+   * werden muss.
+   */
+  effectiveTypeFilter = computed(() => {
+    const key = this.bikeTypeFilter();
+    if (key === 'all') return 'all';
+    return this.bikeTypeGroups().some((group) => group.key === key)
+      ? key
+      : 'all';
+  });
+
+  typeFilteredBikes = computed(() => {
+    const filter = this.effectiveTypeFilter();
     if (filter === 'all') return this.selectableBikes();
     return this.selectableBikes().filter(
       (bike) => this.normalizeBikeType(bike) === filter,
+    );
+  });
+
+  /** Aktive Körpergrößen-Stufe im Auswahlschritt ("all" = keine). */
+  bikeHeightFilter = signal<string>('all');
+
+  /**
+   * Feste Stufen in 10-cm-Schritten. Fest verdrahtet, weil die gepflegten
+   * Bereiche pro Rad ("165–180 cm") sonst zu einer Chip-Zeile aus lauter
+   * Einzelfällen würden; angezeigt wird ohnehin nur, was besetzt ist.
+   */
+  private static readonly HEIGHT_STEPS: ReadonlyArray<{
+    key: string;
+    label: string;
+    from: number;
+    to: number;
+  }> = [
+    { key: 'lt150', label: '< 150', from: 0, to: 150 },
+    { key: '150-160', label: '150–160', from: 150, to: 160 },
+    { key: '160-170', label: '160–170', from: 160, to: 170 },
+    { key: '170-180', label: '170–180', from: 170, to: 180 },
+    { key: '180-190', label: '180–190', from: 180, to: 190 },
+    { key: 'gte190', label: '≥ 190', from: 190, to: 999 },
+  ];
+
+  /**
+   * Ein Rad passt zu einer Stufe, wenn sich sein empfohlener Bereich mit ihr
+   * überschneidet — ein Rad für 165–180 cm steht also unter "160–170" und unter
+   * "170–180". Räder ohne gepflegte Körpergröße lassen sich nicht zuordnen und
+   * bleiben deshalb nur unter "Alle" sichtbar.
+   */
+  private matchesHeightStep(
+    bike: PublicRentalBicycle,
+    step: { from: number; to: number },
+  ): boolean {
+    const from = bike.koerpergroesseVonCm ?? null;
+    const to = bike.koerpergroesseBisCm ?? null;
+    if (from === null && to === null) return false;
+    return (from ?? 0) < step.to && (to ?? 999) > step.from;
+  }
+
+  heightGroups = computed(() => {
+    const bikes = this.typeFilteredBikes();
+    return RentalBookingStepsComponent.HEIGHT_STEPS.map((step) => ({
+      key: step.key,
+      label: step.label,
+      count: bikes.filter((bike) => this.matchesHeightStep(bike, step)).length,
+    })).filter((group) => group.count > 0);
+  });
+
+  effectiveHeightFilter = computed(() => {
+    const key = this.bikeHeightFilter();
+    if (key === 'all') return 'all';
+    return this.heightGroups().some((group) => group.key === key) ? key : 'all';
+  });
+
+  filteredBikes = computed(() => {
+    const filter = this.effectiveHeightFilter();
+    if (filter === 'all') return this.typeFilteredBikes();
+    const step = RentalBookingStepsComponent.HEIGHT_STEPS.find(
+      (candidate) => candidate.key === filter,
+    );
+    if (!step) return this.typeFilteredBikes();
+    return this.typeFilteredBikes().filter((bike) =>
+      this.matchesHeightStep(bike, step),
     );
   });
 

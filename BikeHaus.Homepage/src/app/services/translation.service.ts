@@ -118,6 +118,8 @@ interface RentalStepsTranslations {
   riderHeight: string;
   /** Chip label for the unfiltered bike list in the selection step. */
   filterAll: string;
+  /** Row label above the bike-type chips in the selection step. */
+  filterType: string;
   /** Reads as "<price> for 4 days" on the bike cards. */
   forDays: string;
   bookingPageTitle: string;
@@ -3989,6 +3991,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Auswählen',
     riderHeight: 'Körpergröße',
     filterAll: 'Alle',
+    filterType: 'Typ',
     forDays: 'für',
     bookingPageTitle: 'Fahrrad online buchen',
     backToInfo: 'Zurück zum Fahrradverleih',
@@ -4104,6 +4107,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Select',
     riderHeight: 'Rider height',
     filterAll: 'All',
+    filterType: 'Type',
     forDays: 'for',
     bookingPageTitle: 'Book a bike online',
     backToInfo: 'Back to bike rental',
@@ -4221,6 +4225,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Choisir',
     riderHeight: 'Taille',
     filterAll: 'Tous',
+    filterType: 'Type',
     forDays: 'pour',
     bookingPageTitle: 'Réserver un vélo en ligne',
     backToInfo: 'Retour à la location de vélos',
@@ -4336,6 +4341,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Seç',
     riderHeight: 'Boy',
     filterAll: 'Tümü',
+    filterType: 'Tip',
     forDays: 'için',
     bookingPageTitle: 'Online bisiklet kirala',
     backToInfo: 'Bisiklet kiralama sayfasına dön',
@@ -4439,6 +4445,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Seleccionar',
     riderHeight: 'Estatura',
     filterAll: 'Todas',
+    filterType: 'Tipo',
     forDays: 'por',
     bookingPageTitle: 'Reservar una bicicleta en línea',
     backToInfo: 'Volver al alquiler de bicicletas',
@@ -4544,6 +4551,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Seleziona',
     riderHeight: 'Altezza',
     filterAll: 'Tutte',
+    filterType: 'Tipo',
     forDays: 'per',
     bookingPageTitle: 'Prenota una bici online',
     backToInfo: 'Torna al noleggio bici',
@@ -4647,6 +4655,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'اختيار',
     riderHeight: 'الطول',
     filterAll: 'الكل',
+    filterType: 'النوع',
     forDays: 'لمدة',
     bookingPageTitle: 'احجز دراجة عبر الإنترنت',
     backToInfo: 'العودة إلى تأجير الدراجات',
@@ -4750,6 +4759,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Выбрать',
     riderHeight: 'Рост',
     filterAll: 'Все',
+    filterType: 'Тип',
     forDays: 'на',
     bookingPageTitle: 'Забронировать велосипед онлайн',
     backToInfo: 'Назад к прокату велосипедов',
@@ -4866,6 +4876,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Kiezen',
     riderHeight: 'Lichaamslengte',
     filterAll: 'Alle',
+    filterType: 'Type',
     forDays: 'voor',
     bookingPageTitle: 'Fiets online boeken',
     backToInfo: 'Terug naar fietsverhuur',
@@ -4982,6 +4993,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Vælg',
     riderHeight: 'Højde',
     filterAll: 'Alle',
+    filterType: 'Type',
     forDays: 'i',
     bookingPageTitle: 'Book en cykel online',
     backToInfo: 'Tilbage til cykeludlejning',
@@ -5098,6 +5110,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Velg',
     riderHeight: 'Høyde',
     filterAll: 'Alle',
+    filterType: 'Type',
     forDays: 'i',
     bookingPageTitle: 'Bestill en sykkel online',
     backToInfo: 'Tilbake til sykkelutleie',
@@ -5214,6 +5227,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     selectThisBike: 'Wybierz',
     riderHeight: 'Wzrost',
     filterAll: 'Wszystkie',
+    filterType: 'Typ',
     forDays: 'na',
     bookingPageTitle: 'Zarezerwuj rower online',
     backToInfo: 'Powrót do wypożyczalni rowerów',
