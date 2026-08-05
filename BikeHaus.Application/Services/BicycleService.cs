@@ -455,14 +455,16 @@ public class BicycleService : IBicycleService
         var bookingBusyIds = await _bookingRepository.GetBusyBicycleIdsForPeriodAsync(start, end);
         var allBusyIds = new HashSet<int>(rentalBusyIds.Concat(bookingBusyIds));
 
-        var bikes = await _repository.FindAsync(b =>
-            b.IsRentable &&
-            !(b.Marke == "Zubehör" && b.Modell == "Direktverkauf" && b.Rahmennummer != null && b.Rahmennummer.StartsWith("ACC-")));
+        // GetRentableBicyclesAsync lädt die Bilder mit (Include). Die Fahrradauswahl
+        // im Mietvertragsformular zeigt ein Vorschaubild je Rad — ohne die Bilder
+        // hier müsste sie jedes Rad einzeln nachladen.
+        var bikes = await _repository.GetRentableBicyclesAsync();
 
         // Children's bikes are generic/pooled listings — they stay available even
         // when an overlapping rental/booking exists; the physical bike is assigned
         // manually in the shop. So they are never filtered out as "busy".
         return bikes
+            .Where(b => !(b.Marke == "Zubehör" && b.Modell == "Direktverkauf" && b.Rahmennummer != null && b.Rahmennummer.StartsWith("ACC-")))
             .Where(b => BicycleCategory.IsChildrens(b.Art, b.Fahrradtyp) || !allBusyIds.Contains(b.Id))
             .OrderByDescending(b => BicycleNaming.IsEbike(b.Fahrradtyp))
             .ThenBy(b => BicycleNaming.SortKey(b.Marke), BicycleNaming.NameComparer)

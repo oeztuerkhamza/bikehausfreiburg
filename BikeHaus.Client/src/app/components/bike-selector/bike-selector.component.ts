@@ -88,33 +88,29 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
           [class.active-detail]="activeBike?.id === bike.id"
           (click)="onBikeCardClick(bike)"
         >
+          <!-- Bewusst schlank: Foto, Name, Preis. Alles Weitere (Größe, Typ,
+               Rahmennummer, Preisstaffel) steht im Detailfeld unter der Liste,
+               sobald ein Rad angeklickt wird. Gesucht wird trotzdem über alle
+               Felder — siehe filterBikes(). -->
           <div class="bike-main-row">
-            <div class="bike-main">
-              <span class="bike-id">#{{ bike.id }}</span>
-              <span class="bike-brand">{{ bike.marke }} {{ bike.modell }}</span>
-              <span class="bike-frame" *ngIf="bike.rahmennummer">{{
-                bike.rahmennummer
-              }}</span>
+            <div class="bike-thumb">
+              <img
+                *ngIf="getListImage(bike) as listImage; else noThumb"
+                [src]="getImageUrl(listImage.filePath)"
+                [alt]="bike.marke + ' ' + bike.modell"
+                loading="lazy"
+              />
+              <ng-template #noThumb>
+                <span class="thumb-empty">🚲</span>
+              </ng-template>
             </div>
+            <span class="bike-brand">{{ bike.marke }} {{ bike.modell }}</span>
             <div
               class="start-price"
               *ngIf="getStartingPrice(bike) as startPrice"
             >
               ab {{ startPrice | number: '1.0-0' }} €
             </div>
-          </div>
-
-          <div class="bike-details">
-            <span class="chip" *ngIf="bike.marke">{{ bike.marke }}</span>
-            <span class="chip" *ngIf="getBikeArt(bike)">{{
-              getBikeArt(bike)
-            }}</span>
-            <span class="chip" *ngIf="bike.rahmengroesse"
-              >Size {{ bike.rahmengroesse }}</span
-            >
-            <span class="chip" *ngIf="bike.reifengroesse"
-              >{{ bike.reifengroesse }}"</span
-            >
           </div>
         </div>
 
@@ -286,18 +282,20 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         color: var(--accent-danger, #dc3545);
         font-size: 0.85rem;
       }
+      /* Mit Vorschaubild ist eine Zeile ~64px hoch — Höhe angehoben, damit
+         weiterhin mehrere Räder gleichzeitig sichtbar sind. */
       .bike-list {
-        max-height: 320px;
+        max-height: 420px;
         overflow-y: auto;
         border: 1px solid var(--border-light, #eee);
         border-radius: 8px;
         background: var(--bg-secondary, #fafafa);
       }
       .bike-list.compact-list {
-        max-height: 260px;
+        max-height: 380px;
       }
       .bike-item {
-        padding: 12px 16px;
+        padding: 8px 12px;
         border-bottom: 1px solid var(--border-light, #eee);
         cursor: pointer;
         transition:
@@ -321,51 +319,42 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
       }
       .bike-main-row {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
       }
-      .bike-main {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        margin-bottom: 4px;
-        flex-wrap: wrap;
+      .bike-thumb {
+        flex: 0 0 auto;
+        width: 64px;
+        height: 48px;
+        border-radius: 6px;
+        overflow: hidden;
+        background: var(--bg-secondary, #f1f5f9);
+        border: 1px solid var(--border-light, #e5e7eb);
+        display: grid;
+        place-items: center;
       }
-      .bike-id {
-        font-size: 0.8rem;
-        color: var(--text-muted, #888);
-        font-weight: 600;
+      .bike-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .thumb-empty {
+        font-size: 1.1rem;
+        opacity: 0.4;
       }
       .bike-brand {
+        flex: 1 1 auto;
+        min-width: 0;
         font-weight: 600;
         color: var(--text-primary, #1a1a2e);
-      }
-      .bike-frame {
-        font-family: monospace;
-        font-size: 0.85rem;
-        color: var(--text-secondary, #555);
+        overflow-wrap: anywhere;
       }
       .start-price {
-        font-size: 0.8rem;
+        flex: 0 0 auto;
+        font-size: 0.85rem;
         font-weight: 700;
         color: #059669;
-      }
-      .bike-details {
-        display: flex;
-        gap: 8px;
-        font-size: 0.85rem;
-        color: var(--text-secondary, #666);
-        padding-left: 0;
-        flex-wrap: wrap;
-      }
-      .chip {
-        display: inline-flex;
-        align-items: center;
-        border: 1px solid var(--border-light, #e5e7eb);
-        border-radius: 999px;
-        font-size: 0.75rem;
-        padding: 2px 8px;
+        white-space: nowrap;
       }
       .empty {
         padding: 24px;
@@ -719,6 +708,15 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
     return [...(bike.images || [])].sort(
       (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
     );
+  }
+
+  /**
+   * Vorschaubild für die Suchliste: immer das erste Foto. Anders als
+   * getMainImage() folgt es nicht der Thumbnail-Auswahl des Detailfelds —
+   * in der Liste soll das Bild beim Durchklicken der Fotos nicht wechseln.
+   */
+  getListImage(bike: Bicycle) {
+    return this.getBikeImages(bike)[0] ?? null;
   }
 
   getMainImage(bike: Bicycle) {
