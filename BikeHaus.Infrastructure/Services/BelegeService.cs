@@ -81,19 +81,20 @@ public class BelegeService(
 
     // Verkäufe und Mietverträge ziehen aus DEMSELBEN Nummernkreis, deshalb
     // ordnet die Belegnummer beide Arten korrekt ineinander.
+    // Absteigend: der zuletzt vergebene Beleg steht oben.
     // Sortiert wird über die Zahl am Ende, nicht über den Text: sonst käme
-    // "…-10" vor "…-9". Datum entscheidet nur noch bei gleicher Nummer.
+    // "…-9" vor "…-10". Datum entscheidet nur noch bei gleicher Nummer.
     private static List<BelegListDto> Sort(IEnumerable<BelegListDto> belege) =>
         belege
-            .OrderBy(b => BelegNummerWert(b.BelegNummer))
-            .ThenBy(b => b.BelegNummer, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(b => b.Datum)
-            .ThenBy(b => b.Id)
+            .OrderByDescending(b => BelegNummerWert(b.BelegNummer))
+            .ThenByDescending(b => b.BelegNummer, StringComparer.OrdinalIgnoreCase)
+            .ThenByDescending(b => b.Datum)
+            .ThenByDescending(b => b.Id)
             .ToList();
 
     private static readonly Regex EndZahl = new(@"(\d+)$", RegexOptions.Compiled);
 
-    /// <summary>Zahl am Ende der Belegnummer; ohne Ziffern 0 (steht dann vorn).</summary>
+    /// <summary>Zahl am Ende der Belegnummer; ohne Ziffern 0 (steht dann hinten).</summary>
     private static int BelegNummerWert(string? belegNummer)
     {
         if (string.IsNullOrWhiteSpace(belegNummer)) return 0;
