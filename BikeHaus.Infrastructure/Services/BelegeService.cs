@@ -63,9 +63,12 @@ public class BelegeService(
         {
             try
             {
+                // Verkaufsbeleg MIT Ankaufpreis: die Sammeldatei ist ein internes
+                // Buchhaltungsdokument, kein Kundenbeleg. Bei Gebrauchträdern steht
+                // damit Ankaufpreis und -datum daneben — wie im ZIP-Export auch.
                 parts.Add(beleg.Art == BelegArt.Miete
                     ? await pdfService.GenerateMietvertragAsync(beleg.Id)
-                    : await pdfService.GenerateVerkaufsbelegAsync(beleg.Id));
+                    : await pdfService.GenerateVerkaufsbelegAsync(beleg.Id, includeAnkaufPreis: true));
             }
             catch (Exception ex)
             {
