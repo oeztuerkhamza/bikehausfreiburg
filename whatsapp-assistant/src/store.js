@@ -117,6 +117,9 @@ export function importChat(chatId, name, messages, unread) {
     else {
       if (m.photo && !known.photo) known.photo = m.photo;
       if (m.isPhoto && !known.isPhoto) known.isPhoto = true;
+      // Endgültig nicht ladbar (Medium bei WhatsApp abgelaufen) — sonst holt
+      // der Sync diesen Chat bei jedem Lauf erneut.
+      if (m.photoAufgegeben && !known.photo) known.photoAufgegeben = true;
     }
   }
   conv.messages.sort((a, b) => a.ts - b.ts);
@@ -157,7 +160,7 @@ export function get(chatId) {
 export function hasPendingPhotos(chatId) {
   const conv = conversations.get(chatId);
   if (!conv) return false;
-  return conv.messages.some((m) => m.isPhoto && !m.photo);
+  return conv.messages.some((m) => m.isPhoto && !m.photo && !m.photoAufgegeben);
 }
 
 export function list() {

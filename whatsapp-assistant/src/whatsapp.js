@@ -50,6 +50,9 @@ const HIDDEN_TYPES = new Set([
   'protocol',
   'ciphertext',
   'groups_v4_invite',
+  // Albüm sarmalayıcısı: içindeki fotoğraflar zaten ayrı 'image' mesajları
+  // olarak geliyor, sarmalayıcı akışta boş bir '📎 Ek' baloncuğu bırakıyordu.
+  'album',
 ]);
 
 // Mesaj gövdesi + bunun sadece bir ek mi (çeviriye gerek yok) olduğu.
@@ -73,6 +76,12 @@ const PHOTO_SYNC_LIMIT = Number(process.env.WA_PHOTO_SYNC_LIMIT || 50);
 
 // Zeitbudget fürs Nachladen der Nachrichten im Rohmodus (in der Seite).
 const RAW_LOAD_BUDGET_MS = Number(process.env.WA_RAW_LOAD_BUDGET_MS || 90_000);
+
+// Alte Fotos liegen auf WhatsApps Servern nicht mehr (mmsDownload: 404). Das
+// Telefon kann sie neu hochladen, deshalb sind ein paar Versuche sinnvoll —
+// danach ist Schluss, sonst laedt jeder Sync-Lauf ewig dieselben Fehlschlaege.
+const PHOTO_MAX_RETRIES = Number(process.env.WA_PHOTO_MAX_RETRIES || 3);
+const fehlversuche = new Map();
 
 // hasMedia bazı whatsapp-web.js sürümlerinde foto mesajlarında da false
 // geliyor — bu yüzden tür yeterli, indirme denemesi kararı verir.
@@ -142,19 +151,36 @@ async function savePhotoDetail(msgId, waClient = client) {
   if (!msgId) return { file: null, grund: 'kimlik yok' };
 
   const existing = media.findExisting(msgId);
-  if (existing) return { file: existing, grund: null };
+  if (existing) {
+    fehlversuche.delete(msgId);
+    return { file: existing, grund: null };
+  }
+
+  if ((fehlversuche.get(msgId) || 0) >= PHOTO_MAX_RETRIES) {
+    return { file: null, grund: 'vazgeçildi', aufgegeben: true };
+  }
+
+  const gescheitert = (grund) => {
+    const n = (fehlversuche.get(msgId) || 0) + 1;
+    fehlversuche.set(msgId, n);
+    return { file: null, grund, aufgegeben: n >= PHOTO_MAX_RETRIES };
+  };
 
   try {
     const downloaded = await downloadPhotoById(waClient, msgId);
-    if (!downloaded?.data) return { file: null, grund: downloaded?.grund || 'veri yok' };
+    if (!downloaded?.data) return gescheitert(downloaded?.grund || 'veri yok');
     const fileName = media.fileNameFor(msgId, downloaded.mimetype);
-    if (!fileName) return { file: null, grund: 'dosya adı üretilemedi' };
+    if (!fileName) return gescheitert('dosya adı üretilemedi');
     if (Buffer.byteLength(downloaded.data, 'base64') > PHOTO_MAX_BYTES) {
-      return { file: null, grund: 'çok büyük' };
+      // Zu gross bleibt zu gross — kein erneuter Versuch.
+      fehlversuche.set(msgId, PHOTO_MAX_RETRIES);
+      return { file: null, grund: 'çok büyük', aufgegeben: true };
     }
-    return { file: media.save(fileName, downloaded.data), grund: null };
+    const file = media.save(fileName, downloaded.data);
+    fehlversuche.delete(msgId);
+    return { file, grund: null };
   } catch (err) {
-    return { file: null, grund: err?.message || 'bilinmeyen hata' };
+    return gescheitert(err?.message || 'bilinmeyen hata');
   }
 }
 
@@ -593,7 +619,7 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
   // neueste zuerst.
   let photoBudget = PHOTO_SYNC_LIMIT;
   // Zähler, damit im Log steht, WO es klemmt, wenn keine Fotos ankommen.
-  const foto = { gesehen: 0, ausCache: 0, geladen: 0, fehlgeschlagen: 0, offen: 0 };
+  const foto = { gesehen: 0, ausCache: 0, geladen: 0, fehlgeschlagen: 0, aufgegeben: 0, offen: 0 };
   const gruende = new Map();
   const alleTypen = new Map();
 
@@ -630,7 +656,7 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
           foto.ausCache++;
         } else if (photoBudget > 0) {
           photoBudget--;
-          const { file, grund } = await savePhotoDetail(m.id);
+          const { file, grund, aufgegeben } = await savePhotoDetail(m.id);
           if (file) {
             msg.photo = file;
             foto.geladen++;
@@ -638,6 +664,11 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
             foto.fehlgeschlagen++;
             const kurz = (grund || 'bilinmeyen').slice(0, 40);
             gruende.set(kurz, (gruende.get(kurz) || 0) + 1);
+            // Endgültig gescheitert → nicht bei jedem Lauf erneut versuchen.
+            if (aufgegeben) {
+              msg.photoAufgegeben = true;
+              foto.aufgegeben++;
+            }
           }
         } else {
           // Budget erschöpft — nächster Lauf holt den Rest.
@@ -662,7 +693,7 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
     .join(', ');
   console.log(
     `[whatsapp] ham modda foto — gesehen ${foto.gesehen}, aus Cache ${foto.ausCache}, ` +
-      `geladen ${foto.geladen}, fehlgeschlagen ${foto.fehlgeschlagen}, offen ${foto.offen}` +
+      `geladen ${foto.geladen}, fehlgeschlagen ${foto.fehlgeschlagen} (davon ${foto.aufgegeben} aufgegeben), offen ${foto.offen}` +
       (fehlerGruende ? ` | Gründe: ${fehlerGruende}` : '') +
       ` | Nachrichtentypen: ${typen}`,
   );
