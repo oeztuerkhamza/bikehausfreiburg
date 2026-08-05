@@ -222,7 +222,7 @@ export async function listChats(waClient = client) {
  * devam eder.
  */
 export async function getRawChats(waClient = client, perChatMessages = MESSAGE_LIMIT, limit = CHAT_LIMIT) {
-  if (!waClient?.pupPage) return { chats: [], geladen: 0, ohneZeit: 0 };
+  if (!waClient?.pupPage) return { chats: [], geladen: 0, ohneZeit: 0, stat: {} };
   return waClient.pupPage.evaluate(
     async ([perChat, maxChats, ladeBudgetMs]) => {
       const pick = (fn, fallback = null) => {
@@ -235,7 +235,7 @@ export async function getRawChats(waClient = client, perChatMessages = MESSAGE_L
       };
 
       const collection = pick(() => window.require('WAWebCollections')?.Chat) || window.Store?.Chat;
-      if (!collection) return { chats: [], geladen: 0, ohneZeit: 0 };
+      if (!collection) return { chats: [], geladen: 0, ohneZeit: 0, stat: {} };
 
       const brauchbar = (id) =>
         !!id &&
@@ -263,6 +263,9 @@ export async function getRawChats(waClient = client, perChatMessages = MESSAGE_L
       const ladeMsgs = window.require('WAWebChatLoadMessages');
       const start = Date.now();
       let geladen = 0;
+      // Wo genau Nachrichten verloren gehen, ist von außen nicht sichtbar —
+      // deshalb hier zählen statt raten.
+      const stat = { alsNotification: 0, inMsgs: 0, ohneId: 0, typen: {} };
 
       const out = [];
       for (const { chat, id, t } of auswahl) {
@@ -283,19 +286,37 @@ export async function getRawChats(waClient = client, perChatMessages = MESSAGE_L
           }
           if (!neu || !neu.length) break;
           geladen += neu.length;
-          msgs = [...neu.filter((m) => !pick(() => m.isNotification, false)), ...msgs];
+          const echte = neu.filter((m) => !pick(() => m.isNotification, false));
+          stat.alsNotification += neu.length - echte.length;
+          msgs = [...echte, ...msgs];
         }
+        stat.inMsgs += msgs.length;
 
         const messages = [];
         for (const m of msgs.slice(-perChat)) {
-          const msgId = pick(() => m?.id?._serialized);
-          if (!msgId) continue;
+          // serialize() ist der Weg, den whatsapp-web.js selbst geht: erst dort
+          // liegen id/body/type garantiert als einfache Werte vor.
+          const roh = pick(() => m.serialize?.()) || m;
+          const msgId =
+            pick(() => roh?.id?._serialized) ||
+            pick(() => m?.id?._serialized) ||
+            pick(() => m?.id?.toString?.());
+          const typ = pick(() => roh.type, '') || pick(() => m.type, '') || 'chat';
+          stat.typen[typ] = (stat.typen[typ] || 0) + 1;
+          if (!msgId) {
+            stat.ohneId++;
+            continue;
+          }
           messages.push({
             id: msgId,
-            body: pick(() => m.body, '') || pick(() => m.caption, '') || '',
-            fromMe: !!pick(() => m.id?.fromMe, false),
-            t: pick(() => m.t, 0) || 0,
-            type: pick(() => m.type, 'chat') || 'chat',
+            body:
+              pick(() => roh.body, '') ||
+              pick(() => roh.caption, '') ||
+              pick(() => m.body, '') ||
+              '',
+            fromMe: !!(pick(() => roh.id?.fromMe, false) || pick(() => m.id?.fromMe, false)),
+            t: pick(() => roh.t, 0) || pick(() => m.t, 0) || 0,
+            type: typ,
           });
         }
 
@@ -313,7 +334,7 @@ export async function getRawChats(waClient = client, perChatMessages = MESSAGE_L
           messages,
         });
       }
-      return { chats: out, geladen, ohneZeit };
+      return { chats: out, geladen, ohneZeit, stat };
     },
     [perChatMessages, limit, RAW_LOAD_BUDGET_MS],
   );
@@ -519,7 +540,7 @@ export async function logout() {
 // Ham sayfa verisini senkronun beklediği şekle çevirir. Fotoğraflar burada
 // indirilemez; daha önce inmiş olanlar diskten bağlanır.
 async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
-  let roh = { chats: [], geladen: 0, ohneZeit: 0 };
+  let roh = { chats: [], geladen: 0, ohneZeit: 0, stat: {} };
   try {
     roh = await getRawChats(client, perChatMessages, limit);
   } catch (err) {
@@ -529,9 +550,17 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
 
   // Auswahl und Sortierung passieren bereits in der Seite.
   const usable = roh.chats.filter((c) => isSyncableChatId(c.id));
+  const st = roh.stat || {};
+  const seitenTypen = Object.entries(st.typen || {})
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([t, n]) => `${t}:${n}`)
+    .join(' ');
   console.log(
     `[whatsapp] sohbet listesi (ham): ${usable.length} işlenecek, ` +
-      `${roh.geladen} Nachricht(en) nachgeladen, ${roh.ohneZeit} Chat(s) ohne Zeitstempel`,
+      `${roh.geladen} Nachricht(en) nachgeladen, ${roh.ohneZeit} Chat(s) ohne Zeitstempel` +
+      ` | in der Seite: ${st.inMsgs ?? '?'} übrig, ${st.alsNotification ?? '?'} als Notification verworfen,` +
+      ` ${st.ohneId ?? '?'} ohne ID | Seitentypen: ${seitenTypen}`,
   );
 
   // Auch im Rohmodus werden Fotos geladen — der Download läuft nur über die
