@@ -252,6 +252,13 @@ export async function getRawChats(waClient = client, perChatMessages = MESSAGE_L
         });
       }
 
+      // chat.t fehlt auf dem Rohmodell gelegentlich. Ohne Ersatz stünden alle
+      // Chats auf 0 und die "neuesten 50" wären eine beliebige Auswahl —
+      // deshalb notfalls den jüngsten Nachrichtenzeitstempel nehmen.
+      const chatT =
+        pick(() => chat.t, 0) ||
+        messages.reduce((max, m) => (m.t > max ? m.t : max), 0);
+
       out.push({
         id,
         name:
@@ -261,7 +268,7 @@ export async function getRawChats(waClient = client, perChatMessages = MESSAGE_L
           pick(() => chat.contact?.name) ||
           id,
         unread: pick(() => chat.unreadCount, 0) || 0,
-        t: pick(() => chat.t, 0) || 0,
+        t: chatT,
         messages,
       });
     }
@@ -487,6 +494,9 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
   // Nachrichten-ID in der Seite und braucht kein Chat-Modell. Budget pro Lauf,
   // neueste zuerst.
   let photoBudget = PHOTO_SYNC_LIMIT;
+  // Zähler, damit im Log steht, WO es klemmt, wenn keine Fotos ankommen.
+  const foto = { gesehen: 0, ausCache: 0, geladen: 0, fehlgeschlagen: 0, ersterFehler: '' };
+  const alleTypen = new Map();
 
   const result = [];
   for (const chat of usable) {
@@ -508,13 +518,24 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
       };
       if (mediaOnly) msg.mediaOnly = true;
 
+      alleTypen.set(m.type, (alleTypen.get(m.type) || 0) + 1);
+
       if (isPhoto(m)) {
+        foto.gesehen++;
         const cached = media.findExisting(m.id);
-        if (cached) msg.photo = cached;
-        else if (photoBudget > 0) {
+        if (cached) {
+          msg.photo = cached;
+          foto.ausCache++;
+        } else if (photoBudget > 0) {
           photoBudget--;
           const saved = await savePhotoById(m.id);
-          if (saved) msg.photo = saved;
+          if (saved) {
+            msg.photo = saved;
+            foto.geladen++;
+          } else {
+            foto.fehlgeschlagen++;
+            if (!foto.ersterFehler) foto.ersterFehler = m.id;
+          }
         }
       }
       messages.push(msg);
@@ -522,7 +543,18 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
     messages.sort((a, b) => a.ts - b.ts);
     result.push({ chatId: chat.id, name: chat.name, unread: chat.unread, messages });
   }
-  console.log(`[whatsapp] ham modda fotoğraf bütçesi: ${PHOTO_SYNC_LIMIT - photoBudget}/${PHOTO_SYNC_LIMIT} kullanıldı`);
+
+  const typen = [...alleTypen.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([t, n]) => `${t}:${n}`)
+    .join(' ');
+  console.log(
+    `[whatsapp] ham modda foto — gesehen ${foto.gesehen}, aus Cache ${foto.ausCache}, ` +
+      `geladen ${foto.geladen}, fehlgeschlagen ${foto.fehlgeschlagen}` +
+      (foto.ersterFehler ? ` (erster: ${foto.ersterFehler})` : '') +
+      ` | Nachrichtentypen: ${typen}`,
+  );
   return result;
 }
 
