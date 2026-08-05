@@ -58,30 +58,87 @@ function isPhoto(msg) {
   return msg.type === 'image';
 }
 
+/**
+ * Lädt das Bild NUR über die Nachrichten-ID direkt in der Seite herunter —
+ * dieselben Aufrufe, die Message.downloadMedia() intern macht, aber ohne die
+ * Message-Klasse. Genau deshalb funktioniert es auch bei @lid-Chats, für die
+ * whatsapp-web.js kein Modell bauen kann.
+ * @returns {Promise<{data:string, mimetype:string}|null>}
+ */
+async function downloadPhotoById(waClient, msgId) {
+  if (!waClient?.pupPage || !msgId) return null;
+  return waClient.pupPage.evaluate(async (id) => {
+    const collections = window.require('WAWebCollections');
+    const msg =
+      collections.Msg.get(id) ||
+      (await collections.Msg.getMessagesById([id]))?.messages?.[0];
+
+    // REUPLOADING = Medium ist abgelaufen und wird gerade neu geholt.
+    if (!msg || !msg.mediaData || msg.mediaData.mediaStage === 'REUPLOADING') return null;
+
+    if (msg.mediaData.mediaStage !== 'RESOLVED') {
+      try {
+        await msg.downloadMedia({ downloadEvenIfExpensive: true, rmrReason: 1 });
+      } catch {
+        return null;
+      }
+    }
+    if (msg.mediaData.mediaStage.includes('ERROR') || msg.mediaData.mediaStage === 'FETCHING') {
+      return null;
+    }
+
+    // Der DownloadManager erwartet ein Telemetrie-Objekt; ein Dummy genügt.
+    const mockQpl = { addAnnotations() { return this; }, addPoint() { return this; } };
+    try {
+      const entschluesselt = await window
+        .require('WAWebDownloadManager')
+        .downloadManager.downloadAndMaybeDecrypt({
+          directPath: msg.directPath,
+          encFilehash: msg.encFilehash,
+          filehash: msg.filehash,
+          mediaKey: msg.mediaKey,
+          mediaKeyTimestamp: msg.mediaKeyTimestamp,
+          type: msg.type,
+          signal: new AbortController().signal,
+          downloadQpl: mockQpl,
+        });
+      return {
+        data: await window.WWebJS.arrayBufferToBase64Async(entschluesselt),
+        mimetype: msg.mimetype,
+      };
+    } catch {
+      return null;
+    }
+  }, msgId);
+}
+
 // Fotoğrafı diske alır ve dosya adını döndürür. İndirilemezse null — mesaj
 // yine de '📷 Foto' etiketiyle akışta kalır.
-async function savePhoto(msg) {
-  if (!isPhoto(msg)) return null;
-  const id = msg.id?._serialized;
-  if (!id) return null;
+export async function savePhotoById(msgId, waClient = client) {
+  if (!msgId) return null;
 
-  const existing = media.findExisting(id);
+  const existing = media.findExisting(msgId);
   if (existing) return existing;
 
   try {
-    const downloaded = await msg.downloadMedia();
+    const downloaded = await downloadPhotoById(waClient, msgId);
     if (!downloaded?.data) return null;
-    const fileName = media.fileNameFor(id, downloaded.mimetype);
+    const fileName = media.fileNameFor(msgId, downloaded.mimetype);
     if (!fileName) return null;
     if (Buffer.byteLength(downloaded.data, 'base64') > PHOTO_MAX_BYTES) {
-      console.log('[whatsapp] fotoğraf çok büyük, atlandı:', id);
+      console.log('[whatsapp] fotoğraf çok büyük, atlandı:', msgId);
       return null;
     }
     return media.save(fileName, downloaded.data);
   } catch (err) {
-    console.error('[whatsapp] fotoğraf indirilemedi:', id, err?.message);
+    console.error('[whatsapp] fotoğraf indirilemedi:', msgId, err?.message);
     return null;
   }
+}
+
+async function savePhoto(msg) {
+  if (!isPhoto(msg)) return null;
+  return savePhotoById(msg.id?._serialized);
 }
 
 // Grup, durum ve yayın sohbetlerini dışarıda bırak.
@@ -426,6 +483,11 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
     .slice(0, limit);
   console.log(`[whatsapp] sohbet listesi (ham): ${rawChats.length} bulundu, ${usable.length} işlenecek`);
 
+  // Auch im Rohmodus werden Fotos geladen — der Download läuft nur über die
+  // Nachrichten-ID in der Seite und braucht kein Chat-Modell. Budget pro Lauf,
+  // neueste zuerst.
+  let photoBudget = PHOTO_SYNC_LIMIT;
+
   const result = [];
   for (const chat of usable) {
     const lastTs = (chat.t || 0) * 1000;
@@ -435,7 +497,7 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
     }
 
     const messages = [];
-    for (const m of chat.messages) {
+    for (const m of [...chat.messages].reverse()) {
       const { body, mediaOnly } = bodyOf(m);
       if (!body) continue;
       const msg = {
@@ -445,13 +507,22 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
         ts: (m.t || 0) * 1000,
       };
       if (mediaOnly) msg.mediaOnly = true;
-      const cached = media.findExisting(m.id);
-      if (cached) msg.photo = cached;
+
+      if (isPhoto(m)) {
+        const cached = media.findExisting(m.id);
+        if (cached) msg.photo = cached;
+        else if (photoBudget > 0) {
+          photoBudget--;
+          const saved = await savePhotoById(m.id);
+          if (saved) msg.photo = saved;
+        }
+      }
       messages.push(msg);
     }
     messages.sort((a, b) => a.ts - b.ts);
     result.push({ chatId: chat.id, name: chat.name, unread: chat.unread, messages });
   }
+  console.log(`[whatsapp] ham modda fotoğraf bütçesi: ${PHOTO_SYNC_LIMIT - photoBudget}/${PHOTO_SYNC_LIMIT} kullanıldı`);
   return result;
 }
 
