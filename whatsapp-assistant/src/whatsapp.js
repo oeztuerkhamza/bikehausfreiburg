@@ -52,6 +52,9 @@ function bodyOf(msg) {
 const PHOTO_MAX_BYTES = Number(process.env.WA_PHOTO_MAX_BYTES || 8 * 1024 * 1024);
 const PHOTO_SYNC_LIMIT = Number(process.env.WA_PHOTO_SYNC_LIMIT || 50);
 
+// Zeitbudget fürs Nachladen der Nachrichten im Rohmodus (in der Seite).
+const RAW_LOAD_BUDGET_MS = Number(process.env.WA_RAW_LOAD_BUDGET_MS || 90_000);
+
 // hasMedia bazı whatsapp-web.js sürümlerinde foto mesajlarında da false
 // geliyor — bu yüzden tür yeterli, indirme denemesi kararı verir.
 function isPhoto(msg) {
@@ -218,62 +221,102 @@ export async function listChats(waClient = client) {
  * bir Message nesnesi ister). Daha önce indirilmiş fotoğraflar diskten gelmeye
  * devam eder.
  */
-export async function getRawChats(waClient = client, perChatMessages = MESSAGE_LIMIT) {
-  if (!waClient?.pupPage) return [];
-  return waClient.pupPage.evaluate((perChat) => {
-    const pick = (fn, fallback = null) => {
-      try {
-        const v = fn();
-        return v === undefined ? fallback : v;
-      } catch {
-        return fallback;
+export async function getRawChats(waClient = client, perChatMessages = MESSAGE_LIMIT, limit = CHAT_LIMIT) {
+  if (!waClient?.pupPage) return { chats: [], geladen: 0, ohneZeit: 0 };
+  return waClient.pupPage.evaluate(
+    async ([perChat, maxChats, ladeBudgetMs]) => {
+      const pick = (fn, fallback = null) => {
+        try {
+          const v = fn();
+          return v === undefined ? fallback : v;
+        } catch {
+          return fallback;
+        }
+      };
+
+      const collection = pick(() => window.require('WAWebCollections')?.Chat) || window.Store?.Chat;
+      if (!collection) return { chats: [], geladen: 0, ohneZeit: 0 };
+
+      const brauchbar = (id) =>
+        !!id &&
+        id !== 'status@broadcast' &&
+        !id.endsWith('@g.us') &&
+        !id.endsWith('@broadcast') &&
+        !id.endsWith('@newsletter');
+
+      // Erst auswählen, dann laden: Nachrichten für alle 600+ Chats zu holen
+      // würde ewig dauern.
+      let ohneZeit = 0;
+      const kandidaten = [];
+      for (const chat of pick(() => collection.getModelsArray(), []) || []) {
+        const id = pick(() => chat?.id?._serialized);
+        if (!brauchbar(id)) continue;
+        const t = pick(() => chat.t, 0) || 0;
+        if (!t) ohneZeit++;
+        kandidaten.push({ chat, id, t });
       }
-    };
+      kandidaten.sort((a, b) => b.t - a.t);
+      const auswahl = kandidaten.slice(0, maxChats);
 
-    const collection = pick(() => window.require('WAWebCollections')?.Chat) || window.Store?.Chat;
-    if (!collection) return [];
+      // WhatsApp Web lädt Nachrichten erst beim Öffnen eines Chats — ohne das
+      // hier ist chat.msgs leer und der Verlauf bliebe für immer aus.
+      const ladeMsgs = window.require('WAWebChatLoadMessages');
+      const start = Date.now();
+      let geladen = 0;
 
-    const out = [];
-    for (const chat of pick(() => collection.getModelsArray(), []) || []) {
-      const id = pick(() => chat?.id?._serialized);
-      if (!id) continue;
+      const out = [];
+      for (const { chat, id, t } of auswahl) {
+        let msgs = (pick(() => chat.msgs?.getModelsArray?.(), []) || []).filter(
+          (m) => !pick(() => m.isNotification, false),
+        );
 
-      const messages = [];
-      const all = pick(() => chat.msgs?.getModelsArray?.(), []) || [];
-      for (const m of all.slice(-perChat)) {
-        const msgId = pick(() => m?.id?._serialized);
-        if (!msgId) continue;
-        messages.push({
-          id: msgId,
-          body: pick(() => m.body, '') || pick(() => m.caption, '') || '',
-          fromMe: !!pick(() => m.id?.fromMe, false),
-          t: pick(() => m.t, 0) || 0,
-          type: pick(() => m.type, 'chat') || 'chat',
+        // Höchstens ein paar Runden je Chat und insgesamt ein Zeitbudget,
+        // damit ein zäher Chat den Sync nicht blockiert.
+        let runden = 0;
+        while (msgs.length < perChat && runden < 3 && Date.now() - start < ladeBudgetMs) {
+          runden++;
+          let neu = null;
+          try {
+            neu = await ladeMsgs.loadEarlierMsgs({ chat });
+          } catch {
+            break;
+          }
+          if (!neu || !neu.length) break;
+          geladen += neu.length;
+          msgs = [...neu.filter((m) => !pick(() => m.isNotification, false)), ...msgs];
+        }
+
+        const messages = [];
+        for (const m of msgs.slice(-perChat)) {
+          const msgId = pick(() => m?.id?._serialized);
+          if (!msgId) continue;
+          messages.push({
+            id: msgId,
+            body: pick(() => m.body, '') || pick(() => m.caption, '') || '',
+            fromMe: !!pick(() => m.id?.fromMe, false),
+            t: pick(() => m.t, 0) || 0,
+            type: pick(() => m.type, 'chat') || 'chat',
+          });
+        }
+
+        out.push({
+          id,
+          name:
+            pick(() => chat.formattedTitle) ||
+            pick(() => chat.name) ||
+            pick(() => chat.contact?.pushname) ||
+            pick(() => chat.contact?.name) ||
+            id,
+          unread: pick(() => chat.unreadCount, 0) || 0,
+          // Fehlt chat.t, tut es der jüngste Nachrichtenzeitstempel.
+          t: t || messages.reduce((max, m) => (m.t > max ? m.t : max), 0),
+          messages,
         });
       }
-
-      // chat.t fehlt auf dem Rohmodell gelegentlich. Ohne Ersatz stünden alle
-      // Chats auf 0 und die "neuesten 50" wären eine beliebige Auswahl —
-      // deshalb notfalls den jüngsten Nachrichtenzeitstempel nehmen.
-      const chatT =
-        pick(() => chat.t, 0) ||
-        messages.reduce((max, m) => (m.t > max ? m.t : max), 0);
-
-      out.push({
-        id,
-        name:
-          pick(() => chat.formattedTitle) ||
-          pick(() => chat.name) ||
-          pick(() => chat.contact?.pushname) ||
-          pick(() => chat.contact?.name) ||
-          id,
-        unread: pick(() => chat.unreadCount, 0) || 0,
-        t: chatT,
-        messages,
-      });
-    }
-    return out;
-  }, perChatMessages);
+      return { chats: out, geladen, ohneZeit };
+    },
+    [perChatMessages, limit, RAW_LOAD_BUDGET_MS],
+  );
 }
 
 // Sohbetin karşı tarafının adı. Giden mesajlarda msg.getContact() bizi
@@ -476,19 +519,20 @@ export async function logout() {
 // Ham sayfa verisini senkronun beklediği şekle çevirir. Fotoğraflar burada
 // indirilemez; daha önce inmiş olanlar diskten bağlanır.
 async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
-  let rawChats = [];
+  let roh = { chats: [], geladen: 0, ohneZeit: 0 };
   try {
-    rawChats = await getRawChats(client, perChatMessages);
+    roh = await getRawChats(client, perChatMessages, limit);
   } catch (err) {
     console.error('[whatsapp] ham sohbet okuma da başarısız:', err?.message);
     return [];
   }
 
-  const usable = rawChats
-    .filter((c) => isSyncableChatId(c.id))
-    .sort((a, b) => (b.t || 0) - (a.t || 0))
-    .slice(0, limit);
-  console.log(`[whatsapp] sohbet listesi (ham): ${rawChats.length} bulundu, ${usable.length} işlenecek`);
+  // Auswahl und Sortierung passieren bereits in der Seite.
+  const usable = roh.chats.filter((c) => isSyncableChatId(c.id));
+  console.log(
+    `[whatsapp] sohbet listesi (ham): ${usable.length} işlenecek, ` +
+      `${roh.geladen} Nachricht(en) nachgeladen, ${roh.ohneZeit} Chat(s) ohne Zeitstempel`,
+  );
 
   // Auch im Rohmodus werden Fotos geladen — der Download läuft nur über die
   // Nachrichten-ID in der Seite und braucht kein Chat-Modell. Budget pro Lauf,
