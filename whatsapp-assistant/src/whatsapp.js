@@ -13,8 +13,57 @@ export const state = { status: 'starting', qrDataUrl: null, me: null };
 
 const DATA_PATH = process.env.WWEBJS_DATA_PATH || '.wwebjs_auth';
 
+// Senkronizasyon sınırları (env ile ayarlanabilir).
+const CHAT_LIMIT = Number(process.env.WA_SYNC_CHAT_LIMIT || 50);
+const MESSAGE_LIMIT = Number(process.env.WA_SYNC_MESSAGE_LIMIT || 50);
+
 let client = null;
 let intentionalLogout = false;
+
+// Metin dışı mesajlar için akışta görünecek kısa etiketler. Böylece telefonda
+// gönderilen/gelen foto, ses vb. sohbette boşluk bırakmaz.
+const MEDIA_LABELS = {
+  image: '📷 Foto',
+  video: '🎥 Video',
+  audio: '🎙️ Sesli mesaj',
+  ptt: '🎙️ Sesli mesaj',
+  document: '📄 Belge',
+  sticker: '🏷️ Çıkartma',
+  location: '📍 Konum',
+  vcard: '👤 Kişi kartı',
+  multi_vcard: '👤 Kişi kartı',
+};
+
+// Mesaj gövdesi + bunun sadece bir ek mi (çeviriye gerek yok) olduğu.
+function bodyOf(msg) {
+  const caption = (msg.body || '').trim();
+  if (msg.type === 'chat') return { body: caption, mediaOnly: false };
+  const label = MEDIA_LABELS[msg.type] || '📎 Ek';
+  return caption
+    ? { body: `${label} — ${caption}`, mediaOnly: false }
+    : { body: label, mediaOnly: true };
+}
+
+// Grup, durum ve yayın sohbetlerini dışarıda bırak.
+function isSyncableChatId(chatId) {
+  return (
+    !!chatId &&
+    chatId !== 'status@broadcast' &&
+    !chatId.endsWith('@g.us') &&
+    !chatId.endsWith('@broadcast')
+  );
+}
+
+// Sohbetin karşı tarafının adı. Giden mesajlarda msg.getContact() bizi
+// döndürdüğü için ismi her zaman sohbet üzerinden çözüyoruz.
+async function resolveName(chat, chatId) {
+  try {
+    const contact = await chat.getContact();
+    return contact.pushname || contact.name || chat.name || contact.number || chatId;
+  } catch {
+    return chat?.name || chatId;
+  }
+}
 
 // --- Takılma bekçisi ---
 // client.initialize() bazen sessizce asılı kalıyor (ne hata ne olay üretir; konteyner
@@ -117,23 +166,28 @@ function createClient() {
     }
   });
 
-  // Gelen müşteri mesajları
-  client.on('message', async (msg) => {
-    // Grup mesajlarını ve durum güncellemelerini atla
-    if (msg.from === 'status@broadcast' || msg.from.endsWith('@g.us')) return;
-    if (msg.type !== 'chat') return; // şimdilik sadece metin
+  // Tüm yeni mesajlar — gelenler VE bizim gönderdiklerimiz.
+  // 'message' olayı sadece gelenleri verir; telefondaki WhatsApp Business'tan
+  // yazılan cevaplar 'message_create' ile gelir. Bu yüzden ikincisini dinliyoruz.
+  client.on('message_create', async (msg) => {
+    const chatId = msg.fromMe ? msg.to : msg.from;
+    if (!isSyncableChatId(chatId)) return;
 
-    let name = msg.from;
+    const { body, mediaOnly } = bodyOf(msg);
+    if (!body) return;
+
+    let name = chatId;
     try {
-      const contact = await msg.getContact();
-      name = contact.pushname || contact.name || contact.number || msg.from;
+      name = await resolveName(await msg.getChat(), chatId);
     } catch {}
 
     events.emit('message', {
-      chatId: msg.from,
+      chatId,
       name,
       id: msg.id?._serialized || String(Date.now()),
-      body: msg.body,
+      direction: msg.fromMe ? 'out' : 'in',
+      body,
+      mediaOnly,
       ts: (msg.timestamp || Math.floor(Date.now() / 1000)) * 1000,
     });
   });
@@ -188,40 +242,59 @@ export async function logout() {
   start();
 }
 
-// Mevcut (bireysel) sohbetleri son mesajlarıyla birlikte getir.
-export async function getRecentChats(limit = 20, perChatMessages = 12) {
+/**
+ * Mevcut (bireysel) sohbetleri son mesajlarıyla birlikte getir.
+ * @param {object} [opts]
+ * @param {number} [opts.limit]            En fazla kaç sohbet.
+ * @param {number} [opts.perChatMessages]  Sohbet başına kaç mesaj.
+ * @param {(chatId: string, lastTs: number) => boolean} [opts.shouldFetchMessages]
+ *        false dönerse o sohbetin mesajları çekilmez (sadece ad/okunmadı tazelenir).
+ *        Periyodik senkronda değişmemiş sohbetleri atlamak için.
+ */
+export async function getRecentChats(opts = {}) {
   if (!client) return [];
+  const limit = opts.limit ?? CHAT_LIMIT;
+  const perChatMessages = opts.perChatMessages ?? MESSAGE_LIMIT;
+  const shouldFetchMessages = opts.shouldFetchMessages;
+
   const chats = await client.getChats();
-  const individual = chats.filter((c) => !c.isGroup).slice(0, limit);
+  const individual = chats
+    .filter((c) => !c.isGroup && isSyncableChatId(c.id?._serialized))
+    .slice(0, limit);
+
   const result = [];
   for (const chat of individual) {
-    const chatId = chat.id?._serialized;
-    if (!chatId) continue;
+    const chatId = chat.id._serialized;
+    const name = await resolveName(chat, chatId);
+    const unread = chat.unreadCount ?? 0;
+    const lastTs = (chat.lastMessage?.timestamp || chat.timestamp || 0) * 1000;
+
+    if (shouldFetchMessages && !shouldFetchMessages(chatId, lastTs)) {
+      result.push({ chatId, name, unread, messages: [] });
+      continue;
+    }
+
     let raw = [];
     try {
       raw = await chat.fetchMessages({ limit: perChatMessages });
     } catch (err) {
       console.error('[whatsapp] fetchMessages hata:', chatId, err.message);
     }
-    let name = chat.name || chatId;
-    try {
-      const contact = await chat.getContact();
-      name =
-        contact.pushname ||
-        contact.name ||
-        chat.name ||
-        contact.number ||
-        chatId;
-    } catch {}
     const messages = raw
-      .filter((m) => m.type === 'chat' && m.body)
-      .map((m) => ({
-        id: m.id?._serialized || String(m.timestamp),
-        direction: m.fromMe ? 'out' : 'in',
-        body: m.body,
-        ts: (m.timestamp || 0) * 1000,
-      }));
-    result.push({ chatId, name, messages });
+      .map((m) => {
+        const { body, mediaOnly } = bodyOf(m);
+        if (!body) return null;
+        const msg = {
+          id: m.id?._serialized || String(m.timestamp),
+          direction: m.fromMe ? 'out' : 'in',
+          body,
+          ts: (m.timestamp || 0) * 1000,
+        };
+        if (mediaOnly) msg.mediaOnly = true;
+        return msg;
+      })
+      .filter(Boolean);
+    result.push({ chatId, name, unread, messages });
   }
   return result;
 }

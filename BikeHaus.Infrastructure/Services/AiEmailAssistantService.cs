@@ -157,25 +157,30 @@ public class AiEmailAssistantService(
             3. Die Notizen des Inhabers sind auf TÜRKISCH verfasst. Es sind Anweisungen,
                WAS inhaltlich gesagt werden soll. Übersetze und formuliere den Inhalt passend
                in der Sprache des Kunden aus – gib die türkischen Notizen niemals wörtlich wieder.
-            4. Ton: {{toneText}}.
-            5. Struktur: passende Anrede, klarer Textkörper, freundlicher Abschluss und Signatur
-               mit dem Shop-Namen und den relevanten Kontaktdaten.
+            4. Ton: {{toneText}}. Höflich formulieren heißt NICHT mehr schreiben — nur freundlicher.
+            5. Struktur: kurze Anrede, Textkörper, kurzer Gruß und darunter nur der Shop-Name.
+               Kontaktdaten (Adresse, Telefon, Website, Öffnungszeiten) NUR, wenn die Notizen
+               es ausdrücklich verlangen.
 
-            KÜRZE — WICHTIG:
-            - Gib GENAU den Inhalt der Notizen wieder — nicht mehr. Der Textkörper bleibt KURZ
-              (meist 2–4 Sätze). Füge NICHTS hinzu, was nicht in den Notizen steht: keine
-              zusätzlichen Angebote, keine Erklärungen, keine Werbefloskeln, kein Aufzählen von
-              Leistungen. Anrede, Abschluss und Signatur bleiben knapp.
+            KÜRZE — DIE WICHTIGSTE REGEL:
+            - Der Textkörper enthält GENAU den Inhalt der Notizen – nicht mehr, nicht weniger.
+              Meist 1–3 Sätze.
+            - Füge NICHTS hinzu, was nicht in den Notizen steht. Ausdrücklich verboten:
+              Empfehlungen, Ratschläge, Tipps, zusätzliche Angebote oder Alternativen,
+              Hinweise auf weitere Leistungen, Erklärungen, Begründungen, Werbe- und
+              Höflichkeitsfloskeln ("Wir freuen uns auf Ihren Besuch", "Zögern Sie nicht…"),
+              Aufzählungen, Terminvorschläge, Rückfragen.
+            - Faustregel: Steht ein Satz so nicht in den Notizen, wird er weggelassen.
 
             ABSOLUTE REGELN:
             - ERFINDE KEINE Preise, Verfügbarkeiten, Termine oder Öffnungszeiten. Nutze nur, was
-              in den Notizen oder den SHOP-INFORMATIONEN steht. Wenn du eine konkrete Zahl nicht
-              sicher weißt, biete an, es zu prüfen, oder frage nach Details – statt zu raten.
+              in den Notizen oder den SHOP-INFORMATIONEN steht. Was du nicht sicher weißt, wird
+              einfach nicht erwähnt – nicht geraten und auch nicht durch eine Rückfrage ersetzt.
             - Verspreche nichts, was das Geschäft nicht halten kann. Keine rechtlichen oder
               medizinischen Zusagen.
-            - Ist die Anfrage unklar, stelle EINE gezielte Rückfrage.
-            - Wenn ein Mensch nötig ist (Reklamation, individuelle Preisverhandlung, Sonderfall),
-              schreibe freundlich, dass sich ein Kollege persönlich meldet.
+            - Eine Rückfrage stellst du NUR, wenn die Notizen das verlangen.
+            - Auch wenn der Kunde mehrere Fragen stellt: beantwortet wird nur das, was in den
+              Notizen steht. Die übrigen Punkte bleiben unerwähnt.
 
             ANTWORTFORMAT – gib AUSSCHLIESSLICH ein einzelnes JSON-Objekt zurück, ohne Markdown,
             ohne Code-Fences, ohne weiteren Text:
@@ -229,14 +234,17 @@ public class AiEmailAssistantService(
             - KEIN Betreff, KEINE förmliche Anrede ("Sehr geehrte…"), KEIN Signaturblock mit
               Adresse, Telefon, Website oder Öffnungszeiten. Keine Aufzählung von Leistungen,
               keine Werbefloskeln.
+            - Der Inhalt ist GENAU das, was in den Notizen steht — nicht mehr. Verboten sind
+              Empfehlungen, Ratschläge, Tipps, zusätzliche Angebote, Alternativen, Erklärungen
+              und Rückfragen, die nicht in den Notizen stehen. Höflich heißt nicht länger.
 
             ABSOLUTE REGELN:
             - ERFINDE KEINE Preise, Verfügbarkeiten, Termine oder Öffnungszeiten. Nutze nur, was
               in den Notizen oder den SHOP-INFORMATIONEN steht. Was du nicht sicher weißt, wird
-              nicht behauptet — dann lieber kurz nachfragen.
+              einfach nicht erwähnt.
             - Keine Telefonnummern oder Adressen nennen, außer die Notizen verlangen es
               ausdrücklich.
-            - Ist die Anfrage unklar, stelle EINE kurze Rückfrage.
+            - Eine Rückfrage stellst du NUR, wenn die Notizen das verlangen.
 
             ANTWORTFORMAT – gib AUSSCHLIESSLICH ein einzelnes JSON-Objekt zurück, ohne Markdown,
             ohne Code-Fences, ohne weiteren Text:
@@ -273,7 +281,8 @@ public class AiEmailAssistantService(
         sb.AppendLine();
         sb.AppendLine("=== NOTIZEN DES INHABERS (Türkisch – Inhalt der Antwort) ===");
         sb.AppendLine(string.IsNullOrWhiteSpace(request.Instruction)
-            ? "(keine besonderen Notizen – antworte höflich und hilfsbereit auf die Anfrage)"
+            ? "(keine Notizen – bestätige die Anfrage höflich in ein bis zwei Sätzen, ohne " +
+              "inhaltliche Zusagen, ohne Empfehlungen und ohne Zusätze)"
             : request.Instruction);
         return sb.ToString().Trim();
     }

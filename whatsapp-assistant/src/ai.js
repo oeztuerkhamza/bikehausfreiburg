@@ -107,9 +107,10 @@ export async function composeReply(history, instructionTr) {
     `\n\n` +
     `Bringe NUR diese Notiz höflich in die SPRACHE DES KUNDEN (nicht Türkisch – die Sprache, ` +
     `in der der Kunde geschrieben hat). Bleib KURZ und nah an der Notiz: meist 1–2 Sätze. ` +
-    `Füge NICHTS hinzu, was nicht in der Notiz steht – keine zusätzlichen Angebote, Rückfragen, ` +
-    `Erklärungen oder Floskeln. Gib die türkischen Notizen niemals wörtlich wieder und erfinde ` +
-    `keine Preise, Termine oder Zusagen. Gib AUSSCHLIESSLICH den fertigen, knappen Antworttext aus.`;
+    `Füge NICHTS hinzu, was nicht in der Notiz steht – keine Empfehlungen, Ratschläge, Tipps, ` +
+    `zusätzlichen Angebote, Alternativen, Rückfragen, Erklärungen oder Floskeln. Höflich heißt ` +
+    `nicht länger. Gib die türkischen Notizen niemals wörtlich wieder und erfinde keine Preise, ` +
+    `Termine oder Zusagen. Gib AUSSCHLIESSLICH den fertigen, knappen Antworttext aus.`;
 
   try {
     const resp = await client.messages.create({

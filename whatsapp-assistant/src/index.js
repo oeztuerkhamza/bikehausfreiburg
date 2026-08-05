@@ -39,11 +39,26 @@ io.use(socketAuth);
 
 // --- WhatsApp olayları ---
 let synced = false;
-async function syncChats() {
+
+/**
+ * Sohbetleri WhatsApp'tan çekip depoya birleştirir.
+ * onlyChanged: sadece son mesajı bizdekinden yeni olan sohbetlerin mesajlarını
+ * çeker (periyodik senkron için ucuz tutar); ad ve okunmadı yine tazelenir.
+ */
+async function syncChats({ onlyChanged = false } = {}) {
   try {
-    const chats = await wa.getRecentChats();
+    const chats = await wa.getRecentChats({
+      shouldFetchMessages: onlyChanged
+        ? (chatId, lastTs) => {
+            const conv = store.get(chatId);
+            if (!conv || !conv.messages.length) return true;
+            if (!lastTs) return true;
+            return conv.messages[conv.messages.length - 1].ts < lastTs;
+          }
+        : undefined,
+    });
     for (const c of chats) {
-      const conv = store.importChat(c.chatId, c.name, c.messages);
+      const conv = store.importChat(c.chatId, c.name, c.messages, c.unread);
       io.emit("conversation", conv);
     }
     console.log(`[sync] ${chats.length} sohbet yüklendi.`);
@@ -54,11 +69,25 @@ async function syncChats() {
   }
 }
 
+// Canlı olaylar bir şeyi kaçırırsa (servis kapalıyken gelen/giden mesajlar)
+// arka plan senkronu tamamlar. 0 = kapalı.
+const SYNC_INTERVAL_MS = Number(process.env.WA_SYNC_INTERVAL_MS || 10 * 60 * 1000);
+let syncTimer = null;
+function schedulePeriodicSync() {
+  clearInterval(syncTimer);
+  if (SYNC_INTERVAL_MS <= 0) return;
+  syncTimer = setInterval(() => {
+    if (wa.state.status !== "ready") return;
+    syncChats({ onlyChanged: true });
+  }, SYNC_INTERVAL_MS);
+}
+
 wa.events.on("status", (s) => {
   io.emit("status", s);
   // Logout veya bağlantı kopunca synced'i sıfırla, yeniden bağlanınca tekrar senkronize etsin.
   if (s.status === "loggingout" || s.status === "disconnected") {
     synced = false;
+    clearInterval(syncTimer);
   }
   if (s.status === "ready" && !synced) {
     synced = true;
@@ -70,14 +99,21 @@ wa.events.on("status", (s) => {
         console.log("[sync] Geçmiş yüklenemedi (WhatsApp Web uyumsuzluğu). Canlı mod: yeni gelen mesajlar yine de görünecek.");
         io.emit("history-unavailable");
       }
+      schedulePeriodicSync();
     })();
   }
 });
 
+// Gelen müşteri mesajı VE telefondaki WhatsApp Business'tan yazdığımız cevap.
 wa.events.on("message", async (m) => {
-  console.log(`[mesaj] ${m.name} (${m.chatId}): ${m.body}`);
+  const yon = m.direction === "out" ? "biz" : "müşteri";
+  console.log(`[mesaj/${yon}] ${m.name} (${m.chatId}): ${m.body}`);
   const conv = store.addMessage(m.chatId, m.name, {
-    id: m.id, direction: "in", body: m.body, ts: m.ts,
+    id: m.id,
+    direction: m.direction === "out" ? "out" : "in",
+    body: m.body,
+    mediaOnly: m.mediaOnly,
+    ts: m.ts,
   });
   io.emit("conversation", conv);
 });
@@ -151,7 +187,9 @@ app.post("/api/conversations/:chatId/translate", async (req, res) => {
   const conv = store.get(req.params.chatId);
   if (!conv) return res.status(404).json({ error: "bulunamadı" });
   if (!ai.isEnabled()) return res.status(400).json({ error: "AI devre dışı — Ayarlar'dan API anahtarı gir" });
-  const pending = conv.messages.filter((m) => m.direction === "in" && !m.translation && m.body);
+  const pending = conv.messages.filter(
+    (m) => m.direction === "in" && !m.translation && m.body && !m.mediaOnly,
+  );
   for (const m of pending) {
     const r = await ai.translateToTurkish(m.body);
     if (r.ok) store.setTranslation(conv.chatId, m.id, r.text);
@@ -183,9 +221,14 @@ app.post("/api/conversations/:chatId/send", async (req, res) => {
     return res.status(503).json({ error: "WhatsApp henüz hazır değil" });
   }
   try {
-    await wa.sendMessage(chatId, text);
+    // Gerçek WhatsApp mesaj id'siyle kaydet: 'message_create' olayı aynı mesajı
+    // birazdan tekrar getirecek, depo aynı id'yi ikinci kez eklemez.
+    const sent = await wa.sendMessage(chatId, text);
     const conv = store.addMessage(chatId, null, {
-      id: "out-" + Date.now(), direction: "out", body: text, ts: Date.now(),
+      id: sent?.id?._serialized || "out-" + Date.now(),
+      direction: "out",
+      body: text,
+      ts: (sent?.timestamp || 0) * 1000 || Date.now(),
     });
     store.setDraft(chatId, ""); // gönderince taslağı temizle
     io.emit("conversation", store.get(chatId));

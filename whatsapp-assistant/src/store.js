@@ -36,7 +36,7 @@ function persist() {
 }
 
 /**
- * @typedef {{id:string, direction:"in"|"out", body:string, ts:number}} Msg
+ * @typedef {{id:string, direction:"in"|"out", body:string, ts:number, mediaOnly?:boolean}} Msg
  * @typedef {{chatId:string, name:string, messages:Msg[], draft:string, unread:number, updatedAt:number}} Conversation
  */
 
@@ -51,10 +51,24 @@ export function getOrCreate(chatId, name) {
   return conv;
 }
 
-export function addMessage(chatId, name, { id, direction, body, ts }) {
+// Tek mesaj ekle. Aynı id ikinci kez gelirse (canlı olay + senkron, ya da
+// panelden gönderip ardından WhatsApp olayını almak) yoksayılır.
+export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly }) {
   const conv = getOrCreate(chatId, name);
-  conv.messages.push({ id, direction, body, ts: ts || Date.now() });
+  if (id && conv.messages.some((m) => m.id === id)) return conv;
+
+  const msg = { id, direction, body, ts: ts || Date.now() };
+  if (mediaOnly) msg.mediaOnly = true;
+  conv.messages.push(msg);
+  // Geç gelen bir mesaj sırayı bozmasın.
+  const prev = conv.messages[conv.messages.length - 2];
+  if (prev && prev.ts > msg.ts) conv.messages.sort((a, b) => a.ts - b.ts);
+
+  // Giden mesaj = biz cevapladık (panelden ya da telefondaki Business'tan) →
+  // okunmadı rozeti sıfırlanır.
   if (direction === "in") conv.unread += 1;
+  else conv.unread = 0;
+
   conv.updatedAt = Date.now();
   persist();
   return conv;
@@ -62,7 +76,9 @@ export function addMessage(chatId, name, { id, direction, body, ts }) {
 
 // Mevcut WhatsApp sohbetini içe aktar (geçmiş yükleme). Mesajları id'ye göre
 // birleştirir, unread'i şişirmez.
-export function importChat(chatId, name, messages) {
+// unread: WhatsApp'taki okunmadı sayısı. Sadece SIFIRLAMAK için kullanılır —
+// sohbet telefonda okunduysa buradaki rozet de düşer, tersi olmaz.
+export function importChat(chatId, name, messages, unread) {
   const conv = getOrCreate(chatId, name);
   const seen = new Set(conv.messages.map((m) => m.id));
   for (const m of messages) {
@@ -70,6 +86,7 @@ export function importChat(chatId, name, messages) {
   }
   conv.messages.sort((a, b) => a.ts - b.ts);
   if (name && (conv.name === chatId || !conv.name)) conv.name = name;
+  if (unread === 0) conv.unread = 0;
   const last = conv.messages[conv.messages.length - 1];
   conv.updatedAt = last ? last.ts : conv.updatedAt;
   persist();
