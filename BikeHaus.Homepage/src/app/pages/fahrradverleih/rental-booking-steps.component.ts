@@ -603,8 +603,17 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               </p>
               <p class="accessory-price">
                 <ng-container *ngIf="acc.tagespreis > 0; else accFree">
-                  €{{ acc.tagespreis }} /
-                  {{ t().rentalSteps?.day ?? 'Tag' }}
+                  <ng-container *ngIf="acc.einmalig; else accPerDay">
+                    €{{ acc.tagespreis }}
+                    {{ t().rentalSteps?.accessoryOneTime ?? 'einmalig' }}
+                    <span class="accessory-only-if-used">
+                      ({{ t().rentalSteps?.accessoryOnlyIfUsed ?? 'nur bei Verbrauch' }})
+                    </span>
+                  </ng-container>
+                  <ng-template #accPerDay>
+                    €{{ acc.tagespreis }} /
+                    {{ t().rentalSteps?.day ?? 'Tag' }}
+                  </ng-template>
                 </ng-container>
                 <ng-template #accFree>{{
                   t().rentalSteps?.free ?? 'Kostenlos'
@@ -869,8 +878,15 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             </p>
             <p class="price">
               <ng-container *ngIf="sel.accessory.tagespreis > 0; else selFree">
-                €{{ sel.accessory.tagespreis }} × {{ daysCount() }}
-                {{ t().rentalSteps?.days ?? 'Tage' }} = €{{ sel.lineTotal }}
+                <ng-container *ngIf="sel.accessory.einmalig; else selPerDay">
+                  €{{ sel.accessory.tagespreis }}
+                  {{ t().rentalSteps?.accessoryOneTime ?? 'einmalig' }} –
+                  {{ t().rentalSteps?.accessoryOnlyIfUsed ?? 'nur bei Verbrauch' }}
+                </ng-container>
+                <ng-template #selPerDay>
+                  €{{ sel.accessory.tagespreis }} × {{ daysCount() }}
+                  {{ t().rentalSteps?.days ?? 'Tage' }} = €{{ sel.lineTotal }}
+                </ng-template>
               </ng-container>
               <ng-template #selFree>{{
                 t().rentalSteps?.free ?? 'Kostenlos'
@@ -2065,6 +2081,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         color: var(--rb-accent);
         font-weight: 700;
       }
+      .accessory-only-if-used {
+        display: block;
+        color: var(--rb-text-muted, #64748b);
+        font-weight: 500;
+        font-size: 0.82rem;
+      }
       .accessory-qty {
         display: flex;
         align-items: center;
@@ -3195,14 +3217,29 @@ export class RentalBookingStepsComponent implements OnInit {
     this.accessoryQtys.set(map);
   }
 
-  /** Zubehör-Summe = Σ (Tagespreis × Menge × Miettage). */
+  /**
+   * Zubehör-Summe = Σ (Tagespreis × Menge × Miettage).
+   *
+   * Einmaliges Zubehör (Verbrauchsmaterial wie ein Schlauch) zählt nicht mit:
+   * es wird nur berechnet, wenn es tatsächlich verbraucht wurde, und das steht
+   * erst bei der Rückgabe im Laden fest. Der Server rechnet genauso.
+   */
   accessoryTotal = computed(() => {
     const days = this.getRentalDays();
     const qtys = this.accessoryQtys();
     return this.accessories().reduce((sum, acc) => {
       const qty = qtys[acc.id] ?? 0;
+      if (acc.einmalig) return sum;
       return sum + acc.tagespreis * qty * days;
     }, 0);
+  });
+
+  /** true, sobald einmaliges Zubehör gewählt wurde (Hinweistext im Ablauf). */
+  hasEinmaligesAccessory = computed(() => {
+    const qtys = this.accessoryQtys();
+    return this.accessories().some(
+      (acc) => acc.einmalig === true && (qtys[acc.id] ?? 0) > 0,
+    );
   });
 
   /** Accessories with a positive quantity, for the review/summary lists. */
@@ -3213,7 +3250,9 @@ export class RentalBookingStepsComponent implements OnInit {
       .map((acc) => ({
         accessory: acc,
         menge: qtys[acc.id],
-        lineTotal: acc.tagespreis * qtys[acc.id] * this.getRentalDays(),
+        lineTotal: acc.einmalig
+          ? 0
+          : acc.tagespreis * qtys[acc.id] * this.getRentalDays(),
       }));
   });
 

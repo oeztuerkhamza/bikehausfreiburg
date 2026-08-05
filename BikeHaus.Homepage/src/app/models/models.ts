@@ -190,6 +190,12 @@ export interface RentalAccessoryPublic {
   beschreibung?: string;
   bildPfad?: string;
   aktiv: boolean;
+  /**
+   * true = Verbrauchsmaterial (z. B. Schlauch): Preis gilt einmal statt pro Tag
+   * und wird nur berechnet, wenn es im Laden verbraucht wurde. Solche Positionen
+   * gehen deshalb nicht in den Buchungspreis ein.
+   */
+  einmalig?: boolean;
 }
 
 export interface RentalBookingAccessoryCreate {

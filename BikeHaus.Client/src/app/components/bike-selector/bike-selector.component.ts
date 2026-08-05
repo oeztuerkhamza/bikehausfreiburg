@@ -105,6 +105,9 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
               </ng-template>
             </div>
             <span class="bike-brand">{{ bike.marke }} {{ bike.modell }}</span>
+            <span class="bike-size" *ngIf="bike.rahmengroesse">
+              Size {{ bike.rahmengroesse }}
+            </span>
             <div
               class="start-price"
               *ngIf="getStartingPrice(bike) as startPrice"
@@ -349,6 +352,15 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         color: var(--text-primary, #1a1a2e);
         overflow-wrap: anywhere;
       }
+      .bike-size {
+        flex: 0 0 auto;
+        border: 1px solid var(--border-light, #e5e7eb);
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 0.75rem;
+        color: var(--text-secondary, #64748b);
+        white-space: nowrap;
+      }
       .start-price {
         flex: 0 0 auto;
         font-size: 0.85rem;
@@ -579,7 +591,7 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.filteredBikes = this.bikes;
+    this.filteredBikes = this.sortAlphabetically(this.bikes);
     if (this.selectedBike) {
       this.activeBike = this.selectedBike;
       this.ensureActiveBikeDetails(this.selectedBike);
@@ -639,6 +651,45 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
       this.activeBike = null;
       this.activeBikeLoading = false;
     }
+
+    this.filteredBikes = this.sortAlphabetically(this.filteredBikes);
+  }
+
+  /**
+   * Alphabetisch nach Marke, dann Modell, zuletzt nach Bestandsnummer.
+   *
+   * Die Bestandsnummer steckt vorne in der Marke ("39 - Ideal", "E14 - IDEAL")
+   * und muss beim Vergleich weg: als Text sortiert sie 1, 10, 11, …, 2 und
+   * reißt damit dieselbe Marke auseinander. Sie bleibt aber als letztes
+   * Kriterium erhalten, damit gleiche Modelle als 36, 37, 38 erscheinen und
+   * nicht in Zufallsreihenfolge. Sortiert wird hier in der Liste — die
+   * Reihenfolge vom Server hängt an der Verfügbarkeitsabfrage, und im
+   * Bearbeiten-Modus werden Räder nachträglich angehängt.
+   */
+  private sortAlphabetically(list: Bicycle[]): Bicycle[] {
+    return [...list].sort(
+      (a, b) =>
+        this.brandSortKey(a.marke).localeCompare(this.brandSortKey(b.marke), 'de') ||
+        (a.modell || '').localeCompare(b.modell || '', 'de', {
+          sensitivity: 'base',
+        }) ||
+        this.stockNumber(a) - this.stockNumber(b),
+    );
+  }
+
+  /** Marke ohne vorangestellte Bestandsnummer, klein geschrieben. */
+  private brandSortKey(marke: string | undefined): string {
+    return (marke || '')
+      .replace(/^\s*[A-Za-z]?\d+\s*[-–]\s*/, '')
+      .trim()
+      .toLowerCase();
+  }
+
+  /** Bestandsnummer aus der Marke; fällt auf Lagernummer bzw. Id zurück. */
+  private stockNumber(bike: Bicycle): number {
+    const match = /^\s*[A-Za-z]?(\d+)/.exec(bike.marke || '');
+    if (match) return Number(match[1]);
+    return bike.lagernummer ?? bike.id;
   }
 
   onBikeCardClick(bike: Bicycle) {

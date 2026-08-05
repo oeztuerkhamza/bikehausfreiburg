@@ -1,4 +1,5 @@
 using BikeHaus.Application.Interfaces;
+using BikeHaus.Application.Services;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Enums;
 using BikeHaus.Domain.Interfaces;
@@ -1993,7 +1994,14 @@ public class PdfService : IPdfService
 
                             foreach (var acc in rental.Accessories)
                             {
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(acc.Bezeichnung).FontSize(9);
+                                // Einmaliges Zubehör ist nicht im Mietpreis enthalten:
+                                // der Preis steht direkt an der Position, damit der
+                                // Mieter beim Unterschreiben sieht, was er im
+                                // Verbrauchsfall zahlt.
+                                var bezeichnung = acc.Einmalig
+                                    ? $"{acc.Bezeichnung} — {acc.Tagespreis:N2} € einmalig, nur bei Verbrauch"
+                                    : acc.Bezeichnung;
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(bezeichnung).FontSize(9);
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(acc.Menge.ToString()).FontSize(9);
                             }
                         });
@@ -2001,6 +2009,13 @@ public class PdfService : IPdfService
                         {
                             text.Span("Hinweis: ").Bold().FontSize(8);
                             text.Span("Das Zubehör ist im Mietpreis inklusive.").FontSize(8).FontColor(Colors.Grey.Darken2);
+                            if (rental.Accessories.Any(a => a.Einmalig))
+                            {
+                                text.Span(
+                                    " Ausgenommen ist einmaliges Zubehör (Verbrauchsmaterial wie ein Schlauch): " +
+                                    "es wird nur berechnet, wenn es verwendet wurde."
+                                ).FontSize(8).FontColor(Colors.Grey.Darken2);
+                            }
                         });
                     }
 
@@ -2937,19 +2952,42 @@ public class PdfService : IPdfService
                             });
 
                             table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Bezeichnung").FontSize(9).Bold().FontColor(PrimaryColor);
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Tagespreis").FontSize(9).Bold().FontColor(PrimaryColor).AlignRight();
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Preis").FontSize(9).Bold().FontColor(PrimaryColor).AlignRight();
                             table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Menge").FontSize(9).Bold().FontColor(PrimaryColor).AlignCenter();
                             table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Gesamt").FontSize(9).Bold().FontColor(PrimaryColor).AlignRight();
 
+                            // Miettage der Buchung: Tagespreis-Zubehör wird damit
+                            // multipliziert. Ohne die Tage stand hier bisher eine zu
+                            // kleine Summe, die nicht zum Gesamtpreis der Buchung passte.
+                            var zubehoerTage = (booking.EndDatum.Date - booking.StartDatum.Date).Days + 1;
                             foreach (var acc in booking.Accessories)
                             {
-                                var accTotal = acc.Tagespreis * acc.Menge;
+                                var accTotal = acc.LineTotal(zubehoerTage);
+                                var preisText = acc.Einmalig
+                                    ? $"{acc.Tagespreis:N2} € einmalig"
+                                    : $"{acc.Tagespreis:N2} €/Tag";
+                                // Einmaliges Zubehör ist Verbrauchsmaterial: es steht
+                                // bereit, kostet aber nur, wenn es verwendet wird —
+                                // deshalb hier kein Betrag, sondern ein Hinweis.
+                                var summeText = acc.Einmalig ? "nur bei Verbrauch" : $"{accTotal:N2} €";
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(acc.Bezeichnung).FontSize(10);
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{acc.Tagespreis:N2} €").FontSize(10).AlignRight();
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(preisText).FontSize(9).AlignRight();
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(acc.Menge.ToString()).FontSize(10).AlignCenter();
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{accTotal:N2} €").FontSize(10).AlignRight();
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(summeText).FontSize(acc.Einmalig ? 8 : 10).AlignRight();
                             }
                         });
+
+                        if (booking.Accessories.Any(a => a.Einmalig))
+                        {
+                            col.Item().PaddingTop(3).Text(text =>
+                            {
+                                text.Span("Hinweis: ").Bold().FontSize(8);
+                                text.Span(
+                                    "Einmaliges Zubehör (z. B. Schlauch) ist Verbrauchsmaterial. Es wird nur berechnet, " +
+                                    "wenn es verwendet wurde — kommt es unbenutzt zurück, entsteht keine Gebühr."
+                                ).FontSize(8).FontColor(Colors.Grey.Darken2);
+                            });
+                        }
                     }
 
                     // Grand Total

@@ -204,15 +204,18 @@ public class RentalBookingService : IRentalBookingService
                     RentalAccessoryId = accessory.Id,
                     Bezeichnung = accessory.Bezeichnung,
                     Tagespreis = accessory.Tagespreis,
-                    Menge = Math.Max(1, acc.Menge)
+                    Menge = Math.Max(1, acc.Menge),
+                    // Einmalig kommt aus dem Katalog: der Kunde wählt nur die Menge.
+                    Einmalig = accessory.Einmalig
                 });
             }
         }
 
-        // Zubehör wird pro Miettag berechnet (Tagespreis × Menge × Tage) und zum
-        // Gesamtpreis addiert. Miettage = gesamter Buchungszeitraum (inklusive).
+        // Zubehör wird zum Gesamtpreis addiert: Tagespreis × Menge × Tage, bei
+        // einmaligen Positionen ohne die Tage. Miettage = gesamter
+        // Buchungszeitraum (inklusive).
         var bookingDays = CalculateDaysInclusive(minStart, maxEnd);
-        var accessoryTotal = booking.Accessories.Sum(a => a.Tagespreis * a.Menge * bookingDays);
+        var accessoryTotal = booking.Accessories.Sum(a => a.LineTotal(bookingDays));
         booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m) + accessoryTotal;
         if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
 
@@ -493,7 +496,7 @@ public class RentalBookingService : IRentalBookingService
         bookingBike.UpdatedAt = DateTime.UtcNow;
 
         var bookingDays = CalculateDaysInclusive(booking.StartDatum, booking.EndDatum);
-        var accessoryTotal = booking.Accessories.Sum(a => a.Tagespreis * a.Menge * bookingDays);
+        var accessoryTotal = booking.Accessories.Sum(a => a.LineTotal(bookingDays));
         booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m) + accessoryTotal;
         if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
         booking.UpdatedAt = DateTime.UtcNow;
@@ -559,7 +562,7 @@ public class RentalBookingService : IRentalBookingService
                 bk.UpdatedAt = DateTime.UtcNow;
             }
 
-            var accessoryTotal = booking.Accessories.Sum(a => a.Tagespreis * a.Menge * days);
+            var accessoryTotal = booking.Accessories.Sum(a => a.LineTotal(days));
             booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m) + accessoryTotal;
             if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
         }
@@ -732,7 +735,7 @@ public class RentalBookingService : IRentalBookingService
     {
         var days = CalculateDaysInclusive(booking.StartDatum, booking.EndDatum);
         var bikeTotal = RentalPricingCalculator.CalculateBikePrice(bicycle, days);
-        var accessoryTotal = booking.Accessories.Sum(a => a.Tagespreis * a.Menge) * days;
+        var accessoryTotal = booking.Accessories.Sum(a => a.LineTotal(days));
 
         if (!bikeTotal.HasValue && accessoryTotal <= 0)
             return null;

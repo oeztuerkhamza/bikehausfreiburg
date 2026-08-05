@@ -183,16 +183,18 @@ public class RentalService : IRentalService
                     Bezeichnung = accessoryDto.Bezeichnung,
                     Tagespreis = accessoryDto.Tagespreis,
                     Verlustgebuehr = accessoryDto.Verlustgebuehr,
-                    Menge = accessoryDto.Menge
+                    Menge = accessoryDto.Menge,
+                    Einmalig = accessoryDto.Einmalig
                 });
             }
         }
 
-        // Zubehör pro Miettag berechnen (Tagespreis × Menge × Tage) und zur
-        // Gesamtmiete addieren. Miettage = gesamter Vertragszeitraum (inklusive).
+        // Zubehör zur Gesamtmiete addieren: Tagespreis × Menge × Tage, bei
+        // einmaligen Positionen ohne die Tage. Miettage = gesamter
+        // Vertragszeitraum (inklusive).
         var rentalDays = RentalPricingCalculator.CalculateDaysInclusive(startDatum, endDatum);
         rental.Gesamtmiete = gesamtmiete
-            + rental.Accessories.Sum(a => a.Tagespreis * a.Menge * rentalDays);
+            + rental.Accessories.Sum(a => a.LineTotal(rentalDays));
 
         // Mietvertragsnummer atomar vergeben (erzeugen + speichern unter Sperre);
         // teilt sich den Nummernkreis mit dem Verkauf.
@@ -430,6 +432,7 @@ public class RentalService : IRentalService
                     existing.Tagespreis = inc.Tagespreis;
                     existing.Verlustgebuehr = inc.Verlustgebuehr;
                     existing.Menge = inc.Menge;
+                    existing.Einmalig = inc.Einmalig;
                     existing.UpdatedAt = DateTime.UtcNow;
                 }
                 else
@@ -441,6 +444,7 @@ public class RentalService : IRentalService
                         Tagespreis = inc.Tagespreis,
                         Verlustgebuehr = inc.Verlustgebuehr,
                         Menge = inc.Menge,
+                        Einmalig = inc.Einmalig,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow,
                     });
@@ -450,9 +454,9 @@ public class RentalService : IRentalService
 
         if (dto.Bikes != null || dto.NewBikes != null || dto.RemoveBikeIds != null || dto.Accessories != null)
         {
-            // Zubehör pro Miettag (Tagespreis × Menge × Tage) zur Gesamtmiete addieren.
+            // Zubehör zur Gesamtmiete addieren (einmalige Positionen ohne Tage).
             var rentalDays = RentalPricingCalculator.CalculateDaysInclusive(rental.StartDatum, rental.EndDatum);
-            var accessoryTotal = rental.Accessories.Sum(a => a.Tagespreis * a.Menge * rentalDays);
+            var accessoryTotal = rental.Accessories.Sum(a => a.LineTotal(rentalDays));
             // Kein Rabattabzug mehr: die vom Formular gelieferten Mietpreise
             // sind bereits die vereinbarten Endpreise (der Mietvertrag hat kein
             // Rabattfeld mehr). Der frühere Abzug zog den Rabatt ein zweites Mal
@@ -584,6 +588,14 @@ public class RentalService : IRentalService
                 }
             }
         }
+
+        // Einmaliges Zubehör (Verbrauchsmaterial wie ein Schlauch) wird erst hier
+        // abrechenbar: es kostet nur, wenn es bei der Rückgabe nicht als
+        // zurückgegeben abgehakt wurde. Deshalb die Gesamtmiete neu bilden —
+        // dieselbe Formel wie beim Speichern des Vertrags.
+        var returnRentalDays = RentalPricingCalculator.CalculateDaysInclusive(rental.StartDatum, rental.EndDatum);
+        rental.Gesamtmiete = rental.Bikes.Sum(b => b.Mietpreis)
+            + rental.Accessories.Sum(a => a.LineTotal(returnRentalDays));
 
         rental.Status = RentalStatus.Returned;
         rental.RueckgabeAt = DateTime.UtcNow;

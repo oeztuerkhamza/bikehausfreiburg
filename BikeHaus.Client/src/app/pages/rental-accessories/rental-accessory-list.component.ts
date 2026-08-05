@@ -91,7 +91,19 @@ import { environment } from '../../../environments/environment';
                 <span *ngIf="!item.bildPfad" class="thumb thumb-empty">–</span>
               </td>
               <td>{{ item.bezeichnung }}</td>
-              <td>{{ item.tagespreis | number: '1.2-2' }} €</td>
+              <td>
+                {{ item.tagespreis | number: '1.2-2' }} €
+                <small
+                  *ngIf="item.einmalig"
+                  style="display:block;color:var(--text-muted);font-size:0.75rem;"
+                  >einmalig, nur bei Verbrauch</small
+                >
+                <small
+                  *ngIf="!item.einmalig"
+                  style="display:block;color:var(--text-muted);font-size:0.75rem;"
+                  >pro Tag</small
+                >
+              </td>
               <td>
                 <span
                   *ngIf="item.verlustgebuehr"
@@ -150,6 +162,21 @@ import { environment } from '../../../environments/environment';
               min="0"
               [(ngModel)]="formData.tagespreis"
             />
+          </div>
+          <!-- Verbrauchsmaterial (Schlauch, Flickzeug): kostet einmal statt pro
+               Tag und nur, wenn der Mieter es verwendet hat. -->
+          <div class="field">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="formData.einmalig" />
+              Einmaliger Preis (Verbrauchsmaterial)
+            </label>
+            <small class="field-hint">
+              {{
+                formData.einmalig
+                  ? 'Wird einmal berechnet – und nur, wenn das Teil bei der Rückgabe nicht zurückkommt (z. B. benutzter Schlauch).'
+                  : 'Wird als Tagespreis mit der Mietdauer multipliziert.'
+              }}
+            </small>
           </div>
           <div class="field">
             <label>Verlustgebühr (€)</label>
@@ -441,6 +468,14 @@ import { environment } from '../../../environments/environment';
         width: auto !important;
         accent-color: var(--accent-primary, #6366f1);
       }
+      .field-hint {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.78rem;
+        color: var(--text-muted, #94a3b8);
+        text-transform: none;
+        letter-spacing: normal;
+      }
       .dialog-actions {
         display: flex;
         justify-content: flex-end;
@@ -553,6 +588,7 @@ export class RentalAccessoryListComponent implements OnInit {
   formData = {
     bezeichnung: '',
     tagespreis: 0,
+    einmalig: false,
     verlustgebuehr: undefined as number | undefined,
     beschreibung: '',
     aktiv: true,
@@ -611,6 +647,7 @@ export class RentalAccessoryListComponent implements OnInit {
     this.formData = {
       bezeichnung: '',
       tagespreis: 0,
+      einmalig: false,
       verlustgebuehr: undefined,
       beschreibung: '',
       aktiv: true,
@@ -626,6 +663,7 @@ export class RentalAccessoryListComponent implements OnInit {
         this.formData = {
           bezeichnung: full.bezeichnung,
           tagespreis: full.tagespreis,
+          einmalig: full.einmalig,
           verlustgebuehr: full.verlustgebuehr,
           beschreibung: full.beschreibung || '',
           aktiv: full.aktiv,
@@ -651,6 +689,7 @@ export class RentalAccessoryListComponent implements OnInit {
       const update: RentalAccessoryUpdate = {
         bezeichnung: this.formData.bezeichnung,
         tagespreis: this.formData.tagespreis,
+        einmalig: this.formData.einmalig,
         verlustgebuehr: this.formData.verlustgebuehr || undefined,
         beschreibung: this.formData.beschreibung || undefined,
         aktiv: this.formData.aktiv,
@@ -671,6 +710,7 @@ export class RentalAccessoryListComponent implements OnInit {
       const create: RentalAccessoryCreate = {
         bezeichnung: this.formData.bezeichnung,
         tagespreis: this.formData.tagespreis,
+        einmalig: this.formData.einmalig,
         verlustgebuehr: this.formData.verlustgebuehr || undefined,
         beschreibung: this.formData.beschreibung || undefined,
       };

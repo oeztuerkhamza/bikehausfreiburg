@@ -1,4 +1,5 @@
 ﻿using BikeHaus.Application.DTOs;
+using BikeHaus.Application.Services;
 using BikeHaus.Domain.Entities;
 
 namespace BikeHaus.Application.Mappings;
@@ -343,6 +344,7 @@ public static class MappingExtensions
         entity.Aktiv,
         entity.Beschreibung,
         entity.BildPfad,
+        entity.Einmalig,
         entity.CreatedAt
     );
 
@@ -354,11 +356,13 @@ public static class MappingExtensions
         entity.Aktiv,
         entity.Beschreibung,
         entity.BildPfad,
+        entity.Einmalig,
         entity.CreatedAt
     );
 
     // ── RentalBooking Mappings ──
-    /// <summary>Zubehör-Zeilensumme = Tagespreis × Menge × Miettage (inklusive).</summary>
+    /// <summary>Zubehör-Zeilensumme: Tagespreis × Menge × Miettage — bei einmaligen
+    /// Positionen ohne die Miettage (siehe RentalPricingCalculator.LineTotal).</summary>
     private static int InclusiveRentalDays(DateTime start, DateTime end)
         => Math.Max(1, (end.Date - start.Date).Days + 1);
 
@@ -367,8 +371,9 @@ public static class MappingExtensions
         entity.Bezeichnung,
         entity.Tagespreis,
         entity.Menge,
-        entity.Tagespreis * entity.Menge * Math.Max(1, days),
-        entity.RentalAccessoryId
+        entity.LineTotal(days),
+        entity.RentalAccessoryId,
+        entity.Einmalig
     );
 
     public static RentalBookingBikeDto ToDto(this RentalBookingBike entity) => new(
@@ -495,8 +500,9 @@ public static class MappingExtensions
         entity.Tagespreis,
         entity.Verlustgebuehr,
         entity.Menge,
-        entity.Tagespreis * entity.Menge * Math.Max(1, days),
-        entity.Zurueckgegeben
+        entity.LineTotal(days),
+        entity.Zurueckgegeben,
+        entity.Einmalig
     );
 
     public static RentalBikeDto ToDto(this RentalBike entity) => new(

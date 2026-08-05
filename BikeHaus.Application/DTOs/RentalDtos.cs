@@ -15,7 +15,10 @@ public record RentalAccessoryItemDto(
     decimal? Verlustgebuehr,
     int Menge,
     decimal Gesamtpreis,
-    bool Zurueckgegeben
+    bool Zurueckgegeben,
+    // true = Preis gilt einmal pro Vermietung, nicht je Miettag; Gesamtpreis
+    // ist dann Tagespreis × Menge ohne Multiplikation mit den Tagen.
+    bool Einmalig
 );
 
 public record RentalAccessoryItemCreateDto(
@@ -23,7 +26,8 @@ public record RentalAccessoryItemCreateDto(
     string Bezeichnung,
     decimal Tagespreis,
     decimal? Verlustgebuehr,
-    int Menge
+    int Menge,
+    bool Einmalig = false
 );
 
 // ── Per-bike line inside a rental contract ──

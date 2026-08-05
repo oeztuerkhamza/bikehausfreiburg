@@ -38,6 +38,10 @@ interface RentalStepsTranslations {
   from: string;
   day: string;
   free: string;
+  /** Preisangabe für Verbrauchsmaterial: einmaliger Preis statt Tagespreis. */
+  accessoryOneTime?: string;
+  /** Zusatz dazu: wird nur berechnet, wenn das Teil verbraucht wurde. */
+  accessoryOnlyIfUsed?: string;
   pickupTime?: string;
   pickupTimeSelect?: string;
   pickupTimeHint?: string;
@@ -3909,6 +3913,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'Keine Fahrräder für diesen Zeitraum verfügbar',
     from: 'ab',
     day: 'Tag',
+    accessoryOneTime: 'einmalig',
+    accessoryOnlyIfUsed: 'nur bei Verbrauch',
     free: 'Kostenlos',
     pickupTime: 'Abholzeit',
     pickupTimeSelect: 'Uhrzeit wählen',
@@ -4026,6 +4032,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'No bikes available for this period',
     from: 'from',
     day: 'day',
+    accessoryOneTime: 'one-time',
+    accessoryOnlyIfUsed: 'only if used',
     free: 'Free',
     pickupTime: 'Pickup time',
     pickupTimeSelect: 'Select a time',
@@ -4143,6 +4151,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'Aucun vélo disponible pour cette période',
     from: 'à partir de',
     day: 'jour',
+    accessoryOneTime: 'unique',
+    accessoryOnlyIfUsed: 'uniquement si utilisé',
     free: 'Gratuit',
     pickupTime: 'Heure de retrait',
     pickupTimeSelect: 'Choisir une heure',
@@ -4260,6 +4270,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'Bu aralık için uygun bisiklet yok',
     from: 'itibaren',
     day: 'gün',
+    accessoryOneTime: 'tek seferlik',
+    accessoryOnlyIfUsed: 'yalnızca kullanılırsa',
     free: 'Ücretsiz',
     pickupTime: 'Alış saati',
     pickupTimeSelect: 'Saat seçin',
@@ -4371,6 +4383,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'No hay bicicletas disponibles para este período',
     from: 'desde',
     day: 'día',
+    accessoryOneTime: 'único',
+    accessoryOnlyIfUsed: 'solo si se usa',
     free: 'Gratis',
     to: 'hasta',
     calendarHint:
@@ -4475,6 +4489,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'Nessuna bici disponibile per questo periodo',
     from: 'da',
     day: 'giorno',
+    accessoryOneTime: 'una volta',
+    accessoryOnlyIfUsed: 'solo se usato',
     free: 'Gratis',
     to: 'a',
     calendarHint:
@@ -4581,6 +4597,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'لا توجد دراجات متاحة لهذه الفترة',
     from: 'من',
     day: 'يوم',
+    accessoryOneTime: 'لمرة واحدة',
+    accessoryOnlyIfUsed: 'فقط في حال الاستخدام',
     free: 'مجانًا',
     to: 'إلى',
     calendarHint:
@@ -4685,6 +4703,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'Нет доступных велосипедов на этот период',
     from: 'от',
     day: 'день',
+    accessoryOneTime: 'разово',
+    accessoryOnlyIfUsed: 'только при использовании',
     free: 'Бесплатно',
     to: 'до',
     calendarHint:
@@ -4795,6 +4815,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'Geen fietsen beschikbaar voor deze periode',
     from: 'vanaf',
     day: 'dag',
+    accessoryOneTime: 'eenmalig',
+    accessoryOnlyIfUsed: 'alleen bij gebruik',
     free: 'Gratis',
     pickupTime: 'Ophaaltijd',
     pickupTimeSelect: 'Kies een tijd',
@@ -4912,6 +4934,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'Ingen cykler tilgængelige i denne periode',
     from: 'fra',
     day: 'dag',
+    accessoryOneTime: 'engangs',
+    accessoryOnlyIfUsed: 'kun ved brug',
     free: 'Gratis',
     pickupTime: 'Afhentningstidspunkt',
     pickupTimeSelect: 'Vælg et tidspunkt',
@@ -5029,6 +5053,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'Ingen sykler tilgjengelige for denne perioden',
     from: 'fra',
     day: 'dag',
+    accessoryOneTime: 'engangs',
+    accessoryOnlyIfUsed: 'kun ved bruk',
     free: 'Gratis',
     pickupTime: 'Hentetidspunkt',
     pickupTimeSelect: 'Velg et tidspunkt',
@@ -5146,6 +5172,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     noBikesAvailable: 'Brak rowerów dostępnych w tym okresie',
     from: 'od',
     day: 'dzień',
+    accessoryOneTime: 'jednorazowo',
+    accessoryOnlyIfUsed: 'tylko w razie użycia',
     free: 'Gratis',
     pickupTime: 'Godzina odbioru',
     pickupTimeSelect: 'Wybierz godzinę',

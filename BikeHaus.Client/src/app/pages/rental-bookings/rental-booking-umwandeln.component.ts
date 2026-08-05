@@ -392,6 +392,9 @@ export class RentalBookingUmwandelnComponent implements OnInit {
       bezeichnung: acc.bezeichnung,
       tagespreis: acc.tagespreis,
       menge: acc.menge,
+      // Einmaliges Zubehör (Verbrauchsmaterial) bleibt auch im Vertrag einmalig:
+      // sonst würde der Schlauch plötzlich pro Miettag berechnet.
+      einmalig: acc.einmalig === true,
     }));
 
     const payload: RentalCreate = {

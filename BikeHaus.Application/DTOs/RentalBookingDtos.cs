@@ -14,7 +14,9 @@ public record RentalBookingAccessoryDto(
     decimal Tagespreis,
     int Menge,
     decimal Gesamtpreis,
-    int? RentalAccessoryId
+    int? RentalAccessoryId,
+    // true = Preis gilt einmal pro Buchung, nicht je Miettag.
+    bool Einmalig
 );
 
 public record RentalBookingBikeCreateDto(

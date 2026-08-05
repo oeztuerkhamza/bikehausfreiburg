@@ -453,10 +453,28 @@ import {
                 <input type="checkbox" [(ngModel)]="accForm.zurueckgegeben" />
                 {{ accForm.bezeichnung }}
                 (× {{ accForm.menge }})
+                <!-- Einmaliges Zubehör (Verbrauchsmaterial): Haken weg = wurde
+                     verbraucht und wird berechnet. Bleibt der Haken, kostet es
+                     nichts. -->
+                <small class="acc-einmalig" *ngIf="accForm.einmalig">
+                  einmalig · Haken entfernen = verbraucht
+                </small>
               </label>
               <span
+                class="acc-verbrauch"
+                *ngIf="accForm.einmalig && !accForm.zurueckgegeben"
+              >
+                Wird berechnet:
+                <strong
+                  >{{
+                    accForm.tagespreis * accForm.menge | number: '1.2-2'
+                  }}
+                  €</strong
+                >
+              </span>
+              <span
                 class="acc-loss"
-                *ngIf="!accForm.zurueckgegeben && accForm.verlustgebuehr"
+                *ngIf="!accForm.einmalig && !accForm.zurueckgegeben && accForm.verlustgebuehr"
               >
                 Verlustgebühr:
                 <strong class="text-danger"
@@ -905,6 +923,15 @@ import {
       .acc-loss {
         font-size: 0.82rem;
       }
+      .acc-verbrauch {
+        font-size: 0.82rem;
+        color: #0f766e;
+      }
+      .acc-einmalig {
+        display: block;
+        font-size: 0.72rem;
+        color: var(--text-muted, #94a3b8);
+      }
       .return-summary-box {
         background: var(--bg-secondary);
         border-radius: var(--radius-md, 10px);
@@ -989,6 +1016,8 @@ export class RentalDetailComponent implements OnInit {
     menge: number;
     verlustgebuehr: number | undefined;
     zurueckgegeben: boolean;
+    einmalig: boolean;
+    tagespreis: number;
   }[] = [];
 
   ngOnInit() {
@@ -1064,6 +1093,8 @@ export class RentalDetailComponent implements OnInit {
       menge: acc.menge,
       verlustgebuehr: acc.verlustgebuehr,
       zurueckgegeben: true,
+      einmalig: acc.einmalig,
+      tagespreis: acc.tagespreis,
     }));
     this.showReturnModal = true;
   }
@@ -1119,7 +1150,12 @@ export class RentalDetailComponent implements OnInit {
 
   getModalLostAccessoriesAbzug(): number {
     return this.returnAccessoryForms.reduce((sum, f) => {
-      return f.zurueckgegeben ? sum : sum + (f.verlustgebuehr ?? 0);
+      if (f.zurueckgegeben) return sum;
+      // Einmaliges Zubehör ist Verbrauchsmaterial: nicht zurückgegeben heißt
+      // verbraucht. Das rechnet der Server über den Zubehörpreis ab, hier
+      // darf deshalb keine Verlustgebühr obendrauf kommen.
+      if (f.einmalig) return sum;
+      return sum + (f.verlustgebuehr ?? 0);
     }, 0);
   }
 
@@ -1172,7 +1208,7 @@ export class RentalDetailComponent implements OnInit {
 
   getLostAccessories(rental: Rental) {
     return rental.accessories.filter(
-      (a) => !a.zurueckgegeben && a.verlustgebuehr,
+      (a) => !a.zurueckgegeben && !a.einmalig && a.verlustgebuehr,
     );
   }
 

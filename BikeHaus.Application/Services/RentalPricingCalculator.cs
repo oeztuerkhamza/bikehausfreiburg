@@ -11,6 +11,39 @@ public static class RentalPricingCalculator
         return Math.Max(1, days);
     }
 
+    /// <summary>
+    /// Zeilensumme einer Zubehörposition.
+    ///
+    /// Standard ist ein Tagespreis, der mit den Miettagen multipliziert wird.
+    ///
+    /// Einmaliges Zubehör (<paramref name="einmalig"/>) ist Verbrauchsmaterial —
+    /// etwa ein Schlauch, den der Mieter mitnimmt. Es kostet unabhängig von der
+    /// Mietdauer einmal Preis × Menge, und nur dann, wenn es auch verbraucht
+    /// wurde (<paramref name="verbraucht"/>). Kommt der Schlauch unbenutzt
+    /// zurück, wird nichts berechnet.
+    /// </summary>
+    public static decimal AccessoryLineTotal(decimal preis, int menge, int days, bool einmalig, bool verbraucht)
+        => einmalig
+            ? (verbraucht ? preis * menge : 0m)
+            : preis * menge * Math.Max(1, days);
+
+    /// <summary>
+    /// Zeilensumme einer Zubehörposition eines Mietvertrags. Einmaliges Zubehör
+    /// gilt als verbraucht, sobald es bei der Rückgabe nicht als zurückgegeben
+    /// abgehakt wurde.
+    /// </summary>
+    public static decimal LineTotal(this RentalAccessoryItem item, int days)
+        => AccessoryLineTotal(item.Tagespreis, item.Menge, days, item.Einmalig, !item.Zurueckgegeben);
+
+    /// <summary>
+    /// Zeilensumme einer Zubehörposition einer Online-Buchung. Einmaliges
+    /// Zubehör steht bei der Buchung nur bereit — ob es verbraucht wird, zeigt
+    /// sich erst bei der Rückgabe im Laden. Es geht deshalb nicht in den
+    /// Buchungspreis ein.
+    /// </summary>
+    public static decimal LineTotal(this RentalBookingAccessory item, int days)
+        => AccessoryLineTotal(item.Tagespreis, item.Menge, days, item.Einmalig, verbraucht: false);
+
     public static decimal? CalculateBikePrice(Bicycle bicycle, int days)
     {
         if (days <= 0)

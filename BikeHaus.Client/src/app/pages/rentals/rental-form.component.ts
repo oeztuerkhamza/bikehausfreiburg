@@ -575,7 +575,13 @@ const MONTH_NAMES = [
               <div class="accessory-quantity-item" *ngFor="let acc of availableAccessories">
                 <label [attr.for]="'acc_' + acc.id">
                   {{ acc.bezeichnung }}
-                  <span class="acc-price">{{ acc.tagespreis | number: '1.2-2' }} €/Tag</span>
+                  <span class="acc-price">
+                    {{ acc.tagespreis | number: '1.2-2' }} €{{ acc.einmalig ? ' einmalig' : '/Tag' }}
+                  </span>
+                  <!-- Verbrauchsmaterial: wird erst bei der Rückgabe berechnet,
+                       und nur, wenn es nicht zurückkommt. Deshalb steht es nicht
+                       in der Zubehörsumme. -->
+                  <span class="acc-note" *ngIf="acc.einmalig">nur bei Verbrauch</span>
                 </label>
                 <input
                   type="number"
@@ -592,6 +598,10 @@ const MONTH_NAMES = [
             <div class="accessory-total-row" *ngIf="accessoryGrandTotal() > 0">
               <span>Zubehör gesamt ({{ rentalDays }} Tage):</span>
               <strong>{{ accessoryGrandTotal() | number: '1.2-2' }} €</strong>
+            </div>
+            <div class="accessory-hint" *ngIf="hasEinmaligesZubehoerSelected()">
+              Einmaliges Zubehör ist nicht in der Summe enthalten: es wird bei der
+              Rückgabe berechnet – und nur, wenn es verbraucht wurde.
             </div>
           </div>
           </ng-container>
@@ -1575,6 +1585,16 @@ const MONTH_NAMES = [
         font-weight: 500;
         color: var(--text-secondary, #64748b);
       }
+      .accessory-quantity-item label .acc-note {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #0f766e;
+      }
+      .accessory-hint {
+        margin-top: 6px;
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
+      }
       .accessory-quantity-item input {
         flex-shrink: 0;
         width: 70px;
@@ -2452,12 +2472,25 @@ export class RentalFormComponent implements OnInit {
     else delete this.catalogAccessoryQty[id];
   }
 
+  /**
+   * Zubehörsumme des Vertrags. Einmaliges Zubehör (Verbrauchsmaterial wie ein
+   * Schlauch) bleibt außen vor: ob es berechnet wird, entscheidet sich erst bei
+   * der Rückgabe — genau wie serverseitig in RentalPricingCalculator.
+   */
   accessoryGrandTotal(): number {
     const days = this.rentalDays > 0 ? this.rentalDays : 1;
     return this.availableAccessories.reduce((sum, acc) => {
       const qty = this.catalogAccessoryQty[acc.id] || 0;
+      if (acc.einmalig) return sum;
       return sum + acc.tagespreis * qty * days;
     }, 0);
+  }
+
+  /** true, sobald mindestens ein einmaliges Zubehör mitgegeben wird. */
+  hasEinmaligesZubehoerSelected(): boolean {
+    return this.availableAccessories.some(
+      (acc) => acc.einmalig && (this.catalogAccessoryQty[acc.id] || 0) > 0,
+    );
   }
 
   /** Builds the accessory payload (priced per day server-side) from the catalog selection. */
@@ -2470,6 +2503,7 @@ export class RentalFormComponent implements OnInit {
         tagespreis: acc.tagespreis,
         verlustgebuehr: acc.verlustgebuehr,
         menge: this.catalogAccessoryQty[acc.id],
+        einmalig: acc.einmalig,
       }));
   }
 

@@ -981,6 +981,7 @@ export interface RentalAccessoryItemCreate {
   tagespreis: number;
   verlustgebuehr?: number;
   menge: number;
+  einmalig: boolean;
 }
 
 export interface RentalAccessoryItem {
@@ -989,8 +990,10 @@ export interface RentalAccessoryItem {
   tagespreis: number;
   verlustgebuehr?: number;
   menge: number;
+  /** Bei einmaligem Zubehör 0, solange es zurückgegeben wurde. */
   gesamtpreis: number;
   zurueckgegeben: boolean;
+  einmalig: boolean;
 }
 
 export interface RentalBikeReturn {
@@ -1103,6 +1106,11 @@ export interface RentalAccessory {
   aktiv: boolean;
   beschreibung?: string;
   bildPfad?: string;
+  /**
+   * true = Verbrauchsmaterial (z. B. Schlauch): kostet einmal statt pro Tag und
+   * nur dann, wenn es bei der Rückgabe nicht zurückkommt.
+   */
+  einmalig: boolean;
   createdAt: string;
 }
 
@@ -1114,6 +1122,7 @@ export interface RentalAccessoryList {
   aktiv: boolean;
   beschreibung?: string;
   bildPfad?: string;
+  einmalig: boolean;
   createdAt: string;
 }
 
@@ -1122,6 +1131,7 @@ export interface RentalAccessoryCreate {
   tagespreis: number;
   verlustgebuehr?: number;
   beschreibung?: string;
+  einmalig: boolean;
 }
 
 export interface RentalAccessoryUpdate {
@@ -1130,6 +1140,7 @@ export interface RentalAccessoryUpdate {
   verlustgebuehr?: number;
   beschreibung?: string;
   aktiv: boolean;
+  einmalig: boolean;
 }
 
 export interface RentalBookingAccessory {
@@ -1138,6 +1149,7 @@ export interface RentalBookingAccessory {
   tagespreis: number;
   menge: number;
   gesamtpreis: number;
+  einmalig?: boolean;
   rentalAccessoryId?: number;
 }
 

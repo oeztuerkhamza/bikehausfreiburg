@@ -43,6 +43,7 @@ public class RentalAccessoryService : IRentalAccessoryService
             Tagespreis = dto.Tagespreis,
             Verlustgebuehr = dto.Verlustgebuehr,
             Beschreibung = dto.Beschreibung,
+            Einmalig = dto.Einmalig,
             Aktiv = true
         };
 
@@ -59,6 +60,7 @@ public class RentalAccessoryService : IRentalAccessoryService
         entity.Tagespreis = dto.Tagespreis;
         entity.Verlustgebuehr = dto.Verlustgebuehr;
         entity.Beschreibung = dto.Beschreibung;
+        entity.Einmalig = dto.Einmalig;
         entity.Aktiv = dto.Aktiv;
         entity.UpdatedAt = DateTime.UtcNow;
 
