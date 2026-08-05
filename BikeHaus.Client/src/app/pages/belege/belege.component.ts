@@ -45,8 +45,8 @@ import { BelegListItem } from '../../models/models';
       </div>
 
       <p class="hint">
-        Der Export fasst alle Belege dieses Zeitraums in einer einzigen
-        PDF-Datei zusammen — in der Reihenfolge dieser Liste.
+        Nach Beleg-Nr. sortiert. Der Export fasst alle Belege dieses Zeitraums
+        in einer einzigen PDF-Datei zusammen — in der Reihenfolge dieser Liste.
       </p>
 
       <div class="loading" *ngIf="loading">Wird geladen…</div>

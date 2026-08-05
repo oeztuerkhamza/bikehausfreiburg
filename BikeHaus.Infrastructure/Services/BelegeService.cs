@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain.Interfaces;
@@ -78,14 +79,27 @@ public class BelegeService(
         return Merge(parts);
     }
 
-    // Datum bestimmt die Reihenfolge; bei gleichem Datum entscheidet die
-    // Belegnummer, damit die Ausgabe zwischen zwei Läufen stabil bleibt.
+    // Verkäufe und Mietverträge ziehen aus DEMSELBEN Nummernkreis, deshalb
+    // ordnet die Belegnummer beide Arten korrekt ineinander.
+    // Sortiert wird über die Zahl am Ende, nicht über den Text: sonst käme
+    // "…-10" vor "…-9". Datum entscheidet nur noch bei gleicher Nummer.
     private static List<BelegListDto> Sort(IEnumerable<BelegListDto> belege) =>
         belege
-            .OrderBy(b => b.Datum)
+            .OrderBy(b => BelegNummerWert(b.BelegNummer))
             .ThenBy(b => b.BelegNummer, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(b => b.Datum)
             .ThenBy(b => b.Id)
             .ToList();
+
+    private static readonly Regex EndZahl = new(@"(\d+)$", RegexOptions.Compiled);
+
+    /// <summary>Zahl am Ende der Belegnummer; ohne Ziffern 0 (steht dann vorn).</summary>
+    private static int BelegNummerWert(string? belegNummer)
+    {
+        if (string.IsNullOrWhiteSpace(belegNummer)) return 0;
+        var match = EndZahl.Match(belegNummer);
+        return match.Success && int.TryParse(match.Groups[1].Value, out var wert) ? wert : 0;
+    }
 
     /// <summary>Hängt die einzelnen PDFs seitenweise zu einem Dokument zusammen.</summary>
     private static byte[] Merge(IReadOnlyCollection<byte[]> pdfs)
