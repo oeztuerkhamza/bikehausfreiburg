@@ -195,7 +195,7 @@ function fmtTime(ts) {
 
 function renderThread(conv, opts = {}) {
   $('chat-head').innerHTML =
-    `${conv.name} <small>${conv.chatId.replace('@c.us', '')}</small>`;
+    `${conv.name} <small>${conv.chatId.replace(/@(c\.us|lid)$/, '')}</small>`;
   const box = $('messages');
   box.innerHTML = '';
   for (const m of conv.messages) {

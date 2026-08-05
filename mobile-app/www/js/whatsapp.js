@@ -179,7 +179,7 @@ export async function openConversation(chatId) {
 
 function renderPeer(c) {
   setText(D.peerName, c.name);
-  setText(D.peerSub, (c.chatId || '').replace('@c.us', ''));
+  setText(D.peerSub, (c.chatId || '').replace(/@(c\.us|lid)$/, ''));
   setText(D.peerAvatar, initials(c.name));
 }
 

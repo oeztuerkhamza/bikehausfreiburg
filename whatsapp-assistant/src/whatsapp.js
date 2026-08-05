@@ -148,6 +148,70 @@ export async function listChats(waClient = client) {
   return { chats, skipped, mode: 'teker teker' };
 }
 
+/**
+ * Son çare: sohbetleri kütüphanenin model katmanına hiç uğramadan doğrudan
+ * sayfadaki koleksiyondan okur.
+ *
+ * Gerekçe: WhatsApp sohbetleri "@lid" kimliğine geçirdi. whatsapp-web.js 1.34.7
+ * (en güncel sürüm) bunların modelini kuramıyor — getChatModel her sohbet için
+ * hata veriyor, dolayısıyla ne toplu ne teker teker yol iş görüyor. Ham okuma
+ * bu katmanı atladığı için kimlik biçiminden etkilenmiyor.
+ *
+ * Bu modda mesaj gövdesi, yönü ve zamanı gelir; fotoğraf indirilemez (indirme
+ * bir Message nesnesi ister). Daha önce indirilmiş fotoğraflar diskten gelmeye
+ * devam eder.
+ */
+export async function getRawChats(waClient = client, perChatMessages = MESSAGE_LIMIT) {
+  if (!waClient?.pupPage) return [];
+  return waClient.pupPage.evaluate((perChat) => {
+    const pick = (fn, fallback = null) => {
+      try {
+        const v = fn();
+        return v === undefined ? fallback : v;
+      } catch {
+        return fallback;
+      }
+    };
+
+    const collection = pick(() => window.require('WAWebCollections')?.Chat) || window.Store?.Chat;
+    if (!collection) return [];
+
+    const out = [];
+    for (const chat of pick(() => collection.getModelsArray(), []) || []) {
+      const id = pick(() => chat?.id?._serialized);
+      if (!id) continue;
+
+      const messages = [];
+      const all = pick(() => chat.msgs?.getModelsArray?.(), []) || [];
+      for (const m of all.slice(-perChat)) {
+        const msgId = pick(() => m?.id?._serialized);
+        if (!msgId) continue;
+        messages.push({
+          id: msgId,
+          body: pick(() => m.body, '') || pick(() => m.caption, '') || '',
+          fromMe: !!pick(() => m.id?.fromMe, false),
+          t: pick(() => m.t, 0) || 0,
+          type: pick(() => m.type, 'chat') || 'chat',
+        });
+      }
+
+      out.push({
+        id,
+        name:
+          pick(() => chat.formattedTitle) ||
+          pick(() => chat.name) ||
+          pick(() => chat.contact?.pushname) ||
+          pick(() => chat.contact?.name) ||
+          id,
+        unread: pick(() => chat.unreadCount, 0) || 0,
+        t: pick(() => chat.t, 0) || 0,
+        messages,
+      });
+    }
+    return out;
+  }, perChatMessages);
+}
+
 // Sohbetin karşı tarafının adı. Giden mesajlarda msg.getContact() bizi
 // döndürdüğü için ismi her zaman sohbet üzerinden çözüyoruz.
 async function resolveName(chat, chatId) {
@@ -345,6 +409,52 @@ export async function logout() {
   start();
 }
 
+// Ham sayfa verisini senkronun beklediği şekle çevirir. Fotoğraflar burada
+// indirilemez; daha önce inmiş olanlar diskten bağlanır.
+async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
+  let rawChats = [];
+  try {
+    rawChats = await getRawChats(client, perChatMessages);
+  } catch (err) {
+    console.error('[whatsapp] ham sohbet okuma da başarısız:', err?.message);
+    return [];
+  }
+
+  const usable = rawChats
+    .filter((c) => isSyncableChatId(c.id))
+    .sort((a, b) => (b.t || 0) - (a.t || 0))
+    .slice(0, limit);
+  console.log(`[whatsapp] sohbet listesi (ham): ${rawChats.length} bulundu, ${usable.length} işlenecek`);
+
+  const result = [];
+  for (const chat of usable) {
+    const lastTs = (chat.t || 0) * 1000;
+    if (shouldFetchMessages && !shouldFetchMessages(chat.id, lastTs)) {
+      result.push({ chatId: chat.id, name: chat.name, unread: chat.unread, messages: [] });
+      continue;
+    }
+
+    const messages = [];
+    for (const m of chat.messages) {
+      const { body, mediaOnly } = bodyOf(m);
+      if (!body) continue;
+      const msg = {
+        id: m.id,
+        direction: m.fromMe ? 'out' : 'in',
+        body,
+        ts: (m.t || 0) * 1000,
+      };
+      if (mediaOnly) msg.mediaOnly = true;
+      const cached = media.findExisting(m.id);
+      if (cached) msg.photo = cached;
+      messages.push(msg);
+    }
+    messages.sort((a, b) => a.ts - b.ts);
+    result.push({ chatId: chat.id, name: chat.name, unread: chat.unread, messages });
+  }
+  return result;
+}
+
 /**
  * Mevcut (bireysel) sohbetleri son mesajlarıyla birlikte getir.
  * @param {object} [opts]
@@ -370,6 +480,12 @@ export async function getRecentChats(opts = {}) {
     `[whatsapp] sohbet listesi (${mode}): ${chats.length} bulundu, ${individual.length} işlenecek` +
       (skipped ? `, ${skipped} atlandı` : ''),
   );
+
+  // Model katmanı hiçbir sohbeti veremediyse (WhatsApp'ın @lid kimlikleri)
+  // ham okumaya düş — metin akışı böyle kurtarılıyor.
+  if (individual.length === 0 && skipped > 0) {
+    return buildFromRawChats(limit, perChatMessages, shouldFetchMessages);
+  }
 
   // Diskte olmayan fotoğraflar için tur başına indirme bütçesi. Zaten kayıtlı
   // olanlar bütçeyi harcamaz; kalanlar bir sonraki senkronda tamamlanır.
