@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import path from 'node:path';
+import * as media from './media.js';
 
 const { Client, LocalAuth } = pkg;
 
@@ -42,6 +43,43 @@ function bodyOf(msg) {
   return caption
     ? { body: `${label} — ${caption}`, mediaOnly: false }
     : { body: label, mediaOnly: true };
+}
+
+// --- Fotoğraflar ---
+// Foto mesajlarında etiketin yanı sıra görselin kendisi de indirilir. Büyük
+// dosyalar atlanır; geçmiş senkronunda tur başına bir indirme sınırı var,
+// yoksa ilk senkron yüzlerce indirmeye dönüşür.
+const PHOTO_MAX_BYTES = Number(process.env.WA_PHOTO_MAX_BYTES || 8 * 1024 * 1024);
+const PHOTO_SYNC_LIMIT = Number(process.env.WA_PHOTO_SYNC_LIMIT || 50);
+
+function isPhoto(msg) {
+  return msg.type === 'image' && msg.hasMedia;
+}
+
+// Fotoğrafı diske alır ve dosya adını döndürür. İndirilemezse null — mesaj
+// yine de '📷 Foto' etiketiyle akışta kalır.
+async function savePhoto(msg) {
+  if (!isPhoto(msg)) return null;
+  const id = msg.id?._serialized;
+  if (!id) return null;
+
+  const existing = media.findExisting(id);
+  if (existing) return existing;
+
+  try {
+    const downloaded = await msg.downloadMedia();
+    if (!downloaded?.data) return null;
+    const fileName = media.fileNameFor(id, downloaded.mimetype);
+    if (!fileName) return null;
+    if (Buffer.byteLength(downloaded.data, 'base64') > PHOTO_MAX_BYTES) {
+      console.log('[whatsapp] fotoğraf çok büyük, atlandı:', id);
+      return null;
+    }
+    return media.save(fileName, downloaded.data);
+  } catch (err) {
+    console.error('[whatsapp] fotoğraf indirilemedi:', id, err?.message);
+    return null;
+  }
 }
 
 // Grup, durum ve yayın sohbetlerini dışarıda bırak.
@@ -181,6 +219,8 @@ function createClient() {
       name = await resolveName(await msg.getChat(), chatId);
     } catch {}
 
+    const photo = await savePhoto(msg);
+
     events.emit('message', {
       chatId,
       name,
@@ -188,6 +228,7 @@ function createClient() {
       direction: msg.fromMe ? 'out' : 'in',
       body,
       mediaOnly,
+      photo,
       ts: (msg.timestamp || Math.floor(Date.now() / 1000)) * 1000,
     });
   });
@@ -262,6 +303,10 @@ export async function getRecentChats(opts = {}) {
     .filter((c) => !c.isGroup && isSyncableChatId(c.id?._serialized))
     .slice(0, limit);
 
+  // Diskte olmayan fotoğraflar için tur başına indirme bütçesi. Zaten kayıtlı
+  // olanlar bütçeyi harcamaz; kalanlar bir sonraki senkronda tamamlanır.
+  let photoBudget = PHOTO_SYNC_LIMIT;
+
   const result = [];
   for (const chat of individual) {
     const chatId = chat.id._serialized;
@@ -280,20 +325,31 @@ export async function getRecentChats(opts = {}) {
     } catch (err) {
       console.error('[whatsapp] fetchMessages hata:', chatId, err.message);
     }
-    const messages = raw
-      .map((m) => {
-        const { body, mediaOnly } = bodyOf(m);
-        if (!body) return null;
-        const msg = {
-          id: m.id?._serialized || String(m.timestamp),
-          direction: m.fromMe ? 'out' : 'in',
-          body,
-          ts: (m.timestamp || 0) * 1000,
-        };
-        if (mediaOnly) msg.mediaOnly = true;
-        return msg;
-      })
-      .filter(Boolean);
+    // Yeniden eskiye doğru: bütçe dolarsa en güncel fotoğraflar elde kalır.
+    const messages = [];
+    for (const m of [...raw].reverse()) {
+      const { body, mediaOnly } = bodyOf(m);
+      if (!body) continue;
+      const msg = {
+        id: m.id?._serialized || String(m.timestamp),
+        direction: m.fromMe ? 'out' : 'in',
+        body,
+        ts: (m.timestamp || 0) * 1000,
+      };
+      if (mediaOnly) msg.mediaOnly = true;
+
+      if (isPhoto(m)) {
+        const cached = media.findExisting(msg.id);
+        if (cached) msg.photo = cached;
+        else if (photoBudget > 0) {
+          photoBudget--;
+          const saved = await savePhoto(m);
+          if (saved) msg.photo = saved;
+        }
+      }
+      messages.push(msg);
+    }
+    messages.reverse();
     result.push({ chatId, name, unread, messages });
   }
   return result;

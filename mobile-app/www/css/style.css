@@ -187,6 +187,7 @@ body.kb-open .view { bottom: 0; }
 .msg.in  { align-self: flex-start; background: var(--bubble-in); border-top-left-radius: 3px; }
 .msg.out { align-self: flex-end; background: var(--bubble-out); border-top-right-radius: 3px; }
 .msg .body { font-size: 15px; }
+.msg .photo { display: block; max-width: 100%; max-height: 300px; border-radius: 6px; margin-bottom: 5px; background: rgba(0,0,0,.2); }
 .msg .tr {
   margin-top: 5px; padding-top: 5px; font-size: 13.5px; color: var(--tr);
   border-top: 1px dashed rgba(255,212,121,.3); font-style: italic;

@@ -167,6 +167,25 @@ async function translateConversation(chatId) {
   }
 }
 
+// Fotoğraf uçları JWT ister; <img src> başlık gönderemediği için görseli
+// fetch ile (üstteki sarmalayıcı Authorization ekliyor) alıp blob URL veriyoruz.
+const photoUrls = new Map();
+function loadPhoto(img, file) {
+  const cached = photoUrls.get(file);
+  if (cached) {
+    img.src = cached;
+    return;
+  }
+  fetch(`/api/media/${encodeURIComponent(file)}`)
+    .then((r) => (r.ok ? r.blob() : Promise.reject(new Error(String(r.status)))))
+    .then((blob) => {
+      const url = URL.createObjectURL(blob);
+      photoUrls.set(file, url);
+      img.src = url;
+    })
+    .catch(() => img.remove());
+}
+
 function fmtTime(ts) {
   return new Date(ts).toLocaleTimeString('tr-TR', {
     hour: '2-digit',
@@ -182,7 +201,19 @@ function renderThread(conv, opts = {}) {
   for (const m of conv.messages) {
     const div = document.createElement('div');
     div.className = 'msg ' + m.direction;
-    div.appendChild(document.createTextNode(m.body));
+    if (m.photo) {
+      const img = document.createElement('img');
+      img.className = 'photo';
+      img.alt = 'Fotoğraf';
+      img.loading = 'lazy';
+      img.onclick = () => {
+        if (img.src) window.open(img.src, '_blank');
+      };
+      div.appendChild(img);
+      loadPhoto(img, m.photo);
+    }
+    // Sadece fotoğraftan ibaret mesajda '📷 Foto' etiketini tekrar yazma.
+    if (!(m.photo && m.mediaOnly)) div.appendChild(document.createTextNode(m.body));
     if (m.direction === 'in' && m.translation) {
       const tr = document.createElement('div');
       tr.className = 'translation';

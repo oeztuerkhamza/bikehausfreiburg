@@ -8,6 +8,7 @@ import { Server as SocketServer } from "socket.io";
 import * as store from "./store.js";
 import * as wa from "./whatsapp.js";
 import * as ai from "./ai.js";
+import * as media from "./media.js";
 import { saveEnv } from "./config.js";
 import { requireAuth, socketAuth } from "./auth.js";
 
@@ -113,6 +114,7 @@ wa.events.on("message", async (m) => {
     direction: m.direction === "out" ? "out" : "in",
     body: m.body,
     mediaOnly: m.mediaOnly,
+    photo: m.photo,
     ts: m.ts,
   });
   io.emit("conversation", conv);
@@ -146,6 +148,16 @@ app.get("/api/conversations", (_req, res) => {
   res.json(store.list());
 });
 
+// Sohbetteki fotoğraf. /api zaten JWT'li; dosya adı doğrudan URL'den geldiği
+// için media.resolve ayrıca biçimi doğrular (dizin dışına çıkış engellenir).
+app.get("/api/media/:file", (req, res) => {
+  const found = media.resolve(req.params.file);
+  if (!found) return res.status(404).json({ error: "bulunamadı" });
+  res.type(found.mimetype);
+  res.setHeader("Cache-Control", "private, max-age=86400");
+  res.sendFile(found.path);
+});
+
 // Bağlı numarayı çıkar (Abmeldung) — başka numarayla giriş için.
 // Oturumu + eski sohbetleri temizler, servisi yeniden başlatır → yeni QR.
 app.post("/api/logout", async (_req, res) => {
@@ -155,6 +167,7 @@ app.post("/api/logout", async (_req, res) => {
   res.json({ ok: true });
   console.log("[logout] numara çıkarılıyor, oturum + sohbetler temizleniyor...");
   store.clearAll();
+  media.clearAll();
   io.emit("status", { status: "loggingout", qrDataUrl: null, me: null });
   await wa.logout();
 });

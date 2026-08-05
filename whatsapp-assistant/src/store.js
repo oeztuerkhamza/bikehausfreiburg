@@ -36,7 +36,7 @@ function persist() {
 }
 
 /**
- * @typedef {{id:string, direction:"in"|"out", body:string, ts:number, mediaOnly?:boolean}} Msg
+ * @typedef {{id:string, direction:"in"|"out", body:string, ts:number, mediaOnly?:boolean, photo?:string}} Msg
  * @typedef {{chatId:string, name:string, messages:Msg[], draft:string, unread:number, updatedAt:number}} Conversation
  */
 
@@ -53,12 +53,13 @@ export function getOrCreate(chatId, name) {
 
 // Tek mesaj ekle. Aynı id ikinci kez gelirse (canlı olay + senkron, ya da
 // panelden gönderip ardından WhatsApp olayını almak) yoksayılır.
-export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly }) {
+export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly, photo }) {
   const conv = getOrCreate(chatId, name);
   if (id && conv.messages.some((m) => m.id === id)) return conv;
 
   const msg = { id, direction, body, ts: ts || Date.now() };
   if (mediaOnly) msg.mediaOnly = true;
+  if (photo) msg.photo = photo;
   conv.messages.push(msg);
   // Geç gelen bir mesaj sırayı bozmasın.
   const prev = conv.messages[conv.messages.length - 2];
@@ -80,9 +81,13 @@ export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly })
 // sohbet telefonda okunduysa buradaki rozet de düşer, tersi olmaz.
 export function importChat(chatId, name, messages, unread) {
   const conv = getOrCreate(chatId, name);
-  const seen = new Set(conv.messages.map((m) => m.id));
+  const byId = new Map(conv.messages.map((m) => [m.id, m]));
   for (const m of messages) {
-    if (!seen.has(m.id)) { conv.messages.push(m); seen.add(m.id); }
+    const known = byId.get(m.id);
+    if (!known) { conv.messages.push(m); byId.set(m.id, m); }
+    // Fotoğraf bütçesi yüzünden ilk turda inmemiş olabilir — sonradan gelirse
+    // mevcut mesaja iliştir.
+    else if (m.photo && !known.photo) known.photo = m.photo;
   }
   conv.messages.sort((a, b) => a.ts - b.ts);
   if (name && (conv.name === chatId || !conv.name)) conv.name = name;

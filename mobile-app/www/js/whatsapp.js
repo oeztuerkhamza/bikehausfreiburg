@@ -2,6 +2,7 @@
 // gönderim, yoklama (polling) + yeni mesaj bildirimi.
 import { WA_BASE } from './config.js';
 import { http } from './http.js';
+import { token } from './session.js';
 import { toTurkish } from './translate.js';
 import { $, toast, initials, fmtTime, fmtListTime, autoGrow, setText } from './ui.js';
 import { notify } from './notify.js';
@@ -182,6 +183,26 @@ function renderPeer(c) {
   setText(D.peerAvatar, initials(c.name));
 }
 
+// Fotoğraflar JWT'li uçtan gelir; <img src> başlık gönderemediği için görseli
+// tek tek çekip blob URL veriyoruz. Başarısız olursa görsel düşer, mesaj
+// '📷 Foto' etiketiyle kalır.
+const photoUrls = new Map();
+async function loadPhoto(img, file) {
+  const cached = photoUrls.get(file);
+  if (cached) { img.src = cached; return; }
+  try {
+    const res = await fetch(api(`/media/${encodeURIComponent(file)}`), {
+      headers: { Authorization: `Bearer ${token()}` },
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    const url = URL.createObjectURL(await res.blob());
+    photoUrls.set(file, url);
+    img.src = url;
+  } catch {
+    img.remove();
+  }
+}
+
 function renderMessages(c, opts = {}) {
   const box = D.messages;
   const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
@@ -198,10 +219,21 @@ function renderMessages(c, opts = {}) {
     }
     const div = document.createElement('div');
     div.className = 'msg ' + (m.direction === 'in' ? 'in' : 'out');
-    const body = document.createElement('div');
-    body.className = 'body';
-    body.textContent = m.body;
-    div.appendChild(body);
+    if (m.photo) {
+      const img = document.createElement('img');
+      img.className = 'photo';
+      img.alt = 'Fotoğraf';
+      img.loading = 'lazy';
+      div.appendChild(img);
+      loadPhoto(img, m.photo);
+    }
+    // Sadece fotoğraftan ibaret mesajda '📷 Foto' etiketini tekrar yazma.
+    if (!(m.photo && m.mediaOnly)) {
+      const body = document.createElement('div');
+      body.className = 'body';
+      body.textContent = m.body;
+      div.appendChild(body);
+    }
     if (m.direction === 'in' && m.translation) {
       const tr = document.createElement('div');
       tr.className = 'tr';
