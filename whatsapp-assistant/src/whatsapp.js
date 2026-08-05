@@ -52,8 +52,10 @@ function bodyOf(msg) {
 const PHOTO_MAX_BYTES = Number(process.env.WA_PHOTO_MAX_BYTES || 8 * 1024 * 1024);
 const PHOTO_SYNC_LIMIT = Number(process.env.WA_PHOTO_SYNC_LIMIT || 50);
 
+// hasMedia bazı whatsapp-web.js sürümlerinde foto mesajlarında da false
+// geliyor — bu yüzden tür yeterli, indirme denemesi kararı verir.
 function isPhoto(msg) {
-  return msg.type === 'image' && msg.hasMedia;
+  return msg.type === 'image';
 }
 
 // Fotoğrafı diske alır ve dosya adını döndürür. İndirilemezse null — mesaj
@@ -88,8 +90,62 @@ function isSyncableChatId(chatId) {
     !!chatId &&
     chatId !== 'status@broadcast' &&
     !chatId.endsWith('@g.us') &&
-    !chatId.endsWith('@broadcast')
+    !chatId.endsWith('@broadcast') &&
+    // Kanallar/haber bültenleri müşteri sohbeti değil; ayrıca whatsapp-web.js
+    // bunların modelini kuramayıp hata veriyor.
+    !chatId.endsWith('@newsletter')
   );
+}
+
+// client.getChats() bütün sohbetleri tek bir Promise.all içinde kuruyor:
+// listedeki TEK bir bozuk sohbet (kanal, topluluk, tanımadığı yeni bir tür)
+// çağrının tamamını düşürüyor ve geçmiş senkronu hiç çalışmıyor. Toplu çağrı
+// patlarsa sohbetleri teker teker alıyoruz — bozuk olan atlanır, gerisi gelir.
+export async function listChats(waClient = client) {
+  if (!waClient) return { chats: [], skipped: 0, mode: 'istemci yok' };
+  try {
+    const chats = await waClient.getChats();
+    return { chats, skipped: 0, mode: 'toplu' };
+  } catch (err) {
+    console.error('[whatsapp] getChats topluca başarısız:', err?.message, '— teker teker deneniyor.');
+  }
+
+  // Sadece kimlikleri okuyoruz — model kurulmadığı için bu adım bozuk
+  // sohbetlerden etkilenmiyor. Erişim yolu kütüphanenin kendi kullandığı yol.
+  let ids = [];
+  try {
+    ids = await waClient.pupPage.evaluate(() => {
+      const chatCollection =
+        (typeof window.require === 'function' && window.require('WAWebCollections')?.Chat) ||
+        window.Store?.Chat;
+      if (!chatCollection) return [];
+      return chatCollection
+        .getModelsArray()
+        .map((c) => c?.id?._serialized)
+        .filter(Boolean);
+    });
+  } catch (err) {
+    console.error('[whatsapp] sohbet kimlikleri okunamadı:', err?.message);
+    return { chats: [], skipped: 0, mode: 'başarısız' };
+  }
+
+  const chats = [];
+  const errors = [];
+  let skipped = 0;
+  for (const id of ids) {
+    if (!isSyncableChatId(id)) continue;
+    try {
+      const chat = await waClient.getChatById(id);
+      if (chat) chats.push(chat);
+    } catch (err) {
+      skipped++;
+      if (errors.length < 3) errors.push(`${id}: ${err?.message}`);
+    }
+  }
+  if (skipped) {
+    console.error(`[whatsapp] ${skipped} sohbet atlandı. İlk hatalar: ${errors.join(' | ')}`);
+  }
+  return { chats, skipped, mode: 'teker teker' };
 }
 
 // Sohbetin karşı tarafının adı. Giden mesajlarda msg.getContact() bizi
@@ -183,11 +239,17 @@ function createClient() {
     armStuckWatchdog('kimlik doğrulama sonrası');
   });
 
-  client.on('ready', () => {
+  client.on('ready', async () => {
     state.status = 'ready';
     state.qrDataUrl = null;
     state.me = client.info?.wid?.user || null;
     console.log(`[whatsapp] Hazır. Bağlı numara: ${state.me}`);
+    // Tanı için: kütüphane ve WhatsApp Web sürümü uyuşmazlıkların ilk şüphelisi.
+    try {
+      console.log(
+        `[whatsapp] whatsapp-web.js ${pkg.version ?? '?'} | WhatsApp Web ${await client.getWWebVersion()}`,
+      );
+    } catch {}
     events.emit('status', state);
     clearTimeout(stuckTimer);
   });
@@ -298,10 +360,16 @@ export async function getRecentChats(opts = {}) {
   const perChatMessages = opts.perChatMessages ?? MESSAGE_LIMIT;
   const shouldFetchMessages = opts.shouldFetchMessages;
 
-  const chats = await client.getChats();
+  const { chats, skipped, mode } = await listChats();
+  // En son konuşulan sohbetler önce — teker teker modda sıra garantili değil.
   const individual = chats
     .filter((c) => !c.isGroup && isSyncableChatId(c.id?._serialized))
+    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
     .slice(0, limit);
+  console.log(
+    `[whatsapp] sohbet listesi (${mode}): ${chats.length} bulundu, ${individual.length} işlenecek` +
+      (skipped ? `, ${skipped} atlandı` : ''),
+  );
 
   // Diskte olmayan fotoğraflar için tur başına indirme bütçesi. Zaten kayıtlı
   // olanlar bütçeyi harcamaz; kalanlar bir sonraki senkronda tamamlanır.
