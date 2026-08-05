@@ -795,8 +795,8 @@ const MONTH_NAMES = [
                 />
               </div>
               <div class="preise-total-hint" *ngIf="activeBikeCount() > 1">
-                Wird gleichmäßig auf {{ activeBikeCount() }} Fahrräder verteilt
-                (je {{ kautionGesamt / activeBikeCount() | number: '1.2-2' }} €).
+                Gilt für alle {{ activeBikeCount() }} Fahrräder zusammen – auf
+                Quittung und Rückgabebeleg steht nur dieser Gesamtbetrag.
               </div>
             </div>
           </div>

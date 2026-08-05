@@ -609,7 +609,8 @@ Bike Haus Freiburg
 {m.PickupLocation}
 
 Wichtiger Hinweis:
-Bitte bring zur Abholung einen gueltigen Lichtbildausweis und {depositAmount:0.00} EUR in bar als Kaution mit.
+Bitte bring zur Abholung einen gueltigen Lichtbildausweis und die Kaution von insgesamt {depositAmount:0.00} EUR in bar mit.
+Die Kaution gilt fuer die gesamte Buchung, nicht je Fahrrad.
 
 Falls du doch nicht fahren kannst:
 Du kannst deine Buchung selbst stornieren ueber diesen Link:
@@ -656,7 +657,8 @@ Bike Haus Freiburg
 {m.PickupLocation}
 
 Important note:
-Please bring a valid photo ID and {depositAmount:0.00} EUR in cash as a deposit when you pick up the bike.
+Please bring a valid photo ID and the total deposit of {depositAmount:0.00} EUR in cash when you pick up the bike.
+The deposit covers the whole booking, not each bike separately.
 
 If you cannot ride after all:
 You can cancel your booking yourself via this link:
@@ -863,7 +865,7 @@ Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
 Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
 Geschaetzter Mietpreis: {totalPriceText}
-Kaution: {depositAmount:0.00} EUR (in bar bei Abholung, wird bei Rueckgabe erstattet)
+Kaution (gesamt): {depositAmount:0.00} EUR (in bar bei Abholung, wird bei Rueckgabe erstattet)
 Zubehoer: {accessoriesText}
 
 Wie geht es jetzt weiter?
@@ -906,7 +908,7 @@ Booking number: {m.BuchungsNummer}
 Bike: {m.BikeBrand} {m.BikeModel}
 Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days){abholzeitLine}
 Estimated rental price: {totalPriceText}
-Deposit: {depositAmount:0.00} EUR (cash on pickup, refunded on return)
+Deposit (total): {depositAmount:0.00} EUR (cash on pickup, refunded on return)
 Accessories: {accessoriesText}
 
 What happens next?

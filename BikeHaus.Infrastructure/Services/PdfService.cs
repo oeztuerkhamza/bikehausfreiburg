@@ -1183,6 +1183,52 @@ public class PdfService : IPdfService
             .BorderColor(SecondaryColor);
     }
 
+    /// <summary>
+    /// Fahrräder eines Mietvertrags mit der Kaution als einzelnem Gesamtbetrag.
+    ///
+    /// Die Kaution wird pro Vertrag hinterlegt und zurückgezahlt, nicht pro Rad —
+    /// deshalb listet die Tabelle nur die Räder auf und schließt mit einer Zeile
+    /// „KAUTION (GESAMT)" ab. Kautionsquittung und Kautionsrückgabebeleg nutzen
+    /// dieselbe Darstellung, damit beide Belege denselben Betrag zeigen.
+    /// </summary>
+    private static void AddFahrraederMitGesamtkaution(ColumnDescriptor col, Rental rental)
+    {
+        col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRÄDER & KAUTION");
+
+        var kautionsBikes = rental.Bikes.OrderBy(b => b.Id).ToList();
+        col.Item().Table(table =>
+        {
+            table.ColumnsDefinition(columns =>
+            {
+                columns.ConstantColumn(25);
+                columns.RelativeColumn(2);
+                columns.RelativeColumn(1);
+                columns.RelativeColumn(1);
+            });
+
+            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Nr.").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
+            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Fahrrad").FontSize(8).Bold().FontColor(PrimaryColor);
+            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennr.").FontSize(8).Bold().FontColor(PrimaryColor);
+            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Farbe").FontSize(8).Bold().FontColor(PrimaryColor);
+
+            for (int i = 0; i < kautionsBikes.Count; i++)
+            {
+                var rb = kautionsBikes[i];
+                var bicycle = rb.Bicycle;
+                var rahmennr = !string.IsNullOrWhiteSpace(rb.Rahmennummer) ? rb.Rahmennummer : (bicycle?.Rahmennummer ?? "-");
+                var farbe = !string.IsNullOrWhiteSpace(rb.Farbe) ? rb.Farbe : (bicycle?.Farbe ?? "-");
+
+                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{i + 1}").FontSize(9).AlignCenter();
+                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{bicycle?.Marke} {bicycle?.Modell}".Trim()).FontSize(9).Bold();
+                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rahmennr).FontSize(9);
+                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(farbe).FontSize(9);
+            }
+
+            table.Cell().ColumnSpan(3).Border(1).BorderColor(AccentColor).Padding(3).Text("KAUTION (GESAMT)").FontSize(9).Bold().FontColor(AccentColor).AlignRight();
+            table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{rental.Kaution:N2} €").FontSize(10).Bold().FontColor(AccentColor).AlignRight();
+        });
+    }
+
     // Add a styled two-column info row
     private static void AddInfoRow(TableDescriptor table, string label, string value)
     {
@@ -2153,16 +2199,16 @@ public class PdfService : IPdfService
                     ).FontSize(8).Italic().FontColor(Colors.Grey.Darken2);
 
                     // § 4 Kaution
-                    // rental.Kaution ist die Gesamtkaution des Vertrags, nicht der
-                    // Betrag je Fahrrad — bei mehreren Rädern wird sie gleichmäßig
-                    // aufgeteilt und der Einzelbetrag zusätzlich genannt. Ist keine
-                    // Kaution vereinbart (0 €), entfällt der Absatz.
+                    // rental.Kaution ist die Gesamtkaution des Vertrags. Sie wird als
+                    // ein Betrag für die gesamte Vermietung genannt — auch bei mehreren
+                    // Rädern kein Einzelbetrag je Fahrrad. Ist keine Kaution vereinbart
+                    // (0 €), entfällt der Absatz.
                     col.Item().PaddingTop(8).Text("§ 4 Kaution").FontSize(11).Bold().FontColor(PrimaryColor);
                     if (rental.Kaution > 0)
                     {
                         var bikeCount = rental.Bikes?.Count ?? 0;
                         var kautionSatz = bikeCount > 1
-                            ? $"Für diese Vermietung ist eine Kaution in Höhe von insgesamt {rental.Kaution:N2} € zu hinterlegen (je Fahrrad {rental.Kaution / bikeCount:N2} €). "
+                            ? $"Für diese Vermietung ist eine Kaution in Höhe von insgesamt {rental.Kaution:N2} € für alle Fahrräder zu hinterlegen. "
                             : $"Für diese Vermietung ist eine Kaution in Höhe von {rental.Kaution:N2} € zu hinterlegen. ";
                         col.Item().PaddingTop(2).Text(
                             kautionSatz +
@@ -2416,45 +2462,7 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Customer.Email ?? "-").FontSize(10);
                     });
 
-                    // FAHRRÄDER Section (one row per bike with individual Kaution)
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRÄDER & KAUTION");
-                    {
-                        var kautionsBikes = rental.Bikes.OrderBy(b => b.Id).ToList();
-                        col.Item().Table(table =>
-                        {
-                            table.ColumnsDefinition(columns =>
-                            {
-                                columns.ConstantColumn(25);
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(1);
-                                columns.RelativeColumn(1);
-                                columns.ConstantColumn(90);
-                            });
-
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Nr.").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Fahrrad").FontSize(8).Bold().FontColor(PrimaryColor);
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennr.").FontSize(8).Bold().FontColor(PrimaryColor);
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Farbe").FontSize(8).Bold().FontColor(PrimaryColor);
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Kaution").FontSize(8).Bold().FontColor(PrimaryColor).AlignRight();
-
-                            for (int i = 0; i < kautionsBikes.Count; i++)
-                            {
-                                var rb = kautionsBikes[i];
-                                var bicycle = rb.Bicycle;
-                                var rahmennr = !string.IsNullOrWhiteSpace(rb.Rahmennummer) ? rb.Rahmennummer : (bicycle?.Rahmennummer ?? "-");
-                                var farbe = !string.IsNullOrWhiteSpace(rb.Farbe) ? rb.Farbe : (bicycle?.Farbe ?? "-");
-
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{i + 1}").FontSize(9).AlignCenter();
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{bicycle?.Marke} {bicycle?.Modell}".Trim()).FontSize(9).Bold();
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rahmennr).FontSize(9);
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(farbe).FontSize(9);
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{rb.Kaution:N2} €").FontSize(9).AlignRight().Bold();
-                            }
-
-                            table.Cell().ColumnSpan(4).Border(1).BorderColor(AccentColor).Padding(3).Text("KAUTION (GESAMT)").FontSize(9).Bold().FontColor(AccentColor).AlignRight();
-                            table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{rental.Kaution:N2} €").FontSize(10).Bold().FontColor(AccentColor).AlignRight();
-                        });
-                    }
+                    AddFahrraederMitGesamtkaution(col, rental);
 
                     // KAUTION BETRAG - big highlight
                     col.Item().PaddingTop(10).Row(row =>
@@ -2470,7 +2478,7 @@ public class PdfService : IPdfService
                         // Kaution amount box
                         row.ConstantItem(170).AlignMiddle().Border(2).BorderColor(PrimaryColor).Padding(8).Column(c =>
                         {
-                            c.Item().Text("KAUTION").FontSize(10).FontColor(PrimaryColor).AlignCenter();
+                            c.Item().Text("GESAMTKAUTION").FontSize(10).FontColor(PrimaryColor).AlignCenter();
                             c.Item().PaddingTop(3).Text($"{rental.Kaution:N2} €").FontSize(25).Bold().FontColor(PrimaryColor).AlignCenter();
                         });
                     });
@@ -2653,45 +2661,7 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rental.Customer.Email ?? "-").FontSize(10);
                     });
 
-                    // FAHRRÄDER Section (one row per bike with individual Kaution)
-                    col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRÄDER & KAUTION");
-                    {
-                        var kautionsBikes = rental.Bikes.OrderBy(b => b.Id).ToList();
-                        col.Item().Table(table =>
-                        {
-                            table.ColumnsDefinition(columns =>
-                            {
-                                columns.ConstantColumn(25);
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(1);
-                                columns.RelativeColumn(1);
-                                columns.ConstantColumn(90);
-                            });
-
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Nr.").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Fahrrad").FontSize(8).Bold().FontColor(PrimaryColor);
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennr.").FontSize(8).Bold().FontColor(PrimaryColor);
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Farbe").FontSize(8).Bold().FontColor(PrimaryColor);
-                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Kaution").FontSize(8).Bold().FontColor(PrimaryColor).AlignRight();
-
-                            for (int i = 0; i < kautionsBikes.Count; i++)
-                            {
-                                var rb = kautionsBikes[i];
-                                var bicycle = rb.Bicycle;
-                                var rahmennr = !string.IsNullOrWhiteSpace(rb.Rahmennummer) ? rb.Rahmennummer : (bicycle?.Rahmennummer ?? "-");
-                                var farbe = !string.IsNullOrWhiteSpace(rb.Farbe) ? rb.Farbe : (bicycle?.Farbe ?? "-");
-
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{i + 1}").FontSize(9).AlignCenter();
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{bicycle?.Marke} {bicycle?.Modell}".Trim()).FontSize(9).Bold();
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(rahmennr).FontSize(9);
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(farbe).FontSize(9);
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{rb.Kaution:N2} €").FontSize(9).AlignRight().Bold();
-                            }
-
-                            table.Cell().ColumnSpan(4).Border(1).BorderColor(AccentColor).Padding(3).Text("KAUTION (GESAMT)").FontSize(9).Bold().FontColor(AccentColor).AlignRight();
-                            table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{rental.Kaution:N2} €").FontSize(10).Bold().FontColor(AccentColor).AlignRight();
-                        });
-                    }
+                    AddFahrraederMitGesamtkaution(col, rental);
 
                     // RÜCKZAHLUNG - Auszahlungsart links, Betrag rechts
                     col.Item().PaddingTop(10).Row(row =>
@@ -3143,7 +3113,8 @@ public class PdfService : IPdfService
                             c.Item().Text($"Tel: {booking.Telefon}").FontSize(9);
                     });
 
-                    // FAHRRÄDER + KAUTION table
+                    // FAHRRÄDER + KAUTION: nur die Räder, die Kaution einmal als
+                    // Gesamtbetrag (sie gilt für die ganze Buchung, nicht je Rad).
                     col.Item().PaddingTop(6).Element(SectionHeader).Text("FAHRRÄDER & KAUTION");
                     col.Item().Table(table =>
                     {
@@ -3153,14 +3124,12 @@ public class PdfService : IPdfService
                             columns.RelativeColumn(2);
                             columns.RelativeColumn(1);
                             columns.RelativeColumn(1);
-                            columns.ConstantColumn(100);
                         });
 
                         table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Nr.").FontSize(8).Bold().FontColor(PrimaryColor).AlignCenter();
                         table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Fahrrad").FontSize(8).Bold().FontColor(PrimaryColor);
                         table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Rahmennr.").FontSize(8).Bold().FontColor(PrimaryColor);
                         table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Farbe").FontSize(8).Bold().FontColor(PrimaryColor);
-                        table.Cell().Border(1).BorderColor(PrimaryColor).Padding(3).Text("Kaution").FontSize(8).Bold().FontColor(PrimaryColor).AlignRight();
 
                         for (int i = 0; i < booking.Bikes.Count; i++)
                         {
@@ -3171,11 +3140,10 @@ public class PdfService : IPdfService
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text($"{bicycle?.Marke} {bicycle?.Modell}".Trim()).FontSize(9).Bold();
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(bk.Rahmennummer ?? bicycle?.Rahmennummer ?? "-").FontSize(9);
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(bk.Farbe ?? bicycle?.Farbe ?? "-").FontSize(9);
-                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(bk.Kaution.HasValue ? $"{bk.Kaution:N2} €" : "-").FontSize(9).AlignRight();
                         }
 
                         // Total
-                        table.Cell().ColumnSpan(4).Border(1).BorderColor(AccentColor).Padding(3).Text("GESAMTKAUTION").FontSize(9).Bold().FontColor(AccentColor).AlignRight();
+                        table.Cell().ColumnSpan(3).Border(1).BorderColor(AccentColor).Padding(3).Text("GESAMTKAUTION").FontSize(9).Bold().FontColor(AccentColor).AlignRight();
                         table.Cell().Border(1).BorderColor(AccentColor).Padding(3).Text($"{totalKaution:N2} €").FontSize(10).Bold().FontColor(AccentColor).AlignRight();
                     });
 
