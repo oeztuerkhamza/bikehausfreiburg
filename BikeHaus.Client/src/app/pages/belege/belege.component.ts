@@ -20,14 +20,27 @@ import { BelegListItem } from '../../models/models';
     <div class="page">
       <div class="page-header">
         <h1>Belege</h1>
-        <button
-          class="btn btn-primary"
-          (click)="exportPdf()"
-          [disabled]="exporting || belege.length === 0"
-        >
-          <span *ngIf="!exporting">📄 Beleg exportieren</span>
-          <span *ngIf="exporting">Wird erstellt…</span>
-        </button>
+        <div class="header-actions">
+          <button
+            class="btn btn-primary"
+            (click)="exportPdf()"
+            [disabled]="exporting || belege.length === 0"
+          >
+            <span *ngIf="!exporting">📄 Beleg exportieren</span>
+            <span *ngIf="exporting">Wird erstellt…</span>
+          </button>
+          <button
+            class="btn btn-outline"
+            (click)="exportAnkaufPdf()"
+            [disabled]="exportingAnkauf || ankaufCount === 0"
+          >
+            <span *ngIf="!exportingAnkauf">
+              📄 Ankaufbelege exportieren
+              <span *ngIf="ankaufCount > 0">({{ ankaufCount }})</span>
+            </span>
+            <span *ngIf="exportingAnkauf">Wird erstellt…</span>
+          </button>
+        </div>
       </div>
 
       <div class="filters">
@@ -40,14 +53,16 @@ import { BelegListItem } from '../../models/models';
           <input type="date" [(ngModel)]="endDate" (change)="load()" />
         </div>
         <div class="summary" *ngIf="!loading">
-          {{ mieteCount }} Mietvertrag / {{ verkaufCount }} Verkauf
+          {{ mieteCount }} Mietvertrag / {{ verkaufCount }} Verkauf /
+          {{ ankaufCount }} Ankauf
         </div>
       </div>
 
       <p class="hint">
         Nach Beleg-Nr. sortiert, höchste zuerst. Der Export fasst alle Belege
         dieses Zeitraums in einer einzigen PDF-Datei zusammen — in der
-        Reihenfolge dieser Liste.
+        Reihenfolge dieser Liste. Die Ankaufbelege liegen in einer eigenen
+        Datei, ebenso sortiert.
       </p>
 
       <div class="loading" *ngIf="loading">Wird geladen…</div>
@@ -109,6 +124,12 @@ import { BelegListItem } from '../../models/models';
         align-items: center;
         gap: 16px;
         margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
       }
       .filters {
         display: flex;
@@ -210,8 +231,12 @@ export class BelegeComponent implements OnInit {
   private notificationService = inject(NotificationService);
 
   belege: BelegListItem[] = [];
+  // Ankaufbelege stehen nicht in der Tabelle (die zeigt die Verkaufsseite),
+  // die Anzahl steuert aber Beschriftung und Zustand des zweiten Knopfes.
+  ankaufCount = 0;
   loading = false;
   exporting = false;
+  exportingAnkauf = false;
   startDate = '';
   endDate = '';
 
@@ -248,6 +273,11 @@ export class BelegeComponent implements OnInit {
         this.notificationService.error('Belege konnten nicht geladen werden.');
       },
     });
+
+    this.belegService.getAnkaufBelege(this.startDate, this.endDate).subscribe({
+      next: (items) => (this.ankaufCount = items.length),
+      error: () => (this.ankaufCount = 0),
+    });
   }
 
   exportPdf(): void {
@@ -261,6 +291,21 @@ export class BelegeComponent implements OnInit {
       error: () => {
         this.exporting = false;
         this.notificationService.error('Export fehlgeschlagen.');
+      },
+    });
+  }
+
+  exportAnkaufPdf(): void {
+    if (!this.startDate || !this.endDate) return;
+    this.exportingAnkauf = true;
+    this.belegService.downloadAnkaufPdf(this.startDate, this.endDate).subscribe({
+      next: (blob) => {
+        this.exportingAnkauf = false;
+        this.save(blob, `Ankaufbelege_${this.startDate}_bis_${this.endDate}.pdf`);
+      },
+      error: () => {
+        this.exportingAnkauf = false;
+        this.notificationService.error('Export der Ankaufbelege fehlgeschlagen.');
       },
     });
   }

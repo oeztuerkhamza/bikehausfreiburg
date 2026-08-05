@@ -1231,7 +1231,7 @@ export interface RentalBookingCancel {
 }
 
 // ── Belege (gemeinsame Übersicht Miete + Verkauf) ──
-export type BelegArt = 'Miete' | 'Verkauf';
+export type BelegArt = 'Miete' | 'Verkauf' | 'Ankauf';
 
 export interface BelegListItem {
   art: BelegArt;

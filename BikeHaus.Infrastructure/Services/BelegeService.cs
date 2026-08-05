@@ -15,6 +15,7 @@ namespace BikeHaus.Infrastructure.Services;
 public class BelegeService(
     ISaleRepository saleRepository,
     IRentalRepository rentalRepository,
+    IPurchaseRepository purchaseRepository,
     IPdfService pdfService,
     ILogger<BelegeService> logger) : IBelegeService
 {
@@ -53,26 +54,56 @@ public class BelegeService(
         return Sort(belege);
     }
 
-    public async Task<byte[]> GenerateCombinedPdfAsync(DateTime startDate, DateTime endDate)
+    public async Task<IEnumerable<BelegListDto>> GetAnkaufBelegeAsync(DateTime startDate, DateTime endDate)
     {
-        var belege = (await GetBelegeAsync(startDate, endDate)).ToList();
+        var belege = new List<BelegListDto>();
 
-        // Reihenfolge der Liste = Reihenfolge im Dokument.
+        foreach (var purchase in await purchaseRepository.GetByDateRangeWithDetailsAsync(startDate, endDate))
+        {
+            belege.Add(new BelegListDto(
+                BelegArt.Ankauf,
+                purchase.Id,
+                // Ankaufbelege dürfen ohne Nummer angelegt sein; dann bleibt die
+                // Spalte leer statt eine erfundene Nummer zu zeigen.
+                purchase.BelegNummer ?? string.Empty,
+                purchase.Kaufdatum,
+                purchase.Seller?.FullName ?? string.Empty,
+                $"{purchase.Bicycle?.Marke} {purchase.Bicycle?.Modell}".Trim(),
+                purchase.Preis));
+        }
+
+        return Sort(belege);
+    }
+
+    public Task<byte[]> GenerateAnkaufPdfAsync(DateTime startDate, DateTime endDate) =>
+        BuildPdfAsync(() => GetAnkaufBelegeAsync(startDate, endDate));
+
+    public Task<byte[]> GenerateCombinedPdfAsync(DateTime startDate, DateTime endDate) =>
+        BuildPdfAsync(() => GetBelegeAsync(startDate, endDate));
+
+    /// <summary>
+    /// Erzeugt zu jedem Beleg der Liste das PDF und hängt sie in Listenreihenfolge
+    /// aneinander. Ein defekter Einzelbeleg darf die Datei nicht verhindern.
+    /// </summary>
+    private async Task<byte[]> BuildPdfAsync(Func<Task<IEnumerable<BelegListDto>>> load)
+    {
         var parts = new List<byte[]>();
-        foreach (var beleg in belege)
+        foreach (var beleg in await load())
         {
             try
             {
-                // Verkaufsbeleg MIT Ankaufpreis: die Sammeldatei ist ein internes
-                // Buchhaltungsdokument, kein Kundenbeleg. Bei Gebrauchträdern steht
-                // damit Ankaufpreis und -datum daneben — wie im ZIP-Export auch.
-                parts.Add(beleg.Art == BelegArt.Miete
-                    ? await pdfService.GenerateMietvertragAsync(beleg.Id)
-                    : await pdfService.GenerateVerkaufsbelegAsync(beleg.Id, includeAnkaufPreis: true));
+                parts.Add(beleg.Art switch
+                {
+                    BelegArt.Miete => await pdfService.GenerateMietvertragAsync(beleg.Id),
+                    BelegArt.Ankauf => await pdfService.GenerateKaufbelegAsync(beleg.Id),
+                    // Verkaufsbeleg MIT Ankaufpreis: die Sammeldatei ist ein internes
+                    // Buchhaltungsdokument, kein Kundenbeleg. Bei Gebrauchträdern steht
+                    // damit Ankaufpreis und -datum daneben — wie im ZIP-Export auch.
+                    _ => await pdfService.GenerateVerkaufsbelegAsync(beleg.Id, includeAnkaufPreis: true),
+                });
             }
             catch (Exception ex)
             {
-                // Ein defekter Einzelbeleg darf die gesamte Datei nicht verhindern.
                 logger.LogError(ex,
                     "Beleg konnte nicht erzeugt werden und fehlt in der Sammeldatei: {Art} {Nummer} (Id {Id})",
                     beleg.Art, beleg.BelegNummer, beleg.Id);

@@ -10,6 +10,16 @@ public class PurchaseRepository : Repository<Purchase>, IPurchaseRepository
 {
     public PurchaseRepository(BikeHausDbContext context) : base(context) { }
 
+    public async Task<IEnumerable<Purchase>> GetByDateRangeWithDetailsAsync(DateTime from, DateTime to)
+    {
+        return await _dbSet
+            .Include(p => p.Bicycle)
+            .Include(p => p.Seller)
+            .Where(p => p.Kaufdatum >= from && p.Kaufdatum <= to)
+            .OrderBy(p => p.Kaufdatum)
+            .ToListAsync();
+    }
+
     public async Task<Purchase?> GetWithDetailsAsync(int id)
     {
         return await _dbSet

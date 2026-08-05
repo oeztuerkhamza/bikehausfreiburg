@@ -15,4 +15,10 @@ public interface IBelegeService
     /// in derselben Reihenfolge wie in der Liste.
     /// </summary>
     Task<byte[]> GenerateCombinedPdfAsync(DateTime startDate, DateTime endDate);
+
+    /// <summary>Ankaufbelege des Zeitraums, gleiche Sortierung wie die Übersicht.</summary>
+    Task<IEnumerable<BelegListDto>> GetAnkaufBelegeAsync(DateTime startDate, DateTime endDate);
+
+    /// <summary>Ankaufbelege des Zeitraums in EINER PDF-Datei.</summary>
+    Task<byte[]> GenerateAnkaufPdfAsync(DateTime startDate, DateTime endDate);
 }

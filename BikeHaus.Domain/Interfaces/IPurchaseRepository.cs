@@ -11,6 +11,9 @@ public interface IPurchaseRepository : IRepository<Purchase>
     // Lets the Verkäufe list flag second-hand sales whose bike matches a purchase.
     Task<HashSet<string>> GetPurchaseRahmennummernAsync();
     Task<IEnumerable<Purchase>> GetRecentPurchasesAsync(int count = 10);
+
+    /// <summary>Ankäufe eines Zeitraums samt Rad und Verkäufer — für die Belegübersicht.</summary>
+    Task<IEnumerable<Purchase>> GetByDateRangeWithDetailsAsync(DateTime from, DateTime to);
     Task<string> GenerateBelegNummerAsync();
     Task<bool> BelegNummerExistsAsync(string belegNummer);
     Task<(IEnumerable<Purchase> Items, int TotalCount)> GetPaginatedAsync(int page, int pageSize, Expression<Func<Purchase, bool>>? predicate = null);

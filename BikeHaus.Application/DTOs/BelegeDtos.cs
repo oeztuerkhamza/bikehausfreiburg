@@ -4,7 +4,8 @@ namespace BikeHaus.Application.DTOs;
 public enum BelegArt
 {
     Miete,
-    Verkauf
+    Verkauf,
+    Ankauf
 }
 
 /// <summary>

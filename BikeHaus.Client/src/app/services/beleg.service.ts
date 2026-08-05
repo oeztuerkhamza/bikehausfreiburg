@@ -28,4 +28,17 @@ export class BelegService {
       responseType: 'blob',
     });
   }
+
+  getAnkaufBelege(startDate: string, endDate: string): Observable<BelegListItem[]> {
+    return this.http.get<BelegListItem[]>(`${this.apiUrl}/ankauf`, {
+      params: { startDate, endDate },
+    });
+  }
+
+  downloadAnkaufPdf(startDate: string, endDate: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/ankauf/pdf`, {
+      params: { startDate, endDate },
+      responseType: 'blob',
+    });
+  }
 }
