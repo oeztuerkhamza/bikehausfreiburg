@@ -17,7 +17,6 @@ public class RentalBookingService : IRentalBookingService
     private const string DefaultShopCity = "79114 Freiburg";
     private const string DefaultShopPhone = "+49 155 6630 0011";
     private const string DefaultShopEmail = "info.bikehausfreiburg@gmail.com";
-    private const string DefaultAdminRentalBookingsUrl = "https://admin.bikehausfreiburg.com/rental-bookings";
     private const string DefaultPublicApiBaseUrl = "https://api.bikehausfreiburg.com/api/public";
 
     private readonly IRentalBookingRepository _bookingRepository;
@@ -159,7 +158,12 @@ public class RentalBookingService : IRentalBookingService
             Ort = dto.Ort?.Trim(),
             Sprache = language,
             Notizen = dto.Notizen,
-            Status = RentalBookingStatus.Pending
+            // Mietbuchungen werden nicht mehr zur Freigabe vorgelegt, sondern
+            // direkt bestaetigt. Die Ueberschneidungspruefung weiter oben
+            // beruecksichtigt bereits bestaetigte UND offene Buchungen, es kann
+            // also keine Doppelbelegung entstehen.
+            Status = RentalBookingStatus.Approved,
+            ApprovedAt = DateTime.UtcNow
         };
 
         for (int i = 0; i < dto.Bikes.Count; i++)
@@ -230,17 +234,20 @@ public class RentalBookingService : IRentalBookingService
         // E-Mails sind "best effort": Die Buchung ist bereits persistiert und darf
         // nicht verloren gehen, nur weil der Mailserver gerade nicht erreichbar ist
         // (Mailcow/DKIM/DMARC-Aussetzer). Fehler werden protokolliert; die Buchung
-        // bleibt bestehen und ist im Admin-Portal als "Pending" sichtbar.
+        // bleibt bestehen und ist im Admin-Portal sichtbar.
         try
         {
             var emailModel = await BuildEmailModelAsync(withDetails, bicycles);
 
             // Ohne E-Mail-Adresse (Admin-Anlage) gibt es keine Kundenbestaetigung.
+            // Da die Buchung sofort bestaetigt ist, geht direkt die Bestaetigung
+            // raus — die alte "Anfrage geht in Pruefung"-Mail kuendigte eine
+            // zweite Mail an, die es jetzt nicht mehr gibt.
             if (!string.IsNullOrWhiteSpace(withDetails.Email))
             {
                 try
                 {
-                    await _emailService.SendRentalBookingReceivedAsync(emailModel);
+                    await _emailService.SendRentalBookingApprovedAsync(emailModel);
                 }
                 catch (Exception ex)
                 {
@@ -249,20 +256,6 @@ public class RentalBookingService : IRentalBookingService
                         "Failed to send booking confirmation email to customer for booking {BookingNumber}.",
                         withDetails.BuchungsNummer);
                 }
-            }
-
-            try
-            {
-                await _emailService.SendRentalBookingAdminPendingNotificationAsync(
-                    emailModel,
-                    DefaultAdminRentalBookingsUrl);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(
-                    ex,
-                    "Failed to send admin pending notification email for booking {BookingNumber}.",
-                    withDetails.BuchungsNummer);
             }
         }
         catch (Exception ex)
