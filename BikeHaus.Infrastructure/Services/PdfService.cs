@@ -2459,7 +2459,6 @@ public class PdfService : IPdfService
                         row.ConstantItem(170).AlignMiddle().Border(2).BorderColor(PrimaryColor).Padding(8).Column(c =>
                         {
                             c.Item().Text("KAUTION").FontSize(10).FontColor(PrimaryColor).AlignCenter();
-                            c.Item().Text("(Depozito)").FontSize(8).FontColor(Colors.Grey.Darken2).AlignCenter();
                             c.Item().PaddingTop(3).Text($"{rental.Kaution:N2} €").FontSize(25).Bold().FontColor(PrimaryColor).AlignCenter();
                         });
                     });
@@ -2706,7 +2705,6 @@ public class PdfService : IPdfService
                         row.ConstantItem(170).AlignMiddle().Border(2).BorderColor(PrimaryColor).Padding(8).Column(c =>
                         {
                             c.Item().Text("ZURÜCKGEZAHLT").FontSize(10).FontColor(PrimaryColor).AlignCenter();
-                            c.Item().Text("(Depozito iadesi)").FontSize(8).FontColor(Colors.Grey.Darken2).AlignCenter();
                             c.Item().PaddingTop(3).Text($"{erstattet:N2} €").FontSize(25).Bold().FontColor(PrimaryColor).AlignCenter();
                         });
                     });
@@ -3183,7 +3181,6 @@ public class PdfService : IPdfService
                         row.ConstantItem(170).AlignMiddle().Border(2).BorderColor(PrimaryColor).Padding(8).Column(c =>
                         {
                             c.Item().Text("GESAMTKAUTION").FontSize(10).FontColor(PrimaryColor).AlignCenter();
-                            c.Item().Text("(Depozito)").FontSize(8).FontColor(Colors.Grey.Darken2).AlignCenter();
                             c.Item().PaddingTop(3).Text($"{totalKaution:N2} €").FontSize(25).Bold().FontColor(PrimaryColor).AlignCenter();
                         });
                     });
