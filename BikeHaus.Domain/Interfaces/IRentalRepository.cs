@@ -12,4 +12,7 @@ public interface IRentalRepository : IRepository<Rental>
     Task<(IEnumerable<Rental> Items, int TotalCount)> GetPaginatedAsync(int page, int pageSize, Expression<Func<Rental, bool>>? predicate = null, bool includeCompleted = false);
     Task<IEnumerable<int>> GetBusyBicycleIdsForPeriodAsync(DateOnly start, DateOnly end);
     Task<IEnumerable<Rental>> GetOverlappingRangeWithBikesAsync(DateTime from, DateTime to);
+
+    /// <summary>Mietverträge, deren Startdatum im Zeitraum liegt — für die Belegübersicht.</summary>
+    Task<IEnumerable<Rental>> GetByStartDateRangeWithDetailsAsync(DateTime from, DateTime to);
 }

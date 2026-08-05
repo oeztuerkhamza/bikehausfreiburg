@@ -197,6 +197,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'belege',
+    loadComponent: () =>
+      import('./pages/belege/belege.component').then((m) => m.BelegeComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'export',
     loadComponent: () =>
       import('./pages/export/export.component').then((m) => m.ExportComponent),

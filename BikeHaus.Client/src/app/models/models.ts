@@ -1229,3 +1229,16 @@ export interface RentalBookingCreate {
 export interface RentalBookingCancel {
   adminNotizen?: string;
 }
+
+// ── Belege (gemeinsame Übersicht Miete + Verkauf) ──
+export type BelegArt = 'Miete' | 'Verkauf';
+
+export interface BelegListItem {
+  art: BelegArt;
+  id: number;
+  belegNummer: string;
+  datum: string;
+  kundeName: string;
+  fahrradInfo: string;
+  betrag: number;
+}

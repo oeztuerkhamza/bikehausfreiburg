@@ -30,6 +30,17 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
             : 0;
     }
 
+    public async Task<IEnumerable<Sale>> GetByDateRangeWithDetailsAsync(DateTime from, DateTime to)
+    {
+        return await _dbSet
+            .Include(s => s.Bicycle)
+            .Include(s => s.Buyer)
+            .Include(s => s.Accessories)
+            .Where(s => s.Verkaufsdatum >= from && s.Verkaufsdatum <= to)
+            .OrderBy(s => s.Verkaufsdatum)
+            .ToListAsync();
+    }
+
     public async Task<Sale?> GetWithDetailsAsync(int id)
     {
         return await _dbSet

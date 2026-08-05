@@ -17,6 +17,16 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         _dbContext = context;
     }
 
+    public async Task<IEnumerable<Rental>> GetByStartDateRangeWithDetailsAsync(DateTime from, DateTime to)
+    {
+        return await _dbSet
+            .Include(r => r.Bikes).ThenInclude(b => b.Bicycle)
+            .Include(r => r.Customer)
+            .Where(r => r.StartDatum >= from && r.StartDatum <= to)
+            .OrderBy(r => r.StartDatum)
+            .ToListAsync();
+    }
+
     public async Task<Rental?> GetWithDetailsAsync(int id)
     {
         return await _dbSet
