@@ -604,9 +604,12 @@ const MONTH_NAMES = [
           <!-- Mieter -->
           <div class="form-card">
             <h2>Mieter</h2>
+            <!-- Labels mit englischer Bezeichnung: der Mieter füllt diesen
+                 Schritt am Ladentisch mit aus und unterschreibt danach —
+                 häufig Touristen, die weder Deutsch noch Türkisch lesen. -->
             <div class="form-grid">
               <div class="field">
-                <label>Vorname *</label>
+                <label>{{ t.firstNameIntl }} *</label>
                 <input
                   [(ngModel)]="customer.vorname"
                   name="customerVorname"
@@ -614,7 +617,7 @@ const MONTH_NAMES = [
                 />
               </div>
               <div class="field">
-                <label>Nachname *</label>
+                <label>{{ t.lastNameIntl }} *</label>
                 <input
                   [(ngModel)]="customer.nachname"
                   name="customerNachname"
@@ -626,39 +629,39 @@ const MONTH_NAMES = [
                    ohnehin nullable (CustomerCreateDto), nur Vor- und Nachname
                    sind Pflicht. -->
               <div class="field">
-                <label>Straße</label>
+                <label>{{ t.streetIntl }}</label>
                 <input
                   [(ngModel)]="customer.strasse"
                   name="customerStrasse"
                 />
               </div>
               <div class="field">
-                <label>Hausnummer</label>
+                <label>{{ t.houseNumberIntl }}</label>
                 <input
                   [(ngModel)]="customer.hausnummer"
                   name="customerHausnr"
                 />
               </div>
               <div class="field">
-                <label>PLZ</label>
+                <label>{{ t.postalCodeIntl }}</label>
                 <input [(ngModel)]="customer.plz" name="customerPlz" />
               </div>
               <div class="field">
-                <label>Stadt</label>
+                <label>{{ t.cityIntl }}</label>
                 <input
                   [(ngModel)]="customer.stadt"
                   name="customerStadt"
                 />
               </div>
               <div class="field">
-                <label>Telefon</label>
+                <label>{{ t.phoneIntl }}</label>
                 <input
                   [(ngModel)]="customer.telefon"
                   name="customerTelefon"
                 />
               </div>
               <div class="field">
-                <label>E-Mail</label>
+                <label>{{ t.emailIntl }}</label>
                 <input
                   [(ngModel)]="customer.email"
                   name="customerEmail"
@@ -2084,6 +2087,11 @@ export class RentalFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
   private bookingService = inject(RentalBookingService);
+
+  get t() {
+    return this.translationService.translations();
+  }
+
   private accessoryService = inject(RentalAccessoryService);
 
   fromBookingId: number | null = null;

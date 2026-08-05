@@ -855,6 +855,22 @@ export interface Translations {
   rentalReviewAdminNote: string;
   rentalReviewSaved: string;
   rentalReviewDeleted: string;
+
+  // Kundenfelder in Miet-, Verkaufs- und Ankaufsformular.
+  //
+  // Diese Formulare werden am Ladentisch zusammen mit dem Kunden ausgefüllt und
+  // unterschrieben — oft von Touristen, die weder Deutsch noch Türkisch lesen.
+  // Deshalb tragen genau diese Labels die englische Bezeichnung in Klammern.
+  // Die allgemeinen Schlüssel (street, city, …) bleiben einsprachig: sie
+  // stehen auch in den Shop-Einstellungen und in Tabellenköpfen.
+  firstNameIntl: string;
+  lastNameIntl: string;
+  streetIntl: string;
+  houseNumberIntl: string;
+  postalCodeIntl: string;
+  cityIntl: string;
+  phoneIntl: string;
+  emailIntl: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -1728,6 +1744,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalReviewAdminNote: 'Admin-Notiz',
     rentalReviewSaved: 'Bewertung gespeichert',
     rentalReviewDeleted: 'Bewertung gelöscht',
+
+    // Kundenfelder mit englischer Bezeichnung (siehe Interface)
+    firstNameIntl: 'Vorname (First name)',
+    lastNameIntl: 'Nachname (Last name)',
+    streetIntl: 'Straße (Street)',
+    houseNumberIntl: 'Hausnummer (House number)',
+    postalCodeIntl: 'PLZ (Postal code)',
+    cityIntl: 'Stadt (City)',
+    phoneIntl: 'Telefon (Phone)',
+    emailIntl: 'E-Mail (Email)',
   },
   tr: {
     // Navigation
@@ -2598,6 +2624,16 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalReviewAdminNote: 'Admin Notu',
     rentalReviewSaved: 'Yorum kaydedildi',
     rentalReviewDeleted: 'Yorum silindi',
+
+    // Müşteri alanları, İngilizce karşılığıyla (bkz. interface)
+    firstNameIntl: 'Ad (First name)',
+    lastNameIntl: 'Soyad (Last name)',
+    streetIntl: 'Sokak (Street)',
+    houseNumberIntl: 'Kapı No (House number)',
+    postalCodeIntl: 'Posta Kodu (Postal code)',
+    cityIntl: 'Şehir (City)',
+    phoneIntl: 'Telefon (Phone)',
+    emailIntl: 'E-posta (Email)',
   },
 };
 

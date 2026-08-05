@@ -530,17 +530,19 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
           <!-- Buyer info -->
           <div class="form-card" *ngIf="showBuyerFields">
             <h2>Kundendaten</h2>
+            <!-- Labels mit englischer Bezeichnung: der Kunde sitzt beim
+                 Ausfüllen daneben und liest oft weder Deutsch noch Türkisch. -->
             <div class="form-grid">
               <div class="field">
-                <label>Vorname</label>
+                <label>{{ t.firstNameIntl }}</label>
                 <input [(ngModel)]="buyer.vorname" name="buyerVorname" />
               </div>
               <div class="field">
-                <label>Nachname</label>
+                <label>{{ t.lastNameIntl }}</label>
                 <input [(ngModel)]="buyer.nachname" name="buyerNachname" />
               </div>
               <div class="field">
-                <label>E-Mail</label>
+                <label>{{ t.emailIntl }}</label>
                 <input
                   type="email"
                   [(ngModel)]="buyer.email"
@@ -549,23 +551,23 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                 />
               </div>
               <div class="field">
-                <label>Telefon</label>
+                <label>{{ t.phoneIntl }}</label>
                 <input [(ngModel)]="buyer.telefon" name="buyerTelefon" />
               </div>
               <div class="field">
-                <label>Straße</label>
+                <label>{{ t.streetIntl }}</label>
                 <input [(ngModel)]="buyer.strasse" name="buyerStrasse" />
               </div>
               <div class="field">
-                <label>Hausnummer</label>
+                <label>{{ t.houseNumberIntl }}</label>
                 <input [(ngModel)]="buyer.hausnummer" name="buyerHausnr" />
               </div>
               <div class="field">
-                <label>PLZ</label>
+                <label>{{ t.postalCodeIntl }}</label>
                 <input [(ngModel)]="buyer.plz" name="buyerPlz" />
               </div>
               <div class="field">
-                <label>Stadt</label>
+                <label>{{ t.cityIntl }}</label>
                 <input [(ngModel)]="buyer.stadt" name="buyerStadt" />
               </div>
             </div>

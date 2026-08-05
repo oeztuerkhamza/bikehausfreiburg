@@ -337,7 +337,7 @@ import { forkJoin, Observable } from 'rxjs';
             </h2>
             <div class="form-grid">
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.firstNameRequired }}</label>
+                <label>{{ t.firstNameIntl }}</label>
                 <input
                   [(ngModel)]="seller.vorname"
                   name="sellerVorname"
@@ -347,7 +347,7 @@ import { forkJoin, Observable } from 'rxjs';
                 />
               </div>
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.lastNameRequired }}</label>
+                <label>{{ t.lastNameIntl }}</label>
                 <input
                   [(ngModel)]="seller.nachname"
                   name="sellerNachname"
@@ -371,27 +371,27 @@ import { forkJoin, Observable } from 'rxjs';
                 </datalist>
               </div>
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.street }}</label>
+                <label>{{ t.streetIntl }}</label>
                 <input [(ngModel)]="seller.strasse" name="sellerStrasse" />
               </div>
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.houseNumber }}</label>
+                <label>{{ t.houseNumberIntl }}</label>
                 <input [(ngModel)]="seller.hausnummer" name="sellerHausnr" />
               </div>
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.postalCode }}</label>
+                <label>{{ t.postalCodeIntl }}</label>
                 <input [(ngModel)]="seller.plz" name="sellerPlz" />
               </div>
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.city }}</label>
+                <label>{{ t.cityIntl }}</label>
                 <input [(ngModel)]="seller.stadt" name="sellerStadt" />
               </div>
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.phone }}</label>
+                <label>{{ t.phoneIntl }}</label>
                 <input [(ngModel)]="seller.telefon" name="sellerTel" />
               </div>
               <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.email }}</label>
+                <label>{{ t.emailIntl }}</label>
                 <input
                   type="email"
                   [(ngModel)]="seller.email"
