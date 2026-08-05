@@ -101,6 +101,12 @@ export class RentalService {
     });
   }
 
+  downloadKautionsrueckgabePdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.url}/${id}/kaution-rueckgabe-pdf`, {
+      responseType: 'blob',
+    });
+  }
+
   uploadAusweis(id: number, file: File): Observable<{ path: string }> {
     // Image scans are compressed centrally by imageCompressionInterceptor;
     // PDF scans pass through unchanged.

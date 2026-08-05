@@ -22,3 +22,20 @@ public record RentalBookingEmailModel(
     string Language,
     string? SelfCancelUrl = null
 );
+
+/// <summary>
+/// Bestätigung der Kautionsrückgabe. Enthält alles, was auf dem Beleg steht —
+/// Auszahlungsart, ausgezahlter Betrag, etwaige Abzüge und das Rückgabedatum —
+/// damit die Mail dieselben Zahlen nennt wie das angehängte PDF.
+/// </summary>
+public record DepositRefundEmailModel(
+    string ToEmail,
+    string ToName,
+    string MietvertragNummer,
+    decimal KautionsBetrag,
+    decimal ErstatteterBetrag,
+    decimal AbzuegeGesamt,
+    string ZahlungsartText,
+    DateTime RueckgabeDatum,
+    byte[] BelegPdfBytes
+);

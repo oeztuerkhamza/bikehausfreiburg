@@ -33,6 +33,13 @@ import {
           <button class="btn btn-outline" (click)="previewKaution()">
             🖨️ Kautionsquittung
           </button>
+          <button
+            *ngIf="rental.kautionZurueckgegeben"
+            class="btn btn-outline"
+            (click)="previewKautionRueckgabe()"
+          >
+            🖨️ Kautionsrückgabe
+          </button>
           <button class="btn btn-outline" (click)="previewBedingungen()">
             🖨️ Mietbedingungen
           </button>
@@ -1324,6 +1331,20 @@ export class RentalDetailComponent implements OnInit {
         this.currentPdfFilename = `Kautionsquittung-${this.rental!.mietvertragNummer}.pdf`;
         this.pdfPreviewUrl = URL.createObjectURL(blob);
         this.pdfPreviewTitle = 'Kautionsquittung';
+        this.showPdfPreview = true;
+      },
+      error: () => this.notificationService.error('Fehler beim Laden des PDF'),
+    });
+  }
+
+  previewKautionRueckgabe() {
+    if (!this.rental) return;
+    this.rentalService.downloadKautionsrueckgabePdf(this.rental.id).subscribe({
+      next: (blob) => {
+        this.currentPdfBlob = blob;
+        this.currentPdfFilename = `Kautionsrueckgabe-${this.rental!.mietvertragNummer}.pdf`;
+        this.pdfPreviewUrl = URL.createObjectURL(blob);
+        this.pdfPreviewTitle = 'Kautionsrückgabe';
         this.showPdfPreview = true;
       },
       error: () => this.notificationService.error('Fehler beim Laden des PDF'),

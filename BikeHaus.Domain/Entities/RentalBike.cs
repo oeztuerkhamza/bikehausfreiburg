@@ -24,6 +24,11 @@ public class RentalBike : BaseEntity
     public bool KautionZurueckgegeben { get; set; } = false;
     public string? KautionRueckgabeUnterschrift { get; set; }
 
+    // Zeitpunkt der Kautionsrückgabe. Eigenes Feld statt UpdatedAt, weil jede
+    // spätere Änderung am Mietvertrag UpdatedAt überschreibt — der Beleg soll
+    // auch beim erneuten Herunterladen das richtige Datum zeigen.
+    public DateTime? KautionRueckgabeDatum { get; set; }
+
     // Condition at handover is tracked per bike
     public BikeConditionAtHandover ZustandBeiUebergabe { get; set; } = BikeConditionAtHandover.Gut;
 

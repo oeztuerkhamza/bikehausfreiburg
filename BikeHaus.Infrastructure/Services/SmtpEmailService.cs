@@ -89,18 +89,29 @@ public class SmtpEmailService : IEmailService
         return Task.CompletedTask;
     }
 
-    public Task SendDepositRefundConfirmationAsync(string toEmail, string toName, string mietvertragNummer)
+    public Task SendDepositRefundConfirmationAsync(DepositRefundEmailModel model)
     {
-        var subject = $"Kaution zurueckgegeben / Deposit refunded - {mietvertragNummer} | Bike Haus Freiburg";
+        var subject = $"Kaution zurueckgegeben / Deposit refunded - {model.MietvertragNummer} | Bike Haus Freiburg";
         var body = BilingualHtml(
-            BuildDepositRefundConfirmationBodyDe(toName, mietvertragNummer, DefaultGoogleReviewUrl),
-            BuildDepositRefundConfirmationBodyEn(toName, mietvertragNummer, DefaultGoogleReviewUrl));
+            BuildDepositRefundConfirmationBodyDe(model, DefaultGoogleReviewUrl),
+            BuildDepositRefundConfirmationBodyEn(model, DefaultGoogleReviewUrl));
+
+        // Der unterschriebene Beleg geht als PDF mit. Fehlt er (PDF-Erzeugung
+        // fehlgeschlagen), wird die Bestätigung trotzdem verschickt.
+        var attachments = model.BelegPdfBytes is { Length: > 0 }
+            ? new[]
+            {
+                (Bytes: model.BelegPdfBytes, FileName: $"Kautionsrueckgabe-{model.MietvertragNummer}.pdf")
+            }
+            : null;
+
         return SendAsync(
-            toEmail,
-            toName,
+            model.ToEmail,
+            model.ToName,
             subject,
             body,
             "KautionRueckgabeBestaetigung",
+            attachments,
             isHtml: true);
     }
 
@@ -945,12 +956,26 @@ Bitte auf den folgenden Link klicken, um die Mietanfragen zu pruefen:<br />
 <p>Diese Benachrichtigung wurde automatisch von no-reply@bikehausfreiburg.com gesendet.</p>";
     }
 
-    private static string BuildDepositRefundConfirmationBodyDe(string toName, string mietvertragNummer, string googleReviewUrl)
+    private static string BuildDepositRefundConfirmationBodyDe(DepositRefundEmailModel m, string googleReviewUrl)
     {
-        return $@"<p>Hallo {toName},</p>
+        var abzugZeile = m.AbzuegeGesamt > 0
+            ? $@"<strong>Kaution:</strong> {m.KautionsBetrag:N2} EUR<br />
+<strong>Einbehalten:</strong> {m.AbzuegeGesamt:N2} EUR<br />"
+            : string.Empty;
+
+        var anhangZeile = m.BelegPdfBytes is { Length: > 0 }
+            ? "<p>Den von dir unterschriebenen Rueckgabebeleg findest du als PDF im Anhang.</p>"
+            : string.Empty;
+
+        return $@"<p>Hallo {m.ToName},</p>
 <p>deine Kaution wurde erfolgreich zurueckgegeben.</p>
-<p>Vielen Dank, dass du bei Bike Haus Freiburg gemietet hast.</p>
-<p><strong>Mietvertragsnummer:</strong> {mietvertragNummer}</p>
+<p>
+<strong>Mietvertragsnummer:</strong> {m.MietvertragNummer}<br />
+{abzugZeile}<strong>Zurueckgezahlt:</strong> {m.ErstatteterBetrag:N2} EUR<br />
+<strong>Auszahlungsart:</strong> {m.ZahlungsartText}<br />
+<strong>Rueckgabedatum:</strong> {m.RueckgabeDatum:dd.MM.yyyy}
+</p>
+{anhangZeile}<p>Vielen Dank, dass du bei Bike Haus Freiburg gemietet hast.</p>
 <p>
 Wenn du zufrieden warst, freuen wir uns sehr ueber eine kurze Google-Bewertung:<br />
 <a href=""{googleReviewUrl}"">{googleReviewUrl}</a>
@@ -959,12 +984,26 @@ Wenn du zufrieden warst, freuen wir uns sehr ueber eine kurze Google-Bewertung:<
 Dein Team vom Bike Haus Freiburg</p>";
     }
 
-    private static string BuildDepositRefundConfirmationBodyEn(string toName, string mietvertragNummer, string googleReviewUrl)
+    private static string BuildDepositRefundConfirmationBodyEn(DepositRefundEmailModel m, string googleReviewUrl)
     {
-        return $@"<p>Hello {toName},</p>
+        var deductionLine = m.AbzuegeGesamt > 0
+            ? $@"<strong>Deposit:</strong> {m.KautionsBetrag:N2} EUR<br />
+<strong>Retained:</strong> {m.AbzuegeGesamt:N2} EUR<br />"
+            : string.Empty;
+
+        var attachmentLine = m.BelegPdfBytes is { Length: > 0 }
+            ? "<p>The refund receipt you signed is attached as a PDF.</p>"
+            : string.Empty;
+
+        return $@"<p>Hello {m.ToName},</p>
 <p>your deposit has been refunded successfully.</p>
-<p>Thank you for renting from Bike Haus Freiburg.</p>
-<p><strong>Rental contract number:</strong> {mietvertragNummer}</p>
+<p>
+<strong>Rental contract number:</strong> {m.MietvertragNummer}<br />
+{deductionLine}<strong>Refunded:</strong> {m.ErstatteterBetrag:N2} EUR<br />
+<strong>Payment method:</strong> {m.ZahlungsartText}<br />
+<strong>Refund date:</strong> {m.RueckgabeDatum:dd.MM.yyyy}
+</p>
+{attachmentLine}<p>Thank you for renting from Bike Haus Freiburg.</p>
 <p>
 If you were satisfied, we would be very happy about a short Google review:<br />
 <a href=""{googleReviewUrl}"">{googleReviewUrl}</a>

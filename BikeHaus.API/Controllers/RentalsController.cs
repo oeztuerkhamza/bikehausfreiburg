@@ -197,6 +197,23 @@ public class RentalsController : ControllerBase
         }
     }
 
+    // Beleg über die Auszahlung der Kaution — mit Unterschrift des Mieters.
+    // Wird bei der Rückgabe automatisch per Mail verschickt; hier zum erneuten
+    // Herunterladen oder Ausdrucken.
+    [HttpGet("{id}/kaution-rueckgabe-pdf")]
+    public async Task<IActionResult> DownloadKautionsrueckgabebeleg(int id)
+    {
+        try
+        {
+            var pdf = await _pdfService.GenerateKautionsrueckgabebelegAsync(id);
+            return File(pdf, "application/pdf", $"Kautionsrueckgabe-{id}.pdf");
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+    }
+
     [HttpPost("{id}/ausweis")]
     public async Task<IActionResult> UploadAusweis(int id, IFormFile file)
     {

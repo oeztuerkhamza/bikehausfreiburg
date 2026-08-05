@@ -310,6 +310,12 @@ public class RentalService : IRentalService
                 bike.KautionZurueckgegeben = dto.KautionZurueckgegeben.Value;
                 if (dto.KautionRueckgabeUnterschrift != null)
                     bike.KautionRueckgabeUnterschrift = dto.KautionRueckgabeUnterschrift;
+                // Rückgabezeitpunkt einmalig festhalten; wird die Rückgabe
+                // zurückgenommen, verschwindet auch das Datum wieder.
+                if (!dto.KautionZurueckgegeben.Value)
+                    bike.KautionRueckgabeDatum = null;
+                else
+                    bike.KautionRueckgabeDatum ??= DateTime.UtcNow;
                 bike.UpdatedAt = DateTime.UtcNow;
             }
         }
@@ -474,10 +480,42 @@ public class RentalService : IRentalService
         try
         {
             var toName = $"{rental.Customer.Vorname} {rental.Customer.Nachname}".Trim();
-            await _emailService.SendDepositRefundConfirmationAsync(
+
+            var abzuege = rental.Bikes.Sum(b => b.SchadenAbzug + b.VerspaetungsAbzug);
+            var erstattet = Math.Max(0m, rental.Kaution - abzuege);
+            var rueckgabeDatum = rental.Bikes
+                .Where(b => b.KautionRueckgabeDatum.HasValue)
+                .Select(b => b.KautionRueckgabeDatum!.Value)
+                .DefaultIfEmpty(DateTime.UtcNow)
+                .Max();
+
+            // Der unterschriebene Beleg gehört zur Bestätigung. Scheitert die
+            // PDF-Erzeugung, geht die Mail ohne Anhang raus statt gar nicht.
+            byte[] belegPdf;
+            try
+            {
+                belegPdf = await _pdfService.GenerateKautionsrueckgabebelegAsync(rental.Id);
+            }
+            catch (Exception pdfEx)
+            {
+                _logger.LogError(
+                    pdfEx,
+                    "Failed to generate deposit refund receipt for rental {RentalId} ({MietvertragNummer}) — sending confirmation without attachment",
+                    rental.Id,
+                    rental.MietvertragNummer);
+                belegPdf = Array.Empty<byte>();
+            }
+
+            await _emailService.SendDepositRefundConfirmationAsync(new DepositRefundEmailModel(
                 rental.Customer.Email,
                 string.IsNullOrWhiteSpace(toName) ? "Kunde" : toName,
-                rental.MietvertragNummer);
+                rental.MietvertragNummer,
+                rental.Kaution,
+                erstattet,
+                abzuege,
+                ZahlungsartText(rental.KautionZahlungsart),
+                rueckgabeDatum,
+                belegPdf));
         }
         catch (Exception ex)
         {
@@ -488,6 +526,17 @@ public class RentalService : IRentalService
                 rental.MietvertragNummer);
         }
     }
+
+    // Gleiche Schreibweise wie auf dem Beleg, damit Mail und PDF dieselbe
+    // Auszahlungsart nennen.
+    private static string ZahlungsartText(PaymentMethod zahlungsart) => zahlungsart switch
+    {
+        PaymentMethod.Bar => "Bar",
+        PaymentMethod.PayPal => "PayPal",
+        PaymentMethod.Karte => "Karte",
+        PaymentMethod.Überweisung => "Überweisung",
+        _ => zahlungsart.ToString()
+    };
 
     public async Task DeleteAsync(int id)
     {
