@@ -247,6 +247,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                       <option value="PayPal">{{ t.paypal }}</option>
                       <option value="Karte">{{ t.bankTransfer }}</option>
                       <option value="Überweisung">{{ t.wireTransfer }}</option>
+                      <option value="Raten">Taksit</option>
                     </select>
                     <ng-container *ngIf="!isAccessoryOnlySale">
                       <input
@@ -257,6 +258,19 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                         placeholder="Betrag"
                       />
                       <span class="zahlung-euro">€</span>
+                      <ng-container *ngIf="z.zahlungsart === 'Raten'">
+                        <input
+                          type="number"
+                          min="1"
+                          max="120"
+                          step="1"
+                          class="raten-monate"
+                          [(ngModel)]="z.ratenMonate"
+                          [name]="'zRaten' + i"
+                          placeholder="Ay"
+                        />
+                        <span class="zahlung-euro">ay</span>
+                      </ng-container>
                       <button
                         type="button"
                         class="btn btn-icon btn-danger"
@@ -767,6 +781,9 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
         background: var(--bg-card, #fff);
         color: var(--text-primary);
       }
+      .zahlung-item input.raten-monate {
+        width: 72px;
+      }
       .zahlung-euro {
         font-weight: 600;
         color: var(--text-secondary, #64748b);
@@ -995,6 +1012,7 @@ export class SaleEditComponent implements OnInit {
       this.zahlungen = sale.zahlungen.map((z) => ({
         zahlungsart: z.zahlungsart as PaymentMethod,
         betrag: z.betrag,
+        ratenMonate: z.ratenMonate ?? null,
       }));
     } else {
       this.zahlungen = [
@@ -1042,6 +1060,19 @@ export class SaleEditComponent implements OnInit {
 
     if (this.zahlungen.some((z) => !z.zahlungsart)) {
       alert('Bitte Zahlungsart auswählen.');
+      return;
+    }
+
+    // Ohne Laufzeit steht auf dem Beleg eine Rate ohne Monatszahl.
+    if (
+      this.zahlungen.some(
+        (z) =>
+          z.zahlungsart === PaymentMethod.Raten &&
+          z.betrag > 0 &&
+          !((z.ratenMonate ?? 0) > 0),
+      )
+    ) {
+      alert('Taksit için ay sayısını gir.');
       return;
     }
 

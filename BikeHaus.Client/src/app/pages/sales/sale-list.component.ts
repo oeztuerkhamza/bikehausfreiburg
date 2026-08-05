@@ -106,6 +106,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <option value="Karte">{{ t.bankTransfer }}</option>
             <option value="PayPal">{{ t.paypal }}</option>
             <option value="Überweisung">{{ t.wireTransfer }}</option>
+            <option value="Raten">Taksit</option>
           </select>
         </div>
         <div class="filter-item">
@@ -786,6 +787,8 @@ export class SaleListComponent implements OnInit {
         return this.t.paypal;
       case 'Überweisung':
         return this.t.wireTransfer;
+      case 'Raten':
+        return 'Taksit';
       default:
         return method;
     }

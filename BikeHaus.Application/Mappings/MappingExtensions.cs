@@ -241,7 +241,9 @@ public static class MappingExtensions
     public static SalePaymentDto ToDto(this SalePayment entity) => new(
         entity.Id,
         entity.Zahlungsart,
-        entity.Betrag
+        entity.Betrag,
+        entity.RatenMonate,
+        entity.MonatsRate
     );
 
     public static SaleAccessory ToEntity(this SaleAccessoryCreateDto dto, int saleId) => new()

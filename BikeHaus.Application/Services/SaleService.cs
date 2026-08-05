@@ -216,7 +216,8 @@ public class SaleService : ISaleService
                 sale.Zahlungen.Add(new SalePayment
                 {
                     Zahlungsart = zahlung.Zahlungsart,
-                    Betrag = zahlung.Betrag
+                    Betrag = zahlung.Betrag,
+                    RatenMonate = NormalizeRatenMonate(zahlung)
                 });
             }
         }
@@ -377,7 +378,8 @@ public class SaleService : ISaleService
                 {
                     SaleId = sale.Id,
                     Zahlungsart = zahlung.Zahlungsart,
-                    Betrag = zahlung.Betrag
+                    Betrag = zahlung.Betrag,
+                    RatenMonate = NormalizeRatenMonate(zahlung)
                 });
             }
         }
@@ -421,5 +423,15 @@ public class SaleService : ISaleService
     public async Task<string> GetNextBelegNummerAsync()
     {
         return await _saleRepository.GenerateBelegNummerAsync();
+    }
+
+    // Laufzeit gehört nur zur Ratenzahlung. Wechselt der Beleg später auf eine
+    // andere Zahlungsart, darf keine Monatszahl zurückbleiben — sonst steht auf
+    // dem Beleg eine Rate, die es nicht gibt.
+    private static int? NormalizeRatenMonate(SalePaymentCreateDto dto)
+    {
+        if (dto.Zahlungsart != PaymentMethod.Raten) return null;
+        if (dto.RatenMonate is not > 0) return null;
+        return Math.Min(dto.RatenMonate.Value, 120);
     }
 }

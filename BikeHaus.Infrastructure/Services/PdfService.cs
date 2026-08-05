@@ -655,8 +655,16 @@ public class PdfService : IPdfService
                             {
                                 foreach (var zahlung in sale.Zahlungen)
                                 {
-                                    c.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(3)
-                                        .Text($"{zahlung.Zahlungsart}: {zahlung.Betrag:N2} €").FontSize(11).Bold();
+                                    c.Item().Border(1).BorderColor(Colors.Grey.Lighten1).Padding(3).Column(zc =>
+                                    {
+                                        zc.Item().Text($"{ZahlungsartText(zahlung.Zahlungsart)}: {zahlung.Betrag:N2} €").FontSize(11).Bold();
+                                        // Ratenzahlung: Laufzeit und Monatsrate gehören auf den Beleg.
+                                        if (zahlung.Zahlungsart == Domain.Enums.PaymentMethod.Raten && zahlung.RatenMonate is > 0)
+                                        {
+                                            zc.Item().Text($"{zahlung.RatenMonate} Monate à {zahlung.MonatsRate:N2} €")
+                                                .FontSize(9).FontColor(Colors.Grey.Darken2);
+                                        }
+                                    });
                                 }
                             }
                             else
@@ -1072,8 +1080,11 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(ret.Sale.Bicycle.Fahrradtyp ?? "-").FontSize(10);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Zahlungsart Verkauf").FontSize(9).FontColor(Colors.Grey.Darken2);
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(ret.Sale.Zahlungen.Any()
-                            ? string.Join(", ", ret.Sale.Zahlungen.Select(z => $"{z.Zahlungsart}: {z.Betrag:N2} €"))
-                            : ret.Sale.Zahlungsart.ToString()).FontSize(10);
+                            ? string.Join(", ", ret.Sale.Zahlungen.Select(z =>
+                                z.Zahlungsart == Domain.Enums.PaymentMethod.Raten && z.RatenMonate is > 0
+                                    ? $"{ZahlungsartText(z.Zahlungsart)}: {z.Betrag:N2} € ({z.RatenMonate} Monate à {z.MonatsRate:N2} €)"
+                                    : $"{ZahlungsartText(z.Zahlungsart)}: {z.Betrag:N2} €"))
+                            : ZahlungsartText(ret.Sale.Zahlungsart)).FontSize(10);
                     });
 
                     if (hasAccessories)
@@ -1469,6 +1480,7 @@ public class PdfService : IPdfService
         Domain.Enums.PaymentMethod.PayPal => "PayPal",
         Domain.Enums.PaymentMethod.Karte => "Karte",
         Domain.Enums.PaymentMethod.Überweisung => "Überweisung",
+        Domain.Enums.PaymentMethod.Raten => "Ratenzahlung",
         _ => zahlungsart.ToString()
     };
 

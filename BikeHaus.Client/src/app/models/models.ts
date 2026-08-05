@@ -16,6 +16,8 @@ export enum PaymentMethod {
   PayPal = 'PayPal',
   Karte = 'Karte',
   Ueberweisung = 'Überweisung',
+  // Nur im Verkauf angeboten; die Laufzeit steht an der Zahlung (ratenMonate).
+  Raten = 'Raten',
 }
 
 export enum DocumentType {
@@ -318,11 +320,15 @@ export interface SalePayment {
   id: number;
   zahlungsart: PaymentMethod;
   betrag: number;
+  // Nur bei Zahlungsart Raten gesetzt.
+  ratenMonate?: number | null;
+  monatsRate?: number | null;
 }
 
 export interface SalePaymentCreate {
   zahlungsart: PaymentMethod;
   betrag: number;
+  ratenMonate?: number | null;
 }
 
 // ── Sale ──

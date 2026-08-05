@@ -3,15 +3,19 @@ using BikeHaus.Domain.Enums;
 namespace BikeHaus.Application.DTOs;
 
 // ── SalePayment DTOs ──
+// RatenMonate/MonatsRate sind nur bei Zahlungsart.Raten gesetzt.
 public record SalePaymentDto(
     int Id,
     PaymentMethod Zahlungsart,
-    decimal Betrag
+    decimal Betrag,
+    int? RatenMonate = null,
+    decimal? MonatsRate = null
 );
 
 public record SalePaymentCreateDto(
     PaymentMethod Zahlungsart,
-    decimal Betrag
+    decimal Betrag,
+    int? RatenMonate = null
 );
 
 // ── SaleAccessory DTOs ──

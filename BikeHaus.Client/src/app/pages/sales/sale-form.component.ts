@@ -613,6 +613,7 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                   <option value="PayPal">{{ t.paypal }}</option>
                   <option value="Karte">{{ t.bankTransfer }}</option>
                   <option value="Überweisung">{{ t.wireTransfer }}</option>
+                  <option value="Raten">Taksit</option>
                 </select>
                 <input
                   type="number"
@@ -622,6 +623,19 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
                   placeholder="Betrag"
                 />
                 <span class="zahlung-euro">€</span>
+                <ng-container *ngIf="z.zahlungsart === 'Raten'">
+                  <input
+                    type="number"
+                    min="1"
+                    max="120"
+                    step="1"
+                    class="raten-monate"
+                    [(ngModel)]="z.ratenMonate"
+                    [name]="'zRaten' + i"
+                    placeholder="Ay"
+                  />
+                  <span class="zahlung-euro">ay</span>
+                </ng-container>
                 <button
                   type="button"
                   class="btn btn-outline btn-sm"
@@ -660,6 +674,13 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
               <div class="total-row" *ngIf="remainingAmount === 0">
                 <span>Kalan</span>
                 <strong>0.00 €</strong>
+              </div>
+              <div class="total-row" *ngIf="ratenPlan">
+                <span>Taksit</span>
+                <strong>
+                  {{ ratenPlan!.monate }} ay ×
+                  {{ ratenPlan!.rate | number: '1.2-2' }} €
+                </strong>
               </div>
             </div>
           </div>
@@ -1095,6 +1116,9 @@ import { AccessoryAutocompleteComponent } from '../../components/accessory-autoc
         font-size: 0.92rem;
         background: var(--bg-card, #fff);
         color: var(--text-primary);
+      }
+      .zahlung-item input.raten-monate {
+        width: 72px;
       }
       .zahlung-euro {
         font-weight: 600;
@@ -1665,6 +1689,18 @@ export class SaleFormComponent implements OnInit {
     return Math.max(0, this.effectiveGrandTotal - this.paidAmount);
   }
 
+  // Taksitli satırdan aylık tutarı türet — belgede de aynı hesap görünüyor.
+  get ratenPlan(): { monate: number; rate: number } | null {
+    const z = this.zahlungen.find(
+      (x) =>
+        x.zahlungsart === PaymentMethod.Raten &&
+        (x.ratenMonate ?? 0) > 0 &&
+        (x.betrag ?? 0) > 0,
+    );
+    if (!z) return null;
+    return { monate: z.ratenMonate!, rate: z.betrag / z.ratenMonate! };
+  }
+
   constructor(
     private saleService: SaleService,
     private bicycleService: BicycleService,
@@ -2034,6 +2070,19 @@ export class SaleFormComponent implements OnInit {
 
     if (this.zahlungen.some((z) => !z.zahlungsart)) {
       alert('Bitte Zahlungsart auswählen.');
+      return;
+    }
+
+    // Ohne Laufzeit steht auf dem Beleg eine Rate ohne Monatszahl.
+    if (
+      this.zahlungen.some(
+        (z) =>
+          z.zahlungsart === PaymentMethod.Raten &&
+          z.betrag > 0 &&
+          !((z.ratenMonate ?? 0) > 0),
+      )
+    ) {
+      alert('Taksit için ay sayısını gir.');
       return;
     }
 
