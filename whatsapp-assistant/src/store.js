@@ -51,13 +51,39 @@ export function getOrCreate(chatId, name) {
   return conv;
 }
 
+// Panelden gesendete Antwort und WhatsApps eigenes Event können mit
+// UNTERSCHIEDLICHEN IDs ankommen — dann stand dieselbe Antwort zweimal im
+// Verlauf. Innerhalb dieses Fensters gilt gleicher Text als dieselbe
+// ausgehende Nachricht.
+const OUT_DUP_WINDOW_MS = 60_000;
+
 // Tek mesaj ekle. Aynı id ikinci kez gelirse (canlı olay + senkron, ya da
 // panelden gönderip ardından WhatsApp olayını almak) yoksayılır.
 export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly, photo }) {
   const conv = getOrCreate(chatId, name);
   if (id && conv.messages.some((m) => m.id === id)) return conv;
 
-  const msg = { id, direction, body, ts: ts || Date.now() };
+  const zeit = ts || Date.now();
+
+  if (direction === "out" && body) {
+    const zwilling = conv.messages.find(
+      (m) =>
+        m.direction === "out" &&
+        m.body === body &&
+        Math.abs((m.ts || 0) - zeit) < OUT_DUP_WINDOW_MS,
+    );
+    if (zwilling) {
+      // Kam die echte WhatsApp-ID erst mit dem Event nach, ersetzt sie die
+      // vorläufige — sonst greift die ID-Prüfung beim nächsten Sync nicht.
+      if (id && String(zwilling.id).startsWith("out-")) {
+        zwilling.id = id;
+        persist();
+      }
+      return conv;
+    }
+  }
+
+  const msg = { id, direction, body, ts: zeit };
   if (mediaOnly) msg.mediaOnly = true;
   if (photo) msg.photo = photo;
   conv.messages.push(msg);

@@ -237,6 +237,11 @@ app.post("/api/conversations/:chatId/send", async (req, res) => {
     // Gerçek WhatsApp mesaj id'siyle kaydet: 'message_create' olayı aynı mesajı
     // birazdan tekrar getirecek, depo aynı id'yi ikinci kez eklemez.
     const sent = await wa.sendMessage(chatId, text);
+    if (!sent?.id?._serialized) {
+      // Ohne echte ID greift die ID-Prüfung im Store nicht; die Antwort wird
+      // dann nur noch über Text+Zeit als Dublette erkannt.
+      console.warn("[send] WhatsApp lieferte keine Nachrichten-ID zurück:", chatId);
+    }
     const conv = store.addMessage(chatId, null, {
       id: sent?.id?._serialized || "out-" + Date.now(),
       direction: "out",
