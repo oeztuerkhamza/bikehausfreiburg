@@ -53,6 +53,8 @@ async function syncChats({ onlyChanged = false } = {}) {
         ? (chatId, lastTs) => {
             const conv = store.get(chatId);
             if (!conv || !conv.messages.length) return true;
+            // Noch nicht geladene Fotos nachholen, auch ohne neue Nachricht.
+            if (store.hasPendingPhotos(chatId)) return true;
             if (!lastTs) return true;
             return conv.messages[conv.messages.length - 1].ts < lastTs;
           }
@@ -114,6 +116,7 @@ wa.events.on("message", async (m) => {
     direction: m.direction === "out" ? "out" : "in",
     body: m.body,
     mediaOnly: m.mediaOnly,
+    isPhoto: m.isPhoto,
     photo: m.photo,
     ts: m.ts,
   });

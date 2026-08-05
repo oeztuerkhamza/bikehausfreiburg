@@ -59,7 +59,7 @@ const OUT_DUP_WINDOW_MS = 60_000;
 
 // Tek mesaj ekle. Aynı id ikinci kez gelirse (canlı olay + senkron, ya da
 // panelden gönderip ardından WhatsApp olayını almak) yoksayılır.
-export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly, photo }) {
+export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly, isPhoto, photo }) {
   const conv = getOrCreate(chatId, name);
   if (id && conv.messages.some((m) => m.id === id)) return conv;
 
@@ -85,6 +85,7 @@ export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly, p
 
   const msg = { id, direction, body, ts: zeit };
   if (mediaOnly) msg.mediaOnly = true;
+  if (isPhoto) msg.isPhoto = true;
   if (photo) msg.photo = photo;
   conv.messages.push(msg);
   // Geç gelen bir mesaj sırayı bozmasın.
@@ -113,7 +114,10 @@ export function importChat(chatId, name, messages, unread) {
     if (!known) { conv.messages.push(m); byId.set(m.id, m); }
     // Fotoğraf bütçesi yüzünden ilk turda inmemiş olabilir — sonradan gelirse
     // mevcut mesaja iliştir.
-    else if (m.photo && !known.photo) known.photo = m.photo;
+    else {
+      if (m.photo && !known.photo) known.photo = m.photo;
+      if (m.isPhoto && !known.isPhoto) known.isPhoto = true;
+    }
   }
   conv.messages.sort((a, b) => a.ts - b.ts);
   if (name && (conv.name === chatId || !conv.name)) conv.name = name;
@@ -145,6 +149,15 @@ export function markRead(chatId) {
 
 export function get(chatId) {
   return conversations.get(chatId);
+}
+
+// Foto-Nachricht ohne Bild: das Download-Budget eines Laufs ist begrenzt, der
+// Rest bleibt liegen. Der periodische Sync fragt darüber, ob ein Chat trotz
+// unveränderter Nachrichten noch einmal geholt werden muss.
+export function hasPendingPhotos(chatId) {
+  const conv = conversations.get(chatId);
+  if (!conv) return false;
+  return conv.messages.some((m) => m.isPhoto && !m.photo);
 }
 
 export function list() {

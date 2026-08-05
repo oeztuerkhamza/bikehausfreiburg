@@ -33,10 +33,29 @@ const MEDIA_LABELS = {
   location: '📍 Konum',
   vcard: '👤 Kişi kartı',
   multi_vcard: '👤 Kişi kartı',
+  call_log: '📞 Arama',
+  revoked: '🚫 Silinen mesaj',
 };
 
+// WhatsApp geçmişinde mesaj olmayan sistem kayıtları da duruyor (şifre anahtarı
+// değişimi, şablon bildirimleri, grup olayları). Bunlar akışta '📎 Ek' olarak
+// görünüp sohbeti dolduruyordu — hiç gösterilmiyorlar.
+const HIDDEN_TYPES = new Set([
+  'e2e_notification',
+  'notification',
+  'notification_template',
+  'gp2',
+  'broadcast_notification',
+  'newsletter_notification',
+  'protocol',
+  'ciphertext',
+  'groups_v4_invite',
+]);
+
 // Mesaj gövdesi + bunun sadece bir ek mi (çeviriye gerek yok) olduğu.
-function bodyOf(msg) {
+// Boş gövde = akışta hiç görünmez.
+export function bodyOf(msg) {
+  if (HIDDEN_TYPES.has(msg.type)) return { body: '', mediaOnly: false };
   const caption = (msg.body || '').trim();
   if (msg.type === 'chat') return { body: caption, mediaOnly: false };
   const label = MEDIA_LABELS[msg.type] || '📎 Ek';
@@ -69,25 +88,27 @@ function isPhoto(msg) {
  * @returns {Promise<{data:string, mimetype:string}|null>}
  */
 async function downloadPhotoById(waClient, msgId) {
-  if (!waClient?.pupPage || !msgId) return null;
+  if (!waClient?.pupPage || !msgId) return { grund: 'istemci yok' };
   return waClient.pupPage.evaluate(async (id) => {
     const collections = window.require('WAWebCollections');
     const msg =
       collections.Msg.get(id) ||
       (await collections.Msg.getMessagesById([id]))?.messages?.[0];
 
+    if (!msg) return { grund: 'mesaj bulunamadı' };
+    if (!msg.mediaData) return { grund: 'medya verisi yok' };
     // REUPLOADING = Medium ist abgelaufen und wird gerade neu geholt.
-    if (!msg || !msg.mediaData || msg.mediaData.mediaStage === 'REUPLOADING') return null;
+    if (msg.mediaData.mediaStage === 'REUPLOADING') return { grund: 'yeniden yükleniyor' };
 
     if (msg.mediaData.mediaStage !== 'RESOLVED') {
       try {
         await msg.downloadMedia({ downloadEvenIfExpensive: true, rmrReason: 1 });
-      } catch {
-        return null;
+      } catch (err) {
+        return { grund: 'downloadMedia: ' + (err?.message || 'hata') };
       }
     }
     if (msg.mediaData.mediaStage.includes('ERROR') || msg.mediaData.mediaStage === 'FETCHING') {
-      return null;
+      return { grund: 'stage ' + msg.mediaData.mediaStage };
     }
 
     // Der DownloadManager erwartet ein Telemetrie-Objekt; ein Dummy genügt.
@@ -109,34 +130,37 @@ async function downloadPhotoById(waClient, msgId) {
         data: await window.WWebJS.arrayBufferToBase64Async(entschluesselt),
         mimetype: msg.mimetype,
       };
-    } catch {
-      return null;
+    } catch (err) {
+      return { grund: 'indirme: ' + (err?.message || 'hata') };
     }
   }, msgId);
 }
 
-// Fotoğrafı diske alır ve dosya adını döndürür. İndirilemezse null — mesaj
-// yine de '📷 Foto' etiketiyle akışta kalır.
-export async function savePhotoById(msgId, waClient = client) {
-  if (!msgId) return null;
+// Fotoğrafı diske alır. Dönen `grund` başarısızlığın nedenidir — logda
+// toplanınca "neden inmedi" sorusu tahmine kalmıyor.
+async function savePhotoDetail(msgId, waClient = client) {
+  if (!msgId) return { file: null, grund: 'kimlik yok' };
 
   const existing = media.findExisting(msgId);
-  if (existing) return existing;
+  if (existing) return { file: existing, grund: null };
 
   try {
     const downloaded = await downloadPhotoById(waClient, msgId);
-    if (!downloaded?.data) return null;
+    if (!downloaded?.data) return { file: null, grund: downloaded?.grund || 'veri yok' };
     const fileName = media.fileNameFor(msgId, downloaded.mimetype);
-    if (!fileName) return null;
+    if (!fileName) return { file: null, grund: 'dosya adı üretilemedi' };
     if (Buffer.byteLength(downloaded.data, 'base64') > PHOTO_MAX_BYTES) {
-      console.log('[whatsapp] fotoğraf çok büyük, atlandı:', msgId);
-      return null;
+      return { file: null, grund: 'çok büyük' };
     }
-    return media.save(fileName, downloaded.data);
+    return { file: media.save(fileName, downloaded.data), grund: null };
   } catch (err) {
-    console.error('[whatsapp] fotoğraf indirilemedi:', msgId, err?.message);
-    return null;
+    return { file: null, grund: err?.message || 'bilinmeyen hata' };
   }
+}
+
+// İndirilemezse null — mesaj yine de '📷 Foto' etiketiyle akışta kalır.
+export async function savePhotoById(msgId, waClient = client) {
+  return (await savePhotoDetail(msgId, waClient)).file;
 }
 
 async function savePhoto(msg) {
@@ -482,6 +506,7 @@ function createClient() {
       direction: msg.fromMe ? 'out' : 'in',
       body,
       mediaOnly,
+      isPhoto: isPhoto(msg),
       photo,
       ts: (msg.timestamp || Math.floor(Date.now() / 1000)) * 1000,
     });
@@ -568,7 +593,8 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
   // neueste zuerst.
   let photoBudget = PHOTO_SYNC_LIMIT;
   // Zähler, damit im Log steht, WO es klemmt, wenn keine Fotos ankommen.
-  const foto = { gesehen: 0, ausCache: 0, geladen: 0, fehlgeschlagen: 0, ersterFehler: '' };
+  const foto = { gesehen: 0, ausCache: 0, geladen: 0, fehlgeschlagen: 0, offen: 0 };
+  const gruende = new Map();
   const alleTypen = new Map();
 
   const result = [];
@@ -594,6 +620,9 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
       alleTypen.set(m.type, (alleTypen.get(m.type) || 0) + 1);
 
       if (isPhoto(m)) {
+        // Merkmal bleibt im Store: fehlt das Bild, holt der nächste Lauf es
+        // nach — auch wenn im Chat nichts Neues passiert ist.
+        msg.isPhoto = true;
         foto.gesehen++;
         const cached = media.findExisting(m.id);
         if (cached) {
@@ -601,14 +630,18 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
           foto.ausCache++;
         } else if (photoBudget > 0) {
           photoBudget--;
-          const saved = await savePhotoById(m.id);
-          if (saved) {
-            msg.photo = saved;
+          const { file, grund } = await savePhotoDetail(m.id);
+          if (file) {
+            msg.photo = file;
             foto.geladen++;
           } else {
             foto.fehlgeschlagen++;
-            if (!foto.ersterFehler) foto.ersterFehler = m.id;
+            const kurz = (grund || 'bilinmeyen').slice(0, 40);
+            gruende.set(kurz, (gruende.get(kurz) || 0) + 1);
           }
+        } else {
+          // Budget erschöpft — nächster Lauf holt den Rest.
+          foto.offen++;
         }
       }
       messages.push(msg);
@@ -622,10 +655,15 @@ async function buildFromRawChats(limit, perChatMessages, shouldFetchMessages) {
     .slice(0, 6)
     .map(([t, n]) => `${t}:${n}`)
     .join(' ');
+  const fehlerGruende = [...gruende.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([g, n]) => `${g}×${n}`)
+    .join(', ');
   console.log(
     `[whatsapp] ham modda foto — gesehen ${foto.gesehen}, aus Cache ${foto.ausCache}, ` +
-      `geladen ${foto.geladen}, fehlgeschlagen ${foto.fehlgeschlagen}` +
-      (foto.ersterFehler ? ` (erster: ${foto.ersterFehler})` : '') +
+      `geladen ${foto.geladen}, fehlgeschlagen ${foto.fehlgeschlagen}, offen ${foto.offen}` +
+      (fehlerGruende ? ` | Gründe: ${fehlerGruende}` : '') +
       ` | Nachrichtentypen: ${typen}`,
   );
   return result;
@@ -699,6 +737,7 @@ export async function getRecentChats(opts = {}) {
       if (mediaOnly) msg.mediaOnly = true;
 
       if (isPhoto(m)) {
+        msg.isPhoto = true;
         const cached = media.findExisting(msg.id);
         if (cached) msg.photo = cached;
         else if (photoBudget > 0) {
