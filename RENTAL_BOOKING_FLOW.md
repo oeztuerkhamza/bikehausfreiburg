@@ -140,13 +140,28 @@ da, no, pl). Im Template steht immer `t().rentalSteps?.key ?? 'deutscher Fallbac
   Fensters muss zur Fälligkeit der Bewertungsanfrage passen**: liegt sie später,
   verschiebt das Fenster die Regel still nach hinten.
 
+## Entschieden: keine Online-Zahlung
+
+Die Miete wird **nicht** online bezahlt oder angezahlt — Entscheidung des Inhabers
+(August 2026). Miete und Kaution werden bei der Abholung im Laden bezahlt, die
+Kaution in bar. Mollie ist angebunden, aber ausschließlich für den Verkauf
+(Reservierung im Showroom, `CheckoutController`); der Miet-Ablauf berührt es nicht.
+Wer hier eine Vorauszahlung einbaut, ändert damit eine bewusste Entscheidung, nicht
+eine offene Lücke.
+
+Die Kehrseite bleibt: ein No-Show blockiert ein Rad umsonst, weil Buchungen sofort
+bestätigt werden. Das einzige Gegenmittel ist damit die **Erinnerung am Tag vor der
+Abholung** — sie ist nicht Komfort, sondern der Ersatz für die Vorauszahlung, und
+sollte nicht abgeschaltet werden.
+
 ## Offene Punkte
 
 - Pflichtfelder im Formular sind reichlich (Telefon, Straße, Hausnummer, PLZ, Ort)
   — bewusste Entscheidung des Inhabers, aber der wahrscheinlichste Hebel für mehr
   abgeschlossene Buchungen.
-- Keine Vorauszahlung: ein No-Show blockiert ein Rad umsonst (Mollie ist im
-  Verkauf schon angebunden).
-- `RentalBookingService.NormalizeLanguage` reduziert die Sprache einer Buchung auf
-  `de`/`en`. Die Oberfläche führt 12 Sprachen, die Mails also nicht: ein
-  französischer oder türkischer Gast bekommt Deutsch.
+- Die Mail-Übersetzungen außer `de`/`en` sind maschinell erstellt und noch nicht von
+  Muttersprachlern gegengelesen (`RentalBookingMailTexts.cs`) — besonders `tr` und
+  `ar` (RTL im Plain-Text-Client).
+- Kautionsrückgabe-, Verkaufs- und Reservierungsmails sind weiterhin zweisprachig
+  DE/EN: die dahinterliegenden Entities (`Rental`, `Sale`) führen keine
+  Kundensprache, anders als `RentalBooking.Sprache`.
