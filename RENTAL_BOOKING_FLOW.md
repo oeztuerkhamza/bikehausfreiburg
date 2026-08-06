@@ -1,280 +1,152 @@
-# Schritt-für-Schritt Fahrrad-Buchungssystem
+# Fahrrad-Buchungsablauf (Miete)
 
-## Überblick
+Stand: August 2026. Dieses Dokument beschreibt, was **tatsächlich** läuft — eine
+frühere Version beschrieb einen 5-Schritte-Entwurf mit Freigabe durch den Laden,
+den es so nicht mehr gibt.
 
-Das neue Rental Booking Steps System wurde implementiert, um Kunden einen geführten Buchungsprozess für Mietfahrräder zu bieten. Das System führt den Kunden durch folgende 5 Schritte:
+Code: [rental-booking-steps.component.ts](BikeHaus.Homepage/src/app/pages/fahrradverleih/rental-booking-steps.component.ts)
+(Template, Styles und Logik in einer Datei), eingebettet über
+[rental-booking-page.component.ts](BikeHaus.Homepage/src/app/pages/fahrradverleih/rental-booking-page.component.ts).
+Route: `/:lang/fahrradverleih/buchen` (EN `bike-rental`, FR `location-velo`).
 
-## Implementierte Schritte
+---
 
-### Schritt 1: Datumswahl (Date Selection)
+## Schritte
 
-- Kunde wählt Startdatum und Enddatum
-- Validierung: Enddatum muss nach Startdatum liegen
-- Mindestdatum: Morgen (nicht heute)
+Der Ablauf hat acht Zustände. Sie stehen als `?step=` in der URL, damit der
+Zurück-Button einen Schritt zurückgeht statt die Seite zu verlassen:
 
-### Schritt 2: Fahrradwahl (Bike Selection)
+| `?step=` | Inhalt |
+| --- | --- |
+| _(keiner)_ `date-selection` | Kalender: Start- und Endtag antippen |
+| `bike-selection` | Verfügbare Räder, Filter nach Typ und Körpergröße |
+| `bike-details` | Bilder (Lightbox mit Pinch-Zoom), Maße, Preis, Kaution |
+| `choose-next` | Rad ist drin — weiter oder noch ein Rad dazu |
+| `accessory-selection` | Optionales Zubehör mit Mengen |
+| `customer-info` | Kontaktdaten, Adresse, **Abholzeit** |
+| `review` | Übersicht, Bedingungen bestätigen, absenden |
+| `success` | Buchungsnummer, Bestätigungsmail ist unterwegs |
 
-- Nach Datumswahl: API prüft Verfügbarkeit für den gewählten Zeitraum
-- Nur verfügbare Fahrräder werden angezeigt
-- Grid-Ansicht mit Bildern, Typ und Preisinformation
-- Responsive Design für Mobile und Desktop
+`resolveStep()` stuft einen Schritt zurück, dessen Voraussetzungen fehlen (Link
+auf `review` ohne Räder → Kalender). Nach erfolgreicher Buchung führt kein
+History-Eintrag zurück in die Formulare — sonst entstünden Doppelbuchungen.
 
-### Schritt 3: Fahrraddetails (Bike Details)
+## Kalender
 
-- Große Bilder mit Thumbnails
-- Spezifikationen (Typ, Rahmengröße, Reifengröße, Farbe)
-- Preisberechnung für die gewählten Tage
-- Kaution-Informationen
-- Optional: Rahmennummer eingeben
-- Optional: Farbe wählen
+- Frühester Tag ist **heute**; Sonntage, Feiertage in Baden-Württemberg
+  (inkl. beweglicher, aus dem Osterdatum gerechnet) und Betriebsferien aus
+  [rental-closures.ts](BikeHaus.Homepage/src/app/utils/rental-closures.ts) sind
+  nicht wählbar. Ein Zeitraum darf eine Schließzeit auch nicht überspannen.
+- Über einen Sonntag hinweg zu mieten ist erlaubt — nur Abholung und Rückgabe
+  brauchen einen offenen Tag.
+- **Heute fällt aus der Auswahl, sobald keine Abholzeit mehr übrig ist**
+  (`isSelectableCalendarDay()` fragt `slotsForDateKey()`), damit niemand erst im
+  Formular in einer Sackgasse landet.
 
-### Schritt 4: Kundeninformationen (Customer Info)
+## Abholzeiten
 
-- Warenkorb-Übersicht der gewählten Fahrräder
-- Möglichkeit, weitere Fahrräder hinzuzufügen
-- Kundenformular mit Feldern:
-  - Vorname (erforderlich)
-  - Nachname (erforderlich)
-  - E-Mail (erforderlich)
-  - Telefon (optional)
-  - Straße, Hausnummer, PLZ, Stadt (optional)
-  - Notizen (optional)
+30-Minuten-Raster aus den Übergabezeiten des Laden: Mo–Do 10:00–17:30,
+Fr 10:00–12:30 und 15:00–17:30 (Mittagspause), Sa 11:00–17:30, So zu. Für **heute**
+fallen Zeiten weg, die weniger als 30 Minuten entfernt sind
+(`SAME_DAY_LEAD_MINUTES`). Die Abholzeit ist ein Pflichtfeld.
 
-### Schritt 5: Übersicht & Bestätigung (Review & Confirm)
+## Räder, Preise, Kaution
 
-- Fahrraddetails-Übersicht
-- Kontaktinformationen
-- Preisübersicht (Gesamtmiete + Gesamtkaution)
-- Info-Hinweis zur Kaution
-- Bestätigungsbutton
+- Verfügbarkeit kommt aus `GET /api/public/rentals/bikes/available?startDate=&endDate=`
+  und wird bei jedem Zeitraumwechsel neu geholt.
+- **Kinderräder** (`Art`/`Fahrradtyp` enthält "Kinder") sind gepoolte Anzeigen:
+  sie bleiben mehrfach buchbar und werden von der Überschneidungsprüfung
+  ausgenommen — das konkrete Rad wird im Laden zugeordnet.
+- Preise rechnet der Client mit [rental-pricing.ts](BikeHaus.Homepage/src/app/utils/rental-pricing.ts),
+  der Server mit [RentalPricingCalculator.cs](BikeHaus.Application/Services/RentalPricingCalculator.cs)
+  — dieselbe Staffel-Logik (exakter Tagespreis, sonst nächster konfigurierter,
+  sonst letzter darunter, über 7 Tage `day7 + Zusatztage`). **Beide Seiten müssen
+  gleich bleiben**, sonst zeigt die Seite etwas anderes als im Vertrag steht.
+- Alle Beträge laufen über `formatPrice()` (`Intl.NumberFormat`, Sprache des
+  Besuchers). Kein `€{{ … }}` im Template.
+- Die **Kaution** kommt aus dem Bestand und wird nicht mitgesendet: der Server
+  setzt `bicycle.Kaution` selbst ein. Ist keine gepflegt, wird auch keine
+  genannt (früher stand hier ein erfundener Ersatzwert von 300 €).
+- Einmaliges Zubehör (Verbrauchsmaterial) geht **nicht** in den Buchungspreis
+  ein — ob es verbraucht wurde, steht erst bei der Rückgabe fest. Server und
+  Client rechnen hier gleich.
 
-### Erfolgsseite (Success)
+## Zwischenstand
 
-- Bestätigung der erfolgreichen Buchung
-- Buchungsnummer anzeigen
-- Bestätigungsmail-Versand-Bestätigung
-- Button für neue Buchung
+Der Inhalt der Buchung liegt als Entwurf im `sessionStorage`
+(`bikehaus-rental-booking-draft`, 12 Stunden haltbar). Gespeichert wird bei jedem
+Schrittwechsel, bei Änderungen am Warenkorb/Zubehör und wenn die Seite in den
+Hintergrund geht (`visibilitychange`, `pagehide`). Beim Wiederherstellen wird die
+Verfügbarkeit **neu geholt**; inzwischen vergriffene Räder fallen mit Hinweis aus
+dem Warenkorb. Vom Warenkorb wird nur die Fahrrad-ID gemerkt, nie die Stammdaten.
 
-## Technische Implementierung
+## Absenden
 
-### Neue Dateien
+`POST /api/public/rentals/bookings` →
+[RentalBookingService.CreateAsync](BikeHaus.Application/Services/RentalBookingService.cs).
 
-1. **Frontend**: `BikeHaus.Homepage/src/app/pages/fahrradverleih/rental-booking-steps.component.ts`
-   - Standalone Angular Component
-   - State Management mit Signals
-   - Responsive Styles
+- Der Server prüft Mietbarkeit und Überschneidungen (bestätigte **und** offene
+  Buchungen) und legt die Buchung **direkt als `Approved`** an. Es gibt keine
+  Freigabe durch den Laden mehr; die Prüfung verhindert die Doppelbelegung.
+- Fehler `409` (Zeitraum inzwischen belegt) und `404` (Rad/Zubehör weg) sind kein
+  Formularfehler: der Client lädt die Verfügbarkeit neu, nimmt die vergriffenen
+  Räder aus dem Warenkorb und schickt den Gast mit Begründung
+  (`rentalSteps.bookingConflict`) zurück in die Auswahl.
+- Bestätigungsmail geht an die angegebene Adresse; Storno durch den Kunden läuft
+  über den Link darin (`PublicRentalsController`, `bookings/cancel` zeigt nur eine
+  Bestätigungsseite, storniert wird per POST — E-Mail-Scanner rufen Links sonst
+  von allein auf).
 
-### Neue API Endpoints
+## i18n
 
-#### GET `/api/public/rentals/bikes/available`
+Keine Sprachdateien: alle Texte stehen in
+[translation.service.ts](BikeHaus.Homepage/src/app/services/translation.service.ts).
+Die Schlüssel des Ablaufs liegen in `RENTAL_STEPS_TRANSLATIONS` und sind in
+**allen** dort geführten Sprachen zu ergänzen (de, en, fr, tr, es, it, ar, ru, nl,
+da, no, pl). Im Template steht immer `t().rentalSteps?.key ?? 'deutscher Fallback'`.
 
-- **Parameter**:
-  - `startDate` (DateTime, Query): Startdatum im ISO-Format (YYYY-MM-DD)
-  - `endDate` (DateTime, Query): Enddatum im ISO-Format (YYYY-MM-DD)
-- **Response**: Liste von `PublicRentalBicycleDto` Objekten
-- **Logik**:
-  - Ruft alle verfügbaren Fahrräder ab
-  - Prüft Busy Periods für jeden Zeitraum
-  - Gibt nur Fahrräder zurück, die für den gesamten Zeitraum frei sind
+## Nach der Buchung
 
-```csharp
-[HttpGet("bikes/available")]
-public async Task<ActionResult<IEnumerable<PublicRentalBicycleDto>>> GetAvailableBikes(
-    [FromQuery] DateTime startDate,
-    [FromQuery] DateTime endDate)
-```
+- **Erfolgsseite**: Kalendereintrag (.ics, im Browser erzeugt), Adresse mit
+  Kartenlink und `tel:`-Nummer aus dem `ShopInfoService` (nicht hartcodiert),
+  Hinweis, dass die Buchung sofort bestätigt ist, und ein Link auf die
+  Verwaltungsseite.
+- **Seite "Buchung verwalten"** (`/:lang/buchung`, EN `manage-booking`, Slugs für
+  alle 12 Sprachen in `language-config.ts`): Buchungsnummer + E-Mail →
+  `POST /api/public/rentals/bookings/lookup` (**nebenwirkungsfrei**) → Ansicht →
+  Storno erst nach bewusster Rückfrage. `noindex`, nicht im Prerender und nicht
+  in der Sitemap.
+  - Buchungsnummer und E-Mail wandern von der Erfolgsseite über
+    [booking-handoff.ts](BikeHaus.Homepage/src/app/utils/booking-handoff.ts)
+    (sessionStorage, wird beim Lesen geleert) — **nicht** über Query-Parameter:
+    in der URL stünde die Adresse des Gasts im Browserverlauf und in jedem
+    geteilten Link.
+  - Kein Auskunfts-Orakel: unbekannte Buchungsnummer und nicht passende E-Mail
+    liefern serverseitig dieselbe Antwort (404, gleicher Text) und im Frontend
+    dieselbe Meldung. Gilt auch für den Storno-Endpunkt.
+  - Storniert oder Zeitraum vorbei → kein Storno-Knopf, nur ein erklärender
+    Hinweis.
+- **Erinnerung vor der Abholung**: `RentalBookingReminderBackgroundService`
+  (stündlich) schickt am Tag vor `StartDatum` eine Erinnerung, einmalig
+  abgesichert über `RentalBooking.ErinnerungGesendetAm`.
+- **Bewertungsanfrage**: `ReviewAutomationBackgroundService`. Bei Mieten am Tag
+  **nach** dem Mietende ab 8 Uhr Ortszeit (Anker: `RueckgabeAt`, sonst
+  `EndDatum`), bei Verkäufen unverändert `DelayHours` nach `CreatedAt`. Beide
+  laufen über das gemeinsame Gate in `CampaignService` (Abmeldung,
+  Mindestabstand, Obergrenze pro Adresse).
+- Alle automatischen Mails senden nur innerhalb von
+  [ShopSendWindow](BikeHaus.Domain/ShopSendWindow.cs) (8–20 Uhr Ortszeit, über
+  `ShopClock` gerechnet — der Container läuft in UTC). **Die Untergrenze des
+  Fensters muss zur Fälligkeit der Bewertungsanfrage passen**: liegt sie später,
+  verschiebt das Fenster die Regel still nach hinten.
 
-### Services Updates
+## Offene Punkte
 
-#### ApiService Erweiterung
-
-```typescript
-// Neue Methoden in: BikeHaus.Homepage/src/app/services/api.service.ts
-
-getAvailableBikes(startDate: Date, endDate: Date): Observable<PublicRentalBicycle[]>
-// Ruft verfügbare Fahrräder für einen Zeitraum ab
-
-private formatDateForAPI(date: Date): string
-// Helper zum Formatieren von Dates als YYYY-MM-DD
-```
-
-## UI/UX Features
-
-### Responsive Design
-
-- Mobile: Single Column Layout
-- Tablet/Desktop: Multi-Column Grid für Fahrräder
-- Angepasste Button-Größen
-
-### Benutzerfreundlichkeit
-
-- Step Indicator am Oben zeigt aktuellen Fortschritt
-- Zurück-Button auf jedem Schritt
-- Scroll-to-top nach Schritt-Wechsel
-- Error Messages mit klaren Fehlermeldungen
-- Loading State während Datenabruf
-- Disabled Buttons wenn erforderliche Felder leer
-
-### Validierung
-
-- Datums-Validierung (Enddatum > Startdatum)
-- Formular-Validierung (Namen, E-Mail erforderlich)
-- E-Mail Format-Prüfung
-
-## Translations erforderlich
-
-Die folgenden Translation Keys sollten zu den Language-Config Files hinzugefügt werden:
-
-```typescript
-rentalSteps: {
-  dateSelection: string;
-  bikeSelection: string;
-  customerInfo: string;
-  review: string;
-  selectDates: string;
-  startDate: string;
-  endDate: string;
-  continue: string;
-  loading: string;
-  noBikesAvailable: string;
-  from: string;
-  day: string;
-  back: string;
-  bikeDetails: string;
-  addToCart: string;
-  selectDifferent: string;
-  type: string;
-  frameSize: string;
-  tireSize: string;
-  color: string;
-  description: string;
-  pricing: string;
-  rentalPrice: string;
-  deposit: string;
-  optional: string;
-  selectColor: string;
-  frameNumber: string;
-  yourInfo: string;
-  cartItems: string;
-  addAnotherBike: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  street: string;
-  houseNumber: string;
-  postalCode: string;
-  city: string;
-  notes: string;
-  confirmBooking: string;
-  bikeDetails: string;
-  contactInfo: string;
-  priceSummary: string;
-  totalRental: string;
-  totalDeposit: string;
-  depositNote: string;
-  bookingSuccess: string;
-  confirmationSent: string;
-  sent: string;
-  bookingNumber: string;
-  newBooking: string;
-  selectBothDates: string;
-  invalidDateRange: string;
-  loadError: string;
-  bookingError: string;
-  firstNameRequired: string;
-  lastNameRequired: string;
-  emailRequired: string;
-  submitting: string;
-  confirm: string;
-  days: string;
-  itemPrice: string;
-}
-```
-
-## Integrationsschritte
-
-1. ✅ API Endpoint erstellt (`GetAvailableBikes`)
-2. ✅ ApiService erweitert (`getAvailableBikes`, `formatDateForAPI`)
-3. ✅ Rental Booking Steps Component erstellt
-4. ✅ Component zu FahrradverleihComponent hinzugefügt
-5. 🔄 **TODO**: Translation Keys zu Language Config hinzufügen
-6. 🔄 **TODO**: Testen Sie das System im Browser
-7. 🔄 **TODO**: Überprüfen Sie die API-Responses für Verfügbarkeitsprüfung
-8. 🔄 **TODO**: CSS Styling überprüfen und anpassen falls nötig
-
-## Testing Checkliste
-
-### Date Selection (Schritt 1)
-
-- [ ] Startdatum auswählen
-- [ ] Enddatum auswählen
-- [ ] Validierung: Enddatum muss nach Startdatum liegen
-- [ ] "Weiter" Button sollte aktiviert sein
-
-### Bike Selection (Schritt 2)
-
-- [ ] API wird aufgerufen mit korrekten Daten
-- [ ] Nur verfügbare Fahrräder werden angezeigt
-- [ ] Klick auf Fahrrad öffnet Details
-
-### Bike Details (Schritt 3)
-
-- [ ] Bilder werden angezeigt
-- [ ] Spezifikationen sind sichtbar
-- [ ] Preis wird korrekt berechnet
-- [ ] "Zum Warenkorb hinzufügen" funktioniert
-
-### Customer Info (Schritt 4)
-
-- [ ] Warenkorb zeigt ausgewählte Fahrräder
-- [ ] "Weiteres Fahrrad hinzufügen" funktioniert
-- [ ] Formular validiert erforderliche Felder
-- [ ] "Weiter" führt zu Review
-
-### Review (Schritt 5)
-
-- [ ] Alle Details sind korrekt
-- [ ] Preisberechnung ist korrekt
-- [ ] Bestätigung sendet Buchung ab
-
-### Success Page
-
-- [ ] Buchungsnummer wird angezeigt
-- [ ] "Neue Buchung" startet den Prozess erneut
-
-## API Testing
-
-Test mit curl:
-
-```bash
-# Verfügbare Fahrräder für 2026-05-20 bis 2026-05-27 abrufen
-curl "http://localhost:5196/api/public/rentals/bikes/available?startDate=2026-05-20&endDate=2026-05-27"
-```
-
-## Performance Überlegungen
-
-- **Lazy Loading**: Bilder werden on-demand geladen
-- **Client-Side State**: Alle UI-States bleiben im Component (keine Server Requests nötig außer für Verfügbarkeit und Booking)
-- **Caching**: Verfügbare Fahrräder werden bei Schritt 2 gecacht
-
-## Zukünftige Verbesserungen
-
-1. Zubehör-Optionen hinzufügen (Helme, Schlösser, etc.)
-2. Promo-Codes unterstützen
-3. Versicherungsoptionen
-4. Mehrsprachige E-Mail-Vorlagen
-5. SMS-Benachrichtigungen
-6. Zahlungsintegration (Stripe, PayPal)
-7. Calendar-Ansicht für Verfügbarkeit
-8. Bewertungen und Reviews anzeigen
-9. Größenempfehlungen basierend auf Körpergröße
-10. Live-Verfügbarkeits-Anzeige
-
-## Fragen & Support
-
-Wenn Sie Fragen oder Probleme haben:
-
-1. Überprüfen Sie die Browserkonsole auf JavaScript Fehler
-2. Überprüfen Sie die API Responses im Network Tab
-3. Überprüfen Sie die Server-Logs auf Fehler
+- Pflichtfelder im Formular sind reichlich (Telefon, Straße, Hausnummer, PLZ, Ort)
+  — bewusste Entscheidung des Inhabers, aber der wahrscheinlichste Hebel für mehr
+  abgeschlossene Buchungen.
+- Keine Vorauszahlung: ein No-Show blockiert ein Rad umsonst (Mollie ist im
+  Verkauf schon angebunden).
+- `RentalBookingService.NormalizeLanguage` reduziert die Sprache einer Buchung auf
+  `de`/`en`. Die Oberfläche führt 12 Sprachen, die Mails also nicht: ein
+  französischer oder türkischer Gast bekommt Deutsch.
