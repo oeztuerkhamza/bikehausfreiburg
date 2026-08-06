@@ -6,6 +6,7 @@ import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import path from 'node:path';
 import * as media from './media.js';
+import { isCaptionText } from './body-text.js';
 
 const { Client, LocalAuth } = pkg;
 
@@ -62,7 +63,10 @@ export function bodyOf(msg) {
   const caption = (msg.body || '').trim();
   if (msg.type === 'chat') return { body: caption, mediaOnly: false };
   const label = MEDIA_LABELS[msg.type] || '📎 Ek';
-  return caption
+  // Nur echte Bildunterschriften kommen mit ans Etikett. Bei Fotos steht in
+  // `body` sonst der base64-Block des Bildes — der stand als Zeichensalat
+  // unter dem Foto im Chat und ging auch noch in die Übersetzung.
+  return isCaptionText(caption)
     ? { body: `${label} — ${caption}`, mediaOnly: false }
     : { body: label, mediaOnly: true };
 }
@@ -357,13 +361,16 @@ export async function getRawChats(waClient = client, perChatMessages = MESSAGE_L
             stat.ohneId++;
             continue;
           }
+          // Bei Medien liegt in `body` die Nutzlast (bei Fotos der base64-Block,
+          // bei Kontakten die VCARD) — die Bildunterschrift steht in `caption`.
+          // Deshalb je Typ das richtige Feld, statt beide zu vermischen.
+          const istText = typ === 'chat';
+          const rohBody = istText
+            ? pick(() => roh.body, '') || pick(() => m.body, '') || ''
+            : pick(() => roh.caption, '') || pick(() => m.caption, '') || '';
           messages.push({
             id: msgId,
-            body:
-              pick(() => roh.body, '') ||
-              pick(() => roh.caption, '') ||
-              pick(() => m.body, '') ||
-              '',
+            body: rohBody,
             fromMe: !!(pick(() => roh.id?.fromMe, false) || pick(() => m.id?.fromMe, false)),
             t: pick(() => roh.t, 0) || pick(() => m.t, 0) || 0,
             type: typ,

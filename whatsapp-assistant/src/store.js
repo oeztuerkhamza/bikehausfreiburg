@@ -3,6 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { repairStoredBody } from "./body-text.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, "..", "data");
@@ -11,11 +12,33 @@ const DB_FILE = path.join(DATA_DIR, "conversations.json");
 /** @type {Map<string, Conversation>} chatId -> conversation */
 const conversations = new Map();
 
+// Eski Verläufe enthalten noch Nachrichten, in denen die Bilddaten als Text
+// stehen ("📷 Foto — /9j/4AAQ…"). Das wird beim Laden einmal aufgeräumt, sonst
+// bleibt der Zeichensalat im Chat stehen, obwohl der Sync ihn nicht mehr baut.
+function repairBodies() {
+  let repariert = 0;
+  for (const conv of conversations.values()) {
+    for (const m of conv.messages || []) {
+      const clean = repairStoredBody(m.body);
+      if (!clean) continue;
+      m.body = clean;
+      m.mediaOnly = true;
+      delete m.translation;
+      repariert++;
+    }
+  }
+  if (repariert > 0) {
+    console.log(`[store] ${repariert} Nachricht(en) von Mediendaten befreit.`);
+    persist();
+  }
+}
+
 function load() {
   try {
     if (fs.existsSync(DB_FILE)) {
       const raw = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
       for (const conv of raw) conversations.set(conv.chatId, conv);
+      repairBodies();
     }
   } catch (err) {
     console.error("[store] yükleme hatası:", err.message);
