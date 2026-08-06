@@ -12,7 +12,6 @@ import { Bicycle } from '../../models/models';
 import { BicycleService } from '../../services/bicycle.service';
 import { TranslationService } from '../../services/translation.service';
 import { environment } from '../../../environments/environment';
-import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
 
 @Component({
   selector: 'app-bike-selector',
@@ -85,13 +84,14 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
           *ngFor="let bike of filteredBikes"
           class="bike-item"
           [class.selected]="selectedBike?.id === bike.id"
-          [class.active-detail]="activeBike?.id === bike.id"
           (click)="onBikeCardClick(bike)"
         >
-          <!-- Bewusst schlank: Foto, Name, Preis. Alles Weitere (Größe, Typ,
-               Rahmennummer, Preisstaffel) steht im Detailfeld unter der Liste,
-               sobald ein Rad angeklickt wird. Gesucht wird trotzdem über alle
-               Felder — siehe filterBikes(). -->
+          <!-- Bewusst schlank: Foto, Name, Größe, Startpreis und der Knopf zum
+               Hinzufügen. Darunter hing früher ein Detailfeld mit großem Foto
+               und der ganzen Preisstaffel — beim Zusammenstellen einer Miete
+               wird das nicht gebraucht, es kostete nur einen Klick pro Rad.
+               Gesucht wird weiterhin über alle Felder, auch die hier nicht
+               angezeigten — siehe filterBikes(). -->
           <div class="bike-main-row">
             <div class="bike-thumb">
               <img
@@ -114,105 +114,23 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
             >
               ab {{ startPrice | number: '1.0-0' }} €
             </div>
+            <!-- Nur wo die Auswahl bestätigt werden muss (Mietvertrag): sonst
+                 wählt der Klick auf die Zeile das Rad direkt aus. -->
+            <button
+              *ngIf="requireConfirmSelection"
+              type="button"
+              class="btn btn-primary row-add-btn"
+              (click)="addBike(bike, $event)"
+              [disabled]="addingBikeId === bike.id"
+            >
+              {{ addingBikeId === bike.id ? '...' : 'Ekle' }}
+            </button>
           </div>
         </div>
 
         <p *ngIf="filteredBikes.length === 0" class="empty">
           {{ t.noAvailableBikes }}
         </p>
-      </div>
-
-      <div class="bike-detail-panel" *ngIf="activeBike">
-        <div class="detail-header">
-          <div>
-            <h4>{{ activeBike.marke }} {{ activeBike.modell }}</h4>
-            <p>
-              <span *ngIf="getBikeArt(activeBike)">{{
-                getBikeArt(activeBike)
-              }}</span>
-              <span *ngIf="activeBike.rahmengroesse">
-                · Size {{ activeBike.rahmengroesse }}</span
-              >
-              <span *ngIf="activeBike.reifengroesse">
-                · {{ activeBike.reifengroesse }}"</span
-              >
-            </p>
-          </div>
-
-          <button
-            type="button"
-            class="btn btn-primary add-btn"
-            (click)="confirmActiveBikeSelection()"
-            [disabled]="activeBikeLoading"
-          >
-            Ekle
-          </button>
-        </div>
-
-        <div class="detail-loading" *ngIf="activeBikeLoading">
-          Detaylar yukleniyor...
-        </div>
-
-        <div class="detail-grid" *ngIf="!activeBikeLoading">
-          <div class="photo-column">
-            <div
-              class="main-photo"
-              *ngIf="getMainImage(activeBike) as mainImage; else noImage"
-            >
-              <img
-                [src]="getImageUrl(mainImage.filePath)"
-                [alt]="activeBike.marke + ' ' + activeBike.modell"
-              />
-            </div>
-            <ng-template #noImage>
-              <div class="photo-placeholder">Foto yok</div>
-            </ng-template>
-
-            <div class="thumbs" *ngIf="getBikeImages(activeBike).length > 1">
-              <button
-                type="button"
-                class="thumb"
-                *ngFor="let img of getBikeImages(activeBike); let i = index"
-                [class.active]="selectedImageIndex[activeBike.id] === i"
-                (click)="selectImage(activeBike.id, i)"
-              >
-                <img [src]="getImageUrl(img.filePath)" alt="bike" />
-              </button>
-            </div>
-          </div>
-
-          <div class="price-column">
-            <h5>Gunluk fiyatlar</h5>
-            <div
-              class="price-lines"
-              *ngIf="getPriceLines(activeBike).length > 0; else noPricing"
-            >
-              <div
-                class="price-line"
-                *ngFor="let line of getPriceLines(activeBike)"
-              >
-                <span>{{ line.label }}</span>
-                <strong>{{ line.price | number: '1.0-0' }} €</strong>
-              </div>
-              <div
-                class="price-line"
-                *ngIf="activeBike.rentalPriceAdditionalDayAfter7 != null"
-              >
-                <span>Ab Tag 8 (+1)</span>
-                <strong
-                  >{{
-                    activeBike.rentalPriceAdditionalDayAfter7 | number: '1.0-0'
-                  }}
-                  €</strong
-                >
-              </div>
-            </div>
-
-            <ng-template #noPricing>
-              <div class="no-prices">Bu bisiklet icin fiyat tanimi yok.</div>
-            </ng-template>
-          </div>
-        </div>
       </div>
 
       <div class="quick-add-row" *ngIf="allowQuickAdd">
@@ -317,9 +235,6 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         background: var(--accent-primary-light, #e3f2fd);
         border-left: 3px solid var(--accent-primary, #2196f3);
       }
-      .bike-item.active-detail {
-        border-left-color: #0ea5e9;
-      }
       .bike-main-row {
         display: flex;
         align-items: center;
@@ -373,132 +288,9 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
         text-align: center;
         color: var(--text-muted, #888);
       }
-      .bike-detail-panel {
-        border: 1px solid var(--border-light, #e5e7eb);
-        border-radius: 10px;
-        padding: 12px;
-        background: var(--bg-secondary, #fafafa);
-      }
-      .detail-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 12px;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
-      }
       /* Textblock darf schrumpfen, damit lange Namen umbrechen statt zu
          überlaufen (sonst kippt das ganze Panel horizontal). */
-      .detail-header > div {
-        flex: 1 1 60%;
-        min-width: 0;
-      }
-      .detail-header h4 {
-        margin: 0;
-        font-size: 1rem;
-        overflow-wrap: anywhere;
-      }
-      .detail-header p {
-        margin: 3px 0 0;
-        font-size: 0.85rem;
-        color: var(--text-secondary, #555);
-        overflow-wrap: anywhere;
-      }
-      .detail-loading {
-        font-size: 0.88rem;
-        color: var(--text-secondary, #555);
-      }
-      .detail-grid {
-        display: grid;
-        grid-template-columns: 1.2fr 1fr;
-        gap: 12px;
-      }
       /* Grid-Spalten dürfen schrumpfen (min-width:auto würde sonst überlaufen). */
-      .photo-column,
-      .price-column {
-        min-width: 0;
-      }
-      .photo-column {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .main-photo {
-        border-radius: 8px;
-        overflow: hidden;
-        border: 1px solid var(--border-light, #e5e7eb);
-        background: #f1f5f9;
-        aspect-ratio: 16/10;
-      }
-      .main-photo img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      .photo-placeholder {
-        min-height: 180px;
-        display: grid;
-        place-items: center;
-        color: var(--text-muted, #888);
-        border: 1px dashed var(--border-color, #cbd5e1);
-        border-radius: 8px;
-      }
-      .thumbs {
-        display: flex;
-        gap: 6px;
-        overflow-x: auto;
-      }
-      .thumb {
-        border: 2px solid transparent;
-        border-radius: 6px;
-        padding: 0;
-        overflow: hidden;
-        width: 72px;
-        height: 54px;
-        cursor: pointer;
-        background: transparent;
-      }
-      .thumb.active {
-        border-color: var(--accent-primary, #2563eb);
-      }
-      .thumb img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      .price-column h5 {
-        margin: 0 0 8px;
-        font-size: 0.9rem;
-      }
-      .price-lines {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-      }
-      .price-line {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        min-width: 0;
-        border: 1px solid var(--border-light, #e5e7eb);
-        border-radius: 8px;
-        padding: 7px 10px;
-        font-size: 0.85rem;
-        background: #fff;
-      }
-      .price-line span {
-        min-width: 0;
-        overflow-wrap: anywhere;
-      }
-      .price-line strong {
-        color: #0f766e;
-        white-space: nowrap;
-      }
-      .no-prices {
-        font-size: 0.85rem;
-        color: var(--text-muted, #888);
-      }
       .selected-preview {
         background: var(--bg-success, #e8f5e9);
         border-radius: 8px;
@@ -533,12 +325,19 @@ import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
       .quick-add-btn:hover {
         background: var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
+      /* Der Knopf sitzt am rechten Rand der Zeile und bleibt dort auch, wenn
+         Name oder Größe lang werden — deshalb kein Schrumpfen. */
+      .row-add-btn {
+        flex: 0 0 auto;
+        margin-left: auto;
+        min-width: 72px;
+        padding: 6px 14px;
+        font-size: 0.85rem;
+      }
       @media (max-width: 900px) {
-        .detail-grid {
-          grid-template-columns: 1fr;
-        }
-        .add-btn {
-          min-width: 90px;
+        .row-add-btn {
+          min-width: 64px;
+          padding: 6px 10px;
         }
       }
     `,
@@ -555,15 +354,16 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
   @Output() quickAddRequested = new EventEmitter<void>();
 
   filteredBikes: Bicycle[] = [];
-  activeBike: Bicycle | null = null;
-  activeBikeLoading = false;
+  /** Id des Rades, dessen Stammdaten gerade nachgeladen werden (Knopf sperren). */
+  addingBikeId: number | null = null;
+  /** Für welches vorgegebene Rad die vollen Stammdaten schon geholt wurden. */
+  private detailsLoadedForId: number | null = null;
   searchTerm = '';
   searchError = '';
   selectedBrand = '';
   selectedArt = '';
   selectedFrameSize = '';
   selectedWheelSize = '';
-  selectedImageIndex: Record<number, number> = {};
 
   constructor(
     private readonly bicycleService: BicycleService,
@@ -592,18 +392,40 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.filteredBikes = this.sortAlphabetically(this.bikes);
-    if (this.selectedBike) {
-      this.activeBike = this.selectedBike;
-      this.ensureActiveBikeDetails(this.selectedBike);
-    }
+    this.ensureSelectedBikeDetails();
   }
 
   ngOnChanges() {
     this.filterBikes();
-    if (this.selectedBike && !this.activeBike && !this.activeBikeLoading) {
-      this.activeBike = this.selectedBike;
-      this.ensureActiveBikeDetails(this.selectedBike);
-    }
+    this.ensureSelectedBikeDetails();
+  }
+
+  /**
+   * Ein von außen vorgegebenes Rad (etwa beim Bearbeiten eines bestehenden
+   * Mietvertrags) stammt aus einer Sammelabfrage und trägt Fotos und
+   * Preisstaffel nicht vollständig. Einmal nachladen und nach oben melden,
+   * damit das Formular mit denselben Daten rechnet wie nach einem "Ekle".
+   * Vorher tat das das Detailfeld beim Öffnen; das Feld ist weg, die Aufgabe
+   * bleibt.
+   *
+   * `detailsLoadedForId` verhindert die Endlosschleife: das Melden nach oben
+   * löst wieder ngOnChanges aus.
+   */
+  private ensureSelectedBikeDetails() {
+    const selected = this.selectedBike;
+    if (!selected || this.detailsLoadedForId === selected.id) return;
+
+    this.detailsLoadedForId = selected.id;
+    this.bicycleService.getById(selected.id).subscribe({
+      next: (fullBike) => {
+        if (this.selectedBike?.id !== fullBike.id) return;
+        this.selectedBike = fullBike;
+        this.selectedBikeChange.emit(fullBike);
+      },
+      error: () => {
+        // Dann bleibt es bei den Listendaten.
+      },
+    });
   }
 
   filterBikes() {
@@ -641,15 +463,6 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
       this.filteredBikes = this.filteredBikes.filter(
         (b) => (b.reifengroesse || '') === this.selectedWheelSize,
       );
-    }
-
-    if (
-      this.activeBike &&
-      this.activeBike.id !== this.selectedBike?.id &&
-      !this.filteredBikes.some((item) => item.id === this.activeBike?.id)
-    ) {
-      this.activeBike = null;
-      this.activeBikeLoading = false;
     }
 
     this.filteredBikes = this.sortAlphabetically(this.filteredBikes);
@@ -693,50 +506,43 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
   }
 
   onBikeCardClick(bike: Bicycle) {
-    this.activeBike = bike;
-
-    if (this.requireConfirmSelection) {
-      this.ensureActiveBikeDetails(bike);
-      return;
-    }
-
+    // Wo die Auswahl bestätigt werden muss, wählt der Klick auf die Zeile
+    // nichts aus — dafür ist der "Ekle"-Knopf da. Sonst wäre ein Rad mit einem
+    // versehentlichen Klick im Mietvertrag.
+    if (this.requireConfirmSelection) return;
     this.selectBike(bike);
   }
 
-  confirmActiveBikeSelection() {
-    if (!this.activeBike) return;
-    this.selectBike(this.activeBike);
-  }
+  /**
+   * Rad aus der Zeile heraus übernehmen.
+   *
+   * Lädt vorher die vollen Stammdaten nach: die Liste kommt aus einer
+   * Sammelabfrage und trägt z.B. Fotos und Preisstaffel nicht vollständig. Vor
+   * dem Umbau tat das Detailfeld dasselbe, bevor sein Knopf das Rad übernahm —
+   * ohne diesen Schritt käme im Mietvertrag ein Rad ohne Preise an.
+   */
+  addBike(bike: Bicycle, event: Event) {
+    event.stopPropagation();
+    if (this.addingBikeId === bike.id) return;
 
-  private ensureActiveBikeDetails(bike: Bicycle) {
-    this.activeBikeLoading = true;
+    this.addingBikeId = bike.id;
     this.bicycleService.getById(bike.id).subscribe({
       next: (fullBike) => {
-        this.activeBike = fullBike;
-        if (this.selectedBike?.id === fullBike.id) {
-          this.selectedBike = fullBike;
-          this.selectedBikeChange.emit(fullBike);
-        }
-        if (this.selectedImageIndex[fullBike.id] == null) {
-          this.selectedImageIndex[fullBike.id] = 0;
-        }
-        this.activeBikeLoading = false;
+        this.addingBikeId = null;
+        this.detailsLoadedForId = fullBike.id;
+        this.selectBike(fullBike);
       },
       error: () => {
-        if (this.selectedImageIndex[bike.id] == null) {
-          this.selectedImageIndex[bike.id] = 0;
-        }
-        this.activeBikeLoading = false;
+        // Nachladen fehlgeschlagen: dann eben mit den Listendaten, das ist
+        // besser als ein Knopf, der nichts tut.
+        this.addingBikeId = null;
+        this.selectBike(bike);
       },
     });
   }
 
   getBikeArt(bike: Bicycle): string {
     return bike.art || bike.fahrradtyp || '';
-  }
-
-  getPriceLines(bike: Bicycle) {
-    return getConfiguredRentalPriceLines(bike);
   }
 
   getStartingPrice(bike: Bicycle): number | null {
@@ -755,31 +561,13 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
     return Math.min(...values);
   }
 
-  getBikeImages(bike: Bicycle) {
-    return [...(bike.images || [])].sort(
-      (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
-    );
-  }
-
-  /**
-   * Vorschaubild für die Suchliste: immer das erste Foto. Anders als
-   * getMainImage() folgt es nicht der Thumbnail-Auswahl des Detailfelds —
-   * in der Liste soll das Bild beim Durchklicken der Fotos nicht wechseln.
-   */
+  /** Vorschaubild für die Zeile: das erste Foto in Sortierreihenfolge. */
   getListImage(bike: Bicycle) {
-    return this.getBikeImages(bike)[0] ?? null;
-  }
-
-  getMainImage(bike: Bicycle) {
-    const images = this.getBikeImages(bike);
-    if (images.length === 0) return null;
-
-    const index = this.selectedImageIndex[bike.id] ?? 0;
-    return images[Math.max(0, Math.min(index, images.length - 1))];
-  }
-
-  selectImage(bikeId: number, index: number) {
-    this.selectedImageIndex[bikeId] = index;
+    return (
+      [...(bike.images || [])].sort(
+        (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+      )[0] ?? null
+    );
   }
 
   getImageUrl(path: string): string {

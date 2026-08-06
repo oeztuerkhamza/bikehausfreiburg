@@ -253,18 +253,26 @@ import { calculateRentalPrice } from '../../utils/rental-pricing';
 
             <div class="badges">
               <span class="badge" *ngIf="b.fahrradtyp">{{ b.fahrradtyp }}</span>
+              <!-- "Size" wie im Rad-Auswahlfeld des Mietvertrags, damit beide
+                   Stellen dasselbe Wort benutzen. -->
               <span class="badge" *ngIf="b.rahmengroesse">
-                Rahmen {{ b.rahmengroesse }}
+                Size {{ b.rahmengroesse }}
               </span>
               <span class="badge" *ngIf="b.reifengroesse">
                 {{ b.reifengroesse }}"
               </span>
+              <!-- Die eigentliche Frage bei der Auswahl: passt das Rad zum
+                   Gast? Ohne gepflegte Körpergröße fällt das Badge weg. -->
+              <span class="badge badge-height" *ngIf="riderHeight(b)">
+                für {{ riderHeight(b) }}
+              </span>
               <span class="badge" *ngIf="b.farbe">{{ b.farbe }}</span>
             </div>
 
-            <div class="meta">
-              <span *ngIf="b.lagernummer">Lager-Nr. {{ b.lagernummer }}</span>
-              <span *ngIf="b.rahmennummer">· {{ b.rahmennummer }}</span>
+            <!-- Rahmennummer stand hier mit, war bei der Auswahl aber nie die
+                 Frage: sie identifiziert das Rad erst bei der Übergabe. -->
+            <div class="meta" *ngIf="b.lagernummer">
+              <span>Lager-Nr. {{ b.lagernummer }}</span>
             </div>
 
             <div class="price-row">
@@ -861,6 +869,21 @@ export class RentalAvailabilityComponent implements OnInit {
         .toLowerCase();
       return haystack.includes(term);
     });
+  }
+
+  /**
+   * Empfohlene Körpergröße als kurzer Text ("165–180 cm"). Ist nur eine Grenze
+   * gepflegt, wird daraus "ab 165 cm" bzw. "bis 180 cm"; ohne Angabe leer,
+   * dann fällt das Badge auf der Karte weg. Gleiche Darstellung wie im
+   * Buchungsablauf der Homepage.
+   */
+  riderHeight(bike: Bicycle): string {
+    const from = bike.koerpergroesseVonCm ?? null;
+    const to = bike.koerpergroesseBisCm ?? null;
+    if (from && to) return `${from}–${to} cm`;
+    if (from) return `ab ${from} cm`;
+    if (to) return `bis ${to} cm`;
+    return '';
   }
 
   // ── Preis für den gewählten Zeitraum (gemeinsame Logik, nicht neu erfunden) ──
