@@ -800,11 +800,23 @@ public class RentalBookingService : IRentalBookingService
         return booking.AusweisPhotoPath;
     }
 
-    private static string NormalizeLanguage(string lang)
+    // Alle Sprachen, die die Homepage tatsächlich führt (siehe
+    // BikeHaus.Homepage/src/app/services/language-config.ts,
+    // SUPPORTED_LANGUAGES). Eine fehlende oder nicht geführte Sprache fällt
+    // auf Englisch zurück, NICHT auf Deutsch — wer eine Sprache schickt, die
+    // wir nicht haben, versteht Englisch mit höherer Wahrscheinlichkeit als
+    // Deutsch. Bestehende Buchungen mit "de"/"en" bleiben unverändert gültig,
+    // da beide Codes in dieser Liste stehen.
+    private static readonly HashSet<string> SupportedLanguages = new(StringComparer.OrdinalIgnoreCase)
     {
-        if (string.IsNullOrWhiteSpace(lang)) return "de";
-        var normalized = lang.Trim().ToLower();
-        return normalized == "en" ? "en" : "de";
+        "de", "en", "fr", "tr", "es", "it", "ar", "ru", "no", "da", "nl", "pl"
+    };
+
+    private static string NormalizeLanguage(string? lang)
+    {
+        if (string.IsNullOrWhiteSpace(lang)) return "en";
+        var normalized = lang.Trim().ToLowerInvariant();
+        return SupportedLanguages.Contains(normalized) ? normalized : "en";
     }
 
     private static int CalculateDaysInclusive(DateTime start, DateTime end)
@@ -863,7 +875,7 @@ public class RentalBookingService : IRentalBookingService
         var shop = await GetShopInfoAsync();
         var primaryBicycle = bicycles.FirstOrDefault();
         var days = CalculateDaysInclusive(booking.StartDatum, booking.EndDatum);
-        var accessoriesText = BuildAccessoriesText(booking, booking.Sprache);
+        var accessoriesText = BuildAccessoriesText(booking);
         var deposit = CalculateDeposit(booking, primaryBicycle);
 
         string bikeBrand, bikeModel;
@@ -897,7 +909,7 @@ public class RentalBookingService : IRentalBookingService
             shop.PickupLocation,
             shop.Phone,
             shop.Email,
-            NormalizeLanguage(booking.Sprache ?? "de"),
+            NormalizeLanguage(booking.Sprache),
             BuildSelfCancelUrl(booking),
             shop.OpeningHours
         );
@@ -910,10 +922,14 @@ public class RentalBookingService : IRentalBookingService
         return $"{DefaultPublicApiBaseUrl}/rentals/bookings/cancel?bookingNumber={bookingNumber}&email={email}";
     }
 
-    private static string BuildAccessoriesText(RentalBooking booking, string? language)
+    // Liefert die rohe, mehrzeilige Zubehör-Liste ohne "Keine"/"None" — die
+    // sprachabhängige Formulierung für "kein Zubehör" gehört in die Mail-Ebene
+    // (SmtpEmailService, RentalBookingMailTexts), nicht hierher. Leerer String
+    // bei keinem Zubehör.
+    private static string BuildAccessoriesText(RentalBooking booking)
     {
         if (booking.Accessories.Count == 0)
-            return NormalizeLanguage(language ?? "de") == "en" ? "None" : "Keine";
+            return string.Empty;
 
         return string.Join(
             "\n",

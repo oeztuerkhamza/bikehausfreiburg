@@ -5,6 +5,7 @@ using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Infrastructure.Data;
+using BikeHaus.Infrastructure.Services.Email;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using System.Linq;
+using MailKeys = BikeHaus.Infrastructure.Services.Email.RentalBookingMailTexts.Keys;
 
 namespace BikeHaus.Infrastructure.Services;
 
@@ -49,36 +51,41 @@ public class SmtpEmailService : IEmailService
 
     public Task SendRentalBookingApprovedAsync(RentalBookingEmailModel model)
     {
-        var subject = $"Anfrage bestaetigt / Booking confirmed - {model.BuchungsNummer} | Bike Haus Freiburg";
-        var body = Bilingual(BuildApprovedBodyDe(model), BuildApprovedBodyEn(model));
+        var lang = NormalizeMailLanguage(model.Language);
+        var subject = BuildMailSubject(lang, MailKeys.SubjectApproved, model.BuchungsNummer);
+        var body = BuildApprovedBody(model, lang);
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietvertragBestaetigt");
     }
 
     public Task SendRentalBookingCancelledAsync(RentalBookingEmailModel model)
     {
-        var subject = $"Anfrage storniert / Booking cancelled - {model.BuchungsNummer} | Bike Haus Freiburg";
-        var body = Bilingual(BuildCancelledBodyDe(model), BuildCancelledBodyEn(model));
+        var lang = NormalizeMailLanguage(model.Language);
+        var subject = BuildMailSubject(lang, MailKeys.SubjectCancelled, model.BuchungsNummer);
+        var body = BuildCancelledBody(model, lang);
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietvertragStorniert");
     }
 
     public Task SendRentalBookingReactivatedAsync(RentalBookingEmailModel model)
     {
-        var subject = $"Buchung wieder aktiv / Booking reactivated - {model.BuchungsNummer} | Bike Haus Freiburg";
-        var body = Bilingual(BuildReactivatedBodyDe(model), BuildReactivatedBodyEn(model));
+        var lang = NormalizeMailLanguage(model.Language);
+        var subject = BuildMailSubject(lang, MailKeys.SubjectReactivated, model.BuchungsNummer);
+        var body = BuildReactivatedBody(model, lang);
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageReaktiviert");
     }
 
     public Task SendRentalBookingUpdatedAsync(RentalBookingEmailModel model)
     {
-        var subject = $"Buchung aktualisiert / Booking updated - {model.BuchungsNummer} | Bike Haus Freiburg";
-        var body = Bilingual(BuildUpdatedBodyDe(model), BuildUpdatedBodyEn(model));
+        var lang = NormalizeMailLanguage(model.Language);
+        var subject = BuildMailSubject(lang, MailKeys.SubjectUpdated, model.BuchungsNummer);
+        var body = BuildUpdatedBody(model, lang);
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageAktualisiert");
     }
 
     public Task SendRentalBookingReceivedAsync(RentalBookingEmailModel model)
     {
-        var subject = $"Mietanfrage eingegangen / Request received - {model.BuchungsNummer} | Bike Haus Freiburg";
-        var body = Bilingual(BuildReceivedBodyDe(model), BuildReceivedBodyEn(model));
+        var lang = NormalizeMailLanguage(model.Language);
+        var subject = BuildMailSubject(lang, MailKeys.SubjectReceived, model.BuchungsNummer);
+        var body = BuildReceivedBody(model, lang);
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageEingegangen");
     }
 
@@ -91,8 +98,9 @@ public class SmtpEmailService : IEmailService
 
     public Task SendRentalBookingPickupReminderAsync(RentalBookingEmailModel model)
     {
-        var subject = $"Morgen geht's los / See you tomorrow - {model.BuchungsNummer} | Bike Haus Freiburg";
-        var body = Bilingual(BuildPickupReminderBodyDe(model), BuildPickupReminderBodyEn(model));
+        var lang = NormalizeMailLanguage(model.Language);
+        var subject = BuildMailSubject(lang, MailKeys.SubjectPickupReminder, model.BuchungsNummer);
+        var body = BuildPickupReminderBody(model, lang);
         return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageErinnerung");
     }
 
@@ -567,9 +575,13 @@ Your Bike Haus Freiburg team";
         }
     }
 
-    // Trennlinie zwischen der deutschen und der englischen Fassung. Alle
-    // Kunden-E-Mails werden zweisprachig verschickt (Deutsch zuerst, Englisch
-    // darunter), damit auch internationale Mieter den Inhalt verstehen.
+    // Trennlinie zwischen der deutschen und der englischen Fassung. Für die
+    // Mails, die nicht an RentalBooking.Sprache hängen (Kautionsrückgabe,
+    // Verkaufsrechnung, Reservierung, Mietunterlagen — Rental/Sale/Purchase
+    // kennen keine Kundensprache), bleibt es bei Deutsch+Englisch in einer
+    // Mail. Die Buchungs-Mails weiter unten (Bestätigung, Storno, Reaktivierung,
+    // Aktualisierung, Erinnerung, "Anfrage eingegangen") nutzen das NICHT mehr —
+    // die gehen seit der Sprachumstellung nur noch in der Sprache des Gasts raus.
     private const string BilingualSeparatorPlain =
         "\n----------------------------------------------------------------------\nENGLISH VERSION\n----------------------------------------------------------------------\n\n";
 
@@ -582,10 +594,39 @@ Your Bike Haus Freiburg team";
     private static string BilingualHtml(string germanBody, string englishBody) =>
         germanBody + BilingualSeparatorHtml + englishBody;
 
-    private static bool IsNoAccessories(string? accessoriesText) =>
-        string.IsNullOrWhiteSpace(accessoriesText)
-        || accessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
-        || accessoriesText.Trim().Equals("None", StringComparison.OrdinalIgnoreCase);
+    // ── Mehrsprachige Buchungs-Mails ─────────────────────────────────────
+    //
+    // Der Mail-AUFBAU (Reihenfolge der Abschnitte, Platzhalter) steht hier ein
+    // einziges Mal je Mail-Typ; die übersetzten Textbausteine kommen aus
+    // RentalBookingMailTexts (Sprache → Schlüssel → Text, Fallback Englisch
+    // für fehlende Schlüssel/Sprachen). Jede Mail geht nur noch in der
+    // Sprache des Gasts raus (model.Language, von RentalBookingService auf
+    // eine der 12 geführten Sprachen normalisiert, sonst Englisch) — nicht
+    // mehr wie zuvor immer zweisprachig Deutsch+Englisch.
+    private static string NormalizeMailLanguage(string? language)
+        => string.IsNullOrWhiteSpace(language) ? "en" : language.Trim();
+
+    private static string BuildMailSubject(string lang, string subjectKey, string buchungsNummer)
+        => $"{RentalBookingMailTexts.T(lang, subjectKey)} - {buchungsNummer} | Bike Haus Freiburg";
+
+    private static string T(string lang, string key) => RentalBookingMailTexts.T(lang, key);
+
+    private static string T(string lang, string key, params object[] args) => RentalBookingMailTexts.T(lang, key, args);
+
+    /// <summary>
+    /// "Kein Zubehör" wird hier sprachabhängig aufgelöst statt schon beim
+    /// Anlegen der Buchung (RentalBookingService liefert nur noch die rohe,
+    /// deutschsprachige Positionsliste oder einen leeren String).
+    /// </summary>
+    private static string FormatAccessories(string? raw, string lang)
+    {
+        if (string.IsNullOrWhiteSpace(raw)
+            || raw.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
+            || raw.Trim().Equals("None", StringComparison.OrdinalIgnoreCase))
+            return T(lang, MailKeys.ValueAccessoriesNone);
+
+        return raw.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+    }
 
     /// <summary>
     /// Kautions-Absatz der Buchungsmails.
@@ -596,61 +637,61 @@ Your Bike Haus Freiburg team";
     /// Seite schweigt und die Mail behauptet 300 EUR. Ohne gepflegte Kaution nennt
     /// die Mail deshalb ebenfalls keinen Betrag.
     /// </summary>
-    private static string BuildKautionZeilenDe(decimal? deposit) =>
+    private static string BuildDepositParagraph(string lang, decimal? deposit) =>
         deposit.HasValue
-            ? $@"Bitte bring zur Abholung einen gueltigen Lichtbildausweis und die Kaution von insgesamt {deposit.Value:0.00} EUR in bar mit.
-Die Kaution gilt fuer die gesamte Buchung, nicht je Fahrrad."
-            : @"Bitte bring zur Abholung einen gueltigen Lichtbildausweis und die Kaution in bar mit.
-Die Hoehe nennen wir dir vor der Abholung; sie gilt fuer die gesamte Buchung, nicht je Fahrrad.";
+            ? T(lang, MailKeys.ValueDepositWithAmount, deposit.Value.ToString("0.00"))
+            : T(lang, MailKeys.ValueDepositWithoutAmount);
 
-    /// <summary>Englische Fassung von <see cref="BuildKautionZeilenDe"/>.</summary>
-    private static string BuildDepositLinesEn(decimal? deposit) =>
+    private static string BuildDepositReminderSentence(string lang, decimal? deposit) =>
         deposit.HasValue
-            ? $@"Please bring a valid photo ID and the total deposit of {deposit.Value:0.00} EUR in cash when you pick up the bike.
-The deposit covers the whole booking, not each bike separately."
-            : @"Please bring a valid photo ID and the deposit in cash when you pick up the bike.
-We will tell you the amount before pickup; it covers the whole booking, not each bike separately.";
+            ? T(lang, MailKeys.ValueDepositSentenceWithAmountReminder, deposit.Value.ToString("0.00"))
+            : T(lang, MailKeys.ValueDepositSentenceWithoutAmountReminder);
 
-    private static string BuildApprovedBodyDe(RentalBookingEmailModel m)
+    private static string BuildPickupTimeLineDesired(string lang, string? pickupTime) =>
+        string.IsNullOrWhiteSpace(pickupTime) ? string.Empty : T(lang, MailKeys.LinePickupTimeDesired, pickupTime);
+
+    private static string BuildPickupTimeLineReminder(string lang, string? pickupTime) =>
+        string.IsNullOrWhiteSpace(pickupTime) ? string.Empty : T(lang, MailKeys.LinePickupTimeReminder, pickupTime);
+
+    private static string BuildOpeningHoursLine(string lang, string? openingHours) =>
+        string.IsNullOrWhiteSpace(openingHours) ? string.Empty : T(lang, MailKeys.LineOpeningHours, openingHours);
+
+    private static string FormatTotalPrice(string lang, decimal? totalPrice) =>
+        totalPrice.HasValue ? $"{totalPrice.Value:0.00} EUR" : T(lang, MailKeys.ValuePriceFallback);
+
+    private static string BuildApprovedBody(RentalBookingEmailModel m, string lang)
     {
-        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "wird im Laden bestaetigt";
-        var kautionZeilen = BuildKautionZeilenDe(m.Deposit);
-        var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
-            ? "Keine"
-            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
-        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nGewuenschte Abholzeit: {m.PickupTime} Uhr";
+        var totalPriceText = FormatTotalPrice(lang, m.TotalPrice);
+        var depositParagraph = BuildDepositParagraph(lang, m.Deposit);
+        var accessoriesText = FormatAccessories(m.AccessoriesText, lang);
+        var pickupTimeLine = BuildPickupTimeLineDesired(lang, m.PickupTime);
 
-        return $@"Hallo {m.ToName},
+        return $@"{T(lang, MailKeys.Greeting, m.ToName)}
 
-gute Nachrichten: Deine Mietanfrage ist offiziell bestaetigt.
-Dein Bike ist fuer deinen Wunschzeitraum fest fuer dich reserviert.
+{T(lang, MailKeys.IntroApproved)}
 
-Deine Buchungsdetails:
+{T(lang, MailKeys.HeadingBookingDetails)}
 
-Buchungsnummer: {m.BuchungsNummer}
-Fahrrad: {m.BikeBrand} {m.BikeModel}
-Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
-Zubehoer (inklusive): {accessoriesText}
-Mietpreis: {totalPriceText}
+{T(lang, MailKeys.LabelBookingNumber)}: {m.BuchungsNummer}
+{T(lang, MailKeys.LabelBike)}: {m.BikeBrand} {m.BikeModel}
+{T(lang, MailKeys.LabelPeriod)}: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} {T(lang, MailKeys.UnitDays)}){pickupTimeLine}
+{T(lang, MailKeys.LabelAccessoriesIncluded)}: {accessoriesText}
+{T(lang, MailKeys.LabelPrice)}: {totalPriceText}
 
-Abholung und Rueckgabe:
-Dein Bike steht puenktlich an unserem Standort fuer dich bereit:
-
+{T(lang, MailKeys.HeadingPickupReturn)}
 Bike Haus Freiburg
 {m.PickupLocation}
 
-Wichtiger Hinweis:
-{kautionZeilen}
+{T(lang, MailKeys.HeadingImportantNote)}
+{depositParagraph}
 
-Falls du doch nicht fahren kannst:
-Du kannst deine Buchung selbst stornieren ueber diesen Link:
-{m.SelfCancelUrl ?? "Bitte antworte auf diese E-Mail fuer eine Stornierung."}
+{T(lang, MailKeys.HeadingSelfCancel)}
+{T(lang, MailKeys.TextSelfCancel)}
+{m.SelfCancelUrl ?? T(lang, MailKeys.ValueSelfCancelFallback)}
 
-Wir wuenschen dir jetzt schon eine richtig coole Tour.
-Wenn du noch Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
+{T(lang, MailKeys.ClosingApproved)}
 
-Viele Gruesse
-Dein Team vom Bike Haus Freiburg
+{T(lang, MailKeys.SignOff)}
 
 {m.ShopPhone}
 bikehausfreiburg.com
@@ -658,46 +699,43 @@ bikehausfreiburg.com
 ";
     }
 
-    private static string BuildApprovedBodyEn(RentalBookingEmailModel m)
+    // Inhaltlich identisch zur Bestätigungsmail (Buchungen werden seit der
+    // Umstellung auf sofortige Bestätigung nicht mehr geprüft — es gibt keine
+    // zweite Mail mehr), nur die Einleitung ist eine andere. Praktisch nur
+    // noch über den SMTP-Verbindungstest in SettingsController erreichbar.
+    private static string BuildReceivedBody(RentalBookingEmailModel m, string lang)
     {
-        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "will be confirmed in store";
-        var depositLines = BuildDepositLinesEn(m.Deposit);
-        var accessoriesText = IsNoAccessories(m.AccessoriesText)
-            ? "None"
-            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
-        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nPreferred pickup time: {m.PickupTime}";
+        var totalPriceText = FormatTotalPrice(lang, m.TotalPrice);
+        var depositParagraph = BuildDepositParagraph(lang, m.Deposit);
+        var accessoriesText = FormatAccessories(m.AccessoriesText, lang);
+        var pickupTimeLine = BuildPickupTimeLineDesired(lang, m.PickupTime);
 
-        return $@"Hello {m.ToName},
+        return $@"{T(lang, MailKeys.Greeting, m.ToName)}
 
-good news: your rental request is officially confirmed.
-Your bike is firmly reserved for you for your requested period.
+{T(lang, MailKeys.IntroReceived)}
 
-Your booking details:
+{T(lang, MailKeys.HeadingBookingDetails)}
 
-Booking number: {m.BuchungsNummer}
-Bike: {m.BikeBrand} {m.BikeModel}
-Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days){abholzeitLine}
-Accessories (included): {accessoriesText}
-Rental price: {totalPriceText}
+{T(lang, MailKeys.LabelBookingNumber)}: {m.BuchungsNummer}
+{T(lang, MailKeys.LabelBike)}: {m.BikeBrand} {m.BikeModel}
+{T(lang, MailKeys.LabelPeriod)}: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} {T(lang, MailKeys.UnitDays)}){pickupTimeLine}
+{T(lang, MailKeys.LabelAccessoriesIncluded)}: {accessoriesText}
+{T(lang, MailKeys.LabelPrice)}: {totalPriceText}
 
-Pickup and return:
-Your bike will be ready for you on time at our location:
-
+{T(lang, MailKeys.HeadingPickupReturn)}
 Bike Haus Freiburg
 {m.PickupLocation}
 
-Important note:
-{depositLines}
+{T(lang, MailKeys.HeadingImportantNote)}
+{depositParagraph}
 
-If you cannot ride after all:
-You can cancel your booking yourself via this link:
-{m.SelfCancelUrl ?? "Please reply to this email to cancel."}
+{T(lang, MailKeys.HeadingSelfCancel)}
+{T(lang, MailKeys.TextSelfCancel)}
+{m.SelfCancelUrl ?? T(lang, MailKeys.ValueSelfCancelFallback)}
 
-We already wish you a really great ride.
-If you have any questions, simply reply to this email or give us a quick call.
+{T(lang, MailKeys.ClosingApproved)}
 
-Best regards
-Your Bike Haus Freiburg team
+{T(lang, MailKeys.SignOff)}
 
 {m.ShopPhone}
 bikehausfreiburg.com
@@ -705,30 +743,25 @@ bikehausfreiburg.com
 ";
     }
 
-    private static string BuildUpdatedBodyDe(RentalBookingEmailModel m)
+    private static string BuildUpdatedBody(RentalBookingEmailModel m, string lang)
     {
-        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "wird im Laden bestaetigt";
-        var accessoriesText = IsNoAccessories(m.AccessoriesText)
-            ? "Keine"
-            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
-        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nGewuenschte Abholzeit: {m.PickupTime} Uhr";
+        var totalPriceText = FormatTotalPrice(lang, m.TotalPrice);
+        var accessoriesText = FormatAccessories(m.AccessoriesText, lang);
+        var pickupTimeLine = BuildPickupTimeLineDesired(lang, m.PickupTime);
 
-        return $@"Hallo {m.ToName},
+        return $@"{T(lang, MailKeys.Greeting, m.ToName)}
 
-wir haben deine Buchung angepasst. Hier sind die aktualisierten Details:
+{T(lang, MailKeys.IntroUpdated)}
 
-Buchungsnummer: {m.BuchungsNummer}
-Fahrrad: {m.BikeBrand} {m.BikeModel}
-Neuer Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
-Zubehoer (inklusive): {accessoriesText}
-Neuer Mietpreis: {totalPriceText}
+{T(lang, MailKeys.LabelBookingNumber)}: {m.BuchungsNummer}
+{T(lang, MailKeys.LabelBike)}: {m.BikeBrand} {m.BikeModel}
+{T(lang, MailKeys.LabelNewPeriod)}: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} {T(lang, MailKeys.UnitDays)}){pickupTimeLine}
+{T(lang, MailKeys.LabelAccessoriesIncluded)}: {accessoriesText}
+{T(lang, MailKeys.LabelNewPrice)}: {totalPriceText}
 
-Alle anderen Details deiner Buchung bleiben unveraendert.
+{T(lang, MailKeys.ClosingUpdated)}
 
-Falls etwas nicht stimmt oder du Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
-
-Viele Gruesse
-Dein Team vom Bike Haus Freiburg
+{T(lang, MailKeys.SignOff)}
 
 {m.ShopPhone}
 bikehausfreiburg.com
@@ -736,306 +769,77 @@ bikehausfreiburg.com
 ";
     }
 
-    private static string BuildUpdatedBodyEn(RentalBookingEmailModel m)
+    private static string BuildReactivatedBody(RentalBookingEmailModel m, string lang)
     {
-        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "will be confirmed in store";
-        var accessoriesText = IsNoAccessories(m.AccessoriesText)
-            ? "None"
-            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
-        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nPreferred pickup time: {m.PickupTime}";
+        return $@"{T(lang, MailKeys.Greeting, m.ToName)}
 
-        return $@"Hello {m.ToName},
+{T(lang, MailKeys.IntroReactivatedApology)}
 
-we have updated your booking. Here are the updated details:
+{T(lang, MailKeys.IntroReactivatedGoodNews)}
 
-Booking number: {m.BuchungsNummer}
-Bike: {m.BikeBrand} {m.BikeModel}
-New period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days){abholzeitLine}
-Accessories (included): {accessoriesText}
-New rental price: {totalPriceText}
+{T(lang, MailKeys.LabelBookingNumber)}: {m.BuchungsNummer}
+{T(lang, MailKeys.LabelBike)}: {m.BikeBrand} {m.BikeModel}
+{T(lang, MailKeys.LabelPeriod)}: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} {T(lang, MailKeys.UnitDays)})
 
-All other details of your booking remain unchanged.
+{T(lang, MailKeys.ClosingReactivated)}
 
-If something is not right or you have any questions, simply reply to this email or give us a quick call.
-
-Best regards
-Your Bike Haus Freiburg team
-
-{m.ShopPhone}
-bikehausfreiburg.com
-{m.ShopEmail}
-";
-    }
-
-    private static string BuildReactivatedBodyDe(RentalBookingEmailModel m)
-    {
-        return $@"Hallo {m.ToName},
-
-kurze Entschuldigung vorweg: Du hast vor Kurzem faelschlicherweise eine Stornierungs-Bestaetigung von uns erhalten. Das war ein technischer Fehler - deine Buchung wurde NICHT von dir storniert.
-
-Gute Nachricht: Deine Buchung ist wieder aktiv.
-
-Buchungsnummer: {m.BuchungsNummer}
-Fahrrad: {m.BikeBrand} {m.BikeModel}
-Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage)
-
-Du musst nichts weiter tun. Falls du Fragen hast oder tatsaechlich stornieren moechtest, antworte einfach auf diese E-Mail oder ruf kurz durch.
-
-Entschuldige bitte die Verwirrung.
-
-Viele Gruesse
-Dein Team vom Bike Haus Freiburg
+{T(lang, MailKeys.SignOff)}
 {m.ShopPhone}
 {m.ShopEmail}
 ";
     }
 
-    private static string BuildReactivatedBodyEn(RentalBookingEmailModel m)
+    private static string BuildCancelledBody(RentalBookingEmailModel m, string lang)
     {
-        return $@"Hello {m.ToName},
+        var accessoriesText = FormatAccessories(m.AccessoriesText, lang);
 
-first of all, our apologies: you recently received a cancellation confirmation from us by mistake. That was a technical error - your booking was NOT cancelled by you.
+        return $@"{T(lang, MailKeys.Greeting, m.ToName)}
 
-Good news: your booking is active again.
+{T(lang, MailKeys.IntroCancelled)}
 
-Booking number: {m.BuchungsNummer}
-Bike: {m.BikeBrand} {m.BikeModel}
-Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days)
+{T(lang, MailKeys.LabelBookingNumber)}: {m.BuchungsNummer}
+{T(lang, MailKeys.LabelBike)}: {m.BikeBrand} {m.BikeModel}
+{T(lang, MailKeys.LabelPeriod)}: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy}
+{T(lang, MailKeys.LabelAccessories)}: {accessoriesText}
 
-There is nothing you need to do. If you have any questions or actually want to cancel, simply reply to this email or give us a quick call.
-
-Sorry for the confusion.
-
-Best regards
-Your Bike Haus Freiburg team
-{m.ShopPhone}
-{m.ShopEmail}
-";
-    }
-
-    private static string BuildCancelledBodyDe(RentalBookingEmailModel m)
-    {
-        var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
-            ? "Keine"
-            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
-
-        return $@"Hallo {m.ToName},
-
-vielen Dank fuer deine Anfrage.
-
-leider muessen wir dir mitteilen, dass wir deine Mietanfrage aktuell nicht bestaetigen koennen.
-
-Buchungsnummer: {m.BuchungsNummer}
-Fahrrad: {m.BikeBrand} {m.BikeModel}
-Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy}
-Zubehoer: {accessoriesText}
-
-Abholung und Rueckgabe:
+{T(lang, MailKeys.HeadingPickupReturn)}
 Bike Haus Freiburg
 {m.PickupLocation}
 
-Wenn du einen neuen Termin moechtest, antworte einfach auf diese E-Mail.
-Wir schauen gerne direkt nach einer passenden Alternative fuer dich.
+{T(lang, MailKeys.ClosingCancelled)}
 
-Viele Gruesse
-Dein Team vom Bike Haus Freiburg
+{T(lang, MailKeys.SignOff)}
 {m.ShopPhone}
 {m.ShopEmail}
 ";
     }
 
-    private static string BuildCancelledBodyEn(RentalBookingEmailModel m)
+    private static string BuildPickupReminderBody(RentalBookingEmailModel m, string lang)
     {
-        var accessoriesText = IsNoAccessories(m.AccessoriesText)
-            ? "None"
-            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
+        var depositSentence = BuildDepositReminderSentence(lang, m.Deposit);
+        var pickupTimeLine = BuildPickupTimeLineReminder(lang, m.PickupTime);
+        var openingHoursLine = BuildOpeningHoursLine(lang, m.OpeningHours);
 
-        return $@"Hello {m.ToName},
+        return $@"{T(lang, MailKeys.Greeting, m.ToName)}
 
-thank you for your request.
+{T(lang, MailKeys.IntroPickupReminder)}
 
-unfortunately we have to let you know that we cannot confirm your rental request at this time.
+{T(lang, MailKeys.LabelBookingNumber)}: {m.BuchungsNummer}
+{T(lang, MailKeys.LabelBike)}: {m.BikeBrand} {m.BikeModel}
+{T(lang, MailKeys.LabelPeriod)}: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} {T(lang, MailKeys.UnitDays)}){pickupTimeLine}
 
-Booking number: {m.BuchungsNummer}
-Bike: {m.BikeBrand} {m.BikeModel}
-Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy}
-Accessories: {accessoriesText}
-
-Pickup and return:
-Bike Haus Freiburg
-{m.PickupLocation}
-
-If you would like a new date, simply reply to this email.
-We are happy to look for a suitable alternative for you right away.
-
-Best regards
-Your Bike Haus Freiburg team
-{m.ShopPhone}
-{m.ShopEmail}
-";
-    }
-
-    private static string BuildReceivedBodyDe(RentalBookingEmailModel m)
-    {
-        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "wird nach Pruefung bestaetigt";
-        var kautionText = m.Deposit.HasValue
-            ? $"{m.Deposit.Value:0.00} EUR (in bar bei Abholung, wird bei Rueckgabe erstattet)"
-            : "nennen wir dir vor der Abholung (in bar, wird bei Rueckgabe erstattet)";
-        var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
-            ? "Keine"
-            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
-        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nGewuenschte Abholzeit: {m.PickupTime} Uhr";
-
-        return $@"Hallo {m.ToName},
-
-vielen Dank fuer deine Mietanfrage.
-
-deine Anfrage ist erfolgreich bei uns eingegangen und wird gerade geprueft.
-
-Buchungsnummer: {m.BuchungsNummer}
-Fahrrad: {m.BikeBrand} {m.BikeModel}
-Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
-Geschaetzter Mietpreis: {totalPriceText}
-Kaution (gesamt): {kautionText}
-Zubehoer: {accessoriesText}
-
-Wie geht es jetzt weiter?
-Wir geben dir schnellstmoeglich Rueckmeldung, in der Regel innerhalb von 24 Stunden.
-Sobald alles geprueft ist, bekommst du eine zweite E-Mail mit der finalen Bestaetigung.
-
-Abholung und Rueckgabe:
-Bike Haus Freiburg
-{m.PickupLocation}
-
-Falls sich deine Plaene aendern:
-Du kannst deine Anfrage jederzeit selbst stornieren:
-{m.SelfCancelUrl ?? "Bitte antworte auf diese E-Mail fuer eine Stornierung."}
-
-Wenn du Fragen hast, antworte einfach auf diese E-Mail oder ruf kurz durch.
-
-Viele Gruesse
-Dein Team vom Bike Haus Freiburg
-{m.ShopPhone}
-{m.ShopEmail}
-";
-    }
-
-    private static string BuildReceivedBodyEn(RentalBookingEmailModel m)
-    {
-        var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "will be confirmed after review";
-        var depositText = m.Deposit.HasValue
-            ? $"{m.Deposit.Value:0.00} EUR (cash on pickup, refunded on return)"
-            : "we will tell you before pickup (cash, refunded on return)";
-        var accessoriesText = IsNoAccessories(m.AccessoriesText)
-            ? "None"
-            : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
-        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime) ? "" : $"\nPreferred pickup time: {m.PickupTime}";
-
-        return $@"Hello {m.ToName},
-
-thank you for your rental request.
-
-your request has reached us successfully and is currently being reviewed.
-
-Booking number: {m.BuchungsNummer}
-Bike: {m.BikeBrand} {m.BikeModel}
-Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days){abholzeitLine}
-Estimated rental price: {totalPriceText}
-Deposit (total): {depositText}
-Accessories: {accessoriesText}
-
-What happens next?
-We will get back to you as soon as possible, usually within 24 hours.
-Once everything has been checked, you will receive a second email with the final confirmation.
-
-Pickup and return:
-Bike Haus Freiburg
-{m.PickupLocation}
-
-If your plans change:
-You can cancel your request yourself at any time:
-{m.SelfCancelUrl ?? "Please reply to this email to cancel."}
-
-If you have any questions, simply reply to this email or give us a quick call.
-
-Best regards
-Your Bike Haus Freiburg team
-{m.ShopPhone}
-{m.ShopEmail}
-";
-    }
-
-    private static string BuildPickupReminderBodyDe(RentalBookingEmailModel m)
-    {
-        var kautionSatz = m.Deposit.HasValue
-            ? $"Bitte denk an einen gueltigen Lichtbildausweis und die Kaution von insgesamt {m.Deposit.Value:0.00} EUR in bar."
-            : "Bitte denk an einen gueltigen Lichtbildausweis und die Kaution in bar; die Hoehe nennen wir dir bei der Abholung.";
-        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime)
-            ? ""
-            : $"\nAbholzeit: {m.PickupTime} Uhr";
-        var oeffnungszeitenLine = string.IsNullOrWhiteSpace(m.OpeningHours)
-            ? ""
-            : $"\nOeffnungszeiten: {m.OpeningHours}";
-
-        return $@"Hallo {m.ToName},
-
-nur eine kurze Erinnerung: morgen liegt dein Fahrrad schon fuer dich bereit.
-
-Buchungsnummer: {m.BuchungsNummer}
-Fahrrad: {m.BikeBrand} {m.BikeModel}
-Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
-
-Abholung:
-Bike Haus Freiburg
-{m.PickupLocation}{oeffnungszeitenLine}
-
-{kautionSatz}
-
-Falls du doch nicht kommen kannst, kannst du deine Buchung ganz einfach selbst stornieren:
-{m.SelfCancelUrl ?? "Bitte antworte auf diese E-Mail fuer eine Stornierung."}
-
-Wir freuen uns auf dich.
-
-Viele Gruesse
-Dein Team vom Bike Haus Freiburg
-{m.ShopPhone}
-{m.ShopEmail}
-";
-    }
-
-    private static string BuildPickupReminderBodyEn(RentalBookingEmailModel m)
-    {
-        var depositSentence = m.Deposit.HasValue
-            ? $"Please bring a valid photo ID and the total deposit of {m.Deposit.Value:0.00} EUR in cash."
-            : "Please bring a valid photo ID and the deposit in cash; we will tell you the amount at pickup.";
-        var pickupTimeLine = string.IsNullOrWhiteSpace(m.PickupTime)
-            ? ""
-            : $"\nPickup time: {m.PickupTime}";
-        var openingHoursLine = string.IsNullOrWhiteSpace(m.OpeningHours)
-            ? ""
-            : $"\nOpening hours: {m.OpeningHours}";
-
-        return $@"Hello {m.ToName},
-
-just a quick reminder: your bike is ready and waiting for you tomorrow.
-
-Booking number: {m.BuchungsNummer}
-Bike: {m.BikeBrand} {m.BikeModel}
-Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days){pickupTimeLine}
-
-Pickup:
+{T(lang, MailKeys.HeadingPickup)}
 Bike Haus Freiburg
 {m.PickupLocation}{openingHoursLine}
 
 {depositSentence}
 
-If you can't make it after all, you can cancel your booking yourself here:
-{m.SelfCancelUrl ?? "Please reply to this email to cancel."}
+{T(lang, MailKeys.TextSelfCancelReminder)}
+{m.SelfCancelUrl ?? T(lang, MailKeys.ValueSelfCancelFallback)}
 
-We're looking forward to seeing you.
+{T(lang, MailKeys.ClosingPickupReminder)}
 
-Best regards
-Your Bike Haus Freiburg team
+{T(lang, MailKeys.SignOff)}
 {m.ShopPhone}
 {m.ShopEmail}
 ";
