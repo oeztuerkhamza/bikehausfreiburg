@@ -5,22 +5,23 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
 import { DocumentService } from '../../services/document.service';
 import { BicycleService } from '../../services/bicycle.service';
-import { CustomerService } from '../../services/customer.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
+import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
 import {
   PurchaseCreate,
   BulkPurchaseCreate,
   PaymentMethod,
   BikeCondition,
   DocumentType,
+  Customer,
 } from '../../models/models';
 import { forkJoin, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-purchase-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, CustomerAutocompleteComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -336,26 +337,17 @@ import { forkJoin, Observable } from 'rxjs';
               }}
             </h2>
             <div class="form-grid">
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.firstNameIntl }}</label>
-                <input
-                  [(ngModel)]="seller.vorname"
-                  name="sellerVorname"
-                  [required]="!bulkMode"
-                  (ngModelChange)="updateSignerName()"
-                  autocomplete="off"
-                />
-              </div>
-              <div class="field" *ngIf="!bulkMode">
-                <label>{{ t.lastNameIntl }}</label>
-                <input
-                  [(ngModel)]="seller.nachname"
-                  name="sellerNachname"
-                  [required]="!bulkMode"
-                  (ngModelChange)="updateSignerName()"
-                  autocomplete="off"
-                />
-              </div>
+              <app-customer-autocomplete
+                *ngIf="!bulkMode"
+                [vorname]="seller.vorname"
+                (vornameChange)="seller.vorname = $event; updateSignerName()"
+                [nachname]="seller.nachname"
+                (nachnameChange)="seller.nachname = $event; updateSignerName()"
+                [vornameLabel]="t.firstNameIntl"
+                [nachnameLabel]="t.lastNameIntl"
+                [hasOtherData]="hasOtherSellerData()"
+                (customerSelected)="onSellerSelected($event)"
+              ></app-customer-autocomplete>
               <div class="field full" *ngIf="bulkMode">
                 <label>{{ t.storeName }} *</label>
                 <input
@@ -1242,14 +1234,10 @@ export class PurchaseFormComponent implements OnInit {
   models: string[] = [];
   storeNames: string[] = [];
 
-  firstNames: string[] = [];
-  lastNames: string[] = [];
-
   constructor(
     private purchaseService: PurchaseService,
     private documentService: DocumentService,
     private bicycleService: BicycleService,
-    private customerService: CustomerService,
     private router: Router,
     private route: ActivatedRoute,
   ) {}
@@ -1295,21 +1283,6 @@ export class PurchaseFormComponent implements OnInit {
     this.bicycleService.getModels().subscribe({
       next: (res) => {
         this.models = res;
-      },
-      error: () => {},
-    });
-
-    // Load customer names for autocomplete
-    this.customerService.getFirstNames().subscribe({
-      next: (res) => {
-        this.firstNames = res;
-      },
-      error: () => {},
-    });
-
-    this.customerService.getLastNames().subscribe({
-      next: (res) => {
-        this.lastNames = res;
       },
       error: () => {},
     });
@@ -1377,6 +1350,29 @@ export class PurchaseFormComponent implements OnInit {
     if (name) {
       this.signerName = name;
     }
+  }
+
+  /** Steuert, ob die Kunden-Vorschlagsliste vor der Übernahme nachfragt. */
+  hasOtherSellerData(): boolean {
+    return !!(
+      this.seller.strasse?.trim() ||
+      this.seller.hausnummer?.trim() ||
+      this.seller.plz?.trim() ||
+      this.seller.stadt?.trim() ||
+      this.seller.telefon?.trim() ||
+      this.seller.email?.trim()
+    );
+  }
+
+  onSellerSelected(customer: Customer) {
+    this.seller.strasse = customer.strasse || '';
+    this.seller.hausnummer = customer.hausnummer || '';
+    this.seller.plz = customer.plz || '';
+    this.seller.stadt = customer.stadt || '';
+    this.seller.telefon = customer.telefon || '';
+    this.seller.email = customer.email || '';
+    this.seller.steuernummer = customer.steuernummer || '';
+    this.updateSignerName();
   }
 
   onFilesSelected(event: Event) {

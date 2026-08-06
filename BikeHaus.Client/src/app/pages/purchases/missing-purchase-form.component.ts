@@ -5,14 +5,15 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { PurchaseService } from '../../services/purchase.service';
 import { DocumentService } from '../../services/document.service';
 import { BicycleService } from '../../services/bicycle.service';
-import { CustomerService } from '../../services/customer.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
+import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
 import {
   PurchaseCreateForExistingBike,
   PaymentMethod,
   BikeCondition,
   DocumentType,
+  Customer,
 } from '../../models/models';
 import { forkJoin, Observable } from 'rxjs';
 
@@ -23,6 +24,7 @@ import { forkJoin, Observable } from 'rxjs';
     CommonModule,
     FormsModule,
     RouterLink,
+    CustomerAutocompleteComponent,
   ],
   template: `
     <div class="page">
@@ -194,30 +196,16 @@ import { forkJoin, Observable } from 'rxjs';
           <div class="form-card">
             <h2>{{ t.seller }} ({{ t.customer }})</h2>
             <div class="form-grid">
-              <div class="field">
-                <label>{{ t.firstName }}</label>
-                <input
-                  [(ngModel)]="seller.vorname"
-                  name="sellerVorname"
-                  autocomplete="off"
-                  list="firstNameList"
-                />
-                <datalist id="firstNameList">
-                  <option *ngFor="let n of firstNames" [value]="n"></option>
-                </datalist>
-              </div>
-              <div class="field">
-                <label>{{ t.lastName }}</label>
-                <input
-                  [(ngModel)]="seller.nachname"
-                  name="sellerNachname"
-                  autocomplete="off"
-                  list="lastNameList"
-                />
-                <datalist id="lastNameList">
-                  <option *ngFor="let n of lastNames" [value]="n"></option>
-                </datalist>
-              </div>
+              <app-customer-autocomplete
+                [vorname]="seller.vorname"
+                (vornameChange)="seller.vorname = $event"
+                [nachname]="seller.nachname"
+                (nachnameChange)="seller.nachname = $event"
+                [vornameLabel]="t.firstName"
+                [nachnameLabel]="t.lastName"
+                [hasOtherData]="hasOtherSellerData()"
+                (customerSelected)="onSellerSelected($event)"
+              ></app-customer-autocomplete>
               <div class="field">
                 <label>{{ t.street }}</label>
                 <input [(ngModel)]="seller.strasse" name="sellerStrasse" />
@@ -688,7 +676,6 @@ export class MissingPurchaseFormComponent implements OnInit {
   private purchaseService = inject(PurchaseService);
   private documentService = inject(DocumentService);
   private bicycleService = inject(BicycleService);
-  private customerService = inject(CustomerService);
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
   private router = inject(Router);
@@ -831,8 +818,6 @@ export class MissingPurchaseFormComponent implements OnInit {
   belegNummer = '';
   submitting = false;
 
-  firstNames: string[] = [];
-  lastNames: string[] = [];
   selectedFiles: File[] = [];
   previewUrls: string[] = [];
   galleryFiles: File[] = [];
@@ -873,22 +858,7 @@ export class MissingPurchaseFormComponent implements OnInit {
       },
       error: () => {},
     });
-
-    // Load customer names for autocomplete
-    this.customerService.getFirstNames().subscribe({
-      next: (res) => {
-        this.firstNames = res;
-      },
-      error: () => {},
-    });
-    this.customerService.getLastNames().subscribe({
-      next: (res) => {
-        this.lastNames = res;
-      },
-      error: () => {},
-    });
   }
-
 
   canSubmit(): boolean {
     return !!(
@@ -899,6 +869,28 @@ export class MissingPurchaseFormComponent implements OnInit {
       this.preis > 0 &&
       this.kaufdatum
     );
+  }
+
+  /** Steuert, ob die Kunden-Vorschlagsliste vor der Übernahme nachfragt. */
+  hasOtherSellerData(): boolean {
+    return !!(
+      this.seller.strasse?.trim() ||
+      this.seller.hausnummer?.trim() ||
+      this.seller.plz?.trim() ||
+      this.seller.stadt?.trim() ||
+      this.seller.telefon?.trim() ||
+      this.seller.email?.trim()
+    );
+  }
+
+  onSellerSelected(customer: Customer) {
+    this.seller.strasse = customer.strasse || '';
+    this.seller.hausnummer = customer.hausnummer || '';
+    this.seller.plz = customer.plz || '';
+    this.seller.stadt = customer.stadt || '';
+    this.seller.telefon = customer.telefon || '';
+    this.seller.email = customer.email || '';
+    this.seller.steuernummer = customer.steuernummer || '';
   }
 
   onFilesSelected(event: Event) {

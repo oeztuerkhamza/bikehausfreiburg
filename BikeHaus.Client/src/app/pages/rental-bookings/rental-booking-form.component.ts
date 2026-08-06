@@ -6,7 +6,8 @@ import { RentalBookingService } from '../../services/rental-booking.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
-import { Bicycle, RentalBookingCreate } from '../../models/models';
+import { Bicycle, Customer, RentalBookingCreate } from '../../models/models';
+import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
 
 /**
  * Admin-seitige Anlage einer neuen Mietanfrage (z.B. Telefon/Laufkundschaft).
@@ -15,7 +16,12 @@ import { Bicycle, RentalBookingCreate } from '../../models/models';
 @Component({
   selector: 'app-rental-booking-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    CustomerAutocompleteComponent,
+  ],
   template: `
     <div class="page">
       <div class="page-header">
@@ -110,14 +116,15 @@ import { Bicycle, RentalBookingCreate } from '../../models/models';
           <div class="form-card">
             <h2>{{ t.customer }}</h2>
             <div class="form-grid">
-              <div class="field">
-                <label>Vorname *</label>
-                <input [(ngModel)]="vorname" name="vorname" required />
-              </div>
-              <div class="field">
-                <label>Nachname *</label>
-                <input [(ngModel)]="nachname" name="nachname" required />
-              </div>
+              <app-customer-autocomplete
+                [vorname]="vorname"
+                (vornameChange)="vorname = $event"
+                [nachname]="nachname"
+                (nachnameChange)="nachname = $event"
+                [requiredMark]="true"
+                [hasOtherData]="hasOtherCustomerData()"
+                (customerSelected)="onCustomerSelected($event)"
+              ></app-customer-autocomplete>
               <div class="field">
                 <label>E-Mail (optional)</label>
                 <input type="email" [(ngModel)]="email" name="email" />
@@ -163,7 +170,13 @@ import { Bicycle, RentalBookingCreate } from '../../models/models';
           <button
             type="submit"
             class="btn btn-primary"
-            [disabled]="!f.valid || selectedBikeIds().size === 0 || saving()"
+            [disabled]="
+              !f.valid ||
+              !vorname.trim() ||
+              !nachname.trim() ||
+              selectedBikeIds().size === 0 ||
+              saving()
+            "
           >
             {{ saving() ? 'Wird gespeichert...' : 'Anfrage anlegen' }}
           </button>
@@ -308,6 +321,20 @@ export class RentalBookingFormComponent implements OnInit {
   telefon = '';
   sprache = 'de';
   notizen = '';
+
+  /**
+   * Steuert, ob die Kunden-Vorschlagsliste vor der Übernahme nachfragt.
+   * Diese Schnellanfrage kennt keine Adresse/Steuernummer — nur Telefon und
+   * E-Mail lassen sich hier überhaupt überschreiben.
+   */
+  hasOtherCustomerData(): boolean {
+    return !!(this.telefon?.trim() || this.email?.trim());
+  }
+
+  onCustomerSelected(customer: Customer) {
+    this.telefon = customer.telefon || this.telefon;
+    this.email = customer.email || this.email;
+  }
 
   availableBikes = signal<Bicycle[]>([]);
   selectedBikeIds = signal<Set<number>>(new Set());

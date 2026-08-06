@@ -9,15 +9,23 @@ import {
   ReservationCreate,
   Bicycle,
   BikeCondition,
+  Customer,
   CustomerCreate,
   PaymentMethod,
 } from '../../models/models';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
+import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
 
 @Component({
   selector: 'app-reservation-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, SignaturePadComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    SignaturePadComponent,
+    CustomerAutocompleteComponent,
+  ],
   template: `
     <div class="page">
       <div class="page-header">
@@ -253,22 +261,17 @@ import { SignaturePadComponent } from '../../components/signature-pad/signature-
           <div class="form-card">
             <h2>{{ t.customer }}</h2>
             <div class="form-grid">
-              <div class="field">
-                <label>{{ t.firstName }} *</label>
-                <input
-                  [(ngModel)]="customer.vorname"
-                  name="customerVorname"
-                  required
-                />
-              </div>
-              <div class="field">
-                <label>{{ t.lastName }} *</label>
-                <input
-                  [(ngModel)]="customer.nachname"
-                  name="customerNachname"
-                  required
-                />
-              </div>
+              <app-customer-autocomplete
+                [vorname]="customer.vorname"
+                (vornameChange)="customer.vorname = $event"
+                [nachname]="customer.nachname"
+                (nachnameChange)="customer.nachname = $event"
+                [vornameLabel]="t.firstName"
+                [nachnameLabel]="t.lastName"
+                [requiredMark]="true"
+                [hasOtherData]="hasOtherCustomerData()"
+                (customerSelected)="onCustomerSelected($event)"
+              ></app-customer-autocomplete>
               <div class="field">
                 <label>{{ t.street }} *</label>
                 <input
@@ -815,6 +818,27 @@ export class ReservationFormComponent implements OnInit {
     telefon: '',
     email: '',
   };
+
+  /** Steuert, ob die Kunden-Vorschlagsliste vor der Übernahme nachfragt. */
+  hasOtherCustomerData(): boolean {
+    return !!(
+      this.customer.strasse?.trim() ||
+      this.customer.hausnummer?.trim() ||
+      this.customer.plz?.trim() ||
+      this.customer.stadt?.trim() ||
+      this.customer.telefon?.trim() ||
+      this.customer.email?.trim()
+    );
+  }
+
+  onCustomerSelected(customer: Customer) {
+    this.customer.strasse = customer.strasse || '';
+    this.customer.hausnummer = customer.hausnummer || '';
+    this.customer.plz = customer.plz || '';
+    this.customer.stadt = customer.stadt || '';
+    this.customer.telefon = customer.telefon || '';
+    this.customer.email = customer.email || '';
+  }
 
   reservierungsDatum: string = new Date().toISOString().split('T')[0];
   /** „Reserviert bis" — aus dem Kalender, Vorbelegung: heute + 7 Tage. */

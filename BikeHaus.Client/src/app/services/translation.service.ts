@@ -871,6 +871,12 @@ export interface Translations {
   cityIntl: string;
   phoneIntl: string;
   emailIntl: string;
+
+  // Kunden-Autocomplete (customer-autocomplete Komponente)
+  customerAutocompleteSearching: string;
+  customerAutocompleteNoMatch: string;
+  customerAutocompleteOverwriteMessage: string;
+  customerAutocompleteOverwriteConfirm: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
@@ -1754,6 +1760,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityIntl: 'Stadt (City)',
     phoneIntl: 'Telefon (Phone)',
     emailIntl: 'E-Mail (Email)',
+
+    customerAutocompleteSearching: 'Suche…',
+    customerAutocompleteNoMatch:
+      'Kein bestehender Kunde gefunden – wird als neuer Kunde angelegt.',
+    customerAutocompleteOverwriteMessage:
+      'Das Formular enthält bereits Angaben. Sollen sie durch die hinterlegten Daten dieses Kunden ersetzt werden?',
+    customerAutocompleteOverwriteConfirm: 'Übernehmen',
   },
   tr: {
     // Navigation
@@ -2634,6 +2647,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     cityIntl: 'Şehir (City)',
     phoneIntl: 'Telefon (Phone)',
     emailIntl: 'E-posta (Email)',
+
+    customerAutocompleteSearching: 'Aranıyor…',
+    customerAutocompleteNoMatch:
+      'Kayıtlı müşteri bulunamadı – yeni müşteri olarak kaydedilecek.',
+    customerAutocompleteOverwriteMessage:
+      'Formda zaten bilgiler var. Bu müşterinin kayıtlı bilgileriyle değiştirilsin mi?',
+    customerAutocompleteOverwriteConfirm: 'Devral',
   },
 };
 
