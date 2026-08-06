@@ -152,7 +152,8 @@ public class RentalService : IRentalService
             MieterUnterschrift = dto.MieterUnterschrift,
             AgbAkzeptiert = dto.AgbAkzeptiert,
             UnterschriftOrt = dto.UnterschriftOrt,
-            AusweisPhotoPath = dto.AusweisPhotoPath
+            AusweisPhotoPath = dto.AusweisPhotoPath,
+            AusweisPhotoRueckseitePath = dto.AusweisPhotoRueckseitePath
         };
 
         // Attach bikes (mit serverseitig berechnetem Mietpreis)
@@ -626,19 +627,22 @@ public class RentalService : IRentalService
         return updated!.ToDto();
     }
 
-    public async Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath)
+    public async Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath, bool istRueckseite = false)
     {
         var rental = await _rentalRepository.GetByIdAsync(id)
             ?? throw new KeyNotFoundException($"Rental {id} not found.");
-        rental.AusweisPhotoPath = ausweisPhotoPath;
+        if (istRueckseite)
+            rental.AusweisPhotoRueckseitePath = ausweisPhotoPath;
+        else
+            rental.AusweisPhotoPath = ausweisPhotoPath;
         await _rentalRepository.UpdateAsync(rental);
     }
 
-    public async Task<string?> GetAusweisPhotoPathAsync(int id)
+    public async Task<string?> GetAusweisPhotoPathAsync(int id, bool istRueckseite = false)
     {
         var rental = await _rentalRepository.GetByIdAsync(id)
             ?? throw new KeyNotFoundException($"Rental {id} not found.");
-        return rental.AusweisPhotoPath;
+        return istRueckseite ? rental.AusweisPhotoRueckseitePath : rental.AusweisPhotoPath;
     }
 
     private async Task ReleaseBikesAsync(Rental rental)

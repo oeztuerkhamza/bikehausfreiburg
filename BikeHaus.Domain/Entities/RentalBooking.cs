@@ -23,7 +23,12 @@ public class RentalBooking : BaseEntity
 
     public string? Notizen { get; set; }
     public string? AdminNotizen { get; set; }
+
+    // Ausweisfoto Vorderseite; siehe Kommentar in Rental.AusweisPhotoPath —
+    // der Name blieb aus Kompatibilitätsgründen erhalten, bezeichnet aber
+    // die Vorderseite. AusweisPhotoRueckseitePath ist die Rückseite.
     public string? AusweisPhotoPath { get; set; }
+    public string? AusweisPhotoRueckseitePath { get; set; }
 
     public decimal? Gesamtpreis { get; set; }
     public RentalBookingStatus Status { get; set; } = RentalBookingStatus.Pending;

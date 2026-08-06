@@ -32,7 +32,14 @@ public class Rental : BaseEntity
 
     // Notizen
     public string? Notizen { get; set; }
+
+    // Ausweisfoto Vorderseite. Der Feldname stammt aus der Zeit vor der
+    // Rückseite (Migration AddAusweisPhotoPath) und wurde absichtlich NICHT
+    // umbenannt, damit bestehende Mietverträge ihr Foto ohne Datenmigration
+    // behalten — dieses Feld ist die Vorderseite, AusweisPhotoRueckseitePath
+    // ist die Rückseite.
     public string? AusweisPhotoPath { get; set; }
+    public string? AusweisPhotoRueckseitePath { get; set; }
 
     // Mieter-Unterschrift & AGB-Bestätigung
     public string? MieterUnterschrift { get; set; }  // base64 PNG

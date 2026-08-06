@@ -214,18 +214,23 @@ public class RentalsController : ControllerBase
         }
     }
 
+    // seite steuert Vorder-/Rückseite des Ausweisfotos. Default "vorderseite"
+    // hält bestehende Aufrufe (ohne den Parameter) rückwärtskompatibel — sie
+    // landen weiterhin im alten AusweisPhotoPath-Feld.
     [HttpPost("{id}/ausweis")]
-    public async Task<IActionResult> UploadAusweis(int id, IFormFile file)
+    public async Task<IActionResult> UploadAusweis(int id, IFormFile file, [FromQuery] string seite = "vorderseite")
     {
         if (file == null || file.Length == 0)
             return BadRequest(new { error = "No file uploaded" });
+
+        var istRueckseite = string.Equals(seite, "rueckseite", StringComparison.OrdinalIgnoreCase);
 
         try
         {
             using var stream = file.OpenReadStream();
             var relativePath = await _fileStorage.SaveFileAsync(stream, file.FileName, $"ausweis/rental/{id}");
-            await _rentalService.SaveAusweisPhotoPathAsync(id, relativePath);
-            return Ok(new { path = relativePath });
+            await _rentalService.SaveAusweisPhotoPathAsync(id, relativePath, istRueckseite);
+            return Ok(new { path = relativePath, seite = istRueckseite ? "rueckseite" : "vorderseite" });
         }
         catch (KeyNotFoundException ex)
         {
@@ -234,18 +239,20 @@ public class RentalsController : ControllerBase
     }
 
     [HttpGet("{id}/ausweis")]
-    public async Task<IActionResult> DownloadAusweis(int id)
+    public async Task<IActionResult> DownloadAusweis(int id, [FromQuery] string seite = "vorderseite")
     {
+        var istRueckseite = string.Equals(seite, "rueckseite", StringComparison.OrdinalIgnoreCase);
         try
         {
-            var path = await _rentalService.GetAusweisPhotoPathAsync(id);
+            var path = await _rentalService.GetAusweisPhotoPathAsync(id, istRueckseite);
             if (string.IsNullOrEmpty(path))
                 return NotFound(new { error = "Kein Ausweis-Foto vorhanden" });
 
             var stream = await _fileStorage.GetFileAsync(path);
             var ext = Path.GetExtension(path).ToLower();
             var contentType = ext == ".pdf" ? "application/pdf" : "image/jpeg";
-            return File(stream, contentType, $"Ausweis-Mietvertrag-{id}{ext}");
+            var suffix = istRueckseite ? "-Rueckseite" : "";
+            return File(stream, contentType, $"Ausweis-Mietvertrag-{id}{suffix}{ext}");
         }
         catch (KeyNotFoundException ex)
         {

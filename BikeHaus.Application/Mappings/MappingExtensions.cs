@@ -435,7 +435,8 @@ public static class MappingExtensions
             entity.ApprovedAt,
             entity.CancelledAt,
             entity.Accessories.Select(a => a.ToDto(InclusiveRentalDays(entity.StartDatum, entity.EndDatum))).ToList(),
-            entity.AusweisPhotoPath
+            entity.AusweisPhotoPath,
+            entity.AusweisPhotoRueckseitePath
         );
     }
 
@@ -545,7 +546,8 @@ public static class MappingExtensions
         entity.MieterUnterschrift,
         entity.AgbAkzeptiert,
         entity.UnterschriftOrt,
-        entity.AusweisPhotoPath
+        entity.AusweisPhotoPath,
+        entity.AusweisPhotoRueckseitePath
     );
 
     public static RentalListDto ToListDto(this Rental entity)

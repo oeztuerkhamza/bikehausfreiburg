@@ -13,6 +13,6 @@ public interface IRentalService
     Task DeleteAsync(int id);
     Task<RentalDto> ReturnBicycleAsync(int id, RentalReturnDto dto);
     Task<RentalDto> CancelAsync(int id);
-    Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath);
-    Task<string?> GetAusweisPhotoPathAsync(int id);
+    Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath, bool istRueckseite = false);
+    Task<string?> GetAusweisPhotoPathAsync(int id, bool istRueckseite = false);
 }

@@ -785,19 +785,22 @@ public class RentalBookingService : IRentalBookingService
         await _bookingRepository.UpdateAsync(booking);
     }
 
-    public async Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath)
+    public async Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath, bool istRueckseite = false)
     {
         var booking = await _bookingRepository.GetByIdAsync(id)
             ?? throw new KeyNotFoundException($"Booking {id} not found.");
-        booking.AusweisPhotoPath = ausweisPhotoPath;
+        if (istRueckseite)
+            booking.AusweisPhotoRueckseitePath = ausweisPhotoPath;
+        else
+            booking.AusweisPhotoPath = ausweisPhotoPath;
         await _bookingRepository.UpdateAsync(booking);
     }
 
-    public async Task<string?> GetAusweisPhotoPathAsync(int id)
+    public async Task<string?> GetAusweisPhotoPathAsync(int id, bool istRueckseite = false)
     {
         var booking = await _bookingRepository.GetByIdAsync(id)
             ?? throw new KeyNotFoundException($"Booking {id} not found.");
-        return booking.AusweisPhotoPath;
+        return istRueckseite ? booking.AusweisPhotoRueckseitePath : booking.AusweisPhotoPath;
     }
 
     // Alle Sprachen, die die Homepage tatsächlich führt (siehe

@@ -1279,6 +1279,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<string>("AusweisPhotoPath")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("AusweisPhotoRueckseitePath")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -1519,6 +1522,9 @@ namespace BikeHaus.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("AusweisPhotoPath")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AusweisPhotoRueckseitePath")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("BicycleId")

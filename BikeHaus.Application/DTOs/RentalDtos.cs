@@ -82,7 +82,8 @@ public record RentalDto(
     string? MieterUnterschrift,
     bool AgbAkzeptiert,
     string? UnterschriftOrt,
-    string? AusweisPhotoPath
+    string? AusweisPhotoPath,          // Vorderseite
+    string? AusweisPhotoRueckseitePath // Rückseite
 );
 
 public record RentalListDto(
@@ -143,7 +144,8 @@ public record RentalCreateDto(
     string? MieterUnterschrift,
     bool AgbAkzeptiert,
     string? UnterschriftOrt,
-    string? AusweisPhotoPath
+    string? AusweisPhotoPath,           // Vorderseite; z.B. aus einer übernommenen Buchung
+    string? AusweisPhotoRueckseitePath = null // Rückseite; ebenso aus einer übernommenen Buchung
 );
 
 public record RentalBikeUpdateDto(

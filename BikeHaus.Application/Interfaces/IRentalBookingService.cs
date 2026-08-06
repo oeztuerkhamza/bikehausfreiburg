@@ -15,8 +15,8 @@ public interface IRentalBookingService
     Task<IEnumerable<RentalBookingListDto>> GetCalendarAsync(DateTime from, DateTime to);
     Task<bool> DeleteAsync(int id);
     Task SaveSignatureAsync(int id, string mieterUnterschrift);
-    Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath);
-    Task<string?> GetAusweisPhotoPathAsync(int id);
+    Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath, bool istRueckseite = false);
+    Task<string?> GetAusweisPhotoPathAsync(int id, bool istRueckseite = false);
     Task<RentalBookingDto> UpdateBookingBikeAsync(int bookingId, int bookingBikeId, int newBicycleId);
     Task<RentalBookingDto> UpdateDatesAsync(int id, RentalBookingUpdateDatesDto dto);
 
