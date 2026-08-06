@@ -19,6 +19,8 @@ import {
   RentalAccessoryPublic,
   RentalBookingCreate,
   RentalBookingResponse,
+  RentalBookingLookup,
+  RentalBookingCancelResult,
   RentalReviewPublic,
   RentalReviewCreate,
   CheckoutRequest,
@@ -192,6 +194,40 @@ export class ApiService {
     return this.http.post<RentalBookingResponse>(
       `${this.baseUrl}/rentals/bookings`,
       dto,
+    );
+  }
+
+  /**
+   * Nebenwirkungsfreie Abfrage einer Buchung anhand von Buchungsnummer +
+   * E-Mail. Gleicher Besitznachweis wie beim Storno, verändert aber nichts —
+   * darf deshalb auch beim bloßen Laden einer Seite aufgerufen werden (z. B.
+   * wenn Buchungsnummer/E-Mail per Handoff aus dem Buchungsablauf ankommen).
+   * Unbekannte Buchungsnummer und falsche E-Mail liefern absichtlich denselben
+   * 404, damit sich Buchungsnummern nicht erraten lassen.
+   */
+  lookupRentalBooking(
+    bookingNumber: string,
+    email: string,
+  ): Observable<RentalBookingLookup> {
+    return this.http.post<RentalBookingLookup>(
+      `${this.baseUrl}/rentals/bookings/lookup`,
+      { bookingNumber, email },
+    );
+  }
+
+  /**
+   * Storniert eine Buchung des Gasts unwiderruflich. Darf ausschließlich nach
+   * einer bewussten Rückfrage im UI aufgerufen werden, nie beim bloßen Laden
+   * einer Seite — anders als `lookupRentalBooking` hat dieser Aufruf einen
+   * Seiteneffekt.
+   */
+  cancelRentalBookingByCustomer(
+    bookingNumber: string,
+    email: string,
+  ): Observable<RentalBookingCancelResult> {
+    return this.http.post<RentalBookingCancelResult>(
+      `${this.baseUrl}/rentals/bookings/cancel`,
+      { bookingNumber, email },
     );
   }
 

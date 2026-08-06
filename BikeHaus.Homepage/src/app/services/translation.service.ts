@@ -105,6 +105,7 @@ interface RentalStepsTranslations {
   invalidDateRange: string;
   loadError: string;
   bookingError: string;
+  bookingConflict: string;
   firstNameRequired: string;
   lastNameRequired: string;
   emailRequired: string;
@@ -138,6 +139,73 @@ interface RentalStepsTranslations {
   closureNotice: string;
   /** Error when a selected range overlaps a holiday closure. */
   closurePeriodError: string;
+  /** Question above the free-text height input in the bike-selection step. */
+  riderHeightQuestion: string;
+  /** Placeholder for the height input, e.g. "e.g. 175". */
+  riderHeightPlaceholder: string;
+  /** Link/button text that clears the height filter again. */
+  showAllSizes: string;
+  /** Label next to the match count once a height was entered. */
+  matchingBikes: string;
+  /** Empty state when the entered height matches no bike and none are unspecified. */
+  noBikesForHeight: string;
+  /** Note above bikes that have no maintained height range, shown once a height filter is active. */
+  unspecifiedHeightNote: string;
+  /** Button on the success screen that downloads a .ics calendar file. */
+  addToCalendar?: string;
+  /** SUMMARY text used inside the generated .ics calendar event. */
+  calendarEventTitle?: string;
+  /** Heading above the shop address/phone block on the success screen. */
+  directionsTitle?: string;
+  /** Link text that opens the shop address in a map. */
+  showOnMap?: string;
+  /** Note on the success screen: the booking is already confirmed, no shop approval pending. */
+  bookingConfirmedNote?: string;
+  /** Note pointing to the email link / self-service page for changes or cancellation. */
+  manageBookingNote?: string;
+  /** Link text to the booking self-service page. */
+  manageBookingLinkText?: string;
+}
+
+/**
+ * Texte der eigenständigen Seite "Buchung verwalten" (Storno-Selfservice,
+ * `booking-manage.component.ts`). Eigener Block statt Haupt-`Translations`,
+ * weil sie wie `RentalStepsTranslations` transaktional und in allen zwölf
+ * geführten Sprachen von Hand übersetzt ist statt über den Overrides-Generator
+ * zu laufen.
+ */
+interface BookingManageTranslations {
+  pageTitle: string;
+  metaDescription: string;
+  intro: string;
+  bookingNumberPlaceholder: string;
+  emailPlaceholder: string;
+  findButton: string;
+  /** Bewusst unspezifisch: verrät nicht, ob Buchungsnummer oder E-Mail falsch war. */
+  findError: string;
+  /** Überschrift der reinen Ansicht (Lookup ohne Storno). */
+  viewTitle: string;
+  statusLabel: string;
+  statusPending: string;
+  statusApproved: string;
+  statusCancelled: string;
+  /** Löst nur den Rückfrage-Schritt aus, noch keinen API-Aufruf. */
+  cancelButton: string;
+  /** Hinweis statt Storno-Button, wenn die Buchung schon vorher storniert war. */
+  alreadyCancelledNote: string;
+  /** Hinweis statt Storno-Button, wenn der Buchungszeitraum bereits vorbei ist. */
+  pastBookingNote: string;
+  confirmTitle: string;
+  confirmText: string;
+  confirmYes: string;
+  confirmNo: string;
+  cancelledTitle: string;
+  cancelledText: string;
+  bikesLabel: string;
+  periodLabel: string;
+  totalPriceLabel: string;
+  backToStart: string;
+  newBookingLinkText: string;
 }
 
 export interface Translations {
@@ -465,6 +533,7 @@ export interface Translations {
   rentalStatusSelected: string;
   rentalSundayLabel: string;
   rentalSteps?: Partial<RentalStepsTranslations>;
+  bookingManage?: Partial<BookingManageTranslations>;
 
   // Rental Reviews
   rentalReviewsTitle: string;
@@ -3982,6 +4051,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'Enddatum muss nach Startdatum liegen',
     loadError: 'Fehler beim Laden der Fahrräder',
     bookingError: 'Fehler beim Erstellen der Buchung',
+    bookingConflict:
+      'Eines Ihrer Fahrräder wurde zwischenzeitlich gebucht. Die Verfügbarkeit ist aktualisiert — bitte wählen Sie erneut.',
     firstNameRequired: 'Vorname erforderlich',
     lastNameRequired: 'Nachname erforderlich',
     emailRequired: 'Gültige E-Mail erforderlich',
@@ -4011,6 +4082,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'In diesem Zeitraum (15.–30. August 2026) machen wir Urlaub. Bitte wählen Sie andere Daten.',
+    riderHeightQuestion: 'Wie groß sind Sie?',
+    riderHeightPlaceholder: 'z. B. 175',
+    showAllSizes: 'Alle Größen anzeigen',
+    matchingBikes: 'Passende Räder',
+    noBikesForHeight: 'Für diese Größe ist aktuell kein Rad hinterlegt.',
+    unspecifiedHeightNote:
+      'Zu diesen Rädern liegt keine Größenangabe vor – bitte fragen Sie uns.',
+    addToCalendar: 'Zum Kalender hinzufügen',
+    calendarEventTitle: 'Fahrradverleih BikeHaus Freiburg',
+    directionsTitle: 'Weg zum Laden',
+    showOnMap: 'Route anzeigen',
+    bookingConfirmedNote:
+      'Ihre Buchung ist bereits bestätigt – eine weitere Freigabe ist nicht nötig.',
+    manageBookingNote:
+      'Sie möchten etwas ändern oder stornieren? Nutzen Sie dazu den Link in der Bestätigungsmail oder verwalten Sie Ihre Buchung online.',
+    manageBookingLinkText: 'Buchung verwalten',
   },
   en: {
     dateSelection: 'Choose date',
@@ -4100,6 +4187,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'End date must be after start date',
     loadError: 'Error loading bikes',
     bookingError: 'Error creating booking',
+    bookingConflict:
+      'One of your bikes was booked in the meantime. Availability has been refreshed — please choose again.',
     firstNameRequired: 'First name is required',
     lastNameRequired: 'Last name is required',
     emailRequired: 'Valid email is required',
@@ -4129,6 +4218,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'We are on holiday during this period (15–30 August 2026). Please choose different dates.',
+    riderHeightQuestion: 'How tall are you?',
+    riderHeightPlaceholder: 'e.g. 175',
+    showAllSizes: 'Show all sizes',
+    matchingBikes: 'Matching bikes',
+    noBikesForHeight: 'No bike is listed for this height right now.',
+    unspecifiedHeightNote:
+      'No height is listed for these bikes — please ask us.',
+    addToCalendar: 'Add to calendar',
+    calendarEventTitle: 'BikeHaus Freiburg bike rental',
+    directionsTitle: 'Getting to the shop',
+    showOnMap: 'Show route',
+    bookingConfirmedNote:
+      'Your booking is already confirmed — no further approval is needed.',
+    manageBookingNote:
+      'Need to change or cancel something? Use the link in your confirmation email, or manage your booking online.',
+    manageBookingLinkText: 'Manage booking',
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -4220,6 +4325,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'La date de fin doit être postérieure à la date de début',
     loadError: 'Erreur lors du chargement des vélos',
     bookingError: 'Erreur lors de la création de la réservation',
+    bookingConflict:
+      'Un de vos vélos a été réservé entre-temps. Les disponibilités sont à jour — merci de choisir à nouveau.',
     firstNameRequired: 'Prénom requis',
     lastNameRequired: 'Nom requis',
     emailRequired: 'E-mail valide requis',
@@ -4249,6 +4356,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       "Nous sommes en congés durant cette période (15–30 août 2026). Veuillez choisir d'autres dates.",
+    riderHeightQuestion: 'Quelle est votre taille ?',
+    riderHeightPlaceholder: 'ex. 175',
+    showAllSizes: 'Afficher toutes les tailles',
+    matchingBikes: 'Vélos correspondants',
+    noBikesForHeight: 'Aucun vélo n’est renseigné pour cette taille pour le moment.',
+    unspecifiedHeightNote:
+      'Aucune taille n’est renseignée pour ces vélos – merci de nous contacter.',
+    addToCalendar: 'Ajouter au calendrier',
+    calendarEventTitle: 'Location de vélo BikeHaus Freiburg',
+    directionsTitle: 'Comment nous trouver',
+    showOnMap: 'Voir l’itinéraire',
+    bookingConfirmedNote:
+      'Votre réservation est déjà confirmée — aucune autre validation n’est nécessaire.',
+    manageBookingNote:
+      'Besoin de modifier ou d’annuler ? Utilisez le lien dans l’e-mail de confirmation ou gérez votre réservation en ligne.',
+    manageBookingLinkText: 'Gérer la réservation',
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -4338,6 +4461,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'Bitiş tarihi başlangıçtan sonra olmalıdır',
     loadError: 'Bisikletler yüklenirken hata oluştu',
     bookingError: 'Rezervasyon oluşturulurken hata oluştu',
+    bookingConflict:
+      'Seçtiğiniz bisikletlerden biri bu arada kiralandı. Uygunluk güncellendi — lütfen yeniden seçin.',
     firstNameRequired: 'Ad zorunludur',
     lastNameRequired: 'Soyad zorunludur',
     emailRequired: 'Geçerli bir e-posta zorunludur',
@@ -4367,6 +4492,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'Bu tarihlerde (15–30 Ağustos 2026) tatildeyiz. Lütfen farklı tarihler seçin.',
+    riderHeightQuestion: 'Boyunuz kaç cm?',
+    riderHeightPlaceholder: 'örn. 175',
+    showAllSizes: 'Tüm boyları göster',
+    matchingBikes: 'Uygun bisikletler',
+    noBikesForHeight: 'Bu boy için şu anda kayıtlı bir bisiklet yok.',
+    unspecifiedHeightNote:
+      'Bu bisikletler için boy bilgisi girilmemiş – lütfen bize sorun.',
+    addToCalendar: 'Takvime ekle',
+    calendarEventTitle: 'BikeHaus Freiburg bisiklet kiralama',
+    directionsTitle: 'Mağazaya nasıl gelinir',
+    showOnMap: 'Yolu göster',
+    bookingConfirmedNote:
+      'Rezervasyonunuz zaten onaylandı — ayrıca bir onaya gerek yok.',
+    manageBookingNote:
+      'Bir şeyi değiştirmek veya iptal etmek mi istiyorsunuz? Onay e-postasındaki bağlantıyı kullanın veya rezervasyonunuzu çevrimiçi yönetin.',
+    manageBookingLinkText: 'Rezervasyonu yönet',
   },
   es: {
     dateSelection: 'Elegir fecha',
@@ -4444,6 +4585,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'La fecha de fin debe ser posterior a la de inicio',
     loadError: 'Error al cargar las bicicletas',
     bookingError: 'Error al crear la reserva',
+    bookingConflict:
+      'Una de sus bicicletas ha sido reservada mientras tanto. La disponibilidad se ha actualizado: elija de nuevo, por favor.',
     firstNameRequired: 'El nombre es obligatorio',
     lastNameRequired: 'El apellido es obligatorio',
     emailRequired: 'Se requiere un correo electrónico válido',
@@ -4473,6 +4616,23 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'Estamos de vacaciones durante este periodo (15–30 de agosto de 2026). Elija otras fechas.',
+    riderHeightQuestion: '¿Cuánto mide usted?',
+    riderHeightPlaceholder: 'p. ej. 175',
+    showAllSizes: 'Mostrar todas las tallas',
+    matchingBikes: 'Bicicletas adecuadas',
+    noBikesForHeight:
+      'Actualmente no hay ninguna bicicleta registrada para esta estatura.',
+    unspecifiedHeightNote:
+      'No hay estatura indicada para estas bicicletas – consúltenos, por favor.',
+    addToCalendar: 'Añadir al calendario',
+    calendarEventTitle: 'Alquiler de bicicletas BikeHaus Freiburg',
+    directionsTitle: 'Cómo llegar a la tienda',
+    showOnMap: 'Ver ruta',
+    bookingConfirmedNote:
+      'Su reserva ya está confirmada — no se necesita ninguna aprobación adicional.',
+    manageBookingNote:
+      '¿Necesita cambiar o cancelar algo? Use el enlace del correo de confirmación o gestione su reserva en línea.',
+    manageBookingLinkText: 'Gestionar reserva',
   },
   it: {
     dateSelection: 'Scegli data',
@@ -4552,6 +4712,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'La data di fine deve essere successiva alla data di inizio',
     loadError: 'Errore durante il caricamento delle bici',
     bookingError: 'Errore durante la creazione della prenotazione',
+    bookingConflict:
+      'Una delle sue bici è stata prenotata nel frattempo. La disponibilità è aggiornata: la preghiamo di scegliere di nuovo.',
     firstNameRequired: 'Il nome è obbligatorio',
     lastNameRequired: 'Il cognome è obbligatorio',
     emailRequired: "È richiesta un'email valida",
@@ -4581,6 +4743,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'Siamo in ferie in questo periodo (15–30 agosto 2026). Scegli altre date.',
+    riderHeightQuestion: 'Quanto sei alto/a?',
+    riderHeightPlaceholder: 'es. 175',
+    showAllSizes: 'Mostra tutte le taglie',
+    matchingBikes: 'Bici adatte',
+    noBikesForHeight: 'Al momento non è registrata nessuna bici per questa altezza.',
+    unspecifiedHeightNote:
+      'Per queste bici non è indicata un’altezza – vi preghiamo di contattarci.',
+    addToCalendar: 'Aggiungi al calendario',
+    calendarEventTitle: 'Noleggio bici BikeHaus Freiburg',
+    directionsTitle: 'Come raggiungerci',
+    showOnMap: 'Mostra il percorso',
+    bookingConfirmedNote:
+      'La tua prenotazione è già confermata — non è necessaria alcuna ulteriore approvazione.',
+    manageBookingNote:
+      'Devi modificare o annullare qualcosa? Usa il link nell’email di conferma oppure gestisci la tua prenotazione online.',
+    manageBookingLinkText: 'Gestisci prenotazione',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
@@ -4658,6 +4836,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء',
     loadError: 'حدث خطأ أثناء تحميل الدراجات',
     bookingError: 'حدث خطأ أثناء إنشاء الحجز',
+    bookingConflict:
+      'تم حجز إحدى الدراجات التي اخترتها في هذه الأثناء. تم تحديث التوفر — يرجى الاختيار من جديد.',
     firstNameRequired: 'الاسم الأول مطلوب',
     lastNameRequired: 'اسم العائلة مطلوب',
     emailRequired: 'مطلوب بريد إلكتروني صحيح',
@@ -4687,6 +4867,20 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'نحن في إجازة خلال هذه الفترة (15–30 أغسطس 2026). يرجى اختيار تواريخ أخرى.',
+    riderHeightQuestion: 'كم طولك؟',
+    riderHeightPlaceholder: 'مثال: 175',
+    showAllSizes: 'عرض جميع المقاسات',
+    matchingBikes: 'الدراجات المناسبة',
+    noBikesForHeight: 'لا توجد حاليًا أي دراجة مسجلة لهذا الطول.',
+    unspecifiedHeightNote: 'لا توجد بيانات طول لهذه الدراجات – يرجى سؤالنا.',
+    addToCalendar: 'إضافة إلى التقويم',
+    calendarEventTitle: 'تأجير الدراجات BikeHaus Freiburg',
+    directionsTitle: 'كيفية الوصول إلى المتجر',
+    showOnMap: 'عرض المسار',
+    bookingConfirmedNote: 'تم تأكيد حجزك بالفعل — لا حاجة لأي موافقة إضافية.',
+    manageBookingNote:
+      'هل تريد تغيير أو إلغاء شيء ما؟ استخدم الرابط في رسالة التأكيد أو أدر حجزك عبر الإنترنت.',
+    manageBookingLinkText: 'إدارة الحجز',
   },
   ru: {
     dateSelection: 'Выбор даты',
@@ -4764,6 +4958,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'Дата окончания должна быть позже даты начала',
     loadError: 'Ошибка при загрузке велосипедов',
     bookingError: 'Ошибка при создании бронирования',
+    bookingConflict:
+      'Один из выбранных велосипедов уже забронировали. Доступность обновлена — пожалуйста, выберите заново.',
     firstNameRequired: 'Введите имя',
     lastNameRequired: 'Введите фамилию',
     emailRequired: 'Укажите корректный email',
@@ -4793,6 +4989,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'В этот период (15–30 августа 2026) у нас отпуск. Пожалуйста, выберите другие даты.',
+    riderHeightQuestion: 'Какой у вас рост?',
+    riderHeightPlaceholder: 'напр. 175',
+    showAllSizes: 'Показать все размеры',
+    matchingBikes: 'Подходящие велосипеды',
+    noBikesForHeight: 'Сейчас для этого роста не указан ни один велосипед.',
+    unspecifiedHeightNote:
+      'Для этих велосипедов рост не указан — пожалуйста, спросите нас.',
+    addToCalendar: 'Добавить в календарь',
+    calendarEventTitle: 'Прокат велосипедов BikeHaus Freiburg',
+    directionsTitle: 'Как добраться до магазина',
+    showOnMap: 'Показать маршрут',
+    bookingConfirmedNote:
+      'Ваше бронирование уже подтверждено — дополнительное одобрение не требуется.',
+    manageBookingNote:
+      'Нужно что-то изменить или отменить? Используйте ссылку в письме с подтверждением или управляйте бронированием онлайн.',
+    manageBookingLinkText: 'Управление бронированием',
   },
 
   nl: {
@@ -4883,6 +5095,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'Einddatum moet na de startdatum liggen',
     loadError: 'Fout bij het laden van fietsen',
     bookingError: 'Fout bij het aanmaken van de boeking',
+    bookingConflict:
+      'Een van uw fietsen is inmiddels geboekt. De beschikbaarheid is bijgewerkt — kies opnieuw.',
     firstNameRequired: 'Voornaam is verplicht',
     lastNameRequired: 'Achternaam is verplicht',
     emailRequired: 'Geldig e-mailadres is verplicht',
@@ -4912,6 +5126,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'In deze periode (15–30 augustus 2026) hebben wij vakantie. Kies andere data.',
+    riderHeightQuestion: 'Hoe lang bent u?',
+    riderHeightPlaceholder: 'bijv. 175',
+    showAllSizes: 'Alle maten tonen',
+    matchingBikes: 'Passende fietsen',
+    noBikesForHeight: 'Voor deze lengte staat momenteel geen fiets vermeld.',
+    unspecifiedHeightNote:
+      'Voor deze fietsen is geen lengte vermeld – vraag het ons gerust.',
+    addToCalendar: 'Toevoegen aan agenda',
+    calendarEventTitle: 'Fietsverhuur BikeHaus Freiburg',
+    directionsTitle: 'Zo vindt u de winkel',
+    showOnMap: 'Route tonen',
+    bookingConfirmedNote:
+      'Uw boeking is al bevestigd — er is geen verdere goedkeuring nodig.',
+    manageBookingNote:
+      'Wilt u iets wijzigen of annuleren? Gebruik de link in de bevestigingsmail of beheer uw boeking online.',
+    manageBookingLinkText: 'Boeking beheren',
   },
 
   da: {
@@ -5002,6 +5232,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'Slutdatoen skal være efter startdatoen',
     loadError: 'Fejl ved indlæsning af cykler',
     bookingError: 'Fejl ved oprettelse af booking',
+    bookingConflict:
+      'En af dine cykler er blevet booket i mellemtiden. Tilgængeligheden er opdateret — vælg venligst igen.',
     firstNameRequired: 'Fornavn er påkrævet',
     lastNameRequired: 'Efternavn er påkrævet',
     emailRequired: 'Gyldig e-mail er påkrævet',
@@ -5031,6 +5263,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'I denne periode (15.–30. august 2026) holder vi ferie. Vælg venligst andre datoer.',
+    riderHeightQuestion: 'Hvor høj er du?',
+    riderHeightPlaceholder: 'f.eks. 175',
+    showAllSizes: 'Vis alle størrelser',
+    matchingBikes: 'Passende cykler',
+    noBikesForHeight: 'Der er lige nu ingen cykel registreret til denne højde.',
+    unspecifiedHeightNote:
+      'Der er ikke angivet en højde for disse cykler – spørg os endelig.',
+    addToCalendar: 'Føj til kalender',
+    calendarEventTitle: 'Cykeludlejning BikeHaus Freiburg',
+    directionsTitle: 'Sådan finder du butikken',
+    showOnMap: 'Vis rute',
+    bookingConfirmedNote:
+      'Din booking er allerede bekræftet — der kræves ingen yderligere godkendelse.',
+    manageBookingNote:
+      'Skal du ændre eller annullere noget? Brug linket i bekræftelsesmailen, eller administrer din booking online.',
+    manageBookingLinkText: 'Administrer booking',
   },
 
   no: {
@@ -5121,6 +5369,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'Sluttdatoen må være etter startdatoen',
     loadError: 'Feil ved lasting av sykler',
     bookingError: 'Feil ved oppretting av bestilling',
+    bookingConflict:
+      'En av syklene dine ble booket i mellomtiden. Tilgjengeligheten er oppdatert — velg på nytt.',
     firstNameRequired: 'Fornavn er påkrevd',
     lastNameRequired: 'Etternavn er påkrevd',
     emailRequired: 'Gyldig e-post er påkrevd',
@@ -5150,6 +5400,23 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'I denne perioden (15.–30. august 2026) har vi ferie. Vennligst velg andre datoer.',
+    riderHeightQuestion: 'Hvor høy er du?',
+    riderHeightPlaceholder: 'f.eks. 175',
+    showAllSizes: 'Vis alle størrelser',
+    matchingBikes: 'Passende sykler',
+    noBikesForHeight:
+      'Det er akkurat nå ingen sykkel registrert for denne høyden.',
+    unspecifiedHeightNote:
+      'Det er ikke oppgitt høyde for disse syklene – spør oss gjerne.',
+    addToCalendar: 'Legg til i kalenderen',
+    calendarEventTitle: 'Sykkelutleie BikeHaus Freiburg',
+    directionsTitle: 'Slik finner du butikken',
+    showOnMap: 'Vis rute',
+    bookingConfirmedNote:
+      'Bestillingen din er allerede bekreftet — ingen ytterligere godkjenning er nødvendig.',
+    manageBookingNote:
+      'Trenger du å endre eller avbestille noe? Bruk lenken i bekreftelses-e-posten, eller administrer bestillingen din på nettet.',
+    manageBookingLinkText: 'Administrer bestilling',
   },
 
   pl: {
@@ -5240,6 +5507,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     invalidDateRange: 'Data zakończenia musi być po dacie rozpoczęcia',
     loadError: 'Błąd podczas ładowania rowerów',
     bookingError: 'Błąd podczas tworzenia rezerwacji',
+    bookingConflict:
+      'Jeden z wybranych rowerów został w tym czasie zarezerwowany. Dostępność zaktualizowano — wybierz ponownie.',
     firstNameRequired: 'Imię jest wymagane',
     lastNameRequired: 'Nazwisko jest wymagane',
     emailRequired: 'Wymagany jest prawidłowy e-mail',
@@ -5269,6 +5538,397 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     closureNotice: '',
     closurePeriodError:
       'W tym okresie (15–30 sierpnia 2026) mamy urlop. Wybierz inne daty.',
+    riderHeightQuestion: 'Jaki masz wzrost?',
+    riderHeightPlaceholder: 'np. 175',
+    showAllSizes: 'Pokaż wszystkie rozmiary',
+    matchingBikes: 'Pasujące rowery',
+    noBikesForHeight: 'Obecnie nie ma zarejestrowanego roweru dla tego wzrostu.',
+    unspecifiedHeightNote:
+      'Dla tych rowerów nie podano wzrostu – proszę zapytać nas.',
+    addToCalendar: 'Dodaj do kalendarza',
+    calendarEventTitle: 'Wypożyczalnia rowerów BikeHaus Freiburg',
+    directionsTitle: 'Jak do nas trafić',
+    showOnMap: 'Pokaż trasę',
+    bookingConfirmedNote:
+      'Twoja rezerwacja jest już potwierdzona — nie jest wymagana dodatkowa akceptacja.',
+    manageBookingNote:
+      'Chcesz coś zmienić lub anulować? Skorzystaj z linku w e-mailu potwierdzającym lub zarządzaj rezerwacją online.',
+    manageBookingLinkText: 'Zarządzaj rezerwacją',
+  },
+};
+
+const BOOKING_MANAGE_TRANSLATIONS: Partial<
+  Record<Language, BookingManageTranslations>
+> = {
+  de: {
+    pageTitle: 'Buchung verwalten',
+    metaDescription:
+      'Buchungsnummer und E-Mail eingeben, um Ihre Fahrradverleih-Buchung anzusehen oder zu stornieren.',
+    intro:
+      'Geben Sie Ihre Buchungsnummer und die bei der Buchung angegebene E-Mail-Adresse ein.',
+    bookingNumberPlaceholder: 'z. B. MB-2026-00123',
+    emailPlaceholder: 'ihre@email.de',
+    findButton: 'Weiter',
+    findError: 'Buchungsnummer oder E-Mail-Adresse ist nicht korrekt.',
+    viewTitle: 'Ihre Buchung',
+    statusLabel: 'Status',
+    statusPending: 'Ausstehend',
+    statusApproved: 'Bestätigt',
+    statusCancelled: 'Storniert',
+    cancelButton: 'Buchung stornieren',
+    alreadyCancelledNote: 'Diese Buchung wurde bereits storniert.',
+    pastBookingNote:
+      'Der Buchungszeitraum liegt in der Vergangenheit. Eine Stornierung ist online nicht mehr möglich.',
+    confirmTitle: 'Buchung wirklich stornieren?',
+    confirmText: 'Diese Aktion kann nicht rückgängig gemacht werden.',
+    confirmYes: 'Ja, endgültig stornieren',
+    confirmNo: 'Nein, Buchung behalten',
+    cancelledTitle: 'Buchung storniert',
+    cancelledText: 'Ihre Buchung wurde erfolgreich storniert.',
+    bikesLabel: 'Fahrräder',
+    periodLabel: 'Zeitraum',
+    totalPriceLabel: 'Gesamtpreis',
+    backToStart: 'Neue Anfrage stellen',
+    newBookingLinkText: 'Neue Buchung vornehmen',
+  },
+  en: {
+    pageTitle: 'Manage booking',
+    metaDescription:
+      'Enter your booking number and email to view or cancel your bike rental booking.',
+    intro:
+      'Enter your booking number and the email address you used when booking.',
+    bookingNumberPlaceholder: 'e.g. MB-2026-00123',
+    emailPlaceholder: 'your@example.com',
+    findButton: 'Continue',
+    findError: 'The booking number or email address is incorrect.',
+    viewTitle: 'Your booking',
+    statusLabel: 'Status',
+    statusPending: 'Pending',
+    statusApproved: 'Confirmed',
+    statusCancelled: 'Cancelled',
+    cancelButton: 'Cancel booking',
+    alreadyCancelledNote: 'This booking has already been cancelled.',
+    pastBookingNote:
+      'The booking period has already passed. Online cancellation is no longer possible.',
+    confirmTitle: 'Really cancel this booking?',
+    confirmText: 'This action cannot be undone.',
+    confirmYes: 'Yes, cancel for good',
+    confirmNo: 'No, keep booking',
+    cancelledTitle: 'Booking cancelled',
+    cancelledText: 'Your booking has been cancelled successfully.',
+    bikesLabel: 'Bikes',
+    periodLabel: 'Period',
+    totalPriceLabel: 'Total price',
+    backToStart: 'Start a new request',
+    newBookingLinkText: 'Make a new booking',
+  },
+  fr: {
+    pageTitle: 'Gérer la réservation',
+    metaDescription:
+      'Saisissez votre numéro de réservation et votre e-mail pour consulter ou annuler votre location de vélo.',
+    intro:
+      'Saisissez votre numéro de réservation ainsi que l’adresse e-mail utilisée lors de la réservation.',
+    bookingNumberPlaceholder: 'ex. MB-2026-00123',
+    emailPlaceholder: 'nom@exemple.com',
+    findButton: 'Continuer',
+    findError: 'Le numéro de réservation ou l’adresse e-mail est incorrect.',
+    viewTitle: 'Votre réservation',
+    statusLabel: 'Statut',
+    statusPending: 'En attente',
+    statusApproved: 'Confirmée',
+    statusCancelled: 'Annulée',
+    cancelButton: 'Annuler la réservation',
+    alreadyCancelledNote: 'Cette réservation a déjà été annulée.',
+    pastBookingNote:
+      'La période de réservation est déjà passée. Une annulation en ligne n’est plus possible.',
+    confirmTitle: 'Annuler vraiment cette réservation ?',
+    confirmText: 'Cette action est irréversible.',
+    confirmYes: 'Oui, annuler définitivement',
+    confirmNo: 'Non, conserver la réservation',
+    cancelledTitle: 'Réservation annulée',
+    cancelledText: 'Votre réservation a été annulée avec succès.',
+    bikesLabel: 'Vélos',
+    periodLabel: 'Période',
+    totalPriceLabel: 'Prix total',
+    backToStart: 'Nouvelle demande',
+    newBookingLinkText: 'Faire une nouvelle réservation',
+  },
+  tr: {
+    pageTitle: 'Rezervasyonu yönet',
+    metaDescription:
+      'Bisiklet kiralama rezervasyonunuzu görüntülemek veya iptal etmek için rezervasyon numaranızı ve e-postanızı girin.',
+    intro:
+      'Rezervasyon numaranızı ve rezervasyon sırasında kullandığınız e-posta adresini girin.',
+    bookingNumberPlaceholder: 'örn. MB-2026-00123',
+    emailPlaceholder: 'adiniz@ornek.com',
+    findButton: 'Devam',
+    findError: 'Rezervasyon numarası veya e-posta adresi hatalı.',
+    viewTitle: 'Rezervasyonunuz',
+    statusLabel: 'Durum',
+    statusPending: 'Beklemede',
+    statusApproved: 'Onaylandı',
+    statusCancelled: 'İptal edildi',
+    cancelButton: 'Rezervasyonu iptal et',
+    alreadyCancelledNote: 'Bu rezervasyon zaten iptal edilmiş.',
+    pastBookingNote:
+      'Rezervasyon tarihi geride kaldı. Online iptal artık mümkün değil.',
+    confirmTitle: 'Bu rezervasyonu gerçekten iptal etmek istiyor musunuz?',
+    confirmText: 'Bu işlem geri alınamaz.',
+    confirmYes: 'Evet, kalıcı olarak iptal et',
+    confirmNo: 'Hayır, rezervasyonu koru',
+    cancelledTitle: 'Rezervasyon iptal edildi',
+    cancelledText: 'Rezervasyonunuz başarıyla iptal edildi.',
+    bikesLabel: 'Bisikletler',
+    periodLabel: 'Tarih aralığı',
+    totalPriceLabel: 'Toplam fiyat',
+    backToStart: 'Yeni bir istek gönder',
+    newBookingLinkText: 'Yeni bir rezervasyon yap',
+  },
+  es: {
+    pageTitle: 'Gestionar reserva',
+    metaDescription:
+      'Introduzca su número de reserva y su correo electrónico para ver o cancelar su reserva de alquiler de bicicletas.',
+    intro:
+      'Introduzca su número de reserva y el correo electrónico que utilizó al reservar.',
+    bookingNumberPlaceholder: 'p. ej. MB-2026-00123',
+    emailPlaceholder: 'nombre@ejemplo.com',
+    findButton: 'Continuar',
+    findError: 'El número de reserva o el correo electrónico no es correcto.',
+    viewTitle: 'Su reserva',
+    statusLabel: 'Estado',
+    statusPending: 'Pendiente',
+    statusApproved: 'Confirmada',
+    statusCancelled: 'Cancelada',
+    cancelButton: 'Cancelar reserva',
+    alreadyCancelledNote: 'Esta reserva ya ha sido cancelada.',
+    pastBookingNote:
+      'El período de la reserva ya ha pasado. Ya no es posible cancelarla en línea.',
+    confirmTitle: '¿Realmente desea cancelar esta reserva?',
+    confirmText: 'Esta acción no se puede deshacer.',
+    confirmYes: 'Sí, cancelar definitivamente',
+    confirmNo: 'No, conservar la reserva',
+    cancelledTitle: 'Reserva cancelada',
+    cancelledText: 'Su reserva se canceló correctamente.',
+    bikesLabel: 'Bicicletas',
+    periodLabel: 'Período',
+    totalPriceLabel: 'Precio total',
+    backToStart: 'Nueva solicitud',
+    newBookingLinkText: 'Hacer una nueva reserva',
+  },
+  it: {
+    pageTitle: 'Gestisci prenotazione',
+    metaDescription:
+      'Inserisci il numero di prenotazione e l’email per visualizzare o annullare la tua prenotazione di noleggio bici.',
+    intro:
+      'Inserisci il numero di prenotazione e l’indirizzo email utilizzato al momento della prenotazione.',
+    bookingNumberPlaceholder: 'es. MB-2026-00123',
+    emailPlaceholder: 'nome@esempio.com',
+    findButton: 'Continua',
+    findError: 'Il numero di prenotazione o l’indirizzo email non è corretto.',
+    viewTitle: 'La tua prenotazione',
+    statusLabel: 'Stato',
+    statusPending: 'In attesa',
+    statusApproved: 'Confermata',
+    statusCancelled: 'Annullata',
+    cancelButton: 'Annulla prenotazione',
+    alreadyCancelledNote: 'Questa prenotazione è già stata annullata.',
+    pastBookingNote:
+      'Il periodo di prenotazione è già trascorso. Non è più possibile annullarla online.',
+    confirmTitle: 'Annullare davvero questa prenotazione?',
+    confirmText: 'Questa azione non può essere annullata.',
+    confirmYes: 'Sì, annulla definitivamente',
+    confirmNo: 'No, mantieni la prenotazione',
+    cancelledTitle: 'Prenotazione annullata',
+    cancelledText: 'La tua prenotazione è stata annullata con successo.',
+    bikesLabel: 'Bici',
+    periodLabel: 'Periodo',
+    totalPriceLabel: 'Prezzo totale',
+    backToStart: 'Nuova richiesta',
+    newBookingLinkText: 'Effettua una nuova prenotazione',
+  },
+  ar: {
+    pageTitle: 'إدارة الحجز',
+    metaDescription:
+      'أدخل رقم الحجز والبريد الإلكتروني لعرض أو إلغاء حجز تأجير الدراجة الخاص بك.',
+    intro: 'أدخل رقم الحجز والبريد الإلكتروني الذي استخدمته عند الحجز.',
+    bookingNumberPlaceholder: 'مثال: MB-2026-00123',
+    emailPlaceholder: 'name@example.com',
+    findButton: 'متابعة',
+    findError: 'رقم الحجز أو البريد الإلكتروني غير صحيح.',
+    viewTitle: 'حجزك',
+    statusLabel: 'الحالة',
+    statusPending: 'قيد الانتظار',
+    statusApproved: 'مؤكد',
+    statusCancelled: 'ملغى',
+    cancelButton: 'إلغاء الحجز',
+    alreadyCancelledNote: 'تم إلغاء هذا الحجز بالفعل.',
+    pastBookingNote: 'انتهت فترة الحجز بالفعل. لم يعد الإلغاء عبر الإنترنت ممكنًا.',
+    confirmTitle: 'هل تريد حقًا إلغاء هذا الحجز؟',
+    confirmText: 'لا يمكن التراجع عن هذا الإجراء.',
+    confirmYes: 'نعم، الإلغاء نهائيًا',
+    confirmNo: 'لا، الاحتفاظ بالحجز',
+    cancelledTitle: 'تم إلغاء الحجز',
+    cancelledText: 'تم إلغاء حجزك بنجاح.',
+    bikesLabel: 'الدراجات',
+    periodLabel: 'الفترة',
+    totalPriceLabel: 'السعر الإجمالي',
+    backToStart: 'بدء طلب جديد',
+    newBookingLinkText: 'إجراء حجز جديد',
+  },
+  ru: {
+    pageTitle: 'Управление бронированием',
+    metaDescription:
+      'Введите номер бронирования и адрес электронной почты, чтобы просмотреть или отменить бронирование велосипеда.',
+    intro:
+      'Введите номер бронирования и адрес электронной почты, указанный при бронировании.',
+    bookingNumberPlaceholder: 'напр. MB-2026-00123',
+    emailPlaceholder: 'name@example.com',
+    findButton: 'Далее',
+    findError: 'Номер бронирования или адрес электронной почты неверны.',
+    viewTitle: 'Ваше бронирование',
+    statusLabel: 'Статус',
+    statusPending: 'В ожидании',
+    statusApproved: 'Подтверждено',
+    statusCancelled: 'Отменено',
+    cancelButton: 'Отменить бронирование',
+    alreadyCancelledNote: 'Это бронирование уже отменено.',
+    pastBookingNote:
+      'Период бронирования уже прошёл. Отмена онлайн больше невозможна.',
+    confirmTitle: 'Действительно отменить это бронирование?',
+    confirmText: 'Это действие нельзя отменить.',
+    confirmYes: 'Да, отменить окончательно',
+    confirmNo: 'Нет, оставить бронирование',
+    cancelledTitle: 'Бронирование отменено',
+    cancelledText: 'Ваше бронирование успешно отменено.',
+    bikesLabel: 'Велосипеды',
+    periodLabel: 'Период',
+    totalPriceLabel: 'Итоговая цена',
+    backToStart: 'Новый запрос',
+    newBookingLinkText: 'Сделать новое бронирование',
+  },
+  nl: {
+    pageTitle: 'Boeking beheren',
+    metaDescription:
+      'Voer uw boekingsnummer en e-mailadres in om uw fietsverhuurboeking te bekijken of te annuleren.',
+    intro:
+      'Voer uw boekingsnummer in en het e-mailadres dat u bij het boeken hebt gebruikt.',
+    bookingNumberPlaceholder: 'bijv. MB-2026-00123',
+    emailPlaceholder: 'naam@voorbeeld.com',
+    findButton: 'Doorgaan',
+    findError: 'Het boekingsnummer of e-mailadres is onjuist.',
+    viewTitle: 'Uw boeking',
+    statusLabel: 'Status',
+    statusPending: 'In behandeling',
+    statusApproved: 'Bevestigd',
+    statusCancelled: 'Geannuleerd',
+    cancelButton: 'Boeking annuleren',
+    alreadyCancelledNote: 'Deze boeking is al geannuleerd.',
+    pastBookingNote:
+      'De boekingsperiode is al voorbij. Online annuleren is niet meer mogelijk.',
+    confirmTitle: 'Deze boeking echt annuleren?',
+    confirmText: 'Deze actie kan niet ongedaan worden gemaakt.',
+    confirmYes: 'Ja, definitief annuleren',
+    confirmNo: 'Nee, boeking behouden',
+    cancelledTitle: 'Boeking geannuleerd',
+    cancelledText: 'Uw boeking is succesvol geannuleerd.',
+    bikesLabel: 'Fietsen',
+    periodLabel: 'Periode',
+    totalPriceLabel: 'Totale prijs',
+    backToStart: 'Nieuw verzoek starten',
+    newBookingLinkText: 'Nieuwe boeking maken',
+  },
+  da: {
+    pageTitle: 'Administrer booking',
+    metaDescription:
+      'Indtast dit bookingnummer og din e-mail for at se eller annullere din cykeludlejningsbooking.',
+    intro:
+      'Indtast dit bookingnummer og den e-mailadresse, du brugte ved bookingen.',
+    bookingNumberPlaceholder: 'f.eks. MB-2026-00123',
+    emailPlaceholder: 'navn@eksempel.com',
+    findButton: 'Fortsæt',
+    findError: 'Bookingnummeret eller e-mailadressen er forkert.',
+    viewTitle: 'Din booking',
+    statusLabel: 'Status',
+    statusPending: 'Afventer',
+    statusApproved: 'Bekræftet',
+    statusCancelled: 'Annulleret',
+    cancelButton: 'Annuller booking',
+    alreadyCancelledNote: 'Denne booking er allerede annulleret.',
+    pastBookingNote:
+      'Bookingperioden er allerede overstået. Online annullering er ikke længere muligt.',
+    confirmTitle: 'Vil du virkelig annullere denne booking?',
+    confirmText: 'Denne handling kan ikke fortrydes.',
+    confirmYes: 'Ja, annuller endeligt',
+    confirmNo: 'Nej, behold booking',
+    cancelledTitle: 'Booking annulleret',
+    cancelledText: 'Din booking er blevet annulleret.',
+    bikesLabel: 'Cykler',
+    periodLabel: 'Periode',
+    totalPriceLabel: 'Samlet pris',
+    backToStart: 'Start en ny forespørgsel',
+    newBookingLinkText: 'Foretag en ny booking',
+  },
+  no: {
+    pageTitle: 'Administrer bestilling',
+    metaDescription:
+      'Skriv inn bestillingsnummeret og e-posten din for å se eller avbestille sykkelutleiebestillingen din.',
+    intro:
+      'Skriv inn bestillingsnummeret og e-postadressen du brukte da du bestilte.',
+    bookingNumberPlaceholder: 'f.eks. MB-2026-00123',
+    emailPlaceholder: 'navn@eksempel.com',
+    findButton: 'Fortsett',
+    findError: 'Bestillingsnummeret eller e-postadressen er feil.',
+    viewTitle: 'Din bestilling',
+    statusLabel: 'Status',
+    statusPending: 'Venter',
+    statusApproved: 'Bekreftet',
+    statusCancelled: 'Avbestilt',
+    cancelButton: 'Avbestill bestilling',
+    alreadyCancelledNote: 'Denne bestillingen er allerede avbestilt.',
+    pastBookingNote:
+      'Bestillingsperioden er allerede passert. Det er ikke lenger mulig å avbestille på nett.',
+    confirmTitle: 'Vil du virkelig avbestille denne bestillingen?',
+    confirmText: 'Denne handlingen kan ikke angres.',
+    confirmYes: 'Ja, avbestill for godt',
+    confirmNo: 'Nei, behold bestillingen',
+    cancelledTitle: 'Bestilling avbestilt',
+    cancelledText: 'Bestillingen din er kansellert.',
+    bikesLabel: 'Sykler',
+    periodLabel: 'Periode',
+    totalPriceLabel: 'Totalpris',
+    backToStart: 'Start en ny forespørsel',
+    newBookingLinkText: 'Gjør en ny bestilling',
+  },
+  pl: {
+    pageTitle: 'Zarządzaj rezerwacją',
+    metaDescription:
+      'Wprowadź numer rezerwacji i adres e-mail, aby zobaczyć lub anulować rezerwację wypożyczenia roweru.',
+    intro:
+      'Wprowadź numer rezerwacji oraz adres e-mail podany podczas rezerwacji.',
+    bookingNumberPlaceholder: 'np. MB-2026-00123',
+    emailPlaceholder: 'imie@przyklad.com',
+    findButton: 'Dalej',
+    findError: 'Numer rezerwacji lub adres e-mail są nieprawidłowe.',
+    viewTitle: 'Twoja rezerwacja',
+    statusLabel: 'Status',
+    statusPending: 'Oczekująca',
+    statusApproved: 'Potwierdzona',
+    statusCancelled: 'Anulowana',
+    cancelButton: 'Anuluj rezerwację',
+    alreadyCancelledNote: 'Ta rezerwacja została już anulowana.',
+    pastBookingNote:
+      'Okres rezerwacji już minął. Anulowanie online nie jest już możliwe.',
+    confirmTitle: 'Czy na pewno anulować tę rezerwację?',
+    confirmText: 'Tej czynności nie można cofnąć.',
+    confirmYes: 'Tak, anuluj ostatecznie',
+    confirmNo: 'Nie, zachowaj rezerwację',
+    cancelledTitle: 'Rezerwacja anulowana',
+    cancelledText: 'Twoja rezerwacja została pomyślnie anulowana.',
+    bikesLabel: 'Rowery',
+    periodLabel: 'Okres',
+    totalPriceLabel: 'Cena całkowita',
+    backToStart: 'Rozpocznij nowe zapytanie',
+    newBookingLinkText: 'Dokonaj nowej rezerwacji',
   },
 };
 
@@ -5278,6 +5938,8 @@ function getTranslations(language: Language): Translations {
       ...TRANSLATIONS[language as BaseLanguage],
       rentalSteps:
         RENTAL_STEPS_TRANSLATIONS[language] ?? RENTAL_STEPS_TRANSLATIONS.en!,
+      bookingManage:
+        BOOKING_MANAGE_TRANSLATIONS[language] ?? BOOKING_MANAGE_TRANSLATIONS.en!,
     };
   }
 
@@ -5292,6 +5954,8 @@ function getTranslations(language: Language): Translations {
     ...(overrides as Partial<Translations>),
     rentalSteps:
       RENTAL_STEPS_TRANSLATIONS[language] ?? RENTAL_STEPS_TRANSLATIONS.en!,
+    bookingManage:
+      BOOKING_MANAGE_TRANSLATIONS[language] ?? BOOKING_MANAGE_TRANSLATIONS.en!,
   };
 }
 

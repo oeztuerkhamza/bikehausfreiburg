@@ -237,6 +237,48 @@ export interface RentalBookingResponse {
   endDatum: string;
 }
 
+// ── Buchung verwalten (Ansehen + Storno-Selfservice) ──
+
+/** `RentalBookingStatus` aus BikeHaus.Domain/Enums, als JSON-String (camelCase-Enum-Converter). */
+export type RentalBookingStatusCode = 'Pending' | 'Approved' | 'Cancelled';
+
+/**
+ * Antwort von `POST /api/public/rentals/bookings/lookup` — Spiegel von
+ * `PublicRentalBookingLookupDto` (BikeHaus.Application/DTOs/RentalBookingDtos.cs).
+ * Nebenwirkungsfrei: fragt eine Buchung ab, ohne sie zu verändern. Bewusst
+ * schlank und ohne Kontaktdaten des Gasts — der Endpunkt liefert davon
+ * ohnehin nichts zurück, anders als die PII-haltige `RentalBookingCancelResult`.
+ */
+export interface RentalBookingLookupBike {
+  marke: string;
+  modell: string;
+}
+
+export interface RentalBookingLookup {
+  buchungsNummer: string;
+  startDatum: string;
+  endDatum: string;
+  abholzeit?: string;
+  bikes: RentalBookingLookupBike[];
+  gesamtpreis?: number;
+  kaution?: number;
+  status: RentalBookingStatusCode;
+}
+
+/**
+ * Antwort von `POST /api/public/rentals/bookings/cancel` — das Backend liefert
+ * hier tatsächlich das vollständige, PII-haltige `RentalBookingDto` (Vorname,
+ * E-Mail, Adresse, interne Notizen, Belegdaten). Die Seite braucht davon nach
+ * dem Storno nur die Bestätigung, dass es geklappt hat; angezeigt werden die
+ * bereits über `RentalBookingLookup` bekannten Daten. Deshalb wird hier
+ * absichtlich nur der tatsächlich genutzte Ausschnitt modelliert statt der
+ * vollen Backend-Form.
+ */
+export interface RentalBookingCancelResult {
+  buchungsNummer: string;
+  status: RentalBookingStatusCode;
+}
+
 // ── Repair Showcases ──
 export interface RepairShowcaseImage {
   id: number;

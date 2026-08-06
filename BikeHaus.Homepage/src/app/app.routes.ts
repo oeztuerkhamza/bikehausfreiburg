@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { TranslationService, Language } from './services/translation.service';
 import {
+  BOOKING_MANAGE_SLUG_BY_LANGUAGE,
   DEFAULT_LANGUAGE,
   RENTAL_BOOKING_SLUG_BY_LANGUAGE,
   RENTAL_SLUG_BY_LANGUAGE,
@@ -40,6 +41,16 @@ const rentalRoutes: Routes = SUPPORTED_LANGUAGES.flatMap((lang) => {
     },
   ];
 });
+
+// Eigene Seite (nicht Teil des Buchungsflows): Buchungsnummer + E-Mail eingeben,
+// Buchung ansehen/stornieren. Ersetzt die vom API roh gerenderte HTML-Seite.
+const bookingManageRoutes: Routes = SUPPORTED_LANGUAGES.map((lang) => ({
+  path: BOOKING_MANAGE_SLUG_BY_LANGUAGE[lang],
+  loadComponent: () =>
+    import('./pages/booking-manage/booking-manage.component').then(
+      (m) => m.BookingManageComponent,
+    ),
+}));
 
 export const languageGuard: CanActivateFn = (route) => {
   const lang = route.paramMap.get('lang');
@@ -197,6 +208,8 @@ export const routes: Routes = [
       },
       // Fahrradverleih — lokalisierte Slugs pro Sprache (generiert)
       ...rentalRoutes,
+      // Buchung verwalten (Storno-Selfservice) — lokalisierte Slugs pro Sprache
+      ...bookingManageRoutes,
       // ── Rental bike catalog (filterable, SEO-optimised) ──
       // DE/TR/ES/IT/AR/RU: /mietfahrraeder
       {

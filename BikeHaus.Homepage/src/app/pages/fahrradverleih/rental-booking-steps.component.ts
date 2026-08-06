@@ -8,11 +8,13 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { TranslationService } from '../../services/translation.service';
+import { ShopInfoService } from '../../services/shop-info.service';
 import { environment } from '../../../environments/environment';
 import {
   PublicRentalBicycle,
@@ -23,11 +25,15 @@ import {
   RentalBookingAccessoryCreate,
 } from '../../models/models';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
+import { storeBookingHandoff } from '../../utils/booking-handoff';
 import {
   isClosureDay,
   rangeOverlapsClosure,
 } from '../../utils/rental-closures';
-import { LOCALE_BY_LANGUAGE } from '../../services/language-config';
+import {
+  LOCALE_BY_LANGUAGE,
+  getBookingManagePath,
+} from '../../services/language-config';
 
 interface CartBike {
   bike: PublicRentalBicycle;
@@ -36,6 +42,57 @@ interface CartBike {
   kaution?: number;
   calculatedPrice?: number;
 }
+
+interface BookingFormValues {
+  vorname: string;
+  nachname: string;
+  email: string;
+  telefon: string;
+  strasse: string;
+  hausNr: string;
+  plz: string;
+  ort: string;
+  sprache: string;
+  notizen: string;
+  abholzeit: string;
+}
+
+interface BookingDraftEntry {
+  bicycleId: number;
+  rahmennummer?: string;
+  farbe?: string;
+}
+
+/**
+ * Zwischenstand einer Buchung im sessionStorage.
+ *
+ * Der Schritt selbst steht in der URL, der Inhalt lag bisher nur im Speicher der
+ * Komponente: ein Reload — auf dem Handy schon der Wechsel in eine andere App —
+ * warf den Gast zurück auf den Kalender. Vom Warenkorb wird nur die Fahrrad-ID
+ * gespeichert; die Stammdaten kommen beim Wiederherstellen frisch vom Server,
+ * damit niemand mit einem Rad weiterläuft, das inzwischen vergeben ist.
+ */
+interface BookingDraft {
+  version: 1;
+  savedAt: number;
+  startDate: string;
+  endDate: string;
+  entries: BookingDraftEntry[];
+  selectedBikeId: number | null;
+  accessoryQtys: Record<number, number>;
+  form: BookingFormValues;
+  /**
+   * Eingegebene Körpergröße im Auswahlschritt. Optional statt Versionssprung:
+   * ein Entwurf ohne dieses Feld (aus einer Session vor dieser Änderung) ist
+   * weiterhin gültig, die Eingabe bleibt dann einfach leer — kein Grund, den
+   * ganzen Zwischenstand zu verwerfen.
+   */
+  riderHeightCm?: number | null;
+}
+
+const DRAFT_STORAGE_KEY = 'bikehaus-rental-booking-draft';
+/** Älteres bleibt liegen: Preise und Verfügbarkeit sind dann nicht mehr aktuell. */
+const DRAFT_MAX_AGE_MS = 12 * 60 * 60 * 1000;
 
 type BookingStep =
   | 'date-selection'
@@ -237,6 +294,10 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           {{ t().rentalSteps?.days ?? 'Tage' }})
         </p>
 
+        <div *ngIf="conflictNotice()" class="conflict-notice">
+          {{ conflictNotice() }}
+        </div>
+
         <div *ngIf="loadingAvailableBikes()" class="loading">
           {{ t().rentalSteps?.loading ?? 'Laden...' }}
         </div>
@@ -286,43 +347,55 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           </div>
 
           <!-- Zweite Zeile: "passt das Rad zu mir?" ist die Frage, die vor dem
-               Typ kommt. Die Stufen sind fest, gezeigt wird aber nur, wofür es
-               im gewählten Typ auch wirklich Räder gibt; ohne gepflegte
-               Körpergrößen bleibt die Zeile ganz weg. -->
-          <div class="bike-filter-row" *ngIf="heightGroups().length > 0">
+               Typ kommt. Statt fester Stufen-Chips trägt der Gast seine eigene
+               Größe ein — natürlicher als "150–160" anzuklicken. Intern bleibt
+               die Zuordnung Rad→Bereich unverändert (koerpergroesseVonCm/
+               koerpergroesseBisCm); ohne jede gepflegte Größe im aktuellen
+               Typ-Filter bleibt die Zeile ganz weg. -->
+          <div class="bike-filter-row" *ngIf="hasHeightData()">
             <span class="filter-row-label">
-              {{ t().rentalSteps?.riderHeight ?? 'Körpergröße' }} (cm)
+              {{ t().rentalSteps?.riderHeightQuestion ?? 'Wie groß sind Sie?' }}
+              (cm)
             </span>
-            <div class="bike-filter-chips">
+            <div class="height-filter-input">
+              <input
+                type="number"
+                inputmode="numeric"
+                class="height-input"
+                [min]="RIDER_HEIGHT_MIN"
+                [max]="RIDER_HEIGHT_MAX"
+                [attr.aria-label]="
+                  t().rentalSteps?.riderHeightQuestion ?? 'Wie groß sind Sie?'
+                "
+                [placeholder]="
+                  t().rentalSteps?.riderHeightPlaceholder ?? 'z. B. 175'
+                "
+                [ngModel]="riderHeightInput()"
+                (ngModelChange)="riderHeightInput.set($event)"
+              />
               <button
                 type="button"
-                class="filter-chip"
-                [class.active]="effectiveHeightFilter() === 'all'"
-                (click)="bikeHeightFilter.set('all')"
+                class="height-reset"
+                *ngIf="riderHeightInput() !== null"
+                (click)="riderHeightInput.set(null)"
               >
-                {{ t().rentalSteps?.filterAll ?? 'Alle' }}
-                <span class="chip-count">{{ typeFilteredBikes().length }}</span>
+                {{ t().rentalSteps?.showAllSizes ?? 'Alle Größen anzeigen' }}
               </button>
-              <button
-                type="button"
-                class="filter-chip"
-                *ngFor="let group of heightGroups()"
-                [class.active]="effectiveHeightFilter() === group.key"
-                (click)="bikeHeightFilter.set(group.key)"
+              <!-- Trefferzahl erst, wenn die Eingabe wirklich filtert — beim
+                   Tippen von "17" stünde sonst die Gesamtzahl als "Treffer" da. -->
+              <span
+                class="height-match-count"
+                *ngIf="effectiveRiderHeightCm() !== null"
               >
-                {{ group.label }}
-                <span class="chip-count">{{ group.count }}</span>
-              </button>
+                {{ t().rentalSteps?.matchingBikes ?? 'Passende Räder' }}:
+                <span class="chip-count">{{ filteredBikes().length }}</span>
+              </span>
             </div>
           </div>
         </div>
 
-        <div
-          *ngIf="!loadingAvailableBikes() && filteredBikes().length > 0"
-          class="bike-grid"
-        >
+        <ng-template #bikeCardTpl let-bike>
           <div
-            *ngFor="let bike of filteredBikes()"
             (click)="selectBikeForDetails(bike)"
             class="bike-card"
           >
@@ -386,6 +459,54 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               </button>
             </div>
           </div>
+        </ng-template>
+
+        <div
+          *ngIf="!loadingAvailableBikes() && filteredBikes().length > 0"
+          class="bike-grid"
+        >
+          <ng-container *ngFor="let bike of filteredBikes()">
+            <ng-container
+              *ngTemplateOutlet="bikeCardTpl; context: { $implicit: bike }"
+            ></ng-container>
+          </ng-container>
+        </div>
+
+        <!-- Räder ohne gepflegte Körpergröße verschwinden nicht mehr aus der
+             Liste, sobald gefiltert wird — das würde vorhandenen Bestand
+             verstecken. Sie stehen stattdessen sichtbar abgesetzt darunter. -->
+        <div
+          *ngIf="!loadingAvailableBikes() && unspecifiedHeightBikes().length > 0"
+          class="unspecified-height-block"
+        >
+          <p class="unspecified-height-note">
+            {{
+              t().rentalSteps?.unspecifiedHeightNote ??
+                'Zu diesen Rädern liegt keine Größenangabe vor – bitte fragen Sie uns.'
+            }}
+          </p>
+          <div class="bike-grid">
+            <ng-container *ngFor="let bike of unspecifiedHeightBikes()">
+              <ng-container
+                *ngTemplateOutlet="bikeCardTpl; context: { $implicit: bike }"
+              ></ng-container>
+            </ng-container>
+          </div>
+        </div>
+
+        <div
+          *ngIf="
+            !loadingAvailableBikes() &&
+            effectiveRiderHeightCm() !== null &&
+            filteredBikes().length === 0 &&
+            unspecifiedHeightBikes().length === 0
+          "
+          class="no-bikes"
+        >
+          {{
+            t().rentalSteps?.noBikesForHeight ??
+              'Für diese Größe ist aktuell kein Rad hinterlegt.'
+          }}
         </div>
 
         <!-- Der Zurück-Knopf stand im Grid und wurde dadurch wie eine weitere
@@ -494,11 +615,14 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 <strong
                   >{{ t().rentalSteps?.totalRental ?? 'Mietbetrag' }}:</strong
                 >
-                €{{ calculatePrice(selectedBike()!, daysCount()) }}
+                {{ formatPrice(calculatePrice(selectedBike()!, daysCount())) }}
               </p>
-              <p class="deposit-info">
+              <p
+                class="deposit-info"
+                *ngIf="depositOf(selectedBike()) !== null"
+              >
                 <strong>{{ t().rentalSteps?.deposit ?? 'Kaution' }}:</strong>
-                €{{ selectedBike()!.kaution || 300 }}
+                {{ formatPrice(depositOf(selectedBike())) }}
               </p>
             </div>
           </div>
@@ -535,14 +659,16 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           <ul class="cart-list">
             <li *ngFor="let item of cartBikes()" class="cart-list-item">
               <span>{{ item.bike.marke }} {{ item.bike.modell }}</span>
-              <span class="item-price">€{{ item.calculatedPrice }}</span>
+              <span class="item-price">{{
+                formatPrice(item.calculatedPrice)
+              }}</span>
             </li>
           </ul>
           <p class="cart-total">
             <strong
               >{{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:</strong
             >
-            €{{ getTotalPrice() }}
+            {{ formatPrice(getTotalPrice()) }}
           </p>
         </div>
 
@@ -604,14 +730,14 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               <p class="accessory-price">
                 <ng-container *ngIf="acc.tagespreis > 0; else accFree">
                   <ng-container *ngIf="acc.einmalig; else accPerDay">
-                    €{{ acc.tagespreis }}
+                    {{ formatPrice(acc.tagespreis) }}
                     {{ t().rentalSteps?.accessoryOneTime ?? 'einmalig' }}
                     <span class="accessory-only-if-used">
                       ({{ t().rentalSteps?.accessoryOnlyIfUsed ?? 'nur bei Verbrauch' }})
                     </span>
                   </ng-container>
                   <ng-template #accPerDay>
-                    €{{ acc.tagespreis }} /
+                    {{ formatPrice(acc.tagespreis) }} /
                     {{ t().rentalSteps?.day ?? 'Tag' }}
                   </ng-template>
                 </ng-container>
@@ -645,7 +771,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           <span
             >{{ t().rentalSteps?.accessoryTotal ?? 'Zubehör gesamt' }}:</span
           >
-          <strong>€{{ accessoryTotal() }}</strong>
+          <strong>{{ formatPrice(accessoryTotal()) }}</strong>
         </div>
 
         <div class="accessory-actions">
@@ -680,7 +806,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               </p>
             </div>
             <div class="item-price">
-              <p>€{{ item.calculatedPrice }}</p>
+              <p>{{ formatPrice(item.calculatedPrice) }}</p>
               <button (click)="removeFromCart(item)" class="btn-remove">
                 ×
               </button>
@@ -860,9 +986,8 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               {{ item.rahmennummer }}
             </p>
             <p class="price">
-              {{ t().rentalSteps?.priceLabel ?? 'Preis' }}: €{{
-                item.calculatedPrice
-              }}
+              {{ t().rentalSteps?.priceLabel ?? 'Preis' }}:
+              {{ formatPrice(item.calculatedPrice) }}
             </p>
           </div>
         </div>
@@ -879,13 +1004,14 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             <p class="price">
               <ng-container *ngIf="sel.accessory.tagespreis > 0; else selFree">
                 <ng-container *ngIf="sel.accessory.einmalig; else selPerDay">
-                  €{{ sel.accessory.tagespreis }}
+                  {{ formatPrice(sel.accessory.tagespreis) }}
                   {{ t().rentalSteps?.accessoryOneTime ?? 'einmalig' }} –
                   {{ t().rentalSteps?.accessoryOnlyIfUsed ?? 'nur bei Verbrauch' }}
                 </ng-container>
                 <ng-template #selPerDay>
-                  €{{ sel.accessory.tagespreis }} × {{ daysCount() }}
-                  {{ t().rentalSteps?.days ?? 'Tage' }} = €{{ sel.lineTotal }}
+                  {{ formatPrice(sel.accessory.tagespreis) }} ×
+                  {{ daysCount() }} {{ t().rentalSteps?.days ?? 'Tage' }} =
+                  {{ formatPrice(sel.lineTotal) }}
                 </ng-template>
               </ng-container>
               <ng-template #selFree>{{
@@ -916,15 +1042,15 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           <h3>{{ t().rentalSteps?.priceSummary ?? 'Preisübersicht' }}:</h3>
           <p *ngIf="accessoryTotal() > 0">
             {{ t().rentalSteps?.accessoryTotal ?? 'Zubehör gesamt' }}:
-            <strong>€{{ accessoryTotal() }}</strong>
+            <strong>{{ formatPrice(accessoryTotal()) }}</strong>
           </p>
           <p>
             {{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:
-            <strong>€{{ getTotalPrice() }}</strong>
+            <strong>{{ formatPrice(getTotalPrice()) }}</strong>
           </p>
-          <p>
+          <p *ngIf="hasKnownDeposit()">
             {{ t().rentalSteps?.totalDeposit ?? 'Gesamtkaution' }}:
-            <strong>€{{ getTotalDeposit() }}</strong>
+            <strong>{{ formatPrice(getTotalDeposit()) }}</strong>
           </p>
           <p class="info-note">
             {{
@@ -1001,6 +1127,60 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           >
           {{ bookingNumber() }}
         </p>
+
+        <p class="success-confirmed-note">
+          {{
+            t().rentalSteps?.bookingConfirmedNote ??
+              'Ihre Buchung ist bereits bestätigt – eine weitere Freigabe ist nicht nötig.'
+          }}
+        </p>
+
+        <div class="success-actions">
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="addBookingToCalendar()"
+          >
+            {{ t().rentalSteps?.addToCalendar ?? 'Zum Kalender hinzufügen' }}
+          </button>
+        </div>
+
+        <!-- Weg zum Laden: Adresse/Telefon kommen aus ShopInfoService, nicht
+             hartcodiert — auf dem Server (SSR) ist der Wert beim ersten Render
+             noch leer und erscheint sobald der Browser ihn nachgeladen hat. -->
+        <div class="directions-block" *ngIf="shopAddress()">
+          <h3>{{ t().rentalSteps?.directionsTitle ?? 'Weg zum Laden' }}</h3>
+          <p class="directions-address">{{ shopAddress() }}</p>
+          <p class="directions-links">
+            <a
+              *ngIf="mapsUrl()"
+              [href]="mapsUrl()"
+              target="_blank"
+              rel="noopener"
+              class="directions-link"
+            >
+              {{ t().rentalSteps?.showOnMap ?? 'Route anzeigen' }}
+            </a>
+            <a *ngIf="shopPhone()" [href]="telHref()" class="directions-link">
+              {{ shopPhone() }}
+            </a>
+          </p>
+        </div>
+
+        <p class="manage-booking-note">
+          {{
+            t().rentalSteps?.manageBookingNote ??
+              'Sie möchten etwas ändern oder stornieren? Nutzen Sie dazu den Link in der Bestätigungsmail oder verwalten Sie Ihre Buchung online.'
+          }}
+          <a
+            [routerLink]="manageBookingHref()"
+            (click)="handOffBookingToManagePage()"
+            class="manage-booking-link"
+          >
+            {{ t().rentalSteps?.manageBookingLinkText ?? 'Buchung verwalten' }}
+          </a>
+        </p>
+
         <button (click)="startNewBooking()" class="btn-primary">
           {{ t().rentalSteps?.newBooking ?? 'Neue Buchung' }}
         </button>
@@ -1630,6 +1810,64 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         opacity: 0.7;
       }
 
+      /* ── Körpergrößen-Eingabe (ersetzt die früheren Stufen-Chips) ── */
+      .height-filter-input {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+      .height-input {
+        width: 5.5rem;
+        padding: 0.45rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid var(--rb-border);
+        background: transparent;
+        color: inherit;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-align: center;
+        font-family: inherit;
+      }
+      .height-input:focus-visible {
+        outline: none;
+        border-color: var(--rb-accent);
+      }
+      /* Klar erkennbarer Weg zurück zu "alle Größen" — kein verstecktes X im Input. */
+      .height-reset {
+        background: none;
+        border: none;
+        padding: 0;
+        color: var(--rb-accent);
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      .height-reset:hover {
+        opacity: 0.8;
+      }
+      .height-match-count {
+        font-size: 0.82rem;
+        color: var(--rb-text-muted, #6b7280);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      /* Räder ohne gepflegte Körpergröße: eigene Gruppe statt stillem
+         Ausblenden — sichtbar abgesetzt unterhalb der Treffer. */
+      .unspecified-height-block {
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px dashed var(--rb-border);
+      }
+      .unspecified-height-note {
+        font-size: 0.82rem;
+        color: var(--rb-text-muted, #6b7280);
+        margin: 0 0 0.75rem;
+      }
+
       .selection-actions {
         display: flex;
         justify-content: center;
@@ -2198,6 +2436,74 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         font-size: 1.05rem;
       }
 
+      .success-confirmed-note {
+        color: #64d68a !important;
+        font-weight: 600;
+        font-size: 0.95rem !important;
+      }
+
+      .success-actions {
+        display: flex;
+        justify-content: center;
+        margin: 1.25rem 0;
+      }
+
+      .success-actions .btn-secondary {
+        flex: none;
+        min-width: 220px;
+      }
+
+      .directions-block {
+        margin: 1.5rem auto;
+        max-width: 420px;
+        padding: 1.25rem 1.5rem;
+        border-radius: 12px;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
+        text-align: left;
+      }
+
+      .directions-block h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.05rem;
+      }
+
+      .directions-address {
+        margin: 0 0 0.75rem !important;
+        font-size: 0.95rem !important;
+      }
+
+      .directions-links {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin: 0 !important;
+      }
+
+      .directions-link {
+        color: var(--rb-accent);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        font-weight: 600;
+        font-size: 0.9rem !important;
+      }
+
+      .manage-booking-note {
+        font-size: 0.88rem !important;
+        color: var(--rb-text-soft) !important;
+        max-width: 480px;
+        margin: 1.5rem auto !important;
+        line-height: 1.5;
+      }
+
+      .manage-booking-link {
+        color: var(--rb-accent);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
       .loading,
       .no-bikes {
         text-align: center;
@@ -2213,6 +2519,17 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         border-radius: 6px;
         margin: 1rem 0;
         border-left: 4px solid #ef4444;
+      }
+
+      /* Kein Fehler des Gastes, sondern eine überholte Auswahl — deshalb
+         Bernstein statt Rot. */
+      .conflict-notice {
+        background: rgba(245, 158, 11, 0.12);
+        color: #fde68a;
+        padding: 1rem;
+        border-radius: 6px;
+        margin: 1rem 0;
+        border-left: 4px solid #f59e0b;
       }
 
       .terms-acceptance {
@@ -2400,6 +2717,23 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           margin-top: 0.5rem;
         }
 
+        /* 375px-Handy: Eingabe, Zurücksetzen-Link und Trefferzahl bleiben in
+           einer Zeile lesbar statt breit umzubrechen. */
+        .height-filter-input {
+          gap: 0.4rem 0.6rem;
+        }
+
+        .height-input {
+          width: 4.2rem;
+          padding: 0.3rem 0.5rem;
+          font-size: 0.82rem;
+        }
+
+        .height-reset,
+        .height-match-count {
+          font-size: 0.72rem;
+        }
+
         .date-range-display {
           font-size: 0.78rem;
           margin: 0.3rem 0 0;
@@ -2444,13 +2778,63 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 export class RentalBookingStepsComponent implements OnInit {
   private apiService = inject(ApiService);
   private translationService = inject(TranslationService);
+  private shopInfoService = inject(ShopInfoService);
   private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private document = inject(DOCUMENT);
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+
+  // ── Erfolgsseite: Weg zum Laden ──
+  // ShopInfoService cacht die Stammdaten des Ladens (Adresse/Telefon kommen
+  // aus dem Backend, nicht hartcodiert). Beim SSR-Rendern ist der Wert noch
+  // leer (die Service-Konstruktion überspringt den Remote-Call serverseitig);
+  // im Browser füllt sich das Signal kurz nach dem Laden nach.
+  private shopInfo = this.shopInfoService.shopInfo;
+
+  shopAddress = computed(() => {
+    const info = this.shopInfo();
+    if (!info) return '';
+    const line1 = [info.strasse, info.hausnummer].filter(Boolean).join(' ');
+    const line2 = [info.plz, info.stadt].filter(Boolean).join(' ');
+    return [line1, line2].filter(Boolean).join(', ');
+  });
+
+  mapsUrl = computed(() => {
+    const address = this.shopAddress();
+    if (!address) return '';
+    return (
+      'https://www.google.com/maps/search/?api=1&query=' +
+      encodeURIComponent(address)
+    );
+  });
+
+  shopPhone = computed(() => this.shopInfo()?.telefon ?? '');
+
+  telHref = computed(() => {
+    const phone = this.shopPhone();
+    return phone ? `tel:${phone.replace(/[^0-9+]/g, '')}` : '';
+  });
+
+  /** Ziel des "Buchung verwalten"-Links auf der Erfolgsseite. */
+  manageBookingHref(): string {
+    return getBookingManagePath(this.lang());
+  }
+
+  /**
+   * Füllt das Formular der Seite "Buchung verwalten" vor, ohne Buchungsnummer
+   * und E-Mail in die URL zu schreiben — die stünden sonst im Browserverlauf und
+   * in jedem geteilten Link. Läuft synchron vor der Navigation des routerLink.
+   */
+  handOffBookingToManagePage(): void {
+    storeBookingHandoff({
+      bookingNumber: this.bookingNumber(),
+      email: this.bookingForm.email,
+    });
+  }
 
   currentStep = signal<BookingStep>('date-selection');
   indicatorIndex = computed(() => INDICATOR_INDEX[this.currentStep()]);
@@ -2579,68 +2963,84 @@ export class RentalBookingStepsComponent implements OnInit {
     );
   });
 
-  /** Aktive Körpergrößen-Stufe im Auswahlschritt ("all" = keine). */
-  bikeHeightFilter = signal<string>('all');
+  /**
+   * Eingegebene Körpergröße des Gasts in cm ("Wie groß sind Sie?"); `null` =
+   * kein Filter. Freie Zahleneingabe statt fester Chips-Stufen, weil das für
+   * Gäste die natürlichere Frage ist — die Zuordnung Rad→Bereich über
+   * koerpergroesseVonCm/koerpergroesseBisCm bleibt intern unverändert.
+   */
+  riderHeightInput = signal<number | null>(null);
+
+  /** Plausible Grenzen für die Eingabe; auch im Template für [min]/[max] gebraucht. */
+  readonly RIDER_HEIGHT_MIN = 100;
+  readonly RIDER_HEIGHT_MAX = 220;
 
   /**
-   * Feste Stufen in 10-cm-Schritten. Fest verdrahtet, weil die gepflegten
-   * Bereiche pro Rad ("165–180 cm") sonst zu einer Chip-Zeile aus lauter
-   * Einzelfällen würden; angezeigt wird ohnehin nur, was besetzt ist.
+   * Wirksame Körpergröße: alles außerhalb des plausiblen Bereichs zählt als
+   * "kein Filter". Beim Tippen von "170" steht zwischendurch "1" und "17" im
+   * Feld — geklemmt würde daraus kurz ein Filter auf 100 cm und das Raster
+   * sprang auf Kinderräder. Ebenso greift der Filter nicht, wenn die
+   * Eingabezeile gar nicht sichtbar ist (kein Rad im aktuellen Typ-Filter hat
+   * eine gepflegte Größe): ein unsichtbarer Filter, den niemand zurücksetzen
+   * kann, wäre schlimmer als keiner.
    */
-  private static readonly HEIGHT_STEPS: ReadonlyArray<{
-    key: string;
-    label: string;
-    from: number;
-    to: number;
-  }> = [
-    { key: 'lt150', label: '< 150', from: 0, to: 150 },
-    { key: '150-160', label: '150–160', from: 150, to: 160 },
-    { key: '160-170', label: '160–170', from: 160, to: 170 },
-    { key: '170-180', label: '170–180', from: 170, to: 180 },
-    { key: '180-190', label: '180–190', from: 180, to: 190 },
-    { key: 'gte190', label: '≥ 190', from: 190, to: 999 },
-  ];
+  effectiveRiderHeightCm = computed(() => {
+    const raw = this.riderHeightInput();
+    if (raw === null || Number.isNaN(raw)) return null;
+    if (raw < this.RIDER_HEIGHT_MIN || raw > this.RIDER_HEIGHT_MAX) return null;
+    return this.hasHeightData() ? raw : null;
+  });
 
   /**
-   * Ein Rad passt zu einer Stufe, wenn sich sein empfohlener Bereich mit ihr
-   * überschneidet — ein Rad für 165–180 cm steht also unter "160–170" und unter
-   * "170–180". Räder ohne gepflegte Körpergröße lassen sich nicht zuordnen und
-   * bleiben deshalb nur unter "Alle" sichtbar.
+   * Ob im aktuellen Typ-Filter überhaupt Räder mit gepflegter Körpergröße
+   * stehen — ohne das bleibt die Eingabezeile ganz weg statt einen Filter
+   * anzubieten, der nirgends greift.
    */
-  private matchesHeightStep(
-    bike: PublicRentalBicycle,
-    step: { from: number; to: number },
-  ): boolean {
+  hasHeightData = computed(() =>
+    this.typeFilteredBikes().some(
+      (bike) => bike.koerpergroesseVonCm != null || bike.koerpergroesseBisCm != null,
+    ),
+  );
+
+  /**
+   * Passt ein Rad zur eingegebenen Größe? Ist nur eine Grenze gepflegt, gilt
+   * die offene Seite als passend (z.B. nur "ab 165 cm" gepflegt → auch für
+   * 210 cm ein Treffer).
+   */
+  private matchesRiderHeight(bike: PublicRentalBicycle, heightCm: number): boolean {
     const from = bike.koerpergroesseVonCm ?? null;
     const to = bike.koerpergroesseBisCm ?? null;
-    if (from === null && to === null) return false;
-    return (from ?? 0) < step.to && (to ?? 999) > step.from;
+    if (from !== null && heightCm < from) return false;
+    if (to !== null && heightCm > to) return false;
+    return true;
   }
 
-  heightGroups = computed(() => {
-    const bikes = this.typeFilteredBikes();
-    return RentalBookingStepsComponent.HEIGHT_STEPS.map((step) => ({
-      key: step.key,
-      label: step.label,
-      count: bikes.filter((bike) => this.matchesHeightStep(bike, step)).length,
-    })).filter((group) => group.count > 0);
-  });
-
-  effectiveHeightFilter = computed(() => {
-    const key = this.bikeHeightFilter();
-    if (key === 'all') return 'all';
-    return this.heightGroups().some((group) => group.key === key) ? key : 'all';
-  });
-
+  /**
+   * Treffer für die eingegebene Größe. Räder ohne jede gepflegte Angabe
+   * gehören NICHT hierher — sie würden sonst bei jeder Eingabe unsichtbar aus
+   * dem Bestand verschwinden. Sie stehen separat in `unspecifiedHeightBikes`.
+   */
   filteredBikes = computed(() => {
-    const filter = this.effectiveHeightFilter();
-    if (filter === 'all') return this.typeFilteredBikes();
-    const step = RentalBookingStepsComponent.HEIGHT_STEPS.find(
-      (candidate) => candidate.key === filter,
+    const height = this.effectiveRiderHeightCm();
+    const bikes = this.typeFilteredBikes();
+    if (height === null) return bikes;
+    return bikes.filter(
+      (bike) =>
+        (bike.koerpergroesseVonCm != null || bike.koerpergroesseBisCm != null) &&
+        this.matchesRiderHeight(bike, height),
     );
-    if (!step) return this.typeFilteredBikes();
-    return this.typeFilteredBikes().filter((bike) =>
-      this.matchesHeightStep(bike, step),
+  });
+
+  /**
+   * Räder ohne gepflegte Körpergröße: nur relevant, solange eine Größe
+   * eingegeben ist. Statt sie mit den anderen Nicht-Treffern verschwinden zu
+   * lassen, tauchen sie hinter den Treffern in einer eigenen Gruppe auf — das
+   * versteckt keinen Bestand.
+   */
+  unspecifiedHeightBikes = computed(() => {
+    if (this.effectiveRiderHeightCm() === null) return [];
+    return this.typeFilteredBikes().filter(
+      (bike) => bike.koerpergroesseVonCm == null && bike.koerpergroesseBisCm == null,
     );
   });
 
@@ -2697,11 +3097,16 @@ export class RentalBookingStepsComponent implements OnInit {
 
   dateRangeError = signal('');
   bookingError = signal('');
+  /**
+   * Hinweis über dem Fahrradraster, wenn das Absenden an der Verfügbarkeit
+   * gescheitert ist — jemand war im gleichen Zeitraum schneller.
+   */
+  conflictNotice = signal('');
   isSubmitting = signal(false);
   bookingNumber = signal('');
   termsAccepted = signal(false);
 
-  bookingForm = {
+  bookingForm: BookingFormValues = {
     vorname: '',
     nachname: '',
     email: '',
@@ -2720,7 +3125,22 @@ export class RentalBookingStepsComponent implements OnInit {
   // break), Sat 11:00–18:00, Sun closed. Last pickup is 17:30 (return by 18:00).
   abholzeitSlots(): string[] {
     if (!this.selectedStartDate) return [];
-    const day = new Date(`${this.selectedStartDate}T00:00:00`).getDay();
+    return this.slotsForDateKey(this.selectedStartDate);
+  }
+
+  /**
+   * Vorlauf für eine Abholung am selben Tag: Zeiten, die weniger als eine halbe
+   * Stunde entfernt sind, stehen nicht mehr zur Wahl.
+   */
+  private static readonly SAME_DAY_LEAD_MINUTES = 30;
+
+  /**
+   * Abholzeiten eines konkreten Tages. Am laufenden Tag bleiben nur Zeiten
+   * stehen, die noch kommen — ohne diesen Filter liess sich um 17:00 Uhr noch
+   * eine Abholung um 10:00 Uhr desselben Tages buchen.
+   */
+  private slotsForDateKey(dateKey: string): string[] {
+    const day = new Date(`${dateKey}T00:00:00`).getDay();
     const slots: string[] = [];
     const push = (fromH: number, fromM: number, toH: number, toM: number) => {
       for (let t = fromH * 60 + fromM; t <= toH * 60 + toM; t += 30) {
@@ -2739,7 +3159,17 @@ export class RentalBookingStepsComponent implements OnInit {
     } else if (day === 6) {
       push(11, 0, 17, 30); // Sat
     }
-    return slots;
+    if (dateKey !== this.formatDateKey(new Date())) return slots;
+
+    const now = new Date();
+    const earliest =
+      now.getHours() * 60 +
+      now.getMinutes() +
+      RentalBookingStepsComponent.SAME_DAY_LEAD_MINUTES;
+    return slots.filter((slot) => {
+      const [hours, minutes] = slot.split(':').map(Number);
+      return hours * 60 + minutes >= earliest;
+    });
   }
 
   // Plain method, NOT computed(): selectedStart/EndDate are not signals, so a
@@ -2884,9 +3314,15 @@ export class RentalBookingStepsComponent implements OnInit {
 
   isSelectableCalendarDay(date: Date): boolean {
     const normalized = this.normalizeDate(date);
-    return (
-      normalized >= this.getMinSelectableDate() && !this.isClosedDay(normalized)
-    );
+    if (normalized < this.getMinSelectableDate()) return false;
+    if (this.isClosedDay(normalized)) return false;
+    // Heute fällt aus der Auswahl, sobald keine Abholzeit mehr übrig ist. Sonst
+    // merkt der Gast erst im Formular, dass für heute nichts mehr geht — nach
+    // vier Schritten Aufwand.
+    if (this.isToday(normalized)) {
+      return this.slotsForDateKey(this.formatDateKey(normalized)).length > 0;
+    }
+    return true;
   }
 
   selectCalendarDay(date: Date): void {
@@ -2974,15 +3410,169 @@ export class RentalBookingStepsComponent implements OnInit {
       this.cartBikes().length === 0 &&
       !this.bookingNumber();
 
+    if (isPlatformBrowser(this.platformId)) {
+      this.watchForPageLeave();
+    }
+
     if (wantsDeepLink) {
       // Came from the fleet/detail page with dates + a chosen bike: pre-fill the
       // cart so the flow resolves straight to the requested step (choose-next).
       this.applyDeepLink(start!, end!, Number(bikeId), () =>
         this.listenToStepParam(),
       );
-    } else {
-      this.listenToStepParam();
+      return;
     }
+
+    const draft = this.readDraft();
+    if (draft) {
+      this.applyDraft(draft, () => this.listenToStepParam());
+      return;
+    }
+
+    this.listenToStepParam();
+  }
+
+  /**
+   * Sichert den Zwischenstand, wenn die Seite in den Hintergrund geht oder
+   * verlassen wird. Deckt genau den häufigen Fall ab: mitten im Formular kurz in
+   * eine andere App wechseln, um die Adresse nachzusehen.
+   */
+  private watchForPageLeave(): void {
+    const save = () => this.saveDraft();
+    const onVisibility = () => {
+      if (this.document.visibilityState === 'hidden') save();
+    };
+    this.document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('pagehide', save);
+    this.destroyRef.onDestroy(() => {
+      this.document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('pagehide', save);
+    });
+  }
+
+  /** Schreibt den Zwischenstand; ohne Zeitraum gibt es nichts zu merken. */
+  private saveDraft(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (this.bookingNumber()) return;
+    if (!this.selectedStartDate || !this.selectedEndDate) {
+      this.clearDraft();
+      return;
+    }
+    const draft: BookingDraft = {
+      version: 1,
+      savedAt: Date.now(),
+      startDate: this.selectedStartDate,
+      endDate: this.selectedEndDate,
+      entries: this.cartBikes().map((item) => ({
+        bicycleId: item.bike.id,
+        rahmennummer: item.rahmennummer,
+        farbe: item.farbe,
+      })),
+      selectedBikeId: this.selectedBike()?.id ?? null,
+      accessoryQtys: this.accessoryQtys(),
+      form: { ...this.bookingForm },
+      riderHeightCm: this.riderHeightInput(),
+    };
+    try {
+      sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+    } catch {
+      // Privater Modus oder voller Speicher: der Entwurf ist Komfort, kein Muss.
+    }
+  }
+
+  private clearDraft(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      // s. saveDraft
+    }
+  }
+
+  /** Liest den Entwurf und verwirft ihn, wenn er nicht mehr taugt. */
+  private readDraft(): BookingDraft | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
+    let raw: string | null = null;
+    try {
+      raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+    if (!raw) return null;
+
+    try {
+      const draft = JSON.parse(raw) as BookingDraft;
+      const usable =
+        draft?.version === 1 &&
+        Date.now() - (draft.savedAt ?? 0) < DRAFT_MAX_AGE_MS &&
+        !!draft.startDate &&
+        !!draft.endDate &&
+        // Ein Zeitraum, der inzwischen in der Vergangenheit liegt oder in eine
+        // Betriebsferien fällt, darf nicht zurückkommen.
+        draft.startDate >= this.formatDateKey(this.getMinSelectableDate()) &&
+        !rangeOverlapsClosure(draft.startDate, draft.endDate);
+      if (!usable) {
+        this.clearDraft();
+        return null;
+      }
+      return draft;
+    } catch {
+      this.clearDraft();
+      return null;
+    }
+  }
+
+  /** Stellt einen Zwischenstand wieder her, dann läuft `done()`. */
+  private applyDraft(draft: BookingDraft, done: () => void): void {
+    this.selectedStartDate = draft.startDate;
+    this.selectedEndDate = draft.endDate;
+    const start = new Date(`${draft.startDate}T00:00:00`);
+    this.calendarMonth.set(new Date(start.getFullYear(), start.getMonth(), 1));
+    this.apiService
+      .getAvailableBikes(new Date(draft.startDate), new Date(draft.endDate))
+      .subscribe({
+        next: (bikes) => {
+          this.availableBikes.set(bikes);
+          this.bikesLoaded.set(true);
+          const byId = new Map(bikes.map((bike) => [bike.id, bike]));
+          const days = this.daysCount();
+          const restored: CartBike[] = [];
+          for (const entry of draft.entries ?? []) {
+            const bike = byId.get(entry.bicycleId);
+            // Nicht mehr frei: das Rad fällt heraus, der Rest bleibt stehen.
+            if (!bike) continue;
+            restored.push({
+              bike,
+              rahmennummer: entry.rahmennummer,
+              farbe: entry.farbe,
+              kaution: bike.kaution ?? undefined,
+              calculatedPrice: this.calculatePrice(bike, days),
+            });
+          }
+          this.cartBikes.set(restored);
+          if (restored.length < (draft.entries?.length ?? 0)) {
+            this.conflictNotice.set(
+              this.t().rentalSteps?.bookingConflict ??
+                'Eines Ihrer Fahrräder wurde zwischenzeitlich gebucht. Die Verfügbarkeit ist aktualisiert — bitte wählen Sie erneut.',
+            );
+          }
+          this.selectedBike.set(
+            draft.selectedBikeId != null
+              ? (byId.get(draft.selectedBikeId) ?? null)
+              : null,
+          );
+          this.accessoryQtys.set(draft.accessoryQtys ?? {});
+          this.bookingForm = { ...this.bookingForm, ...draft.form };
+          this.riderHeightInput.set(draft.riderHeightCm ?? null);
+          // Der Zubehör-Katalog wird sonst erst im Zubehör-Schritt geladen —
+          // ohne ihn stünden die gemerkten Mengen in der Übersicht nicht drin.
+          if (Object.keys(this.accessoryQtys()).length > 0) {
+            this.loadAccessories();
+          }
+          done();
+        },
+        error: () => done(),
+      });
   }
 
   /** Pre-populates dates + cart from a deep link, then runs `done()`. */
@@ -3014,7 +3604,7 @@ export class RentalBookingStepsComponent implements OnInit {
             this.cartBikes.set([
               {
                 bike,
-                kaution: bike.kaution || 300,
+                kaution: bike.kaution ?? undefined,
                 calculatedPrice: this.calculatePrice(bike, this.daysCount()),
               },
             ]);
@@ -3094,6 +3684,7 @@ export class RentalBookingStepsComponent implements OnInit {
 
   proceedToBikeSelection(): void {
     this.dateRangeError.set('');
+    this.conflictNotice.set('');
 
     if (!this.selectedStartDate || !this.selectedEndDate) {
       this.dateRangeError.set(
@@ -3143,6 +3734,7 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   selectBikeForDetails(bike: PublicRentalBicycle): void {
+    this.conflictNotice.set('');
     this.selectedBike.set(bike);
     this.currentImageIndex.set(0);
     this.selectedBikeColor = '';
@@ -3158,7 +3750,7 @@ export class RentalBookingStepsComponent implements OnInit {
       bike: this.selectedBike()!,
       rahmennummer: this.selectedBikeFrameNumber || undefined,
       farbe: this.selectedBikeColor || undefined,
-      kaution: this.selectedBike()!.kaution || 300,
+      kaution: this.selectedBike()!.kaution ?? undefined,
       calculatedPrice: price,
     };
 
@@ -3168,6 +3760,7 @@ export class RentalBookingStepsComponent implements OnInit {
 
   removeFromCart(item: CartBike): void {
     this.cartBikes.update((items) => items.filter((i) => i !== item));
+    this.saveDraft();
   }
 
   calculatePrice(bike: PublicRentalBicycle, days: number): number {
@@ -3207,6 +3800,7 @@ export class RentalBookingStepsComponent implements OnInit {
     const map = { ...this.accessoryQtys() };
     map[id] = (map[id] ?? 0) + 1;
     this.accessoryQtys.set(map);
+    this.saveDraft();
   }
 
   decAccessory(id: number): void {
@@ -3215,6 +3809,7 @@ export class RentalBookingStepsComponent implements OnInit {
     if (next <= 0) delete map[id];
     else map[id] = next;
     this.accessoryQtys.set(map);
+    this.saveDraft();
   }
 
   /**
@@ -3277,11 +3872,25 @@ export class RentalBookingStepsComponent implements OnInit {
     });
   }
 
+  /**
+   * Kaution eines Rades, so wie sie im Bestand gepflegt ist — oder null, wenn
+   * dort keine steht. Vorher stand hier ein fest verdrahteter Ersatzwert von
+   * 300 €: der wurde dem Kunden angezeigt und mit der Buchung gespeichert,
+   * obwohl ihn niemand gepflegt hatte. Ohne Angabe wird die Kaution jetzt
+   * lieber nicht genannt — verbindlich ist der Wert aus dem Bestand, den der
+   * Server ohnehin selbst einsetzt.
+   */
+  depositOf(bike: PublicRentalBicycle | null | undefined): number | null {
+    return bike?.kaution ?? null;
+  }
+
+  /** True, sobald für mindestens ein Rad im Warenkorb eine Kaution gepflegt ist. */
+  hasKnownDeposit(): boolean {
+    return this.cartBikes().some((item) => item.kaution != null);
+  }
+
   getTotalDeposit(): number {
-    return this.cartBikes().reduce(
-      (sum, item) => sum + (item.kaution || 300),
-      0,
-    );
+    return this.cartBikes().reduce((sum, item) => sum + (item.kaution ?? 0), 0);
   }
 
   submitBooking(): void {
@@ -3299,7 +3908,9 @@ export class RentalBookingStepsComponent implements OnInit {
       endDatum: this.selectedEndDate,
       rahmennummer: item.rahmennummer,
       farbe: item.farbe,
-      kaution: item.kaution,
+      // Kaution bewusst nicht mitsenden: verbindlich ist der Wert aus dem
+      // Bestand, den der Server selbst einsetzt. Sonst entscheidet der Client
+      // darüber, was später im Vertrag steht.
     }));
 
     const accessories: RentalBookingAccessoryCreate[] =
@@ -3328,17 +3939,76 @@ export class RentalBookingStepsComponent implements OnInit {
       next: (response) => {
         this.bookingNumber.set(response.buchungsNummer);
         this.isSubmitting.set(false);
+        // Gebucht ist gebucht: der Entwurf darf nicht liegenbleiben, sonst käme
+        // die Buchung beim nächsten Aufruf der Seite wieder hoch.
+        this.clearDraft();
         this.goToStep('success');
       },
-      error: () => {
+      error: (err: unknown) => {
+        this.isSubmitting.set(false);
+        // 409 = der Zeitraum ist inzwischen belegt, 404 = das Rad oder ein
+        // Zubehör gibt es nicht mehr. Beides ist kein Formularfehler, sondern
+        // eine überholte Verfügbarkeit: neu laden, die vergriffenen Räder aus
+        // der Buchung nehmen und zurück in die Auswahl — mit Begründung. Vorher
+        // stand hier für jeden Fehler dieselbe Meldung, und der Gast blieb mit
+        // einem ausgefüllten Formular stehen, ohne zu wissen, was fehlt.
+        const status = (err as HttpErrorResponse)?.status;
+        if (status === 409 || status === 404) {
+          this.recoverFromStaleAvailability();
+          return;
+        }
         this.bookingError.set(
           this.t().rentalSteps?.bookingError ??
             'Fehler beim Erstellen der Buchung',
         );
-        this.isSubmitting.set(false);
         this.goToStep('review');
       },
     });
+  }
+
+  /**
+   * Holt die Verfügbarkeit für den gewählten Zeitraum neu, wirft die inzwischen
+   * vergriffenen Räder aus der Buchung und schickt den Gast in die Auswahl
+   * zurück. Kinderräder sind gepoolte Anzeigen und bleiben immer buchbar, sie
+   * fallen also nie heraus.
+   */
+  private recoverFromStaleAvailability(): void {
+    this.bookingError.set('');
+    this.conflictNotice.set(
+      this.t().rentalSteps?.bookingConflict ??
+        'Eines Ihrer Fahrräder wurde zwischenzeitlich gebucht. Die Verfügbarkeit ist aktualisiert — bitte wählen Sie erneut.',
+    );
+    this.loadingAvailableBikes.set(true);
+    this.apiService
+      .getAvailableBikes(
+        new Date(this.selectedStartDate),
+        new Date(this.selectedEndDate),
+      )
+      .subscribe({
+        next: (bikes) => {
+          this.availableBikes.set(bikes);
+          this.bikesLoaded.set(true);
+          this.loadingAvailableBikes.set(false);
+          const stillFree = new Set(bikes.map((bike) => bike.id));
+          this.cartBikes.update((items) =>
+            items.filter(
+              (item) =>
+                stillFree.has(item.bike.id) || this.isChildrensBike(item.bike),
+            ),
+          );
+          this.goToStep('bike-selection');
+        },
+        error: () => {
+          // Auch das Nachladen scheitert: dann bleibt nur die allgemeine
+          // Meldung, damit der Gast nicht auf einem leeren Raster landet.
+          this.loadingAvailableBikes.set(false);
+          this.conflictNotice.set('');
+          this.bookingError.set(
+            this.t().rentalSteps?.bookingError ??
+              'Fehler beim Erstellen der Buchung',
+          );
+        },
+      });
   }
 
   validateForm(): boolean {
@@ -3412,6 +4082,7 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   startNewBooking(): void {
+    this.clearDraft();
     this.selectedStartDate = '';
     this.selectedEndDate = '';
     this.selectedBike.set(null);
@@ -3419,6 +4090,8 @@ export class RentalBookingStepsComponent implements OnInit {
     this.bookingNumber.set('');
     this.bikesLoaded.set(false);
     this.termsAccepted.set(false);
+    this.conflictNotice.set('');
+    this.bookingError.set('');
     this.bookingForm = {
       vorname: '',
       nachname: '',
@@ -3435,7 +4108,136 @@ export class RentalBookingStepsComponent implements OnInit {
     this.goToStep('date-selection');
   }
 
+  // ── Erfolgsseite: Kalendereintrag (.ics) ──
+  // Selbst zusammengesetzt statt einer Bibliothek. Läuft ausschließlich im
+  // Browser (Blob + Download-Link gibt es serverseitig nicht).
+
+  addBookingToCalendar(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const ics = this.buildIcsContent();
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = this.document.createElement('a');
+    link.href = url;
+    link.download = `bikehaus-buchung-${this.bookingNumber() || 'termin'}.ics`;
+    this.document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  private buildIcsContent(): string {
+    const pickup = this.bookingForm.abholzeit || '10:00';
+    const [pickupHours, pickupMinutes] = pickup
+      .split(':')
+      .map((part) => Number(part) || 0);
+
+    const start = new Date(`${this.selectedStartDate}T00:00:00`);
+    start.setHours(pickupHours, pickupMinutes, 0, 0);
+    // Ende = Start + Anzahl Miettage. So bleibt ein mehrtägiger Zeitraum auch
+    // im Kalender mehrtägig, statt nach 24 Stunden am Starttag zu enden.
+    const end = new Date(start);
+    end.setDate(end.getDate() + Math.max(1, this.daysCount()));
+
+    const steps = this.t().rentalSteps;
+    const bikeNames = this.cartBikes()
+      .map((item) => this.bikeLabel(item.bike))
+      .filter(Boolean)
+      .join(', ');
+    const address = this.shopAddress();
+
+    const summaryBase =
+      steps?.calendarEventTitle ?? 'Fahrradverleih BikeHaus Freiburg';
+    const summary = this.bookingNumber()
+      ? `${summaryBase} – ${this.bookingNumber()}`
+      : summaryBase;
+
+    const descriptionLines = [
+      bikeNames
+        ? `${steps?.bikeDetails ?? 'Fahrraddetails'}: ${bikeNames}`
+        : '',
+      `${steps?.pickupTime ?? 'Abholzeit'}: ${pickup} ${steps?.oClock ?? 'Uhr'}`.trim(),
+      this.bookingNumber()
+        ? `${steps?.bookingNumber ?? 'Buchungsnummer'}: ${this.bookingNumber()}`
+        : '',
+    ].filter(Boolean);
+
+    const uid = `${this.bookingNumber() || Date.now()}@bikehausfreiburg.com`;
+
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//BikeHaus Freiburg//Fahrradverleih//DE',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTAMP:${this.formatIcsUtcStamp(new Date())}`,
+      `DTSTART:${this.formatIcsLocalStamp(start)}`,
+      `DTEND:${this.formatIcsLocalStamp(end)}`,
+      `SUMMARY:${this.escapeIcsText(summary)}`,
+      `DESCRIPTION:${this.escapeIcsText(descriptionLines.join('\n'))}`,
+      address ? `LOCATION:${this.escapeIcsText(address)}` : '',
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].filter(Boolean);
+
+    return lines.map((line) => this.foldIcsLine(line)).join('\r\n') + '\r\n';
+  }
+
+  /** UTC-Zeitstempel für DTSTAMP, Format YYYYMMDDTHHMMSSZ. */
+  private formatIcsUtcStamp(date: Date): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return (
+      `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}` +
+      `T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`
+    );
+  }
+
+  /**
+   * Lokaler ("floating") Zeitstempel ohne Zeitzonen-Suffix, Format
+   * YYYYMMDDTHHMMSS. Ohne VTIMEZONE-Block interpretieren Kalender-Apps das als
+   * Wanduhrzeit am Ort des Betrachters — für ein Geschäft mit lokalem Publikum
+   * eine vertretbare Vereinfachung gegenüber einem vollständigen VTIMEZONE.
+   */
+  private formatIcsLocalStamp(date: Date): string {
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return (
+      `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}` +
+      `T${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`
+    );
+  }
+
+  /** Escaping nach RFC 5545 §3.3.11 für TEXT-Werte. */
+  private escapeIcsText(value: string): string {
+    return value
+      .replace(/\\/g, '\\\\')
+      .replace(/;/g, '\\;')
+      .replace(/,/g, '\\,')
+      .replace(/\r?\n/g, '\\n');
+  }
+
+  /**
+   * Zeilenumbruch nach RFC 5545 §3.1: Zeilen über 75 Zeichen werden gefaltet,
+   * Folgezeilen beginnen mit einem Leerzeichen. Zählt Zeichen statt Oktette —
+   * bei Umlauten in Adresse/Namen eine bewusste Vereinfachung ohne Bibliothek.
+   */
+  private foldIcsLine(line: string): string {
+    const maxLen = 75;
+    if (line.length <= maxLen) return line;
+    const parts: string[] = [line.slice(0, maxLen)];
+    let rest = line.slice(maxLen);
+    while (rest.length > 0) {
+      parts.push(` ${rest.slice(0, maxLen - 1)}`);
+      rest = rest.slice(maxLen - 1);
+    }
+    return parts.join('\r\n');
+  }
+
   goToStep(step: BookingStep): void {
+    // Jeder Schrittwechsel sichert den Zwischenstand — damit auch das, was im
+    // Formular schon eingetippt war, einen Reload übersteht.
+    this.saveDraft();
     if (isPlatformBrowser(this.platformId)) {
       // Push the step into the URL; the queryParamMap subscription applies it.
       // Router scrollPositionRestoration ('top') scrolls the page up so the

@@ -155,3 +155,41 @@ export function getRentalBookingPath(lang: string): string {
   return `/${lang}/${getRentalSlug(lang)}/${getRentalBookingSlug(lang)}`;
 }
 
+// ── Buchung verwalten (self-service view/cancel) — language-specific slugs ──
+// Eigenständige Seite außerhalb des Buchungsflows: Gast gibt Buchungsnummer und
+// E-Mail ein, sieht seine Buchung und kann sie stornieren. Ersetzt die bisher
+// vom API roh gerenderte HTML-Seite (PublicRentalsController, `bookings/cancel`).
+export const BOOKING_MANAGE_SLUG_BY_LANGUAGE: Record<
+  SupportedLanguageCode,
+  string
+> = {
+  de: 'buchung',
+  en: 'manage-booking',
+  fr: 'gerer-reservation',
+  tr: 'rezervasyonu-yonet',
+  es: 'gestionar-reserva',
+  it: 'gestisci-prenotazione',
+  ar: 'idarat-alhajz',
+  ru: 'upravlenie-bronirovaniem',
+  no: 'administrer-bestilling',
+  da: 'administrer-booking',
+  nl: 'boeking-beheren',
+  pl: 'zarzadzaj-rezerwacja',
+};
+
+export const BOOKING_MANAGE_SLUGS = new Set(
+  Object.values(BOOKING_MANAGE_SLUG_BY_LANGUAGE),
+);
+
+export function getBookingManageSlug(lang: string): string {
+  return (
+    BOOKING_MANAGE_SLUG_BY_LANGUAGE[lang as SupportedLanguageCode] ??
+    'buchung'
+  );
+}
+
+/** Absolute path of the booking self-service page, e.g. `/de/buchung`. */
+export function getBookingManagePath(lang: string): string {
+  return `/${lang}/${getBookingManageSlug(lang)}`;
+}
+

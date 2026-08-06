@@ -4,11 +4,13 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { TranslationService, Language } from './translation.service';
 import {
+  BOOKING_MANAGE_SLUGS,
   DEFAULT_LANGUAGE,
   OG_LOCALE_BY_LANGUAGE,
   RENTAL_BOOKING_SLUGS,
   RENTAL_PAGE_SLUGS,
   SUPPORTED_LANGUAGES,
+  getBookingManagePath,
   getLanguageDirection,
   getRentalBookingPath,
   getRentalSlug,
@@ -131,6 +133,23 @@ export class SeoService {
       this.addHreflangLink(
         'x-default',
         `${BASE_URL}${getRentalBookingPath(DEFAULT_LANGUAGE)}`,
+      );
+      this.updateMetaProperty('og:url', canonical.href);
+      return;
+    }
+
+    // ── Booking self-service page: /:lang/(buchung|manage-booking|...) ──
+    // Kein Teil des Buchungsflows, aber genauso transaktional/noindex: Gast
+    // sieht/storniert nur seine eigene Buchung. Hreflang/Canonical trotzdem
+    // korrekt, falls robots.txt/Meta einmal ignoriert werden.
+    if (pathSegments.length === 2 && BOOKING_MANAGE_SLUGS.has(pathSegments[1])) {
+      canonical.href = `${BASE_URL}${getBookingManagePath(currentLang)}`;
+      for (const lang of SUPPORTED_LANGUAGES) {
+        this.addHreflangLink(lang, `${BASE_URL}${getBookingManagePath(lang)}`);
+      }
+      this.addHreflangLink(
+        'x-default',
+        `${BASE_URL}${getBookingManagePath(DEFAULT_LANGUAGE)}`,
       );
       this.updateMetaProperty('og:url', canonical.href);
       return;
