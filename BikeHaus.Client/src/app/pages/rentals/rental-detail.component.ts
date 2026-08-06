@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ViewChild, ElementRef } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RentalService } from '../../services/rental.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
@@ -533,6 +534,11 @@ import {
         <div class="modal-header">
           <h3>{{ pdfPreviewTitle }}</h3>
           <div class="modal-header-actions">
+            <!-- Safari auf dem iPhone zeigt PDFs im eingebetteten Rahmen nicht
+                 zuverlässig; in einem eigenen Tab rendert es sie selbst. -->
+            <button class="btn btn-sm" (click)="openCurrentPdfInNewTab()">
+              ↗️ Öffnen
+            </button>
             <button class="btn btn-sm" (click)="downloadCurrentPdf()">
               📥 Download
             </button>
@@ -989,10 +995,14 @@ export class RentalDetailComponent implements OnInit {
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private dialogService = inject(DialogService);
+  private sanitizer = inject(DomSanitizer);
 
   rental: Rental | null = null;
   showPdfPreview = false;
-  pdfPreviewUrl: any = null;
+  /** Für das iframe: vom DomSanitizer freigegebener Blob-Link. */
+  pdfPreviewUrl: SafeResourceUrl | null = null;
+  /** Derselbe Link als Zeichenkette — zum Öffnen und zum Widerrufen. */
+  private pdfPreviewRawUrl: string | null = null;
   pdfPreviewTitle = '';
   private currentPdfBlob: Blob | null = null;
   private currentPdfFilename = '';
@@ -1356,11 +1366,11 @@ export class RentalDetailComponent implements OnInit {
     if (!this.rental) return;
     this.rentalService.downloadMietvertragPdf(this.rental.id).subscribe({
       next: (blob) => {
-        this.currentPdfBlob = blob;
-        this.currentPdfFilename = `Mietvertrag-${this.rental!.mietvertragNummer}.pdf`;
-        this.pdfPreviewUrl = URL.createObjectURL(blob);
-        this.pdfPreviewTitle = 'Mietvertrag';
-        this.showPdfPreview = true;
+        this.openPdfPreview(
+          blob,
+          'Mietvertrag',
+          `Mietvertrag-${this.rental!.mietvertragNummer}.pdf`,
+        );
       },
       error: () => this.notificationService.error('Fehler beim Laden des PDF'),
     });
@@ -1370,11 +1380,11 @@ export class RentalDetailComponent implements OnInit {
     if (!this.rental) return;
     this.rentalService.downloadKautionsquittungPdf(this.rental.id).subscribe({
       next: (blob) => {
-        this.currentPdfBlob = blob;
-        this.currentPdfFilename = `Kautionsquittung-${this.rental!.mietvertragNummer}.pdf`;
-        this.pdfPreviewUrl = URL.createObjectURL(blob);
-        this.pdfPreviewTitle = 'Kautionsquittung';
-        this.showPdfPreview = true;
+        this.openPdfPreview(
+          blob,
+          'Kautionsquittung',
+          `Kautionsquittung-${this.rental!.mietvertragNummer}.pdf`,
+        );
       },
       error: () => this.notificationService.error('Fehler beim Laden des PDF'),
     });
@@ -1384,11 +1394,11 @@ export class RentalDetailComponent implements OnInit {
     if (!this.rental) return;
     this.rentalService.downloadKautionsrueckgabePdf(this.rental.id).subscribe({
       next: (blob) => {
-        this.currentPdfBlob = blob;
-        this.currentPdfFilename = `Kautionsrueckgabe-${this.rental!.mietvertragNummer}.pdf`;
-        this.pdfPreviewUrl = URL.createObjectURL(blob);
-        this.pdfPreviewTitle = 'Kautionsrückgabe';
-        this.showPdfPreview = true;
+        this.openPdfPreview(
+          blob,
+          'Kautionsrückgabe',
+          `Kautionsrueckgabe-${this.rental!.mietvertragNummer}.pdf`,
+        );
       },
       error: () => this.notificationService.error('Fehler beim Laden des PDF'),
     });
@@ -1398,14 +1408,57 @@ export class RentalDetailComponent implements OnInit {
     if (!this.rental) return;
     this.rentalService.downloadMietbedingungenPdf(this.rental.id).subscribe({
       next: (blob) => {
-        this.currentPdfBlob = blob;
-        this.currentPdfFilename = `Mietbedingungen-${this.rental!.mietvertragNummer}.pdf`;
-        this.pdfPreviewUrl = URL.createObjectURL(blob);
-        this.pdfPreviewTitle = 'Mietbedingungen';
-        this.showPdfPreview = true;
+        this.openPdfPreview(
+          blob,
+          'Mietbedingungen',
+          `Mietbedingungen-${this.rental!.mietvertragNummer}.pdf`,
+        );
       },
       error: () => this.notificationService.error('Fehler beim Laden des PDF'),
     });
+  }
+
+  /**
+   * Öffnet die Vorschau für ein geladenes PDF.
+   *
+   * Der Blob-Link muss durch den DomSanitizer: Angular behandelt `iframe[src]`
+   * als RESOURCE_URL und verweigert eine rohe Zeichenkette. Genau daran lag es,
+   * dass die Vorschau leer blieb — in **jedem** Browser, nicht nur auf dem
+   * Handy. Denselben Weg geht die WhatsApp-Seite schon (bypassSecurityTrust…).
+   *
+   * `pdfPreviewRawUrl` bleibt daneben als normale Zeichenkette stehen, weil ein
+   * SafeResourceUrl sich nicht mehr öffnen oder widerrufen lässt.
+   */
+  private openPdfPreview(blob: Blob, titel: string, dateiname: string): void {
+    this.releasePdfPreviewUrl();
+    this.currentPdfBlob = blob;
+    this.currentPdfFilename = dateiname;
+    this.pdfPreviewRawUrl = URL.createObjectURL(blob);
+    this.pdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+      this.pdfPreviewRawUrl,
+    );
+    this.pdfPreviewTitle = titel;
+    this.showPdfPreview = true;
+  }
+
+  private releasePdfPreviewUrl(): void {
+    if (this.pdfPreviewRawUrl) URL.revokeObjectURL(this.pdfPreviewRawUrl);
+    this.pdfPreviewRawUrl = null;
+    this.pdfPreviewUrl = null;
+  }
+
+  /**
+   * PDF in einem eigenen Tab öffnen.
+   *
+   * Safari auf dem iPhone zeigt ein PDF in einem eingebetteten iframe nicht
+   * zuverlässig an — dort bleibt die Fläche auch mit korrektem Link oft leer.
+   * In einem eigenen Tab rendert Safari das PDF dagegen selbst, mit Blättern
+   * und Zoom. Der Knopf steht für alle Geräte da; auf dem Desktop ist er
+   * schlicht die größere Ansicht.
+   */
+  openCurrentPdfInNewTab(): void {
+    if (!this.pdfPreviewRawUrl) return;
+    window.open(this.pdfPreviewRawUrl, '_blank');
   }
 
   downloadCurrentPdf() {
@@ -1444,8 +1497,7 @@ export class RentalDetailComponent implements OnInit {
   }
 
   closePdfPreview() {
-    if (this.pdfPreviewUrl) URL.revokeObjectURL(this.pdfPreviewUrl);
-    this.pdfPreviewUrl = null;
+    this.releasePdfPreviewUrl();
     this.showPdfPreview = false;
     this.currentPdfBlob = null;
   }
