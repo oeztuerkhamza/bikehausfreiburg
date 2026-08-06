@@ -104,27 +104,36 @@ import { environment } from '../../../environments/environment';
                 <span class="thumb-empty">🚲</span>
               </ng-template>
             </div>
-            <span class="bike-brand">{{ bike.marke }} {{ bike.modell }}</span>
-            <span class="bike-size" *ngIf="bike.rahmengroesse">
-              Size {{ bike.rahmengroesse }}
-            </span>
-            <div
-              class="start-price"
-              *ngIf="getStartingPrice(bike) as startPrice"
+            <span
+              class="bike-brand"
+              [title]="bike.marke + ' ' + bike.modell"
+              >{{ bike.marke }} {{ bike.modell }}</span
             >
-              ab {{ startPrice | number: '1.0-0' }} €
+            <!-- Größe, Preis und Knopf als eine Gruppe: auf schmalen Schirmen
+                 rutscht sie gemeinsam in die zweite Zeile, statt dem Namen den
+                 Platz wegzunehmen. -->
+            <div class="row-meta">
+              <span class="bike-size" *ngIf="bike.rahmengroesse">
+                Size {{ bike.rahmengroesse }}
+              </span>
+              <div
+                class="start-price"
+                *ngIf="getStartingPrice(bike) as startPrice"
+              >
+                ab {{ startPrice | number: '1.0-0' }} €
+              </div>
+              <!-- Nur wo die Auswahl bestätigt werden muss (Mietvertrag): sonst
+                   wählt der Klick auf die Zeile das Rad direkt aus. -->
+              <button
+                *ngIf="requireConfirmSelection"
+                type="button"
+                class="btn btn-primary row-add-btn"
+                (click)="addBike(bike, $event)"
+                [disabled]="addingBikeId === bike.id"
+              >
+                {{ addingBikeId === bike.id ? '...' : 'Ekle' }}
+              </button>
             </div>
-            <!-- Nur wo die Auswahl bestätigt werden muss (Mietvertrag): sonst
-                 wählt der Klick auf die Zeile das Rad direkt aus. -->
-            <button
-              *ngIf="requireConfirmSelection"
-              type="button"
-              class="btn btn-primary row-add-btn"
-              (click)="addBike(bike, $event)"
-              [disabled]="addingBikeId === bike.id"
-            >
-              {{ addingBikeId === bike.id ? '...' : 'Ekle' }}
-            </button>
           </div>
         </div>
 
@@ -260,12 +269,26 @@ import { environment } from '../../../environments/environment';
         font-size: 1.1rem;
         opacity: 0.4;
       }
+      /* Der Name bleibt IMMER waagerecht und kürzt bei Platzmangel mit "…"
+         (der ganze Name steht im title-Attribut). Hier stand vorher
+         "overflow-wrap: anywhere": damit ist die kleinstmögliche Breite ein
+         einzelnes Zeichen, und sobald die Zeile eng wurde — auf dem Handy, seit
+         der Knopf dazukam — stand der Name als senkrechte Buchstabenkette da. */
       .bike-brand {
         flex: 1 1 auto;
         min-width: 0;
         font-weight: 600;
         color: var(--text-primary, #1a1a2e);
-        overflow-wrap: anywhere;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .row-meta {
+        flex: 0 0 auto;
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
       }
       .bike-size {
         flex: 0 0 auto;
@@ -325,16 +348,25 @@ import { environment } from '../../../environments/environment';
       .quick-add-btn:hover {
         background: var(--accent-primary-light, rgba(99, 102, 241, 0.1));
       }
-      /* Der Knopf sitzt am rechten Rand der Zeile und bleibt dort auch, wenn
-         Name oder Größe lang werden — deshalb kein Schrumpfen. */
+      /* Der Knopf schrumpft nicht — sonst wird aus "Ekle" ein Strich. */
       .row-add-btn {
         flex: 0 0 auto;
-        margin-left: auto;
         min-width: 72px;
         padding: 6px 14px;
         font-size: 0.85rem;
       }
-      @media (max-width: 900px) {
+      /* Schmaler Schirm: die Meta-Gruppe bekommt ihre eigene Zeile, damit dem
+         Namen die volle Breite bleibt. Zusammendrängen in eine Zeile war genau
+         der Fehler, der den Namen senkrecht gestellt hat. */
+      @media (max-width: 600px) {
+        .bike-main-row {
+          flex-wrap: wrap;
+        }
+        .row-meta {
+          flex: 1 1 100%;
+          margin-left: 0;
+          justify-content: flex-end;
+        }
         .row-add-btn {
           min-width: 64px;
           padding: 6px 10px;
