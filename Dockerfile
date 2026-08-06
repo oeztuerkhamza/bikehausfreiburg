@@ -41,9 +41,15 @@ RUN dotnet publish BikeHaus.API/BikeHaus.API.csproj \
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
 
-# Install curl for health checks + Playwright/Chromium dependencies
+# Install curl for health checks + Playwright/Chromium dependencies + tzdata
+# (tzdata is required for TimeZoneInfo.FindSystemTimeZoneById("Europe/Berlin") —
+# .NET on Linux reads IANA zone data from /usr/share/zoneinfo, which the base
+# image does not ship; ICU alone does not provide it. Used by
+# RentalBookingReminderBackgroundService to send reminder/review mails at a
+# sane local hour instead of the middle of the night in UTC.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    tzdata \
     libnss3 \
     libnspr4 \
     libatk1.0-0 \

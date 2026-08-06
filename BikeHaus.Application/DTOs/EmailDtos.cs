@@ -20,7 +20,8 @@ public record RentalBookingEmailModel(
     string ShopPhone,
     string ShopEmail,
     string Language,
-    string? SelfCancelUrl = null
+    string? SelfCancelUrl = null,
+    string? OpeningHours = null
 );
 
 /// <summary>

@@ -32,4 +32,24 @@ public interface IRentalBookingService
     /// genuine cancellations made afterwards are left untouched.
     /// </summary>
     Task<RevertStornoResultDto> RevertErroneousStornosAsync(bool apply, DateTime? cancelledBefore = null);
+
+    /// <summary>
+    /// Sends the "your bike is ready tomorrow" reminder to every Approved booking
+    /// whose StartDatum is tomorrow and that has not been reminded yet. Meant to be
+    /// called hourly by a background service; idempotent via
+    /// <see cref="Domain.Entities.RentalBooking.ErinnerungGesendetAm"/>. Returns the
+    /// number of reminders actually sent.
+    /// </summary>
+    Task<int> SendPickupRemindersAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Side-effect-free lookup for the customer-facing "manage my booking" page.
+    /// Booking number AND e-mail are both required and both must match — same
+    /// proof-of-ownership as <see cref="CancelByCustomerAsync"/>, but this NEVER
+    /// changes anything. Returns null when the booking does not exist OR the
+    /// e-mail does not match it — deliberately the SAME null for both cases, so
+    /// a wrong booking number cannot be told apart from a wrong e-mail (no
+    /// oracle for guessing valid booking numbers).
+    /// </summary>
+    Task<PublicRentalBookingLookupDto?> LookupByCustomerAsync(string bookingNumber, string email);
 }

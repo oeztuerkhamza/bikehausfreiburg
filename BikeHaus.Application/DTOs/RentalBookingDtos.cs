@@ -131,3 +131,20 @@ public record RevertStornoResultDto(
     int EmailsFailed,
     bool Applied,
     IReadOnlyList<RevertStornoItemDto> Items);
+
+// ── Public, side-effect-free "manage my booking" lookup ──────────────────
+// Only what the customer needs to see; no internal IDs, notes or admin
+// fields (see CLAUDE.md convention 9). Distinct from RentalBookingDto, which
+// is the full admin-facing shape.
+
+public record PublicRentalBookingBikeSummaryDto(string Marke, string Modell);
+
+public record PublicRentalBookingLookupDto(
+    string BuchungsNummer,
+    DateTime StartDatum,
+    DateTime EndDatum,
+    string? Abholzeit,
+    IReadOnlyList<PublicRentalBookingBikeSummaryDto> Bikes,
+    decimal? Gesamtpreis,
+    decimal? Kaution,
+    RentalBookingStatus Status);

@@ -401,19 +401,27 @@ public class RentalBookingService : IRentalBookingService
         return booking.ToDto();
     }
 
+    // Gemeinsame Fehlermeldung fuer "Buchung existiert nicht" UND "E-Mail passt
+    // nicht" — bewusst nicht unterscheidbar. Wuerden beide Faelle verschiedene
+    // Exceptions/HTTP-Codes ergeben (frueher: 404 vs. 409), koennte man durch
+    // Ausprobieren von Buchungsnummern herausfinden, welche existieren, ohne
+    // die zugehoerige E-Mail zu kennen. Gilt gleichermassen fuer
+    // LookupByCustomerAsync (dort als null statt Exception).
+    private const string BookingLookupFailedMessage = "Buchung nicht gefunden oder E-Mail passt nicht.";
+
     public async Task<RentalBookingDto> CancelByCustomerAsync(string bookingNumber, string email)
     {
         var normalizedBookingNumber = bookingNumber?.Trim() ?? string.Empty;
         var normalizedEmail = email?.Trim() ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(normalizedBookingNumber) || string.IsNullOrWhiteSpace(normalizedEmail))
-            throw new InvalidOperationException("Buchungsnummer und E-Mail sind erforderlich.");
+            throw new KeyNotFoundException(BookingLookupFailedMessage);
 
-        var booking = await _bookingRepository.GetByBookingNumberWithDetailsAsync(normalizedBookingNumber)
-            ?? throw new KeyNotFoundException("Buchung nicht gefunden.");
+        var booking = await _bookingRepository.GetByBookingNumberWithDetailsAsync(normalizedBookingNumber);
 
-        if (!string.Equals(booking.Email?.Trim(), normalizedEmail, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Die E-Mail-Adresse passt nicht zur Buchung.");
+        if (booking == null ||
+            !string.Equals(booking.Email?.Trim(), normalizedEmail, StringComparison.OrdinalIgnoreCase))
+            throw new KeyNotFoundException(BookingLookupFailedMessage);
 
         if (booking.Status != RentalBookingStatus.Cancelled)
         {
@@ -444,6 +452,51 @@ public class RentalBookingService : IRentalBookingService
         }
 
         return booking.ToDto();
+    }
+
+    public async Task<PublicRentalBookingLookupDto?> LookupByCustomerAsync(string bookingNumber, string email)
+    {
+        var normalizedBookingNumber = bookingNumber?.Trim() ?? string.Empty;
+        var normalizedEmail = email?.Trim() ?? string.Empty;
+
+        // Nebenwirkungsfrei: hier wird NIE geschrieben, nur gelesen. Wie bei
+        // CancelByCustomerAsync ergibt eine falsche Buchungsnummer und eine
+        // nicht passende E-Mail dasselbe Ergebnis (null) — kein Auskunfts-Orakel,
+        // das verraet, welche Buchungsnummern existieren.
+        if (string.IsNullOrWhiteSpace(normalizedBookingNumber) || string.IsNullOrWhiteSpace(normalizedEmail))
+            return null;
+
+        var booking = await _bookingRepository.GetByBookingNumberWithDetailsAsync(normalizedBookingNumber);
+
+        if (booking == null ||
+            !string.Equals(booking.Email?.Trim(), normalizedEmail, StringComparison.OrdinalIgnoreCase))
+            return null;
+
+        // Multi-Bike-Buchungen tragen ihre Raeder in Bikes; aeltere
+        // Ein-Fahrrad-Buchungen nur ueber die direkte Bicycle-Navigation
+        // (gleiche Unterscheidung wie GetBicyclesForBookingAsync).
+        var bikeSummaries = booking.Bikes.Count > 0
+            ? booking.Bikes
+                .Select(bk => new PublicRentalBookingBikeSummaryDto(
+                    bk.Bicycle?.Marke ?? string.Empty,
+                    bk.Bicycle?.Modell ?? string.Empty))
+                .ToList()
+            : new List<PublicRentalBookingBikeSummaryDto>
+            {
+                new(booking.Bicycle?.Marke ?? string.Empty, booking.Bicycle?.Modell ?? string.Empty)
+            };
+
+        var deposit = CalculateDeposit(booking, booking.Bicycle);
+
+        return new PublicRentalBookingLookupDto(
+            booking.BuchungsNummer,
+            booking.StartDatum,
+            booking.EndDatum,
+            booking.Abholzeit,
+            bikeSummaries,
+            booking.Gesamtpreis,
+            deposit,
+            booking.Status);
     }
 
     public async Task<IEnumerable<RentalBookingRangeDto>> GetApprovedRangesAsync(int bicycleId)
@@ -673,6 +726,49 @@ public class RentalBookingService : IRentalBookingService
         return new RevertStornoResultDto(candidates.Count, reverted, emailsSent, emailsFailed, apply, items);
     }
 
+    public async Task<int> SendPickupRemindersAsync(CancellationToken cancellationToken = default)
+    {
+        // Zeitfenster: nur Buchungen, deren StartDatum genau "morgen" ist. Das
+        // schliesst automatisch die komplette Alt-Historie aus (deren StartDatum
+        // laengst in der Vergangenheit liegt) — es braucht kein zusaetzliches
+        // "NotBefore"-Gate wie bei der Google-Bewertungskampagne.
+        //
+        // StartDatum/EndDatum sind reine Kalendertage aus Kunden-/Ladensicht
+        // (Ortszeit Freiburg), der Container laeuft aber in UTC. "Morgen" wird
+        // daher ueber ShopClock.Now (Europe/Berlin) bestimmt statt ueber
+        // DateTime.UtcNow.Date — sonst kippt der erste Treffer eines Tages kurz
+        // nach Mitternacht UTC, also mitten in der Nacht Ortszeit.
+        var tomorrow = ShopClock.Now.Date.AddDays(1);
+        var bookings = await _bookingRepository.GetBookingsForPickupReminderAsync(tomorrow);
+
+        var sent = 0;
+        foreach (var booking in bookings)
+        {
+            if (cancellationToken.IsCancellationRequested) break;
+            if (string.IsNullOrWhiteSpace(booking.Email)) continue;
+
+            try
+            {
+                var bicycles = await GetBicyclesForBookingAsync(booking);
+                var emailModel = await BuildEmailModelAsync(booking, bicycles);
+                await _emailService.SendRentalBookingPickupReminderAsync(emailModel);
+
+                booking.ErinnerungGesendetAm = DateTime.UtcNow;
+                await _bookingRepository.UpdateAsync(booking);
+                sent++;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to send pickup reminder email for booking {BookingNumber}",
+                    booking.BuchungsNummer);
+            }
+        }
+
+        return sent;
+    }
+
     public async Task<bool> DeleteAsync(int id)
     {
         var booking = await _bookingRepository.GetByIdAsync(id);
@@ -802,7 +898,8 @@ public class RentalBookingService : IRentalBookingService
             shop.Phone,
             shop.Email,
             NormalizeLanguage(booking.Sprache ?? "de"),
-            BuildSelfCancelUrl(booking)
+            BuildSelfCancelUrl(booking),
+            shop.OpeningHours
         );
     }
 
@@ -823,7 +920,7 @@ public class RentalBookingService : IRentalBookingService
             booking.Accessories.Select(a => $"- {a.Bezeichnung} x{a.Menge} ({a.Tagespreis:0.00} EUR/Tag)"));
     }
 
-    private async Task<(string PickupLocation, string Phone, string Email)> GetShopInfoAsync()
+    private async Task<(string PickupLocation, string Phone, string Email, string? OpeningHours)> GetShopInfoAsync()
     {
         var settings = await _shopSettingsRepository.GetSettingsAsync();
         if (settings == null)
@@ -831,7 +928,8 @@ public class RentalBookingService : IRentalBookingService
             return (
                 $"{DefaultShopStreet}, {DefaultShopCity}",
                 DefaultShopPhone,
-                DefaultShopEmail
+                DefaultShopEmail,
+                null
             );
         }
 
@@ -845,7 +943,8 @@ public class RentalBookingService : IRentalBookingService
         return (
             $"{street}, {city}".Trim().Trim(','),
             !string.IsNullOrWhiteSpace(settings.Telefon) ? settings.Telefon : DefaultShopPhone,
-            !string.IsNullOrWhiteSpace(settings.Email) ? settings.Email : DefaultShopEmail
+            !string.IsNullOrWhiteSpace(settings.Email) ? settings.Email : DefaultShopEmail,
+            string.IsNullOrWhiteSpace(settings.Oeffnungszeiten) ? null : settings.Oeffnungszeiten
         );
     }
 }

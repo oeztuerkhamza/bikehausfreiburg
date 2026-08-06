@@ -1,6 +1,7 @@
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -206,6 +207,23 @@ public class PublicRentalsController : ControllerBase
         }
     }
 
+    // Side-effect-free counterpart to bookings/cancel: lets the "manage my
+    // booking" page show what was booked WITHOUT cancelling anything. Same
+    // proof-of-ownership (booking number + e-mail, both required, both must
+    // match) as the cancel flow, but a wrong booking number and a wrong
+    // e-mail deliberately produce the exact same 404 — no oracle for
+    // guessing valid booking numbers.
+    [HttpPost("bookings/lookup")]
+    [AllowAnonymous]
+    public async Task<ActionResult<PublicRentalBookingLookupDto>> LookupBooking([FromBody] PublicBookingLookupDto dto)
+    {
+        var result = await _rentalBookingService.LookupByCustomerAsync(dto.BookingNumber, dto.Email);
+        if (result == null)
+            return NotFound(new { error = "Buchung nicht gefunden oder E-Mail passt nicht." });
+
+        return Ok(result);
+    }
+
     // ═══ Rental Reviews (public) ═══
 
     [HttpGet("reviews")]
@@ -230,6 +248,12 @@ public class PublicRentalsController : ControllerBase
 }
 
 public class PublicBookingCancelDto
+{
+    public string BookingNumber { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+}
+
+public class PublicBookingLookupDto
 {
     public string BookingNumber { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;

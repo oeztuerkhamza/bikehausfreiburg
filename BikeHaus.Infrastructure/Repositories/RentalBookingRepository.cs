@@ -257,4 +257,19 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
 
         return legacyIds.Union(multiIds);
     }
+
+    public async Task<IEnumerable<RentalBooking>> GetBookingsForPickupReminderAsync(DateTime targetDate)
+    {
+        var date = targetDate.Date;
+        return await _dbSet
+            .Include(b => b.Bicycle)
+            .Include(b => b.Bikes).ThenInclude(bk => bk.Bicycle)
+            .Include(b => b.Accessories)
+            .Where(b => b.Status == RentalBookingStatus.Approved
+                && b.StartDatum.Date == date
+                && b.ErinnerungGesendetAm == null
+                && b.Email != null && b.Email != "")
+            .ToListAsync();
+    }
+
 }

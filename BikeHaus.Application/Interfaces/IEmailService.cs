@@ -10,6 +10,9 @@ public interface IEmailService
     Task SendRentalBookingUpdatedAsync(RentalBookingEmailModel model);
     Task SendRentalBookingReceivedAsync(RentalBookingEmailModel model);
     Task SendRentalBookingAdminPendingNotificationAsync(RentalBookingEmailModel model, string adminPortalUrl);
+
+    /// <summary>Reminder sent the day before pickup ("your bike is ready tomorrow") to cut no-shows.</summary>
+    Task SendRentalBookingPickupReminderAsync(RentalBookingEmailModel model);
     Task SendDepositRefundConfirmationAsync(DepositRefundEmailModel model);
     Task SendSaleReceiptAsync(string toEmail, string toName, string belegNummer, byte[] pdfBytes);
     Task SendReservationAnzahlungAsync(string toEmail, string toName, string reservierungsNummer, DateTime ablaufDatum, byte[] pdfBytes);

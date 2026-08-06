@@ -107,27 +107,9 @@ public class CampaignService : ICampaignService
         string email, string? vorname, ReviewRequestSource source, CancellationToken cancellationToken = default)
     {
         var normalized = (email ?? string.Empty).Trim().ToLowerInvariant();
-        if (!IsValidEmail(normalized))
-            return ReviewSendOutcome.SkippedInvalidEmail;
-
-        if (await _unsubscribe.IsUnsubscribedAsync(normalized))
-            return ReviewSendOutcome.SkippedUnsubscribed;
-
-        // Harte Obergrenze: eine Adresse wird INSGESAMT höchstens
-        // MaxSendsPerCustomer (Standard 2) mal kontaktiert — über die gesamte
-        // Historie, geteilt von manueller Kampagne und Auto-Ablauf.
-        var maxSends = Math.Max(1, _reviewOptions.MaxSendsPerCustomer);
-        var totalContacted = await _db.ReviewRequests
-            .CountAsync(r => r.Email == normalized, cancellationToken);
-        if (totalContacted >= maxSends)
-            return ReviewSendOutcome.SkippedAlreadySent;
-
-        // Zusätzlich Mindestabstand: nicht zweimal innerhalb MinIntervalDays.
-        var since = DateTime.UtcNow.AddDays(-Math.Max(1, _reviewOptions.MinIntervalDays));
-        var recentlyContacted = await _db.ReviewRequests
-            .AnyAsync(r => r.Email == normalized && r.SentAt >= since, cancellationToken);
-        if (recentlyContacted)
-            return ReviewSendOutcome.SkippedAlreadySent;
+        var gate = await CheckEligibilityAsync(normalized, cancellationToken);
+        if (gate.HasValue)
+            return gate.Value;
 
         var address = email!.Trim();
         var url = _unsubscribe.BuildUnsubscribeUrl(address);
@@ -144,16 +126,58 @@ public class CampaignService : ICampaignService
             return ReviewSendOutcome.Failed;
         }
 
+        await RecordSentAsync(normalized, vorname, source, cancellationToken);
+        return ReviewSendOutcome.Sent;
+    }
+
+    // ── shared review-request gating ─────────────────────────────────────
+
+    /// <summary>
+    /// Returns the skip outcome if the address is NOT eligible right now
+    /// (invalid, unsubscribed, over the lifetime cap, or contacted within
+    /// MinIntervalDays). Returns null when the address is eligible to be
+    /// contacted. Split out of <see cref="SendReviewRequestAsync"/> so the
+    /// gating rules live in exactly one place regardless of which flow
+    /// (automatic post-sale/rental, manual campaign) triggers a send.
+    /// </summary>
+    private async Task<ReviewSendOutcome?> CheckEligibilityAsync(string normalizedEmail, CancellationToken cancellationToken)
+    {
+        if (!IsValidEmail(normalizedEmail))
+            return ReviewSendOutcome.SkippedInvalidEmail;
+
+        if (await _unsubscribe.IsUnsubscribedAsync(normalizedEmail))
+            return ReviewSendOutcome.SkippedUnsubscribed;
+
+        // Harte Obergrenze: eine Adresse wird INSGESAMT höchstens
+        // MaxSendsPerCustomer (Standard 2) mal kontaktiert — über die gesamte
+        // Historie, geteilt von manueller Kampagne und Auto-Ablauf (Sale/Rental).
+        var maxSends = Math.Max(1, _reviewOptions.MaxSendsPerCustomer);
+        var totalContacted = await _db.ReviewRequests
+            .CountAsync(r => r.Email == normalizedEmail, cancellationToken);
+        if (totalContacted >= maxSends)
+            return ReviewSendOutcome.SkippedAlreadySent;
+
+        // Zusätzlich Mindestabstand: nicht zweimal innerhalb MinIntervalDays.
+        var since = DateTime.UtcNow.AddDays(-Math.Max(1, _reviewOptions.MinIntervalDays));
+        var recentlyContacted = await _db.ReviewRequests
+            .AnyAsync(r => r.Email == normalizedEmail && r.SentAt >= since, cancellationToken);
+        if (recentlyContacted)
+            return ReviewSendOutcome.SkippedAlreadySent;
+
+        return null;
+    }
+
+    private async Task RecordSentAsync(
+        string normalizedEmail, string? vorname, ReviewRequestSource source, CancellationToken cancellationToken)
+    {
         _db.ReviewRequests.Add(new ReviewRequest
         {
-            Email = normalized,
+            Email = normalizedEmail,
             Vorname = string.IsNullOrWhiteSpace(vorname) ? null : vorname.Trim(),
             SentAt = DateTime.UtcNow,
             Source = source,
         });
         await _db.SaveChangesAsync(cancellationToken);
-
-        return ReviewSendOutcome.Sent;
     }
 
     // ── recipient selection ──────────────────────────────────────────────

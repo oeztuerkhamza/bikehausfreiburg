@@ -1542,6 +1542,9 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.Property<DateTime>("EndDatum")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("ErinnerungGesendetAm")
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal?>("Gesamtpreis")
                         .HasColumnType("decimal(18,2)");
 

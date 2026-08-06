@@ -9,7 +9,16 @@ public class ReviewAutomationOptions
     /// <summary>Master switch. When false the background service stays idle.</summary>
     public bool Enabled { get; set; } = false;
 
-    /// <summary>How long after a Sale/Rental is created the mail is sent.</summary>
+    /// <summary>
+    /// How long after a Sale's <c>CreatedAt</c> the review-request mail is sent.
+    /// Applies to SALES ONLY. Rentals use a fixed rule instead (the day after
+    /// the rental ends, from 08:00 shop-local — see
+    /// <see cref="ReviewAutomationBackgroundService"/>), because a flat delay
+    /// after "rental ends" almost always landed after the send window anyway
+    /// (returns happen during opening hours, so +4h was nearly always pushed
+    /// to the next day regardless) — a fixed next-morning rule is simpler and
+    /// equally predictable.
+    /// </summary>
     public int DelayHours { get; set; } = 4;
 
     /// <summary>Minimum days between two review requests to the same address (shared with the manual campaign).</summary>

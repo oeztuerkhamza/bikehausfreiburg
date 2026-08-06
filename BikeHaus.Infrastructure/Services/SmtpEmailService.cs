@@ -89,6 +89,13 @@ public class SmtpEmailService : IEmailService
         return Task.CompletedTask;
     }
 
+    public Task SendRentalBookingPickupReminderAsync(RentalBookingEmailModel model)
+    {
+        var subject = $"Morgen geht's los / See you tomorrow - {model.BuchungsNummer} | Bike Haus Freiburg";
+        var body = Bilingual(BuildPickupReminderBodyDe(model), BuildPickupReminderBodyEn(model));
+        return SendAsync(model.ToEmail, model.ToName, subject, body, "MietanfrageErinnerung");
+    }
+
     public Task SendDepositRefundConfirmationAsync(DepositRefundEmailModel model)
     {
         var subject = $"Kaution zurueckgegeben / Deposit refunded - {model.MietvertragNummer} | Bike Haus Freiburg";
@@ -580,10 +587,34 @@ Your Bike Haus Freiburg team";
         || accessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
         || accessoriesText.Trim().Equals("None", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Kautions-Absatz der Buchungsmails.
+    ///
+    /// Kein erfundener Ersatzwert: hier stand frueher <c>m.Deposit ?? 300m</c>, also
+    /// eine Summe, die niemand gepflegt hatte. Seit die Website die Kaution nur
+    /// noch nennt, wenn sie im Bestand steht, wuerde das auseinanderlaufen — die
+    /// Seite schweigt und die Mail behauptet 300 EUR. Ohne gepflegte Kaution nennt
+    /// die Mail deshalb ebenfalls keinen Betrag.
+    /// </summary>
+    private static string BuildKautionZeilenDe(decimal? deposit) =>
+        deposit.HasValue
+            ? $@"Bitte bring zur Abholung einen gueltigen Lichtbildausweis und die Kaution von insgesamt {deposit.Value:0.00} EUR in bar mit.
+Die Kaution gilt fuer die gesamte Buchung, nicht je Fahrrad."
+            : @"Bitte bring zur Abholung einen gueltigen Lichtbildausweis und die Kaution in bar mit.
+Die Hoehe nennen wir dir vor der Abholung; sie gilt fuer die gesamte Buchung, nicht je Fahrrad.";
+
+    /// <summary>Englische Fassung von <see cref="BuildKautionZeilenDe"/>.</summary>
+    private static string BuildDepositLinesEn(decimal? deposit) =>
+        deposit.HasValue
+            ? $@"Please bring a valid photo ID and the total deposit of {deposit.Value:0.00} EUR in cash when you pick up the bike.
+The deposit covers the whole booking, not each bike separately."
+            : @"Please bring a valid photo ID and the deposit in cash when you pick up the bike.
+We will tell you the amount before pickup; it covers the whole booking, not each bike separately.";
+
     private static string BuildApprovedBodyDe(RentalBookingEmailModel m)
     {
         var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "wird im Laden bestaetigt";
-        var depositAmount = m.Deposit ?? 300m;
+        var kautionZeilen = BuildKautionZeilenDe(m.Deposit);
         var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
             ? "Keine"
             : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
@@ -609,8 +640,7 @@ Bike Haus Freiburg
 {m.PickupLocation}
 
 Wichtiger Hinweis:
-Bitte bring zur Abholung einen gueltigen Lichtbildausweis und die Kaution von insgesamt {depositAmount:0.00} EUR in bar mit.
-Die Kaution gilt fuer die gesamte Buchung, nicht je Fahrrad.
+{kautionZeilen}
 
 Falls du doch nicht fahren kannst:
 Du kannst deine Buchung selbst stornieren ueber diesen Link:
@@ -631,7 +661,7 @@ bikehausfreiburg.com
     private static string BuildApprovedBodyEn(RentalBookingEmailModel m)
     {
         var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "will be confirmed in store";
-        var depositAmount = m.Deposit ?? 300m;
+        var depositLines = BuildDepositLinesEn(m.Deposit);
         var accessoriesText = IsNoAccessories(m.AccessoriesText)
             ? "None"
             : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
@@ -657,8 +687,7 @@ Bike Haus Freiburg
 {m.PickupLocation}
 
 Important note:
-Please bring a valid photo ID and the total deposit of {depositAmount:0.00} EUR in cash when you pick up the bike.
-The deposit covers the whole booking, not each bike separately.
+{depositLines}
 
 If you cannot ride after all:
 You can cancel your booking yourself via this link:
@@ -849,7 +878,9 @@ Your Bike Haus Freiburg team
     private static string BuildReceivedBodyDe(RentalBookingEmailModel m)
     {
         var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "wird nach Pruefung bestaetigt";
-        var depositAmount = m.Deposit ?? 300m;
+        var kautionText = m.Deposit.HasValue
+            ? $"{m.Deposit.Value:0.00} EUR (in bar bei Abholung, wird bei Rueckgabe erstattet)"
+            : "nennen wir dir vor der Abholung (in bar, wird bei Rueckgabe erstattet)";
         var accessoriesText = string.IsNullOrWhiteSpace(m.AccessoriesText) || m.AccessoriesText.Trim().Equals("Keine", StringComparison.OrdinalIgnoreCase)
             ? "Keine"
             : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
@@ -865,7 +896,7 @@ Buchungsnummer: {m.BuchungsNummer}
 Fahrrad: {m.BikeBrand} {m.BikeModel}
 Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
 Geschaetzter Mietpreis: {totalPriceText}
-Kaution (gesamt): {depositAmount:0.00} EUR (in bar bei Abholung, wird bei Rueckgabe erstattet)
+Kaution (gesamt): {kautionText}
 Zubehoer: {accessoriesText}
 
 Wie geht es jetzt weiter?
@@ -892,7 +923,9 @@ Dein Team vom Bike Haus Freiburg
     private static string BuildReceivedBodyEn(RentalBookingEmailModel m)
     {
         var totalPriceText = m.TotalPrice.HasValue ? $"{m.TotalPrice.Value:0.00} EUR" : "will be confirmed after review";
-        var depositAmount = m.Deposit ?? 300m;
+        var depositText = m.Deposit.HasValue
+            ? $"{m.Deposit.Value:0.00} EUR (cash on pickup, refunded on return)"
+            : "we will tell you before pickup (cash, refunded on return)";
         var accessoriesText = IsNoAccessories(m.AccessoriesText)
             ? "None"
             : m.AccessoriesText.Replace("\n", ", ").Replace("- ", string.Empty).Trim();
@@ -908,7 +941,7 @@ Booking number: {m.BuchungsNummer}
 Bike: {m.BikeBrand} {m.BikeModel}
 Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days){abholzeitLine}
 Estimated rental price: {totalPriceText}
-Deposit (total): {depositAmount:0.00} EUR (cash on pickup, refunded on return)
+Deposit (total): {depositText}
 Accessories: {accessoriesText}
 
 What happens next?
@@ -924,6 +957,82 @@ You can cancel your request yourself at any time:
 {m.SelfCancelUrl ?? "Please reply to this email to cancel."}
 
 If you have any questions, simply reply to this email or give us a quick call.
+
+Best regards
+Your Bike Haus Freiburg team
+{m.ShopPhone}
+{m.ShopEmail}
+";
+    }
+
+    private static string BuildPickupReminderBodyDe(RentalBookingEmailModel m)
+    {
+        var kautionSatz = m.Deposit.HasValue
+            ? $"Bitte denk an einen gueltigen Lichtbildausweis und die Kaution von insgesamt {m.Deposit.Value:0.00} EUR in bar."
+            : "Bitte denk an einen gueltigen Lichtbildausweis und die Kaution in bar; die Hoehe nennen wir dir bei der Abholung.";
+        var abholzeitLine = string.IsNullOrWhiteSpace(m.PickupTime)
+            ? ""
+            : $"\nAbholzeit: {m.PickupTime} Uhr";
+        var oeffnungszeitenLine = string.IsNullOrWhiteSpace(m.OpeningHours)
+            ? ""
+            : $"\nOeffnungszeiten: {m.OpeningHours}";
+
+        return $@"Hallo {m.ToName},
+
+nur eine kurze Erinnerung: morgen liegt dein Fahrrad schon fuer dich bereit.
+
+Buchungsnummer: {m.BuchungsNummer}
+Fahrrad: {m.BikeBrand} {m.BikeModel}
+Zeitraum: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} Tage){abholzeitLine}
+
+Abholung:
+Bike Haus Freiburg
+{m.PickupLocation}{oeffnungszeitenLine}
+
+{kautionSatz}
+
+Falls du doch nicht kommen kannst, kannst du deine Buchung ganz einfach selbst stornieren:
+{m.SelfCancelUrl ?? "Bitte antworte auf diese E-Mail fuer eine Stornierung."}
+
+Wir freuen uns auf dich.
+
+Viele Gruesse
+Dein Team vom Bike Haus Freiburg
+{m.ShopPhone}
+{m.ShopEmail}
+";
+    }
+
+    private static string BuildPickupReminderBodyEn(RentalBookingEmailModel m)
+    {
+        var depositSentence = m.Deposit.HasValue
+            ? $"Please bring a valid photo ID and the total deposit of {m.Deposit.Value:0.00} EUR in cash."
+            : "Please bring a valid photo ID and the deposit in cash; we will tell you the amount at pickup.";
+        var pickupTimeLine = string.IsNullOrWhiteSpace(m.PickupTime)
+            ? ""
+            : $"\nPickup time: {m.PickupTime}";
+        var openingHoursLine = string.IsNullOrWhiteSpace(m.OpeningHours)
+            ? ""
+            : $"\nOpening hours: {m.OpeningHours}";
+
+        return $@"Hello {m.ToName},
+
+just a quick reminder: your bike is ready and waiting for you tomorrow.
+
+Booking number: {m.BuchungsNummer}
+Bike: {m.BikeBrand} {m.BikeModel}
+Period: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} days){pickupTimeLine}
+
+Pickup:
+Bike Haus Freiburg
+{m.PickupLocation}{openingHoursLine}
+
+{depositSentence}
+
+If you can't make it after all, you can cancel your booking yourself here:
+{m.SelfCancelUrl ?? "Please reply to this email to cancel."}
+
+We're looking forward to seeing you.
 
 Best regards
 Your Bike Haus Freiburg team

@@ -22,4 +22,10 @@ public interface IRentalBookingRepository : IRepository<RentalBooking>
     Task<bool> ExistsActiveOverlapAsync(int bicycleId, DateTime start, DateTime end, int? excludeBookingId = null);
     Task<bool> ExistsActiveOverlapForBikesAsync(IEnumerable<(int BicycleId, DateTime Start, DateTime End)> bikes, int? excludeBookingId = null);
     Task<IEnumerable<int>> GetBusyBicycleIdsForPeriodAsync(DateOnly start, DateOnly end);
+
+    /// <summary>
+    /// Approved bookings starting on <paramref name="targetDate"/> (pickup day) that have
+    /// a customer email and have not received the pickup reminder yet.
+    /// </summary>
+    Task<IEnumerable<RentalBooking>> GetBookingsForPickupReminderAsync(DateTime targetDate);
 }

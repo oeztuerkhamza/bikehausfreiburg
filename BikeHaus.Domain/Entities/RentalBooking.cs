@@ -32,6 +32,12 @@ public class RentalBooking : BaseEntity
     public DateTime? CancelledAt { get; set; }
     public string? MieterUnterschrift { get; set; }
 
+    // Versandmarker fuer die automatische Erinnerungsmail vor der Abholung
+    // (RentalBookingReminderBackgroundService). Darf nur einmal rausgehen; der
+    // Zeitstempel wird direkt nach erfolgreichem Versand gesetzt, damit ein
+    // spaeterer Lauf sie nicht erneut verschickt.
+    public DateTime? ErinnerungGesendetAm { get; set; }
+
     public Bicycle Bicycle { get; set; } = null!;
     public ICollection<RentalBookingAccessory> Accessories { get; set; } = new List<RentalBookingAccessory>();
     public ICollection<RentalBookingBike> Bikes { get; set; } = new List<RentalBookingBike>();
