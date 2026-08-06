@@ -107,15 +107,26 @@ export class RentalService {
     });
   }
 
-  uploadAusweis(id: number, file: File): Observable<{ path: string }> {
+  uploadAusweis(
+    id: number,
+    file: File,
+    seite?: 'vorderseite' | 'rueckseite',
+  ): Observable<{ path: string }> {
     // Image scans are compressed centrally by imageCompressionInterceptor;
     // PDF scans pass through unchanged.
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ path: string }>(`${this.url}/${id}/ausweis`, formData);
+    let params = new HttpParams();
+    if (seite) params = params.set('seite', seite);
+    return this.http.post<{ path: string }>(`${this.url}/${id}/ausweis`, formData, {
+      params,
+    });
   }
 
-  downloadAusweis(id: number): Observable<Blob> {
-    return this.http.get(`${this.url}/${id}/ausweis`, { responseType: 'blob' });
+  // Ohne seite liefert die API die Vorderseite (Server-Default).
+  downloadAusweis(id: number, seite?: 'vorderseite' | 'rueckseite'): Observable<Blob> {
+    let params = new HttpParams();
+    if (seite) params = params.set('seite', seite);
+    return this.http.get(`${this.url}/${id}/ausweis`, { params, responseType: 'blob' });
   }
 }

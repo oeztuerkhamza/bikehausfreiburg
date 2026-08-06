@@ -952,6 +952,7 @@ export interface Rental {
   agbAkzeptiert: boolean;
   unterschriftOrt?: string;
   ausweisPhotoPath?: string;
+  ausweisPhotoRueckseitePath?: string;
 }
 
 export interface RentalList {
@@ -1027,6 +1028,7 @@ export interface RentalCreate {
   agbAkzeptiert?: boolean;
   unterschriftOrt?: string;
   ausweisPhotoPath?: string;
+  ausweisPhotoRueckseitePath?: string;
 }
 
 export interface RentalBikeUpdate {
@@ -1194,6 +1196,7 @@ export interface RentalBooking {
   cancelledAt?: string;
   accessories: RentalBookingAccessory[];
   ausweisPhotoPath?: string;
+  ausweisPhotoRueckseitePath?: string;
 }
 
 export interface RentalBookingList {

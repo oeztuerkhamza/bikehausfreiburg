@@ -46,9 +46,16 @@ import {
           <button
             *ngIf="rental.ausweisPhotoPath"
             class="btn btn-outline"
-            (click)="downloadAusweis()"
+            (click)="downloadAusweis('vorderseite')"
           >
-            🪪 Ausweis herunterladen
+            🪪 Ausweis herunterladen{{ rental.ausweisPhotoRueckseitePath ? ' (Vorderseite)' : '' }}
+          </button>
+          <button
+            *ngIf="rental.ausweisPhotoRueckseitePath"
+            class="btn btn-outline"
+            (click)="downloadAusweis('rueckseite')"
+          >
+            🪪 Ausweis herunterladen (Rückseite)
           </button>
           <a routerLink="/rentals" class="btn btn-outline">Zurück</a>
         </div>
@@ -1466,15 +1473,20 @@ export class RentalDetailComponent implements OnInit {
       });
   }
 
-  downloadAusweis() {
+  downloadAusweis(seite: 'vorderseite' | 'rueckseite' = 'vorderseite') {
     if (!this.rental) return;
-    this.rentalService.downloadAusweis(this.rental.id).subscribe({
+    this.rentalService.downloadAusweis(this.rental.id, seite).subscribe({
       next: (blob) => {
-        const ext = this.rental!.ausweisPhotoPath?.split('.').pop() || 'jpg';
+        const path =
+          seite === 'rueckseite'
+            ? this.rental!.ausweisPhotoRueckseitePath
+            : this.rental!.ausweisPhotoPath;
+        const ext = path?.split('.').pop() || 'jpg';
+        const suffix = seite === 'rueckseite' ? '-Rueckseite' : '';
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Ausweis-${this.rental!.mietvertragNummer}.${ext}`;
+        a.download = `Ausweis-${this.rental!.mietvertragNummer}${suffix}.${ext}`;
         a.click();
         window.URL.revokeObjectURL(url);
       },

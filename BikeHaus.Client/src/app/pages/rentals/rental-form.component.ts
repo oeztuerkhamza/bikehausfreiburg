@@ -109,6 +109,14 @@ interface BikeEntry {
   zustandBeiUebergabe: string;
   busyPeriods: BusyPeriod[];
   busyPeriodsLoading: boolean;
+  /**
+   * Für ein schnell angelegtes Rad ausgewählte Fotos. Der Upload braucht die
+   * BicycleId, die erst beim Speichern des Vertrags entsteht — bis dahin
+   * halten diese beiden parallelen Arrays die Auswahl (File + Objekt-URL für
+   * die Vorschau) im Formularzustand. Siehe uploadQuickAddPhotos().
+   */
+  quickAddPhotos: File[];
+  quickAddPhotoPreviews: string[];
 }
 
 function createEmptyBikeEntry(): BikeEntry {
@@ -146,6 +154,8 @@ function createEmptyBikeEntry(): BikeEntry {
     zustandBeiUebergabe: 'Gut',
     busyPeriods: [],
     busyPeriodsLoading: false,
+    quickAddPhotos: [],
+    quickAddPhotoPreviews: [],
   };
 }
 
@@ -401,24 +411,22 @@ const MONTH_NAMES = [
                 <span *ngIf="!b.isQuickAddMode">🚲 Fahrrad-Details</span>
               </h3>
               <div class="form-grid">
-                <!-- Rahmennummer with autocomplete -->
-                <div
-                  class="field full rahmen-autocomplete-wrapper"
-                  [class.field-error]="b.bikeErrors['rahmennummer']"
-                >
-                  <label>Rahmennummer <ng-container *ngIf="b.isQuickAddMode">*</ng-container></label>
+                <!-- Rahmennummer with autocomplete — optional, auch beim
+                     Schnell-Anlegen: manche Leihräder werden ohne sichtbare
+                     oder ablesbare Rahmennummer erfasst, das darf das
+                     Anlegen nicht blockieren. -->
+                <div class="field full rahmen-autocomplete-wrapper">
+                  <label>Rahmennummer</label>
                   <input
                     [(ngModel)]="b.bikeEdit.rahmennummer"
                     [name]="'bikeRahmen_' + i"
-                    (ngModelChange)="b.bikeErrors['rahmennummer'] = false; onRahmennummerChange(i, $event)"
+                    (ngModelChange)="onRahmennummerChange(i, $event)"
                     (focus)="onRahmennummerChange(i, b.bikeEdit.rahmennummer)"
                     (blur)="hideRahmenDropdown(i)"
                     style="text-transform: uppercase"
-                    placeholder="Rahmennummer eingeben..."
+                    placeholder="Rahmennummer eingeben (optional)..."
                     autocomplete="off"
-                    [required]="b.isQuickAddMode"
                   />
-                  <span class="error-msg" *ngIf="b.bikeErrors['rahmennummer']">Pflichtfeld</span>
                   <div
                     class="rahmen-dropdown"
                     *ngIf="b.rahmenSearchResults.length > 0 && b.showRahmenDropdown"
@@ -573,7 +581,9 @@ const MONTH_NAMES = [
                 </div>
                 </ng-container>
 
-                <!-- Neu angelegtes Rad: Miete + Kaution direkt hier -->
+                <!-- Neu angelegtes Rad: Miete direkt hier. Die Kaution wird
+                     nicht mehr je Rad erfasst — siehe "Kaution gesamt" im
+                     Preise-Schritt. -->
                 <div class="field" *ngIf="b.isQuickAddMode">
                   <label>Miete (€) *</label>
                   <input
@@ -586,16 +596,52 @@ const MONTH_NAMES = [
                     (ngModelChange)="onMieteEdited(i)"
                   />
                 </div>
-                <div class="field" *ngIf="b.isQuickAddMode">
-                  <label>Kaution (€)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    [(ngModel)]="b.kaution"
-                    [name]="'qaKaution_' + i"
-                    placeholder="z.B. 150"
-                  />
+
+                <!-- Fotos für ein schnell angelegtes Rad: mehrere möglich,
+                     Vorschau + Entfernen vor dem Speichern. Der eigentliche
+                     Upload läuft erst beim Speichern des Vertrags, sobald das
+                     Fahrrad angelegt und seine BicycleId bekannt ist (siehe
+                     uploadQuickAddPhotos()). -->
+                <div class="field full quick-add-photos" *ngIf="b.isQuickAddMode">
+                  <label>Fotos</label>
+                  <div
+                    *ngIf="b.quickAddPhotoPreviews.length > 0"
+                    style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;"
+                  >
+                    <div
+                      *ngFor="let preview of b.quickAddPhotoPreviews; let pi = index"
+                      style="position:relative;width:84px;height:84px;"
+                    >
+                      <img
+                        [src]="preview"
+                        style="width:100%;height:100%;object-fit:cover;border:1px solid #e2e8f0;border-radius:8px;"
+                      />
+                      <button
+                        type="button"
+                        (click)="removeQuickAddPhoto(i, pi)"
+                        title="Foto entfernen"
+                        style="position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;border:none;background:#ef4444;color:#fff;cursor:pointer;line-height:1;font-size:14px;"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                  <label class="btn btn-outline" style="cursor:pointer;display:inline-flex;width:fit-content;margin:0;">
+                    📷 {{ b.quickAddPhotoPreviews.length > 0 ? 'Weiteres Foto' : 'Foto aufnehmen / wählen' }}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      multiple
+                      style="display:none"
+                      (change)="onQuickAddPhotoSelected(i, $event)"
+                    />
+                  </label>
+                  <span class="menge-hint">
+                    Mehrere Fotos möglich – vor dem Speichern jederzeit wieder
+                    entfernbar. Ein fehlgeschlagener Foto-Upload verhindert
+                    nicht das Speichern des Mietvertrags.
+                  </span>
                 </div>
               </div>
             </div>
@@ -641,16 +687,43 @@ const MONTH_NAMES = [
                        in der Zubehörsumme. -->
                   <span class="acc-note" *ngIf="acc.einmalig">nur bei Verbrauch</span>
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="1"
-                  [id]="'acc_' + acc.id"
-                  [name]="'accessoryQty_' + acc.id"
-                  [ngModel]="catalogAccessoryQty[acc.id] || 0"
-                  (ngModelChange)="onCatalogAccessoryQtyChange(acc.id, $event)"
-                  placeholder="0"
-                />
+                <!-- Gleiches Stepper-Muster wie beim Stückzahl-Feld für
+                     Kinderräder (.menge-stepper/.menge-btn): auf dem
+                     Touchscreen ist ein Tipp auf −/+ die einzige zuverlässig
+                     treffbare Bedienung, die winzigen Zahlenfeld-Pfeilchen
+                     sind es nicht. Direktes Eintippen bleibt über das Feld
+                     möglich. Untergrenze hier bewusst 0 (abwählbar), nicht 1
+                     wie beim Kinderrad-Stepper. -->
+                <div class="menge-stepper acc-qty-stepper">
+                  <button
+                    type="button"
+                    class="menge-btn"
+                    (click)="adjustAccessoryQty(acc.id, -1)"
+                    [disabled]="(catalogAccessoryQty[acc.id] || 0) <= 0"
+                    [attr.aria-label]="'Weniger ' + acc.bezeichnung"
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    min="0"
+                    [max]="maxAccessoryQty"
+                    step="1"
+                    [id]="'acc_' + acc.id"
+                    [name]="'accessoryQty_' + acc.id"
+                    [ngModel]="catalogAccessoryQty[acc.id] || 0"
+                    (ngModelChange)="onCatalogAccessoryQtyChange(acc.id, $event)"
+                  />
+                  <button
+                    type="button"
+                    class="menge-btn"
+                    (click)="adjustAccessoryQty(acc.id, 1)"
+                    [disabled]="(catalogAccessoryQty[acc.id] || 0) >= maxAccessoryQty"
+                    [attr.aria-label]="'Mehr ' + acc.bezeichnung"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
             <div class="accessory-total-row" *ngIf="accessoryGrandTotal() > 0">
@@ -748,8 +821,9 @@ const MONTH_NAMES = [
           <div class="form-card">
             <h2>Preise &amp; Zahlung</h2>
             <p class="preise-hint">
-              Miete und Kaution je Fahrrad prüfen und ggf. anpassen. Der berechnete
-              Preis ist ein Vorschlag – der Endpreis kann manuell geändert werden.
+              Miete je Fahrrad prüfen und ggf. anpassen. Der berechnete Preis
+              ist ein Vorschlag – der Endpreis kann manuell geändert werden.
+              Die Kaution wird unten als Gesamtbetrag eingetragen.
             </p>
 
             <div class="preise-bike" *ngFor="let b of bikes; let i = index; trackBy: trackByIndex">
@@ -791,21 +865,11 @@ const MONTH_NAMES = [
                       ≈ {{ (b.gesamtmiete / effectiveMenge(b)) | number: '1.2-2' }} € je Rad × {{ effectiveMenge(b) }} – wird beim Speichern gleichmäßig auf {{ effectiveMenge(b) }} Vertragszeilen verteilt.
                     </span>
                   </div>
-                  <!-- Kaution bewusst ohne required: 0 € Kaution ist erlaubt.
-                       Die Miete dagegen muss > 0 sein, das prüft submit(). -->
-                  <div class="field">
-                    <label>{{ effectiveMenge(b) > 1 ? 'Kaution für ' + effectiveMenge(b) + ' Räder (€)' : 'Kaution (€)' }}</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      [(ngModel)]="b.kaution"
-                      [name]="'kaution_' + i"
-                      min="0"
-                    />
-                    <span class="menge-split-hint" *ngIf="effectiveMenge(b) > 1">
-                      ≈ {{ (b.kaution / effectiveMenge(b)) | number: '1.2-2' }} € je Rad × {{ effectiveMenge(b) }}
-                    </span>
-                  </div>
+                  <!-- Kaution je Rad ist bewusst kein eigenes Feld mehr — nur
+                       noch "Kaution gesamt" unten wird eingegeben und dort
+                       gleichmäßig auf die Räder verteilt (siehe kautionGesamt-
+                       Setter). b.kaution bleibt intern bestehen: die Rückgabe
+                       braucht die Kaution je physischem Rad. -->
                 </div>
               </ng-container>
             </div>
@@ -855,11 +919,15 @@ const MONTH_NAMES = [
                 <span>Gesamtmiete{{ accessoryGrandTotal() > 0 ? ' inkl. Zubehör' : '' }}</span>
                 <strong>{{ totalMiete() | number: '1.2-2' }} €</strong>
               </div>
-              <!-- Kaution gesamt ist der Betrag, über den mit dem Kunden
-                   gesprochen wird ("machen wir 400"). Er ist direkt
-                   editierbar und wird gleichmäßig auf die Räder verteilt;
-                   der Rundungsrest landet beim ersten Rad, damit die Summe
-                   exakt dem eingegebenen Betrag entspricht. -->
+              <!-- Kaution gesamt ist die einzige Stelle, an der die Kaution
+                   eingetragen wird (kein Feld je Rad mehr). Der Betrag ist
+                   direkt editierbar und wird gleichmäßig auf die Räder
+                   verteilt; der Rundungsrest landet beim ersten Rad, damit
+                   die Summe exakt dem eingegebenen Betrag entspricht. Ohne
+                   gewähltes/neu angelegtes Rad gibt es nichts, worauf man
+                   verteilen könnte — das Feld bleibt dann gesperrt, statt
+                   eine Eingabe stillschweigend zu verwerfen (siehe
+                   kautionGesamt-Setter). -->
               <div class="preise-total-row kaution-total">
                 <span>Kaution gesamt</span>
                 <input
@@ -869,7 +937,16 @@ const MONTH_NAMES = [
                   class="kaution-total-input"
                   [(ngModel)]="kautionGesamt"
                   name="kautionGesamt"
+                  [disabled]="activeBikeCount() === 0"
+                  [title]="activeBikeCount() === 0 ? 'Zuerst ein Fahrrad wählen oder neu anlegen' : ''"
                 />
+              </div>
+              <div class="preise-total-hint" *ngIf="activeBikeCount() === 0">
+                Zuerst mindestens ein Fahrrad wählen oder neu anlegen, um die
+                Kaution einzutragen.
+              </div>
+              <div class="preise-total-hint" *ngIf="activeBikeCount() === 1">
+                Auf Quittung und Rückgabebeleg steht dieser Betrag.
               </div>
               <div class="preise-total-hint" *ngIf="activeBikeCount() > 1">
                 Gilt für alle {{ activeBikeCount() }} Fahrräder zusammen – auf
@@ -887,25 +964,48 @@ const MONTH_NAMES = [
           <div class="form-card">
             <h2>Ausweis-Foto</h2>
             <p style="font-size:0.85rem;color:#64748b;margin-bottom:12px;">
-              Ausweis des Mieters fotografieren oder hochladen (optional).
+              Ausweis des Mieters fotografieren oder hochladen (optional,
+              Vorder- und Rückseite getrennt).
             </p>
 
-            <div *ngIf="ausweisPreviewUrl" style="margin-bottom:12px;">
-              <img [src]="ausweisPreviewUrl" style="max-width:100%;max-height:260px;border:1px solid #e2e8f0;border-radius:8px;" />
-            </div>
-            <div *ngIf="!ausweisPreviewUrl && ausweisFile" style="margin-bottom:12px;font-size:0.85rem;color:#334155;">
-              📄 {{ ausweisFile.name }}
-            </div>
-            <div *ngIf="!ausweisFile && existingAusweisPhotoPath" style="margin-bottom:12px;font-size:0.85rem;color:#16a34a;">
-              ✓ Foto vorhanden — neues Foto wählen, um es zu ersetzen.
+            <div style="margin-bottom:24px;">
+              <h3 style="font-size:0.85rem;font-weight:700;margin:0 0 8px 0;color:var(--text-primary);">Vorderseite</h3>
+              <div *ngIf="ausweisVorderseitePreviewUrl" style="margin-bottom:12px;">
+                <img [src]="ausweisVorderseitePreviewUrl" style="max-width:100%;max-height:260px;border:1px solid #e2e8f0;border-radius:8px;" />
+              </div>
+              <div *ngIf="!ausweisVorderseitePreviewUrl && ausweisVorderseiteFile" style="margin-bottom:12px;font-size:0.85rem;color:#334155;">
+                📄 {{ ausweisVorderseiteFile.name }}
+              </div>
+              <div *ngIf="!ausweisVorderseiteFile && existingAusweisPhotoPath" style="margin-bottom:12px;font-size:0.85rem;color:#16a34a;">
+                ✓ Foto vorhanden — neues Foto wählen, um es zu ersetzen.
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <label class="btn btn-outline" style="cursor:pointer;margin:0;">
+                  📷 {{ ausweisVorderseiteFile ? 'Anderes Foto' : 'Foto aufnehmen / wählen' }}
+                  <input type="file" accept="image/*,.pdf" capture="environment" style="display:none" (change)="onAusweisSelected('vorderseite', $event)" />
+                </label>
+                <button *ngIf="ausweisVorderseiteFile" type="button" class="btn btn-outline" (click)="removeAusweisSelection('vorderseite')">Entfernen</button>
+              </div>
             </div>
 
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-              <label class="btn btn-outline" style="cursor:pointer;margin:0;">
-                📷 {{ ausweisFile ? 'Anderes Foto' : 'Foto aufnehmen / wählen' }}
-                <input type="file" accept="image/*,.pdf" capture="environment" style="display:none" (change)="onAusweisSelected($event)" />
-              </label>
-              <button *ngIf="ausweisFile" type="button" class="btn btn-outline" (click)="removeAusweisSelection()">Entfernen</button>
+            <div>
+              <h3 style="font-size:0.85rem;font-weight:700;margin:0 0 8px 0;color:var(--text-primary);">Rückseite</h3>
+              <div *ngIf="ausweisRueckseitePreviewUrl" style="margin-bottom:12px;">
+                <img [src]="ausweisRueckseitePreviewUrl" style="max-width:100%;max-height:260px;border:1px solid #e2e8f0;border-radius:8px;" />
+              </div>
+              <div *ngIf="!ausweisRueckseitePreviewUrl && ausweisRueckseiteFile" style="margin-bottom:12px;font-size:0.85rem;color:#334155;">
+                📄 {{ ausweisRueckseiteFile.name }}
+              </div>
+              <div *ngIf="!ausweisRueckseiteFile && existingAusweisPhotoRueckseitePath" style="margin-bottom:12px;font-size:0.85rem;color:#16a34a;">
+                ✓ Foto vorhanden — neues Foto wählen, um es zu ersetzen.
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <label class="btn btn-outline" style="cursor:pointer;margin:0;">
+                  📷 {{ ausweisRueckseiteFile ? 'Anderes Foto' : 'Foto aufnehmen / wählen' }}
+                  <input type="file" accept="image/*,.pdf" capture="environment" style="display:none" (change)="onAusweisSelected('rueckseite', $event)" />
+                </label>
+                <button *ngIf="ausweisRueckseiteFile" type="button" class="btn btn-outline" (click)="removeAusweisSelection('rueckseite')">Entfernen</button>
+              </div>
             </div>
           </div>
           </ng-container>
@@ -1586,6 +1686,11 @@ const MONTH_NAMES = [
         outline: none;
         border-color: var(--accent-primary, #6366f1);
       }
+      .kaution-total-input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: var(--bg-secondary, #f1f5f9);
+      }
       .preise-total-hint {
         font-size: 0.78rem;
         color: var(--text-secondary, #64748b);
@@ -1618,7 +1723,10 @@ const MONTH_NAMES = [
       }
       .accessory-quantity-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        /* 220px statt vorher 180px: der Stepper (−/Zahl/+) braucht mehr Platz
+           als das frühere nackte Zahlenfeld, sonst bliebe der Zeile links zu
+           wenig für den Namen. */
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
         gap: 12px 16px;
         margin-top: 12px;
       }
@@ -1659,16 +1767,12 @@ const MONTH_NAMES = [
         font-size: 0.78rem;
         color: var(--text-secondary, #64748b);
       }
-      .accessory-quantity-item input {
+      /* Der Mengen-Stepper (.menge-stepper) ist jetzt der Zubehör-eigene
+         Wert-Eintrag, siehe .acc-qty-stepper unten — die einzige Ergänzung
+         hier ist, ihn als Flex-Kind vor dem Zusammenschrumpfen zu schützen,
+         damit die Namensspalte links davon nicht auf ihn ausweicht. */
+      .acc-qty-stepper {
         flex-shrink: 0;
-        width: 70px;
-        padding: 6px 8px;
-        border: 1.5px solid var(--border-color);
-        border-radius: var(--radius-sm, 6px);
-        font-size: 0.9rem;
-        text-align: center;
-        background: var(--bg-input, var(--bg-card));
-        color: var(--text-primary);
       }
       .checkbox-item {
         display: inline-flex;
@@ -2215,10 +2319,6 @@ const MONTH_NAMES = [
           padding: 8px 12px;
           font-size: 0.9rem;
         }
-        .accessory-quantity-item input {
-          width: 64px;
-          padding: 8px;
-        }
       }
     `,
   ],
@@ -2240,11 +2340,17 @@ export class RentalFormComponent implements OnInit {
 
   fromBookingId: number | null = null;
   fromBookingAusweisPhotoPath: string | undefined = undefined;
+  fromBookingAusweisPhotoRueckseitePath: string | undefined = undefined;
 
-  // ── Ausweis photo (captured in the wizard, uploaded after create/update) ──
-  ausweisFile: File | null = null;
-  ausweisPreviewUrl: string | null = null;
+  // ── Ausweis photos (captured in the wizard, uploaded after create/update) ──
+  // Vorder- und Rückseite getrennt, jede optional.
+  ausweisVorderseiteFile: File | null = null;
+  ausweisVorderseitePreviewUrl: string | null = null;
   existingAusweisPhotoPath = '';
+
+  ausweisRueckseiteFile: File | null = null;
+  ausweisRueckseitePreviewUrl: string | null = null;
+  existingAusweisPhotoRueckseitePath = '';
 
   // ── Edit mode ──
   isEditMode = false;
@@ -2384,36 +2490,136 @@ export class RentalFormComponent implements OnInit {
     this.scrollToTop();
   }
 
-  onAusweisSelected(event: Event) {
+  onAusweisSelected(seite: 'vorderseite' | 'rueckseite', event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
-    this.ausweisFile = file;
-    if (this.ausweisPreviewUrl) URL.revokeObjectURL(this.ausweisPreviewUrl);
-    this.ausweisPreviewUrl = file.type.startsWith('image/')
+    const previewUrl = file.type.startsWith('image/')
       ? URL.createObjectURL(file)
       : null;
-  }
-
-  removeAusweisSelection() {
-    this.ausweisFile = null;
-    if (this.ausweisPreviewUrl) {
-      URL.revokeObjectURL(this.ausweisPreviewUrl);
-      this.ausweisPreviewUrl = null;
+    if (seite === 'vorderseite') {
+      this.ausweisVorderseiteFile = file;
+      if (this.ausweisVorderseitePreviewUrl) URL.revokeObjectURL(this.ausweisVorderseitePreviewUrl);
+      this.ausweisVorderseitePreviewUrl = previewUrl;
+    } else {
+      this.ausweisRueckseiteFile = file;
+      if (this.ausweisRueckseitePreviewUrl) URL.revokeObjectURL(this.ausweisRueckseitePreviewUrl);
+      this.ausweisRueckseitePreviewUrl = previewUrl;
     }
   }
 
-  /** Uploads the captured Ausweis photo to the given rental, if one was selected. */
+  removeAusweisSelection(seite: 'vorderseite' | 'rueckseite') {
+    if (seite === 'vorderseite') {
+      this.ausweisVorderseiteFile = null;
+      if (this.ausweisVorderseitePreviewUrl) {
+        URL.revokeObjectURL(this.ausweisVorderseitePreviewUrl);
+        this.ausweisVorderseitePreviewUrl = null;
+      }
+    } else {
+      this.ausweisRueckseiteFile = null;
+      if (this.ausweisRueckseitePreviewUrl) {
+        URL.revokeObjectURL(this.ausweisRueckseitePreviewUrl);
+        this.ausweisRueckseitePreviewUrl = null;
+      }
+    }
+  }
+
+  /** Uploads the captured Ausweis photo(s) to the given rental, if any were selected. */
   private uploadAusweisIfSelected(rentalId: number): Observable<unknown> {
-    if (!this.ausweisFile) return of(null);
-    return this.rentalService.uploadAusweis(rentalId, this.ausweisFile).pipe(
-      catchError(() => {
-        this.notificationService.error(
-          'Ausweis-Foto konnte nicht hochgeladen werden.',
+    const uploads: Observable<unknown>[] = [];
+    if (this.ausweisVorderseiteFile) {
+      uploads.push(
+        this.rentalService
+          .uploadAusweis(rentalId, this.ausweisVorderseiteFile, 'vorderseite')
+          .pipe(
+            catchError(() => {
+              this.notificationService.error(
+                'Ausweis-Foto (Vorderseite) konnte nicht hochgeladen werden.',
+              );
+              return of(null);
+            }),
+          ),
+      );
+    }
+    if (this.ausweisRueckseiteFile) {
+      uploads.push(
+        this.rentalService
+          .uploadAusweis(rentalId, this.ausweisRueckseiteFile, 'rueckseite')
+          .pipe(
+            catchError(() => {
+              this.notificationService.error(
+                'Ausweis-Foto (Rückseite) konnte nicht hochgeladen werden.',
+              );
+              return of(null);
+            }),
+          ),
+      );
+    }
+    return uploads.length > 0 ? forkJoin(uploads) : of(null);
+  }
+
+  /**
+   * Fotos für ein schnell angelegtes Rad auswählen. Mehrfachauswahl möglich,
+   * mehrere Aufrufe (weitere Fotos) hängen an die bestehende Auswahl an,
+   * statt sie zu ersetzen.
+   */
+  onQuickAddPhotoSelected(i: number, event: Event) {
+    const b = this.bikes[i];
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (!b || !files || files.length === 0) return;
+    for (let f = 0; f < files.length; f++) {
+      const file = files[f];
+      b.quickAddPhotos.push(file);
+      b.quickAddPhotoPreviews.push(URL.createObjectURL(file));
+    }
+    // Zurücksetzen, damit dieselbe Datei erneut ausgewählt werden kann.
+    input.value = '';
+  }
+
+  removeQuickAddPhoto(i: number, photoIndex: number) {
+    const b = this.bikes[i];
+    if (!b) return;
+    const url = b.quickAddPhotoPreviews[photoIndex];
+    if (url) URL.revokeObjectURL(url);
+    b.quickAddPhotos.splice(photoIndex, 1);
+    b.quickAddPhotoPreviews.splice(photoIndex, 1);
+  }
+
+  private resetQuickAddPhotos(b: BikeEntry): void {
+    for (const url of b.quickAddPhotoPreviews) URL.revokeObjectURL(url);
+    b.quickAddPhotos = [];
+    b.quickAddPhotoPreviews = [];
+  }
+
+  /**
+   * Lädt die für schnell angelegte Räder ausgewählten Fotos hoch, sobald
+   * deren BicycleId feststeht (siehe submit()/submitEdit()). Läuft vor dem
+   * Anlegen/Speichern des Mietvertrags, darf ihn aber nie verhindern: der
+   * Inhaber steht mit dem Kunden am Ladentisch, ein verlorener Vertrag wiegt
+   * ungleich schwerer als ein fehlendes Foto — jeder Fehler wird deshalb
+   * abgefangen, gemeldet und als Erfolg weitergereicht.
+   */
+  private uploadQuickAddPhotos(
+    entries: Array<{ b: BikeEntry; bicycleId: number }>,
+  ): Observable<unknown> {
+    const uploads: Observable<unknown>[] = [];
+    for (const { b, bicycleId } of entries) {
+      if (!b.isQuickAddMode || b.quickAddPhotos.length === 0) continue;
+      for (const file of b.quickAddPhotos) {
+        uploads.push(
+          this.bicycleService.uploadGalleryImage(bicycleId, file).pipe(
+            catchError(() => {
+              this.notificationService.error(
+                `Foto für ${b.bikeEdit.marke || 'neues Fahrrad'} konnte nicht hochgeladen werden.`,
+              );
+              return of(null);
+            }),
+          ),
         );
-        return of(null);
-      }),
-    );
+      }
+    }
+    return uploads.length > 0 ? forkJoin(uploads) : of(null);
   }
 
   private validateStep(step: number): boolean {
@@ -2444,13 +2650,10 @@ export class RentalFormComponent implements OnInit {
         return false;
       }
       b.bikeErrors = {};
-      if (b.isQuickAddMode && !b.bikeEdit.rahmennummer) b.bikeErrors['rahmennummer'] = true;
       if (!b.bikeEdit.marke) b.bikeErrors['marke'] = true;
       if (Object.values(b.bikeErrors).some((v) => v)) {
         b.isCollapsed = false;
-        this.notificationService.error(
-          `Fahrrad ${i + 1}: Rahmennummer und Marke ausfüllen`,
-        );
+        this.notificationService.error(`Fahrrad ${i + 1}: Marke ausfüllen`);
         return false;
       }
     }
@@ -2534,6 +2737,13 @@ export class RentalFormComponent implements OnInit {
     const active = this.bikes.filter((b) => b.selectedBike || b.isQuickAddMode);
     const weights = active.map((b) => this.effectiveMenge(b));
     const totalUnits = weights.reduce((sum, w) => sum + w, 0);
+    // Ohne aktives Rad gibt es nichts, worauf verteilt werden könnte. Das ist
+    // hier absichtlich kein stilles Verschlucken der Eingabe: "Kaution
+    // gesamt" ist die einzige Stelle, an der die Kaution eingetragen wird
+    // (kein Feld je Rad mehr), deshalb ist das Eingabefeld im Template
+    // [disabled]="activeBikeCount() === 0" — der Setter kann also praktisch
+    // gar nicht mit totalUnits === 0 aufgerufen werden, dieser Zweig ist nur
+    // eine defensive Absicherung.
     if (totalUnits === 0) return;
     const totalCents = Math.max(0, Math.round((Number(value) || 0) * 100));
     const perUnitCents = Math.floor(totalCents / totalUnits);
@@ -2604,12 +2814,27 @@ export class RentalFormComponent implements OnInit {
   catalogAccessoryQty: Record<number, number> = {};
   /** Existing accessories to pre-select once the catalog has loaded. */
   private prefillAccessories: { bezeichnung: string; menge: number }[] = [];
+  /**
+   * Obergrenze für Zubehör je Position. Ein Ladentisch-Vertrag deckt selten
+   * mehr als eine Handvoll Fahrräder ab, 20 lässt für Helme/Schlösser/
+   * Kindersitze deutlich Luft, ohne dass ein Fehltipp auf den +-Knopf eine
+   * absurde Menge erzeugen kann.
+   */
+  readonly maxAccessoryQty = 20;
 
   onCatalogAccessoryQtyChange(id: number, value: unknown) {
     const n = Number(value);
-    const qty = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+    let qty = Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+    if (qty > this.maxAccessoryQty) qty = this.maxAccessoryQty;
     if (qty > 0) this.catalogAccessoryQty[id] = qty;
     else delete this.catalogAccessoryQty[id];
+  }
+
+  /** Plus/Minus-Stepper für eine Zubehörzeile — Untergrenze 0 (abwählbar). */
+  adjustAccessoryQty(id: number, delta: number): void {
+    const current = this.catalogAccessoryQty[id] || 0;
+    const next = Math.min(this.maxAccessoryQty, Math.max(0, current + delta));
+    this.onCatalogAccessoryQtyChange(id, next);
   }
 
   /**
@@ -2783,6 +3008,7 @@ export class RentalFormComponent implements OnInit {
     if (b?.isExisting && b.rentalBikeId != null) {
       this.removedExistingBikeIds.push(b.rentalBikeId);
     }
+    if (b) this.resetQuickAddPhotos(b);
     this.bikes.splice(i, 1);
   }
 
@@ -3084,6 +3310,9 @@ export class RentalFormComponent implements OnInit {
           if (booking.ausweisPhotoPath) {
             this.fromBookingAusweisPhotoPath = booking.ausweisPhotoPath;
           }
+          if (booking.ausweisPhotoRueckseitePath) {
+            this.fromBookingAusweisPhotoRueckseitePath = booking.ausweisPhotoRueckseitePath;
+          }
 
           if (booking.accessories && booking.accessories.length > 0) {
             this.prefillAccessories = booking.accessories.map((a) => ({
@@ -3217,6 +3446,7 @@ export class RentalFormComponent implements OnInit {
     this.unterschriftOrt = rental.unterschriftOrt || 'Freiburg';
     this.existingSignature = rental.mieterUnterschrift || '';
     this.existingAusweisPhotoPath = rental.ausweisPhotoPath || '';
+    this.existingAusweisPhotoRueckseitePath = rental.ausweisPhotoRueckseitePath || '';
 
     // Dates
     if (rental.startDatum) this.startDatum = rental.startDatum.split('T')[0];
@@ -3299,6 +3529,10 @@ export class RentalFormComponent implements OnInit {
     b.selectedBike = bike;
     // Ab hier liegen die echten Stammdaten vor — kein Platzhalter mehr.
     b.isStubBike = false;
+    // Ein vorhandenes Rad braucht keine Schnell-Anlegen-Fotos mehr — falls
+    // vorher welche ausgewählt waren (Wechsel von Schnell-Anlegen zu einem
+    // Listen-Rad), Vorschau-URLs sauber freigeben.
+    if (b.isQuickAddMode) this.resetQuickAddPhotos(b);
     b.isQuickAddMode = false;
     b.bikeEdit = {
       rahmennummer: bike.rahmennummer || '',
@@ -3351,6 +3585,9 @@ export class RentalFormComponent implements OnInit {
     b.isQuickAddMode = true;
     b.selectedBike = null;
     b.busyPeriods = [];
+    // Sauberer Neustart, falls für diesen Slot schon einmal Fotos
+    // ausgewählt worden waren (z. B. erneutes „Schnell hinzufügen").
+    this.resetQuickAddPhotos(b);
     // Stückzahl gibt es nur bei vorhandenen Kinderrad-Anzeigen (siehe
     // showMengeInput) — ein frisch angelegtes Einzelrad hat keine.
     b.menge = 1;
@@ -3691,12 +3928,9 @@ export class RentalFormComponent implements OnInit {
       }
       if (b.isQuickAddMode || b.selectedBike) {
         b.bikeErrors = {};
-        if (b.isQuickAddMode && !b.bikeEdit.rahmennummer) b.bikeErrors['rahmennummer'] = true;
         if (!b.bikeEdit.marke) b.bikeErrors['marke'] = true;
         if (Object.values(b.bikeErrors).some((v) => v)) {
-          this.notificationService.error(
-            `Fahrrad ${i + 1}: Rahmennummer und Marke ausfüllen`,
-          );
+          this.notificationService.error(`Fahrrad ${i + 1}: Marke ausfüllen`);
           return;
         }
       }
@@ -3752,7 +3986,12 @@ export class RentalFormComponent implements OnInit {
       if (b.isQuickAddMode) {
         return this.bicycleService
           .create({
-            rahmennummer: b.bikeEdit.rahmennummer.toUpperCase(),
+            // Optional beim Schnell-Anlegen — leer bleibt leer statt "" zu
+            // erzwingen, damit keine Karten mit sichtbarer Leer-Rahmennummer
+            // entstehen.
+            rahmennummer: b.bikeEdit.rahmennummer
+              ? b.bikeEdit.rahmennummer.toUpperCase()
+              : undefined,
             marke: b.bikeEdit.marke,
             modell: b.bikeEdit.modell,
             rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
@@ -3816,6 +4055,15 @@ export class RentalFormComponent implements OnInit {
 
     forkJoin(bikeIdResolves)
       .pipe(
+        // Fotos für schnell angelegte Räder erst hochladen, wenn die
+        // BicycleId aus dem forkJoin oben feststeht — und dabei jeden Fehler
+        // abfangen, damit ein fehlgeschlagener Foto-Upload das Anlegen des
+        // Mietvertrags nicht verhindert (siehe uploadQuickAddPhotos()).
+        switchMap((bicycleIds: number[]) =>
+          this.uploadQuickAddPhotos(
+            this.bikes.map((b, i) => ({ b, bicycleId: bicycleIds[i] })),
+          ).pipe(map(() => bicycleIds)),
+        ),
         switchMap((bicycleIds: number[]) => {
           // Use the first bike's payment methods as the rental-level defaults
           const firstBike = this.bikes[0];
@@ -3833,6 +4081,7 @@ export class RentalFormComponent implements OnInit {
             agbAkzeptiert: this.agbAkzeptiert,
             unterschriftOrt: this.unterschriftOrt || undefined,
             ausweisPhotoPath: this.fromBookingAusweisPhotoPath,
+            ausweisPhotoRueckseitePath: this.fromBookingAusweisPhotoRueckseitePath,
             // Stückzahl > 1 (gepooltes Kinderrad) wird hier zu mehreren
             // Einträgen mit derselben BicycleId aufgelöst, siehe expandBikeEntry().
             bikes: this.bikes.flatMap((b, i) =>
@@ -3872,7 +4121,10 @@ export class RentalFormComponent implements OnInit {
     if (b.isQuickAddMode) {
       return this.bicycleService
         .create({
-          rahmennummer: b.bikeEdit.rahmennummer.toUpperCase(),
+          // Optional beim Schnell-Anlegen, siehe Anlege-Pfad.
+          rahmennummer: b.bikeEdit.rahmennummer
+            ? b.bikeEdit.rahmennummer.toUpperCase()
+            : undefined,
           marke: b.bikeEdit.marke,
           modell: b.bikeEdit.modell,
           rahmengroesse: b.bikeEdit.rahmengroesse || undefined,
@@ -3935,6 +4187,12 @@ export class RentalFormComponent implements OnInit {
 
     forkJoin(resolves)
       .pipe(
+        // Siehe submit(): Fotos für schnell angelegte Räder erst hochladen,
+        // wenn die BicycleId feststeht, ohne einen Fehlschlag das Speichern
+        // des Vertrags verhindern zu lassen.
+        switchMap((results) =>
+          this.uploadQuickAddPhotos(results).pipe(map(() => results)),
+        ),
         switchMap((results) => {
           const firstBike = this.bikes[0];
           const existingBikes: RentalBikeUpdate[] = [];
