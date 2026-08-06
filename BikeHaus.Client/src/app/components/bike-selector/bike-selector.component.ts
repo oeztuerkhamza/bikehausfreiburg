@@ -501,25 +501,63 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Alphabetisch nach Marke, dann Modell, zuletzt nach Bestandsnummer.
+   * Nach Bestandsnummer: erst die Räder mit Buchstabe davor (E1, E2, E14 …),
+   * danach die reinen Nummern (1, 2, 3 …), zuletzt alles ohne Nummer
+   * alphabetisch.
    *
-   * Die Bestandsnummer steckt vorne in der Marke ("39 - Ideal", "E14 - IDEAL")
-   * und muss beim Vergleich weg: als Text sortiert sie 1, 10, 11, …, 2 und
-   * reißt damit dieselbe Marke auseinander. Sie bleibt aber als letztes
-   * Kriterium erhalten, damit gleiche Modelle als 36, 37, 38 erscheinen und
-   * nicht in Zufallsreihenfolge. Sortiert wird hier in der Liste — die
-   * Reihenfolge vom Server hängt an der Verfügbarkeitsabfrage, und im
-   * Bearbeiten-Modus werden Räder nachträglich angehängt.
+   * Vorher wurde alphabetisch nach der Marke **ohne** die Bestandsnummer
+   * sortiert. Damit stand im Laden nicht die Nummer vorne, nach der der Inhaber
+   * sucht: "20 zoll Kinder Fahrrad" landete am Anfang, "E14 - IDEAL" irgendwo
+   * unter I. Auf Wunsch des Inhabers ist die Bestandsnummer jetzt das erste
+   * Kriterium — bitte nicht wieder auf Markenname umstellen.
+   *
+   * Innerhalb einer Gruppe wird die Nummer als Zahl verglichen, nicht als Text:
+   * sonst kommt 1, 10, 11, …, 2. Marke und Modell bleiben als Tiebreaker, damit
+   * gleiche Nummern (oder Räder ganz ohne Nummer) eine stabile Reihenfolge
+   * haben. Sortiert wird hier in der Liste — die Reihenfolge vom Server hängt an
+   * der Verfügbarkeitsabfrage, und im Bearbeiten-Modus werden Räder nachträglich
+   * angehängt.
    */
   private sortAlphabetically(list: Bicycle[]): Bicycle[] {
-    return [...list].sort(
-      (a, b) =>
-        this.brandSortKey(a.marke).localeCompare(this.brandSortKey(b.marke), 'de') ||
+    return [...list].sort((a, b) => {
+      const pa = this.stockPrefix(a.marke);
+      const pb = this.stockPrefix(b.marke);
+      return (
+        this.stockPrefixRank(pa) - this.stockPrefixRank(pb) ||
+        pa.letter.localeCompare(pb.letter, 'de') ||
+        (pa.number ?? 0) - (pb.number ?? 0) ||
+        this.brandSortKey(a.marke).localeCompare(
+          this.brandSortKey(b.marke),
+          'de',
+        ) ||
         (a.modell || '').localeCompare(b.modell || '', 'de', {
           sensitivity: 'base',
-        }) ||
-        this.stockNumber(a) - this.stockNumber(b),
-    );
+        })
+      );
+    });
+  }
+
+  /**
+   * Bestandsnummer, so wie sie vorne im Namen steht: "E14 - IDEAL" ergibt
+   * {letter:'e', number:14}, "39 - Ideal" ergibt {letter:'', number:39},
+   * "Bulls Sharptail" ergibt {letter:'', number:null}.
+   */
+  private stockPrefix(marke: string | undefined): {
+    letter: string;
+    number: number | null;
+  } {
+    const match = /^\s*([A-Za-z]*)\s*(\d+)/.exec(marke || '');
+    if (!match) return { letter: '', number: null };
+    return { letter: (match[1] || '').toLowerCase(), number: Number(match[2]) };
+  }
+
+  /** 0 = Buchstabe + Nummer (E…), 1 = reine Nummer, 2 = keine Nummer. */
+  private stockPrefixRank(prefix: {
+    letter: string;
+    number: number | null;
+  }): number {
+    if (prefix.number === null) return 2;
+    return prefix.letter ? 0 : 1;
   }
 
   /** Marke ohne vorangestellte Bestandsnummer, klein geschrieben. */

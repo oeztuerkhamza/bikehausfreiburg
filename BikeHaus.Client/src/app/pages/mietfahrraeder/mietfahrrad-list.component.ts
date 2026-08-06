@@ -179,9 +179,11 @@ type EditableField =
               <span *ngIf="bike.fahrradtyp">{{ bike.fahrradtyp }}</span>
               <span *ngIf="bike.reifengroesse">{{ bike.reifengroesse }}"</span>
               <span *ngIf="bike.farbe">{{ bike.farbe }}</span>
-              <span *ngIf="bike.koerpergroesseVonCm || bike.koerpergroesseBisCm">
-                {{ bike.koerpergroesseVonCm }}–{{ bike.koerpergroesseBisCm }} cm
-              </span>
+              <!-- Rahmengröße statt Körpergröße: in dieser Übersicht pflegt der
+                   Inhaber die Räder, und da zählt das Maß des Rades. Die
+                   empfohlene Körpergröße steht dort, wo einem Gast ein Rad
+                   zugeordnet wird (Verfügbarkeit, öffentlicher Buchungsablauf). -->
+              <span *ngIf="bike.rahmengroesse">{{ bike.rahmengroesse }}</span>
             </div>
 
             <!-- Prices + Kaution (Doppelklick zum Ändern) -->
