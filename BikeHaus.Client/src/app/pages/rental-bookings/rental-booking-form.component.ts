@@ -128,11 +128,24 @@ import { Bicycle, RentalBookingCreate } from '../../models/models';
               </div>
               <div class="field">
                 <label>{{ t.language }}</label>
+                <!-- Bestimmt die Sprache aller Mails zu dieser Buchung. Die
+                     Liste deckt jetzt alle Sprachen ab, für die es
+                     Mailtexte gibt (RentalBookingMailTexts) — vorher standen
+                     hier nur vier, und fr/tr wurden serverseitig ohnehin still
+                     auf Deutsch zurückgesetzt. -->
                 <select [(ngModel)]="sprache" name="sprache">
                   <option value="de">Deutsch</option>
                   <option value="en">English</option>
-                  <option value="fr">Français</option>
                   <option value="tr">Türkçe</option>
+                  <option value="fr">Français</option>
+                  <option value="es">Español</option>
+                  <option value="it">Italiano</option>
+                  <option value="nl">Nederlands</option>
+                  <option value="pl">Polski</option>
+                  <option value="ru">Русский</option>
+                  <option value="ar">العربية</option>
+                  <option value="da">Dansk</option>
+                  <option value="no">Norsk</option>
                 </select>
               </div>
               <div class="field full">

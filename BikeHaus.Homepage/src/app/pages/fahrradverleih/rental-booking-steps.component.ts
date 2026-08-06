@@ -43,6 +43,13 @@ interface CartBike {
   calculatedPrice?: number;
 }
 
+/**
+ * Die Eingaben des Gasts — und **nur** die. Die Sprache stand hier einmal mit
+ * drin, obwohl sie niemand eintippt: sie ist Kontext, nicht Eingabe. Über den
+ * Entwurf im sessionStorage kam sie damit als alter Wert zurück (ein in Deutsch
+ * begonnener Entwurf machte aus einer türkischen Buchung eine deutsche Mail).
+ * Die Sprache wird deshalb erst beim Absenden aus `lang()` gelesen.
+ */
 interface BookingFormValues {
   vorname: string;
   nachname: string;
@@ -52,7 +59,6 @@ interface BookingFormValues {
   hausNr: string;
   plz: string;
   ort: string;
-  sprache: string;
   notizen: string;
   abholzeit: string;
 }
@@ -3115,7 +3121,6 @@ export class RentalBookingStepsComponent implements OnInit {
     hausNr: '',
     plz: '',
     ort: '',
-    sprache: this.lang(),
     notizen: '',
     abholzeit: '',
   };
@@ -3489,6 +3494,33 @@ export class RentalBookingStepsComponent implements OnInit {
     }
   }
 
+  /**
+   * Übernimmt die gemerkten Eingaben Feld für Feld.
+   *
+   * Bewusst kein `{ ...this.bookingForm, ...draft.form }`: ein Spread nimmt
+   * alles mit, was irgendwann einmal im Entwurf gelandet ist. Genau so kam die
+   * Sprache eines alten Entwurfs zurück und schickte die Bestätigungsmail auf
+   * Deutsch, obwohl der Gast auf Türkisch gebucht hatte. Was hier nicht
+   * ausdrücklich steht, kommt nicht zurück.
+   */
+  private restoreForm(form: Partial<BookingFormValues> | undefined): void {
+    if (!form) return;
+    const text = (value: unknown): string =>
+      typeof value === 'string' ? value : '';
+    this.bookingForm = {
+      vorname: text(form.vorname),
+      nachname: text(form.nachname),
+      email: text(form.email),
+      telefon: text(form.telefon),
+      strasse: text(form.strasse),
+      hausNr: text(form.hausNr),
+      plz: text(form.plz),
+      ort: text(form.ort),
+      notizen: text(form.notizen),
+      abholzeit: text(form.abholzeit),
+    };
+  }
+
   /** Liest den Entwurf und verwirft ihn, wenn er nicht mehr taugt. */
   private readDraft(): BookingDraft | null {
     if (!isPlatformBrowser(this.platformId)) return null;
@@ -3562,7 +3594,7 @@ export class RentalBookingStepsComponent implements OnInit {
               : null,
           );
           this.accessoryQtys.set(draft.accessoryQtys ?? {});
-          this.bookingForm = { ...this.bookingForm, ...draft.form };
+          this.restoreForm(draft.form);
           this.riderHeightInput.set(draft.riderHeightCm ?? null);
           // Der Zubehör-Katalog wird sonst erst im Zubehör-Schritt geladen —
           // ohne ihn stünden die gemerkten Mengen in der Übersicht nicht drin.
@@ -3929,7 +3961,10 @@ export class RentalBookingStepsComponent implements OnInit {
       hausNr: this.bookingForm.hausNr || undefined,
       plz: this.bookingForm.plz || undefined,
       ort: this.bookingForm.ort || undefined,
-      sprache: this.bookingForm.sprache,
+      // Sprache immer aus dem aktuellen Zustand, nie aus dem Formular oder
+      // dem Entwurf — ein alter Wert schickte sonst die Mail in der falschen
+      // Sprache raus.
+      sprache: this.lang(),
       notizen: this.bookingForm.notizen || undefined,
       accessories: accessories.length > 0 ? accessories : undefined,
       abholzeit: this.bookingForm.abholzeit || undefined,
@@ -4101,8 +4136,7 @@ export class RentalBookingStepsComponent implements OnInit {
       hausNr: '',
       plz: '',
       ort: '',
-      sprache: this.lang(),
-      notizen: '',
+        notizen: '',
       abholzeit: '',
     };
     this.goToStep('date-selection');
