@@ -84,6 +84,16 @@ interface BikeEntry {
   rahmenSearchResults: Bicycle[];
   showRahmenDropdown: boolean;
   rahmenSearchTimeout: any;
+  /**
+   * Stückzahl — nur für gepoolte Kinderrad-Anzeigen nutzbar (siehe
+   * showMengeInput()) und dort reine Eingabehilfe: beim Speichern wird sie zu
+   * `menge` einzelnen dto.Bikes-Einträgen mit derselben BicycleId aufgelöst
+   * (siehe expandBikeEntry()), weil jedes physische Rad seinen eigenen
+   * Rückgabe-Zustand braucht (Kaution zurück, Zustand bei Rückgabe, …).
+   * gesamtmiete/kaution unten sind dabei die SLOT-Summe (alle n Räder
+   * zusammen), nicht der Preis je Rad — konsistent mit "Kaution gesamt".
+   */
+  menge: number;
   gesamtmiete: number;
   /**
    * true, sobald die Miete von Hand gesetzt wurde (ausgehandelter Preis) oder
@@ -125,6 +135,7 @@ function createEmptyBikeEntry(): BikeEntry {
     rahmenSearchResults: [],
     showRahmenDropdown: false,
     rahmenSearchTimeout: null,
+    menge: 1,
     gesamtmiete: 0,
     mieteManuell: false,
     berechneterPreis: 0,
@@ -340,7 +351,7 @@ const MONTH_NAMES = [
               <h2>
                 {{ bikes.length > 1 ? (i + 1) + '. Fahrrad' : 'Fahrrad auswählen' }}
                 <span *ngIf="b.isCollapsed && (b.selectedBike || b.isQuickAddMode)" class="bike-summary">
-                  – {{ b.bikeEdit.marke }} {{ b.bikeEdit.modell }}<ng-container *ngIf="b.gesamtmiete"> · {{ b.gesamtmiete | number: '1.2-2' }} €</ng-container>
+                  – {{ b.bikeEdit.marke }} {{ b.bikeEdit.modell }}<ng-container *ngIf="effectiveMenge(b) > 1"> × {{ effectiveMenge(b) }}</ng-container><ng-container *ngIf="b.gesamtmiete"> · {{ b.gesamtmiete | number: '1.2-2' }} €</ng-container>
                 </span>
               </h2>
               <div class="bike-card-actions">
@@ -436,6 +447,53 @@ const MONTH_NAMES = [
                   />
                   <span class="error-msg" *ngIf="b.bikeErrors['marke']">Pflichtfeld</span>
                 </div>
+
+                <!-- Stückzahl nur bei gepoolten Kinderrad-Anzeigen: eine Anzeige
+                     ("24 Zoll") steht für mehrere gleichartige Räder, die einzeln
+                     an dieselbe Familie vermietet werden. Erwachsenenräder sind
+                     einzelne physische Räder — dort wäre eine Stückzahl > 1 eine
+                     Doppelvermietung desselben Rades und wird nicht angeboten.
+                     Nur für neu hinzugefügte Slots (nicht für bereits im Vertrag
+                     bestehende Zeilen, siehe showMengeInput()). -->
+                <div class="field full menge-field" *ngIf="showMengeInput(b)">
+                  <label>Stückzahl (gepooltes Kinderrad)</label>
+                  <div class="menge-stepper">
+                    <button
+                      type="button"
+                      class="menge-btn"
+                      (click)="adjustMenge(i, -1)"
+                      [disabled]="b.menge <= 1"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      step="1"
+                      [(ngModel)]="b.menge"
+                      [name]="'bikeMenge_' + i"
+                      (ngModelChange)="onMengeChanged(i)"
+                    />
+                    <button
+                      type="button"
+                      class="menge-btn"
+                      (click)="adjustMenge(i, 1)"
+                      [disabled]="b.menge >= 10"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <span class="menge-hint">
+                    Gilt für {{ b.menge }} gleichartige Kinderräder aus dieser
+                    Anzeige – beim Speichern bekommt jedes einen eigenen
+                    Vertragseintrag (eigene Kaution, eigene Rückgabe möglich).
+                    Rahmennummer, Farbe und Zustand bei Übergabe gelten für alle
+                    {{ b.menge }} gleich, da die Anzeige selbst keine
+                    Rahmennummer je Einzelrad führt.
+                  </span>
+                </div>
+
                 <!-- Neu angelegtes Rad (nicht in der Liste): nur Marke,
                      Rahmennummer, Miete und Kaution nötig. Übrige Felder nur
                      für vorhandene Räder. -->
@@ -698,7 +756,7 @@ const MONTH_NAMES = [
               <ng-container *ngIf="b.selectedBike || b.isQuickAddMode">
                 <div class="preise-bike-header">
                   <span class="preise-bike-name">
-                    {{ bikes.length > 1 ? (i + 1) + '. ' : '' }}{{ b.bikeEdit.marke || 'Fahrrad' }} {{ b.bikeEdit.modell }}
+                    {{ bikes.length > 1 ? (i + 1) + '. ' : '' }}{{ b.bikeEdit.marke || 'Fahrrad' }} {{ b.bikeEdit.modell }}<ng-container *ngIf="effectiveMenge(b) > 1"> × {{ effectiveMenge(b) }}</ng-container>
                   </span>
                   <span class="preise-bike-frame" *ngIf="b.bikeEdit.rahmennummer">
                     {{ b.bikeEdit.rahmennummer }}
@@ -719,7 +777,7 @@ const MONTH_NAMES = [
 
                 <div class="form-grid" style="margin-top: 12px;">
                   <div class="field">
-                    <label>Gesamtmiete (€, inkl. MwSt.) *</label>
+                    <label>{{ effectiveMenge(b) > 1 ? 'Gesamtmiete für ' + effectiveMenge(b) + ' Räder (€, inkl. MwSt.) *' : 'Gesamtmiete (€, inkl. MwSt.) *' }}</label>
                     <input
                       type="number"
                       step="0.01"
@@ -729,11 +787,14 @@ const MONTH_NAMES = [
                       min="0"
                       (ngModelChange)="onMieteEdited(i)"
                     />
+                    <span class="menge-split-hint" *ngIf="effectiveMenge(b) > 1">
+                      ≈ {{ (b.gesamtmiete / effectiveMenge(b)) | number: '1.2-2' }} € je Rad × {{ effectiveMenge(b) }} – wird beim Speichern gleichmäßig auf {{ effectiveMenge(b) }} Vertragszeilen verteilt.
+                    </span>
                   </div>
                   <!-- Kaution bewusst ohne required: 0 € Kaution ist erlaubt.
                        Die Miete dagegen muss > 0 sein, das prüft submit(). -->
                   <div class="field">
-                    <label>Kaution (€)</label>
+                    <label>{{ effectiveMenge(b) > 1 ? 'Kaution für ' + effectiveMenge(b) + ' Räder (€)' : 'Kaution (€)' }}</label>
                     <input
                       type="number"
                       step="0.01"
@@ -741,6 +802,9 @@ const MONTH_NAMES = [
                       [name]="'kaution_' + i"
                       min="0"
                     />
+                    <span class="menge-split-hint" *ngIf="effectiveMenge(b) > 1">
+                      ≈ {{ (b.kaution / effectiveMenge(b)) | number: '1.2-2' }} € je Rad × {{ effectiveMenge(b) }}
+                    </span>
                   </div>
                 </div>
               </ng-container>
@@ -1820,6 +1884,66 @@ const MONTH_NAMES = [
         border-radius: 8px;
         vertical-align: middle;
       }
+      .menge-field {
+        background: rgba(16, 185, 129, 0.05);
+        border: 1.5px dashed #10b981;
+        border-radius: var(--radius-md, 10px);
+        padding: 10px 12px;
+      }
+      .menge-stepper {
+        display: inline-flex;
+        align-items: center;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md, 10px);
+        overflow: hidden;
+        background: var(--bg-card);
+        width: fit-content;
+      }
+      .menge-stepper input {
+        border: none;
+        border-radius: 0;
+        width: 56px;
+        text-align: center;
+        padding: 8px 4px;
+      }
+      .menge-stepper input:focus {
+        outline: none;
+        box-shadow: none;
+      }
+      .menge-btn {
+        padding: 0 14px;
+        height: 38px;
+        border: none;
+        background: var(--bg-secondary, #f1f5f9);
+        color: var(--text-primary);
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: 700;
+        transition: background 0.15s;
+      }
+      .menge-btn:hover:not(:disabled) {
+        background: var(--border-color);
+      }
+      .menge-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .menge-hint {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.75rem;
+        color: var(--text-secondary, #64748b);
+        text-transform: none;
+        letter-spacing: normal;
+        line-height: 1.4;
+      }
+      .menge-split-hint {
+        display: block;
+        margin-top: 4px;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-transform: none;
+      }
       .field.full {
         grid-column: 1 / -1;
       }
@@ -2378,9 +2502,17 @@ export class RentalFormComponent implements OnInit {
     );
   }
 
-  /** Räder, die tatsächlich im Vertrag landen (ausgewählt oder neu angelegt). */
+  /**
+   * Physische Räder, die tatsächlich im Vertrag landen (ausgewählt oder neu
+   * angelegt) — zählt bei einem gepoolten Kinderrad-Slot mit Stückzahl > 1
+   * jedes einzelne Rad mit (effectiveMenge), nicht nur den Formular-Slot.
+   */
   activeBikeCount(): number {
-    return this.bikes.filter((b) => b.selectedBike || b.isQuickAddMode).length;
+    return this.bikes.reduce(
+      (sum, b) =>
+        sum + (b.selectedBike || b.isQuickAddMode ? this.effectiveMenge(b) : 0),
+      0,
+    );
   }
 
   get kautionGesamt(): number {
@@ -2392,15 +2524,23 @@ export class RentalFormComponent implements OnInit {
    * der Rest dem ersten Rad zugeschlagen, damit die Summe der Einzelbeträge
    * exakt dem eingegebenen Gesamtbetrag entspricht (400 € / 3 Räder =
    * 133,34 + 133,33 + 133,33).
+   *
+   * Ein Slot mit Stückzahl n zählt dabei als n Räder: b.kaution ist die
+   * SLOT-Summe (siehe BikeEntry-Kommentar), bekommt also n-fach so viel wie
+   * ein Slot mit einem Rad — sonst würde eine Familie mit drei Kinderrädern
+   * denselben Anteil bekommen wie ein einzelnes Erwachsenenrad.
    */
   set kautionGesamt(value: number) {
     const active = this.bikes.filter((b) => b.selectedBike || b.isQuickAddMode);
-    if (active.length === 0) return;
+    const weights = active.map((b) => this.effectiveMenge(b));
+    const totalUnits = weights.reduce((sum, w) => sum + w, 0);
+    if (totalUnits === 0) return;
     const totalCents = Math.max(0, Math.round((Number(value) || 0) * 100));
-    const base = Math.floor(totalCents / active.length);
-    const rest = totalCents - base * active.length;
+    const perUnitCents = Math.floor(totalCents / totalUnits);
+    const rest = totalCents - perUnitCents * totalUnits;
     active.forEach((b, idx) => {
-      b.kaution = (base + (idx === 0 ? rest : 0)) / 100;
+      const slotCents = perUnitCents * weights[idx] + (idx === 0 ? rest : 0);
+      b.kaution = slotCents / 100;
     });
   }
 
@@ -2564,6 +2704,59 @@ export class RentalFormComponent implements OnInit {
     return `${bike?.art ?? ''} ${bike?.fahrradtyp ?? ''}`
       .toLowerCase()
       .includes('kinder');
+  }
+
+  /**
+   * Zeigt die Stückzahl nur, wo sie unbedenklich ist:
+   *  - Erwachsenenräder sind einzelne physische Räder, keine Pool-Anzeige —
+   *    dort bliebe eine Stückzahl > 1 eine Doppelvermietung.
+   *  - Schnell angelegte Räder (isQuickAddMode) haben kein fahrradtyp-Feld im
+   *    Formular und keine Bicycle-Stammdaten, an denen sich "Kinder" prüfen
+   *    ließe — Stückzahl ergibt für ein gerade erst erfasstes Einzelrad
+   *    ohnehin keinen Sinn.
+   *  - Bestehende Vertragszeilen (isExisting) bleiben bewusst außen vor: jede
+   *    trägt bereits eigenen Rückgabe-Zustand (Kaution zurück, Zustand bei
+   *    Rückgabe, ggf. schon zurückgegeben). Sie beim Bearbeiten zu einem
+   *    Stückzahl-Slot zusammenzufassen und wieder aufzuteilen würde dieses
+   *    Zeilen-eigene Feld verlieren oder eine Zuordnungs-Logik brauchen, die
+   *    bei ungleichem Rückgabestatus keine eindeutig richtige Antwort hat.
+   *    Bestehende Zeilen bleiben deshalb einzeln editierbar wie bisher;
+   *    Stückzahl steht nur für neu hinzugefügte Slots zur Verfügung — auch
+   *    beim Bearbeiten eines Vertrags über „Weiteres Fahrrad hinzufügen".
+   */
+  showMengeInput(b: BikeEntry): boolean {
+    return !b.isQuickAddMode && !b.isExisting && this.isChildrensBike(b.selectedBike);
+  }
+
+  /**
+   * Tatsächlich wirksame Stückzahl dieses Slots (1, wenn Stückzahl hier gar
+   * nicht angeboten wird). Auf 1–10 begrenzt, keine 0/Text/Dezimalwerte —
+   * siehe onMengeChanged().
+   */
+  effectiveMenge(b: BikeEntry): number {
+    if (!this.showMengeInput(b)) return 1;
+    const menge = Math.round(Number(b.menge));
+    if (!Number.isFinite(menge) || menge < 1) return 1;
+    return Math.min(menge, 10);
+  }
+
+  adjustMenge(i: number, delta: number): void {
+    const b = this.bikes[i];
+    if (!b) return;
+    b.menge = Math.min(10, Math.max(1, Math.round(Number(b.menge) || 1) + delta));
+    this.onMengeChanged(i);
+  }
+
+  onMengeChanged(i: number): void {
+    const b = this.bikes[i];
+    if (!b) return;
+    let menge = Math.round(Number(b.menge));
+    if (!Number.isFinite(menge) || menge < 1) menge = 1;
+    if (menge > 10) menge = 10;
+    b.menge = menge;
+    // Vorschlag neu rechnen (respektiert wie bei einer Datumsänderung eine
+    // bereits von Hand eingetragene Miete, siehe applyBerechnetenPreis()).
+    this.recalcPriceFor(i);
   }
 
   getAvailableBikesFor(i: number): Bicycle[] {
@@ -3122,6 +3315,9 @@ export class RentalFormComponent implements OnInit {
     if (bike.kaution != null) {
       b.kaution = bike.kaution;
     }
+    // Anderes Rad = andere Stückzahl-Frage: ein neu ausgewähltes Rad startet
+    // wieder bei 1, egal was zuvor in diesem Slot stand.
+    b.menge = 1;
     // Nach der Auswahl aus der Liste die Karte automatisch einklappen
     // (Zusammenfassung + „Erweitern"), damit die Ansicht kompakt bleibt.
     b.isCollapsed = true;
@@ -3155,6 +3351,9 @@ export class RentalFormComponent implements OnInit {
     b.isQuickAddMode = true;
     b.selectedBike = null;
     b.busyPeriods = [];
+    // Stückzahl gibt es nur bei vorhandenen Kinderrad-Anzeigen (siehe
+    // showMengeInput) — ein frisch angelegtes Einzelrad hat keine.
+    b.menge = 1;
     b.bikeEdit = {
       rahmennummer: '',
       marke: '',
@@ -3379,6 +3578,12 @@ export class RentalFormComponent implements OnInit {
     b.mieteManuell = Number(b.gesamtmiete) > 0;
   }
 
+  /**
+   * calculateRentalPrice() liefert den Preis für EIN Rad aus der Preistafel
+   * der Anzeige. Bei Stückzahl > 1 ist das Feld "Gesamtmiete" die Summe für
+   * den ganzen Slot (siehe BikeEntry-Kommentar), also wird hier mit
+   * effectiveMenge() multipliziert — und der Hinweistext sagt das auch.
+   */
   calculatePriceFor(i: number, days: number): number {
     const b = this.bikes[i];
     if (!b) return 0;
@@ -3388,6 +3593,12 @@ export class RentalFormComponent implements OnInit {
       return 0;
     }
     const result = calculateRentalPrice(config, days);
+    const menge = this.effectiveMenge(b);
+    if (menge > 1 && result.total != null) {
+      const total = result.total * menge;
+      b.preisInfo = `${result.info} × ${menge} Räder = ${total.toFixed(2)} €`;
+      return total;
+    }
     b.preisInfo = result.info;
     return result.total ?? 0;
   }
@@ -3400,6 +3611,57 @@ export class RentalFormComponent implements OnInit {
     if (!this.isMobile) return;
     const idx = this.wizardSteps.indexOf(name);
     if (idx >= 0) this.currentStep = idx;
+  }
+
+  /**
+   * Löst die Stückzahl in n einzelne dto.Bikes-Einträge auf — dieselbe
+   * BicycleId n-mal, jeder Eintrag mit eigenem Preis- und Kautionsanteil.
+   * Grund: RentalBike trägt pro physischem Rad eigenen Zustand (Kaution
+   * zurückgegeben, Zustand bei Rückgabe, …) — eine Stückzahl auf einem
+   * einzigen Datensatz würde die Rückgabe kaputt machen, sobald nur ein Teil
+   * der Räder zurückkommt. Server-seitig ist dafür nichts vorzubereiten:
+   * RentalService legt je DTO-Eintrag ein RentalBike an, ohne Dubletten- oder
+   * Überschneidungsprüfung.
+   *
+   * b.gesamtmiete/b.kaution sind die SLOT-Summe (alle n Räder zusammen), wird
+   * hier in Cent gerechnet gleichmäßig aufgeteilt — der Rundungsrest geht ans
+   * erste Rad, damit die Summe der Einzelbeträge exakt der eingegebenen
+   * Slot-Summe entspricht (dieselbe Technik wie beim Verteilen der
+   * "Kaution gesamt" auf mehrere Slots, siehe kautionGesamt-Setter).
+   *
+   * Rahmennummer, Farbe und Zustand bei Übergabe sind bei einer gepoolten
+   * Kinderrad-Anzeige nicht je physischem Rad bekannt (die Anzeige selbst hat
+   * höchstens eine gemeinsame Rahmennummer) — sie gelten deshalb identisch für
+   * alle n Einträge, genauso wie die BicycleId selbst.
+   */
+  private expandBikeEntry(
+    b: BikeEntry,
+    bicycleId: number,
+    startDatum: string,
+    endDatum: string,
+  ): RentalBikeCreate[] {
+    const units = this.effectiveMenge(b);
+    const mieteCents = Math.round((Number(b.gesamtmiete) || 0) * 100);
+    const kautionCents = Math.round((Number(b.kaution) || 0) * 100);
+    const mieteBase = Math.floor(mieteCents / units);
+    const mieteRest = mieteCents - mieteBase * units;
+    const kautionBase = Math.floor(kautionCents / units);
+    const kautionRest = kautionCents - kautionBase * units;
+
+    const entries: RentalBikeCreate[] = [];
+    for (let u = 0; u < units; u++) {
+      entries.push({
+        bicycleId,
+        rahmennummer: b.bikeEdit?.rahmennummer || undefined,
+        farbe: b.bikeEdit?.farbe || undefined,
+        startDatum,
+        endDatum,
+        mietpreis: (mieteBase + (u === 0 ? mieteRest : 0)) / 100,
+        kaution: (kautionBase + (u === 0 ? kautionRest : 0)) / 100,
+        zustandBeiUebergabe: b.zustandBeiUebergabe as BikeConditionAtHandover,
+      });
+    }
+    return entries;
   }
 
   submit() {
@@ -3571,17 +3833,11 @@ export class RentalFormComponent implements OnInit {
             agbAkzeptiert: this.agbAkzeptiert,
             unterschriftOrt: this.unterschriftOrt || undefined,
             ausweisPhotoPath: this.fromBookingAusweisPhotoPath,
-            bikes: this.bikes.map((b, i) => ({
-              bicycleId: bicycleIds[i],
-              rahmennummer: b.bikeEdit?.rahmennummer || undefined,
-              farbe: b.bikeEdit?.farbe || undefined,
-              startDatum: this.startDatum,
-              endDatum: this.endDatum,
-              mietpreis: b.gesamtmiete,
-              kaution: b.kaution,
-              zustandBeiUebergabe:
-                b.zustandBeiUebergabe as BikeConditionAtHandover,
-            })),
+            // Stückzahl > 1 (gepooltes Kinderrad) wird hier zu mehreren
+            // Einträgen mit derselben BicycleId aufgelöst, siehe expandBikeEntry().
+            bikes: this.bikes.flatMap((b, i) =>
+              this.expandBikeEntry(b, bicycleIds[i], this.startDatum, this.endDatum),
+            ),
           };
           return this.rentalService.create(payload);
         }),
@@ -3695,16 +3951,11 @@ export class RentalFormComponent implements OnInit {
                 kaution: b.kaution,
               });
             } else {
-              newBikes.push({
-                bicycleId,
-                rahmennummer: b.bikeEdit.rahmennummer || undefined,
-                farbe: b.bikeEdit.farbe || undefined,
-                startDatum: this.startDatum,
-                endDatum: this.endDatum,
-                mietpreis: b.gesamtmiete,
-                kaution: b.kaution,
-                zustandBeiUebergabe: b.zustandBeiUebergabe as BikeConditionAtHandover,
-              });
+              // Neu hinzugefügter Slot: hier greift die Stückzahl (bestehende
+              // Vertragszeilen oben bleiben bewusst 1:1, siehe showMengeInput).
+              newBikes.push(
+                ...this.expandBikeEntry(b, bicycleId, this.startDatum, this.endDatum),
+              );
             }
           }
 

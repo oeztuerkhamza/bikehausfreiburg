@@ -44,6 +44,23 @@ interface CartBike {
 }
 
 /**
+ * Anzeige-Bündelung mehrerer identischer `CartBike`-Einträge (Stückzahl bei
+ * Kinderrädern). `cartBikes` selbst bleibt flach — jeder physische Sitzplatz
+ * ist ein eigener Eintrag, so wie ihn `RentalBookingService.CreateAsync` auch
+ * als eigenen `RentalBookingBike` anlegt (eigene Kaution, eigene Rückgabe).
+ * Diese Gruppe ist nur für die Darstellung/Bedienung; sie fasst Einträge mit
+ * gleichem Rad + gleicher Farbe/Rahmennummer zusammen.
+ */
+interface CartGroup {
+  key: string;
+  representative: CartBike;
+  items: CartBike[];
+  count: number;
+  totalPrice: number;
+  isChild: boolean;
+}
+
+/**
  * Die Eingaben des Gasts — und **nur** die. Die Sprache stand hier einmal mit
  * drin, obwohl sie niemand eintippt: sie ist Kontext, nicht Eingabe. Über den
  * Entwurf im sessionStorage kam sie damit als alter Wert zurück (ein in Deutsch
@@ -631,6 +648,65 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 {{ formatPrice(depositOf(selectedBike())) }}
               </p>
             </div>
+
+            <!-- Nur Kinderräder sind gepoolte Anzeigen (mehrfach buchbar); bei
+                 Erwachsenenrädern ist jedes Rad ein Einzelstück, dort wäre
+                 eine Stückzahl > 1 eine Doppelbuchung desselben Rads. -->
+            <div class="child-qty-picker" *ngIf="isChildrensBike(selectedBike())">
+              <label class="child-qty-label" for="child-qty-input">
+                {{ t().rentalSteps?.childBikeQuantityLabel ?? 'Anzahl' }}
+              </label>
+              <div class="child-qty-stepper">
+                <button
+                  type="button"
+                  (click)="decChildQtyToAdd()"
+                  [disabled]="childQtyToAdd() <= CHILD_QTY_MIN"
+                  [attr.aria-label]="
+                    t().rentalSteps?.decreaseQuantity ?? 'Anzahl verringern'
+                  "
+                >
+                  −
+                </button>
+                <input
+                  id="child-qty-input"
+                  type="number"
+                  inputmode="numeric"
+                  class="child-qty-input"
+                  name="childQty"
+                  [min]="CHILD_QTY_MIN"
+                  [max]="CHILD_QTY_MAX"
+                  [ngModel]="childQtyToAdd()"
+                  (ngModelChange)="setChildQtyToAdd($event)"
+                />
+                <button
+                  type="button"
+                  (click)="incChildQtyToAdd()"
+                  [disabled]="childQtyToAdd() >= CHILD_QTY_MAX"
+                  [attr.aria-label]="
+                    t().rentalSteps?.increaseQuantity ?? 'Anzahl erhöhen'
+                  "
+                >
+                  +
+                </button>
+              </div>
+              <p class="child-qty-hint">
+                {{
+                  t().rentalSteps?.childBikeQuantityHint ??
+                    'Mehrere Kinderräder dieser Größe können Sie in einem Schritt buchen.'
+                }}
+              </p>
+              <p class="child-qty-total" *ngIf="childQtyToAdd() > 1">
+                {{ childQtyToAdd() }} ×
+                {{ formatPrice(calculatePrice(selectedBike()!, daysCount())) }}
+                =
+                <strong>{{
+                  formatPrice(
+                    calculatePrice(selectedBike()!, daysCount()) *
+                      childQtyToAdd()
+                  )
+                }}</strong>
+              </p>
+            </div>
           </div>
         </div>
 
@@ -663,11 +739,39 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             }}
           </p>
           <ul class="cart-list">
-            <li *ngFor="let item of cartBikes()" class="cart-list-item">
-              <span>{{ item.bike.marke }} {{ item.bike.modell }}</span>
-              <span class="item-price">{{
-                formatPrice(item.calculatedPrice)
-              }}</span>
+            <li *ngFor="let group of cartGroups()" class="cart-list-item">
+              <span class="cart-list-item-name">
+                {{ group.representative.bike.marke }}
+                {{ group.representative.bike.modell }}
+              </span>
+              <span class="cart-list-item-qty" *ngIf="group.isChild">
+                <button
+                  type="button"
+                  class="qty-btn"
+                  (click)="decGroupQuantity(group)"
+                  [attr.aria-label]="
+                    t().rentalSteps?.decreaseQuantity ?? 'Anzahl verringern'
+                  "
+                >
+                  −
+                </button>
+                <span class="qty-value">{{ group.count }}</span>
+                <button
+                  type="button"
+                  class="qty-btn"
+                  (click)="incGroupQuantity(group)"
+                  [disabled]="group.count >= CHILD_QTY_MAX"
+                  [attr.aria-label]="
+                    t().rentalSteps?.increaseQuantity ?? 'Anzahl erhöhen'
+                  "
+                >
+                  +
+                </button>
+              </span>
+              <span class="cart-list-item-qty-static" *ngIf="!group.isChild && group.count > 1">
+                {{ group.count }}×
+              </span>
+              <span class="item-price">{{ formatPrice(group.totalPrice) }}</span>
             </li>
           </ul>
           <p class="cart-total">
@@ -796,24 +900,57 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
         <div class="cart-summary">
           <h3>{{ t().rentalSteps?.cartItems ?? 'Ausgewählte Fahrräder' }}:</h3>
-          <div *ngFor="let item of cartBikes()" class="cart-item">
-            <div>
-              <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
+          <div *ngFor="let group of cartGroups()" class="cart-item">
+            <div class="cart-item-info">
+              <strong>
+                {{ group.representative.bike.marke }}
+                {{ group.representative.bike.modell }}
+              </strong>
               <p>
                 {{ formatDisplayDate(selectedStartDate) }} -
                 {{ formatDisplayDate(selectedEndDate) }}
               </p>
-              <p *ngIf="item.farbe">
-                {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
+              <p *ngIf="group.representative.farbe">
+                {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}:
+                {{ group.representative.farbe }}
               </p>
-              <p *ngIf="item.rahmennummer">
+              <p *ngIf="group.representative.rahmennummer">
                 {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
-                {{ item.rahmennummer }}
+                {{ group.representative.rahmennummer }}
               </p>
+              <div class="cart-item-qty" *ngIf="group.isChild">
+                <span class="cart-item-qty-label"
+                  >{{
+                    t().rentalSteps?.childBikeQuantityLabel ?? 'Anzahl'
+                  }}:</span
+                >
+                <button
+                  type="button"
+                  class="qty-btn"
+                  (click)="decGroupQuantity(group)"
+                  [attr.aria-label]="
+                    t().rentalSteps?.decreaseQuantity ?? 'Anzahl verringern'
+                  "
+                >
+                  −
+                </button>
+                <span class="qty-value">{{ group.count }}</span>
+                <button
+                  type="button"
+                  class="qty-btn"
+                  (click)="incGroupQuantity(group)"
+                  [disabled]="group.count >= CHILD_QTY_MAX"
+                  [attr.aria-label]="
+                    t().rentalSteps?.increaseQuantity ?? 'Anzahl erhöhen'
+                  "
+                >
+                  +
+                </button>
+              </div>
             </div>
             <div class="item-price">
-              <p>{{ formatPrice(item.calculatedPrice) }}</p>
-              <button (click)="removeFromCart(item)" class="btn-remove">
+              <p>{{ formatPrice(group.totalPrice) }}</p>
+              <button (click)="removeGroup(group)" class="btn-remove">
                 ×
               </button>
             </div>
@@ -975,25 +1112,30 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
         <div class="review-section">
           <h3>{{ t().rentalSteps?.bikeDetails ?? 'Fahrraddetails' }}:</h3>
-          <div *ngFor="let item of cartBikes()" class="review-item">
+          <div *ngFor="let group of cartGroups()" class="review-item">
             <p>
-              <strong>{{ item.bike.marke }} {{ item.bike.modell }}</strong>
+              <strong
+                >{{ group.count > 1 ? group.count + '× ' : '' }}
+                {{ group.representative.bike.marke }}
+                {{ group.representative.bike.modell }}</strong
+              >
             </p>
             <p>
               {{ formatDisplayDate(selectedStartDate) }} -
               {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount() }}
               {{ t().rentalSteps?.days ?? 'Tage' }})
             </p>
-            <p *ngIf="item.farbe">
-              {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}: {{ item.farbe }}
+            <p *ngIf="group.representative.farbe">
+              {{ t().rentalSteps?.colorLabel ?? 'Farbe' }}:
+              {{ group.representative.farbe }}
             </p>
-            <p *ngIf="item.rahmennummer">
+            <p *ngIf="group.representative.rahmennummer">
               {{ t().rentalSteps?.frameNumberLabel ?? 'Rahmennummer' }}:
-              {{ item.rahmennummer }}
+              {{ group.representative.rahmennummer }}
             </p>
             <p class="price">
               {{ t().rentalSteps?.priceLabel ?? 'Preis' }}:
-              {{ formatPrice(item.calculatedPrice) }}
+              {{ formatPrice(group.totalPrice) }}
             </p>
           </div>
         </div>
@@ -2113,6 +2255,72 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         color: var(--rb-text-soft);
       }
 
+      /* Stückzahl-Auswahl im Detailschritt (nur Kinderräder). */
+      .child-qty-picker {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
+        border-radius: 8px;
+      }
+
+      .child-qty-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.6rem;
+      }
+
+      .child-qty-stepper {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .child-qty-stepper button {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        border-radius: 8px;
+        border: 1.5px solid var(--rb-border);
+        background: transparent;
+        color: var(--rb-text);
+        font-size: 1.2rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .child-qty-stepper button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .child-qty-input {
+        width: 4rem;
+        flex-shrink: 0;
+        text-align: center;
+        padding: 0.5rem;
+        border: 1px solid var(--rb-border);
+        border-radius: 6px;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--rb-text);
+      }
+
+      .child-qty-hint {
+        margin: 0.6rem 0 0;
+        font-size: 0.85rem;
+      }
+
+      .child-qty-total {
+        margin: 0.5rem 0 0;
+        font-size: 0.95rem;
+        color: var(--rb-text-soft);
+      }
+
+      .child-qty-total strong {
+        color: var(--rb-accent);
+      }
+
       .color-selection,
       .frame-number-input {
         padding: 0.75rem;
@@ -2239,6 +2447,116 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
       .btn-remove:hover {
         background: #b62323;
+      }
+
+      /* Cart-Liste im Schritt "choose-next": Name muss schrumpfen dürfen
+         (min-width: 0 + Ellipsis), die Stückzahl-Steuerung und der Preis
+         dagegen nie — sonst kippt die Namensspalte bei wenig Platz auf eine
+         einzelne Zeichenbreite (schon einmal in einer Nachbarliste passiert). */
+      .cart-list {
+        list-style: none;
+        margin: 0 0 1rem;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .cart-list-item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.6rem 0.75rem;
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 6px;
+      }
+
+      .cart-list-item-name {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .cart-list-item-qty,
+      .cart-item-qty {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-shrink: 0;
+      }
+
+      .cart-item-qty {
+        margin-top: 0.5rem;
+      }
+
+      .cart-item-qty-label {
+        font-size: 0.85rem;
+        color: var(--rb-text-soft);
+      }
+
+      .cart-list-item-qty-static {
+        flex-shrink: 0;
+        color: var(--rb-text-soft);
+        font-size: 0.85rem;
+      }
+
+      .qty-btn {
+        width: 26px;
+        height: 26px;
+        flex-shrink: 0;
+        border-radius: 6px;
+        border: 1.5px solid var(--rb-border);
+        background: transparent;
+        color: var(--rb-text);
+        font-size: 1rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .qty-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .qty-value {
+        min-width: 1.25rem;
+        text-align: center;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .cart-count,
+      .cart-total {
+        margin: 0 0 0.75rem;
+        font-size: 0.95rem;
+      }
+
+      .cart-total {
+        margin: 0.75rem 0 0;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--rb-border);
+        font-size: 1.05rem;
+      }
+
+      .choose-next-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+      }
+
+      /* .cart-item (customer-info-Schritt) ist ein Zwei-Spalten-Flexrow: die
+         Info-Spalte muss schrumpfen dürfen, der Preis/Entfernen-Block bleibt
+         fest — sonst derselbe Kipp-Effekt wie in .cart-list-item. */
+      .cart-item-info {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .item-price {
+        flex-shrink: 0;
       }
 
       .review-section {
@@ -2876,6 +3194,99 @@ export class RentalBookingStepsComponent implements OnInit {
   /** True once availability was fetched for the selected dates. */
   bikesLoaded = signal(false);
   cartBikes = signal<CartBike[]>([]);
+
+  /** Plausible Grenzen für die Kinderrad-Stückzahl; auch im Template gebraucht. */
+  readonly CHILD_QTY_MIN = 1;
+  readonly CHILD_QTY_MAX = 10;
+
+  /**
+   * Stückzahl, die im Detailschritt vor "Zur Buchung hinzufügen" gewählt wird —
+   * nur bei Kinderrädern sichtbar. Beim Absenden wird daraus kein Mengenfeld,
+   * sondern n einzelne `CartBike`-Einträge mit derselben `bicycleId` (s.
+   * `addBikeToCart`): jedes physische Rad bekommt später eigene Kaution,
+   * Rückgabe und Zustand, genau wie bei einem einzeln hinzugefügten Rad.
+   */
+  childQtyToAdd = signal(1);
+
+  private clampChildQty(value: number | null | undefined): number {
+    const n = Math.round(Number(value));
+    if (!Number.isFinite(n)) return this.CHILD_QTY_MIN;
+    return Math.min(this.CHILD_QTY_MAX, Math.max(this.CHILD_QTY_MIN, n));
+  }
+
+  setChildQtyToAdd(value: number | string | null): void {
+    this.childQtyToAdd.set(this.clampChildQty(Number(value)));
+  }
+
+  incChildQtyToAdd(): void {
+    this.childQtyToAdd.update((v) => this.clampChildQty(v + 1));
+  }
+
+  decChildQtyToAdd(): void {
+    this.childQtyToAdd.update((v) => this.clampChildQty(v - 1));
+  }
+
+  /**
+   * Bündelt `cartBikes()` für die Anzeige nach Rad + Farbe + Rahmennummer.
+   * Nur für Darstellung/Bedienung — die zugrundeliegenden Einträge bleiben
+   * flach und einzeln (Entwurf, Konflikt-Wiederherstellung, Absenden greifen
+   * unverändert auf `cartBikes()` zu).
+   */
+  cartGroups = computed<CartGroup[]>(() => {
+    const groups = new Map<string, CartGroup>();
+    const order: string[] = [];
+    for (const item of this.cartBikes()) {
+      const key = `${item.bike.id}|${item.rahmennummer ?? ''}|${item.farbe ?? ''}`;
+      let group = groups.get(key);
+      if (!group) {
+        group = {
+          key,
+          representative: item,
+          items: [],
+          count: 0,
+          totalPrice: 0,
+          isChild: this.isChildrensBike(item.bike),
+        };
+        groups.set(key, group);
+        order.push(key);
+      }
+      group.items.push(item);
+      group.count++;
+      group.totalPrice += item.calculatedPrice || 0;
+    }
+    return order.map((key) => groups.get(key)!);
+  });
+
+  /** Fügt der Gruppe ein weiteres identisches Rad hinzu (nur Kinderräder). */
+  incGroupQuantity(group: CartGroup): void {
+    if (!group.isChild || group.count >= this.CHILD_QTY_MAX) return;
+    const template = group.representative;
+    this.cartBikes.update((items) => [...items, { ...template }]);
+    this.saveDraft();
+  }
+
+  /** Entfernt ein Rad aus der Gruppe; bei der letzten Stückzahl fliegt die
+   * ganze Gruppe raus (entspricht dem alten "×"-Entfernen-Knopf). */
+  decGroupQuantity(group: CartGroup): void {
+    if (group.count <= 1) {
+      this.removeGroup(group);
+      return;
+    }
+    const toRemove = group.items[group.items.length - 1];
+    this.cartBikes.update((items) => {
+      const idx = items.lastIndexOf(toRemove);
+      if (idx === -1) return items;
+      return [...items.slice(0, idx), ...items.slice(idx + 1)];
+    });
+    this.saveDraft();
+  }
+
+  /** Entfernt alle Einträge einer Gruppe aus dem Warenkorb. */
+  removeGroup(group: CartGroup): void {
+    const toRemove = new Set(group.items);
+    this.cartBikes.update((items) => items.filter((i) => !toRemove.has(i)));
+    this.saveDraft();
+  }
 
   selectableBikes = computed(() => {
     // Children's bikes (Art = "Kinder") are generic/pooled listings (e.g. one
@@ -3771,28 +4182,41 @@ export class RentalBookingStepsComponent implements OnInit {
     this.currentImageIndex.set(0);
     this.selectedBikeColor = '';
     this.selectedBikeFrameNumber = '';
+    // Ein Stand von einer vorherigen Auswahl (z. B. 3 Kinderräder) darf nicht
+    // an einem anderen Rad hängen bleiben — jedes Rad startet bei 1 Stück.
+    this.childQtyToAdd.set(1);
     this.goToStep('bike-details');
   }
 
+  /**
+   * Legt das gewählte Rad im Warenkorb an. Bei Kinderrädern entstehen dabei
+   * so viele einzelne `CartBike`-Einträge wie in `childQtyToAdd` gewählt
+   * wurden — dieselbe `bicycleId` mehrfach, kein Mengenfeld. So legt der
+   * Server je Eintrag einen eigenen `RentalBookingBike` mit eigener Kaution
+   * an; die Stückzahl ist reine Eingabe, keine Datenstruktur.
+   */
   addBikeToCart(): void {
-    if (!this.selectedBike()) return;
+    const bike = this.selectedBike();
+    if (!bike) return;
 
-    const price = this.calculatePrice(this.selectedBike()!, this.daysCount());
-    const cartItem: CartBike = {
-      bike: this.selectedBike()!,
-      rahmennummer: this.selectedBikeFrameNumber || undefined,
-      farbe: this.selectedBikeColor || undefined,
-      kaution: this.selectedBike()!.kaution ?? undefined,
+    const price = this.calculatePrice(bike, this.daysCount());
+    const qty = this.isChildrensBike(bike)
+      ? this.clampChildQty(this.childQtyToAdd())
+      : 1;
+    const rahmennummer = this.selectedBikeFrameNumber || undefined;
+    const farbe = this.selectedBikeColor || undefined;
+    const kaution = bike.kaution ?? undefined;
+
+    const newItems: CartBike[] = Array.from({ length: qty }, () => ({
+      bike,
+      rahmennummer,
+      farbe,
+      kaution,
       calculatedPrice: price,
-    };
+    }));
 
-    this.cartBikes.update((items) => [...items, cartItem]);
+    this.cartBikes.update((items) => [...items, ...newItems]);
     this.goToStep('choose-next');
-  }
-
-  removeFromCart(item: CartBike): void {
-    this.cartBikes.update((items) => items.filter((i) => i !== item));
-    this.saveDraft();
   }
 
   calculatePrice(bike: PublicRentalBicycle, days: number): number {
@@ -4174,8 +4598,13 @@ export class RentalBookingStepsComponent implements OnInit {
     end.setDate(end.getDate() + Math.max(1, this.daysCount()));
 
     const steps = this.t().rentalSteps;
-    const bikeNames = this.cartBikes()
-      .map((item) => this.bikeLabel(item.bike))
+    // Gruppiert statt Zeile pro Zeile: bei mehreren gleichen Kinderrädern
+    // stünde sonst "Kinderrad 20 Zoll, Kinderrad 20 Zoll, ..." im Kalendertext.
+    const bikeNames = this.cartGroups()
+      .map((group) => {
+        const label = this.bikeLabel(group.representative.bike);
+        return group.count > 1 ? `${group.count}× ${label}` : label;
+      })
       .filter(Boolean)
       .join(', ');
     const address = this.shopAddress();

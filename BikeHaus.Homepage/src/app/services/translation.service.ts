@@ -165,6 +165,14 @@ interface RentalStepsTranslations {
   manageBookingNote?: string;
   /** Link text to the booking self-service page. */
   manageBookingLinkText?: string;
+  /** Label of the quantity stepper for children's bikes (pooled listings, bookable more than once). */
+  childBikeQuantityLabel?: string;
+  /** Short note explaining that several identical children's bikes can be booked in one step. */
+  childBikeQuantityHint?: string;
+  /** aria-label for the "−" quantity button. */
+  decreaseQuantity?: string;
+  /** aria-label for the "+" quantity button. */
+  increaseQuantity?: string;
 }
 
 /**
@@ -4098,6 +4106,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Sie möchten etwas ändern oder stornieren? Nutzen Sie dazu den Link in der Bestätigungsmail oder verwalten Sie Ihre Buchung online.',
     manageBookingLinkText: 'Buchung verwalten',
+    childBikeQuantityLabel: 'Anzahl',
+    childBikeQuantityHint:
+      'Mehrere Kinderräder dieser Größe können Sie in einem Schritt buchen.',
+    decreaseQuantity: 'Anzahl verringern',
+    increaseQuantity: 'Anzahl erhöhen',
   },
   en: {
     dateSelection: 'Choose date',
@@ -4234,6 +4247,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Need to change or cancel something? Use the link in your confirmation email, or manage your booking online.',
     manageBookingLinkText: 'Manage booking',
+    childBikeQuantityLabel: 'Quantity',
+    childBikeQuantityHint:
+      "Book several children's bikes of this size in one step.",
+    decreaseQuantity: 'Decrease quantity',
+    increaseQuantity: 'Increase quantity',
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -4372,6 +4390,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Besoin de modifier ou d’annuler ? Utilisez le lien dans l’e-mail de confirmation ou gérez votre réservation en ligne.',
     manageBookingLinkText: 'Gérer la réservation',
+    childBikeQuantityLabel: 'Quantité',
+    childBikeQuantityHint:
+      'Réservez plusieurs vélos enfant de cette taille en une seule étape.',
+    decreaseQuantity: 'Diminuer la quantité',
+    increaseQuantity: 'Augmenter la quantité',
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -4508,6 +4531,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Bir şeyi değiştirmek veya iptal etmek mi istiyorsunuz? Onay e-postasındaki bağlantıyı kullanın veya rezervasyonunuzu çevrimiçi yönetin.',
     manageBookingLinkText: 'Rezervasyonu yönet',
+    childBikeQuantityLabel: 'Adet',
+    childBikeQuantityHint:
+      'Bu bedendeki birden fazla çocuk bisikletini tek adımda rezerve edebilirsiniz.',
+    decreaseQuantity: 'Adedi azalt',
+    increaseQuantity: 'Adedi artır',
   },
   es: {
     dateSelection: 'Elegir fecha',
@@ -4633,6 +4661,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       '¿Necesita cambiar o cancelar algo? Use el enlace del correo de confirmación o gestione su reserva en línea.',
     manageBookingLinkText: 'Gestionar reserva',
+    childBikeQuantityLabel: 'Cantidad',
+    childBikeQuantityHint:
+      'Reserve varias bicicletas infantiles de esta talla en un solo paso.',
+    decreaseQuantity: 'Reducir cantidad',
+    increaseQuantity: 'Aumentar cantidad',
   },
   it: {
     dateSelection: 'Scegli data',
@@ -4759,6 +4792,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Devi modificare o annullare qualcosa? Usa il link nell’email di conferma oppure gestisci la tua prenotazione online.',
     manageBookingLinkText: 'Gestisci prenotazione',
+    childBikeQuantityLabel: 'Quantità',
+    childBikeQuantityHint:
+      'Prenota più bici per bambini di questa misura in un unico passaggio.',
+    decreaseQuantity: 'Diminuisci quantità',
+    increaseQuantity: 'Aumenta quantità',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
@@ -4881,6 +4919,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'هل تريد تغيير أو إلغاء شيء ما؟ استخدم الرابط في رسالة التأكيد أو أدر حجزك عبر الإنترنت.',
     manageBookingLinkText: 'إدارة الحجز',
+    childBikeQuantityLabel: 'الكمية',
+    childBikeQuantityHint:
+      'يمكنك حجز عدة دراجات أطفال بهذا المقاس في خطوة واحدة.',
+    decreaseQuantity: 'تقليل الكمية',
+    increaseQuantity: 'زيادة الكمية',
   },
   ru: {
     dateSelection: 'Выбор даты',
@@ -5005,6 +5048,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Нужно что-то изменить или отменить? Используйте ссылку в письме с подтверждением или управляйте бронированием онлайн.',
     manageBookingLinkText: 'Управление бронированием',
+    childBikeQuantityLabel: 'Количество',
+    childBikeQuantityHint:
+      'Забронируйте несколько детских велосипедов этого размера за один шаг.',
+    decreaseQuantity: 'Уменьшить количество',
+    increaseQuantity: 'Увеличить количество',
   },
 
   nl: {
@@ -5142,6 +5190,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Wilt u iets wijzigen of annuleren? Gebruik de link in de bevestigingsmail of beheer uw boeking online.',
     manageBookingLinkText: 'Boeking beheren',
+    childBikeQuantityLabel: 'Aantal',
+    childBikeQuantityHint:
+      'Boek meerdere kinderfietsen van deze maat in één stap.',
+    decreaseQuantity: 'Aantal verlagen',
+    increaseQuantity: 'Aantal verhogen',
   },
 
   da: {
@@ -5279,6 +5332,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Skal du ændre eller annullere noget? Brug linket i bekræftelsesmailen, eller administrer din booking online.',
     manageBookingLinkText: 'Administrer booking',
+    childBikeQuantityLabel: 'Antal',
+    childBikeQuantityHint:
+      'Book flere børnecykler i denne størrelse i ét trin.',
+    decreaseQuantity: 'Reducer antal',
+    increaseQuantity: 'Øg antal',
   },
 
   no: {
@@ -5417,6 +5475,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Trenger du å endre eller avbestille noe? Bruk lenken i bekreftelses-e-posten, eller administrer bestillingen din på nettet.',
     manageBookingLinkText: 'Administrer bestilling',
+    childBikeQuantityLabel: 'Antall',
+    childBikeQuantityHint:
+      'Bestill flere barnesykler i denne størrelsen i ett trinn.',
+    decreaseQuantity: 'Reduser antall',
+    increaseQuantity: 'Øk antall',
   },
 
   pl: {
@@ -5554,6 +5617,11 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     manageBookingNote:
       'Chcesz coś zmienić lub anulować? Skorzystaj z linku w e-mailu potwierdzającym lub zarządzaj rezerwacją online.',
     manageBookingLinkText: 'Zarządzaj rezerwacją',
+    childBikeQuantityLabel: 'Ilość',
+    childBikeQuantityHint:
+      'Zarezerwuj kilka rowerów dziecięcych w tym rozmiarze w jednym kroku.',
+    decreaseQuantity: 'Zmniejsz ilość',
+    increaseQuantity: 'Zwiększ ilość',
   },
 };
 
