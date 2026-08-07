@@ -1212,6 +1212,13 @@ export class RentalDetailComponent implements OnInit {
       next: (r) => {
         this.rental = r;
         this.notificationService.success('Fahrrad zurückgegeben');
+        // Am Ladentisch folgt auf die Rückgabe immer die Kaution: statt dafür
+        // einen zweiten Knopf zu suchen (und ihn zu vergessen), geht das
+        // Unterschriftenfeld direkt auf. Steht keine Kaution mehr offen,
+        // passiert nichts.
+        if (!r.kautionZurueckgegeben && (r.kaution ?? 0) > 0) {
+          this.markKautionReturned();
+        }
       },
       error: (err) =>
         this.notificationService.error(err.error?.error || 'Fehler'),

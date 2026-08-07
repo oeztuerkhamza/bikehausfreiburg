@@ -2053,8 +2053,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         padding: 0.75rem 1rem;
         border: 1px solid var(--rb-border);
         border-radius: 12px;
-        background: var(--rb-surface-strong, var(--rb-surface));
-        box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18);
+        /* --rb-surface ist nur ein heller Schleier (6 % Weiß) — über den
+           Fahrradfotos war die Leiste dadurch kaum zu lesen. Deshalb ein
+           eigener, deckender Grund statt der halbtransparenten Fläche. */
+        background: rgba(10, 16, 28, 0.94);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 -6px 22px rgba(0, 0, 0, 0.45);
       }
       .sel-count {
         font-size: 0.9rem;
