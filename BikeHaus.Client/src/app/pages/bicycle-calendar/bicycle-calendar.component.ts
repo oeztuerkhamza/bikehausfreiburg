@@ -425,8 +425,14 @@ export class BicycleCalendarComponent implements OnInit {
     this.cursor.set(new Date(t.getFullYear(), t.getMonth(), 1));
   }
 
+  /**
+   * Der Plan zeigt ausschließlich Mietfahrräder (isRentable), und wer hier auf
+   * ein Rad tippt, will es bearbeiten — Preisstaffel, Kaution, Körpergröße.
+   * Deshalb direkt in das Mietfahrrad-Formular statt in die Bestandsansicht;
+   * die Route nimmt dieselbe Bicycle-Id.
+   */
   openBike(id: number): void {
-    this.router.navigate(['/bicycles', id]);
+    this.router.navigate(['/mietfahrraeder/edit', id]);
   }
 
   stateFor(row: BikeRow, day: DayCell): BikeDayState {
