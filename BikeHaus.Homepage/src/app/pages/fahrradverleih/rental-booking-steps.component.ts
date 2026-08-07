@@ -423,15 +423,19 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
              nebeneinander vergleichbar bleiben. -->
         <ng-template #bikeCardTpl let-bike>
           <div
-            (click)="selectBikeForDetails(bike)"
-            (keydown.enter)="selectBikeForDetails(bike)"
-            (keydown.space)="$event.preventDefault(); selectBikeForDetails(bike)"
+            (click)="toggleBikeInCart(bike)"
+            (keydown.enter)="toggleBikeInCart(bike)"
+            (keydown.space)="$event.preventDefault(); toggleBikeInCart(bike)"
             class="bike-card"
+            [class.selected]="isInCart(bike)"
             role="button"
             tabindex="0"
+            [attr.aria-pressed]="isInCart(bike)"
             [attr.aria-label]="bike.marke + ' ' + bike.modell"
           >
-            <span class="pick" aria-hidden="true">→</span>
+            <span class="pick" [class.on]="isInCart(bike)" aria-hidden="true">
+              {{ isInCart(bike) ? '✓' : '+' }}
+            </span>
             <div class="bike-image">
               <img
                 *ngIf="getMainImage(bike)"
@@ -463,6 +467,35 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 </span>
               </div>
 
+              <!-- Kinderräder sind Sammelanzeigen — davon lassen sich mehrere
+                   Stück direkt auf der Kachel wählen. -->
+              <div
+                class="card-qty"
+                *ngIf="isInCart(bike) && isChildrensBike(bike)"
+                (click)="$event.stopPropagation()"
+              >
+                <button
+                  type="button"
+                  (click)="decBikeQuantity(bike, $event)"
+                  [attr.aria-label]="
+                    t().rentalSteps?.decreaseQuantity ?? 'Anzahl verringern'
+                  "
+                >
+                  −
+                </button>
+                <span class="qty-value">{{ cartCountFor(bike) }}×</span>
+                <button
+                  type="button"
+                  (click)="incBikeQuantity(bike, $event)"
+                  [disabled]="cartCountFor(bike) >= CHILD_QTY_MAX"
+                  [attr.aria-label]="
+                    t().rentalSteps?.increaseQuantity ?? 'Anzahl erhöhen'
+                  "
+                >
+                  +
+                </button>
+              </div>
+
               <span class="bike-info-spacer" aria-hidden="true"></span>
 
               <!-- Der Zeitraum steht bereits fest, also den Preis für genau
@@ -485,6 +518,16 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                   {{ formatPrice(bike.kaution) }}
                 </span>
               </div>
+
+              <!-- Fotos und alle Angaben bleiben erreichbar, ohne dass der Weg
+                   zur Auswahl darüber führt. -->
+              <button
+                type="button"
+                class="card-details-link"
+                (click)="$event.stopPropagation(); selectBikeForDetails(bike)"
+              >
+                {{ t().rentalSteps?.bikeDetails ?? 'Fahrraddetails' }}
+              </button>
             </div>
           </div>
         </ng-template>
@@ -545,6 +588,24 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         >
           <button (click)="goToStep('date-selection')" class="btn-secondary">
             {{ t().rentalSteps?.back ?? 'Zurück' }}
+          </button>
+        </div>
+
+        <!-- Sammelzeile für die Auswahl: mehrere Räder antippen und mit einem
+             Klick weiter. Bleibt am unteren Rand stehen, damit sie auch beim
+             Scrollen durch die Liste sichtbar ist. -->
+        <div class="select-bar" *ngIf="cartBikes().length > 0">
+          <span class="sel-count">
+            <strong>{{ cartBikes().length }}</strong>
+            {{
+              cartBikes().length === 1
+                ? (t().rentalSteps?.bikeInCart ?? 'Fahrrad')
+                : (t().rentalSteps?.bikesInCart ?? 'Fahrräder')
+            }}
+            <span class="sel-total">{{ formatPrice(getTotalPrice()) }}</span>
+          </span>
+          <button type="button" class="sel-next" (click)="goToAccessoryStep()">
+            {{ t().rentalSteps?.continueToBooking ?? 'Mit Buchung fortfahren' }} →
           </button>
         </div>
       </div>
@@ -1903,6 +1964,110 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         white-space: nowrap;
       }
 
+      /* Ausgewählt: die Kachel bleibt in der Liste stehen und ist deutlich
+         markiert — so sieht man beim Weiterscrollen, was schon drin ist. */
+      .bike-card.selected {
+        border-color: var(--rb-accent);
+        box-shadow: 0 0 0 2px var(--rb-accent) inset;
+      }
+
+      .pick.on {
+        background: var(--rb-accent);
+      }
+
+      /* Stückzahl für Kinderräder direkt auf der Kachel. */
+      .card-qty {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 0.5rem;
+      }
+      .card-qty button {
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        border: 1px solid var(--rb-border);
+        background: transparent;
+        color: inherit;
+        font-size: 1rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .card-qty button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .card-qty .qty-value {
+        font-size: 0.85rem;
+        font-weight: 700;
+        min-width: 1.8rem;
+        text-align: center;
+      }
+
+      /* Fotos und alle Angaben bleiben einen Klick entfernt, ohne im Weg zu stehen. */
+      .card-details-link {
+        margin-top: 0.5rem;
+        padding: 0;
+        background: none;
+        border: none;
+        color: var(--rb-text-muted, #6b7280);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-decoration: underline;
+        cursor: pointer;
+        align-self: flex-start;
+      }
+      .card-details-link:hover {
+        color: var(--rb-accent);
+      }
+
+      /* Auswahlleiste: klebt am unteren Rand, solange etwas gewählt ist. */
+      .select-bar {
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        margin: 0 0 1.5rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--rb-border);
+        border-radius: 12px;
+        background: var(--rb-surface-strong, var(--rb-surface));
+        box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.18);
+      }
+      .sel-count {
+        font-size: 0.9rem;
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+        flex: 1;
+        min-width: 0;
+      }
+      .sel-count strong {
+        font-size: 1.15rem;
+        font-weight: 800;
+      }
+      .sel-total {
+        color: var(--rb-accent);
+        font-weight: 800;
+      }
+      .sel-next {
+        padding: 0.6rem 1.1rem;
+        border: none;
+        border-radius: 999px;
+        background: var(--rb-accent);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .sel-next:hover {
+        filter: brightness(1.08);
+      }
+
       /* Hält die Preiszeile aller Kacheln einer Reihe auf einer Linie. */
       .bike-info-spacer {
         flex: 1 1 auto;
@@ -3024,6 +3189,31 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           min-height: 0.4rem;
         }
 
+        .card-details-link {
+          font-size: 0.66rem;
+          margin-top: 0.35rem;
+        }
+
+        .card-qty button {
+          width: 22px;
+          height: 22px;
+        }
+
+        .select-bar {
+          gap: 0.5rem;
+          padding: 0.6rem 0.75rem;
+        }
+        .sel-count {
+          font-size: 0.78rem;
+        }
+        .sel-count strong {
+          font-size: 1rem;
+        }
+        .sel-next {
+          padding: 0.5rem 0.9rem;
+          font-size: 0.8rem;
+        }
+
         .pick {
           width: 22px;
           height: 22px;
@@ -3277,6 +3467,64 @@ export class RentalBookingStepsComponent implements OnInit {
     return order.map((key) => groups.get(key)!);
   });
 
+  // ── Auswahl direkt in der Liste ───────────────────────────────────────────
+  // Antippen legt das Rad in die Buchung oder nimmt es wieder heraus; mehrere
+  // Räder werden nacheinander angetippt und gemeinsam mit einem "Weiter"
+  // übernommen.
+
+  /** Wie oft steckt dieses Rad in der Buchung? (Kinderräder: Stückzahl) */
+  cartCountFor(bike: PublicRentalBicycle): number {
+    return this.cartBikes().filter((item) => item.bike.id === bike.id).length;
+  }
+
+  isInCart(bike: PublicRentalBicycle): boolean {
+    return this.cartCountFor(bike) > 0;
+  }
+
+  toggleBikeInCart(bike: PublicRentalBicycle): void {
+    this.conflictNotice.set('');
+    if (this.isInCart(bike)) {
+      this.cartBikes.update((items) => items.filter((i) => i.bike.id !== bike.id));
+      this.saveDraft();
+      return;
+    }
+    this.addBikesDirect(bike, 1);
+  }
+
+  /** Kinderräder sind Sammelanzeigen: davon dürfen mehrere Stück gebucht werden. */
+  incBikeQuantity(bike: PublicRentalBicycle, event: Event): void {
+    event.stopPropagation();
+    if (!this.isChildrensBike(bike)) return;
+    if (this.cartCountFor(bike) >= this.CHILD_QTY_MAX) return;
+    this.addBikesDirect(bike, 1);
+  }
+
+  decBikeQuantity(bike: PublicRentalBicycle, event: Event): void {
+    event.stopPropagation();
+    const items = this.cartBikes().filter((i) => i.bike.id === bike.id);
+    if (items.length === 0) return;
+    const last = items[items.length - 1];
+    this.cartBikes.update((list) => {
+      const idx = list.lastIndexOf(last);
+      return idx === -1 ? list : [...list.slice(0, idx), ...list.slice(idx + 1)];
+    });
+    this.saveDraft();
+  }
+
+  /** Legt n Einträge dieses Rads in die Buchung (jedes Rad bleibt ein eigener Eintrag). */
+  private addBikesDirect(bike: PublicRentalBicycle, qty: number): void {
+    const price = this.calculatePrice(bike, this.daysCount());
+    const items: CartBike[] = Array.from({ length: qty }, () => ({
+      bike,
+      rahmennummer: undefined,
+      farbe: undefined,
+      kaution: bike.kaution ?? undefined,
+      calculatedPrice: price,
+    }));
+    this.cartBikes.update((list) => [...list, ...items]);
+    this.saveDraft();
+  }
+
   /** Fügt der Gruppe ein weiteres identisches Rad hinzu (nur Kinderräder). */
   incGroupQuantity(group: CartGroup): void {
     if (!group.isChild || group.count >= this.CHILD_QTY_MAX) return;
@@ -3309,15 +3557,11 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   selectableBikes = computed(() => {
-    // Children's bikes (Art = "Kinder") are generic/pooled listings (e.g. one
-    // "24 Zoll" ad standing in for several interchangeable bikes), so they stay
-    // selectable even after being added and can be booked more than once. Regular
-    // bikes disappear from the list once they are in the cart.
-    const cartIds = new Set(
-      this.cartBikes()
-        .filter((item) => !this.isChildrensBike(item.bike))
-        .map((item) => item.bike.id),
-    );
+    // Gewählte Räder bleiben in der Liste stehen und sind dort als ausgewählt
+    // markiert — man tippt sie nacheinander an und geht einmal weiter. Früher
+    // verschwand ein Rad, sobald es in der Buchung war; dann brauchte es den
+    // Umweg über "Weiteres Fahrrad hinzufügen".
+    //
     // Immer alphabetisch nach dem angezeigten Namen: die Reihenfolge aus der
     // API ist die Anlagereihenfolge im Bestand und wechselt daher von Anfrage
     // zu Anfrage. Zahlen werden dabei als Zahl verglichen, damit "20 Zoll" vor
@@ -3327,7 +3571,7 @@ export class RentalBookingStepsComponent implements OnInit {
       { numeric: true, sensitivity: 'base' },
     );
     return this.availableBikes()
-      .filter((bike) => !cartIds.has(bike.id))
+      .slice()
       .sort((a, b) => collator.compare(this.bikeLabel(a), this.bikeLabel(b)));
   });
 
@@ -4244,8 +4488,12 @@ export class RentalBookingStepsComponent implements OnInit {
       calculatedPrice: price,
     }));
 
+    // Zurück in die Liste: dort steht das Rad jetzt als ausgewählt, und man
+    // kann direkt das nächste antippen oder unten weitergehen. Der frühere
+    // Zwischenschritt ("Fahrrad hinzugefügt — weiteres Rad?") entfällt damit.
     this.cartBikes.update((items) => [...items, ...newItems]);
-    this.goToStep('choose-next');
+    this.saveDraft();
+    this.goToStep('bike-selection');
   }
 
   calculatePrice(bike: PublicRentalBicycle, days: number): number {
