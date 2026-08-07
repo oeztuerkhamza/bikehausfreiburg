@@ -417,69 +417,74 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           </div>
         </div>
 
+        <!-- Kachel wie in der Verfügbarkeitsansicht im Laden: Bild, Name,
+             kurze Merkmale als Chips, darunter der Preis. Die ganze Kachel ist
+             der Knopf — das spart die Extra-Schaltfläche und lässt die Räder
+             nebeneinander vergleichbar bleiben. -->
         <ng-template #bikeCardTpl let-bike>
           <div
             (click)="selectBikeForDetails(bike)"
+            (keydown.enter)="selectBikeForDetails(bike)"
+            (keydown.space)="$event.preventDefault(); selectBikeForDetails(bike)"
             class="bike-card"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="bike.marke + ' ' + bike.modell"
           >
+            <span class="pick" aria-hidden="true">→</span>
             <div class="bike-image">
               <img
                 *ngIf="getMainImage(bike)"
                 [src]="getImageUrl(getMainImage(bike)?.filePath)"
                 [alt]="bike.modell"
               />
+              <div class="img-placeholder" *ngIf="!getMainImage(bike)">🚲</div>
             </div>
             <div class="bike-info">
               <h3>{{ bike.marke }} {{ bike.modell }}</h3>
-              <p class="bike-type">{{ bike.art || bike.fahrradtyp }}</p>
-              <!-- Kurz genug, um auch auf dem Handy zu bleiben (dort ist die
-                   ausführliche Spec-Liste ausgeblendet) und die wichtigste
-                   Frage bei der Auswahl: passt das Rad zu mir? -->
-              <p class="bike-size" *ngIf="riderHeight(bike)">
-                {{ t().rentalSteps?.riderHeight ?? 'Körpergröße' }}:
-                {{ riderHeight(bike) }}
-              </p>
-              <!-- Die Größe ist bei der Auswahl genauso wichtig wie der Name,
-                   also steht sie auf jeder Kachel – auch auf dem Handy. Gezeigt
-                   wird nur das Maß, der ausführliche Satz aus den Stammdaten
-                   steht in der Detailansicht. -->
-              <ul class="bike-specs-inline">
-                <li *ngIf="shortSize(bike.rahmengroesse)">
-                  <span class="spec-label"
-                    >{{ t().rentalSteps?.frameSize ?? 'Rahmengröße' }}:</span
-                  >
+
+              <!-- Typ, Rahmen, Reifen und Körpergröße als Chips statt als
+                   Beschriftungsliste: dieselben Angaben, eine Zeile statt vier,
+                   und auf dem Handy gut lesbar. -->
+              <div class="badges">
+                <span class="badge" *ngIf="bike.art || bike.fahrradtyp">
+                  {{ bike.art || bike.fahrradtyp }}
+                </span>
+                <span class="badge" *ngIf="shortSize(bike.rahmengroesse)">
+                  {{ t().rentalSteps?.frameSize ?? 'Rahmengröße' }}
                   {{ shortSize(bike.rahmengroesse) }}
-                </li>
-                <li *ngIf="shortSize(bike.reifengroesse)">
-                  <span class="spec-label"
-                    >{{ t().rentalSteps?.tireSize ?? 'Reifengröße' }}:</span
-                  >
-                  {{ shortSize(bike.reifengroesse) }}
-                </li>
-              </ul>
+                </span>
+                <span class="badge" *ngIf="shortSize(bike.reifengroesse)">
+                  {{ shortSize(bike.reifengroesse) }}"
+                </span>
+                <!-- "Passt das Rad zu mir?" bleibt auf jeder Kachel sichtbar. -->
+                <span class="badge" *ngIf="riderHeight(bike)">
+                  ↕ {{ riderHeight(bike) }}
+                </span>
+              </div>
+
+              <span class="bike-info-spacer" aria-hidden="true"></span>
+
               <!-- Der Zeitraum steht bereits fest, also den Preis für genau
                    diesen Zeitraum zeigen statt "ab X €/Tag": bisher musste man
                    jedes Rad öffnen, um zu erfahren, was es wirklich kostet. -->
-              <p class="bike-price" *ngIf="daysCount() > 0">
-                <strong>{{ formatPrice(calculatePrice(bike, daysCount())) }}</strong>
-                <span class="price-period">
-                  {{ t().rentalSteps?.forDays ?? 'für' }} {{ daysCount() }}
-                  {{
-                    daysCount() === 1
-                      ? (t().rentalSteps?.day ?? 'Tag')
-                      : (t().rentalSteps?.days ?? 'Tage')
-                  }}
+              <div class="price-row" *ngIf="daysCount() > 0">
+                <span class="bike-price">
+                  <strong>{{ formatPrice(calculatePrice(bike, daysCount())) }}</strong>
+                  <span class="price-period">
+                    {{ t().rentalSteps?.forDays ?? 'für' }} {{ daysCount() }}
+                    {{
+                      daysCount() === 1
+                        ? (t().rentalSteps?.day ?? 'Tag')
+                        : (t().rentalSteps?.days ?? 'Tage')
+                    }}
+                  </span>
                 </span>
-              </p>
-              <p class="bike-deposit" *ngIf="bike.kaution">
-                {{ t().rentalSteps?.deposit ?? 'Kaution' }}:
-                {{ formatPrice(bike.kaution) }}
-              </p>
-              <span class="bike-info-spacer" aria-hidden="true"></span>
-              <!-- Visible affordance; click bubbles to the card handler -->
-              <button type="button" class="btn-select-bike">
-                {{ t().rentalSteps?.selectThisBike ?? 'Auswählen' }} →
-              </button>
+                <span class="bike-deposit" *ngIf="bike.kaution">
+                  {{ t().rentalSteps?.deposit ?? 'Kaution' }}
+                  {{ formatPrice(bike.kaution) }}
+                </span>
+              </div>
             </div>
           </div>
         </ng-template>
@@ -1795,27 +1800,55 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
       }
 
       .bike-card {
+        position: relative;
         border: 1px solid var(--rb-border);
         background: var(--rb-surface);
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.2s ease;
+        user-select: none;
         /* Vollständige Namen brauchen je Rad unterschiedlich viele Zeilen; die
-           Spalte hält den Auswählen-Knopf trotzdem auf einer Linie. */
+           Spalte hält die Preiszeile trotzdem auf einer Linie. */
         display: flex;
         flex-direction: column;
       }
 
-      .bike-card:hover {
+      .bike-card:hover,
+      .bike-card:focus-visible {
         border-color: rgba(255, 87, 34, 0.52);
         box-shadow: 0 8px 20px rgba(255, 87, 34, 0.2);
         transform: translateY(-2px);
+        outline: none;
+      }
+
+      /* Zeigt an, dass die ganze Kachel der Knopf ist — ohne Hover (Handy)
+         wäre das sonst nicht zu sehen. */
+      .pick {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 2;
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #fff;
+        background: rgba(15, 23, 42, 0.42);
+        pointer-events: none;
+        transition: background 0.2s ease;
+      }
+      .bike-card:hover .pick,
+      .bike-card:focus-visible .pick {
+        background: var(--rb-accent);
       }
 
       .bike-image {
         width: 100%;
-        height: 150px;
+        aspect-ratio: 4 / 3;
         background: rgba(255, 255, 255, 0.04);
         overflow: hidden;
       }
@@ -1826,8 +1859,17 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         object-fit: cover;
       }
 
+      .img-placeholder {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        font-size: 2.4rem;
+        opacity: 0.35;
+      }
+
       .bike-info {
-        padding: 1rem;
+        padding: 0.85rem 0.9rem 0.9rem;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -1835,7 +1877,8 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
       .bike-info h3 {
         margin: 0 0 0.5rem 0;
-        font-size: 1.05rem;
+        font-size: 1rem;
+        font-weight: 700;
         /* Marke und Modell stehen immer vollständig da: ein abgeschnittener
            Name ("24 - 24 zoll Kinder…") verrät nicht, welches Rad das ist, und
            genau danach wird hier ausgewählt. Die Kacheln einer Reihe wachsen
@@ -1843,73 +1886,62 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         overflow-wrap: anywhere;
       }
 
-      .bike-type {
-        color: var(--rb-text-soft);
-        font-size: 0.9rem;
-        margin: 0.25rem 0;
-      }
-
-      .bike-specs-inline {
-        list-style: none;
-        padding: 0;
-        margin: 0.5rem 0;
+      /* Merkmale als Chips: gleiche Angaben wie vorher, aber ohne die
+         Beschriftungsspalte, die die Kachel unruhig gemacht hat. */
+      .badges {
         display: flex;
-        flex-direction: column;
-        gap: 0.2rem;
+        flex-wrap: wrap;
+        gap: 0.3rem;
       }
-
-      .bike-specs-inline li {
-        font-size: 0.85rem;
-        color: var(--rb-text-soft);
-        /* Notbremse für Stammdaten, die trotz shortSize() ein ganzer Satz
-           bleiben; das Maß steht darin vorn, der Rest in der Detailansicht. */
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      .bike-specs-inline .spec-label {
-        color: var(--rb-text);
+      .badge {
+        font-size: 0.72rem;
         font-weight: 600;
-        margin-right: 0.25rem;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: rgba(127, 127, 127, 0.14);
+        color: var(--rb-text-soft);
+        white-space: nowrap;
+      }
+
+      /* Hält die Preiszeile aller Kacheln einer Reihe auf einer Linie. */
+      .bike-info-spacer {
+        flex: 1 1 auto;
+        min-height: 0.7rem;
+      }
+
+      .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 0.5rem;
+        border-top: 1px solid var(--rb-border);
+        padding-top: 0.6rem;
       }
 
       .bike-price {
         color: var(--rb-accent);
         font-weight: 600;
-        margin: 0.5rem 0 0 0;
+        margin: 0;
         display: flex;
         align-items: baseline;
         flex-wrap: wrap;
-        gap: 0.35rem;
+        gap: 0.3rem;
       }
       .bike-price strong {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
         font-weight: 800;
       }
       .price-period {
-        font-size: 0.82rem;
+        font-size: 0.75rem;
         font-weight: 500;
         color: var(--rb-text-muted, #6b7280);
       }
-      .bike-size {
-        margin: 0.15rem 0 0 0;
-        font-size: 0.82rem;
-        color: var(--rb-text-soft);
-      }
-
-      /* Schiebt den Auswählen-Knopf an den Kachelboden, mit garantiertem
-         Mindestabstand zum Text darüber. */
-      .bike-info-spacer {
-        flex: 1 1 auto;
-        min-height: 0.85rem;
-      }
 
       .bike-deposit {
-        margin: 0.25rem 0 0 0;
-        font-size: 0.82rem;
+        margin: 0;
+        font-size: 0.74rem;
         color: var(--rb-text-muted, #6b7280);
+        white-space: nowrap;
       }
 
       /* ── Typ- und Körpergrößen-Filter über dem Raster ── */
@@ -2026,28 +2058,6 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         display: flex;
         justify-content: center;
         margin-bottom: 2rem;
-      }
-
-      .btn-select-bike {
-        width: 100%;
-        padding: 0.7rem 1rem;
-        background: rgba(255, 87, 34, 0.14);
-        border: 1px solid rgba(255, 87, 34, 0.55);
-        border-radius: 8px;
-        color: var(--rb-accent);
-        font-size: 0.95rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition:
-          background 0.2s ease,
-          color 0.2s ease;
-      }
-
-      .bike-card:hover .btn-select-bike,
-      .btn-select-bike:hover,
-      .btn-select-bike:focus-visible {
-        background: var(--rb-accent);
-        color: #fff;
       }
 
       .bike-details {
@@ -2967,7 +2977,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         }
 
         .bike-image {
-          height: 84px;
+          aspect-ratio: 4 / 3;
         }
 
         .bike-info {
@@ -2976,46 +2986,50 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
         .bike-info h3 {
           font-size: 0.8rem;
-          margin-bottom: 0.2rem;
+          margin-bottom: 0.3rem;
           /* Auch auf der schmalen Kachel vollständig – notfalls über mehrere
              Zeilen, statt "24 - 24 zoll Kinder…" zu zeigen. */
           line-height: 1.25;
         }
 
-        .bike-type {
-          font-size: 0.7rem;
-          margin: 0;
+        /* Auf der schmalen Kachel bleiben die Chips in einer scrollfreien
+           Reihe: kleiner Text, enger Abstand. */
+        .badges {
+          gap: 0.22rem;
         }
 
-        /* Die Größe bleibt auf dem Handy sichtbar: shortSize() kürzt den Satz
-           aus den Stammdaten auf das Maß, damit die Kachel eng bleibt. */
-        .bike-specs-inline {
-          margin: 0.25rem 0;
-          gap: 0.1rem;
-        }
-
-        .bike-specs-inline li {
-          font-size: 0.68rem;
-          -webkit-line-clamp: 1;
+        .badge {
+          font-size: 0.64rem;
+          padding: 2px 6px;
         }
 
         .bike-price strong {
-          font-size: 1rem;
+          font-size: 0.95rem;
         }
 
         .price-period,
-        .bike-deposit,
-        .bike-size {
-          font-size: 0.68rem;
+        .bike-deposit {
+          font-size: 0.64rem;
+        }
+
+        .price-row {
+          padding-top: 0.45rem;
+          /* Preis und Kaution passen nebeneinander nicht mehr in 160 px. */
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.1rem;
         }
 
         .bike-info-spacer {
           min-height: 0.4rem;
         }
 
-        .btn-select-bike {
-          padding: 0.45rem 0.5rem;
-          font-size: 0.75rem;
+        .pick {
+          width: 22px;
+          height: 22px;
+          font-size: 0.8rem;
+          top: 6px;
+          right: 6px;
         }
 
         /* Eine scrollbare Zeile statt drei umbrechender Reihen: die Chips
