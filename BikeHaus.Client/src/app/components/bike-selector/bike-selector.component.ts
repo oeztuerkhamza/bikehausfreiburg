@@ -19,6 +19,35 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="bike-selector">
+      <!-- Ist ein Rad gewählt, verschwindet die Liste: sie hat ihren Zweck
+           erfüllt und nähme sonst nur Platz weg (bei 40 Leihrädern scrollt man
+           sonst an jedem Slot vorbei). "Ändern" holt sie zurück. -->
+      <div class="chosen-strip" *ngIf="selectedBike && !listOpen">
+        <div class="chosen-thumb">
+          <img
+            *ngIf="getListImage(selectedBike) as chosenImage; else noChosenThumb"
+            [src]="getImageUrl(chosenImage.filePath)"
+            [alt]="selectedBike.marke + ' ' + selectedBike.modell"
+          />
+          <ng-template #noChosenThumb><span class="thumb-empty">🚲</span></ng-template>
+        </div>
+        <div class="chosen-text">
+          <strong>{{ selectedBike.marke }} {{ selectedBike.modell }}</strong>
+          <span class="chosen-meta">
+            <ng-container *ngIf="selectedBike.rahmengroesse"
+              >Size {{ selectedBike.rahmengroesse }}</ng-container
+            >
+            <ng-container *ngIf="selectedBike.rahmennummer">
+              · {{ selectedBike.rahmennummer }}</ng-container
+            >
+          </span>
+        </div>
+        <button type="button" class="btn btn-outline chosen-change" (click)="openList()">
+          Ändern
+        </button>
+      </div>
+
+      <ng-container *ngIf="!selectedBike || listOpen">
       <div class="selector-header">
         <div class="search-box">
           <input
@@ -151,21 +180,7 @@ import { environment } from '../../../environments/environment';
           ➕ {{ t.quickAddBike }}
         </button>
       </div>
-
-      <div class="selected-preview" *ngIf="selectedBike">
-        <h4>{{ t.selectedColon }}</h4>
-        <div class="preview-content">
-          <strong>{{ selectedBike.marke }} {{ selectedBike.modell }}</strong>
-          <span>{{ t.frameColon }} {{ selectedBike.rahmennummer }}</span>
-          <span
-            >{{ t.colorColon }} {{ selectedBike.farbe }} | {{ t.wheelsColon }}
-            {{ selectedBike.reifengroesse }}</span
-          >
-          <span *ngIf="selectedBike.fahrradtyp"
-            >{{ t.typeColon }} {{ selectedBike.fahrradtyp }}</span
-          >
-        </div>
-      </div>
+      </ng-container>
     </div>
   `,
   styles: [
@@ -174,6 +189,51 @@ import { environment } from '../../../environments/environment';
         display: flex;
         flex-direction: column;
         gap: 12px;
+      }
+      /* Gewähltes Rad in einer Zeile — Foto, Name, Größe/Rahmennummer, Ändern. */
+      .chosen-strip {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 10px;
+        border: 1px solid var(--border-light, #eee);
+        border-radius: 8px;
+        background: var(--bg-secondary, #fafafa);
+      }
+      .chosen-thumb {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: var(--bg-primary, #fff);
+        display: grid;
+        place-items: center;
+      }
+      .chosen-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .chosen-text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        flex: 1;
+      }
+      .chosen-text strong {
+        font-size: 0.95rem;
+        color: var(--text-primary, #1e293b);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .chosen-meta {
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .chosen-change {
+        flex-shrink: 0;
       }
       .selector-header {
         display: flex;
@@ -381,6 +441,9 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
   @Input() allowQuickAdd = false;
   @Input() enableAdvancedFilters = false;
   @Input() requireConfirmSelection = false;
+
+  /** Liste offen? Nach einer Auswahl bleibt sie zu, bis "Ändern" gedrückt wird. */
+  listOpen = false;
   @Output() selectedBikeChange = new EventEmitter<Bicycle | null>();
   @Output() bikeSelected = new EventEmitter<Bicycle>();
   @Output() quickAddRequested = new EventEmitter<void>();
@@ -656,6 +719,13 @@ export class BikeSelectorComponent implements OnInit, OnChanges {
     this.selectedBikeChange.emit(bike);
     this.bikeSelected.emit(bike);
     this.searchError = '';
+    // Auswahl steht — die Liste hat ihren Zweck erfüllt.
+    this.listOpen = false;
+  }
+
+  /** Liste wieder aufklappen, um ein anderes Rad zu wählen. */
+  openList(): void {
+    this.listOpen = true;
   }
 
   onQuickAdd() {

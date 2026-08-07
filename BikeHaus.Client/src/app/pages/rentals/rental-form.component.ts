@@ -415,7 +415,10 @@ const MONTH_NAMES = [
                      Schnell-Anlegen: manche Leihräder werden ohne sichtbare
                      oder ablesbare Rahmennummer erfasst, das darf das
                      Anlegen nicht blockieren. -->
-                <div class="field full rahmen-autocomplete-wrapper">
+                <div
+                  class="field full rahmen-autocomplete-wrapper"
+                  *ngIf="!isChildSlot(b)"
+                >
                   <label>Rahmennummer</label>
                   <input
                     [(ngModel)]="b.bikeEdit.rahmennummer"
@@ -505,7 +508,12 @@ const MONTH_NAMES = [
                 <!-- Neu angelegtes Rad (nicht in der Liste): nur Marke,
                      Rahmennummer, Miete und Kaution nötig. Übrige Felder nur
                      für vorhandene Räder. -->
-                <ng-container *ngIf="!b.isQuickAddMode">
+                <!-- Kinderräder sind Sammelanzeigen ("24 Zoll") und stehen für
+                     mehrere gleichartige Räder: Modell, Rahmengröße, Farbe,
+                     Reifengröße, Typ und Beschreibung gelten dort nicht je Rad
+                     und sind beim Vermieten nur Ballast. Übrig bleiben Marke,
+                     Stückzahl und ein Foto. -->
+                <ng-container *ngIf="!b.isQuickAddMode && !isChildSlot(b)">
                 <div class="field">
                   <label>Modell</label>
                   <input
@@ -602,7 +610,10 @@ const MONTH_NAMES = [
                      Upload läuft erst beim Speichern des Vertrags, sobald das
                      Fahrrad angelegt und seine BicycleId bekannt ist (siehe
                      uploadQuickAddPhotos()). -->
-                <div class="field full quick-add-photos" *ngIf="b.isQuickAddMode">
+                <div
+                  class="field full quick-add-photos"
+                  *ngIf="b.isQuickAddMode || isChildSlot(b)"
+                >
                   <label>Fotos</label>
                   <div
                     *ngIf="b.quickAddPhotoPreviews.length > 0"
@@ -639,8 +650,9 @@ const MONTH_NAMES = [
                   </label>
                   <span class="menge-hint">
                     Mehrere Fotos möglich – vor dem Speichern jederzeit wieder
-                    entfernbar. Ein fehlgeschlagener Foto-Upload verhindert
-                    nicht das Speichern des Mietvertrags.
+                    entfernbar. Sie landen in der Galerie dieses Fahrrads. Ein
+                    fehlgeschlagener Foto-Upload verhindert nicht das Speichern
+                    des Mietvertrags.
                   </span>
                 </div>
               </div>
@@ -2605,7 +2617,9 @@ export class RentalFormComponent implements OnInit {
   ): Observable<unknown> {
     const uploads: Observable<unknown>[] = [];
     for (const { b, bicycleId } of entries) {
-      if (!b.isQuickAddMode || b.quickAddPhotos.length === 0) continue;
+      // Auch für ein ausgewähltes (Kinder-)Rad: die Fotos gehören dann in die
+      // Galerie des bereits vorhandenen Fahrrads.
+      if (b.quickAddPhotos.length === 0) continue;
       for (const file of b.quickAddPhotos) {
         uploads.push(
           this.bicycleService.uploadGalleryImage(bicycleId, file).pipe(
@@ -2949,6 +2963,16 @@ export class RentalFormComponent implements OnInit {
    *    Stückzahl steht nur für neu hinzugefügte Slots zur Verfügung — auch
    *    beim Bearbeiten eines Vertrags über „Weiteres Fahrrad hinzufügen".
    */
+  /**
+   * Slot mit einer Kinderrad-Sammelanzeige. Dort ist das Rad kein einzelnes
+   * physisches Fahrrad, sondern eine Anzeige für mehrere gleichartige — die
+   * Stammdatenfelder je Rad (Modell, Rahmennummer, Farbe, …) führen dann in
+   * die Irre. Angezeigt werden nur Marke, Stückzahl und Fotos.
+   */
+  isChildSlot(b: BikeEntry): boolean {
+    return !b.isQuickAddMode && this.isChildrensBike(b.selectedBike);
+  }
+
   showMengeInput(b: BikeEntry): boolean {
     return !b.isQuickAddMode && !b.isExisting && this.isChildrensBike(b.selectedBike);
   }
