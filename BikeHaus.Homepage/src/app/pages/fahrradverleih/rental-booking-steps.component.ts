@@ -25,6 +25,10 @@ import {
   RentalBookingAccessoryCreate,
 } from '../../models/models';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
+import {
+  translateAccessoryName,
+  translateBikeText,
+} from '../../services/german-terms';
 import { storeBookingHandoff } from '../../utils/booking-handoff';
 import {
   isClosureDay,
@@ -363,7 +367,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 [class.active]="effectiveTypeFilter() === group.key"
                 (click)="bikeTypeFilter.set(group.key)"
               >
-                {{ group.label }}
+                {{ localizedTerm(group.label) }}
                 <span class="chip-count">{{ group.count }}</span>
               </button>
             </div>
@@ -445,14 +449,14 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               <div class="img-placeholder" *ngIf="!getMainImage(bike)">🚲</div>
             </div>
             <div class="bike-info">
-              <h3>{{ bike.marke }} {{ bike.modell }}</h3>
+              <h3>{{ bikeName(bike) }}</h3>
 
               <!-- Typ, Rahmen, Reifen und Körpergröße als Chips statt als
                    Beschriftungsliste: dieselben Angaben, eine Zeile statt vier,
                    und auf dem Handy gut lesbar. -->
               <div class="badges">
                 <span class="badge" *ngIf="bike.art || bike.fahrradtyp">
-                  {{ bike.art || bike.fahrradtyp }}
+                  {{ localizedTerm(bike.art || bike.fahrradtyp) }}
                 </span>
                 <span class="badge" *ngIf="shortSize(bike.rahmengroesse)">
                   {{ t().rentalSteps?.frameSize ?? 'Rahmengröße' }}
@@ -615,7 +619,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         *ngIf="currentStep() === 'bike-details' && selectedBike()"
         class="step-container"
       >
-        <h2>{{ selectedBike()!.marke }} {{ selectedBike()!.modell }}</h2>
+        <h2>{{ bikeName(selectedBike()!) }}</h2>
         <div class="bike-details">
           <div class="bike-images">
             <button
@@ -670,7 +674,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           <div class="bike-specs">
             <div class="spec" *ngIf="selectedBike()!.fahrradtyp">
               <strong>{{ t().rentalSteps?.type ?? 'Typ' }}:</strong>
-              {{ selectedBike()!.fahrradtyp }}
+              {{ localizedTerm(selectedBike()!.fahrradtyp) }}
             </div>
             <div class="spec" *ngIf="riderHeight(selectedBike()!)">
               <strong
@@ -894,12 +898,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               <img
                 *ngIf="acc.bildPfad"
                 [src]="getImageUrl(acc.bildPfad)"
-                [alt]="acc.bezeichnung"
+                [alt]="accessoryName(acc.bezeichnung)"
               />
               <div *ngIf="!acc.bildPfad" class="accessory-photo-empty">🚲</div>
             </div>
             <div class="accessory-body">
-              <h3>{{ acc.bezeichnung }}</h3>
+              <h3>{{ accessoryName(acc.bezeichnung) }}</h3>
               <p *ngIf="acc.beschreibung" class="accessory-desc">
                 {{ acc.beschreibung }}
               </p>
@@ -954,7 +958,9 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           <button (click)="goToStep('customer-info')" class="btn-primary">
             {{ t().rentalSteps?.continue ?? 'Weiter' }}
           </button>
-          <button (click)="goToStep('choose-next')" class="btn-secondary">
+          <!-- Zurück in die Radauswahl: der frühere Zwischenschritt
+               ("Fahrrad hinzugefügt") kommt im Ablauf nicht mehr vor. -->
+          <button (click)="goToStep('bike-selection')" class="btn-secondary">
             {{ t().rentalSteps?.back ?? 'Zurück' }}
           </button>
         </div>
@@ -1213,7 +1219,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             class="review-item accessory-review-item"
           >
             <p>
-              <strong>{{ sel.menge }}× {{ sel.accessory.bezeichnung }}</strong>
+              <strong>{{ sel.menge }}× {{ accessoryName(sel.accessory.bezeichnung) }}</strong>
             </p>
             <p class="price">
               <ng-container *ngIf="sel.accessory.tagespreis > 0; else selFree">
@@ -1979,29 +1985,42 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
       .card-qty {
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        margin-top: 0.5rem;
+        gap: 0.45rem;
+        margin-top: 0.55rem;
+        padding: 3px;
+        border-radius: 999px;
+        /* An die Akzentfarbe der Seite gebunden statt an ein festes Orange —
+           sonst steht eine orange Pille in einer grünen Kachel. */
+        border: 1px solid color-mix(in srgb, var(--rb-accent) 45%, transparent);
+        background: color-mix(in srgb, var(--rb-accent) 12%, transparent);
       }
       .card-qty button {
-        width: 26px;
-        height: 26px;
-        border-radius: 7px;
-        border: 1px solid var(--rb-border);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid color-mix(in srgb, var(--rb-accent) 55%, transparent);
         background: transparent;
-        color: inherit;
-        font-size: 1rem;
+        color: var(--rb-accent);
+        font-size: 1.05rem;
+        font-weight: 700;
         line-height: 1;
         cursor: pointer;
       }
+      .card-qty button:hover:not(:disabled) {
+        background: var(--rb-accent);
+        color: #fff;
+      }
       .card-qty button:disabled {
-        opacity: 0.4;
+        opacity: 0.35;
         cursor: not-allowed;
       }
       .card-qty .qty-value {
-        font-size: 0.85rem;
-        font-weight: 700;
-        min-width: 1.8rem;
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: var(--rb-accent);
+        min-width: 2.1rem;
         text-align: center;
+        letter-spacing: 0.02em;
       }
 
       /* Fotos und alle Angaben bleiben einen Klick entfernt, ohne im Weg zu stehen. */
@@ -3194,9 +3213,18 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           margin-top: 0.35rem;
         }
 
+        .card-qty {
+          gap: 0.35rem;
+          margin-top: 0.4rem;
+        }
         .card-qty button {
-          width: 22px;
-          height: 22px;
+          width: 24px;
+          height: 24px;
+          font-size: 0.95rem;
+        }
+        .card-qty .qty-value {
+          font-size: 0.98rem;
+          min-width: 1.9rem;
         }
 
         .select-bar {
@@ -3576,6 +3604,24 @@ export class RentalBookingStepsComponent implements OnInit {
   });
 
   /** Name der Kachel: Marke und Modell, so wie sie dort auch stehen. */
+  /**
+   * Fahrrad- und Zubehörnamen kommen auf Deutsch aus der Verwaltung. Auf einer
+   * anderssprachigen Seite werden die bekannten Begriffe darin übersetzt
+   * ("20 zoll Kinder Fahrrad" → "20 inch kids' bike"); Marken und Maße bleiben.
+   */
+  bikeName(bike: PublicRentalBicycle): string {
+    return translateBikeText(this.bikeLabel(bike), this.lang());
+  }
+
+  /** Einzelbegriff wie ein Typ-Chip ("Kinderrad") oder das Feld "Typ". */
+  localizedTerm(value: string | null | undefined): string {
+    return translateBikeText(value, this.lang());
+  }
+
+  accessoryName(value: string | null | undefined): string {
+    return translateAccessoryName(value, this.lang());
+  }
+
   bikeLabel(bike: PublicRentalBicycle): string {
     return `${bike.marke ?? ''} ${bike.modell ?? ''}`.trim();
   }
@@ -3749,8 +3795,10 @@ export class RentalBookingStepsComponent implements OnInit {
     const from = bike?.koerpergroesseVonCm ?? null;
     const to = bike?.koerpergroesseBisCm ?? null;
     if (from && to) return `${from}–${to} cm`;
-    if (from) return `ab ${from} cm`;
-    if (to) return `bis ${to} cm`;
+    // Symbole statt "ab"/"bis": die Angabe steht auf jeder Kachel und wäre in
+    // den anderen elf Sprachen sonst das einzige deutsche Wort darin.
+    if (from) return `≥ ${from} cm`;
+    if (to) return `≤ ${to} cm`;
     return '';
   }
 
