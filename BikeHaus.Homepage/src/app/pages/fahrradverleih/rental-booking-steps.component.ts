@@ -1210,10 +1210,16 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
         <div class="terms-acceptance">
           <label class="terms-label">
+            <!-- Den Zustand aus dem Häkchen selbst lesen, nicht blind umdrehen:
+                 ein Tipp auf das Label kann auf dem Handy zwei change-Ereignisse
+                 auslösen (Label und Eingabefeld). Mit "umdrehen" hoben die sich
+                 gegenseitig auf — das Häkchen blitzte auf und ging wieder aus,
+                 der Bestätigen-Knopf blieb grau, und der Gast konnte nicht
+                 buchen. So gelesen ist zweimal dasselbe Ereignis harmlos. -->
             <input
               type="checkbox"
               [checked]="termsAccepted()"
-              (change)="termsAccepted.set(!termsAccepted())"
+              (change)="onTermsToggled($event)"
               class="terms-checkbox"
             />
             <span>
@@ -3522,6 +3528,15 @@ export class RentalBookingStepsComponent implements OnInit {
   isSubmitting = signal(false);
   bookingNumber = signal('');
   termsAccepted = signal(false);
+
+  /**
+   * Übernimmt den Zustand des Häkchens, statt den bisherigen umzudrehen.
+   * Idempotent: kommt dasselbe Ereignis zweimal an (Tipp auf das Label löst auf
+   * dem Handy Label **und** Eingabefeld aus), bleibt das Ergebnis dasselbe.
+   */
+  onTermsToggled(event: Event): void {
+    this.termsAccepted.set((event.target as HTMLInputElement)?.checked === true);
+  }
 
   bookingForm: BookingFormValues = {
     vorname: '',
