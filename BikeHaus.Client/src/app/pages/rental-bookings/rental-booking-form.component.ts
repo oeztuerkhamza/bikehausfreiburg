@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -6,8 +13,29 @@ import { RentalBookingService } from '../../services/rental-booking.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
+import { FormDraftService } from '../../services/form-draft.service';
 import { Bicycle, Customer, RentalBookingCreate } from '../../models/models';
 import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
+import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
+
+/** Nur echte Nutzereingaben; die Fahrrad-IDs sind Auswahl, keine Stammdaten —
+ * onDatesChanged() räumt beim Neuladen ohnehin Räder raus, die inzwischen
+ * nicht mehr verfügbar sind. */
+interface RentalBookingFormDraft {
+  startDatum: string;
+  endDatum: string;
+  abholzeit: string;
+  vorname: string;
+  nachname: string;
+  email: string;
+  telefon: string;
+  sprache: string;
+  notizen: string;
+  selectedBikeIds: number[];
+}
+
+const DRAFT_KEY = 'bikehaus-draft-rental-booking-form';
+const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 /**
  * Admin-seitige Anlage einer neuen Mietanfrage (z.B. Telefon/Laufkundschaft).
@@ -21,6 +49,7 @@ import { CustomerAutocompleteComponent } from '../../components/customer-autocom
     FormsModule,
     RouterLink,
     CustomerAutocompleteComponent,
+    DraftRestoredBannerComponent,
   ],
   template: `
     <div class="page">
@@ -28,6 +57,11 @@ import { CustomerAutocompleteComponent } from '../../components/customer-autocom
         <h1>Neue Mietanfrage</h1>
         <a routerLink="/rental-bookings" class="btn btn-outline">{{ t.back }}</a>
       </div>
+
+      <app-draft-restored-banner
+        *ngIf="draftRestored"
+        (discard)="discardDraft()"
+      ></app-draft-restored-banner>
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
@@ -305,12 +339,15 @@ import { CustomerAutocompleteComponent } from '../../components/customer-autocom
     `,
   ],
 })
-export class RentalBookingFormComponent implements OnInit {
+export class RentalBookingFormComponent implements OnInit, OnDestroy {
   private bookingService = inject(RentalBookingService);
   private bicycleService = inject(BicycleService);
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
   private router = inject(Router);
+  private formDraftService = inject(FormDraftService);
+  draftRestored = false;
+  private draftAutosaveHandle: ReturnType<typeof setInterval> | undefined;
 
   startDatum = '';
   endDatum = '';
@@ -361,7 +398,61 @@ export class RentalBookingFormComponent implements OnInit {
     const today = new Date().toISOString().split('T')[0];
     this.startDatum = today;
     this.endDatum = today;
+
+    this.restoreDraftIfAny();
     this.onDatesChanged();
+
+    this.draftAutosaveHandle = setInterval(() => this.saveDraftSnapshot(), 3000);
+  }
+
+  ngOnDestroy() {
+    if (this.draftAutosaveHandle) clearInterval(this.draftAutosaveHandle);
+  }
+
+  private restoreDraftIfAny() {
+    const draft = this.formDraftService.load<RentalBookingFormDraft>(
+      DRAFT_KEY,
+      DRAFT_MAX_AGE_MS,
+    );
+    if (!draft) return;
+
+    if (draft.startDatum) this.startDatum = draft.startDatum;
+    if (draft.endDatum) this.endDatum = draft.endDatum;
+    this.abholzeit = draft.abholzeit ?? '';
+    this.vorname = draft.vorname ?? '';
+    this.nachname = draft.nachname ?? '';
+    this.email = draft.email ?? '';
+    this.telefon = draft.telefon ?? '';
+    this.sprache = draft.sprache ?? 'de';
+    this.notizen = draft.notizen ?? '';
+    if (Array.isArray(draft.selectedBikeIds)) {
+      // onDatesChanged() (unten in ngOnInit) filtert Räder raus, die für den
+      // wiederhergestellten Zeitraum inzwischen nicht mehr verfügbar sind.
+      this.selectedBikeIds.set(new Set(draft.selectedBikeIds));
+    }
+
+    this.draftRestored = true;
+  }
+
+  private saveDraftSnapshot() {
+    const draft: RentalBookingFormDraft = {
+      startDatum: this.startDatum,
+      endDatum: this.endDatum,
+      abholzeit: this.abholzeit,
+      vorname: this.vorname,
+      nachname: this.nachname,
+      email: this.email,
+      telefon: this.telefon,
+      sprache: this.sprache,
+      notizen: this.notizen,
+      selectedBikeIds: Array.from(this.selectedBikeIds()),
+    };
+    this.formDraftService.save(DRAFT_KEY, draft);
+  }
+
+  discardDraft() {
+    this.formDraftService.clear(DRAFT_KEY);
+    if (typeof window !== 'undefined') window.location.reload();
   }
 
   datesValid(): boolean {
@@ -432,6 +523,7 @@ export class RentalBookingFormComponent implements OnInit {
       next: (created) => {
         this.saving.set(false);
         this.notificationService.success(this.t.saveSuccess);
+        this.formDraftService.clear(DRAFT_KEY);
         this.router.navigate(['/rental-bookings', created.id]);
       },
       error: (err) => {

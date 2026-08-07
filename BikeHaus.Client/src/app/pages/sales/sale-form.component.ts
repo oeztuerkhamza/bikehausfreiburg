@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, HostListener } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -8,6 +14,7 @@ import { PurchaseService } from '../../services/purchase.service';
 import { SettingsService } from '../../services/settings.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
+import { FormDraftService } from '../../services/form-draft.service';
 import {
   SaleCreate,
   Bicycle,
@@ -22,6 +29,54 @@ import {
 } from '../../models/models';
 import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
 import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
+import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
+
+/**
+ * Nur echte Nutzereingaben. `bikeEdit`/`isQuickAddMode` nur, wenn tatsächlich
+ * neu angelegt wird (Schnellerfassung) — ist stattdessen ein vorhandenes
+ * Fahrrad aus dem Bestand ausgewählt, wird die Auswahl bewusst NICHT
+ * wiederhergestellt: sonst könnte submit() beim Wiederherstellen fälschlich
+ * ein zweites, doppeltes Fahrrad anlegen statt das ausgewählte zu verwenden.
+ * Unterschrift (sellerSignatureData) ist ohnehin keine Eingabe hier — sie
+ * kommt aus den Settings (Standard-Unterschrift des Inhabers), nicht von
+ * einem Unterschriften-Pad in diesem Formular.
+ */
+interface SaleFormDraft {
+  isAccessoryOnly: boolean;
+  buyer: {
+    vorname: string;
+    nachname: string;
+    strasse: string;
+    hausnummer: string;
+    plz: string;
+    stadt: string;
+    telefon: string;
+    email: string;
+  };
+  preis: number;
+  zahlungsart: PaymentMethod;
+  zahlungen: SalePaymentCreate[];
+  verkaufsdatum: string;
+  notizen: string;
+  accessories: SaleAccessoryCreate[];
+  rabatt: number;
+  isQuickAddMode: boolean;
+  bikeEdit: {
+    marke: string;
+    modell: string;
+    rahmennummer: string;
+    lagernummer: number | undefined;
+    rahmengroesse: string;
+    farbe: string;
+    reifengroesse: string;
+    fahrradtyp: string;
+    beschreibung: string;
+    zustand: BikeCondition | '';
+  };
+}
+
+const DRAFT_KEY = 'bikehaus-draft-sale-form';
+const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 @Component({
   selector: 'app-sale-form',
@@ -32,6 +87,7 @@ import { CustomerAutocompleteComponent } from '../../components/customer-autocom
     RouterLink,
     AccessoryAutocompleteComponent,
     CustomerAutocompleteComponent,
+    DraftRestoredBannerComponent,
   ],
   template: `
     <div class="page">
@@ -54,6 +110,11 @@ import { CustomerAutocompleteComponent } from '../../components/customer-autocom
           <a routerLink="/sales" class="btn btn-outline">{{ t.back }}</a>
         </div>
       </div>
+
+      <app-draft-restored-banner
+        *ngIf="draftRestored"
+        (discard)="discardDraft()"
+      ></app-draft-restored-banner>
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <!-- Wizard progress (mobile only) -->
@@ -1448,9 +1509,12 @@ import { CustomerAutocompleteComponent } from '../../components/customer-autocom
     `,
   ],
 })
-export class SaleFormComponent implements OnInit {
+export class SaleFormComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private notificationService = inject(NotificationService);
+  private formDraftService = inject(FormDraftService);
+  draftRestored = false;
+  private draftAutosaveHandle: ReturnType<typeof setInterval> | undefined;
   private readonly defaultBuyer = {
     vorname: '',
     nachname: '',
@@ -1803,6 +1867,122 @@ export class SaleFormComponent implements OnInit {
         }
       }
     });
+
+    this.restoreDraftIfAny();
+    this.draftAutosaveHandle = setInterval(() => this.saveDraftSnapshot(), 3000);
+  }
+
+  ngOnDestroy() {
+    if (this.draftAutosaveHandle) clearInterval(this.draftAutosaveHandle);
+  }
+
+  private restoreDraftIfAny() {
+    const draft = this.formDraftService.load<SaleFormDraft>(
+      DRAFT_KEY,
+      DRAFT_MAX_AGE_MS,
+    );
+    if (!draft) return;
+
+    this.isAccessoryOnly = !!draft.isAccessoryOnly;
+    this.showBuyerFields = !this.isAccessoryOnly;
+
+    this.buyer.vorname = draft.buyer?.vorname ?? '';
+    this.buyer.nachname = draft.buyer?.nachname ?? '';
+    this.buyer.strasse = draft.buyer?.strasse ?? '';
+    this.buyer.hausnummer = draft.buyer?.hausnummer ?? '';
+    this.buyer.plz = draft.buyer?.plz ?? '';
+    this.buyer.stadt = draft.buyer?.stadt ?? '';
+    this.buyer.telefon = draft.buyer?.telefon ?? '';
+    this.buyer.email = draft.buyer?.email ?? '';
+
+    this.preis = draft.preis || 0;
+    this.zahlungsart = draft.zahlungsart ?? PaymentMethod.Bar;
+    if (Array.isArray(draft.zahlungen) && draft.zahlungen.length > 0) {
+      this.zahlungen = draft.zahlungen.map((z) => ({
+        zahlungsart: z.zahlungsart,
+        betrag: z.betrag || 0,
+        ratenMonate: z.ratenMonate,
+      }));
+    }
+    if (draft.verkaufsdatum) this.verkaufsdatum = draft.verkaufsdatum;
+    this.notizen = draft.notizen ?? '';
+    if (Array.isArray(draft.accessories)) {
+      this.accessories = draft.accessories.map((a) => ({
+        bezeichnung: a.bezeichnung,
+        preis: a.preis || 0,
+        menge: a.menge || 1,
+      }));
+    }
+    this.rabatt = draft.rabatt || 0;
+
+    // Ein vorhandenes, per Suche ausgewähltes Fahrrad wird bewusst NICHT
+    // wiederhergestellt (siehe Kommentar am Interface) — nur die Schnell-
+    // erfassung eines neuen Fahrrads.
+    if (draft.isQuickAddMode && draft.bikeEdit) {
+      this.isQuickAddMode = true;
+      this.bikeEdit.marke = draft.bikeEdit.marke ?? '';
+      this.bikeEdit.modell = draft.bikeEdit.modell ?? '';
+      this.bikeEdit.rahmennummer = draft.bikeEdit.rahmennummer ?? '';
+      this.bikeEdit.lagernummer = draft.bikeEdit.lagernummer;
+      this.bikeEdit.rahmengroesse = draft.bikeEdit.rahmengroesse ?? '';
+      this.bikeEdit.farbe = draft.bikeEdit.farbe ?? '';
+      this.bikeEdit.reifengroesse = draft.bikeEdit.reifengroesse ?? '';
+      this.bikeEdit.fahrradtyp = draft.bikeEdit.fahrradtyp ?? '';
+      this.bikeEdit.beschreibung = draft.bikeEdit.beschreibung ?? '';
+      this.bikeEdit.zustand = draft.bikeEdit.zustand ?? '';
+    }
+
+    this.draftRestored = true;
+  }
+
+  private saveDraftSnapshot() {
+    const draft: SaleFormDraft = {
+      isAccessoryOnly: this.isAccessoryOnly,
+      buyer: {
+        vorname: this.buyer.vorname,
+        nachname: this.buyer.nachname,
+        strasse: this.buyer.strasse,
+        hausnummer: this.buyer.hausnummer,
+        plz: this.buyer.plz,
+        stadt: this.buyer.stadt,
+        telefon: this.buyer.telefon,
+        email: this.buyer.email,
+      },
+      preis: this.preis,
+      zahlungsart: this.zahlungsart,
+      zahlungen: this.zahlungen.map((z) => ({
+        zahlungsart: z.zahlungsart,
+        betrag: z.betrag,
+        ratenMonate: z.ratenMonate,
+      })),
+      verkaufsdatum: this.verkaufsdatum,
+      notizen: this.notizen,
+      accessories: this.accessories.map((a) => ({
+        bezeichnung: a.bezeichnung,
+        preis: a.preis,
+        menge: a.menge,
+      })),
+      rabatt: this.rabatt,
+      isQuickAddMode: this.isQuickAddMode,
+      bikeEdit: {
+        marke: this.bikeEdit.marke,
+        modell: this.bikeEdit.modell,
+        rahmennummer: this.bikeEdit.rahmennummer,
+        lagernummer: this.bikeEdit.lagernummer,
+        rahmengroesse: this.bikeEdit.rahmengroesse,
+        farbe: this.bikeEdit.farbe,
+        reifengroesse: this.bikeEdit.reifengroesse,
+        fahrradtyp: this.bikeEdit.fahrradtyp,
+        beschreibung: this.bikeEdit.beschreibung,
+        zustand: this.bikeEdit.zustand,
+      },
+    };
+    this.formDraftService.save(DRAFT_KEY, draft);
+  }
+
+  discardDraft() {
+    this.formDraftService.clear(DRAFT_KEY);
+    if (typeof window !== 'undefined') window.location.reload();
   }
 
   onBikeSelected(bike: Bicycle) {
@@ -2309,7 +2489,10 @@ export class SaleFormComponent implements OnInit {
     };
 
     this.saleService.create(sale).subscribe({
-      next: () => this.router.navigate(['/sales']),
+      next: () => {
+        this.formDraftService.clear(DRAFT_KEY);
+        this.router.navigate(['/sales']);
+      },
       error: () => {
         this.submitting = false;
         alert(this.t.saleError);

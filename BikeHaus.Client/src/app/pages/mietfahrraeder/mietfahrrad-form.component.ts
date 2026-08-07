@@ -1,4 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
@@ -7,6 +14,7 @@ import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
 import { DialogService } from '../../services/dialog.service';
+import { FormDraftService } from '../../services/form-draft.service';
 import { Bicycle, BicycleImage } from '../../models/models';
 import { environment } from '../../../environments/environment';
 import { getConfiguredRentalPriceLines } from '../../utils/rental-pricing';
@@ -17,6 +25,7 @@ import {
   riderHeightForFrameValue,
   RiderHeightRange,
 } from '../../utils/frame-height';
+import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
 
 interface RentalForm {
   marke: string;
@@ -44,10 +53,16 @@ interface RentalForm {
   koerpergroesseBisCm: number | null;
 }
 
+/** `form` besteht komplett aus getippten Werten — Fotos gehen erst nach dem
+ * ersten Speichern (Bild-Upload braucht eine bikeId), das Neu-Formular kennt
+ * also gar keine Dateien; kein Hinweis auf verlorene Fotos nötig. */
+const DRAFT_KEY = 'bikehaus-draft-mietfahrrad-form';
+const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
+
 @Component({
   selector: 'app-mietfahrrad-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, DraftRestoredBannerComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -138,6 +153,11 @@ interface RentalForm {
       >
         {{ t.mietfahrradNavInactive }}
       </p>
+
+      <app-draft-restored-banner
+        *ngIf="draftRestored"
+        (discard)="discardDraft()"
+      ></app-draft-restored-banner>
 
       <div class="loading-wrap" *ngIf="pageLoading()">
         <div class="spinner"></div>
@@ -1335,13 +1355,16 @@ interface RentalForm {
     `,
   ],
 })
-export class MietfahrradFormComponent implements OnInit {
+export class MietfahrradFormComponent implements OnInit, OnDestroy {
   private bicycleService = inject(BicycleService);
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
   private dialogService = inject(DialogService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private formDraftService = inject(FormDraftService);
+  draftRestored = false;
+  private draftAutosaveHandle: ReturnType<typeof setInterval> | undefined;
 
   isEdit = false;
   bikeId = signal<number | null>(null);
@@ -1463,8 +1486,86 @@ export class MietfahrradFormComponent implements OnInit {
         window.scrollTo({ top: 0 });
       } else {
         this.pageLoading.set(false);
+        this.restoreDraftIfAny();
+        if (!this.draftAutosaveHandle) {
+          this.draftAutosaveHandle = setInterval(
+            () => this.saveDraftSnapshot(),
+            3000,
+          );
+        }
       }
     });
+  }
+
+  ngOnDestroy() {
+    if (this.draftAutosaveHandle) clearInterval(this.draftAutosaveHandle);
+  }
+
+  private restoreDraftIfAny() {
+    const draft = this.formDraftService.load<RentalForm>(
+      DRAFT_KEY,
+      DRAFT_MAX_AGE_MS,
+    );
+    if (!draft) return;
+
+    this.form.marke = draft.marke ?? '';
+    this.form.modell = draft.modell ?? '';
+    this.form.rahmennummer = draft.rahmennummer ?? '';
+    this.form.rahmengroesse = draft.rahmengroesse ?? '';
+    this.form.farbe = draft.farbe ?? '';
+    this.form.reifengroesse = draft.reifengroesse ?? '';
+    this.form.fahrradtyp = draft.fahrradtyp ?? '';
+    this.form.art = draft.art ?? '';
+    this.form.beschreibung = draft.beschreibung ?? '';
+    this.form.isRentable = draft.isRentable ?? true;
+    this.form.rentalPriceDay1 = draft.rentalPriceDay1 ?? null;
+    this.form.rentalPriceDay2 = draft.rentalPriceDay2 ?? null;
+    this.form.rentalPriceDay3 = draft.rentalPriceDay3 ?? null;
+    this.form.rentalPriceDay4 = draft.rentalPriceDay4 ?? null;
+    this.form.rentalPriceDay5 = draft.rentalPriceDay5 ?? null;
+    this.form.rentalPriceDay6 = draft.rentalPriceDay6 ?? null;
+    this.form.rentalPriceDay7 = draft.rentalPriceDay7 ?? null;
+    this.form.rentalPriceAdditionalDayAfter7 =
+      draft.rentalPriceAdditionalDayAfter7 ?? null;
+    this.form.kaution = draft.kaution ?? null;
+    this.form.fahrradnummer = draft.fahrradnummer ?? '';
+    this.form.koerpergroesseVonCm = draft.koerpergroesseVonCm ?? null;
+    this.form.koerpergroesseBisCm = draft.koerpergroesseBisCm ?? null;
+
+    this.draftRestored = true;
+  }
+
+  private saveDraftSnapshot() {
+    const draft: RentalForm = {
+      marke: this.form.marke,
+      modell: this.form.modell,
+      rahmennummer: this.form.rahmennummer,
+      rahmengroesse: this.form.rahmengroesse,
+      farbe: this.form.farbe,
+      reifengroesse: this.form.reifengroesse,
+      fahrradtyp: this.form.fahrradtyp,
+      art: this.form.art,
+      beschreibung: this.form.beschreibung,
+      isRentable: this.form.isRentable,
+      rentalPriceDay1: this.form.rentalPriceDay1,
+      rentalPriceDay2: this.form.rentalPriceDay2,
+      rentalPriceDay3: this.form.rentalPriceDay3,
+      rentalPriceDay4: this.form.rentalPriceDay4,
+      rentalPriceDay5: this.form.rentalPriceDay5,
+      rentalPriceDay6: this.form.rentalPriceDay6,
+      rentalPriceDay7: this.form.rentalPriceDay7,
+      rentalPriceAdditionalDayAfter7: this.form.rentalPriceAdditionalDayAfter7,
+      kaution: this.form.kaution,
+      fahrradnummer: this.form.fahrradnummer,
+      koerpergroesseVonCm: this.form.koerpergroesseVonCm,
+      koerpergroesseBisCm: this.form.koerpergroesseBisCm,
+    };
+    this.formDraftService.save(DRAFT_KEY, draft);
+  }
+
+  discardDraft() {
+    this.formDraftService.clear(DRAFT_KEY);
+    if (typeof window !== 'undefined') window.location.reload();
   }
 
   /**
@@ -1703,6 +1804,7 @@ export class MietfahrradFormComponent implements OnInit {
         next: (created) => {
           this.notificationService.success(this.t.mietfahrradSaveSuccess);
           this.saving.set(false);
+          this.formDraftService.clear(DRAFT_KEY);
           this.router.navigate(['/mietfahrraeder/edit', created.id]);
         },
         error: () => {

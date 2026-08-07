@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, HostListener } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -10,6 +16,7 @@ import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
 import { RentalBookingService } from '../../services/rental-booking.service';
 import { RentalAccessoryService } from '../../services/rental-accessory.service';
+import { FormDraftService } from '../../services/form-draft.service';
 import {
   RentalCreate,
   RentalUpdate,
@@ -29,7 +36,56 @@ import {
 } from '../../models/models';
 import { BikeSelectorComponent } from '../../components/bike-selector/bike-selector.component';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
+import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
 import { calculateRentalPrice } from '../../utils/rental-pricing';
+
+/**
+ * Nur die reine "von null starten"-Neuanlage bekommt Entwürfe: sobald der
+ * Einstieg aus einer Mietanfrage (?bookingId=), aus der Verfügbarkeitssuche
+ * (?bicycleId=/?bicycleIds=) kommt oder ein Vertrag bearbeitet wird, sind
+ * Kunde/Rad/Zeitraum bereits geladene Fremd- bzw. Server-Daten — die dürfen
+ * durch einen alten Entwurf nicht überschrieben werden. Räder, die per Suche
+ * ausgewählt wurden (nicht "Schnell anlegen"), werden aus demselben Grund
+ * wie im Verkaufs-/Reservierungsformular nicht in den Entwurf aufgenommen:
+ * submit() würde sonst beim Wiederherstellen ein Rad doppelt anlegen statt
+ * das ausgewählte zu verwenden. Ausweisfotos und Unterschrift sind Dateien
+ * bzw. eine Signatur — nicht Teil des Entwurfs.
+ */
+interface RentalBikeDraftEntry {
+  bikeEdit: {
+    rahmennummer: string;
+    marke: string;
+    modell: string;
+    rahmengroesse: string;
+    farbe: string;
+    reifengroesse: string;
+    fahrradtyp: string;
+    beschreibung: string;
+    zustand: BikeCondition;
+  };
+  menge: number;
+  mieteManuell: boolean;
+  gesamtmiete: number;
+  kaution: number;
+  zahlungsart: PaymentMethod | '';
+  kautionZahlungsart: PaymentMethod | '';
+  zustandBeiUebergabe: string;
+}
+
+interface RentalFormDraft {
+  customer: CustomerCreate;
+  startDatum: string;
+  endDatum: string;
+  notizen: string;
+  agbAkzeptiert: boolean;
+  unterschriftOrt: string;
+  catalogAccessoryQty: Record<number, number>;
+  quickAddBikes: RentalBikeDraftEntry[];
+  hadFiles: boolean;
+}
+
+const DRAFT_KEY = 'bikehaus-draft-rental-form';
+const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 interface AccessoryLine {
   rentalAccessoryId?: number;
@@ -177,7 +233,14 @@ const MONTH_NAMES = [
 @Component({
   selector: 'app-rental-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BikeSelectorComponent, SignaturePadComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    BikeSelectorComponent,
+    SignaturePadComponent,
+    DraftRestoredBannerComponent,
+  ],
   template: `
     <datalist id="brandList">
       <option *ngFor="let b of brands" [value]="b"></option>
@@ -214,6 +277,12 @@ const MONTH_NAMES = [
           >→ Anfrage ansehen</a
         >
       </div>
+
+      <app-draft-restored-banner
+        *ngIf="draftRestored"
+        [filesLost]="draftHadFiles"
+        (discard)="discardDraft()"
+      ></app-draft-restored-banner>
 
       <form (ngSubmit)="submit()" #f="ngForm">
 
@@ -2335,7 +2404,7 @@ const MONTH_NAMES = [
     `,
   ],
 })
-export class RentalFormComponent implements OnInit {
+export class RentalFormComponent implements OnInit, OnDestroy {
   private rentalService = inject(RentalService);
   private bicycleService = inject(BicycleService);
   private router = inject(Router);
@@ -2343,6 +2412,10 @@ export class RentalFormComponent implements OnInit {
   private notificationService = inject(NotificationService);
   private translationService = inject(TranslationService);
   private bookingService = inject(RentalBookingService);
+  private formDraftService = inject(FormDraftService);
+  draftRestored = false;
+  draftHadFiles = false;
+  private draftAutosaveHandle: ReturnType<typeof setInterval> | undefined;
 
   get t() {
     return this.translationService.translations();
@@ -3437,7 +3510,132 @@ export class RentalFormComponent implements OnInit {
         this.pendingBikeIdToSelect = ids[0];
       }
       this.onDatesChanged(); // lädt Verfügbarkeit → wählt die Räder automatisch
+      return;
     }
+
+    // Nur die reine "von null starten"-Neuanlage (kein Edit, keine Anfrage,
+    // keine Vorauswahl aus der Verfügbarkeitssuche) bekommt Entwürfe.
+    this.restoreDraftIfAny();
+    this.draftAutosaveHandle = setInterval(() => this.saveDraftSnapshot(), 3000);
+  }
+
+  ngOnDestroy() {
+    if (this.draftAutosaveHandle) clearInterval(this.draftAutosaveHandle);
+  }
+
+  private restoreDraftIfAny() {
+    const draft = this.formDraftService.load<RentalFormDraft>(
+      DRAFT_KEY,
+      DRAFT_MAX_AGE_MS,
+    );
+    if (!draft) return;
+
+    this.customer.vorname = draft.customer?.vorname ?? '';
+    this.customer.nachname = draft.customer?.nachname ?? '';
+    this.customer.strasse = draft.customer?.strasse ?? '';
+    this.customer.hausnummer = draft.customer?.hausnummer ?? '';
+    this.customer.plz = draft.customer?.plz ?? '';
+    this.customer.stadt = draft.customer?.stadt ?? '';
+    this.customer.telefon = draft.customer?.telefon ?? '';
+    this.customer.email = draft.customer?.email ?? '';
+
+    if (draft.startDatum) this.startDatum = draft.startDatum;
+    if (draft.endDatum) this.endDatum = draft.endDatum;
+    this.notizen = draft.notizen ?? '';
+    this.agbAkzeptiert = !!draft.agbAkzeptiert;
+    this.unterschriftOrt = draft.unterschriftOrt ?? 'Freiburg';
+    if (draft.catalogAccessoryQty && typeof draft.catalogAccessoryQty === 'object') {
+      this.catalogAccessoryQty = { ...draft.catalogAccessoryQty };
+    }
+
+    // Wie im Verkaufs-/Reservierungsformular: nur per "Schnell anlegen"
+    // getippte Räder werden wiederhergestellt, keine per Suche ausgewählten.
+    if (Array.isArray(draft.quickAddBikes) && draft.quickAddBikes.length > 0) {
+      this.bikes = draft.quickAddBikes.map((entry) => {
+        const b = createEmptyBikeEntry();
+        b.isQuickAddMode = true;
+        b.bikeEdit.rahmennummer = entry.bikeEdit?.rahmennummer ?? '';
+        b.bikeEdit.marke = entry.bikeEdit?.marke ?? '';
+        b.bikeEdit.modell = entry.bikeEdit?.modell ?? '';
+        b.bikeEdit.rahmengroesse = entry.bikeEdit?.rahmengroesse ?? '';
+        b.bikeEdit.farbe = entry.bikeEdit?.farbe ?? '';
+        b.bikeEdit.reifengroesse = entry.bikeEdit?.reifengroesse ?? '';
+        b.bikeEdit.fahrradtyp = entry.bikeEdit?.fahrradtyp ?? '';
+        b.bikeEdit.beschreibung = entry.bikeEdit?.beschreibung ?? '';
+        b.bikeEdit.zustand = entry.bikeEdit?.zustand || BikeCondition.Gebraucht;
+        b.menge = entry.menge || 1;
+        if (entry.mieteManuell && entry.gesamtmiete > 0) {
+          b.mieteManuell = true;
+          b.gesamtmiete = entry.gesamtmiete;
+        }
+        b.kaution = entry.kaution || 0;
+        b.zahlungsart = entry.zahlungsart ?? '';
+        b.kautionZahlungsart = entry.kautionZahlungsart ?? '';
+        b.zustandBeiUebergabe = entry.zustandBeiUebergabe || 'Gut';
+        return b;
+      });
+    }
+
+    this.draftRestored = true;
+    this.draftHadFiles = !!draft.hadFiles;
+  }
+
+  private saveDraftSnapshot() {
+    const quickAddBikes: RentalBikeDraftEntry[] = this.bikes
+      .filter((b) => b.isQuickAddMode)
+      .map((b) => ({
+        bikeEdit: {
+          rahmennummer: b.bikeEdit.rahmennummer,
+          marke: b.bikeEdit.marke,
+          modell: b.bikeEdit.modell,
+          rahmengroesse: b.bikeEdit.rahmengroesse,
+          farbe: b.bikeEdit.farbe,
+          reifengroesse: b.bikeEdit.reifengroesse,
+          fahrradtyp: b.bikeEdit.fahrradtyp,
+          beschreibung: b.bikeEdit.beschreibung,
+          zustand: b.bikeEdit.zustand,
+        },
+        menge: b.menge,
+        mieteManuell: b.mieteManuell,
+        gesamtmiete: b.mieteManuell ? b.gesamtmiete : 0,
+        kaution: b.kaution,
+        zahlungsart: b.zahlungsart,
+        kautionZahlungsart: b.kautionZahlungsart,
+        zustandBeiUebergabe: b.zustandBeiUebergabe,
+      }));
+
+    const hadFiles =
+      !!this.mieterUnterschrift ||
+      !!this.ausweisVorderseiteFile ||
+      !!this.ausweisRueckseiteFile ||
+      this.bikes.some((b) => b.quickAddPhotos.length > 0);
+
+    const draft: RentalFormDraft = {
+      customer: {
+        vorname: this.customer.vorname,
+        nachname: this.customer.nachname,
+        strasse: this.customer.strasse,
+        hausnummer: this.customer.hausnummer,
+        plz: this.customer.plz,
+        stadt: this.customer.stadt,
+        telefon: this.customer.telefon,
+        email: this.customer.email,
+      },
+      startDatum: this.startDatum,
+      endDatum: this.endDatum,
+      notizen: this.notizen,
+      agbAkzeptiert: this.agbAkzeptiert,
+      unterschriftOrt: this.unterschriftOrt,
+      catalogAccessoryQty: { ...this.catalogAccessoryQty },
+      quickAddBikes,
+      hadFiles,
+    };
+    this.formDraftService.save(DRAFT_KEY, draft);
+  }
+
+  discardDraft() {
+    this.formDraftService.clear(DRAFT_KEY);
+    if (typeof window !== 'undefined') window.location.reload();
   }
 
   private loadRentalForEdit(id: number) {
@@ -4123,6 +4321,7 @@ export class RentalFormComponent implements OnInit {
               ? 'Vermietung mit mehreren Fahrrädern angelegt'
               : 'Vermietung erfolgreich angelegt',
           );
+          this.formDraftService.clear(DRAFT_KEY);
           this.router.navigate(['/rentals']);
         },
         error: (err) => {

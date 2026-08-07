@@ -1,21 +1,29 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { HomepageAccessoryService } from '../../services/homepage-accessory.service';
 import { TranslationService } from '../../services/translation.service';
 import { DialogService } from '../../services/dialog.service';
+import { FormDraftService } from '../../services/form-draft.service';
 import {
   HomepageAccessory,
   HomepageAccessoryCreate,
   HomepageAccessoryUpdate,
 } from '../../models/models';
 import { environment } from '../../../environments/environment';
+import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
+
+/** `form` besteht komplett aus getippten Werten. Fotos gehen erst nach dem
+ * ersten Speichern (Upload-UI nur im Bearbeiten-Modus) — das Neu-Formular
+ * kennt gar keine Dateien. */
+const DRAFT_KEY = 'bikehaus-draft-homepage-accessory-form';
+const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 @Component({
   selector: 'app-homepage-accessory-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, DraftRestoredBannerComponent],
   template: `
     <div class="page">
       <div class="page-header">
@@ -24,6 +32,11 @@ import { environment } from '../../../environments/environment';
           t.back
         }}</a>
       </div>
+
+      <app-draft-restored-banner
+        *ngIf="draftRestored"
+        (discard)="discardDraft()"
+      ></app-draft-restored-banner>
 
       <div *ngIf="loading" class="loading">{{ t.loading }}</div>
 
@@ -357,12 +370,15 @@ import { environment } from '../../../environments/environment';
     `,
   ],
 })
-export class HomepageAccessoryFormComponent implements OnInit {
+export class HomepageAccessoryFormComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private service = inject(HomepageAccessoryService);
   private dialogService = inject(DialogService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private formDraftService = inject(FormDraftService);
+  draftRestored = false;
+  private draftAutosaveHandle: ReturnType<typeof setInterval> | undefined;
 
   isEdit = false;
   loading = false;
@@ -407,7 +423,51 @@ export class HomepageAccessoryFormComponent implements OnInit {
           this.loading = false;
         },
       });
+    } else {
+      this.restoreDraftIfAny();
+      this.draftAutosaveHandle = setInterval(
+        () => this.saveDraftSnapshot(),
+        3000,
+      );
     }
+  }
+
+  ngOnDestroy() {
+    if (this.draftAutosaveHandle) clearInterval(this.draftAutosaveHandle);
+  }
+
+  private restoreDraftIfAny() {
+    const draft = this.formDraftService.load<HomepageAccessoryCreate>(
+      DRAFT_KEY,
+      DRAFT_MAX_AGE_MS,
+    );
+    if (!draft) return;
+
+    this.form.titel = draft.titel ?? '';
+    this.form.beschreibung = draft.beschreibung ?? '';
+    this.form.preis = draft.preis || 0;
+    this.form.preisText = draft.preisText ?? '';
+    this.form.kategorie = draft.kategorie ?? '';
+    this.form.marke = draft.marke ?? '';
+
+    this.draftRestored = true;
+  }
+
+  private saveDraftSnapshot() {
+    const draft: HomepageAccessoryCreate = {
+      titel: this.form.titel,
+      beschreibung: this.form.beschreibung,
+      preis: this.form.preis,
+      preisText: this.form.preisText,
+      kategorie: this.form.kategorie,
+      marke: this.form.marke,
+    };
+    this.formDraftService.save(DRAFT_KEY, draft);
+  }
+
+  discardDraft() {
+    this.formDraftService.clear(DRAFT_KEY);
+    if (typeof window !== 'undefined') window.location.reload();
   }
 
   getImageUrl(path: string): string {
@@ -482,6 +542,7 @@ export class HomepageAccessoryFormComponent implements OnInit {
     } else {
       this.service.create(this.form).subscribe({
         next: (created) => {
+          this.formDraftService.clear(DRAFT_KEY);
           this.router.navigate(['/homepage-accessories/edit', created.id]);
         },
         error: () => {

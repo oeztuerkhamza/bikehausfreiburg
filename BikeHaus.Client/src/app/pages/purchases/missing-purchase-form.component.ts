@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, HostListener } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -7,7 +13,9 @@ import { DocumentService } from '../../services/document.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
+import { FormDraftService } from '../../services/form-draft.service';
 import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
+import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
 import {
   PurchaseCreateForExistingBike,
   PaymentMethod,
@@ -17,6 +25,31 @@ import {
 } from '../../models/models';
 import { forkJoin, Observable } from 'rxjs';
 
+/** Nur echte Nutzereingaben — die bikeXxx-Felder kommen aus den Query-Params
+ * (Stammdaten des ausgewählten Fahrrads) und gehören nicht in den Entwurf. */
+interface MissingPurchaseDraft {
+  seller: {
+    vorname: string;
+    nachname: string;
+    strasse: string;
+    hausnummer: string;
+    plz: string;
+    stadt: string;
+    telefon: string;
+    email: string;
+    steuernummer: string;
+  };
+  preis: number;
+  verkaufspreisVorschlag: number | null;
+  zahlungsart: PaymentMethod;
+  kaufdatum: string;
+  notizen: string;
+  hasFiles: boolean;
+}
+
+const DRAFT_KEY = 'bikehaus-draft-missing-purchase-form';
+const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
+
 @Component({
   selector: 'app-missing-purchase-form',
   standalone: true,
@@ -25,6 +58,7 @@ import { forkJoin, Observable } from 'rxjs';
     FormsModule,
     RouterLink,
     CustomerAutocompleteComponent,
+    DraftRestoredBannerComponent,
   ],
   template: `
     <div class="page">
@@ -34,6 +68,12 @@ import { forkJoin, Observable } from 'rxjs';
           t.back
         }}</a>
       </div>
+
+      <app-draft-restored-banner
+        *ngIf="draftRestored"
+        [filesLost]="draftHadFiles"
+        (discard)="discardDraft()"
+      ></app-draft-restored-banner>
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <!-- Wizard progress (mobile only) -->
@@ -672,7 +712,7 @@ import { forkJoin, Observable } from 'rxjs';
     `,
   ],
 })
-export class MissingPurchaseFormComponent implements OnInit {
+export class MissingPurchaseFormComponent implements OnInit, OnDestroy {
   private purchaseService = inject(PurchaseService);
   private documentService = inject(DocumentService);
   private bicycleService = inject(BicycleService);
@@ -680,6 +720,10 @@ export class MissingPurchaseFormComponent implements OnInit {
   private translationService = inject(TranslationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private formDraftService = inject(FormDraftService);
+  draftRestored = false;
+  draftHadFiles = false;
+  private draftAutosaveHandle: ReturnType<typeof setInterval> | undefined;
 
   // ── Mobile wizard ──
   isMobile = false;
@@ -858,6 +902,68 @@ export class MissingPurchaseFormComponent implements OnInit {
       },
       error: () => {},
     });
+
+    this.restoreDraftIfAny();
+    this.draftAutosaveHandle = setInterval(() => this.saveDraftSnapshot(), 3000);
+  }
+
+  ngOnDestroy() {
+    if (this.draftAutosaveHandle) clearInterval(this.draftAutosaveHandle);
+  }
+
+  private restoreDraftIfAny() {
+    const draft = this.formDraftService.load<MissingPurchaseDraft>(
+      DRAFT_KEY,
+      DRAFT_MAX_AGE_MS,
+    );
+    if (!draft) return;
+
+    this.seller.vorname = draft.seller?.vorname ?? '';
+    this.seller.nachname = draft.seller?.nachname ?? '';
+    this.seller.strasse = draft.seller?.strasse ?? '';
+    this.seller.hausnummer = draft.seller?.hausnummer ?? '';
+    this.seller.plz = draft.seller?.plz ?? '';
+    this.seller.stadt = draft.seller?.stadt ?? '';
+    this.seller.telefon = draft.seller?.telefon ?? '';
+    this.seller.email = draft.seller?.email ?? '';
+    this.seller.steuernummer = draft.seller?.steuernummer ?? '';
+
+    this.preis = draft.preis || 0;
+    this.verkaufspreisVorschlag = draft.verkaufspreisVorschlag ?? null;
+    this.zahlungsart = draft.zahlungsart ?? PaymentMethod.Bar;
+    if (draft.kaufdatum) this.kaufdatum = draft.kaufdatum;
+    this.notizen = draft.notizen ?? '';
+
+    this.draftRestored = true;
+    this.draftHadFiles = !!draft.hasFiles;
+  }
+
+  private saveDraftSnapshot() {
+    const draft: MissingPurchaseDraft = {
+      seller: {
+        vorname: this.seller.vorname,
+        nachname: this.seller.nachname,
+        strasse: this.seller.strasse,
+        hausnummer: this.seller.hausnummer,
+        plz: this.seller.plz,
+        stadt: this.seller.stadt,
+        telefon: this.seller.telefon,
+        email: this.seller.email,
+        steuernummer: this.seller.steuernummer,
+      },
+      preis: this.preis,
+      verkaufspreisVorschlag: this.verkaufspreisVorschlag,
+      zahlungsart: this.zahlungsart,
+      kaufdatum: this.kaufdatum,
+      notizen: this.notizen,
+      hasFiles: this.selectedFiles.length > 0 || this.galleryFiles.length > 0,
+    };
+    this.formDraftService.save(DRAFT_KEY, draft);
+  }
+
+  discardDraft() {
+    this.formDraftService.clear(DRAFT_KEY);
+    if (typeof window !== 'undefined') window.location.reload();
   }
 
   canSubmit(): boolean {
@@ -969,6 +1075,7 @@ export class MissingPurchaseFormComponent implements OnInit {
 
     this.purchaseService.createForExistingBike(dto).subscribe({
       next: (result) => {
+        this.formDraftService.clear(DRAFT_KEY);
         const allUploads: Observable<any>[] = [];
 
         if (this.selectedFiles.length > 0 && result.id) {

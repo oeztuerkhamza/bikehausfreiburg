@@ -1,10 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ReservationService } from '../../services/reservation.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { TranslationService } from '../../services/translation.service';
+import { FormDraftService } from '../../services/form-draft.service';
 import {
   ReservationCreate,
   Bicycle,
@@ -15,6 +16,42 @@ import {
 } from '../../models/models';
 import { SignaturePadComponent } from '../../components/signature-pad/signature-pad.component';
 import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
+import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
+
+/**
+ * Nur echte Nutzereingaben. Wie im Verkaufsformular gilt: ein per Suche
+ * ausgewähltes vorhandenes Fahrrad wird NICHT wiederhergestellt (sonst
+ * könnte submit() beim Neuladen fälschlich ein zweites Fahrrad anlegen statt
+ * das ausgewählte zu verwenden) — nur die Schnellerfassung eines neuen
+ * Fahrrads. Die Kundenunterschrift (kundenUnterschrift) ist ein Signatur-Pad
+ * und zählt als "Datei" — nicht Teil des Entwurfs.
+ */
+interface ReservationFormDraft {
+  customer: CustomerCreate;
+  reservierungsDatum: string;
+  ablaufDatum: string;
+  anzahlung: number | null;
+  anzahlungZahlungsart: PaymentMethod | '';
+  verkaufspreis: number | null;
+  notizen: string;
+  isQuickAddMode: boolean;
+  newBike: {
+    lagernummer: number | null;
+    rahmennummer: string;
+    marke: string;
+    modell: string;
+    rahmengroesse: string;
+    farbe: string;
+    reifengroesse: string;
+    fahrradtyp: string;
+    beschreibung: string;
+    zustand: BikeCondition | '';
+  };
+  hadSignature: boolean;
+}
+
+const DRAFT_KEY = 'bikehaus-draft-reservation-form';
+const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
 
 @Component({
   selector: 'app-reservation-form',
@@ -25,6 +62,7 @@ import { CustomerAutocompleteComponent } from '../../components/customer-autocom
     RouterLink,
     SignaturePadComponent,
     CustomerAutocompleteComponent,
+    DraftRestoredBannerComponent,
   ],
   template: `
     <div class="page">
@@ -32,6 +70,12 @@ import { CustomerAutocompleteComponent } from '../../components/customer-autocom
         <h1>{{ t.newReservation }}</h1>
         <a routerLink="/reservations" class="btn btn-outline">{{ t.back }}</a>
       </div>
+
+      <app-draft-restored-banner
+        *ngIf="draftRestored"
+        [filesLost]="draftHadFiles"
+        (discard)="discardDraft()"
+      ></app-draft-restored-banner>
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <div class="form-sections">
@@ -796,12 +840,22 @@ import { CustomerAutocompleteComponent } from '../../components/customer-autocom
     `,
   ],
 })
-export class ReservationFormComponent implements OnInit {
+export class ReservationFormComponent implements OnInit, OnDestroy {
   private reservationService = inject(ReservationService);
   private bicycleService = inject(BicycleService);
   private translationService = inject(TranslationService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private formDraftService = inject(FormDraftService);
+  draftRestored = false;
+  draftHadFiles = false;
+  private draftAutosaveHandle: ReturnType<typeof setInterval> | undefined;
+  /** Diese Komponente kennt aktuell keinen eigenen Bearbeiten-Modus (auch die
+   * Route /reservations/:id lädt keinen bestehenden Datensatz) — die Prüfung
+   * ist trotzdem hier, falls das nachgerüstet wird. */
+  private get isNewMode(): boolean {
+    return !this.route.snapshot.paramMap.get('id');
+  }
 
   availableBikes: Bicycle[] = [];
   selectedBike: Bicycle | null = null;
@@ -916,6 +970,102 @@ export class ReservationFormComponent implements OnInit {
 
   ngOnInit() {
     this.loadAvailableBikes();
+
+    if (this.isNewMode) {
+      this.restoreDraftIfAny();
+      this.draftAutosaveHandle = setInterval(
+        () => this.saveDraftSnapshot(),
+        3000,
+      );
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.draftAutosaveHandle) clearInterval(this.draftAutosaveHandle);
+  }
+
+  private restoreDraftIfAny() {
+    const draft = this.formDraftService.load<ReservationFormDraft>(
+      DRAFT_KEY,
+      DRAFT_MAX_AGE_MS,
+    );
+    if (!draft) return;
+
+    this.customer.vorname = draft.customer?.vorname ?? '';
+    this.customer.nachname = draft.customer?.nachname ?? '';
+    this.customer.strasse = draft.customer?.strasse ?? '';
+    this.customer.hausnummer = draft.customer?.hausnummer ?? '';
+    this.customer.plz = draft.customer?.plz ?? '';
+    this.customer.stadt = draft.customer?.stadt ?? '';
+    this.customer.telefon = draft.customer?.telefon ?? '';
+    this.customer.email = draft.customer?.email ?? '';
+
+    if (draft.reservierungsDatum) this.reservierungsDatum = draft.reservierungsDatum;
+    if (draft.ablaufDatum) this.ablaufDatum = draft.ablaufDatum;
+    this.anzahlung = draft.anzahlung ?? null;
+    this.anzahlungZahlungsart = draft.anzahlungZahlungsart ?? '';
+    this.verkaufspreis = draft.verkaufspreis ?? null;
+    this.notizen = draft.notizen ?? '';
+
+    // Wie im Verkaufsformular: ein vorhandenes, gesuchtes Fahrrad wird
+    // bewusst nicht wiederhergestellt — nur die Schnellerfassung.
+    if (draft.isQuickAddMode && draft.newBike) {
+      this.isQuickAddMode = true;
+      this.newBike.lagernummer = draft.newBike.lagernummer;
+      this.newBike.rahmennummer = draft.newBike.rahmennummer ?? '';
+      this.newBike.marke = draft.newBike.marke ?? '';
+      this.newBike.modell = draft.newBike.modell ?? '';
+      this.newBike.rahmengroesse = draft.newBike.rahmengroesse ?? '';
+      this.newBike.farbe = draft.newBike.farbe ?? '';
+      this.newBike.reifengroesse = draft.newBike.reifengroesse ?? '';
+      this.newBike.fahrradtyp = draft.newBike.fahrradtyp ?? '';
+      this.newBike.beschreibung = draft.newBike.beschreibung ?? '';
+      this.newBike.zustand = draft.newBike.zustand ?? '';
+    }
+
+    this.draftRestored = true;
+    this.draftHadFiles = !!draft.hadSignature;
+  }
+
+  private saveDraftSnapshot() {
+    const draft: ReservationFormDraft = {
+      customer: {
+        vorname: this.customer.vorname,
+        nachname: this.customer.nachname,
+        strasse: this.customer.strasse,
+        hausnummer: this.customer.hausnummer,
+        plz: this.customer.plz,
+        stadt: this.customer.stadt,
+        telefon: this.customer.telefon,
+        email: this.customer.email,
+      },
+      reservierungsDatum: this.reservierungsDatum,
+      ablaufDatum: this.ablaufDatum,
+      anzahlung: this.anzahlung,
+      anzahlungZahlungsart: this.anzahlungZahlungsart,
+      verkaufspreis: this.verkaufspreis,
+      notizen: this.notizen,
+      isQuickAddMode: this.isQuickAddMode,
+      newBike: {
+        lagernummer: this.newBike.lagernummer,
+        rahmennummer: this.newBike.rahmennummer,
+        marke: this.newBike.marke,
+        modell: this.newBike.modell,
+        rahmengroesse: this.newBike.rahmengroesse,
+        farbe: this.newBike.farbe,
+        reifengroesse: this.newBike.reifengroesse,
+        fahrradtyp: this.newBike.fahrradtyp,
+        beschreibung: this.newBike.beschreibung,
+        zustand: this.newBike.zustand,
+      },
+      hadSignature: !!this.kundenUnterschrift,
+    };
+    this.formDraftService.save(DRAFT_KEY, draft);
+  }
+
+  discardDraft() {
+    this.formDraftService.clear(DRAFT_KEY);
+    if (typeof window !== 'undefined') window.location.reload();
   }
 
   loadAvailableBikes() {
@@ -1132,6 +1282,7 @@ export class ReservationFormComponent implements OnInit {
     this.reservationService.create(reservation).subscribe({
       next: (created) => {
         console.log('Reservation created:', created);
+        this.formDraftService.clear(DRAFT_KEY);
         this.router.navigate(['/reservations']);
       },
       error: (err) => {

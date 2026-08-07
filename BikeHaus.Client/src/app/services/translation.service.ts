@@ -66,6 +66,13 @@ export interface Translations {
   addManually: string;
   searching: string;
 
+  // Entwurf-Wiederherstellung (Formulare, die Eingaben in sessionStorage
+  // zwischenspeichern, damit Neuladen/Zurück/App-Wechsel nichts löschen).
+  draftRestoredTitle: string;
+  draftRestoredMessage: string;
+  draftDiscard: string;
+  draftFilesLostNote: string;
+
   // Settings Page
   shopInformation: string;
   shopName: string;
@@ -943,6 +950,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     total: 'Gesamt',
     addManually: 'Manuell hinzufügen',
     searching: 'Suche...',
+
+    draftRestoredTitle: 'Entwurf wiederhergestellt',
+    draftRestoredMessage:
+      'Diese Eingaben stammen aus einem nicht abgeschickten Formular. Bitte prüfen und bei Bedarf verwerfen.',
+    draftDiscard: 'Entwurf verwerfen',
+    draftFilesLostNote:
+      'Ausgewählte Fotos/Dateien wurden dabei nicht gespeichert — bitte erneut auswählen.',
 
     // Settings Page
     shopInformation: 'Geschäftsinformationen',
@@ -1831,6 +1845,13 @@ const TRANSLATIONS: Record<Language, Translations> = {
     total: 'Toplam',
     addManually: 'Manuel ekle',
     searching: 'Aranıyor...',
+
+    draftRestoredTitle: 'Taslak geri yüklendi',
+    draftRestoredMessage:
+      'Bu alanlar gönderilmemiş bir formdan geldi. Lütfen kontrol edin, gerekirse silin.',
+    draftDiscard: 'Taslağı sil',
+    draftFilesLostNote:
+      'Seçilmiş fotoğraf/dosyalar kaydedilmedi — lütfen tekrar seçin.',
 
     // Settings Page
     shopInformation: 'Dükkan Bilgileri',

@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject, HostListener } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
@@ -7,7 +7,9 @@ import { DocumentService } from '../../services/document.service';
 import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
+import { FormDraftService } from '../../services/form-draft.service';
 import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
+import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
 import {
   PurchaseCreate,
   BulkPurchaseCreate,
@@ -18,16 +20,79 @@ import {
 } from '../../models/models';
 import { forkJoin, Observable } from 'rxjs';
 
+/** Nur echte Nutzereingaben — keine Serverstände (belegNummer wird beim Laden
+ * immer frisch vorgeschlagen), keine Dateien/Vorschauen, keine Listen. */
+interface PurchaseFormDraft {
+  bulkMode: boolean;
+  bulkQuantity: number;
+  bicycle: {
+    marke: string;
+    modell: string;
+    rahmennummer: string;
+    lagernummer: number | undefined;
+    rahmengroesse: string;
+    farbe: string;
+    reifengroesse: string;
+    fahrradtyp: string;
+    art: string;
+    beschreibung: string;
+    zustand: BikeCondition | '';
+    isRentable: boolean;
+    rentalPriceDay1: number | undefined;
+    rentalPriceDay2: number | undefined;
+    rentalPriceDay3: number | undefined;
+    rentalPriceDay4: number | undefined;
+    rentalPriceDay5: number | undefined;
+    rentalPriceDay6: number | undefined;
+    rentalPriceDay7: number | undefined;
+    rentalPriceAdditionalDayAfter7: number | undefined;
+  };
+  seller: {
+    vorname: string;
+    nachname: string;
+    strasse: string;
+    hausnummer: string;
+    plz: string;
+    stadt: string;
+    telefon: string;
+    email: string;
+    steuernummer: string;
+  };
+  preis: number;
+  verkaufspreisVorschlag: number | null;
+  zahlungsart: PaymentMethod;
+  kaufdatum: string;
+  notizen: string;
+  anzeigeNr: string;
+  hasFiles: boolean;
+}
+
+const DRAFT_KEY = 'bikehaus-draft-purchase-form';
+/** Größenordnung Stunden: deckt einen Ladentag ab, ohne Kundendaten in den nächsten Tag zu tragen. */
+const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
+
 @Component({
   selector: 'app-purchase-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, CustomerAutocompleteComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    CustomerAutocompleteComponent,
+    DraftRestoredBannerComponent,
+  ],
   template: `
     <div class="page">
       <div class="page-header">
         <h1>{{ t.newPurchaseTitle }}</h1>
         <a routerLink="/purchases" class="btn btn-outline">{{ t.back }}</a>
       </div>
+
+      <app-draft-restored-banner
+        *ngIf="draftRestored"
+        [filesLost]="draftHadFiles"
+        (discard)="discardDraft()"
+      ></app-draft-restored-banner>
 
       <form (ngSubmit)="submit()" #f="ngForm">
         <!-- Wizard progress (mobile only) -->
@@ -1029,9 +1094,13 @@ import { forkJoin, Observable } from 'rxjs';
     `,
   ],
 })
-export class PurchaseFormComponent implements OnInit {
+export class PurchaseFormComponent implements OnInit, OnDestroy {
   private translationService = inject(TranslationService);
   private notificationService = inject(NotificationService);
+  private formDraftService = inject(FormDraftService);
+  draftRestored = false;
+  draftHadFiles = false;
+  private draftAutosaveHandle: ReturnType<typeof setInterval> | undefined;
   get t() {
     return this.translationService.translations();
   }
@@ -1286,6 +1355,122 @@ export class PurchaseFormComponent implements OnInit {
       },
       error: () => {},
     });
+
+    this.restoreDraftIfAny();
+    this.draftAutosaveHandle = setInterval(() => this.saveDraftSnapshot(), 3000);
+  }
+
+  ngOnDestroy() {
+    if (this.draftAutosaveHandle) clearInterval(this.draftAutosaveHandle);
+  }
+
+  private restoreDraftIfAny() {
+    const draft = this.formDraftService.load<PurchaseFormDraft>(
+      DRAFT_KEY,
+      DRAFT_MAX_AGE_MS,
+    );
+    if (!draft) return;
+
+    this.bulkMode = !!draft.bulkMode;
+    this.bulkQuantity = draft.bulkQuantity || 1;
+
+    this.bicycle.marke = draft.bicycle?.marke ?? '';
+    this.bicycle.modell = draft.bicycle?.modell ?? '';
+    this.bicycle.rahmennummer = draft.bicycle?.rahmennummer ?? '';
+    this.bicycle.lagernummer = draft.bicycle?.lagernummer;
+    this.bicycle.rahmengroesse = draft.bicycle?.rahmengroesse ?? '';
+    this.bicycle.farbe = draft.bicycle?.farbe ?? '';
+    this.bicycle.reifengroesse = draft.bicycle?.reifengroesse ?? '';
+    this.bicycle.fahrradtyp = draft.bicycle?.fahrradtyp ?? '';
+    this.bicycle.art = draft.bicycle?.art ?? '';
+    this.bicycle.beschreibung = draft.bicycle?.beschreibung ?? '';
+    this.bicycle.zustand = draft.bicycle?.zustand ?? '';
+    this.bicycle.isRentable = !!draft.bicycle?.isRentable;
+    this.bicycle.rentalPriceDay1 = draft.bicycle?.rentalPriceDay1;
+    this.bicycle.rentalPriceDay2 = draft.bicycle?.rentalPriceDay2;
+    this.bicycle.rentalPriceDay3 = draft.bicycle?.rentalPriceDay3;
+    this.bicycle.rentalPriceDay4 = draft.bicycle?.rentalPriceDay4;
+    this.bicycle.rentalPriceDay5 = draft.bicycle?.rentalPriceDay5;
+    this.bicycle.rentalPriceDay6 = draft.bicycle?.rentalPriceDay6;
+    this.bicycle.rentalPriceDay7 = draft.bicycle?.rentalPriceDay7;
+    this.bicycle.rentalPriceAdditionalDayAfter7 =
+      draft.bicycle?.rentalPriceAdditionalDayAfter7;
+
+    this.seller.vorname = draft.seller?.vorname ?? '';
+    this.seller.nachname = draft.seller?.nachname ?? '';
+    this.seller.strasse = draft.seller?.strasse ?? '';
+    this.seller.hausnummer = draft.seller?.hausnummer ?? '';
+    this.seller.plz = draft.seller?.plz ?? '';
+    this.seller.stadt = draft.seller?.stadt ?? '';
+    this.seller.telefon = draft.seller?.telefon ?? '';
+    this.seller.email = draft.seller?.email ?? '';
+    this.seller.steuernummer = draft.seller?.steuernummer ?? '';
+
+    this.preis = draft.preis || 0;
+    this.verkaufspreisVorschlag = draft.verkaufspreisVorschlag ?? null;
+    this.zahlungsart = draft.zahlungsart ?? PaymentMethod.Bar;
+    if (draft.kaufdatum) this.kaufdatum = draft.kaufdatum;
+    this.notizen = draft.notizen ?? '';
+    this.anzeigeNr = draft.anzeigeNr ?? '';
+
+    this.onBrandChange();
+
+    this.draftRestored = true;
+    this.draftHadFiles = !!draft.hasFiles;
+  }
+
+  private saveDraftSnapshot() {
+    const draft: PurchaseFormDraft = {
+      bulkMode: this.bulkMode,
+      bulkQuantity: this.bulkQuantity,
+      bicycle: {
+        marke: this.bicycle.marke,
+        modell: this.bicycle.modell,
+        rahmennummer: this.bicycle.rahmennummer,
+        lagernummer: this.bicycle.lagernummer,
+        rahmengroesse: this.bicycle.rahmengroesse,
+        farbe: this.bicycle.farbe,
+        reifengroesse: this.bicycle.reifengroesse,
+        fahrradtyp: this.bicycle.fahrradtyp,
+        art: this.bicycle.art,
+        beschreibung: this.bicycle.beschreibung,
+        zustand: this.bicycle.zustand,
+        isRentable: this.bicycle.isRentable,
+        rentalPriceDay1: this.bicycle.rentalPriceDay1,
+        rentalPriceDay2: this.bicycle.rentalPriceDay2,
+        rentalPriceDay3: this.bicycle.rentalPriceDay3,
+        rentalPriceDay4: this.bicycle.rentalPriceDay4,
+        rentalPriceDay5: this.bicycle.rentalPriceDay5,
+        rentalPriceDay6: this.bicycle.rentalPriceDay6,
+        rentalPriceDay7: this.bicycle.rentalPriceDay7,
+        rentalPriceAdditionalDayAfter7:
+          this.bicycle.rentalPriceAdditionalDayAfter7,
+      },
+      seller: {
+        vorname: this.seller.vorname,
+        nachname: this.seller.nachname,
+        strasse: this.seller.strasse,
+        hausnummer: this.seller.hausnummer,
+        plz: this.seller.plz,
+        stadt: this.seller.stadt,
+        telefon: this.seller.telefon,
+        email: this.seller.email,
+        steuernummer: this.seller.steuernummer,
+      },
+      preis: this.preis,
+      verkaufspreisVorschlag: this.verkaufspreisVorschlag,
+      zahlungsart: this.zahlungsart,
+      kaufdatum: this.kaufdatum,
+      notizen: this.notizen,
+      anzeigeNr: this.anzeigeNr,
+      hasFiles: this.selectedFiles.length > 0 || this.galleryFiles.length > 0,
+    };
+    this.formDraftService.save(DRAFT_KEY, draft);
+  }
+
+  discardDraft() {
+    this.formDraftService.clear(DRAFT_KEY);
+    if (typeof window !== 'undefined') window.location.reload();
   }
 
   increaseQty() {
@@ -1464,6 +1649,7 @@ export class PurchaseFormComponent implements OnInit {
 
     this.purchaseService.createBulk(bulkData).subscribe({
       next: () => {
+        this.formDraftService.clear(DRAFT_KEY);
         this.router.navigate(['/purchases']);
       },
       error: () => {
@@ -1488,6 +1674,9 @@ export class PurchaseFormComponent implements OnInit {
 
     this.purchaseService.create(purchase).subscribe({
       next: (result) => {
+        // Der Ankauf ist ab hier gespeichert — der Entwurf muss weg, sonst
+        // steht Name/Adresse des letzten Verkäufers im nächsten neuen Ankauf.
+        this.formDraftService.clear(DRAFT_KEY);
         const allUploads: Observable<any>[] = [];
 
         // Upload document files (screenshots/invoices)
