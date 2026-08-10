@@ -31,7 +31,9 @@ public record BelegListDto(
     IReadOnlyList<BelegZahlungDto> Zahlungen,
     string? AnkaufBelegNummer,
     decimal? AnkaufPreis,
-    bool Flatpay
+    bool Flatpay,
+    /// <summary>"Neu" oder "Gebraucht"; null, wo es kein Fahrrad gibt (Miete, reiner Zubehörverkauf).</summary>
+    string? Zustand
 );
 
 /// <summary>Setzt/entfernt das Flatpay-Häkchen eines Belegs.</summary>

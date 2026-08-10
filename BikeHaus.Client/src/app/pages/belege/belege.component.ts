@@ -75,6 +75,7 @@ import { BelegListItem } from '../../models/models';
               <th>Beleg-Nr.</th>
               <th>Datum</th>
               <th>Fahrrad</th>
+              <th>Zustand</th>
               <th>Ankauf-Nr.</th>
               <th class="right">Ankaufpreis</th>
               <th>Zahlung</th>
@@ -85,7 +86,7 @@ import { BelegListItem } from '../../models/models';
           </thead>
           <tbody>
             <tr *ngIf="belege.length === 0">
-              <td colspan="10" class="empty">
+              <td colspan="11" class="empty">
                 In diesem Zeitraum gibt es keine Belege.
               </td>
             </tr>
@@ -102,6 +103,17 @@ import { BelegListItem } from '../../models/models';
               <td class="mono">{{ b.belegNummer }}</td>
               <td>{{ b.datum | date: 'dd.MM.yyyy' }}</td>
               <td>{{ b.fahrradInfo || '–' }}</td>
+              <td>
+                <span
+                  *ngIf="b.zustand; else keinZustand"
+                  class="badge"
+                  [class.badge-neu]="b.zustand === 'Neu'"
+                  [class.badge-gebraucht]="b.zustand === 'Gebraucht'"
+                >
+                  {{ b.zustand }}
+                </span>
+                <ng-template #keinZustand>–</ng-template>
+              </td>
               <td class="mono">{{ b.ankaufBelegNummer || '–' }}</td>
               <td class="right">
                 {{
@@ -264,6 +276,15 @@ import { BelegListItem } from '../../models/models';
       .badge-verkauf {
         background: rgba(16, 185, 129, 0.14);
         color: #059669;
+      }
+      /* Dieselben Farben wie im Verkaufsbeleg-PDF. */
+      .badge-neu {
+        background: rgba(21, 87, 36, 0.12);
+        color: #155724;
+      }
+      .badge-gebraucht {
+        background: rgba(133, 100, 4, 0.14);
+        color: #856404;
       }
     `,
   ],

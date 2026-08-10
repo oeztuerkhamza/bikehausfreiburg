@@ -1268,4 +1268,6 @@ export interface BelegListItem {
   ankaufPreis?: number | null;
   /** Häkchen "in Flatpay verbucht". */
   flatpay: boolean;
+  /** 'Neu' | 'Gebraucht'; leer bei Miete und reinem Zubehörverkauf. */
+  zustand?: string | null;
 }

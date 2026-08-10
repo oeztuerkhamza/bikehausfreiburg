@@ -45,7 +45,10 @@ public class BelegeService(
                 [new BelegZahlungDto(rental.Zahlungsart.ToString(), rental.Gesamtmiete)],
                 null,
                 null,
-                Flatpay(kontrollen, BelegArt.Miete, rental.Id)));
+                Flatpay(kontrollen, BelegArt.Miete, rental.Id),
+                // Ein Mietvertrag kann mehrere Räder umfassen — ein einzelner
+                // Zustand wäre irreführend.
+                null));
         }
 
         foreach (var sale in await saleRepository.GetByDateRangeWithDetailsAsync(startDate, endDate))
@@ -65,7 +68,8 @@ public class BelegeService(
                 ZahlungenVon(sale),
                 ankauf?.BelegNummer,
                 sale.AnkaufPreis ?? ankauf?.Preis,
-                Flatpay(kontrollen, BelegArt.Verkauf, sale.Id)));
+                Flatpay(kontrollen, BelegArt.Verkauf, sale.Id),
+                ZustandVon(sale.Bicycle)));
         }
 
         return Sort(belege);
@@ -91,7 +95,8 @@ public class BelegeService(
                 [new BelegZahlungDto(purchase.Zahlungsart.ToString(), purchase.Preis)],
                 purchase.BelegNummer,
                 purchase.Preis,
-                Flatpay(kontrollen, BelegArt.Ankauf, purchase.Id)));
+                Flatpay(kontrollen, BelegArt.Ankauf, purchase.Id),
+                ZustandVon(purchase.Bicycle)));
         }
 
         return Sort(belege);
@@ -120,6 +125,20 @@ public class BelegeService(
         vorhanden.Flatpay = flatpay;
         vorhanden.UpdatedAt = DateTime.UtcNow;
         await kontrolleRepository.UpdateAsync(vorhanden);
+    }
+
+    /// <summary>
+    /// "Neu" oder "Gebraucht". Reine Zubehörverkäufe tragen ein Platzhalter-Fahrrad
+    /// (Marke "Zubehör" / Rahmennummer "ACC-…") — dort wäre ein Fahrradzustand
+    /// irreführend, deshalb bleibt die Spalte leer.
+    /// </summary>
+    private static string? ZustandVon(Bicycle? bicycle)
+    {
+        if (bicycle == null) return null;
+        var istZubehoer =
+            string.Equals(bicycle.Marke, "Zubehör", StringComparison.OrdinalIgnoreCase) &&
+            (bicycle.Rahmennummer?.StartsWith("ACC-", StringComparison.OrdinalIgnoreCase) ?? false);
+        return istZubehoer ? null : bicycle.Zustand.ToString();
     }
 
     /// <summary>Zahlungsanteile eines Verkaufs; ohne Aufteilung die eine Zahlungsart über den Gesamtbetrag.</summary>
