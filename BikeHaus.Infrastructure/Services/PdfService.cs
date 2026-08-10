@@ -1976,8 +1976,17 @@ public class PdfService : IPdfService
                             .Text($"{brutto:N2} €").FontSize(10).Bold().FontColor(AccentColor).AlignRight();
                     });
 
-                    // ZUBEHÖR Section (only if accessories present)
-                    if (rental.Accessories.Any())
+                    // Zubehör steht in zwei getrennten Blöcken, weil es zwei
+                    // verschiedene Dinge sind: das mitvermietete Zubehör gehört zur
+                    // Miete, das Verbrauchsmaterial gehört zur Kaution. Ein Schlauch
+                    // wird über die Mietzeit nicht genutzt — er liegt für den Notfall
+                    // bereit. Nimmt der Mieter ihn in Anspruch, wird er bei der
+                    // Rückgabe von der Kaution einbehalten, nicht auf die Miete
+                    // aufgeschlagen: die steht mit dieser Unterschrift fest.
+                    var mietZubehoer = rental.Accessories.Where(a => !a.Einmalig).ToList();
+                    var verbrauchsZubehoer = rental.Accessories.Where(a => a.Einmalig).ToList();
+
+                    if (mietZubehoer.Count > 0)
                     {
                         col.Item().PaddingTop(6).Element(SectionHeader).Text("MITGEGEBENES ZUBEHÖR (INKLUSIVE)");
                         col.Item().Table(table =>
@@ -1992,16 +2001,9 @@ public class PdfService : IPdfService
                             table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Bezeichnung").FontSize(9).Bold().FontColor(PrimaryColor);
                             table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).AlignCenter().Text("Menge").FontSize(9).Bold().FontColor(PrimaryColor);
 
-                            foreach (var acc in rental.Accessories)
+                            foreach (var acc in mietZubehoer)
                             {
-                                // Einmaliges Zubehör ist nicht im Mietpreis enthalten:
-                                // der Preis steht direkt an der Position, damit der
-                                // Mieter beim Unterschreiben sieht, was er im
-                                // Verbrauchsfall zahlt.
-                                var bezeichnung = acc.Einmalig
-                                    ? $"{acc.Bezeichnung} — {acc.Tagespreis:N2} € einmalig, nur bei Verbrauch"
-                                    : acc.Bezeichnung;
-                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(bezeichnung).FontSize(9);
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(acc.Bezeichnung).FontSize(9);
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(acc.Menge.ToString()).FontSize(9);
                             }
                         });
@@ -2009,13 +2011,41 @@ public class PdfService : IPdfService
                         {
                             text.Span("Hinweis: ").Bold().FontSize(8);
                             text.Span("Das Zubehör ist im Mietpreis inklusive.").FontSize(8).FontColor(Colors.Grey.Darken2);
-                            if (rental.Accessories.Any(a => a.Einmalig))
+                        });
+                    }
+
+                    if (verbrauchsZubehoer.Count > 0)
+                    {
+                        col.Item().PaddingTop(6).Element(SectionHeader).Text("VERBRAUCHSMATERIAL (ABRECHNUNG ÜBER DIE KAUTION)");
+                        col.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
                             {
-                                text.Span(
-                                    " Ausgenommen ist einmaliges Zubehör (Verbrauchsmaterial wie ein Schlauch): " +
-                                    "es wird nur berechnet, wenn es verwendet wurde."
-                                ).FontSize(8).FontColor(Colors.Grey.Darken2);
+                                columns.RelativeColumn(3);
+                                columns.ConstantColumn(40);
+                                columns.ConstantColumn(70);
+                            });
+
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).Text("Bezeichnung").FontSize(9).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).AlignCenter().Text("Menge").FontSize(9).Bold().FontColor(PrimaryColor);
+                            table.Cell().Border(1).BorderColor(PrimaryColor).Padding(4).AlignRight().Text("bei Verbrauch").FontSize(9).Bold().FontColor(PrimaryColor);
+
+                            foreach (var acc in verbrauchsZubehoer)
+                            {
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(acc.Bezeichnung).FontSize(9);
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(acc.Menge.ToString()).FontSize(9);
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignRight()
+                                    .Text($"{acc.Tagespreis * acc.Menge:N2} €").FontSize(9);
                             }
+                        });
+                        col.Item().PaddingTop(3).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(text =>
+                        {
+                            text.Span("Hinweis: ").Bold().FontSize(8);
+                            text.Span(
+                                "Dieses Material wird nur bereitgestellt und ist nicht Teil der Miete. " +
+                                "Kommt es unbenutzt zurück, kostet es nichts. Wird es verbraucht oder behalten, " +
+                                "wird der genannte Betrag bei der Rückgabe von der Kaution einbehalten."
+                            ).FontSize(8).FontColor(Colors.Grey.Darken2);
                         });
                     }
 
@@ -2234,6 +2264,15 @@ public class PdfService : IPdfService
                         col.Item().PaddingLeft(12).Text("•  Verlust oder Diebstahl").FontSize(9);
                         col.Item().PaddingLeft(12).Text("•  unsachgemäße Nutzung").FontSize(9);
                         col.Item().PaddingLeft(12).Text("•  fehlendes Zubehör").FontSize(9);
+                        // Der Verbrauch von bereitgestelltem Material gehört hierher
+                        // und nicht in die Miete — sonst änderte sich der Mietbetrag
+                        // nach der Unterschrift.
+                        if (rental.Accessories.Any(a => a.Einmalig))
+                        {
+                            col.Item().PaddingLeft(12).Text(
+                                "•  verbrauchtes oder einbehaltenes Verbrauchsmaterial (siehe Auflistung oben)"
+                            ).FontSize(9);
+                        }
                     }
                     else
                     {
@@ -2588,7 +2627,12 @@ public class PdfService : IPdfService
 
         var schadenAbzug = rental.Bikes.Sum(b => b.SchadenAbzug);
         var verspaetungsAbzug = rental.Bikes.Sum(b => b.VerspaetungsAbzug);
-        var abzuegeGesamt = schadenAbzug + verspaetungsAbzug;
+        // Verbrauchtes Einmal-Zubehör (der Schlauch, den der Mieter behalten hat)
+        // steckt mit drin: es gehört zur Kaution und nicht in die Miete, denn die
+        // stand bei der Unterschrift fest, während sich der Verbrauch erst bei der
+        // Rückgabe zeigt. Die Summe kommt aus derselben Stelle, die auch die
+        // Rückgabemaske benutzt.
+        var abzuegeGesamt = rental.KautionAbzugGesamt();
         var erstattet = Math.Max(0m, rental.Kaution - abzuegeGesamt);
 
         var document = QuestPDF.Fluent.Document.Create(container =>
@@ -2695,6 +2739,8 @@ public class PdfService : IPdfService
                                     c.Item().Text($"Schaden: -{schadenAbzug:N2} €").FontSize(9);
                                 if (verspaetungsAbzug > 0)
                                     c.Item().Text($"Verspätung: -{verspaetungsAbzug:N2} €").FontSize(9);
+                                foreach (var acc in rental.Accessories.Where(a => a.VerbrauchsAbzug() > 0))
+                                    c.Item().Text($"{acc.Bezeichnung} verbraucht: -{acc.VerbrauchsAbzug():N2} €").FontSize(9);
                             }
                         });
 
@@ -2983,8 +3029,9 @@ public class PdfService : IPdfService
                             {
                                 text.Span("Hinweis: ").Bold().FontSize(8);
                                 text.Span(
-                                    "Einmaliges Zubehör (z. B. Schlauch) ist Verbrauchsmaterial. Es wird nur berechnet, " +
-                                    "wenn es verwendet wurde — kommt es unbenutzt zurück, entsteht keine Gebühr."
+                                    "Einmaliges Zubehör (z. B. Schlauch) ist Verbrauchsmaterial und nicht Teil des " +
+                                    "Mietpreises. Kommt es unbenutzt zurück, entsteht keine Gebühr; wird es verbraucht " +
+                                    "oder behalten, wird der Betrag vor Ort von der Kaution einbehalten."
                                 ).FontSize(8).FontColor(Colors.Grey.Darken2);
                             });
                         }

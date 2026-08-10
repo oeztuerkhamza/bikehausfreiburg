@@ -812,8 +812,9 @@ const MONTH_NAMES = [
               <strong>{{ accessoryGrandTotal() | number: '1.2-2' }} €</strong>
             </div>
             <div class="accessory-hint" *ngIf="hasEinmaligesZubehoerSelected()">
-              Einmaliges Zubehör ist nicht in der Summe enthalten: es wird bei der
-              Rückgabe berechnet – und nur, wenn es verbraucht wurde.
+              Einmaliges Zubehör gehört nicht zur Miete: es liegt nur bereit. Wird
+              es verbraucht, wird der Betrag bei der Rückgabe von der Kaution
+              einbehalten – die Miete bleibt unverändert.
             </div>
           </div>
           </ng-container>
@@ -2926,8 +2927,9 @@ export class RentalFormComponent implements OnInit, OnDestroy {
 
   /**
    * Zubehörsumme des Vertrags. Einmaliges Zubehör (Verbrauchsmaterial wie ein
-   * Schlauch) bleibt außen vor: ob es berechnet wird, entscheidet sich erst bei
-   * der Rückgabe — genau wie serverseitig in RentalPricingCalculator.
+   * Schlauch) bleibt außen vor: es wird über die Mietzeit nicht genutzt, liegt
+   * nur bereit, und wird im Verbrauchsfall von der Kaution einbehalten statt der
+   * Miete zugeschlagen — genau wie serverseitig in RentalPricingCalculator.
    */
   accessoryGrandTotal(): number {
     const days = this.rentalDays > 0 ? this.rentalDays : 1;
