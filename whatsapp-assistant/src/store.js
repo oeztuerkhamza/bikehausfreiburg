@@ -6,7 +6,8 @@ import { fileURLToPath } from "node:url";
 import { repairStoredBody } from "./body-text.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, "..", "data");
+// Ablageort überschreibbar, damit Tests nicht in den echten Verlauf schreiben.
+const DATA_DIR = process.env.WA_STORE_PATH || path.join(__dirname, "..", "data");
 const DB_FILE = path.join(DATA_DIR, "conversations.json");
 
 /** @type {Map<string, Conversation>} chatId -> conversation */
@@ -39,6 +40,7 @@ function load() {
       const raw = JSON.parse(fs.readFileSync(DB_FILE, "utf8"));
       for (const conv of raw) conversations.set(conv.chatId, conv);
       repairBodies();
+      entferneDoppelte();
     }
   } catch (err) {
     console.error("[store] yükleme hatası:", err.message);
@@ -80,6 +82,92 @@ export function getOrCreate(chatId, name) {
 // ausgehende Nachricht.
 const OUT_DUP_WINDOW_MS = 60_000;
 
+// Eine echte WhatsApp-ID sieht aus wie "true_49…@c.us_3EB0…". Wo keine vorlag,
+// haben wir selbst eine vergeben ("out-<zeit>" beim Senden, "<zeit>" im
+// Live-Event). Genau diese vorläufigen IDs sind die Dubletten-Quelle: der
+// nächste Sync bringt dieselbe Nachricht mit ihrer echten ID und findet unter
+// der erfundenen nichts wieder. Zwei Einträge mit ECHTER ID sind dagegen immer
+// zwei verschiedene Nachrichten — die dürfen nie zusammengelegt werden.
+function istVorlaeufig(id) {
+  return /^(out-)?\d+$/.test(String(id ?? ""));
+}
+
+// Denselben Text, dieselbe Richtung, im selben Zeitfenster und nur gegen einen
+// vorläufig gespeicherten Eintrag: das ist die Nachricht, die wir schon haben.
+function findeVorlaeufigenZwilling(kandidaten, m) {
+  if (!m.body) return null;
+  return (
+    kandidaten.find(
+      (k) =>
+        k.direction === m.direction &&
+        k.body === m.body &&
+        Math.abs((k.ts || 0) - (m.ts || 0)) < OUT_DUP_WINDOW_MS,
+    ) || null
+  );
+}
+
+// Was nur die vorläufige Kopie hatte, geht beim Zusammenlegen nicht verloren.
+function uebernehmeZusatz(ziel, quelle) {
+  if (!ziel || !quelle) return;
+  if (quelle.photo && !ziel.photo) ziel.photo = quelle.photo;
+  if (quelle.isPhoto && !ziel.isPhoto) ziel.isPhoto = true;
+  if (quelle.mediaOnly && !ziel.mediaOnly) ziel.mediaOnly = true;
+  if (quelle.translation && !ziel.translation) ziel.translation = quelle.translation;
+}
+
+// Dubletten, die vor dieser Prüfung entstanden sind, liegen noch im Verlauf:
+// dieselbe Nachricht einmal unter vorläufiger, einmal unter echter ID. Beim
+// Laden einmal aufräumen — sonst steht sie im Chat weiter doppelt.
+function entferneDoppelte() {
+  let entfernt = 0;
+  for (const conv of conversations.values()) {
+    const nachrichten = conv.messages || [];
+
+    // Gleiche ID zweimal: defensiv, sollte durch die Prüfungen unten nicht mehr
+    // vorkommen.
+    const gesehen = new Set();
+    const behalten = [];
+    for (const m of nachrichten) {
+      if (m.id && gesehen.has(m.id)) {
+        uebernehmeZusatz(behalten.find((k) => k.id === m.id), m);
+        entfernt++;
+        continue;
+      }
+      if (m.id) gesehen.add(m.id);
+      behalten.push(m);
+    }
+
+    // Vorläufige Kopien gegen die echten halten. Index statt Doppelschleife,
+    // damit ein langer Verlauf den Start nicht bremst.
+    const echteNachText = new Map();
+    for (const m of behalten) {
+      if (istVorlaeufig(m.id) || !m.body) continue;
+      const schluessel = `${m.direction}\u0000${m.body}`;
+      const liste = echteNachText.get(schluessel);
+      if (liste) liste.push(m);
+      else echteNachText.set(schluessel, [m]);
+    }
+
+    const gefiltert = behalten.filter((m) => {
+      if (!istVorlaeufig(m.id) || !m.body) return true;
+      const echter = findeVorlaeufigenZwilling(
+        echteNachText.get(`${m.direction}\u0000${m.body}`) || [],
+        m,
+      );
+      if (!echter) return true;
+      uebernehmeZusatz(echter, m);
+      entfernt++;
+      return false;
+    });
+
+    if (gefiltert.length !== nachrichten.length) conv.messages = gefiltert;
+  }
+  if (entfernt > 0) {
+    console.log(`[store] ${entfernt} doppelte Nachricht(en) entfernt.`);
+    persist();
+  }
+}
+
 // Tek mesaj ekle. Aynı id ikinci kez gelirse (canlı olay + senkron, ya da
 // panelden gönderip ardından WhatsApp olayını almak) yoksayılır.
 export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly, isPhoto, photo }) {
@@ -98,7 +186,7 @@ export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly, i
     if (zwilling) {
       // Kam die echte WhatsApp-ID erst mit dem Event nach, ersetzt sie die
       // vorläufige — sonst greift die ID-Prüfung beim nächsten Sync nicht.
-      if (id && String(zwilling.id).startsWith("out-")) {
+      if (id && istVorlaeufig(zwilling.id)) {
         zwilling.id = id;
         persist();
       }
@@ -132,8 +220,23 @@ export function addMessage(chatId, name, { id, direction, body, ts, mediaOnly, i
 export function importChat(chatId, name, messages, unread) {
   const conv = getOrCreate(chatId, name);
   const byId = new Map(conv.messages.map((m) => [m.id, m]));
+  // Einträge, die noch unter einer selbst vergebenen ID liegen. Für sie greift
+  // der ID-Abgleich nicht — sie müssen über Text/Zeit wiedergefunden werden,
+  // sonst hängt der Sync dieselbe Nachricht ein zweites Mal an.
+  const vorlaeufige = conv.messages.filter((m) => istVorlaeufig(m.id));
   for (const m of messages) {
-    const known = byId.get(m.id);
+    let known = byId.get(m.id);
+    if (!known && vorlaeufige.length) {
+      const zwilling = findeVorlaeufigenZwilling(vorlaeufige, m);
+      if (zwilling) {
+        // Echte ID übernehmen, damit der nächste Sync sie direkt wiederfindet.
+        byId.delete(zwilling.id);
+        zwilling.id = m.id;
+        byId.set(m.id, zwilling);
+        vorlaeufige.splice(vorlaeufige.indexOf(zwilling), 1);
+        known = zwilling;
+      }
+    }
     if (!known) { conv.messages.push(m); byId.set(m.id, m); }
     // Fotoğraf bütçesi yüzünden ilk turda inmemiş olabilir — sonradan gelirse
     // mevcut mesaja iliştir.
