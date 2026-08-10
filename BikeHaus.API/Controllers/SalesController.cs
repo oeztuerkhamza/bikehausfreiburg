@@ -100,10 +100,15 @@ public class SalesController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Verkaufsbeleg als PDF. Mit <paramref name="includeAnkaufPreis"/> zusätzlich
+    /// Ankaufnummer, -preis und -datum — die interne Buchhaltungsfassung, wie sie
+    /// auch im Sammelexport der Belegübersicht steckt. Kundenbelege bleiben ohne.
+    /// </summary>
     [HttpGet("{id}/verkaufsbeleg")]
-    public async Task<IActionResult> DownloadVerkaufsbeleg(int id)
+    public async Task<IActionResult> DownloadVerkaufsbeleg(int id, [FromQuery] bool includeAnkaufPreis = false)
     {
-        var pdfBytes = await _pdfService.GenerateVerkaufsbelegAsync(id);
+        var pdfBytes = await _pdfService.GenerateVerkaufsbelegAsync(id, includeAnkaufPreis);
         return File(pdfBytes, "application/pdf", $"Verkaufsbeleg_{id}.pdf");
     }
 

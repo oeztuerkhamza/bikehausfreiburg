@@ -52,6 +52,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<MemoryInvite> MemoryInvites => Set<MemoryInvite>();
     public DbSet<KleinanzeigenChatTranslation> KleinanzeigenChatTranslations => Set<KleinanzeigenChatTranslation>();
     public DbSet<KleinanzeigenChatDraft> KleinanzeigenChatDrafts => Set<KleinanzeigenChatDraft>();
+    public DbSet<BelegKontrolle> BelegKontrollen => Set<BelegKontrolle>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -729,6 +730,15 @@ public class BikeHausDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.ConversationKey).IsRequired().HasMaxLength(300);
             entity.HasIndex(e => e.ConversationKey).IsUnique();
+        });
+
+        // ── BelegKontrolle Configuration ──
+        // Ein Häkchen je (Art, BelegId) — deshalb zusammengesetzt eindeutig.
+        modelBuilder.Entity<BelegKontrolle>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Art).IsRequired().HasMaxLength(20);
+            entity.HasIndex(e => new { e.Art, e.BelegId }).IsUnique();
         });
 
         // ── RentalAccessoryItem Configuration ──

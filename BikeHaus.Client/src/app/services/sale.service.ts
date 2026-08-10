@@ -72,8 +72,17 @@ export class SaleService {
     return this.http.delete<void>(`${this.url}/${id}`);
   }
 
-  downloadVerkaufsbeleg(id: number): Observable<Blob> {
+  /**
+   * Verkaufsbeleg als PDF. `includeAnkaufPreis` liefert die interne Fassung
+   * mit Ankaufnummer, -preis und -datum — dieselbe, die im Sammelexport der
+   * Belegübersicht steckt. Kundenbelege bleiben ohne.
+   */
+  downloadVerkaufsbeleg(
+    id: number,
+    includeAnkaufPreis = false,
+  ): Observable<Blob> {
     return this.http.get(`${this.url}/${id}/verkaufsbeleg`, {
+      params: { includeAnkaufPreis },
       responseType: 'blob',
     });
   }

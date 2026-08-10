@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
+using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using PdfSharp.Pdf;
@@ -16,12 +17,14 @@ public class BelegeService(
     ISaleRepository saleRepository,
     IRentalRepository rentalRepository,
     IPurchaseRepository purchaseRepository,
+    IRepository<BelegKontrolle> kontrolleRepository,
     IPdfService pdfService,
     ILogger<BelegeService> logger) : IBelegeService
 {
     public async Task<IEnumerable<BelegListDto>> GetBelegeAsync(DateTime startDate, DateTime endDate)
     {
         var belege = new List<BelegListDto>();
+        var kontrollen = await LoadKontrollenAsync();
 
         foreach (var rental in await rentalRepository.GetByStartDateRangeWithDetailsAsync(startDate, endDate))
         {
@@ -36,11 +39,21 @@ public class BelegeService(
                 rental.StartDatum,
                 rental.Customer?.FullName ?? string.Empty,
                 radInfo,
-                rental.Gesamtmiete));
+                rental.Gesamtmiete,
+                // Ein Mietvertrag kennt nur eine Zahlungsart für die Miete
+                // (die Kaution hat ihre eigene und gehört nicht in diese Summe).
+                [new BelegZahlungDto(rental.Zahlungsart.ToString(), rental.Gesamtmiete)],
+                null,
+                null,
+                Flatpay(kontrollen, BelegArt.Miete, rental.Id)));
         }
 
         foreach (var sale in await saleRepository.GetByDateRangeWithDetailsAsync(startDate, endDate))
         {
+            // Derselbe Kaufbeleg wie im Verkaufsbeleg-PDF; Ankaufpreis am
+            // Verkauf schlägt den Kaufbeleg (manuelle Korrektur gewinnt).
+            var ankauf = await PurchaseResolver.ForSaleAsync(purchaseRepository, sale);
+
             belege.Add(new BelegListDto(
                 BelegArt.Verkauf,
                 sale.Id,
@@ -48,7 +61,11 @@ public class BelegeService(
                 sale.Verkaufsdatum,
                 sale.Buyer?.FullName ?? string.Empty,
                 $"{sale.Bicycle?.Marke} {sale.Bicycle?.Modell}".Trim(),
-                sale.Gesamtbetrag));
+                sale.Gesamtbetrag,
+                ZahlungenVon(sale),
+                ankauf?.BelegNummer,
+                sale.AnkaufPreis ?? ankauf?.Preis,
+                Flatpay(kontrollen, BelegArt.Verkauf, sale.Id)));
         }
 
         return Sort(belege);
@@ -57,6 +74,7 @@ public class BelegeService(
     public async Task<IEnumerable<BelegListDto>> GetAnkaufBelegeAsync(DateTime startDate, DateTime endDate)
     {
         var belege = new List<BelegListDto>();
+        var kontrollen = await LoadKontrollenAsync();
 
         foreach (var purchase in await purchaseRepository.GetByDateRangeWithDetailsAsync(startDate, endDate))
         {
@@ -69,11 +87,58 @@ public class BelegeService(
                 purchase.Kaufdatum,
                 purchase.Seller?.FullName ?? string.Empty,
                 $"{purchase.Bicycle?.Marke} {purchase.Bicycle?.Modell}".Trim(),
-                purchase.Preis));
+                purchase.Preis,
+                [new BelegZahlungDto(purchase.Zahlungsart.ToString(), purchase.Preis)],
+                purchase.BelegNummer,
+                purchase.Preis,
+                Flatpay(kontrollen, BelegArt.Ankauf, purchase.Id)));
         }
 
         return Sort(belege);
     }
+
+    public async Task SetFlatpayAsync(BelegArt art, int belegId, bool flatpay)
+    {
+        var key = art.ToString();
+        var vorhanden = (await kontrolleRepository.FindAsync(k => k.Art == key && k.BelegId == belegId))
+            .FirstOrDefault();
+
+        if (vorhanden == null)
+        {
+            // Ohne Häkchen braucht es keinen Eintrag — der Normalfall bleibt leer.
+            if (!flatpay) return;
+            await kontrolleRepository.AddAsync(new BelegKontrolle
+            {
+                Art = key,
+                BelegId = belegId,
+                Flatpay = true,
+            });
+            return;
+        }
+
+        if (vorhanden.Flatpay == flatpay) return;
+        vorhanden.Flatpay = flatpay;
+        vorhanden.UpdatedAt = DateTime.UtcNow;
+        await kontrolleRepository.UpdateAsync(vorhanden);
+    }
+
+    /// <summary>Zahlungsanteile eines Verkaufs; ohne Aufteilung die eine Zahlungsart über den Gesamtbetrag.</summary>
+    private static IReadOnlyList<BelegZahlungDto> ZahlungenVon(Sale sale) =>
+        sale.Zahlungen.Count > 0
+            ? sale.Zahlungen
+                .OrderBy(z => z.Id)
+                .Select(z => new BelegZahlungDto(z.Zahlungsart.ToString(), z.Betrag))
+                .ToList()
+            : [new BelegZahlungDto(sale.Zahlungsart.ToString(), sale.Gesamtbetrag)];
+
+    /// <summary>Alle gesetzten Häkchen einmal laden — die Tabelle bleibt klein.</summary>
+    private async Task<HashSet<(string Art, int BelegId)>> LoadKontrollenAsync() =>
+        (await kontrolleRepository.FindAsync(k => k.Flatpay))
+            .Select(k => (k.Art, k.BelegId))
+            .ToHashSet();
+
+    private static bool Flatpay(HashSet<(string Art, int BelegId)> kontrollen, BelegArt art, int belegId) =>
+        kontrollen.Contains((art.ToString(), belegId));
 
     public Task<byte[]> GenerateAnkaufPdfAsync(DateTime startDate, DateTime endDate) =>
         BuildPdfAsync(() => GetAnkaufBelegeAsync(startDate, endDate));

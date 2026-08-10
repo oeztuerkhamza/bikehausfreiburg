@@ -21,4 +21,7 @@ public interface IBelegeService
 
     /// <summary>Ankaufbelege des Zeitraums in EINER PDF-Datei.</summary>
     Task<byte[]> GenerateAnkaufPdfAsync(DateTime startDate, DateTime endDate);
+
+    /// <summary>Setzt oder entfernt das Flatpay-Häkchen eines Belegs.</summary>
+    Task SetFlatpayAsync(BelegArt art, int belegId, bool flatpay);
 }

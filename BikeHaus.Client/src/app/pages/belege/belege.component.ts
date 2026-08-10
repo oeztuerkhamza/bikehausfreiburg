@@ -74,15 +74,18 @@ import { BelegListItem } from '../../models/models';
               <th>Art</th>
               <th>Beleg-Nr.</th>
               <th>Datum</th>
-              <th>Kunde</th>
               <th>Fahrrad</th>
+              <th>Ankauf-Nr.</th>
+              <th class="right">Ankaufpreis</th>
+              <th>Zahlung</th>
               <th class="right">Betrag</th>
+              <th class="center" style="width:80px">Flatpay</th>
               <th style="width:60px"></th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="belege.length === 0">
-              <td colspan="7" class="empty">
+              <td colspan="10" class="empty">
                 In diesem Zeitraum gibt es keine Belege.
               </td>
             </tr>
@@ -98,9 +101,32 @@ import { BelegListItem } from '../../models/models';
               </td>
               <td class="mono">{{ b.belegNummer }}</td>
               <td>{{ b.datum | date: 'dd.MM.yyyy' }}</td>
-              <td>{{ b.kundeName }}</td>
               <td>{{ b.fahrradInfo || '–' }}</td>
+              <td class="mono">{{ b.ankaufBelegNummer || '–' }}</td>
+              <td class="right">
+                {{
+                  b.ankaufPreis != null
+                    ? (b.ankaufPreis | number: '1.2-2') + ' €'
+                    : '–'
+                }}
+              </td>
+              <td class="pay-cell">
+                <span class="pay-part" *ngFor="let z of b.zahlungen">
+                  {{ z.zahlungsart }}: {{ z.betrag | number: '1.2-2' }} €
+                </span>
+                <span *ngIf="b.zahlungen.length === 0">–</span>
+              </td>
               <td class="right">{{ b.betrag | number: '1.2-2' }} €</td>
+              <td class="center">
+                <input
+                  type="checkbox"
+                  class="flatpay-box"
+                  [checked]="b.flatpay"
+                  [disabled]="flatpayPending.has(b.art + ':' + b.id)"
+                  (change)="toggleFlatpay(b, $event)"
+                  title="In Flatpay verbucht"
+                />
+              </td>
               <td>
                 <button
                   class="btn btn-outline btn-sm"
@@ -193,6 +219,24 @@ import { BelegListItem } from '../../models/models';
       .right {
         text-align: right;
       }
+      .center {
+        text-align: center;
+      }
+      .pay-cell {
+        display: table-cell;
+        white-space: nowrap;
+      }
+      .pay-part {
+        display: block;
+        font-size: 0.82rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .flatpay-box {
+        width: 17px;
+        height: 17px;
+        cursor: pointer;
+        accent-color: var(--primary, #2563eb);
+      }
       .mono {
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
       }
@@ -235,6 +279,8 @@ export class BelegeComponent implements OnInit {
   // die Anzahl steuert aber Beschriftung und Zustand des zweiten Knopfes.
   ankaufCount = 0;
   loading = false;
+  // Belege, deren Flatpay-Häkchen gerade gespeichert wird ("Art:Id").
+  flatpayPending = new Set<string>();
   exporting = false;
   exportingAnkauf = false;
   startDate = '';
@@ -310,11 +356,38 @@ export class BelegeComponent implements OnInit {
     });
   }
 
+  /**
+   * Häkchen "in Flatpay verbucht". Der Zustand liegt am Server, damit die
+   * Kontrolle auch am nächsten Tag und auf einem anderen Gerät noch dasteht.
+   */
+  toggleFlatpay(b: BelegListItem, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const gewuenscht = input.checked;
+    const key = `${b.art}:${b.id}`;
+
+    this.flatpayPending.add(key);
+    this.belegService.setFlatpay(b.art, b.id, gewuenscht).subscribe({
+      next: () => {
+        this.flatpayPending.delete(key);
+        b.flatpay = gewuenscht;
+      },
+      error: () => {
+        this.flatpayPending.delete(key);
+        // Häkchen zurücksetzen — sonst zeigt die Liste einen Stand, den der
+        // Server nicht kennt.
+        input.checked = b.flatpay;
+        this.notificationService.error('Flatpay-Häkchen konnte nicht gespeichert werden.');
+      },
+    });
+  }
+
   openSingle(b: BelegListItem): void {
     const request$ =
       b.art === 'Miete'
         ? this.rentalService.downloadMietvertragPdf(b.id)
-        : this.saleService.downloadVerkaufsbeleg(b.id);
+        // Interne Fassung mit Ankaufnummer und -preis — genau das PDF, das
+        // auch der Sammelexport dieser Seite liefert.
+        : this.saleService.downloadVerkaufsbeleg(b.id, true);
 
     request$.subscribe({
       next: (blob) => {

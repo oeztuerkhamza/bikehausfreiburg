@@ -36,6 +36,9 @@ public class SaleRepository : Repository<Sale>, ISaleRepository
             .Include(s => s.Bicycle)
             .Include(s => s.Buyer)
             .Include(s => s.Accessories)
+            // Zahlungen und Kaufbeleg trägt die Belegübersicht in der Liste mit.
+            .Include(s => s.Zahlungen)
+            .Include(s => s.Purchase)
             .Where(s => s.Verkaufsdatum >= from && s.Verkaufsdatum <= to)
             .OrderBy(s => s.Verkaufsdatum)
             .ToListAsync();

@@ -1,3 +1,4 @@
+using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -42,6 +43,14 @@ public class BelegeController(IBelegeService belegeService, ILogger<BelegeContro
     [HttpGet("ankauf/pdf")]
     public Task<IActionResult> ExportAnkaufPdf([FromQuery] DateTime startDate, [FromQuery] DateTime endDate) =>
         ExportAsync(startDate, endDate, "Ankaufbelege", belegeService.GenerateAnkaufPdfAsync);
+
+    /// <summary>Häkchen "in Flatpay verbucht" setzen oder entfernen.</summary>
+    [HttpPut("flatpay")]
+    public async Task<IActionResult> SetFlatpay([FromBody] BelegFlatpayDto dto)
+    {
+        await belegeService.SetFlatpayAsync(dto.Art, dto.Id, dto.Flatpay);
+        return NoContent();
+    }
 
     private async Task<IActionResult> ExportAsync(
         DateTime startDate,

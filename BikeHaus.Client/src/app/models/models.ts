@@ -1248,6 +1248,11 @@ export interface RentalBookingCancel {
 // ── Belege (gemeinsame Übersicht Miete + Verkauf) ──
 export type BelegArt = 'Miete' | 'Verkauf' | 'Ankauf';
 
+export interface BelegZahlung {
+  zahlungsart: string;
+  betrag: number;
+}
+
 export interface BelegListItem {
   art: BelegArt;
   id: number;
@@ -1256,4 +1261,11 @@ export interface BelegListItem {
   kundeName: string;
   fahrradInfo: string;
   betrag: number;
+  /** Zahlungsanteile — bei geteilter Zahlung mehrere Einträge. */
+  zahlungen: BelegZahlung[];
+  /** Nummer und Preis des zugehörigen Ankaufbelegs, falls auffindbar. */
+  ankaufBelegNummer?: string | null;
+  ankaufPreis?: number | null;
+  /** Häkchen "in Flatpay verbucht". */
+  flatpay: boolean;
 }

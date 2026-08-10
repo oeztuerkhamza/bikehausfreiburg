@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { BelegListItem } from '../models/models';
+import { BelegArt, BelegListItem } from '../models/models';
 
 /**
  * Gemeinsame Sicht auf Miet- und Verkaufsbelege. Der PDF-Export liefert alle
@@ -40,5 +40,14 @@ export class BelegService {
       params: { startDate, endDate },
       responseType: 'blob',
     });
+  }
+
+  /** Häkchen "in Flatpay verbucht" setzen oder entfernen. */
+  setFlatpay(
+    art: BelegArt,
+    id: number,
+    flatpay: boolean,
+  ): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/flatpay`, { art, id, flatpay });
   }
 }

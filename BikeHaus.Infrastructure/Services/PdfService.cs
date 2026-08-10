@@ -883,53 +883,10 @@ public class PdfService : IPdfService
         return document.GeneratePdf();
     }
 
-    private async Task<Purchase?> ResolvePurchaseForSaleAsync(Sale sale)
-    {
-        // Primary source: loaded navigation from Sale details.
-        if (sale.Purchase != null)
-            return sale.Purchase;
-
-        // Fallback 1: explicit PurchaseId link.
-        if (sale.PurchaseId.HasValue)
-        {
-            var byPurchaseId = await _purchaseRepository.GetByIdAsync(sale.PurchaseId.Value);
-            if (byPurchaseId != null)
-                return byPurchaseId;
-        }
-
-        // Fallback 2: relation by BicycleId.
-        var byBicycleId = await _purchaseRepository.GetByBicycleIdAsync(sale.BicycleId);
-        if (byBicycleId != null)
-            return byBicycleId;
-
-        // Fallback 3: relation by Lagernummer (stock number) — the shared key
-        // between Ankauf- and Verkaufsbelege, designed for exactly this case
-        // where Rahmennummer is missing or mismatched.
-        var lagernummer = sale.Bicycle?.Lagernummer;
-        if (lagernummer.HasValue)
-        {
-            var byLagernummer = await _purchaseRepository.FindAsync(p =>
-                p.Bicycle.Lagernummer == lagernummer.Value);
-            var match = byLagernummer
-                .OrderByDescending(p => p.Kaufdatum)
-                .FirstOrDefault();
-            if (match != null)
-                return match;
-        }
-
-        // Fallback 4: relation by Rahmennummer if available.
-        var rahmennummer = sale.Bicycle?.Rahmennummer?.Trim();
-        if (string.IsNullOrWhiteSpace(rahmennummer))
-            return null;
-
-        var matches = await _purchaseRepository.FindAsync(p =>
-            p.Bicycle.Rahmennummer != null &&
-            p.Bicycle.Rahmennummer.ToLower() == rahmennummer.ToLower());
-
-        return matches
-            .OrderByDescending(p => p.Kaufdatum)
-            .FirstOrDefault();
-    }
+    // Die Zuordnung Verkauf → Ankaufbeleg liegt in PurchaseResolver, damit
+    // Beleg-PDF und Belegübersicht garantiert denselben Kaufbeleg zeigen.
+    private Task<Purchase?> ResolvePurchaseForSaleAsync(Sale sale) =>
+        PurchaseResolver.ForSaleAsync(_purchaseRepository, sale);
 
     public async Task<byte[]> GenerateRueckgabebelegAsync(int returnId)
     {
