@@ -1274,3 +1274,18 @@ export interface BelegListItem {
   /** 'Neu' | 'Gebraucht'; leer bei Miete und reinem Zubehörverkauf. */
   zustand?: string | null;
 }
+
+/** Kartenzahlung aus dem Flatpay-Bericht, zu der kein Beleg passt. */
+export interface FlatpayOffeneZahlung {
+  datum: string;
+  betrag: number;
+}
+
+/** Ergebnis des Flatpay-Berichtsabgleichs. */
+export interface FlatpayImportResult {
+  zeilen: number;
+  zahlungen: number;
+  neuAngehakt: number;
+  schonAngehakt: number;
+  offen: FlatpayOffeneZahlung[];
+}

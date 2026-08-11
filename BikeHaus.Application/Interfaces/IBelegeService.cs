@@ -24,4 +24,11 @@ public interface IBelegeService
 
     /// <summary>Setzt oder entfernt das Flatpay-Häkchen eines Belegs.</summary>
     Task SetFlatpayAsync(BelegArt art, int belegId, bool flatpay);
+
+    /// <summary>
+    /// Gleicht den Transaktionsbericht des Flatpay-Terminals (.xlsx) mit den
+    /// Belegen ab und hakt die getroffenen an. Bereits gesetzte Häkchen bleiben
+    /// stehen — der Abgleich entfernt nie eines.
+    /// </summary>
+    Task<FlatpayImportResultDto> ImportFlatpayReportAsync(Stream xlsx);
 }

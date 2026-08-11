@@ -38,3 +38,20 @@ public record BelegListDto(
 
 /// <summary>Setzt/entfernt das Flatpay-Häkchen eines Belegs.</summary>
 public record BelegFlatpayDto(BelegArt Art, int Id, bool Flatpay);
+
+/// <summary>Eine Kartenzahlung aus dem Flatpay-Bericht, zu der kein Beleg passt.</summary>
+public record FlatpayOffeneZahlungDto(DateTime Datum, decimal Betrag);
+
+/// <summary>Ergebnis des Flatpay-Berichtsabgleichs.</summary>
+public record FlatpayImportResultDto(
+    /// <summary>Zeilen im Bericht (ohne Kopf- und Summenzeile).</summary>
+    int Zeilen,
+    /// <summary>Davon abgeschlossene Kartenzahlungen — nur die werden zugeordnet.</summary>
+    int Zahlungen,
+    /// <summary>Belege, die durch diesen Abgleich neu angehakt wurden.</summary>
+    int NeuAngehakt,
+    /// <summary>Zahlungen, deren Beleg schon angehakt war.</summary>
+    int SchonAngehakt,
+    /// <summary>Zahlungen ohne passenden Beleg — die bleiben Handarbeit.</summary>
+    IReadOnlyList<FlatpayOffeneZahlungDto> Offen
+);

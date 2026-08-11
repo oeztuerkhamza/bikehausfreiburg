@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { BelegArt, BelegListItem } from '../models/models';
+import {
+  BelegArt,
+  BelegListItem,
+  FlatpayImportResult,
+} from '../models/models';
 
 /**
  * Gemeinsame Sicht auf Miet- und Verkaufsbelege. Der PDF-Export liefert alle
@@ -40,6 +44,19 @@ export class BelegService {
       params: { startDate, endDate },
       responseType: 'blob',
     });
+  }
+
+  /**
+   * Flatpay-Transaktionsbericht (.xlsx) hochladen. Der Server hakt die
+   * passenden Belege an und meldet, was offen blieb.
+   */
+  importFlatpayReport(file: File): Observable<FlatpayImportResult> {
+    const form = new FormData();
+    form.append('datei', file, file.name);
+    return this.http.post<FlatpayImportResult>(
+      `${this.apiUrl}/flatpay/import`,
+      form,
+    );
   }
 
   /** Häkchen "in Flatpay verbucht" setzen oder entfernen. */

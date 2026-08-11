@@ -128,6 +128,93 @@ public class BelegeService(
     }
 
     /// <summary>
+    /// Gleicht den Flatpay-Transaktionsbericht mit den Belegen ab.
+    ///
+    /// Regel: eine abgeschlossene Kartenzahlung passt zu einem Beleg desselben
+    /// Tages mit demselben Betrag. Jeder Beleg wird höchstens einmal vergeben —
+    /// gibt es an einem Tag mehrere gleich hohe Belege, bekommt die zweite
+    /// Zahlung den nächsten. Ein bereits gesetztes Häkchen bleibt stehen, damit
+    /// derselbe Bericht zweimal eingelesen dasselbe Ergebnis liefert.
+    /// </summary>
+    public async Task<FlatpayImportResultDto> ImportFlatpayReportAsync(Stream xlsx)
+    {
+        var zeilen = FlatpayReportReader.Read(xlsx);
+
+        // Abgelehnte oder abgebrochene Zahlungen sind nie über den Ladentisch
+        // gegangen; Gutschriften/Stornos sind Rückzahlungen und gehören nicht
+        // an einen Verkaufsbeleg.
+        var zahlungen = zeilen
+            .Where(z => z.Status.Trim().StartsWith("Abgeschlossen", StringComparison.OrdinalIgnoreCase))
+            .Where(z => z.Typ.Trim().Length == 0
+                        || z.Typ.Trim().Equals("Verkauf", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(z => z.Datum)
+            .ToList();
+
+        if (zahlungen.Count == 0)
+            return new FlatpayImportResultDto(zeilen.Count, 0, 0, 0, []);
+
+        var von = zahlungen.Min(z => z.Datum).Date;
+        var bis = zahlungen.Max(z => z.Datum).Date.AddDays(1).AddTicks(-1);
+        var belege = (await GetBelegeAsync(von, bis)).ToList();
+
+        var vergeben = new HashSet<(BelegArt Art, int Id)>();
+        var offen = new List<FlatpayOffeneZahlungDto>();
+        var neu = 0;
+        var schon = 0;
+
+        foreach (var zahlung in zahlungen)
+        {
+            var treffer = belege
+                .Where(b => b.Datum.Date == zahlung.Datum.Date && !vergeben.Contains((b.Art, b.Id)))
+                .Select(b => new { Beleg = b, Rang = TrefferRang(b, zahlung.Betrag) })
+                .Where(x => x.Rang < int.MaxValue)
+                .OrderBy(x => x.Rang)
+                // Feste Reihenfolge, damit ein zweiter Durchlauf desselben
+                // Berichts dieselben Belege trifft.
+                .ThenBy(x => x.Beleg.BelegNummer, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(x => x.Beleg.Id)
+                .Select(x => x.Beleg)
+                .FirstOrDefault();
+
+            if (treffer == null)
+            {
+                offen.Add(new FlatpayOffeneZahlungDto(zahlung.Datum, zahlung.Betrag));
+                continue;
+            }
+
+            vergeben.Add((treffer.Art, treffer.Id));
+
+            if (treffer.Flatpay)
+            {
+                schon++;
+                continue;
+            }
+
+            await SetFlatpayAsync(treffer.Art, treffer.Id, true);
+            neu++;
+        }
+
+        return new FlatpayImportResultDto(zeilen.Count, zahlungen.Count, neu, schon, offen);
+    }
+
+    /// <summary>
+    /// Wie gut ein Beleg zu einem Zahlungsbetrag passt (kleiner = besser):
+    /// 0 = als Karte verbuchter Teilbetrag, 1 = Gesamtbetrag des Belegs,
+    /// 2 = irgendein Zahlungsanteil. MaxValue = passt nicht.
+    /// </summary>
+    private static int TrefferRang(BelegListDto beleg, decimal betrag)
+    {
+        bool Passt(decimal wert) => decimal.Round(wert, 2) == decimal.Round(betrag, 2);
+
+        if (beleg.Zahlungen.Any(z => Passt(z.Betrag)
+                && z.Zahlungsart.Equals("Karte", StringComparison.OrdinalIgnoreCase)))
+            return 0;
+        if (Passt(beleg.Betrag)) return 1;
+        if (beleg.Zahlungen.Any(z => Passt(z.Betrag))) return 2;
+        return int.MaxValue;
+    }
+
+    /// <summary>
     /// "Neu" oder "Gebraucht". Reine Zubehörverkäufe tragen ein Platzhalter-Fahrrad
     /// (Marke "Zubehör" / Rahmennummer "ACC-…") — dort wäre ein Fahrradzustand
     /// irreführend, deshalb bleibt die Spalte leer.

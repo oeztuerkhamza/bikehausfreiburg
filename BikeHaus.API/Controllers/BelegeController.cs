@@ -52,6 +52,39 @@ public class BelegeController(IBelegeService belegeService, ILogger<BelegeContro
         return NoContent();
     }
 
+    /// <summary>
+    /// Flatpay-Transaktionsbericht (.xlsx) einlesen und die passenden Belege
+    /// anhaken. Gesetzte Häkchen bleiben stehen.
+    /// </summary>
+    [HttpPost("flatpay/import")]
+    [RequestSizeLimit(10 * 1024 * 1024)]
+    public async Task<IActionResult> ImportFlatpay(IFormFile datei)
+    {
+        if (datei == null || datei.Length == 0)
+            return BadRequest(new { message = "Keine Datei erhalten." });
+
+        try
+        {
+            using var stream = datei.OpenReadStream();
+            var ergebnis = await belegeService.ImportFlatpayReportAsync(stream);
+            return Ok(ergebnis);
+        }
+        catch (InvalidOperationException ex)
+        {
+            // Falsche Datei erwischt — der Grund steht in der Meldung.
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidDataException)
+        {
+            return BadRequest(new { message = "Die Datei ist keine gültige .xlsx-Datei." });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Flatpay-Bericht konnte nicht eingelesen werden");
+            return StatusCode(500, new { message = "Der Bericht konnte nicht eingelesen werden: " + ex.Message });
+        }
+    }
+
     private async Task<IActionResult> ExportAsync(
         DateTime startDate,
         DateTime endDate,

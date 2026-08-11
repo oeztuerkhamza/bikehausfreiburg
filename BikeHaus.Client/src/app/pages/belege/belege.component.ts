@@ -5,7 +5,7 @@ import { BelegService } from '../../services/beleg.service';
 import { RentalService } from '../../services/rental.service';
 import { SaleService } from '../../services/sale.service';
 import { NotificationService } from '../../services/notification.service';
-import { BelegListItem } from '../../models/models';
+import { BelegListItem, FlatpayImportResult } from '../../models/models';
 
 /**
  * Miet- und Verkaufsbelege in einer gemeinsamen, nach Datum sortierten Liste.
@@ -40,6 +40,23 @@ import { BelegListItem } from '../../models/models';
             </span>
             <span *ngIf="exportingAnkauf">Wird erstellt…</span>
           </button>
+          <!-- Der Flatpay-Bericht hakt die Kartenzahlungen automatisch ab.
+               Die Datei kommt unverändert aus dem Terminal-Portal. -->
+          <button
+            class="btn btn-outline"
+            (click)="flatpayInput.click()"
+            [disabled]="importing"
+          >
+            <span *ngIf="!importing">💳 Flatpay-Bericht einlesen</span>
+            <span *ngIf="importing">Wird abgeglichen…</span>
+          </button>
+          <input
+            #flatpayInput
+            type="file"
+            accept=".xlsx"
+            hidden
+            (change)="onFlatpayFile($event)"
+          />
         </div>
       </div>
 
@@ -52,17 +69,60 @@ import { BelegListItem } from '../../models/models';
           <label>Bis</label>
           <input type="date" [(ngModel)]="endDate" (change)="load()" />
         </div>
+        <div class="date-field">
+          <label>Kartenzahlung</label>
+          <select [(ngModel)]="karteFilter">
+            <option value="alle">Alle</option>
+            <option value="mit">Nur mit Karte</option>
+            <option value="ohne">Ohne Karte</option>
+          </select>
+        </div>
         <div class="summary" *ngIf="!loading">
           {{ mieteCount }} Mietvertrag / {{ verkaufCount }} Verkauf /
           {{ ankaufCount }} Ankauf
+          <span *ngIf="karteFilter !== 'alle'">
+            · {{ sichtbareBelege.length }} angezeigt
+          </span>
+        </div>
+      </div>
+
+      <!-- Zahlungen aus dem Bericht, zu denen kein Beleg passt: die muss
+           jemand von Hand prüfen, deshalb stehen sie hier ausgeschrieben. -->
+      <div class="import-report" *ngIf="importErgebnis">
+        <div class="import-summary">
+          <strong>Flatpay-Abgleich:</strong>
+          {{ importErgebnis.zahlungen }} Kartenzahlung(en) im Bericht,
+          {{ importErgebnis.neuAngehakt }} neu angehakt,
+          {{ importErgebnis.schonAngehakt }} waren schon angehakt.
+          <button class="link-btn" (click)="importErgebnis = null">
+            schließen
+          </button>
+        </div>
+        <div class="import-offen" *ngIf="importErgebnis.offen.length > 0">
+          <strong
+            >{{ importErgebnis.offen.length }} Zahlung(en) ohne passenden
+            Beleg:</strong
+          >
+          <ul>
+            <li *ngFor="let o of importErgebnis.offen">
+              {{ o.datum | date: 'dd.MM.yyyy HH:mm' }} —
+              {{ o.betrag | number: '1.2-2' }} €
+            </li>
+          </ul>
+          <span class="import-hint">
+            Zu diesen Beträgen gibt es an dem Tag keinen Beleg mit demselben
+            Betrag — entweder fehlt der Beleg, oder der Betrag stimmt nicht.
+          </span>
         </div>
       </div>
 
       <p class="hint">
         Nach Beleg-Nr. sortiert, höchste zuerst. Der Export fasst alle Belege
         dieses Zeitraums in einer einzigen PDF-Datei zusammen — in der
-        Reihenfolge dieser Liste. Die Ankaufbelege liegen in einer eigenen
-        Datei, ebenso sortiert.
+        Reihenfolge dieser Liste (der Kartenzahlungs-Filter gilt nur für die
+        Ansicht). Die Ankaufbelege liegen in einer eigenen Datei, ebenso
+        sortiert. Zeilenfarben: grün = in Flatpay angehakt, blau =
+        Kartenzahlung, gelb = nur bar.
       </p>
 
       <div class="loading" *ngIf="loading">Wird geladen…</div>
@@ -85,12 +145,16 @@ import { BelegListItem } from '../../models/models';
             </tr>
           </thead>
           <tbody>
-            <tr *ngIf="belege.length === 0">
+            <tr *ngIf="sichtbareBelege.length === 0">
               <td colspan="11" class="empty">
-                In diesem Zeitraum gibt es keine Belege.
+                {{
+                  belege.length === 0
+                    ? 'In diesem Zeitraum gibt es keine Belege.'
+                    : 'Kein Beleg passt zu diesem Filter.'
+                }}
               </td>
             </tr>
-            <tr *ngFor="let b of belege">
+            <tr *ngFor="let b of sichtbareBelege" [class]="zeilenKlasse(b)">
               <td>
                 <span
                   class="badge"
@@ -185,12 +249,45 @@ import { BelegListItem } from '../../models/models';
         font-size: 0.8rem;
         color: var(--text-secondary, #64748b);
       }
-      .date-field input {
+      .date-field input,
+      .date-field select {
         padding: 9px 12px;
         border: 1.5px solid var(--border-light, #e2e8f0);
         border-radius: var(--radius-md, 10px);
         background: var(--bg-card, #fff);
         color: var(--text-primary);
+      }
+      .import-report {
+        margin: 0 0 16px;
+        padding: 12px 14px;
+        border: 1px solid var(--border-light, #e2e8f0);
+        border-left: 4px solid #2563eb;
+        border-radius: var(--radius-md, 10px);
+        background: var(--bg-card, #fff);
+        font-size: 0.88rem;
+      }
+      .import-offen {
+        margin-top: 10px;
+        color: #b45309;
+      }
+      .import-offen ul {
+        margin: 6px 0 4px;
+        padding-left: 20px;
+      }
+      .import-hint {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-muted, #94a3b8);
+      }
+      .link-btn {
+        margin-left: 8px;
+        border: none;
+        background: none;
+        padding: 0;
+        color: var(--text-secondary, #64748b);
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 0.82rem;
       }
       .summary {
         padding-bottom: 10px;
@@ -242,6 +339,17 @@ import { BelegListItem } from '../../models/models';
         display: block;
         font-size: 0.82rem;
         color: var(--text-secondary, #64748b);
+      }
+      /* Zeilenfarben für den Abgleich mit dem Flatpay-Bericht:
+         grün = schon angehakt, blau = Kartenzahlung, gelb = nur Bar. */
+      tr.row-flatpay td {
+        background: rgba(16, 185, 129, 0.12);
+      }
+      tr.row-karte td {
+        background: rgba(37, 99, 235, 0.09);
+      }
+      tr.row-bar td {
+        background: rgba(234, 179, 8, 0.14);
       }
       .flatpay-box {
         width: 17px;
@@ -302,10 +410,44 @@ export class BelegeComponent implements OnInit {
   loading = false;
   // Belege, deren Flatpay-Häkchen gerade gespeichert wird ("Art:Id").
   flatpayPending = new Set<string>();
+  // Ansichtsfilter — der PDF-Export umfasst weiterhin den ganzen Zeitraum.
+  karteFilter: 'alle' | 'mit' | 'ohne' = 'alle';
+  importing = false;
+  importErgebnis: FlatpayImportResult | null = null;
   exporting = false;
   exportingAnkauf = false;
   startDate = '';
   endDate = '';
+
+  /** Beleg enthält einen als Karte verbuchten Zahlungsanteil. */
+  hatKartenzahlung(b: BelegListItem): boolean {
+    return b.zahlungen.some((z) => z.zahlungsart === 'Karte');
+  }
+
+  /** Beleg wurde ausschließlich bar bezahlt. */
+  nurBar(b: BelegListItem): boolean {
+    return (
+      b.zahlungen.length > 0 && b.zahlungen.every((z) => z.zahlungsart === 'Bar')
+    );
+  }
+
+  /**
+   * Zeilenfarbe: angehakt schlägt alles (grün), sonst Kartenzahlung (blau)
+   * bzw. reine Barzahlung (gelb).
+   */
+  zeilenKlasse(b: BelegListItem): string {
+    if (b.flatpay) return 'row-flatpay';
+    if (this.hatKartenzahlung(b)) return 'row-karte';
+    if (this.nurBar(b)) return 'row-bar';
+    return '';
+  }
+
+  /** Die Liste nach dem Kartenzahlungs-Filter. */
+  get sichtbareBelege(): BelegListItem[] {
+    if (this.karteFilter === 'alle') return this.belege;
+    const mit = this.karteFilter === 'mit';
+    return this.belege.filter((b) => this.hatKartenzahlung(b) === mit);
+  }
 
   get mieteCount(): number {
     return this.belege.filter((b) => b.art === 'Miete').length;
@@ -373,6 +515,46 @@ export class BelegeComponent implements OnInit {
       error: () => {
         this.exportingAnkauf = false;
         this.notificationService.error('Export der Ankaufbelege fehlgeschlagen.');
+      },
+    });
+  }
+
+  /**
+   * Flatpay-Transaktionsbericht einlesen: der Server hakt jede abgeschlossene
+   * Kartenzahlung an dem Beleg desselben Tages mit demselben Betrag ab.
+   * Gesetzte Häkchen bleiben stehen; was nicht zugeordnet werden konnte, steht
+   * danach oben in der Liste der offenen Zahlungen.
+   */
+  onFlatpayFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    // Dateiauswahl zurücksetzen, damit dieselbe Datei erneut gewählt werden kann.
+    input.value = '';
+    if (!file) return;
+
+    this.importing = true;
+    this.importErgebnis = null;
+    this.belegService.importFlatpayReport(file).subscribe({
+      next: (ergebnis) => {
+        this.importing = false;
+        this.importErgebnis = ergebnis;
+        if (ergebnis.zahlungen === 0) {
+          this.notificationService.error(
+            'Im Bericht steht keine abgeschlossene Kartenzahlung.',
+          );
+        } else {
+          this.notificationService.success(
+            `${ergebnis.neuAngehakt} von ${ergebnis.zahlungen} Kartenzahlungen zugeordnet.`,
+          );
+        }
+        // Der Zeitraum der Liste bleibt, wie er ist — nur die Häkchen holen.
+        this.load();
+      },
+      error: (err) => {
+        this.importing = false;
+        this.notificationService.error(
+          err?.error?.message || 'Der Flatpay-Bericht konnte nicht eingelesen werden.',
+        );
       },
     });
   }
