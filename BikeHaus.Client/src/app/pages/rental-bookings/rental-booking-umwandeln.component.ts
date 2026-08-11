@@ -79,11 +79,19 @@ interface BikeFormData {
           </div>
           <div class="field">
             <label>Zahlungsart Kaution *</label>
-            <select [(ngModel)]="kautionZahlungsart" name="rental_kaution_zahlungsart" required>
+            <select
+              [(ngModel)]="kautionZahlungsart"
+              name="rental_kaution_zahlungsart"
+              (ngModelChange)="onKautionZahlungsartChange()"
+              required
+            >
               <option value="Bar">Bar</option>
               <option value="PayPal">PayPal</option>
               <option value="Karte">Karte</option>
               <option value="Überweisung">Überweisung</option>
+              <!-- Keine Kaution: die Kautionsfelder je Fahrrad werden dann
+                   auf 0 gesetzt und gesperrt. -->
+              <option value="OhneKaution">Ohne Kaution</option>
             </select>
           </div>
           <div class="field full">
@@ -123,6 +131,8 @@ interface BikeFormData {
               min="0"
               [(ngModel)]="bikeForms[i].kaution"
               [name]="'kaution_' + i"
+              [disabled]="ohneKaution"
+              [title]="ohneKaution ? 'Zahlungsart Kaution steht auf «Ohne Kaution»' : ''"
               required
             />
           </div>
@@ -313,6 +323,20 @@ export class RentalBookingUmwandelnComponent implements OnInit {
   kautionZahlungsart: PaymentMethod = PaymentMethod.Bar;
   notizen = '';
   mieterUnterschrift = '';
+
+  /** "Ohne Kaution" gewählt: für diesen Vertrag wird keine Kaution genommen. */
+  get ohneKaution(): boolean {
+    return this.kautionZahlungsart === PaymentMethod.OhneKaution;
+  }
+
+  /**
+   * Ohne Kaution duldet keinen Betrag — sonst stünde auf der Quittung eine
+   * Kaution, die nie genommen wurde. Der Server setzt sie zusätzlich auf 0.
+   */
+  onKautionZahlungsartChange(): void {
+    if (!this.ohneKaution) return;
+    for (const form of this.bikeForms) form.kaution = 0;
+  }
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));

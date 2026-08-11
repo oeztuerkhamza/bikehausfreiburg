@@ -987,6 +987,10 @@ const MONTH_NAMES = [
                   <option value="PayPal">PayPal</option>
                   <option value="Karte">Karte</option>
                   <option value="Überweisung">Überweisung</option>
+                  <!-- Kein Kautionsbetrag: setzt "Kaution gesamt" auf 0 und
+                       sperrt das Feld, damit nichts Widersprüchliches
+                       auf Quittung und Rückgabebeleg landet. -->
+                  <option value="OhneKaution">Ohne Kaution</option>
                 </select>
               </div>
             </div>
@@ -1018,18 +1022,27 @@ const MONTH_NAMES = [
                   class="kaution-total-input"
                   [(ngModel)]="kautionGesamt"
                   name="kautionGesamt"
-                  [disabled]="activeBikeCount() === 0"
-                  [title]="activeBikeCount() === 0 ? 'Zuerst ein Fahrrad wählen oder neu anlegen' : ''"
+                  [disabled]="activeBikeCount() === 0 || ohneKaution"
+                  [title]="
+                    ohneKaution
+                      ? 'Zahlungsart Kaution steht auf «Ohne Kaution»'
+                      : activeBikeCount() === 0
+                        ? 'Zuerst ein Fahrrad wählen oder neu anlegen'
+                        : ''
+                  "
                 />
               </div>
-              <div class="preise-total-hint" *ngIf="activeBikeCount() === 0">
+              <div class="preise-total-hint" *ngIf="ohneKaution">
+                Für diesen Vertrag wird keine Kaution genommen.
+              </div>
+              <div class="preise-total-hint" *ngIf="!ohneKaution && activeBikeCount() === 0">
                 Zuerst mindestens ein Fahrrad wählen oder neu anlegen, um die
                 Kaution einzutragen.
               </div>
-              <div class="preise-total-hint" *ngIf="activeBikeCount() === 1">
+              <div class="preise-total-hint" *ngIf="!ohneKaution && activeBikeCount() === 1">
                 Auf Quittung und Rückgabebeleg steht dieser Betrag.
               </div>
-              <div class="preise-total-hint" *ngIf="activeBikeCount() > 1">
+              <div class="preise-total-hint" *ngIf="!ohneKaution && activeBikeCount() > 1">
                 Gilt für alle {{ activeBikeCount() }} Fahrräder zusammen – auf
                 Quittung und Rückgabebeleg steht nur dieser Gesamtbetrag.
               </div>
@@ -2755,12 +2768,21 @@ export class RentalFormComponent implements OnInit, OnDestroy {
   zahlungsartMiete: PaymentMethod | '' = '';
   zahlungsartKaution: PaymentMethod | '' = '';
 
+  /** "Ohne Kaution" gewählt: es wird gar keine Kaution genommen. */
+  get ohneKaution(): boolean {
+    return this.zahlungsartKaution === PaymentMethod.OhneKaution;
+  }
+
   /** Überträgt die eine Zahlungsart-Auswahl auf alle Räder. */
   applyPaymentToAll(): void {
     for (const b of this.bikes) {
       b.zahlungsart = this.zahlungsartMiete;
       b.kautionZahlungsart = this.zahlungsartKaution;
     }
+    // Ohne Kaution duldet keinen Betrag — sonst stünde auf Quittung und
+    // Rückgabebeleg eine Kaution, die nie genommen wurde. Der Server setzt
+    // sie zusätzlich auf 0, egal was das Formular schickt.
+    if (this.ohneKaution) this.kautionGesamt = 0;
   }
 
   private validatePreiseStep(): boolean {

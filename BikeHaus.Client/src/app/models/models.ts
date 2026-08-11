@@ -18,6 +18,9 @@ export enum PaymentMethod {
   Ueberweisung = 'Überweisung',
   // Nur im Verkauf angeboten; die Laufzeit steht an der Zahlung (ratenMonate).
   Raten = 'Raten',
+  // Nur für die Kaution eines Mietvertrags: es wurde keine Kaution genommen.
+  // Der Server setzt die Kaution dann zwingend auf 0.
+  OhneKaution = 'OhneKaution',
 }
 
 export enum DocumentType {

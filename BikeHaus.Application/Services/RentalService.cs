@@ -173,6 +173,10 @@ public class RentalService : IRentalService
             });
         }
 
+        // "Ohne Kaution" heißt ohne Kaution — ein Restbetrag aus dem Formular
+        // würde sonst auf Quittung und Rückgabebeleg widersprüchlich dastehen.
+        ApplyOhneKaution(rental);
+
         // Accessories
         if (dto.Accessories != null && dto.Accessories.Count > 0)
         {
@@ -466,6 +470,8 @@ public class RentalService : IRentalService
             rental.Kaution = rental.Bikes.Sum(b => b.Kaution);
         }
 
+        ApplyOhneKaution(rental);
+
         rental.UpdatedAt = DateTime.UtcNow;
         await _rentalRepository.UpdateAsync(rental);
 
@@ -532,6 +538,19 @@ public class RentalService : IRentalService
         }
     }
 
+    /// <summary>
+    /// Bei Zahlungsart "Ohne Kaution" ist die Kaution zwingend 0 — auch je Rad,
+    /// weil Quittung und Rückgabebeleg die Kaution je Rad ausweisen.
+    /// </summary>
+    private static void ApplyOhneKaution(Rental rental)
+    {
+        if (rental.KautionZahlungsart != PaymentMethod.OhneKaution) return;
+
+        rental.Kaution = 0m;
+        foreach (var bike in rental.Bikes)
+            bike.Kaution = 0m;
+    }
+
     // Gleiche Schreibweise wie auf dem Beleg, damit Mail und PDF dieselbe
     // Auszahlungsart nennen.
     private static string ZahlungsartText(PaymentMethod zahlungsart) => zahlungsart switch
@@ -540,6 +559,7 @@ public class RentalService : IRentalService
         PaymentMethod.PayPal => "PayPal",
         PaymentMethod.Karte => "Karte",
         PaymentMethod.Überweisung => "Überweisung",
+        PaymentMethod.OhneKaution => "Ohne Kaution",
         _ => zahlungsart.ToString()
     };
 

@@ -1485,6 +1485,7 @@ public class PdfService : IPdfService
         Domain.Enums.PaymentMethod.Karte => "Karte",
         Domain.Enums.PaymentMethod.Überweisung => "Überweisung",
         Domain.Enums.PaymentMethod.Raten => "Ratenzahlung",
+        Domain.Enums.PaymentMethod.OhneKaution => "Ohne Kaution",
         _ => zahlungsart.ToString()
     };
 

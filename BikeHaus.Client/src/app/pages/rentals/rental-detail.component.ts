@@ -1085,6 +1085,7 @@ export class RentalDetailComponent implements OnInit {
       PayPal: 'PayPal',
       Karte: 'Karte',
       Überweisung: 'Überweisung',
+      OhneKaution: 'Ohne Kaution',
     };
     return map[z] || z;
   }
