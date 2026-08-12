@@ -1478,6 +1478,14 @@ public class PdfService : IPdfService
     // Quittung über die Anzahlung auf ein reserviertes Fahrrad. Dient dem
     // Kunden als Nachweis, bis die Reservierung in einen Verkauf übergeht.
     // ══════════════════════════════════════════════════════════════
+    /// <summary>
+    /// Belegdatum eines Mietvertrags: der Tag, an dem der Vertrag geschrieben
+    /// wurde — nie der erste Miettag. Verträge aus der Zeit vor dem Feld haben
+    /// kein eigenes Datum und fallen auf den Anlagetag zurück.
+    /// </summary>
+    private static DateTime Vertragsdatum(Rental rental) =>
+        rental.Vertragsdatum == default ? rental.CreatedAt : rental.Vertragsdatum;
+
     private static string ZahlungsartText(Domain.Enums.PaymentMethod zahlungsart) => zahlungsart switch
     {
         Domain.Enums.PaymentMethod.Bar => "Bar",
@@ -1799,7 +1807,8 @@ public class PdfService : IPdfService
                         {
                             box.Item().Text("MIETVERTRAG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
                             box.Item().Text(rental.MietvertragNummer).FontSize(14).Bold().FontColor(PrimaryColor).AlignCenter();
-                            box.Item().Text($"{rental.CreatedAt:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
+                            // Belegdatum des Vertrags (im Formular änderbar), nicht der erste Miettag.
+                            box.Item().Text($"{Vertragsdatum(rental):dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
                         });
                     });
 
@@ -2108,7 +2117,7 @@ public class PdfService : IPdfService
                         {
                             box.Item().Text("MIETBEDINGUNGEN").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
                             box.Item().Text(rental.MietvertragNummer).FontSize(13).Bold().FontColor(PrimaryColor).AlignCenter();
-                            box.Item().Text($"{rental.CreatedAt:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
+                            box.Item().Text($"{Vertragsdatum(rental):dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
                         });
                     });
 
@@ -2122,7 +2131,7 @@ public class PdfService : IPdfService
                 page.Content().PaddingTop(4).Column(col =>
                 {
                     col.Item().PaddingTop(4).Element(SectionHeader).Text("ALLGEMEINE GESCHÄFTSBEDINGUNGEN (AGB)");
-                    col.Item().PaddingTop(2).Text($"Zum Mietvertrag Nr. {rental.MietvertragNummer} vom {rental.CreatedAt:dd.MM.yyyy}")
+                    col.Item().PaddingTop(2).Text($"Zum Mietvertrag Nr. {rental.MietvertragNummer} vom {Vertragsdatum(rental):dd.MM.yyyy}")
                         .FontSize(9).FontColor(Colors.Grey.Darken2);
 
                     // § 1 Mietgegenstand
@@ -2293,7 +2302,7 @@ public class PdfService : IPdfService
                             {
                                 oc.Item().Text("Ort, Datum").FontSize(9).FontColor(Colors.Grey.Darken1);
                                 var ortDatum = !string.IsNullOrEmpty(rental.UnterschriftOrt)
-                                    ? $"{rental.UnterschriftOrt}, {rental.CreatedAt:dd.MM.yyyy}"
+                                    ? $"{rental.UnterschriftOrt}, {Vertragsdatum(rental):dd.MM.yyyy}"
                                     : string.Empty;
                                 if (!string.IsNullOrEmpty(ortDatum))
                                     oc.Item().PaddingTop(4).Text(ortDatum).FontSize(10).Bold();
@@ -2396,7 +2405,7 @@ public class PdfService : IPdfService
                         {
                             box.Item().Text("KAUTIONSQUITTUNG").FontSize(10).Bold().FontColor(PrimaryColor).AlignCenter();
                             box.Item().Text(rental.MietvertragNummer).FontSize(14).Bold().FontColor(PrimaryColor).AlignCenter();
-                            box.Item().Text($"{rental.CreatedAt:dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
+                            box.Item().Text($"{Vertragsdatum(rental):dd.MM.yyyy}").FontSize(10).FontColor(Colors.Grey.Darken1).AlignCenter();
                         });
                     });
 

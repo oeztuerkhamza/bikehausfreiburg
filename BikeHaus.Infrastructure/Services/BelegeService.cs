@@ -26,7 +26,7 @@ public class BelegeService(
         var belege = new List<BelegListDto>();
         var kontrollen = await LoadKontrollenAsync();
 
-        foreach (var rental in await rentalRepository.GetByStartDateRangeWithDetailsAsync(startDate, endDate))
+        foreach (var rental in await rentalRepository.GetByVertragsdatumRangeWithDetailsAsync(startDate, endDate))
         {
             var ersteRad = rental.Bikes.OrderBy(b => b.Id).FirstOrDefault()?.Bicycle;
             var radInfo = ersteRad != null ? $"{ersteRad.Marke} {ersteRad.Modell}".Trim() : string.Empty;
@@ -36,7 +36,9 @@ public class BelegeService(
                 BelegArt.Miete,
                 rental.Id,
                 rental.MietvertragNummer,
-                rental.StartDatum,
+                // Belegdatum ist der Tag, an dem der Vertrag geschrieben wurde —
+                // nicht der erste Miettag. Altverträge: Anlagetag.
+                rental.Vertragsdatum == default ? rental.CreatedAt : rental.Vertragsdatum,
                 rental.Customer?.FullName ?? string.Empty,
                 radInfo,
                 rental.Gesamtmiete,

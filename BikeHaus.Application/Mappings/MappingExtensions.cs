@@ -533,6 +533,8 @@ public static class MappingExtensions
         entity.Customer.ToDto(),
         entity.StartDatum,
         entity.EndDatum,
+        // Altverträge ohne eigenes Belegdatum fallen auf den Anlagetag zurück.
+        entity.Vertragsdatum == default ? entity.CreatedAt : entity.Vertragsdatum,
         entity.Gesamtmiete,
         entity.Rabatt,
         entity.Kaution,

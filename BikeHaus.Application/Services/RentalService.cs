@@ -142,6 +142,9 @@ public class RentalService : IRentalService
             CustomerId = customer.Id,
             StartDatum = startDatum,
             EndDatum = endDatum,
+            // Belegdatum: der Tag, an dem der Vertrag geschrieben wird. Nur ein
+            // nachgetragener Vertrag schickt ein eigenes Datum mit.
+            Vertragsdatum = (dto.Vertragsdatum ?? DateTime.UtcNow).Date,
             Gesamtmiete = gesamtmiete,
             Rabatt = dto.Rabatt,
             Kaution = kautionTotal,
@@ -276,6 +279,8 @@ public class RentalService : IRentalService
             await _customerRepository.UpdateAsync(customer);
         }
 
+        if (dto.Vertragsdatum.HasValue)
+            rental.Vertragsdatum = dto.Vertragsdatum.Value.Date;
         if (dto.StartDatum.HasValue)
             rental.StartDatum = dto.StartDatum.Value;
         if (dto.EndDatum.HasValue)

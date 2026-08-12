@@ -17,13 +17,18 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         _dbContext = context;
     }
 
-    public async Task<IEnumerable<Rental>> GetByStartDateRangeWithDetailsAsync(DateTime from, DateTime to)
+    public async Task<IEnumerable<Rental>> GetByVertragsdatumRangeWithDetailsAsync(DateTime from, DateTime to)
     {
+        // Gefiltert wird über das Belegdatum des Vertrags, nicht über den ersten
+        // Miettag — sonst stünde ein Ende Juli geschriebener Vertrag für eine
+        // August-Miete in der falschen Monatsabrechnung. Verträge aus der Zeit
+        // vor dem Feld fallen auf den Anlagetag zurück.
         return await _dbSet
             .Include(r => r.Bikes).ThenInclude(b => b.Bicycle)
             .Include(r => r.Customer)
-            .Where(r => r.StartDatum >= from && r.StartDatum <= to)
-            .OrderBy(r => r.StartDatum)
+            .Where(r => (r.Vertragsdatum == DateTime.MinValue ? r.CreatedAt : r.Vertragsdatum) >= from
+                     && (r.Vertragsdatum == DateTime.MinValue ? r.CreatedAt : r.Vertragsdatum) <= to)
+            .OrderBy(r => r.Vertragsdatum == DateTime.MinValue ? r.CreatedAt : r.Vertragsdatum)
             .ToListAsync();
     }
 

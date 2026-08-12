@@ -14,6 +14,12 @@ public class Rental : BaseEntity
     public DateTime StartDatum { get; set; }
     public DateTime EndDatum { get; set; }
 
+    // Belegdatum des Vertrags: der Tag, an dem der Vertrag geschrieben wurde —
+    // NICHT der erste Miettag. Vorbelegt mit dem Anlagetag, im Formular aber
+    // änderbar (nachgetragene Verträge). Steht so auf dem PDF und in der
+    // Belegübersicht.
+    public DateTime Vertragsdatum { get; set; }
+
     // Aggregate totals — denormalised sums across Bikes
     public decimal Gesamtmiete { get; set; }  // Sum of Bikes.Mietpreis (after Rabatt)
     public decimal Rabatt { get; set; }

@@ -69,6 +69,8 @@ public record RentalDto(
     CustomerDto Customer,
     DateTime StartDatum,
     DateTime EndDatum,
+    // Belegdatum des Vertrags (Anlagetag, im Formular änderbar) — nicht der erste Miettag.
+    DateTime Vertragsdatum,
     decimal Gesamtmiete,
     decimal Rabatt,
     decimal Kaution,
@@ -145,7 +147,9 @@ public record RentalCreateDto(
     bool AgbAkzeptiert,
     string? UnterschriftOrt,
     string? AusweisPhotoPath,           // Vorderseite; z.B. aus einer übernommenen Buchung
-    string? AusweisPhotoRueckseitePath = null // Rückseite; ebenso aus einer übernommenen Buchung
+    string? AusweisPhotoRueckseitePath = null, // Rückseite; ebenso aus einer übernommenen Buchung
+    // Leer = Anlagetag. Gesetzt nur, wenn ein Vertrag nachgetragen wird.
+    DateTime? Vertragsdatum = null
 );
 
 public record RentalBikeUpdateDto(
@@ -177,5 +181,6 @@ public record RentalUpdateDto(
     List<RentalBikeCreateDto>? NewBikes,
     List<int>? RemoveBikeIds,
     List<RentalAccessoryItemCreateDto>? Accessories,
-    string? MietvertragNummer = null
+    string? MietvertragNummer = null,
+    DateTime? Vertragsdatum = null
 );

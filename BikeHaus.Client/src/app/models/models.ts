@@ -941,6 +941,8 @@ export interface Rental {
   customer: Customer;
   startDatum: string;
   endDatum: string;
+  /** Belegdatum des Vertrags (Anlagetag, änderbar) — nicht der erste Miettag. */
+  vertragsdatum: string;
   gesamtmiete: number;
   rabatt: number;
   kaution: number;
@@ -1023,6 +1025,8 @@ export interface RentalCreate {
   bikes: RentalBikeCreate[];
   customer: CustomerCreate;
   rabatt: number;
+  /** Belegdatum; leer = Anlagetag. */
+  vertragsdatum?: string;
   zahlungsart: PaymentMethod;
   kautionZahlungsart?: PaymentMethod;
   notizen?: string;
@@ -1045,6 +1049,8 @@ export interface RentalBikeUpdate {
 
 export interface RentalUpdate {
   customer?: CustomerCreate;
+  /** Belegdatum des Vertrags. */
+  vertragsdatum?: string;
   startDatum?: string;
   endDatum?: string;
   rabatt?: number;

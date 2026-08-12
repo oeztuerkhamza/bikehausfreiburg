@@ -137,6 +137,11 @@ import {
 
         <div class="info-card">
           <h3>Mietdetails</h3>
+          <!-- Belegdatum des Vertrags — steht so auf PDF und Quittung. -->
+          <div class="info-row">
+            <span>Vertragsdatum:</span
+            ><strong>{{ rental.vertragsdatum | date: 'dd.MM.yyyy' }}</strong>
+          </div>
           <div class="info-row">
             <span>Von:</span
             ><strong>{{ rental.startDatum | date: 'dd.MM.yyyy' }}</strong>

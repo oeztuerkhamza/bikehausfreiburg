@@ -175,6 +175,15 @@ interface BikeEntry {
   quickAddPhotoPreviews: string[];
 }
 
+/**
+ * Datum für ein <input type="date"> — nach LOKALER Zeit. Mit toISOString()
+ * gerechnet stünde am späten Abend noch der Vortag im Feld.
+ */
+function toDateInput(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 function createEmptyBikeEntry(): BikeEntry {
   return {
     selectedBike: null,
@@ -389,6 +398,18 @@ const MONTH_NAMES = [
             <input type="hidden" [(ngModel)]="endDatum" name="endDatum" required />
 
             <div class="form-grid" style="margin-top: 16px;">
+              <!-- Belegdatum des Vertrags: der Tag, an dem er geschrieben wird.
+                   Vorbelegt mit heute, änderbar für nachgetragene Verträge —
+                   der erste Miettag hat damit nichts zu tun. -->
+              <div class="field">
+                <label>Vertragsdatum</label>
+                <input
+                  type="date"
+                  [(ngModel)]="vertragsdatum"
+                  name="vertragsdatum"
+                />
+                <span style="font-size:0.75rem;color:var(--text-muted,#94a3b8);margin-top:4px;">Datum auf dem Vertrag und der Quittung — nicht der erste Miettag.</span>
+              </div>
               <div class="field full" *ngIf="isEditMode">
                 <label>Beleg-Nr</label>
                 <input
@@ -2450,6 +2471,12 @@ export class RentalFormComponent implements OnInit, OnDestroy {
   ausweisRueckseitePreviewUrl: string | null = null;
   existingAusweisPhotoRueckseitePath = '';
 
+  /**
+   * Belegdatum des Vertrags (yyyy-MM-dd). Standard ist der heutige Tag; beim
+   * Bearbeiten das gespeicherte Datum. Unabhängig vom Mietzeitraum.
+   */
+  vertragsdatum = toDateInput(new Date());
+
   // ── Edit mode ──
   isEditMode = false;
   rentalId: number | null = null;
@@ -3685,6 +3712,10 @@ export class RentalFormComponent implements OnInit, OnDestroy {
       };
     }
     this.mietvertragNummer = rental.mietvertragNummer || '';
+    // Belegdatum des Vertrags; Altverträge ohne eigenes Datum liefert der
+    // Server bereits mit ihrem Anlagetag.
+    if (rental.vertragsdatum)
+      this.vertragsdatum = toDateInput(new Date(rental.vertragsdatum));
     this.notizen = rental.notizen || '';
     this.agbAkzeptiert = rental.agbAkzeptiert || false;
     this.unterschriftOrt = rental.unterschriftOrt || 'Freiburg';
@@ -4313,6 +4344,7 @@ export class RentalFormComponent implements OnInit, OnDestroy {
           const firstBike = this.bikes[0];
           const payload: RentalCreate = {
             customer: this.customer,
+            vertragsdatum: this.vertragsdatum || undefined,
             // Kein Rabattfeld mehr im Mietvertrag: ein ausgehandelter Preis
             // wird direkt als Gesamtmiete eingetragen.
             rabatt: 0,
@@ -4465,6 +4497,7 @@ export class RentalFormComponent implements OnInit, OnDestroy {
           const update: RentalUpdate = {
             customer: this.customer,
             mietvertragNummer: this.mietvertragNummer?.trim() || undefined,
+            vertragsdatum: this.vertragsdatum || undefined,
             startDatum: this.startDatum,
             endDatum: this.endDatum,
             // rabatt bewusst nicht mitschicken: bei Altverträgen mit Rabatt

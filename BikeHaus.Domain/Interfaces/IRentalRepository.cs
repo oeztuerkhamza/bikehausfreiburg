@@ -14,5 +14,5 @@ public interface IRentalRepository : IRepository<Rental>
     Task<IEnumerable<Rental>> GetOverlappingRangeWithBikesAsync(DateTime from, DateTime to);
 
     /// <summary>Mietverträge, deren Startdatum im Zeitraum liegt — für die Belegübersicht.</summary>
-    Task<IEnumerable<Rental>> GetByStartDateRangeWithDetailsAsync(DateTime from, DateTime to);
+    Task<IEnumerable<Rental>> GetByVertragsdatumRangeWithDetailsAsync(DateTime from, DateTime to);
 }
