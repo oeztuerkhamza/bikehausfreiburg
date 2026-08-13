@@ -13,6 +13,9 @@ public record DashboardDto(
     int ActiveRentals,
     int OverdueRentals,
     int PendingBookings,
+    // Bar kassierte, noch nicht zurückgegebene Kautionen (Summe über alle
+    // nicht-stornierten Mietverträge) — Geld, das noch in der Kasse liegt.
+    decimal OffeneBarKaution,
     IEnumerable<PurchaseListDto> RecentPurchases,
     IEnumerable<SaleListDto> RecentSales,
     IEnumerable<RentalListDto> RecentRentals,

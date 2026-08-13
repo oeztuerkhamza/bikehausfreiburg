@@ -15,4 +15,7 @@ public interface IRentalRepository : IRepository<Rental>
 
     /// <summary>Mietverträge, deren Startdatum im Zeitraum liegt — für die Belegübersicht.</summary>
     Task<IEnumerable<Rental>> GetByVertragsdatumRangeWithDetailsAsync(DateTime from, DateTime to);
+
+    /// <summary>Summe der bar kassierten, noch nicht zurückgegebenen Kautionen (ohne stornierte Verträge).</summary>
+    Task<decimal> GetOffeneBarKautionSumAsync();
 }

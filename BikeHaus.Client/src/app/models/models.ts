@@ -499,6 +499,7 @@ export interface Dashboard {
   activeRentals: number;
   overdueRentals: number;
   pendingBookings: number;
+  offeneBarKaution: number;
   recentPurchases: PurchaseList[];
   recentSales: SaleList[];
   recentRentals: RentalList[];

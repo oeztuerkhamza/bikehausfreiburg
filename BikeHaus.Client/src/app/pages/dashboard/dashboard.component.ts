@@ -208,7 +208,7 @@ import { TranslationService } from '../../services/translation.service';
       </div>
 
       <!-- Rental Stats -->
-      <div class="rental-stats" *ngIf="data.activeRentals > 0 || data.pendingBookings > 0 || data.overdueRentals > 0">
+      <div class="rental-stats" *ngIf="data.activeRentals > 0 || data.pendingBookings > 0 || data.overdueRentals > 0 || data.offeneBarKaution > 0">
         <div class="stat-card" *ngIf="data.activeRentals > 0">
           <div class="stat-icon accent-sky">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -230,6 +230,18 @@ import { TranslationService } from '../../services/translation.service';
           <div class="stat-body">
             <div class="stat-value">{{ data.overdueRentals }}</div>
             <div class="stat-label">Überfällig</div>
+          </div>
+          <a routerLink="/rentals" class="stat-link">→</a>
+        </div>
+        <div class="stat-card" *ngIf="data.offeneBarKaution > 0">
+          <div class="stat-icon accent-emerald">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value">{{ data.offeneBarKaution | number: '1.2-2' }} €</div>
+            <div class="stat-label">Offene Barkaution</div>
           </div>
           <a routerLink="/rentals" class="stat-link">→</a>
         </div>

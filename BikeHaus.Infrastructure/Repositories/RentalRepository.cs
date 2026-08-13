@@ -130,6 +130,19 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
             .ToListAsync();
     }
 
+    public async Task<decimal> GetOffeneBarKautionSumAsync()
+    {
+        // Kassenbestand an fremdem Geld: bar kassierte Kautionen, die noch beim
+        // Laden liegen. Stornierte Verträge zählen nicht — dort wurde nie
+        // übergeben bzw. die Kaution ging direkt zurück. KautionZahlungsart
+        // OhneKaution fällt automatisch raus (Kaution ist dann 0).
+        return await _context.Set<RentalBike>()
+            .Where(rb => rb.Rental.Status != RentalStatus.Cancelled
+                && rb.Rental.KautionZahlungsart == PaymentMethod.Bar
+                && !rb.KautionZurueckgegeben)
+            .SumAsync(rb => rb.Kaution);
+    }
+
     public async Task<(IEnumerable<Rental> Items, int TotalCount)> GetPaginatedAsync(
         int page, int pageSize,
         Expression<Func<Rental, bool>>? predicate = null,

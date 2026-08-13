@@ -50,6 +50,7 @@ public class DashboardService : IDashboardService
         var activeRentals = await _rentalRepository.CountAsync(r => r.Status == RentalStatus.Active);
         var overdueRentals = await _rentalRepository.CountAsync(r => r.Status == RentalStatus.Active && r.EndDatum < now);
         var pendingBookings = await _bookingRepository.CountAsync(b => b.Status == RentalBookingStatus.Pending);
+        var offeneBarKaution = await _rentalRepository.GetOffeneBarKautionSumAsync();
 
         var (recentRentalItems, _) = await _rentalRepository.GetPaginatedAsync(1, 5, r => r.Status == RentalStatus.Active);
         var (recentPendingItems, _) = await _bookingRepository.GetPaginatedAsync(1, 5, b => b.Status == RentalBookingStatus.Pending);
@@ -84,6 +85,7 @@ public class DashboardService : IDashboardService
             ActiveRentals: activeRentals,
             OverdueRentals: overdueRentals,
             PendingBookings: pendingBookings,
+            OffeneBarKaution: offeneBarKaution,
             RecentPurchases: recentPurchases.Select(p => p.ToListDto()),
             RecentSales: recentSales.Select(s => s.ToListDto()),
             RecentRentals: recentRentalItems.Select(r => r.ToListDto()),
