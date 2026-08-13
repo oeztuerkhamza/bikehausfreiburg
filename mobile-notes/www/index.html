@@ -55,6 +55,7 @@
       </div>
       <div class="topbar-actions">
         <select id="lang-select" class="lang-select" title="Dikte dili"></select>
+        <button id="refresh-btn" class="icon-btn" title="Yenile">↻</button>
         <button id="logout-btn" class="icon-btn" title="Çıkış">⏻</button>
       </div>
     </header>
@@ -63,6 +64,7 @@
       <div class="loading">Notlar yükleniyor…</div>
     </div>
 
+    <button id="type-fab" class="type-fab" title="Yazarak not al">✎</button>
     <button id="mic-fab" class="mic-fab" title="Konuşarak not al">
       <span class="mic-glyph">🎤</span>
     </button>
@@ -72,7 +74,7 @@
   <section id="record-screen" class="screen hidden">
     <header class="topbar">
       <button id="record-cancel" class="icon-btn">✕</button>
-      <h2>Dinliyorum…</h2>
+      <h2 id="record-title">Dinliyorum…</h2>
       <span class="topbar-spacer"></span>
     </header>
 

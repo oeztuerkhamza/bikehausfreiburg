@@ -17,6 +17,37 @@ export function toast(message, kind = 'info') {
   el.classList.remove('hidden');
 }
 
+/**
+ * Uygulama içi onay penceresi. Tarayıcının confirm()'i yerine: o pencere
+ * Android'de "https://localhost diyor ki…" başlığıyla çıkıyor ve uygulamadan
+ * kopuk görünüyor.
+ */
+export function onay(mesaj, { evet = 'Evet', hayir = 'Vazgeç', tehlike = false } = {}) {
+  return new Promise((resolve) => {
+    const kat = document.createElement('div');
+    kat.className = 'modal-kat';
+    kat.innerHTML = `
+      <div class="modal">
+        <p class="modal-metin"></p>
+        <div class="modal-tuslar">
+          <button class="btn-ghost" data-hayir></button>
+          <button class="${tehlike ? 'btn-danger' : 'btn-primary'}" data-evet></button>
+        </div>
+      </div>`;
+    kat.querySelector('.modal-metin').textContent = mesaj;
+    kat.querySelector('[data-hayir]').textContent = hayir;
+    kat.querySelector('[data-evet]').textContent = evet;
+
+    const kapat = (cevap) => { kat.remove(); resolve(cevap); };
+    kat.querySelector('[data-evet]').addEventListener('click', () => kapat(true));
+    kat.querySelector('[data-hayir]').addEventListener('click', () => kapat(false));
+    // Dışına dokunmak vazgeçmek demek.
+    kat.addEventListener('click', (e) => { if (e.target === kat) kapat(false); });
+
+    document.body.appendChild(kat);
+  });
+}
+
 export function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',

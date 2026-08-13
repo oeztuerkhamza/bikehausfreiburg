@@ -7,7 +7,7 @@ import * as notes from './notes.js';
 import * as speech from './speech.js';
 import * as takvim from './calendar.js';
 import {
-  $, show, hide, toast, escapeHtml, parseDate,
+  $, show, hide, toast, onay, escapeHtml, parseDate,
   toLocalInput, fromLocalInput, formatRelative,
 } from './ui.js';
 
@@ -21,6 +21,17 @@ let dil = DEFAULT_LANG;
 function ekranGoster(sel) {
   ekranlar.forEach((s) => hide($(s)));
   show($(sel));
+}
+
+/**
+ * Listeye dön ve arka planda tazele. Notlar sunucuda durduğu için başka bir
+ * cihazda eklenen not ancak böyle görünür — kullanıcıdan yenilemesini
+ * beklemek yerine her dönüşte kendimiz alıyoruz.
+ */
+function listeyeDon({ tazele = true } = {}) {
+  acikNot = null;
+  ekranGoster('#list-screen');
+  if (tazele) listeYenile().catch(() => {});
 }
 
 // ═══════════ Açılış ═══════════
@@ -82,6 +93,13 @@ $('#login-form').addEventListener('submit', async (e) => {
   }
 });
 
+$('#refresh-btn').addEventListener('click', async () => {
+  const btn = $('#refresh-btn');
+  btn.classList.add('doner');
+  await listeYenile();
+  btn.classList.remove('doner');
+});
+
 $('#logout-btn').addEventListener('click', async () => {
   await logout();
   ekranGoster('#login-screen');
@@ -137,6 +155,18 @@ function listeCiz() {
 
 $('#mic-fab').addEventListener('click', dikteBaslat);
 
+// Sessiz ortamda ya da mikrofon istemediğinde: aynı ekran, dinleme kapalı.
+$('#type-fab').addEventListener('click', () => {
+  $('#record-text').value = '';
+  speech.metniAyarla('');
+  $('#record-title').textContent = 'Yeni not';
+  $('#record-hint').textContent = 'Yaz — istersen ▶ Devam et ile dikteye geçebilirsin.';
+  $('#record-toggle').textContent = '▶ Konuşmaya başla';
+  $('#record-wave').classList.remove('active');
+  ekranGoster('#record-screen');
+  $('#record-text').focus();
+});
+
 async function dikteBaslat() {
   if (!speech.destekleniyorMu()) {
     toast('Konuşma tanıma yalnızca telefonda çalışır.', 'error');
@@ -148,6 +178,8 @@ async function dikteBaslat() {
   }
 
   $('#record-text').value = '';
+  $('#record-title').textContent = 'Dinliyorum…';
+  $('#record-hint').textContent = 'Konuş — söylediklerin buraya yazılıyor.';
   $('#record-toggle').textContent = '⏸ Duraklat';
   $('#record-wave').classList.add('active');
   ekranGoster('#record-screen');
@@ -164,12 +196,21 @@ $('#record-toggle').addEventListener('click', async () => {
   if (speech.calisiyorMu()) {
     await speech.dur();
     $('#record-wave').classList.remove('active');
+    $('#record-title').textContent = 'Duraklatıldı';
     btn.textContent = '▶ Devam et';
   } else {
     // Elle yapılan düzeltmeler korunsun.
     speech.metniAyarla($('#record-text').value.trim());
     $('#record-wave').classList.add('active');
+    $('#record-title').textContent = 'Dinliyorum…';
     btn.textContent = '⏸ Duraklat';
+    if (!speech.destekleniyorMu() || !(await speech.izinIste())) {
+      toast('Mikrofon kullanılamıyor — yazarak devam edebilirsin.', 'error');
+      $('#record-wave').classList.remove('active');
+      $('#record-title').textContent = 'Yeni not';
+      btn.textContent = '▶ Konuşmaya başla';
+      return;
+    }
     await speech.basla(dil, (metin) => {
       const alan = $('#record-text');
       if (document.activeElement !== alan) alan.value = metin;
@@ -177,11 +218,22 @@ $('#record-toggle').addEventListener('click', async () => {
   }
 });
 
-$('#record-cancel').addEventListener('click', async () => {
+$('#record-cancel').addEventListener('click', dikteIptal);
+
+/** ✕ ve donanım geri tuşu. Yazılmış metin varsa onaysız atılmaz. */
+async function dikteIptal() {
   await speech.dur();
   $('#record-wave').classList.remove('active');
-  ekranGoster('#list-screen');
-});
+  const metin = $('#record-text').value.trim();
+  if (metin && !(await onay('Bu not kaydedilmeden atılsın mı?', {
+    evet: 'At', hayir: 'Vazgeç', tehlike: true,
+  }))) {
+    // Vazgeçildi: ekranda kal, dikte duraklatılmış olarak beklesin.
+    $('#record-toggle').textContent = '▶ Devam et';
+    return;
+  }
+  listeyeDon({ tazele: false });
+}
 
 $('#record-save').addEventListener('click', async () => {
   const btn = $('#record-save');
@@ -191,7 +243,7 @@ $('#record-save').addEventListener('click', async () => {
   const metin = $('#record-text').value.trim();
   if (!metin) {
     toast('Not boş.', 'error');
-    ekranGoster('#list-screen');
+    listeyeDon({ tazele: false });
     return;
   }
 
@@ -200,7 +252,6 @@ $('#record-save').addEventListener('click', async () => {
   try {
     const not = await notes.ekle({ rohText: metin, sprache: dil });
     liste.unshift(not);
-    ekranGoster('#list-screen');
     listeCiz();
     toast('Not kaydedildi.');
     detayAc(not.id);
@@ -227,15 +278,34 @@ function detayAc(id) {
   ekranGoster('#detail-screen');
 }
 
-$('#detail-back').addEventListener('click', () => {
-  acikNot = null;
-  ekranGoster('#list-screen');
+// Geri: kaydedilmemiş değişiklik varsa kendiliğinden kaydedilir. Not
+// uygulamasında "kaydetmeyi unuttun" diye uyarmak yerine kaydetmek doğrusu.
+$('#detail-back').addEventListener('click', async () => {
+  if (degistiMi()) {
+    const tamam = await notKaydet({ sessiz: false });
+    if (!tamam) return;   // kaydedilemedi: ekranda kal, metin kaybolmasın
+  }
+  listeyeDon();
 });
 
 $('#detail-date-clear').addEventListener('click', () => { $('#detail-date').value = ''; });
 
-$('#detail-save').addEventListener('click', async () => {
-  if (!acikNot) return;
+/** Ekrandaki değerler kayıtlı nottan farklı mı? */
+function degistiMi() {
+  if (!acikNot) return false;
+  const tarih = $('#detail-date').value;
+  return $('#detail-title').value.trim() !== (acikNot.titel || '')
+    || $('#detail-text').value.trim() !== (acikNot.text || '')
+    || tarih !== toLocalInput(parseDate(acikNot.terminAt));
+}
+
+/**
+ * Detaydaki değerleri kaydeder. Takvim ve hatırlatma da bunu çağırır: yoksa
+ * kullanıcı takvime eklediği tarihi notta bulamıyordu.
+ * @returns {Promise<boolean>} kaydedildi mi
+ */
+async function notKaydet({ sessiz = true } = {}) {
+  if (!acikNot) return false;
   const btn = $('#detail-save');
   btn.disabled = true;
   try {
@@ -247,14 +317,19 @@ $('#detail-save').addEventListener('click', async () => {
       terminEntfernen: !tarih,
     });
     listeyiTazele(guncel);
-    if (!tarih) await takvim.hatirlatmayiIptal(acikNot.id);
-    toast('Kaydedildi.');
-    ekranGoster('#list-screen');
+    if (!tarih) await takvim.hatirlatmayiIptal(guncel.id);
+    if (!sessiz) toast('Kaydedildi.');
+    return true;
   } catch (err) {
     toast(err.message || 'Kaydedilemedi', 'error');
+    return false;
   } finally {
     btn.disabled = false;
   }
+}
+
+$('#detail-save').addEventListener('click', async () => {
+  if (await notKaydet({ sessiz: false })) listeyeDon();
 });
 
 $('#detail-done').addEventListener('click', async () => {
@@ -264,7 +339,7 @@ $('#detail-done').addEventListener('click', async () => {
     listeyiTazele(guncel);
     if (guncel.erledigt) await takvim.hatirlatmayiIptal(guncel.id);
     toast(guncel.erledigt ? 'Bitti olarak işaretlendi.' : 'Yeniden açıldı.');
-    ekranGoster('#list-screen');
+    listeyeDon();
   } catch (err) {
     toast(err.message || 'Güncellenemedi', 'error');
   }
@@ -272,14 +347,13 @@ $('#detail-done').addEventListener('click', async () => {
 
 $('#detail-delete').addEventListener('click', async () => {
   if (!acikNot) return;
-  if (!confirm('Bu not silinsin mi?')) return;
+  if (!(await onay('Bu not silinsin mi?', { evet: 'Sil', tehlike: true }))) return;
   try {
     await notes.sil(acikNot.id);
     await takvim.hatirlatmayiIptal(acikNot.id);
     liste = liste.filter((n) => n.id !== acikNot.id);
-    acikNot = null;
     listeCiz();
-    ekranGoster('#list-screen');
+    listeyeDon({ tazele: false });
     toast('Not silindi.');
   } catch (err) {
     toast(err.message || 'Silinemedi', 'error');
@@ -306,6 +380,8 @@ $('#detail-redo').addEventListener('click', async () => {
 $('#detail-calendar').addEventListener('click', async () => {
   const tarih = tarihAlanindanDate();
   if (!tarih) { toast('Önce bir tarih/saat seç.', 'error'); return; }
+  // Takvime giden tarih notta da kalsın.
+  if (degistiMi() && !(await notKaydet())) return;
   try {
     await takvim.takvimeEkle({
       titel: $('#detail-title').value.trim() || 'Not',
@@ -321,6 +397,7 @@ $('#detail-remind').addEventListener('click', async () => {
   const tarih = tarihAlanindanDate();
   if (!tarih) { toast('Önce bir tarih/saat seç.', 'error'); return; }
   if (!(await takvim.bildirimIzni())) { toast('Bildirim izni verilmedi.', 'error'); return; }
+  if (degistiMi() && !(await notKaydet())) return;
   try {
     await takvim.hatirlat({
       id: acikNot?.id,
@@ -354,12 +431,13 @@ function listeyiTazele(guncel) {
 
 // Donanım geri tuşu: detay/dikte → liste, listede çıkış yapma.
 window.Capacitor?.Plugins?.App?.addListener('backButton', async () => {
+  // Onay penceresi açıksa geri tuşu önce onu kapatsın.
+  const modal = document.querySelector('.modal-kat');
+  if (modal) { modal.remove(); return; }
   if (!$('#detail-screen').classList.contains('hidden')) {
-    acikNot = null;
-    ekranGoster('#list-screen');
+    $('#detail-back').click();
   } else if (!$('#record-screen').classList.contains('hidden')) {
-    await speech.dur();
-    ekranGoster('#list-screen');
+    await dikteIptal();
   }
 });
 
