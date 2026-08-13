@@ -136,11 +136,15 @@ public class RentalRepository : Repository<Rental>, IRentalRepository
         // Laden liegen. Stornierte Verträge zählen nicht — dort wurde nie
         // übergeben bzw. die Kaution ging direkt zurück. KautionZahlungsart
         // OhneKaution fällt automatisch raus (Kaution ist dann 0).
-        return await _context.Set<RentalBike>()
+        // Summe im Speicher statt SumAsync: der SQLite-Provider kann Sum über
+        // decimal-Spalten nicht übersetzen und wirft zur Laufzeit.
+        var kautionen = await _context.Set<RentalBike>()
             .Where(rb => rb.Rental.Status != RentalStatus.Cancelled
                 && rb.Rental.KautionZahlungsart == PaymentMethod.Bar
                 && !rb.KautionZurueckgegeben)
-            .SumAsync(rb => rb.Kaution);
+            .Select(rb => rb.Kaution)
+            .ToListAsync();
+        return kautionen.Sum();
     }
 
     public async Task<(IEnumerable<Rental> Items, int TotalCount)> GetPaginatedAsync(
