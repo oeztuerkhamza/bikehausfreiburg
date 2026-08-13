@@ -974,6 +974,10 @@ export interface RentalList {
   kaution: number;
   status: RentalStatus;
   isOverdue: boolean;
+  /** Kaution aller Räder zurückgezahlt. */
+  kautionZurueckgegeben: boolean;
+  /** Rad zurück UND Kaution abgerechnet (oder storniert) — erst dann erledigt. */
+  abgeschlossen: boolean;
 }
 
 export interface BusyPeriod {
@@ -1020,6 +1024,13 @@ export interface RentalAccessoryReturn {
 export interface RentalReturn {
   bikes: RentalBikeReturn[];
   accessories?: RentalAccessoryReturn[];
+}
+
+/** Rückgabe + Kautionsrückgabe in einem Schritt. */
+export interface RentalAbschluss {
+  bikes: RentalBikeReturn[];
+  accessories?: RentalAccessoryReturn[];
+  kautionRueckgabeUnterschrift?: string;
 }
 
 export interface RentalCreate {

@@ -8,6 +8,7 @@ import {
   RentalList,
   RentalUpdate,
   RentalReturn,
+  RentalAbschluss,
   PaginatedResult,
 } from '../models/models';
 
@@ -77,6 +78,14 @@ export class RentalService {
 
   returnBicycle(id: number, payload: RentalReturn): Observable<Rental> {
     return this.http.post<Rental>(`${this.url}/${id}/return`, payload);
+  }
+
+  /**
+   * Rückgabe und Kautionsrückgabe in einem Zug. Der Vertrag bleibt bestehen —
+   * er ist der Beleg über die Vermietung.
+   */
+  abschliessen(id: number, payload: RentalAbschluss): Observable<Rental> {
+    return this.http.post<Rental>(`${this.url}/${id}/abschluss`, payload);
   }
 
   cancel(id: number): Observable<Rental> {

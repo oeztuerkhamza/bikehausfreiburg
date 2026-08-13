@@ -477,6 +477,16 @@ public class RentalService : IRentalService
 
         ApplyOhneKaution(rental);
 
+        // Kaution zurück heißt: das Rad ist wieder da. Sonst bliebe ein Vertrag
+        // mit ausgezahlter Kaution "Aktiv" stehen und das Fahrrad für immer
+        // vermietet — genau der Zustand, der die Liste unbrauchbar macht.
+        if (dto.KautionZurueckgegeben == true && rental.Status == RentalStatus.Active)
+        {
+            rental.Status = RentalStatus.Returned;
+            rental.RueckgabeAt ??= DateTime.UtcNow;
+            await ReleaseBikesAsync(rental);
+        }
+
         rental.UpdatedAt = DateTime.UtcNow;
         await _rentalRepository.UpdateAsync(rental);
 
@@ -629,6 +639,80 @@ public class RentalService : IRentalService
         await _rentalRepository.UpdateAsync(rental);
 
         await ReleaseBikesAsync(rental);
+
+        var updated = await _rentalRepository.GetWithDetailsAsync(id);
+        return updated!.ToDto();
+    }
+
+    /// <summary>
+    /// Rückgabe und Kautionsrückgabe in einem Schritt: Räder aufnehmen, Zubehör
+    /// abhaken, Vertrag auf "zurückgegeben" setzen, Räder freigeben und die
+    /// Kaution quittieren. Der Vertrag bleibt erhalten — er ist der Beleg.
+    /// </summary>
+    public async Task<RentalDto> AbschliessenAsync(int id, RentalAbschlussDto dto)
+    {
+        var rental = await _rentalRepository.GetWithDetailsAsync(id)
+            ?? throw new KeyNotFoundException($"Mietvertrag mit ID {id} nicht gefunden.");
+
+        if (rental.Status == RentalStatus.Cancelled)
+            throw new InvalidOperationException("Ein stornierter Mietvertrag kann nicht abgeschlossen werden.");
+
+        var wasAllRefunded = rental.Bikes.Count > 0 && rental.Bikes.All(b => b.KautionZurueckgegeben);
+
+        // Unterschrift nur verlangen, wenn tatsächlich Geld zurückgeht. Bei
+        // "Ohne Kaution" gibt es nichts zu quittieren.
+        var kautionOffen = rental.Kaution > 0 && !wasAllRefunded;
+        if (kautionOffen && string.IsNullOrWhiteSpace(dto.KautionRueckgabeUnterschrift))
+            throw new InvalidOperationException("Für die Kautionsrückgabe ist eine Unterschrift erforderlich.");
+
+        foreach (var bikeReturn in dto.Bikes)
+        {
+            var rentalBike = rental.Bikes.FirstOrDefault(b => b.Id == bikeReturn.RentalBikeId)
+                ?? throw new KeyNotFoundException($"RentalBike mit ID {bikeReturn.RentalBikeId} nicht gefunden.");
+
+            rentalBike.ZustandBeiRueckgabe = bikeReturn.ZustandBeiRueckgabe;
+            rentalBike.SchadenAbzug = bikeReturn.SchadenAbzug;
+            rentalBike.VerspaetungsAbzug = bikeReturn.VerspaetungsAbzug;
+            rentalBike.TatsaechlichesRueckgabeDatum = bikeReturn.TatsaechlichesRueckgabeDatum;
+            rentalBike.AbzugNotizen = bikeReturn.AbzugNotizen;
+            rentalBike.UpdatedAt = DateTime.UtcNow;
+        }
+
+        if (dto.Accessories != null)
+        {
+            foreach (var accReturn in dto.Accessories)
+            {
+                var acc = rental.Accessories.FirstOrDefault(a => a.Id == accReturn.RentalAccessoryItemId);
+                if (acc == null) continue;
+                acc.Zurueckgegeben = accReturn.Zurueckgegeben;
+                acc.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        // Einmaliges Zubehör wird erst hier abrechenbar (nicht zurückgegeben =
+        // verbraucht), deshalb die Gesamtmiete neu bilden.
+        var tage = RentalPricingCalculator.CalculateDaysInclusive(rental.StartDatum, rental.EndDatum);
+        rental.Gesamtmiete = rental.Bikes.Sum(b => b.Mietpreis)
+            + rental.Accessories.Sum(a => a.LineTotal(tage));
+
+        foreach (var bike in rental.Bikes)
+        {
+            bike.KautionZurueckgegeben = true;
+            if (!string.IsNullOrWhiteSpace(dto.KautionRueckgabeUnterschrift))
+                bike.KautionRueckgabeUnterschrift = dto.KautionRueckgabeUnterschrift;
+            bike.KautionRueckgabeDatum ??= DateTime.UtcNow;
+            bike.UpdatedAt = DateTime.UtcNow;
+        }
+
+        rental.Status = RentalStatus.Returned;
+        rental.RueckgabeAt ??= DateTime.UtcNow;
+        rental.UpdatedAt = DateTime.UtcNow;
+        await _rentalRepository.UpdateAsync(rental);
+
+        await ReleaseBikesAsync(rental);
+
+        if (!wasAllRefunded)
+            await TrySendDepositRefundConfirmationAsync(rental);
 
         var updated = await _rentalRepository.GetWithDetailsAsync(id);
         return updated!.ToDto();

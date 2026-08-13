@@ -117,8 +117,8 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
               <td>{{ r.gesamtmiete | number: '1.2-2' }} €</td>
               <td>{{ r.kaution | number: '1.2-2' }} €</td>
               <td>
-                <span class="status-badge" [class]="getStatusClass(r.status)">
-                  {{ getStatusText(r.status) }}
+                <span class="status-badge" [class]="getStatusClass(r)">
+                  {{ getStatusText(r) }}
                 </span>
               </td>
             </tr>
@@ -356,6 +356,14 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
       .status-returned {
         background: rgba(59, 130, 246, 0.08);
         color: #3b82f6;
+      }
+      .status-kaution-offen {
+        background: rgba(240, 178, 50, 0.16);
+        color: #b45309;
+      }
+      .status-overdue {
+        background: rgba(239, 68, 68, 0.14);
+        color: #b91c1c;
       }
       .status-cancelled {
         background: rgba(100, 116, 139, 0.08);
@@ -604,22 +612,21 @@ export class RentalListComponent implements OnInit {
     this.loadRentals();
   }
 
-  getStatusClass(status: RentalStatus): string {
-    const map: Record<string, string> = {
-      Active: 'status-active',
-      Returned: 'status-returned',
-      Cancelled: 'status-cancelled',
-    };
-    return map[status] || '';
+  // Status der Zeile. Ein zurückgegebenes Rad mit offener Kaution ist NICHT
+  // erledigt — das Geld liegt noch im Laden. Deshalb bekommt dieser Fall eine
+  // eigene, auffällige Kennzeichnung statt "Zurückgegeben".
+  getStatusClass(r: RentalList): string {
+    if (r.status === 'Cancelled') return 'status-cancelled';
+    if (r.status === 'Returned')
+      return r.kautionZurueckgegeben ? 'status-returned' : 'status-kaution-offen';
+    return r.isOverdue ? 'status-overdue' : 'status-active';
   }
 
-  getStatusText(status: RentalStatus): string {
-    const map: Record<string, string> = {
-      Active: 'Aktiv',
-      Returned: 'Zurückgegeben',
-      Cancelled: 'Storniert',
-    };
-    return map[status] || status;
+  getStatusText(r: RentalList): string {
+    if (r.status === 'Cancelled') return 'Storniert';
+    if (r.status === 'Returned')
+      return r.kautionZurueckgegeben ? 'Abgeschlossen' : 'Kaution offen';
+    return r.isOverdue ? 'Überfällig' : 'Aktiv';
   }
 
 }

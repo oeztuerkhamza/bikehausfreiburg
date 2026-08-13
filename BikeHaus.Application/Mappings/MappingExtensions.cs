@@ -562,6 +562,8 @@ public static class MappingExtensions
                 : $"{firstBike.Bicycle.Marke} {firstBike.Bicycle.Modell}"
             : string.Empty;
 
+        var kautionZurueck = bikeCount > 0 && entity.Bikes.All(b => b.KautionZurueckgegeben);
+
         return new RentalListDto(
             entity.Id,
             entity.MietvertragNummer,
@@ -574,7 +576,12 @@ public static class MappingExtensions
             entity.Rabatt,
             entity.Kaution,
             entity.Status,
-            entity.EndDatum < DateTime.UtcNow && entity.Status == Domain.Enums.RentalStatus.Active
+            entity.EndDatum < DateTime.UtcNow && entity.Status == Domain.Enums.RentalStatus.Active,
+            kautionZurueck,
+            // Erledigt heißt: Rad zurück UND Kaution abgerechnet. Storniert zählt
+            // ebenfalls als erledigt — dort gab es keine Übergabe.
+            (entity.Status == Domain.Enums.RentalStatus.Returned && kautionZurueck)
+                || entity.Status == Domain.Enums.RentalStatus.Cancelled
         );
     }
 

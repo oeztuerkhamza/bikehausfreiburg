@@ -12,6 +12,9 @@ public interface IRentalService
     Task<RentalDto> UpdateAsync(int id, RentalUpdateDto dto);
     Task DeleteAsync(int id);
     Task<RentalDto> ReturnBicycleAsync(int id, RentalReturnDto dto);
+    /// <summary>Rückgabe + Kautionsrückgabe in einem Schritt. Der Vertrag bleibt bestehen.</summary>
+    Task<RentalDto> AbschliessenAsync(int id, RentalAbschlussDto dto);
+
     Task<RentalDto> CancelAsync(int id);
     Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath, bool istRueckseite = false);
     Task<string?> GetAusweisPhotoPathAsync(int id, bool istRueckseite = false);

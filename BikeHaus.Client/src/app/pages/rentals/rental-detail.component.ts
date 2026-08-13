@@ -8,8 +8,7 @@ import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import {
   Rental,
-  RentalUpdate,
-  RentalReturn,
+  RentalAbschluss,
   BikeConditionAtHandover,
 } from '../../models/models';
 
@@ -255,29 +254,23 @@ import {
         </div>
       </div>
 
-      <!-- Actions for active rentals -->
-      <div class="action-bar" *ngIf="rental.status === 'Active'">
+      <!-- Rückgabe: EIN Weg, der alles erledigt (Rad + Zubehör + Kaution).
+           Solange die Kaution offen ist, ist der Vertrag nicht abgeschlossen. -->
+      <div class="action-bar" *ngIf="!istAbgeschlossen()">
         <button class="btn btn-success" (click)="openReturnModal()">
-          ✅ Fahrrad zurückgeben
+          ✅ Rückgabe abschließen
         </button>
         <button
-          class="btn btn-warning"
-          (click)="markKautionReturned()"
-          *ngIf="!rental.kautionZurueckgegeben"
+          class="btn btn-danger"
+          (click)="cancelRental()"
+          *ngIf="rental.status === 'Active'"
         >
-          💰 Kaution zurückgeben
-        </button>
-        <button class="btn btn-danger" (click)="cancelRental()">
           ✖ Stornieren
         </button>
       </div>
-      <div
-        class="action-bar"
-        *ngIf="rental.status === 'Returned' && !rental.kautionZurueckgegeben"
-      >
-        <button class="btn btn-success" (click)="markKautionReturned()">
-          💰 Kaution zurückgeben
-        </button>
+      <div class="offen-hinweis" *ngIf="rental.status === 'Returned' && !rental.kautionZurueckgegeben">
+        ⚠ Das Rad ist zurück, aber die Kaution steht noch offen — der Vertrag
+        bleibt in der Liste, bis sie abgerechnet ist.
       </div>
 
       <!-- Notes -->
@@ -286,65 +279,19 @@ import {
         <p>{{ rental.notizen }}</p>
       </div>
 
-      <!-- Delete -->
-      <div class="action-bar" style="margin-top: 20px;">
+      <!-- Löschen. Bewusst NICHT verfügbar, solange der Vertrag läuft oder die
+           Kaution offen ist: bei der Übergabe steht dieser Knopf sonst neben
+           dem Rückgabeknopf, und ein Fehlgriff löscht den Beleg der Vermietung.
+           Erst abschließen oder stornieren, dann löschen. -->
+      <div class="action-bar" style="margin-top: 20px;" *ngIf="darfGeloeschtWerden()">
         <button class="btn btn-danger" (click)="deleteRental()">
           🗑 Löschen
         </button>
       </div>
-    </div>
-
-    <!-- Signature Modal for Kaution Return -->
-    <div
-      class="modal-backdrop"
-      *ngIf="showSignatureModal"
-      (click)="closeSignatureModal()"
-    >
-      <div class="modal modal-sig" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>💰 Kaution zurückgeben</h3>
-          <button class="modal-close" (click)="closeSignatureModal()">✕</button>
-        </div>
-        <div class="modal-body sig-body">
-          <p class="sig-info">
-            Kaution:
-            <strong>{{ rental?.kaution | number: '1.2-2' }} €</strong> wird an
-            <strong>{{ rental?.customer?.fullName }}</strong>
-            zurückgegeben.<br />
-            Bitte Unterschrift des Mieters zur Bestätigung.
-          </p>
-          <div class="sig-canvas-wrap">
-            <canvas
-              id="kautionSignatureCanvas"
-              width="460"
-              height="160"
-              (mousedown)="onSigMouseDown($event)"
-              (mousemove)="onSigMouseMove($event)"
-              (mouseup)="onSigEnd()"
-              (mouseleave)="onSigEnd()"
-              (touchstart)="onSigTouchStart($event)"
-              (touchmove)="onSigTouchMove($event)"
-              (touchend)="onSigEnd()"
-            >
-            </canvas>
-            <span class="sig-placeholder" *ngIf="sigIsEmpty"
-              >Hier unterschreiben ...</span
-            >
-          </div>
-          <div class="sig-actions">
-            <button class="btn btn-outline" (click)="clearSignature()">
-              🗑 Löschen
-            </button>
-            <button
-              class="btn btn-success"
-              (click)="confirmKautionReturn()"
-              [disabled]="sigIsEmpty"
-            >
-              ✅ Kaution bestätigt
-            </button>
-          </div>
-        </div>
-      </div>
+      <p class="loeschen-gesperrt" *ngIf="!darfGeloeschtWerden()">
+        🔒 Der Mietvertrag kann erst gelöscht werden, wenn er abgeschlossen oder
+        storniert ist — er ist der Beleg über die Vermietung.
+      </p>
     </div>
 
     <!-- Return Checklist Modal -->
@@ -355,14 +302,27 @@ import {
     >
       <div class="modal modal-return" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h3>✅ Fahrrad zurückgeben – Checkliste</h3>
+          <h3>✅ Rückgabe abschließen</h3>
           <button class="modal-close" (click)="closeReturnModal()">✕</button>
         </div>
+        <!-- Schrittanzeige: ein Weg von der Radannahme bis zur quittierten
+             Kaution, damit am Ladentisch nichts halb erledigt liegen bleibt. -->
+        <div class="schritt-leiste">
+          <span
+            class="schritt"
+            *ngFor="let sch of schritte; let i = index"
+            [class.aktiv]="i === schrittIndex"
+            [class.erledigt]="i < schrittIndex"
+          >
+            {{ i + 1 }}. {{ schrittTitel(sch) }}
+          </span>
+        </div>
         <div class="modal-body return-body">
-          <!-- Per-bike checklist -->
+          <!-- SCHRITT 1: Fahrräder -->
           <div
             class="return-bike-block"
             *ngFor="let bikeForm of returnBikeForms; let i = index"
+            [hidden]="aktiverSchritt() !== 'raeder'"
           >
             <div class="return-bike-title">
               🚲 {{ bikeForm.bikeLabel }}
@@ -452,10 +412,11 @@ import {
             </div>
           </div>
 
-          <!-- Accessories checklist -->
+          <!-- SCHRITT 2: Zubehör -->
           <div
             class="return-section"
             *ngIf="returnAccessoryForms.length > 0"
+            [hidden]="aktiverSchritt() !== 'zubehoer'"
           >
             <div class="return-section-title">📦 Zubehör</div>
             <div
@@ -497,7 +458,8 @@ import {
             </div>
           </div>
 
-          <!-- Summary -->
+          <!-- SCHRITT 3: Kaution abrechnen und quittieren -->
+          <div [hidden]="aktiverSchritt() !== 'kaution'">
           <div class="return-summary-box">
             <div class="summary-row">
               <span>Kaution gesamt:</span>
@@ -517,12 +479,64 @@ import {
             </div>
           </div>
 
+          <div class="sig-block" *ngIf="brauchtUnterschrift()">
+            <p class="sig-info">
+              <strong>{{ getModalKautionRueckgabe() | number: '1.2-2' }} €</strong>
+              gehen an <strong>{{ rental?.customer?.fullName }}</strong> zurück.
+              Bitte Unterschrift des Mieters.
+            </p>
+            <div class="sig-canvas-wrap">
+              <canvas
+                id="kautionSignatureCanvas"
+                width="460"
+                height="160"
+                (mousedown)="onSigMouseDown($event)"
+                (mousemove)="onSigMouseMove($event)"
+                (mouseup)="onSigEnd()"
+                (mouseleave)="onSigEnd()"
+                (touchstart)="onSigTouchStart($event)"
+                (touchmove)="onSigTouchMove($event)"
+                (touchend)="onSigEnd()"
+              ></canvas>
+              <span class="sig-placeholder" *ngIf="sigIsEmpty"
+                >Hier unterschreiben ...</span
+              >
+            </div>
+            <button class="btn btn-outline btn-sm" (click)="clearSignature()">
+              🗑 Unterschrift löschen
+            </button>
+          </div>
+          <p class="ohne-kaution-hinweis" *ngIf="!brauchtUnterschrift()">
+            Für diesen Vertrag steht keine Kaution offen — es gibt nichts
+            auszuzahlen und nichts zu quittieren.
+          </p>
+          </div>
+
           <div class="return-actions">
+            <button
+              class="btn btn-outline"
+              (click)="schrittZurueck()"
+              *ngIf="schrittIndex > 0"
+            >
+              ‹ Zurück
+            </button>
             <button class="btn btn-outline" (click)="closeReturnModal()">
               Abbrechen
             </button>
-            <button class="btn btn-success" (click)="submitReturnChecklist()">
-              ✅ Rückgabe bestätigen
+            <button
+              class="btn btn-primary"
+              (click)="schrittWeiter()"
+              *ngIf="schrittIndex < schritte.length - 1"
+            >
+              Weiter ›
+            </button>
+            <button
+              class="btn btn-success"
+              (click)="abschlussSpeichern()"
+              *ngIf="schrittIndex === schritte.length - 1"
+              [disabled]="abschlussLaeuft || (brauchtUnterschrift() && sigIsEmpty)"
+            >
+              {{ abschlussLaeuft ? 'Wird gespeichert…' : '✅ Abschließen' }}
             </button>
           </div>
         </div>
@@ -632,6 +646,49 @@ import {
       .text-danger {
         color: var(--accent-danger, #ef4444);
         font-weight: 600;
+      }
+      .schritt-leiste {
+        display: flex;
+        gap: 6px;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+        flex-wrap: wrap;
+      }
+      .schritt {
+        font-size: 0.78rem;
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: var(--bg-hover, #f1f5f9);
+        color: var(--text-muted, #94a3b8);
+      }
+      .schritt.aktiv {
+        background: rgba(16, 185, 129, 0.14);
+        color: #047857;
+        font-weight: 600;
+      }
+      .schritt.erledigt {
+        color: #10b981;
+      }
+      .offen-hinweis {
+        margin: 14px 0 0;
+        padding: 11px 14px;
+        border-radius: 10px;
+        background: rgba(240, 178, 50, 0.14);
+        color: #92400e;
+        font-size: 0.88rem;
+      }
+      .loeschen-gesperrt {
+        margin-top: 20px;
+        font-size: 0.82rem;
+        color: var(--text-muted, #94a3b8);
+      }
+      .ohne-kaution-hinweis {
+        margin: 8px 0 0;
+        font-size: 0.86rem;
+        color: var(--text-muted, #94a3b8);
+      }
+      .sig-block {
+        margin-top: 14px;
       }
       .status-badge {
         display: inline-block;
@@ -1014,12 +1071,15 @@ export class RentalDetailComponent implements OnInit {
   @ViewChild('pdfPreviewIframe') pdfPreviewIframe?: ElementRef<HTMLIFrameElement>;
 
   // Signature modal
-  showSignatureModal = false;
   sigIsEmpty = true;
   private sigDrawing = false;
 
-  // Return checklist modal
+  // Rückgabe-Assistent: ein Ablauf von der Radannahme bis zur quittierten
+  // Kaution. "zubehoer" fällt weg, wenn der Vertrag kein Zubehör hat.
   showReturnModal = false;
+  schritte: Array<'raeder' | 'zubehoer' | 'kaution'> = ['raeder', 'kaution'];
+  schrittIndex = 0;
+  abschlussLaeuft = false;
   returnBikeForms: {
     rentalBikeId: number;
     bikeLabel: string;
@@ -1119,11 +1179,60 @@ export class RentalDetailComponent implements OnInit {
       einmalig: acc.einmalig,
       tagespreis: acc.tagespreis,
     }));
+    this.schritte = this.returnAccessoryForms.length > 0
+      ? ['raeder', 'zubehoer', 'kaution']
+      : ['raeder', 'kaution'];
+    // Ist das Rad schon zurück und nur die Kaution offen, beginnt der Ablauf
+    // direkt beim offenen Punkt statt bei schon erledigten Schritten.
+    this.schrittIndex =
+      this.rental?.status === 'Returned' ? this.schritte.length - 1 : 0;
+    this.sigIsEmpty = true;
     this.showReturnModal = true;
+    setTimeout(() => this.clearSignature());
   }
 
   closeReturnModal() {
     this.showReturnModal = false;
+  }
+
+  aktiverSchritt(): 'raeder' | 'zubehoer' | 'kaution' {
+    return this.schritte[this.schrittIndex];
+  }
+
+  schrittTitel(schritt: 'raeder' | 'zubehoer' | 'kaution'): string {
+    return { raeder: 'Fahrräder', zubehoer: 'Zubehör', kaution: 'Kaution' }[schritt];
+  }
+
+  schrittWeiter() {
+    if (this.schrittIndex < this.schritte.length - 1) {
+      this.schrittIndex++;
+      // Das Unterschriftfeld wird erst jetzt sichtbar und muss danach neu
+      // aufgesetzt werden, sonst bleibt die Zeichenfläche leer/verschoben.
+      if (this.aktiverSchritt() === 'kaution') setTimeout(() => this.clearSignature());
+    }
+  }
+
+  schrittZurueck() {
+    if (this.schrittIndex > 0) this.schrittIndex--;
+  }
+
+  /** Unterschrift nur, wenn wirklich Geld zurückgeht. */
+  brauchtUnterschrift(): boolean {
+    return !!this.rental
+      && (this.rental.kaution ?? 0) > 0
+      && !this.rental.kautionZurueckgegeben;
+  }
+
+  /** Erledigt heißt: Rad zurück UND Kaution abgerechnet. Storniert zählt auch. */
+  istAbgeschlossen(): boolean {
+    if (!this.rental) return false;
+    if (this.rental.status === 'Cancelled') return true;
+    return this.rental.status === 'Returned' && this.rental.kautionZurueckgegeben;
+  }
+
+  /** Während der Übergabe wird nichts gelöscht — siehe Hinweis im Template. */
+  darfGeloeschtWerden(): boolean {
+    return this.istAbgeschlossen();
   }
 
   isOverdue(bikeIndex: number): boolean {
@@ -1195,9 +1304,20 @@ export class RentalDetailComponent implements OnInit {
     return Math.max(0, this.rental.kaution - this.getModalTotalAbzug());
   }
 
-  submitReturnChecklist() {
-    if (!this.rental) return;
-    const payload: RentalReturn = {
+  /**
+   * Alles in einem Zug: Räder aufnehmen, Zubehör abhaken, Vertrag auf
+   * "zurückgegeben" setzen und die Kaution quittieren. Ein Aufruf, damit kein
+   * halb erledigter Zustand entstehen kann (Rad zurück, Kaution vergessen).
+   * Der Mietvertrag wird dabei nicht gelöscht — er bleibt der Beleg.
+   */
+  abschlussSpeichern() {
+    if (!this.rental || this.abschlussLaeuft) return;
+    if (this.brauchtUnterschrift() && this.sigIsEmpty) {
+      this.notificationService.error('Bitte den Mieter unterschreiben lassen.');
+      return;
+    }
+
+    const payload: RentalAbschluss = {
       bikes: this.returnBikeForms.map((f) => ({
         rentalBikeId: f.rentalBikeId,
         zustandBeiRueckgabe: f.zustandBeiRueckgabe,
@@ -1212,22 +1332,25 @@ export class RentalDetailComponent implements OnInit {
         this.returnAccessoryForms.length > 0
           ? this.returnAccessoryForms
           : undefined,
+      kautionRueckgabeUnterschrift: this.brauchtUnterschrift()
+        ? this.getSigCanvas().toDataURL('image/png')
+        : undefined,
     };
-    this.closeReturnModal();
-    this.rentalService.returnBicycle(this.rental.id, payload).subscribe({
+
+    this.abschlussLaeuft = true;
+    this.rentalService.abschliessen(this.rental.id, payload).subscribe({
       next: (r) => {
+        this.abschlussLaeuft = false;
         this.rental = r;
-        this.notificationService.success('Fahrrad zurückgegeben');
-        // Am Ladentisch folgt auf die Rückgabe immer die Kaution: statt dafür
-        // einen zweiten Knopf zu suchen (und ihn zu vergessen), geht das
-        // Unterschriftenfeld direkt auf. Steht keine Kaution mehr offen,
-        // passiert nichts.
-        if (!r.kautionZurueckgegeben && (r.kaution ?? 0) > 0) {
-          this.markKautionReturned();
-        }
+        this.closeReturnModal();
+        this.notificationService.success(
+          'Rückgabe abgeschlossen — Rad zurück und Kaution abgerechnet.',
+        );
       },
-      error: (err) =>
-        this.notificationService.error(err.error?.error || 'Fehler'),
+      error: (err) => {
+        this.abschlussLaeuft = false;
+        this.notificationService.error(err.error?.error || 'Fehler');
+      },
     });
   }
 
@@ -1258,16 +1381,7 @@ export class RentalDetailComponent implements OnInit {
     return Math.max(0, rental.kaution - this.getTotalAbzug(rental));
   }
 
-  markKautionReturned() {
-    if (!this.rental) return;
-    this.showSignatureModal = true;
-    this.sigIsEmpty = true;
-    setTimeout(() => this.clearSignature());
-  }
 
-  closeSignatureModal() {
-    this.showSignatureModal = false;
-  }
 
   private getSigCanvas(): HTMLCanvasElement {
     return document.getElementById(
@@ -1328,25 +1442,6 @@ export class RentalDetailComponent implements OnInit {
     } as MouseEvent);
   }
 
-  confirmKautionReturn() {
-    if (this.sigIsEmpty || !this.rental) return;
-    const signatureData = this.getSigCanvas().toDataURL('image/png');
-    this.closeSignatureModal();
-    const update: RentalUpdate = {
-      kautionZurueckgegeben: true,
-      kautionRueckgabeUnterschrift: signatureData,
-    };
-    this.rentalService.update(this.rental.id, update).subscribe({
-      next: (r) => {
-        this.rental = r;
-        this.notificationService.success(
-          'Kaution zurückgegeben – Unterschrift erfasst',
-        );
-      },
-      error: (err) =>
-        this.notificationService.error(err.error?.error || 'Fehler'),
-    });
-  }
 
   cancelRental() {
     if (!this.rental) return;

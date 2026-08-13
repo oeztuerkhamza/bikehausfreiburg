@@ -100,7 +100,11 @@ public record RentalListDto(
     decimal Rabatt,
     decimal Kaution,
     RentalStatus Status,
-    bool IsOverdue
+    bool IsOverdue,
+    // Ein Vertrag ist erst erledigt, wenn auch die Kaution zurück ist. Solange
+    // sie offen steht, gehört er in die Liste — das Geld liegt noch im Laden.
+    bool KautionZurueckgegeben,
+    bool Abgeschlossen
 );
 
 // Kompaktes Element für die Belegungs-/Kalenderansicht (formale Mietverträge).
@@ -183,4 +187,16 @@ public record RentalUpdateDto(
     List<RentalAccessoryItemCreateDto>? Accessories,
     string? MietvertragNummer = null,
     DateTime? Vertragsdatum = null
+);
+
+/// <summary>
+/// Rückgabe und Kautionsrückgabe in einem Zug: Fahrräder aufnehmen, Zubehör
+/// abhaken, Kaution auszahlen und quittieren. Ein Vertrag wird dabei NIE
+/// gelöscht — er bleibt als Beleg bestehen.
+/// </summary>
+public record RentalAbschlussDto(
+    List<RentalBikeReturnDto> Bikes,
+    List<RentalAccessoryReturnDto>? Accessories,
+    /// <summary>Unterschrift des Mieters für die Kautionsrückgabe; Pflicht, sobald eine Kaution offen ist.</summary>
+    string? KautionRueckgabeUnterschrift
 );

@@ -137,6 +137,27 @@ public class RentalsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Rückgabe und Kautionsrückgabe in einem Zug. Der Mietvertrag wird dabei
+    /// NICHT gelöscht — er bleibt als Beleg bestehen.
+    /// </summary>
+    [HttpPost("{id}/abschluss")]
+    public async Task<ActionResult<RentalDto>> Abschliessen(int id, [FromBody] RentalAbschlussDto dto)
+    {
+        try
+        {
+            return Ok(await _rentalService.AbschliessenAsync(id, dto));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
     [HttpPost("{id}/cancel")]
     public async Task<ActionResult<RentalDto>> Cancel(int id)
     {
