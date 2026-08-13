@@ -18,8 +18,11 @@ const config: CapacitorConfig = {
       enabled: true,
     },
     Keyboard: {
-      resize: 'none',
-      resizeOnFullScreen: false,
+      // WebView klavye açılınca küçülsün. Ekranlar position:fixed/inset:0
+      // olduğu için alanlar klavyenin üstünde kalır. ('none' seçilirse
+      // klavye yüksekliğini elle hesaplayan bir katman gerekir.)
+      resize: 'native',
+      resizeOnFullScreen: true,
     },
     StatusBar: {
       style: 'DARK',
