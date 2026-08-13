@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#202c33" />
+  <title>BikeHaus Notlar</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════ SPLASH ═══════════ -->
+  <section id="splash" class="screen">
+    <div class="splash-inner">
+      <span class="logo-icon">🎙️</span>
+      <p>Yükleniyor…</p>
+    </div>
+  </section>
+
+  <!-- ═══════════ GİRİŞ ═══════════ -->
+  <section id="login-screen" class="screen hidden">
+    <div class="login-wrapper">
+      <div class="login-logo">
+        <span class="logo-icon">🎙️</span>
+        <h1>BikeHaus</h1>
+        <p class="subtitle">Freiburg · Sesli Notlar</p>
+      </div>
+      <form id="login-form" autocomplete="on">
+        <div class="field">
+          <label for="username">Benutzername</label>
+          <input id="username" type="text" autocomplete="username" required placeholder="admin" />
+        </div>
+        <div class="field">
+          <label for="password">Passwort</label>
+          <input id="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+        </div>
+        <p id="login-error" class="error hidden"></p>
+        <button id="login-btn" type="submit" class="btn-primary btn-login">
+          <span class="btn-text">Giriş Yap</span>
+          <span class="btn-loader hidden"></span>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ═══════════ NOT LİSTESİ ═══════════ -->
+  <section id="list-screen" class="screen hidden">
+    <header class="topbar">
+      <div class="topbar-title">
+        <span class="logo-icon small">🎙️</span>
+        <div>
+          <h2>Notlar</h2>
+          <span id="user-name" class="topbar-sub"></span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <select id="lang-select" class="lang-select" title="Dikte dili"></select>
+        <button id="logout-btn" class="icon-btn" title="Çıkış">⏻</button>
+      </div>
+    </header>
+
+    <div id="notes" class="notes">
+      <div class="loading">Notlar yükleniyor…</div>
+    </div>
+
+    <button id="mic-fab" class="mic-fab" title="Konuşarak not al">
+      <span class="mic-glyph">🎤</span>
+    </button>
+  </section>
+
+  <!-- ═══════════ DİKTE ═══════════ -->
+  <section id="record-screen" class="screen hidden">
+    <header class="topbar">
+      <button id="record-cancel" class="icon-btn">✕</button>
+      <h2>Dinliyorum…</h2>
+      <span class="topbar-spacer"></span>
+    </header>
+
+    <div class="record-body">
+      <div id="record-wave" class="record-wave"><span></span><span></span><span></span><span></span><span></span></div>
+      <p id="record-hint" class="record-hint">Konuş — söylediklerin buraya yazılıyor.</p>
+      <textarea id="record-text" class="record-text" placeholder="Henüz bir şey duymadım…"></textarea>
+    </div>
+
+    <div class="record-actions">
+      <button id="record-toggle" class="btn-secondary">⏸ Duraklat</button>
+      <button id="record-save" class="btn-primary">Kaydet</button>
+    </div>
+  </section>
+
+  <!-- ═══════════ NOT DETAYI ═══════════ -->
+  <section id="detail-screen" class="screen hidden">
+    <header class="topbar">
+      <button id="detail-back" class="icon-btn">‹</button>
+      <h2>Not</h2>
+      <button id="detail-delete" class="icon-btn danger" title="Sil">🗑</button>
+    </header>
+
+    <div class="detail-body">
+      <div class="field">
+        <label for="detail-title">Başlık</label>
+        <input id="detail-title" type="text" placeholder="Başlık" />
+      </div>
+
+      <div class="field">
+        <label for="detail-text">Not</label>
+        <textarea id="detail-text" rows="8" placeholder="Not metni"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="detail-date">Tarih / saat</label>
+        <div class="row">
+          <input id="detail-date" type="datetime-local" />
+          <button id="detail-date-clear" class="btn-ghost" title="Tarihi kaldır">✕</button>
+        </div>
+      </div>
+
+      <div class="detail-buttons">
+        <button id="detail-calendar" class="btn-secondary">📅 Takvime ekle</button>
+        <button id="detail-remind" class="btn-secondary">⏰ Hatırlat</button>
+      </div>
+
+      <details class="raw">
+        <summary>Ham dikte metni</summary>
+        <p id="detail-raw" class="raw-text"></p>
+        <button id="detail-redo" class="btn-ghost small">↻ Yeniden düzenle</button>
+      </details>
+
+      <div class="detail-footer">
+        <button id="detail-done" class="btn-ghost">✓ Bitti olarak işaretle</button>
+        <button id="detail-save" class="btn-primary">Kaydet</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

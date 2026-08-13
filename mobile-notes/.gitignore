@@ -1,0 +1,18 @@
+# Bagimliliklar
+node_modules/
+
+# Capacitor'un urettigi native proje ciktilari
+android/build/
+android/app/build/
+android/.gradle/
+android/.idea/
+android/local.properties          # makineye ozel SDK yolu
+android/app/src/main/assets/public/   # cap sync ile www/'den uretilir
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/res/xml/config.xml
+
+# Uretilen APK'lar — sunucuya SCP ile gider, repoda tutulmaz
+*.apk
+*.aab
+*.keystore
+*.jks

@@ -53,6 +53,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<KleinanzeigenChatTranslation> KleinanzeigenChatTranslations => Set<KleinanzeigenChatTranslation>();
     public DbSet<KleinanzeigenChatDraft> KleinanzeigenChatDrafts => Set<KleinanzeigenChatDraft>();
     public DbSet<BelegKontrolle> BelegKontrollen => Set<BelegKontrolle>();
+    public DbSet<Sprachnotiz> Sprachnotizen => Set<Sprachnotiz>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -739,6 +740,16 @@ public class BikeHausDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Art).IsRequired().HasMaxLength(20);
             entity.HasIndex(e => new { e.Art, e.BelegId }).IsUnique();
+        });
+
+        // ── Sprachnotiz Configuration ──
+        modelBuilder.Entity<Sprachnotiz>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Titel).HasMaxLength(200);
+            entity.Property(e => e.Sprache).HasMaxLength(10);
+            // Offene Notizen zuerst, neueste oben — die Liste der App.
+            entity.HasIndex(e => new { e.Erledigt, e.CreatedAt });
         });
 
         // ── RentalAccessoryItem Configuration ──

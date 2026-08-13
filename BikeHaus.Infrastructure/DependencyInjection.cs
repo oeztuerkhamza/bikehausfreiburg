@@ -101,6 +101,7 @@ public static class DependencyInjection
             c.Timeout = TimeSpan.FromSeconds(12);
         });
         services.AddScoped<IBelegeService, BelegeService>();
+        services.AddScoped<ISprachnotizService, SprachnotizService>();
         services.AddScoped<IExportService>(sp =>
         {
             var uploadsPath = configuration["FileStorage:BasePath"]
