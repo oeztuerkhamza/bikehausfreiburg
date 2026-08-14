@@ -296,7 +296,7 @@ import {
 
     <!-- Return Checklist Modal -->
     <div
-      class="modal-backdrop"
+      class="modal-backdrop return-backdrop"
       *ngIf="showReturnModal"
       (click)="closeReturnModal()"
     >
@@ -306,8 +306,9 @@ import {
           <button class="modal-close" (click)="closeReturnModal()">✕</button>
         </div>
         <!-- Schrittanzeige: ein Weg von der Radannahme bis zur quittierten
-             Kaution, damit am Ladentisch nichts halb erledigt liegen bleibt. -->
-        <div class="schritt-leiste">
+             Kaution, damit am Ladentisch nichts halb erledigt liegen bleibt.
+             Auf dem Handy entfällt sie — dort steht alles auf einer Seite. -->
+        <div class="schritt-leiste" *ngIf="!einSeitenModus">
           <span
             class="schritt"
             *ngFor="let sch of schritte; let i = index"
@@ -322,7 +323,7 @@ import {
           <div
             class="return-bike-block"
             *ngFor="let bikeForm of returnBikeForms; let i = index"
-            [hidden]="aktiverSchritt() !== 'raeder'"
+            [hidden]="!zeigeSchritt('raeder')"
           >
             <div class="return-bike-title">
               🚲 {{ bikeForm.bikeLabel }}
@@ -416,7 +417,7 @@ import {
           <div
             class="return-section"
             *ngIf="returnAccessoryForms.length > 0"
-            [hidden]="aktiverSchritt() !== 'zubehoer'"
+            [hidden]="!zeigeSchritt('zubehoer')"
           >
             <div class="return-section-title">📦 Zubehör</div>
             <div
@@ -459,7 +460,10 @@ import {
           </div>
 
           <!-- SCHRITT 3: Kaution abrechnen und quittieren -->
-          <div [hidden]="aktiverSchritt() !== 'kaution'">
+          <div [hidden]="!zeigeSchritt('kaution')">
+          <div class="return-section-title" *ngIf="einSeitenModus">
+            💶 Kaution
+          </div>
           <div class="return-summary-box">
             <div class="summary-row">
               <span>Kaution gesamt:</span>
@@ -511,34 +515,36 @@ import {
             auszuzahlen und nichts zu quittieren.
           </p>
           </div>
+        </div>
 
-          <div class="return-actions">
-            <button
-              class="btn btn-outline"
-              (click)="schrittZurueck()"
-              *ngIf="schrittIndex > 0"
-            >
-              ‹ Zurück
-            </button>
-            <button class="btn btn-outline" (click)="closeReturnModal()">
-              Abbrechen
-            </button>
-            <button
-              class="btn btn-primary"
-              (click)="schrittWeiter()"
-              *ngIf="schrittIndex < schritte.length - 1"
-            >
-              Weiter ›
-            </button>
-            <button
-              class="btn btn-success"
-              (click)="abschlussSpeichern()"
-              *ngIf="schrittIndex === schritte.length - 1"
-              [disabled]="abschlussLaeuft || (brauchtUnterschrift() && sigIsEmpty)"
-            >
-              {{ abschlussLaeuft ? 'Wird gespeichert…' : '✅ Abschließen' }}
-            </button>
-          </div>
+        <!-- Fußleiste außerhalb des Scrollbereichs: die Knöpfe bleiben immer
+             sichtbar und rutschen auf dem Handy nicht unter die Browserleiste. -->
+        <div class="return-actions">
+          <button
+            class="btn btn-outline"
+            (click)="schrittZurueck()"
+            *ngIf="!einSeitenModus && schrittIndex > 0"
+          >
+            ‹ Zurück
+          </button>
+          <button class="btn btn-outline" (click)="closeReturnModal()">
+            Abbrechen
+          </button>
+          <button
+            class="btn btn-primary"
+            (click)="schrittWeiter()"
+            *ngIf="!einSeitenModus && schrittIndex < schritte.length - 1"
+          >
+            Weiter ›
+          </button>
+          <button
+            class="btn btn-success"
+            (click)="abschlussSpeichern()"
+            *ngIf="einSeitenModus || schrittIndex === schritte.length - 1"
+            [disabled]="abschlussLaeuft || (brauchtUnterschrift() && sigIsEmpty)"
+          >
+            {{ abschlussLaeuft ? 'Wird gespeichert…' : '✅ Abschließen' }}
+          </button>
         </div>
       </div>
     </div>
@@ -874,6 +880,11 @@ import {
         justify-content: flex-end;
       }
       /* Return modal */
+      /* [hidden] verliert sonst gegen das display:flex der Schritt-Blöcke —
+         ohne diese Regel zeigt der Assistent alle Schritte gleichzeitig an. */
+      [hidden] {
+        display: none !important;
+      }
       .modal-return {
         max-width: 640px;
         max-height: 90vh;
@@ -886,6 +897,9 @@ import {
         flex-direction: column;
         gap: 16px;
         overflow-y: auto;
+        flex: 1 1 auto;
+        min-height: 0;
+        overscroll-behavior: contain;
       }
       .return-bike-block {
         border: 1px solid var(--border-light);
@@ -1030,6 +1044,44 @@ import {
         display: flex;
         gap: 10px;
         justify-content: flex-end;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+        padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+        border-top: 1px solid var(--border-light);
+        background: var(--bg-card);
+      }
+      /* Handy: Vollbild statt schwebendem Fenster. 100dvh richtet sich nach
+         dem tatsächlich sichtbaren Ausschnitt, dadurch bleibt die Fußleiste
+         mit den Knöpfen oberhalb der Safari-Leiste erreichbar;
+         env(safe-area-inset-bottom) polstert den Home-Steg. */
+      @media (max-width: 640px) {
+        .return-backdrop {
+          align-items: stretch;
+        }
+        .modal-return {
+          width: 100%;
+          max-width: none;
+          height: 100vh;
+          height: 100dvh;
+          max-height: none;
+          border-radius: 0;
+        }
+        .return-body {
+          padding-bottom: 28px;
+        }
+        .return-actions {
+          padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        }
+        .return-actions .btn {
+          flex: 1 1 auto;
+          padding: 12px 10px;
+        }
+        /* iOS zoomt bei Eingabefeldern unter 16px automatisch hinein und
+           verschiebt dabei das Formular. */
+        .return-body input,
+        .return-body select {
+          font-size: 16px;
+        }
       }
       /* Return summary on detail page */
       .return-summary {
@@ -1077,6 +1129,8 @@ export class RentalDetailComponent implements OnInit {
   // Rückgabe-Assistent: ein Ablauf von der Radannahme bis zur quittierten
   // Kaution. "zubehoer" fällt weg, wenn der Vertrag kein Zubehör hat.
   showReturnModal = false;
+  /** Handy: alle Schritte auf einer Seite statt als Assistent. */
+  einSeitenModus = false;
   schritte: Array<'raeder' | 'zubehoer' | 'kaution'> = ['raeder', 'kaution'];
   schrittIndex = 0;
   abschlussLaeuft = false;
@@ -1186,6 +1240,9 @@ export class RentalDetailComponent implements OnInit {
     // direkt beim offenen Punkt statt bei schon erledigten Schritten.
     this.schrittIndex =
       this.rental?.status === 'Returned' ? this.schritte.length - 1 : 0;
+    // Auf dem Handy ist der Schritt-Assistent unhandlich — dort steht alles
+    // untereinander auf einer Seite, am Rechner bleibt der geführte Ablauf.
+    this.einSeitenModus = window.matchMedia('(max-width: 640px)').matches;
     this.sigIsEmpty = true;
     this.showReturnModal = true;
     setTimeout(() => this.clearSignature());
@@ -1197,6 +1254,11 @@ export class RentalDetailComponent implements OnInit {
 
   aktiverSchritt(): 'raeder' | 'zubehoer' | 'kaution' {
     return this.schritte[this.schrittIndex];
+  }
+
+  /** Im Ein-Seiten-Modus (Handy) sind alle Schritte gleichzeitig sichtbar. */
+  zeigeSchritt(schritt: 'raeder' | 'zubehoer' | 'kaution'): boolean {
+    return this.einSeitenModus || this.aktiverSchritt() === schritt;
   }
 
   schrittTitel(schritt: 'raeder' | 'zubehoer' | 'kaution'): string {
@@ -1398,6 +1460,17 @@ export class RentalDetailComponent implements OnInit {
     this.sigDrawing = false;
   }
 
+  /** Zeigerposition in Canvas-Koordinaten: die Fläche ist intern 460×160,
+   *  wird aber per CSS auf Fensterbreite gedehnt — ohne Umrechnung landet
+   *  der Strich auf dem Handy neben dem Finger. */
+  private sigPoint(c: HTMLCanvasElement, e: MouseEvent) {
+    const r = c.getBoundingClientRect();
+    return {
+      x: ((e.clientX - r.left) * c.width) / r.width,
+      y: ((e.clientY - r.top) * c.height) / r.height,
+    };
+  }
+
   onSigMouseDown(e: MouseEvent) {
     this.sigDrawing = true;
     this.sigIsEmpty = false;
@@ -1406,17 +1479,17 @@ export class RentalDetailComponent implements OnInit {
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.strokeStyle = '#1e293b';
-    const r = c.getBoundingClientRect();
+    const p = this.sigPoint(c, e);
     ctx.beginPath();
-    ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+    ctx.moveTo(p.x, p.y);
   }
 
   onSigMouseMove(e: MouseEvent) {
     if (!this.sigDrawing) return;
     const c = this.getSigCanvas();
     const ctx = c.getContext('2d')!;
-    const r = c.getBoundingClientRect();
-    ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+    const p = this.sigPoint(c, e);
+    ctx.lineTo(p.x, p.y);
     ctx.stroke();
   }
 
