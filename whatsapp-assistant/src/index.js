@@ -65,6 +65,9 @@ async function syncChats({ onlyChanged = false } = {}) {
       io.emit("conversation", conv);
     }
     console.log(`[sync] ${chats.length} sohbet yüklendi.`);
+    // Senkron döndüyse sayfa çalışıyor. Nabız bunu bilmezse, uzun süren bir
+    // senkron sırasında biriken zaman aşımlarını ölüm sanabilir.
+    wa.notePageActivity();
     return { ok: true, count: chats.length };
   } catch (err) {
     console.error("[sync] hata:", err?.message, "\n", err?.stack);

@@ -427,6 +427,127 @@ function armStuckWatchdog(label) {
   if (stuckTimer.unref) stuckTimer.unref();
 }
 
+// --- Sayfa nabzı ---
+// Yukarıdaki bekçi yalnızca AÇILIŞI koruyor: 'ready' gelince kapanıyor ve o
+// andan sonra hiçbir şey sayfanın hâlâ yaşadığını denetlemiyordu. Chromium'un
+// render süreci sonradan ölürse (bu makinede RAM darlığından OOM ile oluyor)
+// 'disconnected' olayı GELMEZ — puppeteer'ın sayfası öylece asılı kalır.
+// Sonuç: konteyner günlerce "çalışıyor" görünür, her sohbet okuma denemesi
+// zaman aşımına düşer, arayüzde sürekli "0 sohbet" yazar ve kendi kendine
+// asla düzelmez. 2026-08-09'da canlı sistem tam bu durumdaydı: 2 gün ayakta,
+// tek bir sohbet okunmamış.
+//
+// Bu yüzden ucuz bir canlılık ölçümü: sayfada anlamsız bir ifade
+// değerlendirilir. Üst üste birkaç kez başarısız olursa süreç bilerek
+// bitirilir; Docker (restart: unless-stopped) temiz başlatır. Yeniden
+// başlatmak, ölü bir sayfaya sonsuza kadar sormaktan iyidir.
+// İki ayrı sinyal, çünkü "yanıt vermiyor" ile "ölmüş" aynı şey değil:
+//
+//   Kesin ölüm  — sayfa kapanmış ya da tarayıcı bağlantısı düşmüş. Sağlıklı
+//                 ama meşgul bir sistem bu hâle GİRMEZ, o yüzden tek seferde
+//                 yeniden başlatılır.
+//   Belirsizlik — değerlendirme zaman aşımına düştü. Bu, ölüm kadar sık olarak
+//                 "sayfa şu an çok meşgul" demektir: ilk senkron 50 sohbeti ve
+//                 fotoğrafları çekerken sayfanın ana iş parçacığı dakikalarca
+//                 dolu olabilir. Burada acele etmek, çalışan bir servisi
+//                 yeniden başlatma döngüsüne sokar — mevcut arızadan kötüsü.
+//                 Bu yüzden uzun bir pencere: üst üste onca dakika hiç yanıt
+//                 yoksa artık meşguliyet değildir.
+const HEARTBEAT_MS = Number(process.env.WA_HEARTBEAT_MS || 60 * 1000);
+const HEARTBEAT_TIMEOUT_MS = Number(process.env.WA_HEARTBEAT_TIMEOUT_MS || 20 * 1000);
+const HEARTBEAT_MAX_FAILS = Number(process.env.WA_HEARTBEAT_MAX_FAILS || 10);
+
+let heartbeatTimer = null;
+let heartbeatFails = 0;
+
+/** Tarayıcı/sayfa kesin gitti mi? Belirsiz durumlar burada `false` döner. */
+function pageIsDefinitelyGone() {
+  const page = client?.pupPage;
+  if (!page) return true;
+  if (typeof page.isClosed === 'function' && page.isClosed()) return true;
+
+  const browser = client?.pupBrowser;
+  if (browser) {
+    // puppeteer 22+ özellik, öncesi metot — ikisini de karşıla.
+    const connected =
+      typeof browser.connected === 'boolean'
+        ? browser.connected
+        : typeof browser.isConnected === 'function'
+          ? browser.isConnected()
+          : true;
+    if (!connected) return true;
+  }
+  return false;
+}
+
+/** Sayfa yanıt veriyor mu? Kendi süre sınırı var: asılı çağrı nabzı kilitlemesin. */
+async function pageResponds() {
+  const page = client?.pupPage;
+  if (!page) return false;
+
+  return await Promise.race([
+    page.evaluate(() => 1).then((v) => v === 1),
+    new Promise((resolve) => {
+      const t = setTimeout(() => resolve(false), HEARTBEAT_TIMEOUT_MS);
+      if (t.unref) t.unref();
+    }),
+  ]).catch(() => false);
+}
+
+function restartProcess(why) {
+  state.status = 'error';
+  events.emit('status', state);
+  console.error(`[nabız] ${why} — süreç kapatılıyor, denetleyici temiz başlatacak.`);
+  clearInterval(heartbeatTimer);
+  // Küçük gecikme: durum bilgisi bağlı arayüzlere ulaşsın.
+  const t = setTimeout(() => process.exit(1), 1500);
+  if (t.unref) t.unref();
+}
+
+/**
+ * Normal işleyişten gelen "yaşıyor" kanıtı. Senkron başarıyla bittiyse sayfa
+ * tanım gereği çalışıyor; nabzın meşguliyet yüzünden biriktirdiği sayaç sıfırlanır.
+ */
+export function notePageActivity() {
+  if (heartbeatFails > 0) {
+    console.log(`[nabız] sayfa çalışıyor (biriken ${heartbeatFails} zaman aşımı silindi).`);
+  }
+  heartbeatFails = 0;
+}
+
+function startHeartbeat() {
+  clearInterval(heartbeatTimer);
+  heartbeatFails = 0;
+  if (HEARTBEAT_MS <= 0) return;
+
+  heartbeatTimer = setInterval(async () => {
+    if (state.status !== 'ready') return;
+
+    if (pageIsDefinitelyGone()) {
+      restartProcess('tarayıcı sayfası kapanmış');
+      return;
+    }
+
+    if (await pageResponds()) {
+      notePageActivity();
+      return;
+    }
+
+    heartbeatFails++;
+    console.error(
+      `[nabız] sayfa ${HEARTBEAT_TIMEOUT_MS / 1000} sn içinde yanıt vermedi (${heartbeatFails}/${HEARTBEAT_MAX_FAILS}).`,
+    );
+
+    if (heartbeatFails >= HEARTBEAT_MAX_FAILS) {
+      restartProcess(
+        `sayfa ${heartbeatFails} kez üst üste yanıt vermedi (yaklaşık ${Math.round((heartbeatFails * HEARTBEAT_MS) / 60000)} dk)`,
+      );
+    }
+  }, HEARTBEAT_MS);
+
+  if (heartbeatTimer.unref) heartbeatTimer.unref();
+}
+
 function cleanStaleLocks() {
   try {
     if (!fs.existsSync(DATA_PATH)) return;
@@ -456,6 +577,11 @@ function createClient() {
       headless: true,
       // Konteynerde sistem Chromium'u; yerelde puppeteer'ın kendi indirdiği.
       executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      // Puppeteer'ın varsayılanı 180 sn: ölü bir sayfada her çağrı üç dakika
+      // asılı kalır, hata da "sayfa ölmüş" değil "zaman aşımı" diye görünür.
+      // Kısaltmak arızayı erken görünür kılıyor — nabız da bu sayede vaktinde
+      // karar veriyor.
+      protocolTimeout: Number(process.env.WA_PROTOCOL_TIMEOUT_MS || 60 * 1000),
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -465,6 +591,13 @@ function createClient() {
         '--no-default-browser-check',
         '--disable-extensions',
         '--disable-background-networking',
+        // Bu makine dar: 3.8 GB RAM'i mailcow, API ve SSR ile paylaşıyor.
+        // Tek render süreci ve kapalı çökme raporlayıcı, Chromium'un iştahını
+        // ölçülebilir tutuyor.
+        '--renderer-process-limit=1',
+        '--disable-software-rasterizer',
+        '--disable-breakpad',
+        '--mute-audio',
       ],
     },
   });
@@ -501,6 +634,8 @@ function createClient() {
     } catch {}
     events.emit('status', state);
     clearTimeout(stuckTimer);
+    // Açılış bekçisi kapandı; bundan sonrasını nabız devralır.
+    startHeartbeat();
   });
 
   client.on('disconnected', (reason) => {
