@@ -5079,9 +5079,10 @@ export class RentalBookingStepsComponent implements OnInit {
 
   /**
    * Fokussiert das erste ungültige Feld, sobald die Markierungen gerendert
-   * sind. Läuft nur nach einem Klick, also immer im Browser.
+   * sind.
    */
   private focusField(field: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     setTimeout(() => {
       const el = document.getElementById(`booking-${field}`);
       el?.focus({ preventScroll: true });
