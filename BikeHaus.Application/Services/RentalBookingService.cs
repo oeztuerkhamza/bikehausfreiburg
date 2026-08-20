@@ -131,12 +131,6 @@ public class RentalBookingService : IRentalBookingService
             .Where(b => !childrensIds.Contains(b.BicycleId))
             .Select(b => (b.BicycleId, b.StartDatum.Date, b.EndDatum.Date))
             .ToList();
-        if (bikeChecks.Count > 0)
-        {
-            var hasOverlap = await _bookingRepository.ExistsActiveOverlapForBikesAsync(bikeChecks);
-            if (hasOverlap)
-                throw new InvalidOperationException("Eines der ausgewaehlten Fahrraeder ist im gewaehlten Zeitraum bereits gebucht.");
-        }
 
         var language = NormalizeLanguage(dto.Sprache);
         var minStart = dto.Bikes.Min(b => b.StartDatum.Date);
@@ -159,9 +153,9 @@ public class RentalBookingService : IRentalBookingService
             Sprache = language,
             Notizen = dto.Notizen,
             // Mietbuchungen werden nicht mehr zur Freigabe vorgelegt, sondern
-            // direkt bestaetigt. Die Ueberschneidungspruefung weiter oben
-            // beruecksichtigt bereits bestaetigte UND offene Buchungen, es kann
-            // also keine Doppelbelegung entstehen.
+            // direkt bestaetigt. Die Ueberschneidungspruefung unter der Sperre
+            // (siehe RunExclusiveAsync unten) beruecksichtigt bereits bestaetigte
+            // UND offene Buchungen, es kann also keine Doppelbelegung entstehen.
             Status = RentalBookingStatus.Approved,
             ApprovedAt = DateTime.UtcNow
         };
@@ -225,8 +219,19 @@ public class RentalBookingService : IRentalBookingService
             throw new InvalidOperationException("Bitte geben Sie eine gueltige E-Mail-Adresse an.");
 
         // Buchungsnummer atomar vergeben (erzeugen + speichern unter Sperre).
+        // Auch die Ueberschneidungspruefung muss unter der Sperre laufen:
+        // ausserhalb koennten zwei gleichzeitige Submits fuer dasselbe Rad beide
+        // die Pruefung passieren und beide gespeichert werden (Doppelbelegung
+        // statt 409).
         var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.Buchung, async () =>
         {
+            if (bikeChecks.Count > 0)
+            {
+                var hasOverlap = await _bookingRepository.ExistsActiveOverlapForBikesAsync(bikeChecks);
+                if (hasOverlap)
+                    throw new InvalidOperationException("Eines der ausgewaehlten Fahrraeder ist im gewaehlten Zeitraum bereits gebucht.");
+            }
+
             booking.BuchungsNummer = await _bookingRepository.GenerateBuchungsNummerAsync();
             return await _bookingRepository.AddAsync(booking);
         });
