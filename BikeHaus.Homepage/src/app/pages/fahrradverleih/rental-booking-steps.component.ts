@@ -183,6 +183,25 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         <h2>
           {{ t().rentalSteps?.selectDates ?? 'Wählen Sie einen Zeitraum' }}
         </h2>
+        <!-- Vertrauenszeile: die stärksten Fakten (sofort bestätigt, keine
+             Online-Zahlung, kostenlose Stornierung) VOR dem Formular zeigen,
+             nicht erst auf der Erfolgsseite. -->
+        <ul class="trust-row" role="list">
+          <li>
+            {{ t().rentalSteps?.trustInstantConfirm ?? 'Sofort bestätigt' }}
+          </li>
+          <li>
+            {{
+              t().rentalSteps?.trustPayAtPickup ??
+                'Keine Online-Zahlung – bezahlt wird bei Abholung'
+            }}
+          </li>
+          <li>
+            {{
+              t().rentalSteps?.trustFreeCancellation ?? 'Kostenlose Stornierung'
+            }}
+          </li>
+        </ul>
         <div class="closure-notice" *ngIf="closureNotice()" role="note">
           <svg
             width="18"
@@ -1038,85 +1057,150 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           </button>
         </div>
 
+        <!-- autocomplete-Tokens + id/for auf jedem Feld: der Browser füllt
+             Name/Adresse mit einem Tipp aus, Labels fokussieren ihr Feld und
+             Screenreader lesen sie vor. Die PLZ bleibt bewusst Freitext ohne
+             Zahlen-Tastatur: ausländische Postleitzahlen enthalten Buchstaben
+             (NL "1234 AB", GB "SW1A 1AA"). -->
         <form (ngSubmit)="submitBooking()" class="customer-form">
           <div class="form-group">
-            <label>{{ t().rentalSteps?.firstName ?? 'Vorname' }} *:</label>
+            <label for="booking-vorname"
+              >{{ t().rentalSteps?.firstName ?? 'Vorname' }} *:</label
+            >
             <input
+              id="booking-vorname"
               type="text"
+              autocomplete="given-name"
               [(ngModel)]="bookingForm.vorname"
+              (input)="clearInvalid('vorname')"
+              [class.is-invalid]="fieldInvalid('vorname')"
+              [attr.aria-invalid]="fieldInvalid('vorname') || null"
               name="vorname"
               required
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.lastName ?? 'Nachname' }} *:</label>
+            <label for="booking-nachname"
+              >{{ t().rentalSteps?.lastName ?? 'Nachname' }} *:</label
+            >
             <input
+              id="booking-nachname"
               type="text"
+              autocomplete="family-name"
               [(ngModel)]="bookingForm.nachname"
+              (input)="clearInvalid('nachname')"
+              [class.is-invalid]="fieldInvalid('nachname')"
+              [attr.aria-invalid]="fieldInvalid('nachname') || null"
               name="nachname"
               required
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.email ?? 'E-Mail' }} *:</label>
+            <label for="booking-email"
+              >{{ t().rentalSteps?.email ?? 'E-Mail' }} *:</label
+            >
             <input
+              id="booking-email"
               type="email"
+              autocomplete="email"
               [(ngModel)]="bookingForm.email"
+              (input)="clearInvalid('email')"
+              [class.is-invalid]="fieldInvalid('email')"
+              [attr.aria-invalid]="fieldInvalid('email') || null"
               name="email"
               required
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.phone ?? 'Telefon' }} *:</label>
+            <label for="booking-telefon"
+              >{{ t().rentalSteps?.phone ?? 'Telefon' }} *:</label
+            >
             <input
+              id="booking-telefon"
               type="tel"
+              autocomplete="tel"
               [(ngModel)]="bookingForm.telefon"
+              (input)="clearInvalid('telefon')"
+              [class.is-invalid]="fieldInvalid('telefon')"
+              [attr.aria-invalid]="fieldInvalid('telefon') || null"
               name="telefon"
               required
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.street ?? 'Straße' }} *:</label>
+            <label for="booking-strasse"
+              >{{ t().rentalSteps?.street ?? 'Straße' }} *:</label
+            >
             <input
+              id="booking-strasse"
               type="text"
+              autocomplete="address-line1"
               [(ngModel)]="bookingForm.strasse"
+              (input)="clearInvalid('strasse')"
+              [class.is-invalid]="fieldInvalid('strasse')"
+              [attr.aria-invalid]="fieldInvalid('strasse') || null"
               name="strasse"
               required
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.houseNumber ?? 'Hausnummer' }} *:</label>
+            <label for="booking-hausNr"
+              >{{ t().rentalSteps?.houseNumber ?? 'Hausnummer' }} *:</label
+            >
             <input
+              id="booking-hausNr"
               type="text"
+              autocomplete="address-line2"
               [(ngModel)]="bookingForm.hausNr"
+              (input)="clearInvalid('hausNr')"
+              [class.is-invalid]="fieldInvalid('hausNr')"
+              [attr.aria-invalid]="fieldInvalid('hausNr') || null"
               name="hausNr"
               required
             />
           </div>
           <div class="form-group">
-            <label
+            <label for="booking-plz"
               >{{ t().rentalSteps?.postalCode ?? 'Postleitzahl' }} *:</label
             >
             <input
+              id="booking-plz"
               type="text"
+              autocomplete="postal-code"
               [(ngModel)]="bookingForm.plz"
+              (input)="clearInvalid('plz')"
+              [class.is-invalid]="fieldInvalid('plz')"
+              [attr.aria-invalid]="fieldInvalid('plz') || null"
               name="plz"
               required
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.city ?? 'Stadt' }} *:</label>
+            <label for="booking-ort"
+              >{{ t().rentalSteps?.city ?? 'Stadt' }} *:</label
+            >
             <input
+              id="booking-ort"
               type="text"
+              autocomplete="address-level2"
               [(ngModel)]="bookingForm.ort"
+              (input)="clearInvalid('ort')"
+              [class.is-invalid]="fieldInvalid('ort')"
+              [attr.aria-invalid]="fieldInvalid('ort') || null"
               name="ort"
               required
             />
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.pickupTime ?? 'Abholzeit' }} *:</label>
+            <label for="booking-abholzeit"
+              >{{ t().rentalSteps?.pickupTime ?? 'Abholzeit' }} *:</label
+            >
             <select
+              id="booking-abholzeit"
               [(ngModel)]="bookingForm.abholzeit"
+              (change)="clearInvalid('abholzeit')"
+              [class.is-invalid]="fieldInvalid('abholzeit')"
+              [attr.aria-invalid]="fieldInvalid('abholzeit') || null"
               name="abholzeit"
               required
             >
@@ -1141,8 +1225,11 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             </small>
           </div>
           <div class="form-group">
-            <label>{{ t().rentalSteps?.notes ?? 'Notizen' }}:</label>
+            <label for="booking-notizen"
+              >{{ t().rentalSteps?.notes ?? 'Notizen' }}:</label
+            >
             <textarea
+              id="booking-notizen"
               [(ngModel)]="bookingForm.notizen"
               name="notizen"
             ></textarea>
@@ -1280,6 +1367,33 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           </p>
         </div>
 
+        <!-- Was bei der Abholung passiert: ohne diesen Block erwartet mancher
+             Gast nach "Buchung bestätigen" eine Bezahlseite — und die
+             Nur-bar-Regel der Kaution stand bisher allein in der E-Mail. -->
+        <div class="pickup-info">
+          <h3>
+            {{ t().rentalSteps?.pickupInfoTitle ?? 'Bezahlung & Abholung' }}
+          </h3>
+          <p>
+            {{
+              t().rentalSteps?.paymentAtPickupNote ??
+                'Keine Online-Zahlung: Miete und Kaution zahlen Sie bequem bei der Abholung im Laden (Miete bar oder mit Karte).'
+            }}
+          </p>
+          <p *ngIf="hasKnownDeposit()">
+            {{
+              t().rentalSteps?.depositCashNote ??
+                'Wichtig: Die Kaution kann ausschließlich in bar bezahlt werden.'
+            }}
+          </p>
+          <p>
+            {{
+              t().rentalSteps?.bringPhotoIdNote ??
+                'Bitte bringen Sie zur Abholung einen gültigen Lichtbildausweis mit.'
+            }}
+          </p>
+        </div>
+
         <div class="terms-acceptance">
           <label class="terms-label">
             <!-- Den Zustand aus dem Häkchen selbst lesen, nicht blind umdrehen:
@@ -1360,6 +1474,29 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               'Ihre Buchung ist bereits bestätigt – eine weitere Freigabe ist nicht nötig.'
           }}
         </p>
+
+        <!-- Abhol-Fakten auch hier: die Erfolgsseite ist der Screenshot- und
+             Spam-Ordner-Fallback der Bestätigungsmail. -->
+        <div class="pickup-info pickup-info--success">
+          <p>
+            {{
+              t().rentalSteps?.paymentAtPickupNote ??
+                'Keine Online-Zahlung: Miete und Kaution zahlen Sie bequem bei der Abholung im Laden (Miete bar oder mit Karte).'
+            }}
+          </p>
+          <p *ngIf="hasKnownDeposit()">
+            {{
+              t().rentalSteps?.depositCashNote ??
+                'Wichtig: Die Kaution kann ausschließlich in bar bezahlt werden.'
+            }}
+          </p>
+          <p>
+            {{
+              t().rentalSteps?.bringPhotoIdNote ??
+                'Bitte bringen Sie zur Abholung einen gültigen Lichtbildausweis mit.'
+            }}
+          </p>
+        </div>
 
         <div class="success-actions">
           <button
@@ -2570,14 +2707,23 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
       }
 
       .form-group input,
+      .form-group select,
       .form-group textarea {
         padding: 0.75rem;
         border: 1px solid var(--rb-border);
         border-radius: 6px;
-        font-size: 0.95rem;
+        /* 16px fest, nicht rem: unter 16px zoomt iOS-Safari bei jedem Fokus
+           in das Formular hinein (Mobile-Root ist 15px). */
+        font-size: 16px;
         font-family: inherit;
         background: var(--rb-surface);
         color: var(--rb-text);
+      }
+
+      .form-group input.is-invalid,
+      .form-group select.is-invalid,
+      .form-group textarea.is-invalid {
+        border-color: #ef4444;
       }
 
       .form-group textarea {
@@ -2947,6 +3093,51 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         color: var(--rb-text-soft) !important;
         font-style: italic;
         margin-top: 1rem !important;
+      }
+
+      .trust-row {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 1.25rem;
+        padding: 0;
+        margin: -0.25rem 0 1.25rem;
+      }
+
+      .trust-row li {
+        font-size: 0.85rem;
+        color: var(--rb-text-soft);
+      }
+
+      .trust-row li::before {
+        content: '✓ ';
+        color: #64d68a;
+        font-weight: 700;
+      }
+
+      .pickup-info {
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
+        border-radius: 8px;
+        padding: 1.1rem 1.25rem;
+        margin-bottom: 2rem;
+      }
+
+      .pickup-info h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1.02rem;
+      }
+
+      .pickup-info p {
+        margin: 0.4rem 0;
+        font-size: 0.9rem;
+        color: var(--rb-text-soft);
+      }
+
+      .pickup-info--success {
+        margin: 1.25rem auto;
+        max-width: 420px;
+        text-align: left;
       }
 
       .success-section {
@@ -4799,70 +4990,103 @@ export class RentalBookingStepsComponent implements OnInit {
       });
   }
 
+  /**
+   * Felder, die beim letzten Absenden ungültig waren. Steuert die rote
+   * Markierung im Formular; eine Eingabe im Feld nimmt sie wieder weg.
+   */
+  invalidFields = signal<ReadonlySet<string>>(new Set<string>());
+
+  fieldInvalid(field: string): boolean {
+    return this.invalidFields().has(field);
+  }
+
+  clearInvalid(field: string): void {
+    if (!this.invalidFields().has(field)) return;
+    this.invalidFields.update((fields) => {
+      const next = new Set(fields);
+      next.delete(field);
+      return next;
+    });
+  }
+
   validateForm(): boolean {
-    if (!this.bookingForm.vorname.trim()) {
-      this.bookingError.set(
-        this.t().rentalSteps?.firstNameRequired ?? 'Vorname erforderlich',
-      );
-      return false;
-    }
-    if (!this.bookingForm.nachname.trim()) {
-      this.bookingError.set(
-        this.t().rentalSteps?.lastNameRequired ?? 'Nachname erforderlich',
-      );
-      return false;
-    }
+    // Alle Fehler auf einmal einsammeln statt beim ersten abzubrechen: vorher
+    // brauchte der Gast pro fehlendem Feld eine eigene Absende-Runde und
+    // musste das gemeinte Feld selbst suchen.
+    const rs = this.t().rentalSteps;
+    const errors: { field: string; message: string }[] = [];
+    if (!this.bookingForm.vorname.trim())
+      errors.push({
+        field: 'vorname',
+        message: rs?.firstNameRequired ?? 'Vorname erforderlich',
+      });
+    if (!this.bookingForm.nachname.trim())
+      errors.push({
+        field: 'nachname',
+        message: rs?.lastNameRequired ?? 'Nachname erforderlich',
+      });
     if (
       !this.bookingForm.email.trim() ||
       !this.isValidEmail(this.bookingForm.email)
-    ) {
-      this.bookingError.set(
-        this.t().rentalSteps?.emailRequired ?? 'Gültige E-Mail erforderlich',
-      );
-      return false;
-    }
-    if (!this.bookingForm.telefon.trim()) {
-      this.bookingError.set(
-        this.t().rentalSteps?.phoneRequired ?? 'Telefon erforderlich',
-      );
-      return false;
-    }
-    if (!this.bookingForm.strasse.trim()) {
-      this.bookingError.set(
-        this.t().rentalSteps?.streetRequired ?? 'Straße erforderlich',
-      );
-      return false;
-    }
-    if (!this.bookingForm.hausNr.trim()) {
-      this.bookingError.set(
-        this.t().rentalSteps?.houseNumberRequired ?? 'Hausnummer erforderlich',
-      );
-      return false;
-    }
-    if (!this.bookingForm.plz.trim()) {
-      this.bookingError.set(
-        this.t().rentalSteps?.postalCodeRequired ?? 'Postleitzahl erforderlich',
-      );
-      return false;
-    }
-    if (!this.bookingForm.ort.trim()) {
-      this.bookingError.set(
-        this.t().rentalSteps?.cityRequired ?? 'Stadt erforderlich',
-      );
-      return false;
-    }
+    )
+      errors.push({
+        field: 'email',
+        message: rs?.emailRequired ?? 'Gültige E-Mail erforderlich',
+      });
+    if (!this.bookingForm.telefon.trim())
+      errors.push({
+        field: 'telefon',
+        message: rs?.phoneRequired ?? 'Telefon erforderlich',
+      });
+    if (!this.bookingForm.strasse.trim())
+      errors.push({
+        field: 'strasse',
+        message: rs?.streetRequired ?? 'Straße erforderlich',
+      });
+    if (!this.bookingForm.hausNr.trim())
+      errors.push({
+        field: 'hausNr',
+        message: rs?.houseNumberRequired ?? 'Hausnummer erforderlich',
+      });
+    if (!this.bookingForm.plz.trim())
+      errors.push({
+        field: 'plz',
+        message: rs?.postalCodeRequired ?? 'Postleitzahl erforderlich',
+      });
+    if (!this.bookingForm.ort.trim())
+      errors.push({
+        field: 'ort',
+        message: rs?.cityRequired ?? 'Stadt erforderlich',
+      });
     if (
       !this.bookingForm.abholzeit ||
       !this.abholzeitSlots().includes(this.bookingForm.abholzeit)
-    ) {
-      this.bookingError.set(
-        this.t().rentalSteps?.pickupTimeRequired ??
-          'Bitte wählen Sie eine Abholzeit',
-      );
+    )
+      errors.push({
+        field: 'abholzeit',
+        message: rs?.pickupTimeRequired ?? 'Bitte wählen Sie eine Abholzeit',
+      });
+
+    this.invalidFields.set(new Set(errors.map((e) => e.field)));
+    if (errors.length > 0) {
+      this.bookingError.set(errors[0].message);
+      this.focusField(errors[0].field);
       return false;
     }
     this.bookingError.set('');
     return true;
+  }
+
+  /**
+   * Fokussiert das erste ungültige Feld, sobald die Markierungen gerendert
+   * sind. Läuft nur nach einem Klick, also immer im Browser.
+   */
+  private focusField(field: string): void {
+    setTimeout(() => {
+      const el = document.getElementById(`booking-${field}`);
+      el?.focus({ preventScroll: true });
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   }
 
   isValidEmail(email: string): boolean {

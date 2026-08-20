@@ -16,14 +16,14 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   es: {
     serviceHighlightsAria: 'Aspectos destacados del servicio',
     heroChip: 'Alquiler de Bicicletas Freiburg',
-    heroAccent: 'a partir de 8 €',
+    heroAccent: 'a partir de 12 €',
     heroDescription:
       'Los días 1 a 7 se calculan individualmente para cada bicicleta, a partir del día 8 se aplica un complemento fijo. Retiro directo en nuestro establecimiento en Freiburg.',
     heroFeatures: [
       'Candado incluido',
       'Casco gratis',
       'Disponible inmediatamente',
-      'Depósito de 100 EUR (efectivo)',
+      'Depósito según la bici (efectivo)',
     ],
     heroPriceCard: {
       badge: 'Lógica de precios personalizada',
@@ -108,7 +108,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
     ],
     pricingInfo: [
-      { title: 'Depósito', text: '100 EUR en efectivo, reembolsado al retiro' },
+      {
+        title: 'Depósito',
+        text: 'Según la bici, en efectivo – se muestra durante la reserva',
+      },
       {
         title: 'Incluido',
         text: 'Candado y casco incluidos sin cargo adicional',
@@ -169,14 +172,14 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   it: {
     serviceHighlightsAria: 'Punti forti del servizio',
     heroChip: 'Noleggio bici Friburgo',
-    heroAccent: 'a partire da 8 €',
+    heroAccent: 'a partire da 12 €',
     heroDescription:
       'I giorni 1-7 sono calcolati individualmente per ogni bici, dal giorno 8 in poi si applica un supplemento fisso al giorno. Ritira direttamente presso il nostro negozio a Friburgo.',
     heroFeatures: [
       'Lucchetto incluso',
       'Casco gratuito',
       'Disponibile subito',
-      'Deposito 100 EUR (contanti)',
+      'Deposito in base alla bici (contanti)',
     ],
     heroPriceCard: {
       badge: 'Logica di prezzo personalizzata',
@@ -249,7 +252,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
     ],
     pricingInfo: [
-      { title: 'Deposito', text: '100 EUR contanti, rimborsato al ritiro' },
+      {
+        title: 'Deposito',
+        text: 'In base alla bici, in contanti – mostrato durante la prenotazione',
+      },
       {
         title: 'Sempre incluso',
         text: 'Lucchetto e casco inclusi senza costi aggiuntivi',
@@ -310,14 +316,14 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   ar: {
     serviceHighlightsAria: 'نقاط قوة الخدمة',
     heroChip: 'استئجار الدراجات فرايبورج',
-    heroAccent: 'ابتداءً من 8 €',
+    heroAccent: 'ابتداءً من 12 €',
     heroDescription:
       'يتم حساب الأيام من 1 إلى 7 بشكل فردي لكل دراجة، ثم يتم تطبيق رسم إضافي ثابت من اليوم 8. الاستلام المباشر من متجرنا في فرايبورج.',
     heroFeatures: [
       'القفل مدرج',
       'الخوذة مجانية',
       'متاح فورًا',
-      'إيداع 300 يورو (نقدًا)',
+      'الإيداع حسب الدراجة (نقدًا)',
     ],
     heroPriceCard: {
       badge: 'منطق التسعير الفردي',
@@ -390,7 +396,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
     ],
     pricingInfo: [
-      { title: 'الإيداع', text: '300 يورو نقدًا، يتم رده عند الإرجاع' },
+      {
+        title: 'الإيداع',
+        text: 'مبلغ التأمين يعتمد على الدراجة، نقدًا – يظهر أثناء الحجز',
+      },
       {
         title: 'مدرج دائمًا',
         text: 'القفل والخوذة مدرج بدون رسم إضافي',
@@ -458,14 +467,14 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   ru: {
     serviceHighlightsAria: 'Основные достоинства услуги',
     heroChip: 'Аренда велосипедов Фрайбург',
-    heroAccent: 'от 8 €',
+    heroAccent: 'от 12 €',
     heroDescription:
       'Дни 1-7 рассчитываются индивидуально для каждого велосипеда, с 8-го дня применяется фиксированная доплата. Самовывоз прямо в нашем магазине во Фрайбурге.',
     heroFeatures: [
       'Замок включен',
       'Шлем бесплатно',
       'Доступно сразу',
-      '100 EUR залог (наличные)',
+      'Залог зависит от велосипеда (наличные)',
     ],
     heroPriceCard: {
       badge: 'Индивидуальная логика ценообразования',
@@ -538,7 +547,10 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
       },
     ],
     pricingInfo: [
-      { title: 'Залог', text: '100 EUR наличными, возвращается при возврате' },
+      {
+        title: 'Залог',
+        text: 'Зависит от велосипеда, наличными – отображается при бронировании',
+      },
       {
         title: 'Всегда включено',
         text: 'Замок и шлем включены без дополнительной платы',

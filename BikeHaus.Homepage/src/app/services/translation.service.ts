@@ -92,6 +92,18 @@ interface RentalStepsTranslations {
   totalDeposit: string;
   depositNote: string;
   depositCashNote: string;
+  /** Trust badge: the booking is confirmed immediately, no shop approval. */
+  trustInstantConfirm?: string;
+  /** Trust badge: nothing is paid online — payment happens at pickup. */
+  trustPayAtPickup?: string;
+  /** Trust badge: cancellation is free of charge. */
+  trustFreeCancellation?: string;
+  /** Heading of the payment-and-pickup info box on the review/success steps. */
+  pickupInfoTitle?: string;
+  /** Note: no online payment, rent + deposit are settled at pickup in the shop. */
+  paymentAtPickupNote?: string;
+  /** Note: bring a valid photo ID to pickup. */
+  bringPhotoIdNote?: string;
   confirm: string;
   bookingSuccess: string;
   confirmationSent: string;
@@ -4046,6 +4058,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     depositNote: 'Die Kaution wird bei Rückgabe des Fahrrads erstattet.',
     depositCashNote:
       'Wichtig: Die Kaution kann ausschließlich in bar bezahlt werden.',
+    trustInstantConfirm: 'Sofort bestätigt',
+    trustPayAtPickup: 'Keine Online-Zahlung – bezahlt wird bei Abholung',
+    trustFreeCancellation: 'Kostenlose Stornierung',
+    pickupInfoTitle: 'Bezahlung & Abholung',
+    paymentAtPickupNote:
+      'Keine Online-Zahlung: Miete und Kaution zahlen Sie bequem bei der Abholung im Laden (Miete bar oder mit Karte).',
+    bringPhotoIdNote:
+      'Bitte bringen Sie zur Abholung einen gültigen Lichtbildausweis mit.',
     confirm: 'Buchung bestätigen',
     bookingSuccess: 'Buchung erfolgreich!',
     confirmationSent: 'Eine Bestätigungsmail wurde an',
@@ -4187,6 +4207,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Total deposit',
     depositNote: 'The deposit is refunded when the bike is returned.',
     depositCashNote: 'Important: The deposit can only be paid in cash.',
+    trustInstantConfirm: 'Instantly confirmed',
+    trustPayAtPickup: 'No online payment – pay at pickup',
+    trustFreeCancellation: 'Free cancellation',
+    pickupInfoTitle: 'Payment & pickup',
+    paymentAtPickupNote:
+      'No online payment: you pay the rental fee and deposit at pickup in the shop (rental fee by cash or card).',
+    bringPhotoIdNote: 'Please bring a valid photo ID when picking up.',
     confirm: 'Confirm booking',
     bookingSuccess: 'Booking successful!',
     confirmationSent: 'A confirmation email was sent to',
@@ -4330,6 +4357,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     depositNote: 'La caution est remboursée lors de la restitution du vélo.',
     depositCashNote:
       'Important : la caution est payable uniquement en espèces.',
+    trustInstantConfirm: 'Confirmation immédiate',
+    trustPayAtPickup: 'Aucun paiement en ligne – payez au retrait',
+    trustFreeCancellation: 'Annulation gratuite',
+    pickupInfoTitle: 'Paiement et retrait',
+    paymentAtPickupNote:
+      'Aucun paiement en ligne : vous réglez la location et la caution au retrait en magasin (location en espèces ou par carte).',
+    bringPhotoIdNote:
+      "Merci d'apporter une pièce d'identité valide avec photo lors du retrait.",
     confirm: 'Confirmer la réservation',
     bookingSuccess: 'Réservation réussie !',
     confirmationSent: 'Un e-mail de confirmation a été envoyé à',
@@ -4471,6 +4506,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Toplam depozito',
     depositNote: 'Bisiklet iade edildiğinde depozito geri ödenir.',
     depositCashNote: 'Önemli: Depozito yalnızca nakit olarak ödenebilir.',
+    trustInstantConfirm: 'Anında onay',
+    trustPayAtPickup: 'Online ödeme yok – ödeme teslim alırken',
+    trustFreeCancellation: 'Ücretsiz iptal',
+    pickupInfoTitle: 'Ödeme ve teslim alma',
+    paymentAtPickupNote:
+      'Online ödeme yoktur: kira bedelini ve depozitoyu mağazada teslim alırken ödersiniz (kira nakit veya kartla).',
+    bringPhotoIdNote:
+      'Teslim alırken lütfen geçerli, fotoğraflı bir kimlik belgesi getirin.',
     confirm: 'Rezervasyonu onayla',
     bookingSuccess: 'Rezervasyon başarılı!',
     confirmationSent: 'Onay e-postası şu adrese gönderildi',
@@ -4600,6 +4643,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Depósito total',
     depositNote: 'El depósito se devuelve al entregar la bicicleta.',
     depositCashNote: 'Importante: el depósito solo se puede pagar en efectivo.',
+    trustInstantConfirm: 'Confirmación inmediata',
+    trustPayAtPickup: 'Sin pago online: se paga al recoger',
+    trustFreeCancellation: 'Cancelación gratuita',
+    pickupInfoTitle: 'Pago y recogida',
+    paymentAtPickupNote:
+      'Sin pago online: el alquiler y el depósito se pagan al recoger la bici en la tienda (alquiler en efectivo o con tarjeta).',
+    bringPhotoIdNote:
+      'Por favor, trae un documento de identidad válido con foto al recoger.',
     confirm: 'Confirmar reserva',
     bookingSuccess: '¡Reserva exitosa!',
     confirmationSent: 'Se envió un correo de confirmación a',
@@ -4731,6 +4782,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     depositNote: 'Il deposito viene restituito alla riconsegna della bici.',
     depositCashNote:
       'Importante: il deposito può essere pagato solo in contanti.',
+    trustInstantConfirm: 'Conferma immediata',
+    trustPayAtPickup: 'Nessun pagamento online: si paga al ritiro',
+    trustFreeCancellation: 'Cancellazione gratuita',
+    pickupInfoTitle: 'Pagamento e ritiro',
+    paymentAtPickupNote:
+      'Nessun pagamento online: noleggio e cauzione si pagano al ritiro in negozio (noleggio in contanti o con carta).',
+    bringPhotoIdNote:
+      "Al ritiro porta con te un documento d'identità valido con foto.",
     confirm: 'Conferma prenotazione',
     bookingSuccess: 'Prenotazione completata!',
     confirmationSent: 'Una email di conferma è stata inviata a',
@@ -4861,6 +4920,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'إجمالي التأمين',
     depositNote: 'يتم رد مبلغ التأمين عند إعادة الدراجة.',
     depositCashNote: 'مهم: لا يمكن دفع مبلغ التأمين إلا نقدًا.',
+    trustInstantConfirm: 'تأكيد فوري',
+    trustPayAtPickup: 'لا دفع عبر الإنترنت – الدفع عند الاستلام',
+    trustFreeCancellation: 'إلغاء مجاني',
+    pickupInfoTitle: 'الدفع والاستلام',
+    paymentAtPickupNote:
+      'لا يوجد دفع عبر الإنترنت: تدفع قيمة الإيجار ومبلغ التأمين عند الاستلام في المتجر (الإيجار نقدًا أو بالبطاقة).',
+    bringPhotoIdNote: 'يرجى إحضار بطاقة هوية سارية تحمل صورة عند الاستلام.',
     confirm: 'تأكيد الحجز',
     bookingSuccess: 'تم الحجز بنجاح!',
     confirmationSent: 'تم إرسال رسالة تأكيد إلى',
@@ -4988,6 +5054,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Итого залог',
     depositNote: 'Залог возвращается при возврате велосипеда.',
     depositCashNote: 'Важно: залог можно оплатить только наличными.',
+    trustInstantConfirm: 'Мгновенное подтверждение',
+    trustPayAtPickup: 'Без онлайн-оплаты – оплата при получении',
+    trustFreeCancellation: 'Бесплатная отмена',
+    pickupInfoTitle: 'Оплата и получение',
+    paymentAtPickupNote:
+      'Онлайн-оплаты нет: аренду и залог вы оплачиваете при получении в магазине (аренду — наличными или картой).',
+    bringPhotoIdNote:
+      'Пожалуйста, возьмите с собой действительное удостоверение личности с фотографией.',
     confirm: 'Подтвердить бронирование',
     bookingSuccess: 'Бронирование успешно!',
     confirmationSent: 'Письмо с подтверждением отправлено на',
@@ -5130,6 +5204,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Totale borg',
     depositNote: 'De borg wordt terugbetaald wanneer de fiets wordt teruggebracht.',
     depositCashNote: 'Belangrijk: de borg kan alleen contant worden betaald.',
+    trustInstantConfirm: 'Direct bevestigd',
+    trustPayAtPickup: 'Geen online betaling – betalen bij afhalen',
+    trustFreeCancellation: 'Gratis annuleren',
+    pickupInfoTitle: 'Betaling & afhalen',
+    paymentAtPickupNote:
+      'Geen online betaling: huur en borg betaalt u bij het afhalen in de winkel (huur contant of met kaart).',
+    bringPhotoIdNote:
+      'Neem bij het afhalen een geldig identiteitsbewijs met foto mee.',
     confirm: 'Boeking bevestigen',
     bookingSuccess: 'Boeking geslaagd!',
     confirmationSent: 'Een bevestigingsmail is verzonden naar',
@@ -5272,6 +5354,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Depositum i alt',
     depositNote: 'Depositummet tilbagebetales, når cyklen returneres.',
     depositCashNote: 'Vigtigt: Depositummet kan kun betales kontant.',
+    trustInstantConfirm: 'Bekræftes med det samme',
+    trustPayAtPickup: 'Ingen onlinebetaling – betal ved afhentning',
+    trustFreeCancellation: 'Gratis afbestilling',
+    pickupInfoTitle: 'Betaling & afhentning',
+    paymentAtPickupNote:
+      'Ingen onlinebetaling: leje og depositum betales ved afhentning i butikken (leje kontant eller med kort).',
+    bringPhotoIdNote:
+      'Medbring venligst gyldig billedlegitimation ved afhentning.',
     confirm: 'Bekræft booking',
     bookingSuccess: 'Booking gennemført!',
     confirmationSent: 'En bekræftelsesmail blev sendt til',
@@ -5414,6 +5504,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Totalt depositum',
     depositNote: 'Depositumet tilbakebetales når sykkelen leveres tilbake.',
     depositCashNote: 'Viktig: Depositumet kan kun betales kontant.',
+    trustInstantConfirm: 'Bekreftes umiddelbart',
+    trustPayAtPickup: 'Ingen nettbetaling – betal ved henting',
+    trustFreeCancellation: 'Gratis avbestilling',
+    pickupInfoTitle: 'Betaling og henting',
+    paymentAtPickupNote:
+      'Ingen nettbetaling: leie og depositum betales ved henting i butikken (leie kontant eller med kort).',
+    bringPhotoIdNote: 'Ta med gyldig legitimasjon med bilde ved henting.',
     confirm: 'Bekreft bestilling',
     bookingSuccess: 'Bestilling vellykket!',
     confirmationSent: 'En bekreftelses-e-post ble sendt til',
@@ -5557,6 +5654,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Całkowita kaucja',
     depositNote: 'Kaucja jest zwracana po oddaniu roweru.',
     depositCashNote: 'Ważne: Kaucję można zapłacić tylko gotówką.',
+    trustInstantConfirm: 'Natychmiastowe potwierdzenie',
+    trustPayAtPickup: 'Bez płatności online – płatność przy odbiorze',
+    trustFreeCancellation: 'Bezpłatne anulowanie',
+    pickupInfoTitle: 'Płatność i odbiór',
+    paymentAtPickupNote:
+      'Bez płatności online: czynsz i kaucję płacisz przy odbiorze w sklepie (czynsz gotówką lub kartą).',
+    bringPhotoIdNote:
+      'Prosimy zabrać ze sobą ważny dokument tożsamości ze zdjęciem przy odbiorze.',
     confirm: 'Potwierdź rezerwację',
     bookingSuccess: 'Rezerwacja udana!',
     confirmationSent: 'E-mail z potwierdzeniem został wysłany na',
