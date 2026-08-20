@@ -185,6 +185,20 @@ interface RentalStepsTranslations {
   decreaseQuantity?: string;
   /** aria-label for the "+" quantity button. */
   increaseQuantity?: string;
+  /** CTA in the empty-availability state: pick a different rental period. */
+  changeDates?: string;
+  /** Full success sentence; {email} is replaced with the customer's email address. */
+  confirmationSentTo?: string;
+  /** Bike-card price line; {price} and {days} are replaced at runtime (e.g. "45 € for 3 days"). */
+  priceForDaysText?: string;
+  /** Singular bike-card price line; {price} is replaced at runtime (e.g. "15 € for 1 day"). */
+  priceForOneDayText?: string;
+  /** Terms-acceptance sentence; {link} is replaced with the translated termsLinkText rendered as a hyperlink. */
+  termsSentence?: string;
+  /** Cart-count sentence, singular; {count} is replaced with the number of bikes. */
+  bikeInBookingText?: string;
+  /** Cart-count sentence, plural; {count} is replaced with the number of bikes. */
+  bikesInBookingText?: string;
 }
 
 /**
@@ -4131,6 +4145,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Mehrere Kinderräder dieser Größe können Sie in einem Schritt buchen.',
     decreaseQuantity: 'Anzahl verringern',
     increaseQuantity: 'Anzahl erhöhen',
+    changeDates: 'Anderen Zeitraum wählen',
+    confirmationSentTo: 'Eine Bestätigungsmail wurde an {email} gesendet.',
+    priceForDaysText: '{price} für {days} Tage',
+    priceForOneDayText: '{price} für 1 Tag',
+    termsSentence: 'Ich akzeptiere die {link}',
+    bikeInBookingText: '{count} Fahrrad in der Buchung',
+    bikesInBookingText: '{count} Fahrräder in der Buchung',
   },
   en: {
     dateSelection: 'Choose date',
@@ -4279,6 +4300,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       "Book several children's bikes of this size in one step.",
     decreaseQuantity: 'Decrease quantity',
     increaseQuantity: 'Increase quantity',
+    changeDates: 'Choose a different period',
+    confirmationSentTo: 'A confirmation email has been sent to {email}.',
+    priceForDaysText: '{price} for {days} days',
+    priceForOneDayText: '{price} for 1 day',
+    termsSentence: 'I accept the {link}',
+    bikeInBookingText: '{count} bike in your booking',
+    bikesInBookingText: '{count} bikes in your booking',
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -4430,6 +4458,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Réservez plusieurs vélos enfant de cette taille en une seule étape.',
     decreaseQuantity: 'Diminuer la quantité',
     increaseQuantity: 'Augmenter la quantité',
+    changeDates: 'Choisir une autre période',
+    confirmationSentTo: 'Un e-mail de confirmation a été envoyé à {email}.',
+    priceForDaysText: '{price} pour {days} jours',
+    priceForOneDayText: '{price} pour 1 jour',
+    termsSentence: "J'accepte les {link}",
+    bikeInBookingText: '{count} vélo dans la réservation',
+    bikesInBookingText: '{count} vélos dans la réservation',
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -4579,10 +4614,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Bu bedendeki birden fazla çocuk bisikletini tek adımda rezerve edebilirsiniz.',
     decreaseQuantity: 'Adedi azalt',
     increaseQuantity: 'Adedi artır',
+    changeDates: 'Başka tarih seç',
+    confirmationSentTo: 'Onay e-postası {email} adresine gönderildi.',
+    priceForDaysText: '{days} gün için {price}',
+    priceForOneDayText: '1 gün için {price}',
+    termsSentence: "{link}'nı kabul ediyorum",
+    bikeInBookingText: 'Rezervasyonda {count} bisiklet',
+    bikesInBookingText: 'Rezervasyonda {count} bisiklet',
   },
   es: {
     dateSelection: 'Elegir fecha',
     bikeSelection: 'Elegir bicicleta',
+    accessoryStep: 'Accesorios',
+    accessoryTitle: 'Añadir accesorios',
+    accessorySubtitle: 'Accesorios opcionales para su alquiler (precio por día).',
+    accessoryNone: 'No hay accesorios disponibles.',
+    accessoryTotal: 'Total accesorios',
     customerInfo: 'Ingresar datos',
     review: 'Confirmación',
     selectDates: 'Elige un período',
@@ -4598,6 +4645,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     accessoryOneTime: 'único',
     accessoryOnlyIfUsed: 'solo si se usa',
     free: 'Gratis',
+    pickupTime: 'Hora de recogida',
+    pickupTimeSelect: 'Elegir una hora',
+    pickupTimeHint: '¿A qué hora desea recoger la bicicleta?',
+    pickupTimeClosed:
+      'Ese día la tienda está cerrada. Por favor, elija otra fecha de inicio.',
+    pickupTimeRequired: 'Por favor, elija una hora de recogida',
+    oClock: '',
     to: 'hasta',
     calendarHint:
       'Selecciona primero la fecha de inicio y luego la de fin. Los domingos y festivos están cerrados.',
@@ -4717,10 +4771,23 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Reserve varias bicicletas infantiles de esta talla en un solo paso.',
     decreaseQuantity: 'Reducir cantidad',
     increaseQuantity: 'Aumentar cantidad',
+    changeDates: 'Elegir otro período',
+    confirmationSentTo: 'Se ha enviado un correo de confirmación a {email}.',
+    priceForDaysText: '{price} por {days} días',
+    priceForOneDayText: '{price} por 1 día',
+    termsSentence: 'Acepto los {link}',
+    bikeInBookingText: '{count} bicicleta en la reserva',
+    bikesInBookingText: '{count} bicicletas en la reserva',
   },
   it: {
     dateSelection: 'Scegli data',
     bikeSelection: 'Scegli bici',
+    accessoryStep: 'Accessori',
+    accessoryTitle: 'Aggiungi accessori',
+    accessorySubtitle:
+      'Accessori opzionali per il tuo noleggio (prezzo al giorno).',
+    accessoryNone: 'Nessun accessorio disponibile.',
+    accessoryTotal: 'Totale accessori',
     customerInfo: 'Inserisci dati',
     review: 'Conferma',
     selectDates: 'Scegli un periodo',
@@ -4736,6 +4803,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     accessoryOneTime: 'una volta',
     accessoryOnlyIfUsed: 'solo se usato',
     free: 'Gratis',
+    pickupTime: 'Orario di ritiro',
+    pickupTimeSelect: 'Scegli un orario',
+    pickupTimeHint: 'A che ora vuoi ritirare la bici?',
+    pickupTimeClosed:
+      "In questo giorno siamo chiusi. Scegli un'altra data di inizio.",
+    pickupTimeRequired: 'Scegli un orario di ritiro',
+    oClock: '',
     to: 'a',
     calendarHint:
       'Seleziona prima la data di inizio e poi la data di fine. Le domeniche e i giorni festivi sono chiusi.',
@@ -4856,10 +4930,22 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Prenota più bici per bambini di questa misura in un unico passaggio.',
     decreaseQuantity: 'Diminuisci quantità',
     increaseQuantity: 'Aumenta quantità',
+    changeDates: 'Scegli un altro periodo',
+    confirmationSentTo: 'Una email di conferma è stata inviata a {email}.',
+    priceForDaysText: '{price} per {days} giorni',
+    priceForOneDayText: '{price} per 1 giorno',
+    termsSentence: 'Accetto i {link}',
+    bikeInBookingText: '{count} bici nella prenotazione',
+    bikesInBookingText: '{count} bici nella prenotazione',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
     bikeSelection: 'اختيار الدراجة',
+    accessoryStep: 'الإكسسوارات',
+    accessoryTitle: 'إضافة إكسسوارات',
+    accessorySubtitle: 'إكسسوارات اختيارية لإيجارك (السعر لليوم الواحد).',
+    accessoryNone: 'لا توجد إكسسوارات متاحة.',
+    accessoryTotal: 'إجمالي الإكسسوارات',
     customerInfo: 'إدخال البيانات',
     review: 'التأكيد',
     selectDates: 'اختر فترة',
@@ -4875,6 +4961,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     accessoryOneTime: 'لمرة واحدة',
     accessoryOnlyIfUsed: 'فقط في حال الاستخدام',
     free: 'مجانًا',
+    pickupTime: 'وقت الاستلام',
+    pickupTimeSelect: 'اختر وقتًا',
+    pickupTimeHint: 'في أي وقت تود استلام الدراجة؟',
+    pickupTimeClosed:
+      'المتجر مغلق في هذا اليوم. يرجى اختيار تاريخ بدء آخر.',
+    pickupTimeRequired: 'يرجى اختيار وقت الاستلام',
+    oClock: '',
     to: 'إلى',
     calendarHint:
       'اختر تاريخ البدء أولاً ثم تاريخ الانتهاء. أيام الأحد والعطل الرسمية مغلقة.',
@@ -4990,10 +5083,23 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'يمكنك حجز عدة دراجات أطفال بهذا المقاس في خطوة واحدة.',
     decreaseQuantity: 'تقليل الكمية',
     increaseQuantity: 'زيادة الكمية',
+    changeDates: 'اختيار فترة أخرى',
+    confirmationSentTo: 'تم إرسال رسالة تأكيد إلى {email}.',
+    priceForDaysText: '{price} لمدة {days} أيام',
+    priceForOneDayText: '{price} ليوم واحد',
+    termsSentence: 'أوافق على {link}',
+    bikeInBookingText: '{count} دراجة في الحجز',
+    bikesInBookingText: '{count} دراجات في الحجز',
   },
   ru: {
     dateSelection: 'Выбор даты',
     bikeSelection: 'Выбор велосипеда',
+    accessoryStep: 'Аксессуары',
+    accessoryTitle: 'Добавить аксессуары',
+    accessorySubtitle:
+      'Дополнительные аксессуары к вашей аренде (цена за день).',
+    accessoryNone: 'Нет доступных аксессуаров.',
+    accessoryTotal: 'Итого за аксессуары',
     customerInfo: 'Ввод данных',
     review: 'Подтверждение',
     selectDates: 'Выберите период',
@@ -5009,6 +5115,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     accessoryOneTime: 'разово',
     accessoryOnlyIfUsed: 'только при использовании',
     free: 'Бесплатно',
+    pickupTime: 'Время получения',
+    pickupTimeSelect: 'Выберите время',
+    pickupTimeHint: 'В какое время вы хотите забрать велосипед?',
+    pickupTimeClosed:
+      'В этот день магазин закрыт. Пожалуйста, выберите другую дату начала.',
+    pickupTimeRequired: 'Пожалуйста, выберите время получения',
+    oClock: '',
     to: 'до',
     calendarHint:
       'Сначала выберите дату начала, затем дату окончания. Воскресенья и официальные праздники закрыты.',
@@ -5127,6 +5240,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Забронируйте несколько детских велосипедов этого размера за один шаг.',
     decreaseQuantity: 'Уменьшить количество',
     increaseQuantity: 'Увеличить количество',
+    changeDates: 'Выбрать другой период',
+    confirmationSentTo: 'Письмо с подтверждением отправлено на {email}.',
+    priceForDaysText: '{price} за {days} дн.',
+    priceForOneDayText: '{price} за 1 день',
+    termsSentence: 'Я принимаю {link}',
+    bikeInBookingText: '{count} велосипед в бронировании',
+    bikesInBookingText: '{count} велосипедов в бронировании',
   },
 
   nl: {
@@ -5277,6 +5397,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Boek meerdere kinderfietsen van deze maat in één stap.',
     decreaseQuantity: 'Aantal verlagen',
     increaseQuantity: 'Aantal verhogen',
+    changeDates: 'Andere periode kiezen',
+    confirmationSentTo: 'Een bevestigingsmail is verzonden naar {email}.',
+    priceForDaysText: '{price} voor {days} dagen',
+    priceForOneDayText: '{price} voor 1 dag',
+    termsSentence: 'Ik accepteer de {link}',
+    bikeInBookingText: '{count} fiets in de boeking',
+    bikesInBookingText: '{count} fietsen in de boeking',
   },
 
   da: {
@@ -5427,6 +5554,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Book flere børnecykler i denne størrelse i ét trin.',
     decreaseQuantity: 'Reducer antal',
     increaseQuantity: 'Øg antal',
+    changeDates: 'Vælg en anden periode',
+    confirmationSentTo: 'En bekræftelsesmail er sendt til {email}.',
+    priceForDaysText: '{price} for {days} dage',
+    priceForOneDayText: '{price} for 1 dag',
+    termsSentence: 'Jeg accepterer {link}',
+    bikeInBookingText: '{count} cykel i bookingen',
+    bikesInBookingText: '{count} cykler i bookingen',
   },
 
   no: {
@@ -5577,6 +5711,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Bestill flere barnesykler i denne størrelsen i ett trinn.',
     decreaseQuantity: 'Reduser antall',
     increaseQuantity: 'Øk antall',
+    changeDates: 'Velg en annen periode',
+    confirmationSentTo: 'En bekreftelses-e-post er sendt til {email}.',
+    priceForDaysText: '{price} for {days} dager',
+    priceForOneDayText: '{price} for 1 dag',
+    termsSentence: 'Jeg godtar {link}',
+    bikeInBookingText: '{count} sykkel i bestillingen',
+    bikesInBookingText: '{count} sykler i bestillingen',
   },
 
   pl: {
@@ -5727,6 +5868,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Zarezerwuj kilka rowerów dziecięcych w tym rozmiarze w jednym kroku.',
     decreaseQuantity: 'Zmniejsz ilość',
     increaseQuantity: 'Zwiększ ilość',
+    changeDates: 'Wybierz inny termin',
+    confirmationSentTo:
+      'E-mail z potwierdzeniem został wysłany na adres {email}.',
+    priceForDaysText: '{price} za {days} dni',
+    priceForOneDayText: '{price} za 1 dzień',
+    termsSentence: 'Akceptuję {link}',
+    bikeInBookingText: '{count} rower w rezerwacji',
+    bikesInBookingText: '{count} rowerów w rezerwacji',
   },
 };
 

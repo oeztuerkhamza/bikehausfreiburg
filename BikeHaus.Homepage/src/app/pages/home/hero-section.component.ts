@@ -15,6 +15,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslationService } from '../../services/translation.service';
+import { getRentalBookingPath } from '../../services/language-config';
 
 @Component({
   selector: 'app-hero-section',
@@ -44,6 +45,8 @@ export class HeroSectionComponent implements OnInit, AfterViewInit, OnDestroy {
   private translationService = inject(TranslationService);
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+  /** Lokalisierter Pfad direkt in den Buchungs-Flow (statt Landing-Page). */
+  rentalBookingPath = () => getRentalBookingPath(this.lang());
 
   constructor(@Inject(PLATFORM_ID) private platformId: object) {}
 

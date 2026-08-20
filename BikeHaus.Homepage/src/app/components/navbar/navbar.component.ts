@@ -1,6 +1,7 @@
 import {
   Component,
   ElementRef,
+  computed,
   inject,
   HostListener,
   PLATFORM_ID,
@@ -16,6 +17,7 @@ import { ShopInfoService } from '../../services/shop-info.service';
 import {
   LANGUAGE_LABELS,
   SUPPORTED_LANGUAGES,
+  getRentalSlug,
 } from '../../services/language-config';
 
 @Component({
@@ -57,7 +59,7 @@ import {
 
         <div class="nav-menu" [class.open]="menuOpen">
           <a
-            *ngFor="let link of navLinks"
+            *ngFor="let link of navLinks()"
             [routerLink]="['/' + currentLang(), link.path]"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: link.exact }"
@@ -688,7 +690,8 @@ export class NavbarComponent {
     return LANGUAGE_LABELS[this.currentLang()];
   }
 
-  navLinks = [
+  // computed: der Verleih-Slug ist sprachabhängig (fahrradverleih / bike-rental / …)
+  navLinks = computed(() => [
     { path: 'showroom', label: () => this.t().showroom, exact: false },
     {
       path: 'neue-fahrraeder',
@@ -701,7 +704,7 @@ export class NavbarComponent {
       exact: false,
     },
     {
-      path: 'fahrradverleih',
+      path: getRentalSlug(this.currentLang()),
       label: () => this.t().bikeRental,
       exact: false,
     },
@@ -722,7 +725,7 @@ export class NavbarComponent {
     },
     { path: 'about', label: () => this.t().about, exact: false },
     { path: 'contact', label: () => this.t().contact, exact: false },
-  ];
+  ]);
 
   languages: { code: Language; label: string }[] = SUPPORTED_LANGUAGES.map(
     (code) => ({ code, label: LANGUAGE_LABELS[code] }),

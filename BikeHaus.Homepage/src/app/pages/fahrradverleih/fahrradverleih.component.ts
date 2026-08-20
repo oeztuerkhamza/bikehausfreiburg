@@ -2036,6 +2036,24 @@ interface BikeSlot {
           {{ getLightboxSlot()!.bike.images.length }}
         </div>
       </div>
+
+      <!-- Mobile Sticky-CTA: fixe Leiste am unteren Rand (nur ≤768px),
+           führt wie der Hero-CTA direkt in den Buchungs-Flow. -->
+      <div class="mobile-booking-bar">
+        <a [routerLink]="bookingPath()" class="mobile-booking-btn">
+          {{ t().rentalHeroScrollCta }}
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
     </div>
   `,
   styles: [
@@ -4821,6 +4839,58 @@ interface BikeSlot {
         }
         .reviews-grid {
           grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── Mobile Sticky-CTA-Leiste ──
+         Nur auf kleinen Screens sichtbar; deckender dunkler Grund statt
+         halbtransparenter Fläche (gleiche Konvention wie die Auswahlleiste
+         im Buchungs-Flow). Kein Einblend-Effekt — statisch, damit auch
+         prefers-reduced-motion nichts animiert. */
+      .mobile-booking-bar {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .mobile-booking-bar {
+          display: block;
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 40;
+          padding: 0.65rem 1rem calc(0.65rem + env(safe-area-inset-bottom));
+          background: rgba(10, 16, 28, 0.94);
+          backdrop-filter: blur(8px);
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 -6px 22px rgba(0, 0, 0, 0.45);
+        }
+        .mobile-booking-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          width: 100%;
+          padding: 0.85rem 1.2rem;
+          border-radius: 999px;
+          background: var(--color-accent, #ff5722);
+          color: #fff;
+          font-weight: 700;
+          font-size: 0.95rem;
+          text-decoration: none;
+          box-shadow: 0 10px 30px rgba(255, 87, 34, 0.35);
+        }
+        /* Platz am Seitenende, damit die fixe Leiste keine Inhalte
+           (inkl. Footer-Bereich) verdeckt. */
+        .rental-page {
+          padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .mobile-booking-bar,
+        .mobile-booking-btn {
+          transition: none;
         }
       }
     `,

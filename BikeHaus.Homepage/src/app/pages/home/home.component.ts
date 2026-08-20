@@ -16,6 +16,10 @@ import { BikeCardComponent } from '../../components/bike-card/bike-card.componen
 import { NeueBikeCardComponent } from '../../components/neue-bike-card/neue-bike-card.component';
 import { EBikeCardComponent } from '../../components/e-bike-card/e-bike-card.component';
 import { HeroSectionComponent } from './hero-section.component';
+import {
+  getRentalBookingPath,
+  getRentalSlug,
+} from '../../services/language-config';
 import { environment } from '../../../environments/environment';
 import {
   KleinanzeigenListing,
@@ -151,10 +155,8 @@ interface Testimonial {
               <li>{{ t().homeRentalAvail }}</li>
             </ul>
             <div class="rental-ctas">
-              <a
-                [routerLink]="['/' + lang(), rentalSlug()]"
-                class="rental-cta-primary"
-              >
+              <!-- CTA verspricht Buchung → direkt in den Buchungs-Flow, nicht auf die Landing-Page -->
+              <a [routerLink]="bookingPath()" class="rental-cta-primary">
                 {{ t().homeRentalBookCta }}
                 <svg
                   width="13"
@@ -3052,7 +3054,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
-  rentalSlug = () => (this.lang() === 'en' ? 'bike-rental' : 'fahrradverleih');
+  rentalSlug = () => getRentalSlug(this.lang());
+  bookingPath = () => getRentalBookingPath(this.lang());
 
   listings = signal<KleinanzeigenListing[]>([]);
   categories = signal<KleinanzeigenCategory[]>([]);

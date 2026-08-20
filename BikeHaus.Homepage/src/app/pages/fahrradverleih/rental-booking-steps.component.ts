@@ -318,12 +318,21 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             }}
           </div>
         </div>
+        <!-- Während der Verfügbarkeitsabfrage gesperrt und umbeschriftet:
+             ohne Rückmeldung wirkte der Knopf auf langsamen Verbindungen tot
+             und wurde mehrfach angetippt (jeder Tipp ein weiterer Request). -->
         <button
           (click)="proceedToBikeSelection()"
           class="btn-primary"
-          [disabled]="!selectedStartDate || !selectedEndDate"
+          [disabled]="
+            !selectedStartDate || !selectedEndDate || loadingAvailableBikes()
+          "
         >
-          {{ t().rentalSteps?.continue ?? 'Weiter' }}
+          {{
+            loadingAvailableBikes()
+              ? (t().rentalSteps?.loading ?? 'Laden...')
+              : (t().rentalSteps?.continue ?? 'Weiter')
+          }}
         </button>
         <div *ngIf="dateRangeError()" class="error-message">
           {{ dateRangeError() }}
@@ -348,14 +357,26 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           {{ t().rentalSteps?.loading ?? 'Laden...' }}
         </div>
 
+        <!-- Keine Sackgasse: der Zurück-Knopf hängt weiter unten an der
+             Trefferliste, deshalb braucht der leere Zustand einen eigenen
+             Ausweg zurück zum Kalender. -->
         <div
           *ngIf="!loadingAvailableBikes() && selectableBikes().length === 0"
           class="no-bikes"
         >
-          {{
-            t().rentalSteps?.noBikesAvailable ??
-              'Keine Fahrräder für diesen Zeitraum verfügbar'
-          }}
+          <p class="no-bikes-text">
+            {{
+              t().rentalSteps?.noBikesAvailable ??
+                'Keine Fahrräder für diesen Zeitraum verfügbar'
+            }}
+          </p>
+          <button
+            type="button"
+            class="btn-primary no-bikes-cta"
+            (click)="goToStep('date-selection')"
+          >
+            {{ t().rentalSteps?.changeDates ?? 'Anderen Zeitraum wählen' }}
+          </button>
         </div>
 
         <!-- Anzahl + Typ-Filter: eine lange, ungefilterte Liste ist der Punkt,
@@ -525,16 +546,15 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                    diesen Zeitraum zeigen statt "ab X €/Tag": bisher musste man
                    jedes Rad öffnen, um zu erfahren, was es wirklich kostet. -->
               <div class="price-row" *ngIf="daysCount() > 0">
-                <span class="bike-price">
-                  <strong>{{ formatPrice(calculatePrice(bike, daysCount())) }}</strong>
-                  <span class="price-period">
-                    {{ t().rentalSteps?.forDays ?? 'für' }} {{ daysCount() }}
-                    {{
-                      daysCount() === 1
-                        ? (t().rentalSteps?.day ?? 'Tag')
-                        : (t().rentalSteps?.days ?? 'Tage')
-                    }}
-                  </span>
+                <!-- Muster mit {price}-Platzhalter statt fester Wortstellung:
+                     im Türkischen steht der Preis am Satzende
+                     ("4 gün için 25 €"), im Deutschen vorn. -->
+                <span class="bike-price" *ngIf="priceLineParts() as parts">
+                  <span class="price-period">{{ parts.before }}</span
+                  ><strong>{{
+                    formatPrice(calculatePrice(bike, daysCount()))
+                  }}</strong
+                  ><span class="price-period">{{ parts.after }}</span>
                 </span>
                 <span class="bike-deposit" *ngIf="bike.kaution">
                   {{ t().rentalSteps?.deposit ?? 'Kaution' }}
@@ -605,10 +625,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
 
         <!-- Der Zurück-Knopf stand im Grid und wurde dadurch wie eine weitere
              Fahrradkachel zwischen die Räder gesetzt. -->
-        <div
-          class="selection-actions"
-          *ngIf="!loadingAvailableBikes() && selectableBikes().length > 0"
-        >
+        <div class="selection-actions" *ngIf="!loadingAvailableBikes()">
           <button (click)="goToStep('date-selection')" class="btn-secondary">
             {{ t().rentalSteps?.back ?? 'Zurück' }}
           </button>
@@ -819,14 +836,10 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         </h2>
 
         <div class="cart-summary">
-          <p class="cart-count">
-            <strong>{{ cartBikes().length }}</strong>
-            {{
-              cartBikes().length === 1
-                ? (t().rentalSteps?.bikeInCart ?? 'Fahrrad in der Buchung')
-                : (t().rentalSteps?.bikesInCart ?? 'Fahrräder in der Buchung')
-            }}
-          </p>
+          <!-- Ganzer Satz aus einem Muster statt Zahl + Satzrest: im
+               Türkischen steht die Zahl mitten im Satz
+               ("Rezervasyonda 2 bisiklet"). -->
+          <p class="cart-count">{{ cartCountText() }}</p>
           <ul class="cart-list">
             <li *ngFor="let group of cartGroups()" class="cart-list-item">
               <span class="cart-list-item-name">
@@ -1408,9 +1421,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               (change)="onTermsToggled($event)"
               class="terms-checkbox"
             />
-            <span>
-              {{ t().rentalSteps?.termsPrefix ?? 'Ich akzeptiere die' }}
-              <a
+            <!-- Satzmuster mit {link}: im Türkischen steht das Verb nach dem
+                 Link ("…'nı kabul ediyorum"), ein fester Präfix davor reicht
+                 nicht für alle Sprachen. -->
+            <span *ngIf="termsSentenceParts() as parts">
+              {{ parts.before
+              }}<a
                 href="/assets/fahrradverleih-bedingungen.pdf"
                 target="_blank"
                 rel="noopener"
@@ -1418,7 +1434,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 >{{
                   t().rentalSteps?.termsLinkText ?? 'Fahrradverleih-Bedingungen'
                 }}</a
-              >
+              >{{ parts.after }}
             </span>
           </label>
         </div>
@@ -1453,13 +1469,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         <h2>
           {{ t().rentalSteps?.bookingSuccess ?? 'Buchung erfolgreich!' }}
         </h2>
-        <p>
-          {{
-            t().rentalSteps?.confirmationSent ??
-              'Eine Bestätigungsmail wurde an'
-          }}
-          <strong>{{ bookingForm.email }}</strong>
-          {{ t().rentalSteps?.sent ?? 'gesendet' }}
+        <!-- Satzmuster mit {email}: der alte Aufbau "Präfix E-Mail Suffix"
+             erzwang deutsche Wortstellung und verdoppelte in 11 Sprachen das
+             Verb ("…was sent to x@y.com sent"). -->
+        <p *ngIf="confirmationSentParts() as parts">
+          {{ parts.before }}<strong>{{ bookingForm.email }}</strong
+          >{{ parts.after }}
         </p>
         <p *ngIf="bookingNumber()">
           <strong
@@ -1467,6 +1482,50 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           >
           {{ bookingNumber() }}
         </p>
+
+        <!-- Screenshot-tauglicher Beleg: ohne diese Zusammenfassung stand auf
+             der Erfolgsseite weder Zeitraum noch Rad noch Betrag — bei
+             verspäteter Mail war die Seite der einzige Nachweis. -->
+        <div class="success-summary" *ngIf="cartGroups().length > 0">
+          <p>
+            <strong>{{ t().rentalSteps?.startDate ?? 'Startdatum' }}:</strong>
+            {{ formatDisplayDate(selectedStartDate) }}
+            {{ t().rentalSteps?.to ?? 'bis' }}
+            {{ formatDisplayDate(selectedEndDate) }} ({{ daysCount() }}
+            {{
+              daysCount() === 1
+                ? (t().rentalSteps?.day ?? 'Tag')
+                : (t().rentalSteps?.days ?? 'Tage')
+            }})
+          </p>
+          <p *ngIf="bookingForm.abholzeit">
+            <strong>{{ t().rentalSteps?.pickupTime ?? 'Abholzeit' }}:</strong>
+            {{ bookingForm.abholzeit }} {{ t().rentalSteps?.oClock ?? 'Uhr' }}
+          </p>
+          <ul class="success-summary-bikes">
+            <li *ngFor="let group of cartGroups()">
+              {{ group.count > 1 ? group.count + '× ' : ''
+              }}{{ group.representative.bike.marke }}
+              {{ group.representative.bike.modell }}
+            </li>
+          </ul>
+          <p *ngIf="accessoryTotal() > 0">
+            {{ t().rentalSteps?.accessoryTotal ?? 'Zubehör gesamt' }}:
+            <strong>{{ formatPrice(accessoryTotal()) }}</strong>
+          </p>
+          <p>
+            <strong
+              >{{ t().rentalSteps?.totalRental ?? 'Gesamtmiete' }}:</strong
+            >
+            {{ formatPrice(getTotalPrice()) }}
+          </p>
+          <p *ngIf="hasKnownDeposit()">
+            <strong
+              >{{ t().rentalSteps?.totalDeposit ?? 'Gesamtkaution' }}:</strong
+            >
+            {{ formatPrice(getTotalDeposit()) }}
+          </p>
+        </div>
 
         <p class="success-confirmed-note">
           {{
@@ -1526,6 +1585,14 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             </a>
             <a *ngIf="shopPhone()" [href]="telHref()" class="directions-link">
               {{ shopPhone() }}
+            </a>
+            <a
+              [href]="whatsappHref()"
+              target="_blank"
+              rel="noopener"
+              class="directions-link"
+            >
+              WhatsApp
             </a>
           </p>
         </div>
@@ -3231,6 +3298,33 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         color: var(--rb-text-soft);
       }
 
+      .no-bikes-text {
+        margin: 0;
+      }
+
+      .no-bikes-cta {
+        margin-top: 1rem;
+      }
+
+      .success-summary {
+        text-align: left;
+        background: var(--rb-surface);
+        border: 1px solid var(--rb-border);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        margin: 1.25rem auto;
+        max-width: 30rem;
+      }
+
+      .success-summary p {
+        margin: 0.35rem 0;
+      }
+
+      .success-summary-bikes {
+        margin: 0.35rem 0;
+        padding-left: 1.2rem;
+      }
+
       .error-message {
         background: rgba(220, 38, 38, 0.12);
         color: #fecaca;
@@ -3576,6 +3670,19 @@ export class RentalBookingStepsComponent implements OnInit {
     return phone ? `tel:${phone.replace(/[^0-9+]/g, '')}` : '';
   });
 
+  /**
+   * WhatsApp-Link wie auf der Kontaktseite (Nummer aus dem ShopInfoService,
+   * Fallback die bekannte Ladennummer), vorbefüllt mit der Buchungsnummer,
+   * damit der Laden die Nachricht sofort zuordnen kann.
+   */
+  whatsappHref(): string {
+    const digits =
+      this.shopPhone().replace(/[^0-9]/g, '') || '4915566300011';
+    const nr = this.bookingNumber();
+    const text = nr ? `?text=${encodeURIComponent(`Buchung ${nr}: `)}` : '';
+    return `https://wa.me/${digits}${text}`;
+  }
+
   /** Ziel des "Buchung verwalten"-Links auf der Erfolgsseite. */
   manageBookingHref(): string {
     return getBookingManagePath(this.lang());
@@ -3835,6 +3942,21 @@ export class RentalBookingStepsComponent implements OnInit {
    * ergäbe das doppelte Chips für dieselbe Sache — also auf eine gemeinsame
    * Bezeichnung ziehen. Unbekannte Werte bleiben, wie sie sind.
    */
+  /**
+   * Gültige Werte für den ?type=-Query-Parameter der Kategorie-Seiten —
+   * exakt die Schlüssel, die normalizeBikeType() produziert.
+   */
+  private static readonly TYPE_FILTER_KEYS: string[] = [
+    'Kinderrad',
+    'E-Bike',
+    'Mountainbike',
+    'Rennrad',
+    'Gravelbike',
+    'Trekking',
+    'City',
+    'Lastenrad',
+  ];
+
   private normalizeBikeType(bike: PublicRentalBicycle): string {
     const raw = (bike.art || bike.fahrradtyp || '').trim();
     const key = raw.toLowerCase();
@@ -4115,27 +4237,6 @@ export class RentalBookingStepsComponent implements OnInit {
     return diff > 0 ? diff : 0;
   }
 
-  private getLocaleForCurrentLanguage(): string {
-    switch (this.lang()) {
-      case 'en':
-        return 'en-GB';
-      case 'fr':
-        return 'fr-FR';
-      case 'tr':
-        return 'tr-TR';
-      case 'es':
-        return 'es-ES';
-      case 'it':
-        return 'it-IT';
-      case 'ar':
-        return 'ar-SA';
-      case 'ru':
-        return 'ru-RU';
-      default:
-        return 'de-DE';
-    }
-  }
-
   private getInitialCalendarMonth(): Date {
     const minDate = this.getMinSelectableDate();
     return new Date(minDate.getFullYear(), minDate.getMonth(), 1);
@@ -4158,7 +4259,7 @@ export class RentalBookingStepsComponent implements OnInit {
   formatDisplayDate(value: string): string {
     if (!value) return '—';
     const date = new Date(`${value}T00:00:00`);
-    return new Intl.DateTimeFormat(this.getLocaleForCurrentLanguage(), {
+    return new Intl.DateTimeFormat(LOCALE_BY_LANGUAGE[this.lang()] ?? 'de-DE', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -4166,14 +4267,14 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   formatCalendarMonth(date: Date): string {
-    return new Intl.DateTimeFormat(this.getLocaleForCurrentLanguage(), {
+    return new Intl.DateTimeFormat(LOCALE_BY_LANGUAGE[this.lang()] ?? 'de-DE', {
       month: 'long',
       year: 'numeric',
     }).format(date);
   }
 
   getWeekdayLabels(): string[] {
-    const locale = this.getLocaleForCurrentLanguage();
+    const locale = LOCALE_BY_LANGUAGE[this.lang()] ?? 'de-DE';
     const monday = new Date(2024, 0, 1);
     return Array.from({ length: 7 }, (_, index) =>
       new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(
@@ -4334,11 +4435,30 @@ export class RentalBookingStepsComponent implements OnInit {
     const start = qp.get('start');
     const end = qp.get('end');
     const bikeId = qp.get('bikeId');
+
+    // Kategorie-Seiten verlinken mit ?type= (z.B. E-Bike), damit der Gast die
+    // schon getroffene Wahl nicht in Schritt 2 wiederholen muss.
+    // effectiveTypeFilter fällt auf "Alle" zurück, falls es für den Zeitraum
+    // keine Räder dieses Typs gibt.
+    const type = qp.get('type');
+    if (type && RentalBookingStepsComponent.TYPE_FILTER_KEYS.includes(type)) {
+      this.bikeTypeFilter.set(type);
+    }
+
     const wantsDeepLink =
       isPlatformBrowser(this.platformId) &&
       !!start &&
       !!end &&
       !!bikeId &&
+      this.cartBikes().length === 0 &&
+      !this.bookingNumber();
+    // Datums-Deep-Link ohne Rad: Landing-/Kategorie-Seiten und Anzeigen können
+    // nur den Zeitraum übergeben; der Gast landet direkt in der Radauswahl.
+    const wantsDateOnlyDeepLink =
+      isPlatformBrowser(this.platformId) &&
+      !!start &&
+      !!end &&
+      !bikeId &&
       this.cartBikes().length === 0 &&
       !this.bookingNumber();
 
@@ -4352,6 +4472,11 @@ export class RentalBookingStepsComponent implements OnInit {
       this.applyDeepLink(start!, end!, Number(bikeId), () =>
         this.listenToStepParam(),
       );
+      return;
+    }
+
+    if (wantsDateOnlyDeepLink && this.isUsableDeepLinkRange(start!, end!)) {
+      this.applyDateOnlyDeepLink(start!, end!, () => this.listenToStepParam());
       return;
     }
 
@@ -4571,6 +4696,51 @@ export class RentalBookingStepsComponent implements OnInit {
           done();
         },
         error: () => done(),
+      });
+  }
+
+  /**
+   * Prüft einen ?start=&end=-Deep-Link: echte Tage, nicht in der
+   * Vergangenheit, kein Zeitraum über die Betriebsferien hinweg. Ungültige
+   * Links fallen still auf den normalen Ablauf (Kalender) zurück.
+   */
+  private isUsableDeepLinkRange(start: string, end: string): boolean {
+    const startDate = new Date(`${start}T00:00:00`);
+    const endDate = new Date(`${end}T00:00:00`);
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime()))
+      return false;
+    if (endDate < startDate) return false;
+    if (startDate < this.getMinSelectableDate()) return false;
+    return !rangeOverlapsClosure(start, end);
+  }
+
+  /**
+   * Datums-Deep-Link ohne Rad: Zeitraum übernehmen, Verfügbarkeit laden und
+   * die Radauswahl in die URL schreiben — dieselbe Strecke, die sonst der
+   * Weiter-Knopf in Schritt 1 fährt.
+   */
+  private applyDateOnlyDeepLink(
+    start: string,
+    end: string,
+    done: () => void,
+  ): void {
+    this.selectedStartDate = start;
+    this.selectedEndDate = end;
+    this.loadingAvailableBikes.set(true);
+    this.apiService
+      .getAvailableBikes(new Date(start), new Date(end))
+      .subscribe({
+        next: (bikes) => {
+          this.availableBikes.set(bikes);
+          this.bikesLoaded.set(true);
+          this.loadingAvailableBikes.set(false);
+          this.syncStepToUrl('bike-selection', true);
+          done();
+        },
+        error: () => {
+          this.loadingAvailableBikes.set(false);
+          done();
+        },
       });
   }
 
@@ -5009,6 +5179,79 @@ export class RentalBookingStepsComponent implements OnInit {
     });
   }
 
+  /**
+   * Ersetzt {token}-Platzhalter in einem Übersetzungsmuster. Muster statt
+   * Satzbausteine, damit jede Sprache ihre eigene Wortstellung behält
+   * (tr: Verb ans Ende, en: kein nachgestelltes "gesendet").
+   */
+  private fillPattern(
+    pattern: string,
+    params: Record<string, string | number>,
+  ): string {
+    return Object.entries(params).reduce(
+      (text, [key, value]) => text.split(`{${key}}`).join(String(value)),
+      pattern,
+    );
+  }
+
+  /**
+   * Zerlegt ein Muster am {token} in Text davor/danach, damit der eingesetzte
+   * Wert im Template eigenes Markup (fett, Link) bekommen kann.
+   */
+  private splitPattern(
+    pattern: string,
+    token: string,
+  ): { before: string; after: string } {
+    const idx = pattern.indexOf(token);
+    if (idx < 0) return { before: pattern, after: '' };
+    return {
+      before: pattern.slice(0, idx),
+      after: pattern.slice(idx + token.length),
+    };
+  }
+
+  /** Satz "N Fahrräder in der Buchung" als Ganzes aus dem Sprachmuster. */
+  cartCountText(): string {
+    const count = this.cartBikes().length;
+    const pattern =
+      count === 1
+        ? (this.t().rentalSteps?.bikeInBookingText ??
+          '{count} Fahrrad in der Buchung')
+        : (this.t().rentalSteps?.bikesInBookingText ??
+          '{count} Fahrräder in der Buchung');
+    return this.fillPattern(pattern, { count });
+  }
+
+  /** Preiszeile der Radkacheln, am {price}-Platzhalter aufgetrennt. */
+  priceLineParts(): { before: string; after: string } {
+    const days = this.daysCount();
+    const pattern =
+      days === 1
+        ? (this.t().rentalSteps?.priceForOneDayText ?? '{price} für 1 Tag')
+        : (this.t().rentalSteps?.priceForDaysText ?? '{price} für {days} Tage');
+    return this.splitPattern(
+      pattern.split('{days}').join(String(days)),
+      '{price}',
+    );
+  }
+
+  /** Bedingungssatz, am {link}-Platzhalter aufgetrennt. */
+  termsSentenceParts(): { before: string; after: string } {
+    return this.splitPattern(
+      this.t().rentalSteps?.termsSentence ?? 'Ich akzeptiere die {link}',
+      '{link}',
+    );
+  }
+
+  /** Bestätigungs-Satz der Erfolgsseite, am {email}-Platzhalter aufgetrennt. */
+  confirmationSentParts(): { before: string; after: string } {
+    return this.splitPattern(
+      this.t().rentalSteps?.confirmationSentTo ??
+        'Eine Bestätigungsmail wurde an {email} gesendet.',
+      '{email}',
+    );
+  }
+
   validateForm(): boolean {
     // Alle Fehler auf einmal einsammeln statt beim ersten abzubrechen: vorher
     // brauchte der Gast pro fehlendem Feld eine eigene Absende-Runde und
@@ -5146,10 +5389,11 @@ export class RentalBookingStepsComponent implements OnInit {
 
     const start = new Date(`${this.selectedStartDate}T00:00:00`);
     start.setHours(pickupHours, pickupMinutes, 0, 0);
-    // Ende = Start + Anzahl Miettage. So bleibt ein mehrtägiger Zeitraum auch
-    // im Kalender mehrtägig, statt nach 24 Stunden am Starttag zu enden.
-    const end = new Date(start);
-    end.setDate(end.getDate() + Math.max(1, this.daysCount()));
+    // Ende = letzter Miettag zum Ladenschluss (Rückgabe bis 18:00). "Start +
+    // Miettage" endete einen Tag zu spät und suggerierte, das Rad könne am
+    // Morgen nach Mietende zurückgebracht werden — sonntags ist sogar zu.
+    const end = new Date(`${this.selectedEndDate}T00:00:00`);
+    end.setHours(18, 0, 0, 0);
 
     const steps = this.t().rentalSteps;
     // Gruppiert statt Zeile pro Zeile: bei mehreren gleichen Kinderrädern
