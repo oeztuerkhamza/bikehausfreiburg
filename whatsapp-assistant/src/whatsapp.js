@@ -219,6 +219,7 @@ export async function listChats(waClient = client) {
   if (!waClient) return { chats: [], skipped: 0, mode: 'istemci yok' };
   try {
     const chats = await waClient.getChats();
+    noteChatListOutcome('toplu');
     return { chats, skipped: 0, mode: 'toplu' };
   } catch (err) {
     console.error('[whatsapp] getChats topluca başarısız:', err?.message, '— teker teker deneniyor.');
@@ -240,6 +241,7 @@ export async function listChats(waClient = client) {
     });
   } catch (err) {
     console.error('[whatsapp] sohbet kimlikleri okunamadı:', err?.message);
+    noteChatListOutcome('başarısız');
     return { chats: [], skipped: 0, mode: 'başarısız' };
   }
 
@@ -259,6 +261,7 @@ export async function listChats(waClient = client) {
   if (skipped) {
     console.error(`[whatsapp] ${skipped} sohbet atlandı. İlk hatalar: ${errors.join(' | ')}`);
   }
+  noteChatListOutcome('teker teker');
   return { chats, skipped, mode: 'teker teker' };
 }
 
@@ -425,6 +428,29 @@ function armStuckWatchdog(label) {
     }
   }, BOOT_TIMEOUT_MS);
   if (stuckTimer.unref) stuckTimer.unref();
+}
+
+// --- Zombi bekçisi (ölü tarayıcı köprüsü) ---
+// Chromium OOM-kill yediğinde durum 'ready' kalır ama her CDP çağrısı
+// "Runtime.callFunctionOn timed out" ile düşer: Node canlı, konteyner
+// "running" göründüğü için ne boot- ne kopma-bekçisi devreye girer — köprü
+// günlerce ölü kalabilir (canlıda 11 gün fark edilmedi). Art arda tamamen
+// başarısız sohbet turlarında süreci bitiririz; Docker temiz bir Chromium ile
+// yeniden başlatır ve oturum volume'den geri gelir.
+const ZOMBIE_SYNC_LIMIT = Number(process.env.WA_ZOMBIE_SYNC_LIMIT || 3);
+let deadBridgeStreak = 0;
+function noteChatListOutcome(mode) {
+  if (mode !== 'başarısız') {
+    deadBridgeStreak = 0;
+    return;
+  }
+  deadBridgeStreak += 1;
+  if (state.status === 'ready' && deadBridgeStreak >= ZOMBIE_SYNC_LIMIT) {
+    console.error(
+      `[watchdog] ${deadBridgeStreak} sohbet turu üst üste tamamen başarısız — tarayıcı köprüsü ölü görünüyor, temiz başlangıç için süreç kapatılıyor.`,
+    );
+    process.exit(1);
+  }
 }
 
 function cleanStaleLocks() {
