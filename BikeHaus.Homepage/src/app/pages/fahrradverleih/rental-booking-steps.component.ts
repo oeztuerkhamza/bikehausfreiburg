@@ -1267,6 +1267,15 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                   'Zu welcher Uhrzeit möchten Sie das Fahrrad abholen?'
               }}
             </small>
+            <!-- Google & Co. zeigen die Ladenöffnungszeiten (An- & Verkauf) —
+                 die Verleih-Übergabe beginnt bewusst früher. Ohne diesen Satz
+                 wirkt eine 10:00-Abholung wie ein Fehler. -->
+            <small class="field-hint" *ngIf="abholzeitSlots().length > 0">
+              {{
+                t().rentalSteps?.rentalHoursNote ??
+                  'Der Verleih hat eigene Übergabezeiten: Abholung ist ab 10:00 Uhr möglich – unabhängig von den Öffnungszeiten des Ladens (An- & Verkauf).'
+              }}
+            </small>
           </div>
           <div class="form-group">
             <label for="booking-notizen"
@@ -1452,6 +1461,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 'Bitte bringen Sie zur Abholung einen gültigen Lichtbildausweis mit.'
             }}
           </p>
+          <p>
+            {{
+              t().rentalSteps?.rentalHoursNote ??
+                'Der Verleih hat eigene Übergabezeiten: Abholung ist ab 10:00 Uhr möglich – unabhängig von den Öffnungszeiten des Ladens (An- & Verkauf).'
+            }}
+          </p>
         </div>
 
         <div class="terms-acceptance">
@@ -1600,6 +1615,12 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             {{
               t().rentalSteps?.bringPhotoIdNote ??
                 'Bitte bringen Sie zur Abholung einen gültigen Lichtbildausweis mit.'
+            }}
+          </p>
+          <p>
+            {{
+              t().rentalSteps?.rentalHoursNote ??
+                'Der Verleih hat eigene Übergabezeiten: Abholung ist ab 10:00 Uhr möglich – unabhängig von den Öffnungszeiten des Ladens (An- & Verkauf).'
             }}
           </p>
         </div>
