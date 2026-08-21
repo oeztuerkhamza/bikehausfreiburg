@@ -199,6 +199,18 @@ interface RentalStepsTranslations {
   bikeInBookingText?: string;
   /** Cart-count sentence, plural; {count} is replaced with the number of bikes. */
   bikesInBookingText?: string;
+  /** Label for a calendar day on which no bikes are free. */
+  fullyBooked?: string;
+  /** Scarcity note, singular: exactly one bike left for the selected dates. */
+  onlyOneBikeLeft?: string;
+  /** Scarcity note, plural; {count} is replaced with the number of bikes left. */
+  onlyFewBikesLeft?: string;
+  /** Empty-result suggestion; {date} is replaced with a localized date string. */
+  nextAvailableFrom?: string;
+  /** Short lead-in shown before the privacy-policy link under the customer form. */
+  privacyNote?: string;
+  /** Link text for the privacy policy. */
+  privacyLinkText?: string;
 }
 
 /**
@@ -4152,6 +4164,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'Ich akzeptiere die {link}',
     bikeInBookingText: '{count} Fahrrad in der Buchung',
     bikesInBookingText: '{count} Fahrräder in der Buchung',
+    fullyBooked: 'Ausgebucht',
+    onlyOneBikeLeft: 'Nur noch 1 Rad für diesen Zeitraum frei',
+    onlyFewBikesLeft: 'Nur noch {count} Räder für diesen Zeitraum frei',
+    nextAvailableFrom: 'Ab {date} sind wieder Räder verfügbar.',
+    privacyNote: 'Hinweise zur Verarbeitung Ihrer Daten:',
+    privacyLinkText: 'Datenschutzerklärung',
   },
   en: {
     dateSelection: 'Choose date',
@@ -4307,6 +4325,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'I accept the {link}',
     bikeInBookingText: '{count} bike in your booking',
     bikesInBookingText: '{count} bikes in your booking',
+    fullyBooked: 'Fully booked',
+    onlyOneBikeLeft: 'Only 1 bike left for these dates',
+    onlyFewBikesLeft: 'Only {count} bikes left for these dates',
+    nextAvailableFrom: 'Bikes are available again from {date}.',
+    privacyNote: 'How we handle your data:',
+    privacyLinkText: 'Privacy policy',
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -4465,6 +4489,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: "J'accepte les {link}",
     bikeInBookingText: '{count} vélo dans la réservation',
     bikesInBookingText: '{count} vélos dans la réservation',
+    fullyBooked: 'Complet',
+    onlyOneBikeLeft: "Plus qu'un seul vélo disponible pour ces dates",
+    onlyFewBikesLeft: 'Plus que {count} vélos disponibles pour ces dates',
+    nextAvailableFrom: 'Des vélos seront à nouveau disponibles à partir du {date}.',
+    privacyNote: 'Informations sur le traitement de vos données :',
+    privacyLinkText: 'Politique de confidentialité',
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -4621,6 +4651,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: "{link}'nı kabul ediyorum",
     bikeInBookingText: 'Rezervasyonda {count} bisiklet',
     bikesInBookingText: 'Rezervasyonda {count} bisiklet',
+    fullyBooked: 'Tamamen dolu',
+    onlyOneBikeLeft: 'Bu tarihler için yalnızca 1 bisiklet kaldı',
+    onlyFewBikesLeft: 'Bu tarihler için yalnızca {count} bisiklet kaldı',
+    nextAvailableFrom: '{date} tarihinden itibaren yeniden bisiklet var.',
+    privacyNote: 'Verilerinizin işlenmesi hakkında:',
+    privacyLinkText: 'Gizlilik politikası',
   },
   es: {
     dateSelection: 'Elegir fecha',
@@ -4778,6 +4814,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'Acepto los {link}',
     bikeInBookingText: '{count} bicicleta en la reserva',
     bikesInBookingText: '{count} bicicletas en la reserva',
+    fullyBooked: 'Completo',
+    onlyOneBikeLeft: 'Solo queda 1 bicicleta para estas fechas',
+    onlyFewBikesLeft: 'Solo quedan {count} bicicletas para estas fechas',
+    nextAvailableFrom: 'A partir del {date} vuelve a haber bicicletas disponibles.',
+    privacyNote: 'Información sobre el tratamiento de sus datos:',
+    privacyLinkText: 'Política de privacidad',
   },
   it: {
     dateSelection: 'Scegli data',
@@ -4937,6 +4979,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'Accetto i {link}',
     bikeInBookingText: '{count} bici nella prenotazione',
     bikesInBookingText: '{count} bici nella prenotazione',
+    fullyBooked: 'Al completo',
+    onlyOneBikeLeft: 'Solo 1 bici disponibile per queste date',
+    onlyFewBikesLeft: 'Solo {count} bici disponibili per queste date',
+    nextAvailableFrom: 'Dal {date} saranno di nuovo disponibili delle bici.',
+    privacyNote: 'Informazioni sul trattamento dei tuoi dati:',
+    privacyLinkText: 'Informativa sulla privacy',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
@@ -5090,6 +5138,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'أوافق على {link}',
     bikeInBookingText: '{count} دراجة في الحجز',
     bikesInBookingText: '{count} دراجات في الحجز',
+    fullyBooked: 'محجوز بالكامل',
+    onlyOneBikeLeft: 'بقيت دراجة واحدة فقط لهذه التواريخ',
+    onlyFewBikesLeft: 'بقي {count} دراجات فقط لهذه التواريخ',
+    nextAvailableFrom: 'ستتوفر الدراجات مجددًا اعتبارًا من {date}.',
+    privacyNote: 'معلومات حول معالجة بياناتك:',
+    privacyLinkText: 'سياسة الخصوصية',
   },
   ru: {
     dateSelection: 'Выбор даты',
@@ -5247,6 +5301,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'Я принимаю {link}',
     bikeInBookingText: '{count} велосипед в бронировании',
     bikesInBookingText: '{count} велосипедов в бронировании',
+    fullyBooked: 'Всё занято',
+    onlyOneBikeLeft: 'На эти даты остался только 1 велосипед',
+    onlyFewBikesLeft: 'На эти даты осталось только {count} велосипедов',
+    nextAvailableFrom: 'С {date} велосипеды снова будут доступны.',
+    privacyNote: 'Информация об обработке ваших данных:',
+    privacyLinkText: 'Политика конфиденциальности',
   },
 
   nl: {
@@ -5404,6 +5464,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'Ik accepteer de {link}',
     bikeInBookingText: '{count} fiets in de boeking',
     bikesInBookingText: '{count} fietsen in de boeking',
+    fullyBooked: 'Volgeboekt',
+    onlyOneBikeLeft: 'Nog maar 1 fiets vrij voor deze data',
+    onlyFewBikesLeft: 'Nog maar {count} fietsen vrij voor deze data',
+    nextAvailableFrom: 'Vanaf {date} zijn er weer fietsen beschikbaar.',
+    privacyNote: 'Informatie over de verwerking van je gegevens:',
+    privacyLinkText: 'Privacyverklaring',
   },
 
   da: {
@@ -5561,6 +5627,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'Jeg accepterer {link}',
     bikeInBookingText: '{count} cykel i bookingen',
     bikesInBookingText: '{count} cykler i bookingen',
+    fullyBooked: 'Fuldt booket',
+    onlyOneBikeLeft: 'Kun 1 cykel tilbage i denne periode',
+    onlyFewBikesLeft: 'Kun {count} cykler tilbage i denne periode',
+    nextAvailableFrom: 'Fra {date} er der igen ledige cykler.',
+    privacyNote: 'Information om behandlingen af dine data:',
+    privacyLinkText: 'Privatlivspolitik',
   },
 
   no: {
@@ -5718,6 +5790,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'Jeg godtar {link}',
     bikeInBookingText: '{count} sykkel i bestillingen',
     bikesInBookingText: '{count} sykler i bestillingen',
+    fullyBooked: 'Fullbooket',
+    onlyOneBikeLeft: 'Bare 1 sykkel igjen for disse datoene',
+    onlyFewBikesLeft: 'Bare {count} sykler igjen for disse datoene',
+    nextAvailableFrom: 'Fra {date} er det igjen ledige sykler.',
+    privacyNote: 'Informasjon om behandlingen av opplysningene dine:',
+    privacyLinkText: 'Personvernerklæring',
   },
 
   pl: {
@@ -5876,6 +5954,12 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     termsSentence: 'Akceptuję {link}',
     bikeInBookingText: '{count} rower w rezerwacji',
     bikesInBookingText: '{count} rowerów w rezerwacji',
+    fullyBooked: 'Wszystko zajęte',
+    onlyOneBikeLeft: 'W tym terminie został tylko 1 rower',
+    onlyFewBikesLeft: 'W tym terminie zostało tylko {count} rowerów',
+    nextAvailableFrom: 'Od {date} rowery będą znów dostępne.',
+    privacyNote: 'Informacje o przetwarzaniu Twoich danych:',
+    privacyLinkText: 'Polityka prywatności',
   },
 };
 

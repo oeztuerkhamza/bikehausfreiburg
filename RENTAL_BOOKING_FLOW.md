@@ -53,7 +53,17 @@ fallen Zeiten weg, die weniger als 30 Minuten entfernt sind
 ## Räder, Preise, Kaution
 
 - Verfügbarkeit kommt aus `GET /api/public/rentals/bikes/available?startDate=&endDate=`
-  und wird bei jedem Zeitraumwechsel neu geholt.
+  und wird bei jedem Zeitraumwechsel neu geholt — zusätzlich still beim
+  Betreten des Formulars (vergriffene Räder fallen dann schon vor dem
+  Ausfüllen mit Hinweis heraus, nicht erst beim 409).
+- `GET /api/public/rentals/availability-calendar?from=&to=` liefert freie
+  Räder je Tag (ohne Rad-IDs): der Kalender schattiert ausgebuchte Tage, die
+  Radauswahl zeigt bei ≤ 2 freien Rädern einen ehrlichen Knappheitshinweis,
+  und der leere Zustand schlägt den nächsten freien Tag vor.
+- `POST /api/public/rentals/funnel-event` nimmt anonyme Schrittwechsel- und
+  Buchungsausgangs-Ereignisse an (Zufalls-ID je Sitzung, DNT respektiert,
+  keine Fremd-Skripte) — ohne diese Zahlen war unsichtbar, an welchem Schritt
+  Gäste aussteigen.
 - **Kinderräder** (`Art`/`Fahrradtyp` enthält "Kinder") sind gepoolte Anzeigen:
   sie bleiben mehrfach buchbar und werden von der Überschneidungsprüfung
   ausgenommen — das konkrete Rad wird im Laden zugeordnet.
@@ -73,8 +83,9 @@ fallen Zeiten weg, die weniger als 30 Minuten entfernt sind
 
 ## Zwischenstand
 
-Der Inhalt der Buchung liegt als Entwurf im `sessionStorage`
-(`bikehaus-rental-booking-draft`, 12 Stunden haltbar). Gespeichert wird bei jedem
+Der Inhalt der Buchung liegt als Entwurf im `localStorage`
+(`bikehaus-rental-booking-draft`, 12 Stunden haltbar) — früher `sessionStorage`,
+der mit dem Tab starb und die 12-Stunden-Frist praktisch nie erreichte. Gespeichert wird bei jedem
 Schrittwechsel, bei Änderungen am Warenkorb/Zubehör und wenn die Seite in den
 Hintergrund geht (`visibilitychange`, `pagehide`). Beim Wiederherstellen wird die
 Verfügbarkeit **neu geholt**; inzwischen vergriffene Räder fallen mit Hinweis aus

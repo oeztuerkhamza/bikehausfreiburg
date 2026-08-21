@@ -91,7 +91,10 @@ interface BookingDraftEntry {
 }
 
 /**
- * Zwischenstand einer Buchung im sessionStorage.
+ * Zwischenstand einer Buchung im localStorage. Früher sessionStorage: der
+ * stirbt mit dem Tab, womit die 12-Stunden-Frist praktisch nie zum Tragen kam
+ * (mobile Browser werfen Tabs von allein weg). Die Wiederherstellung prüft
+ * ohnehin TTL, Mindestdatum, Betriebsferien und holt die Verfügbarkeit neu.
  *
  * Der Schritt selbst steht in der URL, der Inhalt lag bisher nur im Speicher der
  * Komponente: ein Reload — auf dem Handy schon der Wechsel in eine andere App —
@@ -162,11 +165,17 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
     <div class="rental-booking-steps-container">
       <!-- Step Indicator (sticky — the process flow stays visible at all times) -->
       <div class="steps-indicator">
-        <div
+        <!-- Fertige Schritte sind antippbar: direkt zurückspringen statt
+             mehrfach "Zurück" — resolveStep() sichert die Vorbedingungen ab. -->
+        <button
+          type="button"
           class="step"
           *ngFor="let label of stepLabels(); let i = index"
           [class.active]="indicatorIndex() === i + 1"
           [class.done]="indicatorIndex() > i + 1"
+          [disabled]="indicatorIndex() <= i + 1"
+          [attr.aria-current]="indicatorIndex() === i + 1 ? 'step' : null"
+          (click)="jumpToIndicator(i + 1)"
         >
           <span class="step-num">
             <ng-container *ngIf="indicatorIndex() > i + 1; else numTpl"
@@ -175,7 +184,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             <ng-template #numTpl>{{ i + 1 }}</ng-template>
           </span>
           <span class="step-label">{{ label }}</span>
-        </div>
+        </button>
       </div>
 
       <!-- Step 1: Date Selection -->
@@ -224,6 +233,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               type="button"
               class="calendar-nav"
               (click)="prevCalendarMonth()"
+              [disabled]="!canGoPrevMonth()"
               [attr.aria-label]="
                 t().rentalSteps?.previousMonth ?? 'Vorheriger Monat'
               "
@@ -246,6 +256,13 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               t().rentalSteps?.calendarHint ??
                 'Wählen Sie zuerst den Starttermin und dann den Endtermin. Sonntage sind geschlossen; Feiertage bitte vorab per WhatsApp anfragen.'
             }}
+          </p>
+
+          <!-- Nur zeigen, wenn es wirklich ausgebuchte Tage gibt — sonst ist
+               die Legende Rauschen. -->
+          <p class="calendar-legend" *ngIf="hasFullyBookedDayData()">
+            <span class="legend-full" aria-hidden="true">✕</span>
+            {{ t().rentalSteps?.fullyBooked ?? 'Ausgebucht' }}
           </p>
 
           <!-- Live selection state — makes it obvious what to tap next -->
@@ -283,6 +300,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 [class.is-end]="day && isCalendarEnd(day)"
                 [class.in-range]="day && isCalendarInRange(day)"
                 [class.is-today]="day && isToday(day)"
+                [class.is-full]="day && isFullyBookedDay(day)"
                 [class.is-closed]="day && !isSelectableCalendarDay(day)"
                 [disabled]="!day || !isSelectableCalendarDay(day)"
                 (click)="day && selectCalendarDay(day)"
@@ -349,6 +367,11 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           {{ t().rentalSteps?.days ?? 'Tage' }})
         </p>
 
+        <!-- Ehrliche Knappheit: echte Zahl aus der Verfügbarkeit, nur bei
+             höchstens zwei freien Rädern (Kinderräder sind gepoolt und
+             zählen nicht mit). -->
+        <p class="scarcity-note" *ngIf="scarcityText() as text">{{ text }}</p>
+
         <div *ngIf="conflictNotice()" class="conflict-notice">
           {{ conflictNotice() }}
         </div>
@@ -369,6 +392,9 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
               t().rentalSteps?.noBikesAvailable ??
                 'Keine Fahrräder für diesen Zeitraum verfügbar'
             }}
+          </p>
+          <p class="no-bikes-next" *ngIf="nextFreeDateText() as text">
+            {{ text }}
           </p>
           <button
             type="button"
@@ -485,6 +511,8 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 *ngIf="getMainImage(bike)"
                 [src]="getImageUrl(getMainImage(bike)?.filePath)"
                 [alt]="bike.modell"
+                loading="lazy"
+                decoding="async"
               />
               <div class="img-placeholder" *ngIf="!getMainImage(bike)">🚲</div>
             </div>
@@ -931,6 +959,8 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
                 *ngIf="acc.bildPfad"
                 [src]="getImageUrl(acc.bildPfad)"
                 [alt]="accessoryName(acc.bezeichnung)"
+                loading="lazy"
+                decoding="async"
               />
               <div *ngIf="!acc.bildPfad" class="accessory-photo-empty">🚲</div>
             </div>
@@ -1252,10 +1282,26 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
             {{ bookingError() }}
           </div>
 
+          <!-- DSGVO-Hinweis genau dort, wo die Daten eingegeben werden. -->
+          <p class="privacy-note">
+            {{
+              t().rentalSteps?.privacyNote ??
+                'Hinweise zur Verarbeitung Ihrer Daten:'
+            }}
+            <a
+              [routerLink]="privacyLinkPath()"
+              target="_blank"
+              class="privacy-link"
+              >{{
+                t().rentalSteps?.privacyLinkText ?? 'Datenschutzerklärung'
+              }}</a
+            >
+          </p>
+
           <div class="form-actions">
             <button
               type="button"
-              (click)="goToStep('bike-selection')"
+              (click)="backFromCustomerInfo()"
               class="btn-secondary"
             >
               {{ t().rentalSteps?.back ?? 'Zurück' }}
@@ -3302,8 +3348,69 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         margin: 0;
       }
 
+      .no-bikes-next {
+        margin: 0.6rem 0 0;
+        font-weight: 600;
+        color: var(--rb-text);
+      }
+
       .no-bikes-cta {
         margin-top: 1rem;
+      }
+
+      .scarcity-note {
+        color: var(--rb-accent);
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin: -0.5rem 0 1rem;
+      }
+
+      .calendar-legend {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        color: var(--rb-text-soft);
+        margin: 0.35rem 0 0;
+      }
+
+      .legend-full {
+        opacity: 0.55;
+        font-size: 0.7rem;
+      }
+
+      /* Ausgebuchte Tage bleiben antippbar (gepoolte Kinderräder können frei
+         sein), werden aber sichtbar zurückgenommen. */
+      .calendar-day.is-full:not(.is-closed) span {
+        opacity: 0.45;
+        text-decoration: line-through;
+      }
+
+      /* Der Schritt-Indikator besteht jetzt aus Buttons: Browser-Deko weg,
+         Layout und Farben kommen weiter aus .step. */
+      button.step {
+        background: none;
+        border: 0;
+        padding: 0;
+        font: inherit;
+        color: inherit;
+        cursor: default;
+        text-align: center;
+      }
+
+      button.step.done {
+        cursor: pointer;
+      }
+
+      .privacy-note {
+        font-size: 0.85rem;
+        color: var(--rb-text-soft);
+        margin: 0.9rem 0 0;
+      }
+
+      .privacy-link {
+        color: inherit;
+        text-decoration: underline;
       }
 
       .success-summary {
@@ -3681,6 +3788,199 @@ export class RentalBookingStepsComponent implements OnInit {
     const nr = this.bookingNumber();
     const text = nr ? `?text=${encodeURIComponent(`Buchung ${nr}: `)}` : '';
     return `https://wa.me/${digits}${text}`;
+  }
+
+  // ── Belegungs-Schattierung des Kalenders ─────────────────────────────────
+
+  /** Freie Räder je Tag (dateKey → Anzahl) für die bereits geladenen Monate. */
+  private availabilityByDay = signal<ReadonlyMap<string, number>>(new Map());
+  private loadedAvailabilityMonths = new Set<string>();
+
+  /** Belegung eines Monats nachladen — nur im Browser, je Monat einmal. */
+  private fetchMonthAvailability(monthStart: Date): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const key = `${monthStart.getFullYear()}-${monthStart.getMonth()}`;
+    if (this.loadedAvailabilityMonths.has(key)) return;
+    this.loadedAvailabilityMonths.add(key);
+    const min = this.getMinSelectableDate();
+    const from = monthStart < min ? min : monthStart;
+    const to = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+    if (to < from) return;
+    this.apiService.getAvailabilityCalendar(from, to).subscribe({
+      next: (res) => {
+        this.availabilityByDay.update((prev) => {
+          const next = new Map(prev);
+          for (const day of res.days) next.set(day.date, day.freeCount);
+          return next;
+        });
+      },
+      error: () => {
+        // Schattierung ist Komfort: ohne Daten bleibt der Kalender wie bisher,
+        // und der Monat darf später erneut versucht werden.
+        this.loadedAvailabilityMonths.delete(key);
+      },
+    });
+  }
+
+  isFullyBookedDay(day: Date): boolean {
+    return this.availabilityByDay().get(this.formatDateKey(day)) === 0;
+  }
+
+  hasFullyBookedDayData = computed(() => {
+    for (const count of this.availabilityByDay().values()) {
+      if (count === 0) return true;
+    }
+    return false;
+  });
+
+  /** Bei leerer Trefferliste: ersten Tag mit freien Rädern vorschlagen. */
+  nextFreeDate = signal<string | null>(null);
+
+  private suggestNextFreeDate(): void {
+    this.nextFreeDate.set(null);
+    if (!isPlatformBrowser(this.platformId) || !this.selectedStartDate) return;
+    const from = new Date(`${this.selectedStartDate}T00:00:00`);
+    const to = new Date(from);
+    to.setDate(to.getDate() + 45);
+    this.apiService.getAvailabilityCalendar(from, to).subscribe({
+      next: (res) => {
+        const firstFree = res.days.find((day) => day.freeCount > 0);
+        if (firstFree) this.nextFreeDate.set(firstFree.date);
+      },
+      error: () => {
+        // Nur ein Vorschlag — ohne Antwort bleibt der leere Zustand wie er ist.
+      },
+    });
+  }
+
+  nextFreeDateText(): string | null {
+    const date = this.nextFreeDate();
+    if (!date) return null;
+    return this.fillPattern(
+      this.t().rentalSteps?.nextAvailableFrom ??
+        'Ab {date} sind wieder Räder verfügbar.',
+      { date: this.formatDisplayDate(date) },
+    );
+  }
+
+  /** Ehrlicher Knappheitshinweis: nur bei höchstens 2 freien Rädern (ohne
+   *  gepoolte Kinderräder), nur aus echten Verfügbarkeitsdaten. */
+  scarcityText(): string | null {
+    const count = this.availableBikes().filter(
+      (bike) => !this.isChildrensBike(bike),
+    ).length;
+    if (count < 1 || count > 2) return null;
+    if (count === 1) {
+      return (
+        this.t().rentalSteps?.onlyOneBikeLeft ??
+        'Nur noch 1 Rad für diesen Zeitraum frei'
+      );
+    }
+    return this.fillPattern(
+      this.t().rentalSteps?.onlyFewBikesLeft ??
+        'Nur noch {count} Räder für diesen Zeitraum frei',
+      { count },
+    );
+  }
+
+  // ── Navigation & Datenschutz ─────────────────────────────────────────────
+
+  /**
+   * Fertige Schritte in der Anzeige sind antippbar. Nach der Buchung sind
+   * Sprünge gesperrt — zurück in die Formulare führt sonst zu Doppelbuchungen
+   * (resolveStep fängt das ohnehin ab, aber der Tipp soll gar nicht erst
+   * etwas versprechen).
+   */
+  jumpToIndicator(target: number): void {
+    if (this.bookingNumber()) return;
+    if (target >= this.indicatorIndex()) return;
+    if (target === 3) {
+      this.goToAccessoryStep();
+      return;
+    }
+    const step: BookingStep =
+      target === 1
+        ? 'date-selection'
+        : target === 2
+          ? 'bike-selection'
+          : target === 4
+            ? 'customer-info'
+            : 'review';
+    this.goToStep(step);
+  }
+
+  privacyLinkPath(): string[] {
+    return ['/', this.lang(), 'datenschutz'];
+  }
+
+  // ── Funnel-Telemetrie (anonym, ohne Fremd-Skripte) ───────────────────────
+
+  private funnelSessionKey = '';
+
+  private funnelKey(): string {
+    if (this.funnelSessionKey) return this.funnelSessionKey;
+    try {
+      const stored = sessionStorage.getItem('bikehaus-funnel-key');
+      if (stored) return (this.funnelSessionKey = stored);
+      const key = crypto.randomUUID();
+      sessionStorage.setItem('bikehaus-funnel-key', key);
+      return (this.funnelSessionKey = key);
+    } catch {
+      return (this.funnelSessionKey = `anon-${Math.random()
+        .toString(36)
+        .slice(2)}`);
+    }
+  }
+
+  /**
+   * Meldet einen Schrittwechsel bzw. Buchungsausgang — anonym (Zufalls-ID je
+   * Sitzung, keine Personendaten) und rein informativ: Fehler werden im
+   * ApiService geschluckt, Telemetrie darf die Buchung nie stören. Ohne diese
+   * Zahlen ist unsichtbar, an welchem Schritt Gäste aussteigen.
+   */
+  private trackFunnel(step: string, info?: string): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    // "Do Not Track" respektieren — die Daten sind anonym, der Wunsch zählt.
+    // (Cast: die als veraltet markierte Eigenschaft fehlt in manchen TS-Libs.)
+    if ((navigator as { doNotTrack?: string }).doNotTrack === '1') return;
+    this.apiService
+      .sendFunnelEvent({
+        step,
+        sessionKey: this.funnelKey(),
+        language: this.lang(),
+        info,
+      })
+      .subscribe();
+  }
+
+  /**
+   * Stille Vorprüfung beim Betreten des Formulars: ist ein Rad aus der
+   * Buchung inzwischen vergriffen, greift dieselbe Aufräumlogik wie beim 409 —
+   * nur bevor der Gast zehn Felder ausgefüllt hat.
+   */
+  private revalidateCartAvailability(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (!this.selectedStartDate || !this.selectedEndDate) return;
+    if (this.cartBikes().length === 0) return;
+    this.apiService
+      .getAvailableBikes(
+        new Date(this.selectedStartDate),
+        new Date(this.selectedEndDate),
+      )
+      .subscribe({
+        next: (bikes) => {
+          const availableIds = new Set((bikes ?? []).map((b) => b.id));
+          const stale = this.cartBikes().some(
+            (item) =>
+              !this.isChildrensBike(item.bike) &&
+              !availableIds.has(item.bike.id),
+          );
+          if (stale) this.recoverFromStaleAvailability();
+        },
+        error: () => {
+          // Nur eine Vorprüfung — beim Absenden prüft der Server verbindlich.
+        },
+      });
   }
 
   /** Ziel des "Buchung verwalten"-Links auf der Erfolgsseite. */
@@ -4309,16 +4609,28 @@ export class RentalBookingStepsComponent implements OnInit {
   }
 
   prevCalendarMonth(): void {
+    if (!this.canGoPrevMonth()) return;
     const month = this.calendarMonth();
-    this.calendarMonth.set(
-      new Date(month.getFullYear(), month.getMonth() - 1, 1),
-    );
+    const prev = new Date(month.getFullYear(), month.getMonth() - 1, 1);
+    this.calendarMonth.set(prev);
+    this.fetchMonthAvailability(prev);
   }
 
   nextCalendarMonth(): void {
     const month = this.calendarMonth();
-    this.calendarMonth.set(
-      new Date(month.getFullYear(), month.getMonth() + 1, 1),
+    const next = new Date(month.getFullYear(), month.getMonth() + 1, 1);
+    this.calendarMonth.set(next);
+    this.fetchMonthAvailability(next);
+  }
+
+  /** Vor dem Mindestmonat liegt nichts Wählbares — den Pfeil dort sperren. */
+  canGoPrevMonth(): boolean {
+    const min = this.getMinSelectableDate();
+    const month = this.calendarMonth();
+    return (
+      month.getFullYear() > min.getFullYear() ||
+      (month.getFullYear() === min.getFullYear() &&
+        month.getMonth() > min.getMonth())
     );
   }
 
@@ -4464,6 +4776,9 @@ export class RentalBookingStepsComponent implements OnInit {
 
     if (isPlatformBrowser(this.platformId)) {
       this.watchForPageLeave();
+      // Belegungs-Schattierung für den Startmonat holen (Komfort, gecacht;
+      // ohne Antwort bleibt der Kalender wie bisher).
+      this.fetchMonthAvailability(this.calendarMonth());
     }
 
     if (wantsDeepLink) {
@@ -4531,7 +4846,7 @@ export class RentalBookingStepsComponent implements OnInit {
       riderHeightCm: this.riderHeightInput(),
     };
     try {
-      sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
     } catch {
       // Privater Modus oder voller Speicher: der Entwurf ist Komfort, kein Muss.
     }
@@ -4540,7 +4855,7 @@ export class RentalBookingStepsComponent implements OnInit {
   private clearDraft(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
-      sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
     } catch {
       // s. saveDraft
     }
@@ -4578,7 +4893,10 @@ export class RentalBookingStepsComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return null;
     let raw: string | null = null;
     try {
-      raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+      // Übergangsweise auch den alten sessionStorage-Platz lesen, damit ein
+      // gerade laufender Entwurf den Wechsel überlebt.
+      if (!raw) raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
     } catch {
       return null;
     }
@@ -4734,6 +5052,11 @@ export class RentalBookingStepsComponent implements OnInit {
           this.availableBikes.set(bikes);
           this.bikesLoaded.set(true);
           this.loadingAvailableBikes.set(false);
+          if ((bikes ?? []).length === 0) {
+            this.suggestNextFreeDate();
+          } else {
+            this.nextFreeDate.set(null);
+          }
           this.syncStepToUrl('bike-selection', true);
           done();
         },
@@ -4767,7 +5090,14 @@ export class RentalBookingStepsComponent implements OnInit {
         }
         const changed = this.currentStep() !== resolved;
         this.currentStep.set(resolved);
-        if (changed) this.closeLightbox();
+        if (changed) {
+          this.closeLightbox();
+          this.trackFunnel(resolved);
+          // Beim Betreten des Formulars still vorprüfen, ob ein Rad aus der
+          // Buchung inzwischen vergriffen ist — vor dem Ausfüllen statt erst
+          // beim Absenden.
+          if (resolved === 'customer-info') this.revalidateCartAvailability();
+        }
         // Query-param-only navigations don't trigger the router's scroll
         // restoration — jump to the top of the flow ourselves so the user
         // always lands at the step indicator (mobile UX feedback).
@@ -4845,12 +5175,21 @@ export class RentalBookingStepsComponent implements OnInit {
       return;
     }
 
+    // Zubehör nebenher vorladen: erspart dem Zubehör-Schritt den Lademoment
+    // und lässt ihn bei leerem Katalog ganz überspringen.
+    this.loadAccessories();
+
     this.loadingAvailableBikes.set(true);
     this.apiService.getAvailableBikes(start, end).subscribe({
       next: (bikes) => {
         this.availableBikes.set(bikes);
         this.bikesLoaded.set(true);
         this.loadingAvailableBikes.set(false);
+        if ((bikes ?? []).length === 0) {
+          this.suggestNextFreeDate();
+        } else {
+          this.nextFreeDate.set(null);
+        }
         this.goToStep('bike-selection');
       },
       error: () => {
@@ -4998,8 +5337,27 @@ export class RentalBookingStepsComponent implements OnInit {
   });
 
   goToAccessoryStep(): void {
+    // Der Katalog wird schon auf dem Weg in die Radauswahl vorgeladen. Ist er
+    // leer, wäre dieser Schritt nur ein "Weiter"-Klick — dann direkt zum
+    // Formular. Lädt er noch, bleibt der Schritt sichtbar (Ladezustand).
+    if (this.accessoriesLoaded && this.accessories().length === 0) {
+      this.goToStep('customer-info');
+      return;
+    }
     this.loadAccessories();
     this.goToStep('accessory-selection');
+  }
+
+  /**
+   * Symmetrisch zurück aus dem Formular: über den Zubehör-Schritt — außer der
+   * würde mangels Zubehör ohnehin übersprungen, dann direkt zur Radauswahl.
+   */
+  backFromCustomerInfo(): void {
+    if (this.accessoriesLoaded && this.accessories().length === 0) {
+      this.goToStep('bike-selection');
+      return;
+    }
+    this.goToAccessoryStep();
   }
 
   loadAccessories(): void {
@@ -5091,6 +5449,7 @@ export class RentalBookingStepsComponent implements OnInit {
         // Gebucht ist gebucht: der Entwurf darf nicht liegenbleiben, sonst käme
         // die Buchung beim nächsten Aufruf der Seite wieder hoch.
         this.clearDraft();
+        this.trackFunnel('submit-success');
         this.goToStep('success');
       },
       error: (err: unknown) => {
@@ -5103,9 +5462,11 @@ export class RentalBookingStepsComponent implements OnInit {
         // einem ausgefüllten Formular stehen, ohne zu wissen, was fehlt.
         const status = (err as HttpErrorResponse)?.status;
         if (status === 409 || status === 404) {
+          this.trackFunnel('submit-conflict', String(status));
           this.recoverFromStaleAvailability();
           return;
         }
+        this.trackFunnel('submit-error', String(status ?? ''));
         this.bookingError.set(
           this.t().rentalSteps?.bookingError ??
             'Fehler beim Erstellen der Buchung',

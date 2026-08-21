@@ -54,6 +54,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<KleinanzeigenChatDraft> KleinanzeigenChatDrafts => Set<KleinanzeigenChatDraft>();
     public DbSet<BelegKontrolle> BelegKontrollen => Set<BelegKontrolle>();
     public DbSet<Sprachnotiz> Sprachnotizen => Set<Sprachnotiz>();
+    public DbSet<RentalFunnelEvent> RentalFunnelEvents => Set<RentalFunnelEvent>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -740,6 +741,20 @@ public class BikeHausDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Art).IsRequired().HasMaxLength(20);
             entity.HasIndex(e => new { e.Art, e.BelegId }).IsUnique();
+        });
+
+        // ── RentalFunnelEvent Configuration ──
+        // Funnel-Telemetrie der öffentlichen Mietbuchung — anonym, append-only.
+        modelBuilder.Entity<RentalFunnelEvent>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Step).IsRequired().HasMaxLength(40);
+            entity.Property(e => e.SessionKey).IsRequired().HasMaxLength(64);
+            entity.Property(e => e.Sprache).HasMaxLength(8);
+            entity.Property(e => e.Info).HasMaxLength(200);
+            // Auswertung: Ereignisse je Session in zeitlicher Reihenfolge.
+            entity.HasIndex(e => new { e.SessionKey, e.CreatedAt });
+            entity.HasIndex(e => e.Step);
         });
 
         // ── Sprachnotiz Configuration ──
