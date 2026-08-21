@@ -211,6 +211,8 @@ interface RentalStepsTranslations {
   privacyNote?: string;
   /** Link text for the privacy policy. */
   privacyLinkText?: string;
+  /** Hinweis: der Verleih hat eigene Übergabezeiten (ab 10:00 Uhr) — unabhängig von den Ladenöffnungszeiten (An- & Verkauf). */
+  rentalHoursNote?: string;
 }
 
 /**
@@ -4170,6 +4172,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'Ab {date} sind wieder Räder verfügbar.',
     privacyNote: 'Hinweise zur Verarbeitung Ihrer Daten:',
     privacyLinkText: 'Datenschutzerklärung',
+    rentalHoursNote:
+      'Der Verleih hat eigene Übergabezeiten: Abholung ist ab 10:00 Uhr möglich – unabhängig von den Öffnungszeiten des Ladens (An- & Verkauf).',
   },
   en: {
     dateSelection: 'Choose date',
@@ -4331,6 +4335,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'Bikes are available again from {date}.',
     privacyNote: 'How we handle your data:',
     privacyLinkText: 'Privacy policy',
+    rentalHoursNote:
+      "Rentals have their own handover hours: pickup is possible from 10:00 – independent of the shop's regular opening hours (sales).",
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -4495,6 +4501,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'Des vélos seront à nouveau disponibles à partir du {date}.',
     privacyNote: 'Informations sur le traitement de vos données :',
     privacyLinkText: 'Politique de confidentialité',
+    rentalHoursNote:
+      "La location a ses propres horaires de remise : le retrait est possible dès 10h00, indépendamment des horaires d'ouverture du magasin (vente).",
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -4657,6 +4665,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: '{date} tarihinden itibaren yeniden bisiklet var.',
     privacyNote: 'Verilerinizin işlenmesi hakkında:',
     privacyLinkText: 'Gizlilik politikası',
+    rentalHoursNote:
+      "Kiralamanın kendi teslim saatleri vardır: Teslim alma saat 10:00'dan itibaren mümkündür – mağazanın (alış-satış) açılış saatlerinden bağımsızdır.",
   },
   es: {
     dateSelection: 'Elegir fecha',
@@ -4820,6 +4830,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'A partir del {date} vuelve a haber bicicletas disponibles.',
     privacyNote: 'Información sobre el tratamiento de sus datos:',
     privacyLinkText: 'Política de privacidad',
+    rentalHoursNote:
+      'El alquiler tiene sus propios horarios de entrega: la recogida es posible a partir de las 10:00, independientemente del horario de apertura de la tienda (venta).',
   },
   it: {
     dateSelection: 'Scegli data',
@@ -4985,6 +4997,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'Dal {date} saranno di nuovo disponibili delle bici.',
     privacyNote: 'Informazioni sul trattamento dei tuoi dati:',
     privacyLinkText: 'Informativa sulla privacy',
+    rentalHoursNote:
+      'Il noleggio ha orari di consegna propri: il ritiro è possibile dalle 10:00, indipendentemente dagli orari di apertura del negozio (vendita).',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
@@ -5144,6 +5158,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'ستتوفر الدراجات مجددًا اعتبارًا من {date}.',
     privacyNote: 'معلومات حول معالجة بياناتك:',
     privacyLinkText: 'سياسة الخصوصية',
+    rentalHoursNote:
+      'للتأجير أوقات تسليم خاصة به: الاستلام ممكن من الساعة 10:00 – بغض النظر عن ساعات عمل المتجر (البيع).',
   },
   ru: {
     dateSelection: 'Выбор даты',
@@ -5307,6 +5323,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'С {date} велосипеды снова будут доступны.',
     privacyNote: 'Информация об обработке ваших данных:',
     privacyLinkText: 'Политика конфиденциальности',
+    rentalHoursNote:
+      'У проката свои часы выдачи: забрать велосипед можно с 10:00 – независимо от часов работы магазина (продажа).',
   },
 
   nl: {
@@ -5470,6 +5488,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'Vanaf {date} zijn er weer fietsen beschikbaar.',
     privacyNote: 'Informatie over de verwerking van je gegevens:',
     privacyLinkText: 'Privacyverklaring',
+    rentalHoursNote:
+      'De verhuur heeft eigen overdrachtstijden: ophalen kan vanaf 10:00 uur, los van de openingstijden van de winkel (verkoop).',
   },
 
   da: {
@@ -5633,6 +5653,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'Fra {date} er der igen ledige cykler.',
     privacyNote: 'Information om behandlingen af dine data:',
     privacyLinkText: 'Privatlivspolitik',
+    rentalHoursNote:
+      'Udlejningen har sine egne udleveringstider: afhentning er mulig fra kl. 10.00 – uafhængigt af butikkens åbningstider (salg).',
   },
 
   no: {
@@ -5796,6 +5818,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'Fra {date} er det igjen ledige sykler.',
     privacyNote: 'Informasjon om behandlingen av opplysningene dine:',
     privacyLinkText: 'Personvernerklæring',
+    rentalHoursNote:
+      'Utleien har egne utleveringstider: henting er mulig fra kl. 10.00 – uavhengig av butikkens åpningstider (salg).',
   },
 
   pl: {
@@ -5960,6 +5984,8 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     nextAvailableFrom: 'Od {date} rowery będą znów dostępne.',
     privacyNote: 'Informacje o przetwarzaniu Twoich danych:',
     privacyLinkText: 'Polityka prywatności',
+    rentalHoursNote:
+      'Wypożyczalnia ma własne godziny wydawania: odbiór jest możliwy od 10:00 – niezależnie od godzin otwarcia sklepu (sprzedaż).',
   },
 };
 

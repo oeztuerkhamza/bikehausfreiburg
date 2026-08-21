@@ -690,7 +690,7 @@ Your Bike Haus Freiburg team";
 
 {T(lang, MailKeys.HeadingPickupReturn)}
 Bike Haus Freiburg
-{m.PickupLocation}{openingHoursLine}{googleMapsLine}
+{m.PickupLocation}{openingHoursLine}{T(lang, MailKeys.LineRentalHoursNote)}{googleMapsLine}
 
 {T(lang, MailKeys.HeadingImportantNote)}
 {depositParagraph}
@@ -736,7 +736,7 @@ bikehausfreiburg.com
 
 {T(lang, MailKeys.HeadingPickupReturn)}
 Bike Haus Freiburg
-{m.PickupLocation}{openingHoursLine}{googleMapsLine}
+{m.PickupLocation}{openingHoursLine}{T(lang, MailKeys.LineRentalHoursNote)}{googleMapsLine}
 
 {T(lang, MailKeys.HeadingImportantNote)}
 {depositParagraph}
@@ -842,7 +842,7 @@ Bike Haus Freiburg
 
 {T(lang, MailKeys.HeadingPickup)}
 Bike Haus Freiburg
-{m.PickupLocation}{openingHoursLine}
+{m.PickupLocation}{openingHoursLine}{T(lang, MailKeys.LineRentalHoursNote)}
 
 {depositSentence}
 
