@@ -3807,7 +3807,11 @@ export class RentalBookingStepsComponent implements OnInit {
     const from = monthStart < min ? min : monthStart;
     const to = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
     if (to < from) return;
-    this.apiService.getAvailabilityCalendar(from, to).subscribe({
+    // Als lokale Datums-Strings übergeben — Date-Objekte würden im Service
+    // über UTC serialisiert und in UTC+1/+2 auf den Vortag zurückrollen.
+    this.apiService
+      .getAvailabilityCalendar(this.formatDateKey(from), this.formatDateKey(to))
+      .subscribe({
       next: (res) => {
         this.availabilityByDay.update((prev) => {
           const next = new Map(prev);
@@ -3840,10 +3844,15 @@ export class RentalBookingStepsComponent implements OnInit {
   private suggestNextFreeDate(): void {
     this.nextFreeDate.set(null);
     if (!isPlatformBrowser(this.platformId) || !this.selectedStartDate) return;
-    const from = new Date(`${this.selectedStartDate}T00:00:00`);
-    const to = new Date(from);
-    to.setDate(to.getDate() + 45);
-    this.apiService.getAvailabilityCalendar(from, to).subscribe({
+    const searchEnd = new Date(`${this.selectedStartDate}T00:00:00`);
+    searchEnd.setDate(searchEnd.getDate() + 45);
+    // Datums-Strings statt Date-Objekte — s. fetchMonthAvailability.
+    this.apiService
+      .getAvailabilityCalendar(
+        this.selectedStartDate,
+        this.formatDateKey(searchEnd),
+      )
+      .subscribe({
       next: (res) => {
         const firstFree = res.days.find((day) => day.freeCount > 0);
         if (firstFree) this.nextFreeDate.set(firstFree.date);
@@ -5381,6 +5390,10 @@ export class RentalBookingStepsComponent implements OnInit {
       },
       error: () => {
         this.accessories.set([]);
+        // accessoriesLoaded bleibt bewusst false: ein Fehlschlag ist kein
+        // leerer Katalog. Der Schritt bleibt sichtbar und der nächste Weg
+        // dorthin versucht es erneut — Zubehör soll nach einem Netz-Schluckauf
+        // nicht still aus dem Ablauf verschwinden.
         this.loadingAccessories.set(false);
       },
     });

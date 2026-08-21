@@ -258,20 +258,22 @@ export class ApiService {
   /**
    * Freie Räder pro Tag (ohne Rad-IDs): fuer die Belegungs-Schattierung im
    * Buchungskalender und den "ab X wieder frei"-Hinweis.
+   *
+   * Nimmt bewusst fertige `YYYY-MM-DD`-Strings statt `Date`-Objekten: eine
+   * Umwandlung über toISOString() rollt lokale Mitternacht in UTC+1/+2 auf den
+   * Vortag zurück — der Kalendertag des Gastes ist hier die Wahrheit.
    */
   getAvailabilityCalendar(
-    from: Date,
-    to: Date,
+    from: string,
+    to: string,
   ): Observable<{
     totalBikes: number;
     days: { date: string; freeCount: number }[];
   }> {
-    const start = this.formatDateForAPI(from);
-    const end = this.formatDateForAPI(to);
     return this.http.get<{
       totalBikes: number;
       days: { date: string; freeCount: number }[];
-    }>(`${this.baseUrl}/rentals/availability-calendar?from=${start}&to=${end}`);
+    }>(`${this.baseUrl}/rentals/availability-calendar?from=${from}&to=${to}`);
   }
 
   /**
