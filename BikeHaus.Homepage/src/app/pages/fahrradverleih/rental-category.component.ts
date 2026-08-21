@@ -14,8 +14,17 @@ import {
   RENTAL_CATEGORIES,
   RentalCategory,
   RentalCategoryContent,
+  RentalCategoryId,
   findCategoryBySlug,
 } from './rental-category-content';
+
+// Kanonische Typ-Werte für den Buchungs-Wizard (?type=…): der Wizard
+// normalisiert über normalizeBikeType, diese Keys sind die kanonischen.
+const BOOKING_TYPE_BY_CATEGORY: Record<RentalCategoryId, string> = {
+  ebike: 'E-Bike',
+  trekking: 'Trekking',
+  kinder: 'Kinderrad',
+};
 
 @Component({
   selector: 'app-rental-category',
@@ -49,7 +58,11 @@ import {
                 }
               </div>
               <div class="rc-hero-actions">
-                <a [routerLink]="bookingPath()" class="rc-btn-primary">
+                <a
+                  [routerLink]="bookingPath()"
+                  [queryParams]="bookingQueryParams()"
+                  class="rc-btn-primary"
+                >
                   {{ c.ctaButton }}
                 </a>
                 <a
@@ -145,7 +158,11 @@ import {
               <h2>{{ c.ctaHeading }}</h2>
               <p>{{ c.ctaText }}</p>
               <div class="rc-cta-actions">
-                <a [routerLink]="bookingPath()" class="rc-btn-primary">
+                <a
+                  [routerLink]="bookingPath()"
+                  [queryParams]="bookingQueryParams()"
+                  class="rc-btn-primary"
+                >
                   {{ c.ctaButton }}
                 </a>
                 <a
@@ -521,6 +538,12 @@ export class RentalCategoryComponent implements OnInit {
   });
 
   bookingPath = computed(() => getRentalBookingPath(this.lang()));
+
+  /** ?type=… für den Wizard, damit die Fahrradliste vorgefiltert startet. */
+  bookingQueryParams = computed(() => {
+    const cat = this.category();
+    return cat ? { type: BOOKING_TYPE_BY_CATEGORY[cat.id] } : {};
+  });
 
   otherCategories = computed(() => {
     const current = this.category();

@@ -92,6 +92,18 @@ interface RentalStepsTranslations {
   totalDeposit: string;
   depositNote: string;
   depositCashNote: string;
+  /** Trust badge: the booking is confirmed immediately, no shop approval. */
+  trustInstantConfirm?: string;
+  /** Trust badge: nothing is paid online — payment happens at pickup. */
+  trustPayAtPickup?: string;
+  /** Trust badge: cancellation is free of charge. */
+  trustFreeCancellation?: string;
+  /** Heading of the payment-and-pickup info box on the review/success steps. */
+  pickupInfoTitle?: string;
+  /** Note: no online payment, rent + deposit are settled at pickup in the shop. */
+  paymentAtPickupNote?: string;
+  /** Note: bring a valid photo ID to pickup. */
+  bringPhotoIdNote?: string;
   confirm: string;
   bookingSuccess: string;
   confirmationSent: string;
@@ -173,6 +185,32 @@ interface RentalStepsTranslations {
   decreaseQuantity?: string;
   /** aria-label for the "+" quantity button. */
   increaseQuantity?: string;
+  /** CTA in the empty-availability state: pick a different rental period. */
+  changeDates?: string;
+  /** Full success sentence; {email} is replaced with the customer's email address. */
+  confirmationSentTo?: string;
+  /** Bike-card price line; {price} and {days} are replaced at runtime (e.g. "45 € for 3 days"). */
+  priceForDaysText?: string;
+  /** Singular bike-card price line; {price} is replaced at runtime (e.g. "15 € for 1 day"). */
+  priceForOneDayText?: string;
+  /** Terms-acceptance sentence; {link} is replaced with the translated termsLinkText rendered as a hyperlink. */
+  termsSentence?: string;
+  /** Cart-count sentence, singular; {count} is replaced with the number of bikes. */
+  bikeInBookingText?: string;
+  /** Cart-count sentence, plural; {count} is replaced with the number of bikes. */
+  bikesInBookingText?: string;
+  /** Label for a calendar day on which no bikes are free. */
+  fullyBooked?: string;
+  /** Scarcity note, singular: exactly one bike left for the selected dates. */
+  onlyOneBikeLeft?: string;
+  /** Scarcity note, plural; {count} is replaced with the number of bikes left. */
+  onlyFewBikesLeft?: string;
+  /** Empty-result suggestion; {date} is replaced with a localized date string. */
+  nextAvailableFrom?: string;
+  /** Short lead-in shown before the privacy-policy link under the customer form. */
+  privacyNote?: string;
+  /** Link text for the privacy policy. */
+  privacyLinkText?: string;
 }
 
 /**
@@ -4046,6 +4084,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     depositNote: 'Die Kaution wird bei Rückgabe des Fahrrads erstattet.',
     depositCashNote:
       'Wichtig: Die Kaution kann ausschließlich in bar bezahlt werden.',
+    trustInstantConfirm: 'Sofort bestätigt',
+    trustPayAtPickup: 'Keine Online-Zahlung – bezahlt wird bei Abholung',
+    trustFreeCancellation: 'Kostenlose Stornierung',
+    pickupInfoTitle: 'Bezahlung & Abholung',
+    paymentAtPickupNote:
+      'Keine Online-Zahlung: Miete und Kaution zahlen Sie bequem bei der Abholung im Laden (Miete bar oder mit Karte).',
+    bringPhotoIdNote:
+      'Bitte bringen Sie zur Abholung einen gültigen Lichtbildausweis mit.',
     confirm: 'Buchung bestätigen',
     bookingSuccess: 'Buchung erfolgreich!',
     confirmationSent: 'Eine Bestätigungsmail wurde an',
@@ -4111,6 +4157,19 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Mehrere Kinderräder dieser Größe können Sie in einem Schritt buchen.',
     decreaseQuantity: 'Anzahl verringern',
     increaseQuantity: 'Anzahl erhöhen',
+    changeDates: 'Anderen Zeitraum wählen',
+    confirmationSentTo: 'Eine Bestätigungsmail wurde an {email} gesendet.',
+    priceForDaysText: '{price} für {days} Tage',
+    priceForOneDayText: '{price} für 1 Tag',
+    termsSentence: 'Ich akzeptiere die {link}',
+    bikeInBookingText: '{count} Fahrrad in der Buchung',
+    bikesInBookingText: '{count} Fahrräder in der Buchung',
+    fullyBooked: 'Ausgebucht',
+    onlyOneBikeLeft: 'Nur noch 1 Rad für diesen Zeitraum frei',
+    onlyFewBikesLeft: 'Nur noch {count} Räder für diesen Zeitraum frei',
+    nextAvailableFrom: 'Ab {date} sind wieder Räder verfügbar.',
+    privacyNote: 'Hinweise zur Verarbeitung Ihrer Daten:',
+    privacyLinkText: 'Datenschutzerklärung',
   },
   en: {
     dateSelection: 'Choose date',
@@ -4187,6 +4246,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Total deposit',
     depositNote: 'The deposit is refunded when the bike is returned.',
     depositCashNote: 'Important: The deposit can only be paid in cash.',
+    trustInstantConfirm: 'Instantly confirmed',
+    trustPayAtPickup: 'No online payment – pay at pickup',
+    trustFreeCancellation: 'Free cancellation',
+    pickupInfoTitle: 'Payment & pickup',
+    paymentAtPickupNote:
+      'No online payment: you pay the rental fee and deposit at pickup in the shop (rental fee by cash or card).',
+    bringPhotoIdNote: 'Please bring a valid photo ID when picking up.',
     confirm: 'Confirm booking',
     bookingSuccess: 'Booking successful!',
     confirmationSent: 'A confirmation email was sent to',
@@ -4252,6 +4318,19 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       "Book several children's bikes of this size in one step.",
     decreaseQuantity: 'Decrease quantity',
     increaseQuantity: 'Increase quantity',
+    changeDates: 'Choose a different period',
+    confirmationSentTo: 'A confirmation email has been sent to {email}.',
+    priceForDaysText: '{price} for {days} days',
+    priceForOneDayText: '{price} for 1 day',
+    termsSentence: 'I accept the {link}',
+    bikeInBookingText: '{count} bike in your booking',
+    bikesInBookingText: '{count} bikes in your booking',
+    fullyBooked: 'Fully booked',
+    onlyOneBikeLeft: 'Only 1 bike left for these dates',
+    onlyFewBikesLeft: 'Only {count} bikes left for these dates',
+    nextAvailableFrom: 'Bikes are available again from {date}.',
+    privacyNote: 'How we handle your data:',
+    privacyLinkText: 'Privacy policy',
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -4330,6 +4409,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     depositNote: 'La caution est remboursée lors de la restitution du vélo.',
     depositCashNote:
       'Important : la caution est payable uniquement en espèces.',
+    trustInstantConfirm: 'Confirmation immédiate',
+    trustPayAtPickup: 'Aucun paiement en ligne – payez au retrait',
+    trustFreeCancellation: 'Annulation gratuite',
+    pickupInfoTitle: 'Paiement et retrait',
+    paymentAtPickupNote:
+      'Aucun paiement en ligne : vous réglez la location et la caution au retrait en magasin (location en espèces ou par carte).',
+    bringPhotoIdNote:
+      "Merci d'apporter une pièce d'identité valide avec photo lors du retrait.",
     confirm: 'Confirmer la réservation',
     bookingSuccess: 'Réservation réussie !',
     confirmationSent: 'Un e-mail de confirmation a été envoyé à',
@@ -4395,6 +4482,19 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Réservez plusieurs vélos enfant de cette taille en une seule étape.',
     decreaseQuantity: 'Diminuer la quantité',
     increaseQuantity: 'Augmenter la quantité',
+    changeDates: 'Choisir une autre période',
+    confirmationSentTo: 'Un e-mail de confirmation a été envoyé à {email}.',
+    priceForDaysText: '{price} pour {days} jours',
+    priceForOneDayText: '{price} pour 1 jour',
+    termsSentence: "J'accepte les {link}",
+    bikeInBookingText: '{count} vélo dans la réservation',
+    bikesInBookingText: '{count} vélos dans la réservation',
+    fullyBooked: 'Complet',
+    onlyOneBikeLeft: "Plus qu'un seul vélo disponible pour ces dates",
+    onlyFewBikesLeft: 'Plus que {count} vélos disponibles pour ces dates',
+    nextAvailableFrom: 'Des vélos seront à nouveau disponibles à partir du {date}.',
+    privacyNote: 'Informations sur le traitement de vos données :',
+    privacyLinkText: 'Politique de confidentialité',
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -4471,6 +4571,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Toplam depozito',
     depositNote: 'Bisiklet iade edildiğinde depozito geri ödenir.',
     depositCashNote: 'Önemli: Depozito yalnızca nakit olarak ödenebilir.',
+    trustInstantConfirm: 'Anında onay',
+    trustPayAtPickup: 'Online ödeme yok – ödeme teslim alırken',
+    trustFreeCancellation: 'Ücretsiz iptal',
+    pickupInfoTitle: 'Ödeme ve teslim alma',
+    paymentAtPickupNote:
+      'Online ödeme yoktur: kira bedelini ve depozitoyu mağazada teslim alırken ödersiniz (kira nakit veya kartla).',
+    bringPhotoIdNote:
+      'Teslim alırken lütfen geçerli, fotoğraflı bir kimlik belgesi getirin.',
     confirm: 'Rezervasyonu onayla',
     bookingSuccess: 'Rezervasyon başarılı!',
     confirmationSent: 'Onay e-postası şu adrese gönderildi',
@@ -4536,10 +4644,28 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Bu bedendeki birden fazla çocuk bisikletini tek adımda rezerve edebilirsiniz.',
     decreaseQuantity: 'Adedi azalt',
     increaseQuantity: 'Adedi artır',
+    changeDates: 'Başka tarih seç',
+    confirmationSentTo: 'Onay e-postası {email} adresine gönderildi.',
+    priceForDaysText: '{days} gün için {price}',
+    priceForOneDayText: '1 gün için {price}',
+    termsSentence: "{link}'nı kabul ediyorum",
+    bikeInBookingText: 'Rezervasyonda {count} bisiklet',
+    bikesInBookingText: 'Rezervasyonda {count} bisiklet',
+    fullyBooked: 'Tamamen dolu',
+    onlyOneBikeLeft: 'Bu tarihler için yalnızca 1 bisiklet kaldı',
+    onlyFewBikesLeft: 'Bu tarihler için yalnızca {count} bisiklet kaldı',
+    nextAvailableFrom: '{date} tarihinden itibaren yeniden bisiklet var.',
+    privacyNote: 'Verilerinizin işlenmesi hakkında:',
+    privacyLinkText: 'Gizlilik politikası',
   },
   es: {
     dateSelection: 'Elegir fecha',
     bikeSelection: 'Elegir bicicleta',
+    accessoryStep: 'Accesorios',
+    accessoryTitle: 'Añadir accesorios',
+    accessorySubtitle: 'Accesorios opcionales para su alquiler (precio por día).',
+    accessoryNone: 'No hay accesorios disponibles.',
+    accessoryTotal: 'Total accesorios',
     customerInfo: 'Ingresar datos',
     review: 'Confirmación',
     selectDates: 'Elige un período',
@@ -4555,6 +4681,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     accessoryOneTime: 'único',
     accessoryOnlyIfUsed: 'solo si se usa',
     free: 'Gratis',
+    pickupTime: 'Hora de recogida',
+    pickupTimeSelect: 'Elegir una hora',
+    pickupTimeHint: '¿A qué hora desea recoger la bicicleta?',
+    pickupTimeClosed:
+      'Ese día la tienda está cerrada. Por favor, elija otra fecha de inicio.',
+    pickupTimeRequired: 'Por favor, elija una hora de recogida',
+    oClock: '',
     to: 'hasta',
     calendarHint:
       'Selecciona primero la fecha de inicio y luego la de fin. Los domingos y festivos están cerrados.',
@@ -4600,6 +4733,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Depósito total',
     depositNote: 'El depósito se devuelve al entregar la bicicleta.',
     depositCashNote: 'Importante: el depósito solo se puede pagar en efectivo.',
+    trustInstantConfirm: 'Confirmación inmediata',
+    trustPayAtPickup: 'Sin pago online: se paga al recoger',
+    trustFreeCancellation: 'Cancelación gratuita',
+    pickupInfoTitle: 'Pago y recogida',
+    paymentAtPickupNote:
+      'Sin pago online: el alquiler y el depósito se pagan al recoger la bici en la tienda (alquiler en efectivo o con tarjeta).',
+    bringPhotoIdNote:
+      'Por favor, trae un documento de identidad válido con foto al recoger.',
     confirm: 'Confirmar reserva',
     bookingSuccess: '¡Reserva exitosa!',
     confirmationSent: 'Se envió un correo de confirmación a',
@@ -4666,10 +4807,29 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Reserve varias bicicletas infantiles de esta talla en un solo paso.',
     decreaseQuantity: 'Reducir cantidad',
     increaseQuantity: 'Aumentar cantidad',
+    changeDates: 'Elegir otro período',
+    confirmationSentTo: 'Se ha enviado un correo de confirmación a {email}.',
+    priceForDaysText: '{price} por {days} días',
+    priceForOneDayText: '{price} por 1 día',
+    termsSentence: 'Acepto los {link}',
+    bikeInBookingText: '{count} bicicleta en la reserva',
+    bikesInBookingText: '{count} bicicletas en la reserva',
+    fullyBooked: 'Completo',
+    onlyOneBikeLeft: 'Solo queda 1 bicicleta para estas fechas',
+    onlyFewBikesLeft: 'Solo quedan {count} bicicletas para estas fechas',
+    nextAvailableFrom: 'A partir del {date} vuelve a haber bicicletas disponibles.',
+    privacyNote: 'Información sobre el tratamiento de sus datos:',
+    privacyLinkText: 'Política de privacidad',
   },
   it: {
     dateSelection: 'Scegli data',
     bikeSelection: 'Scegli bici',
+    accessoryStep: 'Accessori',
+    accessoryTitle: 'Aggiungi accessori',
+    accessorySubtitle:
+      'Accessori opzionali per il tuo noleggio (prezzo al giorno).',
+    accessoryNone: 'Nessun accessorio disponibile.',
+    accessoryTotal: 'Totale accessori',
     customerInfo: 'Inserisci dati',
     review: 'Conferma',
     selectDates: 'Scegli un periodo',
@@ -4685,6 +4845,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     accessoryOneTime: 'una volta',
     accessoryOnlyIfUsed: 'solo se usato',
     free: 'Gratis',
+    pickupTime: 'Orario di ritiro',
+    pickupTimeSelect: 'Scegli un orario',
+    pickupTimeHint: 'A che ora vuoi ritirare la bici?',
+    pickupTimeClosed:
+      "In questo giorno siamo chiusi. Scegli un'altra data di inizio.",
+    pickupTimeRequired: 'Scegli un orario di ritiro',
+    oClock: '',
     to: 'a',
     calendarHint:
       'Seleziona prima la data di inizio e poi la data di fine. Le domeniche e i giorni festivi sono chiusi.',
@@ -4731,6 +4898,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     depositNote: 'Il deposito viene restituito alla riconsegna della bici.',
     depositCashNote:
       'Importante: il deposito può essere pagato solo in contanti.',
+    trustInstantConfirm: 'Conferma immediata',
+    trustPayAtPickup: 'Nessun pagamento online: si paga al ritiro',
+    trustFreeCancellation: 'Cancellazione gratuita',
+    pickupInfoTitle: 'Pagamento e ritiro',
+    paymentAtPickupNote:
+      'Nessun pagamento online: noleggio e cauzione si pagano al ritiro in negozio (noleggio in contanti o con carta).',
+    bringPhotoIdNote:
+      "Al ritiro porta con te un documento d'identità valido con foto.",
     confirm: 'Conferma prenotazione',
     bookingSuccess: 'Prenotazione completata!',
     confirmationSent: 'Una email di conferma è stata inviata a',
@@ -4797,10 +4972,28 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Prenota più bici per bambini di questa misura in un unico passaggio.',
     decreaseQuantity: 'Diminuisci quantità',
     increaseQuantity: 'Aumenta quantità',
+    changeDates: 'Scegli un altro periodo',
+    confirmationSentTo: 'Una email di conferma è stata inviata a {email}.',
+    priceForDaysText: '{price} per {days} giorni',
+    priceForOneDayText: '{price} per 1 giorno',
+    termsSentence: 'Accetto i {link}',
+    bikeInBookingText: '{count} bici nella prenotazione',
+    bikesInBookingText: '{count} bici nella prenotazione',
+    fullyBooked: 'Al completo',
+    onlyOneBikeLeft: 'Solo 1 bici disponibile per queste date',
+    onlyFewBikesLeft: 'Solo {count} bici disponibili per queste date',
+    nextAvailableFrom: 'Dal {date} saranno di nuovo disponibili delle bici.',
+    privacyNote: 'Informazioni sul trattamento dei tuoi dati:',
+    privacyLinkText: 'Informativa sulla privacy',
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
     bikeSelection: 'اختيار الدراجة',
+    accessoryStep: 'الإكسسوارات',
+    accessoryTitle: 'إضافة إكسسوارات',
+    accessorySubtitle: 'إكسسوارات اختيارية لإيجارك (السعر لليوم الواحد).',
+    accessoryNone: 'لا توجد إكسسوارات متاحة.',
+    accessoryTotal: 'إجمالي الإكسسوارات',
     customerInfo: 'إدخال البيانات',
     review: 'التأكيد',
     selectDates: 'اختر فترة',
@@ -4816,6 +5009,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     accessoryOneTime: 'لمرة واحدة',
     accessoryOnlyIfUsed: 'فقط في حال الاستخدام',
     free: 'مجانًا',
+    pickupTime: 'وقت الاستلام',
+    pickupTimeSelect: 'اختر وقتًا',
+    pickupTimeHint: 'في أي وقت تود استلام الدراجة؟',
+    pickupTimeClosed:
+      'المتجر مغلق في هذا اليوم. يرجى اختيار تاريخ بدء آخر.',
+    pickupTimeRequired: 'يرجى اختيار وقت الاستلام',
+    oClock: '',
     to: 'إلى',
     calendarHint:
       'اختر تاريخ البدء أولاً ثم تاريخ الانتهاء. أيام الأحد والعطل الرسمية مغلقة.',
@@ -4861,6 +5061,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'إجمالي التأمين',
     depositNote: 'يتم رد مبلغ التأمين عند إعادة الدراجة.',
     depositCashNote: 'مهم: لا يمكن دفع مبلغ التأمين إلا نقدًا.',
+    trustInstantConfirm: 'تأكيد فوري',
+    trustPayAtPickup: 'لا دفع عبر الإنترنت – الدفع عند الاستلام',
+    trustFreeCancellation: 'إلغاء مجاني',
+    pickupInfoTitle: 'الدفع والاستلام',
+    paymentAtPickupNote:
+      'لا يوجد دفع عبر الإنترنت: تدفع قيمة الإيجار ومبلغ التأمين عند الاستلام في المتجر (الإيجار نقدًا أو بالبطاقة).',
+    bringPhotoIdNote: 'يرجى إحضار بطاقة هوية سارية تحمل صورة عند الاستلام.',
     confirm: 'تأكيد الحجز',
     bookingSuccess: 'تم الحجز بنجاح!',
     confirmationSent: 'تم إرسال رسالة تأكيد إلى',
@@ -4924,10 +5131,29 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'يمكنك حجز عدة دراجات أطفال بهذا المقاس في خطوة واحدة.',
     decreaseQuantity: 'تقليل الكمية',
     increaseQuantity: 'زيادة الكمية',
+    changeDates: 'اختيار فترة أخرى',
+    confirmationSentTo: 'تم إرسال رسالة تأكيد إلى {email}.',
+    priceForDaysText: '{price} لمدة {days} أيام',
+    priceForOneDayText: '{price} ليوم واحد',
+    termsSentence: 'أوافق على {link}',
+    bikeInBookingText: '{count} دراجة في الحجز',
+    bikesInBookingText: '{count} دراجات في الحجز',
+    fullyBooked: 'محجوز بالكامل',
+    onlyOneBikeLeft: 'بقيت دراجة واحدة فقط لهذه التواريخ',
+    onlyFewBikesLeft: 'بقي {count} دراجات فقط لهذه التواريخ',
+    nextAvailableFrom: 'ستتوفر الدراجات مجددًا اعتبارًا من {date}.',
+    privacyNote: 'معلومات حول معالجة بياناتك:',
+    privacyLinkText: 'سياسة الخصوصية',
   },
   ru: {
     dateSelection: 'Выбор даты',
     bikeSelection: 'Выбор велосипеда',
+    accessoryStep: 'Аксессуары',
+    accessoryTitle: 'Добавить аксессуары',
+    accessorySubtitle:
+      'Дополнительные аксессуары к вашей аренде (цена за день).',
+    accessoryNone: 'Нет доступных аксессуаров.',
+    accessoryTotal: 'Итого за аксессуары',
     customerInfo: 'Ввод данных',
     review: 'Подтверждение',
     selectDates: 'Выберите период',
@@ -4943,6 +5169,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     accessoryOneTime: 'разово',
     accessoryOnlyIfUsed: 'только при использовании',
     free: 'Бесплатно',
+    pickupTime: 'Время получения',
+    pickupTimeSelect: 'Выберите время',
+    pickupTimeHint: 'В какое время вы хотите забрать велосипед?',
+    pickupTimeClosed:
+      'В этот день магазин закрыт. Пожалуйста, выберите другую дату начала.',
+    pickupTimeRequired: 'Пожалуйста, выберите время получения',
+    oClock: '',
     to: 'до',
     calendarHint:
       'Сначала выберите дату начала, затем дату окончания. Воскресенья и официальные праздники закрыты.',
@@ -4988,6 +5221,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Итого залог',
     depositNote: 'Залог возвращается при возврате велосипеда.',
     depositCashNote: 'Важно: залог можно оплатить только наличными.',
+    trustInstantConfirm: 'Мгновенное подтверждение',
+    trustPayAtPickup: 'Без онлайн-оплаты – оплата при получении',
+    trustFreeCancellation: 'Бесплатная отмена',
+    pickupInfoTitle: 'Оплата и получение',
+    paymentAtPickupNote:
+      'Онлайн-оплаты нет: аренду и залог вы оплачиваете при получении в магазине (аренду — наличными или картой).',
+    bringPhotoIdNote:
+      'Пожалуйста, возьмите с собой действительное удостоверение личности с фотографией.',
     confirm: 'Подтвердить бронирование',
     bookingSuccess: 'Бронирование успешно!',
     confirmationSent: 'Письмо с подтверждением отправлено на',
@@ -5053,6 +5294,19 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Забронируйте несколько детских велосипедов этого размера за один шаг.',
     decreaseQuantity: 'Уменьшить количество',
     increaseQuantity: 'Увеличить количество',
+    changeDates: 'Выбрать другой период',
+    confirmationSentTo: 'Письмо с подтверждением отправлено на {email}.',
+    priceForDaysText: '{price} за {days} дн.',
+    priceForOneDayText: '{price} за 1 день',
+    termsSentence: 'Я принимаю {link}',
+    bikeInBookingText: '{count} велосипед в бронировании',
+    bikesInBookingText: '{count} велосипедов в бронировании',
+    fullyBooked: 'Всё занято',
+    onlyOneBikeLeft: 'На эти даты остался только 1 велосипед',
+    onlyFewBikesLeft: 'На эти даты осталось только {count} велосипедов',
+    nextAvailableFrom: 'С {date} велосипеды снова будут доступны.',
+    privacyNote: 'Информация об обработке ваших данных:',
+    privacyLinkText: 'Политика конфиденциальности',
   },
 
   nl: {
@@ -5130,6 +5384,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Totale borg',
     depositNote: 'De borg wordt terugbetaald wanneer de fiets wordt teruggebracht.',
     depositCashNote: 'Belangrijk: de borg kan alleen contant worden betaald.',
+    trustInstantConfirm: 'Direct bevestigd',
+    trustPayAtPickup: 'Geen online betaling – betalen bij afhalen',
+    trustFreeCancellation: 'Gratis annuleren',
+    pickupInfoTitle: 'Betaling & afhalen',
+    paymentAtPickupNote:
+      'Geen online betaling: huur en borg betaalt u bij het afhalen in de winkel (huur contant of met kaart).',
+    bringPhotoIdNote:
+      'Neem bij het afhalen een geldig identiteitsbewijs met foto mee.',
     confirm: 'Boeking bevestigen',
     bookingSuccess: 'Boeking geslaagd!',
     confirmationSent: 'Een bevestigingsmail is verzonden naar',
@@ -5195,6 +5457,19 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Boek meerdere kinderfietsen van deze maat in één stap.',
     decreaseQuantity: 'Aantal verlagen',
     increaseQuantity: 'Aantal verhogen',
+    changeDates: 'Andere periode kiezen',
+    confirmationSentTo: 'Een bevestigingsmail is verzonden naar {email}.',
+    priceForDaysText: '{price} voor {days} dagen',
+    priceForOneDayText: '{price} voor 1 dag',
+    termsSentence: 'Ik accepteer de {link}',
+    bikeInBookingText: '{count} fiets in de boeking',
+    bikesInBookingText: '{count} fietsen in de boeking',
+    fullyBooked: 'Volgeboekt',
+    onlyOneBikeLeft: 'Nog maar 1 fiets vrij voor deze data',
+    onlyFewBikesLeft: 'Nog maar {count} fietsen vrij voor deze data',
+    nextAvailableFrom: 'Vanaf {date} zijn er weer fietsen beschikbaar.',
+    privacyNote: 'Informatie over de verwerking van je gegevens:',
+    privacyLinkText: 'Privacyverklaring',
   },
 
   da: {
@@ -5272,6 +5547,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Depositum i alt',
     depositNote: 'Depositummet tilbagebetales, når cyklen returneres.',
     depositCashNote: 'Vigtigt: Depositummet kan kun betales kontant.',
+    trustInstantConfirm: 'Bekræftes med det samme',
+    trustPayAtPickup: 'Ingen onlinebetaling – betal ved afhentning',
+    trustFreeCancellation: 'Gratis afbestilling',
+    pickupInfoTitle: 'Betaling & afhentning',
+    paymentAtPickupNote:
+      'Ingen onlinebetaling: leje og depositum betales ved afhentning i butikken (leje kontant eller med kort).',
+    bringPhotoIdNote:
+      'Medbring venligst gyldig billedlegitimation ved afhentning.',
     confirm: 'Bekræft booking',
     bookingSuccess: 'Booking gennemført!',
     confirmationSent: 'En bekræftelsesmail blev sendt til',
@@ -5337,6 +5620,19 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Book flere børnecykler i denne størrelse i ét trin.',
     decreaseQuantity: 'Reducer antal',
     increaseQuantity: 'Øg antal',
+    changeDates: 'Vælg en anden periode',
+    confirmationSentTo: 'En bekræftelsesmail er sendt til {email}.',
+    priceForDaysText: '{price} for {days} dage',
+    priceForOneDayText: '{price} for 1 dag',
+    termsSentence: 'Jeg accepterer {link}',
+    bikeInBookingText: '{count} cykel i bookingen',
+    bikesInBookingText: '{count} cykler i bookingen',
+    fullyBooked: 'Fuldt booket',
+    onlyOneBikeLeft: 'Kun 1 cykel tilbage i denne periode',
+    onlyFewBikesLeft: 'Kun {count} cykler tilbage i denne periode',
+    nextAvailableFrom: 'Fra {date} er der igen ledige cykler.',
+    privacyNote: 'Information om behandlingen af dine data:',
+    privacyLinkText: 'Privatlivspolitik',
   },
 
   no: {
@@ -5414,6 +5710,13 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Totalt depositum',
     depositNote: 'Depositumet tilbakebetales når sykkelen leveres tilbake.',
     depositCashNote: 'Viktig: Depositumet kan kun betales kontant.',
+    trustInstantConfirm: 'Bekreftes umiddelbart',
+    trustPayAtPickup: 'Ingen nettbetaling – betal ved henting',
+    trustFreeCancellation: 'Gratis avbestilling',
+    pickupInfoTitle: 'Betaling og henting',
+    paymentAtPickupNote:
+      'Ingen nettbetaling: leie og depositum betales ved henting i butikken (leie kontant eller med kort).',
+    bringPhotoIdNote: 'Ta med gyldig legitimasjon med bilde ved henting.',
     confirm: 'Bekreft bestilling',
     bookingSuccess: 'Bestilling vellykket!',
     confirmationSent: 'En bekreftelses-e-post ble sendt til',
@@ -5480,6 +5783,19 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Bestill flere barnesykler i denne størrelsen i ett trinn.',
     decreaseQuantity: 'Reduser antall',
     increaseQuantity: 'Øk antall',
+    changeDates: 'Velg en annen periode',
+    confirmationSentTo: 'En bekreftelses-e-post er sendt til {email}.',
+    priceForDaysText: '{price} for {days} dager',
+    priceForOneDayText: '{price} for 1 dag',
+    termsSentence: 'Jeg godtar {link}',
+    bikeInBookingText: '{count} sykkel i bestillingen',
+    bikesInBookingText: '{count} sykler i bestillingen',
+    fullyBooked: 'Fullbooket',
+    onlyOneBikeLeft: 'Bare 1 sykkel igjen for disse datoene',
+    onlyFewBikesLeft: 'Bare {count} sykler igjen for disse datoene',
+    nextAvailableFrom: 'Fra {date} er det igjen ledige sykler.',
+    privacyNote: 'Informasjon om behandlingen av opplysningene dine:',
+    privacyLinkText: 'Personvernerklæring',
   },
 
   pl: {
@@ -5557,6 +5873,14 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     totalDeposit: 'Całkowita kaucja',
     depositNote: 'Kaucja jest zwracana po oddaniu roweru.',
     depositCashNote: 'Ważne: Kaucję można zapłacić tylko gotówką.',
+    trustInstantConfirm: 'Natychmiastowe potwierdzenie',
+    trustPayAtPickup: 'Bez płatności online – płatność przy odbiorze',
+    trustFreeCancellation: 'Bezpłatne anulowanie',
+    pickupInfoTitle: 'Płatność i odbiór',
+    paymentAtPickupNote:
+      'Bez płatności online: czynsz i kaucję płacisz przy odbiorze w sklepie (czynsz gotówką lub kartą).',
+    bringPhotoIdNote:
+      'Prosimy zabrać ze sobą ważny dokument tożsamości ze zdjęciem przy odbiorze.',
     confirm: 'Potwierdź rezerwację',
     bookingSuccess: 'Rezerwacja udana!',
     confirmationSent: 'E-mail z potwierdzeniem został wysłany na',
@@ -5622,6 +5946,20 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
       'Zarezerwuj kilka rowerów dziecięcych w tym rozmiarze w jednym kroku.',
     decreaseQuantity: 'Zmniejsz ilość',
     increaseQuantity: 'Zwiększ ilość',
+    changeDates: 'Wybierz inny termin',
+    confirmationSentTo:
+      'E-mail z potwierdzeniem został wysłany na adres {email}.',
+    priceForDaysText: '{price} za {days} dni',
+    priceForOneDayText: '{price} za 1 dzień',
+    termsSentence: 'Akceptuję {link}',
+    bikeInBookingText: '{count} rower w rezerwacji',
+    bikesInBookingText: '{count} rowerów w rezerwacji',
+    fullyBooked: 'Wszystko zajęte',
+    onlyOneBikeLeft: 'W tym terminie został tylko 1 rower',
+    onlyFewBikesLeft: 'W tym terminie zostało tylko {count} rowerów',
+    nextAvailableFrom: 'Od {date} rowery będą znów dostępne.',
+    privacyNote: 'Informacje o przetwarzaniu Twoich danych:',
+    privacyLinkText: 'Polityka prywatności',
   },
 };
 

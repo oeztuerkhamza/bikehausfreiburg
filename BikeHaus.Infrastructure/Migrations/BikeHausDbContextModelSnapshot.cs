@@ -1736,6 +1736,45 @@ namespace BikeHaus.Infrastructure.Migrations
                     b.ToTable("RentalBookingBikes");
                 });
 
+            modelBuilder.Entity("BikeHaus.Domain.Entities.RentalFunnelEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Info")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SessionKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Sprache")
+                        .HasMaxLength(8)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Step")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Step");
+
+                    b.HasIndex("SessionKey", "CreatedAt");
+
+                    b.ToTable("RentalFunnelEvents");
+                });
+
             modelBuilder.Entity("BikeHaus.Domain.Entities.RentalReview", b =>
                 {
                     b.Property<int>("Id")

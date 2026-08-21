@@ -21,7 +21,10 @@ public static class SequenceNumberGuard
     /// <summary>
     /// Führt <paramref name="action"/> exklusiv pro <paramref name="sequenceKey"/> aus.
     /// Innerhalb der Sperre dürfen Nummer erzeugt und Entität gespeichert werden,
-    /// ohne dass eine parallele Anfrage dieselbe Nummer ziehen kann.
+    /// ohne dass eine parallele Anfrage dieselbe Nummer ziehen kann. Auch schnelle
+    /// Prüfungen, die atomar mit dem Speichern sein müssen (z.B. die
+    /// Überschneidungsprüfung der Mietbuchungen), gehören in die Sperre — langsame
+    /// Arbeit (E-Mails, HTTP) dagegen nie.
     /// </summary>
     public static async Task<T> RunExclusiveAsync<T>(string sequenceKey, Func<Task<T>> action)
     {

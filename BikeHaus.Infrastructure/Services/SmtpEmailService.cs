@@ -656,6 +656,14 @@ Your Bike Haus Freiburg team";
     private static string BuildOpeningHoursLine(string lang, string? openingHours) =>
         string.IsNullOrWhiteSpace(openingHours) ? string.Empty : T(lang, MailKeys.LineOpeningHours, openingHours);
 
+    // Google-Maps-Link zur Ladenadresse (m.PickupLocation). Gleiche URL-Form
+    // wie auf der Erfolgsseite der Homepage (rental-booking-steps, mapsUrl).
+    private static string BuildGoogleMapsLine(string lang, string? pickupLocation) =>
+        string.IsNullOrWhiteSpace(pickupLocation)
+            ? string.Empty
+            : T(lang, MailKeys.LineGoogleMaps,
+                $"https://www.google.com/maps/search/?api=1&query={Uri.EscapeDataString(pickupLocation)}");
+
     private static string FormatTotalPrice(string lang, decimal? totalPrice) =>
         totalPrice.HasValue ? $"{totalPrice.Value:0.00} EUR" : T(lang, MailKeys.ValuePriceFallback);
 
@@ -665,6 +673,8 @@ Your Bike Haus Freiburg team";
         var depositParagraph = BuildDepositParagraph(lang, m.Deposit);
         var accessoriesText = FormatAccessories(m.AccessoriesText, lang);
         var pickupTimeLine = BuildPickupTimeLineDesired(lang, m.PickupTime);
+        var openingHoursLine = BuildOpeningHoursLine(lang, m.OpeningHours);
+        var googleMapsLine = BuildGoogleMapsLine(lang, m.PickupLocation);
 
         return $@"{T(lang, MailKeys.Greeting, m.ToName)}
 
@@ -680,7 +690,7 @@ Your Bike Haus Freiburg team";
 
 {T(lang, MailKeys.HeadingPickupReturn)}
 Bike Haus Freiburg
-{m.PickupLocation}
+{m.PickupLocation}{openingHoursLine}{googleMapsLine}
 
 {T(lang, MailKeys.HeadingImportantNote)}
 {depositParagraph}
@@ -709,6 +719,8 @@ bikehausfreiburg.com
         var depositParagraph = BuildDepositParagraph(lang, m.Deposit);
         var accessoriesText = FormatAccessories(m.AccessoriesText, lang);
         var pickupTimeLine = BuildPickupTimeLineDesired(lang, m.PickupTime);
+        var openingHoursLine = BuildOpeningHoursLine(lang, m.OpeningHours);
+        var googleMapsLine = BuildGoogleMapsLine(lang, m.PickupLocation);
 
         return $@"{T(lang, MailKeys.Greeting, m.ToName)}
 
@@ -724,7 +736,7 @@ bikehausfreiburg.com
 
 {T(lang, MailKeys.HeadingPickupReturn)}
 Bike Haus Freiburg
-{m.PickupLocation}
+{m.PickupLocation}{openingHoursLine}{googleMapsLine}
 
 {T(lang, MailKeys.HeadingImportantNote)}
 {depositParagraph}

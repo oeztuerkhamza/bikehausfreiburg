@@ -150,6 +150,10 @@ import { environment } from '../../../environments/environment';
                     <dt>{{ specLabelType() }}</dt>
                     <dd>{{ bike()!.fahrradtyp }}</dd>
                   </ng-container>
+                  <ng-container *ngIf="riderHeight(bike()!)">
+                    <dt>{{ t().rentalSteps?.riderHeight ?? 'Körpergröße' }}</dt>
+                    <dd>{{ riderHeight(bike()!) }}</dd>
+                  </ng-container>
                   <ng-container *ngIf="bike()!.rahmengroesse">
                     <dt>{{ t().filterFrameSize }}</dt>
                     <dd>{{ bike()!.rahmengroesse }}</dd>
@@ -612,21 +616,26 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
 
   private loadBike(id: number): void {
     this.loading.set(true);
-    this.apiService.getRentableBikes().subscribe({
-      next: (bikes) => {
-        const found = bikes.find((b) => b.id === id) || null;
-        this.bike.set(found);
+    // Einzelabruf statt der gesamten Flotte — die Detailseiten sind
+    // SEO-Einstiege aus der Sitemap, der erste Aufruf soll schnell sein.
+    this.apiService.getRentalBike(id).subscribe({
+      next: (bike) => {
+        this.bike.set(bike ?? null);
         this.loading.set(false);
-        if (found) {
-          this.applySeo(found);
-          this.addProductSchema(found);
+        if (bike) {
+          this.applySeo(bike);
+          this.addProductSchema(bike);
           this.loadBusyPeriods(id);
         } else {
           this.titleService.setTitle('404 — Bike Haus Freiburg');
         }
       },
       error: () => {
+        // Unbekannte ID kommt jetzt als HTTP-404 herein — gleiche
+        // Not-Found-Darstellung wie zuvor beim "nicht in der Liste"-Fall.
+        this.bike.set(null);
         this.loading.set(false);
+        this.titleService.setTitle('404 — Bike Haus Freiburg');
       },
     });
   }
@@ -725,6 +734,20 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
     if (l === 'fr') return 'Couleur';
     if (l === 'tr') return 'Renk';
     return 'Farbe';
+  }
+
+  /**
+   * Empfohlene Körpergröße als kurzer Text ("165–180 cm"), gleiche Logik wie
+   * im Buchungs-Wizard (rental-booking-steps): ist nur eine Grenze gepflegt,
+   * wird daraus "≥ 165 cm" bzw. "≤ 180 cm"; ohne Angabe leer.
+   */
+  riderHeight(bike: PublicRentalBicycle | null | undefined): string {
+    const from = bike?.koerpergroesseVonCm ?? null;
+    const to = bike?.koerpergroesseBisCm ?? null;
+    if (from && to) return `${from}–${to} cm`;
+    if (from) return `≥ ${from} cm`;
+    if (to) return `≤ ${to} cm`;
+    return '';
   }
 
   bikeAlt(bike: PublicRentalBicycle, index: number): string {

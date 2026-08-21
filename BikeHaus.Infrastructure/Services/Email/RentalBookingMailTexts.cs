@@ -41,6 +41,7 @@ internal static class RentalBookingMailTexts
         public const string HeadingPickup = "HeadingPickup";
         public const string HeadingImportantNote = "HeadingImportantNote";
         public const string LineOpeningHours = "LineOpeningHours";
+        public const string LineGoogleMaps = "LineGoogleMaps";
         public const string ValueDepositWithAmount = "ValueDepositWithAmount";
         public const string ValueDepositWithoutAmount = "ValueDepositWithoutAmount";
         public const string ValueDepositSentenceWithAmountReminder = "ValueDepositSentenceWithAmountReminder";
@@ -136,6 +137,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Abholung:",
         [Keys.HeadingImportantNote] = "Wichtiger Hinweis:",
         [Keys.LineOpeningHours] = "\nÖffnungszeiten: {0}",
+        [Keys.LineGoogleMaps] = "\nAnfahrt (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Bitte bring zur Abholung einen gültigen Lichtbildausweis und die Kaution von insgesamt {0} EUR in bar mit.\nDie Kaution gilt für die gesamte Buchung, nicht je Fahrrad.",
         [Keys.ValueDepositWithoutAmount] = "Bitte bring zur Abholung einen gültigen Lichtbildausweis und die Kaution in bar mit.\nDie Höhe nennen wir dir vor der Abholung; sie gilt für die gesamte Buchung, nicht je Fahrrad.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Bitte denk an einen gültigen Lichtbildausweis und die Kaution von insgesamt {0} EUR in bar.",
@@ -192,6 +194,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Pickup:",
         [Keys.HeadingImportantNote] = "Important note:",
         [Keys.LineOpeningHours] = "\nOpening hours: {0}",
+        [Keys.LineGoogleMaps] = "\nDirections (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Please bring a valid photo ID and the total deposit of {0} EUR in cash when you pick up the bike.\nThe deposit covers the whole booking, not each bike separately.",
         [Keys.ValueDepositWithoutAmount] = "Please bring a valid photo ID and the deposit in cash when you pick up the bike.\nWe will tell you the amount before pickup; it covers the whole booking, not each bike separately.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Please bring a valid photo ID and the total deposit of {0} EUR in cash.",
@@ -248,6 +251,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Retrait :",
         [Keys.HeadingImportantNote] = "Remarque importante :",
         [Keys.LineOpeningHours] = "\nHoraires d'ouverture : {0}",
+        [Keys.LineGoogleMaps] = "\nItinéraire (Google Maps) : {0}",
         [Keys.ValueDepositWithAmount] = "Merci d'apporter une pièce d'identité avec photo valide et la caution totale de {0} EUR en espèces lors du retrait.\nLa caution couvre toute la réservation, pas chaque vélo séparément.",
         [Keys.ValueDepositWithoutAmount] = "Merci d'apporter une pièce d'identité avec photo valide et la caution en espèces lors du retrait.\nNous t'indiquerons le montant avant le retrait ; elle couvre toute la réservation, pas chaque vélo séparément.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Pense à apporter une pièce d'identité avec photo valide et la caution totale de {0} EUR en espèces.",
@@ -304,6 +308,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Teslim alma:",
         [Keys.HeadingImportantNote] = "Önemli not:",
         [Keys.LineOpeningHours] = "\nÇalışma saatleri: {0}",
+        [Keys.LineGoogleMaps] = "\nYol tarifi (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Teslim alırken lütfen geçerli bir fotoğraflı kimlik ve toplam {0} EUR depozitoyu nakit olarak getir.\nDepozito bisiklet başına değil, tüm rezervasyon için geçerlidir.",
         [Keys.ValueDepositWithoutAmount] = "Teslim alırken lütfen geçerli bir fotoğraflı kimlik ve depozitoyu nakit olarak getir.\nTutarı teslimden önce sana bildireceğiz; tüm rezervasyon için geçerlidir, bisiklet başına değil.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Lütfen geçerli bir fotoğraflı kimlik ve toplam {0} EUR depozitoyu nakit olarak yanında getirmeyi unutma.",
@@ -360,6 +365,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Recogida:",
         [Keys.HeadingImportantNote] = "Aviso importante:",
         [Keys.LineOpeningHours] = "\nHorario de apertura: {0}",
+        [Keys.LineGoogleMaps] = "\nCómo llegar (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Trae contigo un documento de identidad con foto válido y la fianza total de {0} EUR en efectivo al recoger la bici.\nLa fianza cubre toda la reserva, no cada bicicleta por separado.",
         [Keys.ValueDepositWithoutAmount] = "Trae contigo un documento de identidad con foto válido y la fianza en efectivo al recoger la bici.\nTe indicaremos el importe antes de la recogida; cubre toda la reserva, no cada bicicleta por separado.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Recuerda traer un documento de identidad con foto válido y la fianza total de {0} EUR en efectivo.",
@@ -416,6 +422,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Ritiro:",
         [Keys.HeadingImportantNote] = "Nota importante:",
         [Keys.LineOpeningHours] = "\nOrari di apertura: {0}",
+        [Keys.LineGoogleMaps] = "\nIndicazioni (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Porta con te un documento d'identità con foto valido e la cauzione totale di {0} EUR in contanti al ritiro.\nLa cauzione copre l'intera prenotazione, non ogni bici singolarmente.",
         [Keys.ValueDepositWithoutAmount] = "Porta con te un documento d'identità con foto valido e la cauzione in contanti al ritiro.\nTi comunicheremo l'importo prima del ritiro; copre l'intera prenotazione, non ogni bici singolarmente.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Ricorda di portare un documento d'identità con foto valido e la cauzione totale di {0} EUR in contanti.",
@@ -472,6 +479,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "الاستلام:",
         [Keys.HeadingImportantNote] = "ملاحظة مهمة:",
         [Keys.LineOpeningHours] = "\nساعات العمل: {0}",
+        [Keys.LineGoogleMaps] = "\nالاتجاهات (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "يرجى إحضار بطاقة هوية سارية تحمل صورة والتأمين الإجمالي البالغ {0} يورو نقدًا عند الاستلام.\nالتأمين يشمل الحجز بالكامل وليس كل دراجة على حدة.",
         [Keys.ValueDepositWithoutAmount] = "يرجى إحضار بطاقة هوية سارية تحمل صورة والتأمين نقدًا عند الاستلام.\nسنخبرك بالمبلغ قبل الاستلام؛ وهو يشمل الحجز بالكامل وليس كل دراجة على حدة.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "يرجى عدم نسيان إحضار بطاقة هوية سارية تحمل صورة والتأمين الإجمالي البالغ {0} يورو نقدًا.",
@@ -528,6 +536,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Получение:",
         [Keys.HeadingImportantNote] = "Важное замечание:",
         [Keys.LineOpeningHours] = "\nЧасы работы: {0}",
+        [Keys.LineGoogleMaps] = "\nМаршрут (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Пожалуйста, возьми с собой действительное удостоверение личности с фото и общий залог {0} EUR наличными при получении велосипеда.\nЗалог покрывает всё бронирование целиком, а не каждый велосипед отдельно.",
         [Keys.ValueDepositWithoutAmount] = "Пожалуйста, возьми с собой действительное удостоверение личности с фото и залог наличными при получении велосипеда.\nСумму мы сообщим тебе перед получением; она покрывает всё бронирование целиком, а не каждый велосипед отдельно.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Не забудь взять действительное удостоверение личности с фото и общий залог {0} EUR наличными.",
@@ -584,6 +593,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Henting:",
         [Keys.HeadingImportantNote] = "Viktig merknad:",
         [Keys.LineOpeningHours] = "\nÅpningstider: {0}",
+        [Keys.LineGoogleMaps] = "\nVeibeskrivelse (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Ta med gyldig legitimasjon med bilde og det totale depositumet på {0} EUR kontant ved henting.\nDepositumet gjelder for hele bestillingen, ikke per sykkel.",
         [Keys.ValueDepositWithoutAmount] = "Ta med gyldig legitimasjon med bilde og depositumet kontant ved henting.\nVi opplyser beløpet før henting; det gjelder for hele bestillingen, ikke per sykkel.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Husk gyldig legitimasjon med bilde og det totale depositumet på {0} EUR kontant.",
@@ -640,6 +650,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Afhentning:",
         [Keys.HeadingImportantNote] = "Vigtig bemærkning:",
         [Keys.LineOpeningHours] = "\nÅbningstider: {0}",
+        [Keys.LineGoogleMaps] = "\nRutevejledning (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Medbring venligst gyldigt billed-ID og det samlede depositum på {0} EUR kontant ved afhentning.\nDepositummet gælder for hele bookingen, ikke pr. cykel.",
         [Keys.ValueDepositWithoutAmount] = "Medbring venligst gyldigt billed-ID og depositummet kontant ved afhentning.\nVi oplyser beløbet inden afhentning; det gælder for hele bookingen, ikke pr. cykel.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Husk gyldigt billed-ID og det samlede depositum på {0} EUR kontant.",
@@ -696,6 +707,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Ophalen:",
         [Keys.HeadingImportantNote] = "Belangrijke opmerking:",
         [Keys.LineOpeningHours] = "\nOpeningstijden: {0}",
+        [Keys.LineGoogleMaps] = "\nRoutebeschrijving (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Neem bij het ophalen een geldig identiteitsbewijs met foto en de totale borg van {0} EUR contant mee.\nDe borg geldt voor de hele boeking, niet per fiets.",
         [Keys.ValueDepositWithoutAmount] = "Neem bij het ophalen een geldig identiteitsbewijs met foto en de borg contant mee.\nWe laten je het bedrag vóór het ophalen weten; het geldt voor de hele boeking, niet per fiets.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Denk aan een geldig identiteitsbewijs met foto en de totale borg van {0} EUR contant.",
@@ -752,6 +764,7 @@ internal static class RentalBookingMailTexts
         [Keys.HeadingPickup] = "Odbiór:",
         [Keys.HeadingImportantNote] = "Ważna informacja:",
         [Keys.LineOpeningHours] = "\nGodziny otwarcia: {0}",
+        [Keys.LineGoogleMaps] = "\nDojazd (Google Maps): {0}",
         [Keys.ValueDepositWithAmount] = "Przy odbiorze zabierz ze sobą ważny dokument tożsamości ze zdjęciem oraz łączną kaucję w wysokości {0} EUR w gotówce.\nKaucja dotyczy całej rezerwacji, a nie każdego roweru osobno.",
         [Keys.ValueDepositWithoutAmount] = "Przy odbiorze zabierz ze sobą ważny dokument tożsamości ze zdjęciem oraz kaucję w gotówce.\nWysokość kwoty podamy przed odbiorem; dotyczy ona całej rezerwacji, a nie każdego roweru osobno.",
         [Keys.ValueDepositSentenceWithAmountReminder] = "Pamiętaj o ważnym dokumencie tożsamości ze zdjęciem oraz łącznej kaucji w wysokości {0} EUR w gotówce.",

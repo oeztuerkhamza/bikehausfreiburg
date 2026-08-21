@@ -113,8 +113,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
       {
         question: 'Wie hoch ist die Kaution?',
         answers: [
-          'Normale Fahrräder & einfache E-Bikes: 100 EUR',
-          'Mittelmotor E-Bikes: 200 EUR',
+          'Die Kaution hängt vom jeweiligen Fahrrad ab und wird bei der Buchung angezeigt',
           'Kaution nur in bar',
         ],
       },
@@ -188,8 +187,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
       {
         question: 'How much is the deposit for renting a bike in Freiburg?',
         answers: [
-          'Regular bikes & basic e-bikes: EUR 300',
-          'Mid-drive e-bikes: EUR 700',
+          'The deposit depends on the bike and is shown during booking',
           'Deposit in cash only',
         ],
       },
@@ -263,8 +261,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
       {
         question: 'Depot de garantie',
         answers: [
-          'Velos classiques & e-bikes simples : 100 EUR',
-          'E-bikes moteur central : 200 EUR',
+          'La caution depend du velo et est affichee lors de la reservation',
           'Depot uniquement en especes',
         ],
       },
@@ -338,8 +335,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
       {
         question: 'Depozito',
         answers: [
-          'Normal bisikletler ve temel e-bisikletler: 100 EUR',
-          'Orta motor e-bisikletler: 200 EUR',
+          'Depozito bisiklete göre değişir ve rezervasyon sırasında gösterilir',
           'Depozito sadece nakit',
         ],
       },
@@ -413,8 +409,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
       {
         question: 'Deposito',
         answers: [
-          'Bicis normales y e-bikes basicas: 100 EUR',
-          'E-bikes de motor central: 200 EUR',
+          'El deposito depende de la bici y se muestra durante la reserva',
           'Deposito solo en efectivo',
         ],
       },
@@ -488,8 +483,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
       {
         question: 'Cauzione',
         answers: [
-          'Bici normali ed e-bike base: 100 EUR',
-          'E-bike con motore centrale: 200 EUR',
+          'La cauzione dipende dalla bici e viene mostrata durante la prenotazione',
           'Cauzione solo in contanti',
         ],
       },
@@ -563,8 +557,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
       {
         question: 'التامين النقدي',
         answers: [
-          'الدراجات العادية والكهربائية البسيطة: 300 يورو',
-          'الدراجات الكهربائية بمحرك وسطي: 700 يورو',
+          'مبلغ التأمين يعتمد على الدراجة ويظهر أثناء الحجز',
           'التامين نقدا فقط',
         ],
       },
@@ -635,8 +628,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
       {
         question: 'Залог',
         answers: [
-          'Обычные велосипеды и простые e-bike: 100 EUR',
-          'E-bike со средним мотором: 200 EUR',
+          'Залог зависит от велосипеда и отображается при бронировании',
           'Залог только наличными',
         ],
       },
@@ -753,14 +745,14 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   de: {
     serviceHighlightsAria: 'Service Highlights',
     heroChip: 'Fahrradverleih Freiburg',
-    heroAccent: 'ab 8 €',
+    heroAccent: 'ab 12 €',
     heroDescription:
       '1 bis 7 Tage individuell je Fahrrad kalkuliert, ab Tag 8 mit festem Zusatzpreis. Direkt bei uns in Freiburg abholen.',
     heroFeatures: [
       'Schloss inklusive',
       'Helm kostenlos',
       'Sofort verfugbar',
-      '100 EUR Kaution (bar)',
+      'Kaution je nach Rad (bar)',
     ],
     heroPriceCard: {
       badge: 'Individuelle Preislogik',
@@ -833,7 +825,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
     ],
     pricingInfo: [
-      { title: 'Kaution', text: '100 EUR bar, wird bei Ruckgabe erstattet' },
+      {
+        title: 'Kaution',
+        text: 'Je nach Rad, in bar – wird bei der Buchung angezeigt',
+      },
       {
         title: 'Immer dabei',
         text: 'Schloss & Helm kostenlos - ohne Aufpreis',
@@ -901,7 +896,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       'Lock included',
       'Helmet free of charge',
       'Available immediately',
-      'EUR 300 deposit (cash)',
+      'Deposit varies by bike (cash)',
     ],
     heroPriceCard: {
       badge: 'Individual pricing logic',
@@ -974,7 +969,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
     ],
     pricingInfo: [
-      { title: 'Deposit', text: 'EUR 300 cash, refunded on return' },
+      { title: 'Deposit', text: 'Varies by bike, cash – shown during booking' },
       {
         title: 'Included',
         text: 'Lock & helmet included at no extra charge',
@@ -1035,14 +1030,14 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   fr: {
     serviceHighlightsAria: 'Points forts du service',
     heroChip: 'Location de velo Freiburg',
-    heroAccent: 'a partir de 8 €',
+    heroAccent: 'a partir de 12 €',
     heroDescription:
       'Les jours 1 a 7 sont calcules individuellement pour chaque velo, puis un supplement fixe s applique a partir du 8e jour. Retrait direct dans notre magasin a Freiburg.',
     heroFeatures: [
       'Antivol inclus',
       'Casque gratuit',
       'Disponible immediatement',
-      'Depot de 100 EUR (especes)',
+      'Caution selon le velo (especes)',
     ],
     heroPriceCard: {
       badge: 'Logique tarifaire individuelle',
@@ -1127,7 +1122,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
     ],
     pricingInfo: [
-      { title: 'Depot', text: '100 EUR en especes, rembourse au retour' },
+      {
+        title: 'Caution',
+        text: 'Selon le velo, en especes – affichee lors de la reservation',
+      },
       {
         title: 'Toujours inclus',
         text: 'Antivol et casque inclus sans supplement',
@@ -1189,14 +1187,14 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   tr: {
     serviceHighlightsAria: 'Servis öne çıkanlar',
     heroChip: 'Freiburg Bisiklet Kiralama',
-    heroAccent: '8 € ile başlayan fiyatlarla',
+    heroAccent: '12 € ile başlayan fiyatlarla',
     heroDescription:
       '1 ile 7 gün arası fiyat her bisiklet için ayrı hesaplanır, 8. günden itibaren sabit ek gün ücreti uygulanır. Teslim almayı doğrudan Freiburg mağazamızdan yapabilirsiniz.',
     heroFeatures: [
       'Kilit dahil',
       'Kask ücretsiz',
       'Hemen mevcut',
-      '100 EUR depozito (nakit)',
+      'Depozito bisiklete göre (nakit)',
     ],
     heroPriceCard: {
       badge: 'Bireysel fiyat mantığı',
@@ -1269,7 +1267,10 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
     ],
     pricingInfo: [
-      { title: 'Depozito', text: '100 EUR nakit, iade sırasında geri verilir' },
+      {
+        title: 'Depozito',
+        text: 'Bisiklete göre değişir, nakit – rezervasyon sırasında gösterilir',
+      },
       {
         title: 'Dahil olanlar',
         text: 'Kilit ve kask ekstra ücret olmadan dahildir',
@@ -1700,6 +1701,23 @@ interface BikeSlot {
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </a>
+            <ul class="booking-cta-trust" role="list">
+              <li>
+                {{ t().rentalSteps?.trustInstantConfirm ?? 'Sofort bestätigt' }}
+              </li>
+              <li>
+                {{
+                  t().rentalSteps?.trustPayAtPickup ??
+                    'Keine Online-Zahlung – bezahlt wird bei Abholung'
+                }}
+              </li>
+              <li>
+                {{
+                  t().rentalSteps?.trustFreeCancellation ??
+                    'Kostenlose Stornierung'
+                }}
+              </li>
+            </ul>
           </div>
         </section>
 
@@ -2017,6 +2035,24 @@ interface BikeSlot {
           {{ getLightboxSlot()!.imageIndex + 1 }} /
           {{ getLightboxSlot()!.bike.images.length }}
         </div>
+      </div>
+
+      <!-- Mobile Sticky-CTA: fixe Leiste am unteren Rand (nur ≤768px),
+           führt wie der Hero-CTA direkt in den Buchungs-Flow. -->
+      <div class="mobile-booking-bar">
+        <a [routerLink]="bookingPath()" class="mobile-booking-btn">
+          {{ t().rentalHeroScrollCta }}
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
       </div>
     </div>
   `,
@@ -3281,6 +3317,23 @@ interface BikeSlot {
       .booking-cta-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 14px 36px rgba(255, 87, 34, 0.5);
+      }
+
+      .booking-cta-trust {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 1.5rem;
+        padding: 0;
+        margin: 1.1rem 0 0;
+        font-size: 0.88rem;
+        color: rgba(245, 248, 255, 0.72);
+      }
+
+      .booking-cta-trust li::before {
+        content: '✓ ';
+        color: var(--color-accent, #ff5722);
       }
 
       /* ── Compact booking panel ── */
@@ -4786,6 +4839,58 @@ interface BikeSlot {
         }
         .reviews-grid {
           grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── Mobile Sticky-CTA-Leiste ──
+         Nur auf kleinen Screens sichtbar; deckender dunkler Grund statt
+         halbtransparenter Fläche (gleiche Konvention wie die Auswahlleiste
+         im Buchungs-Flow). Kein Einblend-Effekt — statisch, damit auch
+         prefers-reduced-motion nichts animiert. */
+      .mobile-booking-bar {
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .mobile-booking-bar {
+          display: block;
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          z-index: 40;
+          padding: 0.65rem 1rem calc(0.65rem + env(safe-area-inset-bottom));
+          background: rgba(10, 16, 28, 0.94);
+          backdrop-filter: blur(8px);
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 -6px 22px rgba(0, 0, 0, 0.45);
+        }
+        .mobile-booking-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          width: 100%;
+          padding: 0.85rem 1.2rem;
+          border-radius: 999px;
+          background: var(--color-accent, #ff5722);
+          color: #fff;
+          font-weight: 700;
+          font-size: 0.95rem;
+          text-decoration: none;
+          box-shadow: 0 10px 30px rgba(255, 87, 34, 0.35);
+        }
+        /* Platz am Seitenende, damit die fixe Leiste keine Inhalte
+           (inkl. Footer-Bereich) verdeckt. */
+        .rental-page {
+          padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .mobile-booking-bar,
+        .mobile-booking-btn {
+          transition: none;
         }
       }
     `,

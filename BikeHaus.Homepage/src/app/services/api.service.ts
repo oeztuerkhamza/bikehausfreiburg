@@ -247,6 +247,51 @@ export class ApiService {
     );
   }
 
+  /** Einzelnes Mietrad per ID — spart auf der Detailseite das Laden der
+   *  gesamten Flotte. */
+  getRentalBike(bikeId: number): Observable<PublicRentalBicycle> {
+    return this.http.get<PublicRentalBicycle>(
+      `${this.baseUrl}/rentals/bikes/${bikeId}`,
+    );
+  }
+
+  /**
+   * Freie Räder pro Tag (ohne Rad-IDs): fuer die Belegungs-Schattierung im
+   * Buchungskalender und den "ab X wieder frei"-Hinweis.
+   *
+   * Nimmt bewusst fertige `YYYY-MM-DD`-Strings statt `Date`-Objekten: eine
+   * Umwandlung über toISOString() rollt lokale Mitternacht in UTC+1/+2 auf den
+   * Vortag zurück — der Kalendertag des Gastes ist hier die Wahrheit.
+   */
+  getAvailabilityCalendar(
+    from: string,
+    to: string,
+  ): Observable<{
+    totalBikes: number;
+    days: { date: string; freeCount: number }[];
+  }> {
+    return this.http.get<{
+      totalBikes: number;
+      days: { date: string; freeCount: number }[];
+    }>(`${this.baseUrl}/rentals/availability-calendar?from=${from}&to=${to}`);
+  }
+
+  /**
+   * Anonymes Funnel-Ereignis (Schrittwechsel, Buchungsausgang). Bewusst ohne
+   * Fremd-Skripte; Fehler werden geschluckt — Telemetrie darf die Buchung nie
+   * stören.
+   */
+  sendFunnelEvent(event: {
+    step: string;
+    sessionKey: string;
+    language?: string;
+    info?: string;
+  }): Observable<void> {
+    return this.http
+      .post<void>(`${this.baseUrl}/rentals/funnel-event`, event)
+      .pipe(catchError(() => of(undefined as void)));
+  }
+
   // ── Rental Reviews ──
 
   getRentalReviews(): Observable<RentalReviewPublic[]> {

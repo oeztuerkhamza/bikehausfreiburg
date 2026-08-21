@@ -17,7 +17,7 @@ public class RentalBookingService : IRentalBookingService
     private const string DefaultShopCity = "79114 Freiburg";
     private const string DefaultShopPhone = "+49 155 6630 0011";
     private const string DefaultShopEmail = "info.bikehausfreiburg@gmail.com";
-    private const string DefaultPublicApiBaseUrl = "https://api.bikehausfreiburg.com/api/public";
+    private const string DefaultHomepageBaseUrl = "https://bikehausfreiburg.com";
 
     private readonly IRentalBookingRepository _bookingRepository;
     private readonly IBicycleRepository _bicycleRepository;
@@ -131,12 +131,6 @@ public class RentalBookingService : IRentalBookingService
             .Where(b => !childrensIds.Contains(b.BicycleId))
             .Select(b => (b.BicycleId, b.StartDatum.Date, b.EndDatum.Date))
             .ToList();
-        if (bikeChecks.Count > 0)
-        {
-            var hasOverlap = await _bookingRepository.ExistsActiveOverlapForBikesAsync(bikeChecks);
-            if (hasOverlap)
-                throw new InvalidOperationException("Eines der ausgewaehlten Fahrraeder ist im gewaehlten Zeitraum bereits gebucht.");
-        }
 
         var language = NormalizeLanguage(dto.Sprache);
         var minStart = dto.Bikes.Min(b => b.StartDatum.Date);
@@ -159,9 +153,9 @@ public class RentalBookingService : IRentalBookingService
             Sprache = language,
             Notizen = dto.Notizen,
             // Mietbuchungen werden nicht mehr zur Freigabe vorgelegt, sondern
-            // direkt bestaetigt. Die Ueberschneidungspruefung weiter oben
-            // beruecksichtigt bereits bestaetigte UND offene Buchungen, es kann
-            // also keine Doppelbelegung entstehen.
+            // direkt bestaetigt. Die Ueberschneidungspruefung unter der Sperre
+            // (siehe RunExclusiveAsync unten) beruecksichtigt bereits bestaetigte
+            // UND offene Buchungen, es kann also keine Doppelbelegung entstehen.
             Status = RentalBookingStatus.Approved,
             ApprovedAt = DateTime.UtcNow
         };
@@ -225,8 +219,19 @@ public class RentalBookingService : IRentalBookingService
             throw new InvalidOperationException("Bitte geben Sie eine gueltige E-Mail-Adresse an.");
 
         // Buchungsnummer atomar vergeben (erzeugen + speichern unter Sperre).
+        // Auch die Ueberschneidungspruefung muss unter der Sperre laufen:
+        // ausserhalb koennten zwei gleichzeitige Submits fuer dasselbe Rad beide
+        // die Pruefung passieren und beide gespeichert werden (Doppelbelegung
+        // statt 409).
         var created = await SequenceNumberGuard.RunExclusiveAsync(SequenceKeys.Buchung, async () =>
         {
+            if (bikeChecks.Count > 0)
+            {
+                var hasOverlap = await _bookingRepository.ExistsActiveOverlapForBikesAsync(bikeChecks);
+                if (hasOverlap)
+                    throw new InvalidOperationException("Eines der ausgewaehlten Fahrraeder ist im gewaehlten Zeitraum bereits gebucht.");
+            }
+
             booking.BuchungsNummer = await _bookingRepository.GenerateBuchungsNummerAsync();
             return await _bookingRepository.AddAsync(booking);
         });
@@ -913,16 +918,52 @@ public class RentalBookingService : IRentalBookingService
             shop.Phone,
             shop.Email,
             NormalizeLanguage(booking.Sprache),
-            BuildSelfCancelUrl(booking),
+            BuildManageBookingUrl(booking),
             shop.OpeningHours
         );
     }
 
-    private static string BuildSelfCancelUrl(RentalBooking booking)
+    // Slugs der "Buchung verwalten"-Seite der Homepage je Sprache — Kopie von
+    // BOOKING_MANAGE_SLUG_BY_LANGUAGE in
+    // BikeHaus.Homepage/src/app/services/language-config.ts. Bei Änderungen
+    // dort hier nachziehen.
+    private static readonly Dictionary<string, string> BookingManageSlugByLanguage = new(StringComparer.OrdinalIgnoreCase)
     {
+        ["de"] = "buchung",
+        ["en"] = "manage-booking",
+        ["fr"] = "gerer-reservation",
+        ["tr"] = "rezervasyonu-yonet",
+        ["es"] = "gestionar-reserva",
+        ["it"] = "gestisci-prenotazione",
+        ["ar"] = "idarat-alhajz",
+        ["ru"] = "upravlenie-bronirovaniem",
+        ["no"] = "administrer-bestilling",
+        ["da"] = "administrer-booking",
+        ["nl"] = "boeking-beheren",
+        ["pl"] = "zarzadzaj-rezerwacja",
+    };
+
+    /// <summary>
+    /// Self-Service-Link der Buchungs-Mails: zeigt auf die lokalisierte
+    /// "Buchung verwalten"-Seite der Homepage (ansehen + stornieren) statt auf
+    /// die rohe, nur deutsche API-Storno-Seite. Bewusst NUR die Buchungsnummer
+    /// als Query-Parameter — die E-Mail-Adresse gehört nicht in die URL
+    /// (Browserverlauf, geteilte Links); der Gast tippt sie auf der Seite als
+    /// Eigentumsnachweis selbst ein. Die alte API-Storno-Seite
+    /// (PublicRentalsController, bookings/cancel) bleibt als Legacy-Fallback
+    /// bestehen.
+    /// </summary>
+    private static string BuildManageBookingUrl(RentalBooking booking)
+    {
+        var lang = NormalizeLanguage(booking.Sprache);
+        if (!BookingManageSlugByLanguage.TryGetValue(lang, out var slug))
+        {
+            lang = "de";
+            slug = "buchung";
+        }
+
         var bookingNumber = Uri.EscapeDataString(booking.BuchungsNummer ?? string.Empty);
-        var email = Uri.EscapeDataString(booking.Email ?? string.Empty);
-        return $"{DefaultPublicApiBaseUrl}/rentals/bookings/cancel?bookingNumber={bookingNumber}&email={email}";
+        return $"{DefaultHomepageBaseUrl}/{lang}/{slug}?bookingNumber={bookingNumber}";
     }
 
     // Liefert die rohe, mehrzeilige Zubehör-Liste ohne "Keine"/"None" — die

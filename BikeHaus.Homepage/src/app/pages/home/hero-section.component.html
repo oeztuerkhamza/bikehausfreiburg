@@ -100,9 +100,9 @@
           </svg>
         </a>
 
-        <!-- Rental CTA -->
+        <!-- Rental CTA — direkt in den Buchungs-Flow (lokalisierter Pfad) -->
         <a
-          [routerLink]="['/' + lang(), 'fahrradverleih']"
+          [routerLink]="rentalBookingPath()"
           class="btn btn-rental"
           role="button"
           tabindex="0"

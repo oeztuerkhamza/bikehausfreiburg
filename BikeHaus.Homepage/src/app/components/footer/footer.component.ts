@@ -6,6 +6,7 @@ import { ShopInfoService } from '../../services/shop-info.service';
 import {
   LANGUAGE_LABELS,
   SUPPORTED_LANGUAGES,
+  getRentalSlug,
 } from '../../services/language-config';
 
 @Component({
@@ -36,7 +37,7 @@ import {
             <a [routerLink]="['/' + lang(), 'zubehoer']">{{
               t().accessories
             }}</a>
-            <a [routerLink]="['/' + lang(), 'fahrradverleih']">{{
+            <a [routerLink]="['/' + lang(), rentalSlug()]">{{
               t().bikeRental
             }}</a>
             <a [routerLink]="['/' + lang(), 'service']">{{
@@ -411,6 +412,8 @@ export class FooterComponent {
   private shopInfoService = inject(ShopInfoService);
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
+  /** Sprachabhängiger Verleih-Slug (fahrradverleih / bike-rental / …). */
+  rentalSlug = () => getRentalSlug(this.lang());
   logoUrl = this.shopInfoService.logoUrl;
   languages = SUPPORTED_LANGUAGES.map((code) => ({
     code,
