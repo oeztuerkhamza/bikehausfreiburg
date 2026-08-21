@@ -719,6 +719,8 @@ bikehausfreiburg.com
         var depositParagraph = BuildDepositParagraph(lang, m.Deposit);
         var accessoriesText = FormatAccessories(m.AccessoriesText, lang);
         var pickupTimeLine = BuildPickupTimeLineDesired(lang, m.PickupTime);
+        var openingHoursLine = BuildOpeningHoursLine(lang, m.OpeningHours);
+        var googleMapsLine = BuildGoogleMapsLine(lang, m.PickupLocation);
 
         return $@"{T(lang, MailKeys.Greeting, m.ToName)}
 
@@ -734,7 +736,7 @@ bikehausfreiburg.com
 
 {T(lang, MailKeys.HeadingPickupReturn)}
 Bike Haus Freiburg
-{m.PickupLocation}
+{m.PickupLocation}{openingHoursLine}{googleMapsLine}
 
 {T(lang, MailKeys.HeadingImportantNote)}
 {depositParagraph}

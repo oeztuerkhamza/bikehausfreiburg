@@ -83,9 +83,12 @@ fallen Zeiten weg, die weniger als 30 Minuten entfernt sind
 
 ## Zwischenstand
 
-Der Inhalt der Buchung liegt als Entwurf im `localStorage`
-(`bikehaus-rental-booking-draft`, 12 Stunden haltbar) — früher `sessionStorage`,
-der mit dem Tab starb und die 12-Stunden-Frist praktisch nie erreichte. Gespeichert wird bei jedem
+Der Inhalt der Buchung liegt als Entwurf zweigeteilt vor
+(`bikehaus-rental-booking-draft`, 12 Stunden haltbar): der volle Entwurf mit
+Formulardaten nur im tab-gebundenen `sessionStorage` (Name/Adresse sollen den
+Tab nicht überleben — dieselbe Abwägung wie `booking-handoff.ts`), im
+geräteweiten `localStorage` derselbe Entwurf **ohne** Formularblock, damit
+Zeitraum/Räder/Zubehör einen Tab-Verlust überleben. Gespeichert wird bei jedem
 Schrittwechsel, bei Änderungen am Warenkorb/Zubehör und wenn die Seite in den
 Hintergrund geht (`visibilitychange`, `pagehide`). Beim Wiederherstellen wird die
 Verfügbarkeit **neu geholt**; inzwischen vergriffene Räder fallen mit Hinweis aus

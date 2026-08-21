@@ -91,10 +91,15 @@ interface BookingDraftEntry {
 }
 
 /**
- * Zwischenstand einer Buchung im localStorage. Früher sessionStorage: der
- * stirbt mit dem Tab, womit die 12-Stunden-Frist praktisch nie zum Tragen kam
- * (mobile Browser werfen Tabs von allein weg). Die Wiederherstellung prüft
- * ohnehin TTL, Mindestdatum, Betriebsferien und holt die Verfügbarkeit neu.
+ * Zwischenstand einer Buchung, zweigeteilt gespeichert: der volle Entwurf
+ * (mit Formulardaten) liegt nur im tab-gebundenen sessionStorage — Name,
+ * Adresse und Telefon sollen den Tab nicht überleben, dieselbe Abwägung wie in
+ * booking-handoff.ts. Der geräteweite localStorage bekommt den Entwurf OHNE
+ * Formularblock: Zeitraum, Räder und Zubehör sind der teure Teil der
+ * Wiedereingabe und dürfen einen Tab-Wechsel überleben (mobile Browser werfen
+ * Tabs von allein weg, womit die 12-Stunden-Frist sonst nie zum Tragen kam).
+ * Die Wiederherstellung prüft in beiden Fällen TTL, Mindestdatum,
+ * Betriebsferien und holt die Verfügbarkeit neu.
  *
  * Der Schritt selbst steht in der URL, der Inhalt lag bisher nur im Speicher der
  * Komponente: ein Reload — auf dem Handy schon der Wechsel in eine andere App —
@@ -110,7 +115,8 @@ interface BookingDraft {
   entries: BookingDraftEntry[];
   selectedBikeId: number | null;
   accessoryQtys: Record<number, number>;
-  form: BookingFormValues;
+  /** Nur in der sessionStorage-Kopie enthalten — s. Kommentar oben. */
+  form?: BookingFormValues;
   /**
    * Eingegebene Körpergröße im Auswahlschritt. Optional statt Versionssprung:
    * ein Entwurf ohne dieses Feld (aus einer Session vor dieser Änderung) ist
@@ -173,7 +179,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
           *ngFor="let label of stepLabels(); let i = index"
           [class.active]="indicatorIndex() === i + 1"
           [class.done]="indicatorIndex() > i + 1"
-          [disabled]="indicatorIndex() <= i + 1"
+          [disabled]="!!bookingNumber() || indicatorIndex() <= i + 1"
           [attr.aria-current]="indicatorIndex() === i + 1 ? 'step' : null"
           (click)="jumpToIndicator(i + 1)"
         >
@@ -664,12 +670,7 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
              Scrollen durch die Liste sichtbar ist. -->
         <div class="select-bar" *ngIf="cartBikes().length > 0">
           <span class="sel-count">
-            <strong>{{ cartBikes().length }}</strong>
-            {{
-              cartBikes().length === 1
-                ? (t().rentalSteps?.bikeInCart ?? 'Fahrrad')
-                : (t().rentalSteps?.bikesInCart ?? 'Fahrräder')
-            }}
+            {{ cartCountText() }}
             <span class="sel-total">{{ formatPrice(getTotalPrice()) }}</span>
           </span>
           <button type="button" class="sel-next" (click)="goToAccessoryStep()">
@@ -4846,7 +4847,13 @@ export class RentalBookingStepsComponent implements OnInit {
       riderHeightCm: this.riderHeightInput(),
     };
     try {
-      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      // Voller Entwurf tab-gebunden, geräteweit nur ohne Formulardaten —
+      // Begründung am BookingDraft-Interface.
+      sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      localStorage.setItem(
+        DRAFT_STORAGE_KEY,
+        JSON.stringify({ ...draft, form: undefined }),
+      );
     } catch {
       // Privater Modus oder voller Speicher: der Entwurf ist Komfort, kein Muss.
     }
@@ -4856,6 +4863,7 @@ export class RentalBookingStepsComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
       localStorage.removeItem(DRAFT_STORAGE_KEY);
+      sessionStorage.removeItem(DRAFT_STORAGE_KEY);
     } catch {
       // s. saveDraft
     }
@@ -4893,10 +4901,10 @@ export class RentalBookingStepsComponent implements OnInit {
     if (!isPlatformBrowser(this.platformId)) return null;
     let raw: string | null = null;
     try {
-      raw = localStorage.getItem(DRAFT_STORAGE_KEY);
-      // Übergangsweise auch den alten sessionStorage-Platz lesen, damit ein
-      // gerade laufender Entwurf den Wechsel überlebt.
-      if (!raw) raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      // Zuerst der volle Entwurf dieses Tabs (mit Formulardaten), sonst der
+      // geräteweite ohne Formularblock.
+      raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+      if (!raw) raw = localStorage.getItem(DRAFT_STORAGE_KEY);
     } catch {
       return null;
     }
@@ -5044,6 +5052,8 @@ export class RentalBookingStepsComponent implements OnInit {
   ): void {
     this.selectedStartDate = start;
     this.selectedEndDate = end;
+    // Wie beim Weiter-Knopf in Schritt 1: Zubehörkatalog nebenher vorladen.
+    this.loadAccessories();
     this.loadingAvailableBikes.set(true);
     this.apiService
       .getAvailableBikes(new Date(start), new Date(end))
