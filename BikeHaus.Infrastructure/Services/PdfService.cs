@@ -22,6 +22,7 @@ public class PdfService : IPdfService
     private readonly IRentalBookingRepository _rentalBookingRepository;
     private readonly IBicycleRepository _bicycleRepository;
     private readonly IReservationRepository _reservationRepository;
+    private readonly IRepository<Serviceleistung> _serviceleistungRepository;
     private readonly IFileStorageService _fileStorage;
 
     // Print-Friendly Colors (optimized for less ink consumption)
@@ -75,6 +76,7 @@ public class PdfService : IPdfService
         IRentalBookingRepository rentalBookingRepository,
         IBicycleRepository bicycleRepository,
         IReservationRepository reservationRepository,
+        IRepository<Serviceleistung> serviceleistungRepository,
         IFileStorageService fileStorage)
     {
         _purchaseRepository = purchaseRepository;
@@ -87,6 +89,7 @@ public class PdfService : IPdfService
         _rentalBookingRepository = rentalBookingRepository;
         _bicycleRepository = bicycleRepository;
         _reservationRepository = reservationRepository;
+        _serviceleistungRepository = serviceleistungRepository;
         _fileStorage = fileStorage;
     }
 
@@ -1463,6 +1466,177 @@ public class PdfService : IPdfService
                             nCol.Item().PaddingTop(2).Text(expense.Notizen).FontSize(8);
                         });
                     }
+
+                    // Footer
+                    col.Item().PaddingTop(30).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}").FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();
+                });
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // SERVICEBELEG PDF
+    // Dokumentiert eine durchgeführte Serviceleistung (Service/Wartung)
+    // am Kundenrad. Ausdrücklich KEINE Rechnung — nur ein Nachweis der
+    // durchgeführten Arbeiten für den Kunden.
+    // ══════════════════════════════════════════════════════════════
+    public async Task<byte[]> GenerateServicebelegAsync(int serviceleistungId)
+    {
+        var service = await _serviceleistungRepository.GetByIdAsync(serviceleistungId)
+            ?? throw new KeyNotFoundException($"Serviceleistung mit ID {serviceleistungId} nicht gefunden.");
+
+        var shop = await GetShopInfoAsync();
+
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = QuestPDF.Fluent.Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(1.5f, Unit.Centimetre);
+                page.DefaultTextStyle(x => x.FontSize(9).FontColor(Colors.Grey.Darken4));
+
+                // Header
+                page.Header().Container().Column(col =>
+                {
+                    col.Item().Row(row =>
+                    {
+                        row.RelativeItem().Column(leftCol =>
+                        {
+                            if (!string.IsNullOrEmpty(shop.LogoBase64))
+                            {
+                                try
+                                {
+                                    var base64Data = shop.LogoBase64;
+                                    if (base64Data.Contains(","))
+                                        base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
+                                    var logoBytes = Convert.FromBase64String(base64Data);
+                                    leftCol.Item().Height(32).Image(logoBytes);
+                                }
+                                catch { }
+                            }
+                            leftCol.Item().Text(shop.ShopName).FontSize(16).Bold().FontColor(PrimaryColor);
+                            leftCol.Item().Text(shop.OwnerName).FontSize(9).FontColor(Colors.Grey.Darken2);
+                            leftCol.Item().PaddingTop(4).Text(shop.Street).FontSize(8);
+                            leftCol.Item().Text(shop.City).FontSize(8);
+                        });
+
+                        row.ConstantItem(160).AlignRight().Column(rightCol =>
+                        {
+                            rightCol.Item().Border(2).BorderColor(PrimaryColor).Padding(8).Column(box =>
+                            {
+                                box.Item().Text("SERVICEBELEG").FontSize(11).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text(service.BelegNummer).FontSize(12).Bold().FontColor(PrimaryColor).AlignCenter();
+                                box.Item().Text($"{service.Datum:dd.MM.yyyy}").FontSize(9).FontColor(Colors.Grey.Darken1).AlignCenter();
+                            });
+                        });
+                    });
+                });
+
+                // Content
+                page.Content().PaddingTop(20).Column(col =>
+                {
+                    // Kunde
+                    col.Item().Text("Kunde").FontSize(10).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(4).Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(2);
+                        });
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Name").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(service.KundeName).FontSize(9);
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Telefon").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(service.KundeTelefon ?? "-").FontSize(9);
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Adresse").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(service.KundeAdresse ?? "-").FontSize(9);
+                    });
+
+                    // Fahrrad
+                    col.Item().PaddingTop(12).Text("Fahrrad").FontSize(10).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(4).Table(table =>
+                    {
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(2);
+                        });
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Marke / Modell").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text($"{service.FahrradMarke ?? "-"} {service.FahrradModell}".Trim()).FontSize(9);
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Rahmennummer").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(service.Rahmennummer ?? "-").FontSize(9);
+
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text("Farbe").FontSize(8).FontColor(Colors.Grey.Darken2);
+                        table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(6).Text(service.Farbe ?? "-").FontSize(9);
+                    });
+
+                    // Durchgeführte Arbeiten
+                    col.Item().PaddingTop(12).Text("Durchgeführte Arbeiten").FontSize(10).Bold().FontColor(PrimaryColor);
+                    col.Item().PaddingTop(4).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8)
+                        .Text(service.DurchgefuehrteArbeiten).FontSize(9);
+
+                    // Verwendete Teile
+                    if (!string.IsNullOrWhiteSpace(service.VerwendeteTeile))
+                    {
+                        col.Item().PaddingTop(12).Text("Verwendete Teile / Material").FontSize(10).Bold().FontColor(PrimaryColor);
+                        col.Item().PaddingTop(4).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8)
+                            .Text(service.VerwendeteTeile).FontSize(9);
+                    }
+
+                    // Preis (optional dokumentiert)
+                    if (service.Preis.HasValue)
+                    {
+                        col.Item().PaddingTop(12).Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(2);
+                            });
+
+                            table.Cell().Border(1).BorderColor(AccentColor).Padding(6).Text("Preis").FontSize(8).Bold().FontColor(AccentColor);
+                            table.Cell().Border(1).BorderColor(AccentColor).Padding(6).Text($"{service.Preis.Value:N2} €{(string.IsNullOrWhiteSpace(service.Zahlungsart) ? "" : $"  ({service.Zahlungsart})")}").FontSize(10).Bold().FontColor(AccentColor);
+                        });
+                    }
+
+                    // Notizen
+                    if (!string.IsNullOrWhiteSpace(service.Notizen))
+                    {
+                        col.Item().PaddingTop(12).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8).Column(nCol =>
+                        {
+                            nCol.Item().Text("Notizen:").FontSize(8).Bold().FontColor(Colors.Grey.Darken1);
+                            nCol.Item().PaddingTop(2).Text(service.Notizen).FontSize(8);
+                        });
+                    }
+
+                    // Hinweis: kein Rechnungsdokument
+                    col.Item().PaddingTop(14).Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(8)
+                        .Text("Dieser Beleg dokumentiert die durchgeführte Serviceleistung und dient dem Kunden als Nachweis. Er ist keine Rechnung.")
+                        .FontSize(8).Italic().FontColor(Colors.Grey.Darken1);
+
+                    // Unterschriften
+                    col.Item().PaddingTop(45).Row(row =>
+                    {
+                        row.RelativeItem().PaddingRight(20).Column(sigCol =>
+                        {
+                            sigCol.Item().BorderTop(1).BorderColor(Colors.Grey.Darken1).PaddingTop(4)
+                                .Text("Unterschrift Kunde").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
+                        });
+                        row.RelativeItem().PaddingLeft(20).Column(sigCol =>
+                        {
+                            sigCol.Item().BorderTop(1).BorderColor(Colors.Grey.Darken1).PaddingTop(4)
+                                .Text($"Unterschrift {shop.ShopName}").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
+                        });
+                    });
 
                     // Footer
                     col.Item().PaddingTop(30).Text($"{shop.ShopName} | {shop.Street}, {shop.City} | Tel: {shop.Telefon} | {shop.Email}").FontSize(7).FontColor(Colors.Grey.Darken1).AlignCenter();

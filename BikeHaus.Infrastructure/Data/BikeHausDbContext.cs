@@ -55,6 +55,7 @@ public class BikeHausDbContext : DbContext
     public DbSet<BelegKontrolle> BelegKontrollen => Set<BelegKontrolle>();
     public DbSet<Sprachnotiz> Sprachnotizen => Set<Sprachnotiz>();
     public DbSet<RentalFunnelEvent> RentalFunnelEvents => Set<RentalFunnelEvent>();
+    public DbSet<Serviceleistung> Serviceleistungen => Set<Serviceleistung>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -415,6 +416,27 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.BelegDatei).HasMaxLength(500);
             entity.Property(e => e.Notizen).HasMaxLength(1000);
             entity.Property(e => e.Bezahlt).HasDefaultValue(false);
+        });
+
+        // ── Serviceleistung Configuration ──
+        modelBuilder.Entity<Serviceleistung>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.BelegNummer).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.KundeName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.KundeTelefon).HasMaxLength(50);
+            entity.Property(e => e.KundeEmail).HasMaxLength(200);
+            entity.Property(e => e.KundeAdresse).HasMaxLength(500);
+            entity.Property(e => e.FahrradMarke).HasMaxLength(100);
+            entity.Property(e => e.FahrradModell).HasMaxLength(100);
+            entity.Property(e => e.Rahmennummer).HasMaxLength(100);
+            entity.Property(e => e.Farbe).HasMaxLength(50);
+            entity.Property(e => e.DurchgefuehrteArbeiten).IsRequired().HasMaxLength(3000);
+            entity.Property(e => e.VerwendeteTeile).HasMaxLength(1000);
+            entity.Property(e => e.Preis).HasColumnType("decimal(18,2)");
+            entity.Property(e => e.Zahlungsart).HasMaxLength(50);
+            entity.Property(e => e.Notizen).HasMaxLength(1000);
+            entity.HasIndex(e => e.BelegNummer).IsUnique();
         });
 
         // ── Invoice Configuration ──
