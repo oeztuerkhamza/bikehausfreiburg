@@ -412,9 +412,28 @@
   // Erscheint nach dem Klick auf "Anzeige speichern" als Modal oder
   // als Zwischenseite. Wir klicken die kostenlose Option
   // ("Ohne Top-Anzeige weiter") — NIEMALS die Kauf-Option.
+  // WICHTIG: kein offsetParent-Check — im position:fixed-Modal ist
+  // offsetParent immer null, der Button wäre fälschlich "unsichtbar".
+  function isElementVisible(el) {
+    if (typeof el.checkVisibility === 'function') return el.checkVisibility();
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }
+
+  // Buttons auch in Shadow-DOM (Web Components) einsammeln
+  function collectClickables(root, out) {
+    for (const el of root.querySelectorAll('button, a, [role="button"]')) {
+      out.push(el);
+    }
+    for (const host of root.querySelectorAll('*')) {
+      if (host.shadowRoot) collectClickables(host.shadowRoot, out);
+    }
+  }
+
   function findUpsellSkipButton() {
-    for (const el of document.querySelectorAll('button, a')) {
-      if (el.offsetParent === null) continue; // unsichtbar
+    const candidates = [];
+    collectClickables(document, candidates);
+    for (const el of candidates) {
       const t = (el.textContent || '').trim().toLowerCase().replace(/\s+/g, ' ');
       if (!t || t.length > 60) continue;
       // Sicherheit: nie einen kostenpflichtigen Button klicken
@@ -427,6 +446,7 @@
         t === 'nein danke' ||
         t === 'nein, danke'
       ) {
+        if (!isElementVisible(el)) continue;
         return el;
       }
     }
