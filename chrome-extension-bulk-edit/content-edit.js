@@ -32,9 +32,14 @@
       let retries = 0;
       const interval = setInterval(() => {
         retries++;
-        if (checkForSuccess() || retries >= 10) clearInterval(interval);
+        if (checkForSuccess() || retries >= 20) clearInterval(interval);
       }, 500);
     }
+    // Zwischenseiten-Upsell (z.B. Top-Anzeige) automatisch überspringen —
+    // aber nur, wenn dieser Tab zu einem laufenden Bulk-Edit gehört.
+    chrome.runtime.sendMessage({ type: 'IS_BULK_TAB' }, (resp) => {
+      if (resp && resp.isBulkTab) watchUpsellPopup();
+    });
     return;
   }
 
@@ -339,6 +344,10 @@
     console.log('[BikeHaus BulkEdit] Looking for save button...');
     function reportClicked() {
       chrome.runtime.sendMessage({ type: 'EDIT_SAVE_CLICKED' });
+      // Nach dem Speichern erscheint oft das "Effektiver verkaufen"-Popup
+      // (Top-Anzeige-Upsell). Ohne Klick auf "Ohne Top-Anzeige weiter"
+      // navigiert die Seite nie zur Erfolgsseite → Timeout.
+      watchUpsellPopup();
     }
 
     const allButtons = document.querySelectorAll('button');
@@ -397,5 +406,48 @@
       success: false,
       error: '"Anzeige speichern" nicht gefunden',
     });
+  }
+
+  // ─── Upsell-Popup ("Effektiver verkaufen" / Top-Anzeige) ──────
+  // Erscheint nach dem Klick auf "Anzeige speichern" als Modal oder
+  // als Zwischenseite. Wir klicken die kostenlose Option
+  // ("Ohne Top-Anzeige weiter") — NIEMALS die Kauf-Option.
+  function findUpsellSkipButton() {
+    for (const el of document.querySelectorAll('button, a')) {
+      if (el.offsetParent === null) continue; // unsichtbar
+      const t = (el.textContent || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      if (!t || t.length > 60) continue;
+      // Sicherheit: nie einen kostenpflichtigen Button klicken
+      if (t.includes('kaufen') || t.includes('€')) continue;
+      if (
+        (t.includes('ohne') &&
+          (t.includes('weiter') ||
+            t.includes('fortfahren') ||
+            t.includes('veröffentlichen'))) ||
+        t === 'nein danke' ||
+        t === 'nein, danke'
+      ) {
+        return el;
+      }
+    }
+    return null;
+  }
+
+  function watchUpsellPopup() {
+    const deadline = Date.now() + 25000;
+    const timer = setInterval(() => {
+      if (Date.now() > deadline) {
+        clearInterval(timer);
+        return;
+      }
+      const skip = findUpsellSkipButton();
+      if (skip) {
+        console.log(
+          '[BikeHaus BulkEdit] 💡 Upsell-Popup erkannt → klicke:',
+          skip.textContent.trim(),
+        );
+        skip.click();
+      }
+    }, 600);
   }
 })();

@@ -231,6 +231,8 @@ document.addEventListener('DOMContentLoaded', () => {
       autoSave: document.getElementById('auto-save').checked,
       autoClose: document.getElementById('auto-close').checked,
       delay: parseInt(document.getElementById('delay').value, 10) || 3,
+      parallelTabs:
+        parseInt(document.getElementById('parallel-tabs').value, 10) || 1,
       photos: selectedPhotos,
       deleteExistingPhotos:
         document.getElementById('delete-existing-photos')?.checked || false,
@@ -251,6 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         autoSave: document.getElementById('auto-save').checked,
         autoClose: document.getElementById('auto-close').checked,
         delay: document.getElementById('delay').value,
+        parallelTabs: document.getElementById('parallel-tabs').value,
       },
     });
   }
@@ -280,6 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('auto-save').checked = s.autoSave !== false;
       document.getElementById('auto-close').checked = s.autoClose !== false;
       document.getElementById('delay').value = s.delay || 3;
+      document.getElementById('parallel-tabs').value = s.parallelTabs || 1;
     });
   }
 
@@ -369,8 +373,8 @@ document.addEventListener('DOMContentLoaded', () => {
       statTotal.textContent = total;
       statFail.textContent = status.results.failed;
 
-      if (status.currentAdId) {
-        progressInfo.textContent = `Bearbeite: ${status.currentAdId} (${status.currentIndex + 1}/${total})`;
+      if (status.activeAds && status.activeAds.length > 0) {
+        progressInfo.textContent = `Bearbeite: ${status.activeAds.join(', ')} — ${done}/${total} fertig`;
       }
 
       // Update log

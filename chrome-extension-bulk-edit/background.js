@@ -3,20 +3,25 @@
 // MV3 compatible: uses chrome.storage.local for state persistence
 // and chrome.alarms instead of setTimeout (which dies with the worker).
 //
-// Flow: open edit tab → content script fills & clicks save →
-//       page navigates to success page → content script detects "Geschafft!" →
-//       background closes tab → alarm fires → opens next ad
+// Supports 1-5 PARALLEL tabs (settings.parallelTabs).
+// Flow per tab: open edit tab → content script fills & clicks save →
+//   (Top-Anzeige upsell popup wird automatisch weggeklickt) →
+//   page navigates to success page → content script detects "Geschafft!" →
+//   background closes tab → schedules next ad launch (staggered by delay)
 // ============================================
 
 // ── In-memory state (restored from storage on every wake-up) ──
 let editQueue = [];
-let currentIndex = -1;
+let nextIndex = 0; // next queue position to launch
 let isRunning = false;
 let settings = {};
 let results = { done: 0, failed: 0, log: [] };
-let currentTabId = null;
+let activeTabs = {}; // tabId -> { adId, index }
+let alarmSeq = 0; // unique launch-alarm names (parallel-safe)
 
 // ── State persistence ──────────────────────────────────────────
+// NOTE: key is 'bulkEditRuntime' — the popup uses 'bulkEditState' for its
+// form fields. They used to share one key and clobbered each other.
 
 let _stateLoaded = false;
 let _loadPromise = null;
@@ -24,26 +29,27 @@ let _loadPromise = null;
 function ensureStateLoaded() {
   if (_stateLoaded) return Promise.resolve();
   if (!_loadPromise) {
-    _loadPromise = chrome.storage.local.get('bulkEditState').then((data) => {
-      if (data.bulkEditState) {
-        const s = data.bulkEditState;
+    _loadPromise = chrome.storage.local.get('bulkEditRuntime').then((data) => {
+      if (data.bulkEditRuntime) {
+        const s = data.bulkEditRuntime;
         editQueue = s.editQueue || [];
-        currentIndex = s.currentIndex ?? -1;
+        nextIndex = s.nextIndex ?? 0;
         isRunning = s.isRunning || false;
         settings = s.settings || {};
         results = s.results || { done: 0, failed: 0, log: [] };
-        currentTabId = s.currentTabId ?? null;
+        activeTabs = s.activeTabs || {};
+        alarmSeq = s.alarmSeq || 0;
       }
       _stateLoaded = true;
       console.log(
         '[BulkEdit BG] State loaded. running:',
         isRunning,
-        'idx:',
-        currentIndex,
+        'next:',
+        nextIndex,
         '/',
         editQueue.length,
-        'tab:',
-        currentTabId,
+        'active tabs:',
+        Object.keys(activeTabs).length,
       );
     });
   }
@@ -52,13 +58,14 @@ function ensureStateLoaded() {
 
 async function saveState() {
   await chrome.storage.local.set({
-    bulkEditState: {
+    bulkEditRuntime: {
       editQueue,
-      currentIndex,
+      nextIndex,
       isRunning,
       settings,
       results,
-      currentTabId,
+      activeTabs,
+      alarmSeq,
     },
   });
 }
@@ -69,30 +76,128 @@ function addLog(text) {
   results.log.push({ time: new Date().toLocaleTimeString('de-DE'), text });
 }
 
+function parallelLimit() {
+  const n = parseInt(settings.parallelTabs, 10) || 1;
+  return Math.min(Math.max(n, 1), 5);
+}
+
+function activeCount() {
+  return Object.keys(activeTabs).length;
+}
+
+function updateBadge() {
+  if (!isRunning) return;
+  chrome.action.setBadgeText({
+    text: String(results.done + results.failed),
+  });
+  chrome.action.setBadgeBackgroundColor({ color: '#3498db' });
+}
+
+function safetyMinutes() {
+  // Extend when photos need uploading (≈15s per photo + 45s base)
+  const photoCount = (settings.photos && settings.photos.length) || 0;
+  return photoCount > 0 ? Math.max(1.5, 0.75 + photoCount * 0.25) : 0.75;
+}
+
+function scheduleLaunch() {
+  const delay = Math.max((settings.delay || 3) / 60, 0.05);
+  alarmSeq++;
+  chrome.alarms.create('launch_' + alarmSeq, { delayInMinutes: delay });
+}
+
+// ── Launch one ad in a new tab (fills free pool slots) ──────────
+
+async function launchOne() {
+  if (!isRunning) return;
+  if (activeCount() >= parallelLimit()) return;
+  if (nextIndex >= editQueue.length) {
+    await checkFinished();
+    return;
+  }
+
+  const index = nextIndex++;
+  const adId = editQueue[index];
+  addLog(`🔄 Bearbeite ${adId} (${index + 1}/${editQueue.length})...`);
+  updateBadge();
+
+  const url = `https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=${adId}`;
+  // Parallel mode: open in background so tabs don't fight over focus
+  const tab = await chrome.tabs.create({ url, active: parallelLimit() === 1 });
+  activeTabs[tab.id] = { adId, index };
+  console.log('[BulkEdit BG] Opened tab', tab.id, 'for adId:', adId);
+
+  // Per-tab safety timeout
+  chrome.alarms.create('safety_' + tab.id, {
+    delayInMinutes: safetyMinutes(),
+  });
+
+  await saveState();
+
+  // More free slots? Stagger the next launch by `delay`
+  if (activeCount() < parallelLimit() && nextIndex < editQueue.length) {
+    scheduleLaunch();
+  }
+}
+
+// ── Finish one tab (success or failure) ─────────────────────────
+
+async function finishTab(tabId, success, errorMsg) {
+  const info = activeTabs[tabId];
+  if (!info) return;
+  delete activeTabs[tabId];
+  await chrome.alarms.clear('safety_' + tabId);
+
+  if (success) {
+    results.done++;
+    addLog(`✅ ${info.adId} — Geschafft! Erfolgreich gespeichert.`);
+  } else {
+    results.failed++;
+    addLog(`❌ ${info.adId} — ${errorMsg || 'Fehler'}`);
+  }
+
+  try {
+    await chrome.tabs.remove(tabId);
+  } catch {}
+
+  updateBadge();
+  await saveState();
+
+  if (isRunning) {
+    if (nextIndex < editQueue.length) {
+      scheduleLaunch();
+    } else {
+      await checkFinished();
+    }
+  }
+}
+
+async function checkFinished() {
+  if (isRunning && nextIndex >= editQueue.length && activeCount() === 0) {
+    isRunning = false;
+    addLog(`🏁 Fertig! ${results.done} erfolgreich, ${results.failed} Fehler`);
+    chrome.action.setBadgeText({ text: '✓' });
+    chrome.action.setBadgeBackgroundColor({ color: '#27ae60' });
+    await chrome.alarms.clearAll();
+    await saveState();
+  }
+}
+
 // ── Alarm handler (replaces all setTimeout) ─────────────────────
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   await ensureStateLoaded();
 
-  if (alarm.name === 'processNext' && isRunning) {
-    await processNext();
+  if (alarm.name.startsWith('launch_')) {
+    if (isRunning) await launchOne();
+    return;
   }
 
-  if (alarm.name === 'safetyTimeout') {
-    if (isRunning && currentIndex >= 0 && currentIndex < editQueue.length) {
-      const adId = editQueue[currentIndex] || '?';
-      results.failed++;
-      addLog(`⚠️ ${adId} — Zeitüberschreitung (45s), überspringe...`);
-      if (currentTabId) {
-        try {
-          await chrome.tabs.remove(currentTabId);
-        } catch {}
-        currentTabId = null;
-      }
-      await saveState();
-      const delay = Math.max((settings.delay || 3) / 60, 0.05);
-      chrome.alarms.create('processNext', { delayInMinutes: delay });
+  if (alarm.name.startsWith('safety_')) {
+    const tabId = parseInt(alarm.name.slice('safety_'.length), 10);
+    if (isRunning && activeTabs[tabId]) {
+      await finishTab(tabId, false, 'Zeitüberschreitung, überspringe...');
     }
+    return;
   }
 
   // Keepalive: just wakes the worker periodically while running
@@ -112,29 +217,31 @@ ensureStateLoaded().then(async () => {
     return;
   }
 
-  console.log('[BulkEdit BG] Startup recovery — running, checking tab...');
+  console.log('[BulkEdit BG] Startup recovery — running, checking tabs...');
 
-  if (currentTabId) {
+  for (const tabIdStr of Object.keys(activeTabs)) {
+    const tabId = parseInt(tabIdStr, 10);
     try {
-      await chrome.tabs.get(currentTabId);
-      // Tab still exists → re-arm safety timeout, content script should still be working
-      console.log(
-        '[BulkEdit BG] Tab',
-        currentTabId,
-        'still alive, re-arming timeout',
-      );
-      chrome.alarms.create('safetyTimeout', { delayInMinutes: 0.75 });
+      await chrome.tabs.get(tabId);
+      // Tab still exists → re-arm its safety timeout
+      chrome.alarms.create('safety_' + tabId, {
+        delayInMinutes: safetyMinutes(),
+      });
+      console.log('[BulkEdit BG] Tab', tabId, 'still alive');
     } catch {
-      // Tab is gone → skip to next
-      console.log('[BulkEdit BG] Tab gone, scheduling next');
-      currentTabId = null;
-      await saveState();
-      chrome.alarms.create('processNext', { delayInMinutes: 0.05 });
+      const info = activeTabs[tabId];
+      delete activeTabs[tabId];
+      results.failed++;
+      addLog(`⚠️ ${info.adId} — Tab verloren (Neustart), überspringe...`);
+      console.log('[BulkEdit BG] Tab', tabId, 'gone');
     }
+  }
+  await saveState();
+
+  if (nextIndex < editQueue.length && activeCount() < parallelLimit()) {
+    scheduleLaunch();
   } else {
-    // No active tab but isRunning → schedule next
-    console.log('[BulkEdit BG] No active tab, scheduling next');
-    chrome.alarms.create('processNext', { delayInMinutes: 0.05 });
+    await checkFinished();
   }
 });
 
@@ -152,20 +259,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 async function handleMessage(message, sender) {
   await ensureStateLoaded();
+  const senderTabId = sender.tab ? sender.tab.id : null;
 
   // ── Start bulk edit ──
   if (message.type === 'BULK_START') {
     await chrome.alarms.clearAll();
     editQueue = message.adIds || [];
     settings = message.settings || {};
-    currentIndex = -1;
-    currentTabId = null;
+    nextIndex = 0;
+    activeTabs = {};
+    alarmSeq = 0;
     isRunning = true;
     results = { done: 0, failed: 0, log: [] };
     await saveState();
     // Keepalive alarm: wakes worker every ~25s so it never dies mid-processing
     chrome.alarms.create('keepalive', { periodInMinutes: 0.4 });
-    await processNext();
+    await launchOne();
     return { success: true, total: editQueue.length };
   }
 
@@ -174,57 +283,52 @@ async function handleMessage(message, sender) {
     isRunning = false;
     await chrome.alarms.clearAll();
     addLog('⏹ Vom Benutzer gestoppt');
-    if (currentTabId) {
+    for (const tabIdStr of Object.keys(activeTabs)) {
       try {
-        await chrome.tabs.remove(currentTabId);
+        await chrome.tabs.remove(parseInt(tabIdStr, 10));
       } catch {}
-      currentTabId = null;
     }
+    activeTabs = {};
     await saveState();
     return { success: true };
   }
 
   // ── Get current status ──
   if (message.type === 'BULK_STATUS') {
+    const activeAds = Object.values(activeTabs).map((t) => t.adId);
     return {
       isRunning,
-      currentIndex,
+      launched: nextIndex,
       total: editQueue.length,
       results,
-      currentAdId:
-        currentIndex >= 0 && currentIndex < editQueue.length
-          ? editQueue[currentIndex]
-          : null,
+      activeAds,
+      currentAdId: activeAds[0] || null,
+    };
+  }
+
+  // ── Content script asks: is this tab part of the bulk run? ──
+  if (message.type === 'IS_BULK_TAB') {
+    return {
+      isBulkTab: !!(isRunning && senderTabId && activeTabs[senderTabId]),
     };
   }
 
   // ── Content script: form edit failed ──
   if (message.type === 'EDIT_RESULT') {
-    if (!message.success) {
-      await chrome.alarms.clear('safetyTimeout');
-      const adId = editQueue[currentIndex] || '?';
-      results.failed++;
-      addLog(`❌ ${adId} — ${message.error || 'Fehler'}`);
-      if (currentTabId) {
-        try {
-          await chrome.tabs.remove(currentTabId);
-        } catch {}
-        currentTabId = null;
-      }
-      await saveState();
-      const delay = Math.max((settings.delay || 3) / 60, 0.05);
-      chrome.alarms.create('processNext', { delayInMinutes: delay });
+    if (!message.success && senderTabId && activeTabs[senderTabId]) {
+      await finishTab(senderTabId, false, message.error);
     }
     return { success: true };
   }
 
   // ── Content script: save button clicked ──
   if (message.type === 'EDIT_SAVE_CLICKED') {
-    const adId = editQueue[currentIndex] || '?';
-    addLog(
-      `💾 ${adId} — "Anzeige speichern" geklickt, warte auf Bestätigung...`,
-    );
-    await saveState();
+    if (senderTabId && activeTabs[senderTabId]) {
+      addLog(
+        `💾 ${activeTabs[senderTabId].adId} — "Anzeige speichern" geklickt, warte auf Bestätigung...`,
+      );
+      await saveState();
+    }
     return { success: true };
   }
 
@@ -232,42 +336,20 @@ async function handleMessage(message, sender) {
   if (message.type === 'EDIT_SAVE_CONFIRMED') {
     console.log(
       '[BulkEdit BG] EDIT_SAVE_CONFIRMED from tab:',
-      sender.tab?.id,
-      'currentTabId:',
-      currentTabId,
+      senderTabId,
       'running:',
       isRunning,
     );
-
-    if (sender.tab && sender.tab.id === currentTabId && isRunning) {
-      await chrome.alarms.clear('safetyTimeout');
-      const adId = editQueue[currentIndex] || '?';
-      results.done++;
-      addLog(`✅ ${adId} — Geschafft! Erfolgreich gespeichert.`);
-
-      // Close the success tab immediately
-      try {
-        await chrome.tabs.remove(currentTabId);
-      } catch {}
-      currentTabId = null;
-      await saveState();
-
-      // Schedule next ad via alarm (survives worker termination)
-      const delay = Math.max((settings.delay || 3) / 60, 0.05);
-      chrome.alarms.create('processNext', { delayInMinutes: delay });
+    if (isRunning && senderTabId && activeTabs[senderTabId]) {
+      await finishTab(senderTabId, true);
     }
     return { success: true };
   }
 
   // ── Content script asks for edit instructions ──
   if (message.type === 'GET_EDIT_INSTRUCTIONS') {
-    if (
-      sender.tab &&
-      sender.tab.id === currentTabId &&
-      isRunning &&
-      currentIndex >= 0
-    ) {
-      return { active: true, adId: editQueue[currentIndex], settings };
+    if (isRunning && senderTabId && activeTabs[senderTabId]) {
+      return { active: true, adId: activeTabs[senderTabId].adId, settings };
     }
     return { active: false };
   }
@@ -275,67 +357,23 @@ async function handleMessage(message, sender) {
   return { success: false, error: 'Unknown message type' };
 }
 
-// ── Process next ad in queue ────────────────────────────────────
-
-async function processNext() {
-  if (!isRunning) return;
-
-  // Clean up any leftover tab
-  if (currentTabId) {
-    try {
-      await chrome.tabs.remove(currentTabId);
-    } catch {}
-    currentTabId = null;
-  }
-
-  currentIndex++;
-
-  if (currentIndex >= editQueue.length) {
-    isRunning = false;
-    addLog(`🏁 Fertig! ${results.done} erfolgreich, ${results.failed} Fehler`);
-    chrome.action.setBadgeText({ text: '✓' });
-    chrome.action.setBadgeBackgroundColor({ color: '#27ae60' });
-    await chrome.alarms.clearAll();
-    await saveState();
-    return;
-  }
-
-  const adId = editQueue[currentIndex];
-  addLog(`🔄 Bearbeite ${adId} (${currentIndex + 1}/${editQueue.length})...`);
-
-  chrome.action.setBadgeText({ text: `${currentIndex + 1}` });
-  chrome.action.setBadgeBackgroundColor({ color: '#3498db' });
-
-  // Safety timeout: extend when photos need uploading (≈15s per photo + 45s base)
-  const photoCount = (settings.photos && settings.photos.length) || 0;
-  const safetyMinutes = photoCount > 0 ? Math.max(1.5, 0.75 + photoCount * 0.25) : 0.75;
-  chrome.alarms.create('safetyTimeout', { delayInMinutes: safetyMinutes });
-
-  // Open edit page
-  const url = `https://www.kleinanzeigen.de/p-anzeige-bearbeiten.html?adId=${adId}`;
-  const tab = await chrome.tabs.create({ url, active: true });
-  currentTabId = tab.id;
-  console.log('[BulkEdit BG] Opened tab', tab.id, 'for adId:', adId);
-
-  await saveState();
-}
-
-// ── Tab closed by user → skip to next ───────────────────────────
+// ── Tab closed by user → mark failed, launch next ───────────────
 
 chrome.tabs.onRemoved.addListener(async (tabId) => {
   await ensureStateLoaded();
 
-  if (tabId === currentTabId && isRunning) {
-    console.log('[BulkEdit BG] Tab manually closed');
-    await chrome.alarms.clear('safetyTimeout');
-    currentTabId = null;
-
-    const adId = editQueue[currentIndex] || '?';
+  if (isRunning && activeTabs[tabId]) {
+    console.log('[BulkEdit BG] Tab manually closed:', tabId);
+    const info = activeTabs[tabId];
+    delete activeTabs[tabId];
+    await chrome.alarms.clear('safety_' + tabId);
     results.failed++;
-    addLog(`⚠️ ${adId} — Tab manuell geschlossen`);
-
+    addLog(`⚠️ ${info.adId} — Tab manuell geschlossen`);
     await saveState();
-    const delay = Math.max((settings.delay || 3) / 60, 0.05);
-    chrome.alarms.create('processNext', { delayInMinutes: delay });
+    if (nextIndex < editQueue.length) {
+      scheduleLaunch();
+    } else {
+      await checkFinished();
+    }
   }
 });
