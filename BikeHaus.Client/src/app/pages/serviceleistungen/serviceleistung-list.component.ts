@@ -1,24 +1,24 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   ServiceleistungService,
   Serviceleistung,
-  ServiceleistungCreate,
 } from '../../services/serviceleistung.service';
 import { TranslationService } from '../../services/translation.service';
 
 @Component({
   selector: 'app-serviceleistung-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="service-page">
       <div class="page-header">
         <h1>Serviceleistungen</h1>
-        <button class="btn-primary" (click)="startNew()">
+        <a routerLink="/serviceleistungen/new" class="btn-primary">
           + Neuer Servicebeleg
-        </button>
+        </a>
       </div>
 
       <p class="page-hint">
@@ -31,118 +31,10 @@ import { TranslationService } from '../../services/translation.service';
       <div class="search-bar">
         <input
           type="text"
-          placeholder="Suchen (Kunde, Beleg-Nr., Fahrrad, Arbeiten)..."
+          placeholder="Suchen (Kunde, Beleg-Nr., Fahrrad, Leistung)..."
           [(ngModel)]="searchQuery"
           (input)="onSearch()"
         />
-      </div>
-
-      <!-- Form Modal -->
-      <div class="modal-overlay" *ngIf="showForm" (click)="showForm = false">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-          <h2>
-            {{ editingItem ? 'Servicebeleg bearbeiten' : 'Neuer Servicebeleg' }}
-          </h2>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>{{ t.date }} *</label>
-              <input type="date" [(ngModel)]="form.datum" />
-            </div>
-            <div class="form-group">
-              <label>Beleg-Nr.</label>
-              <input
-                type="text"
-                [value]="editingItem ? editingItem.belegNummer : nextBelegNummer"
-                disabled
-              />
-            </div>
-
-            <div class="form-section full-width">Kunde</div>
-            <div class="form-group full-width">
-              <label>Name *</label>
-              <input type="text" [(ngModel)]="form.kundeName" />
-            </div>
-            <div class="form-group">
-              <label>Telefon</label>
-              <input type="text" [(ngModel)]="form.kundeTelefon" />
-            </div>
-            <div class="form-group">
-              <label>E-Mail</label>
-              <input type="email" [(ngModel)]="form.kundeEmail" />
-            </div>
-            <div class="form-group full-width">
-              <label>Adresse</label>
-              <input type="text" [(ngModel)]="form.kundeAdresse" />
-            </div>
-
-            <div class="form-section full-width">Fahrrad</div>
-            <div class="form-group">
-              <label>Marke</label>
-              <input type="text" [(ngModel)]="form.fahrradMarke" />
-            </div>
-            <div class="form-group">
-              <label>Modell</label>
-              <input type="text" [(ngModel)]="form.fahrradModell" />
-            </div>
-            <div class="form-group">
-              <label>Rahmennummer</label>
-              <input type="text" [(ngModel)]="form.rahmennummer" />
-            </div>
-            <div class="form-group">
-              <label>Farbe</label>
-              <input type="text" [(ngModel)]="form.farbe" />
-            </div>
-
-            <div class="form-section full-width">Serviceleistung</div>
-            <div class="form-group full-width">
-              <label>Durchgeführte Arbeiten *</label>
-              <textarea
-                [(ngModel)]="form.durchgefuehrteArbeiten"
-                rows="4"
-                placeholder="z.B. Bremsen eingestellt, Kette gewechselt, Schaltung justiert..."
-              ></textarea>
-            </div>
-            <div class="form-group full-width">
-              <label>Verwendete Teile / Material</label>
-              <textarea [(ngModel)]="form.verwendeteTeile" rows="2"></textarea>
-            </div>
-            <div class="form-group">
-              <label>{{ t.price }} (€)</label>
-              <input
-                type="number"
-                [(ngModel)]="form.preis"
-                step="0.01"
-                min="0"
-              />
-            </div>
-            <div class="form-group">
-              <label>{{ t.paymentMethod }}</label>
-              <select [(ngModel)]="form.zahlungsart">
-                <option [ngValue]="null">{{ t.selectOption }}</option>
-                <option value="Bar">Bar</option>
-                <option value="Überweisung">Überweisung</option>
-                <option value="PayPal">PayPal</option>
-                <option value="Karte">Karte</option>
-              </select>
-            </div>
-            <div class="form-group full-width">
-              <label>{{ t.notes }}</label>
-              <textarea [(ngModel)]="form.notizen" rows="2"></textarea>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button class="btn-secondary" (click)="showForm = false">
-              {{ t.cancel }}
-            </button>
-            <button
-              class="btn-primary"
-              (click)="saveItem()"
-              [disabled]="saving"
-            >
-              {{ saving ? t.saving : t.save }}
-            </button>
-          </div>
-        </div>
       </div>
 
       <!-- Delete Confirm Modal -->
@@ -153,9 +45,7 @@ import { TranslationService } from '../../services/translation.service';
       >
         <div class="modal-content small" (click)="$event.stopPropagation()">
           <h2>{{ t.confirm }}</h2>
-          <p>
-            Servicebeleg {{ deleteTarget.belegNummer }} wirklich löschen?
-          </p>
+          <p>Servicebeleg {{ deleteTarget.belegNummer }} wirklich löschen?</p>
           <div class="form-actions">
             <button class="btn-secondary" (click)="deleteTarget = null">
               {{ t.cancel }}
@@ -176,7 +66,7 @@ import { TranslationService } from '../../services/translation.service';
               <th>Beleg-Nr.</th>
               <th>Kunde</th>
               <th>Fahrrad</th>
-              <th>Durchgeführte Arbeiten</th>
+              <th>Leistungen</th>
               <th>{{ t.price }}</th>
               <th>{{ t.actions }}</th>
             </tr>
@@ -191,12 +81,13 @@ import { TranslationService } from '../../services/translation.service';
                 {{ item.fahrradModell || '' }}
               </td>
               <td class="work-cell" [title]="item.durchgefuehrteArbeiten">
-                {{ shorten(item.durchgefuehrteArbeiten) }}
+                <span class="badge">{{
+                  leistungCount(item.durchgefuehrteArbeiten)
+                }}</span>
+                {{ firstLeistung(item.durchgefuehrteArbeiten) }}
               </td>
               <td class="amount-cell">
-                {{
-                  item.preis != null ? (item.preis | currency: 'EUR') : '–'
-                }}
+                {{ item.preis != null ? (item.preis | currency: 'EUR') : '–' }}
               </td>
               <td class="actions-cell">
                 <button
@@ -222,9 +113,9 @@ import { TranslationService } from '../../services/translation.service';
                     <polyline points="9 15 12 18 15 15" />
                   </svg>
                 </button>
-                <button
+                <a
                   class="btn-icon edit"
-                  (click)="startEdit(item)"
+                  [routerLink]="['/serviceleistungen/edit', item.id]"
                   title="{{ t.edit }}"
                 >
                   <svg
@@ -244,7 +135,7 @@ import { TranslationService } from '../../services/translation.service';
                       d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
                     />
                   </svg>
-                </button>
+                </a>
                 <button
                   class="btn-icon delete"
                   (click)="deleteTarget = item"
@@ -329,13 +220,11 @@ import { TranslationService } from '../../services/translation.service';
         font-weight: 600;
         font-size: 0.88rem;
         transition: var(--transition-fast);
+        text-decoration: none;
+        display: inline-block;
       }
       .btn-primary:hover {
         background: var(--accent-primary-hover, #4f46e5);
-      }
-      .btn-primary:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
       }
       .btn-secondary {
         padding: 10px 20px;
@@ -396,14 +285,9 @@ import { TranslationService } from '../../services/translation.service';
         background: var(--bg-card, #fff);
         border-radius: var(--radius-lg, 14px);
         padding: 24px;
-        max-width: 640px;
-        width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        box-shadow: var(--shadow-lg, 0 20px 50px rgba(0, 0, 0, 0.2));
-      }
-      .modal-content.small {
         max-width: 400px;
+        width: 100%;
+        box-shadow: var(--shadow-lg, 0 20px 50px rgba(0, 0, 0, 0.2));
       }
       .modal-content h2 {
         margin: 0 0 16px 0;
@@ -411,58 +295,6 @@ import { TranslationService } from '../../services/translation.service';
         font-weight: 700;
         color: var(--text-primary);
       }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-      }
-      .form-section {
-        font-size: 0.78rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--accent-primary, #6366f1);
-        border-bottom: 1.5px solid var(--border-light, #e2e8f0);
-        padding-bottom: 4px;
-        margin-top: 8px;
-      }
-      .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-      }
-      .form-group.full-width {
-        grid-column: 1 / -1;
-      }
-      .form-group label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--text-secondary, #64748b);
-      }
-      .form-group input,
-      .form-group select,
-      .form-group textarea {
-        padding: 9px 12px;
-        border: 1.5px solid var(--border-light, #e2e8f0);
-        border-radius: var(--radius-md, 10px);
-        font-size: 0.88rem;
-        background: var(--bg-secondary, #f8fafc);
-        color: var(--text-primary);
-        font-family: inherit;
-        box-sizing: border-box;
-        width: 100%;
-      }
-      .form-group input:disabled {
-        opacity: 0.7;
-      }
-      .form-group input:focus,
-      .form-group select:focus,
-      .form-group textarea:focus {
-        outline: none;
-        border-color: var(--accent-primary, #6366f1);
-      }
-
       .form-actions {
         display: flex;
         justify-content: flex-end;
@@ -512,10 +344,20 @@ import { TranslationService } from '../../services/translation.service';
         font-weight: 600;
       }
       .work-cell {
-        max-width: 260px;
+        max-width: 280px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background: var(--accent-primary-light, rgba(99, 102, 241, 0.08));
+        color: var(--accent-primary, #6366f1);
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-right: 6px;
       }
       .amount-cell {
         font-weight: 700;
@@ -539,9 +381,7 @@ import { TranslationService } from '../../services/translation.service';
       .btn-icon:hover {
         background: var(--bg-secondary, #f1f5f9);
       }
-      .btn-icon.pdf:hover {
-        color: var(--accent-primary, #6366f1);
-      }
+      .btn-icon.pdf:hover,
       .btn-icon.edit:hover {
         color: var(--accent-primary, #6366f1);
       }
@@ -554,12 +394,6 @@ import { TranslationService } from '../../services/translation.service';
         text-align: center;
         padding: 48px 16px;
         color: var(--text-secondary, #64748b);
-      }
-
-      @media (max-width: 640px) {
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
       }
     `,
   ],
@@ -575,14 +409,8 @@ export class ServiceleistungListComponent implements OnInit {
   items: Serviceleistung[] = [];
   filteredItems: Serviceleistung[] = [];
   loading = false;
-  saving = false;
-  showForm = false;
-  editingItem: Serviceleistung | null = null;
   deleteTarget: Serviceleistung | null = null;
   searchQuery = '';
-  nextBelegNummer = '';
-
-  form: ServiceleistungCreate = this.emptyForm();
 
   ngOnInit() {
     this.loadItems();
@@ -627,63 +455,6 @@ export class ServiceleistungListComponent implements OnInit {
     );
   }
 
-  startNew() {
-    this.editingItem = null;
-    this.form = this.emptyForm();
-    this.nextBelegNummer = '...';
-    this.serviceleistungService.getNextBelegNummer().subscribe({
-      next: (r) => (this.nextBelegNummer = r.belegNummer),
-      error: () => (this.nextBelegNummer = ''),
-    });
-    this.showForm = true;
-  }
-
-  startEdit(item: Serviceleistung) {
-    this.editingItem = item;
-    this.form = {
-      datum: item.datum.split('T')[0],
-      kundeName: item.kundeName,
-      kundeTelefon: item.kundeTelefon,
-      kundeEmail: item.kundeEmail,
-      kundeAdresse: item.kundeAdresse,
-      fahrradMarke: item.fahrradMarke,
-      fahrradModell: item.fahrradModell,
-      rahmennummer: item.rahmennummer,
-      farbe: item.farbe,
-      durchgefuehrteArbeiten: item.durchgefuehrteArbeiten,
-      verwendeteTeile: item.verwendeteTeile,
-      preis: item.preis,
-      zahlungsart: item.zahlungsart,
-      notizen: item.notizen,
-    };
-    this.showForm = true;
-  }
-
-  saveItem() {
-    if (!this.form.kundeName || !this.form.durchgefuehrteArbeiten) return;
-    this.saving = true;
-
-    const payload: ServiceleistungCreate = {
-      ...this.form,
-      datum: new Date(this.form.datum).toISOString(),
-    };
-
-    const request$ = this.editingItem
-      ? this.serviceleistungService.update(this.editingItem.id, payload)
-      : this.serviceleistungService.create(payload);
-
-    request$.subscribe({
-      next: () => {
-        this.showForm = false;
-        this.saving = false;
-        this.loadItems();
-      },
-      error: () => {
-        this.saving = false;
-      },
-    });
-  }
-
   confirmDelete() {
     if (!this.deleteTarget) return;
     this.serviceleistungService.delete(this.deleteTarget.id).subscribe({
@@ -707,8 +478,16 @@ export class ServiceleistungListComponent implements OnInit {
     });
   }
 
-  shorten(text: string): string {
-    return text.length > 60 ? text.substring(0, 57) + '...' : text;
+  leistungCount(text: string): number {
+    return text.split('\n').filter((l) => l.trim().length > 0).length;
+  }
+
+  firstLeistung(text: string): string {
+    const first =
+      text.split('\n').find((l) => l.trim().length > 0)?.trim() ?? '';
+    const count = this.leistungCount(text);
+    const suffix = count > 1 ? ' …' : '';
+    return first.length > 45 ? first.substring(0, 42) + '...' : first + suffix;
   }
 
   formatDate(dateStr: string): string {
@@ -718,24 +497,5 @@ export class ServiceleistungListComponent implements OnInit {
       month: '2-digit',
       year: 'numeric',
     });
-  }
-
-  private emptyForm(): ServiceleistungCreate {
-    return {
-      datum: new Date().toISOString().split('T')[0],
-      kundeName: '',
-      kundeTelefon: null,
-      kundeEmail: null,
-      kundeAdresse: null,
-      fahrradMarke: null,
-      fahrradModell: null,
-      rahmennummer: null,
-      farbe: null,
-      durchgefuehrteArbeiten: '',
-      verwendeteTeile: null,
-      preis: null,
-      zahlungsart: null,
-      notizen: null,
-    };
   }
 }

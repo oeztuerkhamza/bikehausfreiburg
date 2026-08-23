@@ -197,6 +197,22 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'serviceleistungen/new',
+    loadComponent: () =>
+      import(
+        './pages/serviceleistungen/serviceleistung-form.component'
+      ).then((m) => m.ServiceleistungFormComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'serviceleistungen/edit/:id',
+    loadComponent: () =>
+      import(
+        './pages/serviceleistungen/serviceleistung-form.component'
+      ).then((m) => m.ServiceleistungFormComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'invoices',
     loadComponent: () =>
       import('./pages/invoices/invoice-list.component').then(
