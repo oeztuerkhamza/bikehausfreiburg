@@ -16,7 +16,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   es: {
     serviceHighlightsAria: 'Aspectos destacados del servicio',
     heroChip: 'Alquiler de Bicicletas Freiburg',
-    heroAccent: 'a partir de 12 €',
+    heroAccent: 'a partir de 15 €',
     heroDescription:
       'Los días 1 a 7 se calculan individualmente para cada bicicleta, a partir del día 8 se aplica un complemento fijo. Retiro directo en nuestro establecimiento en Freiburg.',
     heroFeatures: [
@@ -172,7 +172,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   it: {
     serviceHighlightsAria: 'Punti forti del servizio',
     heroChip: 'Noleggio bici Friburgo',
-    heroAccent: 'a partire da 12 €',
+    heroAccent: 'a partire da 15 €',
     heroDescription:
       'I giorni 1-7 sono calcolati individualmente per ogni bici, dal giorno 8 in poi si applica un supplemento fisso al giorno. Ritira direttamente presso il nostro negozio a Friburgo.',
     heroFeatures: [
@@ -316,7 +316,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   ar: {
     serviceHighlightsAria: 'نقاط قوة الخدمة',
     heroChip: 'استئجار الدراجات فرايبورج',
-    heroAccent: 'ابتداءً من 12 €',
+    heroAccent: 'ابتداءً من 15 €',
     heroDescription:
       'يتم حساب الأيام من 1 إلى 7 بشكل فردي لكل دراجة، ثم يتم تطبيق رسم إضافي ثابت من اليوم 8. الاستلام المباشر من متجرنا في فرايبورج.',
     heroFeatures: [
@@ -467,7 +467,7 @@ export const EXTENDED_RENTAL_PAGE_COPY: Record<ExtendedRentalLanguage, any> = {
   ru: {
     serviceHighlightsAria: 'Основные достоинства услуги',
     heroChip: 'Аренда велосипедов Фрайбург',
-    heroAccent: 'от 12 €',
+    heroAccent: 'от 15 €',
     heroDescription:
       'Дни 1-7 рассчитываются индивидуально для каждого велосипеда, с 8-го дня применяется фиксированная доплата. Самовывоз прямо в нашем магазине во Фрайбурге.',
     heroFeatures: [

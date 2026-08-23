@@ -745,7 +745,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   de: {
     serviceHighlightsAria: 'Service Highlights',
     heroChip: 'Fahrradverleih Freiburg',
-    heroAccent: 'ab 12 €',
+    heroAccent: 'ab 15 €',
     heroDescription:
       '1 bis 7 Tage individuell je Fahrrad kalkuliert, ab Tag 8 mit festem Zusatzpreis. Direkt bei uns in Freiburg abholen.',
     heroFeatures: [
@@ -889,7 +889,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   en: {
     serviceHighlightsAria: 'Service highlights',
     heroChip: 'Bike Rental Freiburg',
-    heroAccent: 'from €12',
+    heroAccent: 'from €15',
     heroDescription:
       'Days 1 to 7 are priced individually per bike, from day 8 onward a fixed extra-day surcharge applies. Pick up directly at our Freiburg shop.',
     heroFeatures: [
@@ -1030,7 +1030,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   fr: {
     serviceHighlightsAria: 'Points forts du service',
     heroChip: 'Location de velo Freiburg',
-    heroAccent: 'a partir de 12 €',
+    heroAccent: 'a partir de 15 €',
     heroDescription:
       'Les jours 1 a 7 sont calcules individuellement pour chaque velo, puis un supplement fixe s applique a partir du 8e jour. Retrait direct dans notre magasin a Freiburg.',
     heroFeatures: [
@@ -1187,7 +1187,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
   tr: {
     serviceHighlightsAria: 'Servis öne çıkanlar',
     heroChip: 'Freiburg Bisiklet Kiralama',
-    heroAccent: '12 € ile başlayan fiyatlarla',
+    heroAccent: '15 € ile başlayan fiyatlarla',
     heroDescription:
       '1 ile 7 gün arası fiyat her bisiklet için ayrı hesaplanır, 8. günden itibaren sabit ek gün ücreti uygulanır. Teslim almayı doğrudan Freiburg mağazamızdan yapabilirsiniz.',
     heroFeatures: [
@@ -5233,21 +5233,29 @@ export class FahrradverleihComponent implements OnInit {
             '@type': 'Offer',
             // Vermietung, kein Verkauf — hält die Tagespreise eindeutig.
             businessFunction: 'http://purl.org/goodrelations/v1#LeaseOut',
+            // Preise müssen den tatsächlich buchbaren Katalogpreisen
+            // entsprechen. Die alte Staffel wies 12 € als Tagespreis aus —
+            // das ist der Langzeitsatz, kein Ein-Tages-Preis. Stand: Kinderrad
+            // ab 10 €, Erwachsenenrad ab 15 €, E-Bike bis 29 € pro Tag;
+            // ab dem 8. Tag 8–20 € pro Tag.
             priceSpecification: [
               {
                 '@type': 'UnitPriceSpecification',
                 name: '1 Tag',
-                price: '12.00',
+                price: '15.00',
                 priceCurrency: 'EUR',
                 unitCode: 'DAY',
-                minPrice: '8.00',
+                minPrice: '10.00',
+                maxPrice: '29.00',
               },
               {
                 '@type': 'UnitPriceSpecification',
-                name: 'Ab 8 Tage',
+                name: 'Ab 8 Tagen',
                 price: '8.00',
                 priceCurrency: 'EUR',
                 unitCode: 'DAY',
+                minPrice: '8.00',
+                maxPrice: '20.00',
               },
             ],
             availability: 'https://schema.org/InStock',

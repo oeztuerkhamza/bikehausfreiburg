@@ -50,7 +50,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
     },
     translations: {
       de: {
-        metaTitle: 'E-Bike mieten Freiburg | Pedelec-Verleih ab 15 €/Tag',
+        metaTitle: 'E-Bike mieten Freiburg | Pedelec-Verleih ab 19 €/Tag',
         metaDescription:
           'E-Bike mieten in Freiburg ✓ Pedelecs mit 80+ km Reichweite ✓ Bosch & Shimano Motoren ✓ Helm & Schloss inklusive ✓ Sofort verfügbar bei Bike Haus Freiburg.',
         breadcrumbLabel: 'E-Bike mieten',
@@ -92,17 +92,17 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           'Helm in deiner Größe und sicheres Schloss inklusive',
           'Pannensets und Ersatzakku-Option auf Anfrage',
           'Flexible Mietzeiten – Stunden, Tage oder ganze Wochen',
-          'Faire Preise: ab 15 € pro Tag, je länger desto günstiger',
+          'Faire Preise: ab 19 € pro Tag, je länger desto günstiger',
           'Persönliche Beratung zu den schönsten E-Bike-Routen rund um Freiburg',
         ],
         pricingHeading: 'Preise E-Bike-Verleih',
         pricingText:
           'Individuelle Tagespreise je Modell. Helm und Schloss sind immer inklusive – keine versteckten Kosten.',
         pricingItems: [
-          '1 Tag: ab 15 €',
-          '3 Tage: ab 40 € (≈ 13 €/Tag)',
-          '7 Tage: ab 90 € (≈ 13 €/Tag)',
-          'Ab 8. Tag: nur 12 €/Tag',
+          '1 Tag: ab 19 €',
+          '3 Tage: ab 45 € (15 €/Tag)',
+          '7 Tage: ab 100 € (≈ 14 €/Tag)',
+          'Ab 8. Tag: nur 15 €/Tag',
         ],
         faqHeading: 'Häufige Fragen zum E-Bike-Verleih',
         faq: [
@@ -116,7 +116,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           },
           {
             q: 'Was kostet ein E-Bike pro Tag?',
-            a: 'Die Tagespreise beginnen bei 15 €. Ab dem 8. Tag zahlst du nur noch 12 € pro Tag – ideal für längere Aufenthalte.',
+            a: 'Die Tagespreise beginnen bei 19 €. Ab dem 8. Tag zahlst du nur noch 15 € pro Tag – ideal für längere Aufenthalte.',
           },
           {
             q: 'Welche Rahmengrößen habt ihr verfügbar?',
@@ -134,7 +134,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         secondaryCtaButton: 'Alle Mietfahrräder ansehen',
       },
       en: {
-        metaTitle: 'Rent an E-Bike in Freiburg | Pedelec Rental from €15/day',
+        metaTitle: 'Rent an E-Bike in Freiburg | Pedelec Rental from €19/day',
         metaDescription:
           'Rent an e-bike in Freiburg ✓ Pedelecs with 80+ km range ✓ Bosch & Shimano motors ✓ Helmet & lock included ✓ Same-day pickup at Bike Haus Freiburg.',
         breadcrumbLabel: 'Rent an E-Bike',
@@ -176,17 +176,17 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           'Helmet in your size and a secure lock — always included',
           'Puncture kits and spare-battery option on request',
           'Flexible rental periods — hours, days or full weeks',
-          'Fair prices: from €15 per day, cheaper the longer you stay',
+          'Fair prices: from €19 per day, cheaper the longer you stay',
           'Personal advice on the best e-bike routes around Freiburg',
         ],
         pricingHeading: 'E-bike rental prices',
         pricingText:
           'Daily prices vary by model. Helmet and lock are always included — no hidden fees.',
         pricingItems: [
-          '1 day: from €15',
-          '3 days: from €40 (≈ €13/day)',
-          '7 days: from €90 (≈ €13/day)',
-          'From day 8: only €12/day',
+          '1 day: from €19',
+          '3 days: from €45 (€15/day)',
+          '7 days: from €100 (≈ €14/day)',
+          'From day 8: only €15/day',
         ],
         faqHeading: 'FAQ about e-bike rental',
         faq: [
@@ -200,7 +200,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           },
           {
             q: 'How much does an e-bike cost per day?',
-            a: 'Daily prices start at €15. From day 8 onwards you only pay €12 per day — ideal for longer stays.',
+            a: 'Daily prices start at €19. From day 8 onwards you only pay €15 per day — ideal for longer stays.',
           },
           {
             q: 'What frame sizes do you have?',
@@ -218,7 +218,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         secondaryCtaButton: 'View all rental bikes',
       },
       fr: {
-        metaTitle: 'Louer un vélo électrique Fribourg | VAE dès 15 €/jour',
+        metaTitle: 'Louer un vélo électrique Fribourg | VAE dès 19 €/jour',
         metaDescription:
           "Louer un vélo électrique à Fribourg ✓ VAE avec 80+ km d'autonomie ✓ Moteurs Bosch & Shimano ✓ Casque & antivol inclus ✓ Disponible le jour même chez Bike Haus.",
         breadcrumbLabel: 'Louer un vélo électrique',
@@ -260,17 +260,17 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           'Casque à votre taille et antivol sécurisé — toujours inclus',
           'Kit anti-crevaison et option batterie de rechange sur demande',
           'Durées flexibles — heures, jours ou semaines entières',
-          'Tarifs équitables : dès 15 € par jour, dégressifs sur la durée',
+          'Tarifs équitables : dès 19 € par jour, dégressifs sur la durée',
           'Conseils personnalisés sur les meilleurs itinéraires VAE autour de Fribourg',
         ],
         pricingHeading: 'Tarifs de location VAE',
         pricingText:
           'Prix journaliers variables selon le modèle. Casque et antivol toujours inclus — pas de frais cachés.',
         pricingItems: [
-          '1 jour : dès 15 €',
-          '3 jours : dès 40 € (≈ 13 €/jour)',
-          '7 jours : dès 90 € (≈ 13 €/jour)',
-          'À partir du 8e jour : seulement 12 €/jour',
+          '1 jour : dès 19 €',
+          '3 jours : dès 45 € (15 €/jour)',
+          '7 jours : dès 100 € (≈ 14 €/jour)',
+          'À partir du 8e jour : seulement 15 €/jour',
         ],
         faqHeading: 'Questions fréquentes – location VAE',
         faq: [
@@ -284,7 +284,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           },
           {
             q: 'Combien coûte un VAE par jour ?',
-            a: 'Les tarifs journaliers démarrent à 15 €. À partir du 8e jour, vous ne payez plus que 12 € par jour — idéal pour les longs séjours.',
+            a: 'Les tarifs journaliers démarrent à 19 €. À partir du 8e jour, vous ne payez plus que 15 € par jour — idéal pour les longs séjours.',
           },
           {
             q: 'Quelles tailles de cadre proposez-vous ?',
@@ -312,7 +312,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
     },
     translations: {
       de: {
-        metaTitle: 'Trekkingrad mieten Freiburg | Tourenrad ab 12 €/Tag',
+        metaTitle: 'Trekkingrad mieten Freiburg | Tourenrad ab 15 €/Tag',
         metaDescription:
           'Trekkingrad mieten in Freiburg ✓ Komfortable Tourenräder für Schwarzwald & Dreisamtal ✓ Gepäckträger, Licht & Schloss inklusive ✓ Bei Bike Haus reservieren.',
         breadcrumbLabel: 'Trekkingrad mieten',
@@ -361,10 +361,10 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         pricingText:
           'Individuelle Tagespreise je Modell. Helm und Schloss sind immer inklusive – Mehrtagesrabatte automatisch.',
         pricingItems: [
-          '1 Tag: ab 12 €',
-          '3 Tage: ab 30 € (≈ 10 €/Tag)',
-          '7 Tage: ab 60 € (≈ 9 €/Tag)',
-          'Ab 8. Tag: nur 8 €/Tag',
+          '1 Tag: ab 15 €',
+          '3 Tage: ab 40 € (≈ 13 €/Tag)',
+          '7 Tage: ab 80 € (≈ 11 €/Tag)',
+          'Ab 8. Tag: nur 10 €/Tag',
         ],
         faqHeading: 'Häufige Fragen zum Trekkingrad-Verleih',
         faq: [
@@ -378,7 +378,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           },
           {
             q: 'Was kostet ein Trekkingrad pro Tag?',
-            a: 'Die Preise beginnen bei 12 € pro Tag. Bei längerer Miete sinkt der Tagessatz, ab dem 8. Tag zahlst du nur 8 €.',
+            a: 'Die Preise beginnen bei 15 € pro Tag. Bei längerer Miete sinkt der Tagessatz, ab dem 8. Tag zahlst du nur 10 €.',
           },
           {
             q: 'Welche Rahmengrößen habt ihr?',
@@ -397,7 +397,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
       },
       en: {
         metaTitle:
-          'Rent a Trekking Bike in Freiburg | Touring Bike from €12/day',
+          'Rent a Trekking Bike in Freiburg | Touring Bike from €15/day',
         metaDescription:
           'Rent a trekking bike in Freiburg ✓ Comfortable touring bikes for the Black Forest & Dreisam Valley ✓ Rack, lights & lock included ✓ Reserve at Bike Haus.',
         breadcrumbLabel: 'Rent a Trekking Bike',
@@ -446,10 +446,10 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         pricingText:
           'Daily prices vary by model. Helmet and lock are always included — multi-day discounts apply automatically.',
         pricingItems: [
-          '1 day: from €12',
-          '3 days: from €30 (≈ €10/day)',
-          '7 days: from €60 (≈ €9/day)',
-          'From day 8: only €8/day',
+          '1 day: from €15',
+          '3 days: from €40 (≈ €13/day)',
+          '7 days: from €80 (≈ €11/day)',
+          'From day 8: only €10/day',
         ],
         faqHeading: 'FAQ about trekking bike rental',
         faq: [
@@ -463,7 +463,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           },
           {
             q: 'How much does a trekking bike cost per day?',
-            a: 'Prices start from €12 per day. The daily rate drops with longer rentals — from day 8 onwards you pay only €8.',
+            a: 'Prices start from €15 per day. The daily rate drops with longer rentals — from day 8 onwards you pay only €10.',
           },
           {
             q: 'What frame sizes do you offer?',
@@ -482,7 +482,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
       },
       fr: {
         metaTitle:
-          'Louer un vélo de trekking Fribourg | Vélo touring dès 12 €/jour',
+          'Louer un vélo de trekking Fribourg | Vélo touring dès 15 €/jour',
         metaDescription:
           'Louer un vélo de trekking à Fribourg ✓ Vélos confortables pour la Forêt-Noire & la vallée de la Dreisam ✓ Porte-bagages, éclairage & antivol inclus ✓ Bike Haus.',
         breadcrumbLabel: 'Louer un vélo de trekking',
@@ -531,10 +531,10 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         pricingText:
           'Prix journaliers selon le modèle. Casque et antivol toujours inclus — remises plusieurs jours automatiques.',
         pricingItems: [
-          '1 jour : dès 12 €',
-          '3 jours : dès 30 € (≈ 10 €/jour)',
-          '7 jours : dès 60 € (≈ 9 €/jour)',
-          'À partir du 8e jour : seulement 8 €/jour',
+          '1 jour : dès 15 €',
+          '3 jours : dès 40 € (≈ 13 €/jour)',
+          '7 jours : dès 80 € (≈ 11 €/jour)',
+          'À partir du 8e jour : seulement 10 €/jour',
         ],
         faqHeading: 'Questions fréquentes – location vélo de trekking',
         faq: [
@@ -548,7 +548,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           },
           {
             q: 'Combien coûte un vélo de trekking par jour ?',
-            a: 'Les tarifs démarrent à 12 € par jour. Plus la durée est longue, plus le tarif baisse — dès le 8e jour, seulement 8 €.',
+            a: 'Les tarifs démarrent à 15 € par jour. Plus la durée est longue, plus le tarif baisse — dès le 8e jour, seulement 10 €.',
           },
           {
             q: 'Quelles tailles de cadre proposez-vous ?',
@@ -576,7 +576,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
     },
     translations: {
       de: {
-        metaTitle: 'Kinderfahrrad mieten Freiburg | Familienverleih ab 6 €/Tag',
+        metaTitle: 'Kinderfahrrad mieten Freiburg | Familienverleih ab 10 €/Tag',
         metaDescription:
           'Kinderfahrrad mieten in Freiburg ✓ Sichere Räder von 16" bis 26" ✓ Helm in Kindergrößen inklusive ✓ Familienrabatte ✓ Bike Haus Freiburg in Heckerstraße.',
         breadcrumbLabel: 'Kinderfahrrad mieten',
@@ -614,7 +614,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         ],
         whyHeading: 'Warum Kinderfahrrad bei Bike Haus mieten?',
         whyItems: [
-          'Faire Tagespreise ab 6 € – günstiger als ein Neukauf für den Urlaub',
+          'Faire Tagespreise ab 10 € – günstiger als ein Neukauf für den Urlaub',
           'Helm in Kindergrößen kostenlos dabei',
           'Familienrabatt bei 2 oder mehr Rädern (Erwachsene + Kinder)',
           'Beratung zu passender Rahmengröße – wir messen dein Kind direkt im Laden',
@@ -625,10 +625,10 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         pricingText:
           'Familienfreundliche Tagespreise. Helm in Kindergröße immer inklusive – Familienrabatt bei mehreren Rädern.',
         pricingItems: [
-          '1 Tag: ab 6 €',
-          '3 Tage: ab 15 € (5 €/Tag)',
-          '7 Tage: ab 30 € (≈ 4,30 €/Tag)',
-          'Ab 8. Tag: nur 4 €/Tag',
+          '1 Tag: ab 10 €',
+          '3 Tage: ab 24 € (8 €/Tag)',
+          '7 Tage: ab 56 € (8 €/Tag)',
+          'Ab 8. Tag: nur 8 €/Tag',
         ],
         faqHeading: 'Häufige Fragen zum Kinderfahrrad-Verleih',
         faq: [
@@ -660,7 +660,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         secondaryCtaButton: 'Alle Mietfahrräder ansehen',
       },
       en: {
-        metaTitle: 'Rent Kids Bikes in Freiburg | Family Rental from €6/day',
+        metaTitle: 'Rent Kids Bikes in Freiburg | Family Rental from €10/day',
         metaDescription:
           'Rent kids bikes in Freiburg ✓ Safe bikes from 16" to 26" ✓ Kids helmet included ✓ Family discounts ✓ Bike Haus Freiburg on Heckerstraße.',
         breadcrumbLabel: 'Rent a Kids Bike',
@@ -698,7 +698,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         ],
         whyHeading: 'Why rent kids bikes at Bike Haus?',
         whyItems: [
-          'Fair daily prices from €6 — cheaper than buying for a holiday',
+          'Fair daily prices from €10 — cheaper than buying for a holiday',
           'Kids helmet included for free',
           'Family discount for 2 or more bikes (adult + kids combo)',
           'Sizing advice — we measure your child directly in the shop',
@@ -709,10 +709,10 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         pricingText:
           'Family-friendly daily prices. Kids helmet always included — family discount for multiple bikes.',
         pricingItems: [
-          '1 day: from €6',
-          '3 days: from €15 (€5/day)',
-          '7 days: from €30 (≈ €4.30/day)',
-          'From day 8: only €4/day',
+          '1 day: from €10',
+          '3 days: from €24 (€8/day)',
+          '7 days: from €56 (€8/day)',
+          'From day 8: only €8/day',
         ],
         faqHeading: 'FAQ about kids bike rental',
         faq: [
@@ -745,7 +745,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
       },
       fr: {
         metaTitle:
-          'Louer un vélo enfant Fribourg | Location famille dès 6 €/jour',
+          'Louer un vélo enfant Fribourg | Location famille dès 10 €/jour',
         metaDescription:
           'Louer un vélo enfant à Fribourg ✓ Vélos sécurisés de 16" à 26" ✓ Casque enfant inclus ✓ Tarifs famille ✓ Bike Haus Freiburg, Heckerstraße.',
         breadcrumbLabel: 'Louer un vélo enfant',
@@ -783,7 +783,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         ],
         whyHeading: 'Pourquoi louer un vélo enfant chez Bike Haus ?',
         whyItems: [
-          "Tarifs journaliers équitables dès 6 € — moins cher qu'un achat pour les vacances",
+          "Tarifs journaliers équitables dès 10 € — moins cher qu'un achat pour les vacances",
           'Casque enfant inclus gratuitement',
           'Tarif famille pour 2 vélos ou plus (adulte + enfant)',
           'Conseils de taille — nous mesurons votre enfant directement au magasin',
@@ -794,10 +794,10 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
         pricingText:
           'Tarifs journaliers familiaux. Casque enfant toujours inclus — tarif famille pour plusieurs vélos.',
         pricingItems: [
-          '1 jour : dès 6 €',
-          '3 jours : dès 15 € (5 €/jour)',
-          '7 jours : dès 30 € (≈ 4,30 €/jour)',
-          'À partir du 8e jour : seulement 4 €/jour',
+          '1 jour : dès 10 €',
+          '3 jours : dès 24 € (8 €/jour)',
+          '7 jours : dès 56 € (8 €/jour)',
+          'À partir du 8e jour : seulement 8 €/jour',
         ],
         faqHeading: 'Questions fréquentes – location vélo enfant',
         faq: [
