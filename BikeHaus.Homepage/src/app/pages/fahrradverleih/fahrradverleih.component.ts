@@ -5231,6 +5231,8 @@ export class FahrradverleihComponent implements OnInit {
           areaServed: AREA_SERVED,
           offers: {
             '@type': 'Offer',
+            // Vermietung, kein Verkauf — hält die Tagespreise eindeutig.
+            businessFunction: 'http://purl.org/goodrelations/v1#LeaseOut',
             priceSpecification: [
               {
                 '@type': 'UnitPriceSpecification',

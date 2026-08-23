@@ -1,5 +1,12 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  signal,
+  computed,
+} from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
@@ -799,12 +806,14 @@ import { environment } from '../../../environments/environment';
     `,
   ],
 })
-export class NeueFahrradDetailComponent implements OnInit {
+export class NeueFahrradDetailComponent implements OnInit, OnDestroy {
   private apiService = inject(ApiService);
   private translationService = inject(TranslationService);
   private route = inject(ActivatedRoute);
   private title = inject(Title);
   private meta = inject(Meta);
+  private document = inject(DOCUMENT);
+  private schemaElements: HTMLScriptElement[] = [];
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
@@ -848,11 +857,160 @@ export class NeueFahrradDetailComponent implements OnInit {
   }
 
   private setSeo(bike: NeueFahrrad): void {
-    this.title.setTitle(`${bike.titel} — Bike Haus Freiburg`);
-    this.meta.updateTag({
-      name: 'description',
-      content: `${bike.titel} — ${bike.preisText || bike.preis + ' €'} — Neue Fahrräder bei Bike Haus Freiburg.`,
+    const preis = bike.preisText || (bike.preis ? `${bike.preis} €` : '');
+    const title = `${bike.titel}${preis ? ` — ${preis}` : ''} | Neu kaufen in Freiburg`;
+    const description =
+      `${bike.titel}${preis ? ` für ${preis}` : ''} — neues Fahrrad bei Bike Haus Freiburg, ` +
+      `Heckerstraße 27. Probefahrt jederzeit möglich, 24 Monate Garantie auf Neuräder.`;
+
+    this.title.setTitle(title);
+    this.meta.updateTag({ name: 'description', content: description });
+    this.meta.updateTag({ property: 'og:title', content: title });
+    this.meta.updateTag({ property: 'og:description', content: description });
+    this.meta.updateTag({ property: 'og:type', content: 'product' });
+    if (bike.images?.length) {
+      this.meta.updateTag({
+        property: 'og:image',
+        content: this.getImageUrl(bike.images[0].filePath),
+      });
+    }
+
+    this.addStructuredData(bike);
+  }
+
+  /** Product + BreadcrumbList — vorher hatte diese Seite gar kein JSON-LD. */
+  private addStructuredData(bike: NeueFahrrad): void {
+    this.removeStructuredData();
+
+    const baseUrl = 'https://bikehausfreiburg.com';
+    const lang = this.lang();
+    const pageUrl = `${baseUrl}/${lang}/neue-fahrraeder/${bike.id}`;
+    const images = (bike.images || []).map((img) =>
+      this.getImageUrl(img.filePath),
+    );
+
+    const props = [
+      bike.rahmengroesse
+        ? {
+            '@type': 'PropertyValue',
+            name: 'Rahmengröße',
+            value: bike.rahmengroesse,
+          }
+        : null,
+      bike.reifengroesse
+        ? {
+            '@type': 'PropertyValue',
+            name: 'Reifengröße',
+            value: bike.reifengroesse,
+          }
+        : null,
+      bike.gangschaltung
+        ? {
+            '@type': 'PropertyValue',
+            name: 'Gangschaltung',
+            value: bike.gangschaltung,
+          }
+        : null,
+    ].filter(Boolean);
+
+    // Neuräder sind Neuware; nur wenn der Datensatz ausdrücklich etwas
+    // anderes sagt, wird auf gebraucht zurückgefallen.
+    const itemCondition =
+      bike.zustand === 'Gebraucht'
+        ? 'https://schema.org/UsedCondition'
+        : 'https://schema.org/NewCondition';
+
+    const seller = {
+      '@type': 'LocalBusiness',
+      name: 'Bike Haus Freiburg',
+      url: baseUrl,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Heckerstraße 27',
+        postalCode: '79114',
+        addressLocality: 'Freiburg im Breisgau',
+        addressCountry: 'DE',
+      },
+    };
+
+    const product: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      '@id': `${pageUrl}#product`,
+      name: bike.titel,
+      url: pageUrl,
+      sku: `neu-${bike.id}`,
+      itemCondition,
+      seller,
+      ...(bike.beschreibung ? { description: bike.beschreibung } : {}),
+      // Stammdaten haben oft Leerzeichen am Ende ("Prophete ") — die stören
+      // Googles Markenabgleich.
+      ...(bike.marke?.trim()
+        ? { brand: { '@type': 'Brand', name: bike.marke.trim() } }
+        : {}),
+      ...(bike.modell?.trim() ? { model: bike.modell.trim() } : {}),
+      ...(bike.farbe?.trim() ? { color: bike.farbe.trim() } : {}),
+      ...(bike.kategorie ? { category: bike.kategorie } : {}),
+      ...(images.length ? { image: images } : {}),
+      ...(props.length ? { additionalProperty: props } : {}),
+    };
+
+    if (bike.preis && bike.preis > 0) {
+      product['offers'] = {
+        '@type': 'Offer',
+        url: pageUrl,
+        price: bike.preis,
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        itemCondition,
+        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split('T')[0],
+        seller,
+      };
+    }
+
+    const breadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Bike Haus Freiburg',
+          item: `${baseUrl}/${lang}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          // Breadcrumb-Namen ohne Schlusspunkt — die Seitentitel sind Sätze.
+          name: (this.t().newBikesTitle || 'Neue Fahrräder').replace(
+            /[.!?]\s*$/,
+            '',
+          ),
+          item: `${baseUrl}/${lang}/neue-fahrraeder`,
+        },
+        { '@type': 'ListItem', position: 3, name: bike.titel, item: pageUrl },
+      ],
+    };
+
+    [product, breadcrumb].forEach((schema) => {
+      const script = this.document.createElement('script');
+      script.type = 'application/ld+json';
+      script.setAttribute('data-neue-fahrrad-ld', '');
+      script.textContent = JSON.stringify(schema);
+      this.document.head.appendChild(script);
+      this.schemaElements.push(script);
     });
+  }
+
+  private removeStructuredData(): void {
+    this.schemaElements.forEach((el) => el.parentNode?.removeChild(el));
+    this.schemaElements = [];
+  }
+
+  ngOnDestroy(): void {
+    this.removeStructuredData();
   }
 
   getImageUrl(path: string): string {

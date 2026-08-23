@@ -1187,11 +1187,16 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
   private document = inject(DOCUMENT);
 
   private productSchemaElement: HTMLScriptElement | null = null;
+  private breadcrumbSchemaElement: HTMLScriptElement | null = null;
 
   t = this.translationService.translations;
   lang = this.translationService.currentLanguage;
 
   listing = signal<KleinanzeigenListing | null>(null);
+  // Rohdaten des Fahrrads aus dem eigenen Bestand: Marke, Farbe und Größen
+  // gehen bei der Umwandlung in ein Listing verloren, werden aber für ein
+  // vollständiges Product-Schema gebraucht.
+  private rawBike = signal<PublicBicycle | null>(null);
   relatedListings = signal<KleinanzeigenListing[]>([]);
   loading = signal(true);
   selectedImage = signal(0);
@@ -1259,6 +1264,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
         next: (bike) => {
           // Convert PublicBicycle to KleinanzeigenListing format
           const listing = this.convertBicycleToListing(bike, id);
+          this.rawBike.set(bike);
           this.listing.set(listing);
           this.loading.set(false);
           this.updateSeoMeta(listing, id);
@@ -1270,6 +1276,7 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
       // Kleinanzeigen listing
       this.apiService.getListingById(id).subscribe({
         next: (data) => {
+          this.rawBike.set(null);
           this.listing.set(data);
           this.loading.set(false);
           this.updateSeoMeta(data, id);
@@ -1366,10 +1373,9 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
         property: 'og:description',
         content: desc,
       });
-      this.metaService.updateTag({
-        property: 'og:url',
-        content: `https://bikehausfreiburg.com/showroom/${id}`,
-      });
+      // og:url NICHT hier setzen — der SeoService pflegt canonical und og:url
+      // global und sprachrichtig. Ein zweiter Wert ohne /:lang würde beide
+      // Signale widersprüchlich machen.
       if (data.images?.length) {
         this.metaService.updateTag({
           property: 'og:image',
@@ -1386,47 +1392,141 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
     // Remove existing schema if any
     this.removeProductSchema();
 
-    const schema = {
+    const pageUrl = `https://bikehausfreiburg.com/${this.lang()}/showroom/${id}`;
+    const bike = this.rawBike();
+    // Marke: aus dem Bestand direkt, sonst aus dem Anzeigentitel erkannt.
+    // Lieber gar keine Marke als eine falsche — der Händlername ist keine
+    // Fahrradmarke und hat in `brand` nichts zu suchen.
+    const marke = bike?.marke?.trim() || this.detectBrand(data.title);
+    const itemCondition = this.isNew()
+      ? 'https://schema.org/NewCondition'
+      : 'https://schema.org/UsedCondition';
+
+    const seller = {
+      '@type': 'LocalBusiness',
+      name: 'Bike Haus Freiburg',
+      url: 'https://bikehausfreiburg.com',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Heckerstraße 27',
+        postalCode: '79114',
+        addressLocality: 'Freiburg im Breisgau',
+        addressCountry: 'DE',
+      },
+    };
+
+    const props = [
+      bike?.rahmengroesse
+        ? {
+            '@type': 'PropertyValue',
+            name: 'Rahmengröße',
+            value: bike.rahmengroesse,
+          }
+        : null,
+      bike?.reifengroesse
+        ? {
+            '@type': 'PropertyValue',
+            name: 'Reifengröße',
+            value: `${bike.reifengroesse} Zoll`,
+          }
+        : null,
+      bike?.fahrradtyp
+        ? {
+            '@type': 'PropertyValue',
+            name: 'Fahrradtyp',
+            value: bike.fahrradtyp,
+          }
+        : null,
+    ].filter(Boolean);
+
+    const schema: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'Product',
-      '@id': `https://bikehausfreiburg.com/${this.lang()}/showroom/${id}#product`,
+      '@id': `${pageUrl}#product`,
       name: data.title,
       description: data.description || data.title,
-      image: data.images?.map((img) => img.imageUrl) || [],
-      url: `https://bikehausfreiburg.com/${this.lang()}/showroom/${id}`,
-      brand: {
-        '@type': 'Brand',
-        name: 'Bike Haus Freiburg',
-      },
-      seller: {
-        '@type': 'LocalBusiness',
-        name: 'Bike Haus Freiburg',
-        url: 'https://bikehausfreiburg.com',
-      },
-      offers: {
+      url: pageUrl,
+      sku: data.externalId || `showroom-${id}`,
+      itemCondition,
+      category: data.category || this.t().bikeFallbackCategory,
+      seller,
+      ...(marke ? { brand: { '@type': 'Brand', name: marke } } : {}),
+      ...(bike?.farbe ? { color: bike.farbe } : {}),
+      ...(data.images?.length
+        ? { image: data.images.map((img) => img.imageUrl) }
+        : {}),
+      ...(props.length ? { additionalProperty: props } : {}),
+    };
+
+    // Ein Angebot ohne echten Preis ist ungültig (price: 0 löst in der
+    // Search Console einen Fehler aus) — dann lieber kein offers-Knoten.
+    if (data.price && data.price > 0) {
+      schema['offers'] = {
         '@type': 'Offer',
-        url: `https://bikehausfreiburg.com/${this.lang()}/showroom/${id}`,
+        url: pageUrl,
         priceCurrency: 'EUR',
-        price: data.price || 0,
+        price: data.price,
         priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
           .toISOString()
           .split('T')[0],
         availability: 'https://schema.org/InStock',
-        itemCondition: this.isNew()
-          ? 'https://schema.org/NewCondition'
-          : 'https://schema.org/UsedCondition',
-        seller: {
-          '@type': 'LocalBusiness',
+        itemCondition,
+        seller,
+      };
+    }
+
+    const breadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
           name: 'Bike Haus Freiburg',
+          item: `https://bikehausfreiburg.com/${this.lang()}`,
         },
-      },
-      category: data.category || this.t().bikeFallbackCategory,
+        {
+          '@type': 'ListItem',
+          position: 2,
+          // Breadcrumb-Namen ohne Schlusspunkt — die Seitentitel sind Sätze.
+          name: (this.t().showroomTitle || 'Showroom').replace(/[.!?]\s*$/, ''),
+          item: `https://bikehausfreiburg.com/${this.lang()}/showroom`,
+        },
+        { '@type': 'ListItem', position: 3, name: data.title, item: pageUrl },
+      ],
     };
 
     this.productSchemaElement = this.document.createElement('script');
     this.productSchemaElement.type = 'application/ld+json';
     this.productSchemaElement.text = JSON.stringify(schema);
     this.document.head.appendChild(this.productSchemaElement);
+
+    this.breadcrumbSchemaElement = this.document.createElement('script');
+    this.breadcrumbSchemaElement.type = 'application/ld+json';
+    this.breadcrumbSchemaElement.text = JSON.stringify(breadcrumb);
+    this.document.head.appendChild(this.breadcrumbSchemaElement);
+  }
+
+  /** Im Bestand geführte Fahrradmarken — erkannt am Anzeigentitel. */
+  private static readonly KNOWN_BRANDS = [
+    'Bergamont', 'Bianchi', 'Bulls', 'Cannondale', 'Canyon', 'Carver',
+    'Centurion', 'Conway', 'Corratec', 'Cube', 'Diamant', 'Fischer', 'Flyer',
+    'Focus', 'Frog', 'Gazelle', 'Ghost', 'Giant', 'Gudereit', 'Haibike',
+    'Hercules', 'Kalkhoff', 'Kettler', 'KTM', 'Kreidler', 'Merida', 'Ortler',
+    'Pegasus', 'Prophete', 'Puky', 'Pyro', 'Radon', 'Raleigh', 'Rixe', 'Rose',
+    'Scott', 'Serious', 'Sinus', 'Specialized', 'Steppenwolf', 'Stevens',
+    'Trek', 'Univega', 'Vermont', 'Victoria', 'Winora', 'Woom', 'Zündapp',
+  ];
+
+  private detectBrand(title?: string): string | null {
+    if (!title) return null;
+    const lower = title.toLowerCase();
+    // Längste Marke zuerst, damit z.B. "Cube Reaction" nicht an einer
+    // kürzeren Teilzeichenkette hängen bleibt.
+    const match = [...ShowroomDetailComponent.KNOWN_BRANDS]
+      .sort((a, b) => b.length - a.length)
+      .find((brand) => lower.includes(brand.toLowerCase()));
+    return match ?? null;
   }
 
   private removeProductSchema(): void {
@@ -1435,6 +1535,12 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
         this.productSchemaElement,
       );
       this.productSchemaElement = null;
+    }
+    if (this.breadcrumbSchemaElement && this.breadcrumbSchemaElement.parentNode) {
+      this.breadcrumbSchemaElement.parentNode.removeChild(
+        this.breadcrumbSchemaElement,
+      );
+      this.breadcrumbSchemaElement = null;
     }
   }
 

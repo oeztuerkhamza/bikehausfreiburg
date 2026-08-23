@@ -12,6 +12,11 @@ import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
 import { TranslationService } from '../../services/translation.service';
 import { getRentalBookingPath } from '../../services/language-config';
+import {
+  rentalBikeTitle,
+  rentalBrandName,
+  cleanRentalLabel,
+} from '../../services/rental-bike-name';
 import { PublicRentalBicycle } from '../../models/models';
 import {
   AvailabilityCalendarComponent,
@@ -126,7 +131,7 @@ import { environment } from '../../../environments/environment';
                 <span *ngIf="bike()!.art && bike()!.art !== bike()!.fahrradtyp" class="cat-badge">{{ bike()!.art }}</span>
               </div>
 
-              <h1 class="title">{{ bike()!.marke }} {{ bike()!.modell }}</h1>
+              <h1 class="title">{{ bikeTitle() }}</h1>
 
               <div class="price-card" *ngIf="minDailyPriceValue() !== null">
                 <span class="price-label">{{ t().rentalCatalogFrom }}</span>
@@ -140,7 +145,7 @@ import { environment } from '../../../environments/environment';
                 <dl class="specs-list">
                   <ng-container *ngIf="bike()!.marke">
                     <dt>{{ specLabelBrand() }}</dt>
-                    <dd>{{ bike()!.marke }}</dd>
+                    <dd>{{ brandLabel() }}</dd>
                   </ng-container>
                   <ng-container *ngIf="bike()!.modell">
                     <dt>{{ specLabelModel() }}</dt>
@@ -528,6 +533,15 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
   rangeEnd = '';
 
   private productSchemaElement: HTMLScriptElement | null = null;
+  private breadcrumbSchemaElement: HTMLScriptElement | null = null;
+
+  /** Anzeigename ohne interne Inventarnummer ("E15 - Conway" -> "Conway"). */
+  bikeTitle = computed(() => {
+    const b = this.bike();
+    return b ? rentalBikeTitle(b.marke, b.modell) : '';
+  });
+
+  brandLabel = computed(() => cleanRentalLabel(this.bike()?.marke));
 
   catalogSlug = computed(() => {
     const l = this.lang();
@@ -648,7 +662,7 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
   }
 
   private applySeo(bike: PublicRentalBicycle): void {
-    const name = `${bike.marke} ${bike.modell}`;
+    const name = rentalBikeTitle(bike.marke, bike.modell);
     const title = `${name} ${this.t().rentalDetailMetaTitleSuffix}`;
     const minPrice = this.minDailyPriceValue();
     const priceText = minPrice !== null ? `${this.t().rentalCatalogFrom} ${minPrice}€${this.t().rentalCatalogPerDay}.` : '';
@@ -751,7 +765,7 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
   }
 
   bikeAlt(bike: PublicRentalBicycle, index: number): string {
-    const name = `${bike.marke} ${bike.modell}`;
+    const name = rentalBikeTitle(bike.marke, bike.modell);
     return index === 0 ? name : `${name} — ${index + 1}`;
   }
 
@@ -772,11 +786,16 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
     const schema: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'Product',
-      name: `${bike.marke} ${bike.modell}`,
-      description: bike.beschreibung || `${bike.marke} ${bike.modell} — ${this.t().rentalCatalogLabel}`,
+      name: rentalBikeTitle(bike.marke, bike.modell),
+      description:
+        bike.beschreibung ||
+        `${rentalBikeTitle(bike.marke, bike.modell)} — ${this.t().rentalCatalogLabel}`,
       url,
       sku: bike.rahmennummer || `rental-${bike.id}`,
-      brand: { '@type': 'Brand', name: bike.marke },
+      // Nur echte Marken — Inventarcodes wie "E15 - Conway" sind keine.
+      ...(rentalBrandName(bike.marke)
+        ? { brand: { '@type': 'Brand', name: rentalBrandName(bike.marke) } }
+        : {}),
       category: bike.fahrradtyp || bike.art || undefined,
       image: images.length > 0 ? images : undefined,
       color: bike.farbe || undefined,
@@ -790,6 +809,10 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
         priceCurrency: 'EUR',
         availability: 'https://schema.org/InStock',
         itemCondition: 'https://schema.org/UsedCondition',
+        // Ohne businessFunction liest Google den Tagespreis als KAUFPREIS —
+        // "Cube Trekking für 12 €". LeaseOut kennzeichnet das Angebot als
+        // Vermietung.
+        businessFunction: 'http://purl.org/goodrelations/v1#LeaseOut',
         priceSpecification: {
           '@type': 'UnitPriceSpecification',
           price: minPrice,
@@ -804,12 +827,48 @@ export class MietfahrradDetailComponent implements OnInit, OnDestroy {
     this.productSchemaElement.type = 'application/ld+json';
     this.productSchemaElement.text = JSON.stringify(schema);
     this.document.head.appendChild(this.productSchemaElement);
+
+    const breadcrumb = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Bike Haus Freiburg',
+          item: `https://bikehausfreiburg.com/${this.lang()}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: this.t().rentalCatalogLabel,
+          item: `https://bikehausfreiburg.com/${this.lang()}/${this.catalogSlug()}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: rentalBikeTitle(bike.marke, bike.modell),
+          item: url,
+        },
+      ],
+    };
+
+    this.breadcrumbSchemaElement = this.document.createElement('script');
+    this.breadcrumbSchemaElement.type = 'application/ld+json';
+    this.breadcrumbSchemaElement.text = JSON.stringify(breadcrumb);
+    this.document.head.appendChild(this.breadcrumbSchemaElement);
   }
 
   private removeProductSchema(): void {
     if (this.productSchemaElement && this.productSchemaElement.parentNode) {
       this.productSchemaElement.parentNode.removeChild(this.productSchemaElement);
       this.productSchemaElement = null;
+    }
+    if (this.breadcrumbSchemaElement && this.breadcrumbSchemaElement.parentNode) {
+      this.breadcrumbSchemaElement.parentNode.removeChild(
+        this.breadcrumbSchemaElement,
+      );
+      this.breadcrumbSchemaElement = null;
     }
   }
 }

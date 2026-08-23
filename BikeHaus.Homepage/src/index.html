@@ -386,47 +386,65 @@
       }
     </script>
 
-    <!-- Schema.org - BreadcrumbList -->
+    <!-- Schema.org - SiteNavigationElement
+         BEWUSST KEIN BreadcrumbList: Das hier ist das Hauptmenü, kein Pfad zur
+         aktuellen Seite. Als BreadcrumbList stand es auf JEDER Seite und
+         konkurrierte auf Produkt-/Mietseiten mit deren echtem Breadcrumb —
+         Google hätte "Startseite > Fahrräder > Über uns > …" als Pfad eines
+         Fahrrads anzeigen können. -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
+        "@type": "ItemList",
+        "name": "Hauptnavigation Bike Haus Freiburg",
         "itemListElement": [
           {
-            "@type": "ListItem",
+            "@type": "SiteNavigationElement",
             "position": 1,
             "name": "Startseite",
-            "item": "https://bikehausfreiburg.com/de"
+            "url": "https://bikehausfreiburg.com/de"
           },
           {
-            "@type": "ListItem",
+            "@type": "SiteNavigationElement",
             "position": 2,
-            "name": "Fahrräder",
-            "item": "https://bikehausfreiburg.com/de/showroom"
+            "name": "Gebrauchte Fahrräder",
+            "url": "https://bikehausfreiburg.com/de/showroom"
           },
           {
-            "@type": "ListItem",
+            "@type": "SiteNavigationElement",
             "position": 3,
-            "name": "Über uns",
-            "item": "https://bikehausfreiburg.com/de/about"
+            "name": "Fahrradverleih",
+            "url": "https://bikehausfreiburg.com/de/fahrradverleih"
           },
           {
-            "@type": "ListItem",
+            "@type": "SiteNavigationElement",
             "position": 4,
-            "name": "Ratgeber",
-            "item": "https://bikehausfreiburg.com/de/ratgeber"
+            "name": "E-Bikes",
+            "url": "https://bikehausfreiburg.com/de/e-bikes"
           },
           {
-            "@type": "ListItem",
+            "@type": "SiteNavigationElement",
             "position": 5,
-            "name": "FAQ",
-            "item": "https://bikehausfreiburg.com/de/faq"
+            "name": "Neue Fahrräder",
+            "url": "https://bikehausfreiburg.com/de/neue-fahrraeder"
           },
           {
-            "@type": "ListItem",
+            "@type": "SiteNavigationElement",
             "position": 6,
+            "name": "Service",
+            "url": "https://bikehausfreiburg.com/de/service"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 7,
+            "name": "Ratgeber",
+            "url": "https://bikehausfreiburg.com/de/ratgeber"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 8,
             "name": "Kontakt",
-            "item": "https://bikehausfreiburg.com/de/contact"
+            "url": "https://bikehausfreiburg.com/de/contact"
           }
         ]
       }

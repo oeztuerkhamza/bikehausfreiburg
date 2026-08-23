@@ -13,6 +13,10 @@ import { Meta, Title } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
 import { TranslationService } from '../../services/translation.service';
 import { PublicRentalBicycle } from '../../models/models';
+import {
+  rentalBikeTitle,
+  rentalBrandName,
+} from '../../services/rental-bike-name';
 import { AvailabilityCalendarComponent } from '../../components/availability-calendar/availability-calendar.component';
 import { environment } from '../../../environments/environment';
 
@@ -325,7 +329,7 @@ type SortOption = 'price-asc' | 'price-desc' | 'az' | 'newest';
                 <span *ngIf="bike.fahrradtyp" class="type-badge">{{ bike.fahrradtyp }}</span>
               </div>
               <div class="card-body">
-                <h2 class="card-title">{{ bike.marke }} {{ bike.modell }}</h2>
+                <h2 class="card-title">{{ bikeTitle(bike) }}</h2>
                 <div class="card-specs">
                   <div *ngIf="bike.rahmengroesse" class="spec-row">
                     <span class="spec-label">Rahmengröße (Size)</span>
@@ -808,7 +812,16 @@ export class MietfahrraederComponent implements OnInit, OnDestroy {
 
   private itemListSchemaElement: HTMLScriptElement | null = null;
 
-  availableBrands = computed(() => this.countBy(this.bikes(), (b) => b.marke));
+  // Nach bereinigter Marke gruppieren — sonst wären "E15 - Conway" und
+  // "44 - Conway" zwei getrennte Filtereinträge.
+  /** Anzeigename ohne interne Inventarnummer. */
+  bikeTitle(bike: PublicRentalBicycle): string {
+    return rentalBikeTitle(bike.marke, bike.modell);
+  }
+
+  availableBrands = computed(() =>
+    this.countBy(this.bikes(), (b) => rentalBrandName(b.marke) || ''),
+  );
   availableTypes = computed(() =>
     this.countBy(this.bikes(), (b) => b.fahrradtyp || b.art || ''),
   );
@@ -831,10 +844,11 @@ export class MietfahrraederComponent implements OnInit, OnDestroy {
     let result = this.bikes().filter((b) => {
       if (avail !== null && !avail.has(b.id)) return false;
       if (query) {
-        const hay = `${b.marke} ${b.modell} ${b.beschreibung || ''} ${b.fahrradtyp || ''} ${b.art || ''}`.toLowerCase();
+        const hay = `${b.marke} ${rentalBikeTitle(b.marke, b.modell)} ${b.beschreibung || ''} ${b.fahrradtyp || ''} ${b.art || ''}`.toLowerCase();
         if (!hay.includes(query)) return false;
       }
-      if (brands.length > 0 && !brands.includes(b.marke)) return false;
+      if (brands.length > 0 && !brands.includes(rentalBrandName(b.marke) || ''))
+        return false;
       if (
         types.length > 0 &&
         !types.includes(b.fahrradtyp || b.art || '')
@@ -859,7 +873,9 @@ export class MietfahrraederComponent implements OnInit, OnDestroy {
         case 'price-desc':
           return (this.minDailyPriceValue(b) ?? 0) - (this.minDailyPriceValue(a) ?? 0);
         case 'az':
-          return `${a.marke} ${a.modell}`.localeCompare(`${b.marke} ${b.modell}`);
+          return rentalBikeTitle(a.marke, a.modell).localeCompare(
+            rentalBikeTitle(b.marke, b.modell),
+          );
         default:
           return 0;
       }
@@ -1047,7 +1063,7 @@ export class MietfahrraederComponent implements OnInit, OnDestroy {
   }
 
   bikeAlt(bike: PublicRentalBicycle): string {
-    return `${bike.marke} ${bike.modell}${bike.fahrradtyp ? ' ' + bike.fahrradtyp : ''} — ${this.t().rentalCatalogLabel}`;
+    return `${rentalBikeTitle(bike.marke, bike.modell)}${bike.fahrradtyp ? ' ' + bike.fahrradtyp : ''} — ${this.t().rentalCatalogLabel}`;
   }
 
   getImageUrl(path: string): string {
@@ -1085,16 +1101,21 @@ export class MietfahrraederComponent implements OnInit, OnDestroy {
         position: idx + 1,
         item: {
           '@type': 'Product',
-          name: `${bike.marke} ${bike.modell}`,
+          name: rentalBikeTitle(bike.marke, bike.modell),
           url,
           image,
-          brand: { '@type': 'Brand', name: bike.marke },
+          ...(rentalBrandName(bike.marke)
+            ? { brand: { '@type': 'Brand', name: rentalBrandName(bike.marke) } }
+            : {}),
           offers: minPrice !== null
             ? {
                 '@type': 'Offer',
                 price: minPrice,
                 priceCurrency: 'EUR',
                 availability: 'https://schema.org/InStock',
+                // Mietangebot, kein Verkauf — sonst liest Google den
+                // Tagespreis als Kaufpreis des Fahrrads.
+                businessFunction: 'http://purl.org/goodrelations/v1#LeaseOut',
                 priceSpecification: {
                   '@type': 'UnitPriceSpecification',
                   price: minPrice,
