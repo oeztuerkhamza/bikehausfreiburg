@@ -71,7 +71,19 @@ import { environment } from '../../../environments/environment';
 
       <div *ngIf="loading()" class="state">Lade Fahrräder…</div>
       <div *ngIf="!loading() && filtered().length === 0" class="state">
-        Keine Fahrräder gefunden.
+        <!-- Der Filter ist beim Öffnen aktiv. Ohne diesen Hinweis wirkt die
+             leere Seite wie ein Fehler, obwohl nur nichts veröffentlicht ist. -->
+        <ng-container *ngIf="onlyPublished && hiddenByFilter() > 0">
+          Aktuell steht kein Fahrrad im Showroom.
+          {{ hiddenByFilter() }} nicht veröffentlichte Rad(er) sind
+          ausgeblendet —
+          <button class="link-btn" (click)="onlyPublished = false">
+            alle anzeigen
+          </button>
+        </ng-container>
+        <ng-container *ngIf="!(onlyPublished && hiddenByFilter() > 0)">
+          Keine Fahrräder gefunden.
+        </ng-container>
       </div>
 
       <div class="grid" *ngIf="!loading() && filtered().length > 0">
@@ -360,6 +372,15 @@ import { environment } from '../../../environments/environment';
         text-align: center;
         color: var(--text-secondary);
       }
+      .link-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        color: var(--accent-primary, #6366f1);
+        text-decoration: underline;
+        cursor: pointer;
+      }
 
       .grid {
         display: grid;
@@ -646,7 +667,10 @@ export class GebrauchteFahrradListComponent implements OnInit {
   brands = signal<string[]>([]);
 
   search = '';
-  onlyPublished = false;
+  // Beim Öffnen zeigt die Seite nur, was tatsächlich im Showroom steht — das
+  // ist die Frage, mit der man hierher kommt. Zum Anlegen oder Nachpflegen
+  // eines noch nicht veröffentlichten Rades den Haken abwählen.
+  onlyPublished = true;
 
   readonly zollOptions = [
     '12', '14', '16', '18', '20', '24', '26', '27.5', '28', '29',
@@ -660,6 +684,11 @@ export class GebrauchteFahrradListComponent implements OnInit {
 
   publishedCount = computed(
     () => this.bikes().filter((b) => b.isPublishedOnWebsite).length,
+  );
+
+  /** Wie viele Räder der Veröffentlicht-Filter gerade ausblendet. */
+  hiddenByFilter = computed(
+    () => this.bikes().filter((b) => !b.isPublishedOnWebsite).length,
   );
 
   filtered = computed(() => {
