@@ -124,7 +124,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           },
           {
             q: 'Kann ich das E-Bike auch am Wochenende abholen?',
-            a: 'Ja, Samstag von 11:30 bis 17:00 Uhr. Sonntag ist geschlossen; für Feiertage und Sondertermine vereinbare bitte vorher per WhatsApp einen Termin.',
+            a: 'Ja, Samstag von 11:00 bis 17:00 Uhr. Sonntag ist geschlossen; für Feiertage und Sondertermine vereinbare bitte vorher per WhatsApp einen Termin.',
           },
         ],
         ctaHeading: 'Bereit für deine E-Bike-Tour?',
@@ -208,7 +208,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           },
           {
             q: 'Can I pick up the e-bike on weekends?',
-            a: 'Yes, Saturdays from 11:30 to 17:00. For Sunday/holiday pickups please arrange via WhatsApp in advance.',
+            a: 'Yes, Saturdays from 11:00 to 17:00. For Sunday/holiday pickups please arrange via WhatsApp in advance.',
           },
         ],
         ctaHeading: 'Ready for your e-bike tour?',
@@ -353,7 +353,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           'Tagesgenaue Preise – auch nur für einen Tag mietbar',
           'Helm in deiner Größe und stabiles Schloss inklusive',
           'Karten-Tipps zu Schwarzwald-, Kaiserstuhl- und Dreisam-Touren',
-          'Pannensets oder Reparaturservice unterwegs auf Anfrage',
+          'Pannenset auf Anfrage',
           'Familienrabatte für 2+ Räder',
           'Direkt am Stadtrand – ideal für die ersten Schwarzwald-Kilometer',
         ],

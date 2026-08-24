@@ -14,11 +14,13 @@ export interface ParsedOpeningHours {
 }
 
 /** Fallback schedule used when the shop has no structured hours saved yet. */
+// Vom Inhaber bestaetigt 2026-08-24 — deckungsgleich mit SHOP_HOURS in
+// opening-hours.ts. Frueher stand hier 13:00-17:00, was an keinem Tag stimmte.
 export const DEFAULT_HOURS_ROWS: HoursRow[] = [
-  { closed: false, text: '13:00 – 17:00' }, // Mon
-  { closed: false, text: '13:00 – 17:00' }, // Tue
-  { closed: false, text: '13:00 – 17:00' }, // Wed
-  { closed: false, text: '13:00 – 17:00' }, // Thu
+  { closed: false, text: '11:00 – 17:30' }, // Mon
+  { closed: false, text: '11:00 – 17:30' }, // Tue
+  { closed: false, text: '11:00 – 17:30' }, // Wed
+  { closed: false, text: '11:00 – 17:30' }, // Thu
   { closed: false, text: '11:00 – 13:00 · 15:00 – 18:00' }, // Fri
   { closed: false, text: '11:30 – 17:00' }, // Sat
   { closed: true, text: '' }, // Sun

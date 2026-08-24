@@ -13,6 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { toTelHref } from '../../services/shop-contact';
 import { TranslationService } from '../../services/translation.service';
 import { ShopInfoService } from '../../services/shop-info.service';
 import { environment } from '../../../environments/environment';
@@ -3795,10 +3796,9 @@ export class RentalBookingStepsComponent implements OnInit {
   shopPhone = computed(() => this.shopInfo()?.telefon ?? '');
 
   telHref = computed(() => {
-    const phone = this.shopPhone();
-    return phone ? `tel:${phone.replace(/[^0-9+]/g, '')}` : '';
+    // Fallback: das Admin-Feld ist leer, ohne ihn gaebe es gar keinen Anruf-Link.
+    return toTelHref(this.shopPhone());
   });
-
   /**
    * WhatsApp-Link wie auf der Kontaktseite (Nummer aus dem ShopInfoService,
    * Fallback die bekannte Ladennummer), vorbefüllt mit der Buchungsnummer,

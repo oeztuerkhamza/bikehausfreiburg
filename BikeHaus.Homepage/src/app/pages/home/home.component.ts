@@ -11,6 +11,10 @@ import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
+import {
+  SHOP_HOURS,
+  toOpeningHoursSpecification,
+} from '../../services/opening-hours';
 import { ApiService } from '../../services/api.service';
 import { BikeCardComponent } from '../../components/bike-card/bike-card.component';
 import { NeueBikeCardComponent } from '../../components/neue-bike-card/neue-bike-card.component';
@@ -3483,21 +3487,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         'https://wa.me/4915566300011',
         'https://www.kleinanzeigen.de/pro/bike-haus-freiburg',
       ],
-      openingHoursSpecification: [
-        {
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: [
-            'Monday',
-            'Tuesday',
-            'Wednesday',
-            'Thursday',
-            'Friday',
-            'Saturday',
-          ],
-          opens: '13:00',
-          closes: '17:00',
-        },
-      ],
+      // Zeiten kommen aus der einzigen Quelle der Wahrheit (opening-hours.ts).
+      // Die frühere pauschale Angabe "Mo–Sa 13:00–17:00" stimmte an keinem Tag.
+      openingHoursSpecification: toOpeningHoursSpecification(SHOP_HOURS),
     };
 
     // Remove existing schema element (covers both in-memory ref and SSR-injected element after hydration)

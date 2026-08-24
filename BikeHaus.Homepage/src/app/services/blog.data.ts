@@ -805,7 +805,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              'Mo, Di, Mi, Do, : 13:00 – 17:00 Uhr',
+              'Mo, Di, Mi, Do: 11:00 – 17:30 Uhr',
               'Freitag: 11:00 – 13:00 & 15:00 – 18:00 Uhr',
               'Samstag: 11:30 – 17:00 Uhr',
               'Sonn- und feiertags geschlossen',
@@ -1759,7 +1759,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'list',
             items: [
-              'Mo, Di, Mi, Do: 13:00–17:00',
+              'Mo, Di, Mi, Do: 11:00–17:30',
               'Freitag: 11:00–13:00 & 15:00–18:00',
               'Samstag: 11:30–17:00',
             ],
@@ -1821,7 +1821,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
           {
             type: 'paragraph',
             content:
-              'Bike Haus Freiburg is located at Heckerstraße 27, 79114 Freiburg im Breisgau — in the Haslach district. Easily reachable by tram or car (free parking available). Opening hours: Mon, Tue, Wed, Thu 13:00–17:00 | Fri 11:00–13:00 & 15:00–18:00 | Sat 11:30–17:00 | Sun closed.',
+              'Bike Haus Freiburg is located at Heckerstraße 27, 79114 Freiburg im Breisgau — in the Haslach district. Easily reachable by tram or car (free parking available). Opening hours: Mon–Thu 11:00–17:30 | Fri 11:00–13:00 & 15:00–18:00 | Sat 11:30–17:00 | Sun closed. Rental handover from 10:00 (Sat from 11:00).',
           },
           {
             type: 'heading',

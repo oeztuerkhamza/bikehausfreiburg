@@ -311,11 +311,11 @@ import { environment } from '../../../environments/environment';
         </article>
 
         <!-- ── Description (full width below) ── -->
-        <section *ngIf="listing()!.description" class="desc-section">
+        <section *ngIf="cleanDescription()" class="desc-section">
           <h2>{{ t().description }}</h2>
           <div
             class="desc-body"
-            [innerHTML]="formatDescription(listing()!.description!)"
+            [innerHTML]="formatDescription(cleanDescription())"
           ></div>
         </section>
 
@@ -1444,7 +1444,8 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
       '@type': 'Product',
       '@id': `${pageUrl}#product`,
       name: data.title,
-      description: data.description || data.title,
+      // Kein 174-fach dupliziertes Marketing ins Schema — nur echter Text.
+      description: this.cleanDescription() || data.title,
       url: pageUrl,
       sku: data.externalId || `showroom-${id}`,
       itemCondition,
@@ -1589,6 +1590,37 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
 
   formatDescription(text: string): string {
     return text.replace(/\n/g, '<br>');
+  }
+
+  /**
+   * Der gescrapte Kleinanzeigen-Text ist auf allen Anzeigen IDENTISCH
+   * (geprueft 2026-08-24: 174 von 175 Beschreibungen zeichengleich, je 2025
+   * Zeichen). Er enthaelt kein einziges Detail zum jeweiligen Rad, dafuer
+   * drei Probleme: 174-fach dupliziertes Marketing im Hauptinhalt der
+   * wichtigsten Seitenart, die Aussage "Wir nehmen keine E-Bikes an, warten
+   * oder verkaufen sie" (wir verkaufen 50 E-Bikes - ausgeschlossen ist laut
+   * Inhaber nur der ANKAUF) und das Wort "Reparatur", das hier nicht stehen
+   * darf.
+   *
+   * Deshalb wird ab dem Standard-Banner abgeschnitten. Text davor - also
+   * echter, radspezifischer Inhalt - bleibt erhalten. Sobald Anzeigen wieder
+   * individuelle Texte bekommen, erscheinen sie automatisch.
+   */
+  private static readonly BOILERPLATE_MARKERS = [
+    'BIKE HAUS FREIBURG',
+    'Ihr Fahrradexperte in Freiburg',
+    'Bike Haus Freiburg –',
+  ];
+
+  cleanDescription(): string {
+    const raw = this.listing()?.description ?? '';
+    if (!raw) return '';
+    let cut = raw.length;
+    for (const marker of ShowroomDetailComponent.BOILERPLATE_MARKERS) {
+      const idx = raw.indexOf(marker);
+      if (idx !== -1 && idx < cut) cut = idx;
+    }
+    return raw.slice(0, cut).trim();
   }
 
   onImageError(event: Event): void {

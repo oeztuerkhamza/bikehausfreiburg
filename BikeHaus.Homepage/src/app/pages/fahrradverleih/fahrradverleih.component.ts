@@ -25,6 +25,10 @@ import {
   isSupportedLanguage,
 } from '../../services/language-config';
 import { ApiService } from '../../services/api.service';
+import {
+  RENTAL_HOURS,
+  toOpeningHoursSpecification,
+} from '../../services/opening-hours';
 import { AREA_SERVED } from '../../services/area-served.data';
 import {
   PublicRentalBicycle,
@@ -835,7 +839,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Offnungszeiten',
-        text: 'Mo, Di, Mi, Do 13-17 · Fr 11-13 & 15-18 · Sa 11:30-17 · So geschlossen',
+        text: 'Laden Mo–Do 11–17:30 · Fr 11–13 & 15–18 · Sa 11:30–17 · Verleih ab 10 Uhr (Sa ab 11)',
       },
     ],
     bikePriceFrom: 'ab',
@@ -976,7 +980,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Opening hours',
-        text: 'Mon, Tue, Wed, Thu 13-17 · Fri 11-13 & 15-18 · Sat 11:30-17 · Sun closed',
+        text: 'Shop Mon–Thu 11–17:30 · Fri 11–13 & 15–18 · Sat 11:30–17 · Rental from 10:00 (Sat 11:00)',
       },
     ],
     bikePriceFrom: 'from',
@@ -1132,7 +1136,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Horaires',
-        text: 'Lun, Mar, Jeu 11-17:30 · Mer 14-17:30 · Ven 11-13 & 15-18 · Sam 11:30-17',
+        text: 'Boutique lun–jeu 11–17:30 · ven 11–13 & 15–18 · sam 11:30–17 · Location dès 10h (sam 11h)',
       },
     ],
     bikePriceFrom: 'a partir de',
@@ -1277,7 +1281,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Çalışma saatleri',
-        text: 'Pzt, Sal, Per 11-17:30 · Çar 14-17:30 · Cum 11-13 & 15-18 · Cmt 11:30-17',
+        text: 'Mağaza Pzt–Per 11–17:30 · Cum 11–13 & 15–18 · Cmt 11:30–17 · Kiralama 10:00’dan (Cmt 11:00)',
       },
     ],
     bikePriceFrom: 'başlayan',
@@ -5195,40 +5199,14 @@ export class FahrradverleihComponent implements OnInit {
               latitude: 47.9893,
               longitude: 7.8009,
             },
-            openingHoursSpecification: [
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: ['Monday', 'Tuesday', 'Thursday'],
-                opens: '11:00',
-                closes: '17:30',
-              },
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: 'Wednesday',
-                opens: '14:00',
-                closes: '17:30',
-              },
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: 'Friday',
-                opens: '11:00',
-                closes: '13:00',
-              },
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: 'Friday',
-                opens: '15:00',
-                closes: '18:00',
-              },
-              {
-                '@type': 'OpeningHoursSpecification',
-                dayOfWeek: 'Saturday',
-                opens: '11:30',
-                closes: '17:00',
-              },
-            ],
           },
           areaServed: AREA_SERVED,
+          // Der Verleih hat eigene Uebergabezeiten (Mo-Fr ab 10:00, Sa ab
+          // 11:00) — frueher als der Laden. Sie gehoeren an den Service, nicht
+          // in die Ladenoeffnungszeiten: wer um 10:00 ein Rad KAUFEN will,
+          // stuende sonst vor verschlossener Tuer. Deckt sich mit den
+          // Abholslots in rental-booking-steps.component.ts.
+          hoursAvailable: toOpeningHoursSpecification(RENTAL_HOURS),
           offers: {
             '@type': 'Offer',
             // Vermietung, kein Verkauf — hält die Tagespreise eindeutig.

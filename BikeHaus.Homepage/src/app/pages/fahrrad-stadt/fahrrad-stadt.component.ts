@@ -16,6 +16,10 @@ import {
   SafeResourceUrl,
 } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
+import {
+  SHOP_HOURS,
+  toOpeningHoursSpecification,
+} from '../../services/opening-hours';
 import { CITY_LANDINGS, CityLanding } from '../../services/city-landing.data';
 
 @Component({
@@ -487,21 +491,7 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
         '@type': 'City',
         name: c.cityName,
       },
-      openingHoursSpecification: [
-        {
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: [
-            'Monday',
-            'Tuesday',
-            'Wednesday',
-            'Thursday',
-            'Friday',
-            'Saturday',
-          ],
-          opens: '13:00',
-          closes: '17:00',
-        },
-      ],
+      openingHoursSpecification: toOpeningHoursSpecification(SHOP_HOURS),
       priceRange: '€–€€',
       description: t.metaDescription,
     };
