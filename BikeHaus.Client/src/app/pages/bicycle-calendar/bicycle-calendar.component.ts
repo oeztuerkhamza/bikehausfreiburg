@@ -19,7 +19,7 @@ interface DayCell {
 }
 
 interface BikeDayState {
-  status: 'free' | 'rental' | 'booking';
+  status: 'free' | 'rental' | 'booking' | 'pending';
   start?: string;
   end?: string;
 }
@@ -66,6 +66,8 @@ interface BikeDayState {
             <span class="legend-item"><span class="dot dot-free"></span> Frei</span>
             <span class="legend-item"><span class="dot dot-rental"></span> Vermietet</span>
             <span class="legend-item"><span class="dot dot-booking"></span> Reserviert</span>
+            <span class="legend-item"><span class="dot dot-pending"></span> Angefragt</span>
+            <span class="legend-item"><span class="dot dot-idle"></span> Keine kommende Vermietung</span>
           </div>
         </div>
       </div>
@@ -92,7 +94,13 @@ interface BikeDayState {
 
           <!-- One row per bike -->
           <ng-container *ngFor="let row of filteredRows()">
-            <div class="bike-cell sticky-col" (click)="openBike(row.bike.id)" role="button">
+            <div
+              class="bike-cell sticky-col"
+              [class.idle]="hasNoUpcomingRental(row)"
+              [title]="hasNoUpcomingRental(row) ? 'Für dieses Rad ist ab heute keine Vermietung eingetragen' : ''"
+              (click)="openBike(row.bike.id)"
+              role="button"
+            >
               <div class="bike-title">{{ row.bike.marke }} {{ row.bike.modell }}</div>
               <div class="bike-sub">
                 <span *ngIf="row.bike.rahmennummer">#{{ row.bike.rahmennummer }}</span>
@@ -106,6 +114,7 @@ interface BikeDayState {
               [class.today]="d.isToday"
               [class.is-rental]="stateFor(row, d).status === 'rental'"
               [class.is-booking]="stateFor(row, d).status === 'booking'"
+              [class.is-pending]="stateFor(row, d).status === 'pending'"
               [title]="tooltipFor(row, d)"
             ></div>
           </ng-container>
@@ -223,6 +232,15 @@ interface BikeDayState {
       .dot-free { background: var(--bg-card); }
       .dot-rental { background: #ef4444; }
       .dot-booking { background: #f59e0b; }
+      .dot-pending {
+        background: repeating-linear-gradient(
+          45deg,
+          #f59e0b 0 3px,
+          transparent 3px 6px
+        );
+        border: 1px solid #f59e0b;
+      }
+      .dot-idle { background: #eab308; }
 
       .loading, .empty {
         padding: 40px;
@@ -287,6 +305,16 @@ interface BikeDayState {
       .bike-cell:hover {
         background: var(--bg-hover, rgba(0, 0, 0, 0.04));
       }
+      /* Rad ohne einzige kommende Vermietung: steht ab heute nur herum.
+         Halbtransparentes Gelb, damit es in hellem UND dunklem Theme
+         funktioniert. */
+      .bike-cell.idle {
+        background: rgba(234, 179, 8, 0.16);
+        box-shadow: inset 3px 0 0 #eab308;
+      }
+      .bike-cell.idle:hover {
+        background: rgba(234, 179, 8, 0.26);
+      }
       .bike-title {
         font-weight: 600;
         font-size: 0.9rem;
@@ -312,6 +340,17 @@ interface BikeDayState {
       .day-cell.today { box-shadow: inset 0 0 0 2px var(--accent-primary); }
       .day-cell.is-rental { background: #ef4444; }
       .day-cell.is-booking { background: #f59e0b; }
+      /* Angefragt, aber noch nicht bestätigt: schraffiert, damit es sich klar
+         von einer festen Reservierung unterscheidet. Vorher wurden diese Tage
+         wie "frei" gezeichnet — das Rad sah buchbar aus, obwohl eine Anfrage
+         darauf lag. */
+      .day-cell.is-pending {
+        background: repeating-linear-gradient(
+          45deg,
+          rgba(245, 158, 11, 0.55) 0 5px,
+          rgba(245, 158, 11, 0.15) 5px 10px
+        );
+      }
       .day-cell.is-rental.weekend,
       .day-cell.is-booking.weekend { opacity: 0.95; }
 
@@ -450,8 +489,33 @@ export class BicycleCalendarComponent implements OnInit {
     const state = this.stateFor(row, day);
     const dateStr = day.date.toLocaleDateString('de-DE');
     if (state.status === 'free') return `${dateStr} – Frei`;
-    const label = state.status === 'rental' ? 'Vermietet' : 'Reserviert';
+    const label =
+      state.status === 'rental'
+        ? 'Vermietet'
+        : state.status === 'pending'
+          ? 'Angefragt (noch nicht bestätigt)'
+          : 'Reserviert';
     return `${dateStr} – ${label} (${state.start} – ${state.end})`;
+  }
+
+  /**
+   * Räder, für die ab heute keine einzige Belegung eingetragen ist — die also
+   * absehbar nur herumstehen. Genau die sollen im Plan auffallen.
+   *
+   * Gezählt wird jede Art von Belegung: laufende Mietverträge, bestätigte
+   * Buchungen UND offene Anfragen. Ein Rad, auf das jemand eine Anfrage
+   * gestellt hat, steht nicht ungenutzt herum, auch wenn die Buchung noch
+   * nicht bestätigt ist.
+   *
+   * Maßgeblich ist das ENDE des Zeitraums: eine heute laufende Miete, die erst
+   * nächste Woche endet, zählt als kommende Belegung.
+   *
+   * Bewusst unabhängig vom angezeigten Monat — sonst würde ein Rad gelb, nur
+   * weil man gerade in einen leeren Monat geblättert hat.
+   */
+  hasNoUpcomingRental(row: BikeRow): boolean {
+    const todayIso = this.toIso(new Date());
+    return !row.periods.some((p) => p.end.substring(0, 10) >= todayIso);
   }
 
   private toIso(d: Date): string {

@@ -983,7 +983,15 @@ export interface RentalList {
 export interface BusyPeriod {
   start: string; // ISO date string
   end: string;
-  type: 'rental' | 'booking';
+  /**
+   * 'rental'  = laufender Mietvertrag
+   * 'booking' = bestätigte Online-Buchung
+   * 'pending' = Anfrage, noch nicht bearbeitet
+   * Die API liefert alle drei (BicycleService.GetBusyPeriodsForBikesAsync);
+   * 'pending' fehlte hier, weshalb angefragte Räder im Belegungsplan als frei
+   * gezeichnet wurden.
+   */
+  type: 'rental' | 'booking' | 'pending';
 }
 
 export interface RentalAccessoryItemCreate {
