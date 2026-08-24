@@ -53,6 +53,13 @@ import { environment } from '../../../environments/environment';
         der Anzeigentitel gebaut.
       </div>
 
+      <div class="notice" *ngIf="!loading() && publishedCount() === 0">
+        Es steht noch kein eigenes Fahrrad im Showroom. Unten siehst du deinen
+        Bestand — mit <strong>„Im Showroom zeigen"</strong> erscheint ein Rad auf
+        der Website. Danach begrüßt dich diese Seite nur noch mit den
+        veröffentlichten Rädern.
+      </div>
+
       <div class="toolbar">
         <input
           type="text"
@@ -339,6 +346,15 @@ import { environment } from '../../../environments/environment';
         font-size: 0.85rem;
         color: var(--text-secondary);
         margin-bottom: 16px;
+      }
+      .notice {
+        background: var(--accent-warning-light, rgba(245, 158, 11, 0.12));
+        border: 1px solid var(--accent-warning, #f59e0b);
+        border-radius: var(--radius-md, 10px);
+        padding: 10px 14px;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        margin-bottom: 14px;
       }
       .toolbar {
         display: flex;
@@ -670,7 +686,14 @@ export class GebrauchteFahrradListComponent implements OnInit {
   // Beim Öffnen zeigt die Seite nur, was tatsächlich im Showroom steht — das
   // ist die Frage, mit der man hierher kommt. Zum Anlegen oder Nachpflegen
   // eines noch nicht veröffentlichten Rades den Haken abwählen.
+  //
+  // Ausnahme: Solange ÜBERHAUPT nichts veröffentlicht ist, wäre die Seite beim
+  // ersten Aufruf komplett leer und sähe kaputt aus. Dann startet sie mit allen
+  // Rädern (siehe load()), damit man von hier aus überhaupt veröffentlichen kann.
   onlyPublished = true;
+
+  /** Der Startwert des Filters wird nur EINMAL gesetzt, danach gilt die Wahl des Nutzers. */
+  private initialFilterApplied = false;
 
   readonly zollOptions = [
     '12', '14', '16', '18', '20', '24', '26', '27.5', '28', '29',
@@ -718,6 +741,11 @@ export class GebrauchteFahrradListComponent implements OnInit {
         this.bikes.set(
           all.filter((b) => b.status === 'Available' || b.isPublishedOnWebsite),
         );
+        if (!this.initialFilterApplied) {
+          // Nichts veröffentlicht -> alles zeigen, sonst ist die Seite leer.
+          this.onlyPublished = this.publishedCount() > 0;
+          this.initialFilterApplied = true;
+        }
         this.loading.set(false);
       },
       error: () => {
