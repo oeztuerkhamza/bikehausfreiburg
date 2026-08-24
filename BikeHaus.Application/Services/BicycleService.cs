@@ -1,4 +1,4 @@
-using BikeHaus.Application.DTOs;
+﻿using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Application.Mappings;
 using BikeHaus.Domain;
@@ -205,6 +205,8 @@ public class BicycleService : IBicycleService
         if (dto.Art != null)
             entity.Art = dto.Art;
         entity.Beschreibung = dto.Beschreibung;
+        // null = beibehalten, wie bei den anderen optionalen Feldern.
+        if (dto.Gangschaltung != null) entity.Gangschaltung = dto.Gangschaltung;
         entity.Status = dto.Status;
         entity.Zustand = dto.Zustand;
         // Alles ab hier: null = aktuellen Wert behalten, Wert = setzen.

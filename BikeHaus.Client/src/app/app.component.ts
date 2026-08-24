@@ -133,6 +133,30 @@ import { DialogComponent } from './components/dialog/dialog.component';
             <span class="nav-label">{{ t.neueFahrraeder }}</span>
           </a>
           <a
+            routerLink="/gebrauchte-fahrraeder"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <span class="nav-icon">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="5.5" cy="17.5" r="3.5" />
+                <circle cx="18.5" cy="17.5" r="3.5" />
+                <path d="M15 17.5h-9l6-9 3 4.5" />
+                <path d="M9 8.5h4" />
+              </svg>
+            </span>
+            <span class="nav-label">Gebrauchte Fahrräder</span>
+          </a>
+          <a
             routerLink="/e-bikes"
             routerLinkActive="active"
             (click)="closeSidebar()"

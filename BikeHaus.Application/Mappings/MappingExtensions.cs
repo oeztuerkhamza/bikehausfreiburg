@@ -39,7 +39,8 @@ public static class MappingExtensions
         entity.Lagernummer,
         entity.Fahrradnummer,
         entity.KoerpergroesseVonCm,
-        entity.KoerpergroesseBisCm
+        entity.KoerpergroesseBisCm,
+        entity.Gangschaltung
     );
 
     public static BicycleImageDto ToDto(this BicycleImage entity) => new(
@@ -62,7 +63,8 @@ public static class MappingExtensions
         entity.Zustand,
         entity.VerkaufspreisVorschlag,
         entity.CreatedAt,
-        entity.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>()
+        entity.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>(),
+        entity.Gangschaltung
     );
 
     public static Bicycle ToEntity(this BicycleCreateDto dto) => new()
@@ -76,6 +78,7 @@ public static class MappingExtensions
         Fahrradtyp = dto.Fahrradtyp,
         Art = dto.Art,
         Beschreibung = dto.Beschreibung,
+        Gangschaltung = dto.Gangschaltung,
         Zustand = dto.Zustand,
         IsRentable = dto.IsRentable,
         RentalPriceDay1 = dto.RentalPriceDay1,

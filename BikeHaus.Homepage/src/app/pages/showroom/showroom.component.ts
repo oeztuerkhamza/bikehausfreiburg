@@ -14,6 +14,7 @@ import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { BikeCardComponent } from '../../components/bike-card/bike-card.component';
 import { KleinanzeigenListing, PublicBicycle } from '../../models/models';
+import { buildBicycleListingTitle } from '../../services/bicycle-listing-title';
 import {
   SHOWROOM_FAQ,
   CATEGORY_FAQ_HEADING,
@@ -1655,17 +1656,13 @@ export class ShowroomComponent implements OnInit, OnDestroy {
   }
 
   private convertBicycleToListing(bike: PublicBicycle): KleinanzeigenListing {
-    const titleParts = [bike.marke, bike.modell];
-    if (bike.fahrradtyp) titleParts.push(bike.fahrradtyp);
-    if (bike.reifengroesse) titleParts.push(`${bike.reifengroesse} Zoll`);
-    if (bike.rahmengroesse) titleParts.push(`${bike.rahmengroesse} cm`);
 
     const baseUrl = this.apiService['baseUrl'] || '';
 
     return {
       id: bike.id + 900000, // Offset to avoid ID collision with KA listings
       externalId: `bike-${bike.id}`,
-      title: titleParts.join(' '),
+      title: buildBicycleListingTitle(bike),
       description: bike.beschreibung || '',
       price: bike.preis || undefined,
       priceText: bike.preis ? `${bike.preis} €` : 'VB',

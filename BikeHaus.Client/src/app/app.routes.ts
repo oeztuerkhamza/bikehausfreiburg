@@ -281,6 +281,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'gebrauchte-fahrraeder',
+    loadComponent: () =>
+      import(
+        './pages/gebrauchte-fahrraeder/gebrauchte-fahrrad-list.component'
+      ).then((m) => m.GebrauchteFahrradListComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'neue-fahrraeder/new',
     loadComponent: () =>
       import('./pages/neue-fahrraeder/neue-fahrrad-form.component').then(

@@ -36,7 +36,8 @@ public record BicycleDto(
     // Nur Mietfahrräder; die Nummer bleibt intern (siehe PublicRentalBicycleDto).
     string? Fahrradnummer = null,
     int? KoerpergroesseVonCm = null,
-    int? KoerpergroesseBisCm = null
+    int? KoerpergroesseBisCm = null,
+    string? Gangschaltung = null
 );
 
 public record BicycleCreateDto(
@@ -67,7 +68,8 @@ public record BicycleCreateDto(
     decimal? VerkaufspreisVorschlag = null,
     string? Fahrradnummer = null,
     int? KoerpergroesseVonCm = null,
-    int? KoerpergroesseBisCm = null
+    int? KoerpergroesseBisCm = null,
+    string? Gangschaltung = null
 );
 
 public record BicycleUpdateDto(
@@ -105,7 +107,8 @@ public record BicycleUpdateDto(
     // Formular ohne diese Felder sie nicht leert.
     string? Fahrradnummer = null,
     int? KoerpergroesseVonCm = null,
-    int? KoerpergroesseBisCm = null
+    int? KoerpergroesseBisCm = null,
+    string? Gangschaltung = null
 );
 
 public record BicycleImageDto(
@@ -135,5 +138,8 @@ public record PublicBicycleDto(int Id,
     BikeCondition Zustand,
     decimal? Preis,
     DateTime CreatedAt,
-    List<BicycleImageDto> Images
+    List<BicycleImageDto> Images,
+    // Wird im Showroom-Titel mitgeführt, weil die Filter (Gänge, Zoll, size)
+    // den Titel auswerten — genau wie bei den Kleinanzeigen-Anzeigen.
+    string? Gangschaltung = null
 );

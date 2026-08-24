@@ -138,6 +138,8 @@ export interface PublicBicycle {
   art?: string;
   beschreibung?: string;
   rahmengroesse?: string;
+  /** Freitext wie "21 Gänge" — fliesst in den Showroom-Titel ein. */
+  gangschaltung?: string;
   zustand: string;
   preis?: number;
   createdAt: string;

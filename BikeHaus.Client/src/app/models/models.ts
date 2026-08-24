@@ -58,6 +58,8 @@ export interface Bicycle {
   fahrradtyp?: string;
   art?: string;
   beschreibung?: string;
+  /** Freitext, z. B. "21 Gänge" — landet im Showroom-Titel. */
+  gangschaltung?: string;
   status: BikeStatus;
   zustand: BikeCondition;
   isRentable: boolean;
@@ -108,6 +110,8 @@ export interface BicycleCreate {
   fahrradtyp?: string;
   art?: string;
   beschreibung?: string;
+  /** Freitext, z. B. "21 Gänge" — landet im Showroom-Titel. */
+  gangschaltung?: string;
   zustand: BikeCondition;
   isRentable: boolean;
   rentalPriceDay1?: number;
@@ -136,6 +140,8 @@ export interface BicycleUpdate {
   fahrradtyp?: string;
   art?: string;
   beschreibung?: string;
+  /** Freitext, z. B. "21 Gänge" — landet im Showroom-Titel. */
+  gangschaltung?: string;
   status: BikeStatus;
   zustand: BikeCondition;
   verkaufspreisVorschlag?: number;

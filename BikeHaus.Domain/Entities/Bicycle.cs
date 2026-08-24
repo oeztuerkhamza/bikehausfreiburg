@@ -1,4 +1,4 @@
-using BikeHaus.Domain.Enums;
+﻿using BikeHaus.Domain.Enums;
 
 namespace BikeHaus.Domain.Entities;
 
@@ -23,6 +23,7 @@ public class Bicycle : BaseEntity
     public string Reifengroesse { get; set; } = string.Empty;  // Tire Size (Zoll)
     public string? Fahrradtyp { get; set; }                     // Bike Type (E-Bike, Trekking, etc.)
     public string? Art { get; set; }                             // Gender: Herren, Damen, Kinder
+    public string? Gangschaltung { get; set; }                   // Gears, e.g. "21 Gänge" / "Shimano Nexus 7"
     public string? Beschreibung { get; set; }                   // Description (Ausstattung/Features)
     public BikeStatus Status { get; set; } = BikeStatus.Available;
     public BikeCondition Zustand { get; set; } = BikeCondition.Gebraucht; // Neu or Gebraucht

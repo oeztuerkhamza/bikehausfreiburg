@@ -70,6 +70,7 @@ public class BikeHausDbContext : DbContext
             entity.Property(e => e.Rahmennummer).HasMaxLength(50);
             entity.Property(e => e.Farbe).HasMaxLength(150);
             entity.Property(e => e.Reifengroesse).IsRequired().HasMaxLength(20);
+            entity.Property(e => e.Gangschaltung).HasMaxLength(100);
             entity.Property(e => e.Beschreibung).HasMaxLength(500);
             entity.Property(e => e.VerkaufspreisVorschlag).HasColumnType("decimal(18,2)");
             entity.Property(e => e.RentalPriceDay1).HasColumnType("decimal(18,2)");

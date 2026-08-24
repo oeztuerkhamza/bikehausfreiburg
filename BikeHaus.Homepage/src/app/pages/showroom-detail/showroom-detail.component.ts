@@ -6,6 +6,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { ApiService } from '../../services/api.service';
 import { KleinanzeigenListing, PublicBicycle } from '../../models/models';
+import { buildBicycleListingTitle } from '../../services/bicycle-listing-title';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -1320,17 +1321,13 @@ export class ShowroomDetailComponent implements OnInit, OnDestroy {
     bike: PublicBicycle,
     displayId: number,
   ): KleinanzeigenListing {
-    const titleParts = [bike.marke, bike.modell];
-    if (bike.fahrradtyp) titleParts.push(bike.fahrradtyp);
-    if (bike.reifengroesse) titleParts.push(`${bike.reifengroesse} Zoll`);
-    if (bike.rahmengroesse) titleParts.push(`${bike.rahmengroesse} cm`);
 
     const baseUrl = environment.apiUrl;
 
     return {
       id: displayId,
       externalId: `bike-${bike.id}`,
-      title: titleParts.join(' '),
+      title: buildBicycleListingTitle(bike),
       description: bike.beschreibung || '',
       price: bike.preis || undefined,
       priceText: bike.preis ? `${bike.preis} €` : 'VB',
