@@ -357,113 +357,118 @@ public class PublicController : ControllerBase
     }
 
     /// <summary>
-    /// Dynamic sitemap with all product URLs for SEO
+    /// Dynamic sitemap with all product URLs for SEO.
+    ///
+    /// Die Showroom-URLs stammen bewusst aus den KLEINANZEIGEN-Listings. Der
+    /// oeffentliche Showroom wird daraus gespeist, waehrend die Bicycle-Tabelle
+    /// in Produktion leer ist (/api/public/gebrauchte-fahrraeder liefert []).
+    /// Vorher stand hier GetPublishedOnWebsiteAsync() — dadurch enthielt die
+    /// Sitemap KEINE einzige Gebrauchtrad-Seite, obwohl das die groesste und
+    /// wichtigste Seitenart des Shops ist.
+    ///
+    /// lastmod kommt pro Eintrag aus echten Zeitstempeln (LastScrapedAt bzw.
+    /// CreatedAt). Ein pauschales "heute" fuer alle URLs — wie vorher — behauptet
+    /// taeglich, jede Seite habe sich geaendert, und entwertet das Signal genau
+    /// dann, wenn sich wirklich etwas aendert.
     /// </summary>
     [HttpGet("sitemap-products.xml")]
     [Produces("application/xml")]
     public async Task<IActionResult> GetProductSitemap()
     {
-        var baseUrl = "https://bikehausfreiburg.com";
-        var now = DateTime.UtcNow.ToString("yyyy-MM-dd");
+        const string baseUrl = "https://bikehausfreiburg.com";
         var langs = new[] { "de", "en", "fr", "tr" };
 
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"");
-        sb.AppendLine("        xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"");
-        sb.AppendLine("        xmlns:image=\"http://www.google.com/schemas/sitemap-image/1.1\">");
+        sb.AppendLine("        xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">");
 
-        // Gebrauchte Fahrräder (used bikes in showroom)
-        var usedBikes = await _bicycleService.GetPublishedOnWebsiteAsync();
-        if (usedBikes != null)
+        // Eine URL je Sprache inkl. wechselseitiger hreflang-Gruppe und
+        // x-default. pathForLang liefert den Pfad OHNE fuehrenden Slash.
+        void AppendUrlSet(
+            Func<string, string> pathForLang,
+            DateTime lastmod,
+            string changefreq,
+            string priority)
         {
-            foreach (var bike in usedBikes)
+            foreach (var lang in langs)
             {
-                foreach (var lang in langs)
+                sb.AppendLine("  <url>");
+                sb.AppendLine($"    <loc>{baseUrl}/{lang}/{pathForLang(lang)}</loc>");
+                foreach (var alt in langs)
                 {
-                    sb.AppendLine("  <url>");
-                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/showroom/{bike.Id}</loc>");
-                    foreach (var altLang in langs)
-                    {
-                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/showroom/{bike.Id}\"/>");
-                    }
-                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
-                    sb.AppendLine("    <changefreq>weekly</changefreq>");
-                    sb.AppendLine("    <priority>0.8</priority>");
-                    sb.AppendLine("  </url>");
+                    sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{alt}\" href=\"{baseUrl}/{alt}/{pathForLang(alt)}\"/>");
                 }
+                sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"{baseUrl}/de/{pathForLang("de")}\"/>");
+                sb.AppendLine($"    <lastmod>{lastmod:yyyy-MM-dd}</lastmod>");
+                sb.AppendLine($"    <changefreq>{changefreq}</changefreq>");
+                sb.AppendLine($"    <priority>{priority}</priority>");
+                sb.AppendLine("  </url>");
             }
         }
 
-        // Neue Fahrräder (new bikes)
+        // ── Gebrauchtraeder (Showroom) — Quelle: Kleinanzeigen-Listings ──
+        var listings = await _kleinanzeigenService.GetAllActiveListingsAsync();
+        if (listings != null)
+        {
+            foreach (var listing in listings)
+            {
+                var lastmod = listing.LastScrapedAt ?? listing.CreatedAt;
+                AppendUrlSet(_ => $"showroom/{listing.Id}", lastmod, "weekly", "0.8");
+            }
+        }
+
+        // Eigene Raeder aus dem Bestand, falls dort wieder veroeffentlicht wird.
+        // Das Frontend adressiert sie mit einem Offset von 900000
+        // (showroom-detail.component.ts, BIKEHAUS_ID_OFFSET) — ohne den Offset
+        // zeigte die Sitemap auf Seiten, die es unter der ID gar nicht gibt.
+        const int bikeHausIdOffset = 900000;
+        var ownBikes = await _bicycleService.GetPublishedOnWebsiteAsync();
+        if (ownBikes != null)
+        {
+            foreach (var bike in ownBikes)
+            {
+                AppendUrlSet(
+                    _ => $"showroom/{bikeHausIdOffset + bike.Id}",
+                    bike.CreatedAt,
+                    "weekly",
+                    "0.8");
+            }
+        }
+
+        // ── Neue Fahrraeder ──
         var newBikes = await _neueFahrradService.GetAllActiveAsync();
         if (newBikes != null)
         {
             foreach (var bike in newBikes)
             {
-                foreach (var lang in langs)
-                {
-                    sb.AppendLine("  <url>");
-                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/neue-fahrraeder/{bike.Id}</loc>");
-                    foreach (var altLang in langs)
-                    {
-                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/neue-fahrraeder/{bike.Id}\"/>");
-                    }
-                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
-                    sb.AppendLine("    <changefreq>weekly</changefreq>");
-                    sb.AppendLine("    <priority>0.8</priority>");
-                    sb.AppendLine("  </url>");
-                }
+                AppendUrlSet(_ => $"neue-fahrraeder/{bike.Id}", bike.CreatedAt, "weekly", "0.8");
             }
         }
 
-        // E-Bikes
+        // ── E-Bikes ──
         var eBikes = await _eBikeService.GetAllActiveAsync();
         if (eBikes != null)
         {
             foreach (var bike in eBikes)
             {
-                foreach (var lang in langs)
-                {
-                    sb.AppendLine("  <url>");
-                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/e-bikes/{bike.Id}</loc>");
-                    foreach (var altLang in langs)
-                    {
-                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/e-bikes/{bike.Id}\"/>");
-                    }
-                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
-                    sb.AppendLine("    <changefreq>weekly</changefreq>");
-                    sb.AppendLine("    <priority>0.8</priority>");
-                    sb.AppendLine("  </url>");
-                }
+                AppendUrlSet(_ => $"e-bikes/{bike.Id}", bike.CreatedAt, "weekly", "0.8");
             }
         }
 
-        // Homepage Accessories
+        // ── Zubehoer ──
         var accessories = await _homepageAccessoryService.GetAllActiveAsync();
         if (accessories != null)
         {
             foreach (var acc in accessories)
             {
-                foreach (var lang in langs)
-                {
-                    sb.AppendLine("  <url>");
-                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/zubehoer/{acc.Id}</loc>");
-                    foreach (var altLang in langs)
-                    {
-                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/zubehoer/{acc.Id}\"/>");
-                    }
-                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
-                    sb.AppendLine("    <changefreq>weekly</changefreq>");
-                    sb.AppendLine("    <priority>0.7</priority>");
-                    sb.AppendLine("  </url>");
-                }
+                AppendUrlSet(_ => $"zubehoer/{acc.Id}", acc.CreatedAt, "monthly", "0.7");
             }
         }
 
-        // ── Rental bikes (Mietfahrräder) — list + per-bike detail ──
-        // Language-specific slugs: de/tr → mietfahrraeder, en → rental-bikes, fr → velos-de-location
-        var rentalLangs = new[] { "de", "en", "fr", "tr" };
+        // ── Mietfahrraeder — Katalog und Detailseiten ──
+        // Sprachspezifische Slugs: de/tr → mietfahrraeder, en → rental-bikes,
+        // fr → velos-de-location.
         static string RentalSlug(string lang) => lang switch
         {
             "en" => "rental-bikes",
@@ -471,47 +476,24 @@ public class PublicController : ControllerBase
             _ => "mietfahrraeder",
         };
 
-        // Catalog list page (one URL per language with hreflang alternates)
-        foreach (var lang in rentalLangs)
-        {
-            sb.AppendLine("  <url>");
-            sb.AppendLine($"    <loc>{baseUrl}/{lang}/{RentalSlug(lang)}</loc>");
-            foreach (var altLang in rentalLangs)
-            {
-                sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/{RentalSlug(altLang)}\"/>");
-            }
-            sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"{baseUrl}/de/mietfahrraeder\"/>");
-            sb.AppendLine($"    <lastmod>{now}</lastmod>");
-            sb.AppendLine("    <changefreq>daily</changefreq>");
-            sb.AppendLine("    <priority>0.9</priority>");
-            sb.AppendLine("  </url>");
-        }
-
-        // Per-bike rental detail pages
         var rentalBikes = await _bicycleService.GetRentableBicyclesAsync();
-        if (rentalBikes != null)
+        var rentalList = rentalBikes?.ToList() ?? new List<PublicRentalBicycleDto>();
+
+        // Der Katalog aendert sich, sobald sich die Flotte aendert.
+        var catalogLastmod = DateTime.UtcNow;
+        AppendUrlSet(RentalSlug, catalogLastmod, "daily", "0.9");
+
+        foreach (var bike in rentalList)
         {
-            foreach (var bike in rentalBikes)
-            {
-                foreach (var lang in rentalLangs)
-                {
-                    sb.AppendLine("  <url>");
-                    sb.AppendLine($"    <loc>{baseUrl}/{lang}/{RentalSlug(lang)}/{bike.Id}</loc>");
-                    foreach (var altLang in rentalLangs)
-                    {
-                        sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"{altLang}\" href=\"{baseUrl}/{altLang}/{RentalSlug(altLang)}/{bike.Id}\"/>");
-                    }
-                    sb.AppendLine($"    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"{baseUrl}/de/mietfahrraeder/{bike.Id}\"/>");
-                    sb.AppendLine($"    <lastmod>{now}</lastmod>");
-                    sb.AppendLine("    <changefreq>weekly</changefreq>");
-                    sb.AppendLine("    <priority>0.75</priority>");
-                    sb.AppendLine("  </url>");
-                }
-            }
+            AppendUrlSet(lang => $"{RentalSlug(lang)}/{bike.Id}", catalogLastmod, "weekly", "0.75");
         }
 
         sb.AppendLine("</urlset>");
 
+        // Kurze Cachezeit: der Kleinanzeigen-Sync laeuft alle 4 Stunden, neue
+        // Raeder sollen nicht laenger als noetig unsichtbar bleiben. nginx
+        // cached zusaetzlich (nginx.conf, proxy_cache_valid).
+        Response.Headers["Cache-Control"] = "public, max-age=900";
         return Content(sb.ToString(), "application/xml", System.Text.Encoding.UTF8);
     }
 
@@ -550,13 +532,30 @@ public class PublicController : ControllerBase
         urls.Add($"{baseUrl}/fr/velos-de-location");
         urls.Add($"{baseUrl}/tr/mietfahrraeder");
 
-        // Dynamic product pages
+        // Dynamic product pages.
+        // Gebrauchtraeder kommen aus den Kleinanzeigen-Listings — dieselbe
+        // Quelle wie der Showroom und die Sitemap. Vorher stand hier
+        // GetPublishedOnWebsiteAsync(), das in Produktion leer ist, wodurch
+        // NIE eine Gebrauchtrad-URL an IndexNow ging.
+        var listings = await _kleinanzeigenService.GetAllActiveListingsAsync();
+        if (listings != null)
+        {
+            foreach (var listing in listings)
+            {
+                foreach (var lang in langs)
+                {
+                    urls.Add($"{baseUrl}/{lang}/showroom/{listing.Id}");
+                }
+            }
+        }
+
+        // Eigene Raeder mit dem Frontend-Offset (siehe Sitemap).
         var usedBikes = await _bicycleService.GetPublishedOnWebsiteAsync();
         if (usedBikes != null)
         {
             foreach (var bike in usedBikes)
             {
-                urls.Add($"{baseUrl}/de/showroom/{bike.Id}");
+                urls.Add($"{baseUrl}/de/showroom/{900000 + bike.Id}");
             }
         }
 

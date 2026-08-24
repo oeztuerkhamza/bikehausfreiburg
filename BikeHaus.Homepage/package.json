@@ -4,10 +4,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build && node scripts/generate-sitemap.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:BikeHaus.Homepage": "node dist/bike-haus.homepage/server/server.mjs"
+    "serve:ssr:BikeHaus.Homepage": "node dist/bike-haus.homepage/server/server.mjs",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs"
   },
   "private": true,
   "dependencies": {

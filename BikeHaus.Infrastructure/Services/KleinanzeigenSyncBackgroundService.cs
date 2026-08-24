@@ -72,11 +72,71 @@ public class KleinanzeigenSyncBackgroundService : BackgroundService
                 _logger.LogInformation(
                     "Kleinanzeigen sync completed successfully: {New} new, {Updated} updated, {Deactivated} deactivated",
                     result.NewListings, result.UpdatedListings, result.DeactivatedListings);
+
+                // Bestand aendert sich staendig: neue Raeder kommen rein, verkaufte
+                // verschwinden. Ohne aktive Meldung merkt eine Suchmaschine das erst
+                // beim naechsten eigenen Crawl — bei einem Rad, das in zwei Wochen
+                // verkauft ist, oft zu spaet. Deshalb wird nur dann gemeldet, wenn
+                // sich wirklich etwas geaendert hat (nicht bei reinen Updates,
+                // sonst pingen wir alle vier Stunden ohne Anlass).
+                if (result.NewListings + result.DeactivatedListings > 0)
+                {
+                    await NotifySearchEnginesAsync(scope, kleinanzeigenService);
+                }
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to run Kleinanzeigen sync");
+        }
+    }
+
+    /// <summary>
+    /// Meldet geaenderte Showroom-URLs per IndexNow an Bing und Yandex.
+    ///
+    /// Gemeldet werden die Uebersichtsseiten (deren Inhalt sich bei jeder
+    /// Bestandsaenderung aendert) und die Detailseiten frisch aufgenommener
+    /// Anzeigen. Bereits laenger bekannte Raeder werden bewusst NICHT jedes Mal
+    /// mitgeschickt — das waere ein Ping ohne Anlass und kostet nur Kontingent.
+    /// </summary>
+    private async Task NotifySearchEnginesAsync(
+        IServiceScope scope,
+        IKleinanzeigenService kleinanzeigenService)
+    {
+        try
+        {
+            var indexNow = scope.ServiceProvider.GetRequiredService<IIndexNowService>();
+            const string baseUrl = "https://bikehausfreiburg.com";
+            var langs = new[] { "de", "en", "fr", "tr" };
+
+            var urls = new List<string>();
+            foreach (var lang in langs)
+            {
+                urls.Add($"{baseUrl}/{lang}/showroom");
+            }
+
+            // Anzeigen, die dieser Lauf neu aufgenommen hat. Etwas Puffer auf das
+            // Sync-Intervall, damit ein verzoegerter Lauf nichts verschluckt.
+            var cutoff = DateTime.UtcNow - (_syncInterval + TimeSpan.FromMinutes(30));
+            var listings = await kleinanzeigenService.GetAllActiveListingsAsync();
+            if (listings != null)
+            {
+                foreach (var listing in listings.Where(l => l.CreatedAt >= cutoff))
+                {
+                    foreach (var lang in langs)
+                    {
+                        urls.Add($"{baseUrl}/{lang}/showroom/{listing.Id}");
+                    }
+                }
+            }
+
+            await indexNow.SubmitUrlsAsync(urls);
+            _logger.LogInformation("IndexNow: {Count} Showroom-URLs gemeldet", urls.Count);
+        }
+        catch (Exception ex)
+        {
+            // Eine fehlgeschlagene Meldung darf den Sync nicht scheitern lassen.
+            _logger.LogWarning(ex, "IndexNow-Meldung nach dem Sync fehlgeschlagen");
         }
     }
 }
