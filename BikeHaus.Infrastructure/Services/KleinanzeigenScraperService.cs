@@ -1,4 +1,4 @@
-using BikeHaus.Application.Interfaces;
+﻿using BikeHaus.Application.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Playwright;
 
@@ -453,9 +453,59 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             }
         }
 
+        // Notbremse: Wenn die Selektoren nichts gefunden haben, direkt im HTML
+        // nachsehen. Die Bildadressen stehen serverseitig im Markup (og:image,
+        // JSON-LD contentUrl und data-imgsrc) — wer sich nur auf das gerenderte
+        // DOM verlaesst, geht leer aus, sobald die Galerie noch nicht steht.
+        // Genau daran sind 133 von 175 Anzeigen bilderlos haengengeblieben.
+        if (imageUrls.Count == 0)
+        {
+            try
+            {
+                var html = await page.ContentAsync();
+                foreach (var url in ExtractImageUrlsFromHtml(html))
+                {
+                    if (!imageUrls.Contains(url)) imageUrls.Add(url);
+                }
+                if (imageUrls.Count > 0)
+                {
+                    _logger.LogInformation(
+                        "Bilder fuer {Id} erst ueber den HTML-Fallback gefunden: {Count}",
+                        data.ExternalId, imageUrls.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "HTML-Fallback fuer Bilder fehlgeschlagen: {Id}", data.ExternalId);
+            }
+        }
+
         data.ImageUrls = imageUrls;
 
         return data;
+    }
+
+    /// <summary>
+    /// Zieht Anzeigenbilder aus dem rohen HTML. Dedupliziert ueber die Bild-GUID,
+    /// weil dieselbe Datei mehrfach vorkommt (og:image, JSON-LD, Thumbnail,
+    /// Grossansicht) — jeweils mit anderem rule-Suffix.
+    /// </summary>
+    private static List<string> ExtractImageUrlsFromHtml(string html)
+    {
+        var result = new List<string>();
+        var seenIds = new HashSet<string>();
+        var matches = System.Text.RegularExpressions.Regex.Matches(
+            html,
+            @"https://img\.kleinanzeigen\.de/api/v1/prod-ads/images/[a-z0-9]{2}/([a-z0-9\-]{16,})(?:\?rule=\$_\d+\.AUTO)?",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+        foreach (System.Text.RegularExpressions.Match m in matches)
+        {
+            var imageId = m.Groups[1].Value;
+            if (!seenIds.Add(imageId)) continue;
+            result.Add(ConvertToFullSizeUrl(m.Value));
+        }
+        return result;
     }
 
     private static decimal? ParsePrice(string priceText)

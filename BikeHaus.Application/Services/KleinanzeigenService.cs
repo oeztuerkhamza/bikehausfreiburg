@@ -1,4 +1,4 @@
-using BikeHaus.Application.DTOs;
+﻿using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Interfaces;
@@ -110,10 +110,37 @@ public class KleinanzeigenService : IKleinanzeigenService
 
             _logger.LogInformation("Starting Kleinanzeigen sync from: {Url}", settings.KleinanzeigenUrl);
 
-            // Get existing external IDs so scraper can skip detail pages for known listings
+            // Bekannte Anzeigen ueberspringen die Detailseite — dort haengen aber
+            // die Bilder. Anzeigen OHNE Bild werden deshalb bewusst wie neue
+            // behandelt, damit sie noch einmal vollstaendig geholt werden.
+            //
+            // Hintergrund: Die Detailseite wird nur beim ersten Fund besucht.
+            // Liefert sie damals kein Bild (Galerie noch nicht im DOM), blieb die
+            // Anzeige fuer immer bildlos — bei 133 von 175 Anzeigen war genau das
+            // passiert, obwohl die Anzeigen auf Kleinanzeigen Fotos haben.
+            //
+            // Pro Lauf nur ein begrenztes Kontingent, sonst besucht ein einziger
+            // Sync ueber hundert Detailseiten am Stueck und faellt der
+            // Bot-Erkennung auf. Bei alle 4 Stunden ist der Rueckstand in rund
+            // einem Tag abgearbeitet.
+            const int maxImageRepairsPerRun = 25;
             var existingListings = await _listingRepository.GetAllActiveAsync();
-            var existingExternalIds = new HashSet<string>(existingListings.Select(l => l.ExternalId));
-            _logger.LogInformation("Found {Count} existing listings in DB", existingExternalIds.Count);
+            var needImages = existingListings
+                .Where(l => l.Images == null || l.Images.Count == 0)
+                .OrderBy(l => l.LastScrapedAt ?? l.CreatedAt)
+                .Take(maxImageRepairsPerRun)
+                .Select(l => l.ExternalId)
+                .ToHashSet();
+
+            var existingExternalIds = new HashSet<string>(
+                existingListings
+                    .Select(l => l.ExternalId)
+                    .Where(id => !needImages.Contains(id)));
+
+            var missingTotal = existingListings.Count(l => l.Images == null || l.Images.Count == 0);
+            _logger.LogInformation(
+                "Found {Count} existing listings in DB; {Missing} ohne Bild, davon {Repair} in diesem Lauf zur Nachholung",
+                existingListings.Count(), missingTotal, needImages.Count);
 
             // Scrape listings from Kleinanzeigen (skips detail pages for existing IDs)
             var scrapedListings = await _scraperService.ScrapeListingsAsync(
@@ -186,15 +213,27 @@ public class KleinanzeigenService : IKleinanzeigenService
                         existing.LastScrapedAt = DateTime.UtcNow;
                         existing.UpdatedAt = DateTime.UtcNow;
 
-                        // Update images: clear old, add new
-                        existing.Images.Clear();
-                        foreach (var (url, index) in scraped.ImageUrls.Select((u, i) => (u, i)))
+                        // Bilder nur ersetzen, wenn der Lauf ueberhaupt welche
+                        // gefunden hat. Ohne diese Bedingung loescht ein einziger
+                        // Fehlversuch — Galerie nicht geladen, Timeout — die
+                        // vorhandenen Fotos und die Anzeige steht wieder ohne da.
+                        if (scraped.ImageUrls.Count > 0)
                         {
-                            existing.Images.Add(new KleinanzeigenImage
+                            existing.Images.Clear();
+                            foreach (var (url, index) in scraped.ImageUrls.Select((u, i) => (u, i)))
                             {
-                                ImageUrl = url,
-                                SortOrder = index
-                            });
+                                existing.Images.Add(new KleinanzeigenImage
+                                {
+                                    ImageUrl = url,
+                                    SortOrder = index
+                                });
+                            }
+                        }
+                        else if (existing.Images.Count > 0)
+                        {
+                            _logger.LogWarning(
+                                "Detailseite von {Id} lieferte keine Bilder — vorhandene {Count} bleiben erhalten",
+                                existing.ExternalId, existing.Images.Count);
                         }
                     }
 
