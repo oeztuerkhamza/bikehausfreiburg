@@ -70,6 +70,19 @@ services:
     container_name: bikehaus-whatsapp
     restart: unless-stopped
     init: true
+    # Zweite Obergrenze auf diesem Host, aus demselben Grund wie bei
+    # bikehaus-app: whatsapp-web.js faehrt ueber puppeteer ein eigenes
+    # Chromium, und eine WhatsApp-Web-Sitzung laeuft wochenlang durch.
+    # Gemessen am 25.08.: 746 MB um 07:28, 974 MB um 19:16 — der groesste
+    # Verbraucher der Maschine, wachsend, und als einziger ohne Limit. In
+    # denselben zwoelf Stunden wanderten 425 MB zusaetzlich in den Swap.
+    # 1,6 GB laesst der Bruecke reichlich Luft; wer sie reisst, leckt und
+    # gehoert neu gestartet. Docker beendet dann NUR diesen Container,
+    # Docker startet ihn wieder (restart: unless-stopped) und die Sitzung
+    # kommt aus dem Volume zurueck - denselben Weg nimmt der Dienst schon
+    # heute, wenn seine Zombie-Wache das tote Chromium bemerkt.
+    mem_limit: 1600m
+    memswap_limit: 2000m
     expose:
       - '3000'
     volumes:

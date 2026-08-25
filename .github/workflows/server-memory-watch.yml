@@ -7,8 +7,12 @@ name: Server Memory Watch
 # erst, als der Laden die Adminoberflaeche nicht mehr oeffnen konnte.
 #
 # Dieser Lauf schaut zweimal taeglich nach und schlaegt an, BEVOR es so weit
-# kommt: zu wenig freier Speicher, zu viel Swap in Benutzung, oder ueberhaupt
-# ein OOM-Kill seit dem letzten Blick.
+# kommt: zu wenig freier Speicher, echtes Swap-Thrashing, ein OOM-Kill seit dem
+# letzten Blick — oder ein Container, der ohne Speicherlimit laeuft.
+#
+# Ein Alarm muss selten sein, sonst schaut niemand mehr hin. Wo ein Wert fuer
+# sich genommen noch nichts bedeutet, steht er als ::warning:: im Lauf, ohne
+# ihn rot zu faerben.
 
 permissions:
   contents: read
@@ -42,7 +46,8 @@ jobs:
             free -m
             avail=$(free -m | awk '/^Mem:/ {print $7}')
             swap_used=$(free -m | awk '/^Swap:/ {print $3}')
-            echo "verfuegbar: ${avail} MB | Swap belegt: ${swap_used} MB"
+            swap_total=$(free -m | awk '/^Swap:/ {print $2}')
+            echo "verfuegbar: ${avail} MB | Swap belegt: ${swap_used} von ${swap_total} MB"
 
             # Schwellen bewusst grosszuegig: Es geht um "kippt gleich", nicht um
             # jede normale Lastspitze.
@@ -53,11 +58,48 @@ jobs:
               echo "::warning::Verfuegbarer Speicher niedrig: ${avail} MB."
             fi
 
-            if [ "${swap_used}" -gt 1200 ]; then
-              echo "::error::Swap-Nutzung ${swap_used} MB — die Maschine weicht dauerhaft auf die Platte aus."
+            echo ""
+            echo "=== Swap: Umschlag statt Belegung ==="
+            # Die BELEGUNG des Swaps sagt fuer sich genommen nichts aus: Linux
+            # lagert kalte Seiten aus und holt sie nicht von selbst zurueck, die
+            # Belegung faellt also im Betrieb praktisch nie wieder. Auf diesem
+            # Host standen am 25.08. 1455 MB (07:28) bzw. 1880 MB (19:16) im
+            # Swap — bei 1216 bzw. 986 MB freiem Speicher, ohne einen einzigen
+            # OOM-Kill und bei Last ~1. Die alte Schwelle ("belegt > 1200 MB")
+            # hat deshalb jeden Lauf rot gefaerbt, ohne dass etwas los war.
+            #
+            # Weh tut nicht die Belegung, sondern die RATE: Seiten, die dauernd
+            # rein- und rausgeschoben werden. Genau das ist Thrashing, und genau
+            # das misst /proc/vmstat ueber ein Zeitfenster.
+            page_kb=$(( $(getconf PAGESIZE 2>/dev/null || echo 4096) / 1024 ))
+            swap_pages() { awk '/^pswpin |^pswpout /{s+=$2} END{print s+0}' /proc/vmstat; }
+            fenster=20
+            vorher=$(swap_pages)
+            sleep "${fenster}"
+            nachher=$(swap_pages)
+            rate=$(( (nachher - vorher) * page_kb / fenster ))
+            echo "Umschlag: ${rate} KB/s (gemessen ueber ${fenster} s)"
+
+            if [ "${rate}" -gt 5120 ]; then
+              echo "::error::Swap-Umschlag ${rate} KB/s — die Maschine schiebt dauernd Seiten hin und her (Thrashing)."
               status=1
-            elif [ "${swap_used}" -gt 700 ]; then
-              echo "::warning::Swap-Nutzung erhoeht: ${swap_used} MB."
+            elif [ "${rate}" -gt 1024 ]; then
+              echo "::warning::Swap-Umschlag erhoeht: ${rate} KB/s."
+            fi
+
+            # Belegung bleibt Kontext. Sie wird erst zum Alarm, wenn zugleich der
+            # Arbeitsspeicher knapp ist: dann gibt es kein Ausweichen mehr und
+            # als naechstes kommt der OOM-Killer.
+            if [ "${swap_total}" -gt 0 ]; then
+              swap_pct=$(( swap_used * 100 / swap_total ))
+            else
+              swap_pct=0
+            fi
+            if [ "${swap_pct}" -ge 90 ] && [ "${avail}" -lt 600 ]; then
+              echo "::error::Swap zu ${swap_pct}% belegt UND nur ${avail} MB Arbeitsspeicher — der Puffer ist aufgebraucht."
+              status=1
+            elif [ "${swap_pct}" -ge 75 ]; then
+              echo "::warning::Swap zu ${swap_pct}% belegt (${swap_used} von ${swap_total} MB) — allein unkritisch, aber im Blick behalten."
             fi
 
             echo ""
@@ -66,14 +108,20 @@ jobs:
               | sort -k2 -h -r | head -8
 
             echo ""
-            echo "=== Greift das Limit fuer bikehaus-app? ==="
-            limit=$(docker inspect bikehaus-app --format '{{.HostConfig.Memory}}' 2>/dev/null || echo 0)
-            if [ "${limit}" = "0" ]; then
-              echo "::error::bikehaus-app laeuft OHNE mem_limit — Chromium kann erneut den ganzen Host mitnehmen."
-              status=1
-            else
-              echo "mem_limit: $((limit / 1024 / 1024)) MB — gesetzt."
-            fi
+            echo "=== Greifen die Speicherlimits? ==="
+            # Beide Container fahren ein eigenes Chromium — bikehaus-app das des
+            # Kleinanzeigen-Scrapers, bikehaus-whatsapp das der WhatsApp-Web-
+            # Bruecke (whatsapp-web.js/puppeteer). Ohne Limit kann jedes davon
+            # den ganzen Host leerraeumen; genau so kam es am 25.08.
+            for container in bikehaus-app bikehaus-whatsapp; do
+              limit=$(docker inspect "${container}" --format '{{.HostConfig.Memory}}' 2>/dev/null || echo 0)
+              if [ "${limit:-0}" = "0" ]; then
+                echo "::error::${container} laeuft OHNE mem_limit — sein Chromium kann erneut den ganzen Host mitnehmen."
+                status=1
+              else
+                echo "${container}: $((limit / 1024 / 1024)) MB — gesetzt."
+              fi
+            done
 
             echo ""
             echo "=== OOM-Kills der letzten 24 h ==="
