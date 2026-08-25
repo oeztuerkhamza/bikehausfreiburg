@@ -30,9 +30,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           command_timeout: 3m
-          # Ohne das steht im Lauf nur die Fehlermeldung, nicht der Messwert
-          # daneben — bei einem Alarm will man beides sehen.
-          capture_stdout: true
+          # capture_stdout bewusst NICHT gesetzt: die ssh-action schreibt die
+          # gesammelte Ausgabe ueber ein EOF-Heredoc nach $GITHUB_OUTPUT und
+          # scheitert an mehrzeiligem Text ("Matching delimiter not found").
+          # Die Messwerte stehen ohnehin in den ::error::-Meldungen.
           script: |
             set -u
             status=0
