@@ -30,6 +30,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           command_timeout: 3m
+          # Ohne das steht im Lauf nur die Fehlermeldung, nicht der Messwert
+          # daneben — bei einem Alarm will man beides sehen.
+          capture_stdout: true
           script: |
             set -u
             status=0
@@ -73,11 +76,15 @@ jobs:
 
             echo ""
             echo "=== OOM-Kills der letzten 24 h ==="
-            oom=$(journalctl -k --since '24 hours ago' --no-pager 2>/dev/null \
+            # WICHTIG: "journalctl -k" (und --merge --dmesg) liefern NUR den
+            # aktuellen Boot. Genau dieser Vorfall endet aber im Neustart — die
+            # Spuren laegen dann im Boot davor und der Check gaebe faelschlich
+            # Entwarnung. Auf dem Server geprueft: -k findet 0, -t kernel findet 3.
+            oom=$(journalctl -t kernel --since '24 hours ago' --no-pager 2>/dev/null \
                   | grep -ciE 'out of memory|oom-kill' || true)
             if [ "${oom:-0}" -gt 0 ]; then
               echo "::error::${oom} OOM-Eintraege in den letzten 24 h:"
-              journalctl -k --since '24 hours ago' --no-pager 2>/dev/null \
+              journalctl -t kernel --since '24 hours ago' --no-pager 2>/dev/null \
                 | grep -iE 'out of memory|oom-kill' | tail -5
               status=1
             else
