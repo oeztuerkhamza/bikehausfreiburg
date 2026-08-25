@@ -31,7 +31,29 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
                 Headless = true,
-                Args = new[] { "--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage" }
+                // Der Host hat 3,8 GB und teilt sie mit Mailcow. Chromium hat
+                // hier mehrfach 1,2-1,7 GB belegt und den OOM-Killer ausgeloest
+                // (12./23./24.08.), am 25.08. bis zur Unerreichbarkeit der
+                // ganzen Maschine. Diese Flags druecken den Verbrauch:
+                //
+                // imagesEnabled=false ist der groesste Hebel — der Scraper
+                // braucht die Bild-ADRESSEN aus dem Markup, nie die Pixel.
+                // Fotos zu dekodieren kostet den Loewenanteil des Speichers und
+                // aendert am Ergebnis nichts.
+                Args = new[]
+                {
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                    "--disable-dev-shm-usage",
+                    "--blink-settings=imagesEnabled=false",
+                    "--disable-gpu",
+                    "--disable-extensions",
+                    "--disable-background-networking",
+                    "--disable-background-timer-throttling",
+                    "--disable-features=TranslateUI,BackForwardCache,MediaRouter",
+                    "--renderer-process-limit=1",
+                    "--js-flags=--max-old-space-size=256",
+                }
             });
 
             var context = await browser.NewContextAsync(new BrowserNewContextOptions
@@ -41,6 +63,7 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
                 Locale = "de-DE"
             });
 
+            // Wird im Detail-Durchlauf periodisch ersetzt, daher nicht readonly gedacht.
             var page = await context.NewPageAsync();
 
             // Navigate to profile listing page
@@ -80,12 +103,29 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
                 });
             }
 
-            // Visit detail pages ONLY for new listings
+            // Visit detail pages ONLY for new listings.
+            //
+            // Der Tab wird regelmaessig erneuert: Chromium gibt Speicher einer
+            // besuchten Seite nicht vollstaendig zurueck, und ueber ein ganzes
+            // Nachhol-Kontingent summiert sich das bis zum OOM. Ein frischer Tab
+            // aus DEMSELBEN Kontext setzt den Renderer zurueck, ohne Cookies und
+            // die bereits erteilte Consent-Zustimmung zu verlieren.
+            const int pagesPerTab = 8;
+            var visited = 0;
+
             foreach (var card in newCards)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
+                    if (visited > 0 && visited % pagesPerTab == 0)
+                    {
+                        await page.CloseAsync();
+                        page = await context.NewPageAsync();
+                        _logger.LogInformation(
+                            "Tab nach {Count} Detailseiten erneuert (Speicher freigeben)", visited);
+                    }
+
                     var detailData = await ScrapeListingDetailAsync(page, card);
                     if (detailData != null)
                     {
@@ -93,11 +133,14 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
                         _logger.LogInformation("Scraped listing: {Title} ({Id})", detailData.Title, detailData.ExternalId);
                     }
 
+                    visited++;
+
                     // Rate limiting between requests (reduced from 2-4s to 1-2s)
                     await page.WaitForTimeoutAsync(Random.Shared.Next(1000, 2000));
                 }
                 catch (Exception ex)
                 {
+                    visited++;
                     _logger.LogWarning(ex, "Failed to scrape listing detail: {Url}", card.Url);
                 }
             }

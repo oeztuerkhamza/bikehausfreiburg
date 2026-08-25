@@ -6,6 +6,18 @@ services:
       dockerfile: Dockerfile
     container_name: bikehaus-app
     restart: unless-stopped
+    # Harte Obergrenze fuer den Container. Ohne sie konnte das Chromium des
+    # Kleinanzeigen-Scrapers (1,2-1,7 GB laut OOM-Log vom 12./23./24.08.) den
+    # gesamten Host leerraeumen: Der Kernel-OOM-Killer schlug zu, die Maschine
+    # geriet ins Swap-Thrashing und war am 25.08. weder ueber HTTPS noch ueber
+    # SSH erreichbar - obwohl auf demselben Host auch Mailcow laeuft.
+    # Mit dem Limit trifft es im Ernstfall NUR diesen Container (Docker killt
+    # dann Chromium, das den hoechsten oom_score_adj hat), der Rest der
+    # Maschine bleibt bedienbar.
+    # Groesse: API im Leerlauf ~930 MB + Chromium-Spitze; 2 GB laesst Luft,
+    # ohne den Host (3,8 GB, geteilt mit Mailcow) zu gefaehrden.
+    mem_limit: 2g
+    memswap_limit: 2500m
     ports:
       - '5000:5000'
     volumes:

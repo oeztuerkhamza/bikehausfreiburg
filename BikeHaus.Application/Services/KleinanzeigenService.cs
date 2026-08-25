@@ -123,7 +123,11 @@ public class KleinanzeigenService : IKleinanzeigenService
             // Sync ueber hundert Detailseiten am Stueck und faellt der
             // Bot-Erkennung auf. Bei alle 4 Stunden ist der Rueckstand in rund
             // einem Tag abgearbeitet.
-            const int maxImageRepairsPerRun = 25;
+            // Bewusst klein: Jede Nachhol-Anzeige bedeutet einen Chromium-
+            // Seitenaufruf, und genau diese Last hat den Host am 25.08. ins
+            // Swap-Thrashing getrieben. Lieber laenger nachholen als die
+            // Maschine erneut lahmlegen.
+            const int maxImageRepairsPerRun = 8;
             var existingListings = await _listingRepository.GetAllActiveAsync();
             var needImages = existingListings
                 .Where(l => l.Images == null || l.Images.Count == 0)

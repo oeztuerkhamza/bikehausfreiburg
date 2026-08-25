@@ -1,0 +1,97 @@
+name: Server Memory Watch
+
+# Am 25.08.2026 war der Server ueber Stunden weder per HTTPS noch per SSH
+# erreichbar: Das Chromium des Kleinanzeigen-Scrapers hatte den Speicher
+# leergeraeumt (OOM-Kills am 12., 23. und 24.08. im Kernel-Log), die Maschine
+# steckte im Swap-Thrashing und musste neu gestartet werden. Aufgefallen ist es
+# erst, als der Laden die Adminoberflaeche nicht mehr oeffnen konnte.
+#
+# Dieser Lauf schaut zweimal taeglich nach und schlaegt an, BEVOR es so weit
+# kommt: zu wenig freier Speicher, zu viel Swap in Benutzung, oder ueberhaupt
+# ein OOM-Kill seit dem letzten Blick.
+
+permissions:
+  contents: read
+
+on:
+  schedule:
+    # 06:40 und 18:40 UTC — jeweils kurz nach den ueblichen Scraper-Laeufen.
+    - cron: '40 6,18 * * *'
+  workflow_dispatch:
+
+jobs:
+  memory-watch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe memory, swap and OOM history
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 3m
+          script: |
+            set -u
+            status=0
+
+            echo "=== Speicher ==="
+            free -m
+            avail=$(free -m | awk '/^Mem:/ {print $7}')
+            swap_used=$(free -m | awk '/^Swap:/ {print $3}')
+            echo "verfuegbar: ${avail} MB | Swap belegt: ${swap_used} MB"
+
+            # Schwellen bewusst grosszuegig: Es geht um "kippt gleich", nicht um
+            # jede normale Lastspitze.
+            if [ "${avail}" -lt 400 ]; then
+              echo "::error::Nur noch ${avail} MB verfuegbar — der Host ist kurz vor dem Swap-Thrashing."
+              status=1
+            elif [ "${avail}" -lt 700 ]; then
+              echo "::warning::Verfuegbarer Speicher niedrig: ${avail} MB."
+            fi
+
+            if [ "${swap_used}" -gt 1200 ]; then
+              echo "::error::Swap-Nutzung ${swap_used} MB — die Maschine weicht dauerhaft auf die Platte aus."
+              status=1
+            elif [ "${swap_used}" -gt 700 ]; then
+              echo "::warning::Swap-Nutzung erhoeht: ${swap_used} MB."
+            fi
+
+            echo ""
+            echo "=== Container nach Speicher ==="
+            docker stats --no-stream --format '{{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}' \
+              | sort -k2 -h -r | head -8
+
+            echo ""
+            echo "=== Greift das Limit fuer bikehaus-app? ==="
+            limit=$(docker inspect bikehaus-app --format '{{.HostConfig.Memory}}' 2>/dev/null || echo 0)
+            if [ "${limit}" = "0" ]; then
+              echo "::error::bikehaus-app laeuft OHNE mem_limit — Chromium kann erneut den ganzen Host mitnehmen."
+              status=1
+            else
+              echo "mem_limit: $((limit / 1024 / 1024)) MB — gesetzt."
+            fi
+
+            echo ""
+            echo "=== OOM-Kills der letzten 24 h ==="
+            oom=$(journalctl -k --since '24 hours ago' --no-pager 2>/dev/null \
+                  | grep -ciE 'out of memory|oom-kill' || true)
+            if [ "${oom:-0}" -gt 0 ]; then
+              echo "::error::${oom} OOM-Eintraege in den letzten 24 h:"
+              journalctl -k --since '24 hours ago' --no-pager 2>/dev/null \
+                | grep -iE 'out of memory|oom-kill' | tail -5
+              status=1
+            else
+              echo "keine."
+            fi
+
+            echo ""
+            echo "=== Laufzeit ==="
+            uptime
+            # Ein sehr junger Host nach einem Vorfall ist ein Hinweis auf einen
+            # Neustart, den niemand bewusst ausgeloest hat.
+            up_min=$(awk '{print int($1/60)}' /proc/uptime)
+            if [ "${up_min}" -lt 30 ]; then
+              echo "::warning::Host laeuft erst seit ${up_min} Minuten — gab es einen ungeplanten Neustart?"
+            fi
+
+            exit ${status}
