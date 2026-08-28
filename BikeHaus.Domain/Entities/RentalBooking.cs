@@ -46,4 +46,10 @@ public class RentalBooking : BaseEntity
     public Bicycle Bicycle { get; set; } = null!;
     public ICollection<RentalBookingAccessory> Accessories { get; set; } = new List<RentalBookingAccessory>();
     public ICollection<RentalBookingBike> Bikes { get; set; } = new List<RentalBookingBike>();
+
+    // Vertraege, die aus dieser Anfrage entstanden sind. Ist die Liste nicht
+    // leer, gilt die Anfrage als abgearbeitet: sie taucht nicht mehr in der
+    // offenen Liste auf und blockiert kein Rad mehr — das erledigt ab dann der
+    // Vertrag, auch wenn dort ein anderes Rad oder ein anderer Zeitraum steht.
+    public ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 }

@@ -156,7 +156,8 @@ public class RentalService : IRentalService
             AgbAkzeptiert = dto.AgbAkzeptiert,
             UnterschriftOrt = dto.UnterschriftOrt,
             AusweisPhotoPath = dto.AusweisPhotoPath,
-            AusweisPhotoRueckseitePath = dto.AusweisPhotoRueckseitePath
+            AusweisPhotoRueckseitePath = dto.AusweisPhotoRueckseitePath,
+            RentalBookingId = dto.RentalBookingId
         };
 
         // Attach bikes (mit serverseitig berechnetem Mietpreis)

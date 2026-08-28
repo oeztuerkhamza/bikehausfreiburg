@@ -3,6 +3,7 @@ using System;
 using BikeHaus.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BikeHaus.Infrastructure.Migrations
 {
     [DbContext(typeof(BikeHausDbContext))]
-    partial class BikeHausDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260828174500_LinkRentalToRentalBooking")]
+    partial class LinkRentalToRentalBooking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");

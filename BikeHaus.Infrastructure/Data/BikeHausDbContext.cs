@@ -650,6 +650,17 @@ public class BikeHausDbContext : DbContext
                 .HasForeignKey(rb => rb.RentalId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Herkunft: die Mietanfrage, aus der der Vertrag entstand. SetNull,
+            // weil der Vertrag der fuehrende Beleg ist — wird die Anfrage
+            // geloescht, bleibt der Vertrag unberuehrt und verliert nur seinen
+            // Verweis. Index, weil die Abfrage "gibt es zu dieser Anfrage schon
+            // einen Vertrag?" bei jeder Belegungs- und Listenabfrage laeuft.
+            entity.HasOne(e => e.RentalBooking)
+                .WithMany(b => b.Rentals)
+                .HasForeignKey(e => e.RentalBookingId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.RentalBookingId);
             entity.HasIndex(e => e.MietvertragNummer).IsUnique();
         });
 

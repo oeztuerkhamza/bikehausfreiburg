@@ -4358,6 +4358,11 @@ export class RentalFormComponent implements OnInit, OnDestroy {
             unterschriftOrt: this.unterschriftOrt || undefined,
             ausweisPhotoPath: this.fromBookingAusweisPhotoPath,
             ausweisPhotoRueckseitePath: this.fromBookingAusweisPhotoRueckseitePath,
+            // Herkunft mitschicken, wenn der Vertrag aus einer Anfrage entsteht.
+            // Vorher blieb die bookingId im Browser: die Anfrage wusste nichts
+            // von ihrem Vertrag, blockierte ihr altes Rad weiter und musste
+            // ueber Name + Zeitraum erraten werden.
+            rentalBookingId: this.fromBookingId ?? undefined,
             // Stückzahl > 1 (gepooltes Kinderrad) wird hier zu mehreren
             // Einträgen mit derselben BicycleId aufgelöst, siehe expandBikeEntry().
             bikes: this.bikes.flatMap((b, i) =>

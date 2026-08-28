@@ -10,7 +10,7 @@
 
 | Layer         | Tech                                                              |
 | ------------- | ----------------------------------------------------------------- |
-| API           | ASP.NET Core (net8.0), EF Core, SQLite, JWT, Swagger              |
+| API           | ASP.NET Core (net9.0), EF Core, SQLite, JWT, Swagger              |
 | Admin SPA     | Angular 17.3 (CSR), standalone components, signals, custom SCSS   |
 | Public site   | Angular 17.3 + SSR (Express + CommonEngine), 8 locales, prerender |
 | Background    | Hosted service every 4h for Kleinanzeigen sync                    |
@@ -21,7 +21,7 @@
 | Desktop       | Electron 33 wrapper (Windows installer via NSIS)                  |
 | Browser ext   | Manifest V3 Chrome extension (Kleinanzeigen bulk edit)            |
 
-**Note on .NET version**: csproj targets `net8.0`, but the production `Dockerfile` builds with the .NET 9 SDK image (`mcr.microsoft.com/dotnet/sdk:9.0`) and runs on `dotnet/aspnet:9.0`. Both work because net8.0 is compatible.
+**Note on .NET version**: every csproj targets `net9.0`, matching the production `Dockerfile` (builds with `mcr.microsoft.com/dotnet/sdk:9.0`, runs on `dotnet/aspnet:9.0`). This file previously claimed `net8.0`; it is not — an 8.0 SDK cannot build the solution at all (`NETSDK1045`).
 
 ---
 
@@ -416,7 +416,7 @@ The codebase uses **German field/entity names**. Use this when generating code o
 10. **Auto-migration on startup**: API runs `db.Database.Migrate()` at boot. A bad migration in `master` will brick prod boot — always test `dotnet ef database update` locally before committing.
 11. **CORS in prod = `AllowAnyOrigin`** (see Program.cs). API access is gated by JWT, not CORS, so this is intentional, but be careful with cookie-based auth if you ever add it.
 12. **JWT key**: must be ≥32 bytes. The default in appsettings is a placeholder — env var `Jwt__Key` (double underscore for nested config) overrides.
-13. **Two parallel rental concepts**: `RentalBooking` (public, multi-bike, online flow) ≠ `Rental` (formal in-store contract). Approving a `RentalBooking` admin-side typically materializes into one or more `Rental` rows. Don't conflate them in queries/services.
+13. **Two parallel rental concepts**: `RentalBooking` (public, multi-bike, online flow) ≠ `Rental` (formal in-store contract). Approving a `RentalBooking` admin-side typically materializes into one or more `Rental` rows. Don't conflate them in queries/services — but they ARE linked: `Rental.RentalBookingId` (nullable FK, migration `20260828174500_LinkRentalToRentalBooking`) records which Anfrage a contract came from. A booking with a linked rental counts as done: it drops out of the open list AND stops blocking its bike, because from then on the contract does the blocking — which matters because the contract may carry a different bike or period. Before that FK existed the conversion happened purely in the browser (`/rentals/new?bookingId=`), "is this booking handled?" was guessed from name + dates, and swapping the bike in the contract left the old bike blocked by the stale booking.
 14. **TLS certs live in nginx's memory, not on disk.** certbot renews inside its own container; nginx only re-reads the files on reload. The nginx service therefore runs a 6h self-reload loop (`command:` in docker-compose.yml) — don't remove it, or HTTPS silently dies the next time the in-memory cert expires. Adding a new `server_name` with a 443 block also means adding that host to `DOMAINS` in `deploy/setup-ssl.sh`; otherwise the host gets a wrong-name cert that HSTS (`includeSubDomains` on the apex) makes unbypassable. The reverse bites too: `mail.` was in the live certificate but missing from `DOMAINS`, so running the script would have dropped it. CI enforces the match (`nginx-config-check.yml`). Diagnose with `deploy/ssl-status.sh`, never with reflexive `--force-renewal` (Let's Encrypt: 5 duplicate certs/week).
 
 ---

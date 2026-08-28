@@ -5,7 +5,11 @@ namespace BikeHaus.Application.DTOs;
 public record BusyPeriodDto(
     DateTime Start,
     DateTime End,
-    string Type  // "rental" | "booking"
+    string Type,  // "rental" | "booking" | "pending"
+    // Der Beleg hinter dem Balken: Mietvertrag-Id bei "rental", Anfrage-Id bei
+    // "booking"/"pending". Damit kann der Belegungsplan direkt dorthin springen,
+    // statt den Beleg von Hand suchen zu lassen.
+    int? ReferenceId = null
 );
 
 public record RentalAccessoryItemDto(
@@ -153,7 +157,12 @@ public record RentalCreateDto(
     string? AusweisPhotoPath,           // Vorderseite; z.B. aus einer übernommenen Buchung
     string? AusweisPhotoRueckseitePath = null, // Rückseite; ebenso aus einer übernommenen Buchung
     // Leer = Anlagetag. Gesetzt nur, wenn ein Vertrag nachgetragen wird.
-    DateTime? Vertragsdatum = null
+    DateTime? Vertragsdatum = null,
+    // Gesetzt, wenn der Vertrag aus einer Mietanfrage entsteht
+    // (/rentals/new?bookingId=). Damit gilt die Anfrage als abgearbeitet und
+    // blockiert kein Rad mehr — auch dann nicht, wenn im Vertrag ein anderes
+    // Rad oder ein anderer Zeitraum eingetragen wird.
+    int? RentalBookingId = null
 );
 
 public record RentalBikeUpdateDto(

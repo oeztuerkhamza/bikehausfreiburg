@@ -22,6 +22,8 @@ interface BikeDayState {
   status: 'free' | 'rental' | 'booking' | 'pending';
   start?: string;
   end?: string;
+  /** Beleg hinter dem Balken — Mietvertrag oder Anfrage. */
+  referenceId?: number;
 }
 
 @Component({
@@ -115,7 +117,12 @@ interface BikeDayState {
               [class.is-rental]="stateFor(row, d).status === 'rental'"
               [class.is-booking]="stateFor(row, d).status === 'booking'"
               [class.is-pending]="stateFor(row, d).status === 'pending'"
+              [class.clickable]="stateFor(row, d).referenceId"
+              [attr.role]="stateFor(row, d).referenceId ? 'button' : null"
+              [attr.tabindex]="stateFor(row, d).referenceId ? 0 : null"
               [title]="tooltipFor(row, d)"
+              (click)="openBeleg(row, d)"
+              (keydown.enter)="openBeleg(row, d)"
             ></div>
           </ng-container>
         </div>
@@ -338,6 +345,12 @@ interface BikeDayState {
       }
       .day-cell.weekend { background: rgba(0, 0, 0, 0.02); }
       .day-cell.today { box-shadow: inset 0 0 0 2px var(--accent-primary); }
+      .day-cell.clickable { cursor: pointer; }
+      .day-cell.clickable:hover { filter: brightness(1.12); }
+      .day-cell.clickable:focus-visible {
+        outline: 2px solid var(--accent-primary);
+        outline-offset: -2px;
+      }
       .day-cell.is-rental { background: #ef4444; }
       .day-cell.is-booking { background: #f59e0b; }
       /* Angefragt, aber noch nicht bestätigt: schraffiert, damit es sich klar
@@ -479,7 +492,7 @@ export class BicycleCalendarComponent implements OnInit {
       const start = p.start.substring(0, 10);
       const end = p.end.substring(0, 10);
       if (day.iso >= start && day.iso <= end) {
-        return { status: p.type, start, end };
+        return { status: p.type, start, end, referenceId: p.referenceId };
       }
     }
     return { status: 'free' };
@@ -495,7 +508,27 @@ export class BicycleCalendarComponent implements OnInit {
         : state.status === 'pending'
           ? 'Angefragt (noch nicht bestätigt)'
           : 'Reserviert';
-    return `${dateStr} – ${label} (${state.start} – ${state.end})`;
+    const hinweis = state.referenceId ? ' · Klicken für den Beleg' : '';
+    return `${dateStr} – ${label} (${state.start} – ${state.end})${hinweis}`;
+  }
+
+  /**
+   * Ein belegter Tag steht immer für einen Beleg: einen Mietvertrag oder eine
+   * Mietanfrage. Vorher musste man den im jeweiligen Bereich von Hand suchen —
+   * ein Klick auf den Balken führt jetzt direkt hin.
+   *
+   * Freie Tage bleiben stumm; und ohne referenceId (ältere Antwort aus dem
+   * Cache, in der das Feld noch fehlt) passiert bewusst nichts, statt auf einer
+   * Fehlerseite zu landen.
+   */
+  openBeleg(row: BikeRow, day: DayCell): void {
+    const state = this.stateFor(row, day);
+    if (!state.referenceId) return;
+    const ziel =
+      state.status === 'rental'
+        ? ['/rentals', state.referenceId]
+        : ['/rental-bookings', state.referenceId];
+    this.router.navigate(ziel);
   }
 
   /**

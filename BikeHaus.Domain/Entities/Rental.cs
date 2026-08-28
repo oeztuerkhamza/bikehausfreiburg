@@ -7,6 +7,19 @@ public class Rental : BaseEntity
     // Mietvertrag-Nummer
     public string MietvertragNummer { get; set; } = string.Empty;
 
+    // Die Mietanfrage, aus der dieser Vertrag entstanden ist (null bei einem
+    // Vertrag, der direkt im Laden geschrieben wurde).
+    //
+    // Vorher gab es diese Verknuepfung NICHT: Der Uebergang Anfrage → Vertrag
+    // lief allein im Browser (/rentals/new?bookingId=), die bookingId wurde nie
+    // mitgeschickt. Wer im Vertrag danach das Rad tauschte, liess die Anfrage
+    // mit dem alten Rad zurueck — und weil die Belegung sich aus Vertraegen UND
+    // genehmigten Anfragen speist, blieb das alte Rad blockiert, obwohl es frei
+    // war. Ob eine Anfrage schon abgearbeitet war, musste ueber Name + Zeitraum
+    // GERATEN werden; sobald im Vertrag ein Datum korrigiert wurde, riss die
+    // Zuordnung. Mit dieser Fremdschluesselspalte ist beides eindeutig.
+    public int? RentalBookingId { get; set; }
+
     // Mieter (Renter)
     public int CustomerId { get; set; }
 
@@ -54,6 +67,7 @@ public class Rental : BaseEntity
 
     // Navigation Properties
     public Customer Customer { get; set; } = null!;
+    public RentalBooking? RentalBooking { get; set; }
     public ICollection<RentalBike> Bikes { get; set; } = new List<RentalBike>();
     public ICollection<RentalAccessoryItem> Accessories { get; set; } = new List<RentalAccessoryItem>();
 }

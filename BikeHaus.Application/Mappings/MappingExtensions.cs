@@ -439,7 +439,23 @@ public static class MappingExtensions
             entity.CancelledAt,
             entity.Accessories.Select(a => a.ToDto(InclusiveRentalDays(entity.StartDatum, entity.EndDatum))).ToList(),
             entity.AusweisPhotoPath,
-            entity.AusweisPhotoRueckseitePath
+            entity.AusweisPhotoRueckseitePath,
+            // Aeltester zugehoeriger Vertrag: aus einer Anfrage entsteht in der
+            // Regel genau einer. Ist keiner da, bleibt das Feld null und die
+            // Anfrage gilt als offen.
+            entity.Rentals
+                .OrderBy(r => r.Id)
+                .Select(r => new ConvertedRentalDto(
+                    r.Id,
+                    r.MietvertragNummer,
+                    r.StartDatum,
+                    r.EndDatum,
+                    r.Bikes.Select(rb => new ConvertedRentalBikeDto(
+                        rb.BicycleId,
+                        rb.Bicycle?.Marke ?? string.Empty,
+                        rb.Bicycle?.Modell ?? string.Empty,
+                        rb.Rahmennummer)).ToList()))
+                .FirstOrDefault()
         );
     }
 

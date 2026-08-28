@@ -7,7 +7,7 @@ import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { DialogService } from '../../services/dialog.service';
 import { TranslationService } from '../../services/translation.service';
-import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../models/models';
+import { Bicycle, BikeCondition, ConvertedRental, RentalBooking, RentalBookingBike, RentalBookingStatus } from '../../models/models';
 
 @Component({
   selector: 'app-rental-booking-detail',
@@ -143,6 +143,41 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
               <strong>{{ bike.gesamtpreis | number: '1.2-2' }} €</strong>
             </div>
           </div>
+        </div>
+
+        <!-- Aus dieser Anfrage ist ein Mietvertrag geworden. Der Vertrag ist ab
+             dann massgeblich: er darf ein anderes Rad und einen anderen
+             Zeitraum tragen, und er ist es auch, der das Rad belegt. -->
+        <div class="info-card converted-card" *ngIf="booking.convertedRental as cr">
+          <h3>In Mietvertrag überführt</h3>
+          <div class="info-row">
+            <span>Vertrag:</span>
+            <strong
+              ><a [routerLink]="['/rentals', cr.rentalId]">{{
+                cr.mietvertragNummer
+              }}</a></strong
+            >
+          </div>
+          <div class="info-row">
+            <span>Zeitraum laut Vertrag:</span>
+            <strong
+              >{{ cr.startDatum | date: 'dd.MM.yyyy' }} –
+              {{ cr.endDatum | date: 'dd.MM.yyyy' }}</strong
+            >
+          </div>
+          <div class="info-row" *ngFor="let b of cr.bikes">
+            <span>Tatsächlich vermietet:</span>
+            <strong
+              >{{ b.marke }} {{ b.modell
+              }}<ng-container *ngIf="b.rahmennummer">
+                · {{ b.rahmennummer }}</ng-container
+              ></strong
+            >
+          </div>
+          <p class="converted-hint" *ngIf="bikesDiffer(cr)">
+            Im Vertrag steht ein anderes Rad als in der Anfrage. Maßgeblich ist
+            der Vertrag — die Anfrage belegt seit der Überführung kein Rad mehr.
+          </p>
         </div>
 
         <!-- Fahrrad-Wechsel Dialog -->
@@ -592,6 +627,13 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
         color: #fff;
         border-color: var(--accent-danger, #ef4444);
       }
+      .converted-card .converted-hint {
+        margin: 0.6rem 0 0;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        opacity: 0.8;
+      }
+
       .bike-count-badge {
         display: inline-block;
         background: var(--accent-primary, #6366f1);
@@ -866,6 +908,20 @@ import { Bicycle, BikeCondition, RentalBooking, RentalBookingBike, RentalBooking
   ],
 })
 export class RentalBookingDetailComponent implements OnInit {
+  /**
+   * Steht im Vertrag ein anderes Rad als in der Anfrage? Verglichen wird die
+   * MENGE der BicycleIds, nicht die Reihenfolge — bei mehreren Raedern sagt
+   * die Position nichts aus, und die Anzahl kann sich im Vertrag aendern.
+   */
+  bikesDiffer(cr: ConvertedRental): boolean {
+    const angefragt = new Set((this.booking?.bikes ?? []).map((b) => b.bicycleId));
+    const vermietet = new Set(cr.bikes.map((b) => b.bicycleId));
+    return (
+      angefragt.size !== vermietet.size ||
+      [...vermietet].some((id) => !angefragt.has(id))
+    );
+  }
+
   private service = inject(RentalBookingService);
   private bicycleService = inject(BicycleService);
   private notificationService = inject(NotificationService);

@@ -17,6 +17,9 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .Include(b => b.Bicycle)
             .Include(b => b.Bikes).ThenInclude(bk => bk.Bicycle)
             .Include(b => b.Accessories)
+            // Fuer die Detailansicht: welcher Vertrag ist daraus geworden und
+            // welches Rad steht dort wirklich drin?
+            .Include(b => b.Rentals).ThenInclude(r => r.Bikes).ThenInclude(rb => rb.Bicycle)
             .FirstOrDefaultAsync(b => b.Id == id);
     }
 
@@ -26,6 +29,9 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .Include(b => b.Bicycle)
             .Include(b => b.Bikes).ThenInclude(bk => bk.Bicycle)
             .Include(b => b.Accessories)
+            // Fuer die Detailansicht: welcher Vertrag ist daraus geworden und
+            // welches Rad steht dort wirklich drin?
+            .Include(b => b.Rentals).ThenInclude(r => r.Bikes).ThenInclude(rb => rb.Bicycle)
             .FirstOrDefaultAsync(b => b.BuchungsNummer == bookingNumber);
     }
 
@@ -49,19 +55,17 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .Include(b => b.Accessories)
             .AsQueryable();
 
-        // A booking that has already been turned into a Mietvertrag — a rental with
-        // the same customer and date range exists — is done: the bike was handed
-        // over via the contract. Hide such bookings by default; the caller can opt
-        // in to see them (there is no FK link, so match on customer + dates like
-        // the calendar view does).
+        // Eine Anfrage, aus der ein Mietvertrag geworden ist, ist erledigt: das
+        // Rad ist ueber den Vertrag rausgegangen. Standardmaessig ausblenden,
+        // der Aufrufer kann sie per includeCompleted anfordern.
+        //
+        // Frueher wurde das ueber Name + Zeitraum GERATEN, weil es keine
+        // Verknuepfung gab. Sobald im Vertrag ein Datum korrigiert oder ein
+        // Name anders geschrieben wurde, riss die Zuordnung und die laengst
+        // abgearbeitete Anfrage stand wieder als offen in der Liste. Jetzt
+        // entscheidet der Fremdschluessel Rental.RentalBookingId.
         if (!includeCompleted)
-        {
-            query = query.Where(b => !_context.Rentals.Any(r =>
-                r.Customer.Vorname == b.Vorname &&
-                r.Customer.Nachname == b.Nachname &&
-                r.StartDatum.Date == b.StartDatum.Date &&
-                r.EndDatum.Date == b.EndDatum.Date));
-        }
+            query = query.Where(b => !b.Rentals.Any());
 
         if (predicate != null)
             query = query.Where(predicate);
@@ -84,6 +88,7 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .Include(b => b.Bikes)
             .Where(b => b.BicycleId == bicycleId
                 && !b.Bikes.Any()
+                && !b.Rentals.Any()          // schon in einen Vertrag ueberfuehrt
                 && b.Status == RentalBookingStatus.Approved)
             .OrderBy(b => b.StartDatum)
             .ToListAsync();
@@ -91,6 +96,7 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
         // New multi-bike bookings via RentalBookingBike
         var multiBookingIds = await _context.Set<RentalBookingBike>()
             .Where(bk => bk.BicycleId == bicycleId
+                && !bk.RentalBooking.Rentals.Any()
                 && bk.RentalBooking.Status == RentalBookingStatus.Approved)
             .Select(bk => bk.RentalBookingId)
             .Distinct()
@@ -111,6 +117,7 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .Include(b => b.Bikes)
             .Where(b => b.BicycleId == bicycleId
                 && !b.Bikes.Any()
+                && !b.Rentals.Any()          // schon in einen Vertrag ueberfuehrt
                 && b.Status == RentalBookingStatus.Pending)
             .OrderBy(b => b.StartDatum)
             .ToListAsync();
@@ -118,6 +125,7 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
         // New multi-bike bookings via RentalBookingBike
         var multiBookingIds = await _context.Set<RentalBookingBike>()
             .Where(bk => bk.BicycleId == bicycleId
+                && !bk.RentalBooking.Rentals.Any()
                 && bk.RentalBooking.Status == RentalBookingStatus.Pending)
             .Select(bk => bk.RentalBookingId)
             .Distinct()
@@ -136,6 +144,10 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
         var statusList = statuses.ToList();
         return await _dbSet
             .Include(b => b.Bikes)
+            // Abgearbeitete Anfragen (es gibt einen Vertrag dazu) belegen kein
+            // Rad mehr — sonst stuende im Belegungsplan neben dem Vertrag noch
+            // ein zweiter Balken, und nach einem Radwechsel sogar am falschen Rad.
+            .Where(b => !b.Rentals.Any())
             .Where(b => statusList.Contains(b.Status))
             .ToListAsync();
     }
@@ -159,6 +171,7 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
         var legacyQuery = _dbSet.Where(b =>
             b.BicycleId == bicycleId &&
             !b.Bikes.Any() &&
+            !b.Rentals.Any() &&
             b.Status == RentalBookingStatus.Approved &&
             b.StartDatum.Date <= end.Date &&
             b.EndDatum.Date >= start.Date);
@@ -171,6 +184,7 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
         // New multi-bike bookings via RentalBookingBike
         var bikeQuery = _context.Set<RentalBookingBike>().Where(bk =>
             bk.BicycleId == bicycleId &&
+            !bk.RentalBooking.Rentals.Any() &&
             bk.RentalBooking.Status == RentalBookingStatus.Approved &&
             bk.StartDatum.Date <= end.Date &&
             bk.EndDatum.Date >= start.Date);
@@ -200,6 +214,7 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
         var legacyQuery = _dbSet.Where(b =>
             b.BicycleId == bicycleId &&
             !b.Bikes.Any() &&
+            !b.Rentals.Any() &&
             activeStatuses.Contains(b.Status) &&
             b.StartDatum.Date <= end.Date &&
             b.EndDatum.Date >= start.Date);
@@ -211,6 +226,7 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
 
         var bikeQuery = _context.Set<RentalBookingBike>().Where(bk =>
             bk.BicycleId == bicycleId &&
+            !bk.RentalBooking.Rentals.Any() &&
             activeStatuses.Contains(bk.RentalBooking.Status) &&
             bk.StartDatum.Date <= end.Date &&
             bk.EndDatum.Date >= start.Date);
@@ -240,6 +256,7 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
 
         var legacyIds = await _dbSet
             .Where(b => !b.Bikes.Any()
+                && !b.Rentals.Any()          // schon in einen Vertrag ueberfuehrt
                 && (b.Status == RentalBookingStatus.Approved || b.Status == RentalBookingStatus.Pending)
                 && b.StartDatum <= endDt
                 && b.EndDatum >= startDt)
@@ -247,7 +264,8 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .ToListAsync();
 
         var multiIds = await _context.Set<RentalBookingBike>()
-            .Where(bk => (bk.RentalBooking.Status == RentalBookingStatus.Approved
+            .Where(bk => !bk.RentalBooking.Rentals.Any()
+                && (bk.RentalBooking.Status == RentalBookingStatus.Approved
                          || bk.RentalBooking.Status == RentalBookingStatus.Pending)
                 && bk.StartDatum <= endDt
                 && bk.EndDatum >= startDt)

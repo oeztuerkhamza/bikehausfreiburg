@@ -85,7 +85,27 @@ public record RentalBookingDto(
     DateTime? CancelledAt,
     List<RentalBookingAccessoryDto> Accessories,
     string? AusweisPhotoPath,          // Vorderseite
-    string? AusweisPhotoRueckseitePath // Rückseite
+    string? AusweisPhotoRueckseitePath, // Rückseite
+    // Gesetzt, sobald aus der Anfrage ein Mietvertrag geworden ist. Dann zeigt
+    // die Detailansicht beides: was der Kunde angefragt hat und was er
+    // tatsaechlich bekommen hat — im Vertrag darf ein anderes Rad stehen.
+    ConvertedRentalDto? ConvertedRental = null
+);
+
+/// <summary>Der Mietvertrag, der aus einer Anfrage entstanden ist.</summary>
+public record ConvertedRentalDto(
+    int RentalId,
+    string MietvertragNummer,
+    DateTime StartDatum,
+    DateTime EndDatum,
+    List<ConvertedRentalBikeDto> Bikes
+);
+
+public record ConvertedRentalBikeDto(
+    int BicycleId,
+    string Marke,
+    string Modell,
+    string? Rahmennummer
 );
 
 public record RentalBookingListDto(

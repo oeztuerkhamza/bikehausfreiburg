@@ -998,6 +998,11 @@ export interface BusyPeriod {
    * gezeichnet wurden.
    */
   type: 'rental' | 'booking' | 'pending';
+  /**
+   * Der Beleg hinter dem Balken: Mietvertrag-Id bei 'rental', Anfrage-Id bei
+   * 'booking'/'pending'. Der Belegungsplan springt damit direkt dorthin.
+   */
+  referenceId?: number;
 }
 
 export interface RentalAccessoryItemCreate {
@@ -1062,6 +1067,8 @@ export interface RentalCreate {
   unterschriftOrt?: string;
   ausweisPhotoPath?: string;
   ausweisPhotoRueckseitePath?: string;
+  /** Mietanfrage, aus der der Vertrag entsteht (/rentals/new?bookingId=). */
+  rentalBookingId?: number;
 }
 
 export interface RentalBikeUpdate {
@@ -1232,6 +1239,24 @@ export interface RentalBooking {
   accessories: RentalBookingAccessory[];
   ausweisPhotoPath?: string;
   ausweisPhotoRueckseitePath?: string;
+  /** Gesetzt, sobald aus der Anfrage ein Mietvertrag geworden ist. */
+  convertedRental?: ConvertedRental;
+}
+
+/** Der Mietvertrag, der aus einer Anfrage entstanden ist. */
+export interface ConvertedRental {
+  rentalId: number;
+  mietvertragNummer: string;
+  startDatum: string;
+  endDatum: string;
+  bikes: ConvertedRentalBike[];
+}
+
+export interface ConvertedRentalBike {
+  bicycleId: number;
+  marke: string;
+  modell: string;
+  rahmennummer?: string;
 }
 
 export interface RentalBookingList {

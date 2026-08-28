@@ -491,7 +491,7 @@ public class BicycleService : IBicycleService
         {
             foreach (var rentalBike in rental.Bikes.Where(rb => rb.BicycleId == bicycleId))
             {
-                result.Add(new BusyPeriodDto(rentalBike.StartDatum.Date, rentalBike.EndDatum.Date, "rental"));
+                result.Add(new BusyPeriodDto(rentalBike.StartDatum.Date, rentalBike.EndDatum.Date, "rental", rental.Id));
             }
         }
 
@@ -503,7 +503,8 @@ public class BicycleService : IBicycleService
             return new BusyPeriodDto(
                 (bk?.StartDatum ?? b.StartDatum).Date,
                 (bk?.EndDatum ?? b.EndDatum).Date,
-                "booking");
+                "booking",
+                b.Id);
         }));
 
         // Pending booking requests (not processed yet)
@@ -514,7 +515,8 @@ public class BicycleService : IBicycleService
             return new BusyPeriodDto(
                 (bk?.StartDatum ?? b.StartDatum).Date,
                 (bk?.EndDatum ?? b.EndDatum).Date,
-                "pending");
+                "pending",
+                b.Id);
         }));
 
         return result;
@@ -529,17 +531,17 @@ public class BicycleService : IBicycleService
     {
         var result = bicycleIds.Distinct().ToDictionary(id => id, _ => new List<BusyPeriodDto>());
 
-        void Add(int bikeId, DateTime start, DateTime end, string type)
+        void Add(int bikeId, DateTime start, DateTime end, string type, int referenceId)
         {
             if (result.TryGetValue(bikeId, out var list))
-                list.Add(new BusyPeriodDto(start.Date, end.Date, type));
+                list.Add(new BusyPeriodDto(start.Date, end.Date, type, referenceId));
         }
 
         // Active rentals (Mietvertrag) — loaded once for all bikes
         var allRentals = await _rentalRepository.GetAllAsync();
         foreach (var rental in allRentals.Where(r => r.Status == RentalStatus.Active))
             foreach (var rentalBike in rental.Bikes)
-                Add(rentalBike.BicycleId, rentalBike.StartDatum, rentalBike.EndDatum, "rental");
+                Add(rentalBike.BicycleId, rentalBike.StartDatum, rentalBike.EndDatum, "rental", rental.Id);
 
         // Bookings (approved + pending) — loaded once for all bikes
         var bookings = await _bookingRepository.GetByStatusesWithBikesAsync(
@@ -550,12 +552,12 @@ public class BicycleService : IBicycleService
             if (booking.Bikes.Any())
             {
                 foreach (var bk in booking.Bikes)
-                    Add(bk.BicycleId, bk.StartDatum, bk.EndDatum, type);
+                    Add(bk.BicycleId, bk.StartDatum, bk.EndDatum, type, booking.Id);
             }
             else
             {
                 // Legacy single-bike booking (no Bikes entries)
-                Add(booking.BicycleId, booking.StartDatum, booking.EndDatum, type);
+                Add(booking.BicycleId, booking.StartDatum, booking.EndDatum, type, booking.Id);
             }
         }
 
