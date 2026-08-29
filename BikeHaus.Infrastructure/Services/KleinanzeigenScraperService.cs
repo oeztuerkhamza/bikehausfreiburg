@@ -462,7 +462,16 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
         var imageUrls = new List<string>();
 
         // Try gallery images
-        var galleryImages = await page.QuerySelectorAllAsync("#viewad-image img, .galleryimage img, img[data-imgsrc], .gallery-container img");
+        // WICHTIG: alle Selektoren bleiben INNERHALB der Galerie dieser Anzeige.
+        // Frueher stand hier zusaetzlich das ungebundene "img[data-imgsrc]" — das
+        // trifft jedes Bild der ganzen Seite, also auch die Vorschaubilder unter
+        // "Weitere Anzeigen des Anbieters" und "Aehnliche Anzeigen". Bei einem
+        // Haendler mit ueber 100 Anzeigen landeten so die Fotos aller anderen
+        // Raeder (und die Werbebanner des Shops) in EINER Anzeige.
+        var galleryImages = await page.QuerySelectorAllAsync(
+            "#viewad-image img, #viewad-image img[data-imgsrc], "
+            + ".galleryimage img, .galleryimage img[data-imgsrc], "
+            + ".gallery-container img, .gallery-container img[data-imgsrc]");
         foreach (var img in galleryImages)
         {
             var src = await img.GetAttributeAsync("src");
@@ -481,7 +490,12 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
         }
 
         // Also try from picture/source elements
-        var sourceElements = await page.QuerySelectorAllAsync("picture source[srcset], .gallery-container source[srcset]");
+        // Auch hier gilt: nur die Galerie dieser Anzeige, kein seitenweites
+        // "picture source[srcset]" — sonst kommen die fremden Anzeigen zurueck.
+        var sourceElements = await page.QuerySelectorAllAsync(
+            "#viewad-image picture source[srcset], "
+            + ".galleryimage picture source[srcset], "
+            + ".gallery-container source[srcset]");
         foreach (var source in sourceElements)
         {
             var srcset = await source.GetAttributeAsync("srcset");
@@ -523,33 +537,125 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
             }
         }
 
+        // Letzte Bremse, unabhaengig davon, welcher Weg die Bilder geliefert hat.
+        // Eine einzelne Anzeige hat nie so viele Fotos; wer hier oben rauskommt,
+        // hat fremde eingesammelt. Dann lieber kappen und es im Log sagen, als
+        // die Detailseite mit den Bildern anderer Raeder zu fuellen.
+        if (imageUrls.Count > MaxImagesPerListing)
+        {
+            _logger.LogWarning(
+                "Anzeige {Id} lieferte {Count} Bilder — auf {Max} gekappt. So viele gehoeren nicht zu einer Anzeige; vermutlich sind fremde Anzeigenbilder mitgelaufen.",
+                data.ExternalId, imageUrls.Count, MaxImagesPerListing);
+            imageUrls = imageUrls.Take(MaxImagesPerListing).ToList();
+        }
+
         data.ImageUrls = imageUrls;
 
         return data;
     }
 
     /// <summary>
+    /// Obergrenze fuer die Bilder EINER Anzeige. Kleinanzeigen laesst pro Anzeige
+    /// nur eine zweistellige Zahl an Fotos zu; alles darueber kann nicht mehr zu
+    /// dieser einen Anzeige gehoeren. Rein defensiv — die eigentliche Abgrenzung
+    /// machen die Bereichsgrenzen unten. Der Deckel ist bewusst grosszuegig, damit
+    /// er eine echte Galerie nie abschneidet, aber einen Ausreisser stoppt.
+    /// </summary>
+    private const int MaxImagesPerListing = 30;
+
+    /// <summary>
     /// Zieht Anzeigenbilder aus dem rohen HTML. Dedupliziert ueber die Bild-GUID,
     /// weil dieselbe Datei mehrfach vorkommt (og:image, JSON-LD, Thumbnail,
     /// Grossansicht) — jeweils mit anderem rule-Suffix.
+    ///
+    /// ENTSCHEIDEND ist, WO gesucht wird. Frueher lief die Suche ueber das GANZE
+    /// Dokument. Eine Anzeigenseite enthaelt aber weit mehr als die eigene
+    /// Galerie: "Weitere Anzeigen des Anbieters" und "Aehnliche Anzeigen" bringen
+    /// die Vorschaubilder fremder Anzeigen mit. Bei einem Haendler mit ueber
+    /// hundert Anzeigen sammelte ein einziger Durchlauf so alles ein — ein
+    /// gebrauchtes Rad kam auf 137 Fotos, darunter die Werbebanner des Shops und
+    /// Gruppenfotos, weil das die Titelbilder der anderen Anzeigen sind.
+    ///
+    /// Gesucht wird deshalb nur noch dort, wo ausschliesslich die eigenen Bilder
+    /// dieser Anzeige stehen:
+    ///   1. JSON-LD — beschreibt genau dieses Angebot,
+    ///   2. og:image — das Titelbild dieser Anzeige,
+    ///   3. der Galerie-Block, abgeschnitten vor dem ersten fremden Abschnitt.
     /// </summary>
     private static List<string> ExtractImageUrlsFromHtml(string html)
     {
         var result = new List<string>();
         var seenIds = new HashSet<string>();
-        var matches = System.Text.RegularExpressions.Regex.Matches(
-            html,
-            @"https://img\.kleinanzeigen\.de/api/v1/prod-ads/images/[a-z0-9]{2}/([a-z0-9\-]{16,})(?:\?rule=\$_\d+\.AUTO)?",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-        foreach (System.Text.RegularExpressions.Match m in matches)
+        void Collect(string fragment)
         {
-            var imageId = m.Groups[1].Value;
-            if (!seenIds.Add(imageId)) continue;
-            result.Add(ConvertToFullSizeUrl(m.Value));
+            if (string.IsNullOrEmpty(fragment)) return;
+            foreach (System.Text.RegularExpressions.Match m in ImageUrlPattern.Matches(fragment))
+            {
+                if (result.Count >= MaxImagesPerListing) return;
+                if (!seenIds.Add(m.Groups[1].Value)) continue;
+                result.Add(ConvertToFullSizeUrl(m.Value));
+            }
         }
+
+        foreach (System.Text.RegularExpressions.Match ld in JsonLdPattern.Matches(html))
+            Collect(ld.Groups[1].Value);
+
+        foreach (System.Text.RegularExpressions.Match og in OgImagePattern.Matches(html))
+            Collect(og.Groups[1].Value);
+
+        Collect(ExtractGallerySection(html));
+
         return result;
     }
+
+    /// <summary>
+    /// Schneidet den Galerie-Bereich der Anzeige aus dem HTML: ab dem Galerie-Anker
+    /// bis zum ersten Abschnitt, der FREMDE Anzeigen zeigt. Findet sich kein Anker,
+    /// kommt nichts zurueck — lieber ein Bild weniger aus dieser Quelle als die
+    /// Fotos einer anderen Anzeige.
+    /// </summary>
+    private static string ExtractGallerySection(string html)
+    {
+        var start = -1;
+        foreach (var anchor in new[] { "id=\"viewad-image\"", "id=\"viewad-product\"", "class=\"galleryimage", "id=\"viewad-media\"" })
+        {
+            var idx = html.IndexOf(anchor, StringComparison.OrdinalIgnoreCase);
+            if (idx >= 0 && (start < 0 || idx < start)) start = idx;
+        }
+        if (start < 0) return string.Empty;
+
+        // Alles ab dem ersten Marker eines fremden Abschnitts faellt weg.
+        var end = html.Length;
+        foreach (var marker in new[]
+                 {
+                     "viewad-similar-ads", "similar-ads", "viewad-sidebar",
+                     "Weitere Anzeigen des Anbieters", "Aehnliche Anzeigen",
+                     "Ähnliche Anzeigen", "srchrslt-adtable", "viewad-recommendations",
+                 })
+        {
+            var idx = html.IndexOf(marker, start, StringComparison.OrdinalIgnoreCase);
+            if (idx >= 0 && idx < end) end = idx;
+        }
+
+        return html.Substring(start, end - start);
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex ImageUrlPattern = new(
+        @"https://img\.kleinanzeigen\.de/api/v1/prod-ads/images/[a-z0-9]{2}/([a-z0-9\-]{16,})(?:\?rule=\$_\d+\.AUTO)?",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static readonly System.Text.RegularExpressions.Regex JsonLdPattern = new(
+        @"<script[^>]*type=[""\']application/ld\+json[""\'][^>]*>(.*?)</script>",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        | System.Text.RegularExpressions.RegexOptions.Singleline
+        | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static readonly System.Text.RegularExpressions.Regex OgImagePattern = new(
+        @"<meta[^>]+property=[""\']og:image[""\'][^>]+content=[""\']([^""\']+)[""\']",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        | System.Text.RegularExpressions.RegexOptions.Compiled);
 
     private static decimal? ParsePrice(string priceText)
     {

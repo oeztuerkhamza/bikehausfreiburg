@@ -128,10 +128,31 @@ public class KleinanzeigenService : IKleinanzeigenService
             // Swap-Thrashing getrieben. Lieber laenger nachholen als die
             // Maschine erneut lahmlegen.
             const int maxImageRepairsPerRun = 8;
+
+            // Eine Anzeige mit auffaellig VIELEN Bildern ist genauso kaputt wie
+            // eine ohne. Bis zur Korrektur der Bildsuche griff der Scraper ueber
+            // die ganze Anzeigenseite und sammelte die Vorschaubilder der anderen
+            // Anzeigen des Haendlers mit ein — ein gebrauchtes Rad landete so bei
+            // 137 Fotos, darunter Werbebanner und Gruppenfotos. Solche Anzeigen
+            // haetten sich nie von selbst erholt: nachgeholt wurde bisher nur,
+            // was GAR KEIN Bild hatte, und Detailseiten besucht der Lauf sonst
+            // nur fuer neue Anzeigen. Deshalb kommen sie hier mit in die
+            // Reparaturschlange und werden mit der korrigierten Bildsuche neu
+            // eingelesen.
+            const int implausibleImageCount = 30;
+
             var existingListings = await _listingRepository.GetAllActiveAsync();
-            var needImages = existingListings
-                .Where(l => l.Images == null || l.Images.Count == 0)
-                .OrderBy(l => l.LastScrapedAt ?? l.CreatedAt)
+            var broken = existingListings
+                .Where(l => l.Images == null
+                            || l.Images.Count == 0
+                            || l.Images.Count >= implausibleImageCount)
+                .ToList();
+
+            var needImages = broken
+                // Die leeren zuerst: dort fehlt dem Kunden das Bild ganz, waehrend
+                // eine ueberfuellte Galerie wenigstens das richtige Rad zeigt.
+                .OrderBy(l => l.Images == null || l.Images.Count == 0 ? 0 : 1)
+                .ThenBy(l => l.LastScrapedAt ?? l.CreatedAt)
                 .Take(maxImageRepairsPerRun)
                 .Select(l => l.ExternalId)
                 .ToHashSet();
@@ -141,10 +162,11 @@ public class KleinanzeigenService : IKleinanzeigenService
                     .Select(l => l.ExternalId)
                     .Where(id => !needImages.Contains(id)));
 
-            var missingTotal = existingListings.Count(l => l.Images == null || l.Images.Count == 0);
+            var missingTotal = broken.Count(l => l.Images == null || l.Images.Count == 0);
+            var bloatedTotal = broken.Count - missingTotal;
             _logger.LogInformation(
-                "Found {Count} existing listings in DB; {Missing} ohne Bild, davon {Repair} in diesem Lauf zur Nachholung",
-                existingListings.Count(), missingTotal, needImages.Count);
+                "Found {Count} existing listings in DB; {Missing} ohne Bild, {Bloated} mit unplausibel vielen Bildern, davon {Repair} in diesem Lauf zur Nachholung",
+                existingListings.Count(), missingTotal, bloatedTotal, needImages.Count);
 
             // Scrape listings from Kleinanzeigen (skips detail pages for existing IDs)
             var scrapedListings = await _scraperService.ScrapeListingsAsync(
