@@ -681,20 +681,20 @@ public class KleinanzeigenScraperService : IKleinanzeigenScraperService
         return null;
     }
 
+    /// <summary>
+    /// Hebt eine Bildadresse auf die grosse Variante. Die Regel selbst steht in
+    /// <see cref="BikeHaus.Application.Services.KleinanzeigenImageUrl"/>, weil sie
+    /// auch beim Ausliefern gebraucht wird — nur so werden die bereits
+    /// gespeicherten Adressen gross, ohne auf einen neuen Durchlauf zu warten.
+    ///
+    /// Vorher stand hier eine eigene Umschrift, die ausschliesslich die PFAD-Form
+    /// (/$_2.JPG) kannte. Die Adressen, die der Scraper wirklich einsammelt,
+    /// tragen aber die QUERY-Form (?rule=$_2.AUTO) — die Umschrift lief also ins
+    /// Leere, gespeichert wurde das kleine Vorschaubild aus der Galerieleiste,
+    /// und die Detailseite zog es gross. Daher die pixeligen Fotos.
+    /// </summary>
     private static string ConvertToFullSizeUrl(string imgUrl)
-    {
-        // Kleinanzeigen image URL patterns:
-        // Thumbnail: .../$_2.JPG or .../$_57.JPG
-        // Full size: .../$_59.JPG (large) or .../$_27.JPG (extra large)
-        if (string.IsNullOrEmpty(imgUrl)) return imgUrl;
-
-        // Replace thumbnail size with large size
-        return System.Text.RegularExpressions.Regex.Replace(
-            imgUrl,
-            @"/\$_\d+\.JPG",
-            "/$_59.JPG",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-    }
+        => BikeHaus.Application.Services.KleinanzeigenImageUrl.ToLargeVariant(imgUrl);
 
     private async Task<string?> ExtractAttributeValueAsync(IPage page, string attributeName)
     {

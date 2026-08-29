@@ -336,7 +336,11 @@ public class KleinanzeigenService : IKleinanzeigenService
             Images = listing.Images.Select(i => new KleinanzeigenImageDto
             {
                 Id = i.Id,
-                ImageUrl = i.ImageUrl,
+                // Auch beim Ausliefern auf die grosse Variante heben: die bereits
+                // gespeicherten Adressen zeigen sonst weiter das Vorschaubild, und
+                // ein Rad mit unauffaelliger Bildanzahl kommt nie in die
+                // Reparaturschlange — es bliebe also dauerhaft pixelig.
+                ImageUrl = KleinanzeigenImageUrl.ToLargeVariant(i.ImageUrl),
                 LocalPath = i.LocalPath,
                 SortOrder = i.SortOrder
             }).ToList()
