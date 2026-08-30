@@ -428,8 +428,9 @@ import {
                 {{ accForm.bezeichnung }}
                 (× {{ accForm.menge }})
                 <!-- Einmaliges Zubehör (Verbrauchsmaterial): Haken weg = wurde
-                     verbraucht und wird berechnet. Bleibt der Haken, kostet es
-                     nichts. -->
+                     verbraucht und wird von der Kaution einbehalten. Bleibt der
+                     Haken, kostet es nichts. Die Miete ändert sich in keinem
+                     Fall — die steht seit der Unterschrift fest. -->
                 <small class="acc-einmalig" *ngIf="accForm.einmalig">
                   einmalig · Haken entfernen = verbraucht
                 </small>
@@ -438,7 +439,7 @@ import {
                 class="acc-verbrauch"
                 *ngIf="accForm.einmalig && !accForm.zurueckgegeben"
               >
-                Wird berechnet:
+                Von der Kaution:
                 <strong
                   >{{
                     accForm.tagespreis * accForm.menge | number: '1.2-2'
@@ -1284,9 +1285,9 @@ export class RentalDetailComponent implements OnInit {
     return this.returnAccessoryForms.reduce((sum, f) => {
       if (f.zurueckgegeben) return sum;
       // Einmaliges Zubehör ist Verbrauchsmaterial: nicht zurückgegeben heißt
-      // verbraucht. Das rechnet der Server über den Zubehörpreis ab, hier
-      // darf deshalb keine Verlustgebühr obendrauf kommen.
-      if (f.einmalig) return sum;
+      // verbraucht. Es kostet seinen Preis (keine Verlustgebühr obendrauf) und
+      // wird von der Kaution einbehalten — die Miete bleibt unverändert.
+      if (f.einmalig) return sum + f.tagespreis * f.menge;
       return sum + (f.verlustgebuehr ?? 0);
     }, 0);
   }
