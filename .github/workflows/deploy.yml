@@ -619,7 +619,16 @@ jobs:
   healthcheck:
     runs-on: ubuntu-latest
     needs: [reload-nginx]
-    if: needs.reload-nginx.result == 'success'
+    # always() ist noetig, obwohl direkt darunter auf 'success' geprueft wird:
+    # der Zustand "skipped" wandert in Actions die needs-Kette entlang weiter.
+    # reload-nginx faengt das fuer sich schon mit always() ab, hier fehlte es —
+    # und deshalb lief die Gesundheitspruefung ausgerechnet dann NICHT, wenn ein
+    # Deploy nur die API betrifft (Client/Homepage/WhatsApp uebersprungen). Genau
+    # dort ist sie am wichtigsten: die API faehrt beim Start die Migrationen und
+    # ist das einzige Stueck, das den Betrieb lahmlegen kann.
+    # Nachweisbar am Lauf #745 (nur API geaendert): reload-nginx success,
+    # healthcheck trotzdem skipped.
+    if: always() && needs.reload-nginx.result == 'success'
     steps:
       - name: Health check endpoints
         run: |
