@@ -141,7 +141,10 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
     {
         return await _dbSet
             .Include(b => b.Images)
-            .Where(b => b.IsPublishedOnWebsite && b.Status == BikeStatus.Available)
+            // IsShowroomBike ist die Grenze zum Tagesgeschaeft: ein An- oder
+            // Verkaufsrad aus dem Bestand hat im Showroom nichts verloren, auch
+            // wenn irgendwo einmal "auf Website" gesetzt wurde.
+            .Where(b => b.IsPublishedOnWebsite && b.IsShowroomBike && b.Status == BikeStatus.Available)
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
     }

@@ -76,6 +76,8 @@ export interface Bicycle {
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
   isPublishedOnWebsite: boolean;
+  /** Gehört das Rad in den Showroom-Katalog (statt ins Tagesgeschäft)? */
+  isShowroomBike?: boolean;
   isPublishedOnKleinanzeigen: boolean;
   verkaufspreisVorschlag?: number;
   kleinanzeigenAnzeigeNr?: string;
@@ -126,6 +128,8 @@ export interface BicycleCreate {
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
+  /** Von der Showroom-Pflegeseite gesetzt: das Rad gehört in den Katalog. */
+  isShowroomBike?: boolean;
 }
 
 export interface BicycleUpdate {

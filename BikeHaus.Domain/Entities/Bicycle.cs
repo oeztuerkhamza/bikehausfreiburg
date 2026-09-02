@@ -54,6 +54,23 @@ public class Bicycle : BaseEntity
     // Publishing flags
     public bool IsPublishedOnWebsite { get; set; } = false;
     public bool IsPublishedOnKleinanzeigen { get; set; } = false;
+
+    /// <summary>
+    /// Gehoert dieses Rad in den SHOWROOM-Katalog?
+    ///
+    /// Die Bicycle-Tabelle traegt alles: angekaufte Raeder, verkaufte, Mietraeder
+    /// und die Raeder, die eigens fuer den Showroom angelegt wurden. Bisher war
+    /// IsPublishedOnWebsite das einzige Unterscheidungsmerkmal — und das liess
+    /// sich auch aus der Bestandsliste umlegen. Damit landete Ware aus dem
+    /// Tagesgeschaeft im oeffentlichen Showroom, und die Showroom-Pflegeseite
+    /// zeigte umgekehrt den kompletten Bestand.
+    ///
+    /// Dieses Flag zieht die Grenze: nur ein Rad, das ausdruecklich in den
+    /// Showroom-Katalog aufgenommen wurde, kann dort erscheinen. Zusammen mit
+    /// IsPublishedOnWebsite entscheidet es ueber die oeffentliche Sichtbarkeit —
+    /// das eine sagt "gehoert in den Katalog", das andere "ist gerade sichtbar".
+    /// </summary>
+    public bool IsShowroomBike { get; set; } = false;
     public decimal? VerkaufspreisVorschlag { get; set; }  // Suggested selling price for listings
     public string? KleinanzeigenAnzeigeNr { get; set; }   // Kleinanzeigen ad number (Verkaufs-Anzeige-Nr)
 

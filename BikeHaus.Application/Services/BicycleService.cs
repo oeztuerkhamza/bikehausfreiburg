@@ -331,6 +331,12 @@ public class BicycleService : IBicycleService
         var entity = await _repository.GetWithImagesAsync(id)
             ?? throw new KeyNotFoundException($"Bicycle with ID {id} not found.");
         entity.IsPublishedOnWebsite = !entity.IsPublishedOnWebsite;
+        // Wer ein Rad sichtbar schaltet, nimmt es damit ausdruecklich in den
+        // Showroom-Katalog auf — sonst waere der Schalter wirkungslos, weil die
+        // oeffentliche Abfrage beide Flags verlangt. Beim Ausblenden bleibt die
+        // Zugehoerigkeit erhalten: das Rad ist dann nur nicht sichtbar, faellt
+        // aber nicht aus der Showroom-Pflegeliste.
+        if (entity.IsPublishedOnWebsite) entity.IsShowroomBike = true;
         entity.UpdatedAt = DateTime.UtcNow;
         await _repository.UpdateAsync(entity);
         return entity.ToDto();
@@ -365,7 +371,9 @@ public class BicycleService : IBicycleService
     public async Task<PublicBicycleDto?> GetPublishedBicycleByIdAsync(int id)
     {
         var bicycle = await _repository.GetWithImagesAsync(id);
-        if (bicycle == null || !bicycle.IsPublishedOnWebsite) return null;
+        // Gleiche Grenze wie in der Liste — sonst waere ein Bestandsrad ueber
+        // seine Detail-URL weiter oeffentlich erreichbar.
+        if (bicycle == null || !bicycle.IsPublishedOnWebsite || !bicycle.IsShowroomBike) return null;
         return bicycle.ToPublicDto();
     }
 

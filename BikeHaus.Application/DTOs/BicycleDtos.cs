@@ -37,7 +37,11 @@ public record BicycleDto(
     string? Fahrradnummer = null,
     int? KoerpergroesseVonCm = null,
     int? KoerpergroesseBisCm = null,
-    string? Gangschaltung = null
+    string? Gangschaltung = null,
+    // Gehoert das Rad in den Showroom-Katalog (im Gegensatz zu einem Rad
+    // aus dem Tagesgeschaeft)? Steuert zusammen mit IsPublishedOnWebsite
+    // die oeffentliche Sichtbarkeit.
+    bool IsShowroomBike = false
 );
 
 public record BicycleCreateDto(
@@ -69,7 +73,10 @@ public record BicycleCreateDto(
     string? Fahrradnummer = null,
     int? KoerpergroesseVonCm = null,
     int? KoerpergroesseBisCm = null,
-    string? Gangschaltung = null
+    string? Gangschaltung = null,
+    // Wird von der Showroom-Pflegeseite auf true gesetzt. Ein Rad, das im
+    // Tagesgeschaeft angelegt wird, bleibt damit aus dem Katalog heraus.
+    bool IsShowroomBike = false
 );
 
 public record BicycleUpdateDto(

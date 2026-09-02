@@ -737,9 +737,19 @@ export class GebrauchteFahrradListComponent implements OnInit {
     this.loading.set(true);
     this.bicycleService.getAll().subscribe({
       next: (all) => {
-        // Verkaufte und vermietete Räder gehören nicht in den Showroom.
+        // NUR der Showroom-Katalog. Vorher stand hier der komplette Bestand —
+        // angekaufte, verkaufte, vermietete Räder inklusive — und die Seite war
+        // damit unbrauchbar, sobald ein paar Dutzend Räder im System lagen.
+        // Maßgeblich ist jetzt isShowroomBike: das Rad wurde ausdrücklich für
+        // den Showroom angelegt oder dorthin gestellt.
+        const showroom = all.filter((b) => b.isShowroomBike);
+        // Verkaufte und vermietete Räder gehören auch dann nicht hierher, wenn
+        // sie einmal im Katalog waren — es sei denn, sie stehen noch sichtbar
+        // auf der Website; dann soll man sie hier ausblenden können.
         this.bikes.set(
-          all.filter((b) => b.status === 'Available' || b.isPublishedOnWebsite),
+          showroom.filter(
+            (b) => b.status === 'Available' || b.isPublishedOnWebsite,
+          ),
         );
         if (!this.initialFilterApplied) {
           // Nichts veröffentlicht -> alles zeigen, sonst ist die Seite leer.
@@ -872,7 +882,8 @@ export class GebrauchteFahrradListComponent implements OnInit {
       return;
     }
 
-    this.bicycleService.create(this.form).subscribe({
+    // Was auf dieser Seite entsteht, ist per Definition ein Showroom-Rad.
+    this.bicycleService.create({ ...this.form, isShowroomBike: true }).subscribe({
       next: (created) => {
         this.saving.set(false);
         this.notify.success(

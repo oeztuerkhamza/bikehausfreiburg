@@ -40,7 +40,8 @@ public static class MappingExtensions
         entity.Fahrradnummer,
         entity.KoerpergroesseVonCm,
         entity.KoerpergroesseBisCm,
-        entity.Gangschaltung
+        entity.Gangschaltung,
+        entity.IsShowroomBike
     );
 
     public static BicycleImageDto ToDto(this BicycleImage entity) => new(
@@ -94,7 +95,8 @@ public static class MappingExtensions
         VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag,
         Fahrradnummer = dto.Fahrradnummer,
         KoerpergroesseVonCm = dto.KoerpergroesseVonCm,
-        KoerpergroesseBisCm = dto.KoerpergroesseBisCm
+        KoerpergroesseBisCm = dto.KoerpergroesseBisCm,
+        IsShowroomBike = dto.IsShowroomBike
     };
 
     public static PublicRentalBicycleDto ToPublicRentalDto(this Bicycle entity) => new(
