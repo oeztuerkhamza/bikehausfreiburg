@@ -487,7 +487,9 @@ public static class MappingExtensions
             entity.Gesamtpreis,
             entity.Status,
             entity.CreatedAt,
-            hasEBike
+            hasEBike,
+            entity.Abholzeit,
+            entity.Telefon
         );
     }
 

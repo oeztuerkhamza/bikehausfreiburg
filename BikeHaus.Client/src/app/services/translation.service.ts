@@ -395,6 +395,12 @@ export interface Translations {
   rentalBookingCalLegendEBike: string;
   rentalBookingCalLegendPending: string;
   rentalBookingCalEmpty: string;
+  rentalBookingViewDay: string;
+  rentalBookingDayPickups: string;
+  rentalBookingDayReturns: string;
+  rentalBookingDayOngoing: string;
+  rentalBookingDayEmpty: string;
+  rentalBookingDayPickupTime: string;
   rentalBookingDetails: string;
   rentalBookingApprove: string;
   rentalBookingReactivate: string;
@@ -1288,6 +1294,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingCalLegendEBike: 'E-Bike',
     rentalBookingCalLegendPending: 'gestrichelt = ausstehend',
     rentalBookingCalEmpty: 'Keine Mietanfragen in dieser Woche.',
+    rentalBookingViewDay: 'Tag',
+    rentalBookingDayPickups: 'Abholung',
+    rentalBookingDayReturns: 'Rückgabe',
+    rentalBookingDayOngoing: 'Läuft',
+    rentalBookingDayEmpty: 'An diesem Tag ist nichts eingetragen.',
+    rentalBookingDayPickupTime: 'Abholzeit',
     rentalBookingDetails: 'Mietanfrage',
     rentalBookingApprove: 'Bestätigen',
     rentalBookingReactivate: 'Wieder aktivieren',
@@ -2182,6 +2194,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingCalLegendEBike: 'E-Bike',
     rentalBookingCalLegendPending: 'kesik çizgili = onay bekliyor',
     rentalBookingCalEmpty: 'Bu hafta kiralama talebi yok.',
+    rentalBookingViewDay: 'Gün',
+    rentalBookingDayPickups: 'Teslim',
+    rentalBookingDayReturns: 'İade',
+    rentalBookingDayOngoing: 'Devam ediyor',
+    rentalBookingDayEmpty: 'Bu güne kayıtlı bir şey yok.',
+    rentalBookingDayPickupTime: 'Alış saati',
     rentalBookingDetails: 'Kiralama Talebi',
     rentalBookingApprove: 'Onayla',
     rentalBookingReactivate: 'Tekrar aktifleştir',

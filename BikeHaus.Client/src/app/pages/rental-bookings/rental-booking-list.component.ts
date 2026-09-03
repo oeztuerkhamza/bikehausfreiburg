@@ -38,6 +38,16 @@ interface CalItem {
   isPending: boolean; // dashed style (only pending bookings)
   startDatum: string;
   endDatum: string;
+  /** Nur Anfragen: Abholzeit am Starttag und Telefon — fuer die Tagesansicht. */
+  abholzeit?: string;
+  telefon?: string;
+}
+
+/** Eine Gruppe der Tagesansicht (Abholung / Rueckgabe / laufend). */
+interface DayGroup {
+  key: 'pickup' | 'return' | 'ongoing';
+  label: string;
+  items: CalItem[];
 }
 
 /** One calendar entry rendered as a bar across the visible week. */
@@ -75,6 +85,13 @@ interface CalBar {
           >
             {{ t.rentalBookingViewCalendar }}
           </button>
+          <button
+            type="button"
+            [class.active]="viewMode === 'day'"
+            (click)="setViewMode('day')"
+          >
+            {{ t.rentalBookingViewDay }}
+          </button>
         </div>
       </div>
 
@@ -109,14 +126,17 @@ interface CalBar {
         </div>
 
         <div class="cal-weekhead">
-          <div
+          <button
             *ngFor="let day of calDays"
+            type="button"
             class="cal-wh-day"
             [class.is-today]="day.isToday"
+            (click)="openDay(day.date)"
+            [title]="t.rentalBookingViewDay"
           >
             <span class="wh-name">{{ weekdayShort(day.date) }}</span>
             <span class="wh-num">{{ day.date | date: 'dd.MM.' }}</span>
-          </div>
+          </button>
         </div>
 
         <div class="cal-lanes" *ngIf="calBars.length > 0">
@@ -161,6 +181,82 @@ interface CalBar {
 
         <div *ngIf="calBars.length === 0" class="cal-empty">
           {{ t.rentalBookingCalEmpty }}
+        </div>
+      </div>
+
+      <!-- ── Tagesansicht ──
+           Ein einzelner Tag, aufgeteilt nach dem, was an diesem Tag im Laden
+           tatsaechlich passiert: wer holt ab, wer bringt zurueck, was laeuft
+           durch. Die Wochenansicht zeigt Balken ueber die Woche und beantwortet
+           genau diese Frage nicht. -->
+      <div *ngIf="viewMode === 'day'" class="cal-wrap day-wrap">
+        <div class="cal-toolbar">
+          <div class="cal-nav">
+            <button type="button" class="cal-nav-btn" (click)="calPrev()">‹</button>
+            <div class="cal-month-label">{{ dayLabel }}</div>
+            <button type="button" class="cal-nav-btn" (click)="calNext()">›</button>
+            <button type="button" class="cal-today-btn" (click)="calToday()">
+              {{ t.rentalBookingCalToday }}
+            </button>
+            <input
+              type="date"
+              class="filter-input day-picker"
+              [value]="dayInputValue"
+              (change)="onDayPicked($any($event.target).value)"
+            />
+          </div>
+        </div>
+
+        <div class="day-groups">
+          <section
+            *ngFor="let group of dayGroups"
+            class="day-group"
+            [class.is-empty]="group.items.length === 0"
+          >
+            <h3>
+              {{ group.label }}
+              <span class="day-count">{{ group.items.length }}</span>
+            </h3>
+            <a
+              *ngFor="let item of group.items"
+              class="day-card"
+              [class.ebike]="item.hasEBike"
+              [class.pending]="item.isPending"
+              [routerLink]="
+                item.kind === 'rental'
+                  ? ['/rentals', item.id]
+                  : ['/rental-bookings', item.id]
+              "
+            >
+              <div class="day-card-head">
+                <strong>{{ item.customerName }}</strong>
+                <span class="day-nr">{{ item.number }}</span>
+              </div>
+              <div class="day-card-bike">{{ item.bikeInfo }}</div>
+              <div class="day-card-meta">
+                <span *ngIf="item.abholzeit">
+                  {{ t.rentalBookingDayPickupTime }}: <strong>{{ item.abholzeit }}</strong>
+                </span>
+                <a
+                  *ngIf="item.telefon"
+                  class="day-tel"
+                  [href]="'tel:' + item.telefon"
+                  (click)="$event.stopPropagation()"
+                  >{{ item.telefon }}</a
+                >
+                <span class="day-range">
+                  {{ item.startDatum | date: 'dd.MM.' }}–{{
+                    item.endDatum | date: 'dd.MM.yyyy'
+                  }}
+                </span>
+              </div>
+            </a>
+            <div *ngIf="group.items.length === 0" class="day-group-empty">—</div>
+          </section>
+        </div>
+
+        <div *ngIf="dayIsEmpty" class="cal-empty">
+          {{ t.rentalBookingDayEmpty }}
         </div>
       </div>
 
@@ -734,6 +830,98 @@ interface CalBar {
         color: var(--text-secondary, #64748b);
         padding: 24px 0 8px;
       }
+      /* Wochenkopf ist jetzt ein Button (Tag oeffnen) — Button-Optik entfernen,
+         damit er weiterhin wie eine Kopfzeile aussieht. */
+      button.cal-wh-day {
+        font: inherit;
+        border: 0;
+        background: none;
+        cursor: pointer;
+        width: 100%;
+      }
+      button.cal-wh-day:hover {
+        background: var(--bg-hover, rgba(0, 0, 0, 0.04));
+      }
+      /* ── Tagesansicht ── */
+      .day-picker {
+        margin-left: 8px;
+      }
+      .day-groups {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 12px;
+      }
+      .day-group h3 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 8px;
+        font-size: 0.95rem;
+      }
+      .day-count {
+        font-size: 0.75rem;
+        padding: 1px 7px;
+        border-radius: 999px;
+        background: var(--bg-hover, rgba(0, 0, 0, 0.06));
+        color: var(--text-secondary, #64748b);
+      }
+      .day-group.is-empty h3 {
+        opacity: 0.55;
+      }
+      .day-group-empty {
+        color: var(--text-secondary, #94a3b8);
+        padding: 4px 2px;
+      }
+      .day-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-left: 4px solid #f59e0b;
+        border-radius: 8px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        background: var(--bg-card, #fff);
+      }
+      .day-card:hover {
+        border-color: #f59e0b;
+      }
+      .day-card.ebike {
+        border-left-color: #10b981;
+      }
+      .day-card.pending {
+        border-left-style: dashed;
+      }
+      .day-card-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .day-nr {
+        font-size: 0.78rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .day-card-bike {
+        font-size: 0.87rem;
+        margin-top: 2px;
+      }
+      .day-card-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 6px;
+        font-size: 0.8rem;
+        color: var(--text-secondary, #64748b);
+      }
+      .day-tel {
+        color: inherit;
+      }
+      @media (max-width: 900px) {
+        .day-groups {
+          grid-template-columns: 1fr;
+        }
+      }
       @media (max-width: 700px) {
         .cal-month-label {
           min-width: 120px;
@@ -774,10 +962,15 @@ export class RentalBookingListComponent implements OnInit {
   BookingStatus = RentalBookingStatus;
 
   // ── Calendar state (weekly view) ──
-  viewMode: 'list' | 'calendar' =
-    (localStorage.getItem('rental-bookings-view') as 'list' | 'calendar') ||
-    'list';
+  viewMode: 'list' | 'calendar' | 'day' =
+    (localStorage.getItem('rental-bookings-view') as
+      | 'list'
+      | 'calendar'
+      | 'day') || 'list';
   calWeekStart = this.mondayOf(new Date());
+  /** Der ausgewaehlte Tag der Tagesansicht (immer auf Mitternacht normiert). */
+  calDay = this.dayStart(new Date());
+  dayGroups: DayGroup[] = [];
   calItems: CalItem[] = [];
   calDays: CalDay[] = [];
   calBars: CalBar[] = [];
@@ -808,34 +1001,69 @@ export class RentalBookingListComponent implements OnInit {
 
   ngOnInit() {
     this.loadBookings();
-    if (this.viewMode === 'calendar') this.loadCalendar();
+    if (this.viewMode !== 'list') this.loadCalendar();
   }
 
-  setViewMode(mode: 'list' | 'calendar') {
+  setViewMode(mode: 'list' | 'calendar' | 'day') {
     this.viewMode = mode;
     localStorage.setItem('rental-bookings-view', mode);
-    if (mode === 'calendar') this.loadCalendar();
+    if (mode !== 'list') this.loadCalendar();
+  }
+
+  /** Aus der Wochenansicht heraus einen Tag oeffnen. */
+  openDay(date: Date) {
+    this.calDay = this.dayStart(date);
+    this.setViewMode('day');
+  }
+
+  onDayPicked(value: string) {
+    if (!value) return;
+    const [y, m, d] = value.split('-').map(Number);
+    this.calDay = new Date(y, m - 1, d);
+    this.loadCalendar();
+  }
+
+  get dayInputValue(): string {
+    return this.toIso(this.calDay);
+  }
+
+  get dayLabel(): string {
+    return new Intl.DateTimeFormat(this.locale, {
+      weekday: 'long',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(this.calDay);
+  }
+
+  get dayIsEmpty(): boolean {
+    return this.dayGroups.every((g) => g.items.length === 0);
   }
 
   calPrev() {
-    this.calWeekStart = this.addDays(this.calWeekStart, -7);
+    if (this.viewMode === 'day') this.calDay = this.addDays(this.calDay, -1);
+    else this.calWeekStart = this.addDays(this.calWeekStart, -7);
     this.loadCalendar();
   }
 
   calNext() {
-    this.calWeekStart = this.addDays(this.calWeekStart, 7);
+    if (this.viewMode === 'day') this.calDay = this.addDays(this.calDay, 1);
+    else this.calWeekStart = this.addDays(this.calWeekStart, 7);
     this.loadCalendar();
   }
 
   calToday() {
-    this.calWeekStart = this.mondayOf(new Date());
+    if (this.viewMode === 'day') this.calDay = this.dayStart(new Date());
+    else this.calWeekStart = this.mondayOf(new Date());
     this.loadCalendar();
   }
 
   loadCalendar() {
-    const weekEnd = this.addDays(this.calWeekStart, 6);
-    const from = this.toIso(this.calWeekStart);
-    const to = this.toIso(weekEnd);
+    const isDay = this.viewMode === 'day';
+    const from = this.toIso(isDay ? this.calDay : this.calWeekStart);
+    const to = this.toIso(
+      isDay ? this.calDay : this.addDays(this.calWeekStart, 6),
+    );
     // Calendar merges online bookings (Mietanfragen) with formal rental
     // contracts (Mietverträge) so both show up on the timeline.
     forkJoin({
@@ -846,7 +1074,10 @@ export class RentalBookingListComponent implements OnInit {
         const rentalItems = rentals
           // Zurückgegebene Mietverträge ausblenden — der Kalender zeigt nur
           // laufende Mieten, damit er nicht mit abgeschlossenen überfüllt.
-          .filter((r) => r.status !== 'Returned')
+          // In der TAGESansicht bleiben sie drin: wer einen bestimmten Tag
+          // aufschlägt, will wissen, was an dem Tag war, nicht nur was noch
+          // offen ist.
+          .filter((r) => isDay || r.status !== 'Returned')
           .map((r) => this.rentalToItem(r));
         // A booking converted into a Mietvertrag exists as BOTH an approved
         // booking and a rental (no DB link between them). Prefer the rental
@@ -863,11 +1094,17 @@ export class RentalBookingListComponent implements OnInit {
         // Abgeschlossene Einträge ausblenden: alles, dessen Enddatum vor heute
         // liegt, wird nicht mehr angezeigt (auch ohne Rückgabe-Markierung), so
         // dass der Kalender nur laufende und kommende Mieten zeigt.
+        //
+        // Auch das gilt NICHT für die Tagesansicht: dort wäre ein zurück-
+        // liegender Tag sonst grundsätzlich leer — genau die Auskunft, für die
+        // man ihn aufschlägt, fiele weg.
         const today = this.dateOnly(new Date().toISOString());
-        this.calItems = [...bookingItems, ...rentalItems].filter(
-          (i) => this.dateOnly(i.endDatum) >= today,
-        );
-        this.buildCalendar();
+        const alle = [...bookingItems, ...rentalItems];
+        this.calItems = isDay
+          ? alle
+          : alle.filter((i) => this.dateOnly(i.endDatum) >= today);
+        if (isDay) this.buildDay();
+        else this.buildCalendar();
       },
       error: () => {
         this.notificationService.error(this.t.saveError);
@@ -886,6 +1123,8 @@ export class RentalBookingListComponent implements OnInit {
       isPending: b.status === RentalBookingStatus.Pending,
       startDatum: b.startDatum,
       endDatum: b.endDatum,
+      abholzeit: b.abholzeit,
+      telefon: b.telefon,
     };
   }
 
@@ -907,6 +1146,48 @@ export class RentalBookingListComponent implements OnInit {
       startDatum: r.startDatum,
       endDatum: r.endDatum,
     };
+  }
+
+  /**
+   * Den geladenen Tag in das aufteilen, was im Laden an dem Tag ansteht:
+   * Abholung (beginnt heute), Rueckgabe (endet heute) und laufend (faengt
+   * frueher an und hoert spaeter auf). Ein eintaegiger Eintrag zaehlt als
+   * Abholung — abgeholt wird zuerst.
+   */
+  private buildDay() {
+    const tag = this.dayStart(this.calDay);
+    const pickup: CalItem[] = [];
+    const back: CalItem[] = [];
+    const ongoing: CalItem[] = [];
+
+    for (const item of this.calItems) {
+      const start = this.dateOnly(item.startDatum);
+      const end = this.dateOnly(item.endDatum);
+      if (start > tag || end < tag) continue; // beruehrt den Tag nicht
+      if (start.getTime() === tag.getTime()) pickup.push(item);
+      else if (end.getTime() === tag.getTime()) back.push(item);
+      else ongoing.push(item);
+    }
+
+    // Abholungen nach Uhrzeit, damit die Reihenfolge dem Tagesablauf folgt;
+    // Eintraege ohne Zeit ans Ende.
+    pickup.sort((a, b) =>
+      (a.abholzeit || '99:99').localeCompare(b.abholzeit || '99:99'),
+    );
+    const byName = (a: CalItem, b: CalItem) =>
+      a.customerName.localeCompare(b.customerName, this.locale);
+    back.sort(byName);
+    ongoing.sort(byName);
+
+    this.dayGroups = [
+      { key: 'pickup', label: this.t.rentalBookingDayPickups, items: pickup },
+      { key: 'return', label: this.t.rentalBookingDayReturns, items: back },
+      { key: 'ongoing', label: this.t.rentalBookingDayOngoing, items: ongoing },
+    ];
+  }
+
+  private dayStart(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }
 
   private buildCalendar() {

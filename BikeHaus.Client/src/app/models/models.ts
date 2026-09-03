@@ -1274,6 +1274,9 @@ export interface RentalBookingList {
   status: RentalBookingStatus;
   createdAt: string;
   hasEBike: boolean;
+  /** Abholzeit am Starttag, "HH:mm" — für die Tagesansicht. */
+  abholzeit?: string;
+  telefon?: string;
 }
 
 export interface RentalBookingApprove {

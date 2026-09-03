@@ -118,7 +118,11 @@ public record RentalBookingListDto(
     decimal? Gesamtpreis,
     RentalBookingStatus Status,
     DateTime CreatedAt,
-    bool HasEBike
+    bool HasEBike,
+    // Fuer die Tagesansicht: wann der Kunde kommt und wie man ihn erreicht.
+    // Ohne beides muesste man fuer jeden Eintrag die Detailseite oeffnen.
+    string? Abholzeit = null,
+    string? Telefon = null
 );
 
 public record RentalBookingApproveDto(string? AdminNotizen);
