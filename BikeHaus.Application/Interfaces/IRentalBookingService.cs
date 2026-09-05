@@ -18,6 +18,13 @@ public interface IRentalBookingService
     Task SaveAusweisPhotoPathAsync(int id, string ausweisPhotoPath, bool istRueckseite = false);
     Task<string?> GetAusweisPhotoPathAsync(int id, bool istRueckseite = false);
     Task<RentalBookingDto> UpdateBookingBikeAsync(int bookingId, int bookingBikeId, int newBicycleId);
+
+    /// <summary>
+    /// Nimmt ein einzelnes Rad aus einer Anfrage heraus. Das letzte Rad bleibt
+    /// stehen — eine Anfrage ohne Rad hat keine Bedeutung, und beim Anlegen ist
+    /// mindestens eines Pflicht.
+    /// </summary>
+    Task<RentalBookingDto> RemoveBookingBikeAsync(int bookingId, int bookingBikeId);
     Task<RentalBookingDto> UpdateDatesAsync(int id, RentalBookingUpdateDatesDto dto);
 
     /// <summary>

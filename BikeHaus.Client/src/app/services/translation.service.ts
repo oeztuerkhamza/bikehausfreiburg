@@ -417,6 +417,8 @@ export interface Translations {
   rentalBookingSearchPlaceholder: string;
   rentalBookingApproveConfirm: string;
   rentalBookingCancelConfirm: string;
+  rentalBookingRemoveBike: string;
+  rentalBookingRemoveBikeConfirm: string;
 
   // Statistics
   loadingStatistics: string;
@@ -1317,6 +1319,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Suche nach Buchungs-Nr., Kunde, Fahrrad...',
     rentalBookingApproveConfirm: 'Mietanfrage bestätigen?',
     rentalBookingCancelConfirm: 'Mietanfrage stornieren?',
+    rentalBookingRemoveBike: 'Rad entfernen',
+    rentalBookingRemoveBikeConfirm: 'Dieses Fahrrad aus der Anfrage entfernen? Preis und Zeitraum werden neu berechnet.',
 
     // Statistics
     loadingStatistics: 'Lade Statistiken...',
@@ -2216,6 +2220,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingSearchPlaceholder: 'No, müşteri, bisiklet ara...',
     rentalBookingApproveConfirm: 'Kiralama talebi onaylansın mı?',
     rentalBookingCancelConfirm: 'Kiralama talebi iptal edilsin mi?',
+    rentalBookingRemoveBike: 'Bisikleti kaldır',
+    rentalBookingRemoveBikeConfirm: 'Bu bisiklet talepten kaldırılsın mı? Fiyat ve tarih aralığı yeniden hesaplanacak.',
 
     // Statistics
     loadingStatistics: 'İstatistikler yükleniyor...',

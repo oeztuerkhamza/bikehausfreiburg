@@ -595,6 +595,51 @@ public class RentalBookingService : IRentalBookingService
         return withDetails!.ToDto();
     }
 
+    public async Task<RentalBookingDto> RemoveBookingBikeAsync(int bookingId, int bookingBikeId)
+    {
+        var booking = await _bookingRepository.GetWithDetailsAsync(bookingId)
+            ?? throw new KeyNotFoundException($"Booking with ID {bookingId} not found.");
+
+        var bookingBike = booking.Bikes.FirstOrDefault(bk => bk.Id == bookingBikeId)
+            ?? throw new KeyNotFoundException($"Bike entry with ID {bookingBikeId} not found in booking.");
+
+        // Das letzte Rad bleibt stehen: eine Anfrage ohne Rad hat keine
+        // Bedeutung, beim Anlegen ist mindestens eines Pflicht, und die
+        // Abfragen fallen bei leerer Bikes-Liste auf das alte Einzelrad-Feld
+        // zurueck — eine leere Anfrage saehe dort wieder wie eine Ein-Rad-
+        // Buchung aus. Wer die ganze Anfrage loswerden will, storniert oder
+        // loescht sie.
+        if (booking.Bikes.Count <= 1)
+            throw new InvalidOperationException(
+                "Das letzte Fahrrad kann nicht entfernt werden. Bitte die Anfrage stornieren oder loeschen.");
+
+        booking.Bikes.Remove(bookingBike);
+
+        // Das alte Einzelrad-Feld zeigte moeglicherweise genau auf das entfernte
+        // Rad. Es wird zwar nur noch als Rueckfalloption gelesen, waere dann
+        // aber ein Verweis auf ein Rad, das nicht mehr in der Anfrage steht.
+        if (booking.Bikes.All(bk => bk.BicycleId != booking.BicycleId))
+            booking.BicycleId = booking.Bikes.First().BicycleId;
+
+        // Zeitraum der Anfrage ist die Spanne ueber alle Raeder — faellt eines
+        // weg, kann sie schrumpfen. Ohne das Nachziehen blockierte die Anfrage
+        // weiter Tage, die kein Rad mehr abdeckt (Belegungsplan, Tagesansicht
+        // und die Ueberschneidungspruefung lesen genau diese beiden Felder).
+        booking.StartDatum = booking.Bikes.Min(bk => bk.StartDatum);
+        booking.EndDatum = booking.Bikes.Max(bk => bk.EndDatum);
+
+        var bookingDays = CalculateDaysInclusive(booking.StartDatum, booking.EndDatum);
+        var accessoryTotal = booking.Accessories.Sum(a => a.LineTotal(bookingDays));
+        booking.Gesamtpreis = booking.Bikes.Sum(bk => bk.Gesamtpreis ?? 0m) + accessoryTotal;
+        if (booking.Gesamtpreis == 0m) booking.Gesamtpreis = null;
+        booking.UpdatedAt = DateTime.UtcNow;
+
+        await _bookingRepository.RemoveBikeAndUpdateAsync(booking, bookingBike);
+
+        var withDetails = await _bookingRepository.GetWithDetailsAsync(bookingId);
+        return withDetails!.ToDto();
+    }
+
     public async Task<RentalBookingDto> UpdateDatesAsync(int id, RentalBookingUpdateDatesDto dto)
     {
         var booking = await _bookingRepository.GetWithDetailsAsync(id)

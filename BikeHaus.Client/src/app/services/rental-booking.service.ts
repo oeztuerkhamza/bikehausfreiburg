@@ -74,6 +74,11 @@ export class RentalBookingService {
     return this.http.patch<RentalBooking>(`${this.url}/${bookingId}/bikes/${bikeId}`, { newBicycleId });
   }
 
+  /** Nimmt ein einzelnes Rad aus der Anfrage — Preis und Zeitraum rechnet der Server neu. */
+  removeBike(bookingId: number, bikeId: number): Observable<RentalBooking> {
+    return this.http.delete<RentalBooking>(`${this.url}/${bookingId}/bikes/${bikeId}`);
+  }
+
   /** Admin-seitige Anlage einer Mietanfrage (E-Mail optional). */
   create(dto: RentalBookingCreate): Observable<RentalBooking> {
     return this.http.post<RentalBooking>(this.url, dto);

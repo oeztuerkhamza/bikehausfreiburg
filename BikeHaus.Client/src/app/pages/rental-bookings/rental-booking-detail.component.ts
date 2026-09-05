@@ -114,6 +114,16 @@ import { Bicycle, BikeCondition, ConvertedRental, RentalBooking, RentalBookingBi
               >
                 Fahrrad ändern
               </button>
+              <!-- Nur ab dem zweiten Rad: das letzte weist der Server ohnehin
+                   ab, dann ist ein Knopf dafür nur eine Sackgasse. -->
+              <button
+                *ngIf="booking.bikes.length > 1"
+                class="btn btn-sm btn-remove-bike"
+                [disabled]="removingBikeId() === bike.id"
+                (click)="removeBike(bike)"
+              >
+                {{ t.rentalBookingRemoveBike }}
+              </button>
             </div>
             <div class="info-row">
               <span>{{ t.brandModel }}:</span>
@@ -680,6 +690,28 @@ import { Bicycle, BikeCondition, ConvertedRental, RentalBooking, RentalBookingBi
         border-color: var(--accent-primary, #6366f1);
         background: rgba(99, 102, 241, 0.06);
       }
+      /* Entfernen ist destruktiv und steht deshalb in Rot neben "ändern";
+         "ändern" traegt das margin-left:auto, beide sitzen also rechts. */
+      .btn-remove-bike {
+        background: var(--bg-primary, #fff);
+        border: 1.5px solid var(--border-light, #e2e8f0);
+        color: var(--danger, #dc2626);
+        font-size: 0.78rem;
+        padding: 3px 9px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.15s;
+        margin-left: 6px;
+      }
+      .btn-remove-bike:hover:not(:disabled) {
+        border-color: var(--danger, #dc2626);
+        background: rgba(220, 38, 38, 0.06);
+      }
+      .btn-remove-bike:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
       .modal-overlay {
         position: fixed;
         inset: 0;
@@ -940,6 +972,7 @@ export class RentalBookingDetailComponent implements OnInit {
   bikeDialogMode = signal<'select' | 'create'>('select');
   loadingBikes = signal(false);
   savingBike = signal(false);
+  removingBikeId = signal<number | null>(null);
   bikeSearch = signal('');
   selectedNewBicycleId = signal<number | null>(null);
   private activeBikeEntry: RentalBookingBike | null = null;
@@ -1229,6 +1262,36 @@ export class RentalBookingDetailComponent implements OnInit {
           this.savingBike.set(false);
           this.notificationService.error(err.error?.error || this.t.saveError);
         },
+      });
+  }
+
+  /**
+   * Nimmt ein einzelnes Rad aus der Anfrage. Der Server rechnet Preis und
+   * Zeitraum neu und liefert die Anfrage zurueck — die Ansicht uebernimmt sie
+   * unveraendert, statt sie aus dem alten Stand zusammenzusetzen.
+   */
+  removeBike(bike: RentalBookingBike) {
+    if (!this.booking || this.removingBikeId() !== null) return;
+    const bookingId = this.booking.id;
+    this.dialogService
+      .danger(
+        this.t.rentalBookingRemoveBike,
+        this.t.rentalBookingRemoveBikeConfirm,
+      )
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.removingBikeId.set(bike.id);
+        this.service.removeBike(bookingId, bike.id).subscribe({
+          next: (updated) => {
+            this.booking = updated;
+            this.removingBikeId.set(null);
+            this.notificationService.success(this.t.saveSuccess);
+          },
+          error: (err) => {
+            this.removingBikeId.set(null);
+            this.notificationService.error(err.error?.error || this.t.saveError);
+          },
+        });
       });
   }
 

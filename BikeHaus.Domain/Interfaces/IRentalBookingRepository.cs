@@ -6,6 +6,13 @@ namespace BikeHaus.Domain.Interfaces;
 public interface IRentalBookingRepository : IRepository<RentalBooking>
 {
     Task<RentalBooking?> GetWithDetailsAsync(int id);
+
+    /// <summary>
+    /// Loescht eine Rad-Zeile und speichert die angepasste Anfrage (Zeitraum,
+    /// Preis) im selben Schritt. Beides zusammen, damit keine Anfrage mit einem
+    /// Preis zurueckbleibt, der ein geloeschtes Rad noch mitzaehlt.
+    /// </summary>
+    Task RemoveBikeAndUpdateAsync(RentalBooking booking, RentalBookingBike bike);
     Task<RentalBooking?> GetByBookingNumberWithDetailsAsync(string bookingNumber);
     Task<string> GenerateBuchungsNummerAsync();
     Task<(IEnumerable<RentalBooking> Items, int TotalCount)> GetPaginatedAsync(

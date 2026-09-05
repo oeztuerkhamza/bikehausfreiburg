@@ -23,6 +23,17 @@ public class RentalBookingRepository : Repository<RentalBooking>, IRentalBooking
             .FirstOrDefaultAsync(b => b.Id == id);
     }
 
+    public async Task RemoveBikeAndUpdateAsync(RentalBooking booking, RentalBookingBike bike)
+    {
+        // Die Zeile wird ausdruecklich geloescht statt nur aus der Sammlung
+        // genommen: das Entfernen aus booking.Bikes wuerde zwar ueber die
+        // Waisen-Regel auch zum Loeschen fuehren, haengt dann aber daran, dass
+        // die Anfrage getrackt geladen wurde. Explizit ist es unabhaengig davon.
+        _context.Set<RentalBookingBike>().Remove(bike);
+        _dbSet.Update(booking);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<RentalBooking?> GetByBookingNumberWithDetailsAsync(string bookingNumber)
     {
         return await _dbSet

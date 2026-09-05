@@ -196,6 +196,24 @@ public class RentalBookingsController : ControllerBase
         }
     }
 
+    [HttpDelete("{bookingId}/bikes/{bikeId}")]
+    public async Task<ActionResult<RentalBookingDto>> RemoveBike(int bookingId, int bikeId)
+    {
+        try
+        {
+            var updated = await _service.RemoveBookingBikeAsync(bookingId, bikeId);
+            return Ok(updated);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
     [HttpGet("{id}/rechnung-pdf")]
     public async Task<IActionResult> DownloadBookingRechnung(int id)
     {
