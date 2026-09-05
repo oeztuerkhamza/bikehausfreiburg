@@ -132,6 +132,18 @@ public class RentalBookingService : IRentalBookingService
             .Select(b => (b.BicycleId, b.StartDatum.Date, b.EndDatum.Date))
             .ToList();
 
+        // Dasselbe Rad darf in EINER Anfrage nicht zweimal im selben Zeitraum
+        // stehen — physisch gibt es es nur einmal. Die Ueberschneidungspruefung
+        // weiter unten fragt die Datenbank je Rad ab; sie vergleicht die Anfrage
+        // also nie mit sich selbst, und zwei identische Zeilen kamen deshalb
+        // beide durch: der Kunde zahlte dasselbe Rad doppelt, mit doppelter
+        // Kaution, und das Rad blockierte sich selbst.
+        // Verschiedene Zeitraeume in einer Anfrage bleiben erlaubt (dasselbe Rad
+        // von Mo bis Di und noch einmal von Fr bis Sa ist eine gueltige Buchung).
+        if (HasSelfOverlap(bikeChecks))
+            throw new InvalidOperationException(
+                "Dieses Fahrrad steht fuer diesen Zeitraum bereits in der Buchung.");
+
         var language = NormalizeLanguage(dto.Sprache);
         var minStart = dto.Bikes.Min(b => b.StartDatum.Date);
         var maxEnd = dto.Bikes.Max(b => b.EndDatum.Date);
@@ -544,6 +556,24 @@ public class RentalBookingService : IRentalBookingService
         if (!newBicycle.IsRentable)
             throw new InvalidOperationException($"Das Fahrrad '{newBicycle.Marke} {newBicycle.Modell}' ist nicht fuer den Verleih aktiviert.");
 
+        // "Fahrrad aendern" durfte bisher ein Rad einsetzen, das in derselben
+        // Anfrage schon auf einer anderen Zeile steht — damit liess sich die
+        // Doppelung von Hand herstellen, die beim Anlegen jetzt abgewiesen wird.
+        // Geprueft wird die Liste, wie sie NACH der Aenderung aussaehe.
+        var nachAenderung = booking.Bikes
+            .Select(bk => bk.Id == bookingBike.Id
+                ? (Id: newBicycle.Id, Art: newBicycle.Art, Typ: newBicycle.Fahrradtyp,
+                   Start: bk.StartDatum, End: bk.EndDatum)
+                : (Id: bk.BicycleId, Art: bk.Bicycle?.Art, Typ: bk.Bicycle?.Fahrradtyp,
+                   Start: bk.StartDatum, End: bk.EndDatum))
+            .Where(bk => !BicycleCategory.IsChildrens(bk.Art, bk.Typ))
+            .Select(bk => (BicycleId: bk.Id, bk.Start, bk.End))
+            .ToList();
+
+        if (HasSelfOverlap(nachAenderung))
+            throw new InvalidOperationException(
+                "Dieses Fahrrad steht fuer diesen Zeitraum bereits in der Buchung.");
+
         var days = CalculateDaysInclusive(bookingBike.StartDatum, bookingBike.EndDatum);
 
         bookingBike.BicycleId = newBicycleId;
@@ -831,6 +861,35 @@ public class RentalBookingService : IRentalBookingService
     {
         var days = (end.Date - start.Date).Days + 1;
         return Math.Max(1, days);
+    }
+
+    /// <summary>
+    /// Steht in dieser Liste dasselbe Rad mehrfach mit sich ueberschneidenden
+    /// Zeitraeumen? Kinderraeder gehoeren nicht hierher — sie sind
+    /// Sammelanzeigen, bei denen mehrere Stueck gewollt sind, und werden von den
+    /// Aufrufern bereits vorher herausgefiltert.
+    /// </summary>
+    private static bool HasSelfOverlap(
+        IReadOnlyList<(int BicycleId, DateTime Start, DateTime End)> bikes)
+    {
+        foreach (var gleichesRad in bikes.GroupBy(b => b.BicycleId))
+        {
+            // Nach Beginn sortiert genuegt der Vergleich mit dem direkten
+            // Vorgaenger: beginnt keiner vor dem Ende seines Vorgaengers, dann
+            // liegen auch alle weiter entfernten Paare auseinander.
+            var zeitraeume = gleichesRad
+                .Select(b => (b.Start, b.End))
+                .OrderBy(z => z.Start)
+                .ToList();
+
+            for (int i = 1; i < zeitraeume.Count; i++)
+            {
+                if (zeitraeume[i].Start <= zeitraeume[i - 1].End)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     // Gesamtkaution der Buchung. Bevorzugt die bei der Buchung erfassten

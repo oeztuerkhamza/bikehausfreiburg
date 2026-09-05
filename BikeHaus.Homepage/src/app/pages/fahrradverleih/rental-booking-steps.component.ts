@@ -847,8 +847,15 @@ const INDICATOR_INDEX: Record<BookingStep, number> = {
         </div>
 
         <div class="booking-actions">
+          <!-- Steht das Rad schon in der Buchung, sagt der Knopf das auch: er
+               führt dann nur zurück in die Liste, statt stillschweigend eine
+               zweite Zeile für dasselbe Rad anzulegen. -->
           <button (click)="addBikeToCart()" class="btn-primary">
-            {{ t().rentalSteps?.addToCart ?? 'Zur Buchung hinzufügen' }}
+            {{
+              alreadyInBooking(selectedBike()!)
+                ? (t().rentalSteps?.alreadyInCart ?? 'Bereits in der Buchung')
+                : (t().rentalSteps?.addToCart ?? 'Zur Buchung hinzufügen')
+            }}
           </button>
           <button (click)="goToStep('bike-selection')" class="btn-secondary">
             {{ t().rentalSteps?.selectDifferent ?? 'Anderes Fahrrad wählen' }}
@@ -4142,6 +4149,16 @@ export class RentalBookingStepsComponent implements OnInit {
     return this.cartCountFor(bike) > 0;
   }
 
+  /**
+   * Steht dieses Rad schon in der Buchung und darf kein zweites Mal hinein?
+   * Gilt nur für Erwachsenenräder — jedes existiert physisch genau einmal.
+   * Kinderräder sind Sammelanzeigen, von denen mehrere Stück gebucht werden
+   * dürfen; für sie ist das nie gesperrt.
+   */
+  alreadyInBooking(bike: PublicRentalBicycle): boolean {
+    return !this.isChildrensBike(bike) && this.isInCart(bike);
+  }
+
   toggleBikeInCart(bike: PublicRentalBicycle): void {
     this.conflictNotice.set('');
     if (this.isInCart(bike)) {
@@ -4977,10 +4994,25 @@ export class RentalBookingStepsComponent implements OnInit {
           const byId = new Map(bikes.map((bike) => [bike.id, bike]));
           const days = this.daysCount();
           const restored: CartBike[] = [];
+          let vergriffen = 0;
           for (const entry of draft.entries ?? []) {
             const bike = byId.get(entry.bicycleId);
             // Nicht mehr frei: das Rad fällt heraus, der Rest bleibt stehen.
-            if (!bike) continue;
+            if (!bike) {
+              vergriffen++;
+              continue;
+            }
+            // Ein Entwurf, der noch vor der Doppelungssperre entstanden ist,
+            // kann dasselbe Erwachsenenrad zweimal enthalten — die Entwürfe
+            // liegen im Browser des Gasts und überleben das Update. Beim
+            // Wiederherstellen bleibt davon genau eines übrig, sonst käme die
+            // Doppelbuchung über den gespeicherten Zwischenstand zurück.
+            if (
+              !this.isChildrensBike(bike) &&
+              restored.some((item) => item.bike.id === bike.id)
+            ) {
+              continue;
+            }
             restored.push({
               bike,
               rahmennummer: entry.rahmennummer,
@@ -4990,7 +5022,9 @@ export class RentalBookingStepsComponent implements OnInit {
             });
           }
           this.cartBikes.set(restored);
-          if (restored.length < (draft.entries?.length ?? 0)) {
+          // Nur echte Ausfälle melden: eine entfernte Doppelung ist kein
+          // vergriffenes Rad und darf den Hinweis nicht auslösen.
+          if (vergriffen > 0) {
             this.conflictNotice.set(
               this.t().rentalSteps?.bookingConflict ??
                 'Eines Ihrer Fahrräder wurde zwischenzeitlich gebucht. Die Verfügbarkeit ist aktualisiert — bitte wählen Sie erneut.',
@@ -5263,6 +5297,19 @@ export class RentalBookingStepsComponent implements OnInit {
   addBikeToCart(): void {
     const bike = this.selectedBike();
     if (!bike) return;
+
+    // Ein Erwachsenenrad gibt es physisch nur einmal: steht es schon in der
+    // Buchung, legt dieser Knopf nichts Zweites an, sondern führt nur zurück in
+    // die Liste — dort ist es als gewählt markiert. Vorher hängte jeder Druck
+    // eine weitere Zeile an, ohne zu prüfen, ob das Rad schon drin ist: über
+    // "Fahrraddetails" eines bereits angetippten Rads landete dasselbe Rad
+    // zweimal in derselben Anfrage, mit doppeltem Preis und doppelter Kaution.
+    // Kinderräder sind Sammelanzeigen (mehrere Stück sind gewollt) und bleiben
+    // von der Sperre ausgenommen.
+    if (this.alreadyInBooking(bike)) {
+      this.goToStep('bike-selection');
+      return;
+    }
 
     const price = this.calculatePrice(bike, this.daysCount());
     const qty = this.isChildrensBike(bike)

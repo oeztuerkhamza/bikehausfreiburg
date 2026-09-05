@@ -65,6 +65,7 @@ interface RentalStepsTranslations {
   frameNumber: string;
   optional: string;
   addToCart: string;
+  alreadyInCart: string;
   book: string;
   selectDifferent: string;
   bikeAdded: string;
@@ -4068,6 +4069,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Rahmennummer',
     optional: 'optional',
     addToCart: 'Zur Buchung hinzufügen',
+    alreadyInCart: 'Bereits in der Buchung',
     book: 'Buchen',
     selectDifferent: 'Anderes Fahrrad wählen',
     bikeAdded: 'Fahrrad zur Buchung hinzugefügt',
@@ -4233,6 +4235,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Frame number',
     optional: 'optional',
     addToCart: 'Add to booking',
+    alreadyInCart: 'Already in your booking',
     book: 'Book',
     selectDifferent: 'Choose another bike',
     bikeAdded: 'Bike added to booking',
@@ -4397,6 +4400,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Numéro de cadre',
     optional: 'optionnel',
     addToCart: 'Ajouter à la réservation',
+    alreadyInCart: 'Déjà dans la réservation',
     book: 'Réserver',
     selectDifferent: 'Choisir un autre vélo',
     bikeAdded: 'Vélo ajouté à la réservation',
@@ -4562,6 +4566,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Kadro numarası',
     optional: 'isteğe bağlı',
     addToCart: 'Rezervasyona ekle',
+    alreadyInCart: 'Rezervasyonda zaten var',
     book: 'Rezerve et',
     selectDifferent: 'Başka bisiklet seç',
     bikeAdded: 'Bisiklet rezervasyona eklendi',
@@ -4726,6 +4731,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Número de cuadro',
     optional: 'opcional',
     addToCart: 'Añadir a la reserva',
+    alreadyInCart: 'Ya está en la reserva',
     book: 'Reservar',
     selectDifferent: 'Elegir otra bicicleta',
     bikeAdded: 'Bicicleta añadida a la reserva',
@@ -4892,6 +4898,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Numero telaio',
     optional: 'opzionale',
     addToCart: 'Aggiungi alla prenotazione',
+    alreadyInCart: 'Già nella prenotazione',
     book: 'Prenota',
     selectDifferent: "Scegli un'altra bici",
     bikeAdded: 'Bici aggiunta alla prenotazione',
@@ -5058,6 +5065,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'رقم الهيكل',
     optional: 'اختياري',
     addToCart: 'إضافة إلى الحجز',
+    alreadyInCart: 'موجودة بالفعل في الحجز',
     book: 'احجز',
     selectDifferent: 'اختر دراجة أخرى',
     bikeAdded: 'تمت إضافة الدراجة إلى الحجز',
@@ -5220,6 +5228,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Номер рамы',
     optional: 'необязательно',
     addToCart: 'Добавить в бронирование',
+    alreadyInCart: 'Уже в бронировании',
     book: 'Забронировать',
     selectDifferent: 'Выбрать другой велосипед',
     bikeAdded: 'Велосипед добавлен в бронирование',
@@ -5385,6 +5394,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Framenummer',
     optional: 'optioneel',
     addToCart: 'Aan boeking toevoegen',
+    alreadyInCart: 'Staat al in de boeking',
     book: 'Boeken',
     selectDifferent: 'Kies een andere fiets',
     bikeAdded: 'Fiets toegevoegd aan boeking',
@@ -5550,6 +5560,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Stelnummer',
     optional: 'valgfrit',
     addToCart: 'Tilføj til booking',
+    alreadyInCart: 'Allerede i bookingen',
     book: 'Book',
     selectDifferent: 'Vælg en anden cykel',
     bikeAdded: 'Cykel tilføjet til booking',
@@ -5715,6 +5726,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Rammenummer',
     optional: 'valgfritt',
     addToCart: 'Legg til i bestilling',
+    alreadyInCart: 'Allerede i bestillingen',
     book: 'Bestill',
     selectDifferent: 'Velg en annen sykkel',
     bikeAdded: 'Sykkel lagt til i bestilling',
@@ -5880,6 +5892,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     frameNumber: 'Numer ramy',
     optional: 'opcjonalnie',
     addToCart: 'Dodaj do rezerwacji',
+    alreadyInCart: 'Już w rezerwacji',
     book: 'Rezerwuj',
     selectDifferent: 'Wybierz inny rower',
     bikeAdded: 'Rower dodany do rezerwacji',

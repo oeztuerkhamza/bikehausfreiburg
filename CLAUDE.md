@@ -12,7 +12,7 @@
 | ------------- | ----------------------------------------------------------------- |
 | API           | ASP.NET Core (net9.0), EF Core, SQLite, JWT, Swagger              |
 | Admin SPA     | Angular 17.3 (CSR), standalone components, signals, custom SCSS   |
-| Public site   | Angular 17.3 + SSR (Express + CommonEngine), 8 locales, prerender |
+| Public site   | Angular 17.3 + SSR (Express + CommonEngine), 12 locales, prerender |
 | Background    | Hosted service every 4h for Kleinanzeigen sync                    |
 | Payments      | Mollie                                                            |
 | Email         | MailKit/SMTP via mail.bikehausfreiburg.com (Mailcow self-hosted)  |
@@ -238,11 +238,14 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 
 **Routing**: All public routes are `/:lang/...`. Lang guard validates against `SUPPORTED_LANGUAGES`, sets `TranslationService.setLanguage()`. Root `''` redirects to `/de` (DEFAULT_LANGUAGE).
 
-**i18n — 8 languages, NO JSON files**:
+**i18n — 12 languages, NO JSON files**:
 
 - Full support (incl. blog): `de` (default), `en`, `fr`, `tr`
-- Machine-generated translation overrides: `es`, `it`, `ar`, `ru`
+- Machine-generated translation overrides: `es`, `it`, `ar`, `ru`, `no`, `da`, `nl`, `pl`
 - RTL handled for `ar`
+- This file previously claimed 8; `SUPPORTED_LANGUAGES` lists 12. A new key in
+  `TranslationStrings` must be filled in for **all** of them — the interface
+  makes a missing language a build error, so a half-added key does not compile.
 - Translations live in [translation.service.ts](BikeHaus.Homepage/src/app/services/translation.service.ts) + auto-generated [translation-overrides.ts](BikeHaus.Homepage/src/app/services/translation-overrides.ts)
 - Config: [language-config.ts](BikeHaus.Homepage/src/app/services/language-config.ts) — `SUPPORTED_LANGUAGES`, `DEFAULT_LANGUAGE`, `LOCALE_BY_LANGUAGE`, `OG_LOCALE_BY_LANGUAGE`
 
