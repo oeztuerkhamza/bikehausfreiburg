@@ -418,6 +418,9 @@ export interface Translations {
   rentalBookingApproveConfirm: string;
   rentalBookingCancelConfirm: string;
   rentalBookingRemoveBike: string;
+  abholzeitSelect: string;
+  abholzeitClosed: string;
+  abholzeitFridayBreak: string;
   rentalBookingRemoveBikeConfirm: string;
 
   // Statistics
@@ -1320,6 +1323,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingApproveConfirm: 'Mietanfrage bestätigen?',
     rentalBookingCancelConfirm: 'Mietanfrage stornieren?',
     rentalBookingRemoveBike: 'Rad entfernen',
+    abholzeitSelect: 'Uhrzeit wählen',
+    abholzeitClosed: 'Sonntags findet keine Übergabe statt. Bitte einen anderen Starttag wählen.',
+    abholzeitFridayBreak: 'Freitags ist von 13:00 bis 15:00 Uhr Mittagspause – in dieser Zeit keine Übergabe.',
     rentalBookingRemoveBikeConfirm: 'Dieses Fahrrad aus der Anfrage entfernen? Preis und Zeitraum werden neu berechnet.',
 
     // Statistics
@@ -2221,6 +2227,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     rentalBookingApproveConfirm: 'Kiralama talebi onaylansın mı?',
     rentalBookingCancelConfirm: 'Kiralama talebi iptal edilsin mi?',
     rentalBookingRemoveBike: 'Bisikleti kaldır',
+    abholzeitSelect: 'Saat seç',
+    abholzeitClosed: 'Pazar günü teslim yapılmaz. Lütfen başka bir başlangıç günü seçin.',
+    abholzeitFridayBreak: 'Cuma günleri 13:00–15:00 arası öğle molası – bu saatlerde teslim yapılmaz.',
     rentalBookingRemoveBikeConfirm: 'Bu bisiklet talepten kaldırılsın mı? Fiyat ve tarih aralığı yeniden hesaplanacak.',
 
     // Statistics

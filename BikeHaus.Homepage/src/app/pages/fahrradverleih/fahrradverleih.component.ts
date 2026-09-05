@@ -106,6 +106,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
         question: 'Wie funktioniert Abholung & Rückgabe?',
         answers: [
           'Abholung Mo-Fr ab 10:00 Uhr, Sa ab 11:00 Uhr',
+          'Freitags 13:00-15:00 Uhr Mittagspause - keine Übergabe',
           'Rückgabe bis spätestens 18:00 Uhr',
           'Sonn- und Feiertage geschlossen',
         ],
@@ -180,6 +181,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
         question: 'How does pickup & return work for the bike rental?',
         answers: [
           'Pickup Mon-Fri from 10:00, Sat from 11:00',
+          'Friday 13:00-15:00 lunch break - no handovers',
           'Return no later than 18:00',
           'Closed on Sundays and public holidays',
         ],
@@ -328,6 +330,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
         question: 'Teslim alma ve iade',
         answers: [
           'Teslim alma hafta ici 10:00, cumartesi 11:00 dan itibaren',
+          'Cuma 13:00-15:00 ogle molasi - teslim yapilmaz',
           'Iade en gec 18:00 e kadar',
           'Pazar ve resmi tatillerde kapali',
         ],
@@ -402,6 +405,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
         question: 'Recogida y devolucion',
         answers: [
           'Recogida lun-vie a partir de las 10:00, sab a partir de las 11:00',
+          'Viernes 13:00-15:00 pausa - sin entregas',
           'Devolucion como maximo a las 18:00',
           'Cerrado domingos y festivos',
         ],
@@ -476,6 +480,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
         question: 'Ritiro e riconsegna',
         answers: [
           'Ritiro lun-ven dalle 10:00, sab dalle 11:00',
+          'Venerdì 13:00-15:00 pausa pranzo - nessuna consegna',
           'Riconsegna entro le 18:00',
           'Chiuso domeniche e festivi',
         ],
@@ -550,6 +555,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
         question: 'الاستلام والاعادة',
         answers: [
           'الاستلام من الإثنين إلى الجمعة من الساعة 10:00 والسبت من الساعة 11:00',
+          'الجمعة 13:00-15:00 استراحة - لا تسليم',
           'الاعادة بحد اقصى الساعة 18:00',
           'مغلق ايام الاحد والعطل الرسمية',
         ],
@@ -621,6 +627,7 @@ const RENTAL_FAQ_CONTENT: Partial<Record<Language, RentalFaqContent>> = {
         question: 'Получение и возврат',
         answers: [
           'Получение пн-пт с 10:00, сб с 11:00',
+          'Пятница 13:00-15:00 перерыв - выдачи нет',
           'Возврат не позднее 18:00',
           'По воскресеньям и праздникам закрыто',
         ],
@@ -980,7 +987,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Opening hours',
-        text: 'Shop Mon–Thu 11–17:30 · Fri 11–13 & 15–18 · Sat 11:30–17 · Rental from 10:00 (Sat 11:00)',
+        text: 'Shop Mon–Thu 11–17:30 · Fri 11–13 & 15–18 · Sat 11:30–17 · Rental from 10:00 (Sat 11:00), Fri break 13–15',
       },
     ],
     bikePriceFrom: 'from',
@@ -1281,7 +1288,7 @@ const RENTAL_PAGE_COPY: Partial<Record<Language, RentalPageCopy>> = {
       },
       {
         title: 'Çalışma saatleri',
-        text: 'Mağaza Pzt–Per 11–17:30 · Cum 11–13 & 15–18 · Cmt 11:30–17 · Kiralama 10:00’dan (Cmt 11:00)',
+        text: 'Mağaza Pzt–Per 11–17:30 · Cum 11–13 & 15–18 · Cmt 11:30–17 · Kiralama 10:00’dan (Cmt 11:00), Cuma 13–15 mola',
       },
     ],
     bikePriceFrom: 'başlayan',

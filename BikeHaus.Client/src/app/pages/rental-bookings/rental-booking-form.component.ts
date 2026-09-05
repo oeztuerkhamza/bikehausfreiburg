@@ -14,6 +14,7 @@ import { BicycleService } from '../../services/bicycle.service';
 import { NotificationService } from '../../services/notification.service';
 import { TranslationService } from '../../services/translation.service';
 import { FormDraftService } from '../../services/form-draft.service';
+import { rentalPickupSlots } from '../../utils/rental-hours';
 import { Bicycle, Customer, RentalBookingCreate } from '../../models/models';
 import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
 import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
@@ -91,7 +92,24 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
               </div>
               <div class="field">
                 <label>{{ t.abholzeit }}</label>
-                <input type="time" [(ngModel)]="abholzeit" name="abholzeit" />
+                <!-- Auswahl statt freier Eingabe: der Verleih uebergibt nur zu
+                     festen Zeiten, freitags nicht zwischen 13 und 15 Uhr. -->
+                <select
+                  [(ngModel)]="abholzeit"
+                  name="abholzeit"
+                  [disabled]="abholzeitSlots().length === 0"
+                >
+                  <option value="">{{ t.abholzeitSelect }}</option>
+                  <option *ngFor="let slot of abholzeitSlots()" [value]="slot">
+                    {{ slot }}
+                  </option>
+                </select>
+                <small class="hint" *ngIf="abholzeitSlots().length === 0">
+                  {{ t.abholzeitClosed }}
+                </small>
+                <small class="hint" *ngIf="isFriday()">
+                  {{ t.abholzeitFridayBreak }}
+                </small>
               </div>
             </div>
           </div>
@@ -418,7 +436,11 @@ export class RentalBookingFormComponent implements OnInit, OnDestroy {
 
     if (draft.startDatum) this.startDatum = draft.startDatum;
     if (draft.endDatum) this.endDatum = draft.endDatum;
+    // Ein Entwurf aus der Zeit vor der festen Zeitenauswahl (oder mit
+    // inzwischen anderem Starttag) kann eine Uhrzeit tragen, die es an
+    // diesem Tag nicht gibt — sie faellt dann weg.
     this.abholzeit = draft.abholzeit ?? '';
+    this.syncAbholzeitToDay();
     this.vorname = draft.vorname ?? '';
     this.nachname = draft.nachname ?? '';
     this.email = draft.email ?? '';
@@ -461,7 +483,30 @@ export class RentalBookingFormComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Übergabezeiten des gewählten Starttags (sonntags leer). */
+  abholzeitSlots(): string[] {
+    return rentalPickupSlots(this.startDatum);
+  }
+
+  isFriday(): boolean {
+    if (!this.startDatum) return false;
+    return new Date(`${this.startDatum}T00:00:00`).getDay() === 5;
+  }
+
+  /**
+   * Nach einem Datumswechsel kann die gewählte Uhrzeit am neuen Tag unmöglich
+   * sein — etwa 10:30 auf einem Samstag oder 14:00 auf einem Freitag. Sie wird
+   * dann geleert, statt als Wert stehen zu bleiben, den die Auswahl gar nicht
+   * mehr anbietet.
+   */
+  private syncAbholzeitToDay() {
+    if (this.abholzeit && !this.abholzeitSlots().includes(this.abholzeit)) {
+      this.abholzeit = '';
+    }
+  }
+
   onDatesChanged() {
+    this.syncAbholzeitToDay();
     if (!this.datesValid()) {
       this.availableBikes.set([]);
       return;

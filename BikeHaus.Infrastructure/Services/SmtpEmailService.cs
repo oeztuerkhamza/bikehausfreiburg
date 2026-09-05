@@ -769,7 +769,7 @@ bikehausfreiburg.com
 {T(lang, MailKeys.LabelBike)}: {m.BikeBrand} {m.BikeModel}
 {T(lang, MailKeys.LabelNewPeriod)}: {m.StartDate:dd.MM.yyyy} - {m.EndDate:dd.MM.yyyy} ({m.Days} {T(lang, MailKeys.UnitDays)}){pickupTimeLine}
 {T(lang, MailKeys.LabelAccessoriesIncluded)}: {accessoriesText}
-{T(lang, MailKeys.LabelNewPrice)}: {totalPriceText}
+{T(lang, MailKeys.LabelNewPrice)}: {totalPriceText}{T(lang, MailKeys.LineRentalHoursNote)}
 
 {T(lang, MailKeys.ClosingUpdated)}
 

@@ -4185,7 +4185,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Hinweise zur Verarbeitung Ihrer Daten:',
     privacyLinkText: 'Datenschutzerklärung',
     rentalHoursNote:
-      'Der Verleih hat eigene Übergabezeiten: Abholung ist ab 10:00 Uhr möglich – unabhängig von den Öffnungszeiten des Ladens (An- & Verkauf).',
+      'Der Verleih hat eigene Übergabezeiten, unabhängig von den Öffnungszeiten des Ladens (An- & Verkauf): Mo–Fr ab 10:00 Uhr, Sa ab 11:00 Uhr, sonntags geschlossen. Freitags ist von 13:00 bis 15:00 Uhr Mittagspause – in dieser Zeit finden keine Verleih-Übergaben statt.',
   },
   en: {
     dateSelection: 'Choose date',
@@ -4349,7 +4349,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'How we handle your data:',
     privacyLinkText: 'Privacy policy',
     rentalHoursNote:
-      "Rentals have their own handover hours: pickup is possible from 10:00 – independent of the shop's regular opening hours (sales).",
+      "Rentals have their own handover hours, independent of the shop's opening hours (sales): Mon–Fri from 10:00, Sat from 11:00, closed on Sundays. On Fridays there is a lunch break from 13:00 to 15:00 – no rental handovers during that time.",
   },
   fr: {
     dateSelection: 'Choisir la date',
@@ -4516,7 +4516,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Informations sur le traitement de vos données :',
     privacyLinkText: 'Politique de confidentialité',
     rentalHoursNote:
-      "La location a ses propres horaires de remise : le retrait est possible dès 10h00, indépendamment des horaires d'ouverture du magasin (vente).",
+      "La location a ses propres horaires de remise, indépendants des horaires d'ouverture du magasin (vente) : du lundi au vendredi dès 10h00, le samedi dès 11h00, fermé le dimanche. Le vendredi, pause déjeuner de 13h00 à 15h00 – aucune remise de vélo pendant ce créneau.",
   },
   tr: {
     dateSelection: 'Tarih seç',
@@ -4681,7 +4681,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Verilerinizin işlenmesi hakkında:',
     privacyLinkText: 'Gizlilik politikası',
     rentalHoursNote:
-      "Kiralamanın kendi teslim saatleri vardır: Teslim alma saat 10:00'dan itibaren mümkündür – mağazanın (alış-satış) açılış saatlerinden bağımsızdır.",
+      "Kiralamanın kendi teslim saatleri vardır, mağazanın (alış-satış) açılış saatlerinden bağımsızdır: Pzt–Cum 10:00'dan, Cmt 11:00'dan itibaren, pazar kapalı. Cuma günleri 13:00–15:00 arası öğle molasıdır – bu saatlerde kiralama teslimi yapılmaz.",
   },
   es: {
     dateSelection: 'Elegir fecha',
@@ -4847,7 +4847,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Información sobre el tratamiento de sus datos:',
     privacyLinkText: 'Política de privacidad',
     rentalHoursNote:
-      'El alquiler tiene sus propios horarios de entrega: la recogida es posible a partir de las 10:00, independientemente del horario de apertura de la tienda (venta).',
+      'El alquiler tiene sus propios horarios de entrega, independientes del horario de apertura de la tienda (venta): de lunes a viernes a partir de las 10:00, sábados a partir de las 11:00, domingos cerrado. Los viernes hay pausa para comer de 13:00 a 15:00: no se realizan entregas de alquiler.',
   },
   it: {
     dateSelection: 'Scegli data',
@@ -5015,7 +5015,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Informazioni sul trattamento dei tuoi dati:',
     privacyLinkText: 'Informativa sulla privacy',
     rentalHoursNote:
-      'Il noleggio ha orari di consegna propri: il ritiro è possibile dalle 10:00, indipendentemente dagli orari di apertura del negozio (vendita).',
+      "Il noleggio ha orari di consegna propri, indipendenti dagli orari di apertura del negozio (vendita): da lunedì a venerdì dalle 10:00, il sabato dalle 11:00, domenica chiuso. Il venerdì c'è la pausa pranzo dalle 13:00 alle 15:00: in quella fascia non si effettuano consegne.",
   },
   ar: {
     dateSelection: 'اختيار التاريخ',
@@ -5177,7 +5177,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'معلومات حول معالجة بياناتك:',
     privacyLinkText: 'سياسة الخصوصية',
     rentalHoursNote:
-      'للتأجير أوقات تسليم خاصة به: الاستلام ممكن من الساعة 10:00 – بغض النظر عن ساعات عمل المتجر (البيع).',
+      'للتأجير أوقات تسليم خاصة به، مستقلة عن ساعات عمل المتجر (البيع): من الإثنين إلى الجمعة من الساعة 10:00، والسبت من الساعة 11:00، والأحد مغلق. يوم الجمعة استراحة غداء من 13:00 إلى 15:00 – لا يتم تسليم الدراجات خلال هذه الفترة.',
   },
   ru: {
     dateSelection: 'Выбор даты',
@@ -5343,7 +5343,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Информация об обработке ваших данных:',
     privacyLinkText: 'Политика конфиденциальности',
     rentalHoursNote:
-      'У проката свои часы выдачи: забрать велосипед можно с 10:00 – независимо от часов работы магазина (продажа).',
+      'У проката свои часы выдачи, независимо от часов работы магазина (продажа): пн–пт с 10:00, сб с 11:00, воскресенье закрыто. По пятницам с 13:00 до 15:00 обеденный перерыв — выдача велосипедов в это время не производится.',
   },
 
   nl: {
@@ -5509,7 +5509,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Informatie over de verwerking van je gegevens:',
     privacyLinkText: 'Privacyverklaring',
     rentalHoursNote:
-      'De verhuur heeft eigen overdrachtstijden: ophalen kan vanaf 10:00 uur, los van de openingstijden van de winkel (verkoop).',
+      'Utleien har egne utleveringstider, uavhengig av butikkens åpningstider (salg): man–fre fra kl. 10.00, lør fra kl. 11.00, søndag stengt. På fredager er det lunsjpause fra kl. 13.00 til 15.00 – ingen utlevering i dette tidsrommet.',
   },
 
   da: {
@@ -5675,7 +5675,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Information om behandlingen af dine data:',
     privacyLinkText: 'Privatlivspolitik',
     rentalHoursNote:
-      'Udlejningen har sine egne udleveringstider: afhentning er mulig fra kl. 10.00 – uafhængigt af butikkens åbningstider (salg).',
+      'Udlejningen har sine egne udleveringstider, uafhængigt af butikkens åbningstider (salg): man–fre fra kl. 10.00, lør fra kl. 11.00, søndag lukket. Om fredagen er der frokostpause fra kl. 13.00 til 15.00 – der sker ingen udlevering i det tidsrum.',
   },
 
   no: {
@@ -5841,7 +5841,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Informasjon om behandlingen av opplysningene dine:',
     privacyLinkText: 'Personvernerklæring',
     rentalHoursNote:
-      'Utleien har egne utleveringstider: henting er mulig fra kl. 10.00 – uavhengig av butikkens åpningstider (salg).',
+      'De verhuur heeft eigen overdrachtstijden, los van de openingstijden van de winkel (verkoop): ma–vr vanaf 10:00 uur, za vanaf 11:00 uur, zondag gesloten. Op vrijdag is er van 13:00 tot 15:00 uur lunchpauze – dan vinden geen overdrachten plaats.',
   },
 
   pl: {
@@ -6008,7 +6008,7 @@ const RENTAL_STEPS_TRANSLATIONS: Partial<
     privacyNote: 'Informacje o przetwarzaniu Twoich danych:',
     privacyLinkText: 'Polityka prywatności',
     rentalHoursNote:
-      'Wypożyczalnia ma własne godziny wydawania: odbiór jest możliwy od 10:00 – niezależnie od godzin otwarcia sklepu (sprzedaż).',
+      'Wypożyczalnia ma własne godziny wydawania, niezależne od godzin otwarcia sklepu (sprzedaż): pon–pt od 10:00, sob od 11:00, w niedziele nieczynne. W piątki od 13:00 do 15:00 jest przerwa obiadowa – w tym czasie nie wydajemy rowerów.',
   },
 };
 

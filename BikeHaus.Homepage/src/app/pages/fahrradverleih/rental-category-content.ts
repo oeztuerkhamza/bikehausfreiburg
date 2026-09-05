@@ -292,7 +292,7 @@ export const RENTAL_CATEGORIES: RentalCategory[] = [
           },
           {
             q: 'Puis-je récupérer le VAE le week-end ?',
-            a: 'Oui, le samedi de 11h30 à 17h00. Pour les retraits le dimanche ou jours fériés, contactez-nous au préalable sur WhatsApp.',
+            a: 'Oui, le samedi à partir de 11h00. Pour les retraits le dimanche ou jours fériés, contactez-nous au préalable sur WhatsApp.',
           },
         ],
         ctaHeading: 'Prêt pour votre sortie en VAE ?',
