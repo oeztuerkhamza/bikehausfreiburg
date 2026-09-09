@@ -626,14 +626,12 @@ public class RentalService : IRentalService
             }
         }
 
-        // Einmaliges Zubehör (Verbrauchsmaterial wie ein Schlauch) wird erst hier
-        // abrechenbar: es kostet nur, wenn es bei der Rückgabe nicht als
-        // zurückgegeben abgehakt wurde. Deshalb die Gesamtmiete neu bilden —
-        // dieselbe Formel wie beim Speichern des Vertrags.
-        var returnRentalDays = RentalPricingCalculator.CalculateDaysInclusive(rental.StartDatum, rental.EndDatum);
-        rental.Gesamtmiete = rental.Bikes.Sum(b => b.Mietpreis)
-            + rental.Accessories.Sum(a => a.LineTotal(returnRentalDays));
-
+        // Die Gesamtmiete wird hier bewusst NICHT mehr angefasst. Sie steht seit
+        // der Unterschrift fest; sie nachträglich zu erhöhen hieß, dass der
+        // gespeicherte Betrag nicht mehr zu dem passt, was der Mieter
+        // unterschrieben hat. Verbrauchtes Einmal-Zubehör (ein Schlauch, den der
+        // Mieter behält) ist kein Mietbestandteil, sondern ein Abzug von der
+        // Kaution — siehe RentalPricingCalculator.VerbrauchsAbzug.
         rental.Status = RentalStatus.Returned;
         rental.RueckgabeAt = DateTime.UtcNow;
         rental.UpdatedAt = DateTime.UtcNow;
