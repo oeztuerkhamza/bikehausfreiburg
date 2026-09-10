@@ -25,10 +25,8 @@ import {
   SaleAccessoryCreate,
   SalePaymentCreate,
   AccessoryCatalogList,
-  Customer,
 } from '../../models/models';
 import { AccessoryAutocompleteComponent } from '../../components/accessory-autocomplete/accessory-autocomplete.component';
-import { CustomerAutocompleteComponent } from '../../components/customer-autocomplete/customer-autocomplete.component';
 import { DraftRestoredBannerComponent } from '../../components/draft-restored-banner/draft-restored-banner.component';
 
 /**
@@ -86,7 +84,6 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
     FormsModule,
     RouterLink,
     AccessoryAutocompleteComponent,
-    CustomerAutocompleteComponent,
     DraftRestoredBannerComponent,
   ],
   template: `
@@ -597,16 +594,14 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
             <!-- Labels mit englischer Bezeichnung: der Kunde sitzt beim
                  Ausfüllen daneben und liest oft weder Deutsch noch Türkisch. -->
             <div class="form-grid">
-              <app-customer-autocomplete
-                [vorname]="buyer.vorname"
-                (vornameChange)="buyer.vorname = $event"
-                [nachname]="buyer.nachname"
-                (nachnameChange)="buyer.nachname = $event"
-                [vornameLabel]="t.firstNameIntl"
-                [nachnameLabel]="t.lastNameIntl"
-                [hasOtherData]="hasOtherBuyerData()"
-                (customerSelected)="onBuyerSelected($event)"
-              ></app-customer-autocomplete>
+              <div class="field">
+                <label>{{ t.firstNameIntl }}</label>
+                <input [(ngModel)]="buyer.vorname" name="buyerVorname" />
+              </div>
+              <div class="field">
+                <label>{{ t.lastNameIntl }}</label>
+                <input [(ngModel)]="buyer.nachname" name="buyerNachname" />
+              </div>
               <div class="field">
                 <label>{{ t.emailIntl }}</label>
                 <input
@@ -1728,27 +1723,6 @@ export class SaleFormComponent implements OnInit, OnDestroy {
 
   get t() {
     return this.translationService.translations();
-  }
-
-  /** Steuert, ob die Kunden-Vorschlagsliste vor der Übernahme nachfragt. */
-  hasOtherBuyerData(): boolean {
-    return !!(
-      this.buyer.strasse?.trim() ||
-      this.buyer.hausnummer?.trim() ||
-      this.buyer.plz?.trim() ||
-      this.buyer.stadt?.trim() ||
-      this.buyer.telefon?.trim() ||
-      this.buyer.email?.trim()
-    );
-  }
-
-  onBuyerSelected(customer: Customer) {
-    this.buyer.strasse = customer.strasse || '';
-    this.buyer.hausnummer = customer.hausnummer || '';
-    this.buyer.plz = customer.plz || '';
-    this.buyer.stadt = customer.stadt || '';
-    this.buyer.telefon = customer.telefon || '';
-    this.buyer.email = customer.email || '';
   }
 
   get hasBikeErrors(): boolean {
