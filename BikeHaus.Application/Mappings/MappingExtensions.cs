@@ -201,6 +201,7 @@ public static class MappingExtensions
         entity.Verkaufsdatum,
         entity.Garantie,
         entity.GarantieBedingungen,
+        entity.GarantieMonate,
         entity.Notizen,
         entity.BuyerSignature?.ToDto(),
         entity.SellerSignature?.ToDto(),

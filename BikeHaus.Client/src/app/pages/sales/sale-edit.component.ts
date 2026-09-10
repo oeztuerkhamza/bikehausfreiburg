@@ -864,6 +864,8 @@ export class SaleEditComponent implements OnInit {
   belegNummer = '';
   garantie = true;
   garantieBedingungen = '';
+  /** Nur durchgereicht: die Dauer wird beim Anlegen festgelegt, nicht hier. */
+  garantieMonate?: number;
   accessories: SaleAccessoryCreate[] = [];
   rabatt = 0;
   ankaufPreis: number | null = null;
@@ -985,6 +987,7 @@ export class SaleEditComponent implements OnInit {
     this.notizen = sale.notizen || '';
     this.garantie = sale.garantie;
     this.garantieBedingungen = sale.garantieBedingungen || '';
+    this.garantieMonate = sale.garantieMonate;
 
     // Effective Ankauf values (from linked Kaufbeleg or sale-level fallback).
     this.ankaufPreis = sale.ankaufPreis ?? null;
@@ -1162,6 +1165,7 @@ export class SaleEditComponent implements OnInit {
       garantieBedingungen: this.isAccessoryOnlySale
         ? undefined
         : this.garantieBedingungen || undefined,
+      garantieMonate: this.isAccessoryOnlySale ? undefined : this.garantieMonate,
       notizen: this.notizen || undefined,
       accessories:
         this.accessories.length > 0

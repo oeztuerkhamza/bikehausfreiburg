@@ -12,6 +12,14 @@ public class Sale : BaseEntity
     public DateTime Verkaufsdatum { get; set; } = DateTime.UtcNow; // Sale Date
     public bool Garantie { get; set; }                          // Warranty included
     public string? GarantieBedingungen { get; set; }            // Warranty Terms
+
+    /// <summary>
+    /// Garantiedauer in Monaten, die der Verkauf selbst festlegt. Nur bei
+    /// E-Bikes gesetzt; sonst null, dann gilt die feste Regel nach Zustand
+    /// (Neu: gesetzliche Gewaehrleistung, Gebraucht: 3 Monate). Nullable, damit
+    /// alle bisherigen Verkaeufe ihre bisherige Bedeutung behalten.
+    /// </summary>
+    public int? GarantieMonate { get; set; }
     public string? Notizen { get; set; }                        // Notes
     public string BelegNummer { get; set; } = string.Empty;     // Receipt Number
     public decimal Rabatt { get; set; }                          // Discount amount

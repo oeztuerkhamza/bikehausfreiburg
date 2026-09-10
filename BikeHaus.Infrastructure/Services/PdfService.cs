@@ -56,11 +56,30 @@ public class PdfService : IPdfService
         "Der Käufer hat das Recht, das Fahrrad innerhalb von 3 Tagen ohne Angabe von Gründen zurückzugeben, " +
         "vorausgesetzt, das Fahrrad wird vollständig und unversehrt zurückgegeben.";
 
-    private const string GebrauchtWarrantyText =
-        "Gebraucht Garantiebedingungen: 3 Monate Garantie auf: Kette, Schaltung, Schaltwerk, " +
+    /// <summary>Standarddauer der Gebrauchtgarantie, wenn der Verkauf keine eigene festlegt.</summary>
+    private const int DefaultGebrauchtWarrantyMonths = 3;
+
+    /// <summary>
+    /// Garantiebedingungen fuer Gebrauchtraeder. Nur die DAUER ist verschiebbar
+    /// (bei E-Bikes legt der Verkauf sie selbst fest) — der Umfang, die
+    /// Ausschluesse und das Rueckgaberecht bleiben unveraendert.
+    /// </summary>
+    private static string GebrauchtWarrantyTextFor(int monate) =>
+        $"Gebraucht Garantiebedingungen: {MonthsPhrase(monate)} Garantie auf: Kette, Schaltung, Schaltwerk, " +
         "Dynamo, Pedale und hydraulische Bremsen. Von der Garantie ausgeschlossen sind: Reifen, Schläuche, " +
         "Bremsbeläge, Lampen. Ebenfalls ausgeschlossen: Schäden durch Unfälle oder unsachgemäße Nutzung. " +
         "Rückgaberecht: innerhalb von 3 Arbeitstagen.";
+
+    /// <summary>
+    /// Zusatz bei einem NEUEN Rad mit eigener Garantiedauer. Die gesetzliche
+    /// Gewaehrleistung wird dadurch nicht ersetzt, sondern ergaenzt — sie laesst
+    /// sich gegenueber Verbrauchern ohnehin nicht verkuerzen.
+    /// </summary>
+    private static string ZusatzGarantieText(int monate) =>
+        $"Zusätzlich gewährt Bike Haus Freiburg {MonthsPhrase(monate)} Garantie auf das Fahrrad.";
+
+    private static string MonthsPhrase(int monate) =>
+        monate == 1 ? "1 Monat" : $"{monate} Monate";
 
     private const string RepairNote =
         "*Reparaturen im Garantiefall dürfen ausschließlich durch Bike Haus Freiburg durchgeführt werden.*";
@@ -478,7 +497,11 @@ public class PdfService : IPdfService
 
         // Determine warranty text based on bike condition
         var isNeu = sale.Bicycle.Zustand == BikeCondition.Neu;
-        var warrantyText = isNeu ? NeuWarrantyText : GebrauchtWarrantyText;
+        // Eigene Garantiedauer (nur E-Bikes); ohne Angabe gilt die alte feste Regel.
+        var garantieMonate = sale.GarantieMonate is > 0 ? sale.GarantieMonate.Value : (int?)null;
+        var warrantyText = isNeu
+            ? NeuWarrantyText
+            : GebrauchtWarrantyTextFor(garantieMonate ?? DefaultGebrauchtWarrantyMonths);
         var isAccessoryOnlySale =
             string.Equals(sale.Bicycle.Marke, "Zubehör", StringComparison.OrdinalIgnoreCase) &&
             string.Equals(sale.Bicycle.Modell, "Direktverkauf", StringComparison.OrdinalIgnoreCase) &&
@@ -711,11 +734,17 @@ public class PdfService : IPdfService
                                     {
                                         text.Span("NEU: ").Bold().FontSize(9);
                                         text.Span(NeuWarrantyText).FontSize(9).FontColor(Colors.Grey.Darken3);
+                                        // Die gesetzliche Gewaehrleistung bleibt vollstaendig stehen;
+                                        // eine eigene Dauer kommt nur als Zusatz dazu.
+                                        if (garantieMonate is int zusatz)
+                                        {
+                                            text.Span(" " + ZusatzGarantieText(zusatz)).FontSize(9).FontColor(Colors.Grey.Darken3);
+                                        }
                                     }
                                     else
                                     {
                                         text.Span("GEBRAUCHT: ").Bold().FontSize(9);
-                                        text.Span(GebrauchtWarrantyText).FontSize(9).FontColor(Colors.Grey.Darken3);
+                                        text.Span(warrantyText).FontSize(9).FontColor(Colors.Grey.Darken3);
                                     }
                                 });
                             });

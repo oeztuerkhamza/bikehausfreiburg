@@ -56,6 +56,7 @@ interface SaleFormDraft {
   zahlungen: SalePaymentCreate[];
   verkaufsdatum: string;
   notizen: string;
+  garantieMonate: number;
   accessories: SaleAccessoryCreate[];
   rabatt: number;
   isQuickAddMode: boolean;
@@ -445,11 +446,7 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
                     class="warranty-badge"
                     [class.warranty-new]="selectedBike.zustand === 'Neu'"
                   >
-                    {{
-                      selectedBike.zustand === 'Neu'
-                        ? t.warrantyNew
-                        : t.warrantyUsed
-                    }}
+                    {{ warrantyBadge() }}
                   </span>
                   <small
                     >({{
@@ -458,6 +455,23 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
                         : t.usedBicycle
                     }})</small
                   >
+                </div>
+                <!-- Nur E-Bikes: die Dauer legt der Verkauf selbst fest. Bei
+                     allen anderen Rädern bleibt es bei der festen Regel. -->
+                <div class="warranty-months" *ngIf="isEBikeSelected()">
+                  <label for="garantieMonate">{{ t.warrantyMonths }}</label>
+                  <input
+                    id="garantieMonate"
+                    type="number"
+                    min="1"
+                    max="60"
+                    step="1"
+                    [(ngModel)]="garantieMonate"
+                    name="garantieMonate"
+                  />
+                  <small *ngIf="selectedBike.zustand === 'Neu'">{{
+                    t.warrantyMonthsNewHint
+                  }}</small>
                 </div>
               </div>
               <div class="field full">
@@ -939,6 +953,24 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 14px;
+      }
+      .warranty-months {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+      .warranty-months label {
+        margin: 0;
+        font-size: 0.85rem;
+      }
+      .warranty-months input {
+        width: 90px;
+      }
+      .warranty-months small {
+        flex-basis: 100%;
+        color: var(--text-secondary, #64748b);
       }
       @media (max-width: 600px) {
         .form-grid {
@@ -1669,6 +1701,13 @@ export class SaleFormComponent implements OnInit, OnDestroy {
   availableBikes: Bicycle[] = [];
   selectedBike: Bicycle | null = null;
 
+  /**
+   * Garantiedauer in Monaten. Nur bei E-Bikes wählbar; der Startwert ist die
+   * bisherige feste Gebraucht-Garantie, damit ein unverändert abgeschickter
+   * Verkauf dasselbe ergibt wie vorher.
+   */
+  garantieMonate = 3;
+
   buyer = {
     vorname: this.defaultBuyer.vorname,
     nachname: this.defaultBuyer.nachname,
@@ -1723,6 +1762,66 @@ export class SaleFormComponent implements OnInit, OnDestroy {
 
   get t() {
     return this.translationService.translations();
+  }
+
+  /**
+   * Ist das gewählte Rad ein E-Bike? Dieselbe Regel wie im Backend
+   * (MappingExtensions.IsEBike): Typ ODER Modell entscheidet, damit auch
+   * "E-Trekking Pedelec" und ein Modellname mit "Elektro" erkannt werden.
+   * Gelesen wird der bearbeitete Stand, nicht das ursprünglich gewählte Rad —
+   * wer den Typ im Formular ändert, meint den neuen Typ.
+   */
+  isEBikeSelected(): boolean {
+    if (!this.selectedBike || this.isAccessoryOnly) return false;
+    const haystack =
+      `${this.bikeEdit.fahrradtyp} ${this.bikeEdit.modell}`.toLowerCase();
+    return ['e-bike', 'ebike', 'e bike', 'pedelec', 'elektro'].some((k) =>
+      haystack.includes(k),
+    );
+  }
+
+  /** Auf 1 bis 60 Monate begrenzt; unsinnige Eingaben fallen auf 3 zurück. */
+  private clampedGarantieMonate(): number {
+    const n = Math.round(Number(this.garantieMonate));
+    if (!Number.isFinite(n) || n < 1) return 3;
+    return Math.min(60, n);
+  }
+
+  private monatePhrase(n: number): string {
+    return n === 1 ? '1 Monat' : `${n} Monate`;
+  }
+
+  /**
+   * Was im Formular als Garantie angezeigt wird. Bei einem neuen Rad bleibt es
+   * die gesetzliche Gewährleistung — eine eigene Dauer kommt dort nur zusätzlich
+   * dazu und ersetzt sie nie.
+   */
+  warrantyBadge(): string {
+    if (!this.selectedBike) return '';
+    if (this.selectedBike.zustand === 'Neu') return this.t.warrantyNew;
+    if (!this.isEBikeSelected()) return this.t.warrantyUsed;
+    return `${this.clampedGarantieMonate()} ${this.t.warrantyMonthsUnit}`;
+  }
+
+  /**
+   * Text der Garantiebedingungen zum Verkauf. Ohne E-Bike unverändert wie
+   * bisher; mit E-Bike zählt die selbst gewählte Dauer — beim Gebrauchtrad
+   * anstelle der drei Monate, beim Neurad zusätzlich zur gesetzlichen
+   * Gewährleistung.
+   */
+  private buildGarantieBedingungen(): string | undefined {
+    if (this.isAccessoryOnly || !this.selectedBike) return undefined;
+    const istNeu = this.selectedBike.zustand === 'Neu';
+    const gesetzlich = '2 Jahre Gewährleistung gemäß § 437 BGB';
+
+    if (!this.isEBikeSelected()) {
+      return istNeu ? gesetzlich : '3 Monate Garantie auf das Fahrrad';
+    }
+
+    const dauer = this.monatePhrase(this.clampedGarantieMonate());
+    return istNeu
+      ? `${gesetzlich}\nZusätzlich ${dauer} Bike Haus Garantie auf das E-Bike`
+      : `${dauer} Garantie auf das E-Bike`;
   }
 
   get hasBikeErrors(): boolean {
@@ -1879,6 +1978,7 @@ export class SaleFormComponent implements OnInit, OnDestroy {
       }));
     }
     if (draft.verkaufsdatum) this.verkaufsdatum = draft.verkaufsdatum;
+    if (draft.garantieMonate) this.garantieMonate = draft.garantieMonate;
     this.notizen = draft.notizen ?? '';
     if (Array.isArray(draft.accessories)) {
       this.accessories = draft.accessories.map((a) => ({
@@ -1930,6 +2030,7 @@ export class SaleFormComponent implements OnInit, OnDestroy {
         ratenMonate: z.ratenMonate,
       })),
       verkaufsdatum: this.verkaufsdatum,
+      garantieMonate: this.garantieMonate,
       notizen: this.notizen,
       accessories: this.accessories.map((a) => ({
         bezeichnung: a.bezeichnung,
@@ -2443,11 +2544,12 @@ export class SaleFormComponent implements OnInit, OnDestroy {
       zahlungsart: this.zahlungen[0]?.zahlungsart || this.zahlungsart,
       verkaufsdatum: this.verkaufsdatum,
       garantie: !this.isAccessoryOnly,
-      garantieBedingungen: this.isAccessoryOnly
-        ? undefined
-        : this.selectedBike!.zustand === 'Neu'
-          ? '2 Jahre Gewährleistung gemäß § 437 BGB'
-          : '3 Monate Garantie auf das Fahrrad',
+      garantieBedingungen: this.buildGarantieBedingungen(),
+      // Nur bei E-Bikes gesetzt: sonst bleibt es beim festen Text, und der
+      // Beleg soll dann weiter die alte Regel drucken.
+      garantieMonate: this.isEBikeSelected()
+        ? this.clampedGarantieMonate()
+        : undefined,
       notizen: this.notizen || undefined,
       sellerSignature: sellerSig,
       accessories:

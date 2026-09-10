@@ -355,6 +355,8 @@ export interface Sale {
   verkaufsdatum: string;
   garantie: boolean;
   garantieBedingungen?: string;
+  /** Selbst gewaehlte Garantiedauer in Monaten (nur E-Bikes). */
+  garantieMonate?: number;
   notizen?: string;
   belegNummer: string;
   buyerSignature?: Signature;
@@ -399,6 +401,8 @@ export interface SaleCreate {
   verkaufsdatum: string;
   garantie: boolean;
   garantieBedingungen?: string;
+  /** Selbst gewaehlte Garantiedauer in Monaten (nur E-Bikes). */
+  garantieMonate?: number;
   notizen?: string;
   buyerSignature?: SignatureCreate;
   sellerSignature?: SignatureCreate;
@@ -415,6 +419,8 @@ export interface SaleUpdate {
   verkaufsdatum: string;
   garantie: boolean;
   garantieBedingungen?: string;
+  /** Selbst gewaehlte Garantiedauer in Monaten (nur E-Bikes). */
+  garantieMonate?: number;
   notizen?: string;
   accessories?: SaleAccessoryCreate[];
   zahlungen?: SalePaymentCreate[];

@@ -180,6 +180,7 @@ public class SaleService : ISaleService
             Verkaufsdatum = dto.Verkaufsdatum ?? DateTime.UtcNow,
             Garantie = dto.Garantie,
             GarantieBedingungen = dto.GarantieBedingungen,
+            GarantieMonate = dto.GarantieMonate,
             Notizen = dto.Notizen,
             Rabatt = dto.Rabatt
         };
@@ -328,6 +329,7 @@ public class SaleService : ISaleService
         sale.Verkaufsdatum = dto.Verkaufsdatum;
         sale.Garantie = dto.Garantie;
         sale.GarantieBedingungen = dto.GarantieBedingungen;
+        sale.GarantieMonate = dto.GarantieMonate;
         sale.Notizen = dto.Notizen;
         sale.Rabatt = dto.Rabatt;
         if (!string.IsNullOrWhiteSpace(dto.BelegNummer))

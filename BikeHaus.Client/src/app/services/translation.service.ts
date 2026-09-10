@@ -243,6 +243,9 @@ export interface Translations {
   warranty: string;
   warrantyNew: string;
   warrantyUsed: string;
+  warrantyMonths: string;
+  warrantyMonthsUnit: string;
+  warrantyMonthsNewHint: string;
   newPurchase: string;
   newSale: string;
   noPurchases: string;
@@ -1145,6 +1148,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     warranty: 'Garantie',
     warrantyNew: '2 Jahre Gewährleistung',
     warrantyUsed: '3 Monate Garantie',
+    warrantyMonths: 'Garantie (Monate)',
+    warrantyMonthsUnit: 'Monate Garantie',
+    warrantyMonthsNewHint: 'Bei einem neuen Rad bleibt die gesetzliche Gewährleistung bestehen; diese Monate kommen als eigene Garantie dazu.',
     newPurchase: 'Neuer Ankauf',
     newSale: 'Neuer Verkauf',
     noPurchases: 'Keine Ankäufe vorhanden',
@@ -2049,6 +2055,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     warranty: 'Garanti',
     warrantyNew: '2 Yıl Garanti',
     warrantyUsed: '3 Ay Garanti',
+    warrantyMonths: 'Garanti (ay)',
+    warrantyMonthsUnit: 'Ay Garanti',
+    warrantyMonthsNewHint: 'Yeni bisiklette yasal Gewährleistung aynen kalır; bu aylar üstüne ek garanti olarak yazılır.',
     newPurchase: 'Yeni Alım',
     newSale: 'Yeni Satış',
     noPurchases: 'Alım bulunamadı',
