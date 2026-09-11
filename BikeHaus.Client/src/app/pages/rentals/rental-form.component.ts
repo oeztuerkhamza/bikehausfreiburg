@@ -67,6 +67,7 @@ interface RentalBikeDraftEntry {
   mieteManuell: boolean;
   gesamtmiete: number;
   kaution: number;
+  kautionManuell: boolean;
   zahlungsart: PaymentMethod | '';
   kautionZahlungsart: PaymentMethod | '';
   zustandBeiUebergabe: string;
@@ -160,6 +161,13 @@ interface BikeEntry {
   berechneterPreis: number;
   preisInfo: string;
   kaution: number;
+  /**
+   * true, sobald die Kaution von Hand eingetragen wurde. Schuetzt den Betrag
+   * davor, beim naechsten Aktualisieren des gewaehlten Rades wieder auf die
+   * Katalog-Kaution des Rades zurueckzuspringen — dieselbe Rolle, die
+   * mieteManuell fuer die Miete hat.
+   */
+  kautionManuell: boolean;
   zahlungsart: PaymentMethod | '';
   kautionZahlungsart: PaymentMethod | '';
   zustandBeiUebergabe: string;
@@ -214,6 +222,7 @@ function createEmptyBikeEntry(): BikeEntry {
     berechneterPreis: 0,
     preisInfo: '',
     kaution: 0,
+    kautionManuell: false,
     zahlungsart: '',
     kautionZahlungsart: '',
     zustandBeiUebergabe: 'Gut',
@@ -2855,7 +2864,12 @@ export class RentalFormComponent implements OnInit, OnDestroy {
   }
 
   get kautionGesamt(): number {
-    return this.totalKaution();
+    // Auf ganze Cent runden. Die Einzelbetraege sind konstruktionsbedingt
+    // volle Cent, ihre Summe in Euro aber nicht immer exakt: 34 + 33 + 33 Cent
+    // ergeben in Gleitkomma 0.9999999999999999 statt 1. Ohne das Runden schreibt
+    // Angular diesen Wert ins Eingabefeld zurueck, und aus einer getippten 32
+    // wird "31.999999999999993".
+    return Math.round(this.totalKaution() * 100) / 100;
   }
 
   /**
@@ -2887,6 +2901,9 @@ export class RentalFormComponent implements OnInit, OnDestroy {
     active.forEach((b, idx) => {
       const slotCents = perUnitCents * weights[idx] + (idx === 0 ? rest : 0);
       b.kaution = slotCents / 100;
+      // Der Betrag kommt aus dem Eingabefeld — ab jetzt darf ihn keine
+      // Katalog-Kaution mehr ueberschreiben.
+      b.kautionManuell = true;
     });
   }
 
@@ -3618,6 +3635,9 @@ export class RentalFormComponent implements OnInit, OnDestroy {
           b.gesamtmiete = entry.gesamtmiete;
         }
         b.kaution = entry.kaution || 0;
+        // Eine von Hand eingetragene Kaution bleibt auch nach dem
+        // Wiederherstellen geschuetzt.
+        b.kautionManuell = !!entry.kautionManuell;
         b.zahlungsart = entry.zahlungsart ?? '';
         b.kautionZahlungsart = entry.kautionZahlungsart ?? '';
         b.zustandBeiUebergabe = entry.zustandBeiUebergabe || 'Gut';
@@ -3648,6 +3668,7 @@ export class RentalFormComponent implements OnInit, OnDestroy {
         mieteManuell: b.mieteManuell,
         gesamtmiete: b.mieteManuell ? b.gesamtmiete : 0,
         kaution: b.kaution,
+        kautionManuell: b.kautionManuell,
         zahlungsart: b.zahlungsart,
         kautionZahlungsart: b.kautionZahlungsart,
         zustandBeiUebergabe: b.zustandBeiUebergabe,
@@ -3821,9 +3842,12 @@ export class RentalFormComponent implements OnInit, OnDestroy {
       zustand: bike.zustand || BikeCondition.Gebraucht,
     };
     b.bikeErrors = {};
+    // Anderes Rad = andere Kaution: die Katalog-Kaution des neu gewaehlten Rades
+    // gilt wieder, genau wie beim Preis (mieteManuell weiter unten).
     if (bike.kaution != null) {
       b.kaution = bike.kaution;
     }
+    b.kautionManuell = false;
     // Anderes Rad = andere Stückzahl-Frage: ein neu ausgewähltes Rad startet
     // wieder bei 1, egal was zuvor in diesem Slot stand.
     b.menge = 1;
@@ -3848,7 +3872,10 @@ export class RentalFormComponent implements OnInit, OnDestroy {
     if (bike.farbe) b.bikeEdit.farbe = bike.farbe;
     if (bike.marke) b.bikeEdit.marke = bike.marke;
     if (bike.modell) b.bikeEdit.modell = bike.modell;
-    if (bike.kaution != null) b.kaution = bike.kaution;
+    // Hier wird nur der Stand desselben Rades aufgefrischt (der Waehler meldet
+    // das Rad erneut). Eine von Hand eingetragene Kaution bleibt deshalb stehen
+    // — sonst sprang der eingetippte Betrag auf die Katalog-Kaution zurueck.
+    if (bike.kaution != null && !b.kautionManuell) b.kaution = bike.kaution;
     // Erst hier liegen die Miettarife des Rades vor: Vorschlag neu rechnen und
     // in die Gesamtmiete übernehmen, solange sie nicht von Hand gesetzt wurde.
     this.recalcPriceFor(i);
