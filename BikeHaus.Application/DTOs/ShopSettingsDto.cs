@@ -27,6 +27,7 @@ public class ShopSettingsDto
     public string? InhaberSignatureFileName { get; set; }
     public int FahrradNummerStart { get; set; }
     public string? KleinanzeigenUrl { get; set; }
+    public bool KleinanzeigenAktiv { get; set; }
     public string? GoogleReviewUrl { get; set; }
     public string? Oeffnungszeiten { get; set; }
     public string? OeffnungszeitenJson { get; set; }
@@ -54,6 +55,7 @@ public class UpdateShopSettingsDto
     public string? InhaberNachname { get; set; }
     public int FahrradNummerStart { get; set; } = 1;
     public string? KleinanzeigenUrl { get; set; }
+    public bool KleinanzeigenAktiv { get; set; }
     public string? GoogleReviewUrl { get; set; }
     public string? Oeffnungszeiten { get; set; }
     public string? OeffnungszeitenJson { get; set; }

@@ -518,6 +518,24 @@ interface EmailAccountForm {
               >
                 🔗 {{ t.kleinanzeigenIntegration }}
               </h3>
+              <!-- Der Schalter steht ganz oben: er entscheidet, ob ueberhaupt
+                   etwas passiert. Alles darunter (URL, Sync) betrifft nur den
+                   eingeschalteten Zustand. -->
+              <div class="ka-switch">
+                <label class="ka-switch-row">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="settings.kleinanzeigenAktiv"
+                    name="kleinanzeigenAktiv"
+                  />
+                  <span>{{ t.kleinanzeigenAktiv }}</span>
+                </label>
+                <small>{{
+                  settings.kleinanzeigenAktiv
+                    ? t.kleinanzeigenAktivHintOn
+                    : t.kleinanzeigenAktivHintOff
+                }}</small>
+              </div>
               <div class="form-grid">
                 <div class="form-group full-width">
                   <label>{{ t.kleinanzeigenProfileUrl }}</label>
@@ -1449,6 +1467,31 @@ interface EmailAccountForm {
       }
 
       /* Form Grid */
+      .ka-switch {
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        border: 1px solid var(--border-light, #e2e8f0);
+        border-radius: 8px;
+      }
+      .ka-switch-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .ka-switch-row input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+      .ka-switch small {
+        display: block;
+        margin-top: 6px;
+        color: var(--text-secondary, #64748b);
+        font-size: 0.78rem;
+        line-height: 1.45;
+      }
       .form-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -1955,6 +1998,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     inhaberNachname: '',
     fahrradNummerStart: 1,
     kleinanzeigenUrl: '',
+    kleinanzeigenAktiv: false,
     googleReviewUrl: '',
     oeffnungszeiten: '',
     oeffnungszeitenJson: undefined,
@@ -2273,6 +2317,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         inhaberNachname: this.settings.inhaberNachname,
         fahrradNummerStart: this.settings.fahrradNummerStart || 1,
         kleinanzeigenUrl: this.settings.kleinanzeigenUrl,
+        kleinanzeigenAktiv: this.settings.kleinanzeigenAktiv,
         googleReviewUrl: this.settings.googleReviewUrl,
         oeffnungszeiten: this.settings.oeffnungszeiten,
         oeffnungszeitenJson: this.serializeOpeningHours(),

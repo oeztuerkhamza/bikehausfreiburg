@@ -692,6 +692,9 @@ export interface Translations {
   kleinanzeigenIntegration: string;
   kleinanzeigenProfileUrl: string;
   kleinanzeigenUrlHint: string;
+  kleinanzeigenAktiv: string;
+  kleinanzeigenAktivHintOn: string;
+  kleinanzeigenAktivHintOff: string;
   syncNow: string;
   syncingText: string;
   lastSync: string;
@@ -1604,6 +1607,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     kleinanzeigenProfileUrl: 'Kleinanzeigen Profil-URL',
     kleinanzeigenUrlHint:
       'Die URL Ihrer Bestandsliste auf Kleinanzeigen. Anzeigen werden automatisch alle 4 Stunden synchronisiert.',
+    kleinanzeigenAktiv: 'Kleinanzeigen-Anzeigen aktiv',
+    kleinanzeigenAktivHintOn:
+      'Der Abgleich läuft alle 4 Stunden und die Anzeigen erscheinen im Showroom.',
+    kleinanzeigenAktivHintOff:
+      'Kein Abgleich, und im Showroom stehen nur die eigenen Fahrräder. Die Anzeigen bleiben gespeichert und hier sichtbar.',
     syncNow: 'Jetzt synchronisieren',
     syncingText: 'Synchronisiere...',
     lastSync: 'Letzte Sync:',
@@ -2512,6 +2520,11 @@ const TRANSLATIONS: Record<Language, Translations> = {
     kleinanzeigenProfileUrl: 'Kleinanzeigen Profil URL',
     kleinanzeigenUrlHint:
       "Kleinanzeigen'deki ilan listenizin URL'si. İlanlar otomatik olarak her 4 saatte senkronize edilir.",
+    kleinanzeigenAktiv: 'Kleinanzeigen ilanları aktif',
+    kleinanzeigenAktivHintOn:
+      "Tarama 4 saatte bir çalışır ve ilanlar showroom'da görünür.",
+    kleinanzeigenAktivHintOff:
+      "Tarama durur, showroom'da yalnızca kendi bisikletlerin görünür. İlanlar silinmez, burada durmaya devam eder.",
     syncNow: 'Şimdi Senkronize Et',
     syncingText: 'Senkronize ediliyor...',
     lastSync: 'Son Senkronizasyon:',

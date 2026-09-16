@@ -10,6 +10,7 @@ namespace BikeHaus.API.Controllers;
 public class PublicController : ControllerBase
 {
     private readonly IKleinanzeigenService _kleinanzeigenService;
+    private readonly IShopSettingsService _shopSettingsService;
     private readonly INeueFahrradService _neueFahrradService;
     private readonly IEBikeService _eBikeService;
     private readonly IBicycleService _bicycleService;
@@ -22,6 +23,7 @@ public class PublicController : ControllerBase
 
     public PublicController(
         IKleinanzeigenService kleinanzeigenService,
+        IShopSettingsService shopSettingsService,
         INeueFahrradService neueFahrradService,
         IEBikeService eBikeService,
         IBicycleService bicycleService,
@@ -33,6 +35,7 @@ public class PublicController : ControllerBase
         IConfiguration config)
     {
         _kleinanzeigenService = kleinanzeigenService;
+        _shopSettingsService = shopSettingsService;
         _neueFahrradService = neueFahrradService;
         _eBikeService = eBikeService;
         _bicycleService = bicycleService;
@@ -45,11 +48,29 @@ public class PublicController : ControllerBase
     }
 
     /// <summary>
+    /// Sollen Kleinanzeigen-Anzeigen nach aussen sichtbar sein? Der Schalter
+    /// steht in den Einstellungen und wird bei JEDER Anfrage frisch gelesen,
+    /// damit das Umlegen sofort wirkt und kein Neustart noetig ist.
+    ///
+    /// Geprueft wird hier im oeffentlichen Controller, nicht im Dienst: im
+    /// Admin-Portal sollen die Anzeigen weiter sichtbar und bedienbar bleiben —
+    /// abgeschaltet ist nur, was der Kunde sieht.
+    /// </summary>
+    private async Task<bool> KleinanzeigenSichtbarAsync()
+    {
+        var settings = await _shopSettingsService.GetSettingsAsync();
+        return settings?.KleinanzeigenAktiv ?? false;
+    }
+
+    /// <summary>
     /// Get all active Kleinanzeigen listings (public, no auth required)
     /// </summary>
     [HttpGet("listings")]
     public async Task<IActionResult> GetListings()
     {
+        if (!await KleinanzeigenSichtbarAsync())
+            return Ok(Array.Empty<KleinanzeigenListingDto>());
+
         var listings = await _kleinanzeigenService.GetAllActiveListingsAsync();
         return Ok(listings);
     }
@@ -60,6 +81,9 @@ public class PublicController : ControllerBase
     [HttpGet("listings/category/{category}")]
     public async Task<IActionResult> GetListingsByCategory(string category)
     {
+        if (!await KleinanzeigenSichtbarAsync())
+            return Ok(Array.Empty<KleinanzeigenListingDto>());
+
         var listings = await _kleinanzeigenService.GetListingsByCategoryAsync(Uri.UnescapeDataString(category));
         return Ok(listings);
     }
@@ -70,6 +94,11 @@ public class PublicController : ControllerBase
     [HttpGet("listings/{id}")]
     public async Task<IActionResult> GetListing(int id)
     {
+        // Abgeschaltet heisst auch: die Einzelseite gibt es nicht mehr. Sonst
+        // bliebe jede Anzeige ueber ihre Adresse erreichbar und in Suchmaschinen.
+        if (!await KleinanzeigenSichtbarAsync())
+            return NotFound();
+
         var listing = await _kleinanzeigenService.GetListingByIdAsync(id);
         if (listing == null) return NotFound();
         return Ok(listing);
@@ -81,6 +110,9 @@ public class PublicController : ControllerBase
     [HttpGet("categories")]
     public async Task<IActionResult> GetCategories()
     {
+        if (!await KleinanzeigenSichtbarAsync())
+            return Ok(Array.Empty<KleinanzeigenCategoryDto>());
+
         var categories = await _kleinanzeigenService.GetCategoriesAsync();
         return Ok(categories);
     }
@@ -408,7 +440,10 @@ public class PublicController : ControllerBase
         }
 
         // ── Gebrauchtraeder (Showroom) — Quelle: Kleinanzeigen-Listings ──
-        var listings = await _kleinanzeigenService.GetAllActiveListingsAsync();
+        // Abgeschaltet gehoeren sie auch nicht mehr in die Sitemap.
+        var listings = await KleinanzeigenSichtbarAsync()
+            ? await _kleinanzeigenService.GetAllActiveListingsAsync()
+            : null;
         if (listings != null)
         {
             foreach (var listing in listings)
@@ -537,7 +572,10 @@ public class PublicController : ControllerBase
         // Quelle wie der Showroom und die Sitemap. Vorher stand hier
         // GetPublishedOnWebsiteAsync(), das in Produktion leer ist, wodurch
         // NIE eine Gebrauchtrad-URL an IndexNow ging.
-        var listings = await _kleinanzeigenService.GetAllActiveListingsAsync();
+        // Abgeschaltet werden sie auch nicht mehr an IndexNow gemeldet.
+        var listings = await KleinanzeigenSichtbarAsync()
+            ? await _kleinanzeigenService.GetAllActiveListingsAsync()
+            : null;
         if (listings != null)
         {
             foreach (var listing in listings)

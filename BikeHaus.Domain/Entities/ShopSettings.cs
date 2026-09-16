@@ -33,6 +33,15 @@ public class ShopSettings : BaseEntity
     // Kleinanzeigen Integration
     public string? KleinanzeigenUrl { get; set; }  // Kleinanzeigen profile/listing URL
 
+    /// <summary>
+    /// Schalter fuer die Kleinanzeigen-Anzeigen: steht er auf false, laeuft der
+    /// automatische Abgleich nicht mehr und auf der Website erscheinen keine
+    /// Kleinanzeigen-Anzeigen. Im Admin-Portal bleibt alles sichtbar und
+    /// bedienbar — der Schalter nimmt die Anzeigen nur aus dem Betrieb, er
+    /// loescht nichts.
+    /// </summary>
+    public bool KleinanzeigenAktiv { get; set; } = false;
+
     // Google Review
     public string? GoogleReviewUrl { get; set; }   // Google Review URL
 

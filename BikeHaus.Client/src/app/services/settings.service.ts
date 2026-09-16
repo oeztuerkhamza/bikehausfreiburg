@@ -26,6 +26,8 @@ export interface ShopSettings {
   inhaberSignatureFileName?: string;
   fahrradNummerStart: number;
   kleinanzeigenUrl?: string;
+  /** Kleinanzeigen-Anzeigen im Betrieb: Abgleich laeuft und sie sind oeffentlich sichtbar. */
+  kleinanzeigenAktiv: boolean;
   googleReviewUrl?: string;
   oeffnungszeiten?: string;
   oeffnungszeitenJson?: string;
@@ -52,6 +54,8 @@ export interface UpdateShopSettings {
   inhaberNachname?: string;
   fahrradNummerStart: number;
   kleinanzeigenUrl?: string;
+  /** Kleinanzeigen-Anzeigen im Betrieb: Abgleich laeuft und sie sind oeffentlich sichtbar. */
+  kleinanzeigenAktiv: boolean;
   googleReviewUrl?: string;
   oeffnungszeiten?: string;
   oeffnungszeitenJson?: string;

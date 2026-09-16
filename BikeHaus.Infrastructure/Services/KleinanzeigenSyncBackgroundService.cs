@@ -54,11 +54,24 @@ public class KleinanzeigenSyncBackgroundService : BackgroundService
 
     private async Task RunSyncAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting scheduled Kleinanzeigen sync at {Time}", DateTime.UtcNow);
-
         try
         {
             using var scope = _serviceProvider.CreateScope();
+
+            // Der Schalter wird vor JEDEM Lauf frisch gelesen, nicht einmal beim
+            // Start: wer ihn im Admin-Portal umlegt, soll den naechsten Lauf
+            // treffen, ohne dass jemand den Dienst neu starten muss.
+            var shopSettings = scope.ServiceProvider.GetRequiredService<IShopSettingsService>();
+            var settings = await shopSettings.GetSettingsAsync();
+            if (settings?.KleinanzeigenAktiv != true)
+            {
+                _logger.LogInformation(
+                    "Kleinanzeigen sync skipped: switched off in the shop settings.");
+                return;
+            }
+
+            _logger.LogInformation("Starting scheduled Kleinanzeigen sync at {Time}", DateTime.UtcNow);
+
             var kleinanzeigenService = scope.ServiceProvider.GetRequiredService<IKleinanzeigenService>();
             var coordinator = scope.ServiceProvider.GetRequiredService<KleinanzeigenSyncCoordinator>();
             var result = await coordinator.RunSyncDirectAsync(kleinanzeigenService, cancellationToken);
