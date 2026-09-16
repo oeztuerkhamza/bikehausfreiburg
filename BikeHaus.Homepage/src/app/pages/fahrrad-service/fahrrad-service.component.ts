@@ -83,6 +83,32 @@ function getServiceSlug(lang: string): string {
                 </li>
               }
             </ul>
+
+            <!-- Was wir NICHT machen. Bewusst direkt unter den Leistungen und
+                 mit eigenem Zeichen: wer deswegen herfaehrt, hat den Weg
+                 umsonst gemacht. -->
+            <div class="no-service">
+              <h3>{{ s.notServicedHeading }}</h3>
+              <ul class="cross-list">
+                @for (item of s.notServiced; track $index) {
+                  <li>
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#e57373"
+                      stroke-width="2.5"
+                      aria-hidden="true"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                    {{ item }}
+                  </li>
+                }
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -243,6 +269,36 @@ function getServiceSlug(lang: string): string {
         border-bottom: none;
       }
       .check-list svg {
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .no-service {
+        margin-top: 1.6rem;
+        padding: 1rem 1.2rem;
+        border: 1px solid var(--color-border, #151515);
+        border-left: 3px solid #e57373;
+        border-radius: 8px;
+      }
+      .no-service h3 {
+        margin: 0 0 0.4rem;
+        font-size: 1rem;
+        color: var(--color-text, #eee);
+      }
+      .cross-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .cross-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.7rem;
+        padding: 0.4rem 0;
+        color: var(--color-text-secondary, #ccc);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+      .cross-list svg {
         flex-shrink: 0;
         margin-top: 2px;
       }

@@ -25,6 +25,12 @@ export interface ServiceTranslation {
   introText: string;
   servicesHeading: string;
   services: string[];
+  /**
+   * Was wir ausdruecklich NICHT machen. Steht direkt unter den Leistungen,
+   * damit niemand umsonst herfaehrt.
+   */
+  notServicedHeading: string;
+  notServiced: string[];
   processHeading: string;
   processSteps: string[];
   faqHeading: string;
@@ -61,6 +67,11 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Kette, Antrieb & bewegliche Teile reinigen und ölen',
       'Licht prüfen',
       'Fahrrad-Aufbereitung & Reinigung vor dem Verkauf',
+    ],
+    notServicedHeading: 'Das machen wir nicht',
+    notServiced: [
+      'Keine Reparatur und keine Wartung an E-Bikes und Pedelecs',
+      'Keine Reparatur und keine Wartung an Rennrädern',
     ],
     processHeading: 'So läuft der Service ab',
     processSteps: [
@@ -115,6 +126,11 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Lights & electrics check',
       'Bike preparation & cleaning before sale',
     ],
+    notServicedHeading: "What we don't do",
+    notServiced: [
+      'No repairs or servicing on e-bikes and pedelecs',
+      'No repairs or servicing on road bikes',
+    ],
     processHeading: 'How the service works',
     processSteps: [
       'Drop by — bring your bike to Heckerstraße 27, no appointment needed.',
@@ -163,6 +179,11 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Chaîne, transmission & pièces mobiles nettoyées et huilées',
       'Contrôle de l’éclairage & de l’électrique',
       'Préparation & nettoyage du vélo avant la vente',
+    ],
+    notServicedHeading: 'Ce que nous ne faisons pas',
+    notServiced: [
+      "Pas de réparation ni d'entretien sur les vélos électriques et pedelecs",
+      "Pas de réparation ni d'entretien sur les vélos de course",
     ],
     processHeading: 'Comment se déroule le service',
     processSteps: [
@@ -216,6 +237,11 @@ export const SERVICE_CONTENT: ServiceTranslationMap = {
       'Zincir, aktarma & hareketli parçaların temizliği ve yağlanması',
       'Işık & elektrik kontrolü',
       'Satış öncesi bisiklet hazırlığı & temizliği',
+    ],
+    notServicedHeading: 'Yapmadığımız işler',
+    notServiced: [
+      'E-bike ve pedeleclerde onarım ve bakım yapmıyoruz',
+      'Yarış bisikletlerinde (Rennrad) onarım ve bakım yapmıyoruz',
     ],
     processHeading: 'Servis nasıl işliyor',
     processSteps: [
