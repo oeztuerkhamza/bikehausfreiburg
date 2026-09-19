@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: 'diagnose | reload | renew | reissue | bootstrap'
+        description: 'diagnose | reload | renew | reissue | bootstrap | mailcow-sync'
         required: false
         default: 'diagnose'
         type: choice
@@ -32,6 +32,7 @@ on:
           - renew # certbot renew + nginx reload
           - reissue # Zertifikat sofort neu ausstellen (--force-renewal)
           - bootstrap # deploy/setup-ssl.sh — Erstausstellung / Domains ergänzen
+          - mailcow-sync # Mailcow-Kopie erzwingen + Timer neu einrichten
 
 concurrency:
   group: ssl-ops
@@ -90,10 +91,33 @@ jobs:
                 chmod +x deploy/setup-ssl.sh deploy/ssl-status.sh
                 deploy/setup-ssl.sh
                 ;;
+              mailcow-sync)
+                # Installer mitlaufen lassen: bringt Skript und Timer auf
+                # den Stand des Repos, falls jemand auf dem Server
+                # herumeditiert hat.
+                chmod +x deploy/mailcow-cert-sync.sh deploy/install-mailcow-cert-sync.sh
+                deploy/install-mailcow-cert-sync.sh
+                /usr/local/sbin/mailcow-cert-sync.sh --force
+                ;;
               *)
                 echo "(diagnose — keine Änderung)"
                 ;;
             esac
+
+            # Nach JEDER Aktion die Mailcow-Kopie nachziehen: ein frisch
+            # erneuertes Zertifikat liegt sonst nur im certbot-Volume,
+            # während Postfix und Dovecot das alte weiterreichen. Das
+            # Skript ist idempotent, ein Lauf ohne Änderung kostet nichts.
+            # Bei diagnose nur prüfen, damit „nichts ändern" auch gilt.
+            if [ -x /usr/local/sbin/mailcow-cert-sync.sh ]; then
+              echo ""
+              echo "==> Mailcow-Zertifikat abgleichen"
+              if [ "${ACTION:-diagnose}" = "diagnose" ]; then
+                /usr/local/sbin/mailcow-cert-sync.sh --check || true
+              elif [ "${ACTION:-diagnose}" != "mailcow-sync" ]; then
+                /usr/local/sbin/mailcow-cert-sync.sh || true
+              fi
+            fi
 
             echo ""
             echo "==> Statusbericht"
@@ -167,6 +191,22 @@ jobs:
             echo "==> Renew-Loop-Container sicherstellen"
             docker compose up -d certbot
 
+            # Mailcow hält eine Kopie des Zertifikats. Ein reiner
+            # nginx-Reload repariert deshalb nur die Website — die
+            # Mailports blieben auf dem alten Stand.
+            echo "==> Mailcow-Kopie nachziehen"
+            if [ ! -x /usr/local/sbin/mailcow-cert-sync.sh ] \
+               && [ -f deploy/install-mailcow-cert-sync.sh ]; then
+              echo "   (Timer fehlt — wird eingerichtet)"
+              chmod +x deploy/mailcow-cert-sync.sh deploy/install-mailcow-cert-sync.sh
+              deploy/install-mailcow-cert-sync.sh || true
+            fi
+            if [ -x /usr/local/sbin/mailcow-cert-sync.sh ]; then
+              /usr/local/sbin/mailcow-cert-sync.sh || true
+              # Timer könnte abgeschaltet worden sein — wieder anwerfen.
+              systemctl enable --now mailcow-cert-sync.timer || true
+            fi
+
             exit 0
 
       - uses: actions/checkout@v6
@@ -179,6 +219,50 @@ jobs:
           WARN_DAYS="${WARN_DAYS}" deploy/ssl-status.sh
 
   # ───────────────────────────────────────────────────────────────
+  # Mailcow serverseitig prüfen.
+  #
+  # Der check-Job schaut von außen und kann an gesperrten Mailports
+  # scheitern, ohne dass etwas kaputt ist. Hier wird per SSH das
+  # verbindliche Urteil geholt: liegt bei Mailcow dasselbe Zertifikat
+  # wie bei certbot? Das Skript repariert dabei gleich selbst — es
+  # kopiert, lädt neu und zieht SKIP_LETS_ENCRYPT=y nach.
+  #
+  # Zweiter Zweck: der stündliche Timer wird hier täglich nachgezogen.
+  # Ein Timer, den jemand abgeschaltet hat, fiele sonst erst auf, wenn
+  # drei Monate später die Zertifikate ablaufen.
+  # ───────────────────────────────────────────────────────────────
+  mailcow:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync and verify mailcow certificate
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            set -uo pipefail
+            cd /opt/bikehaus
+
+            # Selbstheilung: fehlt das Skript (frischer Server, Neuinstall),
+            # wird es aus dem Repo eingerichtet statt zu scheitern.
+            if [ ! -x /usr/local/sbin/mailcow-cert-sync.sh ]; then
+              echo "==> mailcow-cert-sync fehlt — wird eingerichtet"
+              chmod +x deploy/mailcow-cert-sync.sh deploy/install-mailcow-cert-sync.sh
+              deploy/install-mailcow-cert-sync.sh
+            fi
+
+            if ! systemctl is-active --quiet mailcow-cert-sync.timer; then
+              echo "==> Timer war aus — wird wieder aktiviert"
+              systemctl enable --now mailcow-cert-sync.timer
+            fi
+
+            echo "==> Abgleich"
+            /usr/local/sbin/mailcow-cert-sync.sh
+
+  # ───────────────────────────────────────────────────────────────
   # Ergebnis hart machen, damit GitHub bei einem echten Problem
   # benachrichtigt — auch wenn auto-repair gar nicht erst lief.
   # ───────────────────────────────────────────────────────────────
@@ -186,7 +270,7 @@ jobs:
   # diagnose-Lauf über einem abgelaufenen Zertifikat wäre sonst grün
   # durchgegangen, weil der check-Job den Statusbericht bewusst abfängt.
   report:
-    needs: [check, auto-repair]
+    needs: [check, auto-repair, mailcow]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -194,7 +278,19 @@ jobs:
         run: |
           healthy="${{ needs.check.outputs.healthy }}"
           repair="${{ needs.auto-repair.result }}"
-          echo "check.healthy=$healthy  auto-repair=$repair"
+          mailcow="${{ needs.mailcow.result }}"
+          echo "check.healthy=$healthy  auto-repair=$repair  mailcow=$mailcow"
+
+          # Mailcow zuerst: der Job urteilt serverseitig und damit
+          # verlässlicher als die Außenansicht. Scheitert er, hilft auch
+          # ein grüner Webcheck nicht — Mail ist dann kaputt.
+          if [ "$mailcow" = "failure" ]; then
+            echo "✗ Mailcow-Zertifikat konnte nicht abgeglichen werden."
+            echo "  Log: journalctl -u mailcow-cert-sync -n 50"
+            echo "  Fix: SSL Ops -> action=mailcow-sync"
+            exit 1
+          fi
+
           if [ "$healthy" = "true" ]; then
             echo "✓ Zertifikate in Ordnung."
             exit 0
