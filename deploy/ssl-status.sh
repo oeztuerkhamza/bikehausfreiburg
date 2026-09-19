@@ -113,6 +113,111 @@ for host in "${DOMAINS[@]}"; do
 done
 
 # ───────────────────────────────────────────────────────────────────
+# Mailports: liefert Mailcow dasselbe Zertifikat aus wie der Webserver?
+#
+# Eigener Abschnitt, weil Mailcow eine KOPIE des Zertifikats hält und
+# nicht die Dateien von certbot liest. Port 443 kann längst erneuert
+# sein, während Postfix und Dovecot noch das alte ausliefern — Besucher
+# merken davon nichts, Mailclients brechen die Verbindung ab.
+# deploy/mailcow-cert-sync.sh hält die Kopie nach; hier prüfen wir, ob
+# das auch wirklich angekommen ist.
+# ───────────────────────────────────────────────────────────────────
+MAIL_HOST="${MAIL_HOST:-mail.bikehausfreiburg.com}"
+
+# Nur prüfen, wenn der Mailhost überhaupt zum Prüfauftrag gehört —
+# sonst würde ein gezieltes „ssl-status.sh example.com" unnötig an
+# fremden Mailports klopfen.
+check_mail=0
+for d in "${DOMAINS[@]}"; do
+  [ "$d" = "$MAIL_HOST" ] && check_mail=1
+done
+
+probe_mail_port() {
+  local port="$1" label="$2"; shift 2
+  local cert subject issuer sans not_after end_epoch days_left fp
+
+  echo ""
+  echo "── ${label} (Port ${port}) ────────────────────────────"
+
+  cert="$(echo | timeout 15 openssl s_client -connect "${MAIL_HOST}:${port}" \
+          -servername "$MAIL_HOST" "$@" 2>/dev/null | openssl x509 2>/dev/null)"
+
+  if [ -z "$cert" ]; then
+    # Bewusst nur Warnung: von außen ist „Dienst unten" nicht von
+    # „ausgehender Port gesperrt" zu unterscheiden, und CI-Runner sperren
+    # Mailports gern. Das harte Urteil fällt der serverseitige
+    # mailcow-cert-sync.sh --check weiter unten.
+    echo "  ⚠ Kein TLS-Handshake — Dienst unten oder Port von hier aus gesperrt"
+    note 2
+    return
+  fi
+
+  subject="$(echo "$cert" | openssl x509 -noout -subject 2>/dev/null | sed 's/^subject= *//')"
+  issuer="$(echo "$cert" | openssl x509 -noout -issuer 2>/dev/null | sed 's/^issuer= *//')"
+  not_after="$(echo "$cert" | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)"
+  fp="$(echo "$cert" | openssl x509 -noout -fingerprint -sha256 2>/dev/null | cut -d= -f2)"
+  sans="$(echo "$cert" | openssl x509 -noout -ext subjectAltName 2>/dev/null \
+          | tr ',' '\n' | sed -n 's/.*DNS://p' | tr -d ' ' | paste -sd' ' -)"
+
+  echo "  Issuer  : $issuer"
+  echo "  Läuft ab: $not_after"
+
+  # Der häufigste Ausfall: Mailcows eigenes ACME hat wieder ein
+  # Platzhalterzertifikat gelegt (SKIP_LETS_ENCRYPT steht nicht auf y).
+  if [ -n "$subject" ] && [ "$subject" = "$issuer" ]; then
+    echo "  ✗ Selbstsigniert — Mailcow liefert sein Platzhalterzertifikat aus."
+    echo "    Fix: deploy/mailcow-cert-sync.sh (setzt auch SKIP_LETS_ENCRYPT=y)"
+    note 1
+    return
+  fi
+
+  if echo " $sans " | grep -qi " ${MAIL_HOST} "; then
+    echo "  ✓ ${MAIL_HOST} im Zertifikat enthalten"
+  else
+    echo "  ✗ ${MAIL_HOST} NICHT im Zertifikat — jeder Mailclient meldet Namensfehler"
+    note 1
+  fi
+
+  end_epoch="$(date -d "$not_after" +%s 2>/dev/null || echo 0)"
+  if [ "$end_epoch" -gt 0 ]; then
+    days_left=$(((end_epoch - $(date +%s)) / 86400))
+    echo "  Restzeit: ${days_left} Tage"
+    if [ "$days_left" -lt 0 ]; then
+      echo "  ✗ ABGELAUFEN"
+      note 1
+    elif [ "$days_left" -lt "$WARN_DAYS" ]; then
+      echo "  ⚠ Erneuerung überfällig"
+      note 2
+    fi
+  fi
+
+  # Kernprüfung: dasselbe Zertifikat wie auf 443? Weicht es ab, hat der
+  # Abgleich nicht gegriffen — die Mailkopie ist eingefroren.
+  if [ -n "$WEB_FP" ] && [ -n "$fp" ] && [ "$fp" != "$WEB_FP" ]; then
+    echo "  ⚠ Anderes Zertifikat als auf Port 443 — Mailcow-Kopie hinkt hinterher."
+    echo "    Fix: deploy/mailcow-cert-sync.sh"
+    note 2
+  fi
+}
+
+if [ "$check_mail" -eq 1 ]; then
+  echo ""
+  echo "=================================================================="
+  echo " Mailports  (${MAIL_HOST})"
+  echo "=================================================================="
+
+  # Referenz: was liefert derselbe Host auf 443 aus? Daran messen wir,
+  # ob Mailcows Kopie aktuell ist.
+  WEB_FP="$(echo | timeout 15 openssl s_client -connect "${MAIL_HOST}:443" \
+            -servername "$MAIL_HOST" 2>/dev/null \
+            | openssl x509 -noout -fingerprint -sha256 2>/dev/null | cut -d= -f2)"
+
+  probe_mail_port 465 "SMTPS"
+  probe_mail_port 993 "IMAPS"
+  probe_mail_port 587 "Submission" -starttls smtp
+fi
+
+# ───────────────────────────────────────────────────────────────────
 # Serverseitige Zusatzinfos, wenn wir auf dem VPS laufen
 # ───────────────────────────────────────────────────────────────────
 if command -v docker > /dev/null 2>&1 && [ -f /opt/bikehaus/docker-compose.yml ]; then
@@ -151,6 +256,39 @@ if command -v docker > /dev/null 2>&1 && [ -f /opt/bikehaus/docker-compose.yml ]
     note 1
   fi
   docker compose exec -T nginx rm -f /var/lib/letsencrypt/.well-known/acme-challenge/_selftest > /dev/null 2>&1
+
+  # ── Mailcow-Abgleich ──
+  # Läuft der Timer überhaupt? Ein stillschweigend deaktivierter Timer
+  # fällt sonst erst auf, wenn das Zertifikat drei Monate später abläuft.
+  echo ""
+  echo "── mailcow-cert-sync: läuft der Timer? ──"
+  if ! command -v systemctl > /dev/null 2>&1; then
+    echo "  (kein systemd — Timer-Prüfung übersprungen)"
+  elif systemctl list-unit-files mailcow-cert-sync.timer > /dev/null 2>&1; then
+    if systemctl is-active --quiet mailcow-cert-sync.timer; then
+      systemctl list-timers mailcow-cert-sync.timer --no-pager 2>&1 | sed 's/^/  /'
+    else
+      echo "  ✗ Timer ist nicht aktiv — Mailcow bekommt keine Erneuerung mehr mit!"
+      echo "    Fix: systemctl enable --now mailcow-cert-sync.timer"
+      note 1
+    fi
+    echo ""
+    echo "── mailcow-cert-sync: Zertifikat auf dem Stand von certbot? ──"
+    if [ -x /usr/local/sbin/mailcow-cert-sync.sh ]; then
+      LOG_FILE="" /usr/local/sbin/mailcow-cert-sync.sh --check 2>&1 | sed 's/^/  /'
+      case "${PIPESTATUS[0]}" in
+        0) : ;;
+        2) note 2 ;;
+        *) note 1 ;;
+      esac
+    else
+      echo "  ⚠ /usr/local/sbin/mailcow-cert-sync.sh fehlt"
+      note 2
+    fi
+  else
+    echo "  ✗ Timer nicht installiert — deploy/install-mailcow-cert-sync.sh ausführen"
+    note 1
+  fi
 fi
 
 echo ""
