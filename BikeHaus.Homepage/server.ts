@@ -2,6 +2,7 @@ import { APP_BASE_HREF } from '@angular/common';
 import { CommonEngine } from '@angular/ssr';
 import express from 'express';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
 import {
@@ -17,6 +18,24 @@ export function app(): express.Express {
   const indexHtml = join(serverDistFolder, 'index.server.html');
 
   const commonEngine = new CommonEngine();
+
+  // Der Showroom zeigt den laufenden Bestand. Prerendert wird er trotzdem —
+  // nur so steht er mit canonical und hreflang im Build-Ergebnis, aus dem
+  // scripts/generate-sitemap.mjs die Sitemap ableitet. Ausgeliefert wird er
+  // aber IMMER frisch gerendert.
+  //
+  // Sonst friert der Bestand auf den Build-Tag ein: CommonEngine liefert eine
+  // prerenderte Seite unveraendert aus, und weil provideClientHydration() den
+  // HTTP-Transfer-Cache mitbringt, uebernimmt der Browser auch die damals
+  // eingebackene API-Antwort, statt neu zu laden. Genau das ist passiert —
+  // nach dem Abschalten der Kleinanzeigen lieferte die API 0 Anzeigen, im
+  // Showroom standen weiter die 158 vom Build-Tag.
+  //
+  // Der Griff dazu: CommonEngine greift nur auf die prerenderte Datei zurueck,
+  // wenn es den Pfad zum Dokument kennt (retrieveSSGPage). Uebergibt man den
+  // Inhalt stattdessen direkt als `document`, rendert es neu.
+  const LIVE_RENDER = /^\/(?:de|en|fr|tr)\/showroom\/?$/;
+  const indexHtmlContent = readFileSync(indexHtml, 'utf-8');
 
   server.set('view engine', 'html');
   server.set('views', browserDistFolder);
@@ -94,10 +113,14 @@ export function app(): express.Express {
   server.get('*', (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
 
+    const live = LIVE_RENDER.test(req.path);
+
     commonEngine
       .render({
         bootstrap,
-        documentFilePath: indexHtml,
+        ...(live
+          ? { document: indexHtmlContent }
+          : { documentFilePath: indexHtml }),
         url: `${protocol}://${headers.host}${originalUrl}`,
         publicPath: browserDistFolder,
         providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
