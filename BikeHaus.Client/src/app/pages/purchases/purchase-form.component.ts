@@ -258,6 +258,17 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
                   <option value="Sonstige">Sonstige</option>
                 </select>
               </div>
+              <!-- Die Gaenge stehen im Showroom-Titel („28 Zoll … 21 Gaenge"),
+                   ueber den die Homepage filtert — sie fehlten hier bisher
+                   ganz und mussten spaeter nachgetragen werden. -->
+              <div class="field">
+                <label>{{ t.gears }}</label>
+                <input
+                  [(ngModel)]="bicycle.gangschaltung"
+                  name="bikeGangschaltung"
+                  [placeholder]="t.gearsPlaceholder"
+                />
+              </div>
               <div class="field">
                 <label>{{ t.artLabel }} *</label>
                 <select [(ngModel)]="bicycle.art" name="bikeArt" required>
@@ -1371,6 +1382,7 @@ export class PurchaseFormComponent implements OnInit, OnDestroy {
     fahrradtyp: '',
     art: '',
     beschreibung: '',
+    gangschaltung: '',
     zustand: '' as BikeCondition | '',
     isRentable: false,
     rentalPriceDay1: undefined as number | undefined,
@@ -1491,6 +1503,7 @@ export class PurchaseFormComponent implements OnInit, OnDestroy {
     this.bicycle.fahrradtyp = draft.bicycle?.fahrradtyp ?? '';
     this.bicycle.art = draft.bicycle?.art ?? '';
     this.bicycle.beschreibung = draft.bicycle?.beschreibung ?? '';
+    this.bicycle.gangschaltung = draft.bicycle?.gangschaltung ?? '';
     this.bicycle.zustand = draft.bicycle?.zustand ?? '';
     this.bicycle.isRentable = !!draft.bicycle?.isRentable;
     this.bicycle.rentalPriceDay1 = draft.bicycle?.rentalPriceDay1;

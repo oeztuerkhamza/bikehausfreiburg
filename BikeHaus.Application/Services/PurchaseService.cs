@@ -202,6 +202,20 @@ public class PurchaseService : IPurchaseService
         bicycle.Status = dto.Bicycle.Status;
         bicycle.Zustand = dto.Bicycle.Zustand;
         bicycle.VerkaufspreisVorschlag = dto.Bicycle.VerkaufspreisVorschlag;
+        // null = beibehalten, "" = leeren (gleiche Regel wie in
+        // BicycleService.UpdateAsync). Die Gangschaltung steht im
+        // Showroom-Titel, wird aber nicht von jedem Formular mitgeschickt.
+        if (dto.Bicycle.Gangschaltung != null)
+            bicycle.Gangschaltung = string.IsNullOrWhiteSpace(dto.Bicycle.Gangschaltung)
+                ? null
+                : dto.Bicycle.Gangschaltung;
+        if (dto.Bicycle.IsPublishedOnWebsite.HasValue)
+        {
+            bicycle.IsPublishedOnWebsite = dto.Bicycle.IsPublishedOnWebsite.Value;
+            // Sichtbar schalten heisst: gehoert in den Showroom-Katalog. Die
+            // oeffentliche Abfrage verlangt beide Flags.
+            if (dto.Bicycle.IsPublishedOnWebsite.Value) bicycle.IsShowroomBike = true;
+        }
         bicycle.UpdatedAt = DateTime.UtcNow;
         await _bicycleRepository.UpdateAsync(bicycle);
 

@@ -540,6 +540,9 @@ export interface Translations {
   publishOnWebsite: string;
   unpublishFromWebsite: string;
   showroomVisibility: string;
+  gears: string;
+  gearsPlaceholder: string;
+  saleDocuments: string;
   showInShowroom: string;
   showInShowroomHint: string;
   showInShowroomNeedsPrice: string;
@@ -1462,6 +1465,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     publishOnWebsite: 'Auf Website veröffentlichen',
     unpublishFromWebsite: 'Von Website entfernen',
     showroomVisibility: 'Showroom',
+    gears: 'Gänge',
+    gearsPlaceholder: 'z. B. 21 Gänge',
+    saleDocuments: 'Verkaufsbelege (Intern)',
     showInShowroom: 'Im Showroom zeigen',
     showInShowroomHint:
       'Das Rad erscheint mit seinen Showroom-Fotos auf bikehausfreiburg.com. Verkauft sich das Rad, verschwindet es dort von selbst.',
@@ -2394,6 +2400,9 @@ const TRANSLATIONS: Record<Language, Translations> = {
     publishOnWebsite: 'Web Sitesinde Yayınla',
     unpublishFromWebsite: 'Web Sitesinden Kaldır',
     showroomVisibility: 'Showroom',
+    gears: 'Vites',
+    gearsPlaceholder: 'örn. 21 vites',
+    saleDocuments: 'Satış Belgeleri (Dahili)',
     showInShowroom: "Showroom'da göster",
     showInShowroomHint:
       "Bisiklet, showroom fotoğraflarıyla bikehausfreiburg.com'da görünür. Satıldığında oradan kendiliğinden kalkar.",

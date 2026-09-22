@@ -135,6 +135,14 @@ import { environment } from '../../../environments/environment';
                 </select>
               </div>
               <div class="field">
+                <label>{{ t.gears }}</label>
+                <input
+                  [(ngModel)]="bicycle.gangschaltung"
+                  name="bikeGangschaltung"
+                  [placeholder]="t.gearsPlaceholder"
+                />
+              </div>
+              <div class="field">
                 <label>{{ t.artLabel }}</label>
                 <select [(ngModel)]="bicycle.art" name="bikeArt">
                   <option value="">-- Auswählen --</option>
@@ -163,6 +171,31 @@ import { environment } from '../../../environments/environment';
                   name="bikeBeschr"
                   rows="4"
                 ></textarea>
+              </div>
+            </div>
+
+            <!-- Showroom: dieselbe Entscheidung wie im Ankaufsformular. Ohne
+                 sie liesse sich ein Rad hier zwar bebildern und bepreisen,
+                 aber nicht zeigen — und der „Bearbeiten"-Knopf der
+                 Showroom-Seite landet genau auf dieser Maske. -->
+            <h3 class="sub-heading">{{ t.showroomVisibility }}</h3>
+            <div class="form-grid">
+              <div class="field full">
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="publishInShowroom"
+                    name="publishInShowroom"
+                  />
+                  {{ t.showInShowroom }}
+                </label>
+                <small class="field-hint">{{ t.showInShowroomHint }}</small>
+                <small
+                  class="field-hint field-hint-warn"
+                  *ngIf="publishInShowroom && !verkaufspreisVorschlag"
+                >
+                  {{ t.showInShowroomNeedsPrice }}
+                </small>
               </div>
             </div>
           </div>
@@ -330,7 +363,7 @@ import { environment } from '../../../environments/environment';
 
           <!-- Sale Photo Gallery (Satış Fotoğrafları) -->
           <div class="form-card" *ngIf="sale">
-            <h2>📷 {{ t.salesPhotos || 'Satış Fotoğrafları' }}</h2>
+            <h2>🧾 {{ t.saleDocuments }}</h2>
             <div class="gallery-section">
               <div class="gallery-grid" *ngIf="saleDocuments.length > 0">
                 <div class="gallery-item" *ngFor="let doc of saleDocuments">
@@ -373,14 +406,50 @@ import { environment } from '../../../environments/environment';
             </div>
           </div>
 
-          <!-- Bicycle gallery photos (shown on the card & appended to the Kaufbeleg) -->
-          <div class="form-card" *ngIf="bicycleImages.length > 0">
-            <h2>📷 Fahrrad-Fotos</h2>
+          <!-- Showroom-Fotos: was der Kunde auf der Website sieht. Bisher nur
+               eine Anzeige ohne Knoepfe — wer hier ein Foto nachreichen oder
+               ein schlechtes entfernen wollte, musste auf eine andere Seite. -->
+          <div class="form-card">
+            <h2>📸 {{ t.salesPhotos }}</h2>
+            <p class="hint-text">{{ t.salesPhotosHint }}</p>
             <div class="gallery-section">
-              <div class="gallery-grid">
+              <div class="gallery-grid" *ngIf="bicycleImages.length > 0">
                 <div class="gallery-item" *ngFor="let img of bicycleImages">
-                  <img [src]="getGalleryImageUrl(img)" alt="Fahrrad-Foto" loading="lazy" />
+                  <img
+                    [src]="getGalleryImageUrl(img)"
+                    alt="Showroom-Foto"
+                    loading="lazy"
+                  />
+                  <button
+                    type="button"
+                    class="delete-btn"
+                    (click)="deleteBicycleImage(img)"
+                    title="Löschen"
+                  >
+                    ×
+                  </button>
                 </div>
+              </div>
+              <p *ngIf="bicycleImages.length === 0" class="no-photos">
+                {{ t.noPhotos }}
+              </p>
+              <div class="upload-row">
+                <input
+                  type="file"
+                  #galleryInput
+                  (change)="onGalleryPhotosSelected($event)"
+                  accept="image/*"
+                  multiple
+                  style="display: none"
+                />
+                <button
+                  type="button"
+                  class="btn btn-outline"
+                  (click)="galleryInput.click()"
+                  [disabled]="uploadingGallery"
+                >
+                  {{ uploadingGallery ? t.uploading : t.addPhotos }}
+                </button>
               </div>
             </div>
           </div>
@@ -464,6 +533,35 @@ import { environment } from '../../../environments/environment';
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 14px;
+      }
+      .sub-heading {
+        margin: 22px 0 12px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .checkbox-label input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+      .field-hint,
+      .hint-text {
+        display: block;
+        margin-top: 6px;
+        color: var(--text-secondary, #64748b);
+        font-size: 0.78rem;
+        line-height: 1.35;
+      }
+      .field-hint-warn {
+        color: #dc2626;
       }
       @media (max-width: 600px) {
         .form-grid {
@@ -743,6 +841,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     fahrradtyp: '',
     art: '',
     beschreibung: '',
+    gangschaltung: '',
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
     isRentable: false,
@@ -758,6 +857,9 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
 
   preis = 0;
   verkaufspreisVorschlag: number | null = null;
+  /** Showroom-Sichtbarkeit des Rades — gleiche Entscheidung wie im Ankaufsformular. */
+  publishInShowroom = false;
+  uploadingGallery = false;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   kaufdatum = '';
   notizen = '';
@@ -890,6 +992,45 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     });
   }
 
+  onGalleryPhotosSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const bicycleId = this.purchase?.bicycle?.id;
+    if (!input.files || input.files.length === 0 || !bicycleId) return;
+
+    this.uploadingGallery = true;
+    const uploads = Array.from(input.files).map((file) =>
+      this.bicycleService.uploadGalleryImage(bicycleId, file),
+    );
+
+    forkJoin(uploads).subscribe({
+      next: () => {
+        this.loadBicycleImages(bicycleId);
+        this.uploadingGallery = false;
+        input.value = '';
+      },
+      error: () => {
+        this.uploadingGallery = false;
+      },
+    });
+  }
+
+  deleteBicycleImage(img: BicycleImage) {
+    const bicycleId = this.purchase?.bicycle?.id;
+    if (!bicycleId) return;
+    this.dialogService
+      .danger(this.t.delete, this.t.confirmDelete)
+      .then((confirmed) => {
+        if (!confirmed) return;
+        this.bicycleService.deleteGalleryImage(bicycleId, img.id).subscribe({
+          next: () => {
+            this.bicycleImages = this.bicycleImages.filter(
+              (i) => i.id !== img.id,
+            );
+          },
+        });
+      });
+  }
+
   deleteDocument(doc: DocModel) {
     this.dialogService
       .danger(this.t.delete, this.t.confirmDelete)
@@ -997,6 +1138,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
         fahrradtyp: purchase.bicycle.fahrradtyp || '',
         art: purchase.bicycle.art || '',
         beschreibung: purchase.bicycle.beschreibung || '',
+        gangschaltung: purchase.bicycle.gangschaltung || '',
         status: (purchase.bicycle.status as BikeStatus) || BikeStatus.Available,
         zustand:
           (purchase.bicycle.zustand as BikeCondition) ||
@@ -1030,6 +1172,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
     this.notizen = purchase.notizen || '';
     this.anzeigeNr = purchase.anzeigeNr || '';
     this.belegNummer = purchase.belegNummer || '';
+    this.publishInShowroom = purchase.bicycle?.isPublishedOnWebsite ?? false;
   }
 
   submit() {
@@ -1038,7 +1181,16 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
 
     const update: PurchaseUpdate = {
       // lagernummer: empty input means "clear" → send 0 (backend: null=keep, 0=clear)
-      bicycle: { ...this.bicycle, lagernummer: this.bicycle.lagernummer ?? 0 },
+      bicycle: {
+        ...this.bicycle,
+        lagernummer: this.bicycle.lagernummer ?? 0,
+        // Der Showroom zeigt den Preis des FAHRRADS. Der Server setzt das Feld
+        // hier ohne Umschweife — ohne diese Zeile ginge der Preis beim
+        // Bearbeiten eines Ankaufs verloren, und das Rad stuende danach
+        // preislos auf der Website.
+        verkaufspreisVorschlag: this.verkaufspreisVorschlag ?? undefined,
+        isPublishedOnWebsite: this.publishInShowroom,
+      },
       seller: this.seller,
       preis: this.preis,
       verkaufspreisVorschlag: this.verkaufspreisVorschlag || undefined,
