@@ -414,12 +414,29 @@ import { environment } from '../../../environments/environment';
             <p class="hint-text">{{ t.salesPhotosHint }}</p>
             <div class="gallery-section">
               <div class="gallery-grid" *ngIf="bicycleImages.length > 0">
-                <div class="gallery-item" *ngFor="let img of bicycleImages">
+                <div
+                  class="gallery-item"
+                  *ngFor="let img of bicycleImages; let first = first"
+                  [class.is-title]="first"
+                >
                   <img
                     [src]="getGalleryImageUrl(img)"
                     alt="Showroom-Foto"
                     loading="lazy"
                   />
+                  <!-- Das erste Foto ist das Titelbild: die Homepage zeigt in
+                       der Uebersicht genau das, sortiert nach SortOrder. -->
+                  <span class="title-badge" *ngIf="first">★ {{ t.titleImage }}</span>
+                  <button
+                    type="button"
+                    class="title-btn"
+                    *ngIf="!first"
+                    (click)="setTitleImage(img)"
+                    [disabled]="settingTitle"
+                    [title]="t.makeTitleImage"
+                  >
+                    ★
+                  </button>
                   <button
                     type="button"
                     class="delete-btn"
@@ -660,6 +677,48 @@ import { environment } from '../../../environments/environment';
         gap: 12px;
         margin-bottom: 16px;
       }
+      .title-badge {
+        position: absolute;
+        left: 6px;
+        bottom: 6px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.82);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        pointer-events: none;
+      }
+      .title-btn {
+        position: absolute;
+        left: 6px;
+        top: 6px;
+        width: 26px;
+        height: 26px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(15, 23, 42, 0.6);
+        color: #fff;
+        font-size: 0.9rem;
+        line-height: 1;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s, background 0.2s;
+      }
+      .gallery-item:hover .title-btn {
+        opacity: 1;
+      }
+      .title-btn:hover:not(:disabled) {
+        background: var(--color-accent, #f97316);
+      }
+      .title-btn:disabled {
+        cursor: not-allowed;
+      }
+      .gallery-item.is-title {
+        border-color: var(--color-accent, #f97316);
+        box-shadow: 0 0 0 2px var(--color-accent, #f97316);
+      }
       .gallery-item {
         position: relative;
         aspect-ratio: 1;
@@ -860,6 +919,7 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
   /** Showroom-Sichtbarkeit des Rades — gleiche Entscheidung wie im Ankaufsformular. */
   publishInShowroom = false;
   uploadingGallery = false;
+  settingTitle = false;
   zahlungsart: PaymentMethod = PaymentMethod.Bar;
   kaufdatum = '';
   notizen = '';
@@ -1010,6 +1070,31 @@ export class PurchaseEditComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.uploadingGallery = false;
+      },
+    });
+  }
+
+  /**
+   * Macht ein Foto zum Titelbild. Die Homepage zeigt in der Uebersicht das
+   * erste Bild nach SortOrder — "Titelbild" heisst also schlicht: ganz nach
+   * vorne sortieren. Der Rest behaelt seine Reihenfolge.
+   */
+  setTitleImage(img: BicycleImage) {
+    const bicycleId = this.purchase?.bicycle?.id;
+    if (!bicycleId || this.settingTitle) return;
+
+    const order = [
+      img.id,
+      ...this.bicycleImages.filter((i) => i.id !== img.id).map((i) => i.id),
+    ];
+    this.settingTitle = true;
+    this.bicycleService.reorderGalleryImages(bicycleId, order).subscribe({
+      next: (imgs) => {
+        this.bicycleImages = imgs;
+        this.settingTitle = false;
+      },
+      error: () => {
+        this.settingTitle = false;
       },
     });
   }

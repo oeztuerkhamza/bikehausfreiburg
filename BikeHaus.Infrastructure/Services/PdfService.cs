@@ -221,12 +221,14 @@ public class PdfService : IPdfService
 
         var shop = await GetShopInfoAsync();
 
-        // Append the bicycle's gallery photos (the same images shown on the
-        // purchase card) to the bottom of the receipt. Files missing on disk are
-        // skipped so a broken image never breaks the receipt.
-        var bicycleWithImages = await _bicycleRepository.GetWithImagesAsync(purchase.BicycleId);
-        var galleryImages = bicycleWithImages?.Images ?? new List<BicycleImage>();
-        var ankaufPhotos = await LoadBicycleGalleryImagesAsync(galleryImages);
+        // Unter den Beleg gehoeren die INTERNEN Ankaufsfotos — der
+        // Kleinanzeigen-Screenshot, das Foto vom Zustand bei der Uebergabe.
+        // Bis hierher standen dort die Showroom-Fotos: die zeigen das frisch
+        // aufbereitete Rad von der Schokoladenseite und belegen gerade nicht,
+        // in welchem Zustand es hereinkam. Nur Bilddateien, PDFs lassen sich
+        // nicht einbetten; fehlende Dateien werden uebersprungen, damit ein
+        // kaputtes Foto nie den Beleg zerschiesst.
+        var ankaufPhotos = await LoadDocumentImagesAsync(purchase.Documents);
 
         QuestPDF.Settings.License = LicenseType.Community;
 
@@ -451,6 +453,46 @@ public class PdfService : IPdfService
     // "uploads/gallery/{id}/{file}"; the leading "uploads/" is stripped so it
     // resolves against the FileStorage base path in both dev and production. Files
     // that can no longer be found on disk are ignored.
+    /// <summary>
+    /// Laedt die Bilddateien der Ankaufsbelege (interne Fotos) fuer den
+    /// Kaufbeleg. Document.FilePath ist bereits relativ zum Speicherort
+    /// ("screenshot/xyz.jpg"); ein vorangestelltes "uploads/" wird
+    /// sicherheitshalber entfernt, weil andere Pfade im Haus es tragen.
+    /// </summary>
+    private async Task<List<byte[]>> LoadDocumentImagesAsync(IEnumerable<BikeHaus.Domain.Entities.Document>? documents)
+    {
+        var result = new List<byte[]>();
+        if (documents == null) return result;
+
+        foreach (var doc in documents
+                     .Where(d => !string.IsNullOrEmpty(d.FilePath)
+                                 && d.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+                     .OrderBy(d => d.CreatedAt).ThenBy(d => d.Id))
+        {
+            var relativePath = doc.FilePath;
+            if (relativePath.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase))
+                relativePath = relativePath.Substring("uploads/".Length);
+            relativePath = relativePath.Replace('/', Path.DirectorySeparatorChar);
+
+            if (!_fileStorage.FileExists(relativePath))
+                continue;
+
+            try
+            {
+                using var stream = await _fileStorage.GetFileAsync(relativePath);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                result.Add(ms.ToArray());
+            }
+            catch
+            {
+                // Ein unlesbares Foto darf den Beleg nicht scheitern lassen.
+            }
+        }
+
+        return result;
+    }
+
     private async Task<List<byte[]>> LoadBicycleGalleryImagesAsync(IEnumerable<BicycleImage> images)
     {
         var result = new List<byte[]>();

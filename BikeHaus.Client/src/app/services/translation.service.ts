@@ -543,6 +543,8 @@ export interface Translations {
   gears: string;
   gearsPlaceholder: string;
   saleDocuments: string;
+  titleImage: string;
+  makeTitleImage: string;
   showInShowroom: string;
   showInShowroomHint: string;
   showInShowroomNeedsPrice: string;
@@ -1468,6 +1470,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     gears: 'Gänge',
     gearsPlaceholder: 'z. B. 21 Gänge',
     saleDocuments: 'Verkaufsbelege (Intern)',
+    titleImage: 'Titelbild',
+    makeTitleImage: 'Als Titelbild verwenden',
     showInShowroom: 'Im Showroom zeigen',
     showInShowroomHint:
       'Das Rad erscheint mit seinen Showroom-Fotos auf bikehausfreiburg.com. Verkauft sich das Rad, verschwindet es dort von selbst.',
@@ -2403,6 +2407,8 @@ const TRANSLATIONS: Record<Language, Translations> = {
     gears: 'Vites',
     gearsPlaceholder: 'örn. 21 vites',
     saleDocuments: 'Satış Belgeleri (Dahili)',
+    titleImage: 'Kapak fotoğrafı',
+    makeTitleImage: 'Kapak fotoğrafı yap',
     showInShowroom: "Showroom'da göster",
     showInShowroomHint:
       "Bisiklet, showroom fotoğraflarıyla bikehausfreiburg.com'da görünür. Satıldığında oradan kendiliğinden kalkar.",
