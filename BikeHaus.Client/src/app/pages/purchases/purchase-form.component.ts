@@ -36,6 +36,7 @@ interface PurchaseFormDraft {
     fahrradtyp: string;
     art: string;
     beschreibung: string;
+    gangschaltung: string;
     zustand: BikeCondition | '';
     isRentable: boolean;
     rentalPriceDay1: number | undefined;
@@ -1554,6 +1555,7 @@ export class PurchaseFormComponent implements OnInit, OnDestroy {
         fahrradtyp: this.bicycle.fahrradtyp,
         art: this.bicycle.art,
         beschreibung: this.bicycle.beschreibung,
+        gangschaltung: this.bicycle.gangschaltung,
         zustand: this.bicycle.zustand,
         isRentable: this.bicycle.isRentable,
         rentalPriceDay1: this.bicycle.rentalPriceDay1,
