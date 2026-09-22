@@ -133,7 +133,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
             <span class="nav-label">{{ t.neueFahrraeder }}</span>
           </a>
           <a
-            routerLink="/gebrauchte-fahrraeder"
+            routerLink="/showroom"
             routerLinkActive="active"
             (click)="closeSidebar()"
           >
@@ -154,7 +154,7 @@ import { DialogComponent } from './components/dialog/dialog.component';
                 <path d="M9 8.5h4" />
               </svg>
             </span>
-            <span class="nav-label">Gebrauchte Fahrräder</span>
+            <span class="nav-label">Showroom</span>
           </a>
           <a
             routerLink="/e-bikes"

@@ -281,13 +281,16 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'gebrauchte-fahrraeder',
+    path: 'showroom',
     loadComponent: () =>
-      import(
-        './pages/gebrauchte-fahrraeder/gebrauchte-fahrrad-list.component'
-      ).then((m) => m.GebrauchteFahrradListComponent),
+      import('./pages/showroom/showroom-list.component').then(
+        (m) => m.ShowroomListComponent,
+      ),
     canActivate: [authGuard],
   },
+  // Die Seite hiess bis September 2026 „Gebrauchte Fahrräder". Wer den alten
+  // Pfad gespeichert hat, soll nicht im Nichts landen.
+  { path: 'gebrauchte-fahrraeder', redirectTo: 'showroom', pathMatch: 'full' },
   {
     path: 'neue-fahrraeder/new',
     loadComponent: () =>

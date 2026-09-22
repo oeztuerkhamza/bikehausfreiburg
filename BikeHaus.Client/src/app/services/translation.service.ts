@@ -549,6 +549,9 @@ export interface Translations {
   galleryPhotosHint: string;
   salesPhotos: string;
   salesPhotosHint: string;
+  publishInShowroom: string;
+  publishInShowroomHint: string;
+  showroomNeedsSalesPrice: string;
   purchasePhotos: string;
   purchasePhotosHint: string;
   artLabel: string;
@@ -1463,9 +1466,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     galleryPhotos: 'Galerie-Fotos (Website & Kleinanzeigen)',
     galleryPhotosHint:
       'Diese Fotos werden für die Veröffentlichung auf der Website und für Kleinanzeigen-Inserate verwendet.',
-    salesPhotos: 'Verkaufsfotos (Website & Kleinanzeigen)',
+    salesPhotos: 'Showroom-Fotos (öffentlich)',
     salesPhotosHint:
-      'Diese Fotos werden öffentlich angezeigt – für die Website und Kleinanzeigen-Inserate.',
+      'Diese Fotos zeigt der Showroom auf bikehausfreiburg.com. Die Einkaufsfotos darunter bleiben intern.',
+    publishInShowroom: 'Im Showroom zeigen',
+    publishInShowroomHint:
+      'Das Rad erscheint sofort auf der Website. Verkauft sich das Rad, verschwindet es dort von selbst.',
+    showroomNeedsSalesPrice:
+      'Für den Showroom wird ein Verkaufspreis gebraucht — sonst steht das Rad ohne Preis auf der Website.',
     purchasePhotos: 'Einkaufsfotos (Intern)',
     purchasePhotosHint:
       'Nur zur internen Dokumentation – diese Fotos werden nicht öffentlich angezeigt.',
@@ -2384,9 +2392,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
     galleryPhotos: 'Galeri Fotoğrafları (Web Sitesi & Kleinanzeigen)',
     galleryPhotosHint:
       'Bu fotoğraflar web sitesinde yayınlama ve Kleinanzeigen ilanı oluşturma amacıyla kullanılacaktır.',
-    salesPhotos: 'Satış Fotoğrafları (Web Sitesi & Kleinanzeigen)',
+    salesPhotos: 'Showroom Fotoğrafları (herkese açık)',
     salesPhotosHint:
-      'Bu fotoğraflar herkese açık gösterilir – web sitesi ve Kleinanzeigen ilanları için.',
+      "Bu fotoğraflar bikehausfreiburg.com'daki showroom'da görünür. Alttaki alış fotoğrafları dahili kalır.",
+    publishInShowroom: "Showroom'da göster",
+    publishInShowroomHint:
+      'Bisiklet hemen web sitesinde görünür. Satıldığında oradan kendiliğinden kalkar.',
+    showroomNeedsSalesPrice:
+      "Showroom için satış fiyatı gerekir — yoksa bisiklet sitede fiyatsız görünür.",
     purchasePhotos: 'Alış Fotoğrafları (Dahili)',
     purchasePhotosHint:
       'Sadece dahili belgeleme için – bu fotoğraflar dışarıya gösterilmez.',

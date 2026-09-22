@@ -465,6 +465,81 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
             class="wizard-step"
             [class.wizard-hidden]="isMobile && currentStep !== 3"
           >
+          <!-- Showroom-Fotos: was der Kunde auf der Website sieht. Steht
+               bewusst VOR den Einkaufsfotos — es ist die Entscheidung, die man
+               beim Ankauf trifft, die Belegfotos sind reine Ablage. -->
+          <div class="form-card" *ngIf="!bulkMode">
+            <h2>📸 {{ t.salesPhotos }}</h2>
+            <p class="hint-text">
+              {{ t.salesPhotosHint }}
+            </p>
+            <div class="upload-area">
+              <input
+                type="file"
+                #galleryInput
+                (change)="onGalleryFilesSelected($event)"
+                accept="image/*"
+                multiple
+                style="display: none"
+              />
+              <input
+                type="file"
+                #galleryCamera
+                (change)="onGalleryFilesSelected($event)"
+                accept="image/*"
+                capture="environment"
+                style="display: none"
+              />
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="galleryInput.click()"
+              >
+                🖼️ {{ t.selectPhotos }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline"
+                (click)="galleryCamera.click()"
+              >
+                📸 {{ t.takePhoto }}
+              </button>
+              <span class="file-count" *ngIf="galleryFiles.length > 0">
+                {{ galleryFiles.length }} {{ t.photosSelected }}
+              </span>
+            </div>
+            <div class="preview-grid" *ngIf="galleryPreviewUrls.length > 0">
+              <div
+                class="preview-item"
+                *ngFor="let url of galleryPreviewUrls; let i = index"
+              >
+                <img [src]="url" alt="Showroom" />
+                <button
+                  type="button"
+                  class="remove-btn"
+                  (click)="removeGalleryFile(i)"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <!-- Der Haken setzt sich mit dem ersten Foto von selbst. Er bleibt
+                 trotzdem sichtbar: ein frisch angekauftes Rad geht oft erst
+                 nach dem Service online. -->
+            <label class="showroom-toggle">
+              <input
+                type="checkbox"
+                [(ngModel)]="publishInShowroom"
+                name="publishInShowroom"
+              />
+              <span>{{ t.publishInShowroom }}</span>
+            </label>
+            <small class="showroom-toggle-hint">
+              {{ t.publishInShowroomHint }}
+            </small>
+          </div>
+
           <!-- Einkaufsfotos (internal documentation) -->
           <div class="form-card" *ngIf="!bulkMode">
             <h2>📄 {{ t.purchasePhotos }}</h2>
@@ -548,6 +623,12 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
           </p>
           <p *ngIf="!kaufdatum" class="error-msg">
             ⚠️ {{ t.purchaseDateIsRequired }}
+          </p>
+          <p
+            *ngIf="publishInShowroom && !verkaufspreisVorschlag"
+            class="error-msg"
+          >
+            ⚠️ {{ t.showroomNeedsSalesPrice }}
           </p>
         </div>
 
@@ -915,6 +996,25 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
         font-size: 0.85rem;
         color: var(--text-secondary, #64748b);
         margin-bottom: 12px;
+      }
+      .showroom-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .showroom-toggle input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+      .showroom-toggle-hint {
+        display: block;
+        margin-top: 4px;
+        color: var(--text-secondary, #64748b);
+        font-size: 0.78rem;
       }
       .upload-area {
         display: flex;
@@ -1299,6 +1399,13 @@ export class PurchaseFormComponent implements OnInit, OnDestroy {
   galleryFiles: File[] = [];
   galleryPreviewUrls: string[] = [];
 
+  /**
+   * Soll das Rad nach dem Ankauf sofort im Showroom stehen? Setzt sich mit dem
+   * ersten Showroom-Foto von selbst — ohne Foto hat eine Veroeffentlichung
+   * keinen Sinn, mit Foto ist sie fast immer gewollt.
+   */
+  publishInShowroom = false;
+
   brands: string[] = [];
   models: string[] = [];
   storeNames: string[] = [];
@@ -1522,6 +1629,13 @@ export class PurchaseFormComponent implements OnInit, OnDestroy {
       );
     }
 
+    // Der Showroom zeigt den Verkaufspreis. Ohne ihn stuende das Rad
+    // preislos auf der Website — deshalb ist er Pflicht, sobald der Haken
+    // steht, und nur dann.
+    if (this.publishInShowroom && !(this.verkaufspreisVorschlag ?? 0)) {
+      return false;
+    }
+
     // Einzelankauf: Zustand ist Pflicht (Neu oder Gebraucht).
     // Seller vorname and nachname are now optional
     return baseValid && !!this.bicycle.zustand;
@@ -1584,6 +1698,9 @@ export class PurchaseFormComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (input.files) {
       for (const file of Array.from(input.files)) {
+        // Wer hier ein Foto anhaengt, will das Rad zeigen. Der Haken folgt
+        // deshalb dem ersten Foto — abwaehlen laesst er sich weiterhin.
+        if (this.galleryFiles.length === 0) this.publishInShowroom = true;
         this.galleryFiles.push(file);
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -1598,6 +1715,9 @@ export class PurchaseFormComponent implements OnInit, OnDestroy {
   removeGalleryFile(index: number) {
     this.galleryFiles.splice(index, 1);
     this.galleryPreviewUrls.splice(index, 1);
+    // Ohne Foto hat der Showroom-Eintrag keinen Sinn — ein Rad ohne Bild wird
+    // online nicht angeklickt.
+    if (this.galleryFiles.length === 0) this.publishInShowroom = false;
   }
 
   submit() {
@@ -1661,7 +1781,17 @@ export class PurchaseFormComponent implements OnInit, OnDestroy {
 
   private submitSingle() {
     const purchase: PurchaseCreate = {
-      bicycle: { ...this.bicycle, zustand: this.bicycle.zustand as BikeCondition },
+      bicycle: {
+        ...this.bicycle,
+        zustand: this.bicycle.zustand as BikeCondition,
+        // Der Showroom zeigt den Preis des FAHRRADS, nicht den des Belegs —
+        // ohne diese Zeile stuende das Rad ohne Preis auf der Website.
+        verkaufspreisVorschlag: this.verkaufspreisVorschlag || undefined,
+        // Beide Flags: das eine sagt "gehoert in den Katalog", das andere
+        // "ist gerade sichtbar". Die oeffentliche Abfrage verlangt beide.
+        isShowroomBike: this.publishInShowroom,
+        isPublishedOnWebsite: this.publishInShowroom,
+      },
       seller: this.seller,
       preis: this.preis,
       verkaufspreisVorschlag: this.verkaufspreisVorschlag || undefined,

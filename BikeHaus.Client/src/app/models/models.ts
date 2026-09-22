@@ -130,6 +130,11 @@ export interface BicycleCreate {
   rentalPricePerDayFrom10?: number;
   /** Von der Showroom-Pflegeseite gesetzt: das Rad gehört in den Katalog. */
   isShowroomBike?: boolean;
+  /**
+   * Direkt beim Anlegen sichtbar schalten (Ankaufsformular, Showroom-Fotos).
+   * Gehört mit isShowroomBike zusammen — die öffentliche Abfrage verlangt beide.
+   */
+  isPublishedOnWebsite?: boolean;
 }
 
 export interface BicycleUpdate {

@@ -1,4 +1,4 @@
-﻿using BikeHaus.Application.DTOs;
+using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Services;
 using BikeHaus.Domain.Entities;
 
@@ -96,7 +96,8 @@ public static class MappingExtensions
         Fahrradnummer = dto.Fahrradnummer,
         KoerpergroesseVonCm = dto.KoerpergroesseVonCm,
         KoerpergroesseBisCm = dto.KoerpergroesseBisCm,
-        IsShowroomBike = dto.IsShowroomBike
+        IsShowroomBike = dto.IsShowroomBike,
+        IsPublishedOnWebsite = dto.IsPublishedOnWebsite
     };
 
     public static PublicRentalBicycleDto ToPublicRentalDto(this Bicycle entity) => new(

@@ -27,17 +27,17 @@ import { environment } from '../../../environments/environment';
  * dabei herauskommt.
  */
 @Component({
-  selector: 'app-gebrauchte-fahrrad-list',
+  selector: 'app-showroom-list',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page">
       <div class="page-header">
         <div>
-          <h1>Gebrauchte Fahrräder</h1>
+          <h1>Showroom</h1>
           <p class="page-sub">
-            Räder, die im Showroom erscheinen sollen, aber nicht über
-            Kleinanzeigen laufen.
+            Die Räder, die auf der Website stehen — mit den Fotos, die der
+            Kunde dort sieht.
           </p>
         </div>
         <button class="btn btn-primary" (click)="startNew()">
@@ -113,7 +113,13 @@ import { environment } from '../../../environments/environment';
                 [class.on]="b.isPublishedOnWebsite"
                 [class.off]="!b.isPublishedOnWebsite"
               >
-                {{ b.isPublishedOnWebsite ? 'Im Showroom' : 'Nicht sichtbar' }}
+                {{
+                  b.status !== 'Available'
+                    ? 'Verkauft'
+                    : b.isPublishedOnWebsite
+                      ? 'Im Showroom'
+                      : 'Nicht sichtbar'
+                }}
               </span>
             </div>
 
@@ -669,7 +675,7 @@ import { environment } from '../../../environments/environment';
     `,
   ],
 })
-export class GebrauchteFahrradListComponent implements OnInit {
+export class ShowroomListComponent implements OnInit {
   private bicycleService = inject(BicycleService);
   private notify = inject(NotificationService);
 

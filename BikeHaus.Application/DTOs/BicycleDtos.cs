@@ -1,4 +1,4 @@
-﻿using BikeHaus.Domain.Enums;
+using BikeHaus.Domain.Enums;
 
 namespace BikeHaus.Application.DTOs;
 
@@ -76,7 +76,13 @@ public record BicycleCreateDto(
     string? Gangschaltung = null,
     // Wird von der Showroom-Pflegeseite auf true gesetzt. Ein Rad, das im
     // Tagesgeschaeft angelegt wird, bleibt damit aus dem Katalog heraus.
-    bool IsShowroomBike = false
+    bool IsShowroomBike = false,
+    // Direkt beim Anlegen sichtbar schalten. Gebraucht wird das vom
+    // Ankaufsformular: wer dort Showroom-Fotos anhaengt und den Haken setzt,
+    // will das Rad auf der Website sehen — ohne es hinterher auf einer zweiten
+    // Seite noch einmal freischalten zu muessen. Beide Flags gehoeren
+    // zusammen, die oeffentliche Abfrage verlangt sie beide.
+    bool IsPublishedOnWebsite = false
 );
 
 public record BicycleUpdateDto(

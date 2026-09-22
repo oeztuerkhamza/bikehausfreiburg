@@ -1,4 +1,4 @@
-﻿using BikeHaus.Application.DTOs;
+using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Application.Mappings;
 using BikeHaus.Domain;
@@ -372,8 +372,15 @@ public class BicycleService : IBicycleService
     {
         var bicycle = await _repository.GetWithImagesAsync(id);
         // Gleiche Grenze wie in der Liste — sonst waere ein Bestandsrad ueber
-        // seine Detail-URL weiter oeffentlich erreichbar.
-        if (bicycle == null || !bicycle.IsPublishedOnWebsite || !bicycle.IsShowroomBike) return null;
+        // seine Detail-URL weiter oeffentlich erreichbar. Der Status gehoert
+        // dazu: die Liste filtert verkaufte Raeder heraus, die Detailseite tat
+        // es nicht — ein verkauftes Rad blieb also unter seiner Adresse
+        // abrufbar und stand weiter in Suchmaschinen, obwohl es im Showroom
+        // laengst verschwunden war.
+        if (bicycle == null
+            || !bicycle.IsPublishedOnWebsite
+            || !bicycle.IsShowroomBike
+            || bicycle.Status != BikeStatus.Available) return null;
         return bicycle.ToPublicDto();
     }
 
