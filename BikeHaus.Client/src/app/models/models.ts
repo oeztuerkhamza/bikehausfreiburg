@@ -154,7 +154,12 @@ export interface BicycleUpdate {
   status: BikeStatus;
   zustand: BikeCondition;
   verkaufspreisVorschlag?: number;
-  isRentable: boolean;
+  /**
+   * Weglassen heißt beibehalten (der Server prüft `HasValue`). Formulare, die
+   * mit der Vermietung nichts zu tun haben, schicken das Feld gar nicht erst —
+   * ein mitgeschicktes `false` nähme das Rad sonst aus der Vermietflotte.
+   */
+  isRentable?: boolean;
   rentalPriceDay1?: number;
   rentalPriceDay2?: number;
   rentalPriceDay3?: number;

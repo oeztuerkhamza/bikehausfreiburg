@@ -176,108 +176,6 @@ import {
               />
             </div>
           </div>
-
-          <h3 class="sub-heading">{{ t.rentalSettings }}</h3>
-          <div class="form-grid">
-            <div class="field field-full">
-              <label class="checkbox-label">
-                <input
-                  type="checkbox"
-                  [(ngModel)]="form.isRentable"
-                  name="isRentable"
-                />
-                {{ t.isRentable }}
-              </label>
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPriceDay1 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPriceDay1"
-                name="rentalPriceDay1"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPriceDay2 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPriceDay2"
-                name="rentalPriceDay2"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPriceDay3 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPriceDay3"
-                name="rentalPriceDay3"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPriceDay4 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPriceDay4"
-                name="rentalPriceDay4"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPriceDay5 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPriceDay5"
-                name="rentalPriceDay5"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPriceDay6 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPriceDay6"
-                name="rentalPriceDay6"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPriceDay7 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPriceDay7"
-                name="rentalPriceDay7"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-            <div class="field">
-              <label>{{ t.rentalPriceAdditionalDayAfter7 }}</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                [(ngModel)]="form.rentalPriceAdditionalDayAfter7"
-                name="rentalPriceAdditionalDayAfter7"
-                [disabled]="!form.isRentable"
-              />
-            </div>
-          </div>
         </div>
 
         <!-- Purchase Data (Alış Belgesi) -->
@@ -843,15 +741,10 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
     beschreibung: '',
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
-    isRentable: false,
-    rentalPriceDay1: undefined,
-    rentalPriceDay2: undefined,
-    rentalPriceDay3: undefined,
-    rentalPriceDay4: undefined,
-    rentalPriceDay5: undefined,
-    rentalPriceDay6: undefined,
-    rentalPriceDay7: undefined,
-    rentalPriceAdditionalDayAfter7: undefined,
+    // Mietfelder fehlen hier bewusst: sie werden auf der Seite
+    // „Mietfahrräder" gepflegt. Ein nicht mitgeschicktes Feld behält der
+    // Server bei — mitgeschickt wuerde isRentable: false jedes Rad beim
+    // Speichern aus der Vermietflotte nehmen.
   };
 
   purchaseForm = {
@@ -906,15 +799,6 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
         status: b.status,
         zustand: b.zustand,
         verkaufspreisVorschlag: b.verkaufspreisVorschlag,
-        isRentable: b.isRentable,
-        rentalPriceDay1: b.rentalPriceDay1,
-        rentalPriceDay2: b.rentalPriceDay2,
-        rentalPriceDay3: b.rentalPriceDay3,
-        rentalPriceDay4: b.rentalPriceDay4,
-        rentalPriceDay5: b.rentalPriceDay5,
-        rentalPriceDay6: b.rentalPriceDay6,
-        rentalPriceDay7: b.rentalPriceDay7,
-        rentalPriceAdditionalDayAfter7: b.rentalPriceAdditionalDayAfter7,
       };
     });
 
