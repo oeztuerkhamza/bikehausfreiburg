@@ -179,6 +179,12 @@ export interface BicycleUpdate {
   rentalPriceDay14?: number;
   rentalPriceDay30?: number;
   rentalPricePerDayFrom10?: number;
+  /**
+   * Showroom-Sichtbarkeit. Weglassen heißt beibehalten; `true` nimmt das Rad
+   * zugleich in den Showroom-Katalog auf (isShowroomBike), weil die
+   * öffentliche Abfrage beide Flags verlangt.
+   */
+  isPublishedOnWebsite?: boolean;
 }
 
 // ── Customer ──

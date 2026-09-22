@@ -176,6 +176,41 @@ import {
               />
             </div>
           </div>
+
+          <h3 class="sub-heading">{{ t.showroomVisibility }}</h3>
+          <div class="form-grid">
+            <div class="field field-full">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="form.isPublishedOnWebsite"
+                  name="isPublishedOnWebsite"
+                />
+                {{ t.showInShowroom }}
+              </label>
+              <small class="field-hint">{{ t.showInShowroomHint }}</small>
+            </div>
+            <!-- Der Preis steht hier und nicht nur beim Beleg: der Showroom
+                 zeigt den Preis des FAHRRADS. Ohne ihn stuende das Rad dort
+                 ohne Preis — und auf dieser Seite gaebe es keinen Weg, das zu
+                 beheben. -->
+            <div class="field">
+              <label>{{ t.plannedSellingPrice }}</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                [(ngModel)]="form.verkaufspreisVorschlag"
+                name="bikeVerkaufspreisVorschlag"
+              />
+              <small
+                class="field-hint field-hint-warn"
+                *ngIf="form.isPublishedOnWebsite && !form.verkaufspreisVorschlag"
+              >
+                {{ t.showInShowroomNeedsPrice }}
+              </small>
+            </div>
+          </div>
         </div>
 
         <!-- Purchase Data (Alış Belgesi) -->
@@ -528,6 +563,18 @@ import {
       }
 
       /* Sub heading */
+      .field-hint {
+        display: block;
+        margin-top: 6px;
+        color: var(--text-secondary, #64748b);
+        font-size: 0.78rem;
+        line-height: 1.35;
+      }
+
+      .field-hint-warn {
+        color: #dc2626;
+      }
+
       .sub-heading {
         font-size: 0.95rem;
         font-weight: 700;
@@ -741,6 +788,7 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
     beschreibung: '',
     status: BikeStatus.Available,
     zustand: BikeCondition.Gebraucht,
+    isPublishedOnWebsite: false,
     // Mietfelder fehlen hier bewusst: sie werden auf der Seite
     // „Mietfahrräder" gepflegt. Ein nicht mitgeschicktes Feld behält der
     // Server bei — mitgeschickt wuerde isRentable: false jedes Rad beim
@@ -799,6 +847,7 @@ export class BicycleDetailComponent implements OnInit, OnDestroy {
         status: b.status,
         zustand: b.zustand,
         verkaufspreisVorschlag: b.verkaufspreisVorschlag,
+        isPublishedOnWebsite: b.isPublishedOnWebsite,
       };
     });
 

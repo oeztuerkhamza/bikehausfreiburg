@@ -539,6 +539,10 @@ export interface Translations {
   reserve: string;
   publishOnWebsite: string;
   unpublishFromWebsite: string;
+  showroomVisibility: string;
+  showInShowroom: string;
+  showInShowroomHint: string;
+  showInShowroomNeedsPrice: string;
   publishOnKleinanzeigen: string;
   unpublishFromKleinanzeigen: string;
   publishedOnWebsite: string;
@@ -1457,6 +1461,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     reserve: 'Reservieren',
     publishOnWebsite: 'Auf Website veröffentlichen',
     unpublishFromWebsite: 'Von Website entfernen',
+    showroomVisibility: 'Showroom',
+    showInShowroom: 'Im Showroom zeigen',
+    showInShowroomHint:
+      'Das Rad erscheint mit seinen Showroom-Fotos auf bikehausfreiburg.com. Verkauft sich das Rad, verschwindet es dort von selbst.',
+    showInShowroomNeedsPrice:
+      'Ohne Verkaufspreis steht das Rad im Showroom ohne Preis — bitte oben einen eintragen.',
     publishOnKleinanzeigen: 'Auf Kleinanzeigen veröffentlichen',
     unpublishFromKleinanzeigen: 'Von Kleinanzeigen entfernen',
     publishedOnWebsite: 'Auf Website veröffentlicht!',
@@ -2383,6 +2393,12 @@ const TRANSLATIONS: Record<Language, Translations> = {
     reserve: 'Rezerve Et',
     publishOnWebsite: 'Web Sitesinde Yayınla',
     unpublishFromWebsite: 'Web Sitesinden Kaldır',
+    showroomVisibility: 'Showroom',
+    showInShowroom: "Showroom'da göster",
+    showInShowroomHint:
+      "Bisiklet, showroom fotoğraflarıyla bikehausfreiburg.com'da görünür. Satıldığında oradan kendiliğinden kalkar.",
+    showInShowroomNeedsPrice:
+      'Satış fiyatı olmadan bisiklet showroomda fiyatsız görünür — lütfen yukarıya bir fiyat gir.',
     publishOnKleinanzeigen: "Kleinanzeigen'de Yayınla",
     unpublishFromKleinanzeigen: "Kleinanzeigen'den Kaldır",
     publishedOnWebsite: 'Web sitesinde yayınlandı!',

@@ -121,7 +121,11 @@ public record BicycleUpdateDto(
     string? Fahrradnummer = null,
     int? KoerpergroesseVonCm = null,
     int? KoerpergroesseBisCm = null,
-    string? Gangschaltung = null
+    string? Gangschaltung = null,
+    // Showroom-Sichtbarkeit direkt am Rad. null = beibehalten, wie bei allen
+    // Feldern hier — ein Formular, das den Showroom nicht anfasst, darf ein
+    // veroeffentlichtes Rad nicht beim Speichern von der Website nehmen.
+    bool? IsPublishedOnWebsite = null
 );
 
 public record BicycleImageDto(

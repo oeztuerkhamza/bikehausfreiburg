@@ -219,6 +219,17 @@ public class BicycleService : IBicycleService
             entity.VerkaufspreisVorschlag = dto.VerkaufspreisVorschlag.Value;
         if (dto.IsRentable.HasValue)
             entity.IsRentable = dto.IsRentable.Value;
+        if (dto.IsPublishedOnWebsite.HasValue)
+        {
+            entity.IsPublishedOnWebsite = dto.IsPublishedOnWebsite.Value;
+            // Gleiche Regel wie beim Schalter in der Bestandsliste
+            // (TogglePublishOnWebsiteAsync): wer ein Rad sichtbar schaltet,
+            // nimmt es damit in den Showroom-Katalog auf — sonst bliebe es
+            // unsichtbar, weil die oeffentliche Abfrage beide Flags verlangt.
+            // Beim Ausblenden bleibt die Zugehoerigkeit erhalten, damit das Rad
+            // nicht aus der Showroom-Pflegeliste faellt.
+            if (dto.IsPublishedOnWebsite.Value) entity.IsShowroomBike = true;
+        }
         if (dto.RentalPriceDay1.HasValue) entity.RentalPriceDay1 = dto.RentalPriceDay1.Value;
         if (dto.RentalPriceDay2.HasValue) entity.RentalPriceDay2 = dto.RentalPriceDay2.Value;
         if (dto.RentalPriceDay3.HasValue) entity.RentalPriceDay3 = dto.RentalPriceDay3.Value;
