@@ -165,6 +165,8 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 - `KleinanzeigenListing` + `KleinanzeigenImage` — scraped marketplace ads.
 - `KleinanzeigenChatTranslation` + `KleinanzeigenChatDraft` — **kein** Nachrichtenspiegel: nur türkische Übersetzungen je Gmail-Nachricht und Antwort-Entwürfe je Unterhaltung. Die Kleinanzeigen-Chats selbst leben im verbundenen Gmail-Postfach (Alias `…@mail.kleinanzeigen.de`).
 
+> **Zwei Fotostrecken pro Rad, bewusst getrennt:** `BicycleImage` (Tabelle `BicycleImages`, Upload über `POST /api/bicycles/{id}/gallery`) sind die **öffentlichen Showroom-Fotos — das einzige, was `PublicBicycleDto` ausliefert**. `Document` mit `DocumentType.Screenshot`/`Rechnung` am selben `BicycleId` sind die **internen Ankaufsbelege** (Kleinanzeigen-Screenshot etc.) und verlassen das Admin-Portal nie. Das Ankaufsformular füllt beide in Schritt „Fotos". Öffentlich sichtbar wird ein Rad nur mit `IsShowroomBike` **und** `IsPublishedOnWebsite` **und** `Status == Available` — Liste, Detailseite und Sitemap prüfen alle drei, ein verkauftes Rad fällt also überall von selbst heraus.
+
 **Unique-indexed fields**: `Purchase.BelegNummer`, `Sale.BelegNummer`, `Return.BelegNummer`, `Rental.MietvertragNummer`, `RentalBooking.BuchungsNummer`, `Reservation.ReservierungsNummer`, `Invoice.RechnungsNummer`, `User.Username`, `KleinanzeigenListing.ExternalId`.
 
 > `Bicycle.Rahmennummer` is **indexed but NOT unique** — `entity.HasIndex(e => e.Rahmennummer)` in [BikeHausDbContext.cs](BikeHaus.Infrastructure/Data/BikeHausDbContext.cs) has no `.IsUnique()`, and no migration adds one. Two bicycles can carry the same frame number, so nothing stops a duplicate record if the same bike is entered twice (e.g. via the rental form's quick-add). This file previously claimed the field was unique; it is not.
@@ -220,7 +222,7 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 - **Customers**: `/customers`
 - **Rentals**: `/rentals`, `/rentals/new`, `/rentals/edit/:id`, `/rentals/:id`
 - **Rental Bookings (public-incoming)**: `/rental-bookings`, `/rental-bookings/:id`
-- **Catalogs**: `/neue-fahrraeder`, `/mietfahrraeder`, `/homepage-accessories`, `/rental-accessories`
+- **Catalogs**: `/showroom` (eigene Räder auf der Website — hieß bis 09/2026 `/gebrauchte-fahrraeder`, alter Pfad leitet weiter), `/neue-fahrraeder`, `/mietfahrraeder`, `/homepage-accessories`, `/rental-accessories`
 - **Operations**: `/parts`, `/expenses`, `/invoices`, `/renovation-costs`, `/rental-reviews`
 - **Assistenten**: `/whatsapp`, `/ai-email`, `/kleinanzeigen-chat` (Kleinanzeigen-Anfragen als Chat)
 - **Admin**: `/settings`, `/archive`, `/statistics`, `/export`
