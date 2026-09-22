@@ -211,6 +211,9 @@ public class PurchaseService : IPurchaseService
                 : dto.Bicycle.Gangschaltung;
         if (dto.Bicycle.IsPublishedOnWebsite.HasValue)
         {
+            // Siehe BicycleService.UpdateAsync: nur der Uebergang zaehlt.
+            if (dto.Bicycle.IsPublishedOnWebsite.Value && !bicycle.IsPublishedOnWebsite)
+                bicycle.ShowroomSeit = DateTime.UtcNow;
             bicycle.IsPublishedOnWebsite = dto.Bicycle.IsPublishedOnWebsite.Value;
             // Sichtbar schalten heisst: gehoert in den Showroom-Katalog. Die
             // oeffentliche Abfrage verlangt beide Flags.

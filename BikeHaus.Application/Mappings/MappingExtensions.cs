@@ -65,7 +65,8 @@ public static class MappingExtensions
         entity.VerkaufspreisVorschlag,
         entity.CreatedAt,
         entity.Images?.OrderBy(i => i.SortOrder).Select(i => i.ToDto()).ToList() ?? new List<BicycleImageDto>(),
-        entity.Gangschaltung
+        entity.Gangschaltung,
+        entity.ShowroomSeit
     );
 
     public static Bicycle ToEntity(this BicycleCreateDto dto) => new()
@@ -97,7 +98,10 @@ public static class MappingExtensions
         KoerpergroesseVonCm = dto.KoerpergroesseVonCm,
         KoerpergroesseBisCm = dto.KoerpergroesseBisCm,
         IsShowroomBike = dto.IsShowroomBike,
-        IsPublishedOnWebsite = dto.IsPublishedOnWebsite
+        IsPublishedOnWebsite = dto.IsPublishedOnWebsite,
+        // Direkt veroeffentlicht angelegt (Ankaufsformular mit Showroom-Haken):
+        // dann faengt die Showroom-Zeit jetzt an.
+        ShowroomSeit = dto.IsPublishedOnWebsite ? DateTime.UtcNow : null
     };
 
     public static PublicRentalBicycleDto ToPublicRentalDto(this Bicycle entity) => new(

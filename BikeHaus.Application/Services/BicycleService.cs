@@ -221,6 +221,10 @@ public class BicycleService : IBicycleService
             entity.IsRentable = dto.IsRentable.Value;
         if (dto.IsPublishedOnWebsite.HasValue)
         {
+            // Nur der Uebergang aus/an zaehlt: wer ein sichtbares Rad
+            // speichert, soll es nicht jedes Mal nach oben schieben.
+            if (dto.IsPublishedOnWebsite.Value && !entity.IsPublishedOnWebsite)
+                entity.ShowroomSeit = DateTime.UtcNow;
             entity.IsPublishedOnWebsite = dto.IsPublishedOnWebsite.Value;
             // Gleiche Regel wie beim Schalter in der Bestandsliste
             // (TogglePublishOnWebsiteAsync): wer ein Rad sichtbar schaltet,
@@ -347,7 +351,13 @@ public class BicycleService : IBicycleService
         // oeffentliche Abfrage beide Flags verlangt. Beim Ausblenden bleibt die
         // Zugehoerigkeit erhalten: das Rad ist dann nur nicht sichtbar, faellt
         // aber nicht aus der Showroom-Pflegeliste.
-        if (entity.IsPublishedOnWebsite) entity.IsShowroomBike = true;
+        if (entity.IsPublishedOnWebsite)
+        {
+            entity.IsShowroomBike = true;
+            // Jedes Einschalten ist ein "neu dazugekommen" — auch das erneute
+            // nach einer Pause. Genau so soll es in der Website-Liste stehen.
+            entity.ShowroomSeit = DateTime.UtcNow;
+        }
         entity.UpdatedAt = DateTime.UtcNow;
         await _repository.UpdateAsync(entity);
         return entity.ToDto();

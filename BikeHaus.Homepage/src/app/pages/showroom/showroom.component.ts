@@ -1671,7 +1671,9 @@ export class ShowroomComponent implements OnInit, OnDestroy {
       externalUrl: '',
       isActive: true,
       firstScrapedAt: bike.createdAt,
-      lastScrapedAt: bike.createdAt,
+      // Sortierschluessel der Uebersicht: wann das Rad in den Showroom
+      // kam, nicht wann es angekauft wurde.
+      lastScrapedAt: bike.showroomSeit || bike.createdAt,
       images: bike.images.map((img, idx) => ({
         id: img.id,
         kleinanzeigenListingId: bike.id + 900000,

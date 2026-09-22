@@ -1,4 +1,4 @@
-﻿using BikeHaus.Domain.Enums;
+using BikeHaus.Domain.Enums;
 
 namespace BikeHaus.Domain.Entities;
 
@@ -71,6 +71,20 @@ public class Bicycle : BaseEntity
     /// das eine sagt "gehoert in den Katalog", das andere "ist gerade sichtbar".
     /// </summary>
     public bool IsShowroomBike { get; set; } = false;
+
+    /// <summary>
+    /// Seit wann steht das Rad im Showroom? Wird gesetzt, sobald
+    /// IsPublishedOnWebsite von false auf true geht.
+    ///
+    /// Gebraucht wird das fuer die Reihenfolge auf der Website: dort soll oben
+    /// stehen, was zuletzt DAZUGEKOMMEN ist. CreatedAt taugt dafuer nicht — das
+    /// ist der Tag des Ankaufs. Ein Rad, das vor zwei Monaten hereinkam und
+    /// heute nach dem Service online geht, landete damit ganz unten.
+    ///
+    /// Null bei allem, was schon vor dieser Spalte veroeffentlicht war; dann
+    /// gilt weiter CreatedAt.
+    /// </summary>
+    public DateTime? ShowroomSeit { get; set; }
     public decimal? VerkaufspreisVorschlag { get; set; }  // Suggested selling price for listings
     public string? KleinanzeigenAnzeigeNr { get; set; }   // Kleinanzeigen ad number (Verkaufs-Anzeige-Nr)
 

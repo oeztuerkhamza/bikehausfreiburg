@@ -143,6 +143,12 @@ export interface PublicBicycle {
   zustand: string;
   preis?: number;
   createdAt: string;
+  /**
+   * Seit wann das Rad im Showroom steht. Danach sortiert die Übersicht —
+   * `createdAt` ist der Ankaufstag und damit das falsche Datum. Fehlt der
+   * Wert (alles, was vor der Spalte veröffentlicht wurde), gilt `createdAt`.
+   */
+  showroomSeit?: string | null;
   images: PublicBicycleImage[];
 }
 

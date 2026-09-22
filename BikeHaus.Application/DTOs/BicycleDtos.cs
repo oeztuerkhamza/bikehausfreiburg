@@ -158,5 +158,8 @@ public record PublicBicycleDto(int Id,
     List<BicycleImageDto> Images,
     // Wird im Showroom-Titel mitgeführt, weil die Filter (Gänge, Zoll, size)
     // den Titel auswerten — genau wie bei den Kleinanzeigen-Anzeigen.
-    string? Gangschaltung = null
+    string? Gangschaltung = null,
+    // Seit wann im Showroom. Die Website sortiert danach; ohne Wert (alles,
+    // was vor der Spalte veröffentlicht wurde) gilt CreatedAt.
+    DateTime? ShowroomSeit = null
 );

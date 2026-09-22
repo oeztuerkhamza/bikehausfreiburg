@@ -145,7 +145,10 @@ public class BicycleRepository : Repository<Bicycle>, IBicycleRepository
             // Verkaufsrad aus dem Bestand hat im Showroom nichts verloren, auch
             // wenn irgendwo einmal "auf Website" gesetzt wurde.
             .Where(b => b.IsPublishedOnWebsite && b.IsShowroomBike && b.Status == BikeStatus.Available)
-            .OrderByDescending(b => b.CreatedAt)
+            // Zuletzt in den Showroom gestellt gehoert nach oben. CreatedAt ist
+            // der Ankaufstag und damit das falsche Datum; es bleibt nur der
+            // Rueckfall fuer Raeder, die schon vor der Spalte online standen.
+            .OrderByDescending(b => b.ShowroomSeit ?? b.CreatedAt)
             .ToListAsync();
     }
 
