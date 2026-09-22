@@ -73,4 +73,14 @@ public class KleinanzeigenListingRepository : Repository<KleinanzeigenListing>, 
             .Where(l => l.LastScrapedAt != null)
             .MaxAsync(l => (DateTime?)l.LastScrapedAt);
     }
+
+    public async Task<int> DeleteAllAsync()
+    {
+        // Erst die Bilder, dann die Anzeigen. Am Fremdschluessel haengt zwar ein
+        // Cascade-Delete, das in SQLite aber am PRAGMA foreign_keys der
+        // jeweiligen Verbindung haengt — explizit geloescht bleibt garantiert
+        // keine verwaiste Bildzeile stehen.
+        await _context.KleinanzeigenImages.ExecuteDeleteAsync();
+        return await _dbSet.ExecuteDeleteAsync();
+    }
 }

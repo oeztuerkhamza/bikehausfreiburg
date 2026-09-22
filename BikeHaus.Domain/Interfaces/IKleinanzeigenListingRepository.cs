@@ -11,4 +11,10 @@ public interface IKleinanzeigenListingRepository : IRepository<KleinanzeigenList
     Task<IEnumerable<string>> GetCategoriesAsync();
     Task DeactivateRemovedAsync(List<string> activeExternalIds);
     Task<DateTime?> GetLastScrapeTimeAsync();
+
+    /// <summary>
+    /// Loescht alle Anzeigen samt Bildern in einem Rutsch und gibt zurueck,
+    /// wie viele Anzeigen es waren.
+    /// </summary>
+    Task<int> DeleteAllAsync();
 }

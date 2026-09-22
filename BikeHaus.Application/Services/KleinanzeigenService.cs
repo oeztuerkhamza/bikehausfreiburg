@@ -1,4 +1,4 @@
-﻿using BikeHaus.Application.DTOs;
+using BikeHaus.Application.DTOs;
 using BikeHaus.Application.Interfaces;
 using BikeHaus.Domain.Entities;
 using BikeHaus.Domain.Interfaces;
@@ -306,14 +306,28 @@ public class KleinanzeigenService : IKleinanzeigenService
     /// </summary>
     public async Task<int> DeleteAllListingsAsync()
     {
-        var listings = await _listingRepository.GetAllAsync();
-        var count = 0;
-        foreach (var listing in listings)
-        {
-            await _listingRepository.DeleteAsync(listing.Id);
-            count++;
-        }
+        var count = await _listingRepository.DeleteAllAsync();
         _logger.LogInformation("Deleted {Count} Kleinanzeigen listings", count);
+        return count;
+    }
+
+    public async Task<int> PurgeAllListingsAsync()
+    {
+        var count = await _listingRepository.DeleteAllAsync();
+
+        // Ohne das Ausschalten waere das Loeschen wirkungslos: der Abgleich
+        // laeuft alle vier Stunden und holt genau dieselben Anzeigen wieder
+        // herein. Wer sie loescht, will sie weg haben — also auch den Abgleich.
+        var settings = await _settingsRepository.GetSettingsAsync();
+        if (settings != null && settings.KleinanzeigenAktiv)
+        {
+            settings.KleinanzeigenAktiv = false;
+            settings.UpdatedAt = DateTime.UtcNow;
+            await _settingsRepository.UpdateAsync(settings);
+        }
+
+        _logger.LogInformation(
+            "Purged {Count} Kleinanzeigen listings and switched the sync off", count);
         return count;
     }
 

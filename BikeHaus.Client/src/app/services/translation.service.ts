@@ -695,6 +695,11 @@ export interface Translations {
   kleinanzeigenAktiv: string;
   kleinanzeigenAktivHintOn: string;
   kleinanzeigenAktivHintOff: string;
+  kleinanzeigenDeleteAll: string;
+  kleinanzeigenDeleteAllRunning: string;
+  kleinanzeigenDeleteAllHint: string;
+  kleinanzeigenDeleteAllConfirm: string;
+  kleinanzeigenDeleteAllDone: string;
   syncNow: string;
   syncingText: string;
   lastSync: string;
@@ -1612,6 +1617,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
       'Der Abgleich läuft alle 4 Stunden und die Anzeigen erscheinen im Showroom.',
     kleinanzeigenAktivHintOff:
       'Kein Abgleich, und im Showroom stehen nur die eigenen Fahrräder. Die Anzeigen bleiben gespeichert und hier sichtbar.',
+    kleinanzeigenDeleteAll: 'Alle Anzeigen löschen',
+    kleinanzeigenDeleteAllRunning: 'Wird gelöscht...',
+    kleinanzeigenDeleteAllHint:
+      'Löscht alle von Kleinanzeigen geholten Anzeigen samt Bildern endgültig aus der Datenbank und schaltet den Abgleich aus, damit sie nicht wiederkommen. Ihre eigenen Fahrräder, Verkäufe und Vermietungen bleiben unberührt.',
+    kleinanzeigenDeleteAllConfirm:
+      'Alle von Kleinanzeigen geholten Anzeigen werden endgültig aus der Datenbank gelöscht und der Abgleich wird ausgeschaltet. Das lässt sich nicht rückgängig machen — die Anzeigen kommen erst wieder, wenn Sie den Schalter erneut einschalten und synchronisieren. Fortfahren?',
+    kleinanzeigenDeleteAllDone:
+      '✅ {count} Anzeigen gelöscht. Der Abgleich ist jetzt ausgeschaltet.',
     syncNow: 'Jetzt synchronisieren',
     syncingText: 'Synchronisiere...',
     lastSync: 'Letzte Sync:',
@@ -2525,6 +2538,14 @@ const TRANSLATIONS: Record<Language, Translations> = {
       "Tarama 4 saatte bir çalışır ve ilanlar showroom'da görünür.",
     kleinanzeigenAktivHintOff:
       "Tarama durur, showroom'da yalnızca kendi bisikletlerin görünür. İlanlar silinmez, burada durmaya devam eder.",
+    kleinanzeigenDeleteAll: 'Tüm ilanları sil',
+    kleinanzeigenDeleteAllRunning: 'Siliniyor...',
+    kleinanzeigenDeleteAllHint:
+      "Kleinanzeigen'den çekilen tüm ilanları fotoğraflarıyla birlikte veritabanından kalıcı olarak siler ve geri gelmemeleri için taramayı kapatır. Kendi bisikletlerin, satışların ve kiralamaların etkilenmez.",
+    kleinanzeigenDeleteAllConfirm:
+      "Kleinanzeigen'den çekilen tüm ilanlar veritabanından kalıcı olarak silinecek ve tarama kapatılacak. Bu geri alınamaz — ilanlar ancak anahtarı tekrar açıp senkronize edersen geri gelir. Devam edilsin mi?",
+    kleinanzeigenDeleteAllDone:
+      '✅ {count} ilan silindi. Tarama artık kapalı.',
     syncNow: 'Şimdi Senkronize Et',
     syncingText: 'Senkronize ediliyor...',
     lastSync: 'Son Senkronizasyon:',

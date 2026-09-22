@@ -592,6 +592,47 @@ interface EmailAccountForm {
                 </span>
               </div>
 
+              <!-- Endgueltiges Loeschen. Steht bewusst unter dem Sync-Knopf:
+                   erst wenn der Abgleich nicht mehr das Gewuenschte tut, wird
+                   das hier interessant. -->
+              <div
+                style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;"
+              >
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  [disabled]="syncing || deletingListings"
+                  (click)="deleteAllKleinanzeigenListings()"
+                  style="white-space: nowrap;"
+                >
+                  {{
+                    deletingListings
+                      ? '⏳ ' + t.kleinanzeigenDeleteAllRunning
+                      : '🗑️ ' + t.kleinanzeigenDeleteAll
+                  }}
+                </button>
+              </div>
+              <small
+                style="display: block; color: var(--text-secondary, #64748b); font-size: 0.78rem; margin-bottom: 16px;"
+                >{{ t.kleinanzeigenDeleteAllHint }}</small
+              >
+              <div
+                *ngIf="deleteListingsResult"
+                style="padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px;"
+                [style.background]="
+                  deleteListingsError
+                    ? 'var(--danger-bg, #fef2f2)'
+                    : 'var(--success-bg, #f0fdf4)'
+                "
+                [style.color]="
+                  deleteListingsError
+                    ? 'var(--danger, #dc2626)'
+                    : 'var(--success, #16a34a)'
+                "
+              >
+                {{ deleteListingsResult }}
+              </div>
+
               <!-- Google Review -->
               <h3
                 style="margin-top: 24px; margin-bottom: 12px; font-size: 0.95rem; color: var(--text-secondary, #64748b); font-weight: 600;"
@@ -1933,6 +1974,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
   syncResult: KleinanzeigenSyncResult | null = null;
   private syncPollTimer: any = null;
 
+  // Kleinanzeigen endgueltig loeschen
+  deletingListings = false;
+  deleteListingsResult: string | null = null;
+  deleteListingsError = false;
+
   // Backup & Restore
   creatingBackup = false;
   restoringBackup = false;
@@ -2110,6 +2156,43 @@ export class SettingsComponent implements OnInit, OnDestroy {
             (err.error?.message || err.message || this.t.unknownError),
         };
         this.syncing = false;
+      },
+    });
+  }
+
+  /**
+   * Loescht alle gescrapten Kleinanzeigen-Anzeigen aus der Datenbank. Der
+   * Server legt dabei den Schalter auf AUS; das Formular hier zieht nach,
+   * sonst wuerde das naechste Speichern der Einstellungen ihn wieder
+   * einschalten und der Abgleich holt alles zurueck.
+   */
+  async deleteAllKleinanzeigenListings(): Promise<void> {
+    const confirmed = await this.dialogService.danger(
+      this.t.kleinanzeigenDeleteAll,
+      this.t.kleinanzeigenDeleteAllConfirm,
+    );
+    if (!confirmed) return;
+
+    this.deletingListings = true;
+    this.deleteListingsResult = null;
+    this.deleteListingsError = false;
+
+    this.kleinanzeigenService.deleteAllListings().subscribe({
+      next: (result) => {
+        this.deletingListings = false;
+        this.deleteListingsResult = this.t.kleinanzeigenDeleteAllDone.replace(
+          '{count}',
+          String(result.deleted),
+        );
+        this.settings.kleinanzeigenAktiv = result.kleinanzeigenAktiv;
+        this.lastSyncTime = null;
+        this.syncResult = null;
+      },
+      error: (err) => {
+        this.deletingListings = false;
+        this.deleteListingsError = true;
+        this.deleteListingsResult =
+          err.error?.message || err.message || this.t.unknownError;
       },
     });
   }

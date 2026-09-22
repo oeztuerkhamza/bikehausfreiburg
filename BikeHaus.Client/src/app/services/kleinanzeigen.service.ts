@@ -47,6 +47,12 @@ export interface KleinanzeigenImage {
   sortOrder: number;
 }
 
+export interface KleinanzeigenDeleteResult {
+  deleted: number;
+  kleinanzeigenAktiv: boolean;
+  message: string;
+}
+
 export interface KleinanzeigenCategory {
   name: string;
   count: number;
@@ -76,5 +82,16 @@ export class KleinanzeigenService {
 
   getListings(): Observable<KleinanzeigenListing[]> {
     return this.http.get<KleinanzeigenListing[]>(`${this.apiUrl}/listings`);
+  }
+
+  /**
+   * Loescht alle Kleinanzeigen-Anzeigen endgueltig aus der Datenbank. Der
+   * Schalter "Kleinanzeigen-Anzeigen aktiv" geht dabei serverseitig auf AUS,
+   * sonst holt der naechste Abgleich dieselben Anzeigen wieder herein.
+   */
+  deleteAllListings(): Observable<KleinanzeigenDeleteResult> {
+    return this.http.delete<KleinanzeigenDeleteResult>(
+      `${this.apiUrl}/listings`,
+    );
   }
 }

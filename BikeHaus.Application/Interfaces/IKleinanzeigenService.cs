@@ -13,4 +13,12 @@ public interface IKleinanzeigenService
     Task<KleinanzeigenSyncResultDto> TriggerSyncAsync(CancellationToken cancellationToken = default);
     Task<int> FixCategoriesAsync();
     Task<int> DeleteAllListingsAsync();
+
+    /// <summary>
+    /// Loescht alle Kleinanzeigen-Anzeigen endgueltig aus der Datenbank und
+    /// legt den Schalter auf AUS, damit der naechste Abgleich sie nicht sofort
+    /// wieder hereinholt. Im Unterschied zu <see cref="DeleteAllListingsAsync"/>,
+    /// das nur fuer den anschliessenden Voll-Resync leert.
+    /// </summary>
+    Task<int> PurgeAllListingsAsync();
 }

@@ -85,6 +85,37 @@ public class KleinanzeigenController : ControllerBase
     }
 
     /// <summary>
+    /// Loescht alle Kleinanzeigen-Anzeigen endgueltig aus der Datenbank.
+    ///
+    /// Der Schalter "Kleinanzeigen-Anzeigen aktiv" geht dabei auf AUS — sonst
+    /// holt der naechste Abgleich (alle vier Stunden) genau dieselben Anzeigen
+    /// wieder herein und das Loeschen waere umsonst gewesen.
+    /// </summary>
+    [HttpDelete("listings")]
+    public async Task<IActionResult> DeleteAllListings()
+    {
+        // Ein laufender Abgleich schreibt gerade Anzeigen. Wuerden wir mitten
+        // hinein loeschen, stuenden danach genau die wieder da, die der Lauf
+        // noch nicht geschrieben hatte.
+        if (_syncCoordinator.IsSyncing)
+        {
+            return Conflict(new
+            {
+                message = "Sync is currently running. Please wait until it has finished."
+            });
+        }
+
+        var deleted = await _kleinanzeigenService.PurgeAllListingsAsync();
+
+        return Ok(new
+        {
+            deleted,
+            kleinanzeigenAktiv = false,
+            message = $"Deleted {deleted} listings and switched the Kleinanzeigen sync off"
+        });
+    }
+
+    /// <summary>
     /// Force full re-sync by deleting all existing listings and triggering a new sync.
     /// This ensures all categories are fetched fresh from Kleinanzeigen "Art" attribute.
     /// </summary>
