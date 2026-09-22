@@ -148,6 +148,9 @@ import {
                 <option [value]="BikeCondition.Neu">
                   {{ t.newCondition }}
                 </option>
+                <option [value]="BikeCondition.Vorfuehrfahrrad">
+                  {{ t.taxedCondition }}
+                </option>
               </select>
             </div>
             <div class="field">

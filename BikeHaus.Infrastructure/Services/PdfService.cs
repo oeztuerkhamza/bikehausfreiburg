@@ -60,12 +60,37 @@ public class PdfService : IPdfService
     private const int DefaultGebrauchtWarrantyMonths = 3;
 
     /// <summary>
+    /// Regelsteuersatz. Der ausgezeichnete Preis ist brutto — auf einer
+    /// Rechnung MIT Steuerausweis muessen Netto und Steuerbetrag daraus
+    /// herausgerechnet werden (§14 UStG), sonst kann der Kaeufer sie nicht
+    /// geltend machen.
+    /// </summary>
+    private const decimal Umsatzsteuersatz = 0.19m;
+
+    private static (decimal Netto, decimal Steuer) SteuerAusBrutto(decimal brutto)
+    {
+        var netto = Math.Round(brutto / (1 + Umsatzsteuersatz), 2, MidpointRounding.AwayFromZero);
+        return (netto, brutto - netto);
+    }
+
+    private const string SteuerHinweisRegel =
+        "Rechnung mit gesondertem Ausweis der Umsatzsteuer (19 %)";
+
+    private const string SteuerHinweis25a =
+        "Rechnung nach §25a UStG – Kein gesonderter Ausweis der Umsatzsteuer";
+
+    /// <summary>
     /// Garantiebedingungen fuer Gebrauchtraeder. Nur die DAUER ist verschiebbar
     /// (bei E-Bikes legt der Verkauf sie selbst fest) — der Umfang, die
     /// Ausschluesse und das Rueckgaberecht bleiben unveraendert.
     /// </summary>
-    private static string GebrauchtWarrantyTextFor(int monate) =>
-        $"Gebraucht Garantiebedingungen: {MonthsPhrase(monate)} Garantie auf: Kette, Schaltung, Schaltwerk, " +
+    /// <param name="bezeichnung">
+    /// Wie das Rad im Beleg heisst — "Gebraucht" oder "Vorführfahrrad". Der
+    /// Umfang der Garantie ist derselbe; nur "Gebraucht" darf nicht ueber
+    /// einem Vorfuehrfahrrad stehen.
+    /// </param>
+    private static string GebrauchtWarrantyTextFor(int monate, string bezeichnung = "Gebraucht") =>
+        $"{bezeichnung} Garantiebedingungen: {MonthsPhrase(monate)} Garantie auf: Kette, Schaltung, Schaltwerk, " +
         "Dynamo, Pedale und hydraulische Bremsen. Von der Garantie ausgeschlossen sind: Reifen, Schläuche, " +
         "Bremsbeläge, Lampen. Ebenfalls ausgeschlossen: Schäden durch Unfälle oder unsachgemäße Nutzung. " +
         "Rückgaberecht: innerhalb von 3 Arbeitstagen.";
@@ -382,6 +407,8 @@ public class PdfService : IPdfService
                         table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Zustand").FontSize(9).FontColor(Colors.Grey.Darken2);
                         if (purchase.Bicycle.Zustand == BikeCondition.Neu)
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("NEU").FontSize(10).Bold().FontColor("#155724");
+                        else if (purchase.Bicycle.Zustand == BikeCondition.Vorfuehrfahrrad)
+                            table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("VORFÜHRFAHRRAD").FontSize(10).Bold().FontColor(PrimaryColor);
                         else
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("GEBRAUCHT").FontSize(10).Bold().FontColor("#856404");
                     });
@@ -539,11 +566,16 @@ public class PdfService : IPdfService
 
         // Determine warranty text based on bike condition
         var isNeu = sale.Bicycle.Zustand == BikeCondition.Neu;
+        // Regelbesteuert: Steuer wird auf der Rechnung ausgewiesen, statt nach
+        // §25a UStG in der Marge zu verschwinden.
+        var mitSteuer = sale.Bicycle.Zustand == BikeCondition.Vorfuehrfahrrad;
         // Eigene Garantiedauer (nur E-Bikes); ohne Angabe gilt die alte feste Regel.
         var garantieMonate = sale.GarantieMonate is > 0 ? sale.GarantieMonate.Value : (int?)null;
         var warrantyText = isNeu
             ? NeuWarrantyText
-            : GebrauchtWarrantyTextFor(garantieMonate ?? DefaultGebrauchtWarrantyMonths);
+            : GebrauchtWarrantyTextFor(
+                garantieMonate ?? DefaultGebrauchtWarrantyMonths,
+                mitSteuer ? "Vorführfahrrad" : "Gebraucht");
         var isAccessoryOnlySale =
             string.Equals(sale.Bicycle.Marke, "Zubehör", StringComparison.OrdinalIgnoreCase) &&
             string.Equals(sale.Bicycle.Modell, "Direktverkauf", StringComparison.OrdinalIgnoreCase) &&
@@ -610,7 +642,7 @@ public class PdfService : IPdfService
                     col.Item().Border(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(2).PaddingHorizontal(6).Row(row =>
                     {
                         row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(7).FontColor(Colors.Grey.Darken2);
-                        row.RelativeItem().AlignRight().Text("Rechnung nach §25a UStG – Kein gesonderter Ausweis der Umsatzsteuer").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text(mitSteuer ? SteuerHinweisRegel : SteuerHinweis25a).FontSize(7).FontColor(Colors.Grey.Darken2);
                     });
                 });
 
@@ -666,6 +698,8 @@ public class PdfService : IPdfService
                             table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("Zustand").FontSize(9).FontColor(Colors.Grey.Darken2);
                             if (isNeu)
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("NEU").FontSize(10).Bold().FontColor("#155724");
+                            else if (mitSteuer)
+                                table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("VORFÜHRFAHRRAD").FontSize(10).Bold().FontColor(PrimaryColor);
                             else
                                 table.Cell().Border(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text("GEBRAUCHT").FontSize(10).Bold().FontColor("#856404");
 
@@ -750,6 +784,17 @@ public class PdfService : IPdfService
                                 if (sale.Rabatt > 0)
                                     c.Item().Text($"Rabatt: -{sale.Rabatt:N2} €").FontSize(10).FontColor(Colors.Red.Darken1);
                             }
+
+                            // Ein Ausweis der Steuer ist nur mit Netto UND
+                            // Steuerbetrag vollstaendig — der Satz allein
+                            // reicht dem Kaeufer fuer den Vorsteuerabzug nicht.
+                            if (mitSteuer)
+                            {
+                                var (netto, steuer) = SteuerAusBrutto(sale.Gesamtbetrag);
+                                c.Item().PaddingTop(4).Text("Steuerausweis:").FontSize(9).FontColor(Colors.Grey.Darken1);
+                                c.Item().Text($"Nettobetrag: {netto:N2} €").FontSize(10);
+                                c.Item().Text($"zzgl. 19 % MwSt.: {steuer:N2} €").FontSize(10);
+                            }
                         });
 
                         // Grand Total - print-friendly border style
@@ -785,7 +830,7 @@ public class PdfService : IPdfService
                                     }
                                     else
                                     {
-                                        text.Span("GEBRAUCHT: ").Bold().FontSize(9);
+                                        text.Span(mitSteuer ? "VORFÜHRFAHRRAD: " : "GEBRAUCHT: ").Bold().FontSize(9);
                                         text.Span(warrantyText).FontSize(9).FontColor(Colors.Grey.Darken3);
                                     }
                                 });
@@ -1027,7 +1072,10 @@ public class PdfService : IPdfService
                     col.Item().Border(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(2).PaddingHorizontal(6).Row(row =>
                     {
                         row.RelativeItem().Text($"Steuernr.: {shop.Steuernummer} | USt-IdNr.: {shop.UStIdNr}").FontSize(7).FontColor(Colors.Grey.Darken2);
-                        row.RelativeItem().AlignRight().Text("Rechnung nach §25a UStG – Kein gesonderter Ausweis der Umsatzsteuer").FontSize(7).FontColor(Colors.Grey.Darken2);
+                        row.RelativeItem().AlignRight().Text(
+                            ret.Sale.Bicycle.Zustand == BikeCondition.Vorfuehrfahrrad
+                                ? SteuerHinweisRegel
+                                : SteuerHinweis25a).FontSize(7).FontColor(Colors.Grey.Darken2);
                     });
                 });
 

@@ -276,6 +276,7 @@ export interface Translations {
   sellingPrice: string;
   usedCondition: string;
   newCondition: string;
+  taxedCondition: string;
   invoiceRequired: string;
   selectPhotos: string;
   takePhoto: string;
@@ -1200,6 +1201,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     sellingPrice: 'VK-Preis',
     usedCondition: 'Gebraucht (3 Monate Garantie)',
     newCondition: 'Neu (2 Jahre Gewährleistung)',
+    taxedCondition: 'Vorführfahrrad (mit Steuer, Garantie in Monaten)',
     invoiceRequired: 'Rechnung (Kaufbeleg) *',
     selectPhotos: 'Fotos auswählen',
     takePhoto: 'Kamera',
@@ -2136,6 +2138,7 @@ const TRANSLATIONS: Record<Language, Translations> = {
     sellingPrice: 'Satış fiyatı',
     usedCondition: 'Kullanılmış (3 Ay Garanti)',
     newCondition: 'Yeni (2 Yıl Garanti)',
+    taxedCondition: 'Vorführfahrrad (vergili, garanti ay olarak)',
     invoiceRequired: 'Fatura (Alış Belgesi) *',
     selectPhotos: 'Fotoğraf seç',
     takePhoto: 'Kamera',

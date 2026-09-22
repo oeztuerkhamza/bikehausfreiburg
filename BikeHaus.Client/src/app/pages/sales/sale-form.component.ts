@@ -456,9 +456,10 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
                     }})</small
                   >
                 </div>
-                <!-- Nur E-Bikes: die Dauer legt der Verkauf selbst fest. Bei
-                     allen anderen Rädern bleibt es bei der festen Regel. -->
-                <div class="warranty-months" *ngIf="isEBikeSelected()">
+                <!-- E-Bikes und regelbesteuerte Räder („Vorführfahrrad"): die
+                     Dauer legt der Verkauf selbst fest. Bei allen anderen
+                     Rädern bleibt es bei der festen Regel. -->
+                <div class="warranty-months" *ngIf="garantieDauerWaehlbar()">
                   <label for="garantieMonate">{{ t.warrantyMonths }}</label>
                   <input
                     id="garantieMonate"
@@ -1780,6 +1781,23 @@ export class SaleFormComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Vorführfahrrad — eigener Zustand, wird regelbesteuert verkauft. */
+  isVorfuehrfahrrad(): boolean {
+    return (
+      !this.isAccessoryOnly &&
+      this.selectedBike?.zustand === 'Vorfuehrfahrrad'
+    );
+  }
+
+  /**
+   * Darf die Garantiedauer hier eingetragen werden? Bei E-Bikes seit jeher,
+   * und bei „Vorführfahrrad": dort gibt es keine feste Regel, die Dauer gehört
+   * zum Geschäft und muss auf den Beleg.
+   */
+  garantieDauerWaehlbar(): boolean {
+    return this.isEBikeSelected() || this.isVorfuehrfahrrad();
+  }
+
   /** Auf 1 bis 60 Monate begrenzt; unsinnige Eingaben fallen auf 3 zurück. */
   private clampedGarantieMonate(): number {
     const n = Math.round(Number(this.garantieMonate));
@@ -1799,7 +1817,7 @@ export class SaleFormComponent implements OnInit, OnDestroy {
   warrantyBadge(): string {
     if (!this.selectedBike) return '';
     if (this.selectedBike.zustand === 'Neu') return this.t.warrantyNew;
-    if (!this.isEBikeSelected()) return this.t.warrantyUsed;
+    if (!this.garantieDauerWaehlbar()) return this.t.warrantyUsed;
     return `${this.clampedGarantieMonate()} ${this.t.warrantyMonthsUnit}`;
   }
 
@@ -1814,14 +1832,18 @@ export class SaleFormComponent implements OnInit, OnDestroy {
     const istNeu = this.selectedBike.zustand === 'Neu';
     const gesetzlich = '2 Jahre Gewährleistung gemäß § 437 BGB';
 
-    if (!this.isEBikeSelected()) {
+    if (!this.garantieDauerWaehlbar()) {
       return istNeu ? gesetzlich : '3 Monate Garantie auf das Fahrrad';
     }
 
+    // „Vorführfahrrad" ist kein E-Bike-Fall — der Text darf das Rad nicht als
+    // E-Bike bezeichnen, nur weil die Dauer frei wählbar ist.
+    const gegenstand = this.isEBikeSelected() ? 'das E-Bike' : 'das Fahrrad';
+
     const dauer = this.monatePhrase(this.clampedGarantieMonate());
     return istNeu
-      ? `${gesetzlich}\nZusätzlich ${dauer} Bike Haus Garantie auf das E-Bike`
-      : `${dauer} Garantie auf das E-Bike`;
+      ? `${gesetzlich}\nZusätzlich ${dauer} Bike Haus Garantie auf ${gegenstand}`
+      : `${dauer} Garantie auf ${gegenstand}`;
   }
 
   get hasBikeErrors(): boolean {
@@ -2545,9 +2567,9 @@ export class SaleFormComponent implements OnInit, OnDestroy {
       verkaufsdatum: this.verkaufsdatum,
       garantie: !this.isAccessoryOnly,
       garantieBedingungen: this.buildGarantieBedingungen(),
-      // Nur bei E-Bikes gesetzt: sonst bleibt es beim festen Text, und der
-      // Beleg soll dann weiter die alte Regel drucken.
-      garantieMonate: this.isEBikeSelected()
+      // Nur gesetzt, wo die Dauer auch wählbar ist (E-Bike, „Vorführfahrrad"):
+      // sonst bleibt es beim festen Text, und der Beleg druckt die alte Regel.
+      garantieMonate: this.garantieDauerWaehlbar()
         ? this.clampedGarantieMonate()
         : undefined,
       notizen: this.notizen || undefined,

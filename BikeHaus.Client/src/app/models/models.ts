@@ -9,6 +9,12 @@ export enum BikeStatus {
 export enum BikeCondition {
   Neu = 'Neu',
   Gebraucht = 'Gebraucht',
+  /**
+   * Vorführfahrrad: eigene Kategorie, weder neu noch gebraucht. Wird
+   * regelbesteuert verkauft — der Beleg weist die Umsatzsteuer gesondert aus
+   * statt nach §25a UStG. Die Garantiedauer legt der Verkauf fest.
+   */
+  Vorfuehrfahrrad = 'Vorfuehrfahrrad',
 }
 
 export enum PaymentMethod {

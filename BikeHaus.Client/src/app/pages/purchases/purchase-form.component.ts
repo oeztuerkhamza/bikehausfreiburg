@@ -292,6 +292,7 @@ const DRAFT_MAX_AGE_MS = 8 * 60 * 60 * 1000;
                     {{ t.usedCondition }}
                   </option>
                   <option value="Neu">{{ t.newCondition }}</option>
+                  <option value="Vorfuehrfahrrad">{{ t.taxedCondition }}</option>
                 </select>
               </div>
               <div class="field" *ngIf="bulkMode">

@@ -75,6 +75,7 @@ import { PaginationComponent } from '../../components/pagination/pagination.comp
             <option value="">{{ t.all }}</option>
             <option value="Neu">{{ t.newCondition }}</option>
             <option value="Gebraucht">{{ t.usedCondition }}</option>
+            <option value="Vorfuehrfahrrad">{{ t.taxedCondition }}</option>
           </select>
         </div>
         <div class="filter-item">

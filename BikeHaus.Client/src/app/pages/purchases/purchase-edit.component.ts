@@ -162,6 +162,7 @@ import { environment } from '../../../environments/environment';
                     {{ t.usedCondition }}
                   </option>
                   <option value="Neu">{{ t.newCondition }}</option>
+                  <option value="Vorfuehrfahrrad">{{ t.taxedCondition }}</option>
                 </select>
               </div>
               <div class="field full">
