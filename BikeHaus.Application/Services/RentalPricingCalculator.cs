@@ -12,37 +12,47 @@ public static class RentalPricingCalculator
     }
 
     /// <summary>
-    /// Zeilensumme einer Zubehörposition.
-    ///
-    /// Standard ist ein Tagespreis, der mit den Miettagen multipliziert wird.
+    /// Zeilensumme einer Zubehörposition in der Miete: Tagespreis × Menge ×
+    /// Miettage.
     ///
     /// Einmaliges Zubehör (<paramref name="einmalig"/>) ist Verbrauchsmaterial —
-    /// etwa ein Schlauch, den der Mieter mitnimmt. Es kostet unabhängig von der
-    /// Mietdauer einmal Preis × Menge, und nur dann, wenn es auch verbraucht
-    /// wurde (<paramref name="verbraucht"/>). Kommt der Schlauch unbenutzt
-    /// zurück, wird nichts berechnet.
+    /// etwa ein Schlauch, den der Mieter für den Notfall mitnimmt. Es wird über
+    /// die Mietzeit nicht genutzt, sondern liegt nur bereit, und geht deshalb
+    /// GAR NICHT in die Miete ein. Wird es doch verbraucht, ist das ein Fall für
+    /// die Kaution, nicht für den Mietvertrag: siehe <see cref="VerbrauchsAbzug"/>.
     /// </summary>
-    public static decimal AccessoryLineTotal(decimal preis, int menge, int days, bool einmalig, bool verbraucht)
-        => einmalig
-            ? (verbraucht ? preis * menge : 0m)
-            : preis * menge * Math.Max(1, days);
+    public static decimal AccessoryLineTotal(decimal preis, int menge, int days, bool einmalig)
+        => einmalig ? 0m : preis * menge * Math.Max(1, days);
 
-    /// <summary>
-    /// Zeilensumme einer Zubehörposition eines Mietvertrags. Einmaliges Zubehör
-    /// gilt als verbraucht, sobald es bei der Rückgabe nicht als zurückgegeben
-    /// abgehakt wurde.
-    /// </summary>
+    /// <summary>Mietanteil einer Zubehörposition eines Mietvertrags.</summary>
     public static decimal LineTotal(this RentalAccessoryItem item, int days)
-        => AccessoryLineTotal(item.Tagespreis, item.Menge, days, item.Einmalig, !item.Zurueckgegeben);
+        => AccessoryLineTotal(item.Tagespreis, item.Menge, days, item.Einmalig);
+
+    /// <summary>Mietanteil einer Zubehörposition einer Online-Buchung.</summary>
+    public static decimal LineTotal(this RentalBookingAccessory item, int days)
+        => AccessoryLineTotal(item.Tagespreis, item.Menge, days, item.Einmalig);
 
     /// <summary>
-    /// Zeilensumme einer Zubehörposition einer Online-Buchung. Einmaliges
-    /// Zubehör steht bei der Buchung nur bereit — ob es verbraucht wird, zeigt
-    /// sich erst bei der Rückgabe im Laden. Es geht deshalb nicht in den
-    /// Buchungspreis ein.
+    /// Verbrauchtes Einmal-Zubehör. Der Mieter hat es behalten oder aufgebraucht,
+    /// erkennbar daran, dass es bei der Rückgabe nicht abgehakt wurde. Das ist
+    /// keine Miete — die Miete steht seit der Unterschrift fest —, sondern ein
+    /// Abzug von der Kaution, wie Schaden oder Verspätung.
     /// </summary>
-    public static decimal LineTotal(this RentalBookingAccessory item, int days)
-        => AccessoryLineTotal(item.Tagespreis, item.Menge, days, item.Einmalig, verbraucht: false);
+    public static decimal VerbrauchsAbzug(this RentalAccessoryItem item)
+        => item.Einmalig && !item.Zurueckgegeben ? item.Tagespreis * item.Menge : 0m;
+
+    /// <summary>Summe des verbrauchten Einmal-Zubehörs eines Mietvertrags.</summary>
+    public static decimal VerbrauchsAbzugGesamt(this Rental rental)
+        => rental.Accessories.Sum(a => a.VerbrauchsAbzug());
+
+    /// <summary>
+    /// Was insgesamt von der Kaution einbehalten wird: Schäden und Verspätung je
+    /// Rad, dazu das verbrauchte Einmal-Zubehör des Vertrags. Eine Stelle, damit
+    /// Rückgabemaske und Kautionsrückgabebeleg nicht auseinanderlaufen.
+    /// </summary>
+    public static decimal KautionAbzugGesamt(this Rental rental)
+        => rental.Bikes.Sum(b => b.SchadenAbzug + b.VerspaetungsAbzug)
+            + rental.VerbrauchsAbzugGesamt();
 
     public static decimal? CalculateBikePrice(Bicycle bicycle, int days)
     {
