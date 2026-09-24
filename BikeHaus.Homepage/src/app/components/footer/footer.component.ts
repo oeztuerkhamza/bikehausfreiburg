@@ -112,9 +112,16 @@ import {
           <p>&copy; {{ year }} Bike Haus Freiburg. {{ t().allRights }}</p>
           <p class="footer-credit">
             Webdesign:
-            <a href="https://breisgau-digital.de" target="_blank" rel="noopener noreferrer"
-              >Breisgau Digital</a
-            >
+            <a href="https://breisgau-digital.de" target="_blank" rel="noopener noreferrer">
+              <img
+                src="/assets/images/breisgau-digital.webp"
+                alt=""
+                width="16"
+                height="20"
+                loading="lazy"
+              />
+              Breisgau Digital
+            </a>
           </p>
         </div>
       </div>
@@ -218,6 +225,10 @@ import {
       }
 
       .footer-credit a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        vertical-align: middle;
         color: var(--color-text-secondary);
         text-decoration: underline;
         text-underline-offset: 2px;
