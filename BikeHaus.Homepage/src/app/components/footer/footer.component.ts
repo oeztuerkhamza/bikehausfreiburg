@@ -110,6 +110,12 @@ import {
       <div class="footer-bottom">
         <div class="container footer-bottom-inner">
           <p>&copy; {{ year }} Bike Haus Freiburg. {{ t().allRights }}</p>
+          <p class="footer-credit">
+            Webdesign:
+            <a href="https://breisgau-digital.de" target="_blank" rel="noopener noreferrer"
+              >Breisgau Digital</a
+            >
+          </p>
         </div>
       </div>
     </footer>
@@ -201,12 +207,25 @@ import {
 
       .footer-bottom-inner {
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
+        gap: 0.35rem 1.5rem;
       }
 
       .footer-bottom p {
         font-size: 0.8rem;
         color: var(--color-text-muted);
+      }
+
+      .footer-credit a {
+        color: var(--color-text-secondary);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        transition: color 0.2s;
+      }
+
+      .footer-credit a:hover {
+        color: #fff;
       }
 
       @media (max-width: 768px) {
