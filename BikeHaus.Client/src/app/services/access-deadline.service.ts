@@ -11,10 +11,10 @@ import { Injectable, computed, signal } from '@angular/core';
  * bewusster Schritt im Code.
  *
  * Der Monat ist nullbasiert: 9 = Oktober. Absichtlich der Konstruktor und
- * kein `new Date('2026-10-25')` — ein reiner Datums-String wird nach
+ * kein `new Date('2026-10-17')` — ein reiner Datums-String wird nach
  * ECMAScript als UTC gelesen, der Konstruktor nimmt die lokale Zeit.
  */
-export const ACCESS_DEADLINE = new Date(2026, 9, 25, 0, 0, 0);
+export const ACCESS_DEADLINE = new Date(2026, 9, 17, 0, 0, 0);
 
 /** Verbleibende Zeit bis {@link ACCESS_DEADLINE}, auf Null begrenzt. */
 export interface AccessRemaining {
