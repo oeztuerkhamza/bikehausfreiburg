@@ -1,11 +1,25 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import {
+  ACCESS_LOCKED_PATH,
+  accessDeadlineGuard,
+  accessLockedPageGuard,
+} from './guards/access-deadline.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login.component').then((m) => m.LoginComponent),
+    canActivate: [accessDeadlineGuard],
+  },
+  {
+    path: ACCESS_LOCKED_PATH,
+    loadComponent: () =>
+      import('./pages/access-locked/access-locked.component').then(
+        (m) => m.AccessLockedComponent,
+      ),
+    canActivate: [accessLockedPageGuard],
   },
   {
     path: '',

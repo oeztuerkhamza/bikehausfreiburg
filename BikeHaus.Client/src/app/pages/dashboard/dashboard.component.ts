@@ -6,12 +6,17 @@ import { PurchaseService } from '../../services/purchase.service';
 import { SaleService } from '../../services/sale.service';
 import { Dashboard } from '../../models/models';
 import { TranslationService } from '../../services/translation.service';
+import { AccessCountdownComponent } from '../../components/access-countdown/access-countdown.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, AccessCountdownComponent],
   template: `
+    <div class="countdown-wrap">
+      <app-access-countdown />
+    </div>
+
     <!-- Loading State -->
     <div
       class="dashboard-loading"
@@ -590,6 +595,12 @@ import { TranslationService } from '../../services/translation.service';
   `,
   styles: [
     `
+      /* ── Countdown der Zugangsfrist ── */
+      .countdown-wrap {
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
       /* ── Skeleton Loading ── */
       .dashboard-loading {
         max-width: 1280px;

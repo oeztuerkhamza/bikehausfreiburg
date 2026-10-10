@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslationService } from './services/translation.service';
 import { AuthService } from './services/auth.service';
+import { AccessDeadlineService } from './services/access-deadline.service';
 import { SettingsService, ShopSettings } from './services/settings.service';
 import { ThemeService } from './services/theme.service';
 import { PurchaseService } from './services/purchase.service';
@@ -23,12 +24,17 @@ import { DialogComponent } from './components/dialog/dialog.component';
   ],
   template: `
     <!-- Login page: no sidebar -->
-    <ng-container *ngIf="!authService.isLoggedIn()">
+    <ng-container
+      *ngIf="!authService.isLoggedIn() || accessDeadline.expired()"
+    >
       <router-outlet></router-outlet>
     </ng-container>
 
     <!-- Authenti cated layout -->
-    <div class="app-layout" *ngIf="authService.isLoggedIn()">
+    <div
+      class="app-layout"
+      *ngIf="authService.isLoggedIn() && !accessDeadline.expired()"
+    >
       <!-- Skip Link für Barrierefreiheit -->
       <a href="#main-content" class="skip-link">{{ t.skipToMain }}</a>
 
@@ -1386,6 +1392,7 @@ export class AppComponent implements OnInit {
   private purchaseService = inject(PurchaseService);
   private rentalBookingService = inject(RentalBookingService);
   authService = inject(AuthService);
+  accessDeadline = inject(AccessDeadlineService);
   themeService = inject(ThemeService);
 
   settings = signal<ShopSettings | null>(null);
