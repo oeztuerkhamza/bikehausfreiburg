@@ -21,6 +21,7 @@ import {
   toOpeningHoursSpecification,
 } from '../../services/opening-hours';
 import { CITY_LANDINGS, CityLanding } from '../../services/city-landing.data';
+import { robotsFor } from '../../services/search-indexing';
 
 @Component({
   selector: 'app-fahrrad-stadt',
@@ -452,7 +453,7 @@ export class FahrradStadtComponent implements OnInit, OnDestroy {
           content: t.metaDescription,
         });
       }
-      this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+      this.meta.updateTag({ name: 'robots', content: robotsFor('index, follow') });
       this.injectSchema(found);
     });
   }

@@ -5,6 +5,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
 import { getRentalSlug } from '../../services/language-config';
 import { RentalBookingStepsComponent } from './rental-booking-steps.component';
+import { robotsFor } from '../../services/search-indexing';
 
 /**
  * Dedicated booking page: hosts ONLY the step-by-step rental booking flow.
@@ -117,6 +118,6 @@ export class RentalBookingPageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // Don't leak noindex into soft navigations to other pages.
-    this.metaService.updateTag({ name: 'robots', content: 'index, follow' });
+    this.metaService.updateTag({ name: 'robots', content: robotsFor('index, follow') });
   }
 }

@@ -13,6 +13,7 @@ import {
 } from '../../services/language-config';
 import { RentalBookingLookup } from '../../models/models';
 import { takeBookingHandoff } from '../../utils/booking-handoff';
+import { robotsFor } from '../../services/search-indexing';
 
 type ManagePhase = 'form' | 'view';
 
@@ -665,7 +666,7 @@ export class BookingManageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // Nicht in andere (indexierbare) Seiten hinein "noindex" mitnehmen.
-    this.metaService.updateTag({ name: 'robots', content: 'index, follow' });
+    this.metaService.updateTag({ name: 'robots', content: robotsFor('index, follow') });
   }
 
   submitLookup(): void {

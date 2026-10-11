@@ -18,6 +18,7 @@ import {
   ZielFakten,
   AusflugszielePageText,
 } from '../../services/ausflugsziele.data';
+import { robotsFor } from '../../services/search-indexing';
 
 const BASE_URL = 'https://bikehausfreiburg.com';
 
@@ -435,7 +436,7 @@ export class AusflugszieleComponent implements OnInit, OnDestroy {
     const t = this.t();
     this.title.setTitle(t.metaTitle);
     this.meta.updateTag({ name: 'description', content: t.metaDescription });
-    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    this.meta.updateTag({ name: 'robots', content: robotsFor('index, follow') });
     this.injectSchema();
   }
 

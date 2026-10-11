@@ -15,6 +15,14 @@
  * Datenschutz, Danke-Seiten) — eine Seite, die nicht in den Index soll, gehoert
  * auch nicht in die Sitemap.
  *
+ * AUSNAHME, solange die ganze Seite aus dem Index genommen wird
+ * (SEARCH_INDEXING_ENABLED = false in src/app/services/search-indexing.ts):
+ * dann traegt JEDE Seite noindex, und dieselbe Regel wuerde eine leere Sitemap
+ * erzeugen. Leer waere hier aber das Schlechteste: die Sitemap ist in dieser
+ * Phase genau die Abrufliste, ueber die Google die Seiten noch einmal besucht,
+ * den noindex liest und sie aus dem Index wirft. Darum werden sie waehrend der
+ * Entfernung bewusst aufgenommen. Siehe SEO-DEINDEX.md.
+ *
  * Aufruf: node scripts/generate-sitemap.mjs   (laeuft automatisch nach ng build)
  */
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
@@ -24,6 +32,26 @@ import { dirname } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const browserDir = join(here, '..', 'dist', 'bike-haus.homepage', 'browser');
+
+// Einzige Quelle fuer den Schalter ist die TS-Datei, die auch die App liest —
+// hier per Textsuche, damit das Skript ohne TS-Toolchain lauffaehig bleibt.
+const indexingSwitch = readFileSync(
+  join(here, '..', 'src', 'app', 'services', 'search-indexing.ts'),
+  'utf8',
+);
+// Am Zeilenanfang verankert und auf `export const` festgelegt: eine lose
+// Textsuche traf sonst den Satz "Zurueckdrehen: SEARCH_INDEXING_ENABLED = true"
+// im Dateikommentar und las den Schalter genau falsch herum.
+const switchMatch = indexingSwitch.match(
+  /^export const SEARCH_INDEXING_ENABLED\s*=\s*(true|false)\s*;/m,
+);
+if (!switchMatch) {
+  throw new Error(
+    '[sitemap] SEARCH_INDEXING_ENABLED nicht in search-indexing.ts gefunden.' +
+      ' Umbenannt oder verschoben? Ohne den Schalter waere die Sitemap stillschweigend falsch.',
+  );
+}
+const SEARCH_INDEXING_ENABLED = switchMatch[1] === 'true';
 
 /** Alle index.html unterhalb von dist/browser einsammeln. */
 function collectPages(dir, out = []) {
@@ -93,7 +121,7 @@ for (const file of pages) {
   const html = readFileSync(file, 'utf8');
 
   const robots = html.match(ROBOTS)?.[1] ?? '';
-  if (/noindex/i.test(robots)) {
+  if (SEARCH_INDEXING_ENABLED && /noindex/i.test(robots)) {
     skippedNoindex++;
     continue;
   }
@@ -174,6 +202,14 @@ console.log(
     ` (uebersprungen: ${skippedNoindex} noindex, ${skippedNoCanonical} ohne canonical,` +
     ` ${skippedForeignCanonical.length} fremder canonical, ${skippedNoHreflang.length} ohne hreflang)`,
 );
+
+if (!SEARCH_INDEXING_ENABLED) {
+  console.warn(
+    '[sitemap] SEARCH_INDEXING_ENABLED=false — die Seite wird aus dem Index' +
+      ' genommen. noindex-Seiten stehen deshalb ABSICHTLICH in der Sitemap,' +
+      ' damit Google sie erneut abruft und entfernt (siehe SEO-DEINDEX.md).',
+  );
+}
 
 // Die beiden folgenden Faelle sind KEINE Sitemap-Probleme, sondern Hinweise auf
 // Routen, die gebaut, aber nicht sinnvoll aufgeloest werden. Sie bleiben

@@ -17,6 +17,7 @@ import {
   BikeTourFacts,
   BikeToursPageText,
 } from '../../services/bike-tours.data';
+import { robotsFor } from '../../services/search-indexing';
 
 const BASE_URL = 'https://bikehausfreiburg.com';
 
@@ -638,7 +639,7 @@ export class BikeToursComponent implements OnInit, OnDestroy {
     const t = this.tx();
     this.title.setTitle(t.metaTitle);
     this.meta.updateTag({ name: 'description', content: t.metaDescription });
-    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    this.meta.updateTag({ name: 'robots', content: robotsFor('index, follow') });
     this.injectSchema();
   }
 

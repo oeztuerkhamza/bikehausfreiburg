@@ -238,6 +238,8 @@ All inherit `BaseEntity` (Id, CreatedAt, UpdatedAt). Decimal cols use `decimal(1
 
 **Angular 17.3 + SSR** via `@angular/ssr` 17.3.17 + Express. Image opt via `sharp`. Custom SCSS, no UI libs.
 
+> **⚠️ Die Seite steht bewusst auf `noindex` — sie ist aus den Suchmaschinen genommen.** Inhalt, Routen und Texte sind unveraendert und oeffentlich erreichbar, nur die Sichtbarkeit in Google & Co. ist abgeschaltet. Ein Schalter: `SEARCH_INDEXING_ENABLED` in [search-indexing.ts](BikeHaus.Homepage/src/app/services/search-indexing.ts); daran haengen das robots-Meta in `index.html`, `robotsFor()` in den Seitenkomponenten, der `X-Robots-Tag` in nginx und die Sitemap-Erzeugung. `IndexNow:Enabled` ist aus demselben Grund `false`. **Keine neue Seite wieder auf `index` setzen, ohne das zu klaeren** — und das Crawlen in `robots.txt` NICHT sperren, sonst liest Google den noindex nie. Vollstaendig: [SEO-DEINDEX.md](SEO-DEINDEX.md).
+
 **Routing**: All public routes are `/:lang/...`. Lang guard validates against `SUPPORTED_LANGUAGES`, sets `TranslationService.setLanguage()`. Root `''` redirects to `/de` (DEFAULT_LANGUAGE).
 
 **i18n — 12 languages, NO JSON files**:
@@ -428,6 +430,8 @@ The codebase uses **German field/entity names**. Use this when generating code o
 15. **TLS certs live in nginx's memory, not on disk.** certbot renews inside its own container; nginx only re-reads the files on reload. The nginx service therefore runs a 6h self-reload loop (`command:` in docker-compose.yml) — don't remove it, or HTTPS silently dies the next time the in-memory cert expires. Adding a new `server_name` with a 443 block also means adding that host to `DOMAINS` in `deploy/setup-ssl.sh`; otherwise the host gets a wrong-name cert that HSTS (`includeSubDomains` on the apex) makes unbypassable. The reverse bites too: `mail.` was in the live certificate but missing from `DOMAINS`, so running the script would have dropped it. CI enforces the match (`nginx-config-check.yml`). Diagnose with `deploy/ssl-status.sh`, never with reflexive `--force-renewal` (Let's Encrypt: 5 duplicate certs/week).
 
 ---
+
+17. **Die Seite ist absichtlich nicht indexierbar — `noindex` ist kein Bug.** Wer `robots`-Meta, `X-Robots-Tag` oder eine leer wirkende Sitemap findet und "repariert", macht eine bewusste Entscheidung rueckgaengig. Alles haengt an `SEARCH_INDEXING_ENABLED` ([search-indexing.ts](BikeHaus.Homepage/src/app/services/search-indexing.ts)). Zwei Fallen dabei: (a) `generate-sitemap.mjs` nimmt `noindex`-Seiten in dieser Phase BEWUSST auf — die Sitemap ist jetzt die Abrufliste, ueber die Google die Seiten wiederfindet und entfernt; die "Durch noindex ausgeschlossen"-Meldungen in der Search Console sind der Fortschritt, nicht der Fehler. (b) `add_header` in einem nginx-`location` ERSETZT die vom `server`-Block geerbten Header — ein neues `location` mit eigenem `add_header` verliert den `X-Robots-Tag` stillschweigend und muss ihn wiederholen. Runbook, Handarbeit in der Search Console und der Weg zurueck: [SEO-DEINDEX.md](SEO-DEINDEX.md).
 
 ## Recent context (2026-05-14)
 

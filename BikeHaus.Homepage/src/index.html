@@ -20,12 +20,18 @@
       content="Fahrrad Freiburg, Fahrrad kaufen Freiburg, Fahrrad mieten Freiburg, Fahrradverleih Freiburg, Bike Freiburg, gebrauchte Fahrräder Freiburg, E-Bike Freiburg, Fahrradhändler Freiburg, Bike Haus, Fahrradgeschäft Freiburg, Fahrradladen Freiburg, Second Hand Fahrrad Freiburg, günstiges Fahrrad Freiburg, Citybike Freiburg, Mountainbike Freiburg, Trekkingrad Freiburg, Kinderfahrrad Freiburg, gebrauchtes E-Bike Freiburg, Fahrrad Emmendingen, Fahrrad Bad Krozingen, Fahrrad Breisach, Fahrrad Breisgau, Fahrrad Hochschwarzwald, Fahrrad March, Fahrrad Gundelfingen, Rad Freiburg, Zweirad Freiburg, Fahrradkauf Freiburg, bike rental Freiburg, location vélo Fribourg, Freiburg bisiklet kiralama"
     />
     <meta name="author" content="Bike Haus Freiburg" />
-    <meta
-      name="robots"
-      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
-    />
-    <meta name="googlebot" content="index, follow" />
-    <meta name="bingbot" content="index, follow" />
+    <!-- Die Seite ist bewusst aus den Suchmaschinen genommen. Hier steht der
+         Ausgangswert fuer JEDE Route: Komponenten, die selbst kein robots-Meta
+         setzen, erben genau diesen. Komponenten, die eines setzen, laufen ueber
+         robotsFor() in src/app/services/search-indexing.ts — derselbe Schalter.
+         Zusaetzlich schickt nginx X-Robots-Tag, damit auch statische Dateien
+         und Bilder erfasst sind. `follow` ist Absicht: nur wenn Google den
+         Links weiter folgt, sieht es den noindex auf allen Seiten und wirft sie
+         zuegig heraus. Wieder sichtbar machen: SEO-DEINDEX.md.
+         VORHER: content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" -->
+    <meta name="robots" content="noindex, follow, noimageindex" />
+    <meta name="googlebot" content="noindex, follow, noimageindex" />
+    <meta name="bingbot" content="noindex, follow" />
     <meta name="revisit-after" content="7 days" />
     <meta name="rating" content="general" />
     <meta name="theme-color" content="#0A0A0A" />

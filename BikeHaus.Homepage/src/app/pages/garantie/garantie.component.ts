@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslationService } from '../../services/translation.service';
+import { robotsFor } from '../../services/search-indexing';
 
 @Component({
   selector: 'app-garantie',
@@ -234,6 +235,6 @@ export class GarantieComponent implements OnInit {
       content: t.garantieMetaDescription,
     });
     this.metaService.updateTag({ property: 'og:url', content: pageUrl });
-    this.metaService.updateTag({ name: 'robots', content: 'index, follow' });
+    this.metaService.updateTag({ name: 'robots', content: robotsFor('index, follow') });
   }
 }

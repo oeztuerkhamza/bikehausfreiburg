@@ -1,16 +1,36 @@
 # Robots.txt for Bike Haus Freiburg
 # https://bikehausfreiburg.com
+#
+# ─────────────────────────────────────────────────────────────────
+# DIESE SEITE IST BEWUSST AUS DEN SUCHMASCHINEN GENOMMEN.
+#
+# Das Crawlen bleibt ERLAUBT — und das ist kein Widerspruch, sondern
+# Voraussetzung: Entfernt wird eine Seite ueber `noindex`, und diesen
+# Hinweis liest Google nur, wenn es die Seite abrufen DARF. Ein
+# `Disallow: /` wuerde den Abruf unterbinden, der noindex nie
+# ankommen und bereits indexierte Seiten blieben auf unbestimmte Zeit
+# in den Ergebnissen stehen — das Gegenteil des Gewollten.
+#
+# Der noindex kommt aus drei Quellen, alle an einem Schalter:
+#   - src/index.html (robots-Meta, Ausgangswert jeder Route)
+#   - src/app/services/search-indexing.ts (robotsFor(), Komponenten)
+#   - nginx/nginx.conf (X-Robots-Tag, auch Dateien und Bilder)
+#
+# Die Sitemaps bleiben absichtlich eingetragen: sie sind jetzt die
+# Abrufliste, ueber die Google die noindex-Seiten wiederfindet und
+# aus dem Index nimmt. In der Search Console erscheinen dadurch
+# erwartbar "Durch noindex-Tag ausgeschlossen"-Meldungen — genau das
+# ist der Fortschritt, kein Fehler.
+#
+# Zurueckdrehen und naechste Schritte: SEO-DEINDEX.md im Repo-Root.
+# ─────────────────────────────────────────────────────────────────
 
 User-agent: *
 Allow: /
 
-# Sitemaps
+# Sitemaps — hier als Abrufliste fuer die Entfernung, siehe oben
 Sitemap: https://bikehausfreiburg.com/sitemap.xml
 Sitemap: https://bikehausfreiburg.com/sitemap-products.xml
-
-# LLM/AI Crawler Info
-# https://llmstxt.org
-# AI crawlers can find structured info at /llms.txt
 
 # Crawl-delay (optional, be friendly to search engines)
 Crawl-delay: 1
@@ -27,8 +47,19 @@ Allow: /llms.txt
 Allow: /llms-full.txt
 
 # ─────────────────────────────────────────────
-# AI / LLM crawlers — explicitly welcome (GEO/AEO).
-# Google-Extended = Gemini / AI Overviews grounding.
+# Google-Extended = Gemini / Grounding fuer Googles KI-Produkte.
+# Gehoert zu Google und ist daher mit abgeschaltet. Die Sichtbarkeit
+# in AI Overviews haengt am Suchindex selbst und entfaellt bereits
+# durch den noindex.
+# ─────────────────────────────────────────────
+User-agent: Google-Extended
+Disallow: /
+
+# ─────────────────────────────────────────────
+# Uebrige KI-/LLM-Crawler bleiben zugelassen (GEO/AEO).
+# Das ist ein EIGENER Schalter: der Auftrag war Google, nicht
+# ChatGPT, Claude oder Perplexity. Sollen die auch raus, hier auf
+# `Disallow: /` stellen.
 # ─────────────────────────────────────────────
 User-agent: GPTBot
 Allow: /
@@ -52,9 +83,6 @@ User-agent: PerplexityBot
 Allow: /
 
 User-agent: Perplexity-User
-Allow: /
-
-User-agent: Google-Extended
 Allow: /
 
 User-agent: Applebot-Extended

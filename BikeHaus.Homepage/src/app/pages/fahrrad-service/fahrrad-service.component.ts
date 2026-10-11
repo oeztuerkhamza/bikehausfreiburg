@@ -15,6 +15,7 @@ import {
   ServiceTranslation,
 } from '../../services/service-landing.data';
 import { AREA_SERVED } from '../../services/area-served.data';
+import { robotsFor } from '../../services/search-indexing';
 
 const BASE_URL = 'https://bikehausfreiburg.com';
 
@@ -441,7 +442,7 @@ export class FahrradServiceComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    this.meta.updateTag({ name: 'robots', content: robotsFor('index, follow') });
     this.injectSchema();
   }
 

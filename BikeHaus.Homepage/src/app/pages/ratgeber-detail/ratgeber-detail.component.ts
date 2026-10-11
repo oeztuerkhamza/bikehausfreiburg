@@ -19,6 +19,7 @@ import {
   getBlogBasePath,
   getBlogSlug,
 } from '../../services/blog.data';
+import { robotsFor } from '../../services/search-indexing';
 
 @Component({
   selector: 'app-ratgeber-detail',
@@ -622,7 +623,7 @@ export class RatgeberDetailComponent implements OnInit, OnDestroy {
     });
     this.metaService.updateTag({
       name: 'robots',
-      content: 'index, follow, max-snippet:-1',
+      content: robotsFor('index, follow, max-snippet:-1'),
     });
 
     // Hreflang — set language-specific canonical alternate links for blog articles

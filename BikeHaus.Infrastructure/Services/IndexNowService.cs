@@ -11,6 +11,7 @@ public class IndexNowService : IIndexNowService
     private readonly ILogger<IndexNowService> _logger;
     private readonly string _apiKey;
     private readonly string _host;
+    private readonly bool _enabled;
 
     public IndexNowService(
         IHttpClientFactory httpClientFactory,
@@ -21,6 +22,14 @@ public class IndexNowService : IIndexNowService
         _logger = logger;
         _apiKey = configuration["IndexNow:ApiKey"] ?? throw new InvalidOperationException("IndexNow:ApiKey is not configured.");
         _host = configuration["IndexNow:Host"] ?? "bikehausfreiburg.com";
+        // Standard ist AUS: die Seite wird bewusst aus dem Index genommen, da
+        // waere es widersinnig, neue URLs aktiv bei Suchmaschinen anzumelden.
+        // Der Schalter sitzt hier und nicht an den Aufrufstellen, damit beide
+        // Wege stillliegen — der 4h-Sync UND POST /api/public/notify-indexnow.
+        // Wieder einschalten: IndexNow:Enabled = true (bzw. IndexNow__Enabled).
+        // Bewusst ueber den Indexer statt GetValue<T>(): das braucht nur
+        // Configuration.Abstractions, nicht zusaetzlich den Binder.
+        _enabled = bool.TryParse(configuration["IndexNow:Enabled"], out var enabled) && enabled;
     }
 
     public async Task SubmitUrlAsync(string url)
@@ -32,6 +41,14 @@ public class IndexNowService : IIndexNowService
     {
         var urlList = urls.ToList();
         if (urlList.Count == 0) return;
+
+        if (!_enabled)
+        {
+            _logger.LogInformation(
+                "IndexNow: abgeschaltet (IndexNow:Enabled=false) — {Count} URL(s) NICHT gemeldet. Siehe SEO-DEINDEX.md",
+                urlList.Count);
+            return;
+        }
 
         try
         {

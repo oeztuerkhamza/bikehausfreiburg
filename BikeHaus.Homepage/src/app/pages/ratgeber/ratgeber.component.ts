@@ -9,6 +9,7 @@ import {
   getBlogBasePath,
   getBlogSlug,
 } from '../../services/blog.data';
+import { robotsFor } from '../../services/search-indexing';
 
 @Component({
   selector: 'app-ratgeber',
@@ -352,7 +353,7 @@ export class RatgeberComponent implements OnInit {
       content: t.ratgeberMetaDescription,
     });
     this.metaService.updateTag({ property: 'og:url', content: url });
-    this.metaService.updateTag({ name: 'robots', content: 'index, follow' });
+    this.metaService.updateTag({ name: 'robots', content: robotsFor('index, follow') });
   }
 
   getTranslation(article: BlogArticle) {
