@@ -16,6 +16,12 @@
  *
  * noimageindex nimmt zusaetzlich die Fotos aus der Google-Bildersuche.
  *
+ * noai/noimageai sind KEIN offizieller Standard, kosten aber nichts:
+ * unbekannte Direktiven ignoriert Google, und ein Teil der KI-Crawler liest
+ * sie. Die verlaessliche Sperre fuer ChatGPT, Claude, Perplexity & Co. ist
+ * robots.txt — diese Crawler beachten kein noindex-Meta, ihr dokumentierter
+ * Opt-out ist der Ausschluss per User-agent.
+ *
  * Zurueckdrehen: SEARCH_INDEXING_ENABLED = true. Jede Seite meldet dann
  * wieder genau den Wert, den sie vorher hatte (siehe robotsFor()), und die
  * Sitemap fuellt sich beim naechsten Build von selbst. Weitere Schritte und
@@ -24,7 +30,7 @@
 export const SEARCH_INDEXING_ENABLED = false;
 
 /** Robots-Direktive, solange die Seite aus dem Index genommen wird. */
-export const ROBOTS_DEINDEX = 'noindex, follow, noimageindex';
+export const ROBOTS_DEINDEX = 'noindex, follow, noimageindex, noai, noimageai';
 
 /**
  * Gibt `indexable` zurueck, solange Indexierung erlaubt ist, sonst

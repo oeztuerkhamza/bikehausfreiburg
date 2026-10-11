@@ -2,9 +2,14 @@
 # https://bikehausfreiburg.com
 #
 # ─────────────────────────────────────────────────────────────────
-# DIESE SEITE IST BEWUSST AUS DEN SUCHMASCHINEN GENOMMEN.
+# DIESE SEITE IST BEWUSST AUS SUCHMASCHINEN UND KI-ANTWORTEN
+# GENOMMEN.
 #
-# Das Crawlen bleibt ERLAUBT — und das ist kein Widerspruch, sondern
+# Zwei Gruppen, zwei verschiedene Mittel — das untenstehende
+# `Disallow: /` fuer die KI-Crawler widerspricht dem `Allow: /` hier
+# also NICHT, siehe den eigenen Abschnitt weiter unten.
+#
+# Fuer Suchmaschinen (Google, Bing) bleibt das Crawlen ERLAUBT — und das ist kein Widerspruch, sondern
 # Voraussetzung: Entfernt wird eine Seite ueber `noindex`, und diesen
 # Hinweis liest Google nur, wenn es die Seite abrufen DARF. Ein
 # `Disallow: /` wuerde den Abruf unterbinden, der noindex nie
@@ -43,53 +48,116 @@ Disallow: /assets/icons/
 # Allow important assets
 Allow: /assets/logo.svg
 Allow: /assets/og-image.jpg
-Allow: /llms.txt
-Allow: /llms-full.txt
 
-# ─────────────────────────────────────────────
-# Google-Extended = Gemini / Grounding fuer Googles KI-Produkte.
-# Gehoert zu Google und ist daher mit abgeschaltet. Die Sichtbarkeit
-# in AI Overviews haengt am Suchindex selbst und entfaellt bereits
-# durch den noindex.
-# ─────────────────────────────────────────────
+# ═════════════════════════════════════════════════════════════════
+# KI-/LLM-CRAWLER: AUSGESCHLOSSEN
+#
+# Die Seite soll auch in KI-Antworten nicht mehr auftauchen —
+# ChatGPT, Claude, Perplexity, Gemini, Copilot & Co.
+#
+# Hier ist `Disallow: /` das RICHTIGE Mittel, anders als bei Google
+# und Bing weiter oben. Der Unterschied: ein Suchindex muss geleert
+# werden, und dazu muss Google die Seite abrufen und den noindex
+# lesen duerfen. Diese Crawler fuehren keinen Index, aus dem etwas
+# zu entfernen waere — sie holen Text fuer Training und fuer die
+# Antwort im Moment der Frage. Ihr dokumentierter Opt-out ist
+# robots.txt, ein noindex-Meta beachten sie nicht. Also: Tuer zu.
+#
+# Googlebot und Bingbot bleiben deshalb bewusst ERLAUBT (oben,
+# `User-agent: *`): sie brauchen den Abruf, um den noindex zu sehen.
+# Dass die Seite danach aus Googles AI Overviews und aus Bing
+# Copilot verschwindet, folgt automatisch — beide stuetzen sich auf
+# den Suchindex, und daraus fliegt sie heraus. Google-Extended
+# (Gemini-Grounding, Training) ist zusaetzlich separat zu.
+#
+# Wieder einschalten: diese Gruppen auf `Allow: /` stellen und den
+# llms.txt-Hinweis in src/index.html wieder aufnehmen.
+# Vollstaendig: SEO-DEINDEX.md.
+# ═════════════════════════════════════════════════════════════════
+
+# ── Google (Gemini-Grounding / Training) ──
 User-agent: Google-Extended
 Disallow: /
 
-# ─────────────────────────────────────────────
-# Uebrige KI-/LLM-Crawler bleiben zugelassen (GEO/AEO).
-# Das ist ein EIGENER Schalter: der Auftrag war Google, nicht
-# ChatGPT, Claude oder Perplexity. Sollen die auch raus, hier auf
-# `Disallow: /` stellen.
-# ─────────────────────────────────────────────
+# ── OpenAI ──
 User-agent: GPTBot
-Allow: /
+Disallow: /
 
 User-agent: OAI-SearchBot
-Allow: /
+Disallow: /
 
 User-agent: ChatGPT-User
-Allow: /
+Disallow: /
 
+# ── Anthropic ──
 User-agent: ClaudeBot
-Allow: /
+Disallow: /
 
 User-agent: anthropic-ai
-Allow: /
+Disallow: /
 
 User-agent: Claude-User
-Allow: /
+Disallow: /
 
+User-agent: Claude-SearchBot
+Disallow: /
+
+# ── Perplexity ──
 User-agent: PerplexityBot
-Allow: /
+Disallow: /
 
 User-agent: Perplexity-User
-Allow: /
+Disallow: /
 
+# ── Apple (Training; Applebot selbst ist die Siri-/Spotlight-Suche
+#    und richtet sich nach dem noindex) ──
 User-agent: Applebot-Extended
-Allow: /
+Disallow: /
 
-User-agent: Bingbot
-Allow: /
+# ── Meta ──
+User-agent: meta-externalagent
+Disallow: /
 
+User-agent: FacebookBot
+Disallow: /
+
+# ── Weitere Modell- und Antwortdienste ──
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: MistralAI-User
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: cohere-training-data-crawler
+Disallow: /
+
+User-agent: YouBot
+Disallow: /
+
+User-agent: DuckAssistBot
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: AI2Bot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: omgili
+Disallow: /
+
+# ── Common Crawl: speist viele Trainingsdatensaetze ──
 User-agent: CCBot
-Allow: /
+Disallow: /

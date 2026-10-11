@@ -29,7 +29,7 @@
          Links weiter folgt, sieht es den noindex auf allen Seiten und wirft sie
          zuegig heraus. Wieder sichtbar machen: SEO-DEINDEX.md.
          VORHER: content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" -->
-    <meta name="robots" content="noindex, follow, noimageindex" />
+    <meta name="robots" content="noindex, follow, noimageindex, noai, noimageai" />
     <meta name="googlebot" content="noindex, follow, noimageindex" />
     <meta name="bingbot" content="noindex, follow" />
     <meta name="revisit-after" content="7 days" />
@@ -139,8 +139,14 @@
       }
     </style>
 
-    <!-- AI/LLM Crawler Info (llmstxt.org standard) -->
-    <link rel="alternate" type="text/plain" href="/llms.txt" title="LLM Info" />
+    <!-- KEIN llms.txt-Hinweis mehr: die Seite soll auch in KI-Antworten
+         nicht auftauchen, da waere ein Wegweiser fuer LLM-Crawler
+         widersinnig. Die Dateien selbst bleiben erreichbar, damit
+         bestehende Links nicht ins Leere laufen und der Rueckweg ein
+         Einzeiler bleibt; robots.txt sperrt die KI-Crawler.
+         VORHER stand hier ein link-Element rel="alternate" type="text/plain"
+         href="/llms.txt" title="LLM Info" — bewusst ohne spitze Klammern
+         notiert, damit im Kommentar kein parsebares Tag steht. -->
 
     <!-- Schema.org Structured Data - LocalBusiness -->
     <script type="application/ld+json">

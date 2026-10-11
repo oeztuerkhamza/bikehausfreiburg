@@ -1,6 +1,7 @@
-# 🔒 Bike Haus Freiburg — Google'dan Kaldırma (Deindex)
+# 🔒 Bike Haus Freiburg — Google ve Yapay Zekâdan Kaldırma (Deindex)
 
-> **Durum:** Site **bilinçli olarak** arama motorlarından çıkarıldı.
+> **Durum:** Site **bilinçli olarak** arama motorlarından **ve yapay zekâ
+> yanıtlarından** (ChatGPT, Claude, Perplexity, Gemini, Copilot) çıkarıldı.
 > **Metinler, sayfalar, tasarım, fiyatlar — hiçbiri değişmedi.** Site tam
 > olarak eskisi gibi çalışıyor ve adresinden erişilebiliyor; sadece Google
 > ve diğer arama motorlarının sonuç listelerinden düşüyor.
@@ -12,7 +13,22 @@
 
 ---
 
-## 1. Temel mantık: `noindex`, `Disallow` değil
+## 0. İki grup, iki ayrı yöntem
+
+Bunları karıştırmamak gerekiyor, çünkü doğru hamle tam tersi:
+
+| | Arama motorları (Google, Bing) | Yapay zekâ tarayıcıları (GPTBot, ClaudeBot, PerplexityBot…) |
+| --- | --- | --- |
+| Doğru yöntem | `noindex` + tarama **açık** | robots.txt'de `Disallow: /` |
+| Neden | Boşaltılacak bir **indeks** var; Google sayfayı indirip "beni indeksleme"yi okumalı | İndeks tutmuyorlar; metni eğitim ve anlık yanıt için çekiyorlar. `noindex` meta'sını **dikkate almazlar**; belgelenmiş tek opt-out'u robots.txt |
+
+Googlebot ve Bingbot bu yüzden **bilerek açık** bırakıldı. Sitenin Google AI
+Overviews ve Bing Copilot'tan düşmesi kendiliğinden oluyor: ikisi de arama
+indeksini kullanıyor, oradan da zaten çıkıyor.
+
+---
+
+## 1. Arama motorları tarafı: `noindex`, `Disallow` değil
 
 Sezgiye aykırı ama kritik olan nokta: **robots.txt'ye `Disallow: /` yazmak
 siteyi Google'dan çıkarmaz, çıkmasını engeller.**
@@ -38,12 +54,15 @@ export const SEARCH_INDEXING_ENABLED = false;
 ```
 
 Bu satır frontend tarafındaki her şeyi yönetir. Kullanılan direktif:
-`noindex, follow, noimageindex`
+`noindex, follow, noimageindex, noai, noimageai`
 
 - `noindex` → sonuçlardan çıkar
 - `follow` → Google iç linkleri takip etmeye devam eder; her sayfadaki
   `noindex`'i böyle görür. `nofollow` kaldırmayı **yavaşlatırdı**.
 - `noimageindex` → fotoğraflar Google Görseller'den de düşer
+- `noai, noimageai` → resmî standart **değil**, ama bedava: Google bilmediği
+  direktifi yok sayıyor, bir kısım yapay zekâ tarayıcısı ve veri kümesi hattı
+  ise okuyor. Yapay zekâ tarafındaki **güvenilir** engel robots.txt.
 
 ---
 
@@ -54,7 +73,8 @@ Bu satır frontend tarafındaki her şeyi yönetir. Kullanılan direktif:
 | `BikeHaus.Homepage/src/app/services/search-indexing.ts` | **Yeni.** Anahtarın kendisi + `robotsFor()` yardımcısı. |
 | `BikeHaus.Homepage/src/index.html` | `robots` / `googlebot` / `bingbot` meta etiketleri `noindex`. Her rotanın devraldığı başlangıç değeri. Eski değer yorum olarak duruyor. |
 | 9 sayfa bileşeni (`pages/**`) | Kendi `robots` etiketini yazan sayfalar artık `robotsFor('index, follow')` üzerinden geçiyor. Orijinal değer parametrede saklı. |
-| `BikeHaus.Homepage/src/robots.txt` | Tarama açık (zorunlu, bkz. §1). `Google-Extended` kapatıldı. Gerekçeler dosyanın içinde. |
+| `BikeHaus.Homepage/src/robots.txt` | Googlebot/Bingbot için tarama açık (zorunlu, bkz. §1). **Yapay zekâ tarayıcılarının tamamı `Disallow: /`** — OpenAI, Anthropic, Perplexity, Google-Extended, Applebot-Extended, Meta, Amazon, Bytespider, Mistral, Cohere, You.com, DuckAssist, Diffbot, AI2, Common Crawl. Gerekçeler dosyanın içinde. |
+| `BikeHaus.Homepage/src/index.html` (2) | `<link rel="alternate" href="/llms.txt">` kaldırıldı — yapay zekâ tarayıcılarını kapatırken onlara yol tarifi bırakmak tutarsız olurdu. Dosyaların kendisi erişilebilir kaldı. |
 | `BikeHaus.Homepage/scripts/generate-sitemap.mjs` | Anahtar kapalıyken `noindex` sayfaları site haritasına **bilerek** dahil ediyor — aksi halde harita boş çıkar ve kaldırma yavaşlar. |
 | `nginx/nginx.conf` | `X-Robots-Tag` başlığı. En geniş katman: HTML başlığı olmayan yanıtları da (görseller, statik dosyalar) kapsar. Apex + admin + api bloklarında. |
 | `BikeHaus.Infrastructure/Services/IndexNowService.cs` | `IndexNow:Enabled` anahtarı, varsayılan **kapalı**. Site indeksten çıkarılırken yeni URL'leri arama motorlarına bildirmek anlamsız olurdu. |
@@ -69,12 +89,14 @@ Bu satır frontend tarafındaki her şeyi yönetir. Kullanılan direktif:
 - **canonical / hreflang** — yapı bozulmasın diye yerinde.
 - **`sitemap.xml`, `sitemap-products.xml`, `robots.txt` nginx location'ları** —
   bu üçü `X-Robots-Tag` almıyor; onlar kaldırma listesinin kendisi.
+- **`llms.txt` / `llms-full.txt` dosyalarının kendisi** — tanıtımı (`index.html`
+  içindeki link) kaldırıldı ve robots.txt yapay zekâ tarayıcılarını kapattı, ama
+  dosyalar yerinde: mevcut linkler 404 vermesin ve geri dönüş tek satır kalsın.
+  Tamamen silinmesi istenirse `angular.json` → `assets` listesinden ve `src/`'den
+  çıkarmak, bir de `nginx.conf`'taki iki `location`'ı silmek yeterli.
 - **`mail.bikehausfreiburg.com` nginx bloğu** — Mailcow arayüzü. Zaten giriş
   ekranı ve kendi başlıklarını üretiyor; CLAUDE.md'deki uyarılar gereği mail
   yığınına dokunmadım. İstenirse aynı `X-Robots-Tag` satırı oraya da eklenebilir.
-- **ChatGPT / Claude / Perplexity tarayıcıları** — hâlâ açık. Talep Google'dı.
-  Onlar da kapatılsın istenirse: `robots.txt` içinde ilgili `Allow: /`
-  satırlarını `Disallow: /` yap.
 
 ---
 
@@ -97,6 +119,16 @@ Bunlar depodan yapılamaz, hesaplara girmek gerekir:
    dizinler. Bunlar bağımsız; aramalarda çıkmaya devam ederler.
    [SEO-OFFPAGE-CHECKLIST.md](SEO-OFFPAGE-CHECKLIST.md) listeyi veriyor.
 5. **Bing Webmaster Tools** — Bing için de aynı kaldırma aracı var.
+6. **Yapay zekâ tarafında dürüst beklenti** ⚠️
+   - `Disallow: /` **bundan sonrası** için geçerli. Modellerin **daha önce**
+     öğrendiği bilgi geri alınamaz; "unutturma konsolu" diye bir şey yok.
+   - ChatGPT, Perplexity gibi ürünler soru anında web'e de bakar; robots.txt bu
+     çağrıları keser, ama önbellekteki içerik bir süre görünmeye devam edebilir.
+   - Common Crawl (`CCBot`) kapatıldı, fakat **geçmiş** arşiv dökümleri dışarıda
+     ve birçok veri kümesinin içinde. İstenirse commoncrawl.org'dan ayrıca
+     kaldırma talebi açılabilir.
+   - Tarayıcı isimleri değişiyor, yenileri çıkıyor. robots.txt'deki liste
+     zamanla güncellenmeli.
 
 ---
 
@@ -125,11 +157,14 @@ curl -sI https://bikehausfreiburg.com/assets/logo.png | grep -i x-robots-tag
 # HTML meta etiketi
 curl -s https://bikehausfreiburg.com/de | grep -o '<meta name="robots"[^>]*>'
 
-# robots.txt tarama izni hâlâ açık mı (AÇIK OLMALI, bkz. §1)
+# robots.txt: Googlebot için açık (AÇIK OLMALI, bkz. §1),
+# yapay zekâ tarayıcıları için kapalı
 curl -s https://bikehausfreiburg.com/robots.txt | head -40
+curl -s https://bikehausfreiburg.com/robots.txt | grep -A1 -E "GPTBot|ClaudeBot|PerplexityBot"
 ```
 
-Beklenen: `x-robots-tag: noindex, follow, noimageindex`.
+Beklenen: `x-robots-tag: noindex, follow, noimageindex, noai, noimageai` ve
+yapay zekâ tarayıcılarının her birinin altında `Disallow: /`.
 
 **Ne kadar sürer:** Search Console kaldırma talebi → saatler. Doğal
 indeksten düşme → sayfa sayısına ve tarama sıklığına göre birkaç hafta.
@@ -141,10 +176,14 @@ indeksten düşme → sayfa sayısına ve tarama sıklığına göre birkaç haf
 1. `search-indexing.ts` → `SEARCH_INDEXING_ENABLED = true`
 2. `src/index.html` → `robots` meta etiketini yorumda duran eski değere döndür;
    `googlebot` / `bingbot` → `index, follow`
-3. `src/robots.txt` → `Google-Extended` tekrar `Allow: /`, uyarı bloklarını sil
-4. `nginx/nginx.conf` → eklenen `X-Robots-Tag` satırlarını sil, nginx'i reload et
-5. `appsettings.json` → `IndexNow:Enabled: true`
-6. Search Console → geçici kaldırma talebini iptal et, site haritalarını
+3. `src/robots.txt` → yapay zekâ tarayıcı gruplarını tekrar `Allow: /` yap,
+   `Allow: /llms.txt` + `Allow: /llms-full.txt` satırlarını geri koy, uyarı
+   bloklarını sil
+4. `src/index.html` → `<link rel="alternate" ... href="/llms.txt">` satırını
+   yorumda duran hâliyle geri koy
+5. `nginx/nginx.conf` → eklenen `X-Robots-Tag` satırlarını sil, nginx'i reload et
+6. `appsettings.json` → `IndexNow:Enabled: true`
+7. Search Console → geçici kaldırma talebini iptal et, site haritalarını
    yeniden gönder, ana sayfalar için "İndekslenmeyi talep et"
 
 Site haritası 1. adımdan sonra ilk build'de kendiliğinden normale döner.
