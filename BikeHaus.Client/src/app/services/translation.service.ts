@@ -919,38 +919,10 @@ export interface Translations {
   customerAutocompleteNoMatch: string;
   customerAutocompleteOverwriteMessage: string;
   customerAutocompleteOverwriteConfirm: string;
-  // Zugangsfrist (Countdown im Dashboard + Sperrseite)
-  accessCountdownTitle: string;
-  accessCountdownHint: string;
-  accessCountdownDeadline: string;
-  accessCountdownExpired: string;
-  accessUnitDays: string;
-  accessUnitHours: string;
-  accessUnitMinutes: string;
-  accessUnitSeconds: string;
-  accessLockedTitle: string;
-  accessLockedMessage: string;
-  accessLockedContact: string;
-  accessLockedLogout: string;
 }
 
 const TRANSLATIONS: Record<Language, Translations> = {
   de: {
-    // Zugangsfrist
-    accessCountdownTitle: 'Restlaufzeit des Zugangs',
-    accessCountdownHint: 'Nach Ablauf der Frist ist der Adminbereich gesperrt.',
-    accessCountdownDeadline: 'Frist',
-    accessCountdownExpired: 'Frist abgelaufen',
-    accessUnitDays: 'Tage',
-    accessUnitHours: 'Std.',
-    accessUnitMinutes: 'Min.',
-    accessUnitSeconds: 'Sek.',
-    accessLockedTitle: 'Zugang gesperrt',
-    accessLockedMessage:
-      'Die Frist für den Zugang zum Adminbereich ist abgelaufen. Die Verwaltung ist bis zur Freigabe nicht mehr erreichbar.',
-    accessLockedContact:
-      'Bitte wenden Sie sich an Breisgau Digital, um den Zugang wieder freizugeben.',
-    accessLockedLogout: 'Abmelden',
     // Navigation
     dashboard: 'Dashboard',
     bicycles: 'Fahrräder',
@@ -1890,21 +1862,6 @@ const TRANSLATIONS: Record<Language, Translations> = {
     customerAutocompleteOverwriteConfirm: 'Übernehmen',
   },
   tr: {
-    // Erişim süresi
-    accessCountdownTitle: 'Erişim süresi',
-    accessCountdownHint: 'Süre dolduğunda yönetim paneli kilitlenir.',
-    accessCountdownDeadline: 'Bitiş',
-    accessCountdownExpired: 'Süre doldu',
-    accessUnitDays: 'Gün',
-    accessUnitHours: 'Saat',
-    accessUnitMinutes: 'Dk.',
-    accessUnitSeconds: 'Sn.',
-    accessLockedTitle: 'Erişim kilitlendi',
-    accessLockedMessage:
-      'Yönetim paneli erişim süresi doldu. Panel, erişim yeniden açılana kadar kullanılamaz.',
-    accessLockedContact:
-      'Erişimi yeniden açmak için Breisgau Digital ile iletişime geçin.',
-    accessLockedLogout: 'Çıkış yap',
     // Navigation
     dashboard: 'Gösterge Paneli',
     bicycles: 'Bisikletler',
